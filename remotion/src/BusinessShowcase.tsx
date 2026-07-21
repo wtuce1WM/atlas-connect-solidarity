@@ -186,10 +186,11 @@ const Background: React.FC = () => (
 
 const KenBurns: React.FC<{ src: string; from: number; duration: number }> = ({ src, from, duration }) => {
   const frame = useCurrentFrame();
+  const tone = useTone();
   const local = frame - from;
   const progress = Math.max(0, Math.min(1, local / duration));
-  const scale = 1.05 + progress * 0.18;
-  const o = Math.min(ease(local, 0, 12), 1 - ease(local, duration - 12, duration));
+  const scale = 1.04 + progress * tone.kenBurnsZoom;
+  const o = Math.min(ease(local, 0, tone.fadeFrames), 1 - ease(local, duration - tone.fadeFrames, duration));
   return (
     <AbsoluteFill style={{ opacity: o, overflow: "hidden" }}>
       <Img
