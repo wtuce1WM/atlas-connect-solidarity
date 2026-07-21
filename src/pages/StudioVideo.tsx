@@ -211,6 +211,9 @@ export default function StudioVideo() {
   const [optInstallCta, setOptInstallCta] = useState(true);
   const [optMapMarker, setOptMapMarker] = useState(true);
   const [optDigitalId, setOptDigitalId] = useState(true);
+  const [optPopup, setOptPopup] = useState(true);
+  const [offersList, setOffersList] = useState<Array<{ id: string; title: string; message: string | null; promotion_type: string | null; promotion_value: number | null; promotion_currency: string | null; savings_amount: number | null }>>([]);
+  const [selectedOfferIds, setSelectedOfferIds] = useState<Set<string>>(new Set());
   const [bizImages, setBizImages] = useState<string[]>([]);
   const [bizVideos, setBizVideos] = useState<{ url: string; thumbnail: string | null; title: string; kind: "file" | "youtube" }[]>([]);
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
@@ -281,6 +284,8 @@ export default function StudioVideo() {
       setSelectedImages(new Set());
       setSelectedVideos(new Set());
       setSceneMedia({});
+      setOffersList([]);
+      setSelectedOfferIds(new Set());
       return;
     }
     let cancelled = false;
@@ -308,8 +313,9 @@ export default function StudioVideo() {
           .order("sort_order", { ascending: true }),
         supabase
           .from("affiliate_business_promotions")
-          .select("id", { count: "exact", head: true })
-          .eq("business_id", selected.id),
+          .select("id, title, title_fr, promotion_message, promotion_message_fr, promotion_type, promotion_value, promotion_currency, savings_amount")
+          .eq("business_id", selected.id)
+          .order("sort_order", { ascending: true }),
       ]);
       if (cancelled) return;
       const b: any = biz.data ?? {};
@@ -347,12 +353,24 @@ export default function StudioVideo() {
       const oh = b.opening_hours;
       const hasHoursData = !!oh && (typeof oh === "string" ? oh.trim().length > 0 : (Array.isArray(oh) ? oh.length > 0 : Object.keys(oh).length > 0));
       const hoursPublished = b.show_opening_hours !== false && hasHoursData;
+      const offersRaw = (promos.data ?? []) as any[];
+      const mappedOffers = offersRaw.map((o) => ({
+        id: o.id as string,
+        title: (o.title_fr || o.title || "Offre") as string,
+        message: (o.promotion_message_fr || o.promotion_message || null) as string | null,
+        promotion_type: (o.promotion_type ?? null) as string | null,
+        promotion_value: (o.promotion_value ?? null) as number | null,
+        promotion_currency: (o.promotion_currency ?? null) as string | null,
+        savings_amount: (o.savings_amount ?? null) as number | null,
+      }));
+      setOffersList(mappedOffers);
+      setSelectedOfferIds(new Set(mappedOffers.map((o) => o.id)));
       setBizStats({
         hook: b.hook_fr ?? null,
         descLen: (b.description ?? "").length,
         images: imgs.length,
         videos: docVideos.length + ytVideos.length,
-        offers: promos.count ?? 0,
+        offers: mappedOffers.length,
         popup: !!b.popup_image_url,
         hoursPublished,
         isActive: b.is_active !== false,
@@ -482,27 +500,7 @@ export default function StudioVideo() {
     }
     setSubmitting(true);
     try {
-      const directives: string[] = [];
-      if (optReviews) directives.push("Faire figurer le compteur d'avis client et le badge des avis client (note/20 + nombre d'avis).");
-      if (optHours) directives.push("Faire figurer les horaires d'ouverture de l'établissement.");
-      if (optMapMarker) directives.push("Faire figurer le marqueur de l'établissement sur la Google Map.");
-      if (optDigitalId) directives.push("Insérer une courte séquence ID numérique (capture mock-up de la fiche /fiche/slug, étape de partage, puis QR code) AVANT l'incitation finale.");
-      if (optInstallCta) directives.push("Terminer par une incitation à installer l'app (bouton carré terracotta inspiré de /install mobile).");
-      const chosenImages = Array.from(selectedImages);
-      const chosenVideos = Array.from(selectedVideos);
-      if (chosenImages.length > 0) {
-        directives.push(
-          `Utiliser EXCLUSIVEMENT les images suivantes (dans cet ordre) pour le montage :\n  * ${chosenImages.join("\n  * ")}`
-        );
-      }
-      if (chosenVideos.length > 0) {
-        directives.push(
-          `Utiliser EXCLUSIVEMENT les vidéos suivantes (dans cet ordre) pour le montage :\n  * ${chosenVideos.join("\n  * ")}`
-        );
-      }
-      const finalPrompt = directives.length
-        ? `${prompt.trim()}\n\nContraintes supplémentaires :\n- ${directives.join("\n- ")}`
-        : prompt.trim();
+      const { finalPrompt, chosenImages, chosenVideos } = buildDirectivesPrompt();
       const { data, error } = await supabase.functions.invoke("video-scenario-generate", {
         body: {
           prompt: finalPrompt,
@@ -516,6 +514,8 @@ export default function StudioVideo() {
             map_marker: optMapMarker,
             digital_id: optDigitalId,
             install_cta: optInstallCta,
+            popup: optPopup,
+            offer_ids: Array.from(selectedOfferIds),
             selected_images: chosenImages,
             selected_videos: chosenVideos,
             scene_media: sceneMedia,
@@ -554,6 +554,35 @@ export default function StudioVideo() {
     if (optMapMarker) directives.push("Faire figurer le marqueur de l'établissement sur la Google Map.");
     if (optDigitalId) directives.push("Insérer une courte séquence ID numérique (capture mock-up de la fiche /fiche/slug, étape de partage, puis QR code) AVANT l'incitation finale.");
     if (optInstallCta) directives.push("Terminer par une incitation à installer l'app (bouton carré terracotta inspiré de /install mobile).");
+    if (popupImageUrl) {
+      if (optPopup) {
+        const parts: string[] = [];
+        if (popupMeta.title) parts.push(`titre « ${popupMeta.title} »`);
+        if (popupMeta.description) parts.push(`texte « ${popupMeta.description.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 300)} »`);
+        directives.push(`Mettre en avant l'image POPUP de bienvenue avec son ${parts.length ? parts.join(" et son ") : "titre et texte"} (URL : ${popupImageUrl}).`);
+      } else {
+        directives.push("Ne pas utiliser l'image POPUP de bienvenue.");
+      }
+    }
+    if (offersList.length > 0) {
+      const chosen = offersList.filter((o) => selectedOfferIds.has(o.id));
+      if (chosen.length === 0) {
+        directives.push("Ne pas afficher d'offres commerciales.");
+      } else if (chosen.length < offersList.length) {
+        const fmt = (o: typeof offersList[number]) => {
+          const amt = o.promotion_type === "percentage" && o.promotion_value != null
+            ? `-${o.promotion_value}%`
+            : o.promotion_type === "fixed" && o.promotion_value != null
+              ? `-${o.promotion_value} ${o.promotion_currency || "MAD"}`
+              : o.savings_amount != null
+                ? `-${o.savings_amount} ${o.promotion_currency || "MAD"}`
+                : "";
+          const msg = o.message ? ` — ${o.message.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 200)}` : "";
+          return `${o.title}${amt ? ` (${amt})` : ""}${msg}`;
+        };
+        directives.push(`Afficher UNIQUEMENT ces offres (dans cet ordre) :\n  * ${chosen.map(fmt).join("\n  * ")}`);
+      }
+    }
     const chosenImages = Array.from(selectedImages);
     const chosenVideos = Array.from(selectedVideos);
     if (chosenImages.length > 0) directives.push(`Utiliser EXCLUSIVEMENT les images suivantes (dans cet ordre) pour le montage :\n  * ${chosenImages.join("\n  * ")}`);
@@ -585,6 +614,8 @@ export default function StudioVideo() {
             map_marker: optMapMarker,
             digital_id: optDigitalId,
             install_cta: optInstallCta,
+            popup: optPopup,
+            offer_ids: Array.from(selectedOfferIds),
             selected_images: chosenImages,
             selected_videos: chosenVideos,
             scene_media: sceneMedia,
@@ -1207,6 +1238,101 @@ export default function StudioVideo() {
             <div className="space-y-2 rounded-md border border-border bg-muted/30 p-3">
               <Label className="text-sm">Éléments à inclure dans la vidéo</Label>
               <div className="flex flex-col gap-2 text-sm">
+                {popupImageUrl && (
+                  <div className="rounded-md border border-border bg-background/40 p-2">
+                    <label className="flex items-start gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                        checked={optPopup}
+                        onChange={(e) => setOptPopup(e.target.checked)}
+                      />
+                      <span className="font-medium">Image POPUP de bienvenue (titre + texte)</span>
+                    </label>
+                    <div className={`mt-2 flex gap-3 ${optPopup ? "opacity-100" : "opacity-50"}`}>
+                      <button
+                        type="button"
+                        onClick={() => setPopupPreviewOpen(true)}
+                        className="shrink-0 relative w-20 h-20 rounded-md overflow-hidden border border-border hover:ring-2 hover:ring-primary transition"
+                        title="Aperçu plein écran"
+                      >
+                        <img src={popupImageUrl} alt="Popup" className="w-full h-full object-cover" />
+                      </button>
+                      <div className="min-w-0 flex-1 text-xs">
+                        {popupMeta.title && <div className="font-semibold truncate">{popupMeta.title}</div>}
+                        {popupMeta.description ? (
+                          <div className="mt-1 text-muted-foreground line-clamp-3" dangerouslySetInnerHTML={{ __html: popupMeta.description }} />
+                        ) : (
+                          !popupMeta.title && <div className="text-muted-foreground italic">Aucun titre / texte associé</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {offersList.length > 0 && (
+                  <div className="rounded-md border border-border bg-background/40 p-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="font-medium">Offres de l'établissement ({offersList.length})</div>
+                      <div className="flex gap-2 text-xs">
+                        <button
+                          type="button"
+                          className="underline hover:text-primary"
+                          onClick={() => setSelectedOfferIds(new Set(offersList.map((o) => o.id)))}
+                        >
+                          Tout
+                        </button>
+                        <button
+                          type="button"
+                          className="underline hover:text-primary"
+                          onClick={() => setSelectedOfferIds(new Set())}
+                        >
+                          Aucun
+                        </button>
+                      </div>
+                    </div>
+                    <div className="mt-2 flex flex-col gap-1.5">
+                      {offersList.map((o) => {
+                        const checked = selectedOfferIds.has(o.id);
+                        const amount = o.promotion_type === "percentage" && o.promotion_value != null
+                          ? `-${o.promotion_value}%`
+                          : o.promotion_type === "fixed" && o.promotion_value != null
+                            ? `-${o.promotion_value} ${o.promotion_currency || "MAD"}`
+                            : o.savings_amount != null
+                              ? `-${o.savings_amount} ${o.promotion_currency || "MAD"}`
+                              : null;
+                        return (
+                          <label key={o.id} className="flex items-start gap-2 cursor-pointer rounded-md border border-border/60 p-2 hover:bg-muted/40">
+                            <input
+                              type="checkbox"
+                              className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                              checked={checked}
+                              onChange={(e) => {
+                                setSelectedOfferIds((prev) => {
+                                  const next = new Set(prev);
+                                  if (e.target.checked) next.add(o.id);
+                                  else next.delete(o.id);
+                                  return next;
+                                });
+                              }}
+                            />
+                            <div className="min-w-0 flex-1 text-xs">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="font-semibold truncate">{o.title}</span>
+                                {amount && <span className="shrink-0 font-black text-[#C04F17]">{amount}</span>}
+                              </div>
+                              {o.message && (
+                                <div
+                                  className="mt-1 text-muted-foreground line-clamp-2"
+                                  dangerouslySetInnerHTML={{ __html: o.message }}
+                                />
+                              )}
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
                 <label className="flex items-start gap-2 cursor-pointer">
                   <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optReviews} onChange={(e) => setOptReviews(e.target.checked)} />
                   <span>Compteur d'avis client + badge avis (note/20)</span>
