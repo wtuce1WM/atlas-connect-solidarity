@@ -407,12 +407,20 @@ export function StudioVideoScenarioPanel({
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold uppercase tracking-wider text-card-foreground">Aperçu du scénario</h3>
         <div className="flex items-center gap-2">
-          {(orderOverride || Object.keys(durationOverrides).length > 0) && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 text-[11px] px-2"
+            onClick={() => { setEditingCustomId(null); setAddOpen(true); }}
+          >
+            <Plus className="h-3.5 w-3.5 mr-1" /> Ajouter une étape
+          </Button>
+          {(orderOverride || Object.keys(durationOverrides).length > 0 || customScenes.length > 0) && (
             <Button
               size="sm"
               variant="ghost"
               className="h-6 text-[10px] px-2"
-              onClick={() => { setOrderOverride(null); setDurationOverrides({}); }}
+              onClick={() => { setOrderOverride(null); setDurationOverrides({}); setCustomScenes([]); }}
             >
               Réinitialiser
             </Button>
@@ -420,6 +428,16 @@ export function StudioVideoScenarioPanel({
           <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold uppercase tracking-tight italic">AI Optimized</span>
         </div>
       </div>
+
+      <CustomSceneDialog
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        available={availableMedia ?? []}
+        initial={
+          editingCustomId ? customById.get(editingCustomId) ?? null : null
+        }
+        onSubmit={(draft) => { upsertCustomScene(draft); setAddOpen(false); setEditingCustomId(null); }}
+      />
 
       <p className="text-[11px] text-muted-foreground italic">Glissez-déposez les scènes pour les réordonner. Ajustez la durée avec les boutons +/−.</p>
 
