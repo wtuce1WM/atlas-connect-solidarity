@@ -571,6 +571,84 @@ export function StudioVideoScenarioPanel({
   );
 }
 
+function CustomSceneMediaSlot({
+  available,
+  current,
+  onChange,
+}: {
+  available: SceneMediaItem[];
+  current: SceneMediaItem | null;
+  onChange: (media: SceneMediaItem | null) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
+      <div className="flex items-center justify-between">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-600">
+          Média de fond {current ? "· 1" : "· 0"}
+        </div>
+        <div className="flex items-center gap-1">
+          {current && (
+            <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => onChange(null)}>
+              Retirer
+            </Button>
+          )}
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="outline" className="h-7 gap-1 text-[11px]" disabled={available.length === 0}>
+                <Plus className="h-3 w-3" /> {current ? "Changer" : "Ajouter"}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-white text-black">
+              <DialogHeader>
+                <DialogTitle className="text-black">Sélection média de fond</DialogTitle>
+              </DialogHeader>
+              {available.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Aucun média disponible pour cet établissement.</p>
+              ) : (
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                  {available.map((m) => {
+                    const selected = current?.url === m.url;
+                    return (
+                      <button
+                        key={m.url}
+                        type="button"
+                        onClick={() => { onChange(m); setOpen(false); }}
+                        className={cn(
+                          "relative aspect-video rounded-md overflow-hidden border-2 group",
+                          selected ? "border-primary" : "border-transparent hover:border-primary/40"
+                        )}
+                      >
+                        {m.kind === "video" ? (
+                          <video src={m.url} className="w-full h-full object-cover" muted playsInline preload="metadata" />
+                        ) : (
+                          <img src={m.url} alt="" className="w-full h-full object-cover" />
+                        )}
+                        <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[10px] px-1.5 py-0.5 truncate">
+                          {m.title || m.kind}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+      {current && (
+        <div className="relative aspect-video w-32 rounded-md overflow-hidden border border-border">
+          {current.kind === "video" ? (
+            <video src={current.url} className="w-full h-full object-cover" muted playsInline preload="metadata" />
+          ) : (
+            <img src={current.url} alt="" className="w-full h-full object-cover" />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SceneMediaSlot({
   kind,
   items,
