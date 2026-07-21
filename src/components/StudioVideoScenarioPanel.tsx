@@ -108,7 +108,7 @@ export function buildScenario(
     scenes.push({
       id: `${icon}-${scenes.length}`,
       icon,
-      label: labelOverride || LABELS[icon],
+      label: labelOverride || (LABELS as Record<string, string>)[icon] || "Étape",
       duration,
       start,
       description,
