@@ -500,27 +500,7 @@ export default function StudioVideo() {
     }
     setSubmitting(true);
     try {
-      const directives: string[] = [];
-      if (optReviews) directives.push("Faire figurer le compteur d'avis client et le badge des avis client (note/20 + nombre d'avis).");
-      if (optHours) directives.push("Faire figurer les horaires d'ouverture de l'établissement.");
-      if (optMapMarker) directives.push("Faire figurer le marqueur de l'établissement sur la Google Map.");
-      if (optDigitalId) directives.push("Insérer une courte séquence ID numérique (capture mock-up de la fiche /fiche/slug, étape de partage, puis QR code) AVANT l'incitation finale.");
-      if (optInstallCta) directives.push("Terminer par une incitation à installer l'app (bouton carré terracotta inspiré de /install mobile).");
-      const chosenImages = Array.from(selectedImages);
-      const chosenVideos = Array.from(selectedVideos);
-      if (chosenImages.length > 0) {
-        directives.push(
-          `Utiliser EXCLUSIVEMENT les images suivantes (dans cet ordre) pour le montage :\n  * ${chosenImages.join("\n  * ")}`
-        );
-      }
-      if (chosenVideos.length > 0) {
-        directives.push(
-          `Utiliser EXCLUSIVEMENT les vidéos suivantes (dans cet ordre) pour le montage :\n  * ${chosenVideos.join("\n  * ")}`
-        );
-      }
-      const finalPrompt = directives.length
-        ? `${prompt.trim()}\n\nContraintes supplémentaires :\n- ${directives.join("\n- ")}`
-        : prompt.trim();
+      const { finalPrompt, chosenImages, chosenVideos } = buildDirectivesPrompt();
       const { data, error } = await supabase.functions.invoke("video-scenario-generate", {
         body: {
           prompt: finalPrompt,
