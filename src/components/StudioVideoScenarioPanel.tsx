@@ -663,7 +663,9 @@ function SceneMediaSlot({
           {items.map((m, idx) => (
             <div key={`${m.url}-${idx}`} className="relative group w-24 h-16 rounded overflow-hidden border border-border">
               {m.kind === "video" ? (
-                m.thumbnail ? <img src={m.thumbnail} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-muted flex items-center justify-center"><Film className="h-4 w-4 text-muted-foreground" /></div>
+                m.thumbnail
+                  ? <img src={m.thumbnail} alt="" className="w-full h-full object-cover" />
+                  : <video src={m.url} className="w-full h-full object-cover" muted playsInline preload="metadata" />
               ) : (
                 <img src={m.url} alt="" className="w-full h-full object-cover" />
               )}
