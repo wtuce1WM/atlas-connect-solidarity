@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { prompt, business_id, duration_sec = 30, tone = "immersif", parent_job_id, options } = body;
+    const { prompt, business_id, duration_sec = 30, tone = "immersif", parent_job_id, options, preview_only = false } = body;
 
     if (!prompt || typeof prompt !== "string" || prompt.length > 2000) {
       return json({ error: "prompt invalide" }, 400);
