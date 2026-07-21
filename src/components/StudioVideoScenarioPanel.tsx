@@ -203,18 +203,25 @@ function sceneKindFor(icon: Scene["icon"]): SceneMediaKind | null {
   return icon as SceneMediaKind;
 }
 
+export type ScenarioEdits = {
+  order: SceneMediaKind[]; // ordered scene kinds
+  durations: Partial<Record<SceneMediaKind, number>>; // seconds per kind
+};
+
 export function StudioVideoScenarioPanel({
   scenario,
   className,
   availableMedia,
   sceneMedia,
   onChangeSceneMedia,
+  onChangeScenarioEdits,
 }: {
   scenario: Scenario;
   className?: string;
   availableMedia?: SceneMediaItem[];
   sceneMedia?: SceneMediaMap;
   onChangeSceneMedia?: (next: SceneMediaMap) => void;
+  onChangeScenarioEdits?: (edits: ScenarioEdits | null) => void;
 }) {
   // Local edits: per-scene duration overrides + order override (by id)
   const [durationOverrides, setDurationOverrides] = useState<Record<string, number>>({});
@@ -227,6 +234,7 @@ export function StudioVideoScenarioPanel({
   useEffect(() => {
     setDurationOverrides({});
     setOrderOverride(null);
+    onChangeScenarioEdits?.(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signature]);
 
