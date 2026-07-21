@@ -76,6 +76,7 @@ export type ShowcaseProps = {
   scene_order?: Array<"hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro">;
   scene_durations?: Partial<Record<"hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro", number>>;
   textPosition?: TextPosition;
+  tone?: Tone;
 };
 
 export const DIGITAL_ID_FRAMES = 150; // 5s — 2 phases (fiche, QR)
