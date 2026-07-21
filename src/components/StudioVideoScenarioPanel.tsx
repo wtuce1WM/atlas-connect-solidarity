@@ -623,9 +623,13 @@ function SceneMediaSlot({
                         m.thumbnail ? (
                           <img src={m.thumbnail} alt="" className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full bg-muted flex items-center justify-center">
-                            <Film className="h-6 w-6 text-muted-foreground" />
-                          </div>
+                          <video
+                            src={m.url}
+                            className="w-full h-full object-cover"
+                            muted
+                            playsInline
+                            preload="metadata"
+                          />
                         )
                       ) : (
                         <img src={m.url} alt="" className="w-full h-full object-cover" />
@@ -659,7 +663,9 @@ function SceneMediaSlot({
           {items.map((m, idx) => (
             <div key={`${m.url}-${idx}`} className="relative group w-24 h-16 rounded overflow-hidden border border-border">
               {m.kind === "video" ? (
-                m.thumbnail ? <img src={m.thumbnail} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-muted flex items-center justify-center"><Film className="h-4 w-4 text-muted-foreground" /></div>
+                m.thumbnail
+                  ? <img src={m.thumbnail} alt="" className="w-full h-full object-cover" />
+                  : <video src={m.url} className="w-full h-full object-cover" muted playsInline preload="metadata" />
               ) : (
                 <img src={m.url} alt="" className="w-full h-full object-cover" />
               )}
@@ -749,7 +755,7 @@ function CustomSceneDialog({
               </button>
               <button
                 type="button"
-                onClick={() => setMode("overlay")}
+                onClick={() => { setMode("overlay"); if (!mediaUrl && available[0]) setMediaUrl(available[0].url); }}
                 className={cn(
                   "rounded-md border p-3 text-left text-xs transition-colors",
                   mode === "overlay" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
@@ -818,9 +824,13 @@ function CustomSceneDialog({
                         )}
                       >
                         {m.kind === "video" ? (
-                          <div className="w-full h-full flex items-center justify-center bg-muted">
-                            <Film className="h-4 w-4 text-muted-foreground" />
-                          </div>
+                          <video
+                            src={m.url}
+                            className="w-full h-full object-cover"
+                            muted
+                            playsInline
+                            preload="metadata"
+                          />
                         ) : (
                           <img src={m.url} alt="" className="w-full h-full object-cover" />
                         )}
