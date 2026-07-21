@@ -273,129 +273,106 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
     }
     if (name === "search_businesses") {
       const limit = Math.min(Math.max(Number(args.limit) || 12, 1), 30);
-      // Échapper les caractères qui cassent la syntaxe PostgREST .or()
-      const clean = (s: string) => String(s).replace(/[,()"]/g, " ").trim();
 
-      // Résolution badges + services -> business_ids (UNION : badge OU service)
-      let poolBizIds: string[] | null = null;
+      // Construit une requête en langage naturel qui combine tous les critères
+      // pour bénéficier de la MÊME logique que /search (synonymes, badges, services,
+      // sous-catégories, détection ville/quartier, ranking, etc.)
+      const qParts: string[] = [];
+      if (args.query) qParts.push(String(args.query));
+      if (args.category) qParts.push(String(args.category));
       const badgesIn: string[] = Array.isArray(args.badges) ? args.badges.filter(Boolean) : [];
       const servicesIn: string[] = Array.isArray(args.services) ? args.services.filter(Boolean) : [];
+      badgesIn.forEach((b) => qParts.push(String(b).replace(/^#/, "")));
+      servicesIn.forEach((s) => qParts.push(String(s).replace(/^#/, "")));
+      if (args.neighborhood) qParts.push(String(args.neighborhood));
+      const fullQuery = qParts.filter(Boolean).join(" ").trim();
 
-      if (badgesIn.length || servicesIn.length) {
-        const unionSet = new Set<string>();
-
-        // Badges
-        for (const raw of badgesIn) {
-          const term = clean(String(raw).replace(/^#/, ""));
-          if (!term) continue;
-          const { data: bs } = await ctx.supabase
-            .from("badges").select("id").ilike("name_fr", `%${term}%`).limit(10);
-          const badgeIds = (bs || []).map((b: any) => b.id);
-          if (!badgeIds.length) continue;
-          const { data: bb } = await ctx.supabase
-            .from("business_badges").select("business_id").in("badge_id", badgeIds);
-          (bb || []).forEach((r: any) => { if (r.business_id) unionSet.add(r.business_id); });
-        }
-
-        // Services : on résout les noms via la table services (name_fr/en/ar)
-        // puis on filtre les businesses dont le tableau `services` contient l'un de ces noms.
-        for (const raw of servicesIn) {
-          const term = clean(String(raw).replace(/^#/, ""));
-          if (!term) continue;
-          const { data: svcRows } = await ctx.supabase
-            .from("services")
-            .select("name_fr,name_en,name_ar")
-            .or(`name_fr.ilike.%${term}%,name_en.ilike.%${term}%,name_ar.ilike.%${term}%`)
-            .limit(30);
-          const names = new Set<string>();
-          (svcRows || []).forEach((s: any) => {
-            ["name_fr", "name_en", "name_ar"].forEach((k) => { if (s[k]) names.add(s[k]); });
-          });
-          // Fallback : si la table services ne renvoie rien, tente quand même le terme brut
-          if (!names.size) names.add(term);
-
-          for (const nm of names) {
-            const { data: hits } = await ctx.supabase
-              .from("businesses").select("id").contains("services", [nm]).limit(500);
-            (hits || []).forEach((b: any) => { if (b.id) unionSet.add(b.id); });
-          }
-        }
-
-        poolBizIds = Array.from(unionSet);
-        if (poolBizIds.length === 0) {
-          return { results: [], note: `Aucun établissement ne porte le(s) badge(s)/service(s) ${[...badgesIn, ...servicesIn].join(", ")}. Propose une alternative honnête au lieu d'inventer.` };
-        }
+      // Appel business-search (même moteur que /search) avec projection "card"
+      const { data: sres, error: sErr } = await ctx.supabase.functions.invoke("business-search", {
+        body: {
+          query: fullQuery || undefined,
+          spoken: fullQuery || undefined,
+          language: (args.language as string) || "fr",
+          pageSize: limit,
+          offset: 0,
+          compact: "card",
+          city: args.city || undefined,
+        },
+      });
+      if (sErr) {
+        console.error("club-ai-chat → business-search error", sErr, "args=", JSON.stringify(args));
+        return { results: [], error: String(sErr), hint: "Réessaie avec des critères plus simples." };
+      }
+      const businesses: any[] = Array.isArray(sres?.businesses) ? sres.businesses : [];
+      const total = typeof sres?.totalCount === "number" ? sres.totalCount : businesses.length;
+      if (!businesses.length) {
+        return {
+          results: [],
+          total_count: 0,
+          note: `Aucun établissement trouvé (query="${fullQuery}", city="${args.city || ""}"). Dis-le franchement à l'utilisateur et propose-lui une alternative (autre quartier, élargir la catégorie) au lieu d'inventer.`,
+        };
       }
 
-      let q = ctx.supabase
-        .from("businesses")
-        .select("id,name,slug,city,neighborhood,main_category,categories,description,phone,google_rating,google_review_count,priority_score", { count: "exact" })
-        .eq("is_active", true)
-        .order("priority_score", { ascending: false, nullsFirst: false })
-        .limit(limit);
-      if (poolBizIds) q = q.in("id", poolBizIds.slice(0, 1000));
-      if (args.city) q = q.ilike("city", `%${clean(args.city)}%`);
-      if (args.neighborhood) q = q.ilike("neighborhood", `%${clean(args.neighborhood)}%`);
-      // Combiner query + category dans UN SEUL .or() — sinon PostgREST télescope les filtres
-      const orParts: string[] = [];
-      if (args.query) {
-        const qv = clean(args.query);
-        if (qv) {
-          orParts.push(`name.ilike.%${qv}%`, `description.ilike.%${qv}%`, `main_category.ilike.%${qv}%`);
-          const firstWord = qv.split(/\s+/)[0];
-          if (firstWord && firstWord !== qv) {
-            orParts.push(`name.ilike.%${firstWord}%`, `main_category.ilike.%${firstWord}%`, `description.ilike.%${firstWord}%`);
-          }
-        }
-      }
-      if (args.category) {
-        const cv = clean(args.category);
-        if (cv) {
-          // Alias FR ↔ EN ↔ variantes sans accent pour matcher les valeurs réelles en base
-          // (ex: 'hotel' → 'Hôtellerie', 'restaurant' → 'Restauration', 'activité' → 'Sport & Loisirs' / 'Tourisme')
-          const CATEGORY_ALIASES: Record<string, string[]> = {
-            hotel: ["hôtel", "hotell", "hébergement"],
-            hôtel: ["hotell", "hébergement"],
-            hotels: ["hôtel", "hotell"],
-            hébergement: ["hôtel", "hotell"],
-            restaurant: ["restaur"],
-            restaurants: ["restaur"],
-            bar: ["bar", "café", "cafe"],
-            café: ["cafe", "bar"],
-            cafe: ["café", "bar"],
-            activité: ["sport", "loisir", "tourisme"],
-            activite: ["sport", "loisir", "tourisme"],
-            activités: ["sport", "loisir", "tourisme"],
-            spa: ["bien-être", "bien être", "bien-etre"],
-            "bien-être": ["spa", "bien-etre"],
-            shopping: ["commerce"],
-            commerce: ["commerce"],
-          };
-          const terms = new Set<string>([cv]);
-          const firstWord = cv.split(/\s+/)[0];
-          if (firstWord) terms.add(firstWord);
-          for (const t of Array.from(terms)) {
-            const aliases = CATEGORY_ALIASES[t.toLowerCase()];
-            if (aliases) aliases.forEach((a) => terms.add(a));
-          }
-          for (const t of terms) {
-            const safe = t.replace(/,/g, " ");
-            orParts.push(`main_category.ilike.%${safe}%`);
-          }
-        }
-      }
-      if (orParts.length) q = q.or(orParts.join(","));
-      const { data, error, count } = await q;
-      if (error) {
-        console.error("search_businesses error", error, "args=", JSON.stringify(args));
-        return { results: [], error: error.message, hint: "Réessaie avec des critères plus simples (une seule ville, un mot-clé court)." };
-      }
-      const results = (data || []).map((b: any) => ({ ...b, url: `https://oneworldmorocco.com/b/${b.slug}` }));
-      const total = typeof count === "number" ? count : results.length;
-      if (!results.length) {
-        return { results: [], total_count: 0, note: `Aucun établissement trouvé (query="${args.query || ""}", category="${args.category || ""}", city="${args.city || ""}"). Dis-le franchement à l'utilisateur et propose-lui une alternative (autre quartier, élargir la catégorie) au lieu d'inventer.` };
-      }
-      return { results, returned_count: results.length, total_count: total, has_more: total > results.length };
+      // Enrichissement : description + highlights (blocs) pour les résultats affichés
+      const ids = businesses.map((b) => b.id).filter(Boolean);
+      const [descRes, hlRes] = await Promise.all([
+        ctx.supabase.from("businesses").select("id,description").in("id", ids),
+        ctx.supabase
+          .from("front_highlights")
+          .select("business_id,icon,title_fr,title_en,title_ar,description_fr,description_en,description_ar,section_title_fr,section_title_en,section_title_ar,metric_title_fr,metric_title_en,metric_title_ar,metric_value_fr,metric_value_en,metric_value_ar,sort_order")
+          .in("business_id", ids)
+          .order("sort_order", { ascending: true }),
+      ]);
+      const descById = new Map<string, string | null>();
+      (descRes.data || []).forEach((r: any) => descById.set(r.id, r.description ?? null));
+      const hlByBiz = new Map<string, any[]>();
+      (hlRes.data || []).forEach((h: any) => {
+        const arr = hlByBiz.get(h.business_id) || [];
+        arr.push({
+          icon: h.icon || null,
+          section_title: h.section_title_fr || h.section_title_en || h.section_title_ar || null,
+          title: h.title_fr || h.title_en || h.title_ar || null,
+          description: h.description_fr || h.description_en || h.description_ar || null,
+          metric_title: h.metric_title_fr || h.metric_title_en || h.metric_title_ar || null,
+          metric_value: h.metric_value_fr || h.metric_value_en || h.metric_value_ar || null,
+        });
+        hlByBiz.set(h.business_id, arr);
+      });
+
+      const results = businesses.map((b: any) => ({
+        id: b.id,
+        name: b.name,
+        slug: b.slug ?? null,
+        url: b.slug ? `https://oneworldmorocco.com/b/${b.slug}` : null,
+        city: b.city ?? null,
+        neighborhood: b.neighborhood ?? null,
+        main_category: b.main_category ?? null,
+        categories: b.categories ?? null,
+        services: b.services ?? null,
+        phone: b.phone ?? null,
+        google_rating: b.google_rating ?? null,
+        google_review_count: b.google_review_count ?? null,
+        priority_score: b.priority_score ?? null,
+        hook_fr: b.hook_fr ?? null,
+        hook_en: b.hook_en ?? null,
+        hook_ar: b.hook_ar ?? null,
+        description: descById.get(b.id) ?? null,
+        highlights: hlByBiz.get(b.id) || [],
+      }));
+
+      return {
+        results,
+        returned_count: results.length,
+        total_count: total,
+        has_more: total > results.length,
+        detected: {
+          city: sres?.detectedCity || null,
+          neighborhood: sres?.detectedNeighborhood || null,
+          category: sres?.detectedCategory || null,
+          service: sres?.detectedService || null,
+          subcategory: sres?.detectedSubcategory || null,
+        },
+      };
     }
     if (name === "get_business_details") {
       const { data, error } = await ctx.supabase
