@@ -681,3 +681,165 @@ function formatTime(seconds: number): string {
   const s = Math.round(seconds);
   return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}s`;
 }
+
+function CustomSceneDialog({
+  open,
+  onOpenChange,
+  available,
+  initial,
+  onSubmit,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  available: SceneMediaItem[];
+  initial: CustomScene | null;
+  onSubmit: (draft: CustomScene) => void;
+}) {
+  const [mode, setMode] = useState<"fullscreen" | "overlay">(initial?.mode ?? "fullscreen");
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [subtitle, setSubtitle] = useState(initial?.subtitle ?? "");
+  const [duration, setDuration] = useState(initial?.duration ?? 4);
+  const [mediaUrl, setMediaUrl] = useState<string | null>(initial?.media?.url ?? null);
+
+  useEffect(() => {
+    if (!open) return;
+    setMode(initial?.mode ?? "fullscreen");
+    setTitle(initial?.title ?? "");
+    setSubtitle(initial?.subtitle ?? "");
+    setDuration(initial?.duration ?? 4);
+    setMediaUrl(initial?.media?.url ?? null);
+  }, [open, initial]);
+
+  const canSubmit = title.trim().length > 0 && duration >= 1 && duration <= 60 &&
+    (mode !== "overlay" || (!!mediaUrl && !!available.find((m) => m.url === mediaUrl)));
+
+  const submit = () => {
+    if (!canSubmit) return;
+    const media = mediaUrl ? available.find((m) => m.url === mediaUrl) ?? undefined : undefined;
+    onSubmit({
+      id: initial?.id ?? newCustomId(),
+      mode,
+      title: title.trim(),
+      subtitle: subtitle.trim() || undefined,
+      duration,
+      media,
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{initial ? "Modifier l'étape" : "Ajouter une étape texte"}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label className="text-xs uppercase tracking-wider">Type d'étape</Label>
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              <button
+                type="button"
+                onClick={() => setMode("fullscreen")}
+                className={cn(
+                  "rounded-md border p-3 text-left text-xs transition-colors",
+                  mode === "fullscreen" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                )}
+              >
+                <div className="font-bold mb-0.5">Carton texte</div>
+                <div className="text-muted-foreground">Fond sombre, texte centré plein écran.</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("overlay")}
+                className={cn(
+                  "rounded-md border p-3 text-left text-xs transition-colors",
+                  mode === "overlay" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                )}
+              >
+                <div className="font-bold mb-0.5">Overlay sur média</div>
+                <div className="text-muted-foreground">Texte superposé à une image ou vidéo.</div>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="cs-title" className="text-xs uppercase tracking-wider">Titre</Label>
+            <Input
+              id="cs-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value.slice(0, 120))}
+              placeholder="Texte principal (max 120)"
+              maxLength={120}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="cs-sub" className="text-xs uppercase tracking-wider">Sous-titre (optionnel)</Label>
+            <Textarea
+              id="cs-sub"
+              value={subtitle}
+              onChange={(e) => setSubtitle(e.target.value.slice(0, 240))}
+              placeholder="Détail secondaire (max 240)"
+              rows={2}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="cs-dur" className="text-xs uppercase tracking-wider">Durée (secondes)</Label>
+            <Input
+              id="cs-dur"
+              type="number"
+              min={1}
+              max={60}
+              value={duration}
+              onChange={(e) => {
+                const v = parseInt(e.target.value, 10);
+                if (Number.isFinite(v)) setDuration(Math.max(1, Math.min(60, v)));
+              }}
+            />
+          </div>
+
+          {mode === "overlay" && (
+            <div>
+              <Label className="text-xs uppercase tracking-wider">Média de fond</Label>
+              {available.length === 0 ? (
+                <p className="text-xs text-muted-foreground mt-2">Aucun média disponible pour l'établissement sélectionné.</p>
+              ) : (
+                <div className="grid grid-cols-4 gap-2 mt-2 max-h-52 overflow-y-auto">
+                  {available.map((m) => {
+                    const selected = mediaUrl === m.url;
+                    return (
+                      <button
+                        key={m.url}
+                        type="button"
+                        onClick={() => setMediaUrl(m.url)}
+                        className={cn(
+                          "relative aspect-square rounded overflow-hidden border-2 transition-colors",
+                          selected ? "border-primary" : "border-transparent hover:border-primary/40"
+                        )}
+                      >
+                        {m.kind === "video" ? (
+                          <div className="w-full h-full flex items-center justify-center bg-muted">
+                            <Film className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                        ) : (
+                          <img src={m.url} alt="" className="w-full h-full object-cover" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Annuler</Button>
+          <Button onClick={submit} disabled={!canSubmit}>
+            {initial ? "Enregistrer" : "Ajouter"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
