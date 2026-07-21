@@ -200,8 +200,7 @@ function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenar
 }
 
 function sceneKindFor(icon: Scene["icon"]): SceneMediaKind | null {
-  if (icon === "hook" || icon === "name" || icon === "media" || icon === "offer" || icon === "outro") return icon;
-  return null;
+  return icon as SceneMediaKind;
 }
 
 export function StudioVideoScenarioPanel({
