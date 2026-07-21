@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Clock, MapPin, MessageSquare, Star, Download, QrCode, Calendar, Plus, X, ChevronLeft, ChevronRight, Film, Image as ImageIcon } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Clock, MapPin, MessageSquare, Star, Download, QrCode, Calendar, Plus, X, ChevronLeft, ChevronRight, Film, Image as ImageIcon, GripVertical, Minus } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Button } from "@/components/ui/button";
@@ -216,8 +216,37 @@ export function StudioVideoScenarioPanel({
   sceneMedia?: SceneMediaMap;
   onChangeSceneMedia?: (next: SceneMediaMap) => void;
 }) {
-  const total = scenario.totalDuration;
-  if (!scenario.scenes.length) return null;
+  // Local edits: per-scene duration overrides + order override (by id)
+  const [durationOverrides, setDurationOverrides] = useState<Record<string, number>>({});
+  const [orderOverride, setOrderOverride] = useState<string[] | null>(null);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
+
+  // Signature to reset local edits when the incoming scenario really changes
+  const signature = scenario.scenes.map((s) => s.id).join("|") + "@" + scenario.totalDuration;
+  useEffect(() => {
+    setDurationOverrides({});
+    setOrderOverride(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signature]);
+
+  const editedScenes = useMemo(() => {
+    const byId = new Map(scenario.scenes.map((s) => [s.id, s]));
+    const orderIds = orderOverride ?? scenario.scenes.map((s) => s.id);
+    let cursor = 0;
+    return orderIds
+      .map((id) => byId.get(id))
+      .filter((s): s is Scene => !!s)
+      .map((s) => {
+        const duration = durationOverrides[s.id] ?? s.duration;
+        const start = cursor;
+        cursor += duration;
+        return { ...s, duration, start };
+      });
+  }, [scenario.scenes, orderOverride, durationOverrides]);
+
+  const total = editedScenes.reduce((acc, s) => acc + s.duration, 0);
+  if (!editedScenes.length) return null;
 
   const editable = !!onChangeSceneMedia && !!availableMedia;
   const setForKind = (kind: SceneMediaKind, items: SceneMediaItem[]) => {
@@ -228,28 +257,108 @@ export function StudioVideoScenarioPanel({
     onChangeSceneMedia(next);
   };
 
+  const bumpDuration = (id: string, delta: number) => {
+    setDurationOverrides((prev) => {
+      const current = prev[id] ?? editedScenes.find((s) => s.id === id)?.duration ?? 1;
+      const next = Math.max(1, Math.min(60, current + delta));
+      return { ...prev, [id]: next };
+    });
+  };
+
+  const handleDrop = (targetId: string) => {
+    if (!dragId || dragId === targetId) {
+      setDragId(null);
+      setOverId(null);
+      return;
+    }
+    const ids = editedScenes.map((s) => s.id);
+    const from = ids.indexOf(dragId);
+    const to = ids.indexOf(targetId);
+    if (from < 0 || to < 0) return;
+    const next = ids.slice();
+    next.splice(to, 0, next.splice(from, 1)[0]);
+    setOrderOverride(next);
+    setDragId(null);
+    setOverId(null);
+  };
+
   return (
     <div className={cn("rounded-xl border border-border bg-card p-6 space-y-5", className)}>
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold uppercase tracking-wider text-card-foreground">Aperçu du scénario</h3>
-        <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold uppercase tracking-tight italic">AI Optimized</span>
+        <div className="flex items-center gap-2">
+          {(orderOverride || Object.keys(durationOverrides).length > 0) && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-6 text-[10px] px-2"
+              onClick={() => { setOrderOverride(null); setDurationOverrides({}); }}
+            >
+              Réinitialiser
+            </Button>
+          )}
+          <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold uppercase tracking-tight italic">AI Optimized</span>
+        </div>
       </div>
 
+      <p className="text-[11px] text-muted-foreground italic">Glissez-déposez les scènes pour les réordonner. Ajustez la durée avec les boutons +/−.</p>
+
       <div className="space-y-3">
-        {scenario.scenes.map((scene) => {
+        {editedScenes.map((scene) => {
           const kind = sceneKindFor(scene.icon);
           const items = kind ? (sceneMedia?.[kind] ?? []) : [];
+          const isDragging = dragId === scene.id;
+          const isOver = overId === scene.id && dragId !== scene.id;
           return (
-            <div key={scene.id} className="relative bg-background rounded-xl border border-border p-4 overflow-hidden hover:border-primary/40 transition-colors">
+            <div
+              key={scene.id}
+              draggable
+              onDragStart={(e) => { setDragId(scene.id); e.dataTransfer.effectAllowed = "move"; }}
+              onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; setOverId(scene.id); }}
+              onDragLeave={() => setOverId((prev) => (prev === scene.id ? null : prev))}
+              onDrop={(e) => { e.preventDefault(); handleDrop(scene.id); }}
+              onDragEnd={() => { setDragId(null); setOverId(null); }}
+              className={cn(
+                "relative bg-background rounded-xl border border-border p-4 overflow-hidden transition-colors",
+                isDragging && "opacity-50",
+                isOver ? "border-primary" : "hover:border-primary/40"
+              )}
+            >
               <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/80" />
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-primary">
+              <div className="flex items-start justify-between mb-2 gap-3">
+                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-primary min-w-0">
+                  <span className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground" aria-label="Déplacer la scène">
+                    <GripVertical className="h-4 w-4" />
+                  </span>
                   {ICONS[scene.icon]}
-                  <span>{scene.label}</span>
+                  <span className="truncate">{scene.label}</span>
                 </div>
-                <span className="text-[10px] text-muted-foreground">
-                  {formatTime(scene.start)} - {formatTime(scene.start + scene.duration)}
-                </span>
+                <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-1 rounded-md border border-border bg-muted/40 px-1 py-0.5">
+                    <button
+                      type="button"
+                      onClick={() => bumpDuration(scene.id, -1)}
+                      disabled={scene.duration <= 1}
+                      className="p-0.5 rounded hover:bg-background disabled:opacity-30"
+                      aria-label="Diminuer la durée"
+                    >
+                      <Minus className="h-3 w-3" />
+                    </button>
+                    <span className="text-[11px] font-bold tabular-nums w-8 text-center">{scene.duration}s</span>
+                    <button
+                      type="button"
+                      onClick={() => bumpDuration(scene.id, 1)}
+                      disabled={scene.duration >= 60}
+                      className="p-0.5 rounded hover:bg-background disabled:opacity-30"
+                      aria-label="Augmenter la durée"
+                    >
+                      <Plus className="h-3 w-3" />
+                    </button>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground tabular-nums">
+                    {formatTime(scene.start)} → {formatTime(scene.start + scene.duration)}
+                  </span>
+                </div>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed italic">{scene.description}</p>
               {scene.keywords.length > 0 && (
@@ -276,10 +385,10 @@ export function StudioVideoScenarioPanel({
       <div className="bg-muted/30 rounded-xl border border-border p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Timeline de production</div>
-          <div className="text-[10px] text-muted-foreground">{scenario.scenes.length} scènes · {total}s</div>
+          <div className="text-[10px] text-muted-foreground">{editedScenes.length} scènes · {total}s</div>
         </div>
         <div className="flex gap-1 h-10">
-          {scenario.scenes.map((scene) => {
+          {editedScenes.map((scene) => {
             const width = total > 0 ? Math.max(4, (scene.duration / total) * 100) : 0;
             return (
               <div key={scene.id} className="relative flex flex-col justify-center px-2 rounded-md border border-border bg-muted/50 hover:bg-muted transition-colors cursor-pointer overflow-hidden" style={{ width: `${width}%`, minWidth: "48px" }} title={`${scene.label} · ${scene.duration}s`}>
