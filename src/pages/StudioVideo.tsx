@@ -203,6 +203,7 @@ export default function StudioVideo() {
     offers: number;
     popup: boolean;
     hoursPublished: boolean;
+    isActive: boolean;
   } | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
   const [optReviews, setOptReviews] = useState(true);
@@ -291,7 +292,7 @@ export default function StudioVideo() {
       const [biz, docs, yt, promos] = await Promise.all([
         supabase
           .from("businesses")
-          .select("hook_fr,description,images,popup_image_url,opening_hours,show_opening_hours")
+          .select("hook_fr,description,images,popup_image_url,opening_hours,show_opening_hours,is_active")
           .eq("id", selected.id)
           .maybeSingle(),
         supabase
@@ -354,6 +355,7 @@ export default function StudioVideo() {
         offers: promos.count ?? 0,
         popup: !!b.popup_image_url,
         hoursPublished,
+        isActive: b.is_active !== false,
       });
       setStatsLoading(false);
     })();
