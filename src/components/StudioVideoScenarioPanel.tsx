@@ -347,6 +347,15 @@ export function StudioVideoScenarioPanel({
   };
 
   const bumpDuration = (id: string, delta: number) => {
+    if (isCustomToken(id)) {
+      const cid = customIdFromToken(id);
+      setCustomScenes((prev) =>
+        prev.map((c) =>
+          c.id === cid ? { ...c, duration: Math.max(1, Math.min(60, c.duration + delta)) } : c
+        )
+      );
+      return;
+    }
     setDurationOverrides((prev) => {
       const current = prev[id] ?? editedScenes.find((s) => s.id === id)?.duration ?? 1;
       const next = Math.max(1, Math.min(60, current + delta));
@@ -370,6 +379,28 @@ export function StudioVideoScenarioPanel({
     setDragId(null);
     setOverId(null);
   };
+
+  const upsertCustomScene = (draft: CustomScene) => {
+    setCustomScenes((prev) => {
+      const exists = prev.some((c) => c.id === draft.id);
+      if (exists) return prev.map((c) => (c.id === draft.id ? draft : c));
+      return [...prev, draft];
+    });
+    // Append to order if not already present
+    setOrderOverride((prev) => {
+      const base = prev ?? editedScenes.map((s) => s.id);
+      const tok = tokenForCustom(draft.id);
+      if (base.includes(tok)) return base;
+      return [...base, tok];
+    });
+  };
+
+  const removeCustomScene = (cid: string) => {
+    const tok = tokenForCustom(cid);
+    setCustomScenes((prev) => prev.filter((c) => c.id !== cid));
+    setOrderOverride((prev) => (prev ? prev.filter((t) => t !== tok) : prev));
+  };
+
 
   return (
     <div className={cn("rounded-xl border border-border bg-card p-6 space-y-5", className)}>
