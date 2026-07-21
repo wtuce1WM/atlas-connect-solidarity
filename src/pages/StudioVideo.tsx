@@ -202,6 +202,7 @@ export default function StudioVideo() {
     videos: number;
     offers: number;
     popup: boolean;
+    hoursPublished: boolean;
   } | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
   const [optReviews, setOptReviews] = useState(true);
@@ -290,7 +291,7 @@ export default function StudioVideo() {
       const [biz, docs, yt, promos] = await Promise.all([
         supabase
           .from("businesses")
-          .select("hook_fr,description,images,popup_image_url")
+          .select("hook_fr,description,images,popup_image_url,opening_hours,show_opening_hours")
           .eq("id", selected.id)
           .maybeSingle(),
         supabase
@@ -342,6 +343,9 @@ export default function StudioVideo() {
             });
           });
       }
+      const oh = b.opening_hours;
+      const hasHoursData = !!oh && (typeof oh === "string" ? oh.trim().length > 0 : (Array.isArray(oh) ? oh.length > 0 : Object.keys(oh).length > 0));
+      const hoursPublished = b.show_opening_hours !== false && hasHoursData;
       setBizStats({
         hook: b.hook_fr ?? null,
         descLen: (b.description ?? "").length,
@@ -349,6 +353,7 @@ export default function StudioVideo() {
         videos: docVideos.length + ytVideos.length,
         offers: promos.count ?? 0,
         popup: !!b.popup_image_url,
+        hoursPublished,
       });
       setStatsLoading(false);
     })();
@@ -1196,10 +1201,15 @@ export default function StudioVideo() {
                   <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optReviews} onChange={(e) => setOptReviews(e.target.checked)} />
                   <span>Compteur d'avis client + badge avis (note/20)</span>
                 </label>
-                <label className="flex items-start gap-2 cursor-pointer">
-                  <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optHours} onChange={(e) => setOptHours(e.target.checked)} />
-                  <span>Horaires d'ouverture</span>
-                </label>
+                {(() => {
+                  const hoursAvailable = !selected || (bizStats?.hoursPublished ?? false);
+                  return (
+                    <label className={`flex items-start gap-2 ${hoursAvailable ? "cursor-pointer" : "cursor-not-allowed opacity-50"}`} title={hoursAvailable ? undefined : "Horaires non publiées pour cet établissement"}>
+                      <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto disabled:cursor-not-allowed" checked={hoursAvailable && optHours} disabled={!hoursAvailable} onChange={(e) => setOptHours(e.target.checked)} />
+                      <span>Horaires d'ouverture {selected && !hoursAvailable ? <em className="text-xs opacity-70">(non publiées)</em> : null}</span>
+                    </label>
+                  );
+                })()}
                 <label className="flex items-start gap-2 cursor-pointer">
                   <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optMapMarker} onChange={(e) => setOptMapMarker(e.target.checked)} />
                   <span>Marqueur sur la Google Map</span>
