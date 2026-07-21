@@ -805,7 +805,7 @@ export function useBookOnlineData(businessId: string) {
     if (isLoading || !business) return;
     // Debounce slightly to ensure secondary fetches have settled
     const timer = setTimeout(() => {
-      setCacheEntry(businessId, {
+      setCacheEntry(`${businessId}:${language}`, {
         business, woDescription, destinations, poiBusinesses,
         reviewTexts, externalLinks, menuSummaries, menuDocsRaw,
         videoDocs, categoryIcon, showGoogleMap, kpRelated,
