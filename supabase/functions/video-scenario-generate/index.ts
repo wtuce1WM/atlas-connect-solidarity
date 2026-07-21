@@ -513,6 +513,10 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       }
 
       template_props.durationSec = Number(duration_sec);
+      // Le ton pilote le rendu Remotion (Ken Burns, fondus, finition visuelle).
+      if (tone === "immersif" || tone === "dynamique" || tone === "elegant") {
+        template_props.tone = tone;
+      }
       const googleRating = Number(businessDetails.google_rating);
       const computedRating = Number(businessDetails.computed_rating);
       const googleReviews = Number(businessDetails.google_review_count);
