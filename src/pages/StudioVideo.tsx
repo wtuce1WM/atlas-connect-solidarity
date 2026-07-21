@@ -202,6 +202,7 @@ export default function StudioVideo() {
     videos: number;
     offers: number;
     popup: boolean;
+    hoursPublished: boolean;
   } | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
   const [optReviews, setOptReviews] = useState(true);
