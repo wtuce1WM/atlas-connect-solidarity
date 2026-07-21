@@ -457,7 +457,7 @@ export function StudioVideoScenarioPanel({
               onDrop={(e) => { e.preventDefault(); handleDrop(scene.id); }}
               onDragEnd={() => { setDragId(null); setOverId(null); }}
               className={cn(
-                "relative bg-background rounded-xl border border-border p-4 overflow-hidden transition-colors",
+                "relative bg-white text-black rounded-xl border border-border p-4 overflow-hidden transition-colors",
                 isDragging && "opacity-50",
                 isOver ? "border-primary" : "hover:border-primary/40"
               )}
@@ -465,19 +465,19 @@ export function StudioVideoScenarioPanel({
               <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/80" />
               <div className="flex items-start justify-between mb-2 gap-3">
                 <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-primary min-w-0">
-                  <span className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground" aria-label="Déplacer la scène">
+                  <span className="cursor-grab active:cursor-grabbing text-neutral-600 hover:text-black" aria-label="Déplacer la scène">
                     <GripVertical className="h-4 w-4" />
                   </span>
                   {ICONS[scene.icon]}
                   <span className="truncate">{scene.label}</span>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <div className="flex items-center gap-1 rounded-md border border-border bg-muted/40 px-1 py-0.5">
+                  <div className="flex items-center gap-1 rounded-md border border-neutral-200 bg-neutral-100 px-1 py-0.5">
                     <button
                       type="button"
                       onClick={() => bumpDuration(scene.id, -1)}
                       disabled={scene.duration <= 1}
-                      className="p-0.5 rounded hover:bg-background disabled:opacity-30"
+                      className="p-0.5 rounded hover:bg-neutral-200 disabled:opacity-30"
                       aria-label="Diminuer la durée"
                     >
                       <Minus className="h-3 w-3" />
@@ -487,13 +487,13 @@ export function StudioVideoScenarioPanel({
                       type="button"
                       onClick={() => bumpDuration(scene.id, 1)}
                       disabled={scene.duration >= 60}
-                      className="p-0.5 rounded hover:bg-background disabled:opacity-30"
+                      className="p-0.5 rounded hover:bg-neutral-200 disabled:opacity-30"
                       aria-label="Augmenter la durée"
                     >
                       <Plus className="h-3 w-3" />
                     </button>
                   </div>
-                  <span className="text-[10px] text-muted-foreground tabular-nums">
+                  <span className="text-[10px] text-neutral-600 tabular-nums">
                     {formatTime(scene.start)} → {formatTime(scene.start + scene.duration)}
                   </span>
                   {scene.icon === "custom" && isCustomToken(scene.id) && (
@@ -501,7 +501,7 @@ export function StudioVideoScenarioPanel({
                       <button
                         type="button"
                         onClick={() => { setEditingCustomId(customIdFromToken(scene.id)); setAddOpen(true); }}
-                        className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
+                        className="p-1 rounded hover:bg-neutral-100 text-neutral-600 hover:text-black"
                         aria-label="Modifier l'étape"
                       >
                         <Pencil className="h-3 w-3" />
@@ -509,7 +509,7 @@ export function StudioVideoScenarioPanel({
                       <button
                         type="button"
                         onClick={() => removeCustomScene(customIdFromToken(scene.id))}
-                        className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                        className="p-1 rounded hover:bg-destructive/10 text-neutral-600 hover:text-destructive"
                         aria-label="Supprimer l'étape"
                       >
                         <Trash2 className="h-3 w-3" />
@@ -518,11 +518,11 @@ export function StudioVideoScenarioPanel({
                   )}
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed italic">{scene.description}</p>
+              <p className="text-sm text-neutral-600 leading-relaxed italic">{scene.description}</p>
               {scene.keywords.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {scene.keywords.map((k) => (
-                    <span key={k} className="text-[10px] bg-secondary/10 text-secondary-foreground px-2 py-0.5 rounded border border-secondary/20">#{k}</span>
+                    <span key={k} className="text-[10px] bg-primary/10 text-black px-2 py-0.5 rounded border border-primary/20">#{k}</span>
                   ))}
                 </div>
               )}
@@ -540,17 +540,17 @@ export function StudioVideoScenarioPanel({
         })}
       </div>
 
-      <div className="bg-muted/30 rounded-xl border border-border p-4 space-y-3">
+      <div className="bg-white text-black rounded-xl border border-border p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Timeline de production</div>
-          <div className="text-[10px] text-muted-foreground">{editedScenes.length} scènes · {total}s</div>
+          <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-600">Timeline de production</div>
+          <div className="text-[10px] text-neutral-600">{editedScenes.length} scènes · {total}s</div>
         </div>
         <div className="flex gap-1 h-10">
           {editedScenes.map((scene) => {
             const width = total > 0 ? Math.max(4, (scene.duration / total) * 100) : 0;
             return (
-              <div key={scene.id} className="relative flex flex-col justify-center px-2 rounded-md border border-border bg-muted/50 hover:bg-muted transition-colors cursor-pointer overflow-hidden" style={{ width: `${width}%`, minWidth: "48px" }} title={`${scene.label} · ${scene.duration}s`}>
-                <span className="text-[9px] font-bold truncate text-foreground">{scene.label}</span>
+              <div key={scene.id} className="relative flex flex-col justify-center px-2 rounded-md border border-border bg-neutral-100 hover:bg-neutral-200 transition-colors cursor-pointer overflow-hidden" style={{ width: `${width}%`, minWidth: "48px" }} title={`${scene.label} · ${scene.duration}s`}>
+                <span className="text-[9px] font-bold truncate text-black">{scene.label}</span>
                 <div className="h-1 mt-1 rounded-full bg-primary/60" />
               </div>
             );
@@ -590,7 +590,7 @@ function SceneMediaSlot({
   return (
     <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
       <div className="flex items-center justify-between">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+        <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-600">
           Médias assignés · {items.length}
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
@@ -653,7 +653,7 @@ function SceneMediaSlot({
         </Dialog>
       </div>
       {items.length === 0 ? (
-        <p className="text-[11px] text-muted-foreground italic">Aucun média assigné — le rendu utilisera la sélection globale ou l'auto-choix IA.</p>
+        <p className="text-[11px] text-neutral-600 italic">Aucun média assigné — le rendu utilisera la sélection globale ou l'auto-choix IA.</p>
       ) : (
         <div className="flex flex-wrap gap-2">
           {items.map((m, idx) => (
