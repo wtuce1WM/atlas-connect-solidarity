@@ -44,7 +44,7 @@ export type ShowcaseProps = {
   ficheScreenshotUrl?: string | null;
   durationSec?: number;
   useFullHookScene?: boolean;
-  scene_media?: Partial<Record<"hook" | "name" | "media" | "offer" | "outro", Array<{ url: string; kind: "image" | "video" }>>>;
+  scene_media?: Partial<Record<"hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro", Array<{ url: string; kind: "image" | "video" }>>>;
 };
 
 export const DIGITAL_ID_FRAMES = 150; // 5s — 2 phases (fiche, QR)
@@ -964,25 +964,45 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
       {reviewsFrom !== null && (
         <Sequence from={reviewsFrom} durationInFrames={OPTION_SCENE_FRAMES}>
-          <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />
+          {(() => {
+            const it = (sm.reviews || [])[0];
+            return it
+              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
+              : <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />;
+          })()}
           <SceneReviews rating={rating} count={reviewsCount} />
         </Sequence>
       )}
       {hoursFrom !== null && openingHours && (
         <Sequence from={hoursFrom} durationInFrames={OPTION_SCENE_FRAMES}>
-          <VideoBackdrop src={safeVideos[1] ?? safeVideos[0]} image={safeImages[1] ?? safeImages[0]} />
+          {(() => {
+            const it = (sm.hours || [])[0];
+            return it
+              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
+              : <VideoBackdrop src={safeVideos[1] ?? safeVideos[0]} image={safeImages[1] ?? safeImages[0]} />;
+          })()}
           <SceneHours openingHours={openingHours} />
         </Sequence>
       )}
       {mapFrom !== null && (
         <Sequence from={mapFrom} durationInFrames={OPTION_SCENE_FRAMES}>
-          <VideoBackdrop src={safeVideos[2] ?? safeVideos[0]} image={safeImages[2] ?? safeImages[0]} />
+          {(() => {
+            const it = (sm.map || [])[0];
+            return it
+              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
+              : <VideoBackdrop src={safeVideos[2] ?? safeVideos[0]} image={safeImages[2] ?? safeImages[0]} />;
+          })()}
           <SceneMap lat={latitude!} lng={longitude!} name={name} address={address} />
         </Sequence>
       )}
       {digitalIdFrom !== null && slug && (
         <Sequence from={digitalIdFrom} durationInFrames={DIGITAL_ID_FRAMES}>
-          <VideoBackdrop src={safeVideos[3] ?? safeVideos[0]} image={safeImages[3] ?? safeImages[0]} />
+          {(() => {
+            const it = (sm.digital || [])[0];
+            return it
+              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
+              : <VideoBackdrop src={safeVideos[3] ?? safeVideos[0]} image={safeImages[3] ?? safeImages[0]} />;
+          })()}
           <SceneDigitalId
             name={name}
             slug={slug}
@@ -1001,14 +1021,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
       )}
 
       <Sequence from={ctaFrom} durationInFrames={ctaDuration}>
-        {outroItem ? (
-          <VideoBackdrop
-            src={outroItem.kind === "video" ? outroItem.url : undefined}
-            image={outroItem.kind === "image" ? outroItem.url : undefined}
-          />
-        ) : (
-          <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />
-        )}
+        {(() => {
+          const it = (sm.cta || [])[0] ?? outroItem;
+          return it
+            ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
+            : <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />;
+        })()}
         {showAppInstall ? <SceneInstallCta name={name} /> : <SceneCta name={name} />}
       </Sequence>
     </AbsoluteFill>
