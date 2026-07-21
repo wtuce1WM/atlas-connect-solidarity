@@ -519,8 +519,14 @@ export default function StudioVideo() {
             selected_images: chosenImages,
             selected_videos: chosenVideos,
             scene_media: sceneMedia,
-            scene_order: scenarioEdits?.order,
-            scene_durations: scenarioEdits?.durations,
+            scene_order: scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon),
+            scene_durations: scenarioEdits?.durations ?? (() => {
+              const src = (aiScenario?.scenario ?? scenario)?.scenes;
+              if (!src) return undefined;
+              const out: Record<string, number> = {};
+              for (const s of src) out[s.icon] = s.duration;
+              return out;
+            })(),
             text_position: textPosition,
           },
 
