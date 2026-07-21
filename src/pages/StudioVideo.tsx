@@ -280,6 +280,7 @@ export default function StudioVideo() {
     setStatsLoading(true);
     setSelectedImages(new Set());
     setSelectedVideos(new Set());
+    setSceneMedia({});
     (async () => {
       const [biz, docs, yt, promos] = await Promise.all([
         supabase
