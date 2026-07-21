@@ -1,83 +1,35 @@
-## Problème (cause racine confirmée)
+# Sélection média par scène (Studio Vidéo IA)
 
-Le script `buildHtml` dans `scripts/generate-business-og-pages.ts` produit un `<body>` qui contient :
-1. Un script qui, pour Googlebot (inclus dans `isPreviewBot`), fait `return` early — **la SPA n'est jamais injectée pour Googlebot**.
-2. Un `<noscript>` — invisible pour Googlebot puisqu'il exécute JS.
+## Objectif
+Permettre d'assigner une liste ordonnée d'images/vidéos à chaque scène du scénario (aperçu IA), et pousser cette sélection jusqu'au rendu Remotion.
 
-Résultat : Googlebot voit meta tags + JSON-LD OK, mais **zéro contenu visible** → il classe la page en soft 404 malgré la présence de données structurées.
+## Portée fonctionnelle
+- Scènes concernées par la sélection : **Hook, Nom & identité, Médias, Offre, Outro**. Les scènes Avis, Horaires, Map, ID numérique, CTA restent gérées par le template (pas de slot média).
+- Pour chaque scène éligible : liste ordonnée d'assets (image ou vidéo), avec drag & drop, ajout depuis les grilles Images/Vidéos de l'établissement, retrait, réordonnancement.
+- La sélection globale actuelle (checkboxes sur les grilles) reste utilisable comme fallback : si aucune scène ne définit son propre média, on retombe sur la sélection globale (comportement actuel préservé).
 
-## Solution
+## Impact rendu
+- Nouveau champ `template_props.scene_media` : `Array<{ scene_id: string; kind: 'hook'|'name'|'media'|'offer'|'outro'; urls: string[] }>`.
+- `video-scenario-generate` : accepte `scene_media` dans le body, valide que chaque URL appartient bien aux médias autorisés de l'établissement, l'écrit dans `template_props`. En mode `preview_only`, renvoyé tel quel dans la réponse.
+- `remotion/src/BusinessShowcase.tsx` : si `scene_media` présent, remplace la logique globale scène par scène (Hook utilise `hook.urls`, Offre utilise `offer.urls` en fond, etc.). Sinon, comportement actuel.
+- Templates dédiés (Comptoir Darna, Riad Dar Najat, etc.) : hors scope pour cette itération. `scene_media` s'applique uniquement à `business-showcase` et `corporate-vertical`.
 
-Injecter, **avant le script** (donc visible dans le DOM initial pour Googlebot), un vrai contenu HTML riche à partir des données déjà chargées depuis Supabase. Ce contenu est écrasé par `document.write(html)` pour les vrais utilisateurs → aucun impact UX.
+## UI
+- Dans `StudioVideoScenarioPanel`, chaque carte de scène éligible affiche :
+  - une bande horizontale des médias assignés (thumbnails + badge kind + croix retrait) ;
+  - un bouton "+ Ajouter média" ouvrant un popover avec la grille des images + vidéos disponibles (celles déjà chargées côté StudioVideo) ;
+  - drag & drop réordonne (dnd-kit, déjà présent).
+- État `sceneMedia: Record<sceneId, string[]>` géré dans `StudioVideo.tsx`, propagé au panneau via props.
+- Quand l'IA renvoie un `scene_media` en `preview_only`, on l'hydrate dans cet état pour permettre l'édition avant génération.
+- Les grilles Images/Vidéos existantes montrent maintenant un badge "Assigné à N scène(s)" quand l'asset est utilisé quelque part.
 
-## Modifications
+## Fichiers touchés
+1. `src/components/StudioVideoScenarioPanel.tsx` — nouveau slot média par scène, popover picker, dnd, callbacks.
+2. `src/pages/StudioVideo.tsx` — état `sceneMedia`, propagation, ajout à la payload de `previewScenario` et `submit`, hydratation depuis la réponse IA.
+3. `supabase/functions/video-scenario-generate/index.ts` — validation + passthrough de `scene_media` dans `template_props`.
+4. `remotion/src/BusinessShowcase.tsx` — consommation de `template_props.scene_media` scène par scène, fallback sur logique actuelle.
 
-Un seul fichier à modifier : `scripts/generate-business-og-pages.ts`, fonction `buildHtml` (ligne 343), section body (lignes 580-602).
-
-Le nouveau body suivra cette structure sémantique (style inline neutre pour rester invisible côté humains grâce au `document.write` qui remplace tout) :
-
-```text
-<body>
-  <main hidden>
-    <h1>{name} — {city}</h1>
-    <img src="{image1}" alt="{name}" />
-
-    <p>{description complète, non tronquée}</p>
-
-    <section>
-      <h2>Informations</h2>
-      - Catégorie : {main_category}
-      - Adresse : {address}, {neighborhood}, {city}
-      - Téléphone : {phone}
-      - Prix : {priceRange ou min_price}
-      - Langues : {languages}
-      - Horaires : résumé lisible
-    </section>
-
-    <section>
-      <h2>Services</h2>
-      <ul>{services jusqu'à 15}</ul>
-    </section>
-
-    <section hidden={si aucun avis}>
-      <h2>Avis</h2>
-      3 meilleurs avis (text_fr, auteur, note)
-    </section>
-
-    <section hidden={si aucune FAQ}>
-      <h2>Questions fréquentes</h2>
-      {faq items q/a}
-    </section>
-
-    <section hidden={si aucun landmark}>
-      <h2>À proximité</h2>
-      Distances aux POIs de référence (déjà calculées via buildDistancePropertyValues)
-    </section>
-
-    <nav>
-      <a href="/{city}">Voir {city}</a>
-      <a href="/category/{main_category}">Voir la catégorie</a>
-    </nav>
-  </main>
-
-  <script>...bot detection existant, inchangé...</script>
-</body>
-```
-
-Notes techniques :
-- L'attribut `hidden` sur `<main>` ne bloque pas l'indexation Google (bien documenté) mais garantit que si la SPA échoue à s'injecter pour un vrai utilisateur, il ne voit pas ce contenu brut peu stylé.
-- Les données sont déjà toutes disponibles dans les paramètres `biz`, `reviews`, `relations` — pas de fetch supplémentaire, pas d'impact sur le temps de build.
-- Le `<noscript>` actuel est retiré (redondant avec le nouveau contenu et jamais lu par Googlebot).
-
-## Vérification
-
-Après régénération (`bunx tsx scripts/generate-business-og-pages.ts`) :
-1. `curl -s https://oneworldmorocco.com/nox-agency | grep -c "<h2>"` → doit renvoyer ≥ 2
-2. Test dans GSC → Inspection d'URL → « Tester l'URL en direct » sur 2-3 URLs listées dans le rapport soft 404 → vérifier que "Contenu de la page" affiche maintenant du texte substantiel.
-3. Demander à Google la revalidation du rapport soft 404 (bouton "Valider la correction" dans GSC).
-
-## Portée
-
-- ~1500 fichiers `public/{slug}/index.html` régénérés au prochain build.
-- Aucun impact sur : SPA, UX, sitemap, autres routes, taille de build (~20-40 Ko par page, négligeable sur CDN).
-- Le fix couvre aussi les futures pages générées (event, destination, category, POI qui partagent le même pattern de body — je l'appliquerai partout).
+## Hors scope
+- Templates Remotion dédiés (établissements pinnés) — ils ont déjà leur propre structure figée.
+- Découpage temporel intra-scène (durée par asset) — la scène garde sa durée totale, les assets se répartissent uniformément.
+- Persistance en base d'un "plan de montage" réutilisable — la sélection vit dans le job seulement.
