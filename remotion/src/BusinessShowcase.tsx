@@ -954,10 +954,10 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         return heroIsVideo && heroMedia ? (
           <AbsoluteFill>
             <VideoCover src={heroMedia} from={0} duration={duration} />
-            <SceneHook name={name} location={locationLine} />
+            <SceneHook name={name} location={locationLine} textPosition={textPosition} />
           </AbsoluteFill>
         ) : (
-          <SceneHook name={name} location={locationLine} img={heroMedia} />
+          <SceneHook name={name} location={locationLine} img={heroMedia} textPosition={textPosition} />
         );
       case "name":
         return (
@@ -969,7 +969,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                 <KenBurns src={nameMediaUrl} from={0} duration={duration} />
               )
             ) : null}
-            <HookOverlay text={hookPart1} duration={duration} />
+            <HookOverlay text={hookPart1} duration={duration} textPosition={textPosition} />
           </AbsoluteFill>
         );
       case "media":
@@ -994,7 +994,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             ) : (
               <SceneGallery images={defaultGalleryList.slice(1)} />
             )}
-            <HookOverlay text={hookPart2 || hookPart1} duration={duration} />
+            <HookOverlay text={hookPart2 || hookPart1} duration={duration} textPosition={textPosition} />
           </AbsoluteFill>
         );
       case "offer":
@@ -1015,7 +1015,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               }
               return null;
             })()}
-            <SceneOffer offer={offer} city={city} durationFrames={duration} />
+            <SceneOffer offer={offer} city={city} durationFrames={duration} textPosition={textPosition} />
           </AbsoluteFill>
         );
       case "reviews": {
@@ -1025,7 +1025,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             {it
               ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
               : <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />}
-            <SceneReviews rating={rating} count={reviewsCount} />
+            <SceneReviews rating={rating} count={reviewsCount} textPosition={textPosition} />
           </>
         );
       }
@@ -1036,7 +1036,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             {it
               ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
               : <VideoBackdrop src={safeVideos[1] ?? safeVideos[0]} image={safeImages[1] ?? safeImages[0]} />}
-            <SceneHours openingHours={openingHours!} />
+            <SceneHours openingHours={openingHours!} textPosition={textPosition} />
           </>
         );
       }
@@ -1047,7 +1047,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             {it
               ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
               : <VideoBackdrop src={safeVideos[2] ?? safeVideos[0]} image={safeImages[2] ?? safeImages[0]} />}
-            <SceneMap lat={latitude!} lng={longitude!} name={name} address={address} />
+            <SceneMap lat={latitude!} lng={longitude!} name={name} address={address} textPosition={textPosition} />
           </>
         );
       }
@@ -1071,6 +1071,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               rating={rating}
               reviewsCount={reviewsCount}
               ficheScreenshotUrl={ficheScreenshotUrl}
+              textPosition={textPosition}
             />
           </>
         );
@@ -1083,7 +1084,9 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             {it
               ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
               : <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />}
-            {showAppInstall ? <SceneInstallCta name={name} /> : <SceneCta name={name} />}
+            {showAppInstall
+              ? <SceneInstallCta name={name} textPosition={textPosition} />
+              : <SceneCta name={name} textPosition={textPosition} />}
           </>
         );
       }
