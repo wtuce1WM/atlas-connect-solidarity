@@ -122,6 +122,103 @@ export function buildScenario(
   return { scenes: scaled, totalDuration: total };
 }
 
+export function scenarioFromTemplateProps(
+  templateId: string,
+  props: any,
+  durationSec: number,
+  rationale?: string
+): Scenario {
+  const scenes: Scene[] = [];
+  let cursor = 0;
+  const push = (icon: Scene["icon"], duration: number, description: string, labelOverride?: string, keywords: string[] = []) => {
+    const start = cursor;
+    cursor += duration;
+    scenes.push({
+      id: `${icon}-${scenes.length}`,
+      icon,
+      label: labelOverride || LABELS[icon],
+      duration,
+      start,
+      description,
+      keywords,
+    });
+  };
+
+  const name = props?.name || "Établissement";
+  const hook = typeof props?.hook === "string" ? props.hook.slice(0, 120) : "";
+  const tagline = typeof props?.tagline === "string" ? props.tagline : "";
+  const videos: string[] = Array.isArray(props?.videos) ? props.videos : [];
+  const images: string[] = Array.isArray(props?.images) ? props.images : [];
+  const offer = props?.offer && typeof props.offer === "object" ? props.offer : null;
+
+  // Dedicated templates: minimal breakdown
+  if (templateId !== "business-showcase" && templateId !== "corporate-vertical") {
+    push("hook", Math.round(durationSec * 0.2), `Template dédié « ${templateId} » — séquences hardcodées.`, "Ouverture");
+    push("media", Math.round(durationSec * 0.5), "Séquences visuelles emblématiques du template.", "Contenu");
+    push("cta", Math.round(durationSec * 0.3), "Appel à l'action final.");
+    return normalize(scenes, durationSec, cursor);
+  }
+
+  if (templateId === "corporate-vertical") {
+    push("hook", Math.round(durationSec * 0.15), "Ouverture corporate One World Morocco.");
+    push("media", Math.round(durationSec * 0.35), "Modèle économique et villes pionnières.", "Modèle");
+    push("offer", Math.round(durationSec * 0.25), "Paliers d'engagement.", "Paliers");
+    push("cta", Math.round(durationSec * 0.25), "Rejoindre le réseau.");
+    return normalize(scenes, durationSec, cursor);
+  }
+
+  // business-showcase
+  push("hook", Math.max(2, Math.round(durationSec * 0.12)), hook ? `Accroche : « ${hook} »` : `Accroche immersive sur ${name}.`);
+  push("name", Math.max(2, Math.round(durationSec * 0.1)), tagline ? `${name} — ${tagline}` : `Affichage du nom ${name}.`);
+
+  const mediaCount = videos.length + images.length;
+  const mediaLabel = videos.length > 0
+    ? `Montage de ${videos.length} vidéo${videos.length > 1 ? "s" : ""} de l'établissement.`
+    : images.length > 0
+      ? `Montage de ${images.length} image${images.length > 1 ? "s" : ""} de l'établissement.`
+      : "Aucun média sélectionné — placeholder.";
+  push("media", Math.max(3, Math.round(durationSec * (offer ? 0.18 : 0.28))), mediaLabel);
+
+  if (offer) {
+    const parts: string[] = [];
+    if (offer.title) parts.push(offer.title);
+    if (offer.price) parts.push(offer.price);
+    const desc = parts.length ? parts.join(" · ") : "Offre mise en avant.";
+    const lines = Array.isArray(offer.lines) ? offer.lines : [];
+    const bg = offer.background_video_url ? " (fond vidéo)" : offer.background_image_url ? " (fond image)" : "";
+    push("offer", Math.max(4, Math.round(durationSec * 0.22)), `${desc}${bg}${lines.length ? ` — ${lines.length} ligne${lines.length > 1 ? "s" : ""}` : ""}.`);
+  }
+
+  if (props?.showReviews) {
+    const rating = props.rating ? ` (${props.rating}/5)` : "";
+    const count = props.reviewsCount ? ` · ${props.reviewsCount} avis` : "";
+    push("reviews", Math.max(2, Math.round(durationSec * 0.08)), `Badge avis clients${rating}${count}.`);
+  }
+  if (props?.showOpeningHours) {
+    push("hours", Math.max(2, Math.round(durationSec * 0.07)), "Horaires d'ouverture en surimpression.");
+  }
+  if (props?.showMap) {
+    push("map", Math.max(2, Math.round(durationSec * 0.09)), `Marqueur Google Map${props.address ? ` — ${String(props.address).slice(0, 60)}` : ""}.`);
+  }
+  if (props?.showDigitalId) {
+    push("digital", Math.max(2, Math.round(durationSec * 0.1)), "ID numérique : capture fiche, partage, QR code.");
+  }
+
+  push("cta", Math.max(2, Math.round(durationSec * 0.1)), props?.showAppInstall ? "CTA final + incitation à installer l'app." : "CTA final vers la fiche ou le contact.");
+  if (props?.showAppInstall) {
+    push("outro", Math.max(2, Math.round(durationSec * 0.06)), "Outro logo + installation de l'app.");
+  }
+
+  return normalize(scenes, durationSec, cursor);
+}
+
+function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenario {
+  const scale = durationSec / Math.max(1, cursor);
+  const scaled = scenes.map((s) => ({ ...s, duration: Math.max(1, Math.round(s.duration * scale)), start: Math.round(s.start * scale) }));
+  const total = scaled.reduce((acc, s) => acc + s.duration, 0);
+  return { scenes: scaled, totalDuration: total };
+}
+
 export function StudioVideoScenarioPanel({
   scenario,
   className,
