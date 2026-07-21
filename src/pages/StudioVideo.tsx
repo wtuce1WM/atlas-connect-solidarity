@@ -552,6 +552,35 @@ export default function StudioVideo() {
     if (optMapMarker) directives.push("Faire figurer le marqueur de l'établissement sur la Google Map.");
     if (optDigitalId) directives.push("Insérer une courte séquence ID numérique (capture mock-up de la fiche /fiche/slug, étape de partage, puis QR code) AVANT l'incitation finale.");
     if (optInstallCta) directives.push("Terminer par une incitation à installer l'app (bouton carré terracotta inspiré de /install mobile).");
+    if (popupImageUrl) {
+      if (optPopup) {
+        const parts: string[] = [];
+        if (popupMeta.title) parts.push(`titre « ${popupMeta.title} »`);
+        if (popupMeta.description) parts.push(`texte « ${popupMeta.description.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 300)} »`);
+        directives.push(`Mettre en avant l'image POPUP de bienvenue avec son ${parts.length ? parts.join(" et son ") : "titre et texte"} (URL : ${popupImageUrl}).`);
+      } else {
+        directives.push("Ne pas utiliser l'image POPUP de bienvenue.");
+      }
+    }
+    if (offersList.length > 0) {
+      const chosen = offersList.filter((o) => selectedOfferIds.has(o.id));
+      if (chosen.length === 0) {
+        directives.push("Ne pas afficher d'offres commerciales.");
+      } else if (chosen.length < offersList.length) {
+        const fmt = (o: typeof offersList[number]) => {
+          const amt = o.promotion_type === "percentage" && o.promotion_value != null
+            ? `-${o.promotion_value}%`
+            : o.promotion_type === "fixed" && o.promotion_value != null
+              ? `-${o.promotion_value} ${o.promotion_currency || "MAD"}`
+              : o.savings_amount != null
+                ? `-${o.savings_amount} ${o.promotion_currency || "MAD"}`
+                : "";
+          const msg = o.message ? ` — ${o.message.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 200)}` : "";
+          return `${o.title}${amt ? ` (${amt})` : ""}${msg}`;
+        };
+        directives.push(`Afficher UNIQUEMENT ces offres (dans cet ordre) :\n  * ${chosen.map(fmt).join("\n  * ")}`);
+      }
+    }
     const chosenImages = Array.from(selectedImages);
     const chosenVideos = Array.from(selectedVideos);
     if (chosenImages.length > 0) directives.push(`Utiliser EXCLUSIVEMENT les images suivantes (dans cet ordre) pour le montage :\n  * ${chosenImages.join("\n  * ")}`);
