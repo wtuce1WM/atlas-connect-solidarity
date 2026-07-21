@@ -214,12 +214,21 @@ function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenar
 }
 
 function sceneKindFor(icon: Scene["icon"]): SceneMediaKind | null {
+  if (icon === "custom") return null;
   return icon as SceneMediaKind;
 }
 
+const isCustomToken = (t: string) => t.startsWith("custom:");
+const customIdFromToken = (t: string) => t.slice("custom:".length);
+const tokenForCustom = (id: string) => `custom:${id}`;
+
+const newCustomId = () =>
+  `c_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+
 export type ScenarioEdits = {
-  order: SceneMediaKind[]; // ordered scene kinds
-  durations: Partial<Record<SceneMediaKind, number>>; // seconds per kind
+  order: string[]; // ordered tokens: SceneMediaKind or `custom:<id>`
+  durations: Partial<Record<SceneMediaKind, number>>; // seconds per built-in kind
+  customScenes?: CustomScene[];
 };
 
 export function StudioVideoScenarioPanel({
@@ -237,63 +246,96 @@ export function StudioVideoScenarioPanel({
   onChangeSceneMedia?: (next: SceneMediaMap) => void;
   onChangeScenarioEdits?: (edits: ScenarioEdits | null) => void;
 }) {
-  // Local edits: per-scene duration overrides + order override (by id)
+  // Local edits: per-scene duration overrides + order override (by token) + custom scenes
   const [durationOverrides, setDurationOverrides] = useState<Record<string, number>>({});
   const [orderOverride, setOrderOverride] = useState<string[] | null>(null);
+  const [customScenes, setCustomScenes] = useState<CustomScene[]>([]);
   const [dragId, setDragId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
+  const [editingCustomId, setEditingCustomId] = useState<string | null>(null);
 
   // Signature to reset local edits when the incoming scenario really changes
   const signature = scenario.scenes.map((s) => s.id).join("|") + "@" + scenario.totalDuration;
   useEffect(() => {
     setDurationOverrides({});
     setOrderOverride(null);
+    setCustomScenes([]);
     onChangeScenarioEdits?.(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signature]);
 
+  const customById = useMemo(() => {
+    const m = new Map<string, CustomScene>();
+    for (const c of customScenes) m.set(c.id, c);
+    return m;
+  }, [customScenes]);
+
   const editedScenes = useMemo(() => {
     const byId = new Map(scenario.scenes.map((s) => [s.id, s]));
-    const orderIds = orderOverride ?? scenario.scenes.map((s) => s.id);
+    const baseTokens = scenario.scenes.map((s) => s.id);
+    const tokens = orderOverride ?? baseTokens;
     let cursor = 0;
-    return orderIds
-      .map((id) => byId.get(id))
-      .filter((s): s is Scene => !!s)
-      .map((s) => {
+    const out: Scene[] = [];
+    for (const tok of tokens) {
+      if (isCustomToken(tok)) {
+        const c = customById.get(customIdFromToken(tok));
+        if (!c) continue;
+        const start = cursor;
+        cursor += c.duration;
+        out.push({
+          id: tok,
+          icon: "custom",
+          label: c.title || (c.mode === "overlay" ? "Texte sur média" : "Carton texte"),
+          duration: c.duration,
+          start,
+          description: [c.subtitle, c.mode === "overlay" ? "Superposé au média" : "Plein écran"].filter(Boolean).join(" · "),
+          keywords: [],
+        });
+      } else {
+        const s = byId.get(tok);
+        if (!s) continue;
         const duration = durationOverrides[s.id] ?? s.duration;
         const start = cursor;
         cursor += duration;
-        return { ...s, duration, start };
-      });
-  }, [scenario.scenes, orderOverride, durationOverrides]);
+        out.push({ ...s, duration, start });
+      }
+    }
+    return out;
+  }, [scenario.scenes, orderOverride, durationOverrides, customById]);
 
   // Emit edits upstream whenever they change (dedup: only when non-default)
   useEffect(() => {
     if (!onChangeScenarioEdits) return;
     const hasOrder = !!orderOverride;
     const hasDurations = Object.keys(durationOverrides).length > 0;
-    if (!hasOrder && !hasDurations) {
+    const hasCustom = customScenes.length > 0;
+    if (!hasOrder && !hasDurations && !hasCustom) {
       onChangeScenarioEdits(null);
       return;
     }
     const byId = new Map(scenario.scenes.map((s) => [s.id, s]));
-    const orderIds = orderOverride ?? scenario.scenes.map((s) => s.id);
-    const orderedKinds: SceneMediaKind[] = [];
-    for (const id of orderIds) {
-      const s = byId.get(id);
-      if (s) orderedKinds.push(s.icon as SceneMediaKind);
+    const tokens = orderOverride ?? scenario.scenes.map((s) => s.id);
+    const orderTokens: string[] = [];
+    for (const tok of tokens) {
+      if (isCustomToken(tok)) {
+        if (customById.has(customIdFromToken(tok))) orderTokens.push(tok);
+      } else {
+        const s = byId.get(tok);
+        if (s) orderTokens.push(s.icon as SceneMediaKind);
+      }
     }
     const durations: Partial<Record<SceneMediaKind, number>> = {};
     for (const [id, d] of Object.entries(durationOverrides)) {
       const s = byId.get(id);
       if (s) durations[s.icon as SceneMediaKind] = d;
     }
-    onChangeScenarioEdits({ order: orderedKinds, durations });
+    onChangeScenarioEdits({ order: orderTokens, durations, customScenes: hasCustom ? customScenes : undefined });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderOverride, durationOverrides]);
+  }, [orderOverride, durationOverrides, customScenes, customById]);
 
   const total = editedScenes.reduce((acc, s) => acc + s.duration, 0);
-  if (!editedScenes.length) return null;
+  if (!editedScenes.length && customScenes.length === 0) return null;
 
   const editable = !!onChangeSceneMedia && !!availableMedia;
   const setForKind = (kind: SceneMediaKind, items: SceneMediaItem[]) => {
