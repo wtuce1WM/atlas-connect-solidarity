@@ -264,7 +264,7 @@ function tasteSummaryLine(t: any): string {
   return parts.length ? `Profil de goûts du membre — ${parts.join(" ; ")}.` : "";
 }
 
-async function runTool(name: string, args: any, ctx: { userId: string; supabase: any }) {
+async function runTool(name: string, args: any, ctx: { userId: string; supabase: any; lastUserMessage?: string; language?: string }) {
   try {
     if (name === "get_weather") {
       const { data, error } = await ctx.supabase.functions.invoke("get-weather", { body: { city: args.city } });
@@ -285,7 +285,13 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       badgesIn.forEach((b) => qParts.push(String(b).replace(/^#/, "")));
       servicesIn.forEach((s) => qParts.push(String(s).replace(/^#/, "")));
       if (args.neighborhood) qParts.push(String(args.neighborhood));
-      const fullQuery = qParts.filter(Boolean).join(" ").trim();
+      const aiQuery = qParts.filter(Boolean).join(" ").trim();
+      const lastUserQuery = String(ctx.lastUserMessage || "")
+        .replace(/\b(montre|montres|affiche|affiches|situe|localise|localises|cherche|trouve|peux-tu|pouvez-vous|sur une carte|carte)\b/gi, " ")
+        .replace(/[?!.,;:()"“”«»]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      const fullQuery = lastUserQuery.length >= 4 ? lastUserQuery : aiQuery;
 
       // Appel business-search (même moteur que /search) — direct fetch pour éviter
       // les aléas de `functions.invoke` depuis Deno (parfois body non transmis).
@@ -297,7 +303,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         const body = {
           query: fullQuery || undefined,
           spoken: fullQuery || undefined,
-          language: (args.language as string) || "fr",
+          language: ctx.language || (args.language as string) || "fr",
           pageSize: limit,
           offset: 0,
           compact: "card",
@@ -315,7 +321,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         const text = await r.text();
         try { sres = JSON.parse(text); } catch { sres = null; }
         if (!r.ok) sErr = `HTTP ${r.status}: ${text.slice(0, 200)}`;
-        console.log("club-ai-chat → business-search", JSON.stringify({ args, fullQuery, status: r.status, total: sres?.totalCount, n: Array.isArray(sres?.businesses) ? sres.businesses.length : 0, detectedCity: sres?.detectedCity, detectedCategory: sres?.detectedCategory, detectedService: sres?.detectedService }));
+        console.log("club-ai-chat → business-search", JSON.stringify({ args, aiQuery, fullQuery, status: r.status, total: sres?.totalCount, n: Array.isArray(sres?.businesses) ? sres.businesses.length : 0, detectedCity: sres?.detectedCity, detectedCategory: sres?.detectedCategory, detectedService: sres?.detectedService }));
       } catch (e) {
         sErr = String(e);
         console.error("club-ai-chat → business-search fetch exception", e);
@@ -887,7 +893,7 @@ ${languageInstruction}`;
         : m
     );
     const convo: Msg[] = [{ role: "system", content: system }, ...sanitizedMessages];
-    const ctx = { userId: user.id, supabase: admin };
+    const ctx = { userId: user.id, supabase: admin, lastUserMessage: lastUserMsg, language: lang };
 
     // Tool-calling loop (max 4 iterations — reduced from 6 for cost control)
     let finalAnswer = "";
