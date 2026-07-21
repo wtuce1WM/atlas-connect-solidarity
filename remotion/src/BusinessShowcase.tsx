@@ -189,7 +189,7 @@ const KenBurns: React.FC<{ src: string; from: number; duration: number }> = ({ s
   );
 };
 
-const SceneHook: React.FC<{ name: string; location: string; img?: string }> = ({ name, location, img }) => {
+const SceneHook: React.FC<{ name: string; location: string; img?: string; textPosition?: TextPosition }> = ({ name, location, img, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
   const titleY = interpolate(spring({ frame: frame - 8, fps: 30, config: { damping: 18 } }), [0, 1], [40, 0]);
   const titleO = ease(frame, 8, 28);
@@ -198,7 +198,7 @@ const SceneHook: React.FC<{ name: string; location: string; img?: string }> = ({
   return (
     <AbsoluteFill style={{ opacity: out }}>
       {img && <KenBurns src={img} from={0} duration={120} />}
-      <AbsoluteFill style={{ justifyContent: "flex-end", padding: 60, paddingBottom: 120 }}>
+      <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
         <div
           style={{
             opacity: titleO,
@@ -237,12 +237,12 @@ const SceneHook: React.FC<{ name: string; location: string; img?: string }> = ({
   );
 };
 
-const HookOverlay: React.FC<{ text: string; duration: number }> = ({ text, duration }) => {
+const HookOverlay: React.FC<{ text: string; duration: number; textPosition?: TextPosition }> = ({ text, duration, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
   const o = Math.min(ease(frame, 6, 26), 1 - ease(frame, duration - 20, duration - 2));
   if (!text) return null;
   return (
-    <AbsoluteFill style={{ justifyContent: "flex-end", padding: 70, paddingBottom: 140, opacity: o }}>
+    <AbsoluteFill style={{ padding: 70, ...textPositionStyle(textPosition), opacity: o }}>
       <div
         style={{
           fontFamily: display,
@@ -335,7 +335,8 @@ const SceneOffer: React.FC<{
   offer: { title?: string; price?: string; lines?: string[] };
   city?: string;
   durationFrames?: number;
-}> = ({ offer, city, durationFrames = 120 }) => {
+  textPosition?: TextPosition;
+}> = ({ offer, city, durationFrames = 120, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
   const titleO = ease(frame, 14, 36);
@@ -345,7 +346,7 @@ const SceneOffer: React.FC<{
   const lines = Array.isArray(offer.lines) ? offer.lines.filter(Boolean).slice(0, 6) : [];
   const hasPrice = !!offer.price;
   return (
-    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 60, opacity: out }}>
+    <AbsoluteFill style={{ alignItems: "center", padding: 60, ...textPositionStyle(textPosition), opacity: out }}>
       <div
         style={{
           opacity: labelO,
@@ -425,13 +426,13 @@ const SceneOffer: React.FC<{
   );
 };
 
-const SceneCta: React.FC<{ name: string }> = ({ name }) => {
+const SceneCta: React.FC<{ name: string; textPosition?: TextPosition }> = ({ name, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
   const iconS = spring({ frame, fps: 30, config: { damping: 14 } });
   const lineO = ease(frame, 18, 36);
   const ctaO = ease(frame, 36, 60);
   return (
-    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
+    <AbsoluteFill style={{ alignItems: "center", padding: 60, ...textPositionStyle(textPosition) }}>
       <Img
         src={staticFile("images/app-icon-1wm.png")}
         style={{ width: 200, height: 200, transform: `scale(${interpolate(iconS, [0, 1], [0.7, 1])})`, opacity: iconS }}
@@ -468,13 +469,13 @@ const SceneCta: React.FC<{ name: string }> = ({ name }) => {
   );
 };
 
-const SceneInstallCta: React.FC<{ name: string }> = ({ name }) => {
+const SceneInstallCta: React.FC<{ name: string; textPosition?: TextPosition }> = ({ name, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
   const iconS = spring({ frame, fps: 30, config: { damping: 14 } });
   const titleO = ease(frame, 12, 30);
   const badgeO = ease(frame, 34, 54);
   return (
-    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 64 }}>
+    <AbsoluteFill style={{ alignItems: "center", padding: 64, ...textPositionStyle(textPosition) }}>
       <Img
         src={staticFile("images/app-icon-1wm.png")}
         style={{ width: 190, height: 190, transform: `scale(${interpolate(iconS, [0, 1], [0.72, 1])})`, opacity: iconS }}
@@ -523,7 +524,7 @@ const SceneInstallCta: React.FC<{ name: string }> = ({ name }) => {
   );
 };
 
-const SceneReviews: React.FC<{ rating?: number | null; count?: number | null }> = ({ rating, count }) => {
+const SceneReviews: React.FC<{ rating?: number | null; count?: number | null; textPosition?: TextPosition }> = ({ rating, count, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
   const noteTarget = rating ? (rating > 5 ? rating : rating * 4) : null;
@@ -534,7 +535,7 @@ const SceneReviews: React.FC<{ rating?: number | null; count?: number | null }> 
   const countProgress = ease(frame, 14, 50);
   const animatedCount = count ? Math.round(count * countProgress) : 0;
   return (
-    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 60 }}>
+    <AbsoluteFill style={{ alignItems: "center", padding: 60, ...textPositionStyle(textPosition) }}>
       <div style={{ opacity: labelO, fontFamily: body, color: COLORS.gold, fontSize: 22, letterSpacing: 6, textTransform: "uppercase" }}>
         Avis clients
       </div>
@@ -566,7 +567,7 @@ const SceneReviews: React.FC<{ rating?: number | null; count?: number | null }> 
   );
 };
 
-const SceneHours: React.FC<{ openingHours: string | Record<string, string> }> = ({ openingHours }) => {
+const SceneHours: React.FC<{ openingHours: string | Record<string, string>; textPosition?: TextPosition }> = ({ openingHours, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
   const entries: Array<[string, string]> = typeof openingHours === "string"
@@ -576,7 +577,7 @@ const SceneHours: React.FC<{ openingHours: string | Record<string, string> }> = 
       }).slice(0, 7) as Array<[string, string]>
     : Object.entries(openingHours).slice(0, 7);
   return (
-    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 60 }}>
+    <AbsoluteFill style={{ alignItems: "center", padding: 60, ...textPositionStyle(textPosition) }}>
       <div style={{ opacity: labelO, fontFamily: body, color: COLORS.gold, fontSize: 22, letterSpacing: 6, textTransform: "uppercase" }}>
         Horaires
       </div>
@@ -608,7 +609,7 @@ const SceneHours: React.FC<{ openingHours: string | Record<string, string> }> = 
   );
 };
 
-const SceneMap: React.FC<{ lat: number; lng: number; name: string; address?: string | null }> = ({ lat, lng, name, address }) => {
+const SceneMap: React.FC<{ lat: number; lng: number; name: string; address?: string | null; textPosition?: TextPosition }> = ({ lat, lng, name, address, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
   const mapO = ease(frame, 10, 30);
@@ -616,7 +617,7 @@ const SceneMap: React.FC<{ lat: number; lng: number; name: string; address?: str
   const mapUrl = `https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/static-map?lat=${lat}&lng=${lng}&zoom=16&size=640x640&scale=2&maptype=roadmap`;
   const pinScale = spring({ frame: frame - 28, fps: 30, config: { damping: 10, stiffness: 180 } });
   return (
-    <AbsoluteFill style={{ alignItems: "center", justifyContent: "flex-start", padding: 50 }}>
+    <AbsoluteFill style={{ alignItems: "center", padding: 50, ...textPositionStyle(textPosition) }}>
       <div style={{ opacity: labelO, marginTop: 30, fontFamily: body, color: COLORS.gold, fontSize: 22, letterSpacing: 6, textTransform: "uppercase" }}>
         Localisation
       </div>
@@ -674,7 +675,8 @@ const SceneDigitalId: React.FC<{
   rating?: number | null;
   reviewsCount?: number | null;
   ficheScreenshotUrl?: string | null;
-}> = ({ name, slug, city, tagline, hook, image, logoUrl, ficheScreenshotUrl, rating, reviewsCount }) => {
+  textPosition?: TextPosition;
+}> = ({ name, slug, city, tagline, hook, image, logoUrl, ficheScreenshotUrl, rating, reviewsCount, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
   const shareUrl = `https://oneworldmorocco.com/b/${encodeURIComponent(slug)}`;
@@ -719,7 +721,7 @@ const SceneDigitalId: React.FC<{
   );
 
   return (
-    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 40 }}>
+    <AbsoluteFill style={{ alignItems: "center", padding: 40, ...textPositionStyle(textPosition) }}>
       <div style={{ opacity: labelO, fontFamily: body, color: COLORS.gold, fontSize: 22, letterSpacing: 6, textTransform: "uppercase", marginBottom: 18 }}>
         ID numérique
       </div>
