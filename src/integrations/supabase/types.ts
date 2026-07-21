@@ -2787,6 +2787,9 @@ export type Database = {
           category: string | null
           city: string | null
           created_at: string
+          fixed_response_ar: string | null
+          fixed_response_en: string | null
+          fixed_response_fr: string | null
           id: string
           is_active: boolean
           label_ar: string | null
@@ -2802,6 +2805,9 @@ export type Database = {
           category?: string | null
           city?: string | null
           created_at?: string
+          fixed_response_ar?: string | null
+          fixed_response_en?: string | null
+          fixed_response_fr?: string | null
           id?: string
           is_active?: boolean
           label_ar?: string | null
@@ -2817,6 +2823,9 @@ export type Database = {
           category?: string | null
           city?: string | null
           created_at?: string
+          fixed_response_ar?: string | null
+          fixed_response_en?: string | null
+          fixed_response_fr?: string | null
           id?: string
           is_active?: boolean
           label_ar?: string | null

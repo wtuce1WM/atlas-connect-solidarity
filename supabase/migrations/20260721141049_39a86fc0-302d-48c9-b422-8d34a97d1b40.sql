@@ -1,0 +1,1 @@
+ALTER TABLE public.club_ai_suggestions ADD COLUMN IF NOT EXISTS fixed_response_fr text, ADD COLUMN IF NOT EXISTS fixed_response_en text, ADD COLUMN IF NOT EXISTS fixed_response_ar text;
