@@ -108,8 +108,8 @@ function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
   switch (kind) {
     case "hook":
     case "name":
-    case "media":
-    case "cta": return true;
+    case "media": return true;
+    case "cta": return p.showAppInstall !== false;
     case "offer": return !!p.offer;
     case "reviews": return !!(p.showReviews && (p.rating || p.reviewsCount));
     case "hours": return !!(p.showOpeningHours && p.openingHours);
