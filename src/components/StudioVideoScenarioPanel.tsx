@@ -623,9 +623,13 @@ function SceneMediaSlot({
                         m.thumbnail ? (
                           <img src={m.thumbnail} alt="" className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full bg-muted flex items-center justify-center">
-                            <Film className="h-6 w-6 text-muted-foreground" />
-                          </div>
+                          <video
+                            src={m.url}
+                            className="w-full h-full object-cover"
+                            muted
+                            playsInline
+                            preload="metadata"
+                          />
                         )
                       ) : (
                         <img src={m.url} alt="" className="w-full h-full object-cover" />
