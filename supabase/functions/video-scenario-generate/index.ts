@@ -635,8 +635,44 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
           console.warn("[digital_id] firecrawl screenshot failed", (e as Error).message);
         }
       }
-      if (wantsInstallCta) {
-        template_props.showAppInstall = true;
+      // Toujours refléter le choix utilisateur : true = incitation à installer l'app,
+      // false = pas de scène finale de CTA (le rendu Remotion supprimera la scène cta).
+      template_props.showAppInstall = wantsInstallCta;
+
+      // Injection serveur des offres sélectionnées par l'utilisateur.
+      // On force la présence de `offer` en base plutôt que compter sur l'IA
+      // (l'IA a tendance à ignorer les offres si aucune n'est présente dans `medias`).
+      const rawOfferIds = Array.isArray(options?.offer_ids) ? options.offer_ids : [];
+      const offerIds = rawOfferIds.filter((v: unknown) => typeof v === "string" && /^[0-9a-f-]{36}$/i.test(v));
+      if (offerIds.length > 0) {
+        const { data: offerRows } = await supa
+          .from("affiliate_business_promotions")
+          .select("id,title,title_fr,promotion_type,promotion_value,promotion_currency,promotion_message,promotion_message_fr,savings_amount")
+          .eq("business_id", resolved_business_id)
+          .in("id", offerIds)
+          .order("sort_order", { ascending: true });
+        const first = (offerRows ?? [])[0];
+        if (first) {
+          const title = cleanDisplayText(first.title_fr || first.title) || undefined;
+          const priceStr = first.promotion_type === "percentage" && first.promotion_value != null
+            ? `-${first.promotion_value}%`
+            : first.promotion_type === "fixed" && first.promotion_value != null
+              ? `-${first.promotion_value} ${first.promotion_currency || "MAD"}`
+              : first.savings_amount != null
+                ? `-${first.savings_amount} ${first.promotion_currency || "MAD"}`
+                : undefined;
+          const rawMsg = stripHtml(first.promotion_message_fr || first.promotion_message) || "";
+          const lines = rawMsg
+            ? rawMsg.split(/[\n•·|]+|(?:\.\s)/).map((l) => cleanDisplayText(l) || "").filter((l) => l && l.length <= 120).slice(0, 6)
+            : [];
+          if (title || priceStr || lines.length) {
+            template_props.offer = {
+              title,
+              price: priceStr,
+              lines: lines.length ? lines : undefined,
+            };
+          }
+        }
       }
     }
 
