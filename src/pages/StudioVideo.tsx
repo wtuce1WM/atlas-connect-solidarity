@@ -342,6 +342,9 @@ export default function StudioVideo() {
             });
           });
       }
+      const oh = b.opening_hours;
+      const hasHoursData = !!oh && (typeof oh === "string" ? oh.trim().length > 0 : (Array.isArray(oh) ? oh.length > 0 : Object.keys(oh).length > 0));
+      const hoursPublished = b.show_opening_hours !== false && hasHoursData;
       setBizStats({
         hook: b.hook_fr ?? null,
         descLen: (b.description ?? "").length,
@@ -349,6 +352,7 @@ export default function StudioVideo() {
         videos: docVideos.length + ytVideos.length,
         offers: promos.count ?? 0,
         popup: !!b.popup_image_url,
+        hoursPublished,
       });
       setStatsLoading(false);
     })();
