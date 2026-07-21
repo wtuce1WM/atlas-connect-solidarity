@@ -466,7 +466,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         selImages.forEach((u) => allowedUrls.add(u));
         selVideos.forEach((u) => allowedUrls.add(u));
 
-        const ALLOWED_KINDS = new Set(["hook", "name", "media", "offer", "outro"]);
+        const ALLOWED_KINDS = new Set(["hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro"]);
         const cleaned: Record<string, Array<{ url: string; kind: "image" | "video" }>> = {};
         for (const [k, v] of Object.entries(rawSceneMedia)) {
           if (!ALLOWED_KINDS.has(k) || !Array.isArray(v)) continue;
