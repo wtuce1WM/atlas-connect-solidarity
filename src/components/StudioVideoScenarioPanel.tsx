@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { Clock, MapPin, MessageSquare, Star, Download, QrCode, Calendar, Plus, X, ChevronLeft, ChevronRight, Film, Image as ImageIcon, GripVertical, Minus } from "lucide-react";
+import { Clock, MapPin, MessageSquare, Star, Download, QrCode, Calendar, Plus, X, ChevronLeft, ChevronRight, Film, Image as ImageIcon, GripVertical, Minus, Type, Trash2, Pencil } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
