@@ -1001,7 +1001,14 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
       )}
 
       <Sequence from={ctaFrom} durationInFrames={ctaDuration}>
-        <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />
+        {outroItem ? (
+          <VideoBackdrop
+            src={outroItem.kind === "video" ? outroItem.url : undefined}
+            image={outroItem.kind === "image" ? outroItem.url : undefined}
+          />
+        ) : (
+          <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />
+        )}
         {showAppInstall ? <SceneInstallCta name={name} /> : <SceneCta name={name} />}
       </Sequence>
     </AbsoluteFill>
