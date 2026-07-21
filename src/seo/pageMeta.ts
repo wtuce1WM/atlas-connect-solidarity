@@ -275,9 +275,14 @@ export const PAGE_META: Record<string, PageMeta> = {
     description: "Gérez la présence en ligne de votre établissement affilié.",
   },
 
-  // Système
+  // Système — fallback neutre pour toute route non listée (backoffice, /studio-video,
+  // /affiliates/*, /club, etc.). NE PAS mettre "Page introuvable" ici : ce titre
+  // serait attribué à des pages réelles et polluerait les analytics comme des 404.
+  // La vraie 404 (src/pages/NotFound.tsx) gère son propre titre via Helmet.
   "*": {
-    title: `Page introuvable — ${BRAND}`,
-    description: "La page demandée est introuvable.",
+    title: BRAND,
+    description:
+      "One World Morocco — hôtels, restaurants, activités et expériences sélectionnés au Maroc.",
   },
 };
+
