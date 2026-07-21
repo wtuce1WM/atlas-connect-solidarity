@@ -1114,15 +1114,20 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     }
   };
 
+  const toneOverlay = TONE_CONFIG[tone]?.overlay ?? TONE_CONFIG.immersif.overlay;
   return (
-    <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
-      <Background />
-      {plan.map((s) => (
-        <Sequence key={`${s.kind}-${s.from}`} from={s.from} durationInFrames={s.duration}>
-          {renderScene(s.kind, s.duration)}
-        </Sequence>
-      ))}
-    </AbsoluteFill>
+    <ToneContext.Provider value={tone}>
+      <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+        <Background />
+        {plan.map((s) => (
+          <Sequence key={`${s.kind}-${s.from}`} from={s.from} durationInFrames={s.duration}>
+            {renderScene(s.kind, s.duration)}
+          </Sequence>
+        ))}
+        {/* Finition visuelle liée au ton (vignette / teinte / désaturation) */}
+        <AbsoluteFill style={{ background: toneOverlay, pointerEvents: "none" }} />
+      </AbsoluteFill>
+    </ToneContext.Provider>
   );
 };
 
