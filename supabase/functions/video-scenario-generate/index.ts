@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { prompt, business_id, duration_sec = 30, tone = "immersif", parent_job_id, options, preview_only = false } = body;
 
-    if (!prompt || typeof prompt !== "string" || prompt.length > 2000) {
+    if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0 || prompt.length > 8000) {
       return json({ error: "prompt invalide" }, 400);
     }
     if (![15, 30, 45, 60].includes(Number(duration_sec))) {
