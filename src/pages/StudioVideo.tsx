@@ -1201,10 +1201,15 @@ export default function StudioVideo() {
                   <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optReviews} onChange={(e) => setOptReviews(e.target.checked)} />
                   <span>Compteur d'avis client + badge avis (note/20)</span>
                 </label>
-                <label className="flex items-start gap-2 cursor-pointer">
-                  <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optHours} onChange={(e) => setOptHours(e.target.checked)} />
-                  <span>Horaires d'ouverture</span>
-                </label>
+                {(() => {
+                  const hoursAvailable = !selected || (bizStats?.hoursPublished ?? false);
+                  return (
+                    <label className={`flex items-start gap-2 ${hoursAvailable ? "cursor-pointer" : "cursor-not-allowed opacity-50"}`} title={hoursAvailable ? undefined : "Horaires non publiées pour cet établissement"}>
+                      <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto disabled:cursor-not-allowed" checked={hoursAvailable && optHours} disabled={!hoursAvailable} onChange={(e) => setOptHours(e.target.checked)} />
+                      <span>Horaires d'ouverture {selected && !hoursAvailable ? <em className="text-xs opacity-70">(non publiées)</em> : null}</span>
+                    </label>
+                  );
+                })()}
                 <label className="flex items-start gap-2 cursor-pointer">
                   <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optMapMarker} onChange={(e) => setOptMapMarker(e.target.checked)} />
                   <span>Marqueur sur la Google Map</span>
