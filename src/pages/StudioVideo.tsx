@@ -313,8 +313,9 @@ export default function StudioVideo() {
           .order("sort_order", { ascending: true }),
         supabase
           .from("affiliate_business_promotions")
-          .select("id", { count: "exact", head: true })
-          .eq("business_id", selected.id),
+          .select("id, title, title_fr, promotion_message, promotion_message_fr, promotion_type, promotion_value, promotion_currency, savings_amount")
+          .eq("business_id", selected.id)
+          .order("sort_order", { ascending: true }),
       ]);
       if (cancelled) return;
       const b: any = biz.data ?? {};
