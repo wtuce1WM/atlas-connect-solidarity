@@ -1219,7 +1219,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         <Background />
         {plan.map((s) => (
           <Sequence key={`${s.kind}-${s.from}`} from={s.from} durationInFrames={s.duration}>
-            {renderScene(s.kind, s.duration)}
+            {renderScene(s)}
           </Sequence>
         ))}
         {/* Finition visuelle liée au ton (vignette / teinte / désaturation) */}
