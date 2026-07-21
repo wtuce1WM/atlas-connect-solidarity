@@ -842,7 +842,9 @@ const Club = () => {
       )}
       {user && activeTab !== "assistant" && <ClubYoutubeRecommendations />}
       {activeTab !== "assistant" && <Footer variant="verified" />}
-      <ClubBottomBarSlot />
+      <div className={activeTab === "assistant" ? "mt-6" : ""}>
+        <ClubBottomBarSlot />
+      </div>
     </div>
   );
 };
