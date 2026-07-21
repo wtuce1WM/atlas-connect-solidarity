@@ -1042,7 +1042,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           <AbsoluteFill style={{ display: "flex", flexDirection: "column", padding: "80px 60px", ...align }}>
             <div style={{
               color: "#fff",
-              fontFamily: BRAND_FONT_DISPLAY,
+              fontFamily: display,
               fontSize: 68,
               fontWeight: 800,
               lineHeight: 1.1,
@@ -1053,7 +1053,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               <div style={{
                 marginTop: 20,
                 color: "rgba(255,255,255,0.92)",
-                fontFamily: BRAND_FONT_BODY,
+                fontFamily: body,
                 fontSize: 34,
                 lineHeight: 1.3,
                 textAlign: "center",
