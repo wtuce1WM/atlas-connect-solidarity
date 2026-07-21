@@ -25,20 +25,6 @@ export type SceneMediaMap = Partial<Record<SceneMediaKind, SceneMediaItem[]>>;
 
 export const SCENE_KINDS_WITH_MEDIA: SceneMediaKind[] = ["hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro"];
 
-export type Scene = {
-  id: string;
-  label: string;
-  duration: number;
-  start: number;
-  description: string;
-  keywords: string[];
-  icon: "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro";
-};
-
-export type Scenario = {
-  scenes: Scene[];
-  totalDuration: number;
-};
 
 export type Scene = {
   id: string;
