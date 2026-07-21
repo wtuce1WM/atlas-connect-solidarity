@@ -481,6 +481,45 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         if (Object.keys(cleaned).length) template_props.scene_media = cleaned;
       }
 
+      // Étapes personnalisées ajoutées par l'utilisateur dans l'aperçu (carton texte ou overlay).
+      // Whitelist stricte : URL média doit appartenir aux médias autorisés.
+      const rawCustomScenes = options?.custom_scenes;
+      const cleanedCustomScenes: Array<{
+        id: string;
+        mode: "fullscreen" | "overlay";
+        title: string;
+        subtitle?: string;
+        duration: number;
+        media?: { url: string; kind: "image" | "video" };
+      }> = [];
+      if (Array.isArray(rawCustomScenes)) {
+        const allowedUrlsForCustom = new Set<string>();
+        const mediasForCustom = Array.isArray(businessContext?.medias) ? businessContext.medias : [];
+        for (const m of mediasForCustom) {
+          if (typeof m?.url === "string" && /^https?:\/\//i.test(m.url)) allowedUrlsForCustom.add(m.url);
+        }
+        selImages.forEach((u) => allowedUrlsForCustom.add(u));
+        selVideos.forEach((u) => allowedUrlsForCustom.add(u));
+        for (const c of rawCustomScenes as any[]) {
+          if (!c || typeof c !== "object") continue;
+          const id = typeof c.id === "string" && /^[a-zA-Z0-9_-]{3,40}$/.test(c.id) ? c.id : null;
+          const mode = c.mode === "overlay" ? "overlay" : "fullscreen";
+          const title = typeof c.title === "string" ? c.title.trim().slice(0, 120) : "";
+          const subtitle = typeof c.subtitle === "string" ? c.subtitle.trim().slice(0, 240) : "";
+          const dur = Number(c.duration);
+          if (!id || !title || !Number.isFinite(dur) || dur < 1 || dur > 60) continue;
+          let media: { url: string; kind: "image" | "video" } | undefined;
+          if (c.media && typeof c.media.url === "string" && (c.media.kind === "image" || c.media.kind === "video") && allowedUrlsForCustom.has(c.media.url)) {
+            media = { url: c.media.url, kind: c.media.kind };
+          }
+          if (mode === "overlay" && !media) continue;
+          cleanedCustomScenes.push({ id, mode, title, subtitle: subtitle || undefined, duration: Math.round(dur), media });
+          if (cleanedCustomScenes.length >= 8) break;
+        }
+        if (cleanedCustomScenes.length) template_props.custom_scenes = cleanedCustomScenes;
+      }
+      const allowedCustomIds = new Set(cleanedCustomScenes.map((c) => `custom:${c.id}`));
+
       // Ordre et durées personnalisés des scènes (édités par l'utilisateur dans l'aperçu)
       const ALLOWED_SCENE_KINDS = new Set(["hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro"]);
       const rawOrder = options?.scene_order;
@@ -488,7 +527,8 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         const seen = new Set<string>();
         const cleanedOrder: string[] = [];
         for (const k of rawOrder) {
-          if (typeof k === "string" && ALLOWED_SCENE_KINDS.has(k) && !seen.has(k)) {
+          if (typeof k !== "string" || seen.has(k)) continue;
+          if (ALLOWED_SCENE_KINDS.has(k) || allowedCustomIds.has(k)) {
             seen.add(k);
             cleanedOrder.push(k);
           }
