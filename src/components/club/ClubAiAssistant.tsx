@@ -864,7 +864,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
                             ? children.map((c) => (typeof c === "string" ? c : "")).join("")
                             : (typeof children === "string" ? children : "");
                           const trimmed = text.trim();
-                          if (trimmed && trimmed.length <= 80) {
+                          const isKnownBusiness = !!trimmed && nameToSlugRef.current.has(trimmed.toLowerCase());
+                          if (isKnownBusiness && trimmed.length <= 80) {
                             return (
                               <strong
                                 role="button"
