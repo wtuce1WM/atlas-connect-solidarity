@@ -244,7 +244,7 @@ export function useBookOnlineData(businessId: string) {
     let isCancelled = false;
 
     // Check cache first — restore immediately without network round-trip
-    const cached = businessDataCache.get(businessId);
+    const cached = businessDataCache.get(`${businessId}:${language}`);
     if (cached) {
       setBusiness(cached.business);
       setWoDescription(cached.woDescription);
