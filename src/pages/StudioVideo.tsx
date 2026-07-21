@@ -565,6 +565,7 @@ export default function StudioVideo() {
             install_cta: optInstallCta,
             selected_images: chosenImages,
             selected_videos: chosenVideos,
+            scene_media: sceneMedia,
           },
         },
       });
