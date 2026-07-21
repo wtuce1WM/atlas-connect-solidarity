@@ -755,7 +755,7 @@ function CustomSceneDialog({
               </button>
               <button
                 type="button"
-                onClick={() => setMode("overlay")}
+                onClick={() => { setMode("overlay"); if (!mediaUrl && available[0]) setMediaUrl(available[0].url); }}
                 className={cn(
                   "rounded-md border p-3 text-left text-xs transition-colors",
                   mode === "overlay" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
