@@ -73,8 +73,16 @@ export type ShowcaseProps = {
   durationSec?: number;
   useFullHookScene?: boolean;
   scene_media?: Partial<Record<"hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro", Array<{ url: string; kind: "image" | "video" }>>>;
-  scene_order?: Array<"hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro">;
+  scene_order?: Array<string>; // built-in kinds or `custom:<id>`
   scene_durations?: Partial<Record<"hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro", number>>;
+  custom_scenes?: Array<{
+    id: string;
+    mode: "fullscreen" | "overlay";
+    title: string;
+    subtitle?: string;
+    duration: number; // seconds
+    media?: { url: string; kind: "image" | "video" };
+  }>;
   textPosition?: TextPosition;
   tone?: Tone;
 };
