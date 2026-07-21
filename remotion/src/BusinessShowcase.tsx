@@ -137,36 +137,76 @@ function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
   }
 }
 
-export function buildScenePlan(p: ShowcaseProps): Array<{ kind: SceneKind; from: number; duration: number }> {
+export type ScenePlanItem = {
+  kind: SceneKind | "custom";
+  customId?: string;
+  from: number;
+  duration: number;
+};
+
+export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
   const active = DEFAULT_SCENE_ORDER.filter((k) => isSceneActive(k, p));
-  let order = active;
+  const customById = new Map<string, NonNullable<ShowcaseProps["custom_scenes"]>[number]>();
+  for (const c of p.custom_scenes ?? []) customById.set(c.id, c);
+
+  type Tok = { kind: SceneKind | "custom"; customId?: string };
+  let order: Tok[];
   if (Array.isArray(p.scene_order) && p.scene_order.length) {
-    const requested = (p.scene_order as SceneKind[]).filter((k) => active.includes(k));
-    for (const k of active) if (!requested.includes(k)) requested.push(k);
+    const seen = new Set<string>();
+    const requested: Tok[] = [];
+    for (const raw of p.scene_order) {
+      if (typeof raw !== "string" || seen.has(raw)) continue;
+      if (raw.startsWith("custom:")) {
+        const id = raw.slice("custom:".length);
+        if (customById.has(id)) {
+          seen.add(raw);
+          requested.push({ kind: "custom", customId: id });
+        }
+        continue;
+      }
+      if ((active as string[]).includes(raw)) {
+        seen.add(raw);
+        requested.push({ kind: raw as SceneKind });
+      }
+    }
+    for (const k of active) {
+      if (!requested.some((t) => t.kind === k)) requested.push({ kind: k });
+    }
     order = requested;
+  } else {
+    order = active.map((k) => ({ kind: k as SceneKind }));
   }
+
   const durOverride = (k: SceneKind): number | null => {
     const v = p.scene_durations?.[k];
     return v != null && Number.isFinite(Number(v)) && Number(v) > 0 ? Math.round(Number(v) * 30) : null;
   };
-  const durations: Record<string, number> = {};
-  for (const k of order) durations[k] = durOverride(k) ?? defaultSceneFrames(k, p);
+  const durationFor = (tok: Tok): number => {
+    if (tok.kind === "custom" && tok.customId) {
+      const c = customById.get(tok.customId);
+      const d = Number(c?.duration ?? 4);
+      return Math.max(30, Math.round((Number.isFinite(d) && d > 0 ? d : 4) * 30));
+    }
+    return durOverride(tok.kind as SceneKind) ?? defaultSceneFrames(tok.kind as SceneKind, p);
+  };
+  const durations = order.map(durationFor);
 
   // Stretch CTA to reach requested total if not explicitly overridden
   const requestedFrames = Number.isFinite(p.durationSec) && p.durationSec
     ? Math.round(Number(p.durationSec) * 30)
     : SHOWCASE_TOTAL_FRAMES;
-  if (order.includes("cta") && durOverride("cta") == null) {
-    const nonCta = order.filter((k) => k !== "cta").reduce((acc, k) => acc + durations[k], 0);
-    durations.cta = Math.max(150, requestedFrames - nonCta);
+  const ctaIdx = order.findIndex((t) => t.kind === "cta");
+  if (ctaIdx >= 0 && durOverride("cta") == null) {
+    const nonCta = durations.reduce((acc, d, i) => (i === ctaIdx ? acc : acc + d), 0);
+    durations[ctaIdx] = Math.max(150, requestedFrames - nonCta);
   }
 
-  const plan: Array<{ kind: SceneKind; from: number; duration: number }> = [];
+  const plan: ScenePlanItem[] = [];
   let cursor = 0;
-  for (const k of order) {
-    plan.push({ kind: k, from: cursor, duration: durations[k] });
-    cursor += durations[k];
-  }
+  order.forEach((tok, i) => {
+    plan.push({ kind: tok.kind, customId: tok.customId, from: cursor, duration: durations[i] });
+    cursor += durations[i];
+  });
   return plan;
 }
 
