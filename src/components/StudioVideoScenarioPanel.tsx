@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { Clock, MapPin, MessageSquare, Star, Download, QrCode, Calendar, Plus, X, ChevronLeft, ChevronRight, Film, Image as ImageIcon, GripVertical, Minus } from "lucide-react";
+import { Clock, MapPin, MessageSquare, Star, Download, QrCode, Calendar, Plus, X, ChevronLeft, ChevronRight, Film, Image as ImageIcon, GripVertical, Minus, Type, Trash2, Pencil } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -22,6 +25,7 @@ export type SceneMediaMap = Partial<Record<SceneMediaKind, SceneMediaItem[]>>;
 
 export const SCENE_KINDS_WITH_MEDIA: SceneMediaKind[] = ["hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro"];
 
+
 export type Scene = {
   id: string;
   label: string;
@@ -29,12 +33,21 @@ export type Scene = {
   start: number;
   description: string;
   keywords: string[];
-  icon: "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro";
+  icon: "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro" | "custom";
 };
 
 export type Scenario = {
   scenes: Scene[];
   totalDuration: number;
+};
+
+export type CustomScene = {
+  id: string;                 // stable, unique
+  mode: "fullscreen" | "overlay";
+  title: string;
+  subtitle?: string;
+  duration: number;           // seconds
+  media?: SceneMediaItem;     // required in overlay mode, optional backdrop in fullscreen
 };
 
 const ICONS: Record<Scene["icon"], React.ReactNode> = {
@@ -48,9 +61,10 @@ const ICONS: Record<Scene["icon"], React.ReactNode> = {
   digital: <QrCode className="h-3.5 w-3.5" />,
   cta: <Download className="h-3.5 w-3.5" />,
   outro: <Clock className="h-3.5 w-3.5" />,
+  custom: <Type className="h-3.5 w-3.5" />,
 };
 
-const LABELS: Record<Scene["icon"], string> = {
+const LABELS: Record<Exclude<Scene["icon"], "custom">, string> = {
   hook: "Hook",
   name: "Nom & identité",
   media: "Médias",
@@ -94,7 +108,7 @@ export function buildScenario(
     scenes.push({
       id: `${icon}-${scenes.length}`,
       icon,
-      label: labelOverride || LABELS[icon],
+      label: labelOverride || (LABELS as Record<string, string>)[icon] || "Étape",
       duration,
       start,
       description,
@@ -137,7 +151,7 @@ export function scenarioFromTemplateProps(
     scenes.push({
       id: `${icon}-${scenes.length}`,
       icon,
-      label: labelOverride || LABELS[icon],
+      label: labelOverride || (LABELS as Record<string, string>)[icon] || "Étape",
       duration, start, description, keywords,
     });
   };
@@ -200,12 +214,21 @@ function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenar
 }
 
 function sceneKindFor(icon: Scene["icon"]): SceneMediaKind | null {
+  if (icon === "custom") return null;
   return icon as SceneMediaKind;
 }
 
+const isCustomToken = (t: string) => t.startsWith("custom:");
+const customIdFromToken = (t: string) => t.slice("custom:".length);
+const tokenForCustom = (id: string) => `custom:${id}`;
+
+const newCustomId = () =>
+  `c_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+
 export type ScenarioEdits = {
-  order: SceneMediaKind[]; // ordered scene kinds
-  durations: Partial<Record<SceneMediaKind, number>>; // seconds per kind
+  order: string[]; // ordered tokens: SceneMediaKind or `custom:<id>`
+  durations: Partial<Record<SceneMediaKind, number>>; // seconds per built-in kind
+  customScenes?: CustomScene[];
 };
 
 export function StudioVideoScenarioPanel({
@@ -223,63 +246,96 @@ export function StudioVideoScenarioPanel({
   onChangeSceneMedia?: (next: SceneMediaMap) => void;
   onChangeScenarioEdits?: (edits: ScenarioEdits | null) => void;
 }) {
-  // Local edits: per-scene duration overrides + order override (by id)
+  // Local edits: per-scene duration overrides + order override (by token) + custom scenes
   const [durationOverrides, setDurationOverrides] = useState<Record<string, number>>({});
   const [orderOverride, setOrderOverride] = useState<string[] | null>(null);
+  const [customScenes, setCustomScenes] = useState<CustomScene[]>([]);
   const [dragId, setDragId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
+  const [editingCustomId, setEditingCustomId] = useState<string | null>(null);
 
   // Signature to reset local edits when the incoming scenario really changes
   const signature = scenario.scenes.map((s) => s.id).join("|") + "@" + scenario.totalDuration;
   useEffect(() => {
     setDurationOverrides({});
     setOrderOverride(null);
+    setCustomScenes([]);
     onChangeScenarioEdits?.(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signature]);
 
+  const customById = useMemo(() => {
+    const m = new Map<string, CustomScene>();
+    for (const c of customScenes) m.set(c.id, c);
+    return m;
+  }, [customScenes]);
+
   const editedScenes = useMemo(() => {
     const byId = new Map(scenario.scenes.map((s) => [s.id, s]));
-    const orderIds = orderOverride ?? scenario.scenes.map((s) => s.id);
+    const baseTokens = scenario.scenes.map((s) => s.id);
+    const tokens = orderOverride ?? baseTokens;
     let cursor = 0;
-    return orderIds
-      .map((id) => byId.get(id))
-      .filter((s): s is Scene => !!s)
-      .map((s) => {
+    const out: Scene[] = [];
+    for (const tok of tokens) {
+      if (isCustomToken(tok)) {
+        const c = customById.get(customIdFromToken(tok));
+        if (!c) continue;
+        const start = cursor;
+        cursor += c.duration;
+        out.push({
+          id: tok,
+          icon: "custom",
+          label: c.title || (c.mode === "overlay" ? "Texte sur média" : "Carton texte"),
+          duration: c.duration,
+          start,
+          description: [c.subtitle, c.mode === "overlay" ? "Superposé au média" : "Plein écran"].filter(Boolean).join(" · "),
+          keywords: [],
+        });
+      } else {
+        const s = byId.get(tok);
+        if (!s) continue;
         const duration = durationOverrides[s.id] ?? s.duration;
         const start = cursor;
         cursor += duration;
-        return { ...s, duration, start };
-      });
-  }, [scenario.scenes, orderOverride, durationOverrides]);
+        out.push({ ...s, duration, start });
+      }
+    }
+    return out;
+  }, [scenario.scenes, orderOverride, durationOverrides, customById]);
 
   // Emit edits upstream whenever they change (dedup: only when non-default)
   useEffect(() => {
     if (!onChangeScenarioEdits) return;
     const hasOrder = !!orderOverride;
     const hasDurations = Object.keys(durationOverrides).length > 0;
-    if (!hasOrder && !hasDurations) {
+    const hasCustom = customScenes.length > 0;
+    if (!hasOrder && !hasDurations && !hasCustom) {
       onChangeScenarioEdits(null);
       return;
     }
     const byId = new Map(scenario.scenes.map((s) => [s.id, s]));
-    const orderIds = orderOverride ?? scenario.scenes.map((s) => s.id);
-    const orderedKinds: SceneMediaKind[] = [];
-    for (const id of orderIds) {
-      const s = byId.get(id);
-      if (s) orderedKinds.push(s.icon as SceneMediaKind);
+    const tokens = orderOverride ?? scenario.scenes.map((s) => s.id);
+    const orderTokens: string[] = [];
+    for (const tok of tokens) {
+      if (isCustomToken(tok)) {
+        if (customById.has(customIdFromToken(tok))) orderTokens.push(tok);
+      } else {
+        const s = byId.get(tok);
+        if (s) orderTokens.push(s.icon as SceneMediaKind);
+      }
     }
     const durations: Partial<Record<SceneMediaKind, number>> = {};
     for (const [id, d] of Object.entries(durationOverrides)) {
       const s = byId.get(id);
       if (s) durations[s.icon as SceneMediaKind] = d;
     }
-    onChangeScenarioEdits({ order: orderedKinds, durations });
+    onChangeScenarioEdits({ order: orderTokens, durations, customScenes: hasCustom ? customScenes : undefined });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderOverride, durationOverrides]);
+  }, [orderOverride, durationOverrides, customScenes, customById]);
 
   const total = editedScenes.reduce((acc, s) => acc + s.duration, 0);
-  if (!editedScenes.length) return null;
+  if (!editedScenes.length && customScenes.length === 0) return null;
 
   const editable = !!onChangeSceneMedia && !!availableMedia;
   const setForKind = (kind: SceneMediaKind, items: SceneMediaItem[]) => {
@@ -291,6 +347,15 @@ export function StudioVideoScenarioPanel({
   };
 
   const bumpDuration = (id: string, delta: number) => {
+    if (isCustomToken(id)) {
+      const cid = customIdFromToken(id);
+      setCustomScenes((prev) =>
+        prev.map((c) =>
+          c.id === cid ? { ...c, duration: Math.max(1, Math.min(60, c.duration + delta)) } : c
+        )
+      );
+      return;
+    }
     setDurationOverrides((prev) => {
       const current = prev[id] ?? editedScenes.find((s) => s.id === id)?.duration ?? 1;
       const next = Math.max(1, Math.min(60, current + delta));
@@ -315,17 +380,47 @@ export function StudioVideoScenarioPanel({
     setOverId(null);
   };
 
+  const upsertCustomScene = (draft: CustomScene) => {
+    setCustomScenes((prev) => {
+      const exists = prev.some((c) => c.id === draft.id);
+      if (exists) return prev.map((c) => (c.id === draft.id ? draft : c));
+      return [...prev, draft];
+    });
+    // Append to order if not already present
+    setOrderOverride((prev) => {
+      const base = prev ?? editedScenes.map((s) => s.id);
+      const tok = tokenForCustom(draft.id);
+      if (base.includes(tok)) return base;
+      return [...base, tok];
+    });
+  };
+
+  const removeCustomScene = (cid: string) => {
+    const tok = tokenForCustom(cid);
+    setCustomScenes((prev) => prev.filter((c) => c.id !== cid));
+    setOrderOverride((prev) => (prev ? prev.filter((t) => t !== tok) : prev));
+  };
+
+
   return (
     <div className={cn("rounded-xl border border-border bg-card p-6 space-y-5", className)}>
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold uppercase tracking-wider text-card-foreground">Aperçu du scénario</h3>
         <div className="flex items-center gap-2">
-          {(orderOverride || Object.keys(durationOverrides).length > 0) && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 text-[11px] px-2"
+            onClick={() => { setEditingCustomId(null); setAddOpen(true); }}
+          >
+            <Plus className="h-3.5 w-3.5 mr-1" /> Ajouter une étape
+          </Button>
+          {(orderOverride || Object.keys(durationOverrides).length > 0 || customScenes.length > 0) && (
             <Button
               size="sm"
               variant="ghost"
               className="h-6 text-[10px] px-2"
-              onClick={() => { setOrderOverride(null); setDurationOverrides({}); }}
+              onClick={() => { setOrderOverride(null); setDurationOverrides({}); setCustomScenes([]); }}
             >
               Réinitialiser
             </Button>
@@ -333,6 +428,16 @@ export function StudioVideoScenarioPanel({
           <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold uppercase tracking-tight italic">AI Optimized</span>
         </div>
       </div>
+
+      <CustomSceneDialog
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        available={availableMedia ?? []}
+        initial={
+          editingCustomId ? customById.get(editingCustomId) ?? null : null
+        }
+        onSubmit={(draft) => { upsertCustomScene(draft); setAddOpen(false); setEditingCustomId(null); }}
+      />
 
       <p className="text-[11px] text-muted-foreground italic">Glissez-déposez les scènes pour les réordonner. Ajustez la durée avec les boutons +/−.</p>
 
@@ -391,6 +496,26 @@ export function StudioVideoScenarioPanel({
                   <span className="text-[10px] text-muted-foreground tabular-nums">
                     {formatTime(scene.start)} → {formatTime(scene.start + scene.duration)}
                   </span>
+                  {scene.icon === "custom" && isCustomToken(scene.id) && (
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => { setEditingCustomId(customIdFromToken(scene.id)); setAddOpen(true); }}
+                        className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
+                        aria-label="Modifier l'étape"
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeCustomScene(customIdFromToken(scene.id))}
+                        className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                        aria-label="Supprimer l'étape"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed italic">{scene.description}</p>
@@ -556,3 +681,165 @@ function formatTime(seconds: number): string {
   const s = Math.round(seconds);
   return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}s`;
 }
+
+function CustomSceneDialog({
+  open,
+  onOpenChange,
+  available,
+  initial,
+  onSubmit,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  available: SceneMediaItem[];
+  initial: CustomScene | null;
+  onSubmit: (draft: CustomScene) => void;
+}) {
+  const [mode, setMode] = useState<"fullscreen" | "overlay">(initial?.mode ?? "fullscreen");
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [subtitle, setSubtitle] = useState(initial?.subtitle ?? "");
+  const [duration, setDuration] = useState(initial?.duration ?? 4);
+  const [mediaUrl, setMediaUrl] = useState<string | null>(initial?.media?.url ?? null);
+
+  useEffect(() => {
+    if (!open) return;
+    setMode(initial?.mode ?? "fullscreen");
+    setTitle(initial?.title ?? "");
+    setSubtitle(initial?.subtitle ?? "");
+    setDuration(initial?.duration ?? 4);
+    setMediaUrl(initial?.media?.url ?? null);
+  }, [open, initial]);
+
+  const canSubmit = title.trim().length > 0 && duration >= 1 && duration <= 60 &&
+    (mode !== "overlay" || (!!mediaUrl && !!available.find((m) => m.url === mediaUrl)));
+
+  const submit = () => {
+    if (!canSubmit) return;
+    const media = mediaUrl ? available.find((m) => m.url === mediaUrl) ?? undefined : undefined;
+    onSubmit({
+      id: initial?.id ?? newCustomId(),
+      mode,
+      title: title.trim(),
+      subtitle: subtitle.trim() || undefined,
+      duration,
+      media,
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{initial ? "Modifier l'étape" : "Ajouter une étape texte"}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label className="text-xs uppercase tracking-wider">Type d'étape</Label>
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              <button
+                type="button"
+                onClick={() => setMode("fullscreen")}
+                className={cn(
+                  "rounded-md border p-3 text-left text-xs transition-colors",
+                  mode === "fullscreen" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                )}
+              >
+                <div className="font-bold mb-0.5">Carton texte</div>
+                <div className="text-muted-foreground">Fond sombre, texte centré plein écran.</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("overlay")}
+                className={cn(
+                  "rounded-md border p-3 text-left text-xs transition-colors",
+                  mode === "overlay" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                )}
+              >
+                <div className="font-bold mb-0.5">Overlay sur média</div>
+                <div className="text-muted-foreground">Texte superposé à une image ou vidéo.</div>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="cs-title" className="text-xs uppercase tracking-wider">Titre</Label>
+            <Input
+              id="cs-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value.slice(0, 120))}
+              placeholder="Texte principal (max 120)"
+              maxLength={120}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="cs-sub" className="text-xs uppercase tracking-wider">Sous-titre (optionnel)</Label>
+            <Textarea
+              id="cs-sub"
+              value={subtitle}
+              onChange={(e) => setSubtitle(e.target.value.slice(0, 240))}
+              placeholder="Détail secondaire (max 240)"
+              rows={2}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="cs-dur" className="text-xs uppercase tracking-wider">Durée (secondes)</Label>
+            <Input
+              id="cs-dur"
+              type="number"
+              min={1}
+              max={60}
+              value={duration}
+              onChange={(e) => {
+                const v = parseInt(e.target.value, 10);
+                if (Number.isFinite(v)) setDuration(Math.max(1, Math.min(60, v)));
+              }}
+            />
+          </div>
+
+          {mode === "overlay" && (
+            <div>
+              <Label className="text-xs uppercase tracking-wider">Média de fond</Label>
+              {available.length === 0 ? (
+                <p className="text-xs text-muted-foreground mt-2">Aucun média disponible pour l'établissement sélectionné.</p>
+              ) : (
+                <div className="grid grid-cols-4 gap-2 mt-2 max-h-52 overflow-y-auto">
+                  {available.map((m) => {
+                    const selected = mediaUrl === m.url;
+                    return (
+                      <button
+                        key={m.url}
+                        type="button"
+                        onClick={() => setMediaUrl(m.url)}
+                        className={cn(
+                          "relative aspect-square rounded overflow-hidden border-2 transition-colors",
+                          selected ? "border-primary" : "border-transparent hover:border-primary/40"
+                        )}
+                      >
+                        {m.kind === "video" ? (
+                          <div className="w-full h-full flex items-center justify-center bg-muted">
+                            <Film className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                        ) : (
+                          <img src={m.url} alt="" className="w-full h-full object-cover" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Annuler</Button>
+          <Button onClick={submit} disabled={!canSubmit}>
+            {initial ? "Enregistrer" : "Ajouter"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+

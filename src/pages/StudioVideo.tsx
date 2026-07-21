@@ -527,6 +527,7 @@ export default function StudioVideo() {
               for (const s of src) out[s.icon] = s.duration;
               return out;
             })(),
+            custom_scenes: scenarioEdits?.customScenes,
             text_position: textPosition,
           },
 
@@ -589,6 +590,7 @@ export default function StudioVideo() {
             scene_media: sceneMedia,
             scene_order: scenarioEdits?.order,
             scene_durations: scenarioEdits?.durations,
+            custom_scenes: scenarioEdits?.customScenes,
             text_position: textPosition,
           },
 
