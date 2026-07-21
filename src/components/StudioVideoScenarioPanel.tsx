@@ -40,6 +40,30 @@ export type Scenario = {
   totalDuration: number;
 };
 
+export type Scene = {
+  id: string;
+  label: string;
+  duration: number;
+  start: number;
+  description: string;
+  keywords: string[];
+  icon: "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro" | "custom";
+};
+
+export type Scenario = {
+  scenes: Scene[];
+  totalDuration: number;
+};
+
+export type CustomScene = {
+  id: string;                 // stable, unique
+  mode: "fullscreen" | "overlay";
+  title: string;
+  subtitle?: string;
+  duration: number;           // seconds
+  media?: SceneMediaItem;     // required in overlay mode, optional backdrop in fullscreen
+};
+
 const ICONS: Record<Scene["icon"], React.ReactNode> = {
   hook: <Star className="h-3.5 w-3.5" />,
   name: <MessageSquare className="h-3.5 w-3.5" />,
@@ -51,9 +75,10 @@ const ICONS: Record<Scene["icon"], React.ReactNode> = {
   digital: <QrCode className="h-3.5 w-3.5" />,
   cta: <Download className="h-3.5 w-3.5" />,
   outro: <Clock className="h-3.5 w-3.5" />,
+  custom: <Type className="h-3.5 w-3.5" />,
 };
 
-const LABELS: Record<Scene["icon"], string> = {
+const LABELS: Record<Exclude<Scene["icon"], "custom">, string> = {
   hook: "Hook",
   name: "Nom & identité",
   media: "Médias",
