@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut, Maximize2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
-import { StudioVideoScenarioPanel, buildScenario, extractKeywords, scenarioFromTemplateProps, type Scenario, type SceneMediaMap, type SceneMediaItem } from "@/components/StudioVideoScenarioPanel";
+import { StudioVideoScenarioPanel, buildScenario, extractKeywords, scenarioFromTemplateProps, type Scenario, type SceneMediaMap, type SceneMediaItem, type ScenarioEdits } from "@/components/StudioVideoScenarioPanel";
 import maisonBrummellAsset from "@/assets/maison-brummell.mp4.asset.json";
 import riadDarNajatAsset from "@/assets/riad-dar-najat.mp4.asset.json";
 import narComplexeAsset from "@/assets/nar-complexe.mp4.asset.json";
