@@ -17,7 +17,11 @@ type Row = {
   city: string | null;
   sort_order: number;
   is_active: boolean;
+  fixed_response_fr: string | null;
+  fixed_response_en: string | null;
+  fixed_response_ar: string | null;
 };
+
 
 const ClubAiSuggestionsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
