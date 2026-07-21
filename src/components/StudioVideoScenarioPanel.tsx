@@ -496,6 +496,26 @@ export function StudioVideoScenarioPanel({
                   <span className="text-[10px] text-muted-foreground tabular-nums">
                     {formatTime(scene.start)} → {formatTime(scene.start + scene.duration)}
                   </span>
+                  {scene.icon === "custom" && isCustomToken(scene.id) && (
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => { setEditingCustomId(customIdFromToken(scene.id)); setAddOpen(true); }}
+                        className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
+                        aria-label="Modifier l'étape"
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeCustomScene(customIdFromToken(scene.id))}
+                        className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                        aria-label="Supprimer l'étape"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed italic">{scene.description}</p>
