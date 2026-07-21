@@ -347,11 +347,18 @@ export function useBookOnlineData(businessId: string) {
         setWoDescription(null);
       } else {
         const bAny: any = biz || {};
-        const bizLocalized = language === "ar" ? (bAny.description_ar || bAny.description_fr || bAny.description)
-          : language === "en" ? (bAny.description_en || bAny.description_fr || bAny.description)
-          : (bAny.description_fr || bAny.description);
-        setWoDescription(meaningfulHtml((woRes.data as any)?.description) ?? meaningfulHtml(bizLocalized));
+        const woRaw = (woRes.data as any)?.description ?? null;
+        // Store all language variants so the display can react to language changes
+        // without a network refetch. Priority: web_only override > localized biz > FR fallback.
+        const pickLocalized = (lang: string) => {
+          if (woRaw) return woRaw; // web_only override (currently single-language)
+          if (lang === "ar") return bAny.description_ar || bAny.description_fr || bAny.description;
+          if (lang === "en") return bAny.description_en || bAny.description_fr || bAny.description;
+          return bAny.description_fr || bAny.description;
+        };
+        setWoDescription(meaningfulHtml(pickLocalized(language)));
       }
+
       setReviewTexts(reviewsRes.data ? (reviewsRes.data as any[]) : []);
       setExternalLinks((extLinksRes.data || []) as ExternalLinkItem[]);
       setMenuSummaries((menuSumRes.data || []) as MenuSummary[]);
