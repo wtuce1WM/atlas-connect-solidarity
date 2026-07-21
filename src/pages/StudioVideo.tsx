@@ -284,6 +284,8 @@ export default function StudioVideo() {
       setSelectedImages(new Set());
       setSelectedVideos(new Set());
       setSceneMedia({});
+      setOffersList([]);
+      setSelectedOfferIds(new Set());
       return;
     }
     let cancelled = false;
