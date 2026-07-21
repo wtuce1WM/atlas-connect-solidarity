@@ -287,9 +287,14 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       if (args.neighborhood) qParts.push(String(args.neighborhood));
       const fullQuery = qParts.filter(Boolean).join(" ").trim();
 
-      // Appel business-search (même moteur que /search) avec projection "card"
-      const { data: sres, error: sErr } = await ctx.supabase.functions.invoke("business-search", {
-        body: {
+      // Appel business-search (même moteur que /search) — direct fetch pour éviter
+      // les aléas de `functions.invoke` depuis Deno (parfois body non transmis).
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      let sres: any = null;
+      let sErr: string | null = null;
+      try {
+        const body = {
           query: fullQuery || undefined,
           spoken: fullQuery || undefined,
           language: (args.language as string) || "fr",
@@ -297,11 +302,26 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
           offset: 0,
           compact: "card",
           city: args.city || undefined,
-        },
-      });
+        };
+        const r = await fetch(`${supabaseUrl}/functions/v1/business-search`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${serviceKey}`,
+            apikey: serviceKey,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
+        });
+        const text = await r.text();
+        try { sres = JSON.parse(text); } catch { sres = null; }
+        if (!r.ok) sErr = `HTTP ${r.status}: ${text.slice(0, 200)}`;
+        console.log("club-ai-chat → business-search", JSON.stringify({ args, fullQuery, status: r.status, total: sres?.totalCount, n: Array.isArray(sres?.businesses) ? sres.businesses.length : 0, detectedCity: sres?.detectedCity, detectedCategory: sres?.detectedCategory, detectedService: sres?.detectedService }));
+      } catch (e) {
+        sErr = String(e);
+        console.error("club-ai-chat → business-search fetch exception", e);
+      }
       if (sErr) {
-        console.error("club-ai-chat → business-search error", sErr, "args=", JSON.stringify(args));
-        return { results: [], error: String(sErr), hint: "Réessaie avec des critères plus simples." };
+        return { results: [], error: sErr, hint: "Réessaie avec des critères plus simples." };
       }
       const businesses: any[] = Array.isArray(sres?.businesses) ? sres.businesses : [];
       const total = typeof sres?.totalCount === "number" ? sres.totalCount : businesses.length;
