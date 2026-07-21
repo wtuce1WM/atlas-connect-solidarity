@@ -62,19 +62,80 @@ const splitHookInTwo = (h: string): [string, string] => {
   return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
 };
 
-export const computeShowcaseFrames = (p: ShowcaseProps): number => {
-  let cursor = 390;
-  if (p.offer) {
-    const linesCount = Array.isArray(p.offer.lines) ? p.offer.lines.length : 0;
-    cursor += 120 + Math.min(linesCount, 6) * 22;
+type SceneKind = "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro";
+
+const DEFAULT_SCENE_ORDER: SceneKind[] = ["hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta"];
+
+function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
+  switch (kind) {
+    case "hook":
+    case "name":
+    case "media":
+    case "cta": return true;
+    case "offer": return !!p.offer;
+    case "reviews": return !!(p.showReviews && (p.rating || p.reviewsCount));
+    case "hours": return !!(p.showOpeningHours && p.openingHours);
+    case "map": return !!(p.showMap && p.latitude && p.longitude);
+    case "digital": return !!(p.showDigitalId && p.slug);
+    case "outro": return false; // merged into cta scene
   }
-  if (p.showReviews && (p.rating || p.reviewsCount)) cursor += OPTION_SCENE_FRAMES;
-  if (p.showOpeningHours && p.openingHours) cursor += OPTION_SCENE_FRAMES;
-  if (p.showMap && p.latitude && p.longitude) cursor += OPTION_SCENE_FRAMES;
-  if (p.showDigitalId) cursor += DIGITAL_ID_FRAMES;
-  const naturalEnd = cursor + 150;
-  const requestedEnd = Number.isFinite(p.durationSec) && p.durationSec ? Math.round(Number(p.durationSec) * 30) : SHOWCASE_TOTAL_FRAMES;
-  return Math.max(naturalEnd, requestedEnd);
+}
+
+function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
+  switch (kind) {
+    case "hook": return 120;
+    case "name": return 120;
+    case "media": return 150;
+    case "offer": {
+      const lines = p.offer && Array.isArray(p.offer.lines) ? p.offer.lines.length : 0;
+      return 120 + Math.min(lines, 6) * 22;
+    }
+    case "reviews":
+    case "hours":
+    case "map": return OPTION_SCENE_FRAMES;
+    case "digital": return DIGITAL_ID_FRAMES;
+    case "cta":
+    case "outro": return 150;
+  }
+}
+
+export function buildScenePlan(p: ShowcaseProps): Array<{ kind: SceneKind; from: number; duration: number }> {
+  const active = DEFAULT_SCENE_ORDER.filter((k) => isSceneActive(k, p));
+  let order = active;
+  if (Array.isArray(p.scene_order) && p.scene_order.length) {
+    const requested = (p.scene_order as SceneKind[]).filter((k) => active.includes(k));
+    for (const k of active) if (!requested.includes(k)) requested.push(k);
+    order = requested;
+  }
+  const durOverride = (k: SceneKind): number | null => {
+    const v = p.scene_durations?.[k];
+    return v != null && Number.isFinite(Number(v)) && Number(v) > 0 ? Math.round(Number(v) * 30) : null;
+  };
+  const durations: Record<string, number> = {};
+  for (const k of order) durations[k] = durOverride(k) ?? defaultSceneFrames(k, p);
+
+  // Stretch CTA to reach requested total if not explicitly overridden
+  const requestedFrames = Number.isFinite(p.durationSec) && p.durationSec
+    ? Math.round(Number(p.durationSec) * 30)
+    : SHOWCASE_TOTAL_FRAMES;
+  if (order.includes("cta") && durOverride("cta") == null) {
+    const nonCta = order.filter((k) => k !== "cta").reduce((acc, k) => acc + durations[k], 0);
+    durations.cta = Math.max(150, requestedFrames - nonCta);
+  }
+
+  const plan: Array<{ kind: SceneKind; from: number; duration: number }> = [];
+  let cursor = 0;
+  for (const k of order) {
+    plan.push({ kind: k, from: cursor, duration: durations[k] });
+    cursor += durations[k];
+  }
+  return plan;
+}
+
+export const computeShowcaseFrames = (p: ShowcaseProps): number => {
+  const plan = buildScenePlan(p);
+  const sum = plan.reduce((acc, s) => acc + s.duration, 0);
+  return Math.max(sum, 300);
 };
 
 
