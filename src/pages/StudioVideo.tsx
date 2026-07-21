@@ -353,12 +353,24 @@ export default function StudioVideo() {
       const oh = b.opening_hours;
       const hasHoursData = !!oh && (typeof oh === "string" ? oh.trim().length > 0 : (Array.isArray(oh) ? oh.length > 0 : Object.keys(oh).length > 0));
       const hoursPublished = b.show_opening_hours !== false && hasHoursData;
+      const offersRaw = (promos.data ?? []) as any[];
+      const mappedOffers = offersRaw.map((o) => ({
+        id: o.id as string,
+        title: (o.title_fr || o.title || "Offre") as string,
+        message: (o.promotion_message_fr || o.promotion_message || null) as string | null,
+        promotion_type: (o.promotion_type ?? null) as string | null,
+        promotion_value: (o.promotion_value ?? null) as number | null,
+        promotion_currency: (o.promotion_currency ?? null) as string | null,
+        savings_amount: (o.savings_amount ?? null) as number | null,
+      }));
+      setOffersList(mappedOffers);
+      setSelectedOfferIds(new Set(mappedOffers.map((o) => o.id)));
       setBizStats({
         hook: b.hook_fr ?? null,
         descLen: (b.description ?? "").length,
         images: imgs.length,
         videos: docVideos.length + ytVideos.length,
-        offers: promos.count ?? 0,
+        offers: mappedOffers.length,
         popup: !!b.popup_image_url,
         hoursPublished,
         isActive: b.is_active !== false,
