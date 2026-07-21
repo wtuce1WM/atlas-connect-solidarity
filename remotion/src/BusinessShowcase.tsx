@@ -892,9 +892,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
       <Background />
       <Sequence from={0} durationInFrames={120}>
-        {mixedMode ? (
-          <SceneHook name={name} location={locationLine} img={heroMedia} />
-        ) : useVideos && heroMedia ? (
+        {heroIsVideo && heroMedia ? (
           <AbsoluteFill>
             <VideoCover src={heroMedia} from={0} duration={120} />
             <SceneHook name={name} location={locationLine} />
@@ -905,26 +903,36 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
       </Sequence>
       <Sequence from={120} durationInFrames={120}>
         <AbsoluteFill>
-          {mixedMode && galleryList[0] ? (
-            <VideoCover src={galleryList[0]} from={0} duration={120} />
-          ) : useVideos && galleryList[0] ? (
-            <VideoCover src={galleryList[0]} from={0} duration={120} />
-          ) : galleryList[0] ? (
-            <KenBurns src={galleryList[0]} from={0} duration={120} />
+          {nameMediaUrl ? (
+            nameIsVideo ? (
+              <VideoCover src={nameMediaUrl} from={0} duration={120} />
+            ) : (
+              <KenBurns src={nameMediaUrl} from={0} duration={120} />
+            )
           ) : null}
           <HookOverlay text={hookPart1} duration={120} />
         </AbsoluteFill>
       </Sequence>
       <Sequence from={240} durationInFrames={150}>
         <AbsoluteFill>
-          {(mixedMode || useVideos) ? (
+          {mediaList ? (
             <AbsoluteFill>
-              {galleryList.slice(1, 4).map((src, i) => (
+              {mediaList.slice(0, 3).map((m, i) => (
+                m.kind === "video" ? (
+                  <VideoCover key={m.url + i} src={m.url} from={i * 50} duration={70} />
+                ) : (
+                  <KenBurns key={m.url + i} src={m.url} from={i * 50} duration={70} />
+                )
+              ))}
+            </AbsoluteFill>
+          ) : (mixedMode || useVideos) ? (
+            <AbsoluteFill>
+              {defaultMediaSlice.map((src, i) => (
                 <VideoCover key={src + i} src={src} from={i * 50} duration={70} />
               ))}
             </AbsoluteFill>
           ) : (
-            <SceneGallery images={galleryList.slice(1)} />
+            <SceneGallery images={defaultGalleryList.slice(1)} />
           )}
           <HookOverlay text={hookPart2 || hookPart1} duration={150} />
         </AbsoluteFill>
@@ -935,12 +943,20 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
       {offer && (
         <Sequence from={390} durationInFrames={offerDuration}>
           <AbsoluteFill>
-            {(offer.background_video_url || offer.background_image_url) && (
-              <>
-                <VideoBackdrop src={offer.background_video_url} image={offer.background_image_url} />
-                <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.55) 0%,rgba(14,11,8,0.78) 100%)" }} />
-              </>
-            )}
+            {(() => {
+              const offerBgItem = offerOverride[0];
+              const bgVideo = offerBgItem?.kind === "video" ? offerBgItem.url : offer.background_video_url;
+              const bgImage = offerBgItem?.kind === "image" ? offerBgItem.url : offer.background_image_url;
+              if (bgVideo || bgImage) {
+                return (
+                  <>
+                    <VideoBackdrop src={bgVideo} image={bgImage} />
+                    <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.55) 0%,rgba(14,11,8,0.78) 100%)" }} />
+                  </>
+                );
+              }
+              return null;
+            })()}
             <SceneOffer offer={offer} city={city} durationFrames={offerDuration} />
           </AbsoluteFill>
         </Sequence>
