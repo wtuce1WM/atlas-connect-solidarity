@@ -1260,6 +1260,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
       {openBusinessId && (
         <div
+          ref={panelWheelRef}
           className={`fixed top-0 left-0 right-0 bottom-0 z-[220] bg-background shadow-2xl overflow-visible flex flex-col transform-gpu will-change-transform lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:w-1/2 ${isBusinessPanelClosing ? "animate-slide-out-right" : "animate-slide-in-right"}`}
           style={{
             height: "100dvh",
