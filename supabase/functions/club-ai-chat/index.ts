@@ -1338,9 +1338,9 @@ serve(async (req) => {
           }
           turnLog.route_taken = "affirmative_map";
           turnLog.results_shown = (forced as any).businesses.length;
-          return new Response(JSON.stringify({ answer, chatId: resultChatId, followups: [] }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+          emit({ type: "chunk", delta: answer.split(/<!--/)[0] });
+          emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+          return;
         }
       }
     }
