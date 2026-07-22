@@ -810,6 +810,18 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       const to = (args.to_date && String(args.to_date).slice(0, 10))
         || new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
 
+      const evCacheKey = "se:" + JSON.stringify({
+        l: limit, f: from, t: to,
+        q: args.query || "",
+        c: args.city || "",
+        all: !!args.include_all_badges,
+      });
+      const evCached = cacheGet(evCacheKey);
+      if (evCached) {
+        console.log("club-ai-chat → search_events CACHE HIT", { key: evCacheKey.slice(0, 80) });
+        return { ...evCached, _cache_hit: true };
+      }
+
       let eventIds: string[] | null = null;
       if (!args.include_all_badges) {
         // Badge #Agenda
