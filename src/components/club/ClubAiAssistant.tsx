@@ -474,6 +474,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
   // Map slide-panel state (opened when the user clicks a mini-map card in a message).
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
+  const [openEvents, setOpenEvents] = useState<{ list: EventPanelItem[]; index: number } | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
   const [isBusinessPanelClosing, setIsBusinessPanelClosing] = useState(false);
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
