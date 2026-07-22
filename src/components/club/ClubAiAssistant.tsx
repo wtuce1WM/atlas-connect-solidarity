@@ -995,7 +995,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const ttsBusy = tts.status === "loading" || tts.status === "playing" || tts.status === "paused";
 
   return (
-    <div className={`flex flex-col gap-4 min-h-[520px] transition-[width,max-width,padding] duration-300 ease-out ${openBusinessId ? "lg:w-1/2 lg:max-w-[calc(50vw-1rem)] lg:pr-2" : "w-full"}`}>
+    <div className={`flex flex-col gap-4 min-h-[520px] transition-[width,max-width,padding] duration-300 ease-out ${(openBusinessId || openMap) ? "lg:w-1/2 lg:max-w-[calc(50vw-1rem)] lg:pr-2" : "w-full"}`}>
       {/* Chat */}
       <section className="relative bg-[#ECD6B8] rounded-xl flex flex-col min-h-[300px]">
         <header className="flex items-center justify-between gap-2 px-4 py-3 border-b border-white/40">
