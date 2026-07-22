@@ -460,9 +460,103 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         };
       }
 
+      // ---- Hard server-side post-filter based on user intent ---------------
+      // The LLM sometimes ignores rules 14/15/16 (landmark proof, composed AND
+      // intent, explicit exclusions). We enforce them here so it never even
+      // sees non-matching results (e.g. Riad Danka for "bar avec vue koutoubia
+      // pas d'hôtel").
+      const norm = (s: any) =>
+        String(s ?? "")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase();
+      const intentSource = norm(`${ctx.lastUserMessage || ""} ${ctx.forceQuery || ""} ${args.query || ""}`);
+
+      // Exclusions "pas d'hôtel / no hotel / pas de riad / sans hôtel..."
+      const excludeHotel =
+        /\b(pas|sans|no|not|exclu[re]?|autre que)\s+(un\s+|une\s+|d[e']?\s+|of\s+)?(hotel|hôtel|hotels|hôtels|riad|riads|maison\s+d.?hote|maison\s+d.?hotes|guesthouse|guest\s*house|hebergement|hébergement)/i
+          .test(intentSource);
+      const hotelCategoriesNorm = ["hotellerie", "hebergement", "riad", "hotel", "maison d hotes", "maison d'hotes", "guesthouse", "guest house"];
+      const isHotelLike = (b: any) => {
+        const mc = norm(b.main_category);
+        if (hotelCategoriesNorm.includes(mc)) return true;
+        const cats = Array.isArray(b.categories) ? b.categories.map(norm) : [];
+        return cats.some((c: string) => hotelCategoriesNorm.some((h) => c.includes(h)));
+      };
+
+      // Required "bar" attribute
+      const requiresBar = /\bbar(s)?\b/.test(intentSource);
+      const hasBar = (b: any) => {
+        const services = Array.isArray(b.services) ? b.services.map(norm) : [];
+        if (services.some((s: string) => /\bbar\b/.test(s))) return true;
+        if (/\bbar\b/.test(norm(b.name))) return true;
+        if (/\bbar\b/.test(norm(b.main_category))) return true;
+        const cats = Array.isArray(b.categories) ? b.categories.map(norm) : [];
+        if (cats.some((c: string) => /\bbar\b/.test(c))) return true;
+        return false;
+      };
+
+      // Landmark proof (Koutoubia, Jemaa el-Fna, Menara, Bab Agnaou, Kasbah…)
+      const LANDMARKS: Array<{ tokens: RegExp; label: string }> = [
+        { tokens: /\bkoutoubia|kutubiyya\b/, label: "koutoubia" },
+        { tokens: /\bjemaa\s*el[- ]?fna|jamaa\s*el[- ]?fna|djemaa|place\s+jemaa\b/, label: "jemaa el fna" },
+        { tokens: /\bmenara\b/, label: "menara" },
+        { tokens: /\bbab\s+agnaou\b/, label: "bab agnaou" },
+      ];
+      const requiredLandmarks = LANDMARKS.filter((l) => l.tokens.test(intentSource));
+
+      // Need descriptions to check landmark proof and bar wording
+      let descPre = new Map<string, string>();
+      if ((requiredLandmarks.length || requiresBar) && allBusinesses.length) {
+        const preIds = allBusinesses.map((b: any) => b.id).filter(Boolean);
+        const { data: preDesc } = await ctx.supabase
+          .from("businesses")
+          .select("id,description")
+          .in("id", preIds);
+        (preDesc || []).forEach((r: any) => descPre.set(r.id, norm(r.description || "")));
+      }
+
+      const matchesLandmark = (b: any) => {
+        if (!requiredLandmarks.length) return true;
+        const text = [
+          norm(b.name),
+          norm(b.hook_fr),
+          norm(b.hook_en),
+          norm(b.hook_ar),
+          descPre.get(b.id) || "",
+        ].join(" ");
+        return requiredLandmarks.every((l) => l.tokens.test(text));
+      };
+      const barConfirmed = (b: any) => {
+        if (!requiresBar) return true;
+        if (hasBar(b)) return true;
+        const desc = descPre.get(b.id) || "";
+        return /\bbar\b/.test(desc);
+      };
+
+      const filtered = allBusinesses.filter((b: any) => {
+        if (excludeHotel && isHotelLike(b)) return false;
+        if (!barConfirmed(b)) return false;
+        if (!matchesLandmark(b)) return false;
+        return true;
+      });
+
+      const droppedCount = allBusinesses.length - filtered.length;
+      if (droppedCount > 0) {
+        console.log("club-ai-chat → post-filter", JSON.stringify({
+          intentSource: intentSource.slice(0, 120),
+          excludeHotel, requiresBar, landmarks: requiredLandmarks.map((l) => l.label),
+          before: allBusinesses.length, after: filtered.length,
+        }));
+      }
+
+      const effectiveList = filtered.length ? filtered : allBusinesses;
+      const strictFilterApplied = filtered.length > 0 && droppedCount > 0;
+
       // Enrichissement : description + highlights (blocs) pour les résultats affichés
-      const businesses = allBusinesses.slice(0, limit);
+      const businesses = effectiveList.slice(0, limit);
       const ids = businesses.map((b) => b.id).filter(Boolean);
+
       const [descRes, hlRes] = await Promise.all([
         ctx.supabase.from("businesses").select("id,description").in("id", ids),
         ctx.supabase
