@@ -1665,7 +1665,11 @@ ${languageInstruction}`;
           if (tc.function?.name === "show_on_map" && (result as any)?.ok && Array.isArray((result as any).businesses) && (result as any).businesses.length) {
             mapPayloads.push({ title: args.title, businesses: (result as any).businesses });
           }
+          if (tc.function?.name === "show_on_map" && (result as any)?.ok && Array.isArray((result as any).businesses)) {
+            for (const b of (result as any).businesses) addKnown(b);
+          }
           if (tc.function?.name === "search_businesses" && Array.isArray((result as any)?.results) && (result as any).results.length) {
+            for (const b of (result as any).results) addKnown(b);
             lastSearchNames = (result as any).results.map((r: any) => r.name).filter(Boolean);
             lastSearchSlugs = (Array.isArray((result as any).map_slugs) && (result as any).map_slugs.length
               ? (result as any).map_slugs
