@@ -478,12 +478,29 @@ const BlogArticleTemplate = ({
         </div>
       ) : (
         <>
+          {/* TL;DR — optimized for LLM extraction (ChatGPT / Perplexity / Google AI Overviews) */}
+          {tldr && (
+            <section className="pt-14 pb-4 bg-background" aria-label="Résumé">
+              <div className="container mx-auto px-4 max-w-3xl">
+                <div className="border-l-4 border-primary/70 bg-muted/40 rounded-r-lg px-5 py-4">
+                  <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-1.5">
+                    En bref
+                  </p>
+                  <p className="text-foreground text-base md:text-lg leading-relaxed">
+                    {tldr}
+                  </p>
+                </div>
+              </div>
+            </section>
+          )}
+
           {/* Intro */}
-          <section className="py-14 bg-background">
+          <section className={`${tldr ? "pt-6 pb-14" : "py-14"} bg-background`}>
             <div className="container mx-auto px-4 max-w-3xl">
               <p className="text-foreground/80 text-lg leading-relaxed">{intro}</p>
             </div>
           </section>
+
 
           {/* Full-width map */}
           <section className="bg-background relative">
