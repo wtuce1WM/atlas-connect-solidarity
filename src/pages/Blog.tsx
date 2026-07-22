@@ -139,7 +139,7 @@ const Blog = () => {
             ))}
 
             {/* Page custom (pas un article éditorial) — classement dynamique des établissements les mieux notés */}
-            <Link to="/blog/etablissements-notes">
+            <Link to={withLangPrefix("/blog/etablissements-notes", language)}>
               <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/30 dark:to-amber-950/30">
                 <div className="aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
                   <img
