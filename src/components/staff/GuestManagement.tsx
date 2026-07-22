@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Loader2, Mail, Phone, MapPin, LogIn, Sparkles, Pencil, UserCog, Trash2 } from "lucide-react";
+import { Users, Loader2, Mail, Phone, MapPin, LogIn, Sparkles, Pencil, UserCog, Trash2, Bot } from "lucide-react";
 import ClubMemberEditor from "@/components/staff/ClubMemberEditor";
 
 interface PersonaTag {
@@ -20,6 +20,13 @@ interface PersonaOption {
   id: string;
   name_fr: string;
   sort_order: number;
+}
+
+interface AiUsageAgg {
+  event_count: number;
+  total_tokens: number;
+  total_cost_usd: number;
+  last_used_at: string | null;
 }
 
 interface ClubMemberWithSignIn {
