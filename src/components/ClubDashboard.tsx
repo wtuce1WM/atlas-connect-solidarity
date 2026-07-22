@@ -43,13 +43,17 @@ interface ClubDashboardProps {
 const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
   const { language } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const ALLOWED_TABS = ["assistant","account","addresses","travel","inspiration","ai-chats","profile","notifications","contact"];
   const tabFromUrl = searchParams.get("tab");
   const activeTab = tabFromUrl && ALLOWED_TABS.includes(tabFromUrl) ? tabFromUrl : "assistant";
   const handleTabChange = (v: string) => {
     const next = new URLSearchParams(searchParams);
     next.set("tab", v);
-    setSearchParams(next, { replace: true });
+    // Explicitly preserve the current pathname (which includes /en or /ar prefix)
+    // so the language segment is never dropped when switching tabs.
+    navigate({ pathname: location.pathname, search: `?${next.toString()}` }, { replace: true });
   };
 
   const quickTabs = [
