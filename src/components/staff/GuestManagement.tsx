@@ -58,6 +58,8 @@ const GuestManagement = () => {
   const [deletingMember, setDeletingMember] = useState<ClubMemberWithSignIn | null>(null);
   const [alsoDeleteAuth, setAlsoDeleteAuth] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [aiUsageByUser, setAiUsageByUser] = useState<Record<string, AiUsageAgg>>({});
+  const [aiRange, setAiRange] = useState<"30d" | "all">("30d");
 
   const handleDelete = async () => {
     if (!deletingMember) return;
