@@ -25,6 +25,36 @@ type PreviousSearchSnapshot = {
 };
 
 const MAP_TRIGGER_RE = /\b(sur\s+une?\s+cartes?|une?\s+cartes?|la\s+cartes?|cartes?|maps?|situe(?:z|s|r|nt)?|localise(?:z|s|r|nt)?|o[uù]\s+sont|o[uù]\s+se\s+trouvent|where\s+are|geoloc|g[ée]oloc)\b|خريطة/i;
+const KNOWN_CITY_NAMES = ["Marrakech", "Essaouira", "Casablanca", "Rabat", "Agadir", "Fès", "Tanger", "Ouarzazate", "Chefchaouen"];
+
+function extractMoroccoCity(value: unknown): string | null {
+  const raw = String(value || "").trim();
+  if (!raw) return null;
+  const normalized = normalizeLoose(raw);
+  for (const city of KNOWN_CITY_NAMES) {
+    if (normalized.includes(normalizeLoose(city))) return city;
+  }
+  return raw.length <= 40 && !raw.includes(",") ? raw : null;
+}
+
+function isAgendaIntent(text: string): boolean {
+  const n = normalizeLoose(text);
+  return /\b(agenda|evenement|evenements|event|events|concert|concerts|festival|festivals|expo|exposition|expositions|sortie|sorties|soir[ée]e|soirees|culturel|culturelle|ce\s+soir|ce\s+week\s*end|week\s*end|prochaines\s+semaines|que\s+se\s+passe|que\s+faire)\b/i.test(n);
+}
+
+function formatEventDate(event: any): string {
+  const fmt = (value?: string | null) => {
+    if (!value) return "";
+    const d = new Date(`${value}T12:00:00`);
+    if (Number.isNaN(d.getTime())) return value;
+    return new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric", timeZone: "Africa/Casablanca" }).format(d);
+  };
+  if (event.start_date && event.end_date && event.end_date !== event.start_date) return `${fmt(event.start_date)} → ${fmt(event.end_date)}`;
+  if (event.start_date) return fmt(event.start_date);
+  if (Array.isArray(event.days_of_week) && event.days_of_week.length) return `récurrent · ${event.days_of_week.join(", ")}`;
+  if (event.recurrence) return `récurrent · ${event.recurrence}`;
+  return "date à confirmer";
+}
 
 function extractRequestedResultCount(text: string): number | null {
   const match = String(text || "").match(/\b(?:les\s+)?(\d{1,3})\s+r[ée]sultats?\b/i);
@@ -750,10 +780,12 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       const { data, error } = await q;
       if (error) { console.error("search_events error", error); return { results: [], error: error.message }; }
       let results = data || [];
-      if (args.city) {
-        const cv = String(args.city).toLowerCase();
-        results = results.filter((e: any) => (e.cities?.name_fr || "").toLowerCase().includes(cv));
+      const requestedCity = extractMoroccoCity(args.city);
+      if (requestedCity) {
+        const cv = normalizeLoose(requestedCity);
+        results = results.filter((e: any) => normalizeLoose(e.cities?.name_fr || "").includes(cv));
       }
+      const totalCount = results.length;
       results = results.slice(0, limit).map((e: any) => ({
         id: e.id,
         name: e.name,
@@ -774,8 +806,8 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         videos: Array.isArray(e.videos) ? e.videos.filter(Boolean) : [],
         logo_url: e.logo_url || null,
       }));
-      if (!results.length) return { results: [], note: `Aucun événement trouvé entre ${from} et ${to}${args.city ? ` à ${args.city}` : ""}.` };
-      return { results, period: { from, to } };
+      if (!results.length) return { results: [], returned_count: 0, total_count: 0, period: { from, to }, note: `Aucun événement trouvé entre ${from} et ${to}${requestedCity ? ` à ${requestedCity}` : ""}.` };
+      return { results, returned_count: results.length, total_count: totalCount, period: { from, to }, city: requestedCity || null };
     }
     if (name === "get_my_trips") {
       const limit = Math.min(Number(args.limit) || 6, 10);
@@ -1087,6 +1119,76 @@ serve(async (req) => {
     // with the previous assistant answer.
     const previousSearchSnapshot = extractPreviousSearchSnapshot(messages);
     const requestedMapCount = extractRequestedResultCount(lastUserMsg);
+
+    if (isAgendaIntent(lastUserMsg)) {
+      try {
+        const agendaCity = extractMoroccoCity(lastUserMsg) || extractMoroccoCity(clientContext.activeCity) || undefined;
+        const eventSearch = await runTool("search_events", { city: agendaCity, limit: 8 }, { userId: user.id, supabase: admin, lastUserMessage: lastUserMsg, language: lang }) as any;
+        const events: any[] = Array.isArray(eventSearch?.results) ? eventSearch.results : [];
+        const totalCount = Number(eventSearch?.total_count) || events.length;
+
+        let answer = "";
+        if (events.length) {
+          const shown = Math.min(events.length, 5);
+          const title = agendaCity ? `Agenda 1WM · ${agendaCity}` : "Agenda 1WM";
+          const lines = events.slice(0, shown).map((event: any) => {
+            const place = [event.neighborhood, event.city].filter(Boolean).join(", ");
+            const details = [formatEventDate(event), place].filter(Boolean).join(" · ");
+            const hook = event.hook ? ` — ${String(event.hook).replace(/\s+/g, " ").slice(0, 150)}` : "";
+            return `- **${event.name}**${details ? ` · ${details}` : ""}${hook}`;
+          }).join("\n");
+          answer = `**Agenda 1WM**\n\n${lines}\n\n**${shown} résultats affichés sur ${totalCount} trouvés dans la base 1WM**`;
+          if (totalCount > shown) answer += `\n\nJe peux aussi ouvrir le slidepanel pour parcourir les ${totalCount} événements.`;
+
+          const snapshot = {
+            title,
+            city: agendaCity || null,
+            events: events.map((e: any) => ({
+              id: e.id,
+              name: e.name,
+              hook: e.hook || null,
+              start_date: e.start_date || null,
+              end_date: e.end_date || null,
+              days_of_week: e.days_of_week || null,
+              start_time: e.start_time || null,
+              end_time: e.end_time || null,
+              city: e.city || null,
+              neighborhood: e.neighborhood || null,
+              url: e.url || null,
+              default_business_id: e.default_business_id || null,
+              image: (Array.isArray(e.images) && e.images[0]) || e.logo_url || null,
+              video: (Array.isArray(e.videos) && e.videos[0]) || null,
+              sort_order: e.sort_order ?? null,
+            })),
+          };
+          const safe = JSON.stringify(snapshot).replace(/-->/g, "--&gt;");
+          answer += `\n\n<!--EVENTS_SNAPSHOT:${safe}-->`;
+        } else {
+          answer = `**Agenda 1WM**\n\nAucun événement trouvé dans la base 1WM sur les 90 prochains jours${agendaCity ? ` à ${agendaCity}` : ""}.`;
+        }
+
+        const newMessages = [...messages, { role: "assistant", content: answer }];
+        let resultChatId: string | null = null;
+        if (chatId) {
+          const { data: existing } = await admin.from("ai_chats").select("id").eq("id", chatId).eq("user_id", user.id).maybeSingle();
+          if (existing?.id) {
+            await admin.from("ai_chats").update({ messages: newMessages, updated_at: new Date().toISOString() }).eq("id", chatId).eq("user_id", user.id);
+            resultChatId = chatId;
+          }
+        }
+        if (!resultChatId) {
+          const title = lastUserMsg.slice(0, 200) || "Nouvelle conversation";
+          const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title, messages: newMessages }).select("id").single();
+          resultChatId = inserted?.id ?? null;
+        }
+        return new Response(JSON.stringify({ answer, chatId: resultChatId, followups: [] }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (e) {
+        console.error("deterministic agenda route failed", e);
+      }
+    }
+
     const refersToPreviousResults = /\b(r[ée]sultats?|ceux\s*-?ci|celles\s*-?ci|cette\s+liste|la\s+m[êe]me\s+liste|same\s+results?|these|them)\b/i.test(lastUserMsg || "");
     // Detect affirmative reply ("oui", "yes", "ok"...) to a previous assistant message
     // that proposed to show results on a map ("Veux-tu que je te montre ... sur une carte ?").
