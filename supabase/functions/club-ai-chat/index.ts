@@ -1993,14 +1993,16 @@ The user will click ONE of these as a new turn and prior constraints must be re-
     }
 
     if (turnLog.route_taken === "unknown") turnLog.route_taken = "tool_loop";
-    return new Response(JSON.stringify({ answer: finalAnswer, chatId: resultChatId, followups }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    // Non-streamed path: emit the answer as a single chunk then done.
+    emit({ type: "chunk", delta: String(finalAnswer || "").split(/<!--/)[0] });
+    emit({ type: "done", answer: finalAnswer, chatId: resultChatId, followups });
+    return;
   } catch (e) {
     console.error(e);
     turnLog.had_error = true;
     turnLog.error_message = String(e).slice(0, 500);
-    return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    emit({ type: "error", message: String(e), status: 500 });
+    return;
   } finally {
     try {
       if (adminForLog) {
@@ -2014,5 +2016,19 @@ The user will click ONE of these as a new turn and prior constraints must be re-
     } catch (logErr) {
       console.error("turnLog finally block error", logErr);
     }
+    closeStream();
   }
+  })();
+  // Don't await — return the stream immediately.
+  void work;
+
+  return new Response(stream, {
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache, no-transform",
+      "Connection": "keep-alive",
+      "X-Accel-Buffering": "no",
+    },
+  });
 });
