@@ -1613,6 +1613,15 @@ ${languageInstruction}`;
     let lastSearchTitle: string | undefined;
     let lastSearchSnapshot: PreviousSearchSnapshot | null = null;
     let lastEventsSnapshot: { title?: string; city?: string | null; events: any[] } | null = null;
+    // Accumulate businesses seen during the tool loop → seed client's lookup map
+    // and remove the client-side fuzzy DB roundtrips on `**Name**` clicks.
+    const knownBusinessesMap = new Map<string, { id: string; slug: string | null; name: string }>();
+    const addKnown = (b: any) => {
+      if (!b?.id || !b?.name) return;
+      const key = String(b.name).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+      if (!key || knownBusinessesMap.has(key)) return;
+      knownBusinessesMap.set(key, { id: b.id, slug: b.slug || null, name: b.name });
+    };
     // Per-turn tool gating : si la requête utilisateur mentionne un TYPE DE LIEU
     // sans marqueur événementiel explicite, on retire search_events du menu pour
     // empêcher le LLM de rester bloqué en mode agenda.
