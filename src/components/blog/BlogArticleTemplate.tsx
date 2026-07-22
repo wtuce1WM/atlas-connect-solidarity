@@ -850,10 +850,10 @@ const BlogArticleTemplate = ({
                 showSearchBar={true}
                 onSearch={(params) => {
                   const queryParams = new URLSearchParams(params).toString();
-                  navigate(`/search?${queryParams}`);
+                  navigate(withLangPrefix(`/search?${queryParams}`, language));
                 }}
                 onSearchBusinessSelect={(id) => {
-                  navigate(`/search?openBusiness=${id}`);
+                  navigate(withLangPrefix(`/search?openBusiness=${id}`, language));
                 }}
                 onHotelSearch={(intent, spokenText) => {
                   const params: Record<string, string> = {
@@ -864,7 +864,7 @@ const BlogArticleTemplate = ({
                     spokenText,
                   };
                   const queryParams = new URLSearchParams(params).toString();
-                  navigate(`/search?${queryParams}`);
+                  navigate(withLangPrefix(`/search?${queryParams}`, language));
                 }}
               />
             </Suspense>
