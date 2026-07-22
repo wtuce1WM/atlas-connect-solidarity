@@ -137,7 +137,7 @@ const HeaderMenuContent = ({ onNavigate }: Props) => {
             <li><Link to={withLangPrefix("/", language as "fr" | "en" | "ar")} className="hover:text-gold transition-colors" onClick={close}>{language === "ar" ? "الصفحة الرئيسية" : language === "en" ? "Home" : "Page d'accueil"}</Link></li>
             <li><Link to="/conditions-generales" className="hover:text-gold transition-colors" onClick={close}>Conditions Générales</Link></li>
             <li><a href="/affiliates" className="hover:text-gold transition-colors" onClick={close}>{t("footer.affiliates")}</a></li>
-            <li><Link to="/blog" className="hover:text-gold transition-colors" onClick={close}>{t("footer.blog")}</Link></li>
+            <li><Link to={withLangPrefix("/blog", language)} className="hover:text-gold transition-colors" onClick={close}>{t("footer.blog")}</Link></li>
             <li><a href="https://oneworldmorocco.com/solidarity/index.html" target="_blank" rel="noopener noreferrer" className="hover:text-gold transition-colors" onClick={close}>{language === "ar" ? "التضامن" : language === "en" ? "Solidarity" : "Solidarité"}</a></li>
           </ul>
         </div>
