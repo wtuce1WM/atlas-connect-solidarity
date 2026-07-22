@@ -84,6 +84,33 @@ function isBookmarksIntent(text: string): boolean {
   return BOOKMARKS_INTENT_RE.test(n) && n.split(/\s+/).length <= 12;
 }
 
+// Intent : "parle-moi de X", "c'est quoi X", "raconte X", "présente X", "tell me about X"
+// Retourne le nom du business demandé, ou null si pas de match d'intent.
+const DETAILS_PATTERNS: RegExp[] = [
+  /^(?:parle|parles?)[-\s]+moi\s+(?:un\s+peu\s+)?(?:de|du|d[’'])\s+(.{2,80})\??\s*$/i,
+  /^raconte[-\s]+moi\s+(?:un\s+peu\s+)?(?:de|du|d[’'])?\s*(.{2,80})\??\s*$/i,
+  /^(?:pr[eé]sente|d[eé]cris|dis[- ]moi\s+tout\s+sur)\s+(.{2,80})\??\s*$/i,
+  /^(?:c['’]?est\s+quoi|qu['’]?est[-\s]?ce\s+que\s+c['’]?est|c['’]?est\s+qui)\s+(.{2,80})\??\s*$/i,
+  /^(?:tell\s+me\s+(?:more\s+)?about|what\s+is|who\s+is|describe)\s+(.{2,80})\??\s*$/i,
+];
+const DETAILS_STOPWORDS = /^(un|une|des|le|la|les|l['’]|a|an|the|this|that|it|ce|cette|ces|mon|ma|mes|ton|ta|tes|the|d[eu])$/i;
+function extractDetailsTarget(text: string): string | null {
+  const t = String(text || "").trim();
+  if (!t || t.length > 120) return null;
+  for (const re of DETAILS_PATTERNS) {
+    const m = t.match(re);
+    if (m && m[1]) {
+      let name = m[1].trim().replace(/[?.!,;:]+$/g, "").trim();
+      // Rejette si trop générique (pas un nom propre)
+      const words = name.split(/\s+/);
+      if (words.length === 1 && DETAILS_STOPWORDS.test(words[0])) return null;
+      if (name.length < 2) return null;
+      return name.slice(0, 80);
+    }
+  }
+  return null;
+}
+
 function formatEventDate(event: any): string {
   const fmt = (value?: string | null) => {
     if (!value) return "";
