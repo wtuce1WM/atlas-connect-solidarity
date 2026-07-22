@@ -202,8 +202,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
     <>
       <div className="fixed inset-0 bg-black/50 z-[80]" onClick={onClose} />
       <div
-        className={`fixed z-[81] bg-[#ECD6B8] shadow-2xl overflow-hidden flex flex-col
-          ${isMobile ? "inset-0" : "top-0 right-0 h-full w-full max-w-[640px] rounded-l-2xl"}`}
+        className="fixed inset-0 z-[81] bg-[#ECD6B8] shadow-2xl overflow-hidden flex flex-col"
       >
         {/* Map fills the panel; toolbar floats on top */}
         <div className="relative flex-1">
@@ -214,6 +213,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
             center={cityCenter || userPos || undefined}
             fitToMarkers
             userLocation={userPos}
+            userMarkerLabel={mapLabel("youAreHere", language)}
           />
 
           {/* Floating toolbar — same layout as /search */}
