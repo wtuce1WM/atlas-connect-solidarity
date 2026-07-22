@@ -876,8 +876,14 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         videos: Array.isArray(e.videos) ? e.videos.filter(Boolean) : [],
         logo_url: e.logo_url || null,
       }));
-      if (!results.length) return { results: [], returned_count: 0, total_count: 0, period: { from, to }, note: `Aucun événement trouvé entre ${from} et ${to}${requestedCity ? ` à ${requestedCity}` : ""}.` };
-      return { results, returned_count: results.length, total_count: totalCount, period: { from, to }, city: requestedCity || null };
+      if (!results.length) {
+        const emptyEv = { results: [], returned_count: 0, total_count: 0, period: { from, to }, note: `Aucun événement trouvé entre ${from} et ${to}${requestedCity ? ` à ${requestedCity}` : ""}.` };
+        cacheSet(evCacheKey, emptyEv);
+        return emptyEv;
+      }
+      const evPayload = { results, returned_count: results.length, total_count: totalCount, period: { from, to }, city: requestedCity || null };
+      cacheSet(evCacheKey, evPayload);
+      return evPayload;
     }
     if (name === "get_my_trips") {
       const limit = Math.min(Number(args.limit) || 6, 10);
