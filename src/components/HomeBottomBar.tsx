@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PanelSearchBar from "@/components/PanelSearchBar";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix } from "@/lib/localizedPath";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import { useGeolocation } from "@/hooks/useGeolocation";
