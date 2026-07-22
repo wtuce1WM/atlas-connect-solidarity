@@ -1307,15 +1307,34 @@ serve(async (req) => {
       const looksLikeSearch = /(h[oô]tel|riad|restaurant|\bbar\b|rooftop|spa|hammam|piscine|plage|beach|caf[eé]|club|golf|shopping|boutique|guide|activit[eé]|excursion|randonn[eé]e|hike|tour|visite|mus[eé]e|marche|souk|voyage|s[eé]jour|week[- ]?end|montagne|desert|dune|surf|yoga|massage|cocktail|d[iî]ner|manger|dormir|boire|petit[- ]?d[eé]jeuner|brunch|marrakech|essaouira|casablanca|gu[eé]liz|palmeraie|m[eé]dina|hivernage|agdal|kasbah|ourika)/i;
       const searchVerbs = /(cherche|trouve|recommande|propose|montre|liste|donne|conseille|find|show|recommend|list|need|want)/i;
 
+      // Une requête qui cite un type de lieu (venue noun) est toujours une NOUVELLE
+      // recherche, jamais un raffinement — même courte, même après un tour précédent.
+      // Évite de fusionner "club de jazz ce soir" avec une question d'agenda antérieure.
+      if (VENUE_NOUN_RE.test(norm) || looksLikeSearch.test(norm)) return "search";
       if (hasPrev && (wc <= 6 || refinementStart.test(norm))) return "refinement";
-      if (looksLikeSearch.test(norm)) return "search";
       if (searchVerbs.test(norm) && wc >= 3) return "search";
       return "conversation";
     };
 
+    // Nettoie activeCity : si le client passe une adresse complète, extrait juste
+    // le nom de ville connu (Marrakech, Essaouira, Casablanca, Agadir, Taghazout…).
+    const cleanActiveCity = (raw: any): string | undefined => {
+      const s = String(raw || "").trim();
+      if (!s) return undefined;
+      const known = ["Marrakech", "Essaouira", "Casablanca", "Agadir", "Taghazout", "Rabat", "Fès", "Fes", "Tanger", "Chefchaouen", "Ouarzazate", "Merzouga"];
+      const norm = s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      for (const k of known) {
+        const kn = k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        if (norm.includes(kn)) return k;
+      }
+      // Sinon, si c'est un mot simple court, on garde ; sinon on abandonne.
+      return s.length <= 40 && !/[,\d]/.test(s) ? s : undefined;
+    };
+    const activeCityClean = cleanActiveCity(clientContext.activeCity);
+
     const isMapTrigger = MAP_TRIGGER_RE.test(lastUserMsg || "");
     const routedIntent = classifyIntent(lastUserMsg, !!previousUserQuery);
-    console.log("club-ai-chat router:", JSON.stringify({ intent: routedIntent, isMapTrigger, msg: lastUserMsg.slice(0, 100), hasPrev: !!previousUserQuery }));
+    console.log("club-ai-chat router:", JSON.stringify({ intent: routedIntent, isMapTrigger, msg: lastUserMsg.slice(0, 100), hasPrev: !!previousUserQuery, activeCityRaw: clientContext.activeCity, activeCityClean }));
 
     if (!isMapTrigger && !affirmativeMapTrigger && (routedIntent === "search" || routedIntent === "refinement")) {
       try {
@@ -1324,7 +1343,8 @@ serve(async (req) => {
           : lastUserMsg;
 
         const routerCtx = { userId: user.id, supabase: admin, lastUserMessage: fusedQuery, language: lang, forceQuery: fusedQuery };
-        const search = await runTool("search_businesses", { query: fusedQuery, limit: 30, city: clientContext.activeCity || undefined }, routerCtx) as any;
+        const search = await runTool("search_businesses", { query: fusedQuery, limit: 30, city: activeCityClean || undefined }, routerCtx) as any;
+
         const results: any[] = Array.isArray(search?.results) ? search.results : [];
         const totalCount = Number(search?.total_count) || results.length;
         console.log("router direct search:", JSON.stringify({ intent: routedIntent, fusedQuery: fusedQuery.slice(0, 120), returned: results.length, total: totalCount, strict: !!search?.strict_filter_applied }));
