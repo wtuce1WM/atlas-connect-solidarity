@@ -980,9 +980,66 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
   return { error: "unknown tool" };
 }
 
+// ============= SSE streaming helpers =============
+// Emits Server-Sent Events to the browser: {type:"chunk",delta}, {type:"done",answer,chatId,followups}, {type:"error",message,status?}
+type EmitFn = (obj: any) => void;
+
+async function streamGatewayText(
+  url: string,
+  init: RequestInit,
+  emit: EmitFn,
+  onFirstToken?: () => void,
+  signal?: AbortSignal,
+): Promise<{ text: string; ok: boolean; status: number }> {
+  const bodyObj = JSON.parse((init.body as string) || "{}");
+  bodyObj.stream = true;
+  const patched: RequestInit = { ...init, body: JSON.stringify(bodyObj), signal };
+  const resp = await fetch(url, patched);
+  if (!resp.ok || !resp.body) return { text: "", ok: false, status: resp.status };
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = ""; let text = ""; let first = false;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+    for (const line of lines) {
+      const l = line.trim();
+      if (!l.startsWith("data:")) continue;
+      const payload = l.slice(5).trim();
+      if (!payload || payload === "[DONE]") continue;
+      try {
+        const j = JSON.parse(payload);
+        const delta = j.choices?.[0]?.delta?.content;
+        if (typeof delta === "string" && delta.length) {
+          if (!first) { first = true; onFirstToken?.(); }
+          text += delta;
+          emit({ type: "chunk", delta });
+        }
+      } catch { /* partial */ }
+    }
+  }
+  return { text, ok: true, status: 200 };
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  // ============= SSE stream setup =============
+  const encoder = new TextEncoder();
+  let controllerRef: ReadableStreamDefaultController<Uint8Array> | null = null;
+  const stream = new ReadableStream<Uint8Array>({
+    start(c) { controllerRef = c; },
+    cancel() { controllerRef = null; },
+  });
+  const emit: EmitFn = (obj: any) => {
+    if (!controllerRef) return;
+    try { controllerRef.enqueue(encoder.encode(`data: ${JSON.stringify(obj)}\n\n`)); } catch {/* client aborted */}
+  };
+  const closeStream = () => { try { controllerRef?.close(); } catch {} controllerRef = null; };
+  const clientAbort = req.signal;
 
   // ============= Turn-level structured log =============
   const turnStartMs = Date.now();
@@ -1012,6 +1069,8 @@ serve(async (req) => {
   };
   let adminForLog: any = null;
 
+  // Fire-and-forget async worker: streams events to the client.
+  const work = (async () => {
   try {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY missing");
@@ -1026,7 +1085,8 @@ serve(async (req) => {
 
     const { data: { user } } = await userClient.auth.getUser();
     if (!user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      emit({ type: "error", message: "Unauthorized", status: 401 });
+      return;
     }
     const callerContext = await resolveCallerContext(admin, user.id);
     turnLog.user_id = user.id;
@@ -1084,9 +1144,9 @@ serve(async (req) => {
           }
           turnLog.route_taken = "fixed_response";
           turnLog.results_shown = 0;
-          return new Response(JSON.stringify({ answer: fixedAnswer, chatId: resultChatId, followups: [] }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+          emit({ type: "chunk", delta: fixedAnswer });
+          emit({ type: "done", answer: fixedAnswer, chatId: resultChatId, followups: [] });
+          return;
         }
       }
     } catch (e) {
@@ -1231,9 +1291,9 @@ serve(async (req) => {
           resultChatId = inserted?.id ?? null;
         }
         turnLog.route_taken = "agenda_shortcut";
-        return new Response(JSON.stringify({ answer, chatId: resultChatId, followups: [] }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        emit({ type: "chunk", delta: answer.split(/<!--/)[0] });
+        emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+        return;
       } catch (e) {
         console.error("deterministic agenda route failed", e);
       }
@@ -1278,9 +1338,9 @@ serve(async (req) => {
           }
           turnLog.route_taken = "affirmative_map";
           turnLog.results_shown = (forced as any).businesses.length;
-          return new Response(JSON.stringify({ answer, chatId: resultChatId, followups: [] }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+          emit({ type: "chunk", delta: answer.split(/<!--/)[0] });
+          emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+          return;
         }
       }
     }
@@ -1330,9 +1390,9 @@ serve(async (req) => {
           }
           turnLog.route_taken = "map_shortcut_fallback";
           turnLog.results_shown = (forced as any).businesses.length;
-          return new Response(JSON.stringify({ answer, chatId: resultChatId, followups: [] }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+          emit({ type: "chunk", delta: answer.split(/<!--/)[0] });
+          emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+          return;
         }
       }
     }
@@ -1423,8 +1483,9 @@ Consignes :
 ${totalCount > shownCount ? "- Puis propose : « je peux les afficher tous sur la carte »." : ""}`;
 
           let answer = "";
+          let streamed = false;
           try {
-            const synth = await fetchAiGateway(GATEWAY_URL, {
+            const synth = await streamGatewayText(GATEWAY_URL, {
               method: "POST",
               headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -1433,23 +1494,18 @@ ${totalCount > shownCount ? "- Puis propose : « je peux les afficher tous sur l
                 temperature: 0.5,
                 max_tokens: 700,
               }),
-            }, {
-              supabase: admin,
-              userId: callerContext.userId,
-              affiliateId: callerContext.affiliateId,
-              chatId: chatId || null,
-              context: "club-ai-chat-router-synth",
-              model: FALLBACK_MODEL,
-              metadata: { intent: routedIntent, active_city: clientContext?.activeCity || null, total: totalCount },
-            });
-            if (synth.ok) {
-              const sd = await synth.json();
-              answer = (sd.choices?.[0]?.message?.content || "").trim();
+            }, emit, () => {
+              if (turnLog.latency_ms_first_token == null) turnLog.latency_ms_first_token = Date.now() - turnStartMs;
+            }, clientAbort);
+            if (synth.ok && synth.text) {
+              answer = synth.text.trim();
+              streamed = true;
             }
           } catch (e) { console.error("router synth error", e); }
 
           if (!answer) {
             answer = `Voici une sélection :\n\n${top.map((r: any) => `- **${r.name}**${r.neighborhood ? ` — ${r.neighborhood}` : ""}${r[hookField] ? ` · ${String(r[hookField]).slice(0, 140)}` : ""}`).join("\n")}\n\n**${shownCount} résultats affichés sur ${totalCount} trouvés**`;
+            emit({ type: "chunk", delta: answer });
           }
 
           const snapshot: PreviousSearchSnapshot = {
@@ -1480,9 +1536,8 @@ ${totalCount > shownCount ? "- Puis propose : « je peux les afficher tous sur l
           turnLog.results_shown = top.length;
           turnLog.city_detected = search?.detected?.city || turnLog.city_detected;
           turnLog.latency_ms_synth = Date.now() - turnStartMs;
-          return new Response(JSON.stringify({ answer, chatId: resultChatId, followups: [] }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+          emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+          return;
         }
         console.log("router direct search returned 0 → fallback to LLM tool loop");
       } catch (e) {
@@ -1642,14 +1697,15 @@ ${languageInstruction}`;
         metadata: { iteration: i, active_city: clientContext?.activeCity || null },
       });
 
-      if (resp.status === 429) return new Response(JSON.stringify({ error: "rate_limit" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      if (resp.status === 402) return new Response(JSON.stringify({ error: "credits_exhausted" }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (resp.status === 429) { emit({ type: "error", message: "rate_limit", status: 429 }); return; }
+      if (resp.status === 402) { emit({ type: "error", message: "credits_exhausted", status: 402 }); return; }
       if (!resp.ok) {
         const txt = await resp.text();
         console.error("gateway error", resp.status, txt);
         // Fallback once on pro model failure
         if (modelToUse === MODEL) { modelToUse = FALLBACK_MODEL; continue; }
-        return new Response(JSON.stringify({ error: "gateway_error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        emit({ type: "error", message: "gateway_error", status: 500 });
+        return;
       }
 
       const data = await resp.json();
@@ -1937,14 +1993,16 @@ The user will click ONE of these as a new turn and prior constraints must be re-
     }
 
     if (turnLog.route_taken === "unknown") turnLog.route_taken = "tool_loop";
-    return new Response(JSON.stringify({ answer: finalAnswer, chatId: resultChatId, followups }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    // Non-streamed path: emit the answer as a single chunk then done.
+    emit({ type: "chunk", delta: String(finalAnswer || "").split(/<!--/)[0] });
+    emit({ type: "done", answer: finalAnswer, chatId: resultChatId, followups });
+    return;
   } catch (e) {
     console.error(e);
     turnLog.had_error = true;
     turnLog.error_message = String(e).slice(0, 500);
-    return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    emit({ type: "error", message: String(e), status: 500 });
+    return;
   } finally {
     try {
       if (adminForLog) {
@@ -1958,5 +2016,19 @@ The user will click ONE of these as a new turn and prior constraints must be re-
     } catch (logErr) {
       console.error("turnLog finally block error", logErr);
     }
+    closeStream();
   }
+  })();
+  // Don't await — return the stream immediately.
+  void work;
+
+  return new Response(stream, {
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache, no-transform",
+      "Connection": "keep-alive",
+      "X-Accel-Buffering": "no",
+    },
+  });
 });

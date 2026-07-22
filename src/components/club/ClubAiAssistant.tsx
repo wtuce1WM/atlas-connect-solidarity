@@ -885,25 +885,80 @@ const ClubAiAssistant = ({ userId }: Props) => {
     }).catch(() => {});
 
 
-    try {
-      const { data, error } = await supabase.functions.invoke("club-ai-chat", {
-        body: { chatId: safeChatId, messages: newMsgs, clientContext, language },
-      });
+    // Placeholder assistant message that we update as SSE chunks arrive.
+    const withAssistant: Msg[] = [...newMsgs, { role: "assistant", content: "" }];
+    messagesRef.current = withAssistant;
+    setMessages(withAssistant);
+    const assistantIdx = withAssistant.length - 1;
+    let streamedText = "";
+    let finalPayload: any = null;
+    let firstTokenAt: number | null = null;
 
-      if (error) throw error;
-      const answer = (data as any)?.answer || "";
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/club-ai-chat`;
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({ chatId: safeChatId, messages: newMsgs, clientContext, language }),
+      });
+      if (!resp.ok || !resp.body) {
+        throw new Error(`HTTP ${resp.status}`);
+      }
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split("\n\n");
+        buffer = parts.pop() || "";
+        for (const part of parts) {
+          const line = part.split("\n").find((l) => l.startsWith("data:"));
+          if (!line) continue;
+          const payload = line.slice(5).trim();
+          if (!payload) continue;
+          try {
+            const evt = JSON.parse(payload);
+            if (evt.type === "chunk" && typeof evt.delta === "string") {
+              if (firstTokenAt == null) firstTokenAt = performance.now();
+              streamedText += evt.delta;
+              const next = [...messagesRef.current];
+              next[assistantIdx] = { role: "assistant", content: streamedText };
+              messagesRef.current = next;
+              setMessages(next);
+            } else if (evt.type === "done") {
+              finalPayload = evt;
+            } else if (evt.type === "error") {
+              throw new Error(evt.message || "stream_error");
+            }
+          } catch (parseErr) {
+            // partial JSON; skip
+          }
+        }
+      }
+
+      const answer = (finalPayload?.answer as string) || streamedText;
+      const newId = (finalPayload?.chatId as string | null) ?? null;
       import("@/lib/analytics").then(({ trackEvent }) =>
         trackEvent("ai_response_received", {
           latency_ms: Math.round(performance.now() - aiStartedAt),
+          first_token_ms: firstTokenAt ? Math.round(firstTokenAt - aiStartedAt) : null,
           chars: answer.length,
           voice_mode: !!voiceMode,
+          streamed: true,
         })
       ).catch(() => {});
-      const newId = (data as any)?.chatId as string | null;
       const fullMessages: Msg[] = [...newMsgs, { role: "assistant", content: answer }];
       messagesRef.current = fullMessages;
       setMessages(fullMessages);
-      const fu = Array.isArray((data as any)?.followups) ? ((data as any).followups as string[]).filter((s) => typeof s === "string" && s.trim()).slice(0, 3) : [];
+      const fu = Array.isArray(finalPayload?.followups) ? (finalPayload.followups as string[]).filter((s) => typeof s === "string" && s.trim()).slice(0, 3) : [];
       setFollowups(fu);
       if (newId) {
         deletedChatIdsRef.current.delete(newId);
