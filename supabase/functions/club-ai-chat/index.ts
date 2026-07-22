@@ -711,7 +711,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         highlights: hlByBiz.get(b.id) || [],
       }));
 
-      return {
+      const payload = {
         results,
         returned_count: results.length,
         total_count: strictFilterApplied ? filtered.length : total,
@@ -740,6 +740,8 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
           subcategory: sres?.detectedSubcategory || null,
         },
       };
+      cacheSet(cacheKey, payload);
+      return payload;
     }
 
     if (name === "get_business_details") {
