@@ -1186,8 +1186,10 @@ const ClubAiAssistant = ({ userId }: Props) => {
                       </button>
                     ))}
                     {/* Liquid-glass Speaker (TTS) — mirrors /search AI tab */}
-                    <div className="mt-3 flex justify-start">
+                    {i === lastAssistantIndex && (
+                    <div className="mt-3 flex justify-center w-full">
                       <div className="relative flex items-center justify-center">
+
                         <div
                           className="absolute rounded-full animate-ping pointer-events-none"
                           style={{
