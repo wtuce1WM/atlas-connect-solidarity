@@ -29,23 +29,35 @@ type BlogOption = { id: string; title: string; slug: string | null };
 
 const ClubAiSuggestionsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
+  const [blogPosts, setBlogPosts] = useState<BlogOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("club_ai_suggestions")
-      .select("id,label_fr,label_en,label_ar,category,city,sort_order,is_active,fixed_response_fr,fixed_response_en,fixed_response_ar")
-      .order("sort_order", { ascending: true });
+    const [{ data, error }, { data: posts }] = await Promise.all([
+      supabase
+        .from("club_ai_suggestions")
+        .select("id,label_fr,label_en,label_ar,category,city,sort_order,is_active,fixed_response_fr,fixed_response_en,fixed_response_ar,blog_post_id")
+        .order("sort_order", { ascending: true }),
+      supabase
+        .from("blog_posts")
+        .select("id,title_fr,title_en,slug")
+        .order("title_fr", { ascending: true }),
+    ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows((data as Row[]) || []);
+    const options: BlogOption[] = ((posts as any[]) || [])
+      .map((p) => ({ id: p.id, slug: p.slug, title: (p.title_fr || p.title_en || p.slug || "(sans titre)").trim() }))
+      .sort((a, b) => a.title.localeCompare(b.title, "fr", { sensitivity: "base" }));
+    setBlogPosts(options);
     setDirty(new Set());
     setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
+
 
   const update = (id: string, patch: Partial<Row>) => {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
