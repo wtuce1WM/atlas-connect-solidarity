@@ -1085,7 +1085,8 @@ serve(async (req) => {
 
     const { data: { user } } = await userClient.auth.getUser();
     if (!user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      emit({ type: "error", message: "Unauthorized", status: 401 });
+      return;
     }
     const callerContext = await resolveCallerContext(admin, user.id);
     turnLog.user_id = user.id;
