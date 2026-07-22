@@ -1320,7 +1320,12 @@ ${languageInstruction}`;
     try {
       const lang = (language || "fr").toLowerCase();
       const langLabel = lang === "en" ? "English" : lang === "ar" ? "Arabic" : "French";
-      const followupSystem = `You generate exactly 3 short, natural follow-up questions the user might ask next, in ${langLabel}. Each under 60 chars, no numbering, no quotes, one per line. They must extend the current conversation naturally (drill down, alternative, next step). Return ONLY the 3 lines.`;
+      const followupSystem = `You generate exactly 3 short, natural follow-up questions the user might ask next, in ${langLabel}. Each under 90 chars, no numbering, no quotes, one per line.
+
+CRITICAL — each follow-up MUST be SELF-CONTAINED and carry forward ALL explicit constraints from the current conversation (category, city/area, keywords like "rooftop bar", exclusions like "pas d'hôtel", landmark like "vue Koutoubia", price, ambiance, etc.). A short pronoun-only question like "Lequel a la meilleure ambiance le soir ?" is FORBIDDEN — rewrite it as "Quel rooftop bar (pas hôtel) à Marrakech a la meilleure ambiance le soir ?".
+
+The user will click ONE of these as a new turn and prior constraints must be re-searchable from the question alone. Return ONLY the 3 lines.`;
+      const priorTurns = messages.filter((m: any) => m.role === "user").slice(-4).map((m: any) => `- ${String(m.content).slice(0, 200)}`).join("\n");
       const lastAssistant = finalAnswer.replace(/<!--SHOW_ON_MAP:[\s\S]*?-->/g, "").slice(0, 1200);
       const lastUserMsg = lastUser.slice(0, 400);
       const fResp = await fetchAiGateway(GATEWAY_URL, {
@@ -1330,7 +1335,7 @@ ${languageInstruction}`;
           model: FALLBACK_MODEL,
           messages: [
             { role: "system", content: followupSystem },
-            { role: "user", content: `User asked: ${lastUserMsg}\n\nAssistant answered: ${lastAssistant}\n\nGive 3 follow-up questions.` },
+            { role: "user", content: `Recent user turns (oldest→newest):\n${priorTurns}\n\nLatest user question: ${lastUserMsg}\n\nAssistant answered: ${lastAssistant}\n\nGive 3 self-contained follow-up questions that keep every explicit constraint.` },
           ],
           temperature: 0.8,
           max_tokens: 200,
