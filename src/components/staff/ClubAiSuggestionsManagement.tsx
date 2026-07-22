@@ -40,7 +40,7 @@ const ClubAiSuggestionsManagement = () => {
     const [{ data, error }, { data: posts }] = await Promise.all([
       supabase
         .from("club_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,category,city,sort_order,is_active,fixed_response_fr,fixed_response_en,fixed_response_ar,blog_post_id")
+        .select("id,label_fr,label_en,label_ar,category,city,sort_order,is_active,fixed_response_fr,fixed_response_en,fixed_response_ar,blog_post_id,blog_post_ids")
         .order("sort_order", { ascending: true }),
       supabase
         .from("blog_posts")
