@@ -1073,9 +1073,9 @@ const ClubAiAssistant = ({ userId }: Props) => {
           {(() => null)()}
           {messages.map((m, i) => {
             const lastAssistantIndex = (() => { for (let k = messages.length - 1; k >= 0; k--) { if (messages[k].role === "assistant") return k; } return -1; })();
-            const { clean, maps } = m.role === "assistant"
-              ? extractMapPayloads(m.content)
-              : { clean: m.content, maps: [] as MapPayload[] };
+            const { clean, maps, events: eventPayloads } = m.role === "assistant"
+              ? extractPayloads(m.content)
+              : { clean: m.content, maps: [] as MapPayload[], events: [] as EventsPayload[] };
             // Index business names for clickable bold names.
             for (const mp of maps) {
               for (const b of mp.businesses) {
