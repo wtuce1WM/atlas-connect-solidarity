@@ -1584,6 +1584,11 @@ ${languageInstruction}`;
       finalAnswer += `\n\n<!--SEARCH_RESULTS:${safe}-->`;
     }
 
+    if (lastEventsSnapshot && finalAnswer && !finalAnswer.includes("<!--EVENTS_SNAPSHOT:")) {
+      const safe = JSON.stringify(lastEventsSnapshot).replace(/-->/g, "--&gt;");
+      finalAnswer += `\n\n<!--EVENTS_SNAPSHOT:${safe}-->`;
+    }
+
     // Persist conversation
     const userTurns = messages.filter((m) => m.role === "user");
     const lastUser = userTurns[userTurns.length - 1]?.content || "";
