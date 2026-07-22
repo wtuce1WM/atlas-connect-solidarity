@@ -314,16 +314,13 @@ const BlogArticleTemplate = ({
     }
   };
 
-  useSEO({
-    title: articleTitle,
-    description: articleDescription,
-    canonical: articlePath,
-    ogImage: heroImage,
-    ogUrl: articlePath,
-    ogType: "article",
-    jsonLd: {
-      "@context": "https://schema.org",
+  // Build a @graph with BlogPosting + optional ItemList (listicle) + optional FAQPage.
+  // Google + LLM crawlers all understand @graph and pick the relevant node.
+  const pageId = `${siteUrl}${articlePath}`;
+  const graph: Array<Record<string, unknown>> = [
+    {
       "@type": "BlogPosting",
+      "@id": `${pageId}#article`,
       headline: articleTitle,
       description: articleDescription,
       image: [heroImage],
@@ -335,7 +332,52 @@ const BlogArticleTemplate = ({
         name: "ONE WORLD MOROCCO",
         logo: { "@type": "ImageObject", url: ogFallback },
       },
-      mainEntityOfPage: { "@type": "WebPage", "@id": `${siteUrl}${articlePath}` },
+      mainEntityOfPage: { "@type": "WebPage", "@id": pageId },
+    },
+  ];
+
+  const listedBusinesses = entries
+    .flatMap((e) => [e.id, ...(e.extraIds ?? [])])
+    .map((id) => businesses[id])
+    .filter((b): b is BlogArticleBusiness => !!b);
+
+  if (listedBusinesses.length > 0) {
+    graph.push({
+      "@type": "ItemList",
+      "@id": `${pageId}#list`,
+      itemListOrder: "https://schema.org/ItemListOrderDescending",
+      numberOfItems: listedBusinesses.length,
+      itemListElement: listedBusinesses.map((b, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        url: `${siteUrl}/b/${b.slug}`,
+        name: b.name,
+      })),
+    });
+  }
+
+  if (faq && faq.length > 0) {
+    graph.push({
+      "@type": "FAQPage",
+      "@id": `${pageId}#faq`,
+      mainEntity: faq.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    });
+  }
+
+  useSEO({
+    title: articleTitle,
+    description: tldr || articleDescription,
+    canonical: articlePath,
+    ogImage: heroImage,
+    ogUrl: articlePath,
+    ogType: "article",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@graph": graph,
     },
   });
 
