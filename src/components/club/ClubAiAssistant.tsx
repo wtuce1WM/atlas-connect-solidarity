@@ -565,6 +565,70 @@ const ClubAiAssistant = ({ userId }: Props) => {
     else if (dy < 0 && hasPrevBusiness) goPrevBusiness();
   }, [swipeOffsetY, hasNextBusiness, hasPrevBusiness]);
 
+  // Desktop trackpad/wheel navigation between AI-cited businesses (mirrors SearchPage).
+  // When the panel content isn't scrollable in the wheel direction, wheel events
+  // navigate prev/next; otherwise they scroll the panel normally.
+  const panelWheelRef = useRef<HTMLDivElement | null>(null);
+  const wheelAccumRef = useRef(0);
+  const wheelLockUntilRef = useRef(0);
+  const goNextBusinessRef = useRef(goNextBusiness);
+  const goPrevBusinessRef = useRef(goPrevBusiness);
+  useEffect(() => { goNextBusinessRef.current = goNextBusiness; goPrevBusinessRef.current = goPrevBusiness; });
+  useEffect(() => {
+    const el = panelWheelRef.current;
+    if (!el || !openBusinessId) return;
+    const isScrollableY = (node: HTMLElement) => {
+      const style = window.getComputedStyle(node);
+      return /(auto|scroll)/.test(style.overflowY) && node.scrollHeight > node.clientHeight + 1;
+    };
+    const getScrollable = (target: EventTarget | null) => {
+      const mainPanelScroller = el.querySelector<HTMLElement>('[data-slidepanel-scroll="true"]');
+      if (mainPanelScroller && isScrollableY(mainPanelScroller)) return mainPanelScroller;
+      if (!(target instanceof HTMLElement)) return null;
+      let node: HTMLElement | null = target;
+      while (node && node !== el) {
+        if (isScrollableY(node)) return node;
+        node = node.parentElement;
+      }
+      return Array.from(el.querySelectorAll<HTMLElement>("*")).find(isScrollableY) || null;
+    };
+    const handler = (e: WheelEvent) => {
+      const rect = el.getBoundingClientRect();
+      const isOverPanel = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+      if (!isOverPanel) return;
+      const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
+      if (e.target instanceof Element && e.target.closest('.gm-style')) return;
+      if (document.body.dataset.slidepanelOverlayOpen === "1") return;
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      const dir = deltaY > 0 ? 1 : -1;
+      const scrollable = getScrollable(e.target);
+      if (scrollable) {
+        const maxTop = scrollable.scrollHeight - scrollable.clientHeight;
+        const canScroll = dir > 0 ? scrollable.scrollTop < maxTop - 1 : scrollable.scrollTop > 1;
+        if (canScroll) {
+          scrollable.scrollTop = Math.max(0, Math.min(maxTop, scrollable.scrollTop + deltaY));
+          wheelAccumRef.current = 0;
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+      }
+      const now = Date.now();
+      if (now < wheelLockUntilRef.current) { wheelAccumRef.current = 0; return; }
+      wheelAccumRef.current += deltaY;
+      if (Math.abs(wheelAccumRef.current) < 60) return;
+      const navDir = wheelAccumRef.current > 0 ? 1 : -1;
+      wheelAccumRef.current = 0;
+      wheelLockUntilRef.current = now + 450;
+      e.preventDefault();
+      e.stopPropagation();
+      if (navDir > 0) goNextBusinessRef.current();
+      else goPrevBusinessRef.current();
+    };
+    window.addEventListener("wheel", handler, { passive: false, capture: true });
+    return () => window.removeEventListener("wheel", handler, { capture: true } as any);
+  }, [openBusinessId]);
+
   const closeBusinessPanel = () => {
     setIsBusinessPanelClosing(true);
     window.setTimeout(() => {
