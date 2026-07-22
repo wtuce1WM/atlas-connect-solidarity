@@ -206,6 +206,54 @@ function extractStrongBusinessCandidates(markdown: string): string[] {
   return names;
 }
 
+type BusinessLookupRef = { id?: string | null; slug?: string | null; name: string };
+
+const BUSINESS_MATCH_STOP_WORDS = new Set([
+  "le", "la", "les", "l", "un", "une", "des", "du", "de", "d", "au", "aux", "et", "and", "the", "a",
+  "avec", "sur", "dans", "en", "of", "in", "with", "marrakech", "maroc", "morocco",
+]);
+
+function normalizeBusinessName(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[’‘`´]/g, "'")
+    .replace(/^(le|la|les|l'|l’|the)\s+/i, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function businessNameTokens(value: string): string[] {
+  return normalizeBusinessName(value)
+    .split(/\s+/)
+    .filter((token) => token.length > 1 && !BUSINESS_MATCH_STOP_WORDS.has(token));
+}
+
+function businessNameMatchScore(candidate: string, target: string): number {
+  const c = normalizeBusinessName(candidate);
+  const t = normalizeBusinessName(target);
+  if (!c || !t) return 0;
+  if (c === t) return 1;
+  if (c.includes(t) || t.includes(c)) {
+    const shortest = Math.min(c.length, t.length);
+    const longest = Math.max(c.length, t.length);
+    return 0.82 + Math.min(0.12, shortest / Math.max(longest, 1) / 8);
+  }
+
+  const cTokens = businessNameTokens(candidate);
+  const tTokens = businessNameTokens(target);
+  if (!cTokens.length || !tTokens.length) return 0;
+
+  const tSet = new Set(tTokens);
+  const common = cTokens.filter((token) => tSet.has(token)).length;
+  if (!common) return 0;
+
+  const candidateCoverage = common / cTokens.length;
+  const targetCoverage = common / tTokens.length;
+  return candidateCoverage * 0.65 + targetCoverage * 0.35;
+}
+
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -362,8 +410,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
     };
   }, [openBusinessId]);
   useEffect(() => { if (!openBusinessId) setActiveSlug(null); }, [openBusinessId]);
-  // Index of business name -> slug, fed from every <!--SHOW_ON_MAP:--> payload in the conversation.
-  const nameToSlugRef = useRef<Map<string, string>>(new Map());
+  // Index of business names fed from every <!--SHOW_ON_MAP:--> payload in the conversation.
+  const businessLookupRef = useRef<Map<string, BusinessLookupRef>>(new Map());
 
   // Ordered, deduped list of businesses cited across the conversation.
   // Mirrors blog article panels: the BookOnlineSlidePanel receives prev/next IDs.
@@ -465,35 +513,55 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const handleOpenBusinessName = async (name: string) => {
     const n = name.trim();
     if (!n) return;
-    // Try cached map payloads (name -> slug) first — fuzzy match to tolerate
-    // article prefixes ("Le/La/Les/L'") and punctuation/accent differences.
-    const norm = (s: string) => s.toLowerCase()
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      .replace(/^(le|la|les|l'|l’)\s+/i, "")
-      .replace(/[^a-z0-9]+/g, " ")
-      .trim();
-    const nTarget = norm(n);
-    let cachedSlug: string | undefined;
-    for (const [key, slug] of nameToSlugRef.current.entries()) {
-      const nKey = norm(key);
-      if (!nKey) continue;
-      if (nKey === nTarget || nKey.includes(nTarget) || nTarget.includes(nKey)) {
-        cachedSlug = slug;
-        break;
+    // Try cached map payloads first — fuzzy match to tolerate articles,
+    // apostrophes, punctuation, accents and partial names emitted by the AI.
+    let best: { ref: BusinessLookupRef; score: number } | null = null;
+    for (const ref of businessLookupRef.current.values()) {
+      const score = businessNameMatchScore(ref.name, n);
+      if (score > (best?.score || 0)) best = { ref, score };
+    }
+    if (best && best.score >= 0.58) {
+      if (best.ref.slug) {
+        const ok = await openBusinessBySlug(best.ref.slug);
+        if (ok) return;
+      }
+      if (best.ref.id) {
+        setActiveSlug(best.ref.slug || null);
+        setOpenBusinessId(best.ref.id);
+        setOrderedBusinessRefs((prev) => prev.some((b) => b.id === best.ref.id) ? prev : [...prev, { id: best.ref.id!, slug: best.ref.slug || null, name: best.ref.name }]);
+        return;
       }
     }
-    if (cachedSlug) {
-      const ok = await openBusinessBySlug(cachedSlug);
+
+    const exactOrPartial = Array.from(businessLookupRef.current.values()).find((ref) => {
+      const refName = normalizeBusinessName(ref.name);
+      const targetName = normalizeBusinessName(n);
+      return refName === targetName || refName.includes(targetName) || targetName.includes(refName);
+    });
+    if (exactOrPartial?.slug) {
+      const ok = await openBusinessBySlug(exactOrPartial.slug);
       if (ok) return;
     }
     // Fallback: look up by name in DB (ilike with wildcards to tolerate prefixes)
-    const { data } = await supabase.from("businesses").select("id,slug,name").ilike("name", `%${n}%`).limit(1).maybeSingle();
-    const id = (data as any)?.id;
-    const dbSlug = (data as any)?.slug;
+    const tokens = businessNameTokens(n);
+    let query = supabase.from("businesses").select("id,slug,name").eq("is_active", true);
+    if (tokens.length >= 2) {
+      query = query.or(tokens.slice(0, 4).map((token) => `name.ilike.%${token}%`).join(","));
+    } else {
+      query = query.ilike("name", `%${n}%`);
+    }
+    const { data } = await query.limit(25);
+    const rows = Array.isArray(data) ? data : [];
+    const row = rows
+      .map((candidate: any) => ({ candidate, score: businessNameMatchScore(candidate?.name || "", n) }))
+      .sort((a, b) => b.score - a.score)[0];
+    const id = row && row.score >= 0.42 ? row.candidate?.id : null;
+    const dbSlug = row && row.score >= 0.42 ? row.candidate?.slug : null;
+    const dbName = row && row.score >= 0.42 ? row.candidate?.name : n;
     if (id) {
       setActiveSlug(dbSlug || null);
       setOpenBusinessId(id);
-      setOrderedBusinessRefs((prev) => prev.some((b) => b.id === id) ? prev : [...prev, { id, slug: dbSlug || null, name: n }]);
+      setOrderedBusinessRefs((prev) => prev.some((b) => b.id === id) ? prev : [...prev, { id, slug: dbSlug || null, name: dbName }]);
     } else {
       toast({ title: at.ficheNotFound, description: at.ficheNotFoundFor(n), variant: "destructive" });
     }
@@ -843,10 +911,12 @@ const ClubAiAssistant = ({ userId }: Props) => {
             const { clean, maps } = m.role === "assistant"
               ? extractMapPayloads(m.content)
               : { clean: m.content, maps: [] as MapPayload[] };
-            // Index business names → slugs for clickable bold names.
+            // Index business names for clickable bold names.
             for (const mp of maps) {
               for (const b of mp.businesses) {
-                if (b?.name && b?.slug) nameToSlugRef.current.set(b.name.toLowerCase(), b.slug);
+                if (b?.name) {
+                  businessLookupRef.current.set(b.name.toLowerCase(), { id: b.id, slug: b.slug || null, name: b.name });
+                }
               }
             }
             return (
@@ -879,18 +949,10 @@ const ClubAiAssistant = ({ userId }: Props) => {
                             ? children.map((c) => (typeof c === "string" ? c : "")).join("")
                             : (typeof children === "string" ? children : "");
                           const trimmed = text.trim();
-                          const norm = (s: string) => s.toLowerCase()
-                            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                            .replace(/^(le|la|les|l'|l’)\s+/i, "")
-                            .replace(/[^a-z0-9]+/g, " ")
-                            .trim();
-                          const nTrim = norm(trimmed);
                           let isKnownBusiness = false;
-                          if (nTrim) {
-                            for (const key of nameToSlugRef.current.keys()) {
-                              const nKey = norm(key);
-                              if (!nKey) continue;
-                              if (nKey === nTrim || nKey.includes(nTrim) || nTrim.includes(nKey)) {
+                          if (trimmed) {
+                            for (const ref of businessLookupRef.current.values()) {
+                              if (businessNameMatchScore(ref.name, trimmed) >= 0.58) {
                                 isKnownBusiness = true;
                                 break;
                               }
