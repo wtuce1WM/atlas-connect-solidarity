@@ -1483,8 +1483,9 @@ Consignes :
 ${totalCount > shownCount ? "- Puis propose : « je peux les afficher tous sur la carte »." : ""}`;
 
           let answer = "";
+          let streamed = false;
           try {
-            const synth = await fetchAiGateway(GATEWAY_URL, {
+            const synth = await streamGatewayText(GATEWAY_URL, {
               method: "POST",
               headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -1493,23 +1494,18 @@ ${totalCount > shownCount ? "- Puis propose : « je peux les afficher tous sur l
                 temperature: 0.5,
                 max_tokens: 700,
               }),
-            }, {
-              supabase: admin,
-              userId: callerContext.userId,
-              affiliateId: callerContext.affiliateId,
-              chatId: chatId || null,
-              context: "club-ai-chat-router-synth",
-              model: FALLBACK_MODEL,
-              metadata: { intent: routedIntent, active_city: clientContext?.activeCity || null, total: totalCount },
-            });
-            if (synth.ok) {
-              const sd = await synth.json();
-              answer = (sd.choices?.[0]?.message?.content || "").trim();
+            }, emit, () => {
+              if (turnLog.latency_ms_first_token == null) turnLog.latency_ms_first_token = Date.now() - turnStartMs;
+            }, clientAbort);
+            if (synth.ok && synth.text) {
+              answer = synth.text.trim();
+              streamed = true;
             }
           } catch (e) { console.error("router synth error", e); }
 
           if (!answer) {
             answer = `Voici une sélection :\n\n${top.map((r: any) => `- **${r.name}**${r.neighborhood ? ` — ${r.neighborhood}` : ""}${r[hookField] ? ` · ${String(r[hookField]).slice(0, 140)}` : ""}`).join("\n")}\n\n**${shownCount} résultats affichés sur ${totalCount} trouvés**`;
+            emit({ type: "chunk", delta: answer });
           }
 
           const snapshot: PreviousSearchSnapshot = {
