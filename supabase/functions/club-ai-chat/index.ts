@@ -15,6 +15,31 @@ const MODEL = "google/gemini-3-flash-preview";
 const FALLBACK_MODEL = "google/gemini-3-flash-preview";
 const SEARCH_RESULT_LIMIT = 50;
 
+// ------------------------------------------------------------------
+// In-memory TTL cache (per edge instance) for repeated tool calls
+// within a short window — 5 min. Same (query+city+lang) reuses result
+// instead of re-hitting business-search / events DB.
+// ------------------------------------------------------------------
+const TOOL_CACHE_TTL_MS = 5 * 60 * 1000;
+const TOOL_CACHE_MAX = 200;
+type ToolCacheEntry = { t: number; value: any };
+const toolCache = new Map<string, ToolCacheEntry>();
+function cacheGet(key: string): any | null {
+  const e = toolCache.get(key);
+  if (!e) return null;
+  if (Date.now() - e.t > TOOL_CACHE_TTL_MS) { toolCache.delete(key); return null; }
+  return e.value;
+}
+function cacheSet(key: string, value: any) {
+  if (toolCache.size >= TOOL_CACHE_MAX) {
+    // drop oldest ~10%
+    const drop = Math.ceil(TOOL_CACHE_MAX * 0.1);
+    let i = 0;
+    for (const k of toolCache.keys()) { toolCache.delete(k); if (++i >= drop) break; }
+  }
+  toolCache.set(key, { t: Date.now(), value });
+}
+
 type Msg = { role: "system" | "user" | "assistant" | "tool"; content: string; tool_calls?: any[]; tool_call_id?: string; name?: string };
 
 type PreviousSearchSnapshot = {
@@ -434,6 +459,25 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
     if (name === "search_businesses") {
       const limit = Math.min(Math.max(Number(args.limit) || 12, 1), SEARCH_RESULT_LIMIT);
 
+      // Cache court (5 min) : mêmes critères + même dernier message ⇒ même résultat.
+      const cacheKey = "sb:" + JSON.stringify({
+        q: args.query || "",
+        cat: args.category || "",
+        b: args.badges || null,
+        s: args.services || null,
+        n: args.neighborhood || "",
+        c: args.city || "",
+        l: limit,
+        lang: ctx.language || "fr",
+        lm: (ctx.lastUserMessage || "").trim().toLowerCase().slice(0, 200),
+        fq: (ctx.forceQuery || "").trim().toLowerCase().slice(0, 200),
+      });
+      const cached = cacheGet(cacheKey);
+      if (cached) {
+        console.log("club-ai-chat → search_businesses CACHE HIT", { key: cacheKey.slice(0, 80) });
+        return { ...cached, _cache_hit: true };
+      }
+
       // Construit une requête en langage naturel qui combine tous les critères
       // pour bénéficier de la MÊME logique que /search (synonymes, badges, services,
       // sous-catégories, détection ville/quartier, ranking, etc.)
@@ -493,11 +537,13 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       const allBusinesses: any[] = Array.isArray(sres?.businesses) ? sres.businesses : [];
       const total = typeof sres?.totalCount === "number" ? sres.totalCount : allBusinesses.length;
       if (!allBusinesses.length) {
-        return {
+        const empty = {
           results: [],
           total_count: 0,
           note: `Aucun établissement trouvé (query="${fullQuery}", city="${args.city || ""}"). Dis-le franchement à l'utilisateur et propose-lui une alternative (autre quartier, élargir la catégorie) au lieu d'inventer.`,
         };
+        cacheSet(cacheKey, empty);
+        return empty;
       }
 
       // ---- Hard server-side post-filter based on user intent ---------------
@@ -665,7 +711,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         highlights: hlByBiz.get(b.id) || [],
       }));
 
-      return {
+      const payload = {
         results,
         returned_count: results.length,
         total_count: strictFilterApplied ? filtered.length : total,
@@ -694,6 +740,8 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
           subcategory: sres?.detectedSubcategory || null,
         },
       };
+      cacheSet(cacheKey, payload);
+      return payload;
     }
 
     if (name === "get_business_details") {
@@ -762,6 +810,18 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       const to = (args.to_date && String(args.to_date).slice(0, 10))
         || new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
 
+      const evCacheKey = "se:" + JSON.stringify({
+        l: limit, f: from, t: to,
+        q: args.query || "",
+        c: args.city || "",
+        all: !!args.include_all_badges,
+      });
+      const evCached = cacheGet(evCacheKey);
+      if (evCached) {
+        console.log("club-ai-chat → search_events CACHE HIT", { key: evCacheKey.slice(0, 80) });
+        return { ...evCached, _cache_hit: true };
+      }
+
       let eventIds: string[] | null = null;
       if (!args.include_all_badges) {
         // Badge #Agenda
@@ -816,8 +876,14 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         videos: Array.isArray(e.videos) ? e.videos.filter(Boolean) : [],
         logo_url: e.logo_url || null,
       }));
-      if (!results.length) return { results: [], returned_count: 0, total_count: 0, period: { from, to }, note: `Aucun événement trouvé entre ${from} et ${to}${requestedCity ? ` à ${requestedCity}` : ""}.` };
-      return { results, returned_count: results.length, total_count: totalCount, period: { from, to }, city: requestedCity || null };
+      if (!results.length) {
+        const emptyEv = { results: [], returned_count: 0, total_count: 0, period: { from, to }, note: `Aucun événement trouvé entre ${from} et ${to}${requestedCity ? ` à ${requestedCity}` : ""}.` };
+        cacheSet(evCacheKey, emptyEv);
+        return emptyEv;
+      }
+      const evPayload = { results, returned_count: results.length, total_count: totalCount, period: { from, to }, city: requestedCity || null };
+      cacheSet(evCacheKey, evPayload);
+      return evPayload;
     }
     if (name === "get_my_trips") {
       const limit = Math.min(Number(args.limit) || 6, 10);
