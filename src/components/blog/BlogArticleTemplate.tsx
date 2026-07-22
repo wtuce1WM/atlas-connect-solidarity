@@ -438,7 +438,7 @@ const BlogArticleTemplate = ({
           <div className="container mx-auto px-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
               <button
-                onClick={() => navigate("/blog")}
+                onClick={() => navigate(withLangPrefix("/blog", language))}
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border border-white/20 bg-black/50 text-white hover:text-gold hover:border-gold hover:bg-black/70 backdrop-blur-md transition-all duration-300 shadow-sm"
               >
                 <ArrowLeft className="h-4 w-4" />
