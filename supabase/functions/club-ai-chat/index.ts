@@ -1697,14 +1697,15 @@ ${languageInstruction}`;
         metadata: { iteration: i, active_city: clientContext?.activeCity || null },
       });
 
-      if (resp.status === 429) return new Response(JSON.stringify({ error: "rate_limit" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      if (resp.status === 402) return new Response(JSON.stringify({ error: "credits_exhausted" }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (resp.status === 429) { emit({ type: "error", message: "rate_limit", status: 429 }); return; }
+      if (resp.status === 402) { emit({ type: "error", message: "credits_exhausted", status: 402 }); return; }
       if (!resp.ok) {
         const txt = await resp.text();
         console.error("gateway error", resp.status, txt);
         // Fallback once on pro model failure
         if (modelToUse === MODEL) { modelToUse = FALLBACK_MODEL; continue; }
-        return new Response(JSON.stringify({ error: "gateway_error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        emit({ type: "error", message: "gateway_error", status: 500 });
+        return;
       }
 
       const data = await resp.json();
