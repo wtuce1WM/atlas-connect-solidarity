@@ -14,6 +14,8 @@ import { Loader2, ArrowLeft, MapPin, Star, Clock, Bookmark, ArrowDown } from "lu
 import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix } from "@/lib/localizedPath";
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
