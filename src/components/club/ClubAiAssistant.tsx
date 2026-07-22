@@ -328,9 +328,10 @@ function linkifyPhones(text: string): string {
 
 // Parse <!--SHOW_ON_MAP:{...}--> markers out of an assistant message.
 const MAP_RE = /<!--SHOW_ON_MAP:([\s\S]*?)-->/g;
+const SEARCH_RESULTS_RE = /<!--SEARCH_RESULTS:[\s\S]*?-->/g;
 type MapPayload = { title?: string; businesses: MapPanelBusiness[] };
 function extractMapPayloads(text: string): { clean: string; maps: MapPayload[] } {
-  if (!text || !text.includes("<!--SHOW_ON_MAP:")) return { clean: text, maps: [] };
+  if (!text) return { clean: text, maps: [] };
   const maps: MapPayload[] = [];
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
@@ -342,7 +343,11 @@ function extractMapPayloads(text: string): { clean: string; maps: MapPayload[] }
     return "";
   });
   // Safety net: strip any unclosed/truncated marker (would otherwise render as raw JSON).
-  clean = clean.replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "").trim();
+  clean = clean
+    .replace(SEARCH_RESULTS_RE, "")
+    .replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "")
+    .replace(/<!--SEARCH_RESULTS:[\s\S]*$/g, "")
+    .trim();
   return { clean, maps };
 }
 
