@@ -15,6 +15,31 @@ const MODEL = "google/gemini-3-flash-preview";
 const FALLBACK_MODEL = "google/gemini-3-flash-preview";
 const SEARCH_RESULT_LIMIT = 50;
 
+// ------------------------------------------------------------------
+// In-memory TTL cache (per edge instance) for repeated tool calls
+// within a short window — 5 min. Same (query+city+lang) reuses result
+// instead of re-hitting business-search / events DB.
+// ------------------------------------------------------------------
+const TOOL_CACHE_TTL_MS = 5 * 60 * 1000;
+const TOOL_CACHE_MAX = 200;
+type ToolCacheEntry = { t: number; value: any };
+const toolCache = new Map<string, ToolCacheEntry>();
+function cacheGet(key: string): any | null {
+  const e = toolCache.get(key);
+  if (!e) return null;
+  if (Date.now() - e.t > TOOL_CACHE_TTL_MS) { toolCache.delete(key); return null; }
+  return e.value;
+}
+function cacheSet(key: string, value: any) {
+  if (toolCache.size >= TOOL_CACHE_MAX) {
+    // drop oldest ~10%
+    const drop = Math.ceil(TOOL_CACHE_MAX * 0.1);
+    let i = 0;
+    for (const k of toolCache.keys()) { toolCache.delete(k); if (++i >= drop) break; }
+  }
+  toolCache.set(key, { t: Date.now(), value });
+}
+
 type Msg = { role: "system" | "user" | "assistant" | "tool"; content: string; tool_calls?: any[]; tool_call_id?: string; name?: string };
 
 type PreviousSearchSnapshot = {
