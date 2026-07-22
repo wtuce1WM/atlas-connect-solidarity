@@ -459,6 +459,25 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
     if (name === "search_businesses") {
       const limit = Math.min(Math.max(Number(args.limit) || 12, 1), SEARCH_RESULT_LIMIT);
 
+      // Cache court (5 min) : mêmes critères + même dernier message ⇒ même résultat.
+      const cacheKey = "sb:" + JSON.stringify({
+        q: args.query || "",
+        cat: args.category || "",
+        b: args.badges || null,
+        s: args.services || null,
+        n: args.neighborhood || "",
+        c: args.city || "",
+        l: limit,
+        lang: ctx.language || "fr",
+        lm: (ctx.lastUserMessage || "").trim().toLowerCase().slice(0, 200),
+        fq: (ctx.forceQuery || "").trim().toLowerCase().slice(0, 200),
+      });
+      const cached = cacheGet(cacheKey);
+      if (cached) {
+        console.log("club-ai-chat → search_businesses CACHE HIT", { key: cacheKey.slice(0, 80) });
+        return { ...cached, _cache_hit: true };
+      }
+
       // Construit une requête en langage naturel qui combine tous les critères
       // pour bénéficier de la MÊME logique que /search (synonymes, badges, services,
       // sous-catégories, détection ville/quartier, ranking, etc.)
