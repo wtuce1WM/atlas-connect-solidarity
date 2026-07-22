@@ -1243,6 +1243,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
                         </button>
                       </div>
                     </div>
+                    )}
+
 
                   </div>
                 )}
