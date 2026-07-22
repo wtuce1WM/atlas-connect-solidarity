@@ -416,6 +416,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const [activeChat, setActiveChat] = useState<ChatRow | null>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [streaming, setStreaming] = useState(false);
   const [voiceMode, setVoiceMode] = useState<boolean>(() => {
     try { return localStorage.getItem(VOICE_MODE_KEY) === "1"; } catch { return false; }
   });
