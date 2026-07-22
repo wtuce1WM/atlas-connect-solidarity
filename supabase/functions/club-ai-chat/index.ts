@@ -1475,6 +1475,11 @@ ${totalCount > shownCount ? "- Puis propose : « je peux les afficher tous sur l
             const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title, messages: newMessages }).select("id").single();
             resultChatId = inserted?.id ?? null;
           }
+          turnLog.route_taken = "router_direct";
+          turnLog.results_count = totalCount;
+          turnLog.results_shown = top.length;
+          turnLog.city_detected = search?.detected?.city || turnLog.city_detected;
+          turnLog.latency_ms_synth = Date.now() - turnStartMs;
           return new Response(JSON.stringify({ answer, chatId: resultChatId, followups: [] }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
