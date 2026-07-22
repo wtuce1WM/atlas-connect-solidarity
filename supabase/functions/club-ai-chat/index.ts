@@ -37,9 +37,19 @@ function extractMoroccoCity(value: unknown): string | null {
   return raw.length <= 40 && !raw.includes(",") ? raw : null;
 }
 
+// Types de LIEUX (business) — si présents, on NE bascule PAS en route agenda
+// même si un mot temporel ("ce soir", "ce week-end") apparaît.
+const VENUE_NOUN_RE = /\b(club|bar|pub|lounge|rooftop|discoth[eè]que|boite|boîte|restaurant|resto|brasserie|bistrot|bistro|cafe|caf[eé]|salon\s+de\s+th[eé]|hotel|h[oô]tel|riad|maison\s+d[' ]h[oô]tes|guesthouse|auberge|spa|hammam|massage|boutique|magasin|shop|galerie|mus[eé]e|piscine|plage|golf|kite|surf|yoga|gym|fitness|salle\s+de\s+sport|ecole|[eé]cole|cours|atelier|traiteur|patisserie|p[aâ]tisserie|boulangerie|glacier|cave|caviste|librairie|fleuriste|coiffeur|barbier|tatoueur|photographe|dentiste|medecin|m[eé]decin|pharmacie|clinique|veterinaire|v[eé]t[eé]rinaire|taxi|transfert|location|agence)\b/i;
+
+// Marqueurs explicitement événementiels (indépendants du type de lieu)
+const EXPLICIT_EVENT_RE = /\b(agenda|[eé]v[eé]nement|[eé]v[eé]nements|event|events|concert|concerts|festival|festivals|expo|exposition|expositions|spectacle|spectacles|programme|programmation|se\s+passe|que\s+faire|sortie\s+culturelle|soir[eé]e\s+culturelle|animations?|f[eê]te|f[eê]tes)\b/i;
+
 function isAgendaIntent(text: string): boolean {
   const n = normalizeLoose(text);
-  return /\b(agenda|evenement|evenements|event|events|concert|concerts|festival|festivals|expo|exposition|expositions|sortie|sorties|soir[ée]e|soirees|culturel|culturelle|ce\s+soir|ce\s+week\s*end|week\s*end|prochaines\s+semaines|que\s+se\s+passe|que\s+faire)\b/i.test(n);
+  // Si la requête décrit un TYPE DE LIEU (club, bar, restaurant, riad…),
+  // c'est une recherche business — pas d'agenda — même avec "ce soir".
+  if (VENUE_NOUN_RE.test(n)) return false;
+  return EXPLICIT_EVENT_RE.test(n);
 }
 
 function formatEventDate(event: any): string {
