@@ -332,6 +332,7 @@ function linkifyPhones(text: string): string {
 const MAP_RE = /<!--SHOW_ON_MAP:([\s\S]*?)-->/g;
 const SEARCH_RESULTS_RE = /<!--SEARCH_RESULTS:[\s\S]*?-->/g;
 const EVENTS_RE = /<!--EVENTS_SNAPSHOT:([\s\S]*?)-->/g;
+const KNOWN_RE = /<!--KNOWN_BUSINESSES:([\s\S]*?)-->/g;
 type MapPayload = { title?: string; businesses: MapPanelBusiness[] };
 export type EventPanelItem = {
   id: string;
@@ -351,10 +352,12 @@ export type EventPanelItem = {
   sort_order?: number | null;
 };
 type EventsPayload = { title?: string; city?: string | null; events: EventPanelItem[] };
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[] } {
-  if (!text) return { clean: text, maps: [], events: [] };
+type KnownBusiness = { id: string; slug: string | null; name: string };
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[] } {
+  if (!text) return { clean: text, maps: [], events: [], known: [] };
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
+  const known: KnownBusiness[] = [];
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const parsed = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -371,6 +374,16 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
       }
     } catch { /* ignore */ }
     return "";
+  }).replace(KNOWN_RE, (_m, raw) => {
+    try {
+      const parsed = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (Array.isArray(parsed)) {
+        for (const b of parsed) {
+          if (b?.id && b?.name) known.push({ id: b.id, slug: b.slug || null, name: b.name });
+        }
+      }
+    } catch { /* ignore */ }
+    return "";
   });
   // Safety net: strip any unclosed/truncated marker (would otherwise render as raw JSON).
   clean = clean
@@ -378,8 +391,10 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "")
     .replace(/<!--SEARCH_RESULTS:[\s\S]*$/g, "")
     .replace(/<!--EVENTS_SNAPSHOT:[\s\S]*$/g, "")
+    .replace(/<!--KNOWN_BUSINESSES:[\s\S]*?-->/g, "")
+    .replace(/<!--KNOWN_BUSINESSES:[\s\S]*$/g, "")
     .trim();
-  return { clean, maps, events };
+  return { clean, maps, events, known };
 }
 // Backward-compat alias
 const extractMapPayloads = (text: string) => {
