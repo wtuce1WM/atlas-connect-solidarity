@@ -215,7 +215,7 @@ const LegacyHtmlPost = ({
   getTitle: () => string;
   getContent: () => string;
   getDateLocale: () => typeof fr;
-  navigate: ReturnType<typeof useNavigate>;
+  navigate: ReturnType<typeof useLocalizedNavigate>;
   t: (key: string) => string;
   language: string;
   slug: string | undefined;

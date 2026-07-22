@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix } from "@/lib/localizedPath";
 
 /**
  * Resolves /destination/:destinationName to the immersive Destination
@@ -8,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
  */
 const DestinationResolver = () => {
   const { destinationName } = useParams<{ destinationName: string }>();
+  const { language } = useLanguage();
   const [redirectTo, setRedirectTo] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
 
@@ -28,7 +31,6 @@ const DestinationResolver = () => {
       }
       const params = new URLSearchParams();
       params.set("openDestination", data.id);
-      // Try to seed city for nicer context
       const firstCityId = Array.isArray(data.city_ids) ? data.city_ids[0] : null;
       if (firstCityId) {
         const { data: city } = await (supabase
@@ -38,12 +40,12 @@ const DestinationResolver = () => {
           .maybeSingle() as any);
         if (city?.name_fr) params.set("city", city.name_fr);
       }
-      setRedirectTo(`/search?${params.toString()}`);
+      setRedirectTo(withLangPrefix(`/search?${params.toString()}`, language));
     })();
     return () => { cancelled = true; };
-  }, [destinationName]);
+  }, [destinationName, language]);
 
-  if (notFound) return <Navigate to="/search" replace />;
+  if (notFound) return <Navigate to={withLangPrefix("/search", language)} replace />;
   if (redirectTo) return <Navigate to={redirectTo} replace />;
   return null;
 };
