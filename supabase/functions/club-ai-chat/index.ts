@@ -737,10 +737,11 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
 
       let q = ctx.supabase
         .from("events")
-        .select("id,name,hook,description,start_date,end_date,recurrence,days_of_week,start_time,end_time,url,city_id,cities:city_id(name_fr),neighborhoods:neighborhood_id(name_fr)")
+        .select("id,name,hook,description,start_date,end_date,recurrence,days_of_week,start_time,end_time,url,city_id,default_business_id,images,videos,sort_order,logo_url,cities:city_id(name_fr),neighborhoods:neighborhood_id(name_fr)")
         .or(`and(start_date.gte.${from},start_date.lte.${to}),and(start_date.lte.${to},end_date.gte.${from}),recurrence.not.is.null`)
+        .order("sort_order", { ascending: true, nullsFirst: false })
         .order("start_date", { ascending: true, nullsFirst: false })
-        .limit(limit * 2);
+        .limit(limit * 3);
       if (eventIds) q = q.in("id", eventIds.slice(0, 500));
       if (args.query) {
         const qv = String(args.query).replace(/[,()"]/g, " ").trim();
@@ -767,6 +768,11 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         city: e.cities?.name_fr || null,
         neighborhood: e.neighborhoods?.name_fr || null,
         url: e.url || null,
+        sort_order: e.sort_order ?? null,
+        default_business_id: e.default_business_id || null,
+        images: Array.isArray(e.images) ? e.images.filter(Boolean) : [],
+        videos: Array.isArray(e.videos) ? e.videos.filter(Boolean) : [],
+        logo_url: e.logo_url || null,
       }));
       if (!results.length) return { results: [], note: `Aucun événement trouvé entre ${from} et ${to}${args.city ? ` à ${args.city}` : ""}.` };
       return { results, period: { from, to } };
@@ -1423,6 +1429,7 @@ ${languageInstruction}`;
     let lastSearchNames: string[] = [];
     let lastSearchTitle: string | undefined;
     let lastSearchSnapshot: PreviousSearchSnapshot | null = null;
+    let lastEventsSnapshot: { title?: string; city?: string | null; events: any[] } | null = null;
     for (let i = 0; i < 4; i++) {
       const resp = await fetchAiGateway(GATEWAY_URL, {
         method: "POST",
@@ -1473,6 +1480,29 @@ ${languageInstruction}`;
               slugs: lastSearchSlugs,
               returnedCount: Number((result as any).returned_count) || (result as any).results.length,
               totalCount: Number((result as any).total_count) || lastSearchSlugs.length,
+            };
+          }
+          if (tc.function?.name === "search_events" && Array.isArray((result as any)?.results) && (result as any).results.length) {
+            lastEventsSnapshot = {
+              title: args.query || args.city || undefined,
+              city: args.city || null,
+              events: (result as any).results.map((e: any) => ({
+                id: e.id,
+                name: e.name,
+                hook: e.hook || null,
+                start_date: e.start_date || null,
+                end_date: e.end_date || null,
+                days_of_week: e.days_of_week || null,
+                start_time: e.start_time || null,
+                end_time: e.end_time || null,
+                city: e.city || null,
+                neighborhood: e.neighborhood || null,
+                url: e.url || null,
+                default_business_id: e.default_business_id || null,
+                image: (Array.isArray(e.images) && e.images[0]) || e.logo_url || null,
+                video: (Array.isArray(e.videos) && e.videos[0]) || null,
+                sort_order: e.sort_order ?? null,
+              })),
             };
           }
           convo.push({ role: "tool", tool_call_id: tc.id, name: tc.function?.name, content: JSON.stringify(result) });
@@ -1552,6 +1582,11 @@ ${languageInstruction}`;
     if (lastSearchSnapshot && finalAnswer && !finalAnswer.includes("<!--SEARCH_RESULTS:")) {
       const safe = JSON.stringify(lastSearchSnapshot).replace(/-->/g, "--&gt;");
       finalAnswer += `\n\n<!--SEARCH_RESULTS:${safe}-->`;
+    }
+
+    if (lastEventsSnapshot && finalAnswer && !finalAnswer.includes("<!--EVENTS_SNAPSHOT:")) {
+      const safe = JSON.stringify(lastEventsSnapshot).replace(/-->/g, "--&gt;");
+      finalAnswer += `\n\n<!--EVENTS_SNAPSHOT:${safe}-->`;
     }
 
     // Persist conversation

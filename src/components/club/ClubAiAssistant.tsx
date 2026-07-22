@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Plus, Send, Trash2, Pencil, MessageSquare, Bookmark, BookmarkCheck, Mic, Volume2, Square, Headphones, RefreshCw, Map as MapIcon } from "lucide-react";
+import { Loader2, Plus, Send, Trash2, Pencil, MessageSquare, Bookmark, BookmarkCheck, Mic, Volume2, Square, Headphones, RefreshCw, Map as MapIcon, Calendar as CalendarIcon } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "@/hooks/use-toast";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
@@ -11,6 +11,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useLanguage } from "@/contexts/LanguageContext";
 import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlidePanel";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
+import EventsSlidePanel from "@/components/club/EventsSlidePanel";
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
 const AT = {
@@ -329,15 +330,43 @@ function linkifyPhones(text: string): string {
 // Parse <!--SHOW_ON_MAP:{...}--> markers out of an assistant message.
 const MAP_RE = /<!--SHOW_ON_MAP:([\s\S]*?)-->/g;
 const SEARCH_RESULTS_RE = /<!--SEARCH_RESULTS:[\s\S]*?-->/g;
+const EVENTS_RE = /<!--EVENTS_SNAPSHOT:([\s\S]*?)-->/g;
 type MapPayload = { title?: string; businesses: MapPanelBusiness[] };
-function extractMapPayloads(text: string): { clean: string; maps: MapPayload[] } {
-  if (!text) return { clean: text, maps: [] };
+export type EventPanelItem = {
+  id: string;
+  name: string;
+  hook?: string | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  days_of_week?: number[] | null;
+  start_time?: string | null;
+  end_time?: string | null;
+  city?: string | null;
+  neighborhood?: string | null;
+  url?: string | null;
+  default_business_id?: string | null;
+  image?: string | null;
+  video?: string | null;
+  sort_order?: number | null;
+};
+type EventsPayload = { title?: string; city?: string | null; events: EventPanelItem[] };
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[] } {
+  if (!text) return { clean: text, maps: [], events: [] };
   const maps: MapPayload[] = [];
+  const events: EventsPayload[] = [];
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const parsed = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
       if (parsed && Array.isArray(parsed.businesses) && parsed.businesses.length) {
         maps.push({ title: parsed.title, businesses: parsed.businesses });
+      }
+    } catch { /* ignore */ }
+    return "";
+  }).replace(EVENTS_RE, (_m, raw) => {
+    try {
+      const parsed = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (parsed && Array.isArray(parsed.events) && parsed.events.length) {
+        events.push({ title: parsed.title, city: parsed.city ?? null, events: parsed.events });
       }
     } catch { /* ignore */ }
     return "";
@@ -347,9 +376,15 @@ function extractMapPayloads(text: string): { clean: string; maps: MapPayload[] }
     .replace(SEARCH_RESULTS_RE, "")
     .replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "")
     .replace(/<!--SEARCH_RESULTS:[\s\S]*$/g, "")
+    .replace(/<!--EVENTS_SNAPSHOT:[\s\S]*$/g, "")
     .trim();
-  return { clean, maps };
+  return { clean, maps, events };
 }
+// Backward-compat alias
+const extractMapPayloads = (text: string) => {
+  const r = extractPayloads(text);
+  return { clean: r.clean, maps: r.maps };
+};
 
 
 const ClubAiAssistant = ({ userId }: Props) => {
@@ -440,6 +475,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
   // Map slide-panel state (opened when the user clicks a mini-map card in a message).
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
+  const [openEvents, setOpenEvents] = useState<{ list: EventPanelItem[]; index: number } | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
   const [isBusinessPanelClosing, setIsBusinessPanelClosing] = useState(false);
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
@@ -1039,9 +1075,9 @@ const ClubAiAssistant = ({ userId }: Props) => {
           {(() => null)()}
           {messages.map((m, i) => {
             const lastAssistantIndex = (() => { for (let k = messages.length - 1; k >= 0; k--) { if (messages[k].role === "assistant") return k; } return -1; })();
-            const { clean, maps } = m.role === "assistant"
-              ? extractMapPayloads(m.content)
-              : { clean: m.content, maps: [] as MapPayload[] };
+            const { clean, maps, events: eventPayloads } = m.role === "assistant"
+              ? extractPayloads(m.content)
+              : { clean: m.content, maps: [] as MapPayload[], events: [] as EventsPayload[] };
             // Index business names for clickable bold names.
             for (const mp of maps) {
               for (const b of mp.businesses) {
@@ -1186,6 +1222,59 @@ const ClubAiAssistant = ({ userId }: Props) => {
                         </div>
                       </button>
                     ))}
+                    {eventPayloads.map((ep, idx) => {
+                      const thumbs = ep.events.filter((e) => e.image || e.video).slice(0, 12);
+                      return (
+                        <div key={`ev-${idx}`} className="mt-3 space-y-2">
+                          {thumbs.length > 0 && (
+                            <div className="-mx-1 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                              {thumbs.map((ev, ti) => (
+                                <button
+                                  key={ev.id}
+                                  type="button"
+                                  onClick={() => setOpenEvents({ list: ep.events, index: ep.events.findIndex((x) => x.id === ev.id) })}
+                                  className="shrink-0 w-24 sm:w-28 group/evthumb text-left"
+                                  title={ev.name}
+                                >
+                                  <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-[#C04F17]/10 border border-[#C04F17]/20">
+                                    {ev.image ? (
+                                      <img src={ev.image} alt={ev.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform group-hover/evthumb:scale-105" />
+                                    ) : (
+                                      <div className="absolute inset-0 flex items-center justify-center"><CalendarIcon className="h-6 w-6 text-[#C04F17]" /></div>
+                                    )}
+                                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-1.5">
+                                      <div className="text-[10px] text-white font-semibold line-clamp-2 leading-tight">{ev.name}</div>
+                                    </div>
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => setOpenEvents({ list: ep.events, index: 0 })}
+                            className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/80 hover:bg-white border border-[#C04F17]/20 transition-colors text-left group/ev"
+                          >
+                            <div className="relative h-16 w-20 shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-[#C04F17]/15 to-[#D4AF37]/20 flex items-center justify-center">
+                              <CalendarIcon className="h-7 w-7 text-[#C04F17]" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="text-sm font-semibold text-[#C04F17] truncate">
+                                {ep.title ? `Agenda · ${ep.title}` : `${ep.events.length} événement${ep.events.length > 1 ? "s" : ""}`}
+                                {ep.city ? ` · ${ep.city}` : ""}
+                              </div>
+                              <div className="text-[11px] text-[#0a1d6b]/70 truncate">
+                                {ep.events.slice(0, 3).map((e) => e.name).join(" · ")}
+                                {ep.events.length > 3 ? ` · +${ep.events.length - 3}` : ""}
+                              </div>
+                              <div className="text-[11px] text-[#C04F17] mt-0.5 font-medium group-hover/ev:underline">
+                                Ouvrir l'agenda →
+                              </div>
+                            </div>
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
                 {m.role === "assistant" && i === lastAssistantIndex && (
@@ -1366,6 +1455,15 @@ const ClubAiAssistant = ({ userId }: Props) => {
             }
           } catch { /* user cancelled */ }
         }}
+      />
+
+      <EventsSlidePanel
+        open={!!openEvents}
+        onClose={() => setOpenEvents(null)}
+        items={openEvents?.list || []}
+        initialIndex={openEvents?.index ?? 0}
+        isMobile={isMobile}
+        onOpenBusiness={(bid) => { setOpenEvents(null); setOpenBusinessId(bid); }}
       />
 
       {openBusinessId && (
