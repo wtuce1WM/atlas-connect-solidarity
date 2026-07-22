@@ -1027,6 +1027,20 @@ async function streamGatewayText(
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  // ============= SSE stream setup =============
+  const encoder = new TextEncoder();
+  let controllerRef: ReadableStreamDefaultController<Uint8Array> | null = null;
+  const stream = new ReadableStream<Uint8Array>({
+    start(c) { controllerRef = c; },
+    cancel() { controllerRef = null; },
+  });
+  const emit: EmitFn = (obj: any) => {
+    if (!controllerRef) return;
+    try { controllerRef.enqueue(encoder.encode(`data: ${JSON.stringify(obj)}\n\n`)); } catch {/* client aborted */}
+  };
+  const closeStream = () => { try { controllerRef?.close(); } catch {} controllerRef = null; };
+  const clientAbort = req.signal;
+
   // ============= Turn-level structured log =============
   const turnStartMs = Date.now();
   const turnLog: any = {
@@ -1055,6 +1069,8 @@ serve(async (req) => {
   };
   let adminForLog: any = null;
 
+  // Fire-and-forget async worker: streams events to the client.
+  const work = (async () => {
   try {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY missing");
