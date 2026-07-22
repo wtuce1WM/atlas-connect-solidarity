@@ -111,6 +111,56 @@ function extractDetailsTarget(text: string): string | null {
   return null;
 }
 
+// ---- Open-now filter (Africa/Casablanca) ----
+const DAY_KEYS = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+function nowInCasablanca(): { dayKey: string; minutes: number } {
+  const now = new Date();
+  const fmt = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Africa/Casablanca", weekday: "long", hour: "2-digit", minute: "2-digit", hour12: false,
+  });
+  const parts = fmt.formatToParts(now);
+  const wd = (parts.find(p => p.type === "weekday")?.value || "").toLowerCase();
+  const h = parseInt(parts.find(p => p.type === "hour")?.value || "0", 10);
+  const m = parseInt(parts.find(p => p.type === "minute")?.value || "0", 10);
+  return { dayKey: wd, minutes: h * 60 + m };
+}
+function parseHm(v: unknown): number | null {
+  const s = String(v || "").trim();
+  const m = s.match(/^(\d{1,2}):(\d{2})/);
+  if (!m) return null;
+  const h = parseInt(m[1], 10), mm = parseInt(m[2], 10);
+  if (!Number.isFinite(h) || !Number.isFinite(mm)) return null;
+  return h * 60 + mm;
+}
+function isOpenNow(business: { opening_hours?: any; is_open_24h?: boolean | null }): boolean | null {
+  if (business.is_open_24h) return true;
+  const oh = business.opening_hours;
+  if (!oh || typeof oh !== "object") return null; // unknown
+  const { dayKey, minutes } = nowInCasablanca();
+  const day = oh[dayKey];
+  if (!day || typeof day !== "object") return null;
+  if (day.closed === true) return false;
+  if (day.continuous === true) return true;
+  const inRange = (open: unknown, close: unknown): boolean => {
+    const o = parseHm(open), c = parseHm(close);
+    if (o == null || c == null) return false;
+    if (c > o) return minutes >= o && minutes < c;
+    // Overnight (ex: 20:00 → 02:00)
+    if (c < o) return minutes >= o || minutes < c;
+    return false;
+  };
+  if (inRange(day.open, day.close)) return true;
+  if (day.open2 && day.close2 && inRange(day.open2, day.close2)) return true;
+  return false;
+}
+
+// Intent : "ouvert maintenant / ouvert ce soir / lesquels sont ouverts / open now / open tonight"
+const OPEN_NOW_INTENT_RE = /\b(ouverts?\s+(maintenant|l[àa]|actuellement|ce\s+soir|ce\s+midi|encore|aujourd['’]?hui)|lesquels?\s+sont\s+ouverts?|qu['’]?est[-\s]?ce\s+qui\s+est\s+ouvert|open\s+(now|tonight|today|right\s+now)|which\s+(ones?\s+)?are\s+open|مفتوح\s+الآن)\b/i;
+function isOpenNowIntent(text: string): boolean {
+  const n = normalizeLoose(text);
+  return OPEN_NOW_INTENT_RE.test(n);
+}
+
 function formatEventDate(event: any): string {
   const fmt = (value?: string | null) => {
     if (!value) return "";
@@ -1678,6 +1728,101 @@ serve(async (req) => {
       }
     }
     // ============= FIN ROUTE DETAILS =============
+
+    // ============= ROUTE DÉTERMINISTE : OPEN NOW =============
+    // "lesquels sont ouverts maintenant" / "ouverts ce soir" appliqué au snapshot
+    // précédent → filtre en Deno via opening_hours (TZ Africa/Casablanca).
+    // Fallback silencieux si pas de snapshot ou si aucun business n'a d'horaires.
+    if (isOpenNowIntent(lastUserMsg) && previousSearchSnapshot && previousSearchSnapshot.slugs.length >= 2) {
+      try {
+        const hookField = lang === "en" ? "hook_en" : lang === "ar" ? "hook_ar" : "hook_fr";
+        const { data: bizRows } = await admin
+          .from("businesses")
+          .select(`id, slug, name, main_category, neighborhood, city, opening_hours, is_open_24h, ${hookField}`)
+          .in("slug", previousSearchSnapshot.slugs);
+        const bySlug = new Map((bizRows || []).map((b: any) => [b.slug, b]));
+        const ordered = previousSearchSnapshot.slugs
+          .map((s: string) => bySlug.get(s))
+          .filter(Boolean) as any[];
+
+        const openList: any[] = [];
+        const unknownList: any[] = [];
+        for (const b of ordered) {
+          const status = isOpenNow(b);
+          if (status === true) openList.push(b);
+          else if (status == null) unknownList.push(b);
+        }
+
+        const totalOpen = openList.length;
+        if (totalOpen === 0 && unknownList.length === ordered.length) {
+          // Aucun horaire connu → on préfère laisser tomber, pas router déterministe
+          console.log("open_now route: no hours known in snapshot → fallback");
+        } else {
+          const shown = openList.slice(0, 5);
+          const header = lang === "en" ? "Open now" : lang === "ar" ? "مفتوح الآن" : "Ouverts maintenant";
+          let body: string;
+          if (totalOpen === 0) {
+            body = lang === "en"
+              ? "None of the previous results appear to be open right now (based on their listed hours)."
+              : lang === "ar"
+              ? "لا يبدو أن أياً من النتائج السابقة مفتوح الآن (حسب الأوقات المسجلة)."
+              : "Aucun des résultats précédents ne semble ouvert maintenant (d'après les horaires enregistrés).";
+          } else {
+            const lines = shown.map((r: any) =>
+              `- **${r.name}**${r.main_category ? ` — ${r.main_category}` : ""}${r.neighborhood ? `, ${r.neighborhood}` : ""}${r.city ? `, ${r.city}` : ""}${r[hookField] ? ` · ${String(r[hookField]).slice(0, 140)}` : ""}`
+            ).join("\n");
+            const shownLine = lang === "en"
+              ? `**${shown.length} of ${totalOpen} open right now shown**`
+              : lang === "ar"
+              ? `**${shown.length} من ${totalOpen} مفتوحة الآن معروضة**`
+              : `**${shown.length} affichés sur ${totalOpen} ouverts maintenant**`;
+            body = `${lines}\n\n${shownLine}`;
+          }
+          const unknownNote = unknownList.length
+            ? (lang === "en"
+                ? `\n\n(${unknownList.length} without hours on file — status unknown.)`
+                : lang === "ar"
+                ? `\n\n(${unknownList.length} بدون أوقات مسجلة — الحالة غير معروفة.)`
+                : `\n\n(${unknownList.length} sans horaires renseignés — statut inconnu.)`)
+            : "";
+          let answer = `**${header}**\n\n${body}${unknownNote}`;
+
+          if (totalOpen >= 1) {
+            const snapshot: PreviousSearchSnapshot = {
+              title: header,
+              slugs: openList.map((r: any) => r.slug).filter(Boolean),
+              returnedCount: openList.length,
+              totalCount: totalOpen,
+            };
+            const safeSnap = JSON.stringify(snapshot).replace(/-->/g, "--&gt;");
+            answer += `\n\n<!--SEARCH_RESULTS:${safeSnap}-->`;
+          }
+
+          const newMessages = [...messages, { role: "assistant", content: answer }];
+          let resultChatId: string | null = null;
+          if (chatId) {
+            const { data: existing } = await admin.from("ai_chats").select("id").eq("id", chatId).eq("user_id", user.id).maybeSingle();
+            if (existing?.id) {
+              await admin.from("ai_chats").update({ messages: newMessages, updated_at: new Date().toISOString() }).eq("id", chatId).eq("user_id", user.id);
+              resultChatId = chatId;
+            }
+          }
+          if (!resultChatId) {
+            const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title: lastUserMsg.slice(0, 200) || header, messages: newMessages }).select("id").single();
+            resultChatId = inserted?.id ?? null;
+          }
+          turnLog.route_taken = "open_now_shortcut";
+          turnLog.results_count = totalOpen;
+          turnLog.results_shown = openList.slice(0, 5).length;
+          emit({ type: "chunk", delta: answer.split(/<!--/)[0] });
+          emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+          return;
+        }
+      } catch (e) {
+        console.error("open_now route failed, falling back:", e);
+      }
+    }
+    // ============= FIN ROUTE OPEN NOW =============
 
     // ============= PHASE 1 : ROUTER DÉTERMINISTE =============
     // Court-circuite la boucle tool-calling du LLM pour les intentions pures
