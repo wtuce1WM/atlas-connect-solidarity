@@ -410,8 +410,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
     };
   }, [openBusinessId]);
   useEffect(() => { if (!openBusinessId) setActiveSlug(null); }, [openBusinessId]);
-  // Index of business name -> slug, fed from every <!--SHOW_ON_MAP:--> payload in the conversation.
-  const nameToSlugRef = useRef<Map<string, string>>(new Map());
+  // Index of business names fed from every <!--SHOW_ON_MAP:--> payload in the conversation.
+  const businessLookupRef = useRef<Map<string, BusinessLookupRef>>(new Map());
 
   // Ordered, deduped list of businesses cited across the conversation.
   // Mirrors blog article panels: the BookOnlineSlidePanel receives prev/next IDs.
@@ -513,35 +513,55 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const handleOpenBusinessName = async (name: string) => {
     const n = name.trim();
     if (!n) return;
-    // Try cached map payloads (name -> slug) first — fuzzy match to tolerate
-    // article prefixes ("Le/La/Les/L'") and punctuation/accent differences.
-    const norm = (s: string) => s.toLowerCase()
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      .replace(/^(le|la|les|l'|l’)\s+/i, "")
-      .replace(/[^a-z0-9]+/g, " ")
-      .trim();
-    const nTarget = norm(n);
-    let cachedSlug: string | undefined;
-    for (const [key, slug] of nameToSlugRef.current.entries()) {
-      const nKey = norm(key);
-      if (!nKey) continue;
-      if (nKey === nTarget || nKey.includes(nTarget) || nTarget.includes(nKey)) {
-        cachedSlug = slug;
-        break;
+    // Try cached map payloads first — fuzzy match to tolerate articles,
+    // apostrophes, punctuation, accents and partial names emitted by the AI.
+    let best: { ref: BusinessLookupRef; score: number } | null = null;
+    for (const ref of businessLookupRef.current.values()) {
+      const score = businessNameMatchScore(ref.name, n);
+      if (score > (best?.score || 0)) best = { ref, score };
+    }
+    if (best && best.score >= 0.58) {
+      if (best.ref.slug) {
+        const ok = await openBusinessBySlug(best.ref.slug);
+        if (ok) return;
+      }
+      if (best.ref.id) {
+        setActiveSlug(best.ref.slug || null);
+        setOpenBusinessId(best.ref.id);
+        setOrderedBusinessRefs((prev) => prev.some((b) => b.id === best.ref.id) ? prev : [...prev, { id: best.ref.id!, slug: best.ref.slug || null, name: best.ref.name }]);
+        return;
       }
     }
-    if (cachedSlug) {
-      const ok = await openBusinessBySlug(cachedSlug);
+
+    const exactOrPartial = Array.from(businessLookupRef.current.values()).find((ref) => {
+      const refName = normalizeBusinessName(ref.name);
+      const targetName = normalizeBusinessName(n);
+      return refName === targetName || refName.includes(targetName) || targetName.includes(refName);
+    });
+    if (exactOrPartial?.slug) {
+      const ok = await openBusinessBySlug(exactOrPartial.slug);
       if (ok) return;
     }
     // Fallback: look up by name in DB (ilike with wildcards to tolerate prefixes)
-    const { data } = await supabase.from("businesses").select("id,slug,name").ilike("name", `%${n}%`).limit(1).maybeSingle();
-    const id = (data as any)?.id;
-    const dbSlug = (data as any)?.slug;
+    const tokens = businessNameTokens(n);
+    let query = supabase.from("businesses").select("id,slug,name").eq("is_active", true).limit(25);
+    if (tokens.length >= 2) {
+      query = query.or(tokens.slice(0, 4).map((token) => `name.ilike.%${token}%`).join(","));
+    } else {
+      query = query.ilike("name", `%${n}%`);
+    }
+    const { data } = await query;
+    const rows = Array.isArray(data) ? data : [];
+    const row = rows
+      .map((candidate: any) => ({ candidate, score: businessNameMatchScore(candidate?.name || "", n) }))
+      .sort((a, b) => b.score - a.score)[0];
+    const id = row && row.score >= 0.42 ? row.candidate?.id : null;
+    const dbSlug = row && row.score >= 0.42 ? row.candidate?.slug : null;
+    const dbName = row && row.score >= 0.42 ? row.candidate?.name : n;
     if (id) {
       setActiveSlug(dbSlug || null);
       setOpenBusinessId(id);
-      setOrderedBusinessRefs((prev) => prev.some((b) => b.id === id) ? prev : [...prev, { id, slug: dbSlug || null, name: n }]);
+      setOrderedBusinessRefs((prev) => prev.some((b) => b.id === id) ? prev : [...prev, { id, slug: dbSlug || null, name: dbName }]);
     } else {
       toast({ title: at.ficheNotFound, description: at.ficheNotFoundFor(n), variant: "destructive" });
     }
