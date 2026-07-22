@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Lock, Eye, EyeOff, KeyRound } from "lucide-react";
 
 const ResetPassword = () => {
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
   const { language } = useLanguage();
   const { toast } = useToast();
   const [password, setPassword] = useState("");

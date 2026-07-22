@@ -11,6 +11,7 @@ import PanelSearchBar from "@/components/PanelSearchBar";
 import VideoControls from "@/components/VideoControls";
 import GenericVideoTimelineOverlay from "@/components/test/GenericVideoTimelineOverlay";
 import { useNavigate } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { LazyDirectionsOverlay } from "@/components/overlays/LazyOverlays";
 import PoiSlidePanel from "@/components/PoiSlidePanel";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
@@ -149,7 +150,7 @@ const VideoSlidePanel = ({
   price = null,
 }: VideoSlidePanelProps) => {
 
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
   const isMobile = useIsMobile();
   const { language } = useLanguage();
 

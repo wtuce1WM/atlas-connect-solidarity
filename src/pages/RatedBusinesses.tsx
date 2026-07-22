@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { businessUrl } from "@/lib/businessUrl";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { Link, useNavigate } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAllRows } from "@/lib/fetchAllRows";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -51,7 +52,7 @@ interface RatedBusiness {
 }
 
 const RatedBusinesses = () => {
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
   const { language } = useLanguage();
   const [businesses, setBusinesses] = useState<RatedBusiness[]>([]);
   const [isLoading, setIsLoading] = useState(true);

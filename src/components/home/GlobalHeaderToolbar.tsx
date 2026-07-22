@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { MapPin, MapPinOff, Loader } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CITIES, type City } from "@/lib/homeHelpers";
@@ -21,7 +22,7 @@ interface HashtagBadge {
  * - Localisation button: opens PanelLocationOverlay.
  */
 const GlobalHeaderToolbar = () => {
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
   const location = useLocation();
   const [hashtagBadges, setHashtagBadges] = useState<HashtagBadge[]>([]);
   const [showLocationOverlay, setShowLocationOverlay] = useState(false);

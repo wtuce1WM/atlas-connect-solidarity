@@ -1,4 +1,5 @@
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 import { useEffect, useState, useMemo } from "react";
 import { useSEO } from "@/hooks/useSEO";
@@ -84,7 +85,7 @@ const ITEMS_PER_PAGE = 20;
 const SubcategoryPage = () => {
   const { subcategoryName } = useParams<{ subcategoryName: string }>();
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
   const { language } = useLanguage();
   const [allBusinesses, setAllBusinesses] = useState<Business[]>([]);
   const [subcategoryInfo, setSubcategoryInfo] = useState<SubcategoryInfo | null>(null);

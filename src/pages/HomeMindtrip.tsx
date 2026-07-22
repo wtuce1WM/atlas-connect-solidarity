@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Play, Pause, Volume2, VolumeX, Percent, User } from "lucide-react";
 
 import Footer from "@/components/Footer";
@@ -306,7 +307,7 @@ const HOME_LABELS = {
 
 const HomeMindtrip = () => {
 
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
   const { language } = useLanguage();
   const localizeUrl = (path: string) => withLangPrefix(path, language as "fr" | "en" | "ar");
   const L = HOME_LABELS[language] ?? HOME_LABELS.fr;
@@ -1286,7 +1287,7 @@ const HomeMindtrip = () => {
 };
 
 const HotelAvailabilityWidget = () => {
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
   const { language } = useLanguage();
   const L = HOME_LABELS[language] ?? HOME_LABELS.fr;
   const fmt = (d: Date) => d.toISOString().split("T")[0];

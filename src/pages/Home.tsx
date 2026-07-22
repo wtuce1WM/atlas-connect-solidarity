@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import Header from "@/components/Header";
 const HeaderMenuContent = lazy(() => import("@/components/HeaderMenuContent"));
 import { supabase } from "@/integrations/supabase/client";
@@ -108,7 +109,7 @@ interface VideoEventFilter {
 }
 
 const Home = () => {
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
 
   // ============================================================
   // STATE

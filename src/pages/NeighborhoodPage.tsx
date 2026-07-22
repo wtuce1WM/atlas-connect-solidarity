@@ -3,6 +3,7 @@ import { GOOGLE_MAPS_EMBED_KEY } from "@/lib/googleMapsKey";
 import { useSEO } from "@/hooks/useSEO";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { ArrowLeft, Loader2, MapPin, ChevronLeft, ChevronRight, X, Phone, SlidersHorizontal } from "lucide-react";
 import MapBusinessInfoCard from "@/components/MapBusinessInfoCard";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -101,7 +102,7 @@ const NeighborhoodPage = () => {
   } as const;
   const t = TRANSLATIONS[language] || TRANSLATIONS.fr;
 
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [gammes, setGammes] = useState<Gamme[]>([]);
   const [badges, setBadges] = useState<Badge[]>([]);

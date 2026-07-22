@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePopularSearches } from "@/hooks/usePopularSearches";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
@@ -71,7 +72,7 @@ const MobileSearchOverlay = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const dictationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleSubmitRef = useRef<() => void>(() => {});
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
   const location = useLocation();
   const { language } = useLanguage();
   const T = (TRANSLATIONS as any)[language] || TRANSLATIONS.fr;
