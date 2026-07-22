@@ -1036,7 +1036,9 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
         <div ref={scrollRef} className="px-4 py-4 space-y-3">
           {messages.length === 0 && !sending && emptyHint}
+          {(() => { return null; })()}
           {messages.map((m, i) => {
+            const lastAssistantIndex = (() => { for (let k = messages.length - 1; k >= 0; k--) { if (messages[k].role === "assistant") return k; } return -1; })();
             const { clean, maps } = m.role === "assistant"
               ? extractMapPayloads(m.content)
               : { clean: m.content, maps: [] as MapPayload[] };
