@@ -3011,6 +3011,32 @@ serve(async (req) => {
       }
     }
 
+    // Guardrail: natural-language intent extraction can over-interpret
+    // "coucher de soleil / sunset" as "Vue sur mer" by injecting words like
+    // "vue" + "mer". Only keep the strict "Vue sur mer" service when the
+    // member explicitly mentioned the sea/ocean/coast in their own text.
+    if (detectedServices.includes("Vue sur mer")) {
+      const rawUserText = [query, spoken]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      const explicitSeaView = /\b(mer|ocean|oc[eé]an|atlantique|mediterranee|m[eé]diterran[eé]e|sea|ocean|seaside|seafront|beachfront|bord de mer|front de mer)\b/i.test(rawUserText);
+      if (!explicitSeaView) {
+        const beforeServices = [...detectedServices];
+        detectedServices = detectedServices.filter((s) => s !== "Vue sur mer");
+        allCandidateServiceNames = allCandidateServiceNames.filter((s) => s !== "Vue sur mer");
+        if (detectedService === "Vue sur mer") detectedService = detectedServices[0] || null;
+        if (originalDetectedService === "Vue sur mer") originalDetectedService = detectedService;
+        if (!detectedService && detectedServices.length === 0) serviceWasDetected = false;
+        console.log(`Removed inferred service "Vue sur mer" because user did not explicitly ask for sea view: [${beforeServices.join(", ")}] → [${detectedServices.join(", ")}]`);
+      }
+    }
+
     // ── Inject service forced by intent-based re-evaluation (see ~L1800) ──
     // When intent (e.g. "faire") swapped to a subcategory via a service keyword,
     // ensure that service is enforced as a required filter downstream.
