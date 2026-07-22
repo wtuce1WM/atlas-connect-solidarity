@@ -20237,7 +20237,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 3.7,
-          "reviewCount": 1030,
+          "reviewCount": 1032,
           "bestRating": 5
         }
       }
@@ -51202,7 +51202,7 @@
         "name": "Atelier 44 Marrakech Gueliz",
         "url": "https://oneworldmorocco.com/atelier-44-marrakech-gueliz",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/026a15c4-1cab-4456-baf3-6ea16ac4a2e6-1784017670026-h5p6fo.webp",
-        "description": "Atelier 44 Marrakech Guéliz est un concept store indépendant situé dans le quartier de Guéliz à Marrakech, qui réunit une boutique de mode de créateurs marocains et un institut de soins esthétiques. Il est particulièrement reconnu pour sa sélection de pièces contemporaines, son approche personnalisée et la mise en valeur du savoir-faire artisanal marocain. Offre et concept L'espace associe deux univers complémentaires : Mode : vêtements de créateurs marocains contemporains, caftans et jellabas r",
+        "description": "Au cœur de Guéliz, Atelier 44 Marrakech est une adresse incontournable pour les passionnés de mode, de design et d'artisanat contemporain. Plus qu'une simple boutique, ce concept store met à l'honneur les talents marocains en proposant une sélection raffinée de vêtements, accessoires, bijoux, objets de décoration et créations exclusives, imaginés par des designers locaux et des marques émergentes. Dans un espace lumineux au design épuré, chaque collection reflète l'équilibre parfait entre tradit",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "44 Rue Tarik Ben Ziad",
@@ -52571,6 +52571,7 @@
         "name": "Boutique 24 Marrakech",
         "url": "https://oneworldmorocco.com/boutique-24-marrakech",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/f2cece13-04de-4b57-b701-e14b3cef8399-1784116089546-586opd.jpg",
+        "description": "Située au cœur du quartier dynamique de Guéliz à Marrakech, Boutique 24 est une adresse incontournable pour les amateurs de mode à la recherche d'élégance, d'originalité et de pièces soigneusement sélectionnées. Dans un cadre moderne et accueillant, cette boutique propose une expérience shopping où les tendances internationales rencontrent l'esprit raffiné de Marrakech. Dès l'entrée, les collections dévoilent un univers féminin chic et contemporain. Vêtements, accessoires, sacs, bijoux et pièces",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "12 Rue des Vieux Marrakechis",
