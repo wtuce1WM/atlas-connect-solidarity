@@ -937,6 +937,10 @@ ${languageInstruction}`;
           if (tc.function?.name === "show_on_map" && (result as any)?.ok && Array.isArray((result as any).businesses) && (result as any).businesses.length) {
             mapPayloads.push({ title: args.title, businesses: (result as any).businesses });
           }
+          if (tc.function?.name === "search_businesses" && Array.isArray((result as any)?.results) && (result as any).results.length) {
+            lastSearchSlugs = (result as any).results.map((r: any) => r.slug).filter(Boolean);
+            lastSearchTitle = args.query || args.city || undefined;
+          }
           convo.push({ role: "tool", tool_call_id: tc.id, name: tc.function?.name, content: JSON.stringify(result) });
         }
         continue;
