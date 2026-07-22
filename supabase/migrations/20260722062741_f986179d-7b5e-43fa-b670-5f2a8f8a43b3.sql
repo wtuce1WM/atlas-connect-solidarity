@@ -1,0 +1,1 @@
+ALTER TABLE public.club_ai_suggestions ADD COLUMN IF NOT EXISTS blog_post_id uuid REFERENCES public.blog_posts(id) ON DELETE SET NULL;

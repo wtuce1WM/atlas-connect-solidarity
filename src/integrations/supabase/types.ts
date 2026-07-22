@@ -2784,6 +2784,7 @@ export type Database = {
       }
       club_ai_suggestions: {
         Row: {
+          blog_post_id: string | null
           category: string | null
           city: string | null
           created_at: string
@@ -2802,6 +2803,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          blog_post_id?: string | null
           category?: string | null
           city?: string | null
           created_at?: string
@@ -2820,6 +2822,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          blog_post_id?: string | null
           category?: string | null
           city?: string | null
           created_at?: string
@@ -2837,7 +2840,15 @@ export type Database = {
           sort_order?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "club_ai_suggestions_blog_post_id_fkey"
+            columns: ["blog_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       club_member_personas: {
         Row: {

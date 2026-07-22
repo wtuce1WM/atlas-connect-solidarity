@@ -20,28 +20,44 @@ type Row = {
   fixed_response_fr: string | null;
   fixed_response_en: string | null;
   fixed_response_ar: string | null;
+  blog_post_id: string | null;
 };
+
+type BlogOption = { id: string; title: string; slug: string | null };
+
 
 
 const ClubAiSuggestionsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
+  const [blogPosts, setBlogPosts] = useState<BlogOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("club_ai_suggestions")
-      .select("id,label_fr,label_en,label_ar,category,city,sort_order,is_active,fixed_response_fr,fixed_response_en,fixed_response_ar")
-      .order("sort_order", { ascending: true });
+    const [{ data, error }, { data: posts }] = await Promise.all([
+      supabase
+        .from("club_ai_suggestions")
+        .select("id,label_fr,label_en,label_ar,category,city,sort_order,is_active,fixed_response_fr,fixed_response_en,fixed_response_ar,blog_post_id")
+        .order("sort_order", { ascending: true }),
+      supabase
+        .from("blog_posts")
+        .select("id,title_fr,title_en,slug")
+        .order("title_fr", { ascending: true }),
+    ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows((data as Row[]) || []);
+    const options: BlogOption[] = ((posts as any[]) || [])
+      .map((p) => ({ id: p.id, slug: p.slug, title: (p.title_fr || p.title_en || p.slug || "(sans titre)").trim() }))
+      .sort((a, b) => a.title.localeCompare(b.title, "fr", { sensitivity: "base" }));
+    setBlogPosts(options);
     setDirty(new Set());
     setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
+
 
   const update = (id: string, patch: Partial<Row>) => {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
@@ -74,6 +90,7 @@ const ClubAiSuggestionsManagement = () => {
         label_fr: r.label_fr, label_en: r.label_en, label_ar: r.label_ar,
         category: r.category, city: r.city, sort_order: r.sort_order, is_active: r.is_active,
         fixed_response_fr: r.fixed_response_fr, fixed_response_en: r.fixed_response_en, fixed_response_ar: r.fixed_response_ar,
+        blog_post_id: r.blog_post_id,
       }).eq("id", r.id);
       if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); setSaving(false); return; }
     }
@@ -132,6 +149,20 @@ const ClubAiSuggestionsManagement = () => {
                   <Button variant="ghost" size="icon" onClick={() => remove(r.id)} title="Supprimer">
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-xs text-muted-foreground shrink-0">Article de blog lié :</label>
+                  <select
+                    value={r.blog_post_id || ""}
+                    onChange={(e) => update(r.id, { blog_post_id: e.target.value || null })}
+                    className="h-9 rounded-md border border-input bg-background px-2 text-sm flex-1 max-w-md"
+                    title="Article de blog lié"
+                  >
+                    <option value="">— Aucun —</option>
+                    {blogPosts.map((p) => (
+                      <option key={p.id} value={p.id}>{p.title}</option>
+                    ))}
+                  </select>
                 </div>
                 <details className="text-sm">
                   <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
