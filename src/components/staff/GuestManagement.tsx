@@ -193,6 +193,15 @@ const GuestManagement = () => {
       minute: "2-digit",
     });
 
+  const totalUsage = Object.values(aiUsageByUser).reduce(
+    (acc, u) => ({
+      tokens: acc.tokens + u.total_tokens,
+      cost: acc.cost + u.total_cost_usd,
+      events: acc.events + u.event_count,
+    }),
+    { tokens: 0, cost: 0, events: 0 },
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -206,9 +215,40 @@ const GuestManagement = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-gold" />
-            Liste des membres
+          <CardTitle className="flex items-center justify-between gap-2 flex-wrap">
+            <span className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-gold" />
+              Liste des membres
+            </span>
+            <div className="flex items-center gap-3 text-sm font-normal">
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <Bot className="h-4 w-4 text-gold" />
+                <span>IA {aiRange === "30d" ? "30j" : "total"} :</span>
+                <span className="font-medium text-foreground">
+                  {totalUsage.tokens.toLocaleString("fr-FR")} tokens
+                </span>
+                <span className="text-muted-foreground">·</span>
+                <span className="font-medium text-foreground">
+                  ${totalUsage.cost.toFixed(4)}
+                </span>
+              </div>
+              <div className="flex rounded-md border overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setAiRange("30d")}
+                  className={`px-2 py-1 text-xs ${aiRange === "30d" ? "bg-gold text-black" : "bg-transparent text-muted-foreground hover:bg-muted"}`}
+                >
+                  30j
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAiRange("all")}
+                  className={`px-2 py-1 text-xs ${aiRange === "all" ? "bg-gold text-black" : "bg-transparent text-muted-foreground hover:bg-muted"}`}
+                >
+                  Total
+                </button>
+              </div>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -230,14 +270,20 @@ const GuestManagement = () => {
                     <TableHead><div className="flex items-center gap-1"><Mail className="h-3.5 w-3.5" />Email</div></TableHead>
                     <TableHead><div className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" />Tél / WhatsApp</div></TableHead>
                     <TableHead><div className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />Localisation</div></TableHead>
-                    
                     <TableHead>Inscrit le</TableHead>
                     <TableHead><div className="flex items-center gap-1"><LogIn className="h-3.5 w-3.5" />Dernière activité</div></TableHead>
+                    <TableHead>
+                      <div className="flex items-center gap-1" title={`Usage IA sur ${aiRange === "30d" ? "les 30 derniers jours" : "toute la période"}`}>
+                        <Bot className="h-3.5 w-3.5" />IA (tokens / $)
+                      </div>
+                    </TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {members.map((member) => (
+                  {members.map((member) => {
+                    const usage = member.user_id ? aiUsageByUser[member.user_id] : undefined;
+                    return (
                     <TableRow key={member.id}>
                       <TableCell className="font-medium">{member.nickname}</TableCell>
                       <TableCell>{[member.first_name, member.last_name].filter(Boolean).join(" ") || "—"}</TableCell>
@@ -256,6 +302,16 @@ const GuestManagement = () => {
                       <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{formatDate(member.created_at)}</TableCell>
                       <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                         {member.last_active_at ? formatDate(member.last_active_at) : (member.last_sign_in_at ? formatDate(member.last_sign_in_at) : "—")}
+                      </TableCell>
+                      <TableCell className="text-sm whitespace-nowrap">
+                        {usage ? (
+                          <div className="space-y-0.5" title={`${usage.event_count} appel(s)${usage.last_used_at ? ` · dernier ${formatDate(usage.last_used_at)}` : ""}`}>
+                            <div className="font-medium">{usage.total_tokens.toLocaleString("fr-FR")} tk</div>
+                            <div className="text-muted-foreground text-xs">${usage.total_cost_usd.toFixed(4)}</div>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
