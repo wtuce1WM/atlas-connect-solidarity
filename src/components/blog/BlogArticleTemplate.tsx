@@ -109,6 +109,8 @@ const BlogArticleTemplate = ({
   defaultOgImage,
   customHeroImage,
   videoSection,
+  tldr,
+  faq,
 }: BlogArticleTemplateProps) => {
   const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Record<string, BlogArticleBusiness>>({});
