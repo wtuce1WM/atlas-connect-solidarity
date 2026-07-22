@@ -1,35 +1,90 @@
-# Sélection média par scène (Studio Vidéo IA)
+# Amélioration performances Conversations IA — 3 chantiers
 
-## Objectif
-Permettre d'assigner une liste ordonnée d'images/vidéos à chaque scène du scénario (aperçu IA), et pousser cette sélection jusqu'au rendu Remotion.
+## Chantier 1 — Streaming côté client
 
-## Portée fonctionnelle
-- Scènes concernées par la sélection : **Hook, Nom & identité, Médias, Offre, Outro**. Les scènes Avis, Horaires, Map, ID numérique, CTA restent gérées par le template (pas de slot média).
-- Pour chaque scène éligible : liste ordonnée d'assets (image ou vidéo), avec drag & drop, ajout depuis les grilles Images/Vidéos de l'établissement, retrait, réordonnancement.
-- La sélection globale actuelle (checkboxes sur les grilles) reste utilisable comme fallback : si aucune scène ne définit son propre média, on retombe sur la sélection globale (comportement actuel préservé).
+**Objectif** : premier token visible en ~500ms au lieu de 3-8s d'attente d'un bloc unique.
 
-## Impact rendu
-- Nouveau champ `template_props.scene_media` : `Array<{ scene_id: string; kind: 'hook'|'name'|'media'|'offer'|'outro'; urls: string[] }>`.
-- `video-scenario-generate` : accepte `scene_media` dans le body, valide que chaque URL appartient bien aux médias autorisés de l'établissement, l'écrit dans `template_props`. En mode `preview_only`, renvoyé tel quel dans la réponse.
-- `remotion/src/BusinessShowcase.tsx` : si `scene_media` présent, remplace la logique globale scène par scène (Hook utilise `hook.urls`, Offre utilise `offer.urls` en fond, etc.). Sinon, comportement actuel.
-- Templates dédiés (Comptoir Darna, Riad Dar Najat, etc.) : hors scope pour cette itération. `scene_media` s'applique uniquement à `business-showcase` et `corporate-vertical`.
+**Aujourd'hui**
+- `club-ai-chat` renvoie `new Response(JSON.stringify({ answer, chatId, followups }))` en un seul bloc, quel que soit le chemin (router direct, tool-loop, agenda).
+- Le client `ClubAiAssistant.tsx` attend la fin complète avant d'afficher.
 
-## UI
-- Dans `StudioVideoScenarioPanel`, chaque carte de scène éligible affiche :
-  - une bande horizontale des médias assignés (thumbnails + badge kind + croix retrait) ;
-  - un bouton "+ Ajouter média" ouvrant un popover avec la grille des images + vidéos disponibles (celles déjà chargées côté StudioVideo) ;
-  - drag & drop réordonne (dnd-kit, déjà présent).
-- État `sceneMedia: Record<sceneId, string[]>` géré dans `StudioVideo.tsx`, propagé au panneau via props.
-- Quand l'IA renvoie un `scene_media` en `preview_only`, on l'hydrate dans cet état pour permettre l'édition avant génération.
-- Les grilles Images/Vidéos existantes montrent maintenant un badge "Assigné à N scène(s)" quand l'asset est utilisé quelque part.
+**À faire**
+1. Introduire un mode streaming dans `club-ai-chat` via `ReadableStream` SSE (compatible AI SDK) :
+   - Chemin **router direct + synth** : streamer directement les tokens du call gateway `synth` au lieu de bufferiser.
+   - Chemin **tool-loop LLM** : streamer la dernière itération assistante.
+   - Chemin **agenda / events** : streamer l'intro éditoriale, envoyer le snapshot `EVENTS_SNAPSHOT` en événement final.
+2. Encoder le `chatId` et les marqueurs (`SEARCH_RESULTS`, `EVENTS_SNAPSHOT`, `BUSINESS_LINKS`) comme événements SSE distincts (`event: metadata`, `event: token`, `event: done`).
+3. Adapter `ClubAiAssistant.tsx` : lire le stream, afficher les tokens à mesure, appliquer les marqueurs à la fin.
+4. Conserver un fallback non-streaming pour les cas courts (< 100 tokens attendus) et l'appel initial de suggestions.
+5. Ajouter un vrai bouton Stop (AbortController côté client) qui coupe le fetch — remplace le stop cosmétique actuel.
 
-## Fichiers touchés
-1. `src/components/StudioVideoScenarioPanel.tsx` — nouveau slot média par scène, popover picker, dnd, callbacks.
-2. `src/pages/StudioVideo.tsx` — état `sceneMedia`, propagation, ajout à la payload de `previewScenario` et `submit`, hydratation depuis la réponse IA.
-3. `supabase/functions/video-scenario-generate/index.ts` — validation + passthrough de `scene_media` dans `template_props`.
-4. `remotion/src/BusinessShowcase.tsx` — consommation de `template_props.scene_media` scène par scène, fallback sur logique actuelle.
+**Risques** : régressions sur la persistance (sauvegarde `ai_chats.messages`). Solution : sauvegarder dans `onFinish` du stream, pas avant.
 
-## Hors scope
-- Templates Remotion dédiés (établissements pinnés) — ils ont déjà leur propre structure figée.
-- Découpage temporel intra-scène (durée par asset) — la scène garde sa durée totale, les assets se répartissent uniformément.
-- Persistance en base d'un "plan de montage" réutilisable — la sélection vit dans le job seulement.
+## Chantier 2 — Résolution des liens business côté serveur
+
+**Objectif** : supprimer le bruit visible dans les network logs (N requêtes `name.ilike` avec émojis, phrases entières, "5 résultats affichés sur 11…") et fiabiliser les noms cliquables.
+
+**Aujourd'hui**
+- Le client parse la réponse assistante, extrait les noms en gras (`**Nom**`), puis fait une requête `businesses?name.ilike.%Nom%` par nom.
+- Beaucoup de requêtes ratent (émojis, ponctuation, noms partiels, phrases meta comme "5 résultats affichés sur 11 trouvés dans la base 1WM").
+- Le résolveur fuzzy de secours part sur des `or=(name.ilike.%mot1%,name.ilike.%mot2%,…)` qui remontent n'importe quoi.
+
+**À faire**
+1. Dans `club-ai-chat`, avant le return :
+   - Détecter tous les `**Xxx**` de la réponse finale.
+   - Croiser avec `map_slugs` du snapshot ET avec un fuzzy match normalisé (accents/émojis strippés) contre la liste des `results[].name` déjà en mémoire.
+   - Émettre un commentaire structuré `<!--BUSINESS_LINKS:[{"name":"…","slug":"…"}]-->` en fin de réponse.
+2. Côté `ClubAiAssistant.tsx` :
+   - Parser d'abord `BUSINESS_LINKS` → convertir les `**Nom**` en `<Link>` déterministes.
+   - Ne PAS déclencher de requêtes `name.ilike` pour les noms résolus.
+   - Ne garder le fallback client (avec normalisation stricte + garde-fous) que pour les noms non présents dans `BUSINESS_LINKS`, et l'inhiber sur les lignes meta (regex "N résultats affichés sur M").
+3. Ajouter côté serveur une liste d'exclusion pour les phrases meta afin qu'aucune tentative de résolution ne parte sur elles.
+
+## Chantier 3 — Log structuré par tour + dashboard perf
+
+**Objectif** : piloter les optimisations avec des chiffres, pas au ressenti.
+
+**Aujourd'hui**
+- `ai_usage_events` capture tokens/coût par appel gateway, mais pas la structure du tour (intent, chemin, outils appelés, latence par phase).
+- Les logs edge (`console.log`) ne sont pas requêtables ni graphables.
+
+**À faire**
+1. Nouvelle table `ai_conversation_turns` :
+   - `id`, `chat_id`, `user_id`, `created_at`
+   - `user_message` (tronqué 500c), `intent_classified`, `route_taken` (`router_direct` / `tool_loop` / `agenda_shortcut` / `map_shortcut` / `affirmative_map` / `fallback_qa`)
+   - `tools_called jsonb` (nom, latence, résultats_count)
+   - `latency_ms_total`, `latency_ms_first_token`, `latency_ms_synth`
+   - `tokens_in`, `tokens_out`, `cost_usd`
+   - `city_active`, `city_detected`, `results_count`, `results_shown`
+   - `had_error boolean`, `error_message text`
+   - `stream_completed boolean`
+   - RLS : lecture staff/admin uniquement, insert via service_role.
+2. Instrumenter `club-ai-chat` : un objet `turnLog` accumulé tout au long, flushé en fin de handler (dans un `finally` pour capturer erreurs).
+3. Nouvelle page staff `/backoffice/ai-perf` :
+   - Filtres date / user / route.
+   - KPI : latence P50/P95 par route, taux d'erreur, coût moyen/tour, ratio tokens_in/out.
+   - Top 20 requêtes lentes (> 5s) avec drill-down.
+   - Top 20 requêtes 0 résultat.
+   - Graphe latence dans le temps par route (avant/après un déploiement).
+4. Bouton feedback discret 👍/👎 sous chaque message assistant → colonne `feedback_score smallint` sur `ai_conversation_turns` pour évaluer les régressions qualité.
+
+## Ordre d'exécution recommandé
+
+1. **Chantier 3** en premier (baseline mesurée avant/après).
+2. **Chantier 1** streaming (impact perçu le plus visible).
+3. **Chantier 2** résolution slugs serveur (impact fiabilité).
+
+## Détails techniques
+
+- Streaming : `ReadableStream` SSE natif dans la fonction Deno, format compatible avec `useChat` de `@ai-sdk/react` si on veut migrer plus tard (garder les `data:` chunks JSON).
+- Résolution slugs : normalisation `String.prototype.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^\p{L}\p{N}\s]/gu,"").toLowerCase()`.
+- Table `ai_conversation_turns` : GRANT INSERT à service_role, GRANT SELECT à authenticated avec policy `has_role(auth.uid(),'admin')`.
+- Pas de changement de modèle IA dans ce lot — mesures d'abord.
+
+## Hors périmètre (pour un second lot)
+
+- Cache de recherche court (5-10min).
+- Router déterministe étendu (météo, bookmarks, détails).
+- Mémoire courte structurée.
+- Modèle adapté par phase.
+- Filtre "ouvert ce soir" côté business-search.
