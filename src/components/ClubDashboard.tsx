@@ -16,7 +16,8 @@ import { MessageCircle } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useLocation, useNavigate } from "react-router-dom";
+import { withLangPrefix } from "@/lib/localizedPath";
 import type { User } from "@supabase/supabase-js";
 import logoHamsa from "@/assets/logo-hamsa-gold.png";
 import accountAvatar from "@/assets/default-avatar.png";
@@ -42,13 +43,17 @@ interface ClubDashboardProps {
 const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
   const { language } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const ALLOWED_TABS = ["assistant","account","addresses","travel","inspiration","ai-chats","profile","notifications","contact"];
   const tabFromUrl = searchParams.get("tab");
   const activeTab = tabFromUrl && ALLOWED_TABS.includes(tabFromUrl) ? tabFromUrl : "assistant";
   const handleTabChange = (v: string) => {
     const next = new URLSearchParams(searchParams);
     next.set("tab", v);
-    setSearchParams(next, { replace: true });
+    // Explicitly preserve the current pathname (which includes /en or /ar prefix)
+    // so the language segment is never dropped when switching tabs.
+    navigate({ pathname: location.pathname, search: `?${next.toString()}` }, { replace: true });
   };
 
   const quickTabs = [
@@ -512,7 +517,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
               </div>
               {form.nickname && (
                 <a
-                  href={`/u/${encodeURIComponent(form.nickname)}`}
+                  href={withLangPrefix(`/u/${encodeURIComponent(form.nickname)}`, language as "fr" | "en" | "ar")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex w-20 flex-col items-center gap-1 group md:w-auto md:gap-1.5"
