@@ -50,10 +50,10 @@ const HomeBottomBar = () => {
           <PanelSearchBar
             onSearch={(params) => {
               const qs = new URLSearchParams(params).toString();
-              navigate(`/search?${qs}`);
+              navigate(withLangPrefix(`/search?${qs}`, language));
             }}
-            onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
-            onAiClick={() => navigate("/search?tab=ai")}
+            onBusinessSelect={(bizId) => navigate(withLangPrefix(`/search?openBusiness=${bizId}`, language))}
+            onAiClick={() => navigate(withLangPrefix("/search?tab=ai", language))}
             onOverlayChange={setOverlayOpen}
             closeTrigger={closeTrigger}
             noToolbarOffset
