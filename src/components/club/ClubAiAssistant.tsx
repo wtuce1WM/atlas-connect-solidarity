@@ -1091,9 +1091,9 @@ const ClubAiAssistant = ({ userId }: Props) => {
           {(() => null)()}
           {messages.map((m, i) => {
             const lastAssistantIndex = (() => { for (let k = messages.length - 1; k >= 0; k--) { if (messages[k].role === "assistant") return k; } return -1; })();
-            const { clean, maps, events: eventPayloads } = m.role === "assistant"
+            const { clean, maps, events: eventPayloads, known } = m.role === "assistant"
               ? extractPayloads(m.content)
-              : { clean: m.content, maps: [] as MapPayload[], events: [] as EventsPayload[] };
+              : { clean: m.content, maps: [] as MapPayload[], events: [] as EventsPayload[], known: [] as KnownBusiness[] };
             // Index business names for clickable bold names.
             for (const mp of maps) {
               for (const b of mp.businesses) {
@@ -1101,6 +1101,10 @@ const ClubAiAssistant = ({ userId }: Props) => {
                   businessLookupRef.current.set(b.name.toLowerCase(), { id: b.id, slug: b.slug || null, name: b.name });
                 }
               }
+            }
+            // Seed from server-resolved KNOWN_BUSINESSES marker (skips async DB roundtrips).
+            for (const b of known) {
+              businessLookupRef.current.set(b.name.toLowerCase(), b);
             }
             return (
               <div key={i} className={m.role === "user" ? "flex justify-end" : "flex flex-col items-start"}>
