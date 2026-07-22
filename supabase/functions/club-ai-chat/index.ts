@@ -1613,6 +1613,15 @@ ${languageInstruction}`;
     let lastSearchTitle: string | undefined;
     let lastSearchSnapshot: PreviousSearchSnapshot | null = null;
     let lastEventsSnapshot: { title?: string; city?: string | null; events: any[] } | null = null;
+    // Accumulate businesses seen during the tool loop → seed client's lookup map
+    // and remove the client-side fuzzy DB roundtrips on `**Name**` clicks.
+    const knownBusinessesMap = new Map<string, { id: string; slug: string | null; name: string }>();
+    const addKnown = (b: any) => {
+      if (!b?.id || !b?.name) return;
+      const key = String(b.name).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+      if (!key || knownBusinessesMap.has(key)) return;
+      knownBusinessesMap.set(key, { id: b.id, slug: b.slug || null, name: b.name });
+    };
     // Per-turn tool gating : si la requête utilisateur mentionne un TYPE DE LIEU
     // sans marqueur événementiel explicite, on retire search_events du menu pour
     // empêcher le LLM de rester bloqué en mode agenda.
@@ -1656,7 +1665,11 @@ ${languageInstruction}`;
           if (tc.function?.name === "show_on_map" && (result as any)?.ok && Array.isArray((result as any).businesses) && (result as any).businesses.length) {
             mapPayloads.push({ title: args.title, businesses: (result as any).businesses });
           }
+          if (tc.function?.name === "show_on_map" && (result as any)?.ok && Array.isArray((result as any).businesses)) {
+            for (const b of (result as any).businesses) addKnown(b);
+          }
           if (tc.function?.name === "search_businesses" && Array.isArray((result as any)?.results) && (result as any).results.length) {
+            for (const b of (result as any).results) addKnown(b);
             lastSearchNames = (result as any).results.map((r: any) => r.name).filter(Boolean);
             lastSearchSlugs = (Array.isArray((result as any).map_slugs) && (result as any).map_slugs.length
               ? (result as any).map_slugs
@@ -1776,6 +1789,68 @@ ${languageInstruction}`;
       const safe = JSON.stringify(lastEventsSnapshot).replace(/-->/g, "--&gt;");
       finalAnswer += `\n\n<!--EVENTS_SNAPSHOT:${safe}-->`;
     }
+
+    // Server-side slug resolution: for every **Name** in the answer, resolve to
+    // {id, slug, name} once and emit a KNOWN_BUSINESSES marker. The client seeds
+    // its lookup map from this and skips fuzzy DB roundtrips on click.
+    if (finalAnswer) {
+      try {
+        const LABELS = new Set([
+          "ambiance","atmosphère","atmosphere","cuisine","musique","musique live","décoration","decoration",
+          "localisation","adresse","horaires","prix","tarifs","budget","carte","menu","services","accès","acces",
+          "réservation","reservation","contact","téléphone","telephone","site web","website","note","avis",
+          "vibe","food","drinks","music","location","price","hours","booking","phone","conclusion","résumé","resume",
+        ]);
+        const normalize = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[:*]+$/g, "").trim();
+        const visible = finalAnswer
+          .replace(/<!--SHOW_ON_MAP:[\s\S]*?-->/g, "")
+          .replace(/<!--SEARCH_RESULTS:[\s\S]*?-->/g, "")
+          .replace(/<!--EVENTS_SNAPSHOT:[\s\S]*?-->/g, "");
+        const candidateSet = new Set<string>();
+        const rawMatches = Array.from(visible.matchAll(/\*\*([^*\n]{3,80})\*\*/g));
+        for (const m of rawMatches) {
+          const raw = m[1].trim();
+          if (raw.length < 4) continue;
+          if (LABELS.has(normalize(raw))) continue;
+          candidateSet.add(raw);
+        }
+        // Split unresolved from resolved-via-tool-loop
+        const unresolved: string[] = [];
+        for (const name of candidateSet) {
+          if (!knownBusinessesMap.has(normalize(name))) unresolved.push(name);
+        }
+        // Batched DB fallback: cap at 20 lookups per turn, exact-match on name (case-insensitive)
+        if (unresolved.length) {
+          const capped = unresolved.slice(0, 20);
+          const { data: rows } = await admin
+            .from("businesses")
+            .select("id,slug,name")
+            .eq("is_active", true)
+            .in("name", capped);
+          for (const r of rows || []) addKnown(r);
+          // For the remaining truly unresolved, try one ilike per name (max 10)
+          const stillMissing = capped.filter((n) => !knownBusinessesMap.has(normalize(n))).slice(0, 10);
+          for (const n of stillMissing) {
+            const { data: fuzzy } = await admin
+              .from("businesses")
+              .select("id,slug,name")
+              .eq("is_active", true)
+              .ilike("name", n)
+              .limit(1);
+            if (fuzzy && fuzzy[0]) addKnown(fuzzy[0]);
+          }
+        }
+        if (knownBusinessesMap.size) {
+          const list = Array.from(knownBusinessesMap.values());
+          const safe = JSON.stringify(list).replace(/-->/g, "--&gt;");
+          finalAnswer += `\n\n<!--KNOWN_BUSINESSES:${safe}-->`;
+          turnLog.results_shown = turnLog.results_shown ?? list.length;
+        }
+      } catch (e) {
+        console.warn("KNOWN_BUSINESSES resolution failed", e);
+      }
+    }
+
 
     // Persist conversation
     const userTurns = messages.filter((m) => m.role === "user");
