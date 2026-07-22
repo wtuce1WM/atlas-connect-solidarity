@@ -911,10 +911,12 @@ const ClubAiAssistant = ({ userId }: Props) => {
             const { clean, maps } = m.role === "assistant"
               ? extractMapPayloads(m.content)
               : { clean: m.content, maps: [] as MapPayload[] };
-            // Index business names → slugs for clickable bold names.
+            // Index business names for clickable bold names.
             for (const mp of maps) {
               for (const b of mp.businesses) {
-                if (b?.name && b?.slug) nameToSlugRef.current.set(b.name.toLowerCase(), b.slug);
+                if (b?.name) {
+                  businessLookupRef.current.set(b.name.toLowerCase(), { id: b.id, slug: b.slug || null, name: b.name });
+                }
               }
             }
             return (
@@ -947,18 +949,10 @@ const ClubAiAssistant = ({ userId }: Props) => {
                             ? children.map((c) => (typeof c === "string" ? c : "")).join("")
                             : (typeof children === "string" ? children : "");
                           const trimmed = text.trim();
-                          const norm = (s: string) => s.toLowerCase()
-                            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                            .replace(/^(le|la|les|l'|l’)\s+/i, "")
-                            .replace(/[^a-z0-9]+/g, " ")
-                            .trim();
-                          const nTrim = norm(trimmed);
                           let isKnownBusiness = false;
-                          if (nTrim) {
-                            for (const key of nameToSlugRef.current.keys()) {
-                              const nKey = norm(key);
-                              if (!nKey) continue;
-                              if (nKey === nTrim || nKey.includes(nTrim) || nTrim.includes(nKey)) {
+                          if (trimmed) {
+                            for (const ref of businessLookupRef.current.values()) {
+                              if (businessNameMatchScore(ref.name, trimmed) >= 0.58) {
                                 isKnownBusiness = true;
                                 break;
                               }
