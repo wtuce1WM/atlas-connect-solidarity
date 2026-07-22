@@ -14,6 +14,7 @@ import AnimatedBusinessStrip from "@/components/AnimatedBusinessStrip";
 import BlogArticleTemplate, {
   type BlogArticleEntry,
   type BlogArticleVideo,
+  type BlogArticleFaqItem,
 } from "@/components/blog/BlogArticleTemplate";
 import {
   fetchBlogVideoSection,
