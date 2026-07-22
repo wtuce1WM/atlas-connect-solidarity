@@ -543,6 +543,9 @@ export type Database = {
           excerpt_ar: string | null
           excerpt_en: string | null
           excerpt_fr: string | null
+          faq_ar: Json | null
+          faq_en: Json | null
+          faq_fr: Json | null
           hero_alt: string | null
           hero_subtitle_ar: string | null
           hero_subtitle_en: string | null
@@ -565,6 +568,9 @@ export type Database = {
           title_ar: string | null
           title_en: string | null
           title_fr: string
+          tldr_ar: string | null
+          tldr_en: string | null
+          tldr_fr: string | null
           updated_at: string
           video_section_config: Json | null
         }
@@ -583,6 +589,9 @@ export type Database = {
           excerpt_ar?: string | null
           excerpt_en?: string | null
           excerpt_fr?: string | null
+          faq_ar?: Json | null
+          faq_en?: Json | null
+          faq_fr?: Json | null
           hero_alt?: string | null
           hero_subtitle_ar?: string | null
           hero_subtitle_en?: string | null
@@ -605,6 +614,9 @@ export type Database = {
           title_ar?: string | null
           title_en?: string | null
           title_fr: string
+          tldr_ar?: string | null
+          tldr_en?: string | null
+          tldr_fr?: string | null
           updated_at?: string
           video_section_config?: Json | null
         }
@@ -623,6 +635,9 @@ export type Database = {
           excerpt_ar?: string | null
           excerpt_en?: string | null
           excerpt_fr?: string | null
+          faq_ar?: Json | null
+          faq_en?: Json | null
+          faq_fr?: Json | null
           hero_alt?: string | null
           hero_subtitle_ar?: string | null
           hero_subtitle_en?: string | null
@@ -645,6 +660,9 @@ export type Database = {
           title_ar?: string | null
           title_en?: string | null
           title_fr?: string
+          tldr_ar?: string | null
+          tldr_en?: string | null
+          tldr_fr?: string | null
           updated_at?: string
           video_section_config?: Json | null
         }
