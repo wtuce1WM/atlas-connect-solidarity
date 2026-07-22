@@ -534,6 +534,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         return /\bbar\b/.test(desc);
       };
 
+      const hasStrictRequirements = excludeHotel || requiresBar || requiredLandmarks.length > 0;
       const filtered = allBusinesses.filter((b: any) => {
         if (excludeHotel && isHotelLike(b)) return false;
         if (!barConfirmed(b)) return false;
@@ -550,8 +551,30 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         }));
       }
 
-      const effectiveList = filtered.length ? filtered : allBusinesses;
-      const strictFilterApplied = filtered.length > 0 && droppedCount > 0;
+      const effectiveList = hasStrictRequirements ? filtered : allBusinesses;
+      const strictFilterApplied = hasStrictRequirements && droppedCount > 0;
+
+      if (hasStrictRequirements && !effectiveList.length) {
+        return {
+          results: [],
+          returned_count: 0,
+          total_count: 0,
+          total_before_filter: total,
+          strict_filter_applied: true,
+          strict_filter_reason: [
+            excludeHotel ? "exclusion:hôtellerie" : null,
+            requiresBar ? "requis:bar" : null,
+            ...requiredLandmarks.map((l) => `vue:${l.label}`),
+          ].filter(Boolean).join(" · "),
+          has_more: false,
+          map_slugs: [],
+          map_count: 0,
+          note:
+            "Le filtre strict serveur a retiré tous les résultats bruts. Réponds qu'aucun établissement ne remplit simultanément toutes les conditions prouvées, et propose d'élargir un critère. Ne cite aucun résultat brut retiré.",
+          answer_guidance:
+            "IMPORTANT — aucun résultat ne remplit simultanément les conditions strictes. NE réintroduis JAMAIS les résultats retirés. Ne cite aucun établissement hors results[].",
+        };
+      }
 
       // Enrichissement : description + highlights (blocs) pour les résultats affichés
       const businesses = effectiveList.slice(0, limit);
