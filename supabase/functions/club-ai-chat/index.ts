@@ -648,7 +648,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
     }
     if (name === "show_on_map") {
       const slugs: string[] = Array.isArray(args.business_slugs)
-        ? args.business_slugs.filter((s: any) => typeof s === "string" && s.trim()).slice(0, 20)
+        ? args.business_slugs.filter((s: any) => typeof s === "string" && s.trim()).slice(0, 30)
         : [];
       if (!slugs.length) return { error: "Aucun slug fourni", count: 0 };
       const { data, error } = await ctx.supabase
@@ -877,7 +877,7 @@ RÈGLES DE PRÉCISION (critiques) :
 Outils disponibles : get_weather, search_businesses, get_business_details, search_events, get_my_trips, link_business_to_trip, list_my_bookmarks, list_my_saved_chats, get_my_taste_profile, suggest_similar_to_my_bookmarks, web_search, show_on_map.
 
 11. **Lier une adresse à un voyage (link_business_to_trip)** : si le membre demande explicitement « ajoute X à mon voyage Y », appelle d'abord get_my_trips pour récupérer trip_id et search_businesses pour obtenir le slug exact, puis link_business_to_trip. Confirme ensuite poliment ce qui a été ajouté. Si plusieurs voyages possibles, demande au membre lequel cibler avant d'agir.
-12. **Affichage sur carte (show_on_map) — DÉCLENCHEMENT OBLIGATOIRE** : tu DOIS appeler show_on_map SANS ATTENDRE une seconde demande dès que la question du membre contient l'un des mots/expressions déclencheurs suivants (FR/EN/AR, insensible aux accents et à la casse) : « carte », « map », « sur une carte », « on a map », « situe », « situer », « localise », « localiser », « où sont », « où se trouvent », « where are », « geoloc », « géolocalise », « خريطة ». Dans ces cas : (a) appelle d'abord search_businesses avec limit: 30, (b) puis appelle show_on_map avec TOUS les slugs retournés (jusqu'à 30) DANS LE MÊME TOUR, avant de rédiger ta réponse texte. Ne demande JAMAIS confirmation avant d'ouvrir la carte quand un de ces mots est présent. Appelle aussi show_on_map spontanément quand visualiser géographiquement aide vraiment la décision (≥ 3 lieux dispersés). La carte et le panneau s'affichent automatiquement côté UI ; tu n'as donc pas à répéter la liste ni à coller une URL Google Maps. Indique le nombre total (total_count) — par exemple « Voici 18 hôtels avec piscine à Marrakech affichés sur la carte (sur 47 au total) ». Ne l'appelle pas pour 1 seul lieu.
+12. **Affichage sur carte (show_on_map) — DÉCLENCHEMENT OBLIGATOIRE** : tu DOIS appeler show_on_map SANS ATTENDRE une seconde demande dès que la question du membre contient l'un des mots/expressions déclencheurs suivants (FR/EN/AR, insensible aux accents et à la casse) : « carte », « map », « sur une carte », « on a map », « situe », « situer », « localise », « localiser », « où sont », « où se trouvent », « where are », « geoloc », « géolocalise », « خريطة ». Dans ces cas : (a) appelle d'abord search_businesses avec limit: 30 (en réutilisant EXACTEMENT les mêmes filtres — ville, catégorie, quartier, requête — que la recherche précédente si le membre fait référence à des résultats déjà obtenus, ex. « les 17 résultats », « ceux-ci », « ces hôtels », « la même liste »), (b) puis appelle show_on_map DANS LE MÊME TOUR avec **TOUS** les slugs pertinents retournés (jusqu'à 30 ; si le membre mentionne un nombre précis N ≤ 30, passe les N premiers, jamais moins). Ne demande JAMAIS confirmation avant d'ouvrir la carte quand un de ces mots est présent. Appelle aussi show_on_map spontanément quand visualiser géographiquement aide vraiment la décision (≥ 3 lieux dispersés). La carte et le panneau s'affichent automatiquement côté UI ; tu n'as donc pas à répéter la liste ni à coller une URL Google Maps. Indique le nombre total (total_count) — par exemple « Voici 18 hôtels avec piscine à Marrakech affichés sur la carte (sur 47 au total) ». Ne l'appelle pas pour 1 seul lieu.
 
 ${languageInstruction}`;
 
@@ -967,7 +967,7 @@ ${languageInstruction}`;
     const MAP_TRIGGER_RE = /\b(sur\s+une?\s+cartes?|une?\s+cartes?|la\s+cartes?|cartes?|maps?|situe(?:z|s|r|nt)?|localise(?:z|s|r|nt)?|o[uù]\s+sont|o[uù]\s+se\s+trouvent|where\s+are|geoloc|g[ée]oloc)\b|خريطة/i;
     if (!mapPayloads.length && lastSearchSlugs.length >= 2 && MAP_TRIGGER_RE.test(lastUserMsg || "")) {
       try {
-        const forced = await runTool("show_on_map", { business_slugs: lastSearchSlugs.slice(0, 20), title: lastSearchTitle }, ctx);
+        const forced = await runTool("show_on_map", { business_slugs: lastSearchSlugs.slice(0, 30), title: lastSearchTitle }, ctx);
         if ((forced as any)?.ok && Array.isArray((forced as any).businesses) && (forced as any).businesses.length) {
           mapPayloads.push({ title: lastSearchTitle, businesses: (forced as any).businesses });
         }
