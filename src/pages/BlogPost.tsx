@@ -57,6 +57,12 @@ interface BlogPostData {
   bookmark_slug: string | null;
   custom_hero_image_url: string | null;
   video_section_config: BlogVideoSectionConfig | null;
+  tldr_fr: string | null;
+  tldr_en: string | null;
+  tldr_ar: string | null;
+  faq_fr: BlogArticleFaqItem[] | null;
+  faq_en: BlogArticleFaqItem[] | null;
+  faq_ar: BlogArticleFaqItem[] | null;
 }
 
 const BlogPost = () => {
