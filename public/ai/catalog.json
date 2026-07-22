@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-07-20T16:37:54.348Z",
+    "generated_at": "2026-07-22T16:16:12.235Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
     "count": 1837
   },
@@ -57810,7 +57810,7 @@
       "website": "https://www.restaurantlechaletdelaplage.com",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/cd6cb650-dcf5-4c78-8bce-374f8b7fd9a9-1770934729170-a4exhh.jpg",
       "google_rating": 3.7,
-      "google_review_count": 1030,
+      "google_review_count": 1032,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -146303,8 +146303,8 @@
       "slug": "atelier-44-marrakech-gueliz",
       "url": "https://oneworldmorocco.com/atelier-44-marrakech-gueliz",
       "name": "Atelier 44 Marrakech Gueliz",
-      "hook": "Concept Store. Découvrez le Maroc à travers la mode. Commandes par WhatsApp.",
-      "description": "Atelier 44 Marrakech Guéliz est un concept store indépendant situé dans le quartier de Guéliz à Marrakech, qui réunit une boutique de mode de créateurs marocains et un institut de soins esthétiques. Il est particulièrement reconnu pour sa sélection de pièces contemporaines, son approche personnalisée et la mise en valeur du savoir-faire artisanal marocain. Offre et concept L'espace associe deux univers complémentaires : Mode : vêtements de créateurs marocains contemporains, caftans et jellabas r",
+      "hook": "Un concept store d'exception où créateurs marocains, design et élégance contemporaine se rencontrent.",
+      "description": "Au cœur de Guéliz, Atelier 44 Marrakech est une adresse incontournable pour les passionnés de mode, de design et d'artisanat contemporain. Plus qu'une simple boutique, ce concept store met à l'honneur les talents marocains en proposant une sélection raffinée de vêtements, accessoires, bijoux, objets de décoration et créations exclusives, imaginés par des designers locaux et des marques émergentes. Dans un espace lumineux au design épuré, chaque collection reflète l'équilibre parfait entre tradit",
       "main_category": "Commerce",
       "categories": [
         "Mode",
@@ -150317,8 +150317,8 @@
       "slug": "boutique-24-marrakech",
       "url": "https://oneworldmorocco.com/boutique-24-marrakech",
       "name": "Boutique 24 Marrakech",
-      "hook": null,
-      "description": null,
+      "hook": "Une adresse tendance à Guéliz où élégance, mode contemporaine et inspirations marocaines se rencontrent.",
+      "description": "Située au cœur du quartier dynamique de Guéliz à Marrakech, Boutique 24 est une adresse incontournable pour les amateurs de mode à la recherche d'élégance, d'originalité et de pièces soigneusement sélectionnées. Dans un cadre moderne et accueillant, cette boutique propose une expérience shopping où les tendances internationales rencontrent l'esprit raffiné de Marrakech. Dès l'entrée, les collections dévoilent un univers féminin chic et contemporain. Vêtements, accessoires, sacs, bijoux et pièces",
       "main_category": "Commerce",
       "categories": [
         "Mode"

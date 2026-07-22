@@ -25,7 +25,7 @@ const AT = {
     myTrips: "Mes voyages", ongoing: "En cours", linked: "liée", linkeds: "liées", address: "adresse", addresses: "adresses",
     moreSuggestions: "Autres suggestions", placesOnMap: "lieux sur la carte", openMap: "Ouvrir la carte →",
     stopPlayback: "Arrêter la lecture", listen: "Écouter", stop: "Stop",
-    thinking: "L'assistant réfléchit…", speak: "Parler", sendBtn: "Envoyer",
+    thinking: "L'assistant réfléchit…", writing: "L'IA écrit…", speak: "Parler", sendBtn: "Envoyer",
     ficheNotFound: "Fiche introuvable", ficheNotFoundOpen: "Impossible d'ouvrir cette fiche.", ficheNotFoundFor: (n: string) => `Aucune fiche trouvée pour "${n}".`,
     micError: "Micro", chatError: "Erreur", cantReach: "Impossible de joindre l'assistant.",
     linkCopied: "Lien copié", linkCopiedDesc: "Le lien de la conversation a été copié.", myClubSpace: "Mon espace Club",
@@ -71,7 +71,7 @@ const AT = {
     myTrips: "My trips", ongoing: "Ongoing", linked: "linked", linkeds: "linked", address: "place", addresses: "places",
     moreSuggestions: "More suggestions", placesOnMap: "places on the map", openMap: "Open the map →",
     stopPlayback: "Stop playback", listen: "Listen", stop: "Stop",
-    thinking: "The assistant is thinking…", speak: "Speak", sendBtn: "Send",
+    thinking: "The assistant is thinking…", writing: "The AI is writing…", speak: "Speak", sendBtn: "Send",
     ficheNotFound: "Listing not found", ficheNotFoundOpen: "Unable to open this listing.", ficheNotFoundFor: (n: string) => `No listing found for "${n}".`,
     micError: "Microphone", chatError: "Error", cantReach: "Unable to reach the assistant.",
     linkCopied: "Link copied", linkCopiedDesc: "The conversation link has been copied.", myClubSpace: "My Club Space",
@@ -117,7 +117,7 @@ const AT = {
     myTrips: "رحلاتي", ongoing: "جارٍ", linked: "مرتبط", linkeds: "مرتبطة", address: "مكان", addresses: "أماكن",
     moreSuggestions: "اقتراحات أخرى", placesOnMap: "أماكن على الخريطة", openMap: "فتح الخريطة →",
     stopPlayback: "إيقاف", listen: "استماع", stop: "إيقاف",
-    thinking: "المساعد يفكّر…", speak: "تحدّث", sendBtn: "إرسال",
+    thinking: "المساعد يفكّر…", writing: "الذكاء الاصطناعي يكتب…", speak: "تحدّث", sendBtn: "إرسال",
     ficheNotFound: "لم يتم العثور على البطاقة", ficheNotFoundOpen: "تعذّر فتح هذه البطاقة.", ficheNotFoundFor: (n: string) => `لا توجد بطاقة لـ "${n}".`,
     micError: "الميكروفون", chatError: "خطأ", cantReach: "تعذّر الوصول إلى المساعد.",
     linkCopied: "تم نسخ الرابط", linkCopiedDesc: "تم نسخ رابط المحادثة.", myClubSpace: "مساحتي في النادي",
@@ -416,6 +416,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const [activeChat, setActiveChat] = useState<ChatRow | null>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [streaming, setStreaming] = useState(false);
   const [voiceMode, setVoiceMode] = useState<boolean>(() => {
     try { return localStorage.getItem(VOICE_MODE_KEY) === "1"; } catch { return false; }
   });
@@ -851,6 +852,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
     if (!text || sending) return;
     try { tts.stop(); } catch {/* noop */}
     setSending(true);
+    setStreaming(false);
     setInput("");
     const candidateChatId = activeIdRef.current;
     const safeChatId = candidateChatId
@@ -927,7 +929,10 @@ const ClubAiAssistant = ({ userId }: Props) => {
           try {
             const evt = JSON.parse(payload);
             if (evt.type === "chunk" && typeof evt.delta === "string") {
-              if (firstTokenAt == null) firstTokenAt = performance.now();
+              if (firstTokenAt == null) {
+                firstTokenAt = performance.now();
+                setStreaming(true);
+              }
               streamedText += evt.delta;
               const next = [...messagesRef.current];
               next[assistantIdx] = { role: "assistant", content: streamedText };
@@ -990,6 +995,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
         })
       ).catch(() => {});
     } finally {
+      setStreaming(false);
       setSending(false);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
@@ -1352,6 +1358,12 @@ const ClubAiAssistant = ({ userId }: Props) => {
                         </div>
                       );
                     })}
+                    {streaming && i === lastAssistantIndex && (
+                      <span className="inline-flex items-center gap-1 mt-1 text-[#C04F17] text-xs">
+                        <span className="inline-block w-2 h-4 bg-[#C04F17] animate-pulse align-middle" />
+                        {at.writing}
+                      </span>
+                    )}
                   </div>
                 )}
                 {m.role === "assistant" && i === lastAssistantIndex && (
@@ -1429,7 +1441,16 @@ const ClubAiAssistant = ({ userId }: Props) => {
           )}
           {sending && (
             <div className="flex items-center gap-2 text-[#C04F17] text-xs">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" /> {at.thinking}
+              {streaming ? (
+                <>
+                  <span className="inline-block w-2 h-3.5 bg-[#C04F17] animate-pulse" />
+                  {at.writing}
+                </>
+              ) : (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> {at.thinking}
+                </>
+              )}
             </div>
           )}
         </div>
