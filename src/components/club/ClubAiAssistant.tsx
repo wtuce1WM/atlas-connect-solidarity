@@ -995,6 +995,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
         })
       ).catch(() => {});
     } finally {
+      setStreaming(false);
       setSending(false);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
