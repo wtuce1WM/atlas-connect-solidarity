@@ -1230,6 +1230,7 @@ serve(async (req) => {
           const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title, messages: newMessages }).select("id").single();
           resultChatId = inserted?.id ?? null;
         }
+        turnLog.route_taken = "agenda_shortcut";
         return new Response(JSON.stringify({ answer, chatId: resultChatId, followups: [] }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
