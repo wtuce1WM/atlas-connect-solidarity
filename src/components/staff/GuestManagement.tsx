@@ -114,6 +114,8 @@ const GuestManagement = () => {
     });
     setAiUsageByUser(map);
   };
+
+  const fetchMembers = async () => {
     setLoading(true);
     const { data, error } = await supabase.rpc("get_club_members_with_last_sign_in");
     if (error) {
