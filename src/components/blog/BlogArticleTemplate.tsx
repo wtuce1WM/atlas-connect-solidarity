@@ -445,7 +445,7 @@ const BlogArticleTemplate = ({
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border border-white/20 bg-black/50 text-white hover:text-gold hover:border-gold hover:bg-black/70 backdrop-blur-md transition-all duration-300 shadow-sm"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Retour au blog
+                {language === "en" ? "Back to blog" : language === "ar" ? "العودة إلى المدونة" : "Retour au blog"}
               </button>
               <button
                 onClick={handleSaveArticle}
@@ -455,13 +455,19 @@ const BlogArticleTemplate = ({
                     ? "bg-gold text-black border-gold hover:bg-gold/90"
                     : "bg-black/50 text-white border-white/20 hover:border-gold hover:text-gold hover:bg-black/70"
                 }`}
-                aria-label={isBookmarked ? "Retirer de mon Club OWM" : "Sauvegarder dans mon Club OWM"}
+                aria-label={
+                  isBookmarked
+                    ? (language === "en" ? "Remove from my OWM Club" : language === "ar" ? "إزالة من نادي OWM" : "Retirer de mon Club OWM")
+                    : (language === "en" ? "Save to my OWM Club" : language === "ar" ? "حفظ في نادي OWM" : "Sauvegarder dans mon Club OWM")
+                }
               >
                 <Bookmark
                   className="h-4 w-4"
                   fill={isBookmarked ? "currentColor" : "none"}
                 />
-                {isBookmarked ? "Sauvegardé" : "Sauvegarder"}
+                {isBookmarked
+                  ? (language === "en" ? "Saved" : language === "ar" ? "محفوظ" : "Sauvegardé")
+                  : (language === "en" ? "Save" : language === "ar" ? "حفظ" : "Sauvegarder")}
               </button>
             </div>
 
@@ -483,11 +489,11 @@ const BlogArticleTemplate = ({
         <>
           {/* TL;DR — optimized for LLM extraction (ChatGPT / Perplexity / Google AI Overviews) */}
           {tldr && (
-            <section className="pt-14 pb-4 bg-background" aria-label="Résumé">
+            <section className="pt-14 pb-4 bg-background" aria-label={language === "en" ? "Summary" : language === "ar" ? "ملخص" : "Résumé"}>
               <div className="container mx-auto px-4 max-w-3xl">
                 <div className="border-l-4 border-primary/70 bg-muted/40 rounded-r-lg px-5 py-4">
                   <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-1.5">
-                    En bref
+                    {language === "en" ? "In brief" : language === "ar" ? "باختصار" : "En bref"}
                   </p>
                   <p className="text-foreground text-base md:text-lg leading-relaxed">
                     {tldr}
@@ -708,11 +714,11 @@ const BlogArticleTemplate = ({
 
           {/* FAQ — rendered as expandable Q/A, emitted as FAQPage JSON-LD above */}
           {faq && faq.length > 0 && (
-            <section className="py-16 bg-background" aria-label="Questions fréquentes">
+            <section className="py-16 bg-background" aria-label={language === "en" ? "Frequently asked questions" : language === "ar" ? "الأسئلة الشائعة" : "Questions fréquentes"}>
               <div className="container mx-auto px-4 max-w-3xl">
                 <p className="text-sm uppercase tracking-wider mb-2 text-primary">FAQ</p>
                 <h2 className="text-2xl md:text-4xl font-bold mb-8 font-['Playfair_Display'] italic leading-tight text-foreground">
-                  Questions fréquentes
+                  {language === "en" ? "Frequently asked questions" : language === "ar" ? "الأسئلة الشائعة" : "Questions fréquentes"}
                 </h2>
                 <div className="space-y-3">
                   {faq.map((item, i) => (
