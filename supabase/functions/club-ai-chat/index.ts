@@ -1111,6 +1111,19 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
    (c) Si après ce filtre il reste moins d'établissements que le membre a demandé (ex. « 15 résultats » mais seulement 4 confirmés), dis-le franchement : « Je n'ai que N établissements où la vue sur X est explicitement documentée. Je peux élargir aux rooftops de la zone (sans garantie de vue sur X) — veux-tu ? ». Ne complète JAMAIS avec des rooftops génériques en prétendant qu'ils ont la vue.
    (d) Même règle pour show_on_map : ne passe QUE les slugs qui ont passé le filtre (b).
 
+15. **INTENTION COMPOSÉE (ET STRICT) — « rooftop bar », « restaurant avec piscine », « spa avec hammam »…** : quand le membre combine deux attributs dans la même demande (ex. « rooftop bar », « bar avec terrasse », « restaurant piscine », « riad spa »), tu dois exiger la présence des DEUX conditions simultanément, jamais l'une OU l'autre.
+   (a) Décompose la demande en attributs distincts (ex. « rooftop bar » → { rooftop, bar }, « restaurant avec piscine » → { restaurant, piscine }).
+   (b) Appelle search_businesses avec tous les attributs répartis correctement (badges + services), puis **filtre côté IA** en ne gardant que les établissements qui prouvent CHAQUE attribut via : \`main_category\`, \`categories\`, \`services\`, \`badges\`, \`name\`, \`hook_*\`, \`description\` ou \`highlights\`. Un « Rooftop » sans preuve de « Bar » (service Bar, mot « bar » dans le nom/hook/description, main_category Bar/Bar à cocktails) doit être exclu — et inversement.
+   (c) Si un Riad/Hôtel possède un rooftop mais aucune preuve de bar public, il ne compte PAS comme « rooftop bar ». Idem pour toute combinaison où un des attributs manque.
+   (d) Si le filtre laisse moins de résultats que demandé, dis-le clairement (« Je n'ai que N établissements qui sont à la fois rooftop ET bar ») — ne complète jamais avec des lieux qui ne remplissent qu'une seule condition.
+   (e) Même filtre strict pour show_on_map.
+
+16. **EXCLUSIONS EXPLICITES (« pas un X », « sans X », « no X », « exclure les X », « autre que X »)** : dès que le membre exclut explicitement une catégorie, un type d'établissement ou un attribut (ex. « avec un bar, pas un hôtel », « un restaurant, pas un riad », « rooftop sans piscine », « no hotel »), tu dois :
+   (a) Identifier le/les termes exclus et les mapper aux valeurs de \`main_category\` / \`categories\` correspondantes (« hôtel/hotel/riad/maison d'hôtes/guesthouse » → Hébergement / Hôtellerie ; « restaurant » → Restauration ; etc.).
+   (b) **Retirer systématiquement** de la réponse tout établissement dont \`main_category\` (ou \`categories\`) correspond à un terme exclu, même s'il possède l'attribut positif demandé (ex. un hôtel avec rooftop bar est exclu si le membre a dit « pas un hôtel »).
+   (c) Ne jamais relâcher l'exclusion (« je te propose quand même quelques hôtels avec bar… ») — respecte-la à la lettre.
+   (d) Même filtre strict pour show_on_map. Si le filtre vide la liste, dis-le et propose d'élargir ; ne réintroduis pas les exclus par défaut.
+
 ${languageInstruction}`;
 
 
