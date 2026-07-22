@@ -18,6 +18,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
  */
 const HomeBottomBar = () => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
   const geo = useGeolocation();
   const [locationOpen, setLocationOpen] = useState(false);
   const [overlayOpen, setOverlayOpen] = useState(false);
