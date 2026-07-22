@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Star } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
@@ -45,7 +46,7 @@ interface MixedSlot {
 }
 
 const HomepageCardsFront = ({ city, onLabelClick, labelTakesPriority = false }: Props) => {
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
   const cacheKey = `home:cards:${city}`;
   const { language } = useLanguage();
   const tr = (l: string | null | undefined) => translateVignetteLabel(l, language);

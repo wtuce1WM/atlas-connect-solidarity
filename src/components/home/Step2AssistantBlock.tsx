@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { Search, Mic } from "lucide-react";
 import SearchInput from "@/components/SearchInput";
 import VoiceSearchPanel from "@/components/VoiceSearchPanel";
@@ -19,7 +20,7 @@ interface Props {
  * and title stay visible; only the description collapses to free space.
  */
 const Step2AssistantBlock = ({ stepLabel, title, description, onMobileSearchClick }: Props) => {
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
   const { toast } = useToast();
 
   // Mobile + tablette : on délègue au parent (overlay STT fullscreen)

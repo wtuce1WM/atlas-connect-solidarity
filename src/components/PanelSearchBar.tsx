@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect, type ReactNode, type RefObjec
 import { Search, Sparkles, MapPin, User, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useToast } from "@/hooks/use-toast";
@@ -100,7 +101,7 @@ const Cell = ({ icon, label, onClick, ariaLabel, active }: { icon: ReactNode; la
 
 const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch, businessCity, businessCategory, businessName, onOverlayChange, onAiOverlayChange, onHashtagsOverlayChange, hashtagsOverlayOpen: hashtagsOverlayOpenProp, darkBackground, closeTrigger, noToolbarOffset, iconVariant = "white", solidBackground = false, compact = false, onSeeResults, onOpenMap, onAiClick, leadingControls, videoControls, hideAiButton = false, aiAnswerText, aiBusinesses }: PanelSearchBarProps) => {
   const onSearch = onSearchRaw ? (params: Record<string, string>) => onSearchRaw(enrichParamsWithCityFromQuery(params)) : undefined;
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 

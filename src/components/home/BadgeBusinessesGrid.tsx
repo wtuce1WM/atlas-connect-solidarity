@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import type { SearchResultBusiness } from "@/components/SearchResultCard";
 import type { City } from "@/lib/homeHelpers";
 
@@ -14,7 +15,7 @@ interface Props {
  * Pure presentational component extracted from Home.tsx.
  */
 const BadgeBusinessesGrid = ({ badgeView, businesses, loading, onClose }: Props) => {
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
 
   return (
     <div className="mt-2">

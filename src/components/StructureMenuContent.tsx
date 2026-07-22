@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 
 import { supabase } from "@/integrations/supabase/client";
 import { CITIES, type City, HOME_ID } from "@/lib/homeHelpers";
@@ -24,7 +25,7 @@ interface Props {
  * Falls back to HeaderMenuContent footer (links, social, etc.).
  */
 const StructureMenuContent = ({ onNavigate }: Props) => {
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
   const location = useLocation();
   const isSearchPage = location.pathname === "/search";
   const [city, setCity] = useState<City>(() => readLastHomepageCity() || "Marrakech");

@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { supabase } from "@/integrations/supabase/client";
 import NotFound from "@/pages/NotFound";
 import { useState } from "react";
@@ -10,7 +11,7 @@ import { useState } from "react";
  */
 const YouTubeChannelResolver = () => {
   const { slug = "" } = useParams();
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {

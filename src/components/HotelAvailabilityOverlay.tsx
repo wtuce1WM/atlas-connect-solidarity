@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { X, Loader2, Calendar, Users, BedDouble, Search, ArrowRight, Star, MapPin, Wifi, Coffee, Accessibility, Tag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -71,7 +72,7 @@ interface HotelAvailabilityOverlayProps {
 }
 
 const HotelAvailabilityOverlay = ({ liteApiHotelId, businessName, businessCity, backgroundImage, onClose, onSelectBusiness, onOpenFallbackPanel }: HotelAvailabilityOverlayProps) => {
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
   const { language } = useLanguage();
 
   // Detect mobile/tablet (< 1024px) to render as portal above BusinessSlidePanel

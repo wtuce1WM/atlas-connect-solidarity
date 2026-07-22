@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { useParams, useNavigate } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
@@ -67,7 +68,7 @@ interface BlogPostData {
 
 const BlogPost = () => {
   const { slug } = useParams();
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
   const { language, t } = useLanguage();
   const [post, setPost] = useState<BlogPostData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -214,7 +215,7 @@ const LegacyHtmlPost = ({
   getTitle: () => string;
   getContent: () => string;
   getDateLocale: () => typeof fr;
-  navigate: ReturnType<typeof useNavigate>;
+  navigate: ReturnType<typeof useLocalizedNavigate>;
   t: (key: string) => string;
   language: string;
   slug: string | undefined;

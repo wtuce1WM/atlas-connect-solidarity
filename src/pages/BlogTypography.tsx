@@ -2,13 +2,14 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 
 const sampleText = "One World Morocco — Découvrez les meilleures adresses au Maroc";
 const sampleArabic = "اكتشف أفضل العناوين في المغرب";
 const lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
 
 const BlogTypography = () => {
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
 
   return (
     <div className="min-h-screen bg-background">

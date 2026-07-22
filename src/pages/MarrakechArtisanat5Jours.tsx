@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSEO } from "@/hooks/useSEO";
@@ -132,7 +133,7 @@ const ARTICLE_DESCRIPTION =
 const DEFAULT_OG_IMAGE = `${SITE_URL}/images/og-image.jpg`;
 
 const MarrakechArtisanat5Jours = () => {
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
   const { language } = useLanguage();
   const [businesses, setBusinesses] = useState<Record<string, Business>>({});
   const [gammes, setGammes] = useState<Gamme[]>([]);

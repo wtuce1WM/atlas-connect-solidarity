@@ -134,7 +134,7 @@ const Header = ({ variant = "default", compact = false, rightContent, leftConten
           <li><Link to={withLangPrefix("/", language as "fr" | "en" | "ar")} className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{language === "ar" ? "الصفحة الرئيسية" : language === "en" ? "Home" : "Page d'accueil"}</Link></li>
           <li><Link to="/conditions-generales" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>Conditions Générales</Link></li>
           <li><a href="/affiliates" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{t("footer.affiliates")}</a></li>
-          <li><Link to="/blog" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{t("footer.blog")}</Link></li>
+          <li><Link to={withLangPrefix("/blog", language)} className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{t("footer.blog")}</Link></li>
           <li><Link to="/devenir-affilie" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>{language === "ar" ? "أدرج شركتك" : language === "en" ? "Add your business" : "Ajoutez votre entreprise"}</Link></li>
           <li><Link to="/test" className="hover:text-gold transition-colors" onClick={() => setMobileOpen(false)}>Test</Link></li>
         </ul>

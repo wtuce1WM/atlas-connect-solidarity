@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Search, X } from "lucide-react";
@@ -11,7 +12,7 @@ import { useState } from "react";
 const ResumeLastSearch = () => {
   const { history } = useSearchHistory();
   const { language } = useLanguage();
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
   const [dismissed, setDismissed] = useState(false);
 
   if (dismissed || history.length === 0) return null;
