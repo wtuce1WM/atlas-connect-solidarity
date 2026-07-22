@@ -254,6 +254,44 @@ function businessNameMatchScore(candidate: string, target: string): number {
   return candidateCoverage * 0.65 + targetCoverage * 0.35;
 }
 
+async function resolveBusinessByName(name: string): Promise<BusinessLookupRef | null> {
+  const n = name.trim();
+  if (!n) return null;
+
+  const { data: exactData } = await supabase
+    .from("businesses")
+    .select("id,slug,name")
+    .eq("is_active", true)
+    .ilike("name", n)
+    .limit(5);
+  const exactRows = Array.isArray(exactData) ? exactData : [];
+  const exactBest = exactRows
+    .map((candidate: any) => ({ candidate, score: businessNameMatchScore(candidate?.name || "", n) }))
+    .sort((a, b) => b.score - a.score)[0];
+  if (exactBest?.candidate && exactBest.score >= 0.9) {
+    return { id: exactBest.candidate.id, slug: exactBest.candidate.slug || null, name: exactBest.candidate.name };
+  }
+
+  const tokens = businessNameTokens(n);
+  let query = supabase.from("businesses").select("id,slug,name").eq("is_active", true);
+  if (tokens.length >= 2) {
+    query = query.or(tokens.slice(0, 5).map((token) => `name.ilike.%${token}%`).join(","));
+  } else {
+    query = query.ilike("name", `%${n}%`);
+  }
+
+  const { data } = await query.limit(50);
+  const rows = Array.isArray(data) ? data : [];
+  const best = rows
+    .map((candidate: any) => ({ candidate, score: businessNameMatchScore(candidate?.name || "", n) }))
+    .sort((a, b) => b.score - a.score)[0];
+
+  if (best?.candidate && best.score >= 0.58) {
+    return { id: best.candidate.id, slug: best.candidate.slug || null, name: best.candidate.name };
+  }
+  return null;
+}
+
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -445,16 +483,12 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
       if (strongNames.length) {
         const resolved = await Promise.all(strongNames.slice(0, 30).map(async (name) => {
-          const { data } = await supabase
-            .from("businesses")
-            .select("id,slug,name")
-            .eq("is_active", true)
-            .ilike("name", name)
-            .limit(1);
-          const row = Array.isArray(data) ? data[0] : null;
-          return row ? { id: row.id as string, slug: (row as any).slug as string | null, name: (row as any).name as string } : null;
+          return resolveBusinessByName(name);
         }));
-        for (const row of resolved) addRef(row?.id, row?.slug || null, row?.name || null);
+        for (const row of resolved) {
+          if (row?.name) businessLookupRef.current.set(row.name.toLowerCase(), row);
+          addRef(row?.id, row?.slug || null, row?.name || null);
+        }
       }
 
       if (!cancelled) setOrderedBusinessRefs(refs);
@@ -542,23 +576,12 @@ const ClubAiAssistant = ({ userId }: Props) => {
       const ok = await openBusinessBySlug(exactOrPartial.slug);
       if (ok) return;
     }
-    // Fallback: look up by name in DB (ilike with wildcards to tolerate prefixes)
-    const tokens = businessNameTokens(n);
-    let query = supabase.from("businesses").select("id,slug,name").eq("is_active", true);
-    if (tokens.length >= 2) {
-      query = query.or(tokens.slice(0, 4).map((token) => `name.ilike.%${token}%`).join(","));
-    } else {
-      query = query.ilike("name", `%${n}%`);
-    }
-    const { data } = await query.limit(25);
-    const rows = Array.isArray(data) ? data : [];
-    const row = rows
-      .map((candidate: any) => ({ candidate, score: businessNameMatchScore(candidate?.name || "", n) }))
-      .sort((a, b) => b.score - a.score)[0];
-    const id = row && row.score >= 0.42 ? row.candidate?.id : null;
-    const dbSlug = row && row.score >= 0.42 ? row.candidate?.slug : null;
-    const dbName = row && row.score >= 0.42 ? row.candidate?.name : n;
+    const row = await resolveBusinessByName(n);
+    const id = row?.id || null;
+    const dbSlug = row?.slug || null;
+    const dbName = row?.name || n;
     if (id) {
+      if (row?.name) businessLookupRef.current.set(row.name.toLowerCase(), row);
       setActiveSlug(dbSlug || null);
       setOpenBusinessId(id);
       setOrderedBusinessRefs((prev) => prev.some((b) => b.id === id) ? prev : [...prev, { id, slug: dbSlug || null, name: dbName }]);
