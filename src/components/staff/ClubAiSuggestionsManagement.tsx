@@ -152,18 +152,44 @@ const ClubAiSuggestionsManagement = () => {
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 </div>
-                <div className="flex items-center gap-2">
-                  <label className="text-xs text-muted-foreground shrink-0">Article de blog lié :</label>
+                <div className="space-y-2">
+                  <label className="text-xs text-muted-foreground">Articles de blog liés :</label>
+                  {(r.blog_post_ids?.length ?? 0) > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {r.blog_post_ids.map((pid) => {
+                        const p = blogPosts.find((b) => b.id === pid);
+                        return (
+                          <span key={pid} className="inline-flex items-center gap-1 rounded-md bg-primary/10 text-primary text-xs px-2 py-1">
+                            {p?.title || pid}
+                            <button
+                              type="button"
+                              onClick={() => update(r.id, { blog_post_ids: r.blog_post_ids.filter((x) => x !== pid) })}
+                              className="hover:text-destructive"
+                              title="Retirer"
+                            >×</button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
                   <select
-                    value={r.blog_post_id || ""}
-                    onChange={(e) => update(r.id, { blog_post_id: e.target.value || null })}
-                    className="h-9 rounded-md border border-input bg-background px-2 text-sm flex-1 max-w-md"
-                    title="Article de blog lié"
+                    value=""
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (!v) return;
+                      if (!r.blog_post_ids.includes(v)) {
+                        update(r.id, { blog_post_ids: [...r.blog_post_ids, v] });
+                      }
+                    }}
+                    className="h-9 rounded-md border border-input bg-background px-2 text-sm w-full max-w-md"
+                    title="Ajouter un article de blog"
                   >
-                    <option value="">— Aucun —</option>
-                    {blogPosts.map((p) => (
-                      <option key={p.id} value={p.id}>{p.title}</option>
-                    ))}
+                    <option value="">— Ajouter un article —</option>
+                    {blogPosts
+                      .filter((p) => !r.blog_post_ids.includes(p.id))
+                      .map((p) => (
+                        <option key={p.id} value={p.id}>{p.title}</option>
+                      ))}
                   </select>
                 </div>
                 <details className="text-sm">
