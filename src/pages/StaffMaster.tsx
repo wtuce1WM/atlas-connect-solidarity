@@ -21,6 +21,7 @@ import AIConfigManagement from "@/components/staff/AIConfigManagement";
 import ClubAiSuggestionsManagement from "@/components/staff/ClubAiSuggestionsManagement";
 import ClubFollowupPromptEditor from "@/components/staff/ClubFollowupPromptEditor";
 import AiUsageManagement from "@/components/staff/AiUsageManagement";
+import AiConversationPerf from "@/components/staff/AiConversationPerf";
 import MasterDashboard from "@/components/staff/MasterDashboard";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import BlockedDomainsManagement from "@/components/staff/BlockedDomainsManagement";
