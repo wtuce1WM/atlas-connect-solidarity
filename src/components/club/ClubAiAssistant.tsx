@@ -852,6 +852,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
     if (!text || sending) return;
     try { tts.stop(); } catch {/* noop */}
     setSending(true);
+    setStreaming(false);
     setInput("");
     const candidateChatId = activeIdRef.current;
     const safeChatId = candidateChatId
