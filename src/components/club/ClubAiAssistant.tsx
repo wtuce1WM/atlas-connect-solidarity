@@ -529,8 +529,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
   };
 
   // Vertical swipe navigation between AI-cited businesses (mirrors SearchPage).
-  // Swipe up = next, swipe down = previous. Started from the top 80px only
-  // (header zone) to avoid hijacking content scroll inside the panel.
+  // Swipe down (dy > 0) = next ; swipe up (dy < 0) = previous.
+  // Started from the top 80px only (header zone) to avoid hijacking content scroll.
   const swipeStartYRef = useRef<number | null>(null);
   const swipeActiveRef = useRef(false);
   const [swipeOffsetY, setSwipeOffsetY] = useState(0);
@@ -559,9 +559,10 @@ const ClubAiAssistant = ({ userId }: Props) => {
     swipeActiveRef.current = false;
     swipeStartYRef.current = null;
     setSwipeOffsetY(0);
-    if (Math.abs(dy) < 120) return;
-    if (dy < 0 && hasNextBusiness) goNextBusiness();
-    else if (dy > 0 && hasPrevBusiness) goPrevBusiness();
+    if (Math.abs(dy) < 220) return;
+    // swipe down (dy > 0) → next ; swipe up (dy < 0) → previous
+    if (dy > 0 && hasNextBusiness) goNextBusiness();
+    else if (dy < 0 && hasPrevBusiness) goPrevBusiness();
   }, [swipeOffsetY, hasNextBusiness, hasPrevBusiness]);
 
   const closeBusinessPanel = () => {
