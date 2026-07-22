@@ -1056,7 +1056,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
                   </div>
                 ) : (
                   <div className="max-w-[88%] group w-full">
-                    <div className="text-[#0a1d6b] text-sm prose prose-sm max-w-none prose-strong:text-[#C04F17] prose-a:text-[#C04F17] prose-a:underline">
+                    <div className="text-xs sm:text-base text-[#0a1d6b] leading-relaxed prose prose-sm sm:prose-base max-w-none prose-strong:text-[#C04F17] prose-a:text-[#C04F17] prose-a:underline">
+
                       <ReactMarkdown components={{
                         a: ({ href, children }) => {
                           const isBusinessLink = !!extractBusinessSlugFromHref(href);
@@ -1103,6 +1104,45 @@ const ClubAiAssistant = ({ userId }: Props) => {
                         },
                       }}>{linkifyPhones(stripFicheLinks(clean))}</ReactMarkdown>
                     </div>
+                    {(() => {
+                      // Thumbnails carousel of cited businesses (from map payloads, which include images).
+                      const seen = new Set<string>();
+                      const items: MapPanelBusiness[] = [];
+                      for (const mp of maps) {
+                        for (const b of mp.businesses) {
+                          if (!b?.id || seen.has(b.id)) continue;
+                          if (!Array.isArray(b.images) || !b.images.length) continue;
+                          seen.add(b.id);
+                          items.push(b);
+                        }
+                      }
+                      if (items.length === 0) return null;
+                      return (
+                        <div className="mt-3 -mx-1 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                          {items.slice(0, 24).map((b) => (
+                            <button
+                              key={b.id}
+                              type="button"
+                              onClick={() => void handleOpenBusinessName(b.name)}
+                              className="shrink-0 w-24 sm:w-28 group/thumb text-left"
+                              title={b.name}
+                            >
+                              <div className="relative aspect-square rounded-lg overflow-hidden bg-[#C04F17]/10 border border-[#C04F17]/20">
+                                <img
+                                  src={b.images![0]}
+                                  alt={b.name}
+                                  loading="lazy"
+                                  className="absolute inset-0 h-full w-full object-cover transition-transform group-hover/thumb:scale-105"
+                                />
+                              </div>
+                              <div className="mt-1 text-[10px] sm:text-[11px] text-[#0a1d6b] leading-tight line-clamp-2 font-medium">
+                                {b.name}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      );
+                    })()}
                     {maps.map((mp, idx) => (
                       <button
                         key={idx}
@@ -1128,16 +1168,63 @@ const ClubAiAssistant = ({ userId }: Props) => {
                         </div>
                       </button>
                     ))}
-                    <button
-                      onClick={() => handleSpeakMessage(clean)}
-                      className="mt-1 inline-flex items-center gap-1 text-[11px] text-[#C04F17] hover:text-[#0a1d6b] opacity-70 hover:opacity-100 transition-opacity"
-                      title={ttsBusy && lastSpokenRef.current === clean ? at.stopPlayback : at.listen}
-                    >
-                      {ttsBusy && lastSpokenRef.current === clean
-                        ? (<><Square className="h-3 w-3" /> {at.stop}</>)
-                        : (<><Volume2 className="h-3 w-3" /> {at.listen}</>)}
+                    {/* Liquid-glass Speaker (TTS) — mirrors /search AI tab */}
+                    <div className="mt-3 flex justify-start">
+                      <div className="relative flex items-center justify-center">
+                        <div
+                          className="absolute rounded-full animate-ping pointer-events-none"
+                          style={{
+                            inset: "-10px",
+                            background: "radial-gradient(circle, rgba(192,79,23,0.25) 0%, transparent 70%)",
+                            border: "1px solid rgba(192,79,23,0.35)",
+                            animationDuration: "2.4s",
+                          }}
+                        />
+                        <div
+                          className="absolute rounded-full animate-pulse pointer-events-none"
+                          style={{
+                            inset: "-6px",
+                            background: "linear-gradient(135deg, rgba(192,79,23,0.35), rgba(192,79,23,0.15))",
+                            border: "1px solid rgba(192,79,23,0.3)",
+                          }}
+                        />
+                        {(tts.status === "playing" || tts.status === "loading") && lastSpokenRef.current === clean && (
+                          <div
+                            className="absolute rounded-full pointer-events-none"
+                            style={{
+                              inset: "-3px",
+                              background: "conic-gradient(from 0deg, transparent 0%, #C04F17 35%, rgba(192,79,23,0.5) 50%, transparent 70%)",
+                              animation: "spin 2s linear infinite",
+                              filter: "blur(0.5px)",
+                            }}
+                          />
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleSpeakMessage(clean)}
+                          className="relative w-10 h-10 rounded-full flex items-center justify-center border border-white/20 transition-transform hover:scale-105"
+                          style={{
+                            background: "#C04F17",
+                            boxShadow: "0 8px 24px rgba(192,79,23,0.45), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.25)",
+                          }}
+                          title={ttsBusy && lastSpokenRef.current === clean ? at.stopPlayback : at.listen}
+                          aria-label={ttsBusy && lastSpokenRef.current === clean ? at.stopPlayback : at.listen}
+                        >
+                          <span
+                            className="absolute inset-1 rounded-full pointer-events-none"
+                            style={{ background: "linear-gradient(160deg, rgba(255,255,255,0.25) 0%, transparent 45%)" }}
+                          />
+                          {tts.status === "loading" && lastSpokenRef.current === clean ? (
+                            <Loader2 className="relative h-4 w-4 animate-spin text-white" />
+                          ) : ttsBusy && lastSpokenRef.current === clean ? (
+                            <Square className="relative h-4 w-4 text-white" />
+                          ) : (
+                            <Volume2 className="relative h-4 w-4 text-white" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
 
-                    </button>
                   </div>
                 )}
               </div>
