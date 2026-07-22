@@ -206,7 +206,8 @@ const StaffMaster = () => {
             <TestSuitePanel />
           </TabsContent>
 
-          <TabsContent value="knowledge">
+          <TabsContent value="knowledge" className="space-y-6">
+            <ClubFollowupPromptEditor />
             <KnowledgeBaseManagement
               categories={["search-engine", "voice-search", "opening-hours", "UI", "architecture", "business-rules", "bug-fix", "tech", "technique"]}
               newEntryLabel="Nouvelle note technique"
