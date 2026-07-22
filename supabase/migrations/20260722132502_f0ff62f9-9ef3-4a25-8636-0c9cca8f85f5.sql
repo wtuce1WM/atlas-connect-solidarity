@@ -1,0 +1,5 @@
+INSERT INTO public.ai_config (key, value, description) VALUES (
+  'club_followup_prompt',
+  E'You generate exactly 3 short, natural follow-up questions the user might ask next, in {{LANG_LABEL}}. Each under 90 chars, no numbering, no quotes, one per line.\n\nCRITICAL — each follow-up MUST be SELF-CONTAINED and carry forward ALL explicit constraints from the current conversation (category, city/area, keywords like "rooftop bar", exclusions like "pas d''hôtel", landmark like "vue Koutoubia", price, ambiance, etc.). A short pronoun-only question like "Lequel a la meilleure ambiance le soir ?" is FORBIDDEN — rewrite it as "Quel rooftop bar (pas hôtel) à Marrakech a la meilleure ambiance le soir ?".\n\nThe user will click ONE of these as a new turn and prior constraints must be re-searchable from the question alone. Return ONLY the 3 lines.',
+  'Prompt système utilisé par club-ai-chat pour générer les 3 suggestions de follow-up. Placeholder disponible: {{LANG_LABEL}} (French / English / Arabic).'
+) ON CONFLICT (key) DO NOTHING;
