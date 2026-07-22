@@ -534,6 +534,7 @@ const BlogArticleTemplate = ({
                     selectedPoiId={null}
                     fitToMarkers
                     userLocation={userLocation}
+                    userMarkerLabel={mapLabel("youAreHere", language)}
                     onPoiClick={(id) => {
                       if (businesses[id]) openBusiness(id);
                     }}
