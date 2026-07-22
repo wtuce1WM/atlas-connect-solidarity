@@ -329,15 +329,43 @@ function linkifyPhones(text: string): string {
 // Parse <!--SHOW_ON_MAP:{...}--> markers out of an assistant message.
 const MAP_RE = /<!--SHOW_ON_MAP:([\s\S]*?)-->/g;
 const SEARCH_RESULTS_RE = /<!--SEARCH_RESULTS:[\s\S]*?-->/g;
+const EVENTS_RE = /<!--EVENTS_SNAPSHOT:([\s\S]*?)-->/g;
 type MapPayload = { title?: string; businesses: MapPanelBusiness[] };
-function extractMapPayloads(text: string): { clean: string; maps: MapPayload[] } {
-  if (!text) return { clean: text, maps: [] };
+export type EventPanelItem = {
+  id: string;
+  name: string;
+  hook?: string | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  days_of_week?: number[] | null;
+  start_time?: string | null;
+  end_time?: string | null;
+  city?: string | null;
+  neighborhood?: string | null;
+  url?: string | null;
+  default_business_id?: string | null;
+  image?: string | null;
+  video?: string | null;
+  sort_order?: number | null;
+};
+type EventsPayload = { title?: string; city?: string | null; events: EventPanelItem[] };
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[] } {
+  if (!text) return { clean: text, maps: [], events: [] };
   const maps: MapPayload[] = [];
+  const events: EventsPayload[] = [];
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const parsed = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
       if (parsed && Array.isArray(parsed.businesses) && parsed.businesses.length) {
         maps.push({ title: parsed.title, businesses: parsed.businesses });
+      }
+    } catch { /* ignore */ }
+    return "";
+  }).replace(EVENTS_RE, (_m, raw) => {
+    try {
+      const parsed = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (parsed && Array.isArray(parsed.events) && parsed.events.length) {
+        events.push({ title: parsed.title, city: parsed.city ?? null, events: parsed.events });
       }
     } catch { /* ignore */ }
     return "";
@@ -347,9 +375,15 @@ function extractMapPayloads(text: string): { clean: string; maps: MapPayload[] }
     .replace(SEARCH_RESULTS_RE, "")
     .replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "")
     .replace(/<!--SEARCH_RESULTS:[\s\S]*$/g, "")
+    .replace(/<!--EVENTS_SNAPSHOT:[\s\S]*$/g, "")
     .trim();
-  return { clean, maps };
+  return { clean, maps, events };
 }
+// Backward-compat alias
+const extractMapPayloads = (text: string) => {
+  const r = extractPayloads(text);
+  return { clean: r.clean, maps: r.maps };
+};
 
 
 const ClubAiAssistant = ({ userId }: Props) => {
