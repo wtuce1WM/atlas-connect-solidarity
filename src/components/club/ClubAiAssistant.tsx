@@ -1051,13 +1051,14 @@ const ClubAiAssistant = ({ userId }: Props) => {
               }
             }
             return (
-              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div key={i} className={m.role === "user" ? "flex justify-end" : "flex flex-col items-start"}>
                 {m.role === "user" ? (
                   <div className="max-w-[80%] px-3 py-2 rounded-2xl bg-[#C04F17] text-white text-sm whitespace-pre-wrap">
                     {m.content}
                   </div>
                 ) : (
                   <div className="max-w-[88%] group w-full">
+
                     <div className="text-xs sm:text-base text-[#0a1d6b] leading-relaxed prose prose-sm sm:prose-base max-w-none prose-strong:text-[#C04F17] prose-a:text-[#C04F17] prose-a:underline">
 
                       <ReactMarkdown components={{
@@ -1185,67 +1186,63 @@ const ClubAiAssistant = ({ userId }: Props) => {
                         </div>
                       </button>
                     ))}
-                    {/* Liquid-glass Speaker (TTS) — mirrors /search AI tab */}
-                    {i === lastAssistantIndex && (
-                    <div className="mt-3 flex justify-center w-full">
-                      <div className="relative flex items-center justify-center">
-
+                  </div>
+                )}
+                {m.role === "assistant" && i === lastAssistantIndex && (
+                  <div className="mt-3 flex justify-center w-full">
+                    <div className="relative flex items-center justify-center">
+                      <div
+                        className="absolute rounded-full animate-ping pointer-events-none"
+                        style={{
+                          inset: "-10px",
+                          background: "radial-gradient(circle, rgba(192,79,23,0.25) 0%, transparent 70%)",
+                          border: "1px solid rgba(192,79,23,0.35)",
+                          animationDuration: "2.4s",
+                        }}
+                      />
+                      <div
+                        className="absolute rounded-full animate-pulse pointer-events-none"
+                        style={{
+                          inset: "-6px",
+                          background: "linear-gradient(135deg, rgba(192,79,23,0.35), rgba(192,79,23,0.15))",
+                          border: "1px solid rgba(192,79,23,0.3)",
+                        }}
+                      />
+                      {(tts.status === "playing" || tts.status === "loading") && lastSpokenRef.current === clean && (
                         <div
-                          className="absolute rounded-full animate-ping pointer-events-none"
+                          className="absolute rounded-full pointer-events-none"
                           style={{
-                            inset: "-10px",
-                            background: "radial-gradient(circle, rgba(192,79,23,0.25) 0%, transparent 70%)",
-                            border: "1px solid rgba(192,79,23,0.35)",
-                            animationDuration: "2.4s",
+                            inset: "-3px",
+                            background: "conic-gradient(from 0deg, transparent 0%, #C04F17 35%, rgba(192,79,23,0.5) 50%, transparent 70%)",
+                            animation: "spin 2s linear infinite",
+                            filter: "blur(0.5px)",
                           }}
                         />
-                        <div
-                          className="absolute rounded-full animate-pulse pointer-events-none"
-                          style={{
-                            inset: "-6px",
-                            background: "linear-gradient(135deg, rgba(192,79,23,0.35), rgba(192,79,23,0.15))",
-                            border: "1px solid rgba(192,79,23,0.3)",
-                          }}
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleSpeakMessage(clean)}
+                        className="relative w-10 h-10 rounded-full flex items-center justify-center border border-white/20 transition-transform hover:scale-105"
+                        style={{
+                          background: "#C04F17",
+                          boxShadow: "0 8px 24px rgba(192,79,23,0.45), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.25)",
+                        }}
+                        title={ttsBusy && lastSpokenRef.current === clean ? at.stopPlayback : at.listen}
+                        aria-label={ttsBusy && lastSpokenRef.current === clean ? at.stopPlayback : at.listen}
+                      >
+                        <span
+                          className="absolute inset-1 rounded-full pointer-events-none"
+                          style={{ background: "linear-gradient(160deg, rgba(255,255,255,0.25) 0%, transparent 45%)" }}
                         />
-                        {(tts.status === "playing" || tts.status === "loading") && lastSpokenRef.current === clean && (
-                          <div
-                            className="absolute rounded-full pointer-events-none"
-                            style={{
-                              inset: "-3px",
-                              background: "conic-gradient(from 0deg, transparent 0%, #C04F17 35%, rgba(192,79,23,0.5) 50%, transparent 70%)",
-                              animation: "spin 2s linear infinite",
-                              filter: "blur(0.5px)",
-                            }}
-                          />
+                        {tts.status === "loading" && lastSpokenRef.current === clean ? (
+                          <Loader2 className="relative h-4 w-4 animate-spin text-white" />
+                        ) : ttsBusy && lastSpokenRef.current === clean ? (
+                          <Square className="relative h-4 w-4 text-white" />
+                        ) : (
+                          <Volume2 className="relative h-4 w-4 text-white" />
                         )}
-                        <button
-                          type="button"
-                          onClick={() => handleSpeakMessage(clean)}
-                          className="relative w-10 h-10 rounded-full flex items-center justify-center border border-white/20 transition-transform hover:scale-105"
-                          style={{
-                            background: "#C04F17",
-                            boxShadow: "0 8px 24px rgba(192,79,23,0.45), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.25)",
-                          }}
-                          title={ttsBusy && lastSpokenRef.current === clean ? at.stopPlayback : at.listen}
-                          aria-label={ttsBusy && lastSpokenRef.current === clean ? at.stopPlayback : at.listen}
-                        >
-                          <span
-                            className="absolute inset-1 rounded-full pointer-events-none"
-                            style={{ background: "linear-gradient(160deg, rgba(255,255,255,0.25) 0%, transparent 45%)" }}
-                          />
-                          {tts.status === "loading" && lastSpokenRef.current === clean ? (
-                            <Loader2 className="relative h-4 w-4 animate-spin text-white" />
-                          ) : ttsBusy && lastSpokenRef.current === clean ? (
-                            <Square className="relative h-4 w-4 text-white" />
-                          ) : (
-                            <Volume2 className="relative h-4 w-4 text-white" />
-                          )}
-                        </button>
-                      </div>
+                      </button>
                     </div>
-                    )}
-
-
                   </div>
                 )}
               </div>
