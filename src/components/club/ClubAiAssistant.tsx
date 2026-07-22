@@ -1196,7 +1196,14 @@ const ClubAiAssistant = ({ userId }: Props) => {
       {openBusinessId && (
         <div
           className={`fixed top-0 left-0 right-0 bottom-0 z-[220] bg-background shadow-2xl overflow-visible flex flex-col transform-gpu will-change-transform lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:w-1/2 ${isBusinessPanelClosing ? "animate-slide-out-right" : "animate-slide-in-right"}`}
-          style={{ height: "100dvh" }}
+          style={{
+            height: "100dvh",
+            transform: swipeOffsetY !== 0 ? `translateY(${swipeOffsetY}px)` : undefined,
+            transition: swipeOffsetY === 0 ? "transform 0.2s ease-out" : undefined,
+          }}
+          onTouchStart={onPanelTouchStart}
+          onTouchMove={onPanelTouchMove}
+          onTouchEnd={onPanelTouchEnd}
         >
           <SlidePanelHeader onClose={closeBusinessPanel} alwaysDark glassClose />
           <div className="flex-1 min-h-0 overflow-visible">
