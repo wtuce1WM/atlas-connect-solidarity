@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Plus, Send, Trash2, Pencil, MessageSquare, Bookmark, BookmarkCheck, Mic, Volume2, Square, Headphones, RefreshCw, Map as MapIcon } from "lucide-react";
+import { Loader2, Plus, Send, Trash2, Pencil, MessageSquare, Bookmark, BookmarkCheck, Mic, Volume2, Square, Headphones, RefreshCw, Map as MapIcon, Calendar as CalendarIcon } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "@/hooks/use-toast";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
