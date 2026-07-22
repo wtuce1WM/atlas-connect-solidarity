@@ -77,6 +77,13 @@ function isAgendaIntent(text: string): boolean {
   return EXPLICIT_EVENT_RE.test(n);
 }
 
+// Intent : "mes favoris / mes bookmarks / mes sauvegardes"
+const BOOKMARKS_INTENT_RE = /\b(mes\s+(favoris?|bookmarks?|sauvegardes?|marque[- ]?pages?|enregistr[ée]s?)|my\s+(bookmarks?|favou?rites?|saved)|ce\s+que\s+j['’]?ai\s+(sauv[eé]|enregistr[eé]|marqu[eé])|قائمة\s+المفضلة|المفضلة)\b/i;
+function isBookmarksIntent(text: string): boolean {
+  const n = normalizeLoose(text);
+  return BOOKMARKS_INTENT_RE.test(n) && n.split(/\s+/).length <= 12;
+}
+
 function formatEventDate(event: any): string {
   const fmt = (value?: string | null) => {
     if (!value) return "";
