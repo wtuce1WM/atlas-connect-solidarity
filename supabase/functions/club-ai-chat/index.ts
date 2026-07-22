@@ -984,6 +984,34 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  // ============= Turn-level structured log =============
+  const turnStartMs = Date.now();
+  const turnLog: any = {
+    user_id: null,
+    affiliate_id: null,
+    chat_id: null,
+    user_message: null,
+    intent_classified: null,
+    route_taken: "unknown",
+    tools_called: [] as any[],
+    latency_ms_total: null,
+    latency_ms_first_token: null,
+    latency_ms_synth: null,
+    tokens_in: null,
+    tokens_out: null,
+    cost_usd: null,
+    city_active: null,
+    city_detected: null,
+    results_count: null,
+    results_shown: null,
+    had_error: false,
+    error_message: null,
+    stream_completed: true,
+    language: null,
+    message_index: null,
+  };
+  let adminForLog: any = null;
+
   try {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY missing");
@@ -994,15 +1022,24 @@ serve(async (req) => {
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const userClient = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
     const admin = createClient(supabaseUrl, serviceKey);
+    adminForLog = admin;
 
     const { data: { user } } = await userClient.auth.getUser();
     if (!user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
     const callerContext = await resolveCallerContext(admin, user.id);
+    turnLog.user_id = user.id;
+    turnLog.affiliate_id = callerContext.affiliateId || null;
 
     const { chatId, messages = [], clientContext = {}, language = "fr" }: { chatId?: string; messages: Msg[]; clientContext?: { activeCity?: string; localTime?: string; coords?: { lat: number; lng: number } }; language?: string } = await req.json();
     const lang = (language === "en" || language === "ar") ? language : "fr";
+    turnLog.chat_id = chatId || null;
+    turnLog.language = lang;
+    turnLog.city_active = clientContext?.activeCity ? String(clientContext.activeCity).slice(0, 100) : null;
+    turnLog.message_index = Array.isArray(messages) ? messages.length : null;
+    turnLog.user_message = String([...messages].reverse().find((m: any) => m.role === "user")?.content || "").slice(0, 500);
+
     const languageInstruction = lang === "en"
       ? "IMPORTANT: Always reply in English, regardless of the language of tool results or the system prompt language. Keep the same warm, concise tone."
       : lang === "ar"
