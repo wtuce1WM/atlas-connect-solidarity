@@ -7044,6 +7044,18 @@ export type Database = {
         Args: { p_business_id: string; p_range?: string }
         Returns: Json
       }
+      get_club_ai_usage_by_user: {
+        Args: { p_since?: string }
+        Returns: {
+          event_count: number
+          input_tokens: number
+          last_used_at: string
+          output_tokens: number
+          total_cost_usd: number
+          total_tokens: number
+          user_id: string
+        }[]
+      }
       get_club_members_with_last_sign_in: {
         Args: never
         Returns: {
