@@ -648,7 +648,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
     }
     if (name === "show_on_map") {
       const slugs: string[] = Array.isArray(args.business_slugs)
-        ? args.business_slugs.filter((s: any) => typeof s === "string" && s.trim()).slice(0, 20)
+        ? args.business_slugs.filter((s: any) => typeof s === "string" && s.trim()).slice(0, 30)
         : [];
       if (!slugs.length) return { error: "Aucun slug fourni", count: 0 };
       const { data, error } = await ctx.supabase
