@@ -544,13 +544,13 @@ const ClubAiAssistant = ({ userId }: Props) => {
     }
     // Fallback: look up by name in DB (ilike with wildcards to tolerate prefixes)
     const tokens = businessNameTokens(n);
-    let query = supabase.from("businesses").select("id,slug,name").eq("is_active", true).limit(25);
+    let query = supabase.from("businesses").select("id,slug,name").eq("is_active", true);
     if (tokens.length >= 2) {
       query = query.or(tokens.slice(0, 4).map((token) => `name.ilike.%${token}%`).join(","));
     } else {
       query = query.ilike("name", `%${n}%`);
     }
-    const { data } = await query;
+    const { data } = await query.limit(25);
     const rows = Array.isArray(data) ? data : [];
     const row = rows
       .map((candidate: any) => ({ candidate, score: businessNameMatchScore(candidate?.name || "", n) }))
