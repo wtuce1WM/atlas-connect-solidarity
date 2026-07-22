@@ -1079,13 +1079,27 @@ const ClubAiAssistant = ({ userId }: Props) => {
                             ? children.map((c) => (typeof c === "string" ? c : "")).join("")
                             : (typeof children === "string" ? children : "");
                           const trimmed = text.trim();
+                          // Section-label blacklist: bold headings the LLM uses to structure
+                          // a description (never business names). Prevents e.g. "**Cuisine**"
+                          // from being fuzzy-matched to "La Cuisine de Mona".
+                          const LABEL_BLACKLIST = new Set([
+                            "ambiance","atmosphère","atmosphere","cuisine","musique","musique live","décoration","decoration",
+                            "localisation","adresse","horaires","prix","tarifs","budget","carte","menu","services","accès","acces",
+                            "réservation","reservation","contact","téléphone","telephone","site web","website","note","avis",
+                            "vibe","food","drinks","music","location","price","hours","booking","phone",
+                          ]);
+                          const normTrim = trimmed.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[:*]+$/g, "").trim();
+                          const isLabel = LABEL_BLACKLIST.has(normTrim);
+                          const sigTokens = businessNameTokens(trimmed);
                           let isKnownBusiness = false;
-                          if (trimmed) {
+                          if (trimmed && !isLabel && trimmed.length >= 4) {
                             for (const ref of businessLookupRef.current.values()) {
-                              if (businessNameMatchScore(ref.name, trimmed) >= 0.58) {
-                                isKnownBusiness = true;
-                                break;
-                              }
+                              const score = businessNameMatchScore(ref.name, trimmed);
+                              // Exact/near-exact always OK. Otherwise require ≥ 2 significant
+                              // tokens AND a stricter score to avoid single-word overlaps
+                              // like "Cuisine" matching "La Cuisine de Mona".
+                              if (score >= 0.95) { isKnownBusiness = true; break; }
+                              if (sigTokens.length >= 2 && score >= 0.72) { isKnownBusiness = true; break; }
                             }
                           }
                           if (isKnownBusiness && trimmed.length <= 80) {
@@ -1102,6 +1116,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                           }
                           return <strong>{children}</strong>;
                         },
+
                       }}>{linkifyPhones(stripFicheLinks(clean))}</ReactMarkdown>
                     </div>
                     {(() => {
