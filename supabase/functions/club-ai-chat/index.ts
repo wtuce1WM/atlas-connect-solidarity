@@ -1861,11 +1861,27 @@ The user will click ONE of these as a new turn and prior constraints must be re-
       console.error("followup gen error", e);
     }
 
+    if (turnLog.route_taken === "unknown") turnLog.route_taken = "tool_loop";
     return new Response(JSON.stringify({ answer: finalAnswer, chatId: resultChatId, followups }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
     console.error(e);
+    turnLog.had_error = true;
+    turnLog.error_message = String(e).slice(0, 500);
     return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  } finally {
+    try {
+      if (adminForLog) {
+        turnLog.latency_ms_total = Date.now() - turnStartMs;
+        // Fire-and-forget — never block the response on log persistence
+        adminForLog.from("ai_conversation_turns").insert(turnLog).then(
+          ({ error }: any) => { if (error) console.error("turnLog insert failed", error.message); },
+          (err: any) => console.error("turnLog insert threw", err)
+        );
+      }
+    } catch (logErr) {
+      console.error("turnLog finally block error", logErr);
+    }
   }
 });
