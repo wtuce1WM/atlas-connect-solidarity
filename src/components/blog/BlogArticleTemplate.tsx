@@ -62,6 +62,11 @@ export interface BlogArticleEntry {
   paragraphs: string[];
 }
 
+export interface BlogArticleFaqItem {
+  q: string;
+  a: string;
+}
+
 export interface BlogArticleTemplateProps {
   entries: BlogArticleEntry[];
   articlePath: string;
@@ -79,6 +84,10 @@ export interface BlogArticleTemplateProps {
   defaultOgImage?: string;
   customHeroImage?: string;
   videoSection?: BlogArticleVideoSection;
+  /** Short 2-3 sentence answer displayed above the intro, optimized for LLM extraction (ChatGPT, Perplexity, Google AI Overviews). */
+  tldr?: string;
+  /** FAQ items rendered at the bottom of the article and emitted as FAQPage JSON-LD. */
+  faq?: BlogArticleFaqItem[];
 }
 
 const DEFAULT_SITE_URL = "https://oneworldmorocco.com";
