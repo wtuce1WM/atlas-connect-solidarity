@@ -465,14 +465,29 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const handleOpenBusinessName = async (name: string) => {
     const n = name.trim();
     if (!n) return;
-    // Try cached map payloads (name -> slug) first
-    const slug = nameToSlugRef.current.get(n.toLowerCase());
-    if (slug) {
-      const ok = await openBusinessBySlug(slug);
+    // Try cached map payloads (name -> slug) first — fuzzy match to tolerate
+    // article prefixes ("Le/La/Les/L'") and punctuation/accent differences.
+    const norm = (s: string) => s.toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/^(le|la|les|l'|l’)\s+/i, "")
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
+    const nTarget = norm(n);
+    let cachedSlug: string | undefined;
+    for (const [key, slug] of nameToSlugRef.current.entries()) {
+      const nKey = norm(key);
+      if (!nKey) continue;
+      if (nKey === nTarget || nKey.includes(nTarget) || nTarget.includes(nKey)) {
+        cachedSlug = slug;
+        break;
+      }
+    }
+    if (cachedSlug) {
+      const ok = await openBusinessBySlug(cachedSlug);
       if (ok) return;
     }
-    // Fallback: look up by exact name in DB (also fetch slug to enable prev/next nav)
-    const { data } = await supabase.from("businesses").select("id,slug").ilike("name", n).limit(1).maybeSingle();
+    // Fallback: look up by name in DB (ilike with wildcards to tolerate prefixes)
+    const { data } = await supabase.from("businesses").select("id,slug,name").ilike("name", `%${n}%`).limit(1).maybeSingle();
     const id = (data as any)?.id;
     const dbSlug = (data as any)?.slug;
     if (id) {
