@@ -1220,6 +1220,59 @@ const ClubAiAssistant = ({ userId }: Props) => {
                         </div>
                       </button>
                     ))}
+                    {eventPayloads.map((ep, idx) => {
+                      const thumbs = ep.events.filter((e) => e.image || e.video).slice(0, 12);
+                      return (
+                        <div key={`ev-${idx}`} className="mt-3 space-y-2">
+                          {thumbs.length > 0 && (
+                            <div className="-mx-1 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                              {thumbs.map((ev, ti) => (
+                                <button
+                                  key={ev.id}
+                                  type="button"
+                                  onClick={() => setOpenEvents({ list: ep.events, index: ep.events.findIndex((x) => x.id === ev.id) })}
+                                  className="shrink-0 w-24 sm:w-28 group/evthumb text-left"
+                                  title={ev.name}
+                                >
+                                  <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-[#C04F17]/10 border border-[#C04F17]/20">
+                                    {ev.image ? (
+                                      <img src={ev.image} alt={ev.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform group-hover/evthumb:scale-105" />
+                                    ) : (
+                                      <div className="absolute inset-0 flex items-center justify-center"><CalendarIcon className="h-6 w-6 text-[#C04F17]" /></div>
+                                    )}
+                                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-1.5">
+                                      <div className="text-[10px] text-white font-semibold line-clamp-2 leading-tight">{ev.name}</div>
+                                    </div>
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => setOpenEvents({ list: ep.events, index: 0 })}
+                            className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/80 hover:bg-white border border-[#C04F17]/20 transition-colors text-left group/ev"
+                          >
+                            <div className="relative h-16 w-20 shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-[#C04F17]/15 to-[#D4AF37]/20 flex items-center justify-center">
+                              <CalendarIcon className="h-7 w-7 text-[#C04F17]" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="text-sm font-semibold text-[#C04F17] truncate">
+                                {ep.title ? `Agenda · ${ep.title}` : `${ep.events.length} événement${ep.events.length > 1 ? "s" : ""}`}
+                                {ep.city ? ` · ${ep.city}` : ""}
+                              </div>
+                              <div className="text-[11px] text-[#0a1d6b]/70 truncate">
+                                {ep.events.slice(0, 3).map((e) => e.name).join(" · ")}
+                                {ep.events.length > 3 ? ` · +${ep.events.length - 3}` : ""}
+                              </div>
+                              <div className="text-[11px] text-[#C04F17] mt-0.5 font-medium group-hover/ev:underline">
+                                Ouvrir l'agenda →
+                              </div>
+                            </div>
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
                 {m.role === "assistant" && i === lastAssistantIndex && (
