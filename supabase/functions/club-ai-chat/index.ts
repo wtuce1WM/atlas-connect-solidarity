@@ -1375,9 +1375,11 @@ serve(async (req) => {
       return s.length <= 40 && !/[,\d]/.test(s) ? s : undefined;
     };
     const activeCityClean = cleanActiveCity(clientContext.activeCity);
+    turnLog.city_detected = activeCityClean || null;
 
     const isMapTrigger = MAP_TRIGGER_RE.test(lastUserMsg || "");
     const routedIntent = classifyIntent(lastUserMsg, !!previousUserQuery);
+    turnLog.intent_classified = routedIntent;
     console.log("club-ai-chat router:", JSON.stringify({ intent: routedIntent, isMapTrigger, msg: lastUserMsg.slice(0, 100), hasPrev: !!previousUserQuery, activeCityRaw: clientContext.activeCity, activeCityClean }));
 
     if (!isMapTrigger && !affirmativeMapTrigger && (routedIntent === "search" || routedIntent === "refinement")) {
