@@ -980,6 +980,49 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
   return { error: "unknown tool" };
 }
 
+// ============= SSE streaming helpers =============
+// Emits Server-Sent Events to the browser: {type:"chunk",delta}, {type:"done",answer,chatId,followups}, {type:"error",message,status?}
+type EmitFn = (obj: any) => void;
+
+async function streamGatewayText(
+  url: string,
+  init: RequestInit,
+  emit: EmitFn,
+  onFirstToken?: () => void,
+  signal?: AbortSignal,
+): Promise<{ text: string; ok: boolean; status: number }> {
+  const bodyObj = JSON.parse((init.body as string) || "{}");
+  bodyObj.stream = true;
+  const patched: RequestInit = { ...init, body: JSON.stringify(bodyObj), signal };
+  const resp = await fetch(url, patched);
+  if (!resp.ok || !resp.body) return { text: "", ok: false, status: resp.status };
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = ""; let text = ""; let first = false;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+    for (const line of lines) {
+      const l = line.trim();
+      if (!l.startsWith("data:")) continue;
+      const payload = l.slice(5).trim();
+      if (!payload || payload === "[DONE]") continue;
+      try {
+        const j = JSON.parse(payload);
+        const delta = j.choices?.[0]?.delta?.content;
+        if (typeof delta === "string" && delta.length) {
+          if (!first) { first = true; onFirstToken?.(); }
+          text += delta;
+          emit({ type: "chunk", delta });
+        }
+      } catch { /* partial */ }
+    }
+  }
+  return { text, ok: true, status: 200 };
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
