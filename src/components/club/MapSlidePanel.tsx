@@ -202,7 +202,8 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
     <>
       <div className="fixed inset-0 bg-black/50 z-[80]" onClick={onClose} />
       <div
-        className="fixed inset-0 z-[81] bg-[#ECD6B8] shadow-2xl overflow-hidden flex flex-col"
+        className={`fixed z-[81] bg-[#ECD6B8] shadow-2xl overflow-hidden flex flex-col
+          ${isMobile ? "inset-0" : "top-0 right-0 h-full w-1/2 rounded-l-2xl"}`}
       >
         {/* Map fills the panel; toolbar floats on top */}
         <div className="relative flex-1">
