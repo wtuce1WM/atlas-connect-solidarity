@@ -1536,9 +1536,8 @@ ${totalCount > shownCount ? "- Puis propose : « je peux les afficher tous sur l
           turnLog.results_shown = top.length;
           turnLog.city_detected = search?.detected?.city || turnLog.city_detected;
           turnLog.latency_ms_synth = Date.now() - turnStartMs;
-          return new Response(JSON.stringify({ answer, chatId: resultChatId, followups: [] }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+          emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+          return;
         }
         console.log("router direct search returned 0 → fallback to LLM tool loop");
       } catch (e) {
