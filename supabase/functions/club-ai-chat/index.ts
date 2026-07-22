@@ -13,8 +13,128 @@ const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 // Cost optimization: default to flash (≈6× cheaper than pro). Pro is only used as upgrade fallback for degeneracy.
 const MODEL = "google/gemini-3-flash-preview";
 const FALLBACK_MODEL = "google/gemini-3-flash-preview";
+const SEARCH_RESULT_LIMIT = 50;
 
 type Msg = { role: "system" | "user" | "assistant" | "tool"; content: string; tool_calls?: any[]; tool_call_id?: string; name?: string };
+
+type PreviousSearchSnapshot = {
+  title?: string;
+  slugs: string[];
+  returnedCount: number;
+  totalCount: number;
+};
+
+const MAP_TRIGGER_RE = /\b(sur\s+une?\s+cartes?|une?\s+cartes?|la\s+cartes?|cartes?|maps?|situe(?:z|s|r|nt)?|localise(?:z|s|r|nt)?|o[uù]\s+sont|o[uù]\s+se\s+trouvent|where\s+are|geoloc|g[ée]oloc)\b|خريطة/i;
+
+function extractRequestedResultCount(text: string): number | null {
+  const match = String(text || "").match(/\b(?:les\s+)?(\d{1,3})\s+r[ée]sultats?\b/i);
+  if (!match) return null;
+  const value = Number(match[1]);
+  return Number.isFinite(value) && value > 0 ? value : null;
+}
+
+function stripMapMarkers(text: string): string {
+  return String(text || "")
+    .replace(/<!--SHOW_ON_MAP:[\s\S]*?-->/g, "")
+    .replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "")
+    .trim();
+}
+
+function extractPreviousSearchSnapshot(messages: Msg[]): PreviousSearchSnapshot | null {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const original = String(messages[i]?.content || "");
+    const searchMarkers = Array.from(original.matchAll(/<!--SEARCH_RESULTS:([\s\S]*?)-->/g));
+    for (let j = searchMarkers.length - 1; j >= 0; j--) {
+      try {
+        const parsed = JSON.parse(String(searchMarkers[j][1]).replace(/--&gt;/g, "-->"));
+        const slugs = Array.isArray(parsed?.slugs)
+          ? parsed.slugs.filter((s: any) => typeof s === "string" && s.trim())
+          : [];
+        if (slugs.length) {
+          return {
+            title: typeof parsed.title === "string" ? parsed.title.slice(0, 120) : undefined,
+            slugs: Array.from(new Set<string>(slugs)).slice(0, SEARCH_RESULT_LIMIT),
+            returnedCount: Number(parsed.returnedCount ?? parsed.returned_count) || slugs.length,
+            totalCount: Number(parsed.totalCount ?? parsed.total_count) || slugs.length,
+          };
+        }
+      } catch { /* ignore malformed snapshot */ }
+    }
+
+    const raw = stripMapMarkers(original).replace(/<!--SEARCH_RESULTS:[\s\S]*?-->/g, "");
+    const lines = raw.split("\n");
+    const countMatch = raw.match(/(?:\*\*)?\s*(\d+)\s+r[ée]sultats?\s+affich[ée]s?\s+sur\s+(\d+)\s+trouv[ée]s?/i);
+    if (!countMatch) continue;
+
+    const slugs = Array.from(raw.matchAll(/https?:\/\/[^\s)]+\/(?:b|fiche)\/([^\s)]+)/gi))
+      .map((m) => decodeURIComponent(m[1]).split(/[?#]/)[0])
+      .filter(Boolean);
+
+    const uniqueSlugs = Array.from(new Set(slugs));
+    if (!uniqueSlugs.length) continue;
+
+    const firstContentLine = lines
+      .map((line) => line.replace(/[*_#>`-]/g, " ").replace(/\s+/g, " ").trim())
+      .find((line) => line && !/r[ée]sultats?\s+affich[ée]s?\s+sur\s+\d+\s+trouv[ée]s?/i.test(line));
+
+    return {
+      title: firstContentLine?.slice(0, 80) || undefined,
+      slugs: uniqueSlugs,
+      returnedCount: Number(countMatch[1]) || uniqueSlugs.length,
+      totalCount: Number(countMatch[2]) || uniqueSlugs.length,
+    };
+  }
+  return null;
+}
+
+function extractPreviousUserQuery(messages: Msg[]): string | null {
+  const userMessages = messages
+    .filter((m) => m.role === "user" && typeof m.content === "string" && m.content.trim())
+    .map((m) => m.content.trim());
+  if (userMessages.length < 2) return null;
+  const previous = userMessages[userMessages.length - 2];
+  const beforePrevious = userMessages[userMessages.length - 3] || "";
+  const additive = /^\+?\s*(avec|sans|et|plus|aussi|uniquement|seulement|en|à|a)\b/i.test(previous) || previous.split(/\s+/).length <= 4;
+  if (additive && beforePrevious && !MAP_TRIGGER_RE.test(beforePrevious)) {
+    return `${beforePrevious} ${previous.replace(/^\+\s*/, "")}`.trim();
+  }
+  return previous;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function normalizeLoose(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[’‘`´]/g, "'")
+    .replace(/[^a-z0-9']+/g, " ")
+    .trim();
+}
+
+function correctVisibleResultCount(answer: string, resultNames: string[]): string {
+  if (!answer || !resultNames.length || !/r[ée]sultats?\s+affich[ée]s?\s+sur\s+\d+\s+trouv[ée]s?/i.test(answer)) return answer;
+  const visible = stripMapMarkers(answer).replace(/<!--SEARCH_RESULTS:[\s\S]*?-->/g, "");
+  const normalizedVisible = normalizeLoose(visible);
+  let count = 0;
+  const seen = new Set<string>();
+  for (const name of resultNames) {
+    const n = String(name || "").trim();
+    if (!n) continue;
+    const key = normalizeLoose(n);
+    if (!key || seen.has(key)) continue;
+    const strongName = new RegExp(`\\*\\*\\s*${escapeRegExp(n)}\\s*\\*\\*`, "i");
+    if (strongName.test(visible) || normalizedVisible.includes(key)) {
+      seen.add(key);
+      count++;
+    }
+  }
+  if (count <= 0) return answer;
+  return answer.replace(/(\*\*)?\s*\d+\s+(r[ée]sultats?\s+affich[ée]s?\s+sur\s+\d+\s+trouv[ée]s?)(\*\*)?/i, (_m, open = "", rest, close = "") => `${open}${count} ${rest}${close}`);
+}
 
 const tools = [
   {
@@ -52,7 +172,7 @@ const tools = [
             items: { type: "string" },
             description: "Services / équipements à matcher (name_fr partiel). Ex: ['piscine'], ['spa','hammam'], ['restaurant']. Combiné en UNION avec `badges` : un établissement matche s'il porte au moins un badge OU un service de la liste.",
           },
-          limit: { type: "number", description: "Nombre de résultats à retourner (max 30, défaut 12). Augmente jusqu'à 30 si le membre demande une carte ou une vue d'ensemble.", default: 12 },
+          limit: { type: "number", description: "Nombre de résultats à retourner dans le texte (max 50, défaut 12). Augmente jusqu'à 50 si le membre demande une carte ou une vue d'ensemble.", default: 12 },
         },
       },
     },
@@ -185,7 +305,7 @@ const tools = [
           business_slugs: {
             type: "array",
             items: { type: "string" },
-            description: "Liste des slugs (2 à 30) des établissements à afficher sur la carte. Passe tous les résultats utiles de search_businesses (jusqu'à 30).",
+            description: "Liste des slugs (2 à 50) des établissements à afficher sur la carte. Passe tous les résultats utiles de search_businesses (jusqu'à 50).",
           },
           title: { type: "string", description: "Titre court de la carte (ex: 'Hôtels avec piscine à Marrakech'). Optionnel." },
         },
@@ -264,7 +384,7 @@ function tasteSummaryLine(t: any): string {
   return parts.length ? `Profil de goûts du membre — ${parts.join(" ; ")}.` : "";
 }
 
-async function runTool(name: string, args: any, ctx: { userId: string; supabase: any; lastUserMessage?: string; language?: string }) {
+async function runTool(name: string, args: any, ctx: { userId: string; supabase: any; lastUserMessage?: string; language?: string; forceQuery?: string }) {
   try {
     if (name === "get_weather") {
       const { data, error } = await ctx.supabase.functions.invoke("get-weather", { body: { city: args.city } });
@@ -272,7 +392,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       return data;
     }
     if (name === "search_businesses") {
-      const limit = Math.min(Math.max(Number(args.limit) || 12, 1), 30);
+      const limit = Math.min(Math.max(Number(args.limit) || 12, 1), SEARCH_RESULT_LIMIT);
 
       // Construit une requête en langage naturel qui combine tous les critères
       // pour bénéficier de la MÊME logique que /search (synonymes, badges, services,
@@ -286,12 +406,13 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       servicesIn.forEach((s) => qParts.push(String(s).replace(/^#/, "")));
       if (args.neighborhood) qParts.push(String(args.neighborhood));
       const aiQuery = qParts.filter(Boolean).join(" ").trim();
+      const forcedQuery = String(ctx.forceQuery || "").trim();
       const lastUserQuery = String(ctx.lastUserMessage || "")
         .replace(/\b(montre|montres|affiche|affiches|situe|localise|localises|cherche|trouve|peux-tu|pouvez-vous|sur une carte|carte)\b/gi, " ")
         .replace(/[?!.,;:()"“”«»]/g, " ")
         .replace(/\s+/g, " ")
         .trim();
-      const fullQuery = lastUserQuery.length >= 4 ? lastUserQuery : aiQuery;
+      const fullQuery = forcedQuery || (lastUserQuery.length >= 4 ? lastUserQuery : aiQuery);
 
       // Appel business-search (même moteur que /search) — direct fetch pour éviter
       // les aléas de `functions.invoke` depuis Deno (parfois body non transmis).
@@ -304,7 +425,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
           query: fullQuery || undefined,
           spoken: fullQuery || undefined,
           language: ctx.language || (args.language as string) || "fr",
-          pageSize: limit,
+          pageSize: SEARCH_RESULT_LIMIT,
           offset: 0,
           compact: "card",
           city: args.city || undefined,
@@ -321,7 +442,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         const text = await r.text();
         try { sres = JSON.parse(text); } catch { sres = null; }
         if (!r.ok) sErr = `HTTP ${r.status}: ${text.slice(0, 200)}`;
-        console.log("club-ai-chat → business-search", JSON.stringify({ args, aiQuery, fullQuery, status: r.status, total: sres?.totalCount, n: Array.isArray(sres?.businesses) ? sres.businesses.length : 0, detectedCity: sres?.detectedCity, detectedCategory: sres?.detectedCategory, detectedService: sres?.detectedService }));
+        console.log("club-ai-chat → business-search", JSON.stringify({ args, aiQuery, fullQuery, status: r.status, total: sres?.totalCount, n: Array.isArray(sres?.businesses) ? sres.businesses.length : 0, displayedLimit: limit, detectedCity: sres?.detectedCity, detectedCategory: sres?.detectedCategory, detectedService: sres?.detectedService }));
       } catch (e) {
         sErr = String(e);
         console.error("club-ai-chat → business-search fetch exception", e);
@@ -329,9 +450,9 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       if (sErr) {
         return { results: [], error: sErr, hint: "Réessaie avec des critères plus simples." };
       }
-      const businesses: any[] = Array.isArray(sres?.businesses) ? sres.businesses : [];
-      const total = typeof sres?.totalCount === "number" ? sres.totalCount : businesses.length;
-      if (!businesses.length) {
+      const allBusinesses: any[] = Array.isArray(sres?.businesses) ? sres.businesses : [];
+      const total = typeof sres?.totalCount === "number" ? sres.totalCount : allBusinesses.length;
+      if (!allBusinesses.length) {
         return {
           results: [],
           total_count: 0,
@@ -340,6 +461,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       }
 
       // Enrichissement : description + highlights (blocs) pour les résultats affichés
+      const businesses = allBusinesses.slice(0, limit);
       const ids = businesses.map((b) => b.id).filter(Boolean);
       const [descRes, hlRes] = await Promise.all([
         ctx.supabase.from("businesses").select("id,description").in("id", ids),
@@ -391,6 +513,10 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         returned_count: results.length,
         total_count: total,
         has_more: total > results.length,
+        map_slugs: allBusinesses.map((b: any) => b.slug).filter(Boolean).slice(0, SEARCH_RESULT_LIMIT),
+        map_count: Math.min(allBusinesses.length, SEARCH_RESULT_LIMIT),
+        answer_guidance:
+          "Dans le texte visible, cite 3 à 5 établissements maximum. La ligne 'N résultats affichés sur M trouvés' doit utiliser N = nombre de noms que tu listes réellement dans ton texte, pas returned_count. Les slugs complets pour la carte sont dans map_slugs.",
         detected: {
           city: sres?.detectedCity || null,
           neighborhood: sres?.detectedNeighborhood || null,
@@ -648,7 +774,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
     }
     if (name === "show_on_map") {
       const slugs: string[] = Array.isArray(args.business_slugs)
-        ? args.business_slugs.filter((s: any) => typeof s === "string" && s.trim()).slice(0, 30)
+        ? args.business_slugs.filter((s: any) => typeof s === "string" && s.trim()).slice(0, SEARCH_RESULT_LIMIT)
         : [];
       if (!slugs.length) return { error: "Aucun slug fourni", count: 0 };
       const { data, error } = await ctx.supabase
@@ -818,6 +944,100 @@ serve(async (req) => {
     // The model can still call search_businesses to refine, but starting with real
     // candidates in context cuts hallucination and unnecessary tool round-trips.
     const lastUserMsg = [...messages].reverse().find((m) => m.role === "user")?.content || "";
+
+    // Deterministic shortcut: when the member asks to put the previous result set
+    // on a map ("montre-moi les 32 résultats sur une carte"), do NOT call the AI
+    // again and do NOT recompute a broader search. Reuse the hidden snapshot stored
+    // with the previous assistant answer.
+    const previousSearchSnapshot = extractPreviousSearchSnapshot(messages);
+    const requestedMapCount = extractRequestedResultCount(lastUserMsg);
+    const refersToPreviousResults = /\b(r[ée]sultats?|ceux\s*-?ci|celles\s*-?ci|cette\s+liste|la\s+m[êe]me\s+liste|same\s+results?|these|them)\b/i.test(lastUserMsg || "");
+    if (MAP_TRIGGER_RE.test(lastUserMsg || "") && previousSearchSnapshot && (refersToPreviousResults || requestedMapCount != null)) {
+      const desiredCount = Math.min(requestedMapCount || previousSearchSnapshot.totalCount || previousSearchSnapshot.slugs.length, SEARCH_RESULT_LIMIT);
+      const slugs = previousSearchSnapshot.slugs.slice(0, desiredCount);
+      if (slugs.length >= 2) {
+        const title = previousSearchSnapshot.title || `${slugs.length} résultats sur la carte`;
+        const forced = await runTool("show_on_map", { business_slugs: slugs, title }, { userId: user.id, supabase: admin, lastUserMessage: lastUserMsg, language: lang });
+        if ((forced as any)?.ok && Array.isArray((forced as any).businesses) && (forced as any).businesses.length) {
+          const count = (forced as any).businesses.length;
+          let answer = `Voici les ${count} résultats précédents affichés sur la carte.`;
+          const noCoords = Array.isArray((forced as any).no_coords_slugs) ? (forced as any).no_coords_slugs.length : 0;
+          if (noCoords) answer += ` ${noCoords} résultat(s) sans coordonnées GPS n'ont pas pu être affichés.`;
+          const safeMap = JSON.stringify({ title, businesses: (forced as any).businesses }).replace(/-->/g, "--&gt;");
+          const safeSnapshot = JSON.stringify(previousSearchSnapshot).replace(/-->/g, "--&gt;");
+          answer += `\n\n<!--SHOW_ON_MAP:${safeMap}-->\n<!--SEARCH_RESULTS:${safeSnapshot}-->`;
+
+          const newMessages = [...messages, { role: "assistant", content: answer }];
+          let resultChatId: string | null = null;
+          if (chatId) {
+            const { data: existing } = await admin.from("ai_chats").select("id").eq("id", chatId).eq("user_id", user.id).maybeSingle();
+            if (existing?.id) {
+              await admin.from("ai_chats").update({ messages: newMessages, updated_at: new Date().toISOString() }).eq("id", chatId).eq("user_id", user.id);
+              resultChatId = chatId;
+            }
+          }
+          if (!resultChatId) {
+            const titleRow = lastUserMsg.slice(0, 200) || "Nouvelle conversation";
+            const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title: titleRow, messages: newMessages }).select("id").single();
+            resultChatId = inserted?.id ?? null;
+          }
+          return new Response(JSON.stringify({ answer, chatId: resultChatId, followups: [] }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
+    }
+
+    // Backward-compatible fallback for conversations created before SEARCH_RESULTS
+    // snapshots existed: reuse the previous user query deterministically instead
+    // of letting the model search for "montre-moi les 32 résultats".
+    const previousUserQuery = extractPreviousUserQuery(messages);
+    if (MAP_TRIGGER_RE.test(lastUserMsg || "") && !previousSearchSnapshot && previousUserQuery && (refersToPreviousResults || requestedMapCount != null)) {
+      const desiredCount = Math.min(requestedMapCount || SEARCH_RESULT_LIMIT, SEARCH_RESULT_LIMIT);
+      const search = await runTool("search_businesses", { query: previousUserQuery, limit: desiredCount }, { userId: user.id, supabase: admin, lastUserMessage: lastUserMsg, language: lang, forceQuery: previousUserQuery });
+      const slugs = (Array.isArray((search as any).map_slugs) && (search as any).map_slugs.length
+        ? (search as any).map_slugs
+        : Array.isArray((search as any).results) ? (search as any).results.map((r: any) => r.slug) : []
+      ).filter(Boolean).slice(0, desiredCount);
+      if (slugs.length >= 2) {
+        const title = previousUserQuery.slice(0, 120);
+        const forced = await runTool("show_on_map", { business_slugs: slugs, title }, { userId: user.id, supabase: admin, lastUserMessage: lastUserMsg, language: lang });
+        if ((forced as any)?.ok && Array.isArray((forced as any).businesses) && (forced as any).businesses.length) {
+          const snapshot: PreviousSearchSnapshot = {
+            title,
+            slugs,
+            returnedCount: Number((search as any).returned_count) || Math.min(slugs.length, desiredCount),
+            totalCount: Number((search as any).total_count) || slugs.length,
+          };
+          const count = (forced as any).businesses.length;
+          let answer = `Voici les ${count} résultats précédents affichés sur la carte.`;
+          const noCoords = Array.isArray((forced as any).no_coords_slugs) ? (forced as any).no_coords_slugs.length : 0;
+          if (noCoords) answer += ` ${noCoords} résultat(s) sans coordonnées GPS n'ont pas pu être affichés.`;
+          const safeMap = JSON.stringify({ title, businesses: (forced as any).businesses }).replace(/-->/g, "--&gt;");
+          const safeSnapshot = JSON.stringify(snapshot).replace(/-->/g, "--&gt;");
+          answer += `\n\n<!--SHOW_ON_MAP:${safeMap}-->\n<!--SEARCH_RESULTS:${safeSnapshot}-->`;
+
+          const newMessages = [...messages, { role: "assistant", content: answer }];
+          let resultChatId: string | null = null;
+          if (chatId) {
+            const { data: existing } = await admin.from("ai_chats").select("id").eq("id", chatId).eq("user_id", user.id).maybeSingle();
+            if (existing?.id) {
+              await admin.from("ai_chats").update({ messages: newMessages, updated_at: new Date().toISOString() }).eq("id", chatId).eq("user_id", user.id);
+              resultChatId = chatId;
+            }
+          }
+          if (!resultChatId) {
+            const titleRow = lastUserMsg.slice(0, 200) || "Nouvelle conversation";
+            const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title: titleRow, messages: newMessages }).select("id").single();
+            resultChatId = inserted?.id ?? null;
+          }
+          return new Response(JSON.stringify({ answer, chatId: resultChatId, followups: [] }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
+    }
+
     let prefetchBlock = "";
     try {
       const q = String(lastUserMsg).trim().slice(0, 200);
@@ -867,7 +1087,7 @@ RÈGLES DE PRÉCISION (critiques) :
 3. Pour donner des détails (horaires, prix, adresse, téléphone), appelle get_business_details avec le slug exact obtenu via search_businesses.
 4. Si une recherche ne renvoie rien, dis-le franchement et propose une reformulation — ne complète pas avec des lieux génériques.
 5. Quand tu cites un établissement, écris simplement son **Nom exact** en gras (le nom sera automatiquement cliquable côté UI pour ouvrir la fiche). N'ajoute JAMAIS de lien markdown type [voir la fiche](...) ni d'URL /b/SLUG visible.
-6. Reste concis, chaleureux, en français (sauf si l'utilisateur écrit dans une autre langue). Markdown léger (gras, listes courtes). Dans une réponse textuelle, mets en avant 3 à 5 suggestions vraiment ciblées — mais quand le membre demande une carte ou une vue d'ensemble, appelle search_businesses avec limit=30 pour alimenter la carte. **OBLIGATOIRE** : à chaque réponse qui s'appuie sur search_businesses ou search_events, commence (ou termine) par une ligne explicite du type « **N résultats affichés sur M trouvés** » (N = nombre que tu cites/affiches réellement, M = \`total_count\` retourné par l'outil). Si beaucoup d'autres résultats existent, propose d'élargir ou d'affiner (« veux-tu que je filtre par quartier ? »). **NE PROPOSE JAMAIS de filtrer par budget, prix, gamme de prix ou tarif.**
+6. Reste concis, chaleureux, en français (sauf si l'utilisateur écrit dans une autre langue). Markdown léger (gras, listes courtes). Dans une réponse textuelle, mets en avant 3 à 5 suggestions vraiment ciblées — mais quand le membre demande une carte ou une vue d'ensemble, appelle search_businesses avec limit=50 pour alimenter la carte. **OBLIGATOIRE** : à chaque réponse qui s'appuie sur search_businesses ou search_events, commence (ou termine) par une ligne explicite du type « **N résultats affichés sur M trouvés** » : N = nombre de noms effectivement listés dans TON TEXTE visible (si tu cites 5 établissements, écris 5, même si l'outil en a retourné 12 ou 50) ; M = \`total_count\` retourné par l'outil. Si beaucoup d'autres résultats existent, propose d'élargir, d'affiner ou de les voir sur une carte (« je peux afficher les 32 sur la carte »). **NE PROPOSE JAMAIS de filtrer par budget, prix, gamme de prix ou tarif.**
 6bis. **PRIX & TARIFS (interdiction stricte)** : tu ne disposes PAS de données fiables de prix/tarifs pour les établissements. N'annonce JAMAIS un prix, une fourchette de tarif, une gamme de prix, un « pas cher / cher / moyen », et ne propose JAMAIS de filtrer/trier par budget ou par tarif. Si le membre pose une question liée au tarif ou au budget (hors nuitées d'hôtel), réponds franchement : « Je ne dispose pas encore de l'information des prix/tarifs pour cette catégorie. Je peux en revanche te proposer une sélection par quartier, ambiance, type de cuisine, etc. » SEULE EXCEPTION : les **nuitées d'hôtel** (tarifs hôteliers issus du moteur de prix dédié) — là tu peux mentionner un prix s'il est explicitement retourné par un outil.
 7. Utilise naturellement les goûts du membre pour personnaliser, sans les réciter.
 8. **Événements / agenda** : pour toute demande type « que faire ce soir / ce week-end », « concerts », « festival », « expo », « soirée », « agenda culturel » → appelle search_events (filtre #Agenda + ville + dates). N'invente jamais un événement, et précise toujours la date/horaire renvoyés par l'outil. Si rien ne sort, dis-le franchement.
@@ -877,7 +1097,7 @@ RÈGLES DE PRÉCISION (critiques) :
 Outils disponibles : get_weather, search_businesses, get_business_details, search_events, get_my_trips, link_business_to_trip, list_my_bookmarks, list_my_saved_chats, get_my_taste_profile, suggest_similar_to_my_bookmarks, web_search, show_on_map.
 
 11. **Lier une adresse à un voyage (link_business_to_trip)** : si le membre demande explicitement « ajoute X à mon voyage Y », appelle d'abord get_my_trips pour récupérer trip_id et search_businesses pour obtenir le slug exact, puis link_business_to_trip. Confirme ensuite poliment ce qui a été ajouté. Si plusieurs voyages possibles, demande au membre lequel cibler avant d'agir.
-12. **Affichage sur carte (show_on_map) — DÉCLENCHEMENT OBLIGATOIRE** : tu DOIS appeler show_on_map SANS ATTENDRE une seconde demande dès que la question du membre contient l'un des mots/expressions déclencheurs suivants (FR/EN/AR, insensible aux accents et à la casse) : « carte », « map », « sur une carte », « on a map », « situe », « situer », « localise », « localiser », « où sont », « où se trouvent », « where are », « geoloc », « géolocalise », « خريطة ». Dans ces cas : (a) appelle d'abord search_businesses avec limit: 30 (en réutilisant EXACTEMENT les mêmes filtres — ville, catégorie, quartier, requête — que la recherche précédente si le membre fait référence à des résultats déjà obtenus, ex. « les 17 résultats », « ceux-ci », « ces hôtels », « la même liste »), (b) puis appelle show_on_map DANS LE MÊME TOUR avec **TOUS** les slugs pertinents retournés (jusqu'à 30 ; si le membre mentionne un nombre précis N ≤ 30, passe les N premiers, jamais moins). Ne demande JAMAIS confirmation avant d'ouvrir la carte quand un de ces mots est présent. Appelle aussi show_on_map spontanément quand visualiser géographiquement aide vraiment la décision (≥ 3 lieux dispersés). La carte et le panneau s'affichent automatiquement côté UI ; tu n'as donc pas à répéter la liste ni à coller une URL Google Maps. Indique le nombre total (total_count) — par exemple « Voici 18 hôtels avec piscine à Marrakech affichés sur la carte (sur 47 au total) ». Ne l'appelle pas pour 1 seul lieu.
+12. **Affichage sur carte (show_on_map) — DÉCLENCHEMENT OBLIGATOIRE** : tu DOIS appeler show_on_map SANS ATTENDRE une seconde demande dès que la question du membre contient l'un des mots/expressions déclencheurs suivants (FR/EN/AR, insensible aux accents et à la casse) : « carte », « map », « sur une carte », « on a map », « situe », « situer », « localise », « localiser », « où sont », « où se trouvent », « where are », « geoloc », « géolocalise », « خريطة ». Dans ces cas : (a) appelle d'abord search_businesses avec limit: 50 (en réutilisant EXACTEMENT les mêmes filtres — ville, catégorie, quartier, requête — que la recherche précédente si le membre fait référence à des résultats déjà obtenus, ex. « les 32 résultats », « ceux-ci », « ces hôtels », « la même liste »), (b) puis appelle show_on_map DANS LE MÊME TOUR avec **TOUS** les slugs pertinents retournés (jusqu'à 50 ; si le membre mentionne un nombre précis N ≤ 50, passe les N premiers, jamais moins). Ne demande JAMAIS confirmation avant d'ouvrir la carte quand un de ces mots est présent. Appelle aussi show_on_map spontanément quand visualiser géographiquement aide vraiment la décision (≥ 3 lieux dispersés). La carte et le panneau s'affichent automatiquement côté UI ; tu n'as donc pas à répéter la liste ni à coller une URL Google Maps. Indique le nombre total (total_count) — par exemple « Voici 32 activités affichées sur la carte (sur 32 au total) ». Ne l'appelle pas pour 1 seul lieu.
 
 ${languageInstruction}`;
 
@@ -889,7 +1109,12 @@ ${languageInstruction}`;
     //     which the client-side regex can't match and displays as raw JSON.
     const sanitizedMessages: Msg[] = messages.map((m) =>
       m.role === "assistant" && typeof m.content === "string"
-        ? { ...m, content: m.content.replace(/<!--SHOW_ON_MAP:[\s\S]*?-->/g, "").replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "").trim() }
+        ? { ...m, content: m.content
+            .replace(/<!--SHOW_ON_MAP:[\s\S]*?-->/g, "")
+            .replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "")
+            .replace(/<!--SEARCH_RESULTS:[\s\S]*?-->/g, "")
+            .replace(/<!--SEARCH_RESULTS:[\s\S]*$/g, "")
+            .trim() }
         : m
     );
     const convo: Msg[] = [{ role: "system", content: system }, ...sanitizedMessages];
@@ -900,7 +1125,9 @@ ${languageInstruction}`;
     let modelToUse = MODEL;
     const mapPayloads: Array<{ title?: string; businesses: any[] }> = [];
     let lastSearchSlugs: string[] = [];
+    let lastSearchNames: string[] = [];
     let lastSearchTitle: string | undefined;
+    let lastSearchSnapshot: PreviousSearchSnapshot | null = null;
     for (let i = 0; i < 4; i++) {
       const resp = await fetchAiGateway(GATEWAY_URL, {
         method: "POST",
@@ -940,8 +1167,18 @@ ${languageInstruction}`;
             mapPayloads.push({ title: args.title, businesses: (result as any).businesses });
           }
           if (tc.function?.name === "search_businesses" && Array.isArray((result as any)?.results) && (result as any).results.length) {
-            lastSearchSlugs = (result as any).results.map((r: any) => r.slug).filter(Boolean);
+            lastSearchNames = (result as any).results.map((r: any) => r.name).filter(Boolean);
+            lastSearchSlugs = (Array.isArray((result as any).map_slugs) && (result as any).map_slugs.length
+              ? (result as any).map_slugs
+              : (result as any).results.map((r: any) => r.slug)
+            ).filter(Boolean).slice(0, SEARCH_RESULT_LIMIT);
             lastSearchTitle = args.query || args.city || undefined;
+            lastSearchSnapshot = {
+              title: lastSearchTitle,
+              slugs: lastSearchSlugs,
+              returnedCount: Number((result as any).returned_count) || (result as any).results.length,
+              totalCount: Number((result as any).total_count) || lastSearchSlugs.length,
+            };
           }
           convo.push({ role: "tool", tool_call_id: tc.id, name: tc.function?.name, content: JSON.stringify(result) });
         }
@@ -964,10 +1201,9 @@ ${languageInstruction}`;
     // Safety net: si l'utilisateur a explicitement demandé une carte mais le modèle
     // n'a pas appelé show_on_map, on l'injecte automatiquement à partir des derniers
     // résultats de search_businesses.
-    const MAP_TRIGGER_RE = /\b(sur\s+une?\s+cartes?|une?\s+cartes?|la\s+cartes?|cartes?|maps?|situe(?:z|s|r|nt)?|localise(?:z|s|r|nt)?|o[uù]\s+sont|o[uù]\s+se\s+trouvent|where\s+are|geoloc|g[ée]oloc)\b|خريطة/i;
     if (!mapPayloads.length && lastSearchSlugs.length >= 2 && MAP_TRIGGER_RE.test(lastUserMsg || "")) {
       try {
-        const forced = await runTool("show_on_map", { business_slugs: lastSearchSlugs.slice(0, 30), title: lastSearchTitle }, ctx);
+        const forced = await runTool("show_on_map", { business_slugs: lastSearchSlugs.slice(0, SEARCH_RESULT_LIMIT), title: lastSearchTitle }, ctx);
         if ((forced as any)?.ok && Array.isArray((forced as any).businesses) && (forced as any).businesses.length) {
           mapPayloads.push({ title: lastSearchTitle, businesses: (forced as any).businesses });
         }
@@ -1014,6 +1250,13 @@ ${languageInstruction}`;
       if (!finalAnswer) {
         finalAnswer = "Désolé, je n'ai pas pu formuler de réponse cette fois-ci. Peux-tu reformuler ta demande (ville, type de cuisine, quartier) ?";
       }
+    }
+
+    finalAnswer = correctVisibleResultCount(finalAnswer, lastSearchNames);
+
+    if (lastSearchSnapshot && finalAnswer && !finalAnswer.includes("<!--SEARCH_RESULTS:")) {
+      const safe = JSON.stringify(lastSearchSnapshot).replace(/-->/g, "--&gt;");
+      finalAnswer += `\n\n<!--SEARCH_RESULTS:${safe}-->`;
     }
 
     // Persist conversation
