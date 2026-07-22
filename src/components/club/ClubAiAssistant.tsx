@@ -1036,7 +1036,9 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
         <div ref={scrollRef} className="px-4 py-4 space-y-3">
           {messages.length === 0 && !sending && emptyHint}
+          {(() => null)()}
           {messages.map((m, i) => {
+            const lastAssistantIndex = (() => { for (let k = messages.length - 1; k >= 0; k--) { if (messages[k].role === "assistant") return k; } return -1; })();
             const { clean, maps } = m.role === "assistant"
               ? extractMapPayloads(m.content)
               : { clean: m.content, maps: [] as MapPayload[] };
@@ -1184,8 +1186,10 @@ const ClubAiAssistant = ({ userId }: Props) => {
                       </button>
                     ))}
                     {/* Liquid-glass Speaker (TTS) — mirrors /search AI tab */}
-                    <div className="mt-3 flex justify-start">
+                    {i === lastAssistantIndex && (
+                    <div className="mt-3 flex justify-center w-full">
                       <div className="relative flex items-center justify-center">
+
                         <div
                           className="absolute rounded-full animate-ping pointer-events-none"
                           style={{
@@ -1239,6 +1243,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
                         </button>
                       </div>
                     </div>
+                    )}
+
 
                   </div>
                 )}
