@@ -737,7 +737,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
 
       let q = ctx.supabase
         .from("events")
-        .select("id,name,hook,description,start_date,end_date,recurrence,days_of_week,start_time,end_time,url,city_id,default_business_id,images,videos,sort_order,logo_url,cities:city_id(name_fr),neighborhoods:neighborhood_id(name_fr)")
+        .select("id,name,hook,description,start_date,end_date,recurrence,days_of_week,start_time,end_time,url,city_id,default_business_id,images,videos,sort_order,logo_url,cities:city_id(name_fr),neighborhoods:neighborhood_id(name)")
         .or(`and(start_date.gte.${from},start_date.lte.${to}),and(start_date.lte.${to},end_date.gte.${from}),recurrence.not.is.null`)
         .order("sort_order", { ascending: true, nullsFirst: false })
         .order("start_date", { ascending: true, nullsFirst: false })
@@ -766,7 +766,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         start_time: e.start_time,
         end_time: e.end_time,
         city: e.cities?.name_fr || null,
-        neighborhood: e.neighborhoods?.name_fr || null,
+        neighborhood: e.neighborhoods?.name || null,
         url: e.url || null,
         sort_order: e.sort_order ?? null,
         default_business_id: e.default_business_id || null,
