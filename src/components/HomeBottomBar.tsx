@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PanelSearchBar from "@/components/PanelSearchBar";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix } from "@/lib/localizedPath";
 import LocationPickerDialog from "@/components/LocationPickerDialog";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -16,6 +18,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
  */
 const HomeBottomBar = () => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
   const geo = useGeolocation();
   const [locationOpen, setLocationOpen] = useState(false);
   const [overlayOpen, setOverlayOpen] = useState(false);
@@ -47,10 +50,10 @@ const HomeBottomBar = () => {
           <PanelSearchBar
             onSearch={(params) => {
               const qs = new URLSearchParams(params).toString();
-              navigate(`/search?${qs}`);
+              navigate(withLangPrefix(`/search?${qs}`, language));
             }}
-            onBusinessSelect={(bizId) => navigate(`/search?openBusiness=${bizId}`)}
-            onAiClick={() => navigate("/search?tab=ai")}
+            onBusinessSelect={(bizId) => navigate(withLangPrefix(`/search?openBusiness=${bizId}`, language))}
+            onAiClick={() => navigate(withLangPrefix("/search?tab=ai", language))}
             onOverlayChange={setOverlayOpen}
             closeTrigger={closeTrigger}
             noToolbarOffset

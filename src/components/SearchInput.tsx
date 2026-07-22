@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix } from "@/lib/localizedPath";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
 import { usePopularSearches } from "@/hooks/usePopularSearches";
@@ -146,7 +147,7 @@ const SearchInput = ({
 
   const { toast } = useToast();
 
-  const go = useCallback((url: string) => (onNavigate ? onNavigate(url) : navigate(url)), [onNavigate, navigate]);
+  const go = useCallback((url: string) => (onNavigate ? onNavigate(url) : navigate(withLangPrefix(url, language))), [onNavigate, navigate, language]);
 
   // Internal voice search (used only when parent doesn't provide voiceControl)
   const internalVoice = useVoiceSearch({
