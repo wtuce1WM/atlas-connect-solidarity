@@ -537,11 +537,13 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       const allBusinesses: any[] = Array.isArray(sres?.businesses) ? sres.businesses : [];
       const total = typeof sres?.totalCount === "number" ? sres.totalCount : allBusinesses.length;
       if (!allBusinesses.length) {
-        return {
+        const empty = {
           results: [],
           total_count: 0,
           note: `Aucun établissement trouvé (query="${fullQuery}", city="${args.city || ""}"). Dis-le franchement à l'utilisateur et propose-lui une alternative (autre quartier, élargir la catégorie) au lieu d'inventer.`,
         };
+        cacheSet(cacheKey, empty);
+        return empty;
       }
 
       // ---- Hard server-side post-filter based on user intent ---------------
