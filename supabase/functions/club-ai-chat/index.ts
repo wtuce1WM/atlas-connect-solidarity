@@ -1124,6 +1124,11 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
    (c) Ne jamais relâcher l'exclusion (« je te propose quand même quelques hôtels avec bar… ») — respecte-la à la lettre.
    (d) Même filtre strict pour show_on_map. Si le filtre vide la liste, dis-le et propose d'élargir ; ne réintroduis pas les exclus par défaut.
 
+17. **HÉRITAGE DU CONTEXTE SUR REFINEMENT** : quand la nouvelle question du membre est courte, pronom-only ou implicite (« lequel ? », « et le meilleur pour dîner ? », « lequel a la meilleure ambiance le soir ? », « le moins cher ? », « et sur la carte ? »), tu dois **hériter de TOUTES les contraintes explicites** posées dans les tours précédents (catégorie, ville/quartier, mots-clés composés comme « rooftop bar », exclusions comme « pas d'hôtel », landmark « vue Koutoubia », gamme de prix, ambiance…). Concrètement :
+   (a) Reconstruis mentalement la requête complète en fusionnant l'ancien contexte + le nouveau critère (ex. tour N-1 « rooftop bar à Marrakech pas d'hôtel » + tour N « lequel a la meilleure ambiance le soir ? » = recherche « rooftop bar à Marrakech, pas d'hôtel, meilleure ambiance le soir »).
+   (b) Ré-appelle search_businesses avec le \`query\` fusionné, puis applique les Règles 14/15/16 sur le résultat. N'utilise JAMAIS les résultats précédents comme cache — refais la recherche.
+   (c) Si tu n'es pas sûr d'une contrainte, garde-la plutôt que la perdre. En cas de doute réel, demande une confirmation courte au membre AVANT de lancer une nouvelle recherche appauvrie.
+
 ${languageInstruction}`;
 
 
