@@ -737,10 +737,11 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
 
       let q = ctx.supabase
         .from("events")
-        .select("id,name,hook,description,start_date,end_date,recurrence,days_of_week,start_time,end_time,url,city_id,cities:city_id(name_fr),neighborhoods:neighborhood_id(name_fr)")
+        .select("id,name,hook,description,start_date,end_date,recurrence,days_of_week,start_time,end_time,url,city_id,default_business_id,images,videos,sort_order,logo_url,cities:city_id(name_fr),neighborhoods:neighborhood_id(name_fr)")
         .or(`and(start_date.gte.${from},start_date.lte.${to}),and(start_date.lte.${to},end_date.gte.${from}),recurrence.not.is.null`)
+        .order("sort_order", { ascending: true, nullsFirst: false })
         .order("start_date", { ascending: true, nullsFirst: false })
-        .limit(limit * 2);
+        .limit(limit * 3);
       if (eventIds) q = q.in("id", eventIds.slice(0, 500));
       if (args.query) {
         const qv = String(args.query).replace(/[,()"]/g, " ").trim();
@@ -767,6 +768,11 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         city: e.cities?.name_fr || null,
         neighborhood: e.neighborhoods?.name_fr || null,
         url: e.url || null,
+        sort_order: e.sort_order ?? null,
+        default_business_id: e.default_business_id || null,
+        images: Array.isArray(e.images) ? e.images.filter(Boolean) : [],
+        videos: Array.isArray(e.videos) ? e.videos.filter(Boolean) : [],
+        logo_url: e.logo_url || null,
       }));
       if (!results.length) return { results: [], note: `Aucun événement trouvé entre ${from} et ${to}${args.city ? ` à ${args.city}` : ""}.` };
       return { results, period: { from, to } };
