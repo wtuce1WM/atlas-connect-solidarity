@@ -864,7 +864,23 @@ const ClubAiAssistant = ({ userId }: Props) => {
                             ? children.map((c) => (typeof c === "string" ? c : "")).join("")
                             : (typeof children === "string" ? children : "");
                           const trimmed = text.trim();
-                          const isKnownBusiness = !!trimmed && nameToSlugRef.current.has(trimmed.toLowerCase());
+                          const norm = (s: string) => s.toLowerCase()
+                            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                            .replace(/^(le|la|les|l'|l’)\s+/i, "")
+                            .replace(/[^a-z0-9]+/g, " ")
+                            .trim();
+                          const nTrim = norm(trimmed);
+                          let isKnownBusiness = false;
+                          if (nTrim) {
+                            for (const key of nameToSlugRef.current.keys()) {
+                              const nKey = norm(key);
+                              if (!nKey) continue;
+                              if (nKey === nTrim || nKey.includes(nTrim) || nTrim.includes(nKey)) {
+                                isKnownBusiness = true;
+                                break;
+                              }
+                            }
+                          }
                           if (isKnownBusiness && trimmed.length <= 80) {
                             return (
                               <strong
