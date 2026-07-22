@@ -206,6 +206,54 @@ function extractStrongBusinessCandidates(markdown: string): string[] {
   return names;
 }
 
+type BusinessLookupRef = { id?: string | null; slug?: string | null; name: string };
+
+const BUSINESS_MATCH_STOP_WORDS = new Set([
+  "le", "la", "les", "l", "un", "une", "des", "du", "de", "d", "au", "aux", "et", "and", "the", "a",
+  "avec", "sur", "dans", "en", "of", "in", "with", "marrakech", "maroc", "morocco",
+]);
+
+function normalizeBusinessName(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[’‘`´]/g, "'")
+    .replace(/^(le|la|les|l'|l’|the)\s+/i, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function businessNameTokens(value: string): string[] {
+  return normalizeBusinessName(value)
+    .split(/\s+/)
+    .filter((token) => token.length > 1 && !BUSINESS_MATCH_STOP_WORDS.has(token));
+}
+
+function businessNameMatchScore(candidate: string, target: string): number {
+  const c = normalizeBusinessName(candidate);
+  const t = normalizeBusinessName(target);
+  if (!c || !t) return 0;
+  if (c === t) return 1;
+  if (c.includes(t) || t.includes(c)) {
+    const shortest = Math.min(c.length, t.length);
+    const longest = Math.max(c.length, t.length);
+    return 0.82 + Math.min(0.12, shortest / Math.max(longest, 1) / 8);
+  }
+
+  const cTokens = businessNameTokens(candidate);
+  const tTokens = businessNameTokens(target);
+  if (!cTokens.length || !tTokens.length) return 0;
+
+  const tSet = new Set(tTokens);
+  const common = cTokens.filter((token) => tSet.has(token)).length;
+  if (!common) return 0;
+
+  const candidateCoverage = common / cTokens.length;
+  const targetCoverage = common / tTokens.length;
+  return candidateCoverage * 0.65 + targetCoverage * 0.35;
+}
+
 
 type Msg = { role: "user" | "assistant"; content: string };
 
