@@ -703,6 +703,36 @@ const BlogArticleTemplate = ({
             );
           })}
 
+          {/* FAQ — rendered as expandable Q/A, emitted as FAQPage JSON-LD above */}
+          {faq && faq.length > 0 && (
+            <section className="py-16 bg-background" aria-label="Questions fréquentes">
+              <div className="container mx-auto px-4 max-w-3xl">
+                <p className="text-sm uppercase tracking-wider mb-2 text-primary">FAQ</p>
+                <h2 className="text-2xl md:text-4xl font-bold mb-8 font-['Playfair_Display'] italic leading-tight text-foreground">
+                  Questions fréquentes
+                </h2>
+                <div className="space-y-3">
+                  {faq.map((item, i) => (
+                    <details
+                      key={i}
+                      className="group rounded-lg border border-border bg-card px-5 py-4 open:shadow-sm transition-shadow"
+                    >
+                      <summary className="cursor-pointer list-none flex items-start justify-between gap-4 font-semibold text-foreground">
+                        <span>{item.q}</span>
+                        <span className="text-primary text-xl leading-none shrink-0 group-open:rotate-45 transition-transform">
+                          +
+                        </span>
+                      </summary>
+                      <p className="mt-3 text-foreground/80 leading-relaxed whitespace-pre-line">
+                        {item.a}
+                      </p>
+                    </details>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+
           {videoSection && videoSection.videos.length > 0 && (
             <section className="py-16 bg-background">
               <div className="container mx-auto px-4 max-w-6xl">
