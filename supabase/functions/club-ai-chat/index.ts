@@ -84,6 +84,33 @@ function isBookmarksIntent(text: string): boolean {
   return BOOKMARKS_INTENT_RE.test(n) && n.split(/\s+/).length <= 12;
 }
 
+// Intent : "parle-moi de X", "c'est quoi X", "raconte X", "présente X", "tell me about X"
+// Retourne le nom du business demandé, ou null si pas de match d'intent.
+const DETAILS_PATTERNS: RegExp[] = [
+  /^(?:parle|parles?)[-\s]+moi\s+(?:un\s+peu\s+)?(?:de|du|d[’'])\s+(.{2,80})\??\s*$/i,
+  /^raconte[-\s]+moi\s+(?:un\s+peu\s+)?(?:de|du|d[’'])?\s*(.{2,80})\??\s*$/i,
+  /^(?:pr[eé]sente|d[eé]cris|dis[- ]moi\s+tout\s+sur)\s+(.{2,80})\??\s*$/i,
+  /^(?:c['’]?est\s+quoi|qu['’]?est[-\s]?ce\s+que\s+c['’]?est|c['’]?est\s+qui)\s+(.{2,80})\??\s*$/i,
+  /^(?:tell\s+me\s+(?:more\s+)?about|what\s+is|who\s+is|describe)\s+(.{2,80})\??\s*$/i,
+];
+const DETAILS_STOPWORDS = /^(un|une|des|le|la|les|l['’]|a|an|the|this|that|it|ce|cette|ces|mon|ma|mes|ton|ta|tes|the|d[eu])$/i;
+function extractDetailsTarget(text: string): string | null {
+  const t = String(text || "").trim();
+  if (!t || t.length > 120) return null;
+  for (const re of DETAILS_PATTERNS) {
+    const m = t.match(re);
+    if (m && m[1]) {
+      let name = m[1].trim().replace(/[?.!,;:]+$/g, "").trim();
+      // Rejette si trop générique (pas un nom propre)
+      const words = name.split(/\s+/);
+      if (words.length === 1 && DETAILS_STOPWORDS.test(words[0])) return null;
+      if (name.length < 2) return null;
+      return name.slice(0, 80);
+    }
+  }
+  return null;
+}
+
 function formatEventDate(event: any): string {
   const fmt = (value?: string | null) => {
     if (!value) return "";
@@ -1565,6 +1592,92 @@ serve(async (req) => {
       }
     }
     // ============= FIN ROUTE BOOKMARKS =============
+
+    // ============= ROUTE DÉTERMINISTE : DETAILS BUSINESS =============
+    // "parle-moi de X" / "c'est quoi X" / "tell me about X" → fetch direct
+    // du business par fuzzy match sur name, synth courte streamée depuis le hook.
+    const detailsTarget = extractDetailsTarget(lastUserMsg);
+    if (detailsTarget) {
+      try {
+        const normTarget = normalizeLoose(detailsTarget);
+        const hookField = lang === "en" ? "hook_en" : lang === "ar" ? "hook_ar" : "hook_fr";
+        const descField = lang === "en" ? "description_en" : lang === "ar" ? "description_ar" : "description_fr";
+        // Match strict d'abord, puis élargi
+        const { data: exact } = await admin
+          .from("businesses")
+          .select(`id, slug, name, main_category, neighborhood, city, ${hookField}, ${descField}`)
+          .ilike("name", detailsTarget)
+          .limit(3);
+        let candidates: any[] = exact || [];
+        if (candidates.length === 0) {
+          const { data: fuzzy } = await admin
+            .from("businesses")
+            .select(`id, slug, name, main_category, neighborhood, city, ${hookField}, ${descField}`)
+            .ilike("name", `%${detailsTarget}%`)
+            .limit(10);
+          candidates = fuzzy || [];
+        }
+        // Sélectionne le meilleur match par distance de longueur au nom normalisé
+        let best: any = null;
+        let bestScore = Infinity;
+        for (const c of candidates) {
+          const cn = normalizeLoose(String(c.name || ""));
+          if (!cn) continue;
+          if (cn === normTarget) { best = c; break; }
+          if (cn.includes(normTarget) || normTarget.includes(cn)) {
+            const score = Math.abs(cn.length - normTarget.length);
+            if (score < bestScore) { bestScore = score; best = c; }
+          }
+        }
+        if (best && best.slug) {
+          const hook = String(best[hookField] || "").trim();
+          const desc = String(best[descField] || "").trim();
+          const summary = hook || desc.slice(0, 400);
+          const place = [best.neighborhood, best.city].filter(Boolean).join(", ");
+          const line1 = `**${best.name}**${best.main_category ? ` — ${best.main_category}` : ""}${place ? ` · ${place}` : ""}`;
+          let answer = summary
+            ? `${line1}\n\n${summary}`
+            : (lang === "en"
+                ? `${line1}\n\nI don't have a description on file yet. Open the fiche to see photos, reviews and details.`
+                : lang === "ar"
+                ? `${line1}\n\nلا يوجد وصف بعد. افتح البطاقة للاطلاع على الصور والتفاصيل.`
+                : `${line1}\n\nPas encore de description enregistrée. Ouvre la fiche pour voir photos, avis et détails.`);
+
+          const snapshot: PreviousSearchSnapshot = {
+            title: best.name,
+            slugs: [best.slug],
+            returnedCount: 1,
+            totalCount: 1,
+          };
+          const safeSnap = JSON.stringify(snapshot).replace(/-->/g, "--&gt;");
+          answer += `\n\n<!--SEARCH_RESULTS:${safeSnap}-->`;
+
+          const newMessages = [...messages, { role: "assistant", content: answer }];
+          let resultChatId: string | null = null;
+          if (chatId) {
+            const { data: existing } = await admin.from("ai_chats").select("id").eq("id", chatId).eq("user_id", user.id).maybeSingle();
+            if (existing?.id) {
+              await admin.from("ai_chats").update({ messages: newMessages, updated_at: new Date().toISOString() }).eq("id", chatId).eq("user_id", user.id);
+              resultChatId = chatId;
+            }
+          }
+          if (!resultChatId) {
+            const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title: lastUserMsg.slice(0, 200) || best.name, messages: newMessages }).select("id").single();
+            resultChatId = inserted?.id ?? null;
+          }
+          turnLog.route_taken = "details_shortcut";
+          turnLog.results_count = 1;
+          turnLog.results_shown = 1;
+          emit({ type: "chunk", delta: answer.split(/<!--/)[0] });
+          emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+          return;
+        }
+        console.log(`details route: no business match for "${detailsTarget}" → fallback`);
+      } catch (e) {
+        console.error("details route failed, falling back:", e);
+      }
+    }
+    // ============= FIN ROUTE DETAILS =============
 
     // ============= PHASE 1 : ROUTER DÉTERMINISTE =============
     // Court-circuite la boucle tool-calling du LLM pour les intentions pures
