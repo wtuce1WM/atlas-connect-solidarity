@@ -1429,6 +1429,7 @@ ${languageInstruction}`;
     let lastSearchNames: string[] = [];
     let lastSearchTitle: string | undefined;
     let lastSearchSnapshot: PreviousSearchSnapshot | null = null;
+    let lastEventsSnapshot: { title?: string; city?: string | null; events: any[] } | null = null;
     for (let i = 0; i < 4; i++) {
       const resp = await fetchAiGateway(GATEWAY_URL, {
         method: "POST",
