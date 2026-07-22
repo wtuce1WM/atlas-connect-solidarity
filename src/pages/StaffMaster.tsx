@@ -132,6 +132,10 @@ const StaffMaster = () => {
               <Sparkles className="h-4 w-4" />
               Usage IA
             </TabsTrigger>
+            <TabsTrigger value="ai-perf" className="gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Perf IA
+            </TabsTrigger>
             <TabsTrigger value="analytics" className="gap-2">
               <BarChart3 className="h-4 w-4" />
               Search Analytics
