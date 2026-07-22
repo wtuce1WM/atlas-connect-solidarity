@@ -766,7 +766,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         start_time: e.start_time,
         end_time: e.end_time,
         city: e.cities?.name_fr || null,
-        neighborhood: e.neighborhoods?.name_fr || null,
+        neighborhood: e.neighborhoods?.name || null,
         url: e.url || null,
         sort_order: e.sort_order ?? null,
         default_business_id: e.default_business_id || null,
