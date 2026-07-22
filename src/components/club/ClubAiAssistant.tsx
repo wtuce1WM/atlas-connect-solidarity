@@ -929,7 +929,10 @@ const ClubAiAssistant = ({ userId }: Props) => {
           try {
             const evt = JSON.parse(payload);
             if (evt.type === "chunk" && typeof evt.delta === "string") {
-              if (firstTokenAt == null) firstTokenAt = performance.now();
+              if (firstTokenAt == null) {
+                firstTokenAt = performance.now();
+                setStreaming(true);
+              }
               streamedText += evt.delta;
               const next = [...messagesRef.current];
               next[assistantIdx] = { role: "assistant", content: streamedText };
