@@ -1051,13 +1051,14 @@ const ClubAiAssistant = ({ userId }: Props) => {
               }
             }
             return (
-              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+              <div key={i} className={m.role === "user" ? "flex justify-end" : "flex flex-col items-start"}>
                 {m.role === "user" ? (
                   <div className="max-w-[80%] px-3 py-2 rounded-2xl bg-[#C04F17] text-white text-sm whitespace-pre-wrap">
                     {m.content}
                   </div>
                 ) : (
                   <div className="max-w-[88%] group w-full">
+
                     <div className="text-xs sm:text-base text-[#0a1d6b] leading-relaxed prose prose-sm sm:prose-base max-w-none prose-strong:text-[#C04F17] prose-a:text-[#C04F17] prose-a:underline">
 
                       <ReactMarkdown components={{
