@@ -204,6 +204,10 @@ const StaffMaster = () => {
             <AiUsageManagement />
           </TabsContent>
 
+          <TabsContent value="ai-perf">
+            <AiConversationPerf />
+          </TabsContent>
+
           <TabsContent value="analytics">
             <SearchAnalytics embedded />
           </TabsContent>
