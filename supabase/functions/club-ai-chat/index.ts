@@ -111,6 +111,56 @@ function extractDetailsTarget(text: string): string | null {
   return null;
 }
 
+// ---- Open-now filter (Africa/Casablanca) ----
+const DAY_KEYS = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+function nowInCasablanca(): { dayKey: string; minutes: number } {
+  const now = new Date();
+  const fmt = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Africa/Casablanca", weekday: "long", hour: "2-digit", minute: "2-digit", hour12: false,
+  });
+  const parts = fmt.formatToParts(now);
+  const wd = (parts.find(p => p.type === "weekday")?.value || "").toLowerCase();
+  const h = parseInt(parts.find(p => p.type === "hour")?.value || "0", 10);
+  const m = parseInt(parts.find(p => p.type === "minute")?.value || "0", 10);
+  return { dayKey: wd, minutes: h * 60 + m };
+}
+function parseHm(v: unknown): number | null {
+  const s = String(v || "").trim();
+  const m = s.match(/^(\d{1,2}):(\d{2})/);
+  if (!m) return null;
+  const h = parseInt(m[1], 10), mm = parseInt(m[2], 10);
+  if (!Number.isFinite(h) || !Number.isFinite(mm)) return null;
+  return h * 60 + mm;
+}
+function isOpenNow(business: { opening_hours?: any; is_open_24h?: boolean | null }): boolean | null {
+  if (business.is_open_24h) return true;
+  const oh = business.opening_hours;
+  if (!oh || typeof oh !== "object") return null; // unknown
+  const { dayKey, minutes } = nowInCasablanca();
+  const day = oh[dayKey];
+  if (!day || typeof day !== "object") return null;
+  if (day.closed === true) return false;
+  if (day.continuous === true) return true;
+  const inRange = (open: unknown, close: unknown): boolean => {
+    const o = parseHm(open), c = parseHm(close);
+    if (o == null || c == null) return false;
+    if (c > o) return minutes >= o && minutes < c;
+    // Overnight (ex: 20:00 → 02:00)
+    if (c < o) return minutes >= o || minutes < c;
+    return false;
+  };
+  if (inRange(day.open, day.close)) return true;
+  if (day.open2 && day.close2 && inRange(day.open2, day.close2)) return true;
+  return false;
+}
+
+// Intent : "ouvert maintenant / ouvert ce soir / lesquels sont ouverts / open now / open tonight"
+const OPEN_NOW_INTENT_RE = /\b(ouverts?\s+(maintenant|l[àa]|actuellement|ce\s+soir|ce\s+midi|encore|aujourd['’]?hui)|lesquels?\s+sont\s+ouverts?|qu['’]?est[-\s]?ce\s+qui\s+est\s+ouvert|open\s+(now|tonight|today|right\s+now)|which\s+(ones?\s+)?are\s+open|مفتوح\s+الآن)\b/i;
+function isOpenNowIntent(text: string): boolean {
+  const n = normalizeLoose(text);
+  return OPEN_NOW_INTENT_RE.test(n);
+}
+
 function formatEventDate(event: any): string {
   const fmt = (value?: string | null) => {
     if (!value) return "";
