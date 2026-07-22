@@ -1056,7 +1056,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
                   </div>
                 ) : (
                   <div className="max-w-[88%] group w-full">
-                    <div className="text-[#0a1d6b] text-sm prose prose-sm max-w-none prose-strong:text-[#C04F17] prose-a:text-[#C04F17] prose-a:underline">
+                    <div className="text-xs sm:text-base text-[#0a1d6b] leading-relaxed prose prose-sm sm:prose-base max-w-none prose-strong:text-[#C04F17] prose-a:text-[#C04F17] prose-a:underline">
+
                       <ReactMarkdown components={{
                         a: ({ href, children }) => {
                           const isBusinessLink = !!extractBusinessSlugFromHref(href);
