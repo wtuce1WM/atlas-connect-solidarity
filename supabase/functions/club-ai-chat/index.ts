@@ -1082,6 +1082,8 @@ serve(async (req) => {
               .from("ai_chats").insert({ user_id: user.id, kind: "club", title, messages: newMessages }).select("id").single();
             resultChatId = inserted?.id ?? null;
           }
+          turnLog.route_taken = "fixed_response";
+          turnLog.results_shown = 0;
           return new Response(JSON.stringify({ answer: fixedAnswer, chatId: resultChatId, followups: [] }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
