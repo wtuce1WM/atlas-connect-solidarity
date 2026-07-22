@@ -21,6 +21,7 @@ import AIConfigManagement from "@/components/staff/AIConfigManagement";
 import ClubAiSuggestionsManagement from "@/components/staff/ClubAiSuggestionsManagement";
 import ClubFollowupPromptEditor from "@/components/staff/ClubFollowupPromptEditor";
 import AiUsageManagement from "@/components/staff/AiUsageManagement";
+import AiConversationPerf from "@/components/staff/AiConversationPerf";
 import MasterDashboard from "@/components/staff/MasterDashboard";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import BlockedDomainsManagement from "@/components/staff/BlockedDomainsManagement";
@@ -131,6 +132,10 @@ const StaffMaster = () => {
               <Sparkles className="h-4 w-4" />
               Usage IA
             </TabsTrigger>
+            <TabsTrigger value="ai-perf" className="gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Perf IA
+            </TabsTrigger>
             <TabsTrigger value="analytics" className="gap-2">
               <BarChart3 className="h-4 w-4" />
               Search Analytics
@@ -197,6 +202,10 @@ const StaffMaster = () => {
 
           <TabsContent value="ai-usage">
             <AiUsageManagement />
+          </TabsContent>
+
+          <TabsContent value="ai-perf">
+            <AiConversationPerf />
           </TabsContent>
 
           <TabsContent value="analytics">

@@ -984,6 +984,34 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  // ============= Turn-level structured log =============
+  const turnStartMs = Date.now();
+  const turnLog: any = {
+    user_id: null,
+    affiliate_id: null,
+    chat_id: null,
+    user_message: null,
+    intent_classified: null,
+    route_taken: "unknown",
+    tools_called: [] as any[],
+    latency_ms_total: null,
+    latency_ms_first_token: null,
+    latency_ms_synth: null,
+    tokens_in: null,
+    tokens_out: null,
+    cost_usd: null,
+    city_active: null,
+    city_detected: null,
+    results_count: null,
+    results_shown: null,
+    had_error: false,
+    error_message: null,
+    stream_completed: true,
+    language: null,
+    message_index: null,
+  };
+  let adminForLog: any = null;
+
   try {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY missing");
@@ -994,15 +1022,24 @@ serve(async (req) => {
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const userClient = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
     const admin = createClient(supabaseUrl, serviceKey);
+    adminForLog = admin;
 
     const { data: { user } } = await userClient.auth.getUser();
     if (!user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
     const callerContext = await resolveCallerContext(admin, user.id);
+    turnLog.user_id = user.id;
+    turnLog.affiliate_id = callerContext.affiliateId || null;
 
     const { chatId, messages = [], clientContext = {}, language = "fr" }: { chatId?: string; messages: Msg[]; clientContext?: { activeCity?: string; localTime?: string; coords?: { lat: number; lng: number } }; language?: string } = await req.json();
     const lang = (language === "en" || language === "ar") ? language : "fr";
+    turnLog.chat_id = chatId || null;
+    turnLog.language = lang;
+    turnLog.city_active = clientContext?.activeCity ? String(clientContext.activeCity).slice(0, 100) : null;
+    turnLog.message_index = Array.isArray(messages) ? messages.length : null;
+    turnLog.user_message = String([...messages].reverse().find((m: any) => m.role === "user")?.content || "").slice(0, 500);
+
     const languageInstruction = lang === "en"
       ? "IMPORTANT: Always reply in English, regardless of the language of tool results or the system prompt language. Keep the same warm, concise tone."
       : lang === "ar"
@@ -1045,6 +1082,8 @@ serve(async (req) => {
               .from("ai_chats").insert({ user_id: user.id, kind: "club", title, messages: newMessages }).select("id").single();
             resultChatId = inserted?.id ?? null;
           }
+          turnLog.route_taken = "fixed_response";
+          turnLog.results_shown = 0;
           return new Response(JSON.stringify({ answer: fixedAnswer, chatId: resultChatId, followups: [] }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
@@ -1191,6 +1230,7 @@ serve(async (req) => {
           const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title, messages: newMessages }).select("id").single();
           resultChatId = inserted?.id ?? null;
         }
+        turnLog.route_taken = "agenda_shortcut";
         return new Response(JSON.stringify({ answer, chatId: resultChatId, followups: [] }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -1236,6 +1276,8 @@ serve(async (req) => {
             const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title: titleRow, messages: newMessages }).select("id").single();
             resultChatId = inserted?.id ?? null;
           }
+          turnLog.route_taken = "affirmative_map";
+          turnLog.results_shown = (forced as any).businesses.length;
           return new Response(JSON.stringify({ answer, chatId: resultChatId, followups: [] }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
@@ -1286,6 +1328,8 @@ serve(async (req) => {
             const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title: titleRow, messages: newMessages }).select("id").single();
             resultChatId = inserted?.id ?? null;
           }
+          turnLog.route_taken = "map_shortcut_fallback";
+          turnLog.results_shown = (forced as any).businesses.length;
           return new Response(JSON.stringify({ answer, chatId: resultChatId, followups: [] }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
@@ -1331,9 +1375,11 @@ serve(async (req) => {
       return s.length <= 40 && !/[,\d]/.test(s) ? s : undefined;
     };
     const activeCityClean = cleanActiveCity(clientContext.activeCity);
+    turnLog.city_detected = activeCityClean || null;
 
     const isMapTrigger = MAP_TRIGGER_RE.test(lastUserMsg || "");
     const routedIntent = classifyIntent(lastUserMsg, !!previousUserQuery);
+    turnLog.intent_classified = routedIntent;
     console.log("club-ai-chat router:", JSON.stringify({ intent: routedIntent, isMapTrigger, msg: lastUserMsg.slice(0, 100), hasPrev: !!previousUserQuery, activeCityRaw: clientContext.activeCity, activeCityClean }));
 
     if (!isMapTrigger && !affirmativeMapTrigger && (routedIntent === "search" || routedIntent === "refinement")) {
@@ -1429,6 +1475,11 @@ ${totalCount > shownCount ? "- Puis propose : « je peux les afficher tous sur l
             const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title, messages: newMessages }).select("id").single();
             resultChatId = inserted?.id ?? null;
           }
+          turnLog.route_taken = "router_direct";
+          turnLog.results_count = totalCount;
+          turnLog.results_shown = top.length;
+          turnLog.city_detected = search?.detected?.city || turnLog.city_detected;
+          turnLog.latency_ms_synth = Date.now() - turnStartMs;
           return new Response(JSON.stringify({ answer, chatId: resultChatId, followups: [] }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
@@ -1810,11 +1861,27 @@ The user will click ONE of these as a new turn and prior constraints must be re-
       console.error("followup gen error", e);
     }
 
+    if (turnLog.route_taken === "unknown") turnLog.route_taken = "tool_loop";
     return new Response(JSON.stringify({ answer: finalAnswer, chatId: resultChatId, followups }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
     console.error(e);
+    turnLog.had_error = true;
+    turnLog.error_message = String(e).slice(0, 500);
     return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  } finally {
+    try {
+      if (adminForLog) {
+        turnLog.latency_ms_total = Date.now() - turnStartMs;
+        // Fire-and-forget — never block the response on log persistence
+        adminForLog.from("ai_conversation_turns").insert(turnLog).then(
+          ({ error }: any) => { if (error) console.error("turnLog insert failed", error.message); },
+          (err: any) => console.error("turnLog insert threw", err)
+        );
+      }
+    } catch (logErr) {
+      console.error("turnLog finally block error", logErr);
+    }
   }
 });
