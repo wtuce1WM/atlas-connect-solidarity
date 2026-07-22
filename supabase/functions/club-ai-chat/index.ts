@@ -1482,6 +1482,29 @@ ${languageInstruction}`;
               totalCount: Number((result as any).total_count) || lastSearchSlugs.length,
             };
           }
+          if (tc.function?.name === "search_events" && Array.isArray((result as any)?.results) && (result as any).results.length) {
+            lastEventsSnapshot = {
+              title: args.query || args.city || undefined,
+              city: args.city || null,
+              events: (result as any).results.map((e: any) => ({
+                id: e.id,
+                name: e.name,
+                hook: e.hook || null,
+                start_date: e.start_date || null,
+                end_date: e.end_date || null,
+                days_of_week: e.days_of_week || null,
+                start_time: e.start_time || null,
+                end_time: e.end_time || null,
+                city: e.city || null,
+                neighborhood: e.neighborhood || null,
+                url: e.url || null,
+                default_business_id: e.default_business_id || null,
+                image: (Array.isArray(e.images) && e.images[0]) || e.logo_url || null,
+                video: (Array.isArray(e.videos) && e.videos[0]) || null,
+                sort_order: e.sort_order ?? null,
+              })),
+            };
+          }
           convo.push({ role: "tool", tool_call_id: tc.id, name: tc.function?.name, content: JSON.stringify(result) });
         }
         continue;
