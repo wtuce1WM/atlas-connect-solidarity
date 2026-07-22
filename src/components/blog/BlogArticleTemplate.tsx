@@ -62,6 +62,11 @@ export interface BlogArticleEntry {
   paragraphs: string[];
 }
 
+export interface BlogArticleFaqItem {
+  q: string;
+  a: string;
+}
+
 export interface BlogArticleTemplateProps {
   entries: BlogArticleEntry[];
   articlePath: string;
@@ -79,6 +84,10 @@ export interface BlogArticleTemplateProps {
   defaultOgImage?: string;
   customHeroImage?: string;
   videoSection?: BlogArticleVideoSection;
+  /** Short 2-3 sentence answer displayed above the intro, optimized for LLM extraction (ChatGPT, Perplexity, Google AI Overviews). */
+  tldr?: string;
+  /** FAQ items rendered at the bottom of the article and emitted as FAQPage JSON-LD. */
+  faq?: BlogArticleFaqItem[];
 }
 
 const DEFAULT_SITE_URL = "https://oneworldmorocco.com";
@@ -100,6 +109,8 @@ const BlogArticleTemplate = ({
   defaultOgImage,
   customHeroImage,
   videoSection,
+  tldr,
+  faq,
 }: BlogArticleTemplateProps) => {
   const navigate = useNavigate();
   const [businesses, setBusinesses] = useState<Record<string, BlogArticleBusiness>>({});
@@ -303,16 +314,13 @@ const BlogArticleTemplate = ({
     }
   };
 
-  useSEO({
-    title: articleTitle,
-    description: articleDescription,
-    canonical: articlePath,
-    ogImage: heroImage,
-    ogUrl: articlePath,
-    ogType: "article",
-    jsonLd: {
-      "@context": "https://schema.org",
+  // Build a @graph with BlogPosting + optional ItemList (listicle) + optional FAQPage.
+  // Google + LLM crawlers all understand @graph and pick the relevant node.
+  const pageId = `${siteUrl}${articlePath}`;
+  const graph: Array<Record<string, unknown>> = [
+    {
       "@type": "BlogPosting",
+      "@id": `${pageId}#article`,
       headline: articleTitle,
       description: articleDescription,
       image: [heroImage],
@@ -324,7 +332,52 @@ const BlogArticleTemplate = ({
         name: "ONE WORLD MOROCCO",
         logo: { "@type": "ImageObject", url: ogFallback },
       },
-      mainEntityOfPage: { "@type": "WebPage", "@id": `${siteUrl}${articlePath}` },
+      mainEntityOfPage: { "@type": "WebPage", "@id": pageId },
+    },
+  ];
+
+  const listedBusinesses = entries
+    .flatMap((e) => [e.id, ...(e.extraIds ?? [])])
+    .map((id) => businesses[id])
+    .filter((b): b is BlogArticleBusiness => !!b);
+
+  if (listedBusinesses.length > 0) {
+    graph.push({
+      "@type": "ItemList",
+      "@id": `${pageId}#list`,
+      itemListOrder: "https://schema.org/ItemListOrderDescending",
+      numberOfItems: listedBusinesses.length,
+      itemListElement: listedBusinesses.map((b, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        url: `${siteUrl}/b/${b.slug}`,
+        name: b.name,
+      })),
+    });
+  }
+
+  if (faq && faq.length > 0) {
+    graph.push({
+      "@type": "FAQPage",
+      "@id": `${pageId}#faq`,
+      mainEntity: faq.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    });
+  }
+
+  useSEO({
+    title: articleTitle,
+    description: tldr || articleDescription,
+    canonical: articlePath,
+    ogImage: heroImage,
+    ogUrl: articlePath,
+    ogType: "article",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@graph": graph,
     },
   });
 
@@ -425,12 +478,29 @@ const BlogArticleTemplate = ({
         </div>
       ) : (
         <>
+          {/* TL;DR — optimized for LLM extraction (ChatGPT / Perplexity / Google AI Overviews) */}
+          {tldr && (
+            <section className="pt-14 pb-4 bg-background" aria-label="Résumé">
+              <div className="container mx-auto px-4 max-w-3xl">
+                <div className="border-l-4 border-primary/70 bg-muted/40 rounded-r-lg px-5 py-4">
+                  <p className="text-xs uppercase tracking-[0.2em] text-primary font-semibold mb-1.5">
+                    En bref
+                  </p>
+                  <p className="text-foreground text-base md:text-lg leading-relaxed">
+                    {tldr}
+                  </p>
+                </div>
+              </div>
+            </section>
+          )}
+
           {/* Intro */}
-          <section className="py-14 bg-background">
+          <section className={`${tldr ? "pt-6 pb-14" : "py-14"} bg-background`}>
             <div className="container mx-auto px-4 max-w-3xl">
               <p className="text-foreground/80 text-lg leading-relaxed">{intro}</p>
             </div>
           </section>
+
 
           {/* Full-width map */}
           <section className="bg-background relative">
@@ -632,6 +702,36 @@ const BlogArticleTemplate = ({
               </section>
             );
           })}
+
+          {/* FAQ — rendered as expandable Q/A, emitted as FAQPage JSON-LD above */}
+          {faq && faq.length > 0 && (
+            <section className="py-16 bg-background" aria-label="Questions fréquentes">
+              <div className="container mx-auto px-4 max-w-3xl">
+                <p className="text-sm uppercase tracking-wider mb-2 text-primary">FAQ</p>
+                <h2 className="text-2xl md:text-4xl font-bold mb-8 font-['Playfair_Display'] italic leading-tight text-foreground">
+                  Questions fréquentes
+                </h2>
+                <div className="space-y-3">
+                  {faq.map((item, i) => (
+                    <details
+                      key={i}
+                      className="group rounded-lg border border-border bg-card px-5 py-4 open:shadow-sm transition-shadow"
+                    >
+                      <summary className="cursor-pointer list-none flex items-start justify-between gap-4 font-semibold text-foreground">
+                        <span>{item.q}</span>
+                        <span className="text-primary text-xl leading-none shrink-0 group-open:rotate-45 transition-transform">
+                          +
+                        </span>
+                      </summary>
+                      <p className="mt-3 text-foreground/80 leading-relaxed whitespace-pre-line">
+                        {item.a}
+                      </p>
+                    </details>
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
 
           {videoSection && videoSection.videos.length > 0 && (
             <section className="py-16 bg-background">

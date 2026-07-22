@@ -14,6 +14,7 @@ import AnimatedBusinessStrip from "@/components/AnimatedBusinessStrip";
 import BlogArticleTemplate, {
   type BlogArticleEntry,
   type BlogArticleVideo,
+  type BlogArticleFaqItem,
 } from "@/components/blog/BlogArticleTemplate";
 import {
   fetchBlogVideoSection,
@@ -56,6 +57,12 @@ interface BlogPostData {
   bookmark_slug: string | null;
   custom_hero_image_url: string | null;
   video_section_config: BlogVideoSectionConfig | null;
+  tldr_fr: string | null;
+  tldr_en: string | null;
+  tldr_ar: string | null;
+  faq_fr: BlogArticleFaqItem[] | null;
+  faq_en: BlogArticleFaqItem[] | null;
+  faq_ar: BlogArticleFaqItem[] | null;
 }
 
 const BlogPost = () => {
@@ -159,6 +166,9 @@ const BlogPost = () => {
       post.video_section_config && videos.length > 0
         ? { title: videoCopy.title, intro: videoCopy.intro, videos }
         : undefined;
+    const tldr = pickLang(post.tldr_fr ?? "", post.tldr_en, post.tldr_ar) || undefined;
+    const faqRaw = pickLang(post.faq_fr, post.faq_en, post.faq_ar);
+    const faq = Array.isArray(faqRaw) && faqRaw.length > 0 ? faqRaw : undefined;
     return (
       <BlogArticleTemplate
         entries={entries}
@@ -175,6 +185,8 @@ const BlogPost = () => {
         dateModified={post.updated_at ?? undefined}
         customHeroImage={post.custom_hero_image_url ?? undefined}
         videoSection={videoSection}
+        tldr={tldr}
+        faq={faq}
       />
     );
   }
