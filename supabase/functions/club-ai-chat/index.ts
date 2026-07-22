@@ -780,10 +780,12 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       const { data, error } = await q;
       if (error) { console.error("search_events error", error); return { results: [], error: error.message }; }
       let results = data || [];
-      if (args.city) {
-        const cv = String(args.city).toLowerCase();
-        results = results.filter((e: any) => (e.cities?.name_fr || "").toLowerCase().includes(cv));
+      const requestedCity = extractMoroccoCity(args.city);
+      if (requestedCity) {
+        const cv = normalizeLoose(requestedCity);
+        results = results.filter((e: any) => normalizeLoose(e.cities?.name_fr || "").includes(cv));
       }
+      const totalCount = results.length;
       results = results.slice(0, limit).map((e: any) => ({
         id: e.id,
         name: e.name,
@@ -804,8 +806,8 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         videos: Array.isArray(e.videos) ? e.videos.filter(Boolean) : [],
         logo_url: e.logo_url || null,
       }));
-      if (!results.length) return { results: [], note: `Aucun événement trouvé entre ${from} et ${to}${args.city ? ` à ${args.city}` : ""}.` };
-      return { results, period: { from, to } };
+      if (!results.length) return { results: [], returned_count: 0, total_count: 0, period: { from, to }, note: `Aucun événement trouvé entre ${from} et ${to}${requestedCity ? ` à ${requestedCity}` : ""}.` };
+      return { results, returned_count: results.length, total_count: totalCount, period: { from, to }, city: requestedCity || null };
     }
     if (name === "get_my_trips") {
       const limit = Math.min(Number(args.limit) || 6, 10);
