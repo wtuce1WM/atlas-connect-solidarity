@@ -147,7 +147,7 @@ const SearchInput = ({
 
   const { toast } = useToast();
 
-  const go = useCallback((url: string) => (onNavigate ? onNavigate(url) : navigate(url)), [onNavigate, navigate]);
+  const go = useCallback((url: string) => (onNavigate ? onNavigate(url) : navigate(withLangPrefix(url, language))), [onNavigate, navigate, language]);
 
   // Internal voice search (used only when parent doesn't provide voiceControl)
   const internalVoice = useVoiceSearch({
