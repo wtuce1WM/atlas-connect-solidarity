@@ -605,11 +605,23 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       return {
         results,
         returned_count: results.length,
-        total_count: total,
-        has_more: total > results.length,
-        map_slugs: allBusinesses.map((b: any) => b.slug).filter(Boolean).slice(0, SEARCH_RESULT_LIMIT),
-        map_count: Math.min(allBusinesses.length, SEARCH_RESULT_LIMIT),
+        total_count: strictFilterApplied ? filtered.length : total,
+        total_before_filter: total,
+        strict_filter_applied: strictFilterApplied,
+        strict_filter_reason: strictFilterApplied
+          ? [
+              excludeHotel ? "exclusion:hôtellerie" : null,
+              requiresBar ? "requis:bar" : null,
+              ...requiredLandmarks.map((l) => `vue:${l.label}`),
+            ].filter(Boolean).join(" · ")
+          : null,
+        has_more: (strictFilterApplied ? filtered.length : total) > results.length,
+        map_slugs: effectiveList.map((b: any) => b.slug).filter(Boolean).slice(0, SEARCH_RESULT_LIMIT),
+        map_count: Math.min(effectiveList.length, SEARCH_RESULT_LIMIT),
         answer_guidance:
+          (strictFilterApplied
+            ? `IMPORTANT — un filtre strict serveur a déjà retiré ${droppedCount} établissement(s) qui ne remplissent pas les conditions (${excludeHotel ? "exclusion hôtel " : ""}${requiresBar ? "· doit avoir un bar " : ""}${requiredLandmarks.length ? "· vue prouvée sur " + requiredLandmarks.map((l) => l.label).join(", ") : ""}). Utilise total_count = ${filtered.length} et NE réintroduis JAMAIS les résultats retirés. `
+            : "") +
           "Dans le texte visible, cite 3 à 5 établissements maximum. La ligne 'N résultats affichés sur M trouvés' doit utiliser N = nombre de noms que tu listes réellement dans ton texte, pas returned_count. Les slugs complets pour la carte sont dans map_slugs.",
         detected: {
           city: sres?.detectedCity || null,
@@ -620,6 +632,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         },
       };
     }
+
     if (name === "get_business_details") {
       const { data, error } = await ctx.supabase
         .from("businesses")
