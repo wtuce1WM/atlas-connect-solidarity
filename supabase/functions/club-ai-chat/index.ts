@@ -1168,6 +1168,134 @@ serve(async (req) => {
       }
     }
 
+    // ============= PHASE 1 : ROUTER DÉTERMINISTE =============
+    // Court-circuite la boucle tool-calling du LLM pour les intentions pures
+    // "search" et "refinement". Le LLM n'est utilisé QUE pour une synthèse
+    // éditoriale courte (~1 appel, ~600 tokens max).
+    // Objectif : cohérence stricte avec /search + coût divisé, latence réduite.
+    const classifyIntent = (text: string, hasPrev: boolean): "search" | "refinement" | "conversation" => {
+      const t = String(text || "").trim();
+      if (!t) return "conversation";
+      const wc = t.split(/\s+/).length;
+      const norm = t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const refinementStart = /^(et\b|plus\b|avec\b|sans\b|mais\b|lequel|laquelle|lesquels|celui|celle|ceux|celles|le\s+meilleur|le\s+plus|dans\s+la\s|dans\s+le\s|the\s+best|which|and\b|but\b|with\b|without\b)/i;
+      const looksLikeSearch = /(h[oô]tel|riad|restaurant|\bbar\b|rooftop|spa|hammam|piscine|plage|beach|caf[eé]|club|golf|shopping|boutique|guide|activit[eé]|excursion|randonn[eé]e|hike|tour|visite|mus[eé]e|marche|souk|voyage|s[eé]jour|week[- ]?end|montagne|desert|dune|surf|yoga|massage|cocktail|d[iî]ner|manger|dormir|boire|petit[- ]?d[eé]jeuner|brunch|marrakech|essaouira|casablanca|gu[eé]liz|palmeraie|m[eé]dina|hivernage|agdal|kasbah|ourika)/i;
+      const searchVerbs = /(cherche|trouve|recommande|propose|montre|liste|donne|conseille|find|show|recommend|list|need|want)/i;
+
+      if (hasPrev && (wc <= 6 || refinementStart.test(norm))) return "refinement";
+      if (looksLikeSearch.test(norm)) return "search";
+      if (searchVerbs.test(norm) && wc >= 3) return "search";
+      return "conversation";
+    };
+
+    const isMapTrigger = MAP_TRIGGER_RE.test(lastUserMsg || "");
+    const routedIntent = classifyIntent(lastUserMsg, !!previousUserQuery);
+    console.log("club-ai-chat router:", JSON.stringify({ intent: routedIntent, isMapTrigger, msg: lastUserMsg.slice(0, 100), hasPrev: !!previousUserQuery }));
+
+    if (!isMapTrigger && (routedIntent === "search" || routedIntent === "refinement")) {
+      try {
+        const fusedQuery = routedIntent === "refinement" && previousUserQuery
+          ? `${previousUserQuery} ${lastUserMsg}`.replace(/\s+/g, " ").slice(0, 400)
+          : lastUserMsg;
+
+        const routerCtx = { userId: user.id, supabase: admin, lastUserMessage: fusedQuery, language: lang, forceQuery: fusedQuery };
+        const search = await runTool("search_businesses", { query: fusedQuery, limit: 30, city: clientContext.activeCity || undefined }, routerCtx) as any;
+        const results: any[] = Array.isArray(search?.results) ? search.results : [];
+        const totalCount = Number(search?.total_count) || results.length;
+        console.log("router direct search:", JSON.stringify({ intent: routedIntent, fusedQuery: fusedQuery.slice(0, 120), returned: results.length, total: totalCount, strict: !!search?.strict_filter_applied }));
+
+        if (results.length >= 1) {
+          const top = results.slice(0, 5);
+          const hookField = lang === "en" ? "hook_en" : lang === "ar" ? "hook_ar" : "hook_fr";
+          const listBlock = top.map((r: any, i: number) =>
+            `${i + 1}. ${r.name} — ${r.main_category || "?"}${r.neighborhood ? `, ${r.neighborhood}` : ""}${r.city ? `, ${r.city}` : ""}${r[hookField] ? ` · ${String(r[hookField]).slice(0, 160)}` : ""}`
+          ).join("\n");
+
+          const synthSystem = lang === "en"
+            ? "You write a short warm intro (1-2 sentences) then list the businesses in bold with one short line each from the provided hook. Never invent details. Do not add addresses, prices or hours."
+            : lang === "ar"
+            ? "اكتب مقدمة قصيرة ودافئة (جملة أو جملتان) ثم اذكر المؤسسات بخط عريض مع سطر قصير لكل منها من الوصف المقدم. لا تخترع أي تفاصيل."
+            : "Écris une intro courte et chaleureuse (1-2 phrases) puis liste les établissements en **gras** avec une courte ligne issue du hook fourni. N'invente jamais adresses, prix, horaires ou détails absents.";
+
+          const shownCount = top.length;
+          const filterLine = search?.strict_filter_applied ? `\nFiltre strict appliqué côté serveur : ${search.strict_filter_reason}. Ne mentionne PAS d'établissement absent de la liste ci-dessus.` : "";
+          const refineNote = routedIntent === "refinement" ? ` (raffinement de : "${previousUserQuery}")` : "";
+          const synthUser = `Requête du membre : "${lastUserMsg}"${refineNote}
+
+Établissements sélectionnés (${totalCount} au total, ${shownCount} présentés) :
+${listBlock}${filterLine}
+
+Consignes :
+- 1 phrase d'intro chaleureuse en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}.
+- Liste chaque établissement : **Nom** puis une ligne courte tirée du hook.
+- Termine EXACTEMENT par cette ligne : **${shownCount} résultats affichés sur ${totalCount} trouvés**
+${totalCount > shownCount ? "- Puis propose : « je peux les afficher tous sur la carte »." : ""}`;
+
+          let answer = "";
+          try {
+            const synth = await fetchAiGateway(GATEWAY_URL, {
+              method: "POST",
+              headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+              body: JSON.stringify({
+                model: FALLBACK_MODEL,
+                messages: [{ role: "system", content: synthSystem }, { role: "user", content: synthUser }],
+                temperature: 0.5,
+                max_tokens: 700,
+              }),
+            }, {
+              supabase: admin,
+              userId: callerContext.userId,
+              affiliateId: callerContext.affiliateId,
+              chatId: chatId || null,
+              context: "club-ai-chat-router-synth",
+              model: FALLBACK_MODEL,
+              metadata: { intent: routedIntent, active_city: clientContext?.activeCity || null, total: totalCount },
+            });
+            if (synth.ok) {
+              const sd = await synth.json();
+              answer = (sd.choices?.[0]?.message?.content || "").trim();
+            }
+          } catch (e) { console.error("router synth error", e); }
+
+          if (!answer) {
+            answer = `Voici une sélection :\n\n${top.map((r: any) => `- **${r.name}**${r.neighborhood ? ` — ${r.neighborhood}` : ""}${r[hookField] ? ` · ${String(r[hookField]).slice(0, 140)}` : ""}`).join("\n")}\n\n**${shownCount} résultats affichés sur ${totalCount} trouvés**`;
+          }
+
+          const snapshot: PreviousSearchSnapshot = {
+            title: fusedQuery.slice(0, 120),
+            slugs: results.map((r: any) => r.slug).filter(Boolean),
+            returnedCount: results.length,
+            totalCount,
+          };
+          const safeSnap = JSON.stringify(snapshot).replace(/-->/g, "--&gt;");
+          answer = correctVisibleResultCount(answer, top.map((r: any) => r.name)) + `\n\n<!--SEARCH_RESULTS:${safeSnap}-->`;
+
+          const newMessages = [...messages, { role: "assistant", content: answer }];
+          let resultChatId: string | null = null;
+          if (chatId) {
+            const { data: existing } = await admin.from("ai_chats").select("id").eq("id", chatId).eq("user_id", user.id).maybeSingle();
+            if (existing?.id) {
+              await admin.from("ai_chats").update({ messages: newMessages, updated_at: new Date().toISOString() }).eq("id", chatId).eq("user_id", user.id);
+              resultChatId = chatId;
+            }
+          }
+          if (!resultChatId) {
+            const title = lastUserMsg.slice(0, 200) || "Nouvelle conversation";
+            const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title, messages: newMessages }).select("id").single();
+            resultChatId = inserted?.id ?? null;
+          }
+          return new Response(JSON.stringify({ answer, chatId: resultChatId, followups: [] }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        console.log("router direct search returned 0 → fallback to LLM tool loop");
+      } catch (e) {
+        console.error("router direct search error, falling back to LLM:", e);
+      }
+    }
+    // ============= FIN PHASE 1 ROUTER =============
+
+
     let prefetchBlock = "";
     try {
       const q = String(lastUserMsg).trim().slice(0, 200);
