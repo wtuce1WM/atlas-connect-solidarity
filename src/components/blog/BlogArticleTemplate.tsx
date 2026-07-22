@@ -16,6 +16,7 @@ import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { withLangPrefix } from "@/lib/localizedPath";
+import { mapLabel } from "@/lib/mapLabels";
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
