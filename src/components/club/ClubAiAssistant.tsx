@@ -528,6 +528,42 @@ const ClubAiAssistant = ({ userId }: Props) => {
     }
   };
 
+  // Vertical swipe navigation between AI-cited businesses (mirrors SearchPage).
+  // Swipe up = next, swipe down = previous. Started from the top 80px only
+  // (header zone) to avoid hijacking content scroll inside the panel.
+  const swipeStartYRef = useRef<number | null>(null);
+  const swipeActiveRef = useRef(false);
+  const [swipeOffsetY, setSwipeOffsetY] = useState(0);
+  const onPanelTouchStart = useCallback((e: React.TouchEvent) => {
+    if (document.body.dataset.slidepanelOverlayOpen === "1") return;
+    const t = e.touches[0];
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    if (t.clientY - rect.top > 80) return;
+    swipeStartYRef.current = t.clientY;
+    swipeActiveRef.current = true;
+  }, []);
+  const onPanelTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!swipeActiveRef.current || swipeStartYRef.current == null) return;
+    if (document.body.dataset.slidepanelOverlayOpen === "1") {
+      swipeActiveRef.current = false;
+      swipeStartYRef.current = null;
+      setSwipeOffsetY(0);
+      return;
+    }
+    const dy = e.touches[0].clientY - swipeStartYRef.current;
+    setSwipeOffsetY(dy);
+  }, []);
+  const onPanelTouchEnd = useCallback(() => {
+    if (!swipeActiveRef.current) return;
+    const dy = swipeOffsetY;
+    swipeActiveRef.current = false;
+    swipeStartYRef.current = null;
+    setSwipeOffsetY(0);
+    if (Math.abs(dy) < 120) return;
+    if (dy < 0 && hasNextBusiness) goNextBusiness();
+    else if (dy > 0 && hasPrevBusiness) goPrevBusiness();
+  }, [swipeOffsetY, hasNextBusiness, hasPrevBusiness]);
+
   const closeBusinessPanel = () => {
     setIsBusinessPanelClosing(true);
     window.setTimeout(() => {
