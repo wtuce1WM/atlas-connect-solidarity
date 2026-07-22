@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { withLangPrefix } from "@/lib/localizedPath";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { useSearchSuggestions } from "@/hooks/useSearchSuggestions";
 import { usePopularSearches } from "@/hooks/usePopularSearches";
