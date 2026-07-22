@@ -1470,6 +1470,102 @@ serve(async (req) => {
       }
     }
 
+    // ============= ROUTE DÉTERMINISTE : BOOKMARKS =============
+    // "mes favoris" / "mes bookmarks" → query directe user_bookmarks, zéro LLM.
+    if (isBookmarksIntent(lastUserMsg)) {
+      try {
+        const { data: bks } = await admin
+          .from("bookmarks")
+          .select("business_id, created_at")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(SEARCH_RESULT_LIMIT);
+        const ids = (bks || []).map((b: any) => b.business_id).filter(Boolean);
+        if (ids.length === 0) {
+          const empty = lang === "en"
+            ? "You haven't bookmarked any place yet. Tap the bookmark icon on any business to save it here."
+            : lang === "ar"
+            ? "لم تقم بحفظ أي مكان بعد. اضغط على أيقونة الحفظ في أي مؤسسة لإضافتها هنا."
+            : "Tu n'as encore aucun favori. Clique sur l'icône marque-page d'un établissement pour l'ajouter ici.";
+          const newMessages = [...messages, { role: "assistant", content: empty }];
+          let resultChatId: string | null = null;
+          if (chatId) {
+            const { data: existing } = await admin.from("ai_chats").select("id").eq("id", chatId).eq("user_id", user.id).maybeSingle();
+            if (existing?.id) {
+              await admin.from("ai_chats").update({ messages: newMessages, updated_at: new Date().toISOString() }).eq("id", chatId).eq("user_id", user.id);
+              resultChatId = chatId;
+            }
+          }
+          if (!resultChatId) {
+            const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title: lastUserMsg.slice(0, 200) || "Favoris", messages: newMessages }).select("id").single();
+            resultChatId = inserted?.id ?? null;
+          }
+          turnLog.route_taken = "bookmarks_shortcut";
+          turnLog.results_shown = 0;
+          emit({ type: "chunk", delta: empty });
+          emit({ type: "done", answer: empty, chatId: resultChatId, followups: [] });
+          return;
+        }
+
+        const hookField = lang === "en" ? "hook_en" : lang === "ar" ? "hook_ar" : "hook_fr";
+        const { data: bizRows } = await admin
+          .from("businesses")
+          .select(`id, slug, name, main_category, neighborhood, city, ${hookField}`)
+          .in("id", ids);
+        // Preserve bookmark order (most recent first)
+        const bizById = new Map((bizRows || []).map((b: any) => [b.id, b]));
+        const ordered = ids.map((id: string) => bizById.get(id)).filter(Boolean);
+
+        const shown = ordered.slice(0, 5);
+        const totalCount = ordered.length;
+        const header = lang === "en" ? "Your bookmarks" : lang === "ar" ? "قائمة المفضلة" : "Tes favoris";
+        const lines = shown.map((r: any) =>
+          `- **${r.name}**${r.main_category ? ` — ${r.main_category}` : ""}${r.neighborhood ? `, ${r.neighborhood}` : ""}${r.city ? `, ${r.city}` : ""}${r[hookField] ? ` · ${String(r[hookField]).slice(0, 140)}` : ""}`
+        ).join("\n");
+        const shownLine = lang === "en"
+          ? `**${shown.length} of ${totalCount} bookmarks shown**`
+          : lang === "ar"
+          ? `**${shown.length} من ${totalCount} من المفضلة معروضة**`
+          : `**${shown.length} favoris affichés sur ${totalCount}**`;
+        const mapProposal = totalCount >= 2
+          ? (lang === "en" ? "\n\nWant me to show them on a map?" : lang === "ar" ? "\n\nهل تريد أن أعرضها على الخريطة؟" : "\n\nJe peux les afficher sur une carte si tu veux.")
+          : "";
+        let answer = `**${header}**\n\n${lines}\n\n${shownLine}${mapProposal}`;
+
+        const snapshot: PreviousSearchSnapshot = {
+          title: header,
+          slugs: ordered.map((r: any) => r.slug).filter(Boolean),
+          returnedCount: ordered.length,
+          totalCount,
+        };
+        const safeSnap = JSON.stringify(snapshot).replace(/-->/g, "--&gt;");
+        answer += `\n\n<!--SEARCH_RESULTS:${safeSnap}-->`;
+
+        const newMessages = [...messages, { role: "assistant", content: answer }];
+        let resultChatId: string | null = null;
+        if (chatId) {
+          const { data: existing } = await admin.from("ai_chats").select("id").eq("id", chatId).eq("user_id", user.id).maybeSingle();
+          if (existing?.id) {
+            await admin.from("ai_chats").update({ messages: newMessages, updated_at: new Date().toISOString() }).eq("id", chatId).eq("user_id", user.id);
+            resultChatId = chatId;
+          }
+        }
+        if (!resultChatId) {
+          const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title: lastUserMsg.slice(0, 200) || "Favoris", messages: newMessages }).select("id").single();
+          resultChatId = inserted?.id ?? null;
+        }
+        turnLog.route_taken = "bookmarks_shortcut";
+        turnLog.results_count = totalCount;
+        turnLog.results_shown = shown.length;
+        emit({ type: "chunk", delta: answer.split(/<!--/)[0] });
+        emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+        return;
+      } catch (e) {
+        console.error("bookmarks route failed, falling back:", e);
+      }
+    }
+    // ============= FIN ROUTE BOOKMARKS =============
+
     // ============= PHASE 1 : ROUTER DÉTERMINISTE =============
     // Court-circuite la boucle tool-calling du LLM pour les intentions pures
     // "search" et "refinement". Le LLM n'est utilisé QUE pour une synthèse
