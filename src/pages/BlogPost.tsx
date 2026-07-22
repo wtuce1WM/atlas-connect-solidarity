@@ -166,6 +166,9 @@ const BlogPost = () => {
       post.video_section_config && videos.length > 0
         ? { title: videoCopy.title, intro: videoCopy.intro, videos }
         : undefined;
+    const tldr = pickLang(post.tldr_fr ?? "", post.tldr_en, post.tldr_ar) || undefined;
+    const faqRaw = pickLang(post.faq_fr, post.faq_en, post.faq_ar);
+    const faq = Array.isArray(faqRaw) && faqRaw.length > 0 ? faqRaw : undefined;
     return (
       <BlogArticleTemplate
         entries={entries}
@@ -182,6 +185,8 @@ const BlogPost = () => {
         dateModified={post.updated_at ?? undefined}
         customHeroImage={post.custom_hero_image_url ?? undefined}
         videoSection={videoSection}
+        tldr={tldr}
+        faq={faq}
       />
     );
   }
