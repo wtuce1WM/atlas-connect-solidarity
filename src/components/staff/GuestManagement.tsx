@@ -88,7 +88,32 @@ const GuestManagement = () => {
     fetchPersonas();
   }, []);
 
-  const fetchMembers = async () => {
+  useEffect(() => {
+    fetchAiUsage(aiRange);
+  }, [aiRange]);
+
+  const fetchAiUsage = async (range: "30d" | "all") => {
+    const since = range === "30d"
+      ? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+      : null;
+    const { data, error } = await supabase.rpc("get_club_ai_usage_by_user", { p_since: since });
+    if (error) {
+      console.error("[AI usage] load error", error);
+      return;
+    }
+    const map: Record<string, AiUsageAgg> = {};
+    ((data as any[]) || []).forEach((r) => {
+      if (r.user_id) {
+        map[r.user_id] = {
+          event_count: Number(r.event_count) || 0,
+          total_tokens: Number(r.total_tokens) || 0,
+          total_cost_usd: Number(r.total_cost_usd) || 0,
+          last_used_at: r.last_used_at,
+        };
+      }
+    });
+    setAiUsageByUser(map);
+  };
     setLoading(true);
     const { data, error } = await supabase.rpc("get_club_members_with_last_sign_in");
     if (error) {
