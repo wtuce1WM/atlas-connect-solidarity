@@ -19,6 +19,7 @@ import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement"
 import EasterEggManagement from "@/components/staff/EasterEggManagement";
 import AIConfigManagement from "@/components/staff/AIConfigManagement";
 import ClubAiSuggestionsManagement from "@/components/staff/ClubAiSuggestionsManagement";
+import ClubFollowupPromptEditor from "@/components/staff/ClubFollowupPromptEditor";
 import AiUsageManagement from "@/components/staff/AiUsageManagement";
 import MasterDashboard from "@/components/staff/MasterDashboard";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
