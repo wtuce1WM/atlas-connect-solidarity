@@ -12,6 +12,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlidePanel";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import EventsSlidePanel from "@/components/club/EventsSlidePanel";
+import VideoThumbnail from "@/components/VideoThumbnail";
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
 const AT = {
@@ -1239,6 +1240,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
                                   <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-[#C04F17]/10 border border-[#C04F17]/20">
                                     {ev.image ? (
                                       <img src={ev.image} alt={ev.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform group-hover/evthumb:scale-105" />
+                                    ) : ev.video ? (
+                                      <VideoThumbnail src={ev.video} alt={ev.name} className="absolute inset-0 h-full w-full object-cover transition-transform group-hover/evthumb:scale-105" />
                                     ) : (
                                       <div className="absolute inset-0 flex items-center justify-center"><CalendarIcon className="h-6 w-6 text-[#C04F17]" /></div>
                                     )}

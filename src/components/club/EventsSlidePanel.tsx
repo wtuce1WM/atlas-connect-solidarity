@@ -77,6 +77,8 @@ const EventsSlidePanel = ({ open, onClose, items, initialIndex = 0, onOpenBusine
   if (!open || !items.length) return null;
   const ev = items[index];
   const media = ev.image || null;
+  const videoSrc = ev.video || null;
+  const isFileVideo = !!videoSrc && !/youtube\.com|youtu\.be|vimeo\.com/i.test(videoSrc);
 
   return (
     <div
@@ -103,7 +105,18 @@ const EventsSlidePanel = ({ open, onClose, items, initialIndex = 0, onOpenBusine
           className="absolute inset-0 transition-transform duration-200"
           style={{ transform: offsetY ? `translateY(${offsetY}px)` : undefined }}
         >
-          {media ? (
+          {isFileVideo ? (
+            <video
+              key={videoSrc!}
+              src={videoSrc!}
+              className="absolute inset-0 h-full w-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster={media || undefined}
+            />
+          ) : media ? (
             <img src={media} alt={ev.name} className="absolute inset-0 h-full w-full object-cover" />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-[#C04F17]/40 to-[#0a1d6b]/60 flex items-center justify-center">
