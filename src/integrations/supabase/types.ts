@@ -303,6 +303,93 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_conversation_turns: {
+        Row: {
+          affiliate_id: string | null
+          chat_id: string | null
+          city_active: string | null
+          city_detected: string | null
+          cost_usd: number | null
+          created_at: string
+          error_message: string | null
+          feedback_comment: string | null
+          feedback_score: number | null
+          had_error: boolean | null
+          id: string
+          intent_classified: string | null
+          language: string | null
+          latency_ms_first_token: number | null
+          latency_ms_synth: number | null
+          latency_ms_total: number | null
+          message_index: number | null
+          results_count: number | null
+          results_shown: number | null
+          route_taken: string | null
+          stream_completed: boolean | null
+          tokens_in: number | null
+          tokens_out: number | null
+          tools_called: Json | null
+          user_id: string | null
+          user_message: string | null
+        }
+        Insert: {
+          affiliate_id?: string | null
+          chat_id?: string | null
+          city_active?: string | null
+          city_detected?: string | null
+          cost_usd?: number | null
+          created_at?: string
+          error_message?: string | null
+          feedback_comment?: string | null
+          feedback_score?: number | null
+          had_error?: boolean | null
+          id?: string
+          intent_classified?: string | null
+          language?: string | null
+          latency_ms_first_token?: number | null
+          latency_ms_synth?: number | null
+          latency_ms_total?: number | null
+          message_index?: number | null
+          results_count?: number | null
+          results_shown?: number | null
+          route_taken?: string | null
+          stream_completed?: boolean | null
+          tokens_in?: number | null
+          tokens_out?: number | null
+          tools_called?: Json | null
+          user_id?: string | null
+          user_message?: string | null
+        }
+        Update: {
+          affiliate_id?: string | null
+          chat_id?: string | null
+          city_active?: string | null
+          city_detected?: string | null
+          cost_usd?: number | null
+          created_at?: string
+          error_message?: string | null
+          feedback_comment?: string | null
+          feedback_score?: number | null
+          had_error?: boolean | null
+          id?: string
+          intent_classified?: string | null
+          language?: string | null
+          latency_ms_first_token?: number | null
+          latency_ms_synth?: number | null
+          latency_ms_total?: number | null
+          message_index?: number | null
+          results_count?: number | null
+          results_shown?: number | null
+          route_taken?: string | null
+          stream_completed?: boolean | null
+          tokens_in?: number | null
+          tokens_out?: number | null
+          tools_called?: Json | null
+          user_id?: string | null
+          user_message?: string | null
+        }
+        Relationships: []
+      }
       ai_usage_events: {
         Row: {
           affiliate_id: string | null
