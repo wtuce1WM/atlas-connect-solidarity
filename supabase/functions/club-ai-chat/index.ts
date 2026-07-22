@@ -899,6 +899,8 @@ ${languageInstruction}`;
     let finalAnswer = "";
     let modelToUse = MODEL;
     const mapPayloads: Array<{ title?: string; businesses: any[] }> = [];
+    let lastSearchSlugs: string[] = [];
+    let lastSearchTitle: string | undefined;
     for (let i = 0; i < 4; i++) {
       const resp = await fetchAiGateway(GATEWAY_URL, {
         method: "POST",
