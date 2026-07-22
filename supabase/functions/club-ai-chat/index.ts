@@ -1291,9 +1291,9 @@ serve(async (req) => {
           resultChatId = inserted?.id ?? null;
         }
         turnLog.route_taken = "agenda_shortcut";
-        return new Response(JSON.stringify({ answer, chatId: resultChatId, followups: [] }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        emit({ type: "chunk", delta: answer.split(/<!--/)[0] });
+        emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+        return;
       } catch (e) {
         console.error("deterministic agenda route failed", e);
       }
