@@ -21,6 +21,7 @@ type Row = {
   fixed_response_en: string | null;
   fixed_response_ar: string | null;
   blog_post_id: string | null;
+  blog_post_ids: string[];
 };
 
 type BlogOption = { id: string; title: string; slug: string | null };
