@@ -1328,6 +1328,8 @@ serve(async (req) => {
             const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title: titleRow, messages: newMessages }).select("id").single();
             resultChatId = inserted?.id ?? null;
           }
+          turnLog.route_taken = "map_shortcut_fallback";
+          turnLog.results_shown = (forced as any).businesses.length;
           return new Response(JSON.stringify({ answer, chatId: resultChatId, followups: [] }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
