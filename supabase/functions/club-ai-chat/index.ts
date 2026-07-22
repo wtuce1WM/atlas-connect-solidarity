@@ -1144,9 +1144,9 @@ serve(async (req) => {
           }
           turnLog.route_taken = "fixed_response";
           turnLog.results_shown = 0;
-          return new Response(JSON.stringify({ answer: fixedAnswer, chatId: resultChatId, followups: [] }), {
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+          emit({ type: "chunk", delta: fixedAnswer });
+          emit({ type: "done", answer: fixedAnswer, chatId: resultChatId, followups: [] });
+          return;
         }
       }
     } catch (e) {
