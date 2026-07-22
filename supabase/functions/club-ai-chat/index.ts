@@ -25,6 +25,36 @@ type PreviousSearchSnapshot = {
 };
 
 const MAP_TRIGGER_RE = /\b(sur\s+une?\s+cartes?|une?\s+cartes?|la\s+cartes?|cartes?|maps?|situe(?:z|s|r|nt)?|localise(?:z|s|r|nt)?|o[uù]\s+sont|o[uù]\s+se\s+trouvent|where\s+are|geoloc|g[ée]oloc)\b|خريطة/i;
+const KNOWN_CITY_NAMES = ["Marrakech", "Essaouira", "Casablanca", "Rabat", "Agadir", "Fès", "Tanger", "Ouarzazate", "Chefchaouen"];
+
+function extractMoroccoCity(value: unknown): string | null {
+  const raw = String(value || "").trim();
+  if (!raw) return null;
+  const normalized = normalizeLoose(raw);
+  for (const city of KNOWN_CITY_NAMES) {
+    if (normalized.includes(normalizeLoose(city))) return city;
+  }
+  return raw.length <= 40 && !raw.includes(",") ? raw : null;
+}
+
+function isAgendaIntent(text: string): boolean {
+  const n = normalizeLoose(text);
+  return /\b(agenda|evenement|evenements|event|events|concert|concerts|festival|festivals|expo|exposition|expositions|sortie|sorties|soir[ée]e|soirees|culturel|culturelle|ce\s+soir|ce\s+week\s*end|week\s*end|prochaines\s+semaines|que\s+se\s+passe|que\s+faire)\b/i.test(n);
+}
+
+function formatEventDate(event: any): string {
+  const fmt = (value?: string | null) => {
+    if (!value) return "";
+    const d = new Date(`${value}T12:00:00`);
+    if (Number.isNaN(d.getTime())) return value;
+    return new Intl.DateTimeFormat("fr-FR", { day: "2-digit", month: "short", year: "numeric", timeZone: "Africa/Casablanca" }).format(d);
+  };
+  if (event.start_date && event.end_date && event.end_date !== event.start_date) return `${fmt(event.start_date)} → ${fmt(event.end_date)}`;
+  if (event.start_date) return fmt(event.start_date);
+  if (Array.isArray(event.days_of_week) && event.days_of_week.length) return `récurrent · ${event.days_of_week.join(", ")}`;
+  if (event.recurrence) return `récurrent · ${event.recurrence}`;
+  return "date à confirmer";
+}
 
 function extractRequestedResultCount(text: string): number | null {
   const match = String(text || "").match(/\b(?:les\s+)?(\d{1,3})\s+r[ée]sultats?\b/i);
