@@ -967,7 +967,7 @@ ${languageInstruction}`;
     const MAP_TRIGGER_RE = /\b(sur\s+une?\s+cartes?|une?\s+cartes?|la\s+cartes?|cartes?|maps?|situe(?:z|s|r|nt)?|localise(?:z|s|r|nt)?|o[uù]\s+sont|o[uù]\s+se\s+trouvent|where\s+are|geoloc|g[ée]oloc)\b|خريطة/i;
     if (!mapPayloads.length && lastSearchSlugs.length >= 2 && MAP_TRIGGER_RE.test(lastUserMsg || "")) {
       try {
-        const forced = await runTool("show_on_map", { business_slugs: lastSearchSlugs.slice(0, 20), title: lastSearchTitle }, ctx);
+        const forced = await runTool("show_on_map", { business_slugs: lastSearchSlugs.slice(0, 30), title: lastSearchTitle }, ctx);
         if ((forced as any)?.ok && Array.isArray((forced as any).businesses) && (forced as any).businesses.length) {
           mapPayloads.push({ title: lastSearchTitle, businesses: (forced as any).businesses });
         }
