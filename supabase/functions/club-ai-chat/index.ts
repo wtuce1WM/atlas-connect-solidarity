@@ -720,7 +720,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       const today = new Date().toISOString().slice(0, 10);
       const from = (args.from_date && String(args.from_date).slice(0, 10)) || today;
       const to = (args.to_date && String(args.to_date).slice(0, 10))
-        || new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+        || new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
 
       let eventIds: string[] | null = null;
       if (!args.include_all_badges) {
