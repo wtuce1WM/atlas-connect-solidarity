@@ -1457,6 +1457,15 @@ const ClubAiAssistant = ({ userId }: Props) => {
         }}
       />
 
+      <EventsSlidePanel
+        open={!!openEvents}
+        onClose={() => setOpenEvents(null)}
+        items={openEvents?.list || []}
+        initialIndex={openEvents?.index ?? 0}
+        isMobile={isMobile}
+        onOpenBusiness={(bid) => { setOpenEvents(null); setOpenBusinessId(bid); }}
+      />
+
       {openBusinessId && (
         <div
           ref={panelWheelRef}
