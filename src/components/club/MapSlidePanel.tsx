@@ -5,6 +5,7 @@ import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { haversineKm } from "@/lib/haversine";
+import { mapLabel } from "@/lib/mapLabels";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
