@@ -1542,11 +1542,16 @@ ${languageInstruction}`;
     let lastSearchTitle: string | undefined;
     let lastSearchSnapshot: PreviousSearchSnapshot | null = null;
     let lastEventsSnapshot: { title?: string; city?: string | null; events: any[] } | null = null;
+    // Per-turn tool gating : si la requête utilisateur mentionne un TYPE DE LIEU
+    // sans marqueur événementiel explicite, on retire search_events du menu pour
+    // empêcher le LLM de rester bloqué en mode agenda.
+    const venueOnly = VENUE_NOUN_RE.test(lastUserMsg || "") && !EXPLICIT_EVENT_RE.test(lastUserMsg || "");
+    const turnTools = venueOnly ? tools.filter((t: any) => t?.function?.name !== "search_events") : tools;
     for (let i = 0; i < 4; i++) {
       const resp = await fetchAiGateway(GATEWAY_URL, {
         method: "POST",
         headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model: modelToUse, messages: convo, tools, tool_choice: "auto", temperature: 0.5, max_tokens: 1800, frequency_penalty: 0.6, presence_penalty: 0.3 }),
+        body: JSON.stringify({ model: modelToUse, messages: convo, tools: turnTools, tool_choice: "auto", temperature: 0.5, max_tokens: 1800, frequency_penalty: 0.6, presence_penalty: 0.3 }),
       }, {
         supabase: admin,
         userId: callerContext.userId,
