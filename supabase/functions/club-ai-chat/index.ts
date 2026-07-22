@@ -1199,7 +1199,7 @@ serve(async (req) => {
     const routedIntent = classifyIntent(lastUserMsg, !!previousUserQuery);
     console.log("club-ai-chat router:", JSON.stringify({ intent: routedIntent, isMapTrigger, msg: lastUserMsg.slice(0, 100), hasPrev: !!previousUserQuery }));
 
-    if (!isMapTrigger && (routedIntent === "search" || routedIntent === "refinement")) {
+    if (!isMapTrigger && !affirmativeMapTrigger && (routedIntent === "search" || routedIntent === "refinement")) {
       try {
         const fusedQuery = routedIntent === "refinement" && previousUserQuery
           ? `${previousUserQuery} ${lastUserMsg}`.replace(/\s+/g, " ").slice(0, 400)
