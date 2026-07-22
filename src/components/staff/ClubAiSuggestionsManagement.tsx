@@ -150,6 +150,20 @@ const ClubAiSuggestionsManagement = () => {
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-xs text-muted-foreground shrink-0">Article de blog lié :</label>
+                  <select
+                    value={r.blog_post_id || ""}
+                    onChange={(e) => update(r.id, { blog_post_id: e.target.value || null })}
+                    className="h-9 rounded-md border border-input bg-background px-2 text-sm flex-1 max-w-md"
+                    title="Article de blog lié"
+                  >
+                    <option value="">— Aucun —</option>
+                    {blogPosts.map((p) => (
+                      <option key={p.id} value={p.id}>{p.title}</option>
+                    ))}
+                  </select>
+                </div>
                 <details className="text-sm">
                   <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
                     Réponse figée (optionnel) {(r.fixed_response_fr || r.fixed_response_en || r.fixed_response_ar) && <span className="ml-2 text-primary">● configurée</span>}
