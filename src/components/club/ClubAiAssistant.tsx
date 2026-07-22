@@ -1358,6 +1358,12 @@ const ClubAiAssistant = ({ userId }: Props) => {
                         </div>
                       );
                     })}
+                    {streaming && i === lastAssistantIndex && (
+                      <span className="inline-flex items-center gap-1 mt-1 text-[#C04F17] text-xs">
+                        <span className="inline-block w-2 h-4 bg-[#C04F17] animate-pulse align-middle" />
+                        {at.writing}
+                      </span>
+                    )}
                   </div>
                 )}
                 {m.role === "assistant" && i === lastAssistantIndex && (
