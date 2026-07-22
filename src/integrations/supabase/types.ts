@@ -2785,6 +2785,7 @@ export type Database = {
       club_ai_suggestions: {
         Row: {
           blog_post_id: string | null
+          blog_post_ids: string[]
           category: string | null
           city: string | null
           created_at: string
@@ -2804,6 +2805,7 @@ export type Database = {
         }
         Insert: {
           blog_post_id?: string | null
+          blog_post_ids?: string[]
           category?: string | null
           city?: string | null
           created_at?: string
@@ -2823,6 +2825,7 @@ export type Database = {
         }
         Update: {
           blog_post_id?: string | null
+          blog_post_ids?: string[]
           category?: string | null
           city?: string | null
           created_at?: string

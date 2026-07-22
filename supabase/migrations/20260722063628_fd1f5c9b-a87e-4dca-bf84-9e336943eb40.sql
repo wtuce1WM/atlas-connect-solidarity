@@ -1,0 +1,2 @@
+ALTER TABLE public.club_ai_suggestions ADD COLUMN IF NOT EXISTS blog_post_ids uuid[] NOT NULL DEFAULT '{}';
+UPDATE public.club_ai_suggestions SET blog_post_ids = ARRAY[blog_post_id] WHERE blog_post_id IS NOT NULL AND (blog_post_ids IS NULL OR array_length(blog_post_ids,1) IS NULL);

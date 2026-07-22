@@ -21,6 +21,7 @@ type Row = {
   fixed_response_en: string | null;
   fixed_response_ar: string | null;
   blog_post_id: string | null;
+  blog_post_ids: string[];
 };
 
 type BlogOption = { id: string; title: string; slug: string | null };
@@ -39,7 +40,7 @@ const ClubAiSuggestionsManagement = () => {
     const [{ data, error }, { data: posts }] = await Promise.all([
       supabase
         .from("club_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,category,city,sort_order,is_active,fixed_response_fr,fixed_response_en,fixed_response_ar,blog_post_id")
+        .select("id,label_fr,label_en,label_ar,category,city,sort_order,is_active,fixed_response_fr,fixed_response_en,fixed_response_ar,blog_post_id,blog_post_ids")
         .order("sort_order", { ascending: true }),
       supabase
         .from("blog_posts")
@@ -47,7 +48,7 @@ const ClubAiSuggestionsManagement = () => {
         .order("title_fr", { ascending: true }),
     ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((data as Row[]) || []);
+    setRows(((data as any[]) || []).map((r) => ({ ...r, blog_post_ids: r.blog_post_ids || (r.blog_post_id ? [r.blog_post_id] : []) })) as Row[]);
     const options: BlogOption[] = ((posts as any[]) || [])
       .map((p) => ({ id: p.id, slug: p.slug, title: (p.title_fr || p.title_en || p.slug || "(sans titre)").trim() }))
       .sort((a, b) => a.title.localeCompare(b.title, "fr", { sensitivity: "base" }));
@@ -90,7 +91,8 @@ const ClubAiSuggestionsManagement = () => {
         label_fr: r.label_fr, label_en: r.label_en, label_ar: r.label_ar,
         category: r.category, city: r.city, sort_order: r.sort_order, is_active: r.is_active,
         fixed_response_fr: r.fixed_response_fr, fixed_response_en: r.fixed_response_en, fixed_response_ar: r.fixed_response_ar,
-        blog_post_id: r.blog_post_id,
+        blog_post_id: r.blog_post_ids?.[0] ?? null,
+        blog_post_ids: r.blog_post_ids ?? [],
       }).eq("id", r.id);
       if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); setSaving(false); return; }
     }
@@ -150,18 +152,44 @@ const ClubAiSuggestionsManagement = () => {
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 </div>
-                <div className="flex items-center gap-2">
-                  <label className="text-xs text-muted-foreground shrink-0">Article de blog lié :</label>
+                <div className="space-y-2">
+                  <label className="text-xs text-muted-foreground">Articles de blog liés :</label>
+                  {(r.blog_post_ids?.length ?? 0) > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {r.blog_post_ids.map((pid) => {
+                        const p = blogPosts.find((b) => b.id === pid);
+                        return (
+                          <span key={pid} className="inline-flex items-center gap-1 rounded-md bg-primary/10 text-primary text-xs px-2 py-1">
+                            {p?.title || pid}
+                            <button
+                              type="button"
+                              onClick={() => update(r.id, { blog_post_ids: r.blog_post_ids.filter((x) => x !== pid) })}
+                              className="hover:text-destructive"
+                              title="Retirer"
+                            >×</button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
                   <select
-                    value={r.blog_post_id || ""}
-                    onChange={(e) => update(r.id, { blog_post_id: e.target.value || null })}
-                    className="h-9 rounded-md border border-input bg-background px-2 text-sm flex-1 max-w-md"
-                    title="Article de blog lié"
+                    value=""
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (!v) return;
+                      if (!r.blog_post_ids.includes(v)) {
+                        update(r.id, { blog_post_ids: [...r.blog_post_ids, v] });
+                      }
+                    }}
+                    className="h-9 rounded-md border border-input bg-background px-2 text-sm w-full max-w-md"
+                    title="Ajouter un article de blog"
                   >
-                    <option value="">— Aucun —</option>
-                    {blogPosts.map((p) => (
-                      <option key={p.id} value={p.id}>{p.title}</option>
-                    ))}
+                    <option value="">— Ajouter un article —</option>
+                    {blogPosts
+                      .filter((p) => !r.blog_post_ids.includes(p.id))
+                      .map((p) => (
+                        <option key={p.id} value={p.id}>{p.title}</option>
+                      ))}
                   </select>
                 </div>
                 <details className="text-sm">
