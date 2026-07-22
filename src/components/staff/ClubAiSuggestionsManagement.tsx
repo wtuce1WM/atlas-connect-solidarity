@@ -48,7 +48,7 @@ const ClubAiSuggestionsManagement = () => {
         .order("title_fr", { ascending: true }),
     ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((data as Row[]) || []);
+    setRows(((data as any[]) || []).map((r) => ({ ...r, blog_post_ids: r.blog_post_ids || (r.blog_post_id ? [r.blog_post_id] : []) })) as Row[]);
     const options: BlogOption[] = ((posts as any[]) || [])
       .map((p) => ({ id: p.id, slug: p.slug, title: (p.title_fr || p.title_en || p.slug || "(sans titre)").trim() }))
       .sort((a, b) => a.title.localeCompare(b.title, "fr", { sensitivity: "base" }));
