@@ -29,9 +29,26 @@ export function useAvailableMainCategories() {
               .map((r) => (r.main_category ?? "").trim())
               .filter(Boolean),
           ),
-        ).sort((a, b) => a.localeCompare(b, "fr"));
+        );
 
-        if (!cancelled) setCategories(unique);
+        const { data: catRows } = await supabase
+          .from("categories")
+          .select("name_fr, sort_order")
+          .not("name_fr", "is", null);
+
+        const orderMap: Record<string, number> = {};
+        (catRows ?? []).forEach((c) => {
+          orderMap[c.name_fr] = c.sort_order ?? 999;
+        });
+
+        const ordered = unique.sort((a, b) => {
+          const oa = orderMap[a] ?? 999;
+          const ob = orderMap[b] ?? 999;
+          if (oa !== ob) return oa - ob;
+          return a.localeCompare(b, "fr");
+        });
+
+        if (!cancelled) setCategories(ordered);
       } finally {
         if (!cancelled) setIsLoading(false);
       }

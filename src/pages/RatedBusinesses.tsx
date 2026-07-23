@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ExternalLink, Settings, Star, X, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Loader2, Star, X, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { useAvailableMainCategories } from "@/hooks/useAvailableMainCategories";
 
 type SortKey = "name" | "subcat" | "google" | "guru" | "tripadvisor" | "avg" | "total";
@@ -395,7 +395,6 @@ const RatedBusinesses = () => {
                   <TableHead className="text-center cursor-pointer select-none" onClick={() => toggleSort("total")}>
                     <span className="text-xs">Total avis <SortIcon col="total" /></span>
                   </TableHead>
-                  <TableHead className="text-center w-[80px]">Liens</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -454,23 +453,6 @@ const RatedBusinesses = () => {
                       </TableCell>
                       {/* Total reviews */}
                       <TableCell className="text-center text-sm font-medium">{total > 0 ? total : "—"}</TableCell>
-                      {/* Links */}
-                      <TableCell className="text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          <Link to={linkFor(b)} target="_blank" rel="noopener noreferrer" title="Voir la fiche">
-                            <Button variant="ghost" size="icon" className="h-7 w-7">
-                              <ExternalLink className="h-3.5 w-3.5" />
-                            </Button>
-                          </Link>
-                          {isStaff && (
-                            <Link to={`/staff/backoffice?edit=${b.id}`} target="_blank" rel="noopener noreferrer" title="Modifier dans le backoffice">
-                              <Button variant="ghost" size="icon" className="h-7 w-7">
-                                <Settings className="h-3.5 w-3.5" />
-                              </Button>
-                            </Link>
-                          )}
-                        </div>
-                      </TableCell>
                     </TableRow>
                   );
                 })}
