@@ -1512,7 +1512,28 @@ serve(async (req) => {
     turnLog.affiliate_id = callerContext.affiliateId || null;
 
     const { chatId, messages = [], clientContext = {}, language = "fr" }: { chatId?: string; messages: Msg[]; clientContext?: { activeCity?: string; localTime?: string; coords?: { lat: number; lng: number } }; language?: string } = await req.json();
-    const lang = (language === "en" || language === "ar") ? language : "fr";
+    let lang = (language === "en" || language === "ar") ? language : "fr";
+
+    // ============= #11 Per-message language detection =============
+    // Override lang if the last user message is clearly in another supported
+    // language. AR = Arabic script (any codepoint). EN = latin + english stop-
+    // words + no french accents/diacritics. FR fallback otherwise.
+    try {
+      const lastForLang = String([...messages].reverse().find((m: any) => m.role === "user")?.content || "").trim();
+      if (lastForLang.length >= 3) {
+        if (/[\u0600-\u06FF]/.test(lastForLang)) lang = "ar";
+        else {
+          const lc = lastForLang.toLowerCase();
+          const enStop = /\b(the|what|where|when|is|are|do|does|can|could|show|find|near|please|hotel|restaurant|beach|bar|tomorrow|tonight|today|weather)\b/;
+          const frStop = /\b(le|la|les|un|une|des|est|sont|quel|quelle|où|quand|montre|trouve|près|hôtel|hotel|restaurant|plage|demain|soir|aujourd|météo|meteo)\b/;
+          const hasFrDia = /[àâäéèêëîïôöùûüÿçœæ]/i.test(lastForLang);
+          const enHits = (lc.match(new RegExp(enStop, "g")) || []).length;
+          const frHits = (lc.match(new RegExp(frStop, "g")) || []).length;
+          if (enHits >= 1 && frHits === 0 && !hasFrDia) lang = "en";
+          else if (frHits >= 1) lang = "fr";
+        }
+      }
+    } catch { /* keep opening lang */ }
     turnLog.chat_id = chatId || null;
     turnLog.language = lang;
     turnLog.city_active = clientContext?.activeCity ? String(clientContext.activeCity).slice(0, 100) : null;
@@ -1524,6 +1545,41 @@ serve(async (req) => {
       : lang === "ar"
       ? "مهم: أجب دائماً بالعربية، بغض النظر عن لغة نتائج الأدوات أو لغة التعليمات. حافظ على نبرة دافئة وموجزة."
       : "IMPORTANT : réponds toujours en français, sauf si l'utilisateur écrit dans une autre langue.";
+
+    // ============= #10 Out-of-scope guard (deterministic, no LLM) =============
+    // Politics, medical, legal/tax, finance/crypto, adult, weapons, self-harm →
+    // cadré : on redirige vers Marrakech/Essaouira sans consommer de tokens.
+    try {
+      const lastUserForGuard = String([...messages].reverse().find((m: any) => m.role === "user")?.content || "");
+      const g = lastUserForGuard.toLowerCase();
+      const OUT_OF_SCOPE = /\b(politique|élection|election|guerre|war|vaccin|covid|médecin|medecin|doctor|prescription|maladie|disease|bourse|crypto|bitcoin|ethereum|investir|invest(ment)?|placement|impôt|impot|tax(e|es)?|fiscal|loi|law|juridique|legal|avocat|lawyer|divorce|sexe|porn|escort|drogue|drug|weapon|arme|suicide|self[- ]?harm)\b/i;
+      if (OUT_OF_SCOPE.test(g)) {
+        const answer = lang === "en"
+          ? "I focus on your Marrakech / Essaouira trip — hotels, riads, restaurants, activities, agenda. That topic is outside my scope. Tell me what you'd like to see, eat or experience in Marrakech or Essaouira and I'll help right away."
+          : lang === "ar"
+          ? "أنا متخصص في رحلتك إلى مراكش والصويرة (فنادق، رياض، مطاعم، أنشطة، أجندة). هذا الموضوع خارج نطاقي. أخبرني ماذا تود مشاهدته أو تجربته في مراكش أو الصويرة."
+          : "Je suis concentré sur ton séjour à Marrakech / Essaouira — hôtels, riads, restaurants, activités, agenda. Ce sujet sort de mon périmètre. Dis-moi plutôt ce que tu voudrais voir, manger ou vivre à Marrakech ou Essaouira, je te réponds tout de suite.";
+        const newMessages = [...messages, { role: "assistant", content: answer }];
+        let resultChatId: string | null = null;
+        if (chatId) {
+          const { data: existing } = await admin.from("ai_chats").select("id").eq("id", chatId).eq("user_id", user.id).maybeSingle();
+          if (existing?.id) {
+            await admin.from("ai_chats").update({ messages: newMessages, updated_at: new Date().toISOString() }).eq("id", chatId).eq("user_id", user.id);
+            resultChatId = chatId;
+          }
+        }
+        if (!resultChatId) {
+          const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title: lastUserForGuard.slice(0, 200) || "Hors-scope", messages: newMessages }).select("id").single();
+          resultChatId = inserted?.id ?? null;
+        }
+        turnLog.route_taken = "out_of_scope_guard";
+        turnLog.results_shown = 0;
+        emit({ type: "chunk", delta: answer });
+        emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+        return;
+      }
+    } catch (e) { console.error("out_of_scope guard error", e); }
+
 
     // ----- Fixed-response shortcut -----
     // If the last user message matches (case-insensitive, trimmed) a suggestion
