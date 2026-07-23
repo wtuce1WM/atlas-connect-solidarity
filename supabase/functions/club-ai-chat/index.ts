@@ -2612,6 +2612,8 @@ ${languageInstruction}`;
             .replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "")
             .replace(/<!--SEARCH_RESULTS:[\s\S]*?-->/g, "")
             .replace(/<!--SEARCH_RESULTS:[\s\S]*$/g, "")
+            .replace(/<!--OPEN_BOOKING:[\s\S]*?-->/g, "")
+            .replace(/<!--OPEN_BOOKING:[\s\S]*$/g, "")
             .trim() }
         : m
     );
