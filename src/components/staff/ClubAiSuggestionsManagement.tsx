@@ -123,6 +123,9 @@ const ClubAiSuggestionsManagement = () => {
           <MessageSquare className="h-5 w-5" /> Suggestions Chat IA du Club
         </CardTitle>
         <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => runEmbed(false)} disabled={embedding} title="Ré-embed les suggestions modifiées">
+            {embedding ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />} Réindexer
+          </Button>
           <Button variant="outline" size="sm" onClick={add}><Plus className="h-4 w-4 mr-1" /> Ajouter</Button>
           <Button size="sm" onClick={saveAll} disabled={saving || dirty.size === 0}>
             <Save className="h-4 w-4 mr-1" /> Enregistrer ({dirty.size})
