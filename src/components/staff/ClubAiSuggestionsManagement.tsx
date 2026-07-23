@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { Trash2, Plus, Save, MessageSquare } from "lucide-react";
+import { Trash2, Plus, Save, MessageSquare, Sparkles, Loader2 } from "lucide-react";
 
 type Row = {
   id: string;
