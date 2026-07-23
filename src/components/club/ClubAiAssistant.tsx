@@ -434,6 +434,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const [followups, setFollowups] = useState<string[]>([]);
   const [skeletonCount, setSkeletonCount] = useState<number>(0);
   const [feedbackByTurn, setFeedbackByTurn] = useState<Record<string, 1 | -1>>({});
+  const [turnIdByIdx, setTurnIdByIdx] = useState<Record<number, string>>({});
   const lastTurnIdRef = useRef<string | null>(null);
 
 
