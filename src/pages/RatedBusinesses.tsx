@@ -107,15 +107,30 @@ const RatedBusinesses = () => {
     const fetchData = async () => {
       setIsLoading(true);
 
-      // Fetch rated businesses sorted by priority_score
-      const { data } = await supabase
-        .from("businesses")
-        .select("id, name, city, neighborhood, categories, main_category, services, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, rating")
-        .eq("is_active", true)
-        .or("google_review_count.gt.0,tripadvisor_review_count.gt.0,restaurant_guru_review_count.gt.0,rating.not.is.null")
-        .order("priority_score", { ascending: false });
-
-      if (data) setBusinesses(data);
+      // Fetch ALL rated businesses (paginated — PostgREST caps at 1000/req)
+      const batchSize = 1000;
+      let offset = 0;
+      let hasMore = true;
+      const all: RatedBusiness[] = [];
+      while (hasMore) {
+        const { data, error } = await supabase
+          .from("businesses")
+          .select("id, name, city, neighborhood, categories, main_category, services, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, rating")
+          .eq("is_active", true)
+          .or("google_review_count.gt.0,tripadvisor_review_count.gt.0,restaurant_guru_review_count.gt.0,rating.not.is.null")
+          .order("priority_score", { ascending: false })
+          .order("id")
+          .range(offset, offset + batchSize - 1);
+        if (error) break;
+        if (data && data.length > 0) {
+          all.push(...(data as RatedBusiness[]));
+          offset += batchSize;
+          hasMore = data.length === batchSize;
+        } else {
+          hasMore = false;
+        }
+      }
+      setBusinesses(all);
 
       // Fetch categories, subcategories, services for filter mapping
       const [catRes, subcatRes, svcData] = await Promise.all([
