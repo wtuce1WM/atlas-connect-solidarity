@@ -1716,6 +1716,14 @@ const ClubAiAssistant = ({ userId }: Props) => {
         onOpenBusiness={(bid) => { setOpenEvents(null); setOpenBusinessId(bid); }}
       />
 
+      <BlogSlidePanel
+        open={!!openBlogs}
+        onClose={() => setOpenBlogs(null)}
+        items={openBlogs?.list || []}
+        initialIndex={openBlogs?.index ?? 0}
+        isMobile={isMobile}
+      />
+
       {openBusinessId && (
         <div
           ref={panelWheelRef}
