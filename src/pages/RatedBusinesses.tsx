@@ -384,7 +384,7 @@ const RatedBusinesses = () => {
                   return (
                     <TableRow key={b.id} className="hover:bg-muted/30">
                       <TableCell className="text-center text-sm font-bold text-muted-foreground">{index + 1}</TableCell>
-                      <TableCell className="font-medium max-w-[200px] truncate">
+                      <TableCell className="font-medium whitespace-normal break-words">
                         <Link to={businessUrl(b)} target="_blank" rel="noopener noreferrer" className="hover:text-primary hover:underline">
                           {b.name}
                         </Link>
