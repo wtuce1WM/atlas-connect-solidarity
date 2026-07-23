@@ -1,0 +1,1 @@
+UPDATE public.blog_posts SET hero_subtitle_fr = '20 adresses pour composer votre soirée souirie — de Chez Jeannot aux nuits d''Alma & Co et Beytt Mogador jusqu''à 03:00 — avec les horaires exacts et l''ambiance de chaque table.' WHERE slug = 'sortir-le-soir-essaouira';
