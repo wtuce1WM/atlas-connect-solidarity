@@ -55,8 +55,14 @@ const RatedBusinesses = () => {
   const navigate = useLocalizedNavigate();
   const { language } = useLanguage();
   const [businesses, setBusinesses] = useState<RatedBusiness[]>([]);
+  const [vanityMap, setVanityMap] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isStaff, setIsStaff] = useState(false);
+
+  const linkFor = (b: { id: string; slug?: string | null }) => {
+    const v = vanityMap[b.id];
+    return v ? `/${v}` : businessUrl(b);
+  };
   const { categories: mainCategories } = useAvailableMainCategories();
 
   // Subcategories & services from DB
