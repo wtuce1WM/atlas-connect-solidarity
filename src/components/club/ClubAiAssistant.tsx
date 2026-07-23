@@ -1284,19 +1284,21 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
                         const source = linkifyPhones(stripFicheLinks(clean));
                         const isLastAssistant = i === lastAssistantIndex;
-                        const canShowFeedback = isLastAssistant && !streaming && !!lastTurnIdRef.current;
+                        const msgTurnId = turnIdByIdx[i] || (isLastAssistant ? lastTurnIdRef.current : null);
+                        const isStreamingThis = isLastAssistant && streaming;
+                        const canShowFeedback = !!msgTurnId && !isStreamingThis;
                         // Split around the "N résultats affichés sur M trouvés" line to
                         // insert thumbs right after it. Fallback: render at the end.
                         const countLineRe = /^.*\b\d+\s+r[ée]sultats?\s+affich[ée]s?\s+sur\s+\d+\s+trouv[ée]s?.*$/im;
                         const match = source.match(countLineRe);
                         const feedbackNode = canShowFeedback ? (() => {
-                          const tid = lastTurnIdRef.current!;
+                          const tid = msgTurnId!;
                           const score = feedbackByTurn[tid];
                           return (
                             <div className="my-2 flex items-center gap-1.5 not-prose">
                               <button
                                 type="button"
-                                onClick={() => submitFeedback(1)}
+                                onClick={() => submitFeedback(1, tid)}
                                 className={`w-7 h-7 rounded-full flex items-center justify-center border transition-colors ${score === 1 ? "bg-[#C04F17] border-[#C04F17] text-white" : "bg-white/5 border-[#C04F17]/30 text-[#C04F17] hover:bg-[#C04F17]/10"}`}
                                 title="Réponse utile"
                                 aria-label="Réponse utile"
@@ -1305,7 +1307,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                               </button>
                               <button
                                 type="button"
-                                onClick={() => submitFeedback(-1)}
+                                onClick={() => submitFeedback(-1, tid)}
                                 className={`w-7 h-7 rounded-full flex items-center justify-center border transition-colors ${score === -1 ? "bg-[#C04F17] border-[#C04F17] text-white" : "bg-white/5 border-[#C04F17]/30 text-[#C04F17] hover:bg-[#C04F17]/10"}`}
                                 title="Réponse à améliorer"
                                 aria-label="Réponse à améliorer"
