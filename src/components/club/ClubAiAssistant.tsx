@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Plus, Send, Trash2, Pencil, MessageSquare, Bookmark, BookmarkCheck, Mic, Volume2, Square, Headphones, RefreshCw, Map as MapIcon, Calendar as CalendarIcon } from "lucide-react";
+import { Loader2, Plus, Send, Trash2, Pencil, MessageSquare, Bookmark, BookmarkCheck, Mic, Volume2, Square, Headphones, RefreshCw, Map as MapIcon, Calendar as CalendarIcon, ThumbsUp, ThumbsDown } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "@/hooks/use-toast";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
@@ -432,6 +432,11 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const deletedChatIdsRef = useRef<Set<string>>(new Set());
   const [dbSuggestions, setDbSuggestions] = useState<string[] | null>(null);
   const [followups, setFollowups] = useState<string[]>([]);
+  const [skeletonCount, setSkeletonCount] = useState<number>(0);
+  const [feedbackByTurn, setFeedbackByTurn] = useState<Record<string, 1 | -1>>({});
+  const lastTurnIdRef = useRef<string | null>(null);
+
+
 
   // Load staff-managed suggestions from DB (fallback to hardcoded list on error/empty)
   // Filter by active city: NULL city = universal, else must match current homepage city.
@@ -781,6 +786,29 @@ const ClubAiAssistant = ({ userId }: Props) => {
     setSearchParams(next, { replace });
   };
 
+  // Persist 👍/👎 for the latest assistant turn (last SSE `done` payload).
+  // RLS on ai_conversation_turns allows the owner to update feedback_score only.
+  const submitFeedback = async (score: 1 | -1) => {
+    const turnId = lastTurnIdRef.current;
+    if (!turnId) return;
+    const prev = feedbackByTurn[turnId];
+    const next = prev === score ? undefined : score;
+    setFeedbackByTurn((s) => {
+      const c = { ...s };
+      if (next == null) delete c[turnId]; else c[turnId] = next;
+      return c;
+    });
+    try {
+      await supabase
+        .from("ai_conversation_turns")
+        .update({ feedback_score: next ?? null })
+        .eq("id", turnId);
+    } catch (e) {
+      console.error("feedback update failed", e);
+    }
+  };
+
+
   useEffect(() => {
     if (!activeId) {
       activeChatIdRef.current = null;
@@ -935,13 +963,19 @@ const ClubAiAssistant = ({ userId }: Props) => {
                 firstTokenAt = performance.now();
                 setStreaming(true);
               }
+              // First real token clears the skeleton placeholders.
+              if (skeletonCount) setSkeletonCount(0);
               streamedText += evt.delta;
               const next = [...messagesRef.current];
               next[assistantIdx] = { role: "assistant", content: streamedText };
               messagesRef.current = next;
               setMessages(next);
+            } else if (evt.type === "skeleton" && typeof evt.count === "number") {
+              setSkeletonCount(Math.min(8, Math.max(1, evt.count)));
             } else if (evt.type === "done") {
               finalPayload = evt;
+              if (evt.turnId) lastTurnIdRef.current = String(evt.turnId);
+              setSkeletonCount(0);
             } else if (evt.type === "error") {
               throw new Error(evt.message || "stream_error");
             }
@@ -1431,12 +1465,49 @@ const ClubAiAssistant = ({ userId }: Props) => {
                           <Volume2 className="relative h-4 w-4 text-white" />
                         )}
                       </button>
+                      {lastTurnIdRef.current && !streaming && (() => {
+                        const tid = lastTurnIdRef.current!;
+                        const score = feedbackByTurn[tid];
+                        return (
+                          <div className="ml-3 flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => submitFeedback(1)}
+                              className={`w-8 h-8 rounded-full flex items-center justify-center border transition-colors ${score === 1 ? "bg-[#C04F17] border-[#C04F17] text-white" : "bg-white/5 border-white/20 text-white/70 hover:bg-white/10"}`}
+                              title="Réponse utile"
+                              aria-label="Réponse utile"
+                            >
+                              <ThumbsUp className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => submitFeedback(-1)}
+                              className={`w-8 h-8 rounded-full flex items-center justify-center border transition-colors ${score === -1 ? "bg-white text-[#C04F17] border-white" : "bg-white/5 border-white/20 text-white/70 hover:bg-white/10"}`}
+                              title="Réponse à améliorer"
+                              aria-label="Réponse à améliorer"
+                            >
+                              <ThumbsDown className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
                 )}
               </div>
             );
           })}
+          {sending && skeletonCount > 0 && (
+            <div className="flex flex-col gap-2 pt-2">
+              {Array.from({ length: skeletonCount }).map((_, k) => (
+                <div
+                  key={`sk-${k}`}
+                  className="h-14 rounded-lg bg-white/5 border border-white/10 animate-pulse"
+                  style={{ animationDelay: `${k * 90}ms` }}
+                />
+              ))}
+            </div>
+          )}
           {!sending && followups.length > 0 && messages.length > 0 && messages[messages.length - 1].role === "assistant" && (
             <div className="flex flex-wrap gap-2 pt-1">
               {followups.map((f) => (

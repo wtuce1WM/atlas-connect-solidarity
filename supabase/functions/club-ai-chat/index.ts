@@ -1448,9 +1448,13 @@ serve(async (req) => {
     start(c) { controllerRef = c; },
     cancel() { controllerRef = null; },
   });
+  const turnId = crypto.randomUUID();
   const emit: EmitFn = (obj: any) => {
     if (!controllerRef) return;
-    try { controllerRef.enqueue(encoder.encode(`data: ${JSON.stringify(obj)}\n\n`)); } catch {/* client aborted */}
+    // Auto-inject turnId in every terminal `done` event so the client can
+    // attach 👍/👎 feedback to the exact row inserted into ai_conversation_turns.
+    const payload = obj && obj.type === "done" ? { ...obj, turnId } : obj;
+    try { controllerRef.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)); } catch {/* client aborted */}
   };
   const closeStream = () => { try { controllerRef?.close(); } catch {} controllerRef = null; };
   const clientAbort = req.signal;
@@ -1458,6 +1462,7 @@ serve(async (req) => {
   // ============= Turn-level structured log =============
   const turnStartMs = Date.now();
   const turnLog: any = {
+    id: turnId,
     user_id: null,
     affiliate_id: null,
     chat_id: null,
@@ -1906,6 +1911,105 @@ serve(async (req) => {
       }
     }
     // ============= FIN ROUTE BOOKMARKS =============
+
+    // ============= ROUTE ANAPHORE (ordinal + descripteur → slug snapshot) =============
+    // "le premier", "le 3ème", "celui-là", "le rooftop dont tu parlais",
+    // "celui d'hier soir" → résout sur previousSearchSnapshot.slugs[N] et
+    // enchaîne sur la même logique que details_shortcut sans LLM.
+    if (previousSearchSnapshot && previousSearchSnapshot.slugs.length >= 1) {
+      try {
+        const raw = String(lastUserMsg || "").trim();
+        const nRaw = normalizeLoose(raw);
+        // 1) Ordinal explicite (1..10) + variantes FR/EN/AR.
+        const ordinalWords: Record<string, number> = {
+          "premier": 1, "1er": 1, "first": 1, "الاول": 1, "الأول": 1,
+          "deuxieme": 2, "deuxième": 2, "second": 2, "seconde": 2, "2eme": 2, "2ème": 2, "second one": 2,
+          "troisieme": 3, "troisième": 3, "3eme": 3, "3ème": 3, "third": 3,
+          "quatrieme": 4, "quatrième": 4, "4eme": 4, "4ème": 4, "fourth": 4,
+          "cinquieme": 5, "cinquième": 5, "5eme": 5, "5ème": 5, "fifth": 5,
+          "sixieme": 6, "sixième": 6, "6eme": 6, "6ème": 6, "sixth": 6,
+          "dernier": -1, "derniere": -1, "dernière": -1, "last": -1,
+        };
+        let ordinal: number | null = null;
+        for (const [w, n] of Object.entries(ordinalWords)) {
+          const re = new RegExp(`\\b${w.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&")}\\b`, "i");
+          if (re.test(nRaw)) { ordinal = n; break; }
+        }
+        // 2) Anaphore descripteur : "le rooftop", "celui-là", "cette adresse"
+        const anaphoraPronoun = /\b(celui|celle|ceux|celles|cet(?:te)?|ce\s+(?:lieu|resto|restaurant|bar|hotel|riad|spot|endroit)|the\s+(?:one|place|spot))\b/i.test(raw);
+        const descriptorMatch = raw.match(/\b(?:le|la|les|the|ce|cet|cette|celui|celle)\s+([a-zà-ÿ][a-zà-ÿ' \-]{2,25})\b/i);
+        const wc = raw.split(/\s+/).length;
+        // Requêtes courtes qui n'ont ni ordinal ni pronom anaphorique : skip.
+        if (ordinal == null && !anaphoraPronoun && !descriptorMatch) throw "no_anaphora";
+        // Requêtes longues (recherche complète) : skip anaphore, laisser router.
+        if (wc > 8 && ordinal == null) throw "too_long";
+
+        const hookField = lang === "en" ? "hook_en" : lang === "ar" ? "hook_ar" : "hook_fr";
+        const descField = lang === "en" ? "description_en" : lang === "ar" ? "description_ar" : "description_fr";
+        const { data: bizRows } = await admin
+          .from("businesses")
+          .select(`id, slug, name, main_category, neighborhood, city, ${hookField}, ${descField}`)
+          .in("slug", previousSearchSnapshot.slugs);
+        const bySlug = new Map((bizRows || []).map((b: any) => [b.slug, b]));
+        const ordered = previousSearchSnapshot.slugs.map((s: string) => bySlug.get(s)).filter(Boolean) as any[];
+        if (ordered.length === 0) throw "empty_snapshot";
+
+        let target: any = null;
+        if (ordinal != null) {
+          const idx = ordinal === -1 ? ordered.length - 1 : ordinal - 1;
+          target = ordered[idx] || null;
+        }
+        if (!target && descriptorMatch) {
+          const desc = normalizeLoose(descriptorMatch[1]);
+          // Match sur nom OU main_category (ex : "le rooftop" → main_category contient rooftop)
+          target = ordered.find((b: any) => {
+            const name = normalizeLoose(String(b.name || ""));
+            const cat = normalizeLoose(String(b.main_category || ""));
+            return name.includes(desc) || cat.includes(desc);
+          }) || null;
+        }
+        if (!target && anaphoraPronoun && ordered.length === 1) {
+          target = ordered[0];
+        }
+        if (!target) throw "no_match";
+
+        const hook = String(target[hookField] || "").trim();
+        const desc = String(target[descField] || "").trim();
+        const summary = hook || desc.slice(0, 400);
+        const place = [target.neighborhood, target.city].filter(Boolean).join(", ");
+        const line1 = `**${target.name}**${target.main_category ? ` — ${target.main_category}` : ""}${place ? ` · ${place}` : ""}`;
+        let answer = summary ? `${line1}\n\n${summary}` : line1;
+        const snapshot: PreviousSearchSnapshot = {
+          title: target.name,
+          slugs: [target.slug],
+          returnedCount: 1,
+          totalCount: 1,
+        };
+        answer += `\n\n<!--SEARCH_RESULTS:${JSON.stringify(snapshot).replace(/-->/g, "--&gt;")}-->`;
+        const newMessages = [...messages, { role: "assistant", content: answer }];
+        let resultChatId: string | null = null;
+        if (chatId) {
+          const { data: existing } = await admin.from("ai_chats").select("id").eq("id", chatId).eq("user_id", user.id).maybeSingle();
+          if (existing?.id) {
+            await admin.from("ai_chats").update({ messages: newMessages, updated_at: new Date().toISOString() }).eq("id", chatId).eq("user_id", user.id);
+            resultChatId = chatId;
+          }
+        }
+        if (!resultChatId) {
+          const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title: lastUserMsg.slice(0, 200) || target.name, messages: newMessages }).select("id").single();
+          resultChatId = inserted?.id ?? null;
+        }
+        turnLog.route_taken = "anaphora_shortcut";
+        turnLog.results_count = 1;
+        turnLog.results_shown = 1;
+        emit({ type: "chunk", delta: answer.split(/<!--/)[0] });
+        emit({ type: "done", answer, chatId: resultChatId, followups: buildDeterministicFollowups("details_shortcut", buildSessionMemory(messages, clientContext?.activeCity), lang) });
+        return;
+      } catch (e) {
+        if (typeof e !== "string") console.error("anaphora route error, falling back:", e);
+      }
+    }
+    // ============= FIN ROUTE ANAPHORE =============
 
     // ============= ROUTE DÉTERMINISTE : DETAILS BUSINESS =============
     // "parle-moi de X" / "c'est quoi X" / "tell me about X" → fetch direct
@@ -2402,6 +2506,9 @@ serve(async (req) => {
     console.log("club-ai-chat router:", JSON.stringify({ intent: routedIntent, isMapTrigger, msg: lastUserMsg.slice(0, 100), hasPrev: !!previousUserQuery, snapSlugs: previousSearchSnapshot?.slugs?.length ?? 0, msgsCount: messages.length, openNowMatch: isOpenNowIntent(lastUserMsg), activeCityRaw: clientContext.activeCity, activeCityClean }));
 
     if (!isMapTrigger && !affirmativeMapTrigger && (routedIntent === "search" || routedIntent === "refinement")) {
+      // Skeleton placeholders : the client can render N grey cards while the
+      // synth stream is being generated, halving perceived latency.
+      emit({ type: "skeleton", count: 5, intent: routedIntent });
       try {
         const fusedQuery = routedIntent === "refinement" && previousUserQuery
           ? `${previousUserQuery} ${lastUserMsg}`.replace(/\s+/g, " ").slice(0, 400)
