@@ -743,6 +743,47 @@ const BlogArticleTemplate = ({
                       </p>
                     ))}
                   </div>
+
+                  {entry.review && entry.review.text && (
+                    <figure
+                      className={`mt-8 rounded-xl border-l-4 p-5 md:p-6 ${
+                        isDark
+                          ? "bg-white/5 border-gold/70"
+                          : "bg-muted/60 border-primary/70"
+                      }`}
+                    >
+                      <blockquote
+                        className={`text-base md:text-lg leading-relaxed font-['Playfair_Display'] italic ${
+                          isDark ? "text-white/90" : "text-foreground/90"
+                        }`}
+                      >
+                        « {entry.review.text} »
+                      </blockquote>
+                      <figcaption
+                        className={`mt-3 flex flex-wrap items-center gap-2 text-xs uppercase tracking-wider ${
+                          isDark ? "text-white/60" : "text-muted-foreground"
+                        }`}
+                        style={{ fontFamily: "'Montserrat', sans-serif" }}
+                      >
+                        {entry.review.rating != null && (
+                          <span className="inline-flex items-center gap-0.5 text-gold">
+                            {Array.from({ length: Math.round(Number(entry.review.rating)) }).map((_, i) => (
+                              <Star key={i} className="h-3 w-3 fill-gold text-gold" />
+                            ))}
+                          </span>
+                        )}
+                        {entry.review.author && (
+                          <span className="font-semibold">{entry.review.author}</span>
+                        )}
+                        <span aria-hidden="true">·</span>
+                        <span>
+                          Avis {entry.review.source
+                            ? entry.review.source.charAt(0).toUpperCase() + entry.review.source.slice(1)
+                            : "client"}
+                        </span>
+                      </figcaption>
+                    </figure>
+                  )}
                 </div>
               </section>
             );
