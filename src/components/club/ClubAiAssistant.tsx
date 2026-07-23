@@ -975,7 +975,10 @@ const ClubAiAssistant = ({ userId }: Props) => {
               setSkeletonCount(Math.min(8, Math.max(1, evt.count)));
             } else if (evt.type === "done") {
               finalPayload = evt;
-              if (evt.turnId) lastTurnIdRef.current = String(evt.turnId);
+              if (evt.turnId) {
+                lastTurnIdRef.current = String(evt.turnId);
+                setTurnIdByIdx((s) => ({ ...s, [assistantIdx]: String(evt.turnId) }));
+              }
               setSkeletonCount(0);
             } else if (evt.type === "error") {
               throw new Error(evt.message || "stream_error");
