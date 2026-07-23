@@ -154,6 +154,31 @@ function isOpenNow(business: { opening_hours?: any; is_open_24h?: boolean | null
   return false;
 }
 
+// Returns today's hours as a short string ("9:00–23:00", "9:00–14:00, 19:00–23:00",
+// "24/24", "Fermé") or null if unknown.
+function formatTodayHours(business: { opening_hours?: any; is_open_24h?: boolean | null }, lang: "fr" | "en" | "ar" = "fr"): string | null {
+  if (business.is_open_24h) return lang === "en" ? "Open 24/7" : lang === "ar" ? "24/24" : "24h/24";
+  const oh = business.opening_hours;
+  if (!oh || typeof oh !== "object") return null;
+  const { dayKey } = nowInCasablanca();
+  const day = oh[dayKey];
+  if (!day || typeof day !== "object") return null;
+  if (day.closed === true) return lang === "en" ? "Closed today" : lang === "ar" ? "مغلق اليوم" : "Fermé aujourd'hui";
+  if (day.continuous === true) return lang === "en" ? "Open all day" : lang === "ar" ? "مفتوح طوال اليوم" : "Ouvert en continu";
+  const norm = (v: unknown) => {
+    const s = String(v || "").trim();
+    const m = s.match(/^(\d{1,2}):(\d{2})/);
+    if (!m) return null;
+    return `${parseInt(m[1], 10)}:${m[2]}`;
+  };
+  const a = norm(day.open), b = norm(day.close);
+  const a2 = norm(day.open2), b2 = norm(day.close2);
+  const parts: string[] = [];
+  if (a && b) parts.push(`${a}–${b}`);
+  if (a2 && b2) parts.push(`${a2}–${b2}`);
+  return parts.length ? parts.join(", ") : null;
+}
+
 // Intent : "ouvert maintenant / ouvert ce soir / lesquels sont ouverts / open now / open tonight"
 const OPEN_NOW_INTENT_RE = /\b(ouverts?\s+(maintenant|l[àa]|actuellement|ce\s+soir|ce\s+midi|encore|aujourd['’]?hui)|lesquels?\s+sont\s+ouverts?|qu['’]?est[-\s]?ce\s+qui\s+est\s+ouvert|open\s+(now|tonight|today|right\s+now)|which\s+(ones?\s+)?are\s+open|مفتوح\s+الآن)\b/i;
 function isOpenNowIntent(text: string): boolean {
@@ -1746,11 +1771,13 @@ serve(async (req) => {
           .filter(Boolean) as any[];
 
         const openList: any[] = [];
+        const closedList: any[] = [];
         const unknownList: any[] = [];
         for (const b of ordered) {
           const status = isOpenNow(b);
           if (status === true) openList.push(b);
-          else if (status == null) unknownList.push(b);
+          else if (status === false) closedList.push(b);
+          else unknownList.push(b);
         }
 
         const totalOpen = openList.length;
@@ -1758,19 +1785,26 @@ serve(async (req) => {
           // Aucun horaire connu → on préfère laisser tomber, pas router déterministe
           console.log("open_now route: no hours known in snapshot → fallback");
         } else {
-          const shown = openList.slice(0, 5);
           const header = lang === "en" ? "Open now" : lang === "ar" ? "مفتوح الآن" : "Ouverts maintenant";
+          const hoursLabel = lang === "en" ? "today" : lang === "ar" ? "اليوم" : "aujourd'hui";
+          const fmtLine = (r: any) => {
+            const hours = formatTodayHours(r, lang as any);
+            const hoursSuffix = hours ? ` · 🕒 ${hours}` : "";
+            const hook = r[hookField] ? ` · ${String(r[hookField]).slice(0, 140)}` : "";
+            return `- **${r.name}**${r.main_category ? ` — ${r.main_category}` : ""}${r.neighborhood ? `, ${r.neighborhood}` : ""}${r.city ? `, ${r.city}` : ""}${hoursSuffix}${hook}`;
+          };
           let body: string;
           if (totalOpen === 0) {
-            body = lang === "en"
-              ? "None of the previous results appear to be open right now (based on their listed hours)."
+            const intro = lang === "en"
+              ? "None of the previous results appear to be open right now. Their hours for today:"
               : lang === "ar"
-              ? "لا يبدو أن أياً من النتائج السابقة مفتوح الآن (حسب الأوقات المسجلة)."
-              : "Aucun des résultats précédents ne semble ouvert maintenant (d'après les horaires enregistrés).";
+              ? "لا يبدو أن أياً من النتائج السابقة مفتوح الآن. أوقاتها اليوم:"
+              : "Aucun des résultats précédents ne semble ouvert maintenant. Leurs horaires du jour :";
+            const closedLines = closedList.slice(0, 8).map(fmtLine).join("\n");
+            body = closedLines ? `${intro}\n\n${closedLines}` : intro;
           } else {
-            const lines = shown.map((r: any) =>
-              `- **${r.name}**${r.main_category ? ` — ${r.main_category}` : ""}${r.neighborhood ? `, ${r.neighborhood}` : ""}${r.city ? `, ${r.city}` : ""}${r[hookField] ? ` · ${String(r[hookField]).slice(0, 140)}` : ""}`
-            ).join("\n");
+            const shown = openList.slice(0, 5);
+            const lines = shown.map(fmtLine).join("\n");
             const shownLine = lang === "en"
               ? `**${shown.length} of ${totalOpen} open right now shown**`
               : lang === "ar"
@@ -1780,12 +1814,13 @@ serve(async (req) => {
           }
           const unknownNote = unknownList.length
             ? (lang === "en"
-                ? `\n\n(${unknownList.length} without hours on file — status unknown.)`
+                ? `\n\n_${unknownList.length} without hours on file — status unknown: ${unknownList.slice(0, 5).map((r: any) => r.name).join(", ")}${unknownList.length > 5 ? "…" : ""}_`
                 : lang === "ar"
-                ? `\n\n(${unknownList.length} بدون أوقات مسجلة — الحالة غير معروفة.)`
-                : `\n\n(${unknownList.length} sans horaires renseignés — statut inconnu.)`)
+                ? `\n\n_${unknownList.length} بدون أوقات مسجلة: ${unknownList.slice(0, 5).map((r: any) => r.name).join("، ")}${unknownList.length > 5 ? "…" : ""}_`
+                : `\n\n_${unknownList.length} sans horaires renseignés — statut inconnu : ${unknownList.slice(0, 5).map((r: any) => r.name).join(", ")}${unknownList.length > 5 ? "…" : ""}_`)
             : "";
           let answer = `**${header}**\n\n${body}${unknownNote}`;
+
 
           if (totalOpen >= 1) {
             const snapshot: PreviousSearchSnapshot = {
