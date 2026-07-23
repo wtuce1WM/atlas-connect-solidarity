@@ -1,0 +1,1 @@
+GRANT UPDATE ON public.blog_posts TO postgres;
