@@ -425,16 +425,9 @@ const BlogArticleTemplate = ({
         .eq("is_default", true)
         .eq("is_hidden", false);
       if (data) {
-        const map: Record<string, BlogArticleEntryReview> = {};
+        const map: Record<string, any> = {};
         data.forEach((r: any) => {
-          if (!map[r.business_id]) {
-            map[r.business_id] = {
-              author: r.author_name,
-              source: r.source,
-              rating: r.rating,
-              text: r.text_fr || r.text_en || r.text || "",
-            };
-          }
+          if (!map[r.business_id]) map[r.business_id] = r;
         });
         setDefaultReviews(map);
       }
