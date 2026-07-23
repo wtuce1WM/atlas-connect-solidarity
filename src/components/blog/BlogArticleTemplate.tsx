@@ -416,8 +416,33 @@ const BlogArticleTemplate = ({
       setIsLoading(false);
     };
     fetchBiz();
+
+    const fetchDefaultReviews = async () => {
+      const { data } = await supabase
+        .from("reviews")
+        .select("business_id, author_name, source, rating, text, text_fr, text_en")
+        .in("business_id", allIds)
+        .eq("is_default", true)
+        .eq("is_hidden", false);
+      if (data) {
+        const map: Record<string, BlogArticleEntryReview> = {};
+        data.forEach((r: any) => {
+          if (!map[r.business_id]) {
+            map[r.business_id] = {
+              author: r.author_name,
+              source: r.source,
+              rating: r.rating,
+              text: r.text_fr || r.text_en || r.text || "",
+            };
+          }
+        });
+        setDefaultReviews(map);
+      }
+    };
+    fetchDefaultReviews();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
 
   useEffect(() => {
     if (isLoading) return;
