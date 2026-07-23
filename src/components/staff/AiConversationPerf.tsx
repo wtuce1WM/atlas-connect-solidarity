@@ -95,25 +95,41 @@ export default function AiConversationPerf() {
   }, [filtered]);
 
   const byRoute = useMemo(() => {
-    const map = new Map<string, { count: number; latencies: number[]; errors: number }>();
+    const map = new Map<string, { count: number; latencies: number[]; errors: number; cost: number; tokens: number }>();
     for (const r of filtered) {
       const k = r.route_taken || "unknown";
-      const entry = map.get(k) || { count: 0, latencies: [], errors: 0 };
+      const entry = map.get(k) || { count: 0, latencies: [], errors: 0, cost: 0, tokens: 0 };
       entry.count++;
       if (r.latency_ms_total) entry.latencies.push(r.latency_ms_total);
       if (r.had_error) entry.errors++;
+      entry.cost += Number(r.cost_usd) || 0;
+      entry.tokens += (r.tokens_in || 0) + (r.tokens_out || 0);
       map.set(k, entry);
     }
+    const total = filtered.length || 1;
+    // Fallback = tours où le router déterministe n'a pas traité et l'appel LLM
+    // a dû tourner (router_direct = LLM synth d'une recherche déterministe ;
+    // tool_loop = boucle outils LLM complète).
+    const LLM_ROUTES = new Set(["router_direct", "tool_loop", "unknown"]);
     return Array.from(map.entries())
       .map(([route, v]) => ({
         route,
         count: v.count,
+        share: (v.count / total) * 100,
         p50: pct(v.latencies, 50),
         p95: pct(v.latencies, 95),
         errRate: v.count ? (v.errors / v.count) * 100 : 0,
+        avgCost: v.count ? v.cost / v.count : 0,
+        avgTokens: v.count ? v.tokens / v.count : 0,
+        isFallback: LLM_ROUTES.has(route),
       }))
       .sort((a, b) => b.count - a.count);
   }, [filtered]);
+
+  const fallbackRate = useMemo(() => {
+    const fb = byRoute.filter((r) => r.isFallback).reduce((s, r) => s + r.count, 0);
+    return filtered.length ? (fb / filtered.length) * 100 : 0;
+  }, [byRoute, filtered]);
 
   return (
     <div className="space-y-6">
