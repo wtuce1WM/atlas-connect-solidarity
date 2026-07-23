@@ -1448,9 +1448,13 @@ serve(async (req) => {
     start(c) { controllerRef = c; },
     cancel() { controllerRef = null; },
   });
+  const turnId = crypto.randomUUID();
   const emit: EmitFn = (obj: any) => {
     if (!controllerRef) return;
-    try { controllerRef.enqueue(encoder.encode(`data: ${JSON.stringify(obj)}\n\n`)); } catch {/* client aborted */}
+    // Auto-inject turnId in every terminal `done` event so the client can
+    // attach 👍/👎 feedback to the exact row inserted into ai_conversation_turns.
+    const payload = obj && obj.type === "done" ? { ...obj, turnId } : obj;
+    try { controllerRef.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)); } catch {/* client aborted */}
   };
   const closeStream = () => { try { controllerRef?.close(); } catch {} controllerRef = null; };
   const clientAbort = req.signal;
@@ -1458,6 +1462,7 @@ serve(async (req) => {
   // ============= Turn-level structured log =============
   const turnStartMs = Date.now();
   const turnLog: any = {
+    id: turnId,
     user_id: null,
     affiliate_id: null,
     chat_id: null,
