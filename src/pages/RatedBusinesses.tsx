@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ExternalLink, Settings, Star, X, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Loader2, Star, X, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { useAvailableMainCategories } from "@/hooks/useAvailableMainCategories";
 
 type SortKey = "name" | "subcat" | "google" | "guru" | "tripadvisor" | "avg" | "total";
