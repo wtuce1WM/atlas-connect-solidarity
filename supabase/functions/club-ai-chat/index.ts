@@ -2081,6 +2081,264 @@ serve(async (req) => {
     }
     // ============= FIN ROUTE OPEN NOW =============
 
+    // ============= ROUTE WEATHER (déterministe, get-weather) =============
+    if (isWeatherIntent(lastUserMsg)) {
+      try {
+        const mem = buildSessionMemory(messages, clientContext?.activeCity);
+        const city = mem.city || cleanActiveCity(clientContext?.activeCity) || "Marrakech";
+        const { data: w, error: wErr } = await admin.functions.invoke("get-weather", { body: { city } });
+        if (!wErr && w) {
+          const temp = w?.current?.temperature ?? w?.temperature ?? null;
+          const desc = w?.current?.description ?? w?.description ?? "";
+          const wind = w?.current?.wind_kph ?? w?.wind ?? null;
+          const parts: string[] = [];
+          if (temp != null) parts.push(`${Math.round(Number(temp))}°C`);
+          if (desc) parts.push(String(desc));
+          if (wind != null) parts.push(`vent ${Math.round(Number(wind))} km/h`);
+          const line = parts.length ? parts.join(" · ") : "";
+          const daily: any[] = Array.isArray(w?.daily) ? w.daily.slice(0, 3) : [];
+          const dailyLines = daily.map((d: any) => {
+            const day = d?.day || d?.date || "";
+            const tmax = d?.temp_max ?? d?.max ?? null;
+            const tmin = d?.temp_min ?? d?.min ?? null;
+            const dd = d?.description ?? d?.summary ?? "";
+            return `- ${day} · ${tmin != null ? Math.round(Number(tmin)) + "°" : ""}${tmax != null ? "/" + Math.round(Number(tmax)) + "°" : ""}${dd ? ` · ${dd}` : ""}`;
+          }).join("\n");
+          const header = lang === "en" ? `**Weather in ${city}**` : lang === "ar" ? `**الطقس في ${city}**` : `**Météo à ${city}**`;
+          const answer = [header, line, dailyLines].filter(Boolean).join("\n\n");
+          const newMessages = [...messages, { role: "assistant", content: answer }];
+          let resultChatId: string | null = null;
+          if (chatId) {
+            const { data: existing } = await admin.from("ai_chats").select("id").eq("id", chatId).eq("user_id", user.id).maybeSingle();
+            if (existing?.id) {
+              await admin.from("ai_chats").update({ messages: newMessages, updated_at: new Date().toISOString() }).eq("id", chatId).eq("user_id", user.id);
+              resultChatId = chatId;
+            }
+          }
+          if (!resultChatId) {
+            const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title: lastUserMsg.slice(0, 200) || "Météo", messages: newMessages }).select("id").single();
+            resultChatId = inserted?.id ?? null;
+          }
+          turnLog.route_taken = "weather_shortcut";
+          turnLog.city_detected = city;
+          emit({ type: "chunk", delta: answer });
+          emit({ type: "done", answer, chatId: resultChatId, followups: buildDeterministicFollowups("weather_shortcut", mem, lang) });
+          return;
+        }
+        console.log("weather route: get-weather failed → fallback", { wErr });
+      } catch (e) {
+        console.error("weather route error, falling back:", e);
+      }
+    }
+    // ============= FIN ROUTE WEATHER =============
+
+    // ============= ROUTE BOOKING (déterministe, ouvre BookOnlineSlidePanel) =============
+    const bookingTarget = parseBookingIntent(lastUserMsg);
+    if (bookingTarget) {
+      try {
+        const clean = bookingTarget.replace(/\s+/g, " ").trim();
+        const nName = normalizeLoose(clean);
+        const activeCity = cleanActiveCity(clientContext?.activeCity);
+        let query = admin.from("businesses").select("id, slug, name, city, main_category").eq("is_active", true);
+        if (activeCity) query = query.ilike("city", `%${activeCity}%`);
+        const { data: candidates } = await query.ilike("name", `%${clean.split(/\s+/)[0]}%`).limit(30);
+        const best = (candidates || []).find((b: any) => normalizeLoose(b.name) === nName)
+          || (candidates || []).find((b: any) => normalizeLoose(b.name).includes(nName))
+          || (candidates || []).find((b: any) => nName.includes(normalizeLoose(b.name)))
+          || null;
+        if (best) {
+          const label = lang === "en"
+            ? `Opening booking for **${best.name}** — pick your details in the panel.`
+            : lang === "ar"
+            ? `فتح نافذة الحجز لـ **${best.name}**.`
+            : `J'ouvre la réservation pour **${best.name}** — choisis tes options dans le panneau.`;
+          const marker = JSON.stringify({ id: best.id, slug: best.slug, name: best.name }).replace(/-->/g, "--&gt;");
+          const answer = `${label}\n\n<!--OPEN_BOOKING:${marker}-->`;
+          const newMessages = [...messages, { role: "assistant", content: answer }];
+          let resultChatId: string | null = null;
+          if (chatId) {
+            const { data: existing } = await admin.from("ai_chats").select("id").eq("id", chatId).eq("user_id", user.id).maybeSingle();
+            if (existing?.id) {
+              await admin.from("ai_chats").update({ messages: newMessages, updated_at: new Date().toISOString() }).eq("id", chatId).eq("user_id", user.id);
+              resultChatId = chatId;
+            }
+          }
+          if (!resultChatId) {
+            const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title: lastUserMsg.slice(0, 200) || best.name, messages: newMessages }).select("id").single();
+            resultChatId = inserted?.id ?? null;
+          }
+          turnLog.route_taken = "booking_shortcut";
+          turnLog.results_count = 1;
+          turnLog.results_shown = 1;
+          emit({ type: "chunk", delta: label });
+          emit({ type: "done", answer, chatId: resultChatId, followups: buildDeterministicFollowups("details_shortcut", buildSessionMemory(messages, clientContext?.activeCity), lang) });
+          return;
+        }
+        console.log("booking route: no business match for", clean);
+      } catch (e) {
+        console.error("booking route error, falling back:", e);
+      }
+    }
+    // ============= FIN ROUTE BOOKING =============
+
+    // ============= ROUTE NEARBY (déterministe, Haversine) =============
+    if (isNearbyIntent(lastUserMsg) && previousSearchSnapshot && previousSearchSnapshot.slugs.length >= 2) {
+      try {
+        const userCoords = clientContext?.coords && Number.isFinite(clientContext.coords.lat) && Number.isFinite(clientContext.coords.lng)
+          ? { lat: Number(clientContext.coords.lat), lng: Number(clientContext.coords.lng) }
+          : null;
+        const landmark = resolveLandmarkCoords(lastUserMsg);
+        const anchor = landmark || userCoords;
+        const anchorLabel = landmark?.label || (userCoords ? (lang === "en" ? "your location" : lang === "ar" ? "موقعك" : "toi") : null);
+        if (!anchor) {
+          console.log("nearby route: no anchor coords → fallback");
+        } else {
+          const hookField = lang === "en" ? "hook_en" : lang === "ar" ? "hook_ar" : "hook_fr";
+          const { data: bizRows } = await admin
+            .from("businesses")
+            .select(`id, slug, name, main_category, neighborhood, city, latitude, longitude, ${hookField}`)
+            .in("slug", previousSearchSnapshot.slugs);
+          const scored = (bizRows || [])
+            .filter((b: any) => Number.isFinite(b.latitude) && Number.isFinite(b.longitude))
+            .map((b: any) => ({ ...b, _km: haversineKm(anchor, { lat: Number(b.latitude), lng: Number(b.longitude) }) }))
+            .sort((a: any, b: any) => a._km - b._km);
+          if (scored.length >= 1) {
+            const shown = scored.slice(0, 5);
+            const header = lang === "en" ? `Nearest to ${anchorLabel}` : lang === "ar" ? `الأقرب إلى ${anchorLabel}` : `Les plus proches de ${anchorLabel}`;
+            const lines = shown.map((r: any) => {
+              const km = r._km < 1 ? `${Math.round(r._km * 1000)} m` : `${r._km.toFixed(1)} km`;
+              const hook = r[hookField] ? ` · ${String(r[hookField]).slice(0, 120)}` : "";
+              return `- **${r.name}**${r.main_category ? ` — ${r.main_category}` : ""}${r.neighborhood ? `, ${r.neighborhood}` : ""} · 📍 ${km}${hook}`;
+            }).join("\n");
+            const shownLine = lang === "en"
+              ? `**${shown.length} of ${scored.length} closest shown**`
+              : lang === "ar"
+              ? `**${shown.length} من ${scored.length} الأقرب معروضة**`
+              : `**${shown.length} plus proches affichés sur ${scored.length}**`;
+            let answer = `**${header}**\n\n${lines}\n\n${shownLine}`;
+            const snapshot: PreviousSearchSnapshot = {
+              title: `Proche de ${anchorLabel}`,
+              slugs: scored.map((r: any) => r.slug).filter(Boolean),
+              returnedCount: scored.length,
+              totalCount: scored.length,
+            };
+            answer += `\n\n<!--SEARCH_RESULTS:${JSON.stringify(snapshot).replace(/-->/g, "--&gt;")}-->`;
+            const newMessages = [...messages, { role: "assistant", content: answer }];
+            let resultChatId: string | null = null;
+            if (chatId) {
+              const { data: existing } = await admin.from("ai_chats").select("id").eq("id", chatId).eq("user_id", user.id).maybeSingle();
+              if (existing?.id) {
+                await admin.from("ai_chats").update({ messages: newMessages, updated_at: new Date().toISOString() }).eq("id", chatId).eq("user_id", user.id);
+                resultChatId = chatId;
+              }
+            }
+            if (!resultChatId) {
+              const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title: lastUserMsg.slice(0, 200) || header, messages: newMessages }).select("id").single();
+              resultChatId = inserted?.id ?? null;
+            }
+            turnLog.route_taken = "nearby_shortcut";
+            turnLog.results_count = scored.length;
+            turnLog.results_shown = shown.length;
+            emit({ type: "chunk", delta: answer.split(/<!--/)[0] });
+            emit({ type: "done", answer, chatId: resultChatId, followups: buildDeterministicFollowups("router_direct", buildSessionMemory(messages, clientContext?.activeCity), lang) });
+            return;
+          }
+          console.log("nearby route: no snapshot business has coords → fallback");
+        }
+      } catch (e) {
+        console.error("nearby route error, falling back:", e);
+      }
+    }
+    // ============= FIN ROUTE NEARBY =============
+
+    // ============= ROUTE PRICE / BUDGET (déterministe, snapshot only) =============
+    const priceFilter = parsePriceIntent(lastUserMsg);
+    if (priceFilter && previousSearchSnapshot && previousSearchSnapshot.slugs.length >= 2) {
+      try {
+        const hookField = lang === "en" ? "hook_en" : lang === "ar" ? "hook_ar" : "hook_fr";
+        const { data: bizRows } = await admin
+          .from("businesses")
+          .select(`id, slug, name, main_category, neighborhood, city, min_price, manual_price_range, ${hookField}`)
+          .in("slug", previousSearchSnapshot.slugs);
+        const withPrice: any[] = [];
+        const unknown: any[] = [];
+        for (const b of (bizRows || [])) {
+          const priceNum = Number.isFinite(Number(b.min_price)) && Number(b.min_price) > 0
+            ? Number(b.min_price)
+            : extractMinPriceFromRange(b.manual_price_range);
+          if (priceNum != null) withPrice.push({ ...b, _price: priceNum });
+          else unknown.push(b);
+        }
+        const matches = withPrice.filter((b) => priceMatches(b._price, priceFilter)).sort((a, b) => a._price - b._price);
+        const totalKnown = withPrice.length;
+        const totalUnknown = unknown.length;
+        const shown = matches.slice(0, 5);
+        const filterLabel = priceFilter.max ? `< ${priceFilter.max} DH` : priceFilter.min && priceFilter.max ? `${priceFilter.min}–${priceFilter.max} DH` : priceFilter.min ? `> ${priceFilter.min} DH` : priceFilter.tier === "cheap" ? "budget" : priceFilter.tier === "premium" ? "haut de gamme" : "milieu de gamme";
+        const header = lang === "en" ? `Price filter · ${filterLabel}` : lang === "ar" ? `فلتر السعر · ${filterLabel}` : `Filtre prix · ${filterLabel}`;
+        const disclaimer = totalUnknown > 0
+          ? (lang === "en"
+              ? `\n\n_Note: I only know prices for ${totalKnown} of ${totalKnown + totalUnknown} results (mostly hotels/riads). ${totalUnknown} are excluded from the price filter, not from the shortlist itself._`
+              : lang === "ar"
+              ? `\n\n_ملاحظة: أعرف الأسعار فقط لـ ${totalKnown} من أصل ${totalKnown + totalUnknown} نتيجة._`
+              : `\n\n_Note : je ne connais les prix que pour ${totalKnown} sur ${totalKnown + totalUnknown} résultats (surtout des hôtels/riads). Les ${totalUnknown} autres sont exclus du filtre prix, pas de la sélection globale._`)
+          : "";
+        let body: string;
+        if (!shown.length) {
+          body = lang === "en"
+            ? `No result in the previous shortlist matches ${filterLabel}${totalKnown === 0 ? " (no reliable price data available)" : ""}.`
+            : lang === "ar"
+            ? `لا توجد نتيجة تطابق ${filterLabel}.`
+            : `Aucun résultat de la sélection précédente ne correspond à ${filterLabel}${totalKnown === 0 ? " (aucun prix fiable disponible)" : ""}.`;
+        } else {
+          const lines = shown.map((r: any) => {
+            const priceStr = `${r._price} DH${r.manual_price_range && !Number.isFinite(Number(r.min_price)) ? ` (${r.manual_price_range})` : ""}`;
+            const hook = r[hookField] ? ` · ${String(r[hookField]).slice(0, 120)}` : "";
+            return `- **${r.name}**${r.main_category ? ` — ${r.main_category}` : ""}${r.neighborhood ? `, ${r.neighborhood}` : ""} · 💰 ${priceStr}${hook}`;
+          }).join("\n");
+          const shownLine = lang === "en"
+            ? `**${shown.length} of ${matches.length} matching shown**`
+            : lang === "ar"
+            ? `**${shown.length} من ${matches.length} مطابقة معروضة**`
+            : `**${shown.length} résultats affichés sur ${matches.length} correspondants**`;
+          body = `${lines}\n\n${shownLine}`;
+        }
+        let answer = `**${header}**\n\n${body}${disclaimer}`;
+        if (shown.length) {
+          const snapshot: PreviousSearchSnapshot = {
+            title: header,
+            slugs: matches.map((r: any) => r.slug).filter(Boolean),
+            returnedCount: matches.length,
+            totalCount: matches.length,
+          };
+          answer += `\n\n<!--SEARCH_RESULTS:${JSON.stringify(snapshot).replace(/-->/g, "--&gt;")}-->`;
+        }
+        const newMessages = [...messages, { role: "assistant", content: answer }];
+        let resultChatId: string | null = null;
+        if (chatId) {
+          const { data: existing } = await admin.from("ai_chats").select("id").eq("id", chatId).eq("user_id", user.id).maybeSingle();
+          if (existing?.id) {
+            await admin.from("ai_chats").update({ messages: newMessages, updated_at: new Date().toISOString() }).eq("id", chatId).eq("user_id", user.id);
+            resultChatId = chatId;
+          }
+        }
+        if (!resultChatId) {
+          const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title: lastUserMsg.slice(0, 200) || header, messages: newMessages }).select("id").single();
+          resultChatId = inserted?.id ?? null;
+        }
+        turnLog.route_taken = "price_shortcut";
+        turnLog.results_count = matches.length;
+        turnLog.results_shown = shown.length;
+        emit({ type: "chunk", delta: answer.split(/<!--/)[0] });
+        emit({ type: "done", answer, chatId: resultChatId, followups: buildDeterministicFollowups("router_direct", buildSessionMemory(messages, clientContext?.activeCity), lang) });
+        return;
+      } catch (e) {
+        console.error("price route error, falling back:", e);
+      }
+    }
+    // ============= FIN ROUTE PRICE =============
+
+
+
     // ============= PHASE 1 : ROUTER DÉTERMINISTE =============
     // Court-circuite la boucle tool-calling du LLM pour les intentions pures
     // "search" et "refinement". Le LLM n'est utilisé QUE pour une synthèse
