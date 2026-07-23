@@ -1380,6 +1380,7 @@ serve(async (req) => {
         // If no name match: use keyword match as primary detection (skip if ambiguous)
         {
           const keywordMatchedSubcats: string[] = [];
+          const multiWordKeywordMatched: Record<string, string> = {}; // subcatName → matched multi-word keyword
           for (const sc of sorted) {
             const n = sc.name_fr?.toLowerCase();
             if (!n) continue;
@@ -1387,7 +1388,19 @@ serve(async (req) => {
             if (detectedSubcategory && sc.name_fr === detectedSubcategory) continue;
             const kws: string[] = (sc.keywords || []).map((k: string) => k.toLowerCase());
             if (kws.length === 0) continue;
+            // Detect multi-word (≥2 content words) keyword matches specifically
+            let mwHit: string | null = null;
+            for (const k of kws) {
+              if (!k.includes(" ")) continue;
+              const kwContentWords = k.split(/\s+/).filter((w: string) => w.length > 1 && !FRENCH_STOP_WORDS.has(w));
+              if (kwContentWords.length < 2) continue;
+              const allIn = kwContentWords.every((kw: string) =>
+                qWords.some(qw => qw === kw || normalizeWord(qw) === normalizeWord(kw))
+              );
+              if (allIn || qLower.includes(k)) { mwHit = k; break; }
+            }
             if (kws.length > 0 && (
+              mwHit ||
               qWords.some((w: string) => !isBlockedGenericWord(w) && (kws.includes(w) || kws.some((k: string) => !k.includes(" ") && normalizeWord(k) === normalizeWord(w)))) ||
               kws.some((k: string) => k.includes(" ") && qLower.includes(k)) ||
               kws.some((k: string) => {
@@ -1403,11 +1416,25 @@ serve(async (req) => {
               })
             )) {
               keywordMatchedSubcats.push(sc.name_fr);
+              if (mwHit) multiWordKeywordMatched[sc.name_fr] = mwHit;
             }
           }
           if (detectedSubcategory) {
-            // Name match already found — store keyword matches as additional linked subcategories
-            if (keywordMatchedSubcats.length > 0) {
+            // ── Child-override: if a multi-word keyword matched a subcategory that is
+            //    a "related" (child/specialized) of the name-detected parent, override.
+            //    e.g. name-match "Piscine" + multi-word "parc aquatique" → Aquaparc.
+            const relatedOfDetected = RELATED_SUBCATEGORIES[detectedSubcategory] || [];
+            const override = keywordMatchedSubcats.find(sc =>
+              multiWordKeywordMatched[sc] && relatedOfDetected.includes(sc)
+            );
+            if (override) {
+              console.log(`Subcategory override: "${detectedSubcategory}" → "${override}" (multi-word keyword "${multiWordKeywordMatched[override]}" matched a related/child subcategory)`);
+              detectedSubcategory = override;
+              detectedSubcategoryFromKeyword = true;
+              keywordLinkedSubcategories = [];
+              keywordLinkedOwnerSubcategory = null;
+            } else if (keywordMatchedSubcats.length > 0) {
+              // Name match already found — store keyword matches as additional linked subcategories
               keywordLinkedSubcategories = keywordMatchedSubcats;
               keywordLinkedOwnerSubcategory = detectedSubcategory;
               console.log(`Keyword-linked subcategories for "${detectedSubcategory}": [${keywordLinkedSubcategories.join(", ")}]`);
@@ -1419,10 +1446,19 @@ serve(async (req) => {
               detectedSubcategoryFromKeyword = true;
               console.log(`Auto-detected subcategory "${keywordMatchedSubcats[0]}" from keyword match in query "${effectiveQuery}"`);
             } else if (keywordMatchedSubcats.length > 1) {
-              console.log(`Keyword matched ${keywordMatchedSubcats.length} subcategories [${keywordMatchedSubcats.join(", ")}] — skipping subcategory lock, will use broader search`);
+              // Prefer a multi-word keyword match over ambiguous single-word matches
+              const mwOnly = keywordMatchedSubcats.filter(sc => multiWordKeywordMatched[sc]);
+              if (mwOnly.length === 1) {
+                detectedSubcategory = mwOnly[0];
+                detectedSubcategoryFromKeyword = true;
+                console.log(`Auto-detected subcategory "${mwOnly[0]}" from multi-word keyword "${multiWordKeywordMatched[mwOnly[0]]}" (disambiguated among ${keywordMatchedSubcats.length})`);
+              } else {
+                console.log(`Keyword matched ${keywordMatchedSubcats.length} subcategories [${keywordMatchedSubcats.join(", ")}] — skipping subcategory lock, will use broader search`);
+              }
             }
           }
         }
+
 
         if (detectedSubcategory) {
           detectedSubcategoryIsReal = subcats.some(
