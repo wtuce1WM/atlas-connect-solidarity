@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Plus, Send, Trash2, Pencil, MessageSquare, Bookmark, BookmarkCheck, Mic, Volume2, Square, Headphones, RefreshCw, Map as MapIcon, Calendar as CalendarIcon, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Loader2, Plus, Send, Trash2, Pencil, MessageSquare, Bookmark, BookmarkCheck, Mic, Volume2, Square, Headphones, RefreshCw, Map as MapIcon, Calendar as CalendarIcon, ThumbsUp, ThumbsDown, BookOpen } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "@/hooks/use-toast";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
@@ -12,6 +12,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlidePanel";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import EventsSlidePanel from "@/components/club/EventsSlidePanel";
+import BlogSlidePanel from "@/components/club/BlogSlidePanel";
 import VideoThumbnail from "@/components/VideoThumbnail";
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
@@ -333,7 +334,10 @@ const MAP_RE = /<!--SHOW_ON_MAP:([\s\S]*?)-->/g;
 const SEARCH_RESULTS_RE = /<!--SEARCH_RESULTS:[\s\S]*?-->/g;
 const EVENTS_RE = /<!--EVENTS_SNAPSHOT:([\s\S]*?)-->/g;
 const KNOWN_RE = /<!--KNOWN_BUSINESSES:([\s\S]*?)-->/g;
+const BLOG_CARDS_RE = /<!--BLOG_CARDS:([\s\S]*?)-->/g;
+const BLOG_CTX_RE = /<!--BLOG_CTX:[\s\S]*?-->/g;
 type MapPayload = { title?: string; businesses: MapPanelBusiness[] };
+export type BlogCardItem = { id: string; slug: string; title: string; cover: string | null; tldr: string | null };
 export type EventPanelItem = {
   id: string;
   name: string;
@@ -353,11 +357,12 @@ export type EventPanelItem = {
 };
 type EventsPayload = { title?: string; city?: string | null; events: EventPanelItem[] };
 type KnownBusiness = { id: string; slug: string | null; name: string };
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[] } {
-  if (!text) return { clean: text, maps: [], events: [], known: [] };
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; blogs: BlogCardItem[] } {
+  if (!text) return { clean: text, maps: [], events: [], known: [], blogs: [] };
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
+  const blogs: BlogCardItem[] = [];
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const parsed = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -384,7 +389,17 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
       }
     } catch { /* ignore */ }
     return "";
-  });
+  }).replace(BLOG_CARDS_RE, (_m, raw) => {
+    try {
+      const parsed = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (Array.isArray(parsed)) {
+        for (const b of parsed) {
+          if (b?.id && b?.slug && b?.title) blogs.push({ id: b.id, slug: b.slug, title: b.title, cover: b.cover ?? null, tldr: b.tldr ?? null });
+        }
+      }
+    } catch { /* ignore */ }
+    return "";
+  }).replace(BLOG_CTX_RE, "");
   // Safety net: strip any unclosed/truncated marker (would otherwise render as raw JSON).
   clean = clean
     .replace(SEARCH_RESULTS_RE, "")
@@ -395,8 +410,10 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--KNOWN_BUSINESSES:[\s\S]*$/g, "")
     .replace(/<!--OPEN_BOOKING:[\s\S]*?-->/g, "")
     .replace(/<!--OPEN_BOOKING:[\s\S]*$/g, "")
+    .replace(/<!--BLOG_CARDS:[\s\S]*$/g, "")
+    .replace(/<!--BLOG_CTX:[\s\S]*$/g, "")
     .trim();
-  return { clean, maps, events, known };
+  return { clean, maps, events, known, blogs };
 }
 // Backward-compat alias
 const extractMapPayloads = (text: string) => {
@@ -501,6 +518,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
   // Map slide-panel state (opened when the user clicks a mini-map card in a message).
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
   const [openEvents, setOpenEvents] = useState<{ list: EventPanelItem[]; index: number } | null>(null);
+  const [openBlogs, setOpenBlogs] = useState<{ list: BlogCardItem[]; index: number } | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
   const [isBusinessPanelClosing, setIsBusinessPanelClosing] = useState(false);
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
@@ -1162,7 +1180,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const ttsBusy = tts.status === "loading" || tts.status === "playing" || tts.status === "paused";
 
   return (
-    <div className={`flex flex-col gap-4 min-h-[520px] transition-[width,max-width,padding] duration-300 ease-out ${(openBusinessId || openMap || openEvents) ? "lg:w-1/2 lg:max-w-[calc(50vw-1rem)] lg:pr-2" : "w-full"}`}>
+    <div className={`flex flex-col gap-4 min-h-[520px] transition-[width,max-width,padding] duration-300 ease-out ${(openBusinessId || openMap || openEvents || openBlogs) ? "lg:w-1/2 lg:max-w-[calc(50vw-1rem)] lg:pr-2" : "w-full"}`}>
       {/* Chat */}
       <section className="relative bg-[#ECD6B8] rounded-xl flex flex-col min-h-[300px]">
         <header className="flex items-center justify-between gap-2 px-4 py-3 border-b border-white/40">
@@ -1201,9 +1219,9 @@ const ClubAiAssistant = ({ userId }: Props) => {
           {(() => null)()}
           {messages.map((m, i) => {
             const lastAssistantIndex = (() => { for (let k = messages.length - 1; k >= 0; k--) { if (messages[k].role === "assistant") return k; } return -1; })();
-            const { clean, maps, events: eventPayloads, known } = m.role === "assistant"
+            const { clean, maps, events: eventPayloads, known, blogs: blogPayloads } = m.role === "assistant"
               ? extractPayloads(m.content)
-              : { clean: m.content, maps: [] as MapPayload[], events: [] as EventsPayload[], known: [] as KnownBusiness[] };
+              : { clean: m.content, maps: [] as MapPayload[], events: [] as EventsPayload[], known: [] as KnownBusiness[], blogs: [] as BlogCardItem[] };
             // Index business names for clickable bold names.
             for (const mp of maps) {
               for (const b of mp.businesses) {
@@ -1457,6 +1475,30 @@ const ClubAiAssistant = ({ userId }: Props) => {
                         </div>
                       );
                     })}
+                    {blogPayloads.length > 0 && (
+                      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                        {blogPayloads.map((bp, bi) => (
+                          <button
+                            key={`blog-${bp.id}`}
+                            type="button"
+                            onClick={() => setOpenBlogs({ list: blogPayloads, index: bi })}
+                            className="flex items-stretch gap-3 p-2 rounded-xl bg-white/85 hover:bg-white border border-[#C04F17]/25 transition-colors text-left group/blog overflow-hidden"
+                          >
+                            <div className="relative h-20 w-24 shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-[#C04F17]/15 to-[#D4AF37]/25 flex items-center justify-center">
+                              {bp.cover ? (
+                                <img src={bp.cover} alt={bp.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform group-hover/blog:scale-105" />
+                              ) : (
+                                <BookOpen className="h-7 w-7 text-[#C04F17]" />
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1 flex flex-col justify-between py-0.5">
+                              <div className="text-sm font-semibold text-[#0a1d6b] line-clamp-2 leading-tight">{bp.title}</div>
+                              <div className="text-[11px] text-[#C04F17] mt-1 font-medium group-hover/blog:underline">Lire l'article →</div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     {streaming && i === lastAssistantIndex && (
                       <span className="inline-flex items-center gap-1 mt-1 text-[#C04F17] text-xs">
                         <span className="inline-block w-2 h-4 bg-[#C04F17] animate-pulse align-middle" />

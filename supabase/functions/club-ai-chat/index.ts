@@ -453,6 +453,45 @@ type SessionMemory = {
   keywords: string[];
 };
 
+// ============= Blog enrichment helper =============
+// Loads blog posts referenced by a fixed-response suggestion and returns
+// (a) a small human-visible intro line, (b) a BLOG_CARDS marker that the
+// client renders as cards + opens a slidepanel, (c) an invisible BLOG_CTX
+// marker persisted in message history so subsequent LLM turns can inject
+// the full article content as grounded context.
+type BlogCard = { id: string; slug: string; title: string; cover: string | null; tldr: string | null };
+async function fetchBlogEnrichment(
+  admin: any,
+  blogPostIds: string[] | null | undefined,
+  lang: "fr" | "en" | "ar",
+): Promise<{ intro: string; cardsMarker: string; ctxMarker: string; cards: BlogCard[] } | null> {
+  const ids = Array.isArray(blogPostIds) ? blogPostIds.filter(Boolean) : [];
+  if (!ids.length) return null;
+  const { data: posts } = await admin
+    .from("blog_posts")
+    .select("id,slug,title_fr,title_en,title_ar,cover_image_url,tldr_fr,tldr_en,tldr_ar")
+    .in("id", ids)
+    .eq("is_published", true);
+  if (!posts || !posts.length) return null;
+  const pickTitle = (p: any) => (lang === "en" ? p.title_en : lang === "ar" ? p.title_ar : p.title_fr) || p.title_fr || p.title_en || p.title_ar || "";
+  const pickTldr = (p: any) => (lang === "en" ? p.tldr_en : lang === "ar" ? p.tldr_ar : p.tldr_fr) || null;
+  // Preserve staff ordering (blog_post_ids order)
+  const byId = new Map(posts.map((p: any) => [p.id, p]));
+  const ordered = ids.map((id) => byId.get(id)).filter(Boolean);
+  const cards: BlogCard[] = ordered.map((p: any) => ({
+    id: p.id, slug: p.slug, title: pickTitle(p), cover: p.cover_image_url || null, tldr: pickTldr(p),
+  }));
+  const intro = lang === "en"
+    ? `\n\n**${cards.length} article${cards.length > 1 ? "s" : ""} du blog** peuvent t'aider à aller plus loin :`
+    : lang === "ar"
+    ? `\n\n**${cards.length} مقال من المدونة** قد تساعدك على المضي قدماً:`
+    : `\n\n**${cards.length} article${cards.length > 1 ? "s" : ""} du blog** peuvent t'aider à aller plus loin :`;
+  const cardsMarker = `\n\n<!--BLOG_CARDS:${JSON.stringify(cards)}-->`;
+  const ctxMarker = `\n<!--BLOG_CTX:${JSON.stringify(ids)}-->`;
+  return { intro, cardsMarker, ctxMarker, cards };
+}
+
+
 function buildSessionMemory(messages: Msg[], activeCity?: string | null): SessionMemory {
   const mem: SessionMemory = { city: null, topic: null, landmark: null, exclusions: [], keywords: [] };
   const users = messages
@@ -1593,14 +1632,18 @@ serve(async (req) => {
         const col = lang === "en" ? "fixed_response_en" : lang === "ar" ? "fixed_response_ar" : "fixed_response_fr";
         const { data: fixedRows } = await admin
           .from("club_ai_suggestions")
-          .select(`label_fr,label_en,label_ar,${col}`)
+          .select(`id,label_fr,label_en,label_ar,blog_post_ids,${col}`)
           .eq("is_active", true)
           .not(col, "is", null);
         const match = (fixedRows || []).find((r: any) =>
           norm(r.label_fr) === key || norm(r.label_en) === key || norm(r.label_ar) === key
         );
-        const fixedAnswer = match ? String((match as any)[col] || "").trim() : "";
-        if (fixedAnswer) {
+        const baseAnswer = match ? String((match as any)[col] || "").trim() : "";
+        if (baseAnswer) {
+          const enrich = match ? await fetchBlogEnrichment(admin, (match as any).blog_post_ids, lang) : null;
+          const fixedAnswer = enrich
+            ? `${baseAnswer}${enrich.intro}${enrich.cardsMarker}${enrich.ctxMarker}`
+            : baseAnswer;
           const newMessages = [...messages, { role: "assistant", content: fixedAnswer }];
           let resultChatId: string | null = null;
           if (chatId) {
@@ -1618,7 +1661,7 @@ serve(async (req) => {
             resultChatId = inserted?.id ?? null;
           }
           turnLog.route_taken = "fixed_response";
-          turnLog.results_shown = 0;
+          turnLog.results_shown = enrich ? enrich.cards.length : 0;
           emit({ type: "chunk", delta: fixedAnswer });
           emit({ type: "done", answer: fixedAnswer, chatId: resultChatId, followups: [] });
           return;
@@ -1654,8 +1697,12 @@ serve(async (req) => {
             });
             const top = Array.isArray(matches) && matches.length ? matches[0] as any : null;
             const col = lang === "en" ? "fixed_response_en" : lang === "ar" ? "fixed_response_ar" : "fixed_response_fr";
-            const answer = top ? String(top[col] || "").trim() : "";
-            if (answer) {
+            const baseAnswer = top ? String(top[col] || "").trim() : "";
+            if (baseAnswer) {
+              const enrich = top ? await fetchBlogEnrichment(admin, top.blog_post_ids, lang) : null;
+              const answer = enrich
+                ? `${baseAnswer}${enrich.intro}${enrich.cardsMarker}${enrich.ctxMarker}`
+                : baseAnswer;
               const newMessages = [...messages, { role: "assistant", content: answer }];
               let resultChatId: string | null = null;
               if (chatId) {
@@ -1670,7 +1717,7 @@ serve(async (req) => {
                 resultChatId = inserted?.id ?? null;
               }
               turnLog.route_taken = "fixed_response_semantic";
-              turnLog.results_shown = 0;
+              turnLog.results_shown = enrich ? enrich.cards.length : 0;
               turnLog.intent_classified = `semantic:${Number(top.similarity || 0).toFixed(3)}`;
               emit({ type: "chunk", delta: answer });
               emit({ type: "done", answer, chatId: resultChatId, followups: [] });
@@ -2830,11 +2877,67 @@ ${languageInstruction}`;
             .replace(/<!--SEARCH_RESULTS:[\s\S]*$/g, "")
             .replace(/<!--OPEN_BOOKING:[\s\S]*?-->/g, "")
             .replace(/<!--OPEN_BOOKING:[\s\S]*$/g, "")
+            .replace(/<!--BLOG_CARDS:[\s\S]*?-->/g, "")
+            .replace(/<!--BLOG_CARDS:[\s\S]*$/g, "")
+            .replace(/<!--BLOG_CTX:[\s\S]*?-->/g, "")
+            .replace(/<!--BLOG_CTX:[\s\S]*$/g, "")
             .trim() }
         : m
     );
-    const convo: Msg[] = [{ role: "system", content: system }, ...sanitizedMessages];
+
+    // ============= Blog RAG injection =============
+    // Extract most recent BLOG_CTX marker from assistant history and inject the
+    // linked blog posts' content into the system prompt. Persistent scope: as
+    // long as the marker exists in a prior turn, the LLM answers grounded on
+    // those articles. Selecting a new suggestion overwrites BLOG_CTX naturally.
+    let blogGrounding = "";
+    try {
+      const CTX_RE = /<!--BLOG_CTX:([\s\S]*?)-->/g;
+      let lastCtxIds: string[] = [];
+      for (const m of messages) {
+        if (m.role !== "assistant" || typeof m.content !== "string") continue;
+        let match: RegExpExecArray | null;
+        CTX_RE.lastIndex = 0;
+        while ((match = CTX_RE.exec(m.content)) !== null) {
+          try {
+            const arr = JSON.parse(match[1]);
+            if (Array.isArray(arr) && arr.length) lastCtxIds = arr.map(String);
+          } catch { /* ignore */ }
+        }
+      }
+      if (lastCtxIds.length) {
+        const { data: ctxPosts } = await admin
+          .from("blog_posts")
+          .select("id,slug,title_fr,title_en,title_ar,tldr_fr,tldr_en,tldr_ar,content_fr,content_en,content_ar")
+          .in("id", lastCtxIds)
+          .eq("is_published", true);
+        if (ctxPosts && ctxPosts.length) {
+          const byId = new Map(ctxPosts.map((p: any) => [p.id, p]));
+          const ordered = lastCtxIds.map((id) => byId.get(id)).filter(Boolean) as any[];
+          const stripHtml = (s: string | null | undefined) =>
+            String(s || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+          const pickT = (p: any) => (lang === "en" ? p.title_en : lang === "ar" ? p.title_ar : p.title_fr) || p.title_fr;
+          const pickL = (p: any) => (lang === "en" ? p.tldr_en : lang === "ar" ? p.tldr_ar : p.tldr_fr) || "";
+          const pickC = (p: any) => (lang === "en" ? p.content_en : lang === "ar" ? p.content_ar : p.content_fr) || p.content_fr || "";
+          // Cap each article to ~6k chars to keep the context reasonable.
+          const chunks = ordered.map((p) => {
+            const body = stripHtml(pickC(p)).slice(0, 6000);
+            const tldr = stripHtml(pickL(p));
+            return `### ARTICLE — ${pickT(p)} (slug: ${p.slug})\n${tldr ? `TL;DR: ${tldr}\n` : ""}${body}`;
+          });
+          blogGrounding =
+            "\n\n=== CONTEXTE BLOG (articles liés à la suggestion sélectionnée) ===\n" +
+            "Tu as accès au contenu intégral des articles ci-dessous. Utilise-les en priorité pour répondre aux questions du membre sur ce sujet, cite-les naturellement (« comme expliqué dans notre article X »), et renvoie vers /blog/<slug> quand c'est pertinent. Ne re-liste PAS les cartes des articles : elles sont déjà affichées.\n\n" +
+            chunks.join("\n\n---\n\n") +
+            "\n=== FIN CONTEXTE BLOG ===\n";
+          turnLog.intent_classified = (turnLog.intent_classified ? turnLog.intent_classified + "|" : "") + `blog_rag:${ordered.length}`;
+        }
+      }
+    } catch (e) { console.error("blog RAG injection error", e); }
+
+    const convo: Msg[] = [{ role: "system", content: system + blogGrounding }, ...sanitizedMessages];
     const ctx = { userId: user.id, supabase: admin, lastUserMessage: lastUserMsg, language: lang };
+
 
     // Tool-calling loop (max 4 iterations — reduced from 6 for cost control)
     let finalAnswer = "";

@@ -7248,6 +7248,7 @@ export type Database = {
           query_embedding: string
         }
         Returns: {
+          blog_post_ids: string[]
           fixed_response_ar: string
           fixed_response_en: string
           fixed_response_fr: string
