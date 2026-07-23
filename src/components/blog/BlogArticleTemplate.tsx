@@ -56,6 +56,13 @@ export interface BlogArticleBusiness {
   longitude: number | null;
 }
 
+export interface BlogArticleEntryReview {
+  author?: string | null;
+  source?: string | null;
+  text: string;
+  rating?: number | null;
+}
+
 export interface BlogArticleEntry {
   id: string;
   extraIds?: string[];
@@ -63,6 +70,12 @@ export interface BlogArticleEntry {
   title: string;
   hours?: string;
   paragraphs: string[];
+  /** Short personalized tagline shown just under the establishment title. */
+  hook?: string | null;
+  /** Optional podium rank (1, 2, 3) — highlighted with a medal ribbon. */
+  rank?: number | null;
+  /** Default client review displayed below the immersive text. */
+  review?: BlogArticleEntryReview | null;
 }
 
 export interface BlogArticleFaqItem {
