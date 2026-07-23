@@ -789,8 +789,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
   // Persist 👍/👎 for the latest assistant turn (last SSE `done` payload).
   // RLS on ai_conversation_turns allows the owner to update feedback_score only.
-  const submitFeedback = async (score: 1 | -1) => {
-    const turnId = lastTurnIdRef.current;
+  const submitFeedback = async (score: 1 | -1, turnIdArg?: string) => {
+    const turnId = turnIdArg || lastTurnIdRef.current;
     if (!turnId) return;
     const prev = feedbackByTurn[turnId];
     const next = prev === score ? undefined : score;
