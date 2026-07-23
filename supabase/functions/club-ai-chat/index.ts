@@ -2540,7 +2540,9 @@ ${languageInstruction}`;
       const langLabel = lang === "en" ? "English" : lang === "ar" ? "Arabic" : "French";
       const DEFAULT_FOLLOWUP_PROMPT = `You generate exactly 3 short, natural follow-up questions the user might ask next, in {{LANG_LABEL}}. Each under 90 chars, no numbering, no quotes, one per line.
 
-CRITICAL — each follow-up MUST be SELF-CONTAINED and carry forward ALL explicit constraints from the current conversation (category, city/area, keywords like "rooftop bar", exclusions like "pas d'hôtel", landmark like "vue Koutoubia", price, ambiance, etc.). A short pronoun-only question like "Lequel a la meilleure ambiance le soir ?" is FORBIDDEN — rewrite it as "Quel rooftop bar (pas hôtel) à Marrakech a la meilleure ambiance le soir ?".
+CRITICAL — each follow-up MUST be SELF-CONTAINED and carry forward ALL explicit constraints from the current conversation (category, city/area, keywords like "rooftop bar", exclusions like "pas d'hôtel", landmark like "vue Koutoubia", ambiance, etc.). A short pronoun-only question like "Lequel a la meilleure ambiance le soir ?" is FORBIDDEN — rewrite it as "Quel rooftop bar (pas hôtel) à Marrakech a la meilleure ambiance le soir ?".
+
+STRICTLY FORBIDDEN — never propose a follow-up about price, budget, tariff, "moins cher / cheaper / plus économique / le meilleur rapport qualité prix". Pricing data is only known for a few hotels/riads and cannot be filtered on. Prefer follow-ups about opening now, map view, neighborhood, ambiance, agenda/events, alternatives similar in style.
 
 The user will click ONE of these as a new turn and prior constraints must be re-searchable from the question alone. Return ONLY the 3 lines.`;
       let followupTemplate = DEFAULT_FOLLOWUP_PROMPT;
@@ -2552,6 +2554,8 @@ The user will click ONE of these as a new turn and prior constraints must be re-
       const priorTurns = messages.filter((m: any) => m.role === "user").slice(-4).map((m: any) => `- ${String(m.content).slice(0, 200)}`).join("\n");
       const lastAssistant = finalAnswer.replace(/<!--SHOW_ON_MAP:[\s\S]*?-->/g, "").slice(0, 1200);
       const lastUserMsg = lastUser.slice(0, 400);
+      const sessionMem = buildSessionMemory(messages, clientContext?.activeCity);
+      const memLine = `SESSION MEMORY (deterministic, carry forward): city=${sessionMem.city || "?"} · topic=${sessionMem.topic || "?"} · landmark=${sessionMem.landmark || "?"} · exclusions=[${sessionMem.exclusions.join(", ") || "?"}] · keywords=[${sessionMem.keywords.join(", ") || "?"}]`;
       const fResp = await fetchAiGateway(GATEWAY_URL, {
         method: "POST",
         headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
@@ -2559,7 +2563,7 @@ The user will click ONE of these as a new turn and prior constraints must be re-
           model: FALLBACK_MODEL,
           messages: [
             { role: "system", content: followupSystem },
-            { role: "user", content: `Recent user turns (oldest→newest):\n${priorTurns}\n\nLatest user question: ${lastUserMsg}\n\nAssistant answered: ${lastAssistant}\n\nGive 3 self-contained follow-up questions that keep every explicit constraint.` },
+            { role: "user", content: `${memLine}\n\nRecent user turns (oldest→newest):\n${priorTurns}\n\nLatest user question: ${lastUserMsg}\n\nAssistant answered: ${lastAssistant}\n\nGive 3 self-contained follow-up questions that keep every explicit constraint. NEVER mention price/budget/cheaper.` },
           ],
           temperature: 0.8,
           max_tokens: 200,
@@ -2571,20 +2575,29 @@ The user will click ONE of these as a new turn and prior constraints must be re-
         chatId: resultChatId || chatId || null,
         context: "club-ai-chat-followups",
         model: FALLBACK_MODEL,
-        metadata: { active_city: clientContext?.activeCity || null },
+        metadata: { active_city: clientContext?.activeCity || null, session_memory: sessionMem },
       });
       if (fResp.ok) {
         const fData = await fResp.json();
         const raw = fData?.choices?.[0]?.message?.content || "";
+        const PRICE_RE = /\b(prix|tarif|tarifs|budget|budgets|moins\s+cher|plus\s+cher|pas\s+cher|économique|economique|cheap|cheaper|price|expensive|affordable|rapport\s+qualit[ée]\s*[/\-]?\s*prix|سعر|أرخص)\b/i;
         followups = raw
           .split("\n")
           .map((s: string) => s.replace(/^[-*\d.)\s]+/, "").replace(/^["'«»]+|["'«»]+$/g, "").trim())
-          .filter((s: string) => s && s.length > 3 && s.length < 120)
+          .filter((s: string) => s && s.length > 3 && s.length < 120 && !PRICE_RE.test(s))
           .slice(0, 3);
+      }
+      // Deterministic fallback if the LLM returned nothing usable
+      if (!followups.length) {
+        followups = buildDeterministicFollowups("tool_loop", sessionMem, lang);
       }
     } catch (e) {
       console.error("followup gen error", e);
+      try {
+        followups = buildDeterministicFollowups("tool_loop", buildSessionMemory(messages, clientContext?.activeCity), (language || "fr").toLowerCase());
+      } catch { /* keep empty */ }
     }
+
 
     if (turnLog.route_taken === "unknown") turnLog.route_taken = "tool_loop";
     // Non-streamed path: emit the answer as a single chunk then done.
