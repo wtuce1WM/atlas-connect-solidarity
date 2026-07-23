@@ -1465,32 +1465,6 @@ const ClubAiAssistant = ({ userId }: Props) => {
                           <Volume2 className="relative h-4 w-4 text-white" />
                         )}
                       </button>
-                      {lastTurnIdRef.current && !streaming && (() => {
-                        const tid = lastTurnIdRef.current!;
-                        const score = feedbackByTurn[tid];
-                        return (
-                          <div className="ml-3 flex items-center gap-1">
-                            <button
-                              type="button"
-                              onClick={() => submitFeedback(1)}
-                              className={`w-8 h-8 rounded-full flex items-center justify-center border transition-colors ${score === 1 ? "bg-[#C04F17] border-[#C04F17] text-white" : "bg-white/5 border-white/20 text-white/70 hover:bg-white/10"}`}
-                              title="Réponse utile"
-                              aria-label="Réponse utile"
-                            >
-                              <ThumbsUp className="h-3.5 w-3.5" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => submitFeedback(-1)}
-                              className={`w-8 h-8 rounded-full flex items-center justify-center border transition-colors ${score === -1 ? "bg-white text-[#C04F17] border-white" : "bg-white/5 border-white/20 text-white/70 hover:bg-white/10"}`}
-                              title="Réponse à améliorer"
-                              aria-label="Réponse à améliorer"
-                            >
-                              <ThumbsDown className="h-3.5 w-3.5" />
-                            </button>
-                          </div>
-                        );
-                      })()}
                     </div>
                   </div>
                 )}
