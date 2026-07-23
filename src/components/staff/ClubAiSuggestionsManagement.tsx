@@ -33,6 +33,21 @@ const ClubAiSuggestionsManagement = () => {
   const [blogPosts, setBlogPosts] = useState<BlogOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
+  const [embedding, setEmbedding] = useState(false);
+
+  const runEmbed = async (force = false) => {
+    setEmbedding(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("embed-club-suggestions", { body: { force } });
+      if (error) throw error;
+      const d = data as any;
+      toast({ title: "Réindexation terminée", description: `${d.processed}/${d.total} suggestions ré-embeddées (${d.skipped} à jour).` });
+    } catch (e: any) {
+      toast({ title: "Erreur réindexation", description: e.message || String(e), variant: "destructive" });
+    } finally {
+      setEmbedding(false);
+    }
+  };
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
