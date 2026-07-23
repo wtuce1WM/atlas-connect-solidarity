@@ -310,6 +310,138 @@ function correctVisibleResultCount(answer: string, resultNames: string[]): strin
   return answer.replace(/(\*\*)?\s*\d+\s+(r[ée]sultats?\s+affich[ée]s?\s+sur\s+\d+\s+trouv[ée]s?)(\*\*)?/i, (_m, open = "", rest, close = "") => `${open}${count} ${rest}${close}`);
 }
 
+// ============= Session memory (heuristic, deterministic) + follow-ups =============
+// Reconstructs "who / where / what / not-what" from the last user turns so shortcut
+// routes can propose self-contained, context-aware follow-ups without an LLM call.
+// STRICT RULE (product): NEVER suggest a price/budget/cheaper filter — pricing data
+// isn't reliable for most establishments (only some hotels/riads).
+
+const KNOWN_CITIES = [
+  "marrakech", "essaouira", "casablanca", "rabat", "tanger", "tangier",
+  "fes", "fès", "agadir", "ouarzazate", "chefchaouen", "meknes", "meknès",
+  "tetouan", "tétouan", "el jadida", "dakhla", "ifrane", "asilah",
+];
+const KNOWN_LANDMARKS = [
+  "koutoubia", "jemaa el fna", "jamaa el fna", "medina", "gueliz", "hivernage",
+  "palmeraie", "menara", "majorelle", "bahia", "atlas", "kasbah", "mellah", "bab agnaou",
+];
+const TOPIC_KEYWORDS: Record<string, string> = {
+  "rooftop": "rooftop", "bar": "bar", "restaurant": "restaurant", "resto": "restaurant",
+  "diner": "restaurant", "dine": "restaurant", "manger": "restaurant", "brunch": "brunch",
+  "cafe": "café", "hotel": "hôtel", "riad": "riad", "spa": "spa", "hammam": "hammam",
+  "boutique": "boutique", "musee": "musée", "gallery": "galerie", "galerie": "galerie",
+  "jazz": "club de jazz", "concert": "concert", "piscine": "piscine", "plage": "plage",
+  "surf": "surf", "yoga": "yoga", "cocktail": "bar à cocktails", "club": "club",
+};
+const EXCLUSION_STOPWORDS = new Set([
+  "pas", "les", "des", "une", "que", "peur", "plus", "trop", "mal", "trop",
+  "the", "any", "some", "and", "for", "not",
+]);
+
+type SessionMemory = {
+  city: string | null;
+  topic: string | null;
+  landmark: string | null;
+  exclusions: string[];
+  keywords: string[];
+};
+
+function buildSessionMemory(messages: Msg[], activeCity?: string | null): SessionMemory {
+  const mem: SessionMemory = { city: null, topic: null, landmark: null, exclusions: [], keywords: [] };
+  const users = messages
+    .filter((m) => m.role === "user" && typeof m.content === "string")
+    .slice(-6);
+  const exSet = new Set<string>();
+  const kwSet = new Set<string>();
+  for (const m of users) {
+    const raw = String(m.content);
+    const n = normalizeLoose(raw);
+    for (const c of KNOWN_CITIES) {
+      if (n.includes(normalizeLoose(c))) mem.city = c.charAt(0).toUpperCase() + c.slice(1);
+    }
+    for (const l of KNOWN_LANDMARKS) {
+      if (n.includes(normalizeLoose(l))) mem.landmark = l;
+    }
+    for (const [k, v] of Object.entries(TOPIC_KEYWORDS)) {
+      if (n.includes(normalizeLoose(k))) { mem.topic = v; kwSet.add(v); }
+    }
+    const exclRegexes = [
+      /\bpas\s+(?:de\s+|d['’]?\s*|un\s+|une\s+|des\s+)?([a-zà-ÿ]{3,15})/gi,
+      /\bsans\s+([a-zà-ÿ]{3,15})/gi,
+      /\bno\s+([a-z]{3,15})\b/gi,
+      /\bnot\s+(?:a\s+|an\s+)?([a-z]{3,15})\b/gi,
+    ];
+    for (const re of exclRegexes) {
+      let mm: RegExpExecArray | null;
+      while ((mm = re.exec(raw)) !== null) {
+        const w = normalizeLoose(mm[1]);
+        if (w && !EXCLUSION_STOPWORDS.has(w)) exSet.add(w);
+      }
+    }
+  }
+  if (!mem.city && activeCity) mem.city = String(activeCity);
+  mem.exclusions = Array.from(exSet).slice(0, 4);
+  mem.keywords = Array.from(kwSet).slice(0, 5);
+  return mem;
+}
+
+function buildDeterministicFollowups(route: string, mem: SessionMemory, lang: string): string[] {
+  const t = (fr: string, en: string, ar: string) => lang === "en" ? en : lang === "ar" ? ar : fr;
+  const cityFR = mem.city || "Marrakech";
+  const cityEN = mem.city || "Marrakech";
+  const cityAR = mem.city || "مراكش";
+  const topicFR = mem.topic || "adresse";
+  const topicEN = mem.topic || "spot";
+  const topicAR = mem.topic || "مكان";
+  const exclFR = mem.exclusions.length ? ` (sans ${mem.exclusions.join(", ")})` : "";
+  const exclEN = mem.exclusions.length ? ` (excluding ${mem.exclusions.join(", ")})` : "";
+  const landFR = mem.landmark ? ` avec vue sur ${mem.landmark}` : "";
+  const landEN = mem.landmark ? ` overlooking ${mem.landmark}` : "";
+
+  const OPEN_NOW = t("Lesquels sont ouverts maintenant ?", "Which ones are open right now?", "أيها مفتوح الآن؟");
+  const ON_MAP   = t("Peux-tu me les afficher sur une carte ?", "Can you show them on a map?", "اعرضها على الخريطة");
+  const AGENDA   = t(`Que se passe-t-il à ${cityFR} ces prochaines semaines ?`, `What's happening in ${cityEN} in the coming weeks?`, `ما الذي يحدث في ${cityAR} في الأسابيع القادمة؟`);
+  const SIMILAR  = t(`Un autre ${topicFR} similaire à ${cityFR}${landFR}${exclFR} ?`, `Another ${topicEN} similar in ${cityEN}${landEN}${exclEN}?`, `${topicAR} آخر مشابه في ${cityAR}`);
+
+  switch (route) {
+    case "router_direct":
+    case "tool_loop":
+    case "refinement":
+      return [OPEN_NOW, ON_MAP, AGENDA];
+    case "agenda_shortcut":
+      return [
+        t(`Quels événements ce week-end à ${cityFR} ?`, `What events this weekend in ${cityEN}?`, `فعاليات نهاية الأسبوع في ${cityAR}؟`),
+        t(`Un ${topicFR}${exclFR} pour ce soir à ${cityFR} ?`, `A ${topicEN}${exclEN} for tonight in ${cityEN}?`, `${topicAR} لهذه الليلة في ${cityAR}؟`),
+        t(`Peux-tu afficher ces événements sur une carte ?`, `Can you show these events on a map?`, `اعرض الفعاليات على الخريطة`),
+      ];
+    case "affirmative_map":
+    case "map_shortcut_fallback":
+      return [
+        OPEN_NOW,
+        t(`Quel est ton préféré et pourquoi ?`, `Which is your favorite and why?`, `أيها المفضل لديك ولماذا؟`),
+        AGENDA,
+      ];
+    case "bookmarks_shortcut":
+      return [OPEN_NOW, ON_MAP, AGENDA];
+    case "details_shortcut":
+      return [
+        t(`Quels sont ses horaires d'ouverture aujourd'hui ?`, `What are today's opening hours?`, `ما هي ساعات العمل اليوم؟`),
+        SIMILAR,
+        t(`Peux-tu me le situer sur une carte ?`, `Can you show it on a map?`, `اعرضه على الخريطة`),
+      ];
+    case "open_now_shortcut":
+      return [
+        ON_MAP,
+        SIMILAR,
+        t(`Que se passe-t-il ce soir à ${cityFR} ?`, `What's happening tonight in ${cityEN}?`, `ما الذي يحدث الليلة في ${cityAR}؟`),
+      ];
+    default:
+      return [ON_MAP, OPEN_NOW, AGENDA];
+  }
+}
+
+
+
 const tools = [
   {
     type: "function",
