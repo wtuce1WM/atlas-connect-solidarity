@@ -434,6 +434,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const [followups, setFollowups] = useState<string[]>([]);
   const [skeletonCount, setSkeletonCount] = useState<number>(0);
   const [feedbackByTurn, setFeedbackByTurn] = useState<Record<string, 1 | -1>>({});
+  const [turnIdByIdx, setTurnIdByIdx] = useState<Record<number, string>>({});
   const lastTurnIdRef = useRef<string | null>(null);
 
 
@@ -788,8 +789,8 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
   // Persist 👍/👎 for the latest assistant turn (last SSE `done` payload).
   // RLS on ai_conversation_turns allows the owner to update feedback_score only.
-  const submitFeedback = async (score: 1 | -1) => {
-    const turnId = lastTurnIdRef.current;
+  const submitFeedback = async (score: 1 | -1, turnIdArg?: string) => {
+    const turnId = turnIdArg || lastTurnIdRef.current;
     if (!turnId) return;
     const prev = feedbackByTurn[turnId];
     const next = prev === score ? undefined : score;
@@ -974,7 +975,10 @@ const ClubAiAssistant = ({ userId }: Props) => {
               setSkeletonCount(Math.min(8, Math.max(1, evt.count)));
             } else if (evt.type === "done") {
               finalPayload = evt;
-              if (evt.turnId) lastTurnIdRef.current = String(evt.turnId);
+              if (evt.turnId) {
+                lastTurnIdRef.current = String(evt.turnId);
+                setTurnIdByIdx((s) => ({ ...s, [assistantIdx]: String(evt.turnId) }));
+              }
               setSkeletonCount(0);
             } else if (evt.type === "error") {
               throw new Error(evt.message || "stream_error");
@@ -1280,19 +1284,21 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
                         const source = linkifyPhones(stripFicheLinks(clean));
                         const isLastAssistant = i === lastAssistantIndex;
-                        const canShowFeedback = isLastAssistant && !streaming && !!lastTurnIdRef.current;
+                        const msgTurnId = turnIdByIdx[i] || (isLastAssistant ? lastTurnIdRef.current : null);
+                        const isStreamingThis = isLastAssistant && streaming;
+                        const canShowFeedback = !!msgTurnId && !isStreamingThis;
                         // Split around the "N résultats affichés sur M trouvés" line to
                         // insert thumbs right after it. Fallback: render at the end.
                         const countLineRe = /^.*\b\d+\s+r[ée]sultats?\s+affich[ée]s?\s+sur\s+\d+\s+trouv[ée]s?.*$/im;
                         const match = source.match(countLineRe);
                         const feedbackNode = canShowFeedback ? (() => {
-                          const tid = lastTurnIdRef.current!;
+                          const tid = msgTurnId!;
                           const score = feedbackByTurn[tid];
                           return (
                             <div className="my-2 flex items-center gap-1.5 not-prose">
                               <button
                                 type="button"
-                                onClick={() => submitFeedback(1)}
+                                onClick={() => submitFeedback(1, tid)}
                                 className={`w-7 h-7 rounded-full flex items-center justify-center border transition-colors ${score === 1 ? "bg-[#C04F17] border-[#C04F17] text-white" : "bg-white/5 border-[#C04F17]/30 text-[#C04F17] hover:bg-[#C04F17]/10"}`}
                                 title="Réponse utile"
                                 aria-label="Réponse utile"
@@ -1301,7 +1307,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                               </button>
                               <button
                                 type="button"
-                                onClick={() => submitFeedback(-1)}
+                                onClick={() => submitFeedback(-1, tid)}
                                 className={`w-7 h-7 rounded-full flex items-center justify-center border transition-colors ${score === -1 ? "bg-[#C04F17] border-[#C04F17] text-white" : "bg-white/5 border-[#C04F17]/30 text-[#C04F17] hover:bg-[#C04F17]/10"}`}
                                 title="Réponse à améliorer"
                                 aria-label="Réponse à améliorer"
