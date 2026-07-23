@@ -393,6 +393,8 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--EVENTS_SNAPSHOT:[\s\S]*$/g, "")
     .replace(/<!--KNOWN_BUSINESSES:[\s\S]*?-->/g, "")
     .replace(/<!--KNOWN_BUSINESSES:[\s\S]*$/g, "")
+    .replace(/<!--OPEN_BOOKING:[\s\S]*?-->/g, "")
+    .replace(/<!--OPEN_BOOKING:[\s\S]*$/g, "")
     .trim();
   return { clean, maps, events, known };
 }
@@ -963,6 +965,15 @@ const ClubAiAssistant = ({ userId }: Props) => {
       const fullMessages: Msg[] = [...newMsgs, { role: "assistant", content: answer }];
       messagesRef.current = fullMessages;
       setMessages(fullMessages);
+      // Deterministic booking route: server appends <!--OPEN_BOOKING:{id,slug,name}-->
+      // to instruct the client to open BookOnlineSlidePanel without any LLM call.
+      try {
+        const bm = answer.match(/<!--OPEN_BOOKING:([\s\S]*?)-->/);
+        if (bm) {
+          const parsed = JSON.parse(bm[1].replace(/--&gt;/g, "-->"));
+          if (parsed?.id) setTimeout(() => setOpenBusinessId(String(parsed.id)), 60);
+        }
+      } catch { /* ignore malformed booking marker */ }
       const fu = Array.isArray(finalPayload?.followups) ? (finalPayload.followups as string[]).filter((s) => typeof s === "string" && s.trim()).slice(0, 3) : [];
       setFollowups(fu);
       if (newId) {
