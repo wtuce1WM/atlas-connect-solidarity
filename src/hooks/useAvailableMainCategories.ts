@@ -11,12 +11,30 @@ export function useAvailableMainCategories() {
     const run = async () => {
       setIsLoading(true);
       try {
-        const { data, error } = await supabase
-          .from("businesses")
-          .select("main_category")
-          .eq("is_active", true)
-          .not("main_category", "is", null)
-          .order("main_category");
+        // Paginer pour dépasser la limite implicite de 1000 lignes
+        const pageSize = 1000;
+        let from = 0;
+        const all: { main_category: string | null }[] = [];
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          const { data: page, error } = await supabase
+            .from("businesses")
+            .select("main_category")
+            .eq("is_active", true)
+            .not("main_category", "is", null)
+            .order("main_category")
+            .range(from, from + pageSize - 1);
+          if (error) {
+            console.error("Error fetching main categories:", error);
+            break;
+          }
+          if (!page || page.length === 0) break;
+          all.push(...page);
+          if (page.length < pageSize) break;
+          from += pageSize;
+        }
+        const data = all;
+        const error = null as any;
 
         if (error) {
           console.error("Error fetching main categories:", error);
