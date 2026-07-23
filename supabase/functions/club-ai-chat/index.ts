@@ -2407,6 +2407,9 @@ serve(async (req) => {
     console.log("club-ai-chat router:", JSON.stringify({ intent: routedIntent, isMapTrigger, msg: lastUserMsg.slice(0, 100), hasPrev: !!previousUserQuery, snapSlugs: previousSearchSnapshot?.slugs?.length ?? 0, msgsCount: messages.length, openNowMatch: isOpenNowIntent(lastUserMsg), activeCityRaw: clientContext.activeCity, activeCityClean }));
 
     if (!isMapTrigger && !affirmativeMapTrigger && (routedIntent === "search" || routedIntent === "refinement")) {
+      // Skeleton placeholders : the client can render N grey cards while the
+      // synth stream is being generated, halving perceived latency.
+      emit({ type: "skeleton", count: 5, intent: routedIntent });
       try {
         const fusedQuery = routedIntent === "refinement" && previousUserQuery
           ? `${previousUserQuery} ${lastUserMsg}`.replace(/\s+/g, " ").slice(0, 400)
