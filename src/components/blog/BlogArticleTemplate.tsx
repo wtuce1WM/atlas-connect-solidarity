@@ -131,6 +131,7 @@ const BlogArticleTemplate = ({
   const navigate = useNavigate();
   const { language } = useLanguage();
   const [businesses, setBusinesses] = useState<Record<string, BlogArticleBusiness>>({});
+  const [defaultReviews, setDefaultReviews] = useState<Record<string, BlogArticleEntryReview>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
   const [isClosing, setIsClosing] = useState(false);
