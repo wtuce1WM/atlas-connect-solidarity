@@ -1633,17 +1633,25 @@ serve(async (req) => {
         const { data: fixedRows } = await admin
           .from("club_ai_suggestions")
           .select(`id,label_fr,label_en,label_ar,blog_post_ids,${col}`)
-          .eq("is_active", true)
-          .not(col, "is", null);
-        const match = (fixedRows || []).find((r: any) =>
-          norm(r.label_fr) === key || norm(r.label_en) === key || norm(r.label_ar) === key
-        );
+          .eq("is_active", true);
+        const match = (fixedRows || []).find((r: any) => {
+          const hasFixed = !!String(r[col] || "").trim();
+          const hasBlogs = Array.isArray(r.blog_post_ids) && r.blog_post_ids.length > 0;
+          if (!hasFixed && !hasBlogs) return false;
+          return norm(r.label_fr) === key || norm(r.label_en) === key || norm(r.label_ar) === key;
+        });
         const baseAnswer = match ? String((match as any)[col] || "").trim() : "";
-        if (baseAnswer) {
-          const enrich = match ? await fetchBlogEnrichment(admin, (match as any).blog_post_ids, lang) : null;
+        const enrich = match ? await fetchBlogEnrichment(admin, (match as any).blog_post_ids, lang) : null;
+        if (baseAnswer || enrich) {
+          const defaultIntro = lang === "en"
+            ? "Here are resources that can help you:"
+            : lang === "ar"
+            ? "إليك بعض الموارد التي قد تساعدك:"
+            : "Voici quelques ressources qui peuvent t'aider :";
+          const head = baseAnswer || defaultIntro;
           const fixedAnswer = enrich
-            ? `${baseAnswer}${enrich.intro}${enrich.cardsMarker}${enrich.ctxMarker}`
-            : baseAnswer;
+            ? `${head}${enrich.intro}${enrich.cardsMarker}${enrich.ctxMarker}`
+            : head;
           const newMessages = [...messages, { role: "assistant", content: fixedAnswer }];
           let resultChatId: string | null = null;
           if (chatId) {
