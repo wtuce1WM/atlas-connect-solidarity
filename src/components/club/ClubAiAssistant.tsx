@@ -940,13 +940,19 @@ const ClubAiAssistant = ({ userId }: Props) => {
                 firstTokenAt = performance.now();
                 setStreaming(true);
               }
+              // First real token clears the skeleton placeholders.
+              if (skeletonCount) setSkeletonCount(0);
               streamedText += evt.delta;
               const next = [...messagesRef.current];
               next[assistantIdx] = { role: "assistant", content: streamedText };
               messagesRef.current = next;
               setMessages(next);
+            } else if (evt.type === "skeleton" && typeof evt.count === "number") {
+              setSkeletonCount(Math.min(8, Math.max(1, evt.count)));
             } else if (evt.type === "done") {
               finalPayload = evt;
+              if (evt.turnId) lastTurnIdRef.current = String(evt.turnId);
+              setSkeletonCount(0);
             } else if (evt.type === "error") {
               throw new Error(evt.message || "stream_error");
             }
