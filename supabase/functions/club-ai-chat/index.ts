@@ -1628,7 +1628,60 @@ serve(async (req) => {
       console.error("fixed-response lookup error", e);
     }
 
-
+    // ============= #12 Semantic match on staff-validated suggestions =============
+    // Embed the user question (openai/text-embedding-3-small, 1536-dim) and try
+    // to match a club_ai_suggestions row that has a fixed_response for the
+    // active language. Skips entirely if the question is short (< 3 words),
+    // has already been matched exactly above, or if no active suggestion has
+    // a fixed_response in this language.
+    try {
+      const lastUserForSem = String([...messages].reverse().find((m: any) => m.role === "user")?.content || "").trim();
+      const wc = lastUserForSem.split(/\s+/).filter(Boolean).length;
+      if (lastUserForSem.length >= 8 && wc >= 3) {
+        const embResp = await fetch("https://ai.gateway.lovable.dev/v1/embeddings", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ model: "openai/text-embedding-3-small", input: lastUserForSem }),
+        });
+        if (embResp.ok) {
+          const embJson = await embResp.json();
+          const vec = embJson?.data?.[0]?.embedding as number[] | undefined;
+          if (Array.isArray(vec) && vec.length === 1536) {
+            const { data: matches } = await admin.rpc("match_club_suggestions", {
+              query_embedding: vec as any,
+              match_count: 1,
+              min_similarity: 0.82,
+            });
+            const top = Array.isArray(matches) && matches.length ? matches[0] as any : null;
+            const col = lang === "en" ? "fixed_response_en" : lang === "ar" ? "fixed_response_ar" : "fixed_response_fr";
+            const answer = top ? String(top[col] || "").trim() : "";
+            if (answer) {
+              const newMessages = [...messages, { role: "assistant", content: answer }];
+              let resultChatId: string | null = null;
+              if (chatId) {
+                const { data: existing } = await admin.from("ai_chats").select("id").eq("id", chatId).eq("user_id", user.id).maybeSingle();
+                if (existing?.id) {
+                  await admin.from("ai_chats").update({ messages: newMessages, updated_at: new Date().toISOString() }).eq("id", chatId).eq("user_id", user.id);
+                  resultChatId = chatId;
+                }
+              }
+              if (!resultChatId) {
+                const { data: inserted } = await admin.from("ai_chats").insert({ user_id: user.id, kind: "club", title: lastUserForSem.slice(0, 200) || "Suggestion", messages: newMessages }).select("id").single();
+                resultChatId = inserted?.id ?? null;
+              }
+              turnLog.route_taken = "fixed_response_semantic";
+              turnLog.results_shown = 0;
+              turnLog.intent_classified = `semantic:${Number(top.similarity || 0).toFixed(3)}`;
+              emit({ type: "chunk", delta: answer });
+              emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+              return;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error("semantic-suggestion match error", e);
+    }
 
 
     // Load Club member profile (lightweight context)
