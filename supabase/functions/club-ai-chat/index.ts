@@ -186,6 +186,23 @@ function isOpenNowIntent(text: string): boolean {
   return OPEN_NOW_INTENT_RE.test(n);
 }
 
+// Top-level city cleaner (duplicated inside `serve` as local `cleanActiveCity`,
+// but hoisted here so deterministic routes running before that inner const
+// can also normalize the active city safely).
+function cleanActiveCityTop(raw: any): string | undefined {
+  const s = String(raw || "").trim();
+  if (!s) return undefined;
+  const known = ["Marrakech", "Essaouira", "Casablanca", "Agadir", "Taghazout", "Rabat", "Fès", "Fes", "Tanger", "Chefchaouen", "Ouarzazate", "Merzouga"];
+  const norm = s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  for (const k of known) {
+    const kn = k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    if (norm.includes(kn)) return k;
+  }
+  return s.length <= 40 && !/[,\d]/.test(s) ? s : undefined;
+}
+
+
+
 // ============= Router helpers : weather / booking / nearby / price =============
 const WEATHER_INTENT_RE = /\b(m[ée]t[ée]o|weather|forecast|il\s+fait\s+(?:beau|chaud|froid|mauvais|combien)|quel\s+temps|temps\s+qu[’']?il\s+fait|temp[ée]rature|degr[ée]s?|is\s+it\s+(?:sunny|raining|hot|cold)|الطقس)\b/i;
 function isWeatherIntent(text: string): boolean { return WEATHER_INTENT_RE.test(normalizeLoose(text)); }
@@ -2085,7 +2102,7 @@ serve(async (req) => {
     if (isWeatherIntent(lastUserMsg)) {
       try {
         const mem = buildSessionMemory(messages, clientContext?.activeCity);
-        const city = mem.city || cleanActiveCity(clientContext?.activeCity) || "Marrakech";
+        const city = mem.city || cleanActiveCityTop(clientContext?.activeCity) || "Marrakech";
         const { data: w, error: wErr } = await admin.functions.invoke("get-weather", { body: { city } });
         if (!wErr && w) {
           const temp = w?.current?.temperature ?? w?.temperature ?? null;
@@ -2138,7 +2155,7 @@ serve(async (req) => {
       try {
         const clean = bookingTarget.replace(/\s+/g, " ").trim();
         const nName = normalizeLoose(clean);
-        const activeCity = cleanActiveCity(clientContext?.activeCity);
+        const activeCity = cleanActiveCityTop(clientContext?.activeCity);
         let query = admin.from("businesses").select("id, slug, name, city, main_category").eq("is_active", true);
         if (activeCity) query = query.ilike("city", `%${activeCity}%`);
         const { data: candidates } = await query.ilike("name", `%${clean.split(/\s+/)[0]}%`).limit(30);
