@@ -598,6 +598,10 @@ const BlogArticleTemplate = ({
           {[...entries]
             .filter((e) => businesses[e.id])
             .sort((a, b) => {
+              const fa = businesses[a.id]?.is_featured ? 1 : 0;
+              const fb = businesses[b.id]?.is_featured ? 1 : 0;
+              if (fb !== fa) return fb - fa;
+
               const ra = businesses[a.id]?.computed_rating ?? businesses[a.id]?.rating ?? -1;
               const rb = businesses[b.id]?.computed_rating ?? businesses[b.id]?.rating ?? -1;
               if (rb !== ra) return rb - ra;
