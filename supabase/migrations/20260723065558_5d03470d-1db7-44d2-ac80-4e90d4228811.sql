@@ -1,0 +1,2 @@
+INSERT INTO public.subcategory_relations (source_subcategory_id, target_subcategory_id, is_active) VALUES ('5c4d1675-78df-4a6b-98ae-63fd7ec7c7a0', '21beb679-d121-4aa7-ab94-1cc581334589', true) ON CONFLICT DO NOTHING;
+UPDATE public.subcategories SET keywords = array_append(keywords, 'parc aquatique') WHERE id = '21beb679-d121-4aa7-ab94-1cc581334589' AND NOT (keywords @> ARRAY['parc aquatique']);
