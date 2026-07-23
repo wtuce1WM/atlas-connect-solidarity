@@ -54,6 +54,7 @@ export interface BlogArticleBusiness {
   wtuce_status: string | null;
   latitude: number | null;
   longitude: number | null;
+  is_featured?: boolean | null;
 }
 
 export interface BlogArticleEntryReview {
