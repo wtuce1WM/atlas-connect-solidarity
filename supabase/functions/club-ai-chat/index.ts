@@ -1599,7 +1599,7 @@ serve(async (req) => {
         }
         turnLog.route_taken = "agenda_shortcut";
         emit({ type: "chunk", delta: answer.split(/<!--/)[0] });
-        emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+        emit({ type: "done", answer, chatId: resultChatId, followups: buildDeterministicFollowups("agenda_shortcut", buildSessionMemory(messages, clientContext?.activeCity), lang) });
         return;
       } catch (e) {
         console.error("deterministic agenda route failed", e);
@@ -1646,7 +1646,7 @@ serve(async (req) => {
           turnLog.route_taken = "affirmative_map";
           turnLog.results_shown = (forced as any).businesses.length;
           emit({ type: "chunk", delta: answer.split(/<!--/)[0] });
-          emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+          emit({ type: "done", answer, chatId: resultChatId, followups: buildDeterministicFollowups("affirmative_map", buildSessionMemory(messages, clientContext?.activeCity), lang) });
           return;
         }
       }
@@ -1698,7 +1698,7 @@ serve(async (req) => {
           turnLog.route_taken = "map_shortcut_fallback";
           turnLog.results_shown = (forced as any).businesses.length;
           emit({ type: "chunk", delta: answer.split(/<!--/)[0] });
-          emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+          emit({ type: "done", answer, chatId: resultChatId, followups: buildDeterministicFollowups("map_shortcut_fallback", buildSessionMemory(messages, clientContext?.activeCity), lang) });
           return;
         }
       }
@@ -1737,7 +1737,7 @@ serve(async (req) => {
           turnLog.route_taken = "bookmarks_shortcut";
           turnLog.results_shown = 0;
           emit({ type: "chunk", delta: empty });
-          emit({ type: "done", answer: empty, chatId: resultChatId, followups: [] });
+          emit({ type: "done", answer: empty, chatId: resultChatId, followups: buildDeterministicFollowups("bookmarks_shortcut", buildSessionMemory(messages, clientContext?.activeCity), lang) });
           return;
         }
 
@@ -1792,7 +1792,7 @@ serve(async (req) => {
         turnLog.results_count = totalCount;
         turnLog.results_shown = shown.length;
         emit({ type: "chunk", delta: answer.split(/<!--/)[0] });
-        emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+        emit({ type: "done", answer, chatId: resultChatId, followups: buildDeterministicFollowups("bookmarks_shortcut", buildSessionMemory(messages, clientContext?.activeCity), lang) });
         return;
       } catch (e) {
         console.error("bookmarks route failed, falling back:", e);
@@ -1876,7 +1876,7 @@ serve(async (req) => {
           turnLog.results_count = 1;
           turnLog.results_shown = 1;
           emit({ type: "chunk", delta: answer.split(/<!--/)[0] });
-          emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+          emit({ type: "done", answer, chatId: resultChatId, followups: buildDeterministicFollowups("details_shortcut", buildSessionMemory(messages, clientContext?.activeCity), lang) });
           return;
         }
         console.log(`details route: no business match for "${detailsTarget}" → fallback`);
@@ -1982,7 +1982,7 @@ serve(async (req) => {
           turnLog.results_count = totalOpen;
           turnLog.results_shown = openList.slice(0, 5).length;
           emit({ type: "chunk", delta: answer.split(/<!--/)[0] });
-          emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+          emit({ type: "done", answer, chatId: resultChatId, followups: buildDeterministicFollowups("open_now_shortcut", buildSessionMemory(messages, clientContext?.activeCity), lang) });
           return;
         }
       } catch (e) {
@@ -2130,7 +2130,7 @@ ${totalCount > shownCount ? "- Puis propose : « je peux les afficher tous sur l
           turnLog.results_shown = top.length;
           turnLog.city_detected = search?.detected?.city || turnLog.city_detected;
           turnLog.latency_ms_synth = Date.now() - turnStartMs;
-          emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+          emit({ type: "done", answer, chatId: resultChatId, followups: buildDeterministicFollowups("router_direct", buildSessionMemory(messages, clientContext?.activeCity), lang) });
           return;
         }
         console.log("router direct search returned 0 → fallback to LLM tool loop");
