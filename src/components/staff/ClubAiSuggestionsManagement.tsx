@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { Trash2, Plus, Save, MessageSquare } from "lucide-react";
+import { Trash2, Plus, Save, MessageSquare, Sparkles, Loader2 } from "lucide-react";
 
 type Row = {
   id: string;
@@ -33,6 +33,21 @@ const ClubAiSuggestionsManagement = () => {
   const [blogPosts, setBlogPosts] = useState<BlogOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
+  const [embedding, setEmbedding] = useState(false);
+
+  const runEmbed = async (force = false) => {
+    setEmbedding(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("embed-club-suggestions", { body: { force } });
+      if (error) throw error;
+      const d = data as any;
+      toast({ title: "Réindexation terminée", description: `${d.processed}/${d.total} suggestions ré-embeddées (${d.skipped} à jour).` });
+    } catch (e: any) {
+      toast({ title: "Erreur réindexation", description: e.message || String(e), variant: "destructive" });
+    } finally {
+      setEmbedding(false);
+    }
+  };
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
@@ -108,6 +123,9 @@ const ClubAiSuggestionsManagement = () => {
           <MessageSquare className="h-5 w-5" /> Suggestions Chat IA du Club
         </CardTitle>
         <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => runEmbed(false)} disabled={embedding} title="Ré-embed les suggestions modifiées">
+            {embedding ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />} Réindexer
+          </Button>
           <Button variant="outline" size="sm" onClick={add}><Plus className="h-4 w-4 mr-1" /> Ajouter</Button>
           <Button size="sm" onClick={saveAll} disabled={saving || dirty.size === 0}>
             <Save className="h-4 w-4 mr-1" /> Enregistrer ({dirty.size})

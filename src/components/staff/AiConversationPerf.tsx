@@ -95,25 +95,41 @@ export default function AiConversationPerf() {
   }, [filtered]);
 
   const byRoute = useMemo(() => {
-    const map = new Map<string, { count: number; latencies: number[]; errors: number }>();
+    const map = new Map<string, { count: number; latencies: number[]; errors: number; cost: number; tokens: number }>();
     for (const r of filtered) {
       const k = r.route_taken || "unknown";
-      const entry = map.get(k) || { count: 0, latencies: [], errors: 0 };
+      const entry = map.get(k) || { count: 0, latencies: [], errors: 0, cost: 0, tokens: 0 };
       entry.count++;
       if (r.latency_ms_total) entry.latencies.push(r.latency_ms_total);
       if (r.had_error) entry.errors++;
+      entry.cost += Number(r.cost_usd) || 0;
+      entry.tokens += (r.tokens_in || 0) + (r.tokens_out || 0);
       map.set(k, entry);
     }
+    const total = filtered.length || 1;
+    // Fallback = tours où le router déterministe n'a pas traité et l'appel LLM
+    // a dû tourner (router_direct = LLM synth d'une recherche déterministe ;
+    // tool_loop = boucle outils LLM complète).
+    const LLM_ROUTES = new Set(["router_direct", "tool_loop", "unknown"]);
     return Array.from(map.entries())
       .map(([route, v]) => ({
         route,
         count: v.count,
+        share: (v.count / total) * 100,
         p50: pct(v.latencies, 50),
         p95: pct(v.latencies, 95),
         errRate: v.count ? (v.errors / v.count) * 100 : 0,
+        avgCost: v.count ? v.cost / v.count : 0,
+        avgTokens: v.count ? v.tokens / v.count : 0,
+        isFallback: LLM_ROUTES.has(route),
       }))
       .sort((a, b) => b.count - a.count);
   }, [filtered]);
+
+  const fallbackRate = useMemo(() => {
+    const fb = byRoute.filter((r) => r.isFallback).reduce((s, r) => s + r.count, 0);
+    return filtered.length ? (fb / filtered.length) * 100 : 0;
+  }, [byRoute, filtered]);
 
   return (
     <div className="space-y-6">
@@ -140,11 +156,12 @@ export default function AiConversationPerf() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
             <Metric label="Tours" value={stats.count.toString()} />
             <Metric label="Latence p50" value={`${stats.p50} ms`} />
             <Metric label="Latence p95" value={`${stats.p95} ms`} />
             <Metric label="Erreurs" value={`${stats.errRate.toFixed(1)}%`} />
+            <Metric label="Fallback LLM" value={`${fallbackRate.toFixed(1)}%`} />
             <Metric label="Tokens in/out" value={`${stats.tokensIn}/${stats.tokensOut}`} />
             <Metric label="Coût cumulé" value={`$${stats.cost.toFixed(4)}`} />
           </div>
@@ -159,9 +176,13 @@ export default function AiConversationPerf() {
               <tr>
                 <th className="py-2">Route</th>
                 <th className="py-2">Tours</th>
+                <th className="py-2">Part</th>
                 <th className="py-2">p50</th>
                 <th className="py-2">p95</th>
                 <th className="py-2">Erreurs</th>
+                <th className="py-2">Coût moy.</th>
+                <th className="py-2">Tokens moy.</th>
+                <th className="py-2">Type</th>
               </tr>
             </thead>
             <tbody>
@@ -169,13 +190,21 @@ export default function AiConversationPerf() {
                 <tr key={r.route} className="border-t">
                   <td className="py-2"><Badge variant="outline">{r.route}</Badge></td>
                   <td className="py-2">{r.count}</td>
+                  <td className="py-2">{r.share.toFixed(1)}%</td>
                   <td className="py-2">{r.p50} ms</td>
                   <td className="py-2">{r.p95} ms</td>
                   <td className="py-2">{r.errRate.toFixed(1)}%</td>
+                  <td className="py-2">${r.avgCost.toFixed(5)}</td>
+                  <td className="py-2">{Math.round(r.avgTokens)}</td>
+                  <td className="py-2">
+                    {r.isFallback
+                      ? <Badge variant="destructive">LLM</Badge>
+                      : <Badge variant="secondary">Détermin.</Badge>}
+                  </td>
                 </tr>
               ))}
               {!byRoute.length && (
-                <tr><td colSpan={5} className="py-6 text-center text-muted-foreground">Aucune donnée sur cette période.</td></tr>
+                <tr><td colSpan={9} className="py-6 text-center text-muted-foreground">Aucune donnée sur cette période.</td></tr>
               )}
             </tbody>
           </table>
