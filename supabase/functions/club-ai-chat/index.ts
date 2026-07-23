@@ -186,6 +186,96 @@ function isOpenNowIntent(text: string): boolean {
   return OPEN_NOW_INTENT_RE.test(n);
 }
 
+// ============= Router helpers : weather / booking / nearby / price =============
+const WEATHER_INTENT_RE = /\b(m[ée]t[ée]o|weather|forecast|il\s+fait\s+(?:beau|chaud|froid|mauvais|combien)|quel\s+temps|temps\s+qu[’']?il\s+fait|temp[ée]rature|degr[ée]s?|is\s+it\s+(?:sunny|raining|hot|cold)|الطقس)\b/i;
+function isWeatherIntent(text: string): boolean { return WEATHER_INTENT_RE.test(normalizeLoose(text)); }
+
+const BOOKING_INTENT_RE = /\b(je\s+r[ée]serve|r[ée]serve[- ]?moi|r[ée]server\s+(?:chez|à|au|pour)|prends[- ]moi\s+une\s+table|r[ée]serve[- ]moi\s+une\s+table|book\s+me|reserve\s+for\s+me|book\s+a\s+table)\b/i;
+function parseBookingIntent(text: string): string | null {
+  const raw = String(text || "").trim();
+  if (!BOOKING_INTENT_RE.test(raw)) return null;
+  const m = raw.match(/(?:je\s+r[ée]serve|r[ée]serve[- ]?moi|r[ée]server\s+(?:chez|à|au|pour)|prends[- ]moi\s+une\s+table\s+(?:chez|à|au)|r[ée]serve[- ]moi\s+une\s+table\s+(?:chez|à|au)|book\s+me\s+(?:a\s+table\s+at)?|reserve\s+for\s+me\s+(?:at)?|book\s+a\s+table\s+(?:at)?)\s+(.{2,120})$/i);
+  if (!m) return null;
+  return m[1].replace(/[?!.]$/g, "").trim();
+}
+
+const NEARBY_INTENT_RE = /\b(le\s+plus\s+proche|les\s+plus\s+proches|le\s+plus\s+pr[eè]s|nearest|closest|nearby|autour\s+de\s+moi|[àa]\s+c[ôo]t[ée]\s+de\s+moi|near\s+me|pr[eè]s\s+de\s+moi|[àa]\s+proximit[ée])\b/i;
+const NEAR_LANDMARK_RE = /\b(?:[àa]\s+c[ôo]t[ée]\s+de|pr[eè]s\s+de|autour\s+de|proche\s+de|near|next\s+to|by)\s+(?:la\s+|le\s+|the\s+)?([a-zà-ÿ][a-zà-ÿ' \-]{2,40})\b/i;
+function isNearbyIntent(text: string): boolean { return NEARBY_INTENT_RE.test(normalizeLoose(text)) || NEAR_LANDMARK_RE.test(text); }
+// Hardcoded coords for well-known Marrakech / Essaouira landmarks (extend as needed).
+const LANDMARK_COORDS: Record<string, { lat: number; lng: number; label: string }> = {
+  "koutoubia":       { lat: 31.6242, lng: -7.9930, label: "Koutoubia" },
+  "jemaa el fna":    { lat: 31.6258, lng: -7.9891, label: "Jemaa el-Fna" },
+  "jamaa el fna":    { lat: 31.6258, lng: -7.9891, label: "Jemaa el-Fna" },
+  "place jemaa":     { lat: 31.6258, lng: -7.9891, label: "Jemaa el-Fna" },
+  "majorelle":       { lat: 31.6417, lng: -8.0031, label: "Jardin Majorelle" },
+  "bahia":           { lat: 31.6218, lng: -7.9832, label: "Palais Bahia" },
+  "menara":          { lat: 31.6115, lng: -8.0230, label: "Ménara" },
+  "gueliz":          { lat: 31.6386, lng: -8.0107, label: "Guéliz" },
+  "hivernage":       { lat: 31.6300, lng: -8.0125, label: "Hivernage" },
+  "palmeraie":       { lat: 31.6800, lng: -7.9500, label: "Palmeraie" },
+  "medina":          { lat: 31.6295, lng: -7.9811, label: "Médina" },
+  "medina marrakech":{ lat: 31.6295, lng: -7.9811, label: "Médina" },
+  "essaouira":       { lat: 31.5085, lng: -9.7595, label: "Essaouira" },
+  "sqala":           { lat: 31.5121, lng: -9.7726, label: "Sqala" },
+  "port essaouira":  { lat: 31.5107, lng: -9.7752, label: "Port d'Essaouira" },
+};
+function resolveLandmarkCoords(text: string): { lat: number; lng: number; label: string } | null {
+  const n = normalizeLoose(text);
+  for (const key of Object.keys(LANDMARK_COORDS)) {
+    if (n.includes(key)) return LANDMARK_COORDS[key];
+  }
+  const m = text.match(NEAR_LANDMARK_RE);
+  if (m) {
+    const nn = normalizeLoose(m[1]);
+    for (const key of Object.keys(LANDMARK_COORDS)) if (nn.includes(key)) return LANDMARK_COORDS[key];
+  }
+  return null;
+}
+function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const R = 6371;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const s = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
+
+// Price intent : « moins de 300 dh », « pas cher », « haut de gamme », « entre 200 et 500 »
+const PRICE_INTENT_RE = /\b(moins\s+de\s+\d{2,5}|plus\s+de\s+\d{2,5}|entre\s+\d{2,5}\s+et\s+\d{2,5}|under\s+\d{2,5}|less\s+than\s+\d{2,5}|pas\s+cher(?:s|es)?|cheap(?:er)?|[eé]conomique|budget|haut\s+de\s+gamme|luxury|luxe|premium|abordable|affordable|mid[- ]range)\b/i;
+type PriceFilter = { max?: number; min?: number; tier?: "cheap" | "premium" | "mid" };
+function parsePriceIntent(text: string): PriceFilter | null {
+  const raw = String(text || "");
+  if (!PRICE_INTENT_RE.test(raw)) return null;
+  const f: PriceFilter = {};
+  let m: RegExpMatchArray | null;
+  if ((m = raw.match(/(?:moins\s+de|under|less\s+than)\s+(\d{2,5})/i))) f.max = Number(m[1]);
+  if ((m = raw.match(/plus\s+de\s+(\d{2,5})/i))) f.min = Number(m[1]);
+  if ((m = raw.match(/entre\s+(\d{2,5})\s+et\s+(\d{2,5})/i))) { f.min = Number(m[1]); f.max = Number(m[2]); }
+  if (/\b(pas\s+cher|cheap|[eé]conomique|budget|abordable|affordable)\b/i.test(raw)) f.tier = "cheap";
+  else if (/\b(haut\s+de\s+gamme|luxury|luxe|premium)\b/i.test(raw)) f.tier = "premium";
+  else if (/\bmid[- ]range\b/i.test(raw)) f.tier = "mid";
+  if (f.max == null && f.min == null && !f.tier) return null;
+  return f;
+}
+function extractMinPriceFromRange(text?: string | null): number | null {
+  if (!text) return null;
+  const nums = String(text).match(/\d{2,5}/g);
+  if (!nums || !nums.length) return null;
+  return Math.min(...nums.map((n) => Number(n)).filter((n) => Number.isFinite(n) && n > 0));
+}
+function priceMatches(price: number | null, f: PriceFilter): boolean {
+  if (price == null) return false;
+  if (f.max != null && price > f.max) return false;
+  if (f.min != null && price < f.min) return false;
+  if (f.tier === "cheap"   && price > 400)  return false;
+  if (f.tier === "mid"     && (price < 300 || price > 900)) return false;
+  if (f.tier === "premium" && price < 800)  return false;
+  return true;
+}
+
+
+
 function formatEventDate(event: any): string {
   const fmt = (value?: string | null) => {
     if (!value) return "";
