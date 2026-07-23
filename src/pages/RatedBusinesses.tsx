@@ -55,8 +55,14 @@ const RatedBusinesses = () => {
   const navigate = useLocalizedNavigate();
   const { language } = useLanguage();
   const [businesses, setBusinesses] = useState<RatedBusiness[]>([]);
+  const [vanityMap, setVanityMap] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isStaff, setIsStaff] = useState(false);
+
+  const linkFor = (b: { id: string; slug?: string | null }) => {
+    const v = vanityMap[b.id];
+    return v ? `/${v}` : businessUrl(b);
+  };
   const { categories: mainCategories } = useAvailableMainCategories();
 
   // Subcategories & services from DB
@@ -131,6 +137,23 @@ const RatedBusinesses = () => {
         }
       }
       setBusinesses(all);
+
+      // Fetch vanity URLs for these businesses (paginated by id chunks)
+      const ids = all.map((b) => b.id);
+      const vmap: Record<string, string> = {};
+      const chunkSize = 300;
+      for (let i = 0; i < ids.length; i += chunkSize) {
+        const chunk = ids.slice(i, i + chunkSize);
+        const { data: vrows } = await supabase
+          .from("vanity_urls")
+          .select("slug, target_id")
+          .eq("target_type", "business")
+          .in("target_id", chunk);
+        (vrows || []).forEach((r: any) => {
+          if (r.target_id && r.slug && !vmap[r.target_id]) vmap[r.target_id] = r.slug;
+        });
+      }
+      setVanityMap(vmap);
 
       // Fetch categories, subcategories, services for filter mapping
       const [catRes, subcatRes, svcData] = await Promise.all([
@@ -385,7 +408,7 @@ const RatedBusinesses = () => {
                     <TableRow key={b.id} className="hover:bg-muted/30">
                       <TableCell className="text-center text-sm font-bold text-muted-foreground">{index + 1}</TableCell>
                       <TableCell className="font-medium whitespace-normal break-words">
-                        <Link to={businessUrl(b)} target="_blank" rel="noopener noreferrer" className="hover:text-primary hover:underline">
+                        <Link to={linkFor(b)} target="_blank" rel="noopener noreferrer" className="hover:text-primary hover:underline">
                           {b.name}
                         </Link>
                       </TableCell>
@@ -434,7 +457,7 @@ const RatedBusinesses = () => {
                       {/* Links */}
                       <TableCell className="text-center">
                         <div className="flex items-center justify-center gap-1">
-                          <Link to={businessUrl(b)} target="_blank" rel="noopener noreferrer" title="Voir la fiche">
+                          <Link to={linkFor(b)} target="_blank" rel="noopener noreferrer" title="Voir la fiche">
                             <Button variant="ghost" size="icon" className="h-7 w-7">
                               <ExternalLink className="h-3.5 w-3.5" />
                             </Button>
