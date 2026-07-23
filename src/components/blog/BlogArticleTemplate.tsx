@@ -56,6 +56,13 @@ export interface BlogArticleBusiness {
   longitude: number | null;
 }
 
+export interface BlogArticleEntryReview {
+  author?: string | null;
+  source?: string | null;
+  text: string;
+  rating?: number | null;
+}
+
 export interface BlogArticleEntry {
   id: string;
   extraIds?: string[];
@@ -63,6 +70,12 @@ export interface BlogArticleEntry {
   title: string;
   hours?: string;
   paragraphs: string[];
+  /** Short personalized tagline shown just under the establishment title. */
+  hook?: string | null;
+  /** Optional podium rank (1, 2, 3) — highlighted with a medal ribbon. */
+  rank?: number | null;
+  /** Default client review displayed below the immersive text. */
+  review?: BlogArticleEntryReview | null;
 }
 
 export interface BlogArticleFaqItem {
@@ -593,12 +606,33 @@ const BlogArticleTemplate = ({
                     {entry.pretitle}
                   </p>
                   <h2
-                    className={`text-2xl md:text-4xl font-bold mb-6 font-['Playfair_Display'] italic leading-tight ${
+                    className={`text-2xl md:text-4xl font-bold mb-2 font-['Playfair_Display'] italic leading-tight ${
                       isDark ? "text-white" : "text-foreground"
                     }`}
                   >
+                    {entry.rank && entry.rank >= 1 && entry.rank <= 3 && (
+                      <span
+                        className="inline-flex items-center gap-1.5 align-middle mr-3 px-3 py-1 rounded-full text-xs font-bold not-italic tracking-wider uppercase bg-gradient-to-br from-[#F4CF7A] via-[#D4AF37] to-[#8A6A1A] text-black shadow-[inset_0_1px_0_rgba(255,255,255,0.5),0_2px_8px_rgba(212,175,55,0.4)]"
+                        style={{ fontFamily: "'Montserrat', sans-serif" }}
+                      >
+                        <span aria-hidden="true">
+                          {entry.rank === 1 ? "🥇" : entry.rank === 2 ? "🥈" : "🥉"}
+                        </span>
+                        N°{entry.rank}
+                      </span>
+                    )}
                     {entry.title}
                   </h2>
+                  {entry.hook && (
+                    <p
+                      className={`mb-6 text-base md:text-lg font-['Playfair_Display'] italic ${
+                        isDark ? "text-gold/90" : "text-primary/90"
+                      }`}
+                    >
+                      « {entry.hook} »
+                    </p>
+                  )}
+                  {!entry.hook && <div className="mb-6" />}
 
                   <div className="space-y-4 mb-8">
                     {[entry.id, ...(entry.extraIds ?? [])]
@@ -709,6 +743,47 @@ const BlogArticleTemplate = ({
                       </p>
                     ))}
                   </div>
+
+                  {entry.review && entry.review.text && (
+                    <figure
+                      className={`mt-8 rounded-xl border-l-4 p-5 md:p-6 ${
+                        isDark
+                          ? "bg-white/5 border-gold/70"
+                          : "bg-muted/60 border-primary/70"
+                      }`}
+                    >
+                      <blockquote
+                        className={`text-base md:text-lg leading-relaxed font-['Playfair_Display'] italic ${
+                          isDark ? "text-white/90" : "text-foreground/90"
+                        }`}
+                      >
+                        « {entry.review.text} »
+                      </blockquote>
+                      <figcaption
+                        className={`mt-3 flex flex-wrap items-center gap-2 text-xs uppercase tracking-wider ${
+                          isDark ? "text-white/60" : "text-muted-foreground"
+                        }`}
+                        style={{ fontFamily: "'Montserrat', sans-serif" }}
+                      >
+                        {entry.review.rating != null && (
+                          <span className="inline-flex items-center gap-0.5 text-gold">
+                            {Array.from({ length: Math.round(Number(entry.review.rating)) }).map((_, i) => (
+                              <Star key={i} className="h-3 w-3 fill-gold text-gold" />
+                            ))}
+                          </span>
+                        )}
+                        {entry.review.author && (
+                          <span className="font-semibold">{entry.review.author}</span>
+                        )}
+                        <span aria-hidden="true">·</span>
+                        <span>
+                          Avis {entry.review.source
+                            ? entry.review.source.charAt(0).toUpperCase() + entry.review.source.slice(1)
+                            : "client"}
+                        </span>
+                      </figcaption>
+                    </figure>
+                  )}
                 </div>
               </section>
             );
