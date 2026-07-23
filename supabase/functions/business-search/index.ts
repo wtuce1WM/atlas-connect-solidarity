@@ -2051,7 +2051,10 @@ serve(async (req) => {
     let synonymsScopedOut = false;
     if (matchedSynonymBadgeId && matchedSynonymFilters.length === 0) {
       // ── BADGE-ONLY synonym: fetch businesses via business_badges join ──
-      console.log(`⚡ Synonym badge-only PRIORITY: badge_id=${matchedSynonymBadgeId} — skipping FTS`);
+      // ── INTERSECT with detected subcategory (if any) so specific subcats like
+      //    "Aquaparc" aren't drowned by a generic badge like "famille".
+      const badgeIntersectSubcat = detectedSubcategory || null;
+      console.log(`⚡ Synonym badge-only PRIORITY: badge_id=${matchedSynonymBadgeId}${badgeIntersectSubcat ? ` ∩ subcat="${badgeIntersectSubcat}"` : ""} — skipping FTS`);
       const { data: bbData } = await supabase
         .from("business_badges")
         .select("business_id")
@@ -2061,6 +2064,9 @@ serve(async (req) => {
         let builder = supabase.from("businesses").select("*")
           .eq("is_active", true)
           .in("id", badgeBizIds);
+        if (badgeIntersectSubcat) {
+          builder = builder.contains("categories", [badgeIntersectSubcat]);
+        }
         // Note: badge is already a strong constraint (curated list of businesses).
         // Skip city/neighborhood filters when the synonym key itself matches the city/neighborhood name
         // (e.g. "agafay" → badge Agafay, businesses live in city="Agafay" but no neighborhood set).
