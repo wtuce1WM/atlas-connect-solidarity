@@ -156,11 +156,12 @@ export default function AiConversationPerf() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
             <Metric label="Tours" value={stats.count.toString()} />
             <Metric label="Latence p50" value={`${stats.p50} ms`} />
             <Metric label="Latence p95" value={`${stats.p95} ms`} />
             <Metric label="Erreurs" value={`${stats.errRate.toFixed(1)}%`} />
+            <Metric label="Fallback LLM" value={`${fallbackRate.toFixed(1)}%`} />
             <Metric label="Tokens in/out" value={`${stats.tokensIn}/${stats.tokensOut}`} />
             <Metric label="Coût cumulé" value={`$${stats.cost.toFixed(4)}`} />
           </div>
@@ -175,9 +176,13 @@ export default function AiConversationPerf() {
               <tr>
                 <th className="py-2">Route</th>
                 <th className="py-2">Tours</th>
+                <th className="py-2">Part</th>
                 <th className="py-2">p50</th>
                 <th className="py-2">p95</th>
                 <th className="py-2">Erreurs</th>
+                <th className="py-2">Coût moy.</th>
+                <th className="py-2">Tokens moy.</th>
+                <th className="py-2">Type</th>
               </tr>
             </thead>
             <tbody>
@@ -185,13 +190,21 @@ export default function AiConversationPerf() {
                 <tr key={r.route} className="border-t">
                   <td className="py-2"><Badge variant="outline">{r.route}</Badge></td>
                   <td className="py-2">{r.count}</td>
+                  <td className="py-2">{r.share.toFixed(1)}%</td>
                   <td className="py-2">{r.p50} ms</td>
                   <td className="py-2">{r.p95} ms</td>
                   <td className="py-2">{r.errRate.toFixed(1)}%</td>
+                  <td className="py-2">${r.avgCost.toFixed(5)}</td>
+                  <td className="py-2">{Math.round(r.avgTokens)}</td>
+                  <td className="py-2">
+                    {r.isFallback
+                      ? <Badge variant="destructive">LLM</Badge>
+                      : <Badge variant="secondary">Détermin.</Badge>}
+                  </td>
                 </tr>
               ))}
               {!byRoute.length && (
-                <tr><td colSpan={5} className="py-6 text-center text-muted-foreground">Aucune donnée sur cette période.</td></tr>
+                <tr><td colSpan={9} className="py-6 text-center text-muted-foreground">Aucune donnée sur cette période.</td></tr>
               )}
             </tbody>
           </table>
