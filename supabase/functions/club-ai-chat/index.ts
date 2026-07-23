@@ -1882,14 +1882,16 @@ serve(async (req) => {
       }
     }
 
-    const refersToPreviousResults = /\b(r[ée]sultats?|ceux\s*-?ci|celles\s*-?ci|cette\s+liste|la\s+m[êe]me\s+liste|same\s+results?|these|them)\b/i.test(lastUserMsg || "");
+    const refersToPreviousResults = /\b(r[ée]sultats?|ceux\s*-?ci|celles\s*-?ci|cette\s+liste|la\s+m[êe]me\s+liste|same\s+results?|these|them|les|ces|eux|elles|ils)\b/i.test(lastUserMsg || "");
     // Detect affirmative reply ("oui", "yes", "ok"...) to a previous assistant message
     // that proposed to show results on a map ("Veux-tu que je te montre ... sur une carte ?").
     const lastAssistantMsg = [...messages].reverse().find((m) => m.role === "assistant")?.content || "";
     const assistantProposedMap = /\?[^?]*$/.test(lastAssistantMsg) && /(carte|map|خريطة)/i.test(lastAssistantMsg.slice(-400));
     const userAffirmative = /^(oui|ouais|yep|yes|yeah|ok(?:ay)?|d['’]?accord|volontiers|avec\s+plaisir|allez|go|carrement|carr[ée]ment|bien\s+s[ûu]r|sure|please|s['’]?il\s+te\s+pla[iî]t|stp|svp|نعم|أجل)\b[\s!.\?]*$/i.test((lastUserMsg || "").trim());
     const affirmativeMapTrigger = assistantProposedMap && userAffirmative && !!previousSearchSnapshot;
-    if ((MAP_TRIGGER_RE.test(lastUserMsg || "") && previousSearchSnapshot && (refersToPreviousResults || requestedMapCount != null)) || affirmativeMapTrigger) {
+    // If the user explicitly asks for a map AND we have a prior snapshot, always reuse it
+    // (don't let the LLM re-run a search with fabricated arguments).
+    if ((MAP_TRIGGER_RE.test(lastUserMsg || "") && previousSearchSnapshot && previousSearchSnapshot.slugs.length >= 2) || affirmativeMapTrigger) {
 
       const desiredCount = Math.min(requestedMapCount || previousSearchSnapshot.totalCount || previousSearchSnapshot.slugs.length, SEARCH_RESULT_LIMIT);
       const slugs = previousSearchSnapshot.slugs.slice(0, desiredCount);
