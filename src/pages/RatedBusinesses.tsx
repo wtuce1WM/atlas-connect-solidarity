@@ -138,6 +138,23 @@ const RatedBusinesses = () => {
       }
       setBusinesses(all);
 
+      // Fetch vanity URLs for these businesses (paginated by id chunks)
+      const ids = all.map((b) => b.id);
+      const vmap: Record<string, string> = {};
+      const chunkSize = 300;
+      for (let i = 0; i < ids.length; i += chunkSize) {
+        const chunk = ids.slice(i, i + chunkSize);
+        const { data: vrows } = await supabase
+          .from("vanity_urls")
+          .select("slug, target_id")
+          .eq("target_type", "business")
+          .in("target_id", chunk);
+        (vrows || []).forEach((r: any) => {
+          if (r.target_id && r.slug && !vmap[r.target_id]) vmap[r.target_id] = r.slug;
+        });
+      }
+      setVanityMap(vmap);
+
       // Fetch categories, subcategories, services for filter mapping
       const [catRes, subcatRes, svcData] = await Promise.all([
         supabase.from("categories").select("id, name_fr").order("sort_order"),
