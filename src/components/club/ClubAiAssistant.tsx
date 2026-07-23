@@ -432,6 +432,11 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const deletedChatIdsRef = useRef<Set<string>>(new Set());
   const [dbSuggestions, setDbSuggestions] = useState<string[] | null>(null);
   const [followups, setFollowups] = useState<string[]>([]);
+  const [skeletonCount, setSkeletonCount] = useState<number>(0);
+  const [feedbackByTurn, setFeedbackByTurn] = useState<Record<string, 1 | -1>>({});
+  const lastTurnIdRef = useRef<string | null>(null);
+
+
 
   // Load staff-managed suggestions from DB (fallback to hardcoded list on error/empty)
   // Filter by active city: NULL city = universal, else must match current homepage city.
