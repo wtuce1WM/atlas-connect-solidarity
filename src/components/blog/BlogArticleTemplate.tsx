@@ -606,12 +606,33 @@ const BlogArticleTemplate = ({
                     {entry.pretitle}
                   </p>
                   <h2
-                    className={`text-2xl md:text-4xl font-bold mb-6 font-['Playfair_Display'] italic leading-tight ${
+                    className={`text-2xl md:text-4xl font-bold mb-2 font-['Playfair_Display'] italic leading-tight ${
                       isDark ? "text-white" : "text-foreground"
                     }`}
                   >
+                    {entry.rank && entry.rank >= 1 && entry.rank <= 3 && (
+                      <span
+                        className="inline-flex items-center gap-1.5 align-middle mr-3 px-3 py-1 rounded-full text-xs font-bold not-italic tracking-wider uppercase bg-gradient-to-br from-[#F4CF7A] via-[#D4AF37] to-[#8A6A1A] text-black shadow-[inset_0_1px_0_rgba(255,255,255,0.5),0_2px_8px_rgba(212,175,55,0.4)]"
+                        style={{ fontFamily: "'Montserrat', sans-serif" }}
+                      >
+                        <span aria-hidden="true">
+                          {entry.rank === 1 ? "🥇" : entry.rank === 2 ? "🥈" : "🥉"}
+                        </span>
+                        N°{entry.rank}
+                      </span>
+                    )}
                     {entry.title}
                   </h2>
+                  {entry.hook && (
+                    <p
+                      className={`mb-6 text-base md:text-lg font-['Playfair_Display'] italic ${
+                        isDark ? "text-gold/90" : "text-primary/90"
+                      }`}
+                    >
+                      « {entry.hook} »
+                    </p>
+                  )}
+                  {!entry.hook && <div className="mb-6" />}
 
                   <div className="space-y-4 mb-8">
                     {[entry.id, ...(entry.extraIds ?? [])]
