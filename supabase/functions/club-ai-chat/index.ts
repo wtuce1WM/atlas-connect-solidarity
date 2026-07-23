@@ -1867,7 +1867,7 @@ serve(async (req) => {
     const isMapTrigger = MAP_TRIGGER_RE.test(lastUserMsg || "");
     const routedIntent = classifyIntent(lastUserMsg, !!previousUserQuery);
     turnLog.intent_classified = routedIntent;
-    console.log("club-ai-chat router:", JSON.stringify({ intent: routedIntent, isMapTrigger, msg: lastUserMsg.slice(0, 100), hasPrev: !!previousUserQuery, activeCityRaw: clientContext.activeCity, activeCityClean }));
+    console.log("club-ai-chat router:", JSON.stringify({ intent: routedIntent, isMapTrigger, msg: lastUserMsg.slice(0, 100), hasPrev: !!previousUserQuery, snapSlugs: previousSearchSnapshot?.slugs?.length ?? 0, msgsCount: messages.length, openNowMatch: isOpenNowIntent(lastUserMsg), activeCityRaw: clientContext.activeCity, activeCityClean }));
 
     if (!isMapTrigger && !affirmativeMapTrigger && (routedIntent === "search" || routedIntent === "refinement")) {
       try {
