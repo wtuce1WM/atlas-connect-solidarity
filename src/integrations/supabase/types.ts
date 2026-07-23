@@ -2900,6 +2900,9 @@ export type Database = {
           id: string
           is_active: boolean
           label_ar: string | null
+          label_embedded_at: string | null
+          label_embedded_source: string | null
+          label_embedding: string | null
           label_en: string | null
           label_fr: string
           prompt_ar: string | null
@@ -2920,6 +2923,9 @@ export type Database = {
           id?: string
           is_active?: boolean
           label_ar?: string | null
+          label_embedded_at?: string | null
+          label_embedded_source?: string | null
+          label_embedding?: string | null
           label_en?: string | null
           label_fr: string
           prompt_ar?: string | null
@@ -2940,6 +2946,9 @@ export type Database = {
           id?: string
           is_active?: boolean
           label_ar?: string | null
+          label_embedded_at?: string | null
+          label_embedded_source?: string | null
+          label_embedding?: string | null
           label_en?: string | null
           label_fr?: string
           prompt_ar?: string | null
@@ -7232,6 +7241,23 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      match_club_suggestions: {
+        Args: {
+          match_count?: number
+          min_similarity?: number
+          query_embedding: string
+        }
+        Returns: {
+          fixed_response_ar: string
+          fixed_response_en: string
+          fixed_response_fr: string
+          id: string
+          label_ar: string
+          label_en: string
+          label_fr: string
+          similarity: number
+        }[]
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
