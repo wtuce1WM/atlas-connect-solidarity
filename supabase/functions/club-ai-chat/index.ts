@@ -1633,17 +1633,25 @@ serve(async (req) => {
         const { data: fixedRows } = await admin
           .from("club_ai_suggestions")
           .select(`id,label_fr,label_en,label_ar,blog_post_ids,${col}`)
-          .eq("is_active", true)
-          .not(col, "is", null);
-        const match = (fixedRows || []).find((r: any) =>
-          norm(r.label_fr) === key || norm(r.label_en) === key || norm(r.label_ar) === key
-        );
+          .eq("is_active", true);
+        const match = (fixedRows || []).find((r: any) => {
+          const hasFixed = !!String(r[col] || "").trim();
+          const hasBlogs = Array.isArray(r.blog_post_ids) && r.blog_post_ids.length > 0;
+          if (!hasFixed && !hasBlogs) return false;
+          return norm(r.label_fr) === key || norm(r.label_en) === key || norm(r.label_ar) === key;
+        });
         const baseAnswer = match ? String((match as any)[col] || "").trim() : "";
-        if (baseAnswer) {
-          const enrich = match ? await fetchBlogEnrichment(admin, (match as any).blog_post_ids, lang) : null;
+        const enrich = match ? await fetchBlogEnrichment(admin, (match as any).blog_post_ids, lang) : null;
+        if (baseAnswer || enrich) {
+          const defaultIntro = lang === "en"
+            ? "Here are resources that can help you:"
+            : lang === "ar"
+            ? "إليك بعض الموارد التي قد تساعدك:"
+            : "Voici quelques ressources qui peuvent t'aider :";
+          const head = baseAnswer || defaultIntro;
           const fixedAnswer = enrich
-            ? `${baseAnswer}${enrich.intro}${enrich.cardsMarker}${enrich.ctxMarker}`
-            : baseAnswer;
+            ? `${head}${enrich.intro}${enrich.cardsMarker}${enrich.ctxMarker}`
+            : head;
           const newMessages = [...messages, { role: "assistant", content: fixedAnswer }];
           let resultChatId: string | null = null;
           if (chatId) {
@@ -1874,14 +1882,16 @@ serve(async (req) => {
       }
     }
 
-    const refersToPreviousResults = /\b(r[ée]sultats?|ceux\s*-?ci|celles\s*-?ci|cette\s+liste|la\s+m[êe]me\s+liste|same\s+results?|these|them)\b/i.test(lastUserMsg || "");
+    const refersToPreviousResults = /\b(r[ée]sultats?|ceux\s*-?ci|celles\s*-?ci|cette\s+liste|la\s+m[êe]me\s+liste|same\s+results?|these|them|les|ces|eux|elles|ils)\b/i.test(lastUserMsg || "");
     // Detect affirmative reply ("oui", "yes", "ok"...) to a previous assistant message
     // that proposed to show results on a map ("Veux-tu que je te montre ... sur une carte ?").
     const lastAssistantMsg = [...messages].reverse().find((m) => m.role === "assistant")?.content || "";
     const assistantProposedMap = /\?[^?]*$/.test(lastAssistantMsg) && /(carte|map|خريطة)/i.test(lastAssistantMsg.slice(-400));
     const userAffirmative = /^(oui|ouais|yep|yes|yeah|ok(?:ay)?|d['’]?accord|volontiers|avec\s+plaisir|allez|go|carrement|carr[ée]ment|bien\s+s[ûu]r|sure|please|s['’]?il\s+te\s+pla[iî]t|stp|svp|نعم|أجل)\b[\s!.\?]*$/i.test((lastUserMsg || "").trim());
     const affirmativeMapTrigger = assistantProposedMap && userAffirmative && !!previousSearchSnapshot;
-    if ((MAP_TRIGGER_RE.test(lastUserMsg || "") && previousSearchSnapshot && (refersToPreviousResults || requestedMapCount != null)) || affirmativeMapTrigger) {
+    // If the user explicitly asks for a map AND we have a prior snapshot, always reuse it
+    // (don't let the LLM re-run a search with fabricated arguments).
+    if ((MAP_TRIGGER_RE.test(lastUserMsg || "") && previousSearchSnapshot && previousSearchSnapshot.slugs.length >= 2) || affirmativeMapTrigger) {
 
       const desiredCount = Math.min(requestedMapCount || previousSearchSnapshot.totalCount || previousSearchSnapshot.slugs.length, SEARCH_RESULT_LIMIT);
       const slugs = previousSearchSnapshot.slugs.slice(0, desiredCount);
