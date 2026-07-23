@@ -154,6 +154,31 @@ function isOpenNow(business: { opening_hours?: any; is_open_24h?: boolean | null
   return false;
 }
 
+// Returns today's hours as a short string ("9:00–23:00", "9:00–14:00, 19:00–23:00",
+// "24/24", "Fermé") or null if unknown.
+function formatTodayHours(business: { opening_hours?: any; is_open_24h?: boolean | null }, lang: "fr" | "en" | "ar" = "fr"): string | null {
+  if (business.is_open_24h) return lang === "en" ? "Open 24/7" : lang === "ar" ? "24/24" : "24h/24";
+  const oh = business.opening_hours;
+  if (!oh || typeof oh !== "object") return null;
+  const { dayKey } = nowInCasablanca();
+  const day = oh[dayKey];
+  if (!day || typeof day !== "object") return null;
+  if (day.closed === true) return lang === "en" ? "Closed today" : lang === "ar" ? "مغلق اليوم" : "Fermé aujourd'hui";
+  if (day.continuous === true) return lang === "en" ? "Open all day" : lang === "ar" ? "مفتوح طوال اليوم" : "Ouvert en continu";
+  const norm = (v: unknown) => {
+    const s = String(v || "").trim();
+    const m = s.match(/^(\d{1,2}):(\d{2})/);
+    if (!m) return null;
+    return `${parseInt(m[1], 10)}:${m[2]}`;
+  };
+  const a = norm(day.open), b = norm(day.close);
+  const a2 = norm(day.open2), b2 = norm(day.close2);
+  const parts: string[] = [];
+  if (a && b) parts.push(`${a}–${b}`);
+  if (a2 && b2) parts.push(`${a2}–${b2}`);
+  return parts.length ? parts.join(", ") : null;
+}
+
 // Intent : "ouvert maintenant / ouvert ce soir / lesquels sont ouverts / open now / open tonight"
 const OPEN_NOW_INTENT_RE = /\b(ouverts?\s+(maintenant|l[àa]|actuellement|ce\s+soir|ce\s+midi|encore|aujourd['’]?hui)|lesquels?\s+sont\s+ouverts?|qu['’]?est[-\s]?ce\s+qui\s+est\s+ouvert|open\s+(now|tonight|today|right\s+now)|which\s+(ones?\s+)?are\s+open|مفتوح\s+الآن)\b/i;
 function isOpenNowIntent(text: string): boolean {
