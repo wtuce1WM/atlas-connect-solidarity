@@ -1223,66 +1223,114 @@ const ClubAiAssistant = ({ userId }: Props) => {
 
                     <div className="text-xs sm:text-base text-[#0a1d6b] leading-relaxed prose prose-sm sm:prose-base max-w-none prose-strong:text-[#C04F17] prose-a:text-[#C04F17] prose-a:underline">
 
-                      <ReactMarkdown components={{
-                        a: ({ href, children }) => {
-                          const isBusinessLink = !!extractBusinessSlugFromHref(href);
-                          if (isBusinessLink) {
-                            return (
-                              <span
-                                role="button"
-                                tabIndex={0}
-                                onClick={() => { void handleOpenBusinessLink(href); }}
-                                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); void handleOpenBusinessLink(href); } }}
-                                className="cursor-pointer underline text-[#C04F17]"
-                              >{children}</span>
-                            );
-                          }
-                          return <a href={href} target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{children}</a>;
-                        },
-                        strong: ({ children }) => {
-                          const text = Array.isArray(children)
-                            ? children.map((c) => (typeof c === "string" ? c : "")).join("")
-                            : (typeof children === "string" ? children : "");
-                          const trimmed = text.trim();
-                          // Section-label blacklist: bold headings the LLM uses to structure
-                          // a description (never business names). Prevents e.g. "**Cuisine**"
-                          // from being fuzzy-matched to "La Cuisine de Mona".
-                          const LABEL_BLACKLIST = new Set([
-                            "ambiance","atmosphère","atmosphere","cuisine","musique","musique live","décoration","decoration",
-                            "localisation","adresse","horaires","prix","tarifs","budget","carte","menu","services","accès","acces",
-                            "réservation","reservation","contact","téléphone","telephone","site web","website","note","avis",
-                            "vibe","food","drinks","music","location","price","hours","booking","phone",
-                          ]);
-                          const normTrim = trimmed.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[:*]+$/g, "").trim();
-                          const isLabel = LABEL_BLACKLIST.has(normTrim);
-                          const sigTokens = businessNameTokens(trimmed);
-                          let isKnownBusiness = false;
-                          if (trimmed && !isLabel && trimmed.length >= 4) {
-                            for (const ref of businessLookupRef.current.values()) {
-                              const score = businessNameMatchScore(ref.name, trimmed);
-                              // Exact/near-exact always OK. Otherwise require ≥ 2 significant
-                              // tokens AND a stricter score to avoid single-word overlaps
-                              // like "Cuisine" matching "La Cuisine de Mona".
-                              if (score >= 0.95) { isKnownBusiness = true; break; }
-                              if (sigTokens.length >= 2 && score >= 0.72) { isKnownBusiness = true; break; }
+                      {(() => {
+                        const mdComponents = {
+                          a: ({ href, children }: any) => {
+                            const isBusinessLink = !!extractBusinessSlugFromHref(href);
+                            if (isBusinessLink) {
+                              return (
+                                <span
+                                  role="button"
+                                  tabIndex={0}
+                                  onClick={() => { void handleOpenBusinessLink(href); }}
+                                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); void handleOpenBusinessLink(href); } }}
+                                  className="cursor-pointer underline text-[#C04F17]"
+                                >{children}</span>
+                              );
                             }
-                          }
-                          if (isKnownBusiness && trimmed.length <= 80) {
-                            return (
-                              <strong
-                                role="button"
-                                tabIndex={0}
-                                onClick={() => void handleOpenBusinessName(trimmed)}
-                                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); void handleOpenBusinessName(trimmed); } }}
-                                className="cursor-pointer hover:underline"
-                                title={at.openFiche}
-                              >{children}</strong>
-                            );
-                          }
-                          return <strong>{children}</strong>;
-                        },
+                            return <a href={href} target={href?.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">{children}</a>;
+                          },
+                          strong: ({ children }: any) => {
+                            const text = Array.isArray(children)
+                              ? children.map((c: any) => (typeof c === "string" ? c : "")).join("")
+                              : (typeof children === "string" ? children : "");
+                            const trimmed = text.trim();
+                            const LABEL_BLACKLIST = new Set([
+                              "ambiance","atmosphère","atmosphere","cuisine","musique","musique live","décoration","decoration",
+                              "localisation","adresse","horaires","prix","tarifs","budget","carte","menu","services","accès","acces",
+                              "réservation","reservation","contact","téléphone","telephone","site web","website","note","avis",
+                              "vibe","food","drinks","music","location","price","hours","booking","phone",
+                            ]);
+                            const normTrim = trimmed.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[:*]+$/g, "").trim();
+                            const isLabel = LABEL_BLACKLIST.has(normTrim);
+                            const sigTokens = businessNameTokens(trimmed);
+                            let isKnownBusiness = false;
+                            if (trimmed && !isLabel && trimmed.length >= 4) {
+                              for (const ref of businessLookupRef.current.values()) {
+                                const score = businessNameMatchScore(ref.name, trimmed);
+                                if (score >= 0.95) { isKnownBusiness = true; break; }
+                                if (sigTokens.length >= 2 && score >= 0.72) { isKnownBusiness = true; break; }
+                              }
+                            }
+                            if (isKnownBusiness && trimmed.length <= 80) {
+                              return (
+                                <strong
+                                  role="button"
+                                  tabIndex={0}
+                                  onClick={() => void handleOpenBusinessName(trimmed)}
+                                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); void handleOpenBusinessName(trimmed); } }}
+                                  className="cursor-pointer hover:underline"
+                                  title={at.openFiche}
+                                >{children}</strong>
+                              );
+                            }
+                            return <strong>{children}</strong>;
+                          },
+                        } as const;
 
-                      }}>{linkifyPhones(stripFicheLinks(clean))}</ReactMarkdown>
+                        const source = linkifyPhones(stripFicheLinks(clean));
+                        const isLastAssistant = i === lastAssistantIndex;
+                        const canShowFeedback = isLastAssistant && !streaming && !!lastTurnIdRef.current;
+                        // Split around the "N résultats affichés sur M trouvés" line to
+                        // insert thumbs right after it. Fallback: render at the end.
+                        const countLineRe = /^.*\b\d+\s+r[ée]sultats?\s+affich[ée]s?\s+sur\s+\d+\s+trouv[ée]s?.*$/im;
+                        const match = source.match(countLineRe);
+                        const feedbackNode = canShowFeedback ? (() => {
+                          const tid = lastTurnIdRef.current!;
+                          const score = feedbackByTurn[tid];
+                          return (
+                            <div className="my-2 flex items-center gap-1.5 not-prose">
+                              <button
+                                type="button"
+                                onClick={() => submitFeedback(1)}
+                                className={`w-7 h-7 rounded-full flex items-center justify-center border transition-colors ${score === 1 ? "bg-[#C04F17] border-[#C04F17] text-white" : "bg-white/5 border-[#C04F17]/30 text-[#C04F17] hover:bg-[#C04F17]/10"}`}
+                                title="Réponse utile"
+                                aria-label="Réponse utile"
+                              >
+                                <ThumbsUp className="h-3 w-3" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => submitFeedback(-1)}
+                                className={`w-7 h-7 rounded-full flex items-center justify-center border transition-colors ${score === -1 ? "bg-[#C04F17] border-[#C04F17] text-white" : "bg-white/5 border-[#C04F17]/30 text-[#C04F17] hover:bg-[#C04F17]/10"}`}
+                                title="Réponse à améliorer"
+                                aria-label="Réponse à améliorer"
+                              >
+                                <ThumbsDown className="h-3 w-3" />
+                              </button>
+                            </div>
+                          );
+                        })() : null;
+
+                        if (feedbackNode && match && match.index != null) {
+                          const end = match.index + match[0].length;
+                          const before = source.slice(0, end);
+                          const after = source.slice(end);
+                          return (
+                            <>
+                              <ReactMarkdown components={mdComponents}>{before}</ReactMarkdown>
+                              {feedbackNode}
+                              {after.trim() && <ReactMarkdown components={mdComponents}>{after}</ReactMarkdown>}
+                            </>
+                          );
+                        }
+                        return (
+                          <>
+                            <ReactMarkdown components={mdComponents}>{source}</ReactMarkdown>
+                            {feedbackNode}
+                          </>
+                        );
+                      })()}
                     </div>
                     {(() => {
                       // Thumbnails carousel of cited businesses (from map payloads, which include images).
@@ -1465,32 +1513,6 @@ const ClubAiAssistant = ({ userId }: Props) => {
                           <Volume2 className="relative h-4 w-4 text-white" />
                         )}
                       </button>
-                      {lastTurnIdRef.current && !streaming && (() => {
-                        const tid = lastTurnIdRef.current!;
-                        const score = feedbackByTurn[tid];
-                        return (
-                          <div className="ml-3 flex items-center gap-1">
-                            <button
-                              type="button"
-                              onClick={() => submitFeedback(1)}
-                              className={`w-8 h-8 rounded-full flex items-center justify-center border transition-colors ${score === 1 ? "bg-[#C04F17] border-[#C04F17] text-white" : "bg-white/5 border-white/20 text-white/70 hover:bg-white/10"}`}
-                              title="Réponse utile"
-                              aria-label="Réponse utile"
-                            >
-                              <ThumbsUp className="h-3.5 w-3.5" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => submitFeedback(-1)}
-                              className={`w-8 h-8 rounded-full flex items-center justify-center border transition-colors ${score === -1 ? "bg-white text-[#C04F17] border-white" : "bg-white/5 border-white/20 text-white/70 hover:bg-white/10"}`}
-                              title="Réponse à améliorer"
-                              aria-label="Réponse à améliorer"
-                            >
-                              <ThumbsDown className="h-3.5 w-3.5" />
-                            </button>
-                          </div>
-                        );
-                      })()}
                     </div>
                   </div>
                 )}
