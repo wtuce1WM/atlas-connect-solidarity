@@ -54,6 +54,7 @@ export interface BlogArticleBusiness {
   wtuce_status: string | null;
   latitude: number | null;
   longitude: number | null;
+  is_featured?: boolean | null;
 }
 
 export interface BlogArticleEntryReview {
@@ -165,6 +166,9 @@ const BlogArticleTemplate = ({
     const sortedEntries = [...entries]
       .filter((e) => businesses[e.id])
       .sort((a, b) => {
+        const fa = businesses[a.id]?.is_featured ? 1 : 0;
+        const fb = businesses[b.id]?.is_featured ? 1 : 0;
+        if (fb !== fa) return fb - fa;
         const ra = businesses[a.id]?.computed_rating ?? businesses[a.id]?.rating ?? -1;
         const rb = businesses[b.id]?.computed_rating ?? businesses[b.id]?.rating ?? -1;
         if (rb !== ra) return rb - ra;
@@ -404,7 +408,7 @@ const BlogArticleTemplate = ({
       const { data } = await supabase
         .from("businesses")
         .select(
-          "id, name, slug, neighborhood, city, images, rating, computed_rating, total_review_count, categories, hook_fr, wtuce_status, latitude, longitude"
+          "id, name, slug, neighborhood, city, images, rating, computed_rating, total_review_count, categories, hook_fr, wtuce_status, latitude, longitude, is_featured"
         )
         .in("id", allIds)
         .eq("is_active", true);
@@ -594,6 +598,10 @@ const BlogArticleTemplate = ({
           {[...entries]
             .filter((e) => businesses[e.id])
             .sort((a, b) => {
+              const fa = businesses[a.id]?.is_featured ? 1 : 0;
+              const fb = businesses[b.id]?.is_featured ? 1 : 0;
+              if (fb !== fa) return fb - fa;
+
               const ra = businesses[a.id]?.computed_rating ?? businesses[a.id]?.rating ?? -1;
               const rb = businesses[b.id]?.computed_rating ?? businesses[b.id]?.rating ?? -1;
               if (rb !== ra) return rb - ra;
