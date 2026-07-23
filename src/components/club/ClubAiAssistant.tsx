@@ -786,6 +786,29 @@ const ClubAiAssistant = ({ userId }: Props) => {
     setSearchParams(next, { replace });
   };
 
+  // Persist 👍/👎 for the latest assistant turn (last SSE `done` payload).
+  // RLS on ai_conversation_turns allows the owner to update feedback_score only.
+  const submitFeedback = async (score: 1 | -1) => {
+    const turnId = lastTurnIdRef.current;
+    if (!turnId) return;
+    const prev = feedbackByTurn[turnId];
+    const next = prev === score ? undefined : score;
+    setFeedbackByTurn((s) => {
+      const c = { ...s };
+      if (next == null) delete c[turnId]; else c[turnId] = next;
+      return c;
+    });
+    try {
+      await supabase
+        .from("ai_conversation_turns")
+        .update({ feedback_score: next ?? null })
+        .eq("id", turnId);
+    } catch (e) {
+      console.error("feedback update failed", e);
+    }
+  };
+
+
   useEffect(() => {
     if (!activeId) {
       activeChatIdRef.current = null;
