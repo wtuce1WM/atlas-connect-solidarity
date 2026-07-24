@@ -105,6 +105,10 @@ const StaffIA = () => {
               <MessageSquare className="h-4 w-4" />
               Suggestions Chat IA du Club
             </TabsTrigger>
+            <TabsTrigger value="embed-ai-suggestions" className="gap-2">
+              <Code2 className="h-4 w-4" />
+              Suggestions Embed IA
+            </TabsTrigger>
             <TabsTrigger value="ai-usage" className="gap-2">
               <Zap className="h-4 w-4" />
               Utilisation IA
