@@ -1046,7 +1046,47 @@ serve(async (req) => {
 
     // Strict mode: when the caller explicitly passes `city` (URL param / voice detection),
     // restrict to businesses physically in that city — exclude the national/international leakage.
-    const strictCity = !!city;
+    let strictCity = !!city;
+
+    // Neighborhood handling — MUST run before applyCityFilter so we can override a stale
+    // client-side selectedCity (e.g. user on Marrakech searches "Sidi Kaouki" → Essaouira).
+    if (detectedNeighborhood) {
+      console.log(`Auto-detected neighborhood "${detectedNeighborhood}" from query "${effectiveQuery}"`);
+      const neighborhoodCity = getNeighborhoodCity(detectedNeighborhood, await loadNeighborhoods(supabase));
+      if (neighborhoodCity) {
+        if (!effectiveCity) {
+          effectiveCity = neighborhoodCity;
+          console.log(`Derived city "${effectiveCity}" from neighborhood "${detectedNeighborhood}"`);
+        } else if (stripAccentsGlobal(effectiveCity.toLowerCase()) !== stripAccentsGlobal(neighborhoodCity.toLowerCase())) {
+          console.log(`Overriding client city "${effectiveCity}" → "${neighborhoodCity}" (neighborhood "${detectedNeighborhood}" belongs there)`);
+          effectiveCity = neighborhoodCity;
+          strictCity = false; // client-passed city was wrong, don't strict-filter on it
+          effectiveCityId = null; // force re-resolve below
+        }
+      }
+    }
+
+    // Resolve city name → UUID for zone_city_ids filtering (after neighborhood override)
+    let effectiveCityId: string | null = null;
+    if (effectiveCity) {
+      const { data: cityRow } = await supabase
+        .from("cities")
+        .select("id")
+        .ilike("name_fr", effectiveCity)
+        .limit(1)
+        .single();
+      if (cityRow) {
+        effectiveCityId = cityRow.id;
+        console.log(`Resolved city "${effectiveCity}" → ID ${effectiveCityId}`);
+      }
+    }
+
+    // Web Only service name
+    let webOnlyServiceName: string | null = null;
+    if (webOnlySvcRow) {
+      webOnlyServiceName = webOnlySvcRow.name_fr;
+      console.log(`Resolved Web Only service ID → "${webOnlyServiceName}"`);
+    }
 
     // Helper: build city OR clause including zone_city_ids coverage + "Web only" + "internationale" businesses
     const applyCityFilter = (builder: any) => {
@@ -1064,29 +1104,6 @@ serve(async (req) => {
       return builder.or(conditions.join(","));
     };
 
-    // Neighborhood handling
-    if (detectedNeighborhood) {
-      console.log(`Auto-detected neighborhood "${detectedNeighborhood}" from query "${effectiveQuery}"`);
-      if (!effectiveCity) {
-        const neighborhoodCity = getNeighborhoodCity(detectedNeighborhood, await loadNeighborhoods(supabase));
-        if (neighborhoodCity) {
-          effectiveCity = neighborhoodCity;
-          console.log(`Derived city "${effectiveCity}" from neighborhood "${detectedNeighborhood}"`);
-          if (!effectiveCityId) {
-            const { data: cityRow } = await supabase
-              .from("cities")
-              .select("id")
-              .ilike("name_fr", effectiveCity)
-              .limit(1)
-              .single();
-            if (cityRow) {
-              effectiveCityId = cityRow.id;
-              console.log(`Resolved derived city "${effectiveCity}" → ID ${effectiveCityId}`);
-            }
-          }
-        }
-      }
-    }
 
     // Related subcategories
     let RELATED_SUBCATEGORIES: Record<string, string[]> = {};
