@@ -18,7 +18,7 @@ const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePane
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string) => string; viewMap: string; events: string; nearby: string }> = {
+const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
   fr: {
     placeholder: "Posez votre question…",
     hint: "Assistant IA propulsé par One World Morocco",
@@ -26,6 +26,12 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
     viewMap: "Voir sur la carte",
     events: "Événements",
     nearby: "À proximité",
+    suggestions: [
+      "Que faire à proximité ?",
+      "Où prendre un thé à la menthe ?",
+      "Que faire ce week-end ?",
+      "Comment venir depuis l'aéroport ?",
+    ],
   },
   en: {
     placeholder: "Ask a question…",
@@ -34,6 +40,12 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
     viewMap: "View on map",
     events: "Events",
     nearby: "Nearby",
+    suggestions: [
+      "What to do nearby?",
+      "Where can I have mint tea?",
+      "What's on this weekend?",
+      "How do I get here from the airport?",
+    ],
   },
   ar: {
     placeholder: "اطرح سؤالك…",
@@ -42,6 +54,12 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
     viewMap: "عرض على الخريطة",
     events: "الفعاليات",
     nearby: "القريبة",
+    suggestions: [
+      "ماذا أفعل في الجوار؟",
+      "أين أشرب أتاي بالنعناع؟",
+      "ماذا يحدث هذا الأسبوع؟",
+      "كيف أصل من المطار؟",
+    ],
   },
 };
 
@@ -144,10 +162,13 @@ const EmbedAsk = () => {
 
   const dir = lang === "ar" ? "rtl" : "ltr";
 
-  const send = async () => {
-    const text = input.trim();
+  const sessionIdRef = useRef<string>(typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `s-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  const messageIndexRef = useRef<number>(0);
+
+  const send = async (overrideText?: string) => {
+    const text = (overrideText ?? input).trim();
     if (!text || streaming || !businessName) return;
-    setInput("");
+    if (!overrideText) setInput("");
     setError(null);
     const userMsg: Msg = { role: "user", content: text };
     const history = msgs.filter((_, i) => !(i === 0 && msgs[0].role === "assistant"));
@@ -155,6 +176,7 @@ const EmbedAsk = () => {
     setMsgs(nextUi);
     setStreaming(true);
     const assistantIdx = nextUi.length - 1;
+    const messageIndex = messageIndexRef.current++;
 
     try {
       const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/embed-ai-chat`;
@@ -167,7 +189,13 @@ const EmbedAsk = () => {
       const resp = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${anon}`, apikey: anon },
-        body: JSON.stringify({ businessSlug: slug, language: lang, messages: cleanedHistory }),
+        body: JSON.stringify({
+          businessSlug: slug,
+          language: lang,
+          messages: cleanedHistory,
+          sessionId: sessionIdRef.current,
+          messageIndex,
+        }),
       });
       if (!resp.ok || !resp.body) throw new Error(`HTTP ${resp.status}`);
 
@@ -333,6 +361,20 @@ const EmbedAsk = () => {
                 <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60 animate-bounce" style={{ animationDelay: "240ms" }} />
               </span>
             </div>
+          </div>
+        )}
+        {msgs.length <= 1 && !streaming && businessName && (
+          <div className="flex flex-wrap gap-2 pt-1">
+            {L.suggestions.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => send(s)}
+                className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
+              >
+                {s}
+              </button>
+            ))}
           </div>
         )}
         {error && <div className="text-xs text-red-500">{error}</div>}

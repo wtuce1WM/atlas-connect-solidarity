@@ -166,6 +166,10 @@ Deno.serve(async (req) => {
         const slugOrId = String(body.businessSlug || body.businessId || "").trim();
         const inMessages: Msg[] = Array.isArray(body.messages) ? body.messages.slice(-16) : [];
         const language = pickLang(body.language);
+        const sessionId: string | null = typeof body.sessionId === "string" ? body.sessionId : null;
+        const messageIndex: number = Number.isFinite(body.messageIndex) ? Number(body.messageIndex) : 0;
+        const t0 = Date.now();
+        let firstTokenAt: number | null = null;
 
         if (!slugOrId) { emit({ type: "error", message: "businessSlug required" }); return close(); }
         if (!inMessages.length) { emit({ type: "error", message: "messages required" }); return close(); }
@@ -350,6 +354,54 @@ Deno.serve(async (req) => {
         let lastMapPayload: any = null;
         let lastEventsPayload: any = null;
         const knownBusinesses: Array<{ id: string; slug: string | null; name: string }> = [];
+        const toolsCalledLog: Array<{ name: string; args: any; result_count?: number; ok?: boolean }> = [];
+        let hadError = false;
+        let errorMsg: string | null = null;
+
+        const userMessage = (() => {
+          for (let i = inMessages.length - 1; i >= 0; i--) {
+            if (inMessages[i].role === "user") return String(inMessages[i].content || "").slice(0, 2000);
+          }
+          return "";
+        })();
+
+        const logTurn = async (opts: { finalText: string; streamCompleted: boolean }) => {
+          try {
+            const t_end = Date.now();
+            await admin.from("ai_conversation_turns").insert({
+              chat_id: null,
+              user_id: null,
+              affiliate_id: null,
+              user_message: userMessage,
+              intent_classified: null,
+              route_taken: "embed",
+              tools_called: {
+                business_id: host.id,
+                business_slug: host.slug,
+                business_name: host.name,
+                session_id: sessionId,
+                tools: toolsCalledLog,
+              },
+              latency_ms_total: t_end - t0,
+              latency_ms_first_token: firstTokenAt ? firstTokenAt - t0 : null,
+              latency_ms_synth: null,
+              tokens_in: null,
+              tokens_out: null,
+              cost_usd: null,
+              city_active: host.city || null,
+              city_detected: null,
+              results_count: knownBusinesses.length,
+              results_shown: (lastMapPayload?.businesses?.length ?? 0) + (lastEventsPayload?.events?.length ?? 0),
+              had_error: hadError,
+              error_message: errorMsg,
+              stream_completed: opts.streamCompleted,
+              message_index: messageIndex,
+              language,
+            });
+          } catch (e) {
+            console.error("[embed-ai-chat] log_error", e);
+          }
+        };
 
         // Tool loop (up to MAX_ROUNDS)
         for (let round = 0; round < MAX_ROUNDS; round++) {
@@ -368,7 +420,10 @@ Deno.serve(async (req) => {
           });
           if (!resp.ok) {
             const errTxt = await resp.text().catch(() => "");
+            hadError = true;
+            errorMsg = `gateway_${resp.status}: ${errTxt.slice(0, 200)}`;
             emit({ type: "error", message: "gateway_error", status: resp.status, detail: errTxt.slice(0, 300) });
+            await logTurn({ finalText: "", streamCompleted: false });
             return close();
           }
           const json = await resp.json();
@@ -383,6 +438,13 @@ Deno.serve(async (req) => {
               let fargs: any = {};
               try { fargs = JSON.parse(tc.function?.arguments || "{}"); } catch { /* */ }
               const result = await runTool(fname, fargs);
+
+              const resCount = Array.isArray((result as any)?.results)
+                ? (result as any).results.length
+                : Array.isArray((result as any)?.businesses)
+                  ? (result as any).businesses.length
+                  : 0;
+              toolsCalledLog.push({ name: fname, args: fargs, result_count: resCount, ok: !(result as any)?.error });
 
               if (fname === "search_businesses" && Array.isArray((result as any)?.results)) {
                 for (const b of (result as any).results) {
@@ -423,7 +485,7 @@ Deno.serve(async (req) => {
           if (!streamResp.ok || !streamResp.body) {
             // Fallback: use non-stream content
             const fallback = String(msg.content || "");
-            if (fallback) emit({ type: "chunk", delta: fallback });
+            if (fallback) { if (!firstTokenAt) firstTokenAt = Date.now(); emit({ type: "chunk", delta: fallback }); }
             finalText = fallback;
           } else {
             const reader = streamResp.body.getReader();
@@ -444,6 +506,7 @@ Deno.serve(async (req) => {
                   const evt = JSON.parse(payload);
                   const delta = evt?.choices?.[0]?.delta?.content;
                   if (typeof delta === "string" && delta.length) {
+                    if (!firstTokenAt) firstTokenAt = Date.now();
                     finalText += delta;
                     emit({ type: "chunk", delta });
                   }
@@ -463,7 +526,6 @@ Deno.serve(async (req) => {
             markers.push(`<!--EVENTS_SNAPSHOT:${safe}-->`);
           }
           if (knownBusinesses.length) {
-            // dedupe by id
             const seen = new Set<string>();
             const dedup = knownBusinesses.filter((b) => (seen.has(b.id) ? false : (seen.add(b.id), true)));
             const safe = JSON.stringify(dedup).replace(/-->/g, "--&gt;");
@@ -475,10 +537,12 @@ Deno.serve(async (req) => {
             finalText += marker;
           }
           emit({ type: "done", answer: finalText });
+          await logTurn({ finalText, streamCompleted: true });
           return close();
         }
 
         emit({ type: "done", answer: "" });
+        await logTurn({ finalText: "", streamCompleted: false });
         close();
       } catch (e) {
         emit({ type: "error", message: (e as Error).message });
