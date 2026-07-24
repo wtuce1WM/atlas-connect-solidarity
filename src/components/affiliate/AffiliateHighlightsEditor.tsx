@@ -375,6 +375,7 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
                               onChange={(html) => updateField(i, descField, html)}
                               placeholder={`Description (max ${MAX_RICH} caractères)`}
                               maxHeight="240px"
+                              bgClass="bg-zinc-900 text-white border border-white/10"
                             />
                             <p className={`text-xs text-right ${descLen > MAX_RICH ? "text-destructive font-bold" : "text-muted-foreground"}`}>
                               {descLen}/{MAX_RICH}{descLen > MAX_RICH && " ⚠"}
