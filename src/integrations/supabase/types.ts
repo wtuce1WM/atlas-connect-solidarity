@@ -6560,6 +6560,120 @@ export type Database = {
         }
         Relationships: []
       }
+      video_feed_pages: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string
+          created_by: string | null
+          custom_hero_image_url: string | null
+          hero_alt: string | null
+          hero_subtitle_ar: string | null
+          hero_subtitle_en: string | null
+          hero_subtitle_fr: string | null
+          hero_title_bottom_ar: string | null
+          hero_title_bottom_en: string | null
+          hero_title_bottom_fr: string | null
+          hero_title_top_ar: string | null
+          hero_title_top_en: string | null
+          hero_title_top_fr: string | null
+          id: string
+          intro_ar: string | null
+          intro_en: string | null
+          intro_fr: string | null
+          is_published: boolean
+          published_at: string | null
+          section_intro_ar: string | null
+          section_intro_en: string | null
+          section_intro_fr: string | null
+          section_title_ar: string | null
+          section_title_en: string | null
+          section_title_fr: string | null
+          seo_description_ar: string | null
+          seo_description_en: string | null
+          seo_description_fr: string | null
+          seo_title_ar: string | null
+          seo_title_en: string | null
+          seo_title_fr: string | null
+          slug: string
+          updated_at: string
+          video_config: Json
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          custom_hero_image_url?: string | null
+          hero_alt?: string | null
+          hero_subtitle_ar?: string | null
+          hero_subtitle_en?: string | null
+          hero_subtitle_fr?: string | null
+          hero_title_bottom_ar?: string | null
+          hero_title_bottom_en?: string | null
+          hero_title_bottom_fr?: string | null
+          hero_title_top_ar?: string | null
+          hero_title_top_en?: string | null
+          hero_title_top_fr?: string | null
+          id?: string
+          intro_ar?: string | null
+          intro_en?: string | null
+          intro_fr?: string | null
+          is_published?: boolean
+          published_at?: string | null
+          section_intro_ar?: string | null
+          section_intro_en?: string | null
+          section_intro_fr?: string | null
+          section_title_ar?: string | null
+          section_title_en?: string | null
+          section_title_fr?: string | null
+          seo_description_ar?: string | null
+          seo_description_en?: string | null
+          seo_description_fr?: string | null
+          seo_title_ar?: string | null
+          seo_title_en?: string | null
+          seo_title_fr?: string | null
+          slug: string
+          updated_at?: string
+          video_config?: Json
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          custom_hero_image_url?: string | null
+          hero_alt?: string | null
+          hero_subtitle_ar?: string | null
+          hero_subtitle_en?: string | null
+          hero_subtitle_fr?: string | null
+          hero_title_bottom_ar?: string | null
+          hero_title_bottom_en?: string | null
+          hero_title_bottom_fr?: string | null
+          hero_title_top_ar?: string | null
+          hero_title_top_en?: string | null
+          hero_title_top_fr?: string | null
+          id?: string
+          intro_ar?: string | null
+          intro_en?: string | null
+          intro_fr?: string | null
+          is_published?: boolean
+          published_at?: string | null
+          section_intro_ar?: string | null
+          section_intro_en?: string | null
+          section_intro_fr?: string | null
+          section_title_ar?: string | null
+          section_title_en?: string | null
+          section_title_fr?: string | null
+          seo_description_ar?: string | null
+          seo_description_en?: string | null
+          seo_description_fr?: string | null
+          seo_title_ar?: string | null
+          seo_title_en?: string | null
+          seo_title_fr?: string | null
+          slug?: string
+          updated_at?: string
+          video_config?: Json
+        }
+        Relationships: []
+      }
       video_jobs: {
         Row: {
           business_id: string | null
