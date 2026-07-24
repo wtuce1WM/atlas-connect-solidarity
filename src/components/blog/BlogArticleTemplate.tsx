@@ -822,9 +822,9 @@ const BlogArticleTemplate = ({
                           )}
                           <span aria-hidden="true">·</span>
                           <span>
-                            Avis {review.source
+                            {language === "en" ? "Review" : language === "ar" ? "مراجعة" : "Avis"} {review.source
                               ? review.source.charAt(0).toUpperCase() + review.source.slice(1)
-                              : "client"}
+                              : (language === "en" ? "customer" : language === "ar" ? "زبون" : "client")}
                           </span>
                         </figcaption>
                       </figure>
