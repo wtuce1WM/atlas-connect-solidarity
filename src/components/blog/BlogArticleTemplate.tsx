@@ -780,12 +780,14 @@ const BlogArticleTemplate = ({
 
                   {(() => {
                     const dyn = defaultReviews[entry.id];
-                    // Only use the dynamic review if we have text in the current language.
-                    // Otherwise fall back to the entry.review (which is already language-picked in BlogPost).
+                    // Prefer translation in current language, else fall back to any available text
+                    // so the review is always displayed (rather than hidden on EN/AR).
                     const dynText = dyn
-                      ? (language === "en" ? dyn.text_en :
-                         language === "ar" ? null :
-                         (dyn.text_fr || dyn.text))
+                      ? (language === "en"
+                          ? (dyn.text_en || dyn.text_fr || dyn.text)
+                          : language === "ar"
+                            ? (dyn.text_en || dyn.text_fr || dyn.text)
+                            : (dyn.text_fr || dyn.text))
                       : null;
                     const review = dyn && dynText
                       ? { text: dynText, author: dyn.author_name, source: dyn.source, rating: dyn.rating }
