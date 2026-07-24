@@ -1059,6 +1059,7 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                       <TableHead>Ets</TableHead>
                       <TableHead>Studio</TableHead>
                       <TableHead>Dashboard</TableHead>
+                      <TableHead>Guide</TableHead>
                       <TableHead>Catégorie</TableHead>
                       <TableHead>Contact</TableHead>
                       <TableHead className="text-center">Statut</TableHead>
