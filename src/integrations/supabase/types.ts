@@ -3539,6 +3539,7 @@ export type Database = {
       embed_ai_suggestions: {
         Row: {
           created_at: string
+          followups: Json
           id: string
           is_active: boolean
           label_ar: string | null
@@ -3549,6 +3550,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          followups?: Json
           id?: string
           is_active?: boolean
           label_ar?: string | null
@@ -3559,6 +3561,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          followups?: Json
           id?: string
           is_active?: boolean
           label_ar?: string | null
