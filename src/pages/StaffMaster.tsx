@@ -124,10 +124,6 @@ const StaffMaster = () => {
               <BarChart3 className="h-4 w-4" />
               Search Analytics
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Search Analytics
-            </TabsTrigger>
             <TabsTrigger value="tests" className="gap-2">
               <FlaskConical className="h-4 w-4" />
               Tests
@@ -135,14 +131,6 @@ const StaffMaster = () => {
             <TabsTrigger value="knowledge" className="gap-2">
               <BookOpen className="h-4 w-4" />
               Connaissances
-            </TabsTrigger>
-            <TabsTrigger value="kb" className="gap-2">
-              <BookOpen className="h-4 w-4" />
-              KB IA
-            </TabsTrigger>
-            <TabsTrigger value="ai-knowledge" className="gap-2">
-              <Brain className="h-4 w-4" />
-              Base IA
             </TabsTrigger>
             <TabsTrigger value="easter-eggs" className="gap-2">
               <Egg className="h-4 w-4" />
