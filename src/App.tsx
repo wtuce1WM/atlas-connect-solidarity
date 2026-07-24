@@ -88,6 +88,7 @@ const FicheImmersive = lazy(() => import("./pages/FicheImmersive"));
 const Test = lazy(() => import("./pages/Home"));
 const HomeMindtrip = HomeMindtripEager;
 const Install = lazy(() => import("./pages/Install"));
+const EmbedAsk = lazy(() => import("./pages/EmbedAsk"));
 const VanityResolver = lazy(() => import("./pages/VanityResolver"));
 const DestinationResolver = lazy(() => import("./pages/DestinationResolver"));
 const YouTubeChannelResolver = lazy(() => import("./pages/YouTubeChannelResolver"));
@@ -236,8 +237,10 @@ const LocalizedRoutes = () => {
               <Route path="/ar/u/:pseudo" element={renderLazyRoute(<PublicClubProfile />)} />
               <Route path="/b/:slug" element={renderLazyRoute(<PublicBusinessProfile />)} />
               <Route path="/site/:slug" element={renderLazyRoute(<ShowcaseSite />)} />
+              <Route path="/embed/ask/:slug" element={renderLazyRoute(<EmbedAsk />)} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="/events" element={renderLazyRoute(<EventsPage />)} />
+
               <Route path="/:vanitySlug" element={renderLazyRoute(<VanityResolver />)} />
               <Route path="*" element={renderLazyRoute(<NotFound />)} />
     </Routes>
