@@ -428,14 +428,19 @@ const BlogArticleTemplate = ({
     const fetchDefaultReviews = async () => {
       const { data } = await supabase
         .from("reviews")
-        .select("business_id, author_name, source, rating, text, text_fr, text_en, text_ar")
+        .select("business_id, author_name, source, rating, text, text_fr, text_en, text_ar, is_default, created_at")
         .in("business_id", allIds)
-        .eq("is_default", true)
-        .eq("is_hidden", false);
+        .eq("is_hidden", false)
+        .order("created_at", { ascending: true });
       if (data) {
         const map: Record<string, any> = {};
         data.forEach((r: any) => {
-          if (!map[r.business_id]) map[r.business_id] = r;
+          const existing = map[r.business_id];
+          if (!existing) {
+            map[r.business_id] = r;
+          } else if (r.is_default && !existing.is_default) {
+            map[r.business_id] = r;
+          }
         });
         setDefaultReviews(map);
       }
