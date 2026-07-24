@@ -15,6 +15,7 @@ import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
 import { withLangPrefix } from "@/lib/localizedPath";
 import { mapLabel } from "@/lib/mapLabels";
 
