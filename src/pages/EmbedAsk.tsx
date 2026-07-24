@@ -33,7 +33,17 @@ const EmbedAsk = () => {
   const { slug = "" } = useParams();
   const [params] = useSearchParams();
   const lang = (["fr", "en", "ar"].includes(params.get("lang") || "") ? params.get("lang") : "fr") as "fr" | "en" | "ar";
-  const theme = params.get("theme") === "light" ? "light" : "dark";
+  const initialTheme = params.get("theme") === "light" ? "light" : "dark";
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof window !== "undefined") {
+      const saved = window.localStorage.getItem("embed-ask-theme");
+      if (saved === "light" || saved === "dark") return saved;
+    }
+    return initialTheme;
+  });
+  useEffect(() => {
+    try { window.localStorage.setItem("embed-ask-theme", theme); } catch { /* noop */ }
+  }, [theme]);
 
   const [businessName, setBusinessName] = useState<string>("");
   const [msgs, setMsgs] = useState<Msg[]>([]);
