@@ -642,21 +642,7 @@ const StaffFront = () => {
           </TabsContent>
 
           <TabsContent value="suggestions">
-            <Tabs defaultValue="search">
-              <TabsList className="mb-4">
-                <TabsTrigger value="search">Search</TabsTrigger>
-                <TabsTrigger value="club" className="gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  Suggestions Club
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="search">
-                <PopularSearchesManagement />
-              </TabsContent>
-              <TabsContent value="club">
-                <ClubAiSuggestionsManagement />
-              </TabsContent>
-            </Tabs>
+            <PopularSearchesManagement />
           </TabsContent>
 
           <TabsContent value="display">
