@@ -1,0 +1,1 @@
+ALTER TABLE public.affiliates ADD COLUMN IF NOT EXISTS has_guide boolean NOT NULL DEFAULT false; ALTER TABLE public.affiliates ADD COLUMN IF NOT EXISTS contact_url text;
