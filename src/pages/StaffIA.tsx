@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, ArrowLeft, BarChart3, BookOpen, Sparkles, Brain, MessageSquare } from "lucide-react";
+import { LogOut, ArrowLeft, BarChart3, BookOpen, Sparkles, Brain, MessageSquare, LayoutDashboard, Zap } from "lucide-react";
+import IADashboard from "@/components/staff/IADashboard";
 import AIConfigManagement from "@/components/staff/AIConfigManagement";
 import ClubAiSuggestionsManagement from "@/components/staff/ClubAiSuggestionsManagement";
 import AiUsageManagement from "@/components/staff/AiUsageManagement";
@@ -15,7 +16,7 @@ import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 const StaffIA = () => {
   const [user, setUser] = useState<any>(null);
   const [searchParams] = useSearchParams();
-  const initialTab = searchParams.get("tab") || "ai-config";
+  const initialTab = searchParams.get("tab") || "dashboard";
   const [activeTab, setActiveTab] = useState(initialTab);
   const navigate = useNavigate();
 
