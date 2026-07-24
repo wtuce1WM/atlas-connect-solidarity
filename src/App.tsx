@@ -88,6 +88,7 @@ const FicheImmersive = lazy(() => import("./pages/FicheImmersive"));
 const Test = lazy(() => import("./pages/Home"));
 const HomeMindtrip = HomeMindtripEager;
 const Install = lazy(() => import("./pages/Install"));
+const EmbedAsk = lazy(() => import("./pages/EmbedAsk"));
 const VanityResolver = lazy(() => import("./pages/VanityResolver"));
 const DestinationResolver = lazy(() => import("./pages/DestinationResolver"));
 const YouTubeChannelResolver = lazy(() => import("./pages/YouTubeChannelResolver"));
