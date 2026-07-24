@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS url_6 text, ADD COLUMN IF NOT EXISTS url_6_title text, ADD COLUMN IF NOT EXISTS url_6_force_external boolean DEFAULT false;

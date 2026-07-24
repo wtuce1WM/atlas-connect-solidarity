@@ -2274,6 +2274,9 @@ export type Database = {
           url_5_cta: string | null
           url_5_force_external: boolean
           url_5_presentation_mode: string
+          url_6: string | null
+          url_6_force_external: boolean | null
+          url_6_title: string | null
           vacation_dates: Json | null
           viator_rating: number | null
           viator_review_count: number | null
@@ -2453,6 +2456,9 @@ export type Database = {
           url_5_cta?: string | null
           url_5_force_external?: boolean
           url_5_presentation_mode?: string
+          url_6?: string | null
+          url_6_force_external?: boolean | null
+          url_6_title?: string | null
           vacation_dates?: Json | null
           viator_rating?: number | null
           viator_review_count?: number | null
@@ -2632,6 +2638,9 @@ export type Database = {
           url_5_cta?: string | null
           url_5_force_external?: boolean
           url_5_presentation_mode?: string
+          url_6?: string | null
+          url_6_force_external?: boolean | null
+          url_6_title?: string | null
           vacation_dates?: Json | null
           viator_rating?: number | null
           viator_review_count?: number | null
@@ -7578,6 +7587,9 @@ export type Database = {
               url_5_cta: string | null
               url_5_force_external: boolean
               url_5_presentation_mode: string
+              url_6: string | null
+              url_6_force_external: boolean | null
+              url_6_title: string | null
               vacation_dates: Json | null
               viator_rating: number | null
               viator_review_count: number | null
@@ -7773,6 +7785,9 @@ export type Database = {
               url_5_cta: string | null
               url_5_force_external: boolean
               url_5_presentation_mode: string
+              url_6: string | null
+              url_6_force_external: boolean | null
+              url_6_title: string | null
               vacation_dates: Json | null
               viator_rating: number | null
               viator_review_count: number | null

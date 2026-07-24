@@ -1464,6 +1464,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     url_5_cta: normalizeCtaValue((business as any)?.url_5_cta) || "",
     url_5_force_external: (business as any)?.url_5_force_external ?? false,
     url_5_presentation_mode: (business as any)?.url_5_presentation_mode || "acheter_en_ligne",
+    url_6: (business as any)?.url_6 || "",
+    url_6_title: (business as any)?.url_6_title || "",
+    url_6_force_external: (business as any)?.url_6_force_external ?? false,
     carousel_badge: (business as any)?.carousel_badge || "",
   });
 
@@ -2429,6 +2432,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       url_5_cta: (formData as any).url_5_cta || null,
       url_5_force_external: (formData as any).url_5_force_external ?? false,
       url_5_presentation_mode: (formData as any).url_5_presentation_mode || "acheter_en_ligne",
+      url_6: (formData as any).url_6?.trim() || null,
+      url_6_title: (formData as any).url_6_title?.trim() || null,
+      url_6_force_external: (formData as any).url_6_force_external ?? false,
       computed_rating: (formData as any).computed_rating !== "" && (formData as any).computed_rating != null ? parseFloat((formData as any).computed_rating) : null,
       total_review_count: (formData as any).total_review_count !== "" && (formData as any).total_review_count != null ? parseInt((formData as any).total_review_count) : null,
       carousel_badge: (formData as any).carousel_badge || null,
@@ -3815,6 +3821,41 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
             </div>
             {(formData as any).url_5_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
             <BrokenUrlBadge url={(formData as any).url_5} />
+          </div>
+          <div className="space-y-1">
+            {(formData as any).url_6 ? (
+              <Label><a href={(formData as any).url_6} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">URL 6 ↗</a></Label>
+            ) : (
+              <Label>URL 6</Label>
+            )}
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={(formData as any).url_6_force_external}
+                onCheckedChange={(checked) => handleChange("url_6_force_external", checked)}
+                title="Ouvrir en lien externe"
+                className="shrink-0"
+              />
+              <Input
+                value={(formData as any).url_6 || ""}
+                onChange={(e) => handleChange("url_6", e.target.value)}
+                placeholder="https://"
+                className="w-1/3 min-w-0 shrink-0"
+              />
+              {(formData as any).url_6 && (
+                <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive shrink-0 px-2" title="Supprimer" onClick={() => handleChange("url_6", "")}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+              <Input
+                value={(formData as any).url_6_title || ""}
+                onChange={(e) => handleChange("url_6_title", e.target.value.slice(0, 20))}
+                maxLength={20}
+                placeholder="Titre (20 car. max)"
+                className="w-64 shrink-0"
+              />
+            </div>
+            {(formData as any).url_6_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
+            <BrokenUrlBadge url={(formData as any).url_6} />
           </div>
           <div className="flex flex-wrap items-center gap-6">
             <div className="flex items-center gap-2">
