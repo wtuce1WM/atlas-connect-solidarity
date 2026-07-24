@@ -51,6 +51,8 @@ export interface BlogArticleBusiness {
   total_review_count: number | null;
   categories: string[] | null;
   hook_fr: string | null;
+  hook_en: string | null;
+  hook_ar: string | null;
   wtuce_status: string | null;
   latitude: number | null;
   longitude: number | null;
@@ -408,7 +410,7 @@ const BlogArticleTemplate = ({
       const { data } = await supabase
         .from("businesses")
         .select(
-          "id, name, slug, neighborhood, city, images, rating, computed_rating, total_review_count, categories, hook_fr, wtuce_status, latitude, longitude, is_featured"
+          "id, name, slug, neighborhood, city, images, rating, computed_rating, total_review_count, categories, hook_fr, hook_en, hook_ar, wtuce_status, latitude, longitude, is_featured"
         )
         .in("id", allIds)
         .eq("is_active", true);
@@ -715,7 +717,7 @@ const BlogArticleTemplate = ({
                                       </span>
                                       {b.total_review_count && b.total_review_count > 0 && (
                                         <span className="text-xs text-white/60 font-semibold whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                                          · {b.total_review_count} avis
+                                          · {b.total_review_count} {language === "en" ? "reviews" : language === "ar" ? "تقييم" : "avis"}
                                         </span>
                                       )}
                                     </div>
@@ -746,11 +748,14 @@ const BlogArticleTemplate = ({
                                     <span>{entry.hours}</span>
                                   </div>
                                 )}
-                                {b.hook_fr && (
-                                  <p className="text-sm text-foreground/70 italic">
-                                    « {b.hook_fr} »
-                                  </p>
-                                )}
+                                {(() => {
+                                  const bh = language === "en" ? (b.hook_en || b.hook_fr) : language === "ar" ? (b.hook_ar || b.hook_fr) : b.hook_fr;
+                                  return bh ? (
+                                    <p className="text-sm text-foreground/70 italic">
+                                      « {bh} »
+                                    </p>
+                                  ) : null;
+                                })()}
                               </CardContent>
                             </div>
                           </Card>
@@ -773,10 +778,12 @@ const BlogArticleTemplate = ({
 
                   {(() => {
                     const dyn = defaultReviews[entry.id];
+                    // Only use the dynamic review if we have text in the current language.
+                    // Otherwise fall back to the entry.review (which is already language-picked in BlogPost).
                     const dynText = dyn
-                      ? (language === "en" ? (dyn.text_en || dyn.text_fr || dyn.text) :
-                         language === "ar" ? (dyn.text_fr || dyn.text_en || dyn.text) :
-                         (dyn.text_fr || dyn.text_en || dyn.text))
+                      ? (language === "en" ? dyn.text_en :
+                         language === "ar" ? null :
+                         (dyn.text_fr || dyn.text))
                       : null;
                     const review = dyn && dynText
                       ? { text: dynText, author: dyn.author_name, source: dyn.source, rating: dyn.rating }
@@ -815,9 +822,9 @@ const BlogArticleTemplate = ({
                           )}
                           <span aria-hidden="true">·</span>
                           <span>
-                            Avis {review.source
+                            {language === "en" ? "Review" : language === "ar" ? "مراجعة" : "Avis"} {review.source
                               ? review.source.charAt(0).toUpperCase() + review.source.slice(1)
-                              : "client"}
+                              : (language === "en" ? "customer" : language === "ar" ? "زبون" : "client")}
                           </span>
                         </figcaption>
                       </figure>
