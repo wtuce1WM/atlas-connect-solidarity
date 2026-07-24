@@ -462,6 +462,7 @@ Deno.serve(async (req) => {
                 for (const b of (result as any).results) {
                   if (b?.id && b?.name) knownBusinesses.push({ id: b.id, slug: b.slug || null, name: b.name });
                 }
+                if ((result as any)?.disclosure_note) lastDisclosureNote = String((result as any).disclosure_note);
               }
               if (fname === "show_on_map" && (result as any)?.ok && Array.isArray((result as any).businesses)) {
                 lastMapPayload = { title: (result as any).title || null, businesses: (result as any).businesses };
