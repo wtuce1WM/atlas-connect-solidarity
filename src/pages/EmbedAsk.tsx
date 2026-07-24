@@ -168,12 +168,12 @@ const EmbedAsk = () => {
   const bg = theme === "light" ? "bg-white" : "bg-neutral-950";
   const surface = theme === "light" ? "bg-white text-neutral-900" : "bg-neutral-950 text-neutral-100";
   const userBubble = theme === "light" ? "bg-neutral-900 text-white" : "bg-white text-neutral-900";
-  const asstBubble = theme === "light" ? "bg-neutral-100 text-neutral-900" : "bg-neutral-800 text-neutral-100";
+  const asstBubble = theme === "light" ? "bg-neutral-100 text-neutral-900" : "bg-neutral-800 text-neutral-50";
   const border = theme === "light" ? "border-neutral-200" : "border-neutral-800";
   const inputBg = theme === "light" ? "bg-white" : "bg-neutral-900";
 
   return (
-    <div dir={dir} className={`fixed inset-0 flex flex-col ${surface}`}>
+    <div dir={dir} className={`fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""}`}>
       <header className={`px-4 py-3 border-b ${border} flex items-center gap-3`}>
         <div className="w-8 h-8 rounded-full bg-[#C24B3F] flex items-center justify-center text-white text-sm font-semibold">
           {(businessName || "?").slice(0, 1).toUpperCase()}
