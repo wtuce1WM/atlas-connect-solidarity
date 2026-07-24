@@ -155,4 +155,10 @@ Deno.serve(async (req) => {
     }),
     { headers: { ...corsHeaders, "Content-Type": "application/json" } }
   );
+  } catch (e) {
+    console.error("translate-reviews fatal:", e, (e as Error)?.stack);
+    return new Response(JSON.stringify({ error: String(e), stack: (e as Error)?.stack?.slice(0, 500) }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 });
