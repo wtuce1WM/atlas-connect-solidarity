@@ -112,6 +112,10 @@ const StaffIA = () => {
               <BarChart3 className="h-4 w-4" />
               Perf IA
             </TabsTrigger>
+            <TabsTrigger value="embed-usage" className="gap-2">
+              <Code2 className="h-4 w-4" />
+              Usage embed
+            </TabsTrigger>
             <TabsTrigger value="kb" className="gap-2">
               <BookOpen className="h-4 w-4" />
               KB IA
