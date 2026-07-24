@@ -259,6 +259,9 @@ Deno.serve(async (req) => {
               if (!results.length) {
                 return { results: [], total_shown: 0, total_found: 0, total_count: 0, note: `Aucun établissement complémentaire trouvé pour "${fullQuery}" à ${city}. Propose une alternative ou reformule.` };
               }
+              const disclosure = totalFound > results.length
+                ? `📍 Je te présente ${results.length} adresse${results.length > 1 ? "s" : ""} sur ${totalFound} trouvée${totalFound > 1 ? "s" : ""} à ${city} — dis-moi si tu veux que je te montre les autres ou que j'affine par quartier, ambiance ou budget.`
+                : `📍 Voici les ${results.length} adresse${results.length > 1 ? "s" : ""} que j'ai trouvée${results.length > 1 ? "s" : ""} à ${city} pour cette recherche.`;
               return {
                 results: results.map((b: any) => ({
                   id: b.id, name: b.name, slug: b.slug, city: b.city, neighborhood: b.neighborhood,
@@ -270,6 +273,7 @@ Deno.serve(async (req) => {
                 total_found: totalFound,
                 total_count: results.length,
                 city,
+                disclosure_note: disclosure,
               };
             }
 
