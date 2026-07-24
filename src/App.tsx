@@ -71,6 +71,7 @@ const Corporate = CorporateEager;
 const Join = JoinEager;
 const SearchAnalytics = lazy(() => import("./pages/SearchAnalytics"));
 const StaffMaster = lazy(() => import("./pages/StaffMaster"));
+const StaffIA = lazy(() => import("./pages/StaffIA"));
 const StaffB2B = lazy(() => import("./pages/StaffB2B"));
 const StaffTranslations = lazy(() => import("./pages/StaffTranslations"));
 
@@ -108,7 +109,7 @@ const BusinessRedirect = () => {
 const GlobalFloatingSearchBar = () => {
   const location = useLocation();
   // Hide on home page and staff/affiliate backoffice pages
-  const hiddenPaths = ["/", "/corporate", "/club", "/install", "/search", "/test", "/videos", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/staff/b2b", "/staff/front", "/affiliates", "/affiliates/dashboard", "/affiliates/presence", "/search-analytics"];
+  const hiddenPaths = ["/", "/corporate", "/club", "/install", "/search", "/test", "/videos", "/staff/login", "/staff/backoffice", "/staff/catalogue", "/staff/crm", "/staff/master", "/staff/ia", "/staff/b2b", "/staff/front", "/affiliates", "/affiliates/dashboard", "/affiliates/presence", "/search-analytics"];
   if (hiddenPaths.includes(location.pathname)) return null;
   if (location.pathname.startsWith("/blog")) return null;
   return <Suspense fallback={null}><FloatingSearchBar /></Suspense>;
@@ -163,6 +164,7 @@ const LocalizedRoutes = () => {
               <Route path="/staff/catalogue" element={renderLazyRoute(<StaffBackoffice />)} />
               <Route path="/staff/crm" element={renderLazyRoute(<StaffCRM />)} />
               <Route path="/staff/master" element={<StaffRouteGuard>{renderLazyRoute(<StaffMaster />)}</StaffRouteGuard>} />
+              <Route path="/staff/ia" element={<StaffRouteGuard>{renderLazyRoute(<StaffIA />)}</StaffRouteGuard>} />
               <Route path="/staff/b2b" element={renderLazyRoute(<StaffB2B />)} />
               <Route path="/staff/translations" element={<StaffRouteGuard>{renderLazyRoute(<StaffTranslations />)}</StaffRouteGuard>} />
               <Route path="/staff/front" element={<StaffRouteGuard>{renderLazyRoute(<StaffFront />)}</StaffRouteGuard>} />

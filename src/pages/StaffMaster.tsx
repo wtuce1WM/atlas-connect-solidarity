@@ -17,11 +17,7 @@ import TestSuitePanel from "@/components/staff/TestSuitePanel";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement";
 import EasterEggManagement from "@/components/staff/EasterEggManagement";
-import AIConfigManagement from "@/components/staff/AIConfigManagement";
-import ClubAiSuggestionsManagement from "@/components/staff/ClubAiSuggestionsManagement";
 import ClubFollowupPromptEditor from "@/components/staff/ClubFollowupPromptEditor";
-import AiUsageManagement from "@/components/staff/AiUsageManagement";
-import AiConversationPerf from "@/components/staff/AiConversationPerf";
 import MasterDashboard from "@/components/staff/MasterDashboard";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import BlockedDomainsManagement from "@/components/staff/BlockedDomainsManagement";
@@ -30,7 +26,7 @@ import HotelApiComparison from "@/components/staff/HotelApiComparison";
 import PricingManagement from "@/components/staff/PricingManagement";
 import BlogManagement from "@/components/staff/BlogManagement";
 import VanityUrlsManagement from "@/components/staff/VanityUrlsManagement";
-import KBViewer from "@/components/staff/KBViewer";
+
 
 const StaffMaster = () => {
   const [user, setUser] = useState<any>(null);
@@ -120,22 +116,6 @@ const StaffMaster = () => {
               <Search className="h-4 w-4" />
               Recherche
             </TabsTrigger>
-            <TabsTrigger value="ai-config" className="gap-2">
-              <Sparkles className="h-4 w-4" />
-              IA
-            </TabsTrigger>
-            <TabsTrigger value="club-ai-suggestions" className="gap-2">
-              <MessageSquare className="h-4 w-4" />
-              Suggestions Club
-            </TabsTrigger>
-            <TabsTrigger value="ai-usage" className="gap-2">
-              <Sparkles className="h-4 w-4" />
-              Usage IA
-            </TabsTrigger>
-            <TabsTrigger value="ai-perf" className="gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Perf IA
-            </TabsTrigger>
             <TabsTrigger value="analytics" className="gap-2">
               <BarChart3 className="h-4 w-4" />
               Search Analytics
@@ -147,14 +127,6 @@ const StaffMaster = () => {
             <TabsTrigger value="knowledge" className="gap-2">
               <BookOpen className="h-4 w-4" />
               Connaissances
-            </TabsTrigger>
-            <TabsTrigger value="kb" className="gap-2">
-              <BookOpen className="h-4 w-4" />
-              KB IA
-            </TabsTrigger>
-            <TabsTrigger value="ai-knowledge" className="gap-2">
-              <Brain className="h-4 w-4" />
-              Base IA
             </TabsTrigger>
             <TabsTrigger value="easter-eggs" className="gap-2">
               <Egg className="h-4 w-4" />
@@ -192,21 +164,6 @@ const StaffMaster = () => {
             <SearchConfigManagement />
           </TabsContent>
 
-          <TabsContent value="ai-config">
-            <AIConfigManagement />
-          </TabsContent>
-
-          <TabsContent value="club-ai-suggestions">
-            <ClubAiSuggestionsManagement />
-          </TabsContent>
-
-          <TabsContent value="ai-usage">
-            <AiUsageManagement />
-          </TabsContent>
-
-          <TabsContent value="ai-perf">
-            <AiConversationPerf />
-          </TabsContent>
 
           <TabsContent value="analytics">
             <SearchAnalytics embedded />
@@ -225,18 +182,6 @@ const StaffMaster = () => {
             />
           </TabsContent>
 
-          <TabsContent value="ai-knowledge">
-            <KnowledgeBaseManagement
-              categories={["general", "tourisme", "culture", "gastronomie"]}
-              newEntryLabel="Nouvelle entrée IA"
-              emptyLabel="Aucune entrée pour l'IA Concierge"
-              showExternalUrls
-            />
-          </TabsContent>
-
-          <TabsContent value="kb">
-            <KBViewer />
-          </TabsContent>
 
           <TabsContent value="easter-eggs">
             <EasterEggManagement />

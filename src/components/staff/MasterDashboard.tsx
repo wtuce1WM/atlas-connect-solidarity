@@ -116,14 +116,14 @@ const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
 
   const shortcuts: { label: string; tab?: string; href?: string; icon: any; count: string | null }[] = [
     { label: "Recherche", tab: "search-config", icon: Search, count: `${health.synonymsActive} syn · ${health.bundlesActive} bundles` },
-    { label: "IA", tab: "ai-config", icon: Sparkles, count: `${health.aiConfigCount} clés` },
+    { label: "IA", href: "/staff/ia?tab=ai-config", icon: Sparkles, count: `${health.aiConfigCount} clés` },
     { label: "Articles Blog", tab: "blog", icon: FileText, count: `${health.blogPublished}/${health.blogTotal} publiés` },
     { label: "Affiliés", tab: "affiliates", icon: UserCheck, count: `${health.affiliatesActive} actifs` },
     { label: "Sponsors", tab: "sponsors", icon: Star, count: `${health.sponsorsActive} actifs` },
     { label: "Search Analytics", tab: "analytics", icon: BarChart3, count: null },
     { label: "Tests", tab: "tests", icon: FlaskConical, count: null },
     { label: "Connaissances", tab: "knowledge", icon: BookOpen, count: `${health.knowledgeCount} notes` },
-    { label: "Base IA", tab: "ai-knowledge", icon: Brain, count: `${health.aiKnowledgeCount} entrées` },
+    { label: "Base IA", href: "/staff/ia?tab=ai-knowledge", icon: Brain, count: `${health.aiKnowledgeCount} entrées` },
     { label: "Easter Eggs", tab: "easter-eggs", icon: Egg, count: `${health.easterEggsActive}/${health.easterEggsTotal} actifs` },
   ];
 
