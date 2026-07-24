@@ -49,6 +49,7 @@ interface MapSlidePanelProps {
   onShare?: () => void;
   onBookmark?: () => void;
   isBookmarked?: boolean;
+  disableUserLocation?: boolean;
 }
 
 const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
