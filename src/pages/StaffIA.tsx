@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, ArrowLeft, BarChart3, BookOpen, Sparkles, Brain, MessageSquare } from "lucide-react";
+import { LogOut, ArrowLeft, BarChart3, BookOpen, Sparkles, Brain, MessageSquare, LayoutDashboard, Zap } from "lucide-react";
+import IADashboard from "@/components/staff/IADashboard";
 import AIConfigManagement from "@/components/staff/AIConfigManagement";
 import ClubAiSuggestionsManagement from "@/components/staff/ClubAiSuggestionsManagement";
 import AiUsageManagement from "@/components/staff/AiUsageManagement";
@@ -15,7 +16,7 @@ import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 const StaffIA = () => {
   const [user, setUser] = useState<any>(null);
   const [searchParams] = useSearchParams();
-  const initialTab = searchParams.get("tab") || "ai-config";
+  const initialTab = searchParams.get("tab") || "dashboard";
   const [activeTab, setActiveTab] = useState(initialTab);
   const navigate = useNavigate();
 
@@ -89,6 +90,10 @@ const StaffIA = () => {
       <main className="w-full px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6 flex flex-wrap h-auto gap-1">
+            <TabsTrigger value="dashboard" className="gap-2">
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
+            </TabsTrigger>
             <TabsTrigger value="ai-config" className="gap-2">
               <Sparkles className="h-4 w-4" />
               IA
@@ -98,7 +103,7 @@ const StaffIA = () => {
               Suggestions Chat IA du Club
             </TabsTrigger>
             <TabsTrigger value="ai-usage" className="gap-2">
-              <Sparkles className="h-4 w-4" />
+              <Zap className="h-4 w-4" />
               Utilisation IA
             </TabsTrigger>
             <TabsTrigger value="ai-perf" className="gap-2">
@@ -115,6 +120,10 @@ const StaffIA = () => {
             </TabsTrigger>
           </TabsList>
 
+          <TabsContent value="dashboard">
+            <IADashboard onNavigateTab={setActiveTab} />
+          </TabsContent>
+
           <TabsContent value="ai-config">
             <AIConfigManagement />
           </TabsContent>
@@ -122,6 +131,7 @@ const StaffIA = () => {
           <TabsContent value="club-ai-suggestions">
             <ClubAiSuggestionsManagement />
           </TabsContent>
+
 
           <TabsContent value="ai-usage">
             <AiUsageManagement />
