@@ -776,6 +776,19 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                 />
               </div>
 
+              {/* URL liée à l'établissement */}
+              <div className="space-y-2">
+                <Label htmlFor="contact_url">URL</Label>
+                <Input
+                  id="contact_url"
+                  type="url"
+                  value={formData.contact_url}
+                  onChange={(e) => setFormData({ ...formData, contact_url: e.target.value })}
+                  placeholder="https://exemple.com"
+                />
+                <p className="text-xs text-muted-foreground">URL liée à l'établissement</p>
+              </div>
+
               {/* Note interne */}
               <div className="space-y-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                 <Label htmlFor="internal_notes" className="text-amber-800">
