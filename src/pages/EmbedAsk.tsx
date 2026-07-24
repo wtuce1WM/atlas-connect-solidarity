@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { Send, Sun, Moon, MapPin, Calendar as CalendarIcon } from "lucide-react";
+import { Send, Sun, Moon, MapPin, Calendar as CalendarIcon, MessageSquarePlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlidePanel";
 import EventsSlidePanel from "@/components/club/EventsSlidePanel";
@@ -248,6 +248,21 @@ const EmbedAsk = () => {
     }
   };
 
+  const startNewConversation = () => {
+    sessionIdRef.current =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `s-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    messageIndexRef.current = 0;
+    setInput("");
+    setError(null);
+    setOpenMap(null);
+    setOpenEvents(null);
+    setOpenBusinessId(null);
+    setMsgs(businessName ? [{ role: "assistant", content: L.opener(businessName) }] : []);
+    setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
   const bg = theme === "light" ? "bg-white" : "bg-neutral-950";
   const surface = theme === "light" ? "bg-white text-neutral-900" : "bg-neutral-950 text-neutral-100";
   const userBubble = theme === "light" ? "bg-neutral-900 text-white" : "bg-white text-neutral-900";
@@ -266,6 +281,16 @@ const EmbedAsk = () => {
           <div className="font-semibold truncate text-sm">{businessName || "…"}</div>
           <div className="text-[11px] opacity-60 truncate">{L.hint}</div>
         </div>
+        <button
+          type="button"
+          onClick={startNewConversation}
+          disabled={streaming}
+          title={lang === "en" ? "New conversation" : lang === "ar" ? "محادثة جديدة" : "Nouvelle conversation"}
+          aria-label={lang === "en" ? "New conversation" : lang === "ar" ? "محادثة جديدة" : "Nouvelle conversation"}
+          className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border ${border} opacity-70 hover:opacity-100 transition-opacity disabled:opacity-40`}
+        >
+          <MessageSquarePlus className="w-4 h-4" />
+        </button>
         <button
           type="button"
           onClick={() => setTheme(theme === "light" ? "dark" : "light")}
