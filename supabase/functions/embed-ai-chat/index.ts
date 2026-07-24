@@ -166,6 +166,10 @@ Deno.serve(async (req) => {
         const slugOrId = String(body.businessSlug || body.businessId || "").trim();
         const inMessages: Msg[] = Array.isArray(body.messages) ? body.messages.slice(-16) : [];
         const language = pickLang(body.language);
+        const sessionId: string | null = typeof body.sessionId === "string" ? body.sessionId : null;
+        const messageIndex: number = Number.isFinite(body.messageIndex) ? Number(body.messageIndex) : 0;
+        const t0 = Date.now();
+        let firstTokenAt: number | null = null;
 
         if (!slugOrId) { emit({ type: "error", message: "businessSlug required" }); return close(); }
         if (!inMessages.length) { emit({ type: "error", message: "messages required" }); return close(); }

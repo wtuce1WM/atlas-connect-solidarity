@@ -15,6 +15,9 @@ const SITE = "https://oneworldmorocco.com";
 const AffiliateToolsTab = ({ slug, businessName }: Props) => {
   const qrRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  const [embedTheme, setEmbedTheme] = useState<"dark" | "light">("dark");
+  const [embedLang, setEmbedLang] = useState<"fr" | "en" | "ar">("fr");
+  const [embedHeight, setEmbedHeight] = useState<number>(640);
 
   if (!slug) {
     return (
@@ -26,6 +29,12 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
 
   const publicUrl = `${SITE}/${slug}`;
   const shortUrl = `${SITE}/b/${slug}`;
+  const embedUrl = `${SITE}/embed/ask/${slug}?theme=${embedTheme}&lang=${embedLang}`;
+  const embedSnippet = useMemo(
+    () =>
+      `<iframe src="${embedUrl}" style="width:100%;max-width:420px;height:${embedHeight}px;border:0;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.15)" title="Assistant IA — ${businessName}" loading="lazy" allow="clipboard-write"></iframe>`,
+    [embedUrl, embedHeight, businessName]
+  );
 
   const copy = async (value: string, key: string) => {
     try {
@@ -136,6 +145,103 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
           </div>
         </div>
       </div>
+      <div className="space-y-3">
+        <h3 className="text-white font-semibold flex items-center gap-2">
+          <Bot className="h-4 w-4" /> Assistant IA embarqué (iframe)
+        </h3>
+        <p className="text-sm text-white/70">
+          Copiez le code ci-dessous et collez-le dans le HTML de votre site (ou dans un bloc « Code »
+          de votre CMS : WordPress, Squarespace, Wix, Webflow…). Vos visiteurs pourront poser des
+          questions à l'assistant IA de <span className="font-semibold text-white">{businessName}</span>,
+          qui les orientera aussi vers des adresses complémentaires à proximité.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="space-y-1.5">
+            <Label className="text-white/80 text-xs">Thème</Label>
+            <div className="flex gap-1">
+              {(["dark", "light"] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setEmbedTheme(t)}
+                  className={`flex-1 text-xs py-1.5 rounded-md border ${embedTheme === t ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+                >
+                  {t === "dark" ? "Sombre" : "Clair"}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-white/80 text-xs">Langue par défaut</Label>
+            <div className="flex gap-1">
+              {(["fr", "en", "ar"] as const).map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => setEmbedLang(l)}
+                  className={`flex-1 text-xs py-1.5 rounded-md border uppercase ${embedLang === l ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-white/80 text-xs">Hauteur (px)</Label>
+            <input
+              type="number"
+              min={400}
+              max={1200}
+              step={20}
+              value={embedHeight}
+              onChange={(e) => setEmbedHeight(Math.max(400, Math.min(1200, Number(e.target.value) || 640)))}
+              className="w-full rounded-md bg-white/10 border border-white/20 text-white text-sm px-3 py-1.5"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label className="text-white/80 text-xs">Code à copier</Label>
+            <textarea
+              readOnly
+              value={embedSnippet}
+              onFocus={(e) => e.currentTarget.select()}
+              rows={5}
+              className="w-full rounded-md bg-white/10 border border-white/20 text-white text-xs px-3 py-2 font-mono resize-none"
+            />
+            <div className="flex gap-2 flex-wrap">
+              <Button type="button" size="sm" onClick={() => copy(embedSnippet, "embed")}>
+                {copied === "embed" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                Copier le code iframe
+              </Button>
+              <Button type="button" size="sm" variant="outline" onClick={() => copy(embedUrl, "embed-url")} className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                {copied === "embed-url" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                Copier l'URL seule
+              </Button>
+              <Button type="button" size="sm" variant="outline" asChild className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                <a href={embedUrl} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="h-4 w-4 mr-1" /> Ouvrir
+                </a>
+              </Button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-white/80 text-xs">Aperçu en direct</Label>
+            <div className="rounded-md overflow-hidden border border-white/20 bg-black/30 flex justify-center">
+              <iframe
+                key={embedUrl + embedHeight}
+                src={embedUrl}
+                style={{ width: "100%", maxWidth: 420, height: embedHeight, border: 0 }}
+                title="Aperçu"
+                loading="lazy"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="space-y-3">
         <h3 className="text-white font-semibold flex items-center gap-2">
           <Globe2 className="h-4 w-4" /> Redirection 301 depuis votre domaine (gratuit, DIY)
