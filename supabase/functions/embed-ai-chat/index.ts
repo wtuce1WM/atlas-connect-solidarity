@@ -417,7 +417,7 @@ Deno.serve(async (req) => {
               messages: convo,
               tools: isLast ? undefined : TOOLS,
               tool_choice: isLast ? undefined : "auto",
-              temperature: 0.5,
+              temperature: 0.7,
               stream: false,
             }),
           });
