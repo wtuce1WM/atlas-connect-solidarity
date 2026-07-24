@@ -46,6 +46,7 @@ const CookiesPage = lazy(() => import("./pages/Cookies"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
+const VideoFeed = lazy(() => import("./pages/VideoFeed"));
 
 const MarrakechArtisanat5Jours = lazy(() => import("./pages/MarrakechArtisanat5Jours"));
 const EventsPage = lazy(() => import("./pages/EventsPage"));
