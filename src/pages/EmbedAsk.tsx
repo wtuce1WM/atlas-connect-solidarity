@@ -128,9 +128,11 @@ const EmbedAsk = () => {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dbSuggestions, setDbSuggestions] = useState<string[] | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const L = LANG_LABELS[lang];
+  const suggestions = dbSuggestions && dbSuggestions.length > 0 ? dbSuggestions : L.suggestions;
 
   // Overlay states
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
