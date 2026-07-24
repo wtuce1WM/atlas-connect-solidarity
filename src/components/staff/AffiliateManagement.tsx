@@ -39,6 +39,7 @@ interface Affiliate {
   whatsapp: string | null;
   phone: string | null;
   contact_email: string | null;
+  contact_url: string | null;
   contact_name: string | null;
   contact_phone: string | null;
   internal_notes?: string | null;
@@ -47,6 +48,7 @@ interface Affiliate {
   max_businesses: number | null;
   has_video_studio: boolean | null;
   has_dashboard: boolean | null;
+  has_guide: boolean | null;
   created_at: string;
   updated_at: string;
 }
@@ -94,12 +96,14 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
     whatsapp: "",
     phone: "",
     contact_email: "",
+    contact_url: "",
     contact_name: "",
     contact_phone: "",
     internal_notes: "",
     max_businesses: "",
     has_video_studio: false,
     has_dashboard: false,
+    has_guide: false,
     has_showcase_site: false,
     has_custom_domain: false,
     is_active: true,
@@ -158,12 +162,14 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       whatsapp: "",
       phone: "",
       contact_email: "",
+      contact_url: "",
       contact_name: "",
       contact_phone: "",
       internal_notes: "",
       max_businesses: "",
       has_video_studio: false,
       has_dashboard: false,
+      has_guide: false,
       has_showcase_site: false,
       has_custom_domain: false,
       is_active: true,
@@ -193,12 +199,14 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       whatsapp: affiliate.whatsapp || "",
       phone: affiliate.phone || "",
       contact_email: affiliate.contact_email || "",
+      contact_url: (affiliate as any).contact_url || "",
       contact_name: affiliate.contact_name || "",
       contact_phone: affiliate.contact_phone || "",
       internal_notes: noteRow?.notes || "",
       max_businesses: affiliate.max_businesses?.toString() ?? "",
       has_video_studio: affiliate.has_video_studio ?? false,
       has_dashboard: affiliate.has_dashboard ?? false,
+      has_guide: (affiliate as any).has_guide ?? false,
       has_showcase_site: (affiliate as any).has_showcase_site ?? false,
       has_custom_domain: (affiliate as any).has_custom_domain ?? false,
       is_active: affiliate.is_active,
@@ -240,12 +248,14 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
       whatsapp: formData.whatsapp || null,
       phone: formData.phone || null,
       contact_email: formData.contact_email || null,
+      contact_url: formData.contact_url || null,
       contact_name: formData.contact_name || null,
       contact_phone: formData.contact_phone || null,
       is_active: formData.is_active,
       max_businesses: numericMaxBiz,
       has_video_studio: formData.has_video_studio,
       has_dashboard: formData.has_dashboard,
+      has_guide: formData.has_guide,
       has_showcase_site: (formData as any).has_showcase_site ?? false,
       has_custom_domain: (formData as any).has_custom_domain ?? false,
     };
@@ -646,6 +656,19 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                   />
                 </div>
 
+                {/* Guide */}
+                <div className="flex items-center justify-between space-y-0 rounded-lg border p-3">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="has_guide">Guide</Label>
+                    <p className="text-xs text-muted-foreground">Accès au Guide</p>
+                  </div>
+                  <Switch
+                    id="has_guide"
+                    checked={formData.has_guide}
+                    onCheckedChange={(checked) => setFormData({ ...formData, has_guide: checked })}
+                  />
+                </div>
+
                 {/* Site vitrine */}
                 <div className="flex items-center justify-between space-y-0 rounded-lg border p-3">
                   <div className="space-y-0.5">
@@ -751,6 +774,19 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                   onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })}
                   placeholder="contact@exemple.com"
                 />
+              </div>
+
+              {/* URL liée à l'établissement */}
+              <div className="space-y-2">
+                <Label htmlFor="contact_url">URL</Label>
+                <Input
+                  id="contact_url"
+                  type="url"
+                  value={formData.contact_url}
+                  onChange={(e) => setFormData({ ...formData, contact_url: e.target.value })}
+                  placeholder="https://exemple.com"
+                />
+                <p className="text-xs text-muted-foreground">URL liée à l'établissement</p>
               </div>
 
               {/* Note interne */}
@@ -1023,6 +1059,7 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                       <TableHead>Ets</TableHead>
                       <TableHead>Studio</TableHead>
                       <TableHead>Dashboard</TableHead>
+                      <TableHead>Guide</TableHead>
                       <TableHead>Catégorie</TableHead>
                       <TableHead>Contact</TableHead>
                       <TableHead className="text-center">Statut</TableHead>
@@ -1063,6 +1100,13 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                        </TableCell>
                        <TableCell className="text-center">
                          {affiliate.has_dashboard ? (
+                           <Badge variant="default" className="bg-green-600">Oui</Badge>
+                         ) : (
+                           <Badge variant="outline" className="text-muted-foreground">Non</Badge>
+                         )}
+                       </TableCell>
+                       <TableCell className="text-center">
+                         {(affiliate as any).has_guide ? (
                            <Badge variant="default" className="bg-green-600">Oui</Badge>
                          ) : (
                            <Badge variant="outline" className="text-muted-foreground">Non</Badge>

@@ -134,10 +134,12 @@ export type Database = {
           contact_email: string | null
           contact_name: string | null
           contact_phone: string | null
+          contact_url: string | null
           country_id: string
           created_at: string
           has_custom_domain: boolean
           has_dashboard: boolean | null
+          has_guide: boolean
           has_showcase_site: boolean
           has_video_studio: boolean | null
           ice: string | null
@@ -157,10 +159,12 @@ export type Database = {
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
+          contact_url?: string | null
           country_id: string
           created_at?: string
           has_custom_domain?: boolean
           has_dashboard?: boolean | null
+          has_guide?: boolean
           has_showcase_site?: boolean
           has_video_studio?: boolean | null
           ice?: string | null
@@ -180,10 +184,12 @@ export type Database = {
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
+          contact_url?: string | null
           country_id?: string
           created_at?: string
           has_custom_domain?: boolean
           has_dashboard?: boolean | null
+          has_guide?: boolean
           has_showcase_site?: boolean
           has_video_studio?: boolean | null
           ice?: string | null
