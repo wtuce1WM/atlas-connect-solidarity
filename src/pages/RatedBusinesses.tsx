@@ -443,7 +443,7 @@ const RatedBusinesses = () => {
                         {b.restaurant_guru_rating != null ? (
                           <div>
                             <div className="font-semibold">{Number(b.restaurant_guru_rating).toFixed(1)}/5</div>
-                            <div className="text-muted-foreground">{b.restaurant_guru_review_count || 0} avis</div>
+                            <div className="text-muted-foreground">{b.restaurant_guru_review_count || 0} {reviewsWord}</div>
                           </div>
                         ) : "—"}
                       </TableCell>
