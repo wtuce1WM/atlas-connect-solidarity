@@ -94,9 +94,6 @@ const Blog = () => {
             {posts.map((post) => (
               <Link key={post.id} to={withLangPrefix(`/blog/${post.slug}`, language)}>
                 <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full relative">
-                  <span className="absolute top-3 right-3 z-10 inline-flex items-center gap-1 bg-primary/90 text-primary-foreground text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-full">
-                    <Database className="h-2.5 w-2.5" /> dynamique
-                  </span>
                   {post.cover_image_url && (
                     <div className="aspect-video overflow-hidden">
                       <img
