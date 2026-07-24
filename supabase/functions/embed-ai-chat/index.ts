@@ -364,6 +364,7 @@ Deno.serve(async (req) => {
 
         let lastMapPayload: any = null;
         let lastEventsPayload: any = null;
+        let lastDisclosureNote: string | null = null;
         const knownBusinesses: Array<{ id: string; slug: string | null; name: string }> = [];
         const toolsCalledLog: Array<{ name: string; args: any; result_count?: number; ok?: boolean }> = [];
         let hadError = false;
@@ -461,6 +462,7 @@ Deno.serve(async (req) => {
                 for (const b of (result as any).results) {
                   if (b?.id && b?.name) knownBusinesses.push({ id: b.id, slug: b.slug || null, name: b.name });
                 }
+                if ((result as any)?.disclosure_note) lastDisclosureNote = String((result as any).disclosure_note);
               }
               if (fname === "show_on_map" && (result as any)?.ok && Array.isArray((result as any).businesses)) {
                 lastMapPayload = { title: (result as any).title || null, businesses: (result as any).businesses };
@@ -523,6 +525,16 @@ Deno.serve(async (req) => {
                   }
                 } catch { /* */ }
               }
+            }
+          }
+
+          // Deterministic disclosure — inject if the model didn't include it
+          if (lastDisclosureNote) {
+            const hasDisclosure = /\bsur\s+\d+\s+trouv/i.test(finalText) || finalText.includes(lastDisclosureNote);
+            if (!hasDisclosure) {
+              const injection = `\n\n${lastDisclosureNote}`;
+              emit({ type: "chunk", delta: injection });
+              finalText += injection;
             }
           }
 
