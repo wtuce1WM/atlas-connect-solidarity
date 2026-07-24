@@ -120,21 +120,9 @@ const StaffMaster = () => {
               <Search className="h-4 w-4" />
               Recherche
             </TabsTrigger>
-            <TabsTrigger value="ai-config" className="gap-2">
-              <Sparkles className="h-4 w-4" />
-              IA
-            </TabsTrigger>
-            <TabsTrigger value="club-ai-suggestions" className="gap-2">
-              <MessageSquare className="h-4 w-4" />
-              Suggestions Club
-            </TabsTrigger>
-            <TabsTrigger value="ai-usage" className="gap-2">
-              <Sparkles className="h-4 w-4" />
-              Usage IA
-            </TabsTrigger>
-            <TabsTrigger value="ai-perf" className="gap-2">
+            <TabsTrigger value="analytics" className="gap-2">
               <BarChart3 className="h-4 w-4" />
-              Perf IA
+              Search Analytics
             </TabsTrigger>
             <TabsTrigger value="analytics" className="gap-2">
               <BarChart3 className="h-4 w-4" />
