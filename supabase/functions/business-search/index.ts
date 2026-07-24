@@ -1028,6 +1028,7 @@ serve(async (req) => {
     // Strict mode: when the caller explicitly passes `city` (URL param / voice detection),
     // restrict to businesses physically in that city — exclude the national/international leakage.
     let strictCity = !!city;
+    let effectiveCityId: string | null = null;
 
     // Neighborhood handling — MUST run before applyCityFilter so we can override a stale
     // client-side selectedCity (e.g. user on Marrakech searches "Sidi Kaouki" → Essaouira).
@@ -1042,13 +1043,11 @@ serve(async (req) => {
           console.log(`Overriding client city "${effectiveCity}" → "${neighborhoodCity}" (neighborhood "${detectedNeighborhood}" belongs there)`);
           effectiveCity = neighborhoodCity;
           strictCity = false; // client-passed city was wrong, don't strict-filter on it
-          effectiveCityId = null; // force re-resolve below
         }
       }
     }
 
     // Resolve city name → UUID for zone_city_ids filtering (after neighborhood override)
-    let effectiveCityId: string | null = null;
     if (effectiveCity) {
       const { data: cityRow } = await supabase
         .from("cities")
