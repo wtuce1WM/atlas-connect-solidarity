@@ -78,11 +78,14 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const langCol = LANG_COL[lang];
-    const { count: totalRemaining } = await supabase
+    console.log('[batch-translate-reviews] lang', lang, 'langCol', langCol);
+
+    const { count: totalRemaining, error: countError } = await supabase
       .from('reviews')
       .select('id', { count: 'exact', head: true })
       .not('text', 'is', null)
       .is(langCol, null);
+    console.log('[batch-translate-reviews] totalRemaining', totalRemaining, 'countError', countError);
 
     const { data: reviews, error } = await supabase
       .from('reviews')
@@ -90,14 +93,16 @@ Deno.serve(async (req) => {
       .not('text', 'is', null)
       .is(langCol, null)
       .limit(limit);
+    console.log('[batch-translate-reviews] reviews.length', reviews?.length, 'error', error);
 
     if (error || !reviews) {
-      return new Response(JSON.stringify({ error: 'Failed to fetch reviews' }),
+      console.error('[batch-translate-reviews] fetch error', error);
+      return new Response(JSON.stringify({ error: 'Failed to fetch reviews', details: error?.message }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
     if (reviews.length === 0) {
-      return new Response(JSON.stringify({ translated: 0, remaining: 0, done: true }),
+      return new Response(JSON.stringify({ translated: 0, remaining: 0, done: true, debug: { langCol, totalRemaining, countError: countError?.message } }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 

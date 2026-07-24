@@ -9,6 +9,8 @@ project_id = "plnphgdrawpsnumnejzc"
     verify_jwt = false
   [functions.batch-fetch-reviews]
     verify_jwt = false
+  [functions.batch-translate-reviews]
+    verify_jwt = false
   [functions.business-search]
     verify_jwt = false
   [functions.club-ai-chat]
