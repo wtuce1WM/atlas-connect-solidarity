@@ -128,11 +128,26 @@ const EmbedAsk = () => {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [dbSuggestions, setDbSuggestions] = useState<string[] | null>(null);
+  type FollowupRow = { label_fr: string; label_en: string | null; label_ar: string | null };
+  type SuggestionRow = { id: string; label: string; followups: FollowupRow[] };
+  const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(null);
+  const [activeSuggestionId, setActiveSuggestionId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const L = LANG_LABELS[lang];
-  const suggestions = dbSuggestions && dbSuggestions.length > 0 ? dbSuggestions : L.suggestions;
+  const suggestions: SuggestionRow[] = dbSuggestions && dbSuggestions.length > 0
+    ? dbSuggestions
+    : L.suggestions.map((s, i) => ({ id: `default-${i}`, label: s, followups: [] }));
+  const pickFollowupLabel = (f: FollowupRow): string => {
+    const raw = (lang === "en" ? f.label_en : lang === "ar" ? f.label_ar : f.label_fr) || f.label_fr || "";
+    return raw.replace(/\{businessName\}/g, businessName || "").trim();
+  };
+  const activeFollowups: string[] = (() => {
+    if (!activeSuggestionId || !dbSuggestions) return [];
+    const s = dbSuggestions.find((x) => x.id === activeSuggestionId);
+    if (!s) return [];
+    return s.followups.map(pickFollowupLabel).filter(Boolean);
+  })();
 
   // Overlay states
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
@@ -168,14 +183,18 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await supabase
         .from("embed_ai_suggestions")
-        .select("label_fr,label_en,label_ar")
+        .select("id,label_fr,label_en,label_ar,followups")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (cancelled || !data) return;
       const col = lang === "en" ? "label_en" : lang === "ar" ? "label_ar" : "label_fr";
-      const list = (data as any[])
-        .map((r) => (r[col] || r.label_fr || "").trim())
-        .filter(Boolean);
+      const list: SuggestionRow[] = (data as any[])
+        .map((r) => ({
+          id: r.id as string,
+          label: ((r[col] || r.label_fr || "") as string).trim(),
+          followups: Array.isArray(r.followups) ? (r.followups as FollowupRow[]) : [],
+        }))
+        .filter((r) => r.label);
       if (list.length > 0) setDbSuggestions(list);
     })();
     return () => { cancelled = true; };
@@ -192,7 +211,7 @@ const EmbedAsk = () => {
   const send = async (overrideText?: string) => {
     const text = (overrideText ?? input).trim();
     if (!text || streaming || !businessName) return;
-    if (!overrideText) setInput("");
+    if (!overrideText) { setInput(""); setActiveSuggestionId(null); }
     setError(null);
     const userMsg: Msg = { role: "user", content: text };
     const history = msgs.filter((_, i) => !(i === 0 && msgs[0].role === "assistant"));
@@ -283,6 +302,7 @@ const EmbedAsk = () => {
     setOpenMap(null);
     setOpenEvents(null);
     setOpenBusinessId(null);
+    setActiveSuggestionId(null);
     setMsgs(businessName ? [{ role: "assistant", content: L.opener(businessName) }] : []);
     setTimeout(() => inputRef.current?.focus(), 0);
   };
@@ -416,12 +436,26 @@ const EmbedAsk = () => {
           <div className="flex flex-wrap gap-2 pt-1">
             {suggestions.map((s) => (
               <button
-                key={s}
+                key={s.id}
                 type="button"
-                onClick={() => send(s)}
+                onClick={() => { setActiveSuggestionId(s.id); send(s.label); }}
                 className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
               >
-                {s}
+                {s.label}
+              </button>
+            ))}
+          </div>
+        )}
+        {msgs.length > 1 && !streaming && businessName && activeFollowups.length > 0 && msgs[msgs.length - 1]?.role === "assistant" && (
+          <div className="flex flex-wrap gap-2 pt-1">
+            {activeFollowups.map((f, i) => (
+              <button
+                key={`${activeSuggestionId}-${i}`}
+                type="button"
+                onClick={() => send(f)}
+                className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
+              >
+                {f}
               </button>
             ))}
           </div>
