@@ -182,6 +182,14 @@ const EmbedAsk = () => {
           <div className="font-semibold truncate text-sm">{businessName || "…"}</div>
           <div className="text-[11px] opacity-60 truncate">{L.hint}</div>
         </div>
+        <button
+          type="button"
+          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+          aria-label={theme === "light" ? "Dark mode" : "Light mode"}
+          className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border ${border} opacity-70 hover:opacity-100 transition-opacity`}
+        >
+          {theme === "light" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+        </button>
       </header>
 
       <div ref={scrollRef} className={`flex-1 overflow-y-auto px-4 py-4 space-y-3 ${bg}`}>
