@@ -50,6 +50,9 @@ interface MapSlidePanelProps {
   onBookmark?: () => void;
   isBookmarked?: boolean;
   disableUserLocation?: boolean;
+  /** Displays a terracotta marker at these coordinates instead of the user's geolocation. */
+  hostLocation?: { lat: number; lng: number } | null;
+  hostLabel?: string;
 }
 
 const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
@@ -67,7 +70,7 @@ const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
 };
 const normalize = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
-const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, onBookmark, isBookmarked, disableUserLocation }: MapSlidePanelProps) => {
+const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, onBookmark, isBookmarked, disableUserLocation, hostLocation, hostLabel }: MapSlidePanelProps) => {
   const { language } = useLanguage();
   const mt = MT[language as keyof typeof MT] || MT.fr;
 
@@ -212,10 +215,10 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
             pois={displayedPois}
             selectedPoiId={selectedId}
             onPoiClick={(id) => setSelectedId(id)}
-            center={cityCenter || userPos || undefined}
+            center={hostLocation || cityCenter || userPos || undefined}
             fitToMarkers
-            userLocation={userPos}
-            userMarkerLabel={mapLabel("youAreHere", language)}
+            userLocation={hostLocation || userPos}
+            userMarkerLabel={hostLocation ? (hostLabel || "") : mapLabel("youAreHere", language)}
           />
 
           {/* Floating toolbar — same layout as /search */}
