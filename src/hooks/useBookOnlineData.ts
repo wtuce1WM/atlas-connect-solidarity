@@ -306,10 +306,10 @@ export function useBookOnlineData(businessId: string) {
           .eq("business_id", businessId),
         supabase
           .from("reviews" as any)
-          .select("source, author_name, rating, text, language, text_fr, text_en, is_default, is_hidden")
+          .select("source, author_name, rating, text, language, text_fr, text_en, text_ar, is_default, is_hidden")
           .eq("business_id", businessId)
           .eq("is_hidden", false)
-          .or("text.not.is.null,text_fr.not.is.null,text_en.not.is.null")
+          .or("text.not.is.null,text_fr.not.is.null,text_en.not.is.null,text_ar.not.is.null")
           .order("is_default", { ascending: false })
           .order("rating", { ascending: false, nullsFirst: false })
           .limit(5),

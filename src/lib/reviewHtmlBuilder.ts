@@ -21,6 +21,7 @@ export interface ReviewText {
   source: string;
   text_fr?: string | null;
   text_en?: string | null;
+  text_ar?: string | null;
   is_default?: boolean;
 }
 
@@ -101,7 +102,14 @@ a.rv-card:hover{background:hsla(0,0%,100%,0.12)}
 
   const textsHtml = texts.length > 0
     ? texts.slice(0, 10).map((r) => {
-      const displayText = (language === "en" ? r.text_en : r.text_fr) || r.text || "";
+      let displayText = "";
+      if (language === "ar") {
+        displayText = r.text_ar || r.text_fr || r.text_en || r.text || "";
+      } else if (language === "en") {
+        displayText = r.text_en || r.text_fr || r.text || "";
+      } else {
+        displayText = r.text_fr || r.text || "";
+      }
       return `<blockquote style="margin-top:4px;font-family:'Montserrat',sans-serif;font-size:1rem;line-height:1.625"><p>${displayText}</p><footer style="font-family:'Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif;font-size:1rem;font-style:normal">— ${r.author_name || (language === "en" ? "Anonymous" : "Anonyme")}${r.source ? ` (${r.source})` : ""}</footer></blockquote>`;
     }).join("")
     : "";
