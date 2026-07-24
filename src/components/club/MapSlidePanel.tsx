@@ -215,10 +215,10 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
             pois={displayedPois}
             selectedPoiId={selectedId}
             onPoiClick={(id) => setSelectedId(id)}
-            center={cityCenter || userPos || undefined}
+            center={hostLocation || cityCenter || userPos || undefined}
             fitToMarkers
-            userLocation={userPos}
-            userMarkerLabel={mapLabel("youAreHere", language)}
+            userLocation={hostLocation || userPos}
+            userMarkerLabel={hostLocation ? (hostLabel || "") : mapLabel("youAreHere", language)}
           />
 
           {/* Floating toolbar — same layout as /search */}
