@@ -734,7 +734,7 @@ const BlogArticleTemplate = ({
                                       key={c}
                                       className="bg-muted rounded-full px-2 py-0.5"
                                     >
-                                      {c}
+                                      {translateSubcategory(c, language)}
                                     </span>
                                   ))}
                                   {(b.neighborhood || b.city) && (
