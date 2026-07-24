@@ -49,6 +49,7 @@ interface MapSlidePanelProps {
   onShare?: () => void;
   onBookmark?: () => void;
   isBookmarked?: boolean;
+  disableUserLocation?: boolean;
 }
 
 const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
@@ -66,7 +67,7 @@ const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
 };
 const normalize = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
-const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, onBookmark, isBookmarked }: MapSlidePanelProps) => {
+const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, onBookmark, isBookmarked, disableUserLocation }: MapSlidePanelProps) => {
   const { language } = useLanguage();
   const mt = MT[language as keyof typeof MT] || MT.fr;
 
@@ -85,7 +86,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
   }, [open, businesses?.length]);
 
   // Priorité : coordonnées définies dans le popup de géolocalisation, sinon fallback navigator
-  const userPos = (geo.isEnabled && geo.coords) ? geo.coords : browserPos;
+  const userPos = disableUserLocation ? null : ((geo.isEnabled && geo.coords) ? geo.coords : browserPos);
 
   useEffect(() => {
     if (!open) return;
