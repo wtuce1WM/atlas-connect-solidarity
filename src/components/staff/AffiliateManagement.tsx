@@ -39,6 +39,7 @@ interface Affiliate {
   whatsapp: string | null;
   phone: string | null;
   contact_email: string | null;
+  contact_url: string | null;
   contact_name: string | null;
   contact_phone: string | null;
   internal_notes?: string | null;
@@ -47,6 +48,7 @@ interface Affiliate {
   max_businesses: number | null;
   has_video_studio: boolean | null;
   has_dashboard: boolean | null;
+  has_guide: boolean | null;
   created_at: string;
   updated_at: string;
 }
