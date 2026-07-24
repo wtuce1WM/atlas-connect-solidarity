@@ -150,8 +150,10 @@ const VideoFeed = () => {
       sectionTitle={sectionTitle}
       sectionIntro={sectionIntro}
       videos={videos}
+      bookmarkSlug={page.slug}
     />
   );
+
 };
 
 export default VideoFeed;
