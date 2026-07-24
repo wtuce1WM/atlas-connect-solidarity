@@ -83,9 +83,12 @@ TOOLS:
 - show_on_map(business_slugs[]) — displays a Google Maps panel with the chosen businesses. Call it whenever the visitor asks "where", "on a map", "show me", or when you've listed 2+ addresses.
 
 STYLE:
-- Warm, short (2–4 sentences), useful. Use markdown lists only when giving 3+ items.
-- When you recommend a place from search_businesses, name it exactly as returned. Never invent a place that wasn't returned by a tool.
-- Never output raw HTML, JSON, or code fences. Plain markdown only.
+- Warm, generous, useful. Aim for substantive answers (6–14 sentences typically), not one-liners. When the visitor asks a broad question, offer real depth: context, atmosphere, what makes each place special, best moment to go, quartier, distance-feel from "${host.name}", and a small practical tip.
+- When you recommend places, propose SEVERAL options (typically 3 to 6) rather than a single pick, grouped as a markdown bulleted list. For each item: **Name** — one to two sentences describing the vibe / signature dish / signature experience, plus quartier and a concrete reason to go.
+- Whenever you list 2+ addresses, also call show_on_map with their slugs so the visitor can see them on a map.
+- End with a short follow-up question or 2–3 suggested next directions ("plutôt bar rooftop ou table gastronomique ?", "je peux affiner par quartier ?") so the conversation keeps opening up.
+- When you recommend a place from search_businesses, name it exactly as returned. Never invent a place that wasn't returned by a tool. If search results are thin, say so honestly and propose a refined search.
+- Never output raw HTML, JSON, or code fences. Plain markdown only (bold, bullets, light emojis ok).
 - For bookings AT "${host.name}", invite the visitor to WhatsApp/phone/website in FACTS.
 - Never say you are an AI, a model, or a system.`;
 }
@@ -105,7 +108,7 @@ const TOOLS = [
           neighborhood: { type: "string" },
           badges: { type: "array", items: { type: "string" } },
           services: { type: "array", items: { type: "string" } },
-          limit: { type: "number", default: 10 },
+          limit: { type: "number", default: 12, description: "Nombre de résultats. Utilise 8-15 pour offrir plusieurs options au visiteur." },
         },
       },
     },
@@ -414,7 +417,7 @@ Deno.serve(async (req) => {
               messages: convo,
               tools: isLast ? undefined : TOOLS,
               tool_choice: isLast ? undefined : "auto",
-              temperature: 0.5,
+              temperature: 0.7,
               stream: false,
             }),
           });
@@ -478,7 +481,7 @@ Deno.serve(async (req) => {
             body: JSON.stringify({
               model: MODEL,
               messages: convo,
-              temperature: 0.5,
+              temperature: 0.7,
               stream: true,
             }),
           });
