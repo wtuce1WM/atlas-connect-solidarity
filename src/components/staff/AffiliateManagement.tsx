@@ -1105,6 +1105,13 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                            <Badge variant="outline" className="text-muted-foreground">Non</Badge>
                          )}
                        </TableCell>
+                       <TableCell className="text-center">
+                         {(affiliate as any).has_guide ? (
+                           <Badge variant="default" className="bg-green-600">Oui</Badge>
+                         ) : (
+                           <Badge variant="outline" className="text-muted-foreground">Non</Badge>
+                         )}
+                       </TableCell>
                         <TableCell>
                           {affiliate.main_category || "—"}
                         </TableCell>
