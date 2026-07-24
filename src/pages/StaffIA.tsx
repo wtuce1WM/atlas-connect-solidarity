@@ -11,6 +11,7 @@ import PopularSearchesManagement from "@/components/staff/PopularSearchesManagem
 import AiUsageManagement from "@/components/staff/AiUsageManagement";
 import AiConversationPerf from "@/components/staff/AiConversationPerf";
 import EmbedUsageManagement from "@/components/staff/EmbedUsageManagement";
+import EmbedAiSuggestionsManagement from "@/components/staff/EmbedAiSuggestionsManagement";
 import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement";
 import KBViewer from "@/components/staff/KBViewer";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
@@ -104,6 +105,10 @@ const StaffIA = () => {
               <MessageSquare className="h-4 w-4" />
               Suggestions Chat IA du Club
             </TabsTrigger>
+            <TabsTrigger value="embed-ai-suggestions" className="gap-2">
+              <Code2 className="h-4 w-4" />
+              Suggestions Embed IA
+            </TabsTrigger>
             <TabsTrigger value="ai-usage" className="gap-2">
               <Zap className="h-4 w-4" />
               Utilisation IA
@@ -151,6 +156,10 @@ const StaffIA = () => {
               </TabsContent>
             </Tabs>
           </TabsContent>
+          <TabsContent value="embed-ai-suggestions">
+            <EmbedAiSuggestionsManagement />
+          </TabsContent>
+
 
 
           <TabsContent value="ai-usage">

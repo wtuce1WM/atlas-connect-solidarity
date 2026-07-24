@@ -3536,6 +3536,39 @@ export type Database = {
         }
         Relationships: []
       }
+      embed_ai_suggestions: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          label_ar: string | null
+          label_en: string | null
+          label_fr: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label_ar?: string | null
+          label_en?: string | null
+          label_fr: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label_ar?: string | null
+          label_en?: string | null
+          label_fr?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       event_badges: {
         Row: {
           badge_id: string

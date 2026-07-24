@@ -128,9 +128,11 @@ const EmbedAsk = () => {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dbSuggestions, setDbSuggestions] = useState<string[] | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const L = LANG_LABELS[lang];
+  const suggestions = dbSuggestions && dbSuggestions.length > 0 ? dbSuggestions : L.suggestions;
 
   // Overlay states
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
@@ -160,6 +162,24 @@ const EmbedAsk = () => {
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("embed_ai_suggestions")
+        .select("label_fr,label_en,label_ar")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      if (cancelled || !data) return;
+      const col = lang === "en" ? "label_en" : lang === "ar" ? "label_ar" : "label_fr";
+      const list = (data as any[])
+        .map((r) => (r[col] || r.label_fr || "").trim())
+        .filter(Boolean);
+      if (list.length > 0) setDbSuggestions(list);
+    })();
+    return () => { cancelled = true; };
+  }, [lang]);
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [msgs]);
   useEffect(() => { inputRef.current?.focus(); }, [businessName]);
@@ -394,7 +414,7 @@ const EmbedAsk = () => {
         )}
         {msgs.length <= 1 && !streaming && businessName && (
           <div className="flex flex-wrap gap-2 pt-1">
-            {L.suggestions.map((s) => (
+            {suggestions.map((s) => (
               <button
                 key={s}
                 type="button"
