@@ -59,6 +59,9 @@ const RatedBusinesses = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isStaff, setIsStaff] = useState(false);
 
+  const t = (fr: string, en: string, ar: string) =>
+    language === "en" ? en : language === "ar" ? ar : fr;
+
   const linkFor = (b: { id: string; slug?: string | null }) => {
     const v = vanityMap[b.id];
     return v ? `/${v}` : businessUrl(b);
