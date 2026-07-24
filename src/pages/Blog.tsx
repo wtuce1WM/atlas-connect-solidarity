@@ -116,110 +116,115 @@ const Blog = () => {
           </div>
         ) : (
           <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {posts.map((post) => (
-              <Link key={post.id} to={withLangPrefix(`/blog/${post.slug}`, language)}>
-                <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full relative">
-                  {post.cover_image_url && (
-                    <div className="aspect-video overflow-hidden">
-                      <img
-                        src={post.cover_image_url}
-                        alt={getTitle(post)}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                      />
-                    </div>
-                  )}
-                  <CardContent className="p-6">
-                    <h2 className="text-xl font-semibold mb-3 line-clamp-2 font-['Playfair_Display'] italic">
-                      {getTitle(post)}
-                    </h2>
-                    {getExcerpt(post) && (
-                      <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                        {getExcerpt(post)}
-                      </p>
-                    )}
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <div className="flex items-center gap-4">
-                        {post.author_name && (
-                          <span className="flex items-center gap-1">
-                            <User className="h-3 w-3" />
-                            {post.author_name}
-                          </span>
+            {[
+              ...posts.map((p) => ({ kind: "post" as const, item: p, date: p.published_at || p.created_at })),
+              ...videoFeeds.map((f) => ({ kind: "feed" as const, item: f, date: f.published_at || f.created_at })),
+            ]
+              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+              .map((entry) => {
+                if (entry.kind === "post") {
+                  const post = entry.item;
+                  return (
+                    <Link key={`post-${post.id}`} to={withLangPrefix(`/blog/${post.slug}`, language)}>
+                      <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full relative">
+                        {post.cover_image_url && (
+                          <div className="aspect-video overflow-hidden">
+                            <img
+                              src={post.cover_image_url}
+                              alt={getTitle(post)}
+                              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                              loading="lazy"
+                            />
+                          </div>
                         )}
-                        {post.published_at && (
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {format(new Date(post.published_at), "d MMM yyyy", { locale: getDateLocale() })}
-                          </span>
-                        )}
-                      </div>
-                      <ArrowRight className="h-4 w-4 text-primary" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-
-            {/* Pages "flux vidéo unique" (video_feed_pages) */}
-            {videoFeeds.map((feed) => {
-              const title =
-                (language === "ar" && feed.hero_title_bottom_ar) ||
-                (language === "en" && feed.hero_title_bottom_en) ||
-                feed.hero_title_bottom_fr ||
-                feed.slug;
-              const subtitle =
-                (language === "ar" && feed.hero_subtitle_ar) ||
-                (language === "en" && feed.hero_subtitle_en) ||
-                feed.hero_subtitle_fr ||
-                "";
-              const cover = feed.cover_image_url || feed.custom_hero_image_url;
-              return (
-                <Link key={feed.id} to={withLangPrefix(`/videos/${feed.slug}`, language)}>
-                  <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full relative">
-                    {cover && (
-                      <div className="aspect-video overflow-hidden relative">
-                        <img
-                          src={cover}
-                          alt={title}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                          loading="lazy"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                          <PlayCircle className="h-14 w-14 text-white drop-shadow-lg" />
-                        </div>
-                      </div>
-                    )}
-                    <CardContent className="p-6">
-                      <h2 className="text-xl font-semibold mb-3 line-clamp-2 font-['Playfair_Display'] italic">
-                        {title}
-                      </h2>
-                      {subtitle && (
-                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
-                          {subtitle}
-                        </p>
-                      )}
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <div className="flex items-center gap-4">
-                          <span className="flex items-center gap-1">
-                            <User className="h-3 w-3" />
-                            One World Morocco
-                          </span>
-                          {feed.published_at && (
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              {format(new Date(feed.published_at), "d MMM yyyy", { locale: getDateLocale() })}
-                            </span>
+                        <CardContent className="p-6">
+                          <h2 className="text-xl font-semibold mb-3 line-clamp-2 font-['Playfair_Display'] italic">
+                            {getTitle(post)}
+                          </h2>
+                          {getExcerpt(post) && (
+                            <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                              {getExcerpt(post)}
+                            </p>
                           )}
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <div className="flex items-center gap-4">
+                              {post.author_name && (
+                                <span className="flex items-center gap-1">
+                                  <User className="h-3 w-3" />
+                                  {post.author_name}
+                                </span>
+                              )}
+                              {post.published_at && (
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="h-3 w-3" />
+                                  {format(new Date(post.published_at), "d MMM yyyy", { locale: getDateLocale() })}
+                                </span>
+                              )}
+                            </div>
+                            <ArrowRight className="h-4 w-4 text-primary" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  );
+                }
+                const feed = entry.item;
+                const title =
+                  (language === "ar" && feed.hero_title_bottom_ar) ||
+                  (language === "en" && feed.hero_title_bottom_en) ||
+                  feed.hero_title_bottom_fr ||
+                  feed.slug;
+                const subtitle =
+                  (language === "ar" && feed.hero_subtitle_ar) ||
+                  (language === "en" && feed.hero_subtitle_en) ||
+                  feed.hero_subtitle_fr ||
+                  "";
+                const cover = feed.cover_image_url || feed.custom_hero_image_url;
+                return (
+                  <Link key={`feed-${feed.id}`} to={withLangPrefix(`/videos/${feed.slug}`, language)}>
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full relative">
+                      {cover && (
+                        <div className="aspect-video overflow-hidden relative">
+                          <img
+                            src={cover}
+                            alt={title}
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                            <PlayCircle className="h-14 w-14 text-white drop-shadow-lg" />
+                          </div>
                         </div>
-                        <ArrowRight className="h-4 w-4 text-primary" />
-                      </div>
-
-                    </CardContent>
-                  </Card>
-                </Link>
-              );
-            })}
-
+                      )}
+                      <CardContent className="p-6">
+                        <h2 className="text-xl font-semibold mb-3 line-clamp-2 font-['Playfair_Display'] italic">
+                          {title}
+                        </h2>
+                        {subtitle && (
+                          <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                            {subtitle}
+                          </p>
+                        )}
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <div className="flex items-center gap-4">
+                            <span className="flex items-center gap-1">
+                              <User className="h-3 w-3" />
+                              One World Morocco
+                            </span>
+                            {feed.published_at && (
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                {format(new Date(feed.published_at), "d MMM yyyy", { locale: getDateLocale() })}
+                              </span>
+                            )}
+                          </div>
+                          <ArrowRight className="h-4 w-4 text-primary" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
 
             {/* Page custom (pas un article éditorial) — classement dynamique des établissements les mieux notés */}
             <Link to={withLangPrefix("/blog/etablissements-notes", language)}>
