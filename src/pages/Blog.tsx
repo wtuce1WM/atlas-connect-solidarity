@@ -28,9 +28,25 @@ interface BlogPost {
   created_at: string;
 }
 
+interface VideoFeedCard {
+  id: string;
+  slug: string;
+  hero_title_bottom_fr: string | null;
+  hero_title_bottom_en: string | null;
+  hero_title_bottom_ar: string | null;
+  hero_subtitle_fr: string | null;
+  hero_subtitle_en: string | null;
+  hero_subtitle_ar: string | null;
+  cover_image_url: string | null;
+  custom_hero_image_url: string | null;
+  published_at: string | null;
+  created_at: string;
+}
+
 const Blog = () => {
   const { language, t } = useLanguage();
   const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [videoFeeds, setVideoFeeds] = useState<VideoFeedCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useSEO({
@@ -40,18 +56,27 @@ const Blog = () => {
   });
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      const { data } = await supabase
-        .from("blog_posts")
-        .select("id, title_fr, title_en, title_ar, slug, excerpt_fr, excerpt_en, excerpt_ar, cover_image_url, author_name, published_at, created_at")
-        .eq("is_published", true)
-        .order("published_at", { ascending: false, nullsFirst: false })
-        .order("created_at", { ascending: false });
+    const fetchAll = async () => {
+      const [postsRes, feedsRes] = await Promise.all([
+        supabase
+          .from("blog_posts")
+          .select("id, title_fr, title_en, title_ar, slug, excerpt_fr, excerpt_en, excerpt_ar, cover_image_url, author_name, published_at, created_at")
+          .eq("is_published", true)
+          .order("published_at", { ascending: false, nullsFirst: false })
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("video_feed_pages")
+          .select("id, slug, hero_title_bottom_fr, hero_title_bottom_en, hero_title_bottom_ar, hero_subtitle_fr, hero_subtitle_en, hero_subtitle_ar, cover_image_url, custom_hero_image_url, published_at, created_at")
+          .eq("is_published", true)
+          .order("published_at", { ascending: false, nullsFirst: false })
+          .order("created_at", { ascending: false }),
+      ]);
 
-      if (data) setPosts(data);
+      if (postsRes.data) setPosts(postsRes.data);
+      if (feedsRes.data) setVideoFeeds(feedsRes.data as VideoFeedCard[]);
       setIsLoading(false);
     };
-    fetchPosts();
+    fetchAll();
   }, []);
 
   const getTitle = (post: BlogPost) => {
