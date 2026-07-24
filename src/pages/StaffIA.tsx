@@ -90,6 +90,10 @@ const StaffIA = () => {
       <main className="w-full px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6 flex flex-wrap h-auto gap-1">
+            <TabsTrigger value="dashboard" className="gap-2">
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
+            </TabsTrigger>
             <TabsTrigger value="ai-config" className="gap-2">
               <Sparkles className="h-4 w-4" />
               IA
@@ -99,7 +103,7 @@ const StaffIA = () => {
               Suggestions Chat IA du Club
             </TabsTrigger>
             <TabsTrigger value="ai-usage" className="gap-2">
-              <Sparkles className="h-4 w-4" />
+              <Zap className="h-4 w-4" />
               Utilisation IA
             </TabsTrigger>
             <TabsTrigger value="ai-perf" className="gap-2">
@@ -116,6 +120,10 @@ const StaffIA = () => {
             </TabsTrigger>
           </TabsList>
 
+          <TabsContent value="dashboard">
+            <IADashboard onNavigateTab={setActiveTab} />
+          </TabsContent>
+
           <TabsContent value="ai-config">
             <AIConfigManagement />
           </TabsContent>
@@ -123,6 +131,7 @@ const StaffIA = () => {
           <TabsContent value="club-ai-suggestions">
             <ClubAiSuggestionsManagement />
           </TabsContent>
+
 
           <TabsContent value="ai-usage">
             <AiUsageManagement />
