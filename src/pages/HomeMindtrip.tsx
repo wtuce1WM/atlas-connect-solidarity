@@ -1269,7 +1269,7 @@ const HomeMindtrip = () => {
               {latestPosts.map((a) => (
                 <Link
                   key={a.slug}
-                  to={a.slug}
+                  to={withLangPrefix(a.slug, language)}
                   className="group relative aspect-[4/5] h-[55vh] max-h-[520px] shrink-0 overflow-hidden rounded-2xl bg-muted"
                 >
                   {a.image ? (
