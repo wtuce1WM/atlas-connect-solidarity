@@ -5559,6 +5559,7 @@ export type Database = {
           relative_time: string | null
           source: string
           text: string | null
+          text_ar: string | null
           text_en: string | null
           text_fr: string | null
         }
@@ -5576,6 +5577,7 @@ export type Database = {
           relative_time?: string | null
           source: string
           text?: string | null
+          text_ar?: string | null
           text_en?: string | null
           text_fr?: string | null
         }
@@ -5593,6 +5595,7 @@ export type Database = {
           relative_time?: string | null
           source?: string
           text?: string | null
+          text_ar?: string | null
           text_en?: string | null
           text_fr?: string | null
         }

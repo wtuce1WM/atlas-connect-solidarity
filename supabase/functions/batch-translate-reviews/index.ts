@@ -6,9 +6,13 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-async function translateBatch(texts: string[], targetLang: 'fr' | 'en', lovableApiKey: string): Promise<string[]> {
+type Lang = 'fr' | 'en' | 'ar';
+const LANG_LABEL: Record<Lang, string> = { fr: 'français', en: 'anglais', ar: 'arabe standard moderne' };
+const LANG_COL: Record<Lang, 'text_fr' | 'text_en' | 'text_ar'> = { fr: 'text_fr', en: 'text_en', ar: 'text_ar' };
+
+async function translateBatch(texts: string[], targetLang: Lang, lovableApiKey: string): Promise<string[]> {
   if (texts.length === 0) return [];
-  const langLabel = targetLang === 'fr' ? 'français' : 'anglais';
+  const langLabel = LANG_LABEL[targetLang];
   const textsBlock = texts.map((t, i) => `[${i}] ${t}`).join('\n---\n');
 
   try {
@@ -57,6 +61,11 @@ Deno.serve(async (req) => {
 
   try {
     const { limit = 50, targetLang = 'fr' } = await req.json().catch(() => ({}));
+    const lang = (targetLang as Lang);
+    if (!['fr', 'en', 'ar'].includes(lang)) {
+      return new Response(JSON.stringify({ error: 'Invalid targetLang' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
 
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
     if (!lovableApiKey) {
@@ -68,15 +77,13 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Count total remaining
-    const langCol = targetLang === 'fr' ? 'text_fr' : 'text_en';
+    const langCol = LANG_COL[lang];
     const { count: totalRemaining } = await supabase
       .from('reviews')
       .select('id', { count: 'exact', head: true })
       .not('text', 'is', null)
       .is(langCol, null);
 
-    // Fetch batch of reviews missing translation
     const { data: reviews, error } = await supabase
       .from('reviews')
       .select('id, text, language')
@@ -96,10 +103,12 @@ Deno.serve(async (req) => {
 
     let translatedCount = 0;
 
-    // Separate reviews already in target language (just copy text)
+    // Separate reviews already in target language (just copy text). For AR, no source is same-language.
     const alreadyInLang = reviews.filter(r => {
-      const lang = (r.language || '').toLowerCase();
-      return targetLang === 'fr' ? lang.startsWith('fr') : lang.startsWith('en');
+      const rl = (r.language || '').toLowerCase();
+      if (lang === 'fr') return rl.startsWith('fr');
+      if (lang === 'en') return rl.startsWith('en');
+      return rl.startsWith('ar');
     });
     const needsTranslation = reviews.filter(r => !alreadyInLang.includes(r));
 
@@ -114,7 +123,7 @@ Deno.serve(async (req) => {
     for (let i = 0; i < needsTranslation.length; i += chunkSize) {
       const chunk = needsTranslation.slice(i, i + chunkSize);
       const texts = chunk.map(r => r.text!);
-      const translations = await translateBatch(texts, targetLang, lovableApiKey);
+      const translations = await translateBatch(texts, lang, lovableApiKey);
 
       for (let j = 0; j < chunk.length; j++) {
         if (j < translations.length && translations[j]) {
