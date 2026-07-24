@@ -162,10 +162,13 @@ const EmbedAsk = () => {
 
   const dir = lang === "ar" ? "rtl" : "ltr";
 
-  const send = async () => {
-    const text = input.trim();
+  const sessionIdRef = useRef<string>(typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `s-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  const messageIndexRef = useRef<number>(0);
+
+  const send = async (overrideText?: string) => {
+    const text = (overrideText ?? input).trim();
     if (!text || streaming || !businessName) return;
-    setInput("");
+    if (!overrideText) setInput("");
     setError(null);
     const userMsg: Msg = { role: "user", content: text };
     const history = msgs.filter((_, i) => !(i === 0 && msgs[0].role === "assistant"));
@@ -173,6 +176,7 @@ const EmbedAsk = () => {
     setMsgs(nextUi);
     setStreaming(true);
     const assistantIdx = nextUi.length - 1;
+    const messageIndex = messageIndexRef.current++;
 
     try {
       const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/embed-ai-chat`;
@@ -185,7 +189,13 @@ const EmbedAsk = () => {
       const resp = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${anon}`, apikey: anon },
-        body: JSON.stringify({ businessSlug: slug, language: lang, messages: cleanedHistory }),
+        body: JSON.stringify({
+          businessSlug: slug,
+          language: lang,
+          messages: cleanedHistory,
+          sessionId: sessionIdRef.current,
+          messageIndex,
+        }),
       });
       if (!resp.ok || !resp.body) throw new Error(`HTTP ${resp.status}`);
 
