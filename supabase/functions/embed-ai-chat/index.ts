@@ -108,7 +108,7 @@ const TOOLS = [
           neighborhood: { type: "string" },
           badges: { type: "array", items: { type: "string" } },
           services: { type: "array", items: { type: "string" } },
-          limit: { type: "number", default: 10 },
+          limit: { type: "number", default: 12, description: "Nombre de résultats. Utilise 8-15 pour offrir plusieurs options au visiteur." },
         },
       },
     },
