@@ -130,7 +130,21 @@ const StaffIA = () => {
           </TabsContent>
 
           <TabsContent value="club-ai-suggestions">
-            <ClubAiSuggestionsManagement />
+            <Tabs defaultValue="search">
+              <TabsList className="mb-4">
+                <TabsTrigger value="search">Search</TabsTrigger>
+                <TabsTrigger value="club" className="gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  Suggestions Club
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="search">
+                <PopularSearchesManagement />
+              </TabsContent>
+              <TabsContent value="club">
+                <ClubAiSuggestionsManagement />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
 
