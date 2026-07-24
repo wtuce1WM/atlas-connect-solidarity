@@ -717,7 +717,7 @@ const BlogArticleTemplate = ({
                                       </span>
                                       {b.total_review_count && b.total_review_count > 0 && (
                                         <span className="text-xs text-white/60 font-semibold whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                                          · {b.total_review_count} avis
+                                          · {b.total_review_count} {language === "en" ? "reviews" : language === "ar" ? "تقييم" : "avis"}
                                         </span>
                                       )}
                                     </div>
