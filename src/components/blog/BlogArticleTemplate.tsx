@@ -428,7 +428,7 @@ const BlogArticleTemplate = ({
     const fetchDefaultReviews = async () => {
       const { data } = await supabase
         .from("reviews")
-        .select("business_id, author_name, source, rating, text, text_fr, text_en")
+        .select("business_id, author_name, source, rating, text, text_fr, text_en, text_ar")
         .in("business_id", allIds)
         .eq("is_default", true)
         .eq("is_hidden", false);
