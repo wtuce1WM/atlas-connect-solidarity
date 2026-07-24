@@ -186,18 +186,6 @@ const StaffMaster = () => {
             />
           </TabsContent>
 
-          <TabsContent value="ai-knowledge">
-            <KnowledgeBaseManagement
-              categories={["general", "tourisme", "culture", "gastronomie"]}
-              newEntryLabel="Nouvelle entrée IA"
-              emptyLabel="Aucune entrée pour l'IA Concierge"
-              showExternalUrls
-            />
-          </TabsContent>
-
-          <TabsContent value="kb">
-            <KBViewer />
-          </TabsContent>
 
           <TabsContent value="easter-eggs">
             <EasterEggManagement />
