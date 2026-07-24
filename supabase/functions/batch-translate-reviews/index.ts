@@ -6,9 +6,13 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-async function translateBatch(texts: string[], targetLang: 'fr' | 'en', lovableApiKey: string): Promise<string[]> {
+type Lang = 'fr' | 'en' | 'ar';
+const LANG_LABEL: Record<Lang, string> = { fr: 'français', en: 'anglais', ar: 'arabe standard moderne' };
+const LANG_COL: Record<Lang, 'text_fr' | 'text_en' | 'text_ar'> = { fr: 'text_fr', en: 'text_en', ar: 'text_ar' };
+
+async function translateBatch(texts: string[], targetLang: Lang, lovableApiKey: string): Promise<string[]> {
   if (texts.length === 0) return [];
-  const langLabel = targetLang === 'fr' ? 'français' : 'anglais';
+  const langLabel = LANG_LABEL[targetLang];
   const textsBlock = texts.map((t, i) => `[${i}] ${t}`).join('\n---\n');
 
   try {
