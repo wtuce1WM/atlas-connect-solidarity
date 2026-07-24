@@ -15,6 +15,7 @@ import logoWatermark from "@/assets/logoGOLDsimpleSML.webp";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
 import { withLangPrefix } from "@/lib/localizedPath";
 import { mapLabel } from "@/lib/mapLabels";
 
@@ -133,6 +134,7 @@ const BlogArticleTemplate = ({
 }: BlogArticleTemplateProps) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const { translateSubcategory } = useTaxonomyTranslations();
   const [businesses, setBusinesses] = useState<Record<string, BlogArticleBusiness>>({});
   const [defaultReviews, setDefaultReviews] = useState<Record<string, { author_name: string | null; source: string | null; rating: number | null; text: string | null; text_fr: string | null; text_en: string | null; }>>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -732,7 +734,7 @@ const BlogArticleTemplate = ({
                                       key={c}
                                       className="bg-muted rounded-full px-2 py-0.5"
                                     >
-                                      {c}
+                                      {translateSubcategory(c, language)}
                                     </span>
                                   ))}
                                   {(b.neighborhood || b.city) && (
