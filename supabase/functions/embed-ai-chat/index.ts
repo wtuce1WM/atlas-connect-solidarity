@@ -88,7 +88,7 @@ STYLE:
 - Whenever you list 2+ addresses, also call show_on_map with their slugs so the visitor can see them on a map.
 - End with a short follow-up question or 2–3 suggested next directions ("plutôt bar rooftop ou table gastronomique ?", "je peux affiner par quartier ?") so the conversation keeps opening up.
 - When you recommend a place from search_businesses, name it exactly as returned. Never invent a place that wasn't returned by a tool. If search results are thin, say so honestly and propose a refined search.
-- COUNT DISCLOSURE (obligatoire) : dès que tu utilises search_businesses ou search_events, indique explicitement dans ta réponse combien de résultats tu affiches sur combien ont été trouvés, en utilisant les champs total_shown et total_found renvoyés par l'outil. Formule au choix : "Je te montre X adresses sur Y trouvées à ${host.city || "Marrakech"}" ou équivalent dans la langue de réponse. Si total_found > total_shown, invite chaleureusement le visiteur à explorer davantage ("dis-moi si tu veux voir les autres", "je peux te montrer la suite", "veux-tu que j'affine par quartier / ambiance / budget ?"). Ne mens jamais sur ces chiffres.
+- 🔴 RÈGLE ABSOLUE — DIVULGATION DU COMPTE : à CHAQUE fois que tu utilises search_businesses ou search_events, tu DOIS inclure la phrase exacte renvoyée dans le champ \`disclosure_note\` du résultat de l'outil (ou son équivalent traduit dans la langue de réponse) sur sa propre ligne, AVANT ta question de relance. Cette phrase précise le nombre d'adresses affichées sur le nombre trouvé et invite à explorer les autres. Aucune réponse contenant des recommandations issues d'un outil ne peut être envoyée sans cette phrase.
 - Never output raw HTML, JSON, or code fences. Plain markdown only (bold, bullets, light emojis ok).
 - For bookings AT "${host.name}", invite the visitor to WhatsApp/phone/website in FACTS.
 - Never say you are an AI, a model, or a system.`;
@@ -259,6 +259,9 @@ Deno.serve(async (req) => {
               if (!results.length) {
                 return { results: [], total_shown: 0, total_found: 0, total_count: 0, note: `Aucun établissement complémentaire trouvé pour "${fullQuery}" à ${city}. Propose une alternative ou reformule.` };
               }
+              const disclosure = totalFound > results.length
+                ? `📍 Je te présente ${results.length} adresse${results.length > 1 ? "s" : ""} sur ${totalFound} trouvée${totalFound > 1 ? "s" : ""} à ${city} — dis-moi si tu veux que je te montre les autres ou que j'affine par quartier, ambiance ou budget.`
+                : `📍 Voici les ${results.length} adresse${results.length > 1 ? "s" : ""} que j'ai trouvée${results.length > 1 ? "s" : ""} à ${city} pour cette recherche.`;
               return {
                 results: results.map((b: any) => ({
                   id: b.id, name: b.name, slug: b.slug, city: b.city, neighborhood: b.neighborhood,
@@ -270,6 +273,7 @@ Deno.serve(async (req) => {
                 total_found: totalFound,
                 total_count: results.length,
                 city,
+                disclosure_note: disclosure,
               };
             }
 
