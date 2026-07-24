@@ -133,6 +133,7 @@ const BlogArticleTemplate = ({
 }: BlogArticleTemplateProps) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const { translateSubcategory } = useTaxonomyTranslations();
   const [businesses, setBusinesses] = useState<Record<string, BlogArticleBusiness>>({});
   const [defaultReviews, setDefaultReviews] = useState<Record<string, { author_name: string | null; source: string | null; rating: number | null; text: string | null; text_fr: string | null; text_en: string | null; }>>({});
   const [isLoading, setIsLoading] = useState(true);
