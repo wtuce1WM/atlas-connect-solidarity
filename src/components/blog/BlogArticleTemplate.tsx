@@ -748,11 +748,14 @@ const BlogArticleTemplate = ({
                                     <span>{entry.hours}</span>
                                   </div>
                                 )}
-                                {b.hook_fr && (
-                                  <p className="text-sm text-foreground/70 italic">
-                                    « {b.hook_fr} »
-                                  </p>
-                                )}
+                                {(() => {
+                                  const bh = language === "en" ? (b.hook_en || b.hook_fr) : language === "ar" ? (b.hook_ar || b.hook_fr) : b.hook_fr;
+                                  return bh ? (
+                                    <p className="text-sm text-foreground/70 italic">
+                                      « {bh} »
+                                    </p>
+                                  ) : null;
+                                })()}
                               </CardContent>
                             </div>
                           </Card>
