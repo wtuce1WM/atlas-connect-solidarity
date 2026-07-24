@@ -253,9 +253,10 @@ Deno.serve(async (req) => {
               let sres: any = null; try { sres = JSON.parse(text); } catch { /* */ }
               const all: any[] = Array.isArray(sres?.businesses) ? sres.businesses : [];
               const filtered = await filterOutCompetitors(all);
+              const totalFound = filtered.length;
               const results = filtered.slice(0, limit);
               if (!results.length) {
-                return { results: [], total_count: 0, note: `Aucun établissement complémentaire trouvé pour "${fullQuery}" à ${city}. Propose une alternative ou reformule.` };
+                return { results: [], total_shown: 0, total_found: 0, total_count: 0, note: `Aucun établissement complémentaire trouvé pour "${fullQuery}" à ${city}. Propose une alternative ou reformule.` };
               }
               return {
                 results: results.map((b: any) => ({
@@ -264,6 +265,8 @@ Deno.serve(async (req) => {
                   latitude: b.latitude, longitude: b.longitude,
                   price_range: b.manual_price_range || (b.min_price ? `${b.min_price}+ MAD` : null),
                 })),
+                total_shown: results.length,
+                total_found: totalFound,
                 total_count: results.length,
                 city,
               };
