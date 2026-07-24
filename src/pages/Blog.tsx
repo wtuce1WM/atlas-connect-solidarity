@@ -199,11 +199,21 @@ const Blog = () => {
                         </p>
                       )}
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1 text-primary font-medium">
-                          <PlayCircle className="h-3 w-3" /> Vidéo
-                        </span>
+                        <div className="flex items-center gap-4">
+                          <span className="flex items-center gap-1">
+                            <User className="h-3 w-3" />
+                            One World Morocco
+                          </span>
+                          {feed.published_at && (
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              {format(new Date(feed.published_at), "d MMM yyyy", { locale: getDateLocale() })}
+                            </span>
+                          )}
+                        </div>
                         <ArrowRight className="h-4 w-4 text-primary" />
                       </div>
+
                     </CardContent>
                   </Card>
                 </Link>
