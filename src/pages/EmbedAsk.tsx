@@ -163,10 +163,6 @@ const EmbedAsk = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug]);
-
   useEffect(() => {
     let cancelled = false;
     (async () => {
