@@ -656,6 +656,19 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                   />
                 </div>
 
+                {/* Guide */}
+                <div className="flex items-center justify-between space-y-0 rounded-lg border p-3">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="has_guide">Guide</Label>
+                    <p className="text-xs text-muted-foreground">Accès au Guide</p>
+                  </div>
+                  <Switch
+                    id="has_guide"
+                    checked={formData.has_guide}
+                    onCheckedChange={(checked) => setFormData({ ...formData, has_guide: checked })}
+                  />
+                </div>
+
                 {/* Site vitrine */}
                 <div className="flex items-center justify-between space-y-0 rounded-lg border p-3">
                   <div className="space-y-0.5">
