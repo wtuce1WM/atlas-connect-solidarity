@@ -144,13 +144,16 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("name")
+        .select("name, latitude, longitude")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
       if (cancelled) return;
       const name = data?.name || "";
       setBusinessName(name);
+      if (data?.latitude != null && data?.longitude != null) {
+        setHostLocation({ lat: Number(data.latitude), lng: Number(data.longitude) });
+      }
       if (name) setMsgs([{ role: "assistant", content: L.opener(name) }]);
       else setError(lang === "en" ? "Establishment not found." : lang === "ar" ? "المؤسسة غير موجودة." : "Établissement introuvable.");
     })();
