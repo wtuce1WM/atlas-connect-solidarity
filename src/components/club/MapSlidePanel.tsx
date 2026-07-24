@@ -50,6 +50,9 @@ interface MapSlidePanelProps {
   onBookmark?: () => void;
   isBookmarked?: boolean;
   disableUserLocation?: boolean;
+  /** Displays a terracotta marker at these coordinates instead of the user's geolocation. */
+  hostLocation?: { lat: number; lng: number } | null;
+  hostLabel?: string;
 }
 
 const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
