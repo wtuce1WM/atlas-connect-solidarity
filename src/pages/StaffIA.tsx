@@ -156,6 +156,10 @@ const StaffIA = () => {
               </TabsContent>
             </Tabs>
           </TabsContent>
+          <TabsContent value="embed-ai-suggestions">
+            <EmbedAiSuggestionsManagement />
+          </TabsContent>
+
 
 
           <TabsContent value="ai-usage">
