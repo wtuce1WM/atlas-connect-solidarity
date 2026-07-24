@@ -414,7 +414,7 @@ const EmbedAsk = () => {
         )}
         {msgs.length <= 1 && !streaming && businessName && (
           <div className="flex flex-wrap gap-2 pt-1">
-            {L.suggestions.map((s) => (
+            {suggestions.map((s) => (
               <button
                 key={s}
                 type="button"
