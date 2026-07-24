@@ -42,6 +42,17 @@ function fmtHours(oh: any): string {
 
 const normalize = (s: any) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
+function shouldForceDirectorySearch(text: string): boolean {
+  const q = normalize(text);
+  if (!q) return false;
+  return /\b(que faire|proximite|autour|pres de|ou |où |restaurant|dejeuner|diner|manger|boire|bar|cafe|the|rooftop|terrasse|visiter|activite|sortie|agenda|week[- ]?end|nearby|around|where|eat|drink|visit|activity|event)\b/i.test(q);
+}
+
+function buildDisclosureFromCounts(shown: number, found: number, city: string): string {
+  if (shown <= 0) return `📍 Aucun résultat trouvé à ${city} pour cette recherche — dis-moi si tu veux que je reformule ou que j'élargisse autour de ${city}.`;
+  return `📍 Je te présente ${shown} adresse${shown > 1 ? "s" : ""} sur ${found} trouvée${found > 1 ? "s" : ""} à ${city} — dis-moi si tu veux que je te montre les autres ou que j'affine par quartier, ambiance ou envie.`;
+}
+
 function buildSystemPrompt(host: any, lang: "fr" | "en" | "ar"): string {
   const hook = lang === "en" ? (host.hook_en || host.hook_fr) : lang === "ar" ? (host.hook_ar || host.hook_fr) : host.hook_fr;
   const description = lang === "en" ? (host.description_en || host.description) : lang === "ar" ? (host.description_ar || host.description) : host.description;
@@ -257,11 +268,9 @@ Deno.serve(async (req) => {
               const totalFound = filtered.length;
               const results = filtered.slice(0, limit);
               if (!results.length) {
-                return { results: [], total_shown: 0, total_found: 0, total_count: 0, note: `Aucun établissement complémentaire trouvé pour "${fullQuery}" à ${city}. Propose une alternative ou reformule.` };
+                return { results: [], total_shown: 0, total_found: 0, total_count: 0, city, disclosure_note: buildDisclosureFromCounts(0, 0, city), note: `Aucun établissement complémentaire trouvé pour "${fullQuery}" à ${city}. Propose une alternative ou reformule.` };
               }
-              const disclosure = totalFound > results.length
-                ? `📍 Je te présente ${results.length} adresse${results.length > 1 ? "s" : ""} sur ${totalFound} trouvée${totalFound > 1 ? "s" : ""} à ${city} — dis-moi si tu veux que je te montre les autres ou que j'affine par quartier, ambiance ou budget.`
-                : `📍 Voici les ${results.length} adresse${results.length > 1 ? "s" : ""} que j'ai trouvée${results.length > 1 ? "s" : ""} à ${city} pour cette recherche.`;
+              const disclosure = buildDisclosureFromCounts(results.length, totalFound, city);
               return {
                 results: results.map((b: any) => ({
                   id: b.id, name: b.name, slug: b.slug, city: b.city, neighborhood: b.neighborhood,
@@ -377,6 +386,36 @@ Deno.serve(async (req) => {
           return "";
         })();
 
+        const rememberSearchResult = (fname: string, fargs: any, result: any) => {
+          const resCount = Array.isArray(result?.results)
+            ? result.results.length
+            : Array.isArray(result?.businesses)
+              ? result.businesses.length
+              : 0;
+          toolsCalledLog.push({ name: fname, args: fargs, result_count: resCount, ok: !result?.error });
+
+          if (fname === "search_businesses" && Array.isArray(result?.results)) {
+            for (const b of result.results) {
+              if (b?.id && b?.name) knownBusinesses.push({ id: b.id, slug: b.slug || null, name: b.name });
+            }
+            if (result?.disclosure_note) lastDisclosureNote = String(result.disclosure_note);
+            const withCoords = result.results.filter((b: any) => b?.latitude != null && b?.longitude != null);
+            if (withCoords.length && !lastMapPayload) {
+              lastMapPayload = { title: null, businesses: withCoords };
+            }
+          }
+        };
+
+        if (shouldForceDirectorySearch(userMessage)) {
+          const forcedArgs = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
+          const forcedResult = await runTool("search_businesses", forcedArgs);
+          rememberSearchResult("search_businesses", forcedArgs, forcedResult);
+          convo.push({
+            role: "system",
+            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE:\n${JSON.stringify(forcedResult).slice(0, 12000)}\nTu dois recommander uniquement des résultats listés ci-dessus quand c'est pertinent et copier exactement disclosure_note sur sa propre ligne avant la question finale.`,
+          });
+        }
+
         const logTurn = async (opts: { finalText: string; streamCompleted: boolean }) => {
           try {
             const t_end = Date.now();
@@ -451,19 +490,7 @@ Deno.serve(async (req) => {
               try { fargs = JSON.parse(tc.function?.arguments || "{}"); } catch { /* */ }
               const result = await runTool(fname, fargs);
 
-              const resCount = Array.isArray((result as any)?.results)
-                ? (result as any).results.length
-                : Array.isArray((result as any)?.businesses)
-                  ? (result as any).businesses.length
-                  : 0;
-              toolsCalledLog.push({ name: fname, args: fargs, result_count: resCount, ok: !(result as any)?.error });
-
-              if (fname === "search_businesses" && Array.isArray((result as any)?.results)) {
-                for (const b of (result as any).results) {
-                  if (b?.id && b?.name) knownBusinesses.push({ id: b.id, slug: b.slug || null, name: b.name });
-                }
-                if ((result as any)?.disclosure_note) lastDisclosureNote = String((result as any).disclosure_note);
-              }
+              rememberSearchResult(fname, fargs, result);
               if (fname === "show_on_map" && (result as any)?.ok && Array.isArray((result as any).businesses)) {
                 lastMapPayload = { title: (result as any).title || null, businesses: (result as any).businesses };
                 for (const b of (result as any).businesses) {
