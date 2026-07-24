@@ -103,10 +103,12 @@ Deno.serve(async (req) => {
 
     let translatedCount = 0;
 
-    // Separate reviews already in target language (just copy text)
+    // Separate reviews already in target language (just copy text). For AR, no source is same-language.
     const alreadyInLang = reviews.filter(r => {
-      const lang = (r.language || '').toLowerCase();
-      return targetLang === 'fr' ? lang.startsWith('fr') : lang.startsWith('en');
+      const rl = (r.language || '').toLowerCase();
+      if (lang === 'fr') return rl.startsWith('fr');
+      if (lang === 'en') return rl.startsWith('en');
+      return rl.startsWith('ar');
     });
     const needsTranslation = reviews.filter(r => !alreadyInLang.includes(r));
 
@@ -121,7 +123,7 @@ Deno.serve(async (req) => {
     for (let i = 0; i < needsTranslation.length; i += chunkSize) {
       const chunk = needsTranslation.slice(i, i + chunkSize);
       const texts = chunk.map(r => r.text!);
-      const translations = await translateBatch(texts, targetLang, lovableApiKey);
+      const translations = await translateBatch(texts, lang, lovableApiKey);
 
       for (let j = 0; j < chunk.length; j++) {
         if (j < translations.length && translations[j]) {
