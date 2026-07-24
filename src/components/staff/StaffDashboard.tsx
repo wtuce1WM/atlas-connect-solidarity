@@ -759,7 +759,7 @@ function InternalNotesSection() {
   );
 }
 
-function BatchTranslateReviewsButton() {
+function BatchTranslateReviewsButton({ lang, label }: { lang: 'fr' | 'en' | 'ar'; label: string }) {
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState("");
   const [result, setResult] = useState("");
@@ -774,15 +774,15 @@ function BatchTranslateReviewsButton() {
     try {
       while (!abortRef.current) {
         const { data, error } = await supabase.functions.invoke("batch-translate-reviews", {
-          body: { limit: 50, targetLang: "fr" },
+          body: { limit: 50, targetLang: lang },
         });
         if (error) { toast({ title: "Erreur de traduction", variant: "destructive" }); break; }
         totalTranslated += data.translated || 0;
         setProgress(`${totalTranslated} traduits, ${data.remaining} restants`);
         if (data.done || data.remaining === 0) {
           const msg = totalTranslated > 0
-            ? `${totalTranslated} avis traduits`
-            : "Tous les avis sont déjà traduits";
+            ? `${totalTranslated} avis traduits (${lang.toUpperCase()})`
+            : `Tous les avis sont déjà traduits (${lang.toUpperCase()})`;
           setResult(msg);
           toast({ title: msg });
           break;
@@ -794,12 +794,12 @@ function BatchTranslateReviewsButton() {
     }
     setIsRunning(false);
     setProgress("");
-  }, [abortRef]);
+  }, [abortRef, lang]);
 
   return (
     <Button size="sm" variant="outline" onClick={isRunning ? () => { abortRef.current = true; } : handleRun}>
       {isRunning ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Languages className="h-4 w-4 mr-2" />}
-      {isRunning ? progress || "Traduction…" : result || "Traduire avis en FR"}
+      {isRunning ? progress || `Traduction ${lang.toUpperCase()}…` : result || label}
     </Button>
   );
 }
