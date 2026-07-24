@@ -1,34 +1,93 @@
 // Public embed: iframe-friendly, business-scoped AI concierge.
 // Route: /embed/ask/:slug
-// - No header/nav/footer.
-// - No auth required (uses public anon key for the edge function).
+// - Anonymous, no auth.
 // - Streams via /functions/v1/embed-ai-chat.
-import { useEffect, useMemo, useRef, useState } from "react";
+// - Parses SSE markers (SHOW_ON_MAP, EVENTS_SNAPSHOT, KNOWN_BUSINESSES) and
+//   renders the same map/business/events panels as /club.
+import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { Send, Sun, Moon } from "lucide-react";
+import { Send, Sun, Moon, MapPin, Calendar as CalendarIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlidePanel";
+import EventsSlidePanel from "@/components/club/EventsSlidePanel";
+import type { EventPanelItem } from "@/components/club/ClubAiAssistant";
+import SlidePanelHeader from "@/components/SlidePanelHeader";
+
+const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string) => string }> = {
+const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string) => string; viewMap: string; events: string; nearby: string }> = {
   fr: {
     placeholder: "Posez votre question…",
     hint: "Assistant IA propulsé par One World Morocco",
     opener: (n) => `Bonjour 👋 Je suis l'assistant de **${n}**. Comment puis-je vous aider ?`,
+    viewMap: "Voir sur la carte",
+    events: "Événements",
+    nearby: "À proximité",
   },
   en: {
     placeholder: "Ask a question…",
     hint: "AI assistant powered by One World Morocco",
     opener: (n) => `Hi 👋 I'm the assistant for **${n}**. How can I help?`,
+    viewMap: "View on map",
+    events: "Events",
+    nearby: "Nearby",
   },
   ar: {
     placeholder: "اطرح سؤالك…",
     hint: "مساعد ذكي بواسطة One World Morocco",
     opener: (n) => `مرحبًا 👋 أنا مساعد **${n}**. كيف يمكنني مساعدتك؟`,
+    viewMap: "عرض على الخريطة",
+    events: "الفعاليات",
+    nearby: "القريبة",
   },
 };
 
+// ============= Marker extraction (mirrors ClubAiAssistant) =============
+const MAP_RE = /<!--SHOW_ON_MAP:([\s\S]*?)-->/g;
+const EVENTS_RE = /<!--EVENTS_SNAPSHOT:([\s\S]*?)-->/g;
+const KNOWN_RE = /<!--KNOWN_BUSINESSES:([\s\S]*?)-->/g;
+
+type MapPayload = { title?: string | null; businesses: MapPanelBusiness[] };
+type EventsPayload = { title?: string | null; city?: string | null; events: EventPanelItem[] };
+type KnownBusiness = { id: string; slug: string | null; name: string };
+
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[] } {
+  const maps: MapPayload[] = [];
+  const events: EventsPayload[] = [];
+  const known: KnownBusiness[] = [];
+  if (!text) return { clean: text, maps, events, known };
+  let clean = text.replace(MAP_RE, (_m, raw) => {
+    try {
+      const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (p && Array.isArray(p.businesses) && p.businesses.length) maps.push({ title: p.title ?? null, businesses: p.businesses });
+    } catch { /* */ }
+    return "";
+  }).replace(EVENTS_RE, (_m, raw) => {
+    try {
+      const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (p && Array.isArray(p.events) && p.events.length) events.push({ title: p.title ?? null, city: p.city ?? null, events: p.events });
+    } catch { /* */ }
+    return "";
+  }).replace(KNOWN_RE, (_m, raw) => {
+    try {
+      const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (Array.isArray(p)) for (const b of p) if (b?.id && b?.name) known.push({ id: b.id, slug: b.slug || null, name: b.name });
+    } catch { /* */ }
+    return "";
+  });
+  // Strip any unclosed marker so it doesn't render as raw text mid-stream.
+  clean = clean
+    .replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "")
+    .replace(/<!--EVENTS_SNAPSHOT:[\s\S]*$/g, "")
+    .replace(/<!--KNOWN_BUSINESSES:[\s\S]*$/g, "")
+    .trim();
+  return { clean, maps, events, known };
+}
+
+// ============= Component =============
 const EmbedAsk = () => {
   const { slug = "" } = useParams();
   const [params] = useSearchParams();
@@ -54,7 +113,13 @@ const EmbedAsk = () => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const L = LANG_LABELS[lang];
 
-  // Fetch business name for header + opening message.
+  // Overlay states
+  const [openMap, setOpenMap] = useState<MapPayload | null>(null);
+  const [openEvents, setOpenEvents] = useState<{ list: EventPanelItem[]; index: number } | null>(null);
+  const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+
+  const isMobile = useMemo(() => typeof window !== "undefined" && window.innerWidth < 768, []);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -67,20 +132,14 @@ const EmbedAsk = () => {
       if (cancelled) return;
       const name = data?.name || "";
       setBusinessName(name);
-      if (name) {
-        setMsgs([{ role: "assistant", content: L.opener(name) }]);
-      } else {
-        setError(lang === "en" ? "Establishment not found." : lang === "ar" ? "المؤسسة غير موجودة." : "Établissement introuvable.");
-      }
+      if (name) setMsgs([{ role: "assistant", content: L.opener(name) }]);
+      else setError(lang === "en" ? "Establishment not found." : lang === "ar" ? "المؤسسة غير موجودة." : "Établissement introuvable.");
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [msgs]);
-
+  useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [msgs]);
   useEffect(() => { inputRef.current?.focus(); }, [businessName]);
 
   const dir = lang === "ar" ? "rtl" : "ltr";
@@ -91,7 +150,6 @@ const EmbedAsk = () => {
     setInput("");
     setError(null);
     const userMsg: Msg = { role: "user", content: text };
-    // Skip the opening assistant "greeting" when building history for the model.
     const history = msgs.filter((_, i) => !(i === 0 && msgs[0].role === "assistant"));
     const nextUi: Msg[] = [...msgs, userMsg, { role: "assistant", content: "" }];
     setMsgs(nextUi);
@@ -101,18 +159,15 @@ const EmbedAsk = () => {
     try {
       const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/embed-ai-chat`;
       const anon = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      // Strip markers from prior assistant messages before sending back to server
+      const cleanedHistory = [...history, userMsg].map((m) => ({
+        role: m.role,
+        content: m.role === "assistant" ? extractPayloads(m.content).clean : m.content,
+      }));
       const resp = await fetch(url, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${anon}`,
-          apikey: anon,
-        },
-        body: JSON.stringify({
-          businessSlug: slug,
-          language: lang,
-          messages: [...history, userMsg].map((m) => ({ role: m.role, content: m.content })),
-        }),
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${anon}`, apikey: anon },
+        body: JSON.stringify({ businessSlug: slug, language: lang, messages: cleanedHistory }),
       });
       if (!resp.ok || !resp.body) throw new Error(`HTTP ${resp.status}`);
 
@@ -171,6 +226,7 @@ const EmbedAsk = () => {
   const asstBubble = theme === "light" ? "bg-neutral-100 text-neutral-900" : "bg-neutral-800 text-neutral-50";
   const border = theme === "light" ? "border-neutral-200" : "border-neutral-800";
   const inputBg = theme === "light" ? "bg-white" : "bg-neutral-900";
+  const cardBg = theme === "light" ? "bg-white border border-neutral-200" : "bg-neutral-900 border border-neutral-800";
 
   return (
     <div dir={dir} className={`fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""}`}>
@@ -193,19 +249,81 @@ const EmbedAsk = () => {
       </header>
 
       <div ref={scrollRef} className={`flex-1 overflow-y-auto px-4 py-4 space-y-3 ${bg}`}>
-        {msgs.map((m, i) => (
-          <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-            <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${m.role === "user" ? userBubble : asstBubble}`}>
-              {m.role === "assistant" ? (
-                <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-ul:my-1">
-                  <ReactMarkdown>{m.content || "…"}</ReactMarkdown>
+        {msgs.map((m, i) => {
+          if (m.role === "user") {
+            return (
+              <div key={i} className="flex justify-end">
+                <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${userBubble}`}>
+                  <div className="whitespace-pre-wrap">{m.content}</div>
                 </div>
-              ) : (
-                <div className="whitespace-pre-wrap">{m.content}</div>
+              </div>
+            );
+          }
+          const { clean, maps, events } = extractPayloads(m.content);
+          const mapPayload = maps[maps.length - 1] || null;
+          const eventsPayload = events[events.length - 1] || null;
+          return (
+            <div key={i} className="flex flex-col items-start gap-2">
+              <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${asstBubble}`}>
+                <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-ul:my-1">
+                  <ReactMarkdown>{clean || (streaming && i === msgs.length - 1 ? "…" : "")}</ReactMarkdown>
+                </div>
+              </div>
+
+              {/* Business carousel */}
+              {mapPayload && mapPayload.businesses.length > 0 && (
+                <div className="w-full max-w-full overflow-x-auto -mx-1 px-1">
+                  <div className="flex gap-2 pb-1">
+                    {mapPayload.businesses.slice(0, 20).map((b) => (
+                      <button
+                        key={b.id}
+                        type="button"
+                        onClick={() => setOpenBusinessId(b.id)}
+                        className={`shrink-0 w-40 rounded-xl overflow-hidden text-left ${cardBg} hover:opacity-90 transition-opacity`}
+                      >
+                        <div className="w-full h-24 bg-neutral-800 relative overflow-hidden">
+                          {(b.images?.[0] || (b as any).logo_url) ? (
+                            <img
+                              src={(b.images?.[0] || (b as any).logo_url) as string}
+                              alt={b.name}
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                            />
+                          ) : null}
+                        </div>
+                        <div className="p-2">
+                          <div className="text-xs font-semibold line-clamp-2">{b.name}</div>
+                          <div className="text-[10px] opacity-60 line-clamp-1 mt-0.5">
+                            {[b.neighborhood, b.city].filter(Boolean).join(" · ")}
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setOpenMap(mapPayload)}
+                    className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-[#C24B3F] hover:underline"
+                  >
+                    <MapPin className="w-3.5 h-3.5" /> {L.viewMap}
+                  </button>
+                </div>
+              )}
+
+              {/* Events chip */}
+              {eventsPayload && eventsPayload.events.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setOpenEvents({ list: eventsPayload.events, index: 0 })}
+                  className={`inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90`}
+                >
+                  <CalendarIcon className="w-3.5 h-3.5" />
+                  {L.events} · {eventsPayload.events.length}
+                </button>
               )}
             </div>
-          </div>
-        ))}
+          );
+        })}
         {streaming && msgs[msgs.length - 1]?.role === "assistant" && !msgs[msgs.length - 1]?.content && (
           <div className="flex justify-start">
             <div className={`rounded-2xl px-3.5 py-2.5 text-sm ${asstBubble}`}>
@@ -220,18 +338,13 @@ const EmbedAsk = () => {
         {error && <div className="text-xs text-red-500">{error}</div>}
       </div>
 
-      <form
-        onSubmit={(e) => { e.preventDefault(); send(); }}
-        className={`p-3 border-t ${border} ${bg}`}
-      >
+      <form onSubmit={(e) => { e.preventDefault(); send(); }} className={`p-3 border-t ${border} ${bg}`}>
         <div className={`flex items-end gap-2 rounded-2xl border ${border} ${inputBg} px-3 py-2`}>
           <textarea
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
-            }}
+            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
             rows={1}
             placeholder={L.placeholder}
             disabled={streaming || !businessName}
@@ -247,6 +360,41 @@ const EmbedAsk = () => {
           </button>
         </div>
       </form>
+
+      {/* Google Maps slide panel */}
+      <MapSlidePanel
+        open={!!openMap}
+        onClose={() => setOpenMap(null)}
+        title={openMap?.title || undefined}
+        businesses={openMap?.businesses || []}
+        isMobile={isMobile}
+      />
+
+      {/* Events slide panel */}
+      <EventsSlidePanel
+        open={!!openEvents}
+        onClose={() => setOpenEvents(null)}
+        items={openEvents?.list || []}
+        initialIndex={openEvents?.index ?? 0}
+        isMobile={isMobile}
+        onOpenBusiness={(bid) => { setOpenEvents(null); setOpenBusinessId(bid); }}
+      />
+
+      {/* Business detail slide panel */}
+      {openBusinessId && (
+        <div className="fixed inset-0 z-[220] bg-background flex flex-col lg:left-auto lg:border-l lg:border-border lg:w-1/2">
+          <SlidePanelHeader onClose={() => setOpenBusinessId(null)} alwaysDark glassClose />
+          <div className="flex-1 min-h-0 overflow-visible">
+            <Suspense fallback={null}>
+              <BookOnlineSlidePanel
+                key={openBusinessId}
+                businessId={openBusinessId}
+                onClose={() => setOpenBusinessId(null)}
+              />
+            </Suspense>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
