@@ -163,6 +163,28 @@ const EmbedAsk = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("embed_ai_suggestions")
+        .select("label_fr,label_en,label_ar")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      if (cancelled || !data) return;
+      const col = lang === "en" ? "label_en" : lang === "ar" ? "label_ar" : "label_fr";
+      const list = (data as any[])
+        .map((r) => (r[col] || r.label_fr || "").trim())
+        .filter(Boolean);
+      if (list.length > 0) setDbSuggestions(list);
+    })();
+    return () => { cancelled = true; };
+  }, [lang]);
+
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [msgs]);
   useEffect(() => { inputRef.current?.focus(); }, [businessName]);
 
