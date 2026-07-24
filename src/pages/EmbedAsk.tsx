@@ -128,11 +128,26 @@ const EmbedAsk = () => {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [dbSuggestions, setDbSuggestions] = useState<string[] | null>(null);
+  type FollowupRow = { label_fr: string; label_en: string | null; label_ar: string | null };
+  type SuggestionRow = { id: string; label: string; followups: FollowupRow[] };
+  const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(null);
+  const [activeSuggestionId, setActiveSuggestionId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const L = LANG_LABELS[lang];
-  const suggestions = dbSuggestions && dbSuggestions.length > 0 ? dbSuggestions : L.suggestions;
+  const suggestions: SuggestionRow[] = dbSuggestions && dbSuggestions.length > 0
+    ? dbSuggestions
+    : L.suggestions.map((s, i) => ({ id: `default-${i}`, label: s, followups: [] }));
+  const pickFollowupLabel = (f: FollowupRow): string => {
+    const raw = (lang === "en" ? f.label_en : lang === "ar" ? f.label_ar : f.label_fr) || f.label_fr || "";
+    return raw.replace(/\{businessName\}/g, businessName || "").trim();
+  };
+  const activeFollowups: string[] = (() => {
+    if (!activeSuggestionId || !dbSuggestions) return [];
+    const s = dbSuggestions.find((x) => x.id === activeSuggestionId);
+    if (!s) return [];
+    return s.followups.map(pickFollowupLabel).filter(Boolean);
+  })();
 
   // Overlay states
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
