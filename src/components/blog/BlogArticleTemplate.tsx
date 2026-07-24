@@ -786,7 +786,7 @@ const BlogArticleTemplate = ({
                       ? (language === "en"
                           ? (dyn.text_en || dyn.text_fr || dyn.text)
                           : language === "ar"
-                            ? (dyn.text_en || dyn.text_fr || dyn.text)
+                            ? (dyn.text_ar || dyn.text_fr || dyn.text_en || dyn.text)
                             : (dyn.text_fr || dyn.text))
                       : null;
                     const review = dyn && dynText
