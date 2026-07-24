@@ -116,7 +116,7 @@ const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
 
   const shortcuts: { label: string; tab?: string; href?: string; icon: any; count: string | null }[] = [
     { label: "Recherche", tab: "search-config", icon: Search, count: `${health.synonymsActive} syn · ${health.bundlesActive} bundles` },
-    { label: "IA", tab: "ai-config", icon: Sparkles, count: `${health.aiConfigCount} clés` },
+    { label: "IA", href: "/staff/ia?tab=ai-config", icon: Sparkles, count: `${health.aiConfigCount} clés` },
     { label: "Articles Blog", tab: "blog", icon: FileText, count: `${health.blogPublished}/${health.blogTotal} publiés` },
     { label: "Affiliés", tab: "affiliates", icon: UserCheck, count: `${health.affiliatesActive} actifs` },
     { label: "Sponsors", tab: "sponsors", icon: Star, count: `${health.sponsorsActive} actifs` },
