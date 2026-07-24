@@ -48,13 +48,35 @@ const VideoFeedTemplate = ({
   sectionTitle,
   sectionIntro,
   videos,
+  bookmarkSlug,
   siteUrl = DEFAULT_SITE_URL,
 }: VideoFeedTemplateProps) => {
   const { language } = useLanguage();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { isBookmarked, isLoading: bmLoading, isLoggedIn, toggle: toggleBookmark } =
+    useArticleBookmark(bookmarkSlug);
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
 
   const ogImage = heroImage || `${siteUrl}/og-install-app.webp`;
+
+  const handleSaveArticle = async () => {
+    if (!isLoggedIn) {
+      window.dispatchEvent(new CustomEvent("open-generic-club-popup"));
+      return;
+    }
+    const ok = await toggleBookmark();
+    if (ok) {
+      toast({
+        title: isBookmarked ? "Article retiré" : "Article sauvegardé",
+        description: isBookmarked
+          ? "L'article a été retiré de votre Club OWM."
+          : "Retrouvez-le dans votre compte Club OWM.",
+      });
+    }
+  };
+
 
   useSEO({
     title: seoTitle,
