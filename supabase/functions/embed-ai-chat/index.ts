@@ -528,6 +528,16 @@ Deno.serve(async (req) => {
             }
           }
 
+          // Deterministic disclosure — inject if the model didn't include it
+          if (lastDisclosureNote) {
+            const hasDisclosure = /\bsur\s+\d+\s+trouv/i.test(finalText) || finalText.includes(lastDisclosureNote);
+            if (!hasDisclosure) {
+              const injection = `\n\n${lastDisclosureNote}`;
+              emit({ type: "chunk", delta: injection });
+              finalText += injection;
+            }
+          }
+
           // Emit markers as trailing content
           const markers: string[] = [];
           if (lastMapPayload) {
