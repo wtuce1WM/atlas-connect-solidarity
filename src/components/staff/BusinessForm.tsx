@@ -1464,6 +1464,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     url_5_cta: normalizeCtaValue((business as any)?.url_5_cta) || "",
     url_5_force_external: (business as any)?.url_5_force_external ?? false,
     url_5_presentation_mode: (business as any)?.url_5_presentation_mode || "acheter_en_ligne",
+    url_6: (business as any)?.url_6 || "",
+    url_6_title: (business as any)?.url_6_title || "",
+    url_6_force_external: (business as any)?.url_6_force_external ?? false,
     carousel_badge: (business as any)?.carousel_badge || "",
   });
 
