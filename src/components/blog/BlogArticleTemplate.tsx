@@ -136,7 +136,7 @@ const BlogArticleTemplate = ({
   const { language } = useLanguage();
   const { translateSubcategory } = useTaxonomyTranslations();
   const [businesses, setBusinesses] = useState<Record<string, BlogArticleBusiness>>({});
-  const [defaultReviews, setDefaultReviews] = useState<Record<string, { author_name: string | null; source: string | null; rating: number | null; text: string | null; text_fr: string | null; text_en: string | null; }>>({});
+  const [defaultReviews, setDefaultReviews] = useState<Record<string, { author_name: string | null; source: string | null; rating: number | null; text: string | null; text_fr: string | null; text_en: string | null; text_ar: string | null; }>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
   const [isClosing, setIsClosing] = useState(false);
@@ -428,7 +428,7 @@ const BlogArticleTemplate = ({
     const fetchDefaultReviews = async () => {
       const { data } = await supabase
         .from("reviews")
-        .select("business_id, author_name, source, rating, text, text_fr, text_en")
+        .select("business_id, author_name, source, rating, text, text_fr, text_en, text_ar")
         .in("business_id", allIds)
         .eq("is_default", true)
         .eq("is_hidden", false);
@@ -786,7 +786,7 @@ const BlogArticleTemplate = ({
                       ? (language === "en"
                           ? (dyn.text_en || dyn.text_fr || dyn.text)
                           : language === "ar"
-                            ? (dyn.text_en || dyn.text_fr || dyn.text)
+                            ? (dyn.text_ar || dyn.text_fr || dyn.text_en || dyn.text)
                             : (dyn.text_fr || dyn.text))
                       : null;
                     const review = dyn && dynText
