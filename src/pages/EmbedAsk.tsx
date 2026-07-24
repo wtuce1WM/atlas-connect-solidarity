@@ -168,7 +168,7 @@ const EmbedAsk = () => {
   const bg = theme === "light" ? "bg-white" : "bg-neutral-950";
   const surface = theme === "light" ? "bg-white text-neutral-900" : "bg-neutral-950 text-neutral-100";
   const userBubble = theme === "light" ? "bg-neutral-900 text-white" : "bg-white text-neutral-900";
-  const asstBubble = theme === "light" ? "bg-neutral-100 text-neutral-900" : "bg-neutral-800 text-neutral-100";
+  const asstBubble = theme === "light" ? "bg-neutral-100 text-neutral-900" : "bg-neutral-800 text-neutral-50";
   const border = theme === "light" ? "border-neutral-200" : "border-neutral-800";
   const inputBg = theme === "light" ? "bg-white" : "bg-neutral-900";
 
