@@ -435,12 +435,26 @@ const EmbedAsk = () => {
           <div className="flex flex-wrap gap-2 pt-1">
             {suggestions.map((s) => (
               <button
-                key={s}
+                key={s.id}
                 type="button"
-                onClick={() => send(s)}
+                onClick={() => { setActiveSuggestionId(s.id); send(s.label); }}
                 className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
               >
-                {s}
+                {s.label}
+              </button>
+            ))}
+          </div>
+        )}
+        {msgs.length > 1 && !streaming && businessName && activeFollowups.length > 0 && msgs[msgs.length - 1]?.role === "assistant" && (
+          <div className="flex flex-wrap gap-2 pt-1">
+            {activeFollowups.map((f, i) => (
+              <button
+                key={`${activeSuggestionId}-${i}`}
+                type="button"
+                onClick={() => send(f)}
+                className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
+              >
+                {f}
               </button>
             ))}
           </div>
