@@ -1,11 +1,17 @@
 import { ReactNode, Suspense, lazy, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSEO } from "@/hooks/useSEO";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import HomeBottomBar from "@/components/HomeBottomBar";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useArticleBookmark } from "@/hooks/useArticleBookmark";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, Bookmark } from "lucide-react";
+import { withLangPrefix } from "@/lib/localizedPath";
 import type { BlogArticleVideo } from "@/components/blog/BlogArticleTemplate";
+
 
 const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
 
