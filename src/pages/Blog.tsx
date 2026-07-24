@@ -160,6 +160,57 @@ const Blog = () => {
               </Link>
             ))}
 
+            {/* Pages "flux vidéo unique" (video_feed_pages) */}
+            {videoFeeds.map((feed) => {
+              const title =
+                (language === "ar" && feed.hero_title_bottom_ar) ||
+                (language === "en" && feed.hero_title_bottom_en) ||
+                feed.hero_title_bottom_fr ||
+                feed.slug;
+              const subtitle =
+                (language === "ar" && feed.hero_subtitle_ar) ||
+                (language === "en" && feed.hero_subtitle_en) ||
+                feed.hero_subtitle_fr ||
+                "";
+              const cover = feed.cover_image_url || feed.custom_hero_image_url;
+              return (
+                <Link key={feed.id} to={withLangPrefix(`/videos/${feed.slug}`, language)}>
+                  <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full relative">
+                    {cover && (
+                      <div className="aspect-video overflow-hidden relative">
+                        <img
+                          src={cover}
+                          alt={title}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                          <PlayCircle className="h-14 w-14 text-white drop-shadow-lg" />
+                        </div>
+                      </div>
+                    )}
+                    <CardContent className="p-6">
+                      <h2 className="text-xl font-semibold mb-3 line-clamp-2 font-['Playfair_Display'] italic">
+                        {title}
+                      </h2>
+                      {subtitle && (
+                        <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+                          {subtitle}
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1 text-primary font-medium">
+                          <PlayCircle className="h-3 w-3" /> Vidéo
+                        </span>
+                        <ArrowRight className="h-4 w-4 text-primary" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
+
+
             {/* Page custom (pas un article éditorial) — classement dynamique des établissements les mieux notés */}
             <Link to={withLangPrefix("/blog/etablissements-notes", language)}>
               <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-950/30 dark:to-amber-950/30">
