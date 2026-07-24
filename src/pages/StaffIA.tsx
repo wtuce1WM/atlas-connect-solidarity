@@ -11,6 +11,7 @@ import PopularSearchesManagement from "@/components/staff/PopularSearchesManagem
 import AiUsageManagement from "@/components/staff/AiUsageManagement";
 import AiConversationPerf from "@/components/staff/AiConversationPerf";
 import EmbedUsageManagement from "@/components/staff/EmbedUsageManagement";
+import EmbedAiSuggestionsManagement from "@/components/staff/EmbedAiSuggestionsManagement";
 import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement";
 import KBViewer from "@/components/staff/KBViewer";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
