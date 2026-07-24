@@ -364,6 +364,7 @@ Deno.serve(async (req) => {
 
         let lastMapPayload: any = null;
         let lastEventsPayload: any = null;
+        let lastDisclosureNote: string | null = null;
         const knownBusinesses: Array<{ id: string; slug: string | null; name: string }> = [];
         const toolsCalledLog: Array<{ name: string; args: any; result_count?: number; ok?: boolean }> = [];
         let hadError = false;
