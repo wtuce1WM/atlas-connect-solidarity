@@ -188,7 +188,9 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
           Export CSV Google My Maps
         </Button>
         <InternalizeImagesButton />
-        <BatchTranslateReviewsButton />
+        <BatchTranslateReviewsButton lang="fr" label="Traduire avis FR" />
+        <BatchTranslateReviewsButton lang="en" label="Traduire avis EN" />
+        <BatchTranslateReviewsButton lang="ar" label="Traduire avis AR" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
