@@ -1,92 +1,159 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// Batch-translate reviews (text -> text_fr, text_en, text_ar) via Lovable AI Gateway.
+// Idempotent: only translates missing fields unless ?force=1.
+// Call in a loop until { done: true }.
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY")!;
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
+const MODEL = "google/gemini-3.1-flash-lite";
+
+interface Row {
+  id: string;
+  text: string | null;
+  text_fr: string | null;
+  text_en: string | null;
+  text_ar: string | null;
+  language: string | null;
+}
+
+async function translateOne(row: Row, force: boolean): Promise<Partial<Row> | null> {
+  const source = row.text_fr || row.text || row.text_en || row.text_ar;
+  if (!source) return null;
+
+  const need = {
+    fr: force || !row.text_fr,
+    en: force || !row.text_en,
+    ar: force || !row.text_ar,
+  };
+  if (!need.fr && !need.en && !need.ar) return null;
+
+  const targets: string[] = [];
+  if (need.fr) targets.push("fr");
+  if (need.en) targets.push("en");
+  if (need.ar) targets.push("ar");
+
+  const prompt = `You translate short customer reviews. Return STRICT JSON only, no prose.
+Source review:
+"""${source}"""
+
+Return an object with exactly these keys: ${targets.map(t => `"${t}"`).join(", ")}.
+- "fr": natural French translation
+- "en": natural English translation
+- "ar": natural Modern Standard Arabic translation
+Preserve tone, keep it concise, no quotes around the value.`;
+
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      messages: [
+        { role: "system", content: "You are a professional translator. Output strict JSON." },
+        { role: "user", content: prompt },
+      ],
+      response_format: { type: "json_object" },
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`AI ${res.status}: ${body.slice(0, 200)}`);
+  }
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content;
+  if (!content) return null;
+  let parsed: Record<string, string>;
   try {
-    const { reviews, targetLanguage } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    parsed = JSON.parse(content);
+  } catch {
+    return null;
+  }
+  const update: Partial<Row> = {};
+  if (need.fr && parsed.fr) update.text_fr = parsed.fr.trim();
+  if (need.en && parsed.en) update.text_en = parsed.en.trim();
+  if (need.ar && parsed.ar) update.text_ar = parsed.ar.trim();
+  return Object.keys(update).length ? update : null;
+}
 
-    if (!reviews || !Array.isArray(reviews) || reviews.length === 0) {
-      return new Response(JSON.stringify({ translations: [] }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-    const langLabel = targetLanguage === "fr" ? "français" : targetLanguage === "ar" ? "arabe" : "anglais";
+  const url = new URL(req.url);
+  const limit = Math.min(parseInt(url.searchParams.get("limit") || "20"), 50);
+  const force = url.searchParams.get("force") === "1";
 
-    const textsToTranslate = reviews
-      .map((r: any, i: number) => `[${i}] ${r.text}`)
-      .join("\n---\n");
+  const sb = createClient(SUPABASE_URL, SERVICE_ROLE);
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-lite",
-        messages: [
-          {
-            role: "system",
-            content: `Tu es un traducteur professionnel. Traduis chaque avis client en ${langLabel}. Conserve le ton et le style de chaque avis. Renvoie UNIQUEMENT un JSON array de strings dans le même ordre, sans explication. Exemple: ["traduction 1", "traduction 2"]`,
-          },
-          {
-            role: "user",
-            content: textsToTranslate,
-          },
-        ],
-      }),
+  // Pick rows that still miss at least one translation
+  const filter = force
+    ? "text.not.is.null"
+    : "or(text_fr.is.null,text_en.is.null,text_ar.is.null)";
+
+  const { data: rows, error } = await sb
+    .from("reviews")
+    .select("id, text, text_fr, text_en, text_ar, language")
+    .or("text.not.is.null,text_fr.not.is.null")
+    .or(force ? "text.not.is.null" : "text_fr.is.null,text_en.is.null,text_ar.is.null")
+    .limit(limit);
+
+  if (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+  }
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Payment required" }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      throw new Error("AI gateway error");
-    }
-
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || "[]";
-
-    // Extract JSON array from the response
-    const jsonMatch = content.match(/\[[\s\S]*\]/);
-    let translations: string[] = [];
-    if (jsonMatch) {
-      try {
-        translations = JSON.parse(jsonMatch[0]);
-      } catch {
-        console.error("Failed to parse translations:", content);
-        translations = [];
-      }
-    }
-
-    return new Response(JSON.stringify({ translations }), {
+  const pool = (rows ?? []) as Row[];
+  if (pool.length === 0) {
+    return new Response(JSON.stringify({ done: true, processed: 0 }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (e) {
-    console.error("translate-reviews error:", e);
-    return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
   }
+
+  let updated = 0;
+  let skipped = 0;
+  let failed = 0;
+  const errors: string[] = [];
+
+  // Sequential to avoid rate limits
+  for (const row of pool) {
+    try {
+      const update = await translateOne(row, force);
+      if (!update) { skipped++; continue; }
+      const { error: upErr } = await sb.from("reviews").update(update).eq("id", row.id);
+      if (upErr) { failed++; errors.push(upErr.message); }
+      else updated++;
+    } catch (e) {
+      failed++;
+      errors.push(String(e).slice(0, 200));
+      // On 429/402, stop early
+      if (String(e).includes("429") || String(e).includes("402")) break;
+    }
+  }
+
+  // Remaining count
+  const { count: remaining } = await sb
+    .from("reviews")
+    .select("id", { count: "exact", head: true })
+    .or("text_fr.is.null,text_en.is.null,text_ar.is.null");
+
+  return new Response(
+    JSON.stringify({
+      done: (remaining ?? 0) === 0,
+      batch_size: pool.length,
+      updated, skipped, failed,
+      remaining,
+      errors: errors.slice(0, 5),
+    }),
+    { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+  );
 });
