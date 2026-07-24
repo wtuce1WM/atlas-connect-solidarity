@@ -1,9 +1,12 @@
-// Public embed assistant scoped to a single business.
-// - Anonymous (no auth): designed to be iframed on the business's own site.
-// - No persistence: single-conversation, no user data written.
-// - Injects business context (name, city, hours, phone, website, hook, description, price)
-//   into the system prompt so the model answers as the business's concierge.
-// SSE stream: events { type: "chunk", delta } and { type: "done" } / { type: "error" }.
+// Public embed AI concierge scoped to a single affiliate business.
+// - Anonymous (no auth). Designed to be iframed on the business's own site.
+// - No persistence.
+// - Provides the SAME core tools as /club chat (search_businesses, search_events,
+//   show_on_map) but hard-filtered to "complementary only": never returns the
+//   host business itself, never returns direct competitors (same main_category
+//   OR ≥2 shared subcategories).
+// - Emits the SAME SSE markers as club-ai-chat so the client can render maps,
+//   business carousels and events panels using shared components.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -13,8 +16,10 @@ const corsHeaders = {
 
 const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const MODEL = "google/gemini-3.6-flash";
+const MAX_ROUNDS = 4;
+const SEARCH_LIMIT_HARD = 30;
 
-type Msg = { role: "system" | "user" | "assistant"; content: string };
+type Msg = { role: "system" | "user" | "assistant" | "tool"; content: string; tool_call_id?: string; tool_calls?: any[] };
 
 function pickLang(v: unknown): "fr" | "en" | "ar" {
   return v === "en" || v === "ar" ? v : "fr";
@@ -26,177 +31,468 @@ function fmtHours(oh: any): string {
   const keys = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
   const lines: string[] = [];
   keys.forEach((k, i) => {
-    const day = oh[k];
-    if (!day) return;
-    if (day.closed) { lines.push(`${days[i]}: fermé`); return; }
-    const slots = Array.isArray(day.slots) ? day.slots : [];
-    const parts = slots
-      .filter((s: any) => s && s.open && s.close)
-      .map((s: any) => `${s.open}–${s.close}`);
+    const d = oh[k]; if (!d) return;
+    if (d.closed) { lines.push(`${days[i]}: fermé`); return; }
+    const slots = Array.isArray(d.slots) ? d.slots : [];
+    const parts = slots.filter((s: any) => s?.open && s?.close).map((s: any) => `${s.open}–${s.close}`);
     if (parts.length) lines.push(`${days[i]}: ${parts.join(", ")}`);
   });
   return lines.join(" · ");
 }
 
-function buildSystemPrompt(biz: any, lang: "fr" | "en" | "ar"): string {
-  const hook = lang === "en" ? (biz.hook_en || biz.hook_fr) : lang === "ar" ? (biz.hook_ar || biz.hook_fr) : biz.hook_fr;
-  const description = lang === "en" ? (biz.description_en || biz.description) : lang === "ar" ? (biz.description_ar || biz.description) : biz.description;
-  const price = biz.manual_price_range || (biz.min_price ? `à partir de ${biz.min_price} MAD` : "");
-  const hours = fmtHours(biz.opening_hours);
+const normalize = (s: any) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+
+function buildSystemPrompt(host: any, lang: "fr" | "en" | "ar"): string {
+  const hook = lang === "en" ? (host.hook_en || host.hook_fr) : lang === "ar" ? (host.hook_ar || host.hook_fr) : host.hook_fr;
+  const description = lang === "en" ? (host.description_en || host.description) : lang === "ar" ? (host.description_ar || host.description) : host.description;
+  const price = host.manual_price_range || (host.min_price ? `à partir de ${host.min_price} MAD` : "");
+  const hours = fmtHours(host.opening_hours);
 
   const langLabel = lang === "en" ? "English" : lang === "ar" ? "Arabic (العربية)" : "French";
 
   const facts = [
-    `Nom: ${biz.name}`,
-    biz.city ? `Ville: ${biz.city}` : "",
-    biz.neighborhood ? `Quartier: ${biz.neighborhood}` : "",
-    biz.address ? `Adresse: ${biz.address}` : "",
+    `Nom: ${host.name}`,
+    host.city ? `Ville: ${host.city}` : "",
+    host.neighborhood ? `Quartier: ${host.neighborhood}` : "",
+    host.address ? `Adresse: ${host.address}` : "",
     hook ? `Accroche: ${hook}` : "",
     description ? `Description: ${String(description).slice(0, 1200)}` : "",
     price ? `Prix indicatif: ${price}` : "",
     hours ? `Horaires: ${hours}` : "",
-    biz.phone ? `Téléphone: ${biz.phone}` : "",
-    biz.whatsapp ? `WhatsApp: ${biz.whatsapp}` : "",
-    biz.website ? `Site: ${biz.website}` : "",
+    host.phone ? `Téléphone: ${host.phone}` : "",
+    host.whatsapp ? `WhatsApp: ${host.whatsapp}` : "",
+    host.website ? `Site: ${host.website}` : "",
+    host.main_category ? `Catégorie: ${host.main_category}` : "",
   ].filter(Boolean).join("\n");
 
-  return `You are the friendly, concise digital concierge of "${biz.name}". You ONLY answer about this establishment.
-Always respond in ${langLabel} regardless of the user's language.
+  return `You are the friendly, concise digital concierge of "${host.name}" (${host.city || "Morocco"}).
+Reply in ${langLabel} regardless of the user's language.
 
-FACTS (source of truth — never contradict, never invent details beyond these):
+FACTS about "${host.name}" (source of truth — never contradict, never invent):
 ${facts}
 
-Rules:
-- Stay strictly scoped to "${biz.name}". If asked about competitors or unrelated places, politely redirect to what "${biz.name}" offers.
-- If a fact is unknown (not in FACTS), say so and suggest the visitor call ${biz.phone || "the establishment"} or use WhatsApp ${biz.whatsapp || ""}.
-- Be short (2–4 sentences), warm, and useful. Use bullet points only when listing 3+ items.
-- Never mention that you are an AI, a model, or a system.
-- Never output HTML, JSON, or code fences. Plain markdown only.
-- For bookings, invite to use WhatsApp/phone/website above.`;
+SCOPE — "complementary only":
+- Your job is to help the visitor make the most of their stay AROUND "${host.name}".
+- You can recommend COMPLEMENTARY places to visit around ${host.city || "the area"}: activities, events, restaurants, bars, cafés, spas, guided tours, cultural venues, shops, viewpoints… — anything that enriches the visit.
+- You MUST NEVER recommend a direct competitor of "${host.name}" (same category). The search tool already filters competitors out; if the user explicitly asks for one, politely redirect them to what "${host.name}" itself offers.
+- When answering "where to eat / drink / do X near me", assume near ${host.city || "Morocco"} and near ${host.name}.
+
+TOOLS:
+- search_businesses(query, category, city, neighborhood, badges, services, limit) — searches One World Morocco's curated directory. Results are automatically filtered to exclude "${host.name}" and its direct competitors. Default city = "${host.city || "Marrakech"}".
+- search_events(city, query, from_date, to_date, limit) — finds cultural/festive events with the #Agenda badge.
+- show_on_map(business_slugs[]) — displays a Google Maps panel with the chosen businesses. Call it whenever the visitor asks "where", "on a map", "show me", or when you've listed 2+ addresses.
+
+STYLE:
+- Warm, short (2–4 sentences), useful. Use markdown lists only when giving 3+ items.
+- When you recommend a place from search_businesses, name it exactly as returned. Never invent a place that wasn't returned by a tool.
+- Never output raw HTML, JSON, or code fences. Plain markdown only.
+- For bookings AT "${host.name}", invite the visitor to WhatsApp/phone/website in FACTS.
+- Never say you are an AI, a model, or a system.`;
 }
+
+const TOOLS = [
+  {
+    type: "function",
+    function: {
+      name: "search_businesses",
+      description: "Recherche des établissements RÉELS dans la base One World Morocco (autour de l'hôte). Filtre automatiquement les concurrents directs. Utilise-la avant de citer une adresse.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "Mot-clé ou intention (ex: 'thé à la menthe rooftop', 'jardin secret')" },
+          category: { type: "string", description: "Catégorie: restaurant, bar, café, spa, activité, boutique, musée..." },
+          city: { type: "string", description: "Ville. Défaut: ville de l'hôte." },
+          neighborhood: { type: "string" },
+          badges: { type: "array", items: { type: "string" } },
+          services: { type: "array", items: { type: "string" } },
+          limit: { type: "number", default: 10 },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "search_events",
+      description: "Recherche d'événements #Agenda (concerts, festivals, expos, marchés) à venir. Utilise pour 'que faire ce week-end', 'événements', 'agenda'.",
+      parameters: {
+        type: "object",
+        properties: {
+          city: { type: "string" },
+          query: { type: "string" },
+          from_date: { type: "string" },
+          to_date: { type: "string" },
+          limit: { type: "number", default: 8 },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "show_on_map",
+      description: "Affiche sur une carte Google Maps un ensemble d'établissements (par slugs issus de search_businesses).",
+      parameters: {
+        type: "object",
+        properties: {
+          business_slugs: { type: "array", items: { type: "string" }, description: "2 à 30 slugs" },
+          title: { type: "string" },
+        },
+        required: ["business_slugs"],
+      },
+    },
+  },
+];
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  try {
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      return new Response(JSON.stringify({ error: "LOVABLE_API_KEY missing" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
-    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-    const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const admin = createClient(SUPABASE_URL, SERVICE);
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      const emit = (obj: any) => {
+        try { controller.enqueue(encoder.encode(`data: ${JSON.stringify(obj)}\n\n`)); } catch { /* closed */ }
+      };
+      const close = () => { try { controller.close(); } catch { /* noop */ } };
 
-    const body = await req.json().catch(() => ({}));
-    const slugOrId = String(body.businessSlug || body.businessId || "").trim();
-    const messages: Msg[] = Array.isArray(body.messages) ? body.messages.slice(-16) : [];
-    const language = pickLang(body.language);
+      try {
+        const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+        const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+        const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+        if (!LOVABLE_API_KEY) { emit({ type: "error", message: "LOVABLE_API_KEY missing" }); return close(); }
+        const admin = createClient(SUPABASE_URL, SERVICE);
 
-    if (!slugOrId) {
-      return new Response(JSON.stringify({ error: "businessSlug required" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
-    if (!messages.length) {
-      return new Response(JSON.stringify({ error: "messages required" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
+        const body = await req.json().catch(() => ({}));
+        const slugOrId = String(body.businessSlug || body.businessId || "").trim();
+        const inMessages: Msg[] = Array.isArray(body.messages) ? body.messages.slice(-16) : [];
+        const language = pickLang(body.language);
 
-    // Resolve business by slug first, then by id.
-    let bizQ = admin
-      .from("businesses")
-      .select("id, slug, name, city, neighborhood, address, hook_fr, hook_en, hook_ar, description, description_en, description_ar, min_price, manual_price_range, phone, whatsapp, website, opening_hours, is_active")
-      .eq("is_active", true)
-      .limit(1);
-    const looksLikeUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
-    bizQ = looksLikeUuid ? bizQ.eq("id", slugOrId) : bizQ.eq("slug", slugOrId);
-    const { data: bizRows, error: bizErr } = await bizQ;
-    if (bizErr || !bizRows || !bizRows.length) {
-      return new Response(JSON.stringify({ error: "business_not_found" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
-    const biz = bizRows[0];
+        if (!slugOrId) { emit({ type: "error", message: "businessSlug required" }); return close(); }
+        if (!inMessages.length) { emit({ type: "error", message: "messages required" }); return close(); }
 
-    const system = buildSystemPrompt(biz, language);
+        // Resolve host business
+        let bizQ = admin
+          .from("businesses")
+          .select("id, slug, name, city, neighborhood, address, main_category, hook_fr, hook_en, hook_ar, description, description_en, description_ar, min_price, manual_price_range, phone, whatsapp, website, opening_hours, latitude, longitude, is_active")
+          .eq("is_active", true)
+          .limit(1);
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
+        bizQ = isUuid ? bizQ.eq("id", slugOrId) : bizQ.eq("slug", slugOrId);
+        const { data: bizRows } = await bizQ;
+        if (!bizRows?.length) { emit({ type: "error", message: "business_not_found" }); return close(); }
+        const host = bizRows[0];
 
-    // Sanitize incoming messages: keep only user/assistant roles.
-    const convo: Msg[] = [
-      { role: "system", content: system },
-      ...messages
-        .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
-        .map((m) => ({ role: m.role, content: String(m.content).slice(0, 4000) })),
-    ];
+        // Fetch host subcategories for competitor detection
+        const { data: hostSubs } = await admin
+          .from("subcategory_relations")
+          .select("subcategory_id")
+          .eq("business_id", host.id);
+        const hostSubIds = new Set<string>((hostSubs || []).map((r: any) => r.subcategory_id).filter(Boolean));
+        const hostMainCatN = normalize(host.main_category);
 
-    // Stream from gateway.
-    const gwResp = await fetch(GATEWAY, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: convo,
-        stream: true,
-        temperature: 0.4,
-      }),
-    });
+        // Filter: return true if candidate should be KEPT
+        const isCompetitor = async (candidate: any): Promise<boolean> => {
+          if (!candidate) return true;
+          if (candidate.id === host.id) return true;
+          if (hostMainCatN && normalize(candidate.main_category) === hostMainCatN) return true;
+          // Check subcategory overlap ≥ 2
+          if (hostSubIds.size >= 2 && candidate.id) {
+            const { data: subs } = await admin
+              .from("subcategory_relations")
+              .select("subcategory_id")
+              .eq("business_id", candidate.id);
+            const overlap = (subs || []).filter((r: any) => hostSubIds.has(r.subcategory_id)).length;
+            if (overlap >= 2) return true;
+          }
+          return false;
+        };
 
-    if (!gwResp.ok || !gwResp.body) {
-      const errTxt = await gwResp.text().catch(() => "");
-      const status = gwResp.status === 429 ? 429 : gwResp.status === 402 ? 402 : 500;
-      return new Response(JSON.stringify({ error: "gateway_error", status, detail: errTxt.slice(0, 500) }), {
-        status,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+        const filterOutCompetitors = async (list: any[]): Promise<any[]> => {
+          const kept: any[] = [];
+          for (const c of list) {
+            const bad = await isCompetitor(c);
+            if (!bad) kept.push(c);
+          }
+          return kept;
+        };
 
-    // Re-stream as our own simple SSE.
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-      async start(controller) {
-        const emit = (obj: any) => controller.enqueue(encoder.encode(`data: ${JSON.stringify(obj)}\n\n`));
-        try {
-          const reader = gwResp.body!.getReader();
-          const decoder = new TextDecoder();
-          let buf = "";
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            buf += decoder.decode(value, { stream: true });
-            const parts = buf.split("\n\n");
-            buf = parts.pop() || "";
-            for (const part of parts) {
-              const line = part.split("\n").find((l) => l.startsWith("data:"));
-              if (!line) continue;
-              const payload = line.slice(5).trim();
-              if (!payload || payload === "[DONE]") continue;
-              try {
-                const evt = JSON.parse(payload);
-                const delta = evt?.choices?.[0]?.delta?.content;
-                if (typeof delta === "string" && delta.length) {
-                  emit({ type: "chunk", delta });
+        // Tool executor
+        const runTool = async (name: string, args: any): Promise<any> => {
+          try {
+            if (name === "search_businesses") {
+              const limit = Math.min(Math.max(Number(args.limit) || 10, 1), SEARCH_LIMIT_HARD);
+              const qParts: string[] = [];
+              if (args.query) qParts.push(String(args.query));
+              if (args.category) qParts.push(String(args.category));
+              (Array.isArray(args.badges) ? args.badges : []).forEach((b: string) => qParts.push(String(b).replace(/^#/, "")));
+              (Array.isArray(args.services) ? args.services : []).forEach((s: string) => qParts.push(String(s).replace(/^#/, "")));
+              if (args.neighborhood) qParts.push(String(args.neighborhood));
+              const fullQuery = qParts.filter(Boolean).join(" ").trim();
+              const city = args.city || host.city || "Marrakech";
+              const r = await fetch(`${SUPABASE_URL}/functions/v1/business-search`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${SERVICE}`, apikey: SERVICE, "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  query: fullQuery || undefined,
+                  spoken: fullQuery || undefined,
+                  language,
+                  pageSize: SEARCH_LIMIT_HARD,
+                  offset: 0,
+                  compact: "card",
+                  city,
+                }),
+              });
+              const text = await r.text();
+              let sres: any = null; try { sres = JSON.parse(text); } catch { /* */ }
+              const all: any[] = Array.isArray(sres?.businesses) ? sres.businesses : [];
+              const filtered = await filterOutCompetitors(all);
+              const results = filtered.slice(0, limit);
+              if (!results.length) {
+                return { results: [], total_count: 0, note: `Aucun établissement complémentaire trouvé pour "${fullQuery}" à ${city}. Propose une alternative ou reformule.` };
+              }
+              return {
+                results: results.map((b: any) => ({
+                  id: b.id, name: b.name, slug: b.slug, city: b.city, neighborhood: b.neighborhood,
+                  main_category: b.main_category, hook_fr: b.hook_fr, hook_en: b.hook_en, hook_ar: b.hook_ar,
+                  latitude: b.latitude, longitude: b.longitude,
+                  price_range: b.manual_price_range || (b.min_price ? `${b.min_price}+ MAD` : null),
+                })),
+                total_count: results.length,
+                city,
+              };
+            }
+
+            if (name === "search_events") {
+              const limit = Math.min(Number(args.limit) || 8, 10);
+              const today = new Date().toISOString().slice(0, 10);
+              const from = (args.from_date && String(args.from_date).slice(0, 10)) || today;
+              const to = (args.to_date && String(args.to_date).slice(0, 10)) || new Date(Date.now() + 60 * 86400000).toISOString().slice(0, 10);
+              // #Agenda badge filter
+              let eventIds: string[] | null = null;
+              const { data: badge } = await admin.from("badges").select("id").ilike("name_fr", "%agenda%").limit(1).maybeSingle();
+              if (badge?.id) {
+                const { data: eb } = await admin.from("event_badges").select("event_id").eq("badge_id", badge.id);
+                eventIds = (eb || []).map((r: any) => r.event_id).filter(Boolean);
+                if (!eventIds.length) return { results: [], note: "Aucun événement #Agenda." };
+              }
+              let q = admin
+                .from("events")
+                .select("id,name,hook,description,start_date,end_date,recurrence,days_of_week,start_time,end_time,url,city_id,default_business_id,images,videos,sort_order,logo_url,cities:city_id(name_fr),neighborhoods:neighborhood_id(name)")
+                .or(`and(start_date.gte.${from},start_date.lte.${to}),and(start_date.lte.${to},end_date.gte.${from}),recurrence.not.is.null`)
+                .order("sort_order", { ascending: true, nullsFirst: false })
+                .order("start_date", { ascending: true, nullsFirst: false })
+                .limit(limit * 3);
+              if (eventIds) q = q.in("id", eventIds.slice(0, 500));
+              if (args.query) {
+                const qv = String(args.query).replace(/[,()"]/g, " ").trim();
+                if (qv) q = q.or(`name.ilike.%${qv}%,description.ilike.%${qv}%,hook.ilike.%${qv}%`);
+              }
+              const { data } = await q;
+              let results = data || [];
+              const targetCity = args.city || host.city;
+              if (targetCity) {
+                const cv = normalize(targetCity);
+                results = results.filter((e: any) => normalize(e.cities?.name_fr || "").includes(cv));
+              }
+              results = results.slice(0, limit).map((e: any) => ({
+                id: e.id, name: e.name, hook: e.hook,
+                start_date: e.start_date, end_date: e.end_date,
+                recurrence: e.recurrence, days_of_week: e.days_of_week,
+                start_time: e.start_time, end_time: e.end_time,
+                city: e.cities?.name_fr || null,
+                neighborhood: e.neighborhoods?.name || null,
+                url: e.url || null,
+                sort_order: e.sort_order ?? null,
+                default_business_id: e.default_business_id || null,
+                image: (Array.isArray(e.images) ? e.images[0] : null) || e.logo_url || null,
+                video: Array.isArray(e.videos) ? e.videos[0] : null,
+              }));
+              if (!results.length) return { results: [], note: `Aucun événement trouvé entre ${from} et ${to}.` };
+              return { results, period: { from, to }, city: targetCity || null };
+            }
+
+            if (name === "show_on_map") {
+              const slugs: string[] = Array.isArray(args.business_slugs)
+                ? args.business_slugs.filter((s: any) => typeof s === "string" && s.trim()).slice(0, SEARCH_LIMIT_HARD)
+                : [];
+              if (!slugs.length) return { error: "Aucun slug fourni", count: 0 };
+              const { data } = await admin
+                .from("businesses")
+                .select("id,name,slug,city,neighborhood,address,main_category,categories,latitude,longitude,logo_url,images,hook_fr,google_rating,google_review_count,tripadvisor_rating,tripadvisor_review_count,engagements")
+                .in("slug", slugs)
+                .eq("is_active", true);
+              const rows = (data || []).filter((b: any) => b.id !== host.id);
+              const nonCompetitor = await filterOutCompetitors(rows);
+              const withCoords = nonCompetitor.filter((b: any) => b.latitude != null && b.longitude != null);
+              return {
+                ok: true,
+                count: withCoords.length,
+                businesses: withCoords,
+                title: args.title || null,
+                instruction: "Carte rendue côté UI. Poursuis normalement.",
+              };
+            }
+          } catch (e) {
+            return { error: String(e) };
+          }
+          return { error: "unknown tool" };
+        };
+
+        // Build conversation
+        const system = buildSystemPrompt(host, language);
+        const convo: Msg[] = [
+          { role: "system", content: system },
+          ...inMessages
+            .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
+            .map((m) => ({ role: m.role, content: String(m.content).slice(0, 4000) })),
+        ];
+
+        let lastMapPayload: any = null;
+        let lastEventsPayload: any = null;
+        const knownBusinesses: Array<{ id: string; slug: string | null; name: string }> = [];
+
+        // Tool loop (up to MAX_ROUNDS)
+        for (let round = 0; round < MAX_ROUNDS; round++) {
+          const isLast = round === MAX_ROUNDS - 1;
+          const resp = await fetch(GATEWAY, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: MODEL,
+              messages: convo,
+              tools: isLast ? undefined : TOOLS,
+              tool_choice: isLast ? undefined : "auto",
+              temperature: 0.5,
+              stream: false,
+            }),
+          });
+          if (!resp.ok) {
+            const errTxt = await resp.text().catch(() => "");
+            emit({ type: "error", message: "gateway_error", status: resp.status, detail: errTxt.slice(0, 300) });
+            return close();
+          }
+          const json = await resp.json();
+          const choice = json?.choices?.[0];
+          const msg = choice?.message || {};
+          const toolCalls: any[] = Array.isArray(msg.tool_calls) ? msg.tool_calls : [];
+
+          if (toolCalls.length && !isLast) {
+            convo.push({ role: "assistant", content: msg.content || "", tool_calls: toolCalls });
+            for (const tc of toolCalls) {
+              const fname = tc.function?.name;
+              let fargs: any = {};
+              try { fargs = JSON.parse(tc.function?.arguments || "{}"); } catch { /* */ }
+              const result = await runTool(fname, fargs);
+
+              if (fname === "search_businesses" && Array.isArray((result as any)?.results)) {
+                for (const b of (result as any).results) {
+                  if (b?.id && b?.name) knownBusinesses.push({ id: b.id, slug: b.slug || null, name: b.name });
                 }
-              } catch { /* skip partial */ }
+              }
+              if (fname === "show_on_map" && (result as any)?.ok && Array.isArray((result as any).businesses)) {
+                lastMapPayload = { title: (result as any).title || null, businesses: (result as any).businesses };
+                for (const b of (result as any).businesses) {
+                  if (b?.id && b?.name) knownBusinesses.push({ id: b.id, slug: b.slug || null, name: b.name });
+                }
+              }
+              if (fname === "search_events" && Array.isArray((result as any)?.results) && (result as any).results.length) {
+                lastEventsPayload = { title: null, city: (result as any).city || null, events: (result as any).results };
+              }
+
+              convo.push({
+                role: "tool",
+                tool_call_id: tc.id,
+                content: JSON.stringify(result).slice(0, 12000),
+              });
+            }
+            continue;
+          }
+
+          // Final answer round — re-issue a streamed call
+          let finalText = "";
+          const streamResp = await fetch(GATEWAY, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: MODEL,
+              messages: convo,
+              temperature: 0.5,
+              stream: true,
+            }),
+          });
+          if (!streamResp.ok || !streamResp.body) {
+            // Fallback: use non-stream content
+            const fallback = String(msg.content || "");
+            if (fallback) emit({ type: "chunk", delta: fallback });
+            finalText = fallback;
+          } else {
+            const reader = streamResp.body.getReader();
+            const decoder = new TextDecoder();
+            let buf = "";
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              buf += decoder.decode(value, { stream: true });
+              const parts = buf.split("\n\n");
+              buf = parts.pop() || "";
+              for (const part of parts) {
+                const line = part.split("\n").find((l) => l.startsWith("data:"));
+                if (!line) continue;
+                const payload = line.slice(5).trim();
+                if (!payload || payload === "[DONE]") continue;
+                try {
+                  const evt = JSON.parse(payload);
+                  const delta = evt?.choices?.[0]?.delta?.content;
+                  if (typeof delta === "string" && delta.length) {
+                    finalText += delta;
+                    emit({ type: "chunk", delta });
+                  }
+                } catch { /* */ }
+              }
             }
           }
-          emit({ type: "done" });
-        } catch (e) {
-          emit({ type: "error", message: (e as Error).message });
-        } finally {
-          controller.close();
-        }
-      },
-    });
 
-    return new Response(stream, {
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        "Connection": "keep-alive",
-      },
-    });
-  } catch (e) {
-    return new Response(JSON.stringify({ error: (e as Error).message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
+          // Emit markers as trailing content
+          const markers: string[] = [];
+          if (lastMapPayload) {
+            const safe = JSON.stringify(lastMapPayload).replace(/-->/g, "--&gt;");
+            markers.push(`<!--SHOW_ON_MAP:${safe}-->`);
+          }
+          if (lastEventsPayload) {
+            const safe = JSON.stringify(lastEventsPayload).replace(/-->/g, "--&gt;");
+            markers.push(`<!--EVENTS_SNAPSHOT:${safe}-->`);
+          }
+          if (knownBusinesses.length) {
+            // dedupe by id
+            const seen = new Set<string>();
+            const dedup = knownBusinesses.filter((b) => (seen.has(b.id) ? false : (seen.add(b.id), true)));
+            const safe = JSON.stringify(dedup).replace(/-->/g, "--&gt;");
+            markers.push(`<!--KNOWN_BUSINESSES:${safe}-->`);
+          }
+          if (markers.length) {
+            const marker = "\n\n" + markers.join("\n");
+            emit({ type: "chunk", delta: marker });
+            finalText += marker;
+          }
+          emit({ type: "done", answer: finalText });
+          return close();
+        }
+
+        emit({ type: "done", answer: "" });
+        close();
+      } catch (e) {
+        emit({ type: "error", message: (e as Error).message });
+        close();
+      }
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      "Connection": "keep-alive",
+    },
+  });
 });
