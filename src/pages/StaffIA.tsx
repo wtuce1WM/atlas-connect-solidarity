@@ -161,6 +161,10 @@ const StaffIA = () => {
             <AiConversationPerf />
           </TabsContent>
 
+          <TabsContent value="embed-usage">
+            <EmbedUsageManagement />
+          </TabsContent>
+
           <TabsContent value="kb">
             <KBViewer />
           </TabsContent>
