@@ -1,7 +1,7 @@
 project_id = "plnphgdrawpsnumnejzc"
 
 [functions]
-  [functions._apply-sql]
+  [functions.admin-apply]
     verify_jwt = false
   [functions.ai-search-answer]
     verify_jwt = false
