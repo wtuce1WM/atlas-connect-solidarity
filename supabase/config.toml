@@ -1,6 +1,8 @@
 project_id = "plnphgdrawpsnumnejzc"
 
 [functions]
+  [functions.admin-apply]
+    verify_jwt = false
   [functions.ai-search-answer]
     verify_jwt = false
   [functions.amadeus-hotels]
