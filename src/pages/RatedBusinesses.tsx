@@ -262,16 +262,22 @@ const RatedBusinesses = () => {
   const hasFilters = selectedCity !== "all" || selectedCategory !== "all" || selectedSubcategory !== "all" || selectedService !== "all";
 
   const heroImage = ratedHeroAsset.url;
+  const heroAlt = t("Établissements notés au Maroc", "Rated establishments in Morocco", "المؤسسات المصنفة في المغرب");
+  const backLabel = t("Retour au blog", "Back to blog", "العودة إلى المدونة");
+  const h1Top = t("Établissements", "Rated", "المؤسسات");
+  const h1Bottom = t("notés au Maroc", "establishments in Morocco", "المصنفة في المغرب");
+  const reviewsWord = t("avis", "reviews", "تقييم");
+  const dash = "—";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" dir={language === "ar" ? "rtl" : "ltr"}>
       <HomeMindtripHeader alwaysWhite />
 
       {/* Hero */}
       <div className="relative h-[60vh] min-h-[420px] overflow-hidden">
         <img
           src={heroImage}
-          alt="Établissements notés au Maroc"
+          alt={heroAlt}
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#3B3B3B] via-[#3B3B3B]/50 to-[#3B3B3B]/30" />
@@ -282,15 +288,19 @@ const RatedBusinesses = () => {
               className="inline-flex items-center gap-2 text-white/60 hover:text-gold mb-4 transition-colors text-sm"
             >
               <ArrowLeft className="h-4 w-4" />
-              Retour au blog
+              {backLabel}
             </button>
             <h1 className="text-3xl md:text-5xl font-bold text-white font-['Playfair_Display'] italic leading-tight">
-              Établissements
+              {h1Top}
               <br />
-              <span className="text-gold">notés au Maroc</span>
+              <span className="text-gold">{h1Bottom}</span>
             </h1>
             <p className="mt-4 text-white/70 max-w-2xl text-lg">
-              {filteredBusinesses.length} établissement{filteredBusinesses.length > 1 ? "s" : ""} avec des avis vérifiés — Google, TripAdvisor et Restaurant Guru réunis dans un classement unique sur 20.
+              {t(
+                `${filteredBusinesses.length} établissement${filteredBusinesses.length > 1 ? "s" : ""} avec des avis vérifiés — Google, TripAdvisor et Restaurant Guru réunis dans un classement unique sur 20.`,
+                `${filteredBusinesses.length} establishment${filteredBusinesses.length > 1 ? "s" : ""} with verified reviews — Google, TripAdvisor and Restaurant Guru combined into a single ranking out of 20.`,
+                `${filteredBusinesses.length} مؤسسة بتقييمات موثّقة — Google وTripAdvisor وRestaurant Guru مجمّعة في تصنيف واحد على 20.`,
+              )}
             </p>
           </div>
         </div>
@@ -300,11 +310,11 @@ const RatedBusinesses = () => {
         {/* Filters */}
         <div className="flex flex-wrap items-end gap-4 mb-6">
           <div className="w-full sm:w-auto min-w-[200px]">
-            <label className="text-sm font-medium text-muted-foreground mb-1 block">Ville</label>
+            <label className="text-sm font-medium text-muted-foreground mb-1 block">{t("Ville", "City", "المدينة")}</label>
             <Select value={selectedCity} onValueChange={setSelectedCity}>
-              <SelectTrigger><SelectValue placeholder="Toutes" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={t("Toutes", "All", "الكل")} /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Toutes les villes</SelectItem>
+                <SelectItem value="all">{t("Toutes les villes", "All cities", "كل المدن")}</SelectItem>
                 {availableCities.map((c) => (
                   <SelectItem key={c} value={c}>{c}</SelectItem>
                 ))}
@@ -313,11 +323,11 @@ const RatedBusinesses = () => {
           </div>
 
           <div className="w-full sm:w-auto min-w-[200px]">
-            <label className="text-sm font-medium text-muted-foreground mb-1 block">Catégorie</label>
+            <label className="text-sm font-medium text-muted-foreground mb-1 block">{t("Catégorie", "Category", "الفئة")}</label>
             <Select value={selectedCategory} onValueChange={(v) => { setSelectedCategory(v); setSelectedSubcategory("all"); setSelectedService("all"); }}>
-              <SelectTrigger><SelectValue placeholder="Toutes" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={t("Toutes", "All", "الكل")} /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Toutes les catégories</SelectItem>
+                <SelectItem value="all">{t("Toutes les catégories", "All categories", "كل الفئات")}</SelectItem>
                 {mainCategories.map((c) => (
                   <SelectItem key={c} value={c}>{c}</SelectItem>
                 ))}
@@ -327,11 +337,11 @@ const RatedBusinesses = () => {
 
           {selectedCategory !== "all" && filteredSubcategories.length > 0 && (
             <div className="w-full sm:w-auto min-w-[200px]">
-              <label className="text-sm font-medium text-muted-foreground mb-1 block">Sous-catégorie</label>
+              <label className="text-sm font-medium text-muted-foreground mb-1 block">{t("Sous-catégorie", "Subcategory", "الفئة الفرعية")}</label>
               <Select value={selectedSubcategory} onValueChange={(v) => { setSelectedSubcategory(v); setSelectedService("all"); }}>
-                <SelectTrigger><SelectValue placeholder="Toutes" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t("Toutes", "All", "الكل")} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Toutes</SelectItem>
+                  <SelectItem value="all">{t("Toutes", "All", "الكل")}</SelectItem>
                   {filteredSubcategories.map((s) => (
                     <SelectItem key={s.name_fr} value={s.name_fr}>{s.name_fr}</SelectItem>
                   ))}
@@ -342,11 +352,11 @@ const RatedBusinesses = () => {
 
           {selectedSubcategory !== "all" && filteredServices.length > 0 && (
             <div className="w-full sm:w-auto min-w-[200px]">
-              <label className="text-sm font-medium text-muted-foreground mb-1 block">Service</label>
+              <label className="text-sm font-medium text-muted-foreground mb-1 block">{t("Service", "Service", "الخدمة")}</label>
               <Select value={selectedService} onValueChange={setSelectedService}>
-                <SelectTrigger><SelectValue placeholder="Tous" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder={t("Tous", "All", "الكل")} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Tous</SelectItem>
+                  <SelectItem value="all">{t("Tous", "All", "الكل")}</SelectItem>
                   {filteredServices.map((s) => (
                     <SelectItem key={s.name_fr} value={s.name_fr}>{s.name_fr}</SelectItem>
                   ))}
@@ -357,7 +367,7 @@ const RatedBusinesses = () => {
 
           {hasFilters && (
             <Button variant="ghost" size="sm" onClick={clearFilters} className="text-muted-foreground">
-              <X className="h-4 w-4 mr-1" /> Effacer les filtres
+              <X className="h-4 w-4 mr-1" /> {t("Effacer les filtres", "Clear filters", "مسح الفلاتر")}
             </Button>
           )}
         </div>
@@ -368,7 +378,7 @@ const RatedBusinesses = () => {
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : filteredBusinesses.length === 0 ? (
-          <div className="text-center py-20 text-muted-foreground">Aucun établissement noté trouvé.</div>
+          <div className="text-center py-20 text-muted-foreground">{t("Aucun établissement noté trouvé.", "No rated establishment found.", "لم يتم العثور على أي مؤسسة مصنفة.")}</div>
         ) : (
           <div className="border rounded-lg">
             <Table>
@@ -376,12 +386,12 @@ const RatedBusinesses = () => {
                 <TableRow className="bg-muted/50">
                   <TableHead className="text-center w-[50px] font-bold">#</TableHead>
                   <TableHead className="font-bold cursor-pointer select-none" onClick={() => toggleSort("name")}>
-                    Nom <SortIcon col="name" />
+                    {t("Nom", "Name", "الاسم")} <SortIcon col="name" />
                   </TableHead>
-                  <TableHead>Ville</TableHead>
-                  <TableHead className="hidden md:table-cell">Quartier</TableHead>
+                  <TableHead>{t("Ville", "City", "المدينة")}</TableHead>
+                  <TableHead className="hidden md:table-cell">{t("Quartier", "Neighborhood", "الحي")}</TableHead>
                   <TableHead className="hidden lg:table-cell cursor-pointer select-none" onClick={() => toggleSort("subcat")}>
-                    <span className="text-xs">Sous-cat. <SortIcon col="subcat" /></span>
+                    <span className="text-xs">{t("Sous-cat.", "Subcat.", "الفئة الفرعية")} <SortIcon col="subcat" /></span>
                   </TableHead>
                   <TableHead className="text-center cursor-pointer select-none" onClick={() => toggleSort("google")}>
                     <span className="text-xs">Google <SortIcon col="google" /></span>
@@ -393,10 +403,10 @@ const RatedBusinesses = () => {
                     <span className="text-xs">TripAdvisor <SortIcon col="tripadvisor" /></span>
                   </TableHead>
                   <TableHead className="text-center font-bold cursor-pointer select-none" onClick={() => toggleSort("avg")}>
-                    <span className="text-xs">Moy. /20 <SortIcon col="avg" /></span>
+                    <span className="text-xs">{t("Moy. /20", "Avg. /20", "المعدل /20")} <SortIcon col="avg" /></span>
                   </TableHead>
                   <TableHead className="text-center cursor-pointer select-none" onClick={() => toggleSort("total")}>
-                    <span className="text-xs">Total avis <SortIcon col="total" /></span>
+                    <span className="text-xs">{t("Total avis", "Total reviews", "إجمالي التقييمات")} <SortIcon col="total" /></span>
                   </TableHead>
                 </TableRow>
               </TableHeader>
