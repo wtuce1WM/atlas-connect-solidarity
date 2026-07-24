@@ -51,6 +51,8 @@ export interface BlogArticleBusiness {
   total_review_count: number | null;
   categories: string[] | null;
   hook_fr: string | null;
+  hook_en: string | null;
+  hook_ar: string | null;
   wtuce_status: string | null;
   latitude: number | null;
   longitude: number | null;
