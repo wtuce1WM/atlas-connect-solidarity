@@ -18,7 +18,7 @@ const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePane
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string) => string; viewMap: string; events: string; nearby: string }> = {
+const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
   fr: {
     placeholder: "Posez votre question…",
     hint: "Assistant IA propulsé par One World Morocco",
@@ -26,6 +26,12 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
     viewMap: "Voir sur la carte",
     events: "Événements",
     nearby: "À proximité",
+    suggestions: [
+      "Que faire à proximité ?",
+      "Où prendre un thé à la menthe ?",
+      "Que faire ce week-end ?",
+      "Comment venir depuis l'aéroport ?",
+    ],
   },
   en: {
     placeholder: "Ask a question…",
@@ -34,6 +40,12 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
     viewMap: "View on map",
     events: "Events",
     nearby: "Nearby",
+    suggestions: [
+      "What to do nearby?",
+      "Where can I have mint tea?",
+      "What's on this weekend?",
+      "How do I get here from the airport?",
+    ],
   },
   ar: {
     placeholder: "اطرح سؤالك…",
@@ -42,6 +54,12 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
     viewMap: "عرض على الخريطة",
     events: "الفعاليات",
     nearby: "القريبة",
+    suggestions: [
+      "ماذا أفعل في الجوار؟",
+      "أين أشرب أتاي بالنعناع؟",
+      "ماذا يحدث هذا الأسبوع؟",
+      "كيف أصل من المطار؟",
+    ],
   },
 };
 
