@@ -248,6 +248,21 @@ const EmbedAsk = () => {
     }
   };
 
+  const startNewConversation = () => {
+    sessionIdRef.current =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `s-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    messageIndexRef.current = 0;
+    setInput("");
+    setError(null);
+    setOpenMap(null);
+    setOpenEvents(null);
+    setOpenBusinessId(null);
+    setMsgs(businessName ? [{ role: "assistant", content: L.opener(businessName) }] : []);
+    setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
   const bg = theme === "light" ? "bg-white" : "bg-neutral-950";
   const surface = theme === "light" ? "bg-white text-neutral-900" : "bg-neutral-950 text-neutral-100";
   const userBubble = theme === "light" ? "bg-neutral-900 text-white" : "bg-white text-neutral-900";
