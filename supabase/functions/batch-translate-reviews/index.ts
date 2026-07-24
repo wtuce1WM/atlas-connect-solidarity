@@ -61,6 +61,11 @@ Deno.serve(async (req) => {
 
   try {
     const { limit = 50, targetLang = 'fr' } = await req.json().catch(() => ({}));
+    const lang = (targetLang as Lang);
+    if (!['fr', 'en', 'ar'].includes(lang)) {
+      return new Response(JSON.stringify({ error: 'Invalid targetLang' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
 
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
     if (!lovableApiKey) {
@@ -72,15 +77,13 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Count total remaining
-    const langCol = targetLang === 'fr' ? 'text_fr' : 'text_en';
+    const langCol = LANG_COL[lang];
     const { count: totalRemaining } = await supabase
       .from('reviews')
       .select('id', { count: 'exact', head: true })
       .not('text', 'is', null)
       .is(langCol, null);
 
-    // Fetch batch of reviews missing translation
     const { data: reviews, error } = await supabase
       .from('reviews')
       .select('id, text, language')
