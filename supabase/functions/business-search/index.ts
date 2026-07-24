@@ -1022,27 +1022,8 @@ serve(async (req) => {
     const detectedCityMatchedTerm = cityDetection?.matchedTerm || null;
     let effectiveCity = city || detectedCity || undefined;
 
-    // Resolve city name → UUID for zone_city_ids filtering
-    let effectiveCityId: string | null = null;
-    if (effectiveCity) {
-      const { data: cityRow } = await supabase
-        .from("cities")
-        .select("id")
-        .ilike("name_fr", effectiveCity)
-        .limit(1)
-        .single();
-      if (cityRow) {
-        effectiveCityId = cityRow.id;
-        console.log(`Resolved city "${effectiveCity}" → ID ${effectiveCityId}`);
-      }
-    }
 
-    // Web Only service name
-    let webOnlyServiceName: string | null = null;
-    if (webOnlySvcRow) {
-      webOnlyServiceName = webOnlySvcRow.name_fr;
-      console.log(`Resolved Web Only service ID → "${webOnlyServiceName}"`);
-    }
+
 
     // Strict mode: when the caller explicitly passes `city` (URL param / voice detection),
     // restrict to businesses physically in that city — exclude the national/international leakage.
