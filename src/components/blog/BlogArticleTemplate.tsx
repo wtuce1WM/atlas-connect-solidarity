@@ -776,11 +776,19 @@ const BlogArticleTemplate = ({
                       isDark ? "prose-invert text-white/85" : "text-foreground/85"
                     }`}
                   >
-                    {entry.paragraphs.map((p, i) => (
-                      <p key={i} className="leading-relaxed">
-                        {p}
-                      </p>
-                    ))}
+                    {(() => {
+                      // Strip a trailing paragraph that is a review-style quote
+                      // (redundant with the client review displayed below).
+                      const paras = entry.paragraphs;
+                      const last = paras[paras.length - 1]?.trim() ?? "";
+                      const startsWithQuote = /^[«"“„"❝‹»]/.test(last);
+                      const cleaned = startsWithQuote ? paras.slice(0, -1) : paras;
+                      return cleaned.map((p, i) => (
+                        <p key={i} className="leading-relaxed">
+                          {p}
+                        </p>
+                      ));
+                    })()}
                   </div>
 
                   {(() => {
