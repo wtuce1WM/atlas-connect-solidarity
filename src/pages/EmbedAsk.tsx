@@ -283,6 +283,16 @@ const EmbedAsk = () => {
         </div>
         <button
           type="button"
+          onClick={startNewConversation}
+          disabled={streaming}
+          title={lang === "en" ? "New conversation" : lang === "ar" ? "محادثة جديدة" : "Nouvelle conversation"}
+          aria-label={lang === "en" ? "New conversation" : lang === "ar" ? "محادثة جديدة" : "Nouvelle conversation"}
+          className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border ${border} opacity-70 hover:opacity-100 transition-opacity disabled:opacity-40`}
+        >
+          <MessageSquarePlus className="w-4 h-4" />
+        </button>
+        <button
+          type="button"
           onClick={() => setTheme(theme === "light" ? "dark" : "light")}
           aria-label={theme === "light" ? "Dark mode" : "Light mode"}
           className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border ${border} opacity-70 hover:opacity-100 transition-opacity`}
