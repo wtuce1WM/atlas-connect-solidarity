@@ -7,7 +7,7 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import HomeBottomBar from "@/components/HomeBottomBar";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Calendar, User, ArrowRight, MapPin, Database } from "lucide-react";
+import { Loader2, Calendar, User, ArrowRight, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { fr, enUS, ar } from "date-fns/locale";
 import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
