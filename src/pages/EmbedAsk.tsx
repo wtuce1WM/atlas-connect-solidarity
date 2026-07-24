@@ -183,12 +183,6 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await supabase
         .from("embed_ai_suggestions")
-        .select("label_fr,label_en,label_ar")
-        .eq("is_active", true)
-        .order("sort_order", { ascending: true });
-      if (cancelled || !data) return;
-      const { data } = await supabase
-        .from("embed_ai_suggestions")
         .select("id,label_fr,label_en,label_ar,followups")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
@@ -204,7 +198,6 @@ const EmbedAsk = () => {
       if (list.length > 0) setDbSuggestions(list);
     })();
     return () => { cancelled = true; };
-  }, [lang]);
   }, [lang]);
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [msgs]);
