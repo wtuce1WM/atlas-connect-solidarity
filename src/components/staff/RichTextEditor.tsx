@@ -112,13 +112,13 @@ const RichTextEditor = ({ content, onChange, placeholder, maxHeight, bgClass }: 
 
   return (
     <div
-      className={`rounded-md overflow-y-auto ${bgClass || "border bg-background text-white"}`}
+      className={`rounded-md overflow-y-auto ${bgClass || "border bg-white text-black"}`}
       style={maxHeight ? { maxHeight } : undefined}
     >
-      <div className={`sticky top-0 z-10 rounded-t-md border-b ${isCustomBg ? (isLightText ? "bg-black/30 border-white/10" : "bg-[#BED1FF] border-black/10") : "bg-background border-b"}`}>
+      <div className={`sticky top-0 z-10 rounded-t-md border-b ${isCustomBg ? (isLightText ? "bg-black/30 border-white/10" : "bg-[#BED1FF] border-black/10") : "bg-[#BED1FF] border-black/10"}`}>
         <RichTextToolbar editor={editor} />
       </div>
-      <EditorContent editor={editor} className={`${isCustomBg ? (isLightText ? "[&_.prose]:text-white [&_.prose_*]:!text-white" : "[&_.prose]:text-black") : "[&_.prose]:text-white [&_.prose_*]:!text-white"}`} />
+      <EditorContent editor={editor} className={`${isCustomBg ? (isLightText ? "[&_.prose]:text-white [&_.prose_*]:!text-white" : "[&_.prose]:text-black") : "[&_.prose]:!text-black [&_.prose_*]:!text-black"}`} />
     </div>
   );
 };
