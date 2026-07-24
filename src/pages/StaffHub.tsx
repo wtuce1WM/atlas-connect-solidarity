@@ -180,6 +180,15 @@ const StaffHub = () => {
       iconColor: "text-purple-600",
       adminOnly: true,
     },
+    {
+      title: "IA",
+      description: "Configuration IA, suggestions Chat, usage, perf et base de connaissances.",
+      icon: Sparkles,
+      href: "/staff/ia",
+      color: "from-amber-500/20 to-yellow-500/10",
+      iconColor: "text-amber-600",
+      adminOnly: true,
+    },
   ];
 
   const sections = allSections.filter((s) => !s.adminOnly || isAdmin);
