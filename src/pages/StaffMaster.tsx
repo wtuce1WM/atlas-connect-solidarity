@@ -168,21 +168,6 @@ const StaffMaster = () => {
             <SearchConfigManagement />
           </TabsContent>
 
-          <TabsContent value="ai-config">
-            <AIConfigManagement />
-          </TabsContent>
-
-          <TabsContent value="club-ai-suggestions">
-            <ClubAiSuggestionsManagement />
-          </TabsContent>
-
-          <TabsContent value="ai-usage">
-            <AiUsageManagement />
-          </TabsContent>
-
-          <TabsContent value="ai-perf">
-            <AiConversationPerf />
-          </TabsContent>
 
           <TabsContent value="analytics">
             <SearchAnalytics embedded />
