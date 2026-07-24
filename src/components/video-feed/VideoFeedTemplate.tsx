@@ -28,8 +28,10 @@ export interface VideoFeedTemplateProps {
   sectionTitle: string;
   sectionIntro?: string;
   videos: BlogArticleVideo[];
+  bookmarkSlug: string;
   siteUrl?: string;
 }
+
 
 const DEFAULT_SITE_URL = "https://oneworldmorocco.com";
 
