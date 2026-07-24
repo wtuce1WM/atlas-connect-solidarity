@@ -1461,7 +1461,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 3.8,
-          "reviewCount": 900,
+          "reviewCount": 944,
           "bestRating": 5
         }
       }
@@ -2908,8 +2908,8 @@
         "telephone": "+212627926487",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4,
-          "reviewCount": 461,
+          "ratingValue": 4.3,
+          "reviewCount": 4,
           "bestRating": 5
         }
       }
@@ -3276,7 +3276,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 4222,
+          "reviewCount": 4265,
           "bestRating": 5
         }
       }
@@ -7483,7 +7483,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 14679,
+          "reviewCount": 15002,
           "bestRating": 5
         }
       }
@@ -9315,7 +9315,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 1507,
+          "reviewCount": 1703,
           "bestRating": 5
         }
       }
@@ -16171,7 +16171,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 1222,
+          "reviewCount": 1401,
           "bestRating": 5
         }
       }
@@ -16483,7 +16483,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 638,
+          "reviewCount": 667,
           "bestRating": 5
         }
       }
@@ -17083,7 +17083,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 9788,
+          "reviewCount": 10342,
           "bestRating": 5
         }
       }
@@ -18191,7 +18191,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 814,
+          "reviewCount": 870,
           "bestRating": 5
         }
       }
@@ -20633,12 +20633,12 @@
     {
       "@type": "ListItem",
       "position": 706,
-      "url": "https://oneworldmorocco.com/le-spa-de-la-maison-arabe",
+      "url": "https://oneworldmorocco.com/le-spa-de-la-maison-arab",
       "item": {
         "@type": "LocalBusiness",
-        "@id": "https://oneworldmorocco.com/le-spa-de-la-maison-arabe#business",
+        "@id": "https://oneworldmorocco.com/le-spa-de-la-maison-arab#business",
         "name": "Le Spa de la Maison Arabe",
-        "url": "https://oneworldmorocco.com/le-spa-de-la-maison-arabe",
+        "url": "https://oneworldmorocco.com/le-spa-de-la-maison-arab",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/74976129-5f0b-4305-984e-dc834ecede13-1774702542209-qxj9s.jpg",
         "description": "Le spa de La Maison Arabe est un véritable havre de paix et de bien-être, niché dans un cadre mauresque exceptionnel. Il propose une vaste gamme de soins traditionnels et contemporains. Laissez-vous transporter par une douce sensation de bien-être dans les deux hammams du spa, un rituel ancestral purifiant et apaisant. Découvrez les bienfaits revitalisants d'un massage marocain traditionnel réalisé avec des produits naturels et locaux. Des soins esthétiques tels que soins du visage, manucures et",
         "address": {
@@ -20752,7 +20752,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 321,
+          "reviewCount": 325,
           "bestRating": 5
         }
       }
@@ -22851,13 +22851,7 @@
           "latitude": 31.512959,
           "longitude": -9.7691648
         },
-        "telephone": "+212 6 87 73 00 26",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": 4.8,
-          "reviewCount": 177,
-          "bestRating": 5
-        }
+        "telephone": "+212 6 87 73 00 26"
       }
     },
     {
@@ -29182,7 +29176,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.1,
-          "reviewCount": 4151,
+          "reviewCount": 4580,
           "bestRating": 5
         }
       }
@@ -29359,13 +29353,7 @@
           "latitude": 31.6039138,
           "longitude": -7.9510249
         },
-        "telephone": "+212 5 24 29 88 88",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": 4.6,
-          "reviewCount": 730,
-          "bestRating": 5
-        }
+        "telephone": "+212 5 24 29 88 88"
       }
     },
     {
@@ -30782,12 +30770,12 @@
     {
       "@type": "ListItem",
       "position": 1053,
-      "url": "https://oneworldmorocco.com/restaurant-makassar-marrakech",
+      "url": "https://oneworldmorocco.com/makassar-marrakech-restaurant",
       "item": {
         "@type": "LocalBusiness",
-        "@id": "https://oneworldmorocco.com/restaurant-makassar-marrakech#business",
+        "@id": "https://oneworldmorocco.com/makassar-marrakech-restaurant#business",
         "name": "Restaurant Makassar Marrakech",
-        "url": "https://oneworldmorocco.com/restaurant-makassar-marrakech",
+        "url": "https://oneworldmorocco.com/makassar-marrakech-restaurant",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/208a36e9-8ffc-4420-b0a1-c01645fd06cf-1774957507839-vwruhr.jpg",
         "description": "Une expérience culinaire extraordinaire Nichée dans le cœur vibrant de Marrakech, Villa Makassar vous invite à embarquer pour un voyage culinaire comme aucun autre. Notre charmant établissement propose une variété d’expériences gastronomiques, comprenant un restaurant, des patios accueillants, un salon confortable et une terrasse à couper le souffle. À Villa Makassar, nous sommes fiers de vous offrir une fusion délicieuse de saveurs orientales et méditerranéennes, avec un accent particulier sur ",
         "address": {
@@ -30802,13 +30790,7 @@
           "latitude": 31.6122404,
           "longitude": -7.9873974
         },
-        "telephone": "+212524391926",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": 4.7,
-          "reviewCount": 250,
-          "bestRating": 5
-        }
+        "telephone": "+212524391926"
       }
     },
     {
@@ -31043,7 +31025,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.2,
-          "reviewCount": 555,
+          "reviewCount": 604,
           "bestRating": 5
         }
       }
@@ -32100,7 +32082,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.2,
-          "reviewCount": 134,
+          "reviewCount": 138,
           "bestRating": 5
         }
       }
@@ -32703,7 +32685,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 118,
+          "reviewCount": 120,
           "bestRating": 5
         }
       }
@@ -36465,8 +36447,8 @@
         "telephone": "+212524425600",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.3,
-          "reviewCount": 1900,
+          "ratingValue": 4.4,
+          "reviewCount": 2235,
           "bestRating": 5
         }
       }
@@ -42871,7 +42853,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 788,
+          "reviewCount": 809,
           "bestRating": 5
         }
       }
@@ -45789,7 +45771,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 270,
+          "reviewCount": 284,
           "bestRating": 5
         }
       }
@@ -47881,7 +47863,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 575,
+          "reviewCount": 709,
           "bestRating": 5
         }
       }
@@ -47964,8 +47946,8 @@
         },
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.4,
-          "reviewCount": 114,
+          "ratingValue": 4.5,
+          "reviewCount": 117,
           "bestRating": 5
         }
       }
@@ -49258,7 +49240,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 7399,
+          "reviewCount": 7460,
           "bestRating": 5
         }
       }
@@ -49852,7 +49834,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 418,
+          "reviewCount": 458,
           "bestRating": 5
         }
       }
@@ -50243,7 +50225,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 401,
+          "reviewCount": 408,
           "bestRating": 5
         }
       }
@@ -50497,7 +50479,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 404,
+          "reviewCount": 410,
           "bestRating": 5
         }
       }
@@ -51187,7 +51169,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 855,
+          "reviewCount": 904,
           "bestRating": 5
         }
       }
@@ -51846,7 +51828,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 118,
+          "reviewCount": 120,
           "bestRating": 5
         }
       }
@@ -52441,7 +52423,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 7059,
+          "reviewCount": 7153,
           "bestRating": 5
         }
       }
@@ -52659,23 +52641,59 @@
     {
       "@type": "ListItem",
       "position": 1835,
-      "url": "https://oneworldmorocco.com/test-auto-root-655691",
+      "url": "https://oneworldmorocco.com/le-spa-de-la-maison-arab",
       "item": {
         "@type": "LocalBusiness",
-        "@id": "https://oneworldmorocco.com/test-auto-root-655691#business",
-        "name": "Test Auto root-655691",
-        "url": "https://oneworldmorocco.com/test-auto-root-655691"
+        "@id": "https://oneworldmorocco.com/le-spa-de-la-maison-arab#business",
+        "name": "Le Spa de la Maison Arabe",
+        "url": "https://oneworldmorocco.com/le-spa-de-la-maison-arab",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/74976129-5f0b-4305-984e-dc834ecede13-1774702542209-qxj9s.jpg",
+        "description": "Le spa de La Maison Arabe est un véritable havre de paix et de bien-être, niché dans un cadre mauresque exceptionnel. Il propose une vaste gamme de soins traditionnels et contemporains. Laissez-vous transporter par une douce sensation de bien-être dans les deux hammams du spa, un rituel ancestral purifiant et apaisant. Découvrez les bienfaits revitalisants d'un massage marocain traditionnel réalisé avec des produits naturels et locaux. Des soins esthétiques tels que soins du visage, manucures et",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Derb Assehbe",
+          "addressLocality": "Bab Doukkala",
+          "addressRegion": "Marrakech",
+          "addressCountry": "MA"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.6302151,
+          "longitude": -7.9962378
+        },
+        "telephone": "+212524387010",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.5,
+          "reviewCount": 1501,
+          "bestRating": 5
+        }
       }
     },
     {
       "@type": "ListItem",
       "position": 1836,
-      "url": "https://oneworldmorocco.com/test-test",
+      "url": "https://oneworldmorocco.com/makassar-marrakech-restaurant",
       "item": {
         "@type": "LocalBusiness",
-        "@id": "https://oneworldmorocco.com/test-test#business",
-        "name": "Test Test",
-        "url": "https://oneworldmorocco.com/test-test"
+        "@id": "https://oneworldmorocco.com/makassar-marrakech-restaurant#business",
+        "name": "Restaurant Makassar Marrakech",
+        "url": "https://oneworldmorocco.com/makassar-marrakech-restaurant",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/208a36e9-8ffc-4420-b0a1-c01645fd06cf-1774957507839-vwruhr.jpg",
+        "description": "Une expérience culinaire extraordinaire Nichée dans le cœur vibrant de Marrakech, Villa Makassar vous invite à embarquer pour un voyage culinaire comme aucun autre. Notre charmant établissement propose une variété d’expériences gastronomiques, comprenant un restaurant, des patios accueillants, un salon confortable et une terrasse à couper le souffle. À Villa Makassar, nous sommes fiers de vous offrir une fusion délicieuse de saveurs orientales et méditerranéennes, avec un accent particulier sur ",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "20 bis، 20 Derb Chtouka",
+          "addressLocality": "Medina",
+          "addressRegion": "Marrakech",
+          "addressCountry": "MA"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.6122404,
+          "longitude": -7.9873974
+        },
+        "telephone": "+212524391926"
       }
     },
     {

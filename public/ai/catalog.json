@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-07-22T16:16:12.235Z",
+    "generated_at": "2026-07-24T09:31:35.008Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
     "count": 1837
   },
@@ -3686,7 +3686,7 @@
       "website": "https://555marrakech.com",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/f2f878fe-d445-4371-8280-1b107be0080a-1777608428082-xtfi5g.jpg",
       "google_rating": 3.8,
-      "google_review_count": 900,
+      "google_review_count": 944,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -3733,7 +3733,7 @@
       "social": {
         "instagram": "https://www.instagram.com/beachclub555/",
         "facebook": "https://www.facebook.com/555Marrakech",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293737-d3953189-Reviews-555_Famous_Club-Tangier_Tanger_Tetouan_Al_Hoceima.html?m=66827",
         "youtube": "https://www.youtube.com/watch?v=DqriGelmZgU&list=PLifIj311Qr2-bPYjk33Lb392ZW77lITnp&index=3&ab_channel=555FamousClub",
         "linkedin": null
       }
@@ -7969,8 +7969,8 @@
       "whatsapp": "+212627926487",
       "website": "https://www.beyttessaouira.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/044e9d7d-53e2-493f-b31a-82619f1647d3-1776148581108-lf2l8b.jpg",
-      "google_rating": 4,
-      "google_review_count": 461,
+      "google_rating": 4.3,
+      "google_review_count": 4,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -8038,7 +8038,7 @@
       "social": {
         "instagram": "https://www.instagram.com/beyttmogador/?hl=fr",
         "facebook": "https://web.facebook.com/Beyttmogador/?_rdc=1&_rdr",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g298349-d25631754-Reviews-Beytt_Mogador-Essaouira_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -9175,7 +9175,7 @@
       "website": "https://www.babouchka-marrakech.com/fr",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/43934c6b-e17b-4bbf-9d9a-f9f8e7923c0e-1777630654943-bcyl98.jpg",
       "google_rating": 4.8,
-      "google_review_count": 4222,
+      "google_review_count": 4265,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -23231,7 +23231,10 @@
         "Cave à vin",
         "Cocktails",
         "Mocktails",
-        "Champagne"
+        "Champagne",
+        "Viande",
+        "Salades",
+        "Plats végétariens"
       ],
       "city": "Marrakech",
       "neighborhood": "Hivernage",
@@ -23245,7 +23248,7 @@
       "website": "https://www.comptoirmarrakech.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/21dfaabb-56fe-4da0-9942-34b2803465cf-1775703555234-vspp16.jpg",
       "google_rating": 4.7,
-      "google_review_count": 14679,
+      "google_review_count": 15002,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -27620,7 +27623,10 @@
         "Cuisine méditerranéenne",
         "Patio",
         "Plats végétariens",
-        "Fruits de mer"
+        "Fruits de mer",
+        "Coquillages",
+        "Cave à vin",
+        "Champagne"
       ],
       "city": "Essaouira",
       "neighborhood": "Medina",
@@ -27634,7 +27640,7 @@
       "website": "https://www.dar-baba.com",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/48c88d0e-f905-4858-9ada-d8b11eb1cd04-1770995233630-ae6keb.avif",
       "google_rating": 4.7,
-      "google_review_count": 1507,
+      "google_review_count": 1703,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -27681,7 +27687,7 @@
       "social": {
         "instagram": "https://www.instagram.com/dar.baba.essaouira",
         "facebook": null,
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g298349-d1883272-Reviews-Dar_Baba_Restaurant_More-Essaouira_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -46311,7 +46317,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1f7f7e24-4b0e-48d0-abc7-501183639812-1776144085937-lc5q9q.jpg",
       "google_rating": 4.5,
-      "google_review_count": 1222,
+      "google_review_count": 1401,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -46379,7 +46385,7 @@
       "social": {
         "instagram": "https://www.instagram.com/ksouessaouira/reels/",
         "facebook": "https://www.facebook.com/p/Ksou-essaouira-61560108336476/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g298349-d26587106-Reviews-KSOU_Restaurant-Essaouira_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -47130,7 +47136,7 @@
       "website": "https://www.heure-bleue.com/fr/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/53458368-043b-4f5d-890d-cc2b3e3543c3-1774418745824-ns897.jpg",
       "google_rating": 4.5,
-      "google_review_count": 638,
+      "google_review_count": 667,
       "price_range": "200 à 500€",
       "min_price_mad": 334,
       "languages": [],
@@ -47141,7 +47147,7 @@
       "social": {
         "instagram": "https://www.instagram.com/heurebleue.essaouira/",
         "facebook": "https://www.facebook.com/heurebleue.essaouira",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g298349-d543543-Reviews-L_Heure_Bleue_Palais-Essaouira_Marrakech_Safi.html?m=66827",
         "youtube": "https://www.youtube.com/@heurebleuepalais4362",
         "linkedin": null
       }
@@ -48841,7 +48847,7 @@
       "website": "https://lafontainedesepices.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/c352d4ed-573d-4f9c-a215-b235e9088a79-1775649222201-d1sku.jpg",
       "google_rating": 4.7,
-      "google_review_count": 9788,
+      "google_review_count": 10342,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -52005,7 +52011,7 @@
       "website": "https://www.laomarrakech.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/6e12320b-ee52-40ef-adb8-e7b7fd806aed-1775227518201-k35m1i.jpg",
       "google_rating": 4.6,
-      "google_review_count": 814,
+      "google_review_count": 870,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -52045,7 +52051,7 @@
       "social": {
         "instagram": "https://www.instagram.com/lao.marrakech/",
         "facebook": "https://www.facebook.com/laomarrakech/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293734-d23937915-Reviews-Lao_Marrakech-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -58942,8 +58948,8 @@
     },
     {
       "id": "100daa6a-65b6-4728-aad9-c8d3cf087b99",
-      "slug": "le-spa-de-la-maison-arabe",
-      "url": "https://oneworldmorocco.com/le-spa-de-la-maison-arabe",
+      "slug": "le-spa-de-la-maison-arab",
+      "url": "https://oneworldmorocco.com/le-spa-de-la-maison-arab",
       "name": "Le Spa de la Maison Arabe",
       "hook": null,
       "description": "Le spa de La Maison Arabe est un véritable havre de paix et de bien-être, niché dans un cadre mauresque exceptionnel. Il propose une vaste gamme de soins traditionnels et contemporains. Laissez-vous transporter par une douce sensation de bien-être dans les deux hammams du spa, un rituel ancestral purifiant et apaisant. Découvrez les bienfaits revitalisants d'un massage marocain traditionnel réalisé avec des produits naturels et locaux. Des soins esthétiques tels que soins du visage, manucures et",
@@ -59243,7 +59249,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1621498d-403b-4ff2-baf3-db45d1e5f41e-1775833242332-12sxln.jpg",
       "google_rating": 4.9,
-      "google_review_count": 321,
+      "google_review_count": 325,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -65088,8 +65094,8 @@
       "whatsapp": "+212 6 87 73 00 26",
       "website": "https://mmlva.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/a2f63499-bfab-428a-999e-baf049d03dbf-1770976807963-jnh89l.jpg",
-      "google_rating": 4.8,
-      "google_review_count": 177,
+      "google_rating": null,
+      "google_review_count": null,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -83276,7 +83282,10 @@
         "Caves à vin",
         "Cocktails",
         "Cuisine asiatique",
-        "Cocktails sans alcool"
+        "Cocktails sans alcool",
+        "Cave à vin",
+        "Salades",
+        "Plats végétariens"
       ],
       "city": "Marrakech",
       "neighborhood": "Hivernage",
@@ -83290,7 +83299,7 @@
       "website": "https://www.palaisjadmahal.com",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e45cb05b-5b6a-43e8-b573-acbd26e485ca-1771306701140-qe7oyd.avif",
       "google_rating": 4.1,
-      "google_review_count": 4151,
+      "google_review_count": 4580,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -83358,7 +83367,7 @@
       "social": {
         "instagram": "https://www.instagram.com/palaisjadmahal/",
         "facebook": "https://www.facebook.com/PalaisJadMahal",
-        "tripadvisor": "https://www.tripadvisor.co.uk/Restaurant_Review-g293734-d1025330-Reviews-Palais_Jad_Mahal-Marrakech_Marrakech_Safi.html",
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293734-d1025330-Reviews-Palais_Jad_Mahal-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": "https://www.instagram.com/palaisjadmahal/",
         "linkedin": null
       }
@@ -83835,7 +83844,8 @@
         "Cave à vin d'exception",
         "Cocktails",
         "Salades",
-        "Vue montagne"
+        "Vue montagne",
+        "Piscine"
       ],
       "city": "Marrakech",
       "neighborhood": "Route de l’Ourika",
@@ -83848,8 +83858,8 @@
       "whatsapp": null,
       "website": "https://www.mandarinoriental.com/fr/marrakech/la-medina/dine/pool-garden",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/590225e3-0887-4d79-a8f6-571ac148cca5-1776589389585-b39507.jpg",
-      "google_rating": 4.6,
-      "google_review_count": 730,
+      "google_rating": null,
+      "google_review_count": null,
       "price_range": "+1000€",
       "min_price_mad": 1231,
       "languages": [],
@@ -87450,8 +87460,8 @@
     },
     {
       "id": "208a36e9-8ffc-4420-b0a1-c01645fd06cf",
-      "slug": "restaurant-makassar-marrakech",
-      "url": "https://oneworldmorocco.com/restaurant-makassar-marrakech",
+      "slug": "makassar-marrakech-restaurant",
+      "url": "https://oneworldmorocco.com/makassar-marrakech-restaurant",
       "name": "Restaurant Makassar Marrakech",
       "hook": "Un mariage subtil de saveurs marocaines et internationales dans un cadre art déco luxueux.",
       "description": "Une expérience culinaire extraordinaire Nichée dans le cœur vibrant de Marrakech, Villa Makassar vous invite à embarquer pour un voyage culinaire comme aucun autre. Notre charmant établissement propose une variété d’expériences gastronomiques, comprenant un restaurant, des patios accueillants, un salon confortable et une terrasse à couper le souffle. À Villa Makassar, nous sommes fiers de vous offrir une fusion délicieuse de saveurs orientales et méditerranéennes, avec un accent particulier sur ",
@@ -87480,8 +87490,8 @@
       "whatsapp": null,
       "website": "https://villamakassar.com/fr/le-makassar-restaurant-marrakech-2/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/208a36e9-8ffc-4420-b0a1-c01645fd06cf-1774957507839-vwruhr.jpg",
-      "google_rating": 4.7,
-      "google_review_count": 250,
+      "google_rating": null,
+      "google_review_count": null,
       "price_range": "100 à 200€",
       "min_price_mad": 261,
       "languages": [],
@@ -87549,7 +87559,7 @@
       "social": {
         "instagram": "https://www.instagram.com/villamakassarmarrakech/",
         "facebook": "https://www.facebook.com/villaluxemakassar/?locale=fr_FR",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g293734-d1990531-Reviews-Villa_Makassar-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -88269,7 +88279,7 @@
       "website": "https://lamouetteetlesdromadaires.com/restaurant/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/438bedb1-66a1-4e36-92cf-416e1ee01faf-img-0-1771824072129.jpg",
       "google_rating": 4.2,
-      "google_review_count": 555,
+      "google_review_count": 604,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -88337,7 +88347,7 @@
       "social": {
         "instagram": "https://www.instagram.com/lamouetteetlesdromadaires/",
         "facebook": "https://www.facebook.com/LaMouetteEtLesDromadaires/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g298349-d3487161-Reviews-La_Mouette_et_les_Dromadaires-Essaouira_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -91182,7 +91192,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/0104c487-d5b8-4a1c-959b-626b348e589f-1776918793337-uvhf9f.jpg",
       "google_rating": 4.2,
-      "google_review_count": 134,
+      "google_review_count": 138,
       "price_range": "50 à 100€",
       "min_price_mad": 64,
       "languages": [],
@@ -92374,7 +92384,7 @@
       "website": "https://www.riaddarnajat.com/presentation/riad-bab-essaouira.html",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1770444580595-jwabh4.jpg",
       "google_rating": 4.7,
-      "google_review_count": 118,
+      "google_review_count": 120,
       "price_range": "50 à 100€",
       "min_price_mad": 100,
       "languages": [],
@@ -95126,7 +95136,8 @@
         "Spectacles occasionnels",
         "Smoothies",
         "Mixologie",
-        "Musique Live"
+        "Musique Live",
+        "Cocktails sans alcool"
       ],
       "city": "Essaouira",
       "neighborhood": "Medina",
@@ -102344,8 +102355,8 @@
       "whatsapp": null,
       "website": "https://sofitel.accor.com/fr/hotels/3569/B007.bar.html",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/ef24aca8-80be-4c48-b882-4f6495e510ae-1771484450488-vvt4kf.webp",
-      "google_rating": 4.3,
-      "google_review_count": 1900,
+      "google_rating": 4.4,
+      "google_review_count": 2235,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -102392,7 +102403,7 @@
       "social": {
         "instagram": "https://www.instagram.com/soloungekech/",
         "facebook": "https://www.facebook.com/Sofitel/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293734-d2143283-Reviews-So_Lounge-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": "https://www.youtube.com/sofitel",
         "linkedin": null
       }
@@ -121424,10 +121435,10 @@
       "description": "Une adresse incontournable pour les amateurs de bonne cuisine (marocaine,international), ambiance chaleureuse. Situé dans un cadre moderne et confortable, notre restaurant propose une cuisine savoureuse qui mêle authenticité et créativité, préparée avec des ingrédients frais et soigneusement sélectionnés. Que vous veniez pour un brunch, un déjeuner, un dîner ou simplement pour passer un bon moment, notre équipe vous accueille avec le sourire et un service attentionné. Chez nous, chaque plat est ",
       "main_category": "Restauration",
       "categories": [
+        "Street Food",
         "Restaurant",
         "Café",
         "Salon de thé",
-        "Street Food",
         "Glacier"
       ],
       "services": [
@@ -121465,7 +121476,8 @@
         "Milk Tea",
         "Terrasse",
         "Burgers",
-        "Hamburger"
+        "Hamburger",
+        "Steakhouse"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -121479,7 +121491,7 @@
       "website": "https://fluffy-marrakech.com",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/95465066-8e46-4256-adff-fe41f25eee61-1780820921858-xxr6rc.jpg",
       "google_rating": 4.6,
-      "google_review_count": 788,
+      "google_review_count": 809,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -131174,7 +131186,7 @@
       "website": "https://artbeldi.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/d69f0fea-8df9-4758-8557-73535c144939-1780381416437-0w0ria.jpg",
       "google_rating": 4.9,
-      "google_review_count": 270,
+      "google_review_count": 284,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -137465,8 +137477,8 @@
       "description": null,
       "main_category": "Restauration",
       "categories": [
-        "Restaurant",
-        "Street Food"
+        "Street Food",
+        "Restaurant"
       ],
       "services": [
         "Cuisine française",
@@ -137476,7 +137488,8 @@
         "Sodas",
         "à consommer sur place ou à emporter",
         "Hamburger",
-        "Burgers"
+        "Burgers",
+        "Steakhouse"
       ],
       "city": "Marrakech",
       "neighborhood": "Gueliz",
@@ -137490,7 +137503,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/3e31def3-c4e6-4ecc-a59f-5acd0d934ce4-1780991161555-ne5yv.jpg",
       "google_rating": 4.8,
-      "google_review_count": 575,
+      "google_review_count": 709,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -137735,7 +137748,7 @@
       "slug": "dar-lawama",
       "url": "https://oneworldmorocco.com/dar-lawama",
       "name": "Dar Lawama",
-      "hook": "Café restaurant ous attend pour vous faire passer un moment agréable, posé sur la falaise, possibilité d'hébergements.",
+      "hook": "Café restaurant vous attend pour vous faire passer un moment agréable, posé sur la falaise, possibilité d'hébergements.",
       "description": "",
       "main_category": "Restauration",
       "categories": [
@@ -137770,8 +137783,8 @@
       "whatsapp": null,
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/62bbe61c-138e-407e-ba94-63f5e6ec7482-1781057056874-r8g2f.jpg",
-      "google_rating": 4.4,
-      "google_review_count": 114,
+      "google_rating": 4.5,
+      "google_review_count": 117,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -141226,7 +141239,7 @@
       "website": "https://www.leslimana.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/84490ef0-48fe-4b59-ba13-e94279bc57ba-1781153619725-olwebc.webp",
       "google_rating": 4.8,
-      "google_review_count": 7399,
+      "google_review_count": 7460,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -142664,7 +142677,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/04b348d0-2061-4576-b7f7-f2b759f63e7a-1781359067448-vf2zdn.jpg",
       "google_rating": 4.9,
-      "google_review_count": 418,
+      "google_review_count": 458,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -143773,7 +143786,7 @@
       "website": "https://www.petitopus.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/4d2fe572-e760-4af0-bc7d-3e1ddefb4754-1781767560526-t2lwe.jpg",
       "google_rating": 4.9,
-      "google_review_count": 401,
+      "google_review_count": 408,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -144430,7 +144443,7 @@
       "website": "https://www.domainedudouar.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/8a0b20f2-a77a-4b8d-8d9a-95181df3f542-1781691847356-0bjdgc.jpg",
       "google_rating": 4.7,
-      "google_review_count": 404,
+      "google_review_count": 410,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -146225,7 +146238,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/f83e1bd9-5f38-432e-b5bd-3d0d6941e6e6-1781763075516-d3r60l.jpg",
       "google_rating": 4.9,
-      "google_review_count": 855,
+      "google_review_count": 904,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -148193,7 +148206,7 @@
       "website": "https://www.riaddarnajat.com/presentation/riad-bab-essaouira.html",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1770444580595-jwabh4.jpg",
       "google_rating": 4.7,
-      "google_review_count": 118,
+      "google_review_count": 120,
       "price_range": "50 à 100€",
       "min_price_mad": 100,
       "languages": [],
@@ -149809,7 +149822,7 @@
       "website": "https://www.laterrassedujardin.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/cf46f291-b56f-4bda-9df5-6cae13b6c7f8-1782893153747-80lvi9.webp",
       "google_rating": 4.9,
-      "google_review_count": 7059,
+      "google_review_count": 7153,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -150529,77 +150542,230 @@
       }
     },
     {
-      "id": "4e888723-93f2-455c-a748-814e9038d3df",
-      "slug": "test-auto-root-655691",
-      "url": "https://oneworldmorocco.com/test-auto-root-655691",
-      "name": "Test Auto root-655691",
+      "id": "100daa6a-65b6-4728-aad9-c8d3cf087b99",
+      "slug": "le-spa-de-la-maison-arab",
+      "url": "https://oneworldmorocco.com/le-spa-de-la-maison-arab",
+      "name": "Le Spa de la Maison Arabe",
       "hook": null,
-      "description": null,
-      "main_category": null,
-      "categories": [],
-      "services": [],
-      "city": null,
-      "neighborhood": null,
-      "region": null,
+      "description": "Le spa de La Maison Arabe est un véritable havre de paix et de bien-être, niché dans un cadre mauresque exceptionnel. Il propose une vaste gamme de soins traditionnels et contemporains. Laissez-vous transporter par une douce sensation de bien-être dans les deux hammams du spa, un rituel ancestral purifiant et apaisant. Découvrez les bienfaits revitalisants d'un massage marocain traditionnel réalisé avec des produits naturels et locaux. Des soins esthétiques tels que soins du visage, manucures et",
+      "main_category": "Bien-être",
+      "categories": [
+        "Spa / Hammam",
+        "Massage",
+        "Salon de beauté"
+      ],
+      "services": [
+        "Manucure",
+        "Pédicure",
+        "Gommage",
+        "Hammam",
+        "Soins du corps",
+        "Soins du visage",
+        "Soin anti-âge",
+        "à l'huile d'argan",
+        "Aromathérapie",
+        "Masque à l'argile verte",
+        "Masque d'algues aux sels de mer",
+        "Masque de Ghassoul",
+        "Massage à quatre mains",
+        "Massage anti-stress",
+        "Massage aux pierres chaudes",
+        "Massage des pieds",
+        "Massage drainant",
+        "Massage du corps",
+        "Massage du cuir chevelu, du visage et du cou",
+        "Massage marocain",
+        "Massage relaxant",
+        "Massage Thaï",
+        "Massage tonique"
+      ],
+      "city": "Marrakech",
+      "neighborhood": "Bab Doukkala",
+      "region": "Marrakech-Safi",
       "country": "MA",
-      "latitude": null,
-      "longitude": null,
-      "address": null,
-      "phone": null,
+      "latitude": 31.6302151,
+      "longitude": -7.9962378,
+      "address": "Derb Assehbe",
+      "phone": "+212524387010",
       "whatsapp": null,
-      "website": null,
-      "image": null,
-      "google_rating": null,
-      "google_review_count": null,
+      "website": "https://www.cenizaro.com/fr/lamaisonarabe/marrakech/spa-wellness",
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/74976129-5f0b-4305-984e-dc834ecede13-1774702542209-qxj9s.jpg",
+      "google_rating": 4.5,
+      "google_review_count": 1501,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
-      "opening_hours": null,
+      "opening_hours": {
+        "friday": {
+          "open": "11:00",
+          "close": "19:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "monday": {
+          "open": "11:00",
+          "close": "19:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "sunday": {
+          "open": "11:00",
+          "close": "19:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "tuesday": {
+          "open": "11:00",
+          "close": "19:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "saturday": {
+          "open": "11:00",
+          "close": "19:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "thursday": {
+          "open": "11:00",
+          "close": "19:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "wednesday": {
+          "open": "11:00",
+          "close": "19:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        }
+      },
       "is_open_24h": false,
-      "booking_url": null,
+      "booking_url": "https://www.booking.com/hotel/ma/la-maison-arabe.fr.html",
       "menu_url": null,
       "social": {
-        "instagram": null,
-        "facebook": null,
+        "instagram": "https://www.instagram.com/lamaisonarabe/",
+        "facebook": "https://www.facebook.com/lamaisonarabemarrakech/",
         "tripadvisor": null,
         "youtube": null,
         "linkedin": null
       }
     },
     {
-      "id": "cacbdd41-6cfa-429d-bc13-a83e779547b2",
-      "slug": "test-test",
-      "url": "https://oneworldmorocco.com/test-test",
-      "name": "Test Test",
-      "hook": null,
-      "description": null,
-      "main_category": null,
-      "categories": [],
-      "services": [],
-      "city": null,
-      "neighborhood": null,
-      "region": null,
+      "id": "208a36e9-8ffc-4420-b0a1-c01645fd06cf",
+      "slug": "makassar-marrakech-restaurant",
+      "url": "https://oneworldmorocco.com/makassar-marrakech-restaurant",
+      "name": "Restaurant Makassar Marrakech",
+      "hook": "Un mariage subtil de saveurs marocaines et internationales dans un cadre art déco luxueux.",
+      "description": "Une expérience culinaire extraordinaire Nichée dans le cœur vibrant de Marrakech, Villa Makassar vous invite à embarquer pour un voyage culinaire comme aucun autre. Notre charmant établissement propose une variété d’expériences gastronomiques, comprenant un restaurant, des patios accueillants, un salon confortable et une terrasse à couper le souffle. À Villa Makassar, nous sommes fiers de vous offrir une fusion délicieuse de saveurs orientales et méditerranéennes, avec un accent particulier sur ",
+      "main_category": "Restauration",
+      "categories": [
+        "Restaurant"
+      ],
+      "services": [
+        "Rooftop",
+        "Déjeuner",
+        "Dîner",
+        "Cuisine internationale",
+        "Cuisine marocaine",
+        "Art Déco",
+        "Piano bar",
+        "Cave à vin d'exception"
+      ],
+      "city": "Marrakech",
+      "neighborhood": "Medina",
+      "region": "Marrakech-Safi",
       "country": "MA",
-      "latitude": null,
-      "longitude": null,
-      "address": null,
-      "phone": null,
+      "latitude": 31.6122404,
+      "longitude": -7.9873974,
+      "address": "20 bis، 20 Derb Chtouka",
+      "phone": "+212524391926",
       "whatsapp": null,
-      "website": null,
-      "image": null,
+      "website": "https://villamakassar.com/fr/le-makassar-restaurant-marrakech-2/",
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/208a36e9-8ffc-4420-b0a1-c01645fd06cf-1774957507839-vwruhr.jpg",
       "google_rating": null,
       "google_review_count": null,
-      "price_range": null,
-      "min_price_mad": null,
+      "price_range": "100 à 200€",
+      "min_price_mad": 261,
       "languages": [],
-      "opening_hours": null,
+      "opening_hours": {
+        "friday": {
+          "open": "12:00",
+          "close": "23:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "monday": {
+          "open": "12:00",
+          "close": "23:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "sunday": {
+          "open": "12:00",
+          "close": "23:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "tuesday": {
+          "open": "12:00",
+          "close": "23:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "saturday": {
+          "open": "12:00",
+          "close": "23:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "thursday": {
+          "open": "12:00",
+          "close": "23:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "wednesday": {
+          "open": "12:00",
+          "close": "23:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        }
+      },
       "is_open_24h": false,
-      "booking_url": null,
-      "menu_url": null,
+      "booking_url": "https://calendly.com/lemakassar",
+      "menu_url": "https://villamakassar.com/wp-content/uploads/2026/01/LE-MAKASSAR-MENU_250227_134752.pdf",
       "social": {
-        "instagram": null,
-        "facebook": null,
-        "tripadvisor": null,
+        "instagram": "https://www.instagram.com/villamakassarmarrakech/",
+        "facebook": "https://www.facebook.com/villaluxemakassar/?locale=fr_FR",
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g293734-d1990531-Reviews-Villa_Makassar-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
