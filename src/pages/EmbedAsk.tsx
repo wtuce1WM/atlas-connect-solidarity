@@ -440,6 +440,8 @@ const EmbedAsk = () => {
         businesses={openMap?.businesses || []}
         isMobile={isMobile}
         disableUserLocation
+        hostLocation={hostLocation}
+        hostLabel={businessName}
       />
 
       {/* Events slide panel */}
