@@ -481,7 +481,7 @@ Deno.serve(async (req) => {
             body: JSON.stringify({
               model: MODEL,
               messages: convo,
-              temperature: 0.5,
+              temperature: 0.7,
               stream: true,
             }),
           });
