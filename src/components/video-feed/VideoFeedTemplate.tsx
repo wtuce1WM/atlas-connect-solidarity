@@ -159,6 +159,34 @@ const VideoFeedTemplate = ({
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70" />
+        <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between gap-3">
+          <button
+            onClick={() => navigate(withLangPrefix("/blog", language))}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border border-white/20 bg-black/50 text-white hover:text-gold hover:border-gold hover:bg-black/70 backdrop-blur-md transition-all duration-300 shadow-sm"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {language === "en" ? "Back to blog" : language === "ar" ? "العودة إلى المدونة" : "Retour au blog"}
+          </button>
+          <button
+            onClick={handleSaveArticle}
+            disabled={bmLoading}
+            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-300 backdrop-blur-md shadow-sm ${
+              isBookmarked
+                ? "bg-gold text-black border-gold hover:bg-gold/90"
+                : "bg-black/50 text-white border-white/20 hover:border-gold hover:text-gold hover:bg-black/70"
+            }`}
+            aria-label={
+              isBookmarked
+                ? (language === "en" ? "Remove from my OWM Club" : language === "ar" ? "إزالة من نادي OWM" : "Retirer de mon Club OWM")
+                : (language === "en" ? "Save to my OWM Club" : language === "ar" ? "حفظ في نادي OWM" : "Sauvegarder dans mon Club OWM")
+            }
+          >
+            <Bookmark className="h-4 w-4" fill={isBookmarked ? "currentColor" : "none"} />
+            {isBookmarked
+              ? (language === "en" ? "Saved" : language === "ar" ? "محفوظ" : "Sauvegardé")
+              : (language === "en" ? "Save" : language === "ar" ? "حفظ" : "Sauvegarder")}
+          </button>
+        </div>
         <div className="relative z-10 h-full flex flex-col items-center justify-end pb-16 md:pb-24 px-4 text-center text-white">
           {heroTitleTop && (
             <p className="text-sm md:text-base uppercase tracking-[0.2em] mb-2 opacity-90">
@@ -174,6 +202,7 @@ const VideoFeedTemplate = ({
             <p className="mt-4 text-base md:text-lg max-w-2xl opacity-95">{heroSubtitle}</p>
           )}
         </div>
+
       </section>
 
       {/* Intro */}
