@@ -95,16 +95,14 @@ Deno.serve(async (req) => {
   const sb = createClient(SUPABASE_URL, SERVICE_ROLE);
 
   // Pick rows that still miss at least one translation
-  const filter = force
-    ? "text.not.is.null"
-    : "or(text_fr.is.null,text_en.is.null,text_ar.is.null)";
-
-  const { data: rows, error } = await sb
+  let q = sb
     .from("reviews")
     .select("id, text, text_fr, text_en, text_ar, language")
-    .or("text.not.is.null,text_fr.not.is.null")
-    .or(force ? "text.not.is.null" : "text_fr.is.null,text_en.is.null,text_ar.is.null")
-    .limit(limit);
+    .not("text", "is", null);
+  if (!force) {
+    q = q.or("text_fr.is.null,text_en.is.null,text_ar.is.null");
+  }
+  const { data: rows, error } = await q.limit(limit);
 
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {
