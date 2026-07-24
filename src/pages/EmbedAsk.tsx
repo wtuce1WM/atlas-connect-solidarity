@@ -187,13 +187,24 @@ const EmbedAsk = () => {
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (cancelled || !data) return;
+      const { data } = await supabase
+        .from("embed_ai_suggestions")
+        .select("id,label_fr,label_en,label_ar,followups")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      if (cancelled || !data) return;
       const col = lang === "en" ? "label_en" : lang === "ar" ? "label_ar" : "label_fr";
-      const list = (data as any[])
-        .map((r) => (r[col] || r.label_fr || "").trim())
-        .filter(Boolean);
+      const list: SuggestionRow[] = (data as any[])
+        .map((r) => ({
+          id: r.id as string,
+          label: ((r[col] || r.label_fr || "") as string).trim(),
+          followups: Array.isArray(r.followups) ? (r.followups as FollowupRow[]) : [],
+        }))
+        .filter((r) => r.label);
       if (list.length > 0) setDbSuggestions(list);
     })();
     return () => { cancelled = true; };
+  }, [lang]);
   }, [lang]);
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [msgs]);
