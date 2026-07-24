@@ -123,6 +123,7 @@ const EmbedAsk = () => {
   }, [theme]);
 
   const [businessName, setBusinessName] = useState<string>("");
+  const [hostLocation, setHostLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
