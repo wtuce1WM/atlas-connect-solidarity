@@ -123,7 +123,7 @@ const MasterDashboard = ({ onNavigateTab }: MasterDashboardProps) => {
     { label: "Search Analytics", tab: "analytics", icon: BarChart3, count: null },
     { label: "Tests", tab: "tests", icon: FlaskConical, count: null },
     { label: "Connaissances", tab: "knowledge", icon: BookOpen, count: `${health.knowledgeCount} notes` },
-    { label: "Base IA", tab: "ai-knowledge", icon: Brain, count: `${health.aiKnowledgeCount} entrées` },
+    { label: "Base IA", href: "/staff/ia?tab=ai-knowledge", icon: Brain, count: `${health.aiKnowledgeCount} entrées` },
     { label: "Easter Eggs", tab: "easter-eggs", icon: Egg, count: `${health.easterEggsActive}/${health.easterEggsTotal} actifs` },
   ];
 
