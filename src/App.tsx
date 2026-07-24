@@ -189,6 +189,9 @@ const LocalizedRoutes = () => {
               <Route path="/staff/brummell" element={<StaffRouteGuard>{renderLazyRoute(<BlogBrummellTypography />)}</StaffRouteGuard>} />
               <Route path="/blog/:slug" element={renderLazyRoute(<BlogPost />)} />
               <Route path="/blog/etablissements-notes" element={renderLazyRoute(<RatedBusinesses />)} />
+              <Route path="/videos/:slug" element={renderLazyRoute(<VideoFeed />)} />
+              <Route path="/en/videos/:slug" element={renderLazyRoute(<VideoFeed />)} />
+              <Route path="/ar/videos/:slug" element={renderLazyRoute(<VideoFeed />)} />
               <Route path="/neighborhood/:neighborhood" element={renderLazyRoute(<NeighborhoodPage />)} />
               <Route path="/carte" element={renderLazyRoute(<AllBusinessesMap />)} />
               <Route path="/subcategory/:subcategoryName" element={renderLazyRoute(<SubcategoryPage />)} />
