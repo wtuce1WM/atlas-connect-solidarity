@@ -7,7 +7,7 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import HomeBottomBar from "@/components/HomeBottomBar";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Calendar, User, ArrowRight, MapPin, Database } from "lucide-react";
+import { Loader2, Calendar, User, ArrowRight, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { fr, enUS, ar } from "date-fns/locale";
 import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
@@ -94,9 +94,6 @@ const Blog = () => {
             {posts.map((post) => (
               <Link key={post.id} to={withLangPrefix(`/blog/${post.slug}`, language)}>
                 <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full relative">
-                  <span className="absolute top-3 right-3 z-10 inline-flex items-center gap-1 bg-primary/90 text-primary-foreground text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-full">
-                    <Database className="h-2.5 w-2.5" /> dynamique
-                  </span>
                   {post.cover_image_url && (
                     <div className="aspect-video overflow-hidden">
                       <img
