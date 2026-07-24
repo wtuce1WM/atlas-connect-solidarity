@@ -7,6 +7,7 @@ import { LogOut, ArrowLeft, BarChart3, BookOpen, Sparkles, Brain, MessageSquare,
 import IADashboard from "@/components/staff/IADashboard";
 import AIConfigManagement from "@/components/staff/AIConfigManagement";
 import ClubAiSuggestionsManagement from "@/components/staff/ClubAiSuggestionsManagement";
+import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import AiUsageManagement from "@/components/staff/AiUsageManagement";
 import AiConversationPerf from "@/components/staff/AiConversationPerf";
 import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement";
