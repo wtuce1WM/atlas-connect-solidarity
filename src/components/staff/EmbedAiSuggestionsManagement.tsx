@@ -73,6 +73,7 @@ const EmbedAiSuggestionsManagement = () => {
   const [destinations, setDestinations] = useState<DestinationOption[]>([]);
   const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
   const [badges, setBadges] = useState<BadgeOption[]>([]);
+  const [globalFollowups, setGlobalFollowups] = useState<GlobalFollowup[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
@@ -85,10 +86,10 @@ const EmbedAiSuggestionsManagement = () => {
 
   const load = async () => {
     setLoading(true);
-    const [{ data, error }, { data: bizs }, { data: dests }, { data: subs }, { data: bdgs }] = await Promise.all([
+    const [{ data, error }, { data: bizs }, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }] = await Promise.all([
       supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,subcategory_ids,badge_ids,city")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,subcategory_ids,badge_ids,city,disabled_followup_ids")
         .order("sort_order", { ascending: true }),
       supabase
         .from("businesses")
@@ -107,6 +108,10 @@ const EmbedAiSuggestionsManagement = () => {
         .from("badges")
         .select("id,name_fr")
         .order("name_fr", { ascending: true }),
+      supabase
+        .from("embed_ai_followups")
+        .select("id,label_fr,is_active,sort_order")
+        .order("sort_order", { ascending: true }),
     ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows(
@@ -117,12 +122,14 @@ const EmbedAiSuggestionsManagement = () => {
         destination_ids: Array.isArray(r.destination_ids) ? r.destination_ids : [],
         subcategory_ids: Array.isArray(r.subcategory_ids) ? r.subcategory_ids : [],
         badge_ids: Array.isArray(r.badge_ids) ? r.badge_ids : [],
+        disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
       }))
     );
     setBusinesses(((bizs as any[]) || []).map((b) => ({ id: b.id, name: b.name || "(sans nom)", slug: b.slug })));
     setDestinations(((dests as any[]) || []).map((d) => ({ id: d.id, name_fr: d.name_fr || "(sans nom)", name_en: d.name_en || null, name_ar: d.name_ar || null })));
     setSubcategories(((subs as any[]) || []).map((s) => ({ id: s.id, name_fr: s.name_fr || "(sans nom)" })));
     setBadges(((bdgs as any[]) || []).map((b) => ({ id: b.id, name_fr: b.name_fr || "(sans nom)" })));
+    setGlobalFollowups(((fups as any[]) || []).map((f) => ({ id: f.id, label_fr: f.label_fr || "", is_active: !!f.is_active, sort_order: f.sort_order || 0 })));
 
     setDirty(new Set());
     setLoading(false);
