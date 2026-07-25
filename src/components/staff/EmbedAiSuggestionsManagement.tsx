@@ -317,27 +317,30 @@ const EmbedAiSuggestionsManagement = () => {
                 {isOpen && (
                   <div className="space-y-2 pl-4 border-l-2 border-muted">
                     {r.followups.map((f, idx) => (
-                      <div key={idx} className="grid gap-2 md:grid-cols-[16px_1fr_1fr_1fr_40px] items-center">
-                        <CornerDownRight className="h-4 w-4 text-muted-foreground" />
-                        <Input
-                          value={f.label_fr || ""}
-                          onChange={(e) => updateFollowup(r.id, idx, { label_fr: e.target.value })}
-                          placeholder="Relance FR"
-                        />
-                        <Input
-                          value={f.label_en || ""}
-                          onChange={(e) => updateFollowup(r.id, idx, { label_en: e.target.value })}
-                          placeholder="EN"
-                        />
-                        <Input
-                          value={f.label_ar || ""}
-                          onChange={(e) => updateFollowup(r.id, idx, { label_ar: e.target.value })}
-                          placeholder="AR"
-                          dir="rtl"
-                        />
-                        <Button variant="ghost" size="icon" onClick={() => removeFollowup(r.id, idx)}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                      <div key={idx} className="space-y-1">
+                        <div className="pl-6"><RouteBadge label={f.label_fr || ""} /></div>
+                        <div className="grid gap-2 md:grid-cols-[16px_1fr_1fr_1fr_40px] items-center">
+                          <CornerDownRight className="h-4 w-4 text-muted-foreground" />
+                          <Input
+                            value={f.label_fr || ""}
+                            onChange={(e) => updateFollowup(r.id, idx, { label_fr: e.target.value })}
+                            placeholder="Relance FR"
+                          />
+                          <Input
+                            value={f.label_en || ""}
+                            onChange={(e) => updateFollowup(r.id, idx, { label_en: e.target.value })}
+                            placeholder="EN"
+                          />
+                          <Input
+                            value={f.label_ar || ""}
+                            onChange={(e) => updateFollowup(r.id, idx, { label_ar: e.target.value })}
+                            placeholder="AR"
+                            dir="rtl"
+                          />
+                          <Button variant="ghost" size="icon" onClick={() => removeFollowup(r.id, idx)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                     <Button variant="outline" size="sm" onClick={() => addFollowup(r.id)}>
