@@ -157,6 +157,19 @@ const TOOLS = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "get_weather",
+      description: "Météo actuelle et prévisions (jusqu'à 7 jours) pour une ville marocaine. Utilise-la pour toute question météo/temps/température/prévisions.",
+      parameters: {
+        type: "object",
+        properties: {
+          city: { type: "string", description: "Ville. Défaut: ville de l'hôte." },
+        },
+      },
+    },
+  },
 ];
 
 Deno.serve(async (req) => {
