@@ -123,6 +123,7 @@ const EmbedAsk = () => {
   }, [theme]);
 
   const [businessName, setBusinessName] = useState<string>("");
+  const [businessId, setBusinessId] = useState<string | null>(null);
   const [hostLocation, setHostLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -161,13 +162,14 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("name, latitude, longitude")
+        .select("id, name, latitude, longitude")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
       if (cancelled) return;
       const name = data?.name || "";
       setBusinessName(name);
+      setBusinessId((data?.id as string) || null);
       if (data?.latitude != null && data?.longitude != null) {
         setHostLocation({ lat: Number(data.latitude), lng: Number(data.longitude) });
       }
@@ -179,16 +181,21 @@ const EmbedAsk = () => {
   }, [slug]);
 
   useEffect(() => {
+    if (!businessId) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,followups")
+        .select("id,label_fr,label_en,label_ar,followups,business_ids")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (cancelled || !data) return;
       const col = lang === "en" ? "label_en" : lang === "ar" ? "label_ar" : "label_fr";
       const list: SuggestionRow[] = (data as any[])
+        .filter((r) => {
+          const ids: string[] = Array.isArray(r.business_ids) ? r.business_ids : [];
+          return ids.length === 0 || ids.includes(businessId);
+        })
         .map((r) => ({
           id: r.id as string,
           label: ((r[col] || r.label_fr || "") as string).trim(),
@@ -198,7 +205,7 @@ const EmbedAsk = () => {
       if (list.length > 0) setDbSuggestions(list);
     })();
     return () => { cancelled = true; };
-  }, [lang]);
+  }, [lang, businessId]);
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [msgs]);
   useEffect(() => { inputRef.current?.focus(); }, [businessName]);

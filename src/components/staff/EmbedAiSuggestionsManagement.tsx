@@ -27,10 +27,14 @@ type Row = {
   sort_order: number;
   is_active: boolean;
   followups: Followup[];
+  business_ids: string[];
 };
+
+type BusinessOption = { id: string; name: string; slug: string | null };
 
 const EmbedAiSuggestionsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
+  const [businesses, setBusinesses] = useState<BusinessOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
@@ -38,17 +42,26 @@ const EmbedAiSuggestionsManagement = () => {
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("embed_ai_suggestions")
-      .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups")
-      .order("sort_order", { ascending: true });
+    const [{ data, error }, { data: bizs }] = await Promise.all([
+      supabase
+        .from("embed_ai_suggestions")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids")
+        .order("sort_order", { ascending: true }),
+      supabase
+        .from("businesses")
+        .select("id,name,slug")
+        .eq("is_active", true)
+        .order("name", { ascending: true }),
+    ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows(
       ((data as any[]) || []).map((r) => ({
         ...r,
         followups: Array.isArray(r.followups) ? r.followups : [],
+        business_ids: Array.isArray(r.business_ids) ? r.business_ids : [],
       }))
     );
+    setBusinesses(((bizs as any[]) || []).map((b) => ({ id: b.id, name: b.name || "(sans nom)", slug: b.slug })));
     setDirty(new Set());
     setLoading(false);
   };
@@ -109,7 +122,7 @@ const EmbedAiSuggestionsManagement = () => {
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, { ...(data as any), followups: [] } as Row]);
+    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [] } as Row]);
   };
 
   const removeRow = async (id: string) => {
@@ -131,6 +144,7 @@ const EmbedAiSuggestionsManagement = () => {
           sort_order: r.sort_order,
           is_active: r.is_active,
           followups: r.followups.filter((f) => (f.label_fr || "").trim()),
+          business_ids: r.business_ids || [],
         }).eq("id", r.id)
       )
     );
@@ -219,6 +233,50 @@ const EmbedAiSuggestionsManagement = () => {
                     <Input value={r.label_ar || ""} onChange={(e) => update(r.id, { label_ar: e.target.value })} dir="rtl" />
                   </div>
                 </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs text-muted-foreground">
+                    Établissements ciblés {r.business_ids.length === 0 ? "(vide = tous)" : `(${r.business_ids.length})`}
+                  </label>
+                  {r.business_ids.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {r.business_ids.map((bid) => {
+                        const b = businesses.find((x) => x.id === bid);
+                        return (
+                          <span key={bid} className="inline-flex items-center gap-1 rounded-md bg-primary/10 text-primary text-xs px-2 py-1">
+                            {b?.name || bid}
+                            <button
+                              type="button"
+                              onClick={() => update(r.id, { business_ids: r.business_ids.filter((x) => x !== bid) })}
+                              className="hover:text-destructive"
+                              title="Retirer"
+                            >×</button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <select
+                    value=""
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (!v) return;
+                      if (!r.business_ids.includes(v)) {
+                        update(r.id, { business_ids: [...r.business_ids, v] });
+                      }
+                    }}
+                    className="h-9 rounded-md border border-input bg-background px-2 text-sm w-full max-w-md"
+                    title="Ajouter un établissement"
+                  >
+                    <option value="">— Ajouter un établissement —</option>
+                    {businesses
+                      .filter((b) => !r.business_ids.includes(b.id))
+                      .map((b) => (
+                        <option key={b.id} value={b.id}>{b.name}</option>
+                      ))}
+                  </select>
+                </div>
+
 
                 <button
                   type="button"

@@ -3538,6 +3538,7 @@ export type Database = {
       }
       embed_ai_suggestions: {
         Row: {
+          business_ids: string[]
           created_at: string
           followups: Json
           id: string
@@ -3549,6 +3550,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          business_ids?: string[]
           created_at?: string
           followups?: Json
           id?: string
@@ -3560,6 +3562,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          business_ids?: string[]
           created_at?: string
           followups?: Json
           id?: string
