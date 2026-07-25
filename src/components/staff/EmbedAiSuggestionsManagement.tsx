@@ -86,17 +86,33 @@ const EmbedAiSuggestionsManagement = () => {
 
   const load = async () => {
     setLoading(true);
-    const [{ data, error }, { data: bizs }, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }] = await Promise.all([
+    // Fetch businesses in pages to bypass PostgREST max-rows cap
+    const fetchAllBusinesses = async () => {
+      const pageSize = 1000;
+      let from = 0;
+      const all: any[] = [];
+      while (true) {
+        const { data, error } = await supabase
+          .from("businesses")
+          .select("id,name,slug")
+          .eq("is_active", true)
+          .order("name", { ascending: true })
+          .range(from, from + pageSize - 1);
+        if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); break; }
+        const chunk = (data as any[]) || [];
+        all.push(...chunk);
+        if (chunk.length < pageSize) break;
+        from += pageSize;
+        if (from > 20000) break;
+      }
+      return all;
+    };
+    const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }] = await Promise.all([
       supabase
         .from("embed_ai_suggestions")
         .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,subcategory_ids,badge_ids,city,disabled_followup_ids")
         .order("sort_order", { ascending: true }),
-      supabase
-        .from("businesses")
-        .select("id,name,slug")
-        .eq("is_active", true)
-        .order("name", { ascending: true })
-        .range(0, 4999),
+      fetchAllBusinesses(),
       supabase
         .from("destinations")
         .select("id,name_fr,name_en,name_ar")
