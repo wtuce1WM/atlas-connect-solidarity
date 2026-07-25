@@ -27,10 +27,14 @@ type Row = {
   sort_order: number;
   is_active: boolean;
   followups: Followup[];
+  business_ids: string[];
 };
+
+type BusinessOption = { id: string; name: string; slug: string | null };
 
 const EmbedAiSuggestionsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
+  const [businesses, setBusinesses] = useState<BusinessOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
@@ -38,17 +42,26 @@ const EmbedAiSuggestionsManagement = () => {
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("embed_ai_suggestions")
-      .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups")
-      .order("sort_order", { ascending: true });
+    const [{ data, error }, { data: bizs }] = await Promise.all([
+      supabase
+        .from("embed_ai_suggestions")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids")
+        .order("sort_order", { ascending: true }),
+      supabase
+        .from("businesses")
+        .select("id,name,slug")
+        .eq("is_active", true)
+        .order("name", { ascending: true }),
+    ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows(
       ((data as any[]) || []).map((r) => ({
         ...r,
         followups: Array.isArray(r.followups) ? r.followups : [],
+        business_ids: Array.isArray(r.business_ids) ? r.business_ids : [],
       }))
     );
+    setBusinesses(((bizs as any[]) || []).map((b) => ({ id: b.id, name: b.name || "(sans nom)", slug: b.slug })));
     setDirty(new Set());
     setLoading(false);
   };
