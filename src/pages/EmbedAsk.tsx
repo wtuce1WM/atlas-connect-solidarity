@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { Send, Sun, Moon, MapPin, Calendar as CalendarIcon, MessageSquarePlus } from "lucide-react";
+import { Send, Sun, Moon, MapPin, Calendar as CalendarIcon, MessageSquarePlus, Info, Bed, Utensils, Wine, Coffee, ShoppingBag, Sparkles, Landmark, Camera } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlidePanel";
 import EventsSlidePanel from "@/components/club/EventsSlidePanel";
