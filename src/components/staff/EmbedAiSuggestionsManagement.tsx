@@ -54,9 +54,11 @@ type Row = {
   is_active: boolean;
   followups: Followup[];
   business_ids: string[];
+  destination_ids: string[];
 };
 
 type BusinessOption = { id: string; name: string; slug: string | null };
+type DestinationOption = { id: string; name: string };
 
 const EmbedAiSuggestionsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
