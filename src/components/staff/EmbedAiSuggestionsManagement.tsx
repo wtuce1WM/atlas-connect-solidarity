@@ -316,6 +316,7 @@ const EmbedAiSuggestionsManagement = () => {
                   <div>
                     <label className="text-xs text-muted-foreground">AR</label>
                     <Input value={r.label_ar || ""} onChange={(e) => update(r.id, { label_ar: e.target.value })} dir="rtl" />
+                  </div>
                 </div>
 
                 <div className="max-w-xs">
@@ -333,7 +334,6 @@ const EmbedAiSuggestionsManagement = () => {
                   <p className="text-[11px] text-muted-foreground mt-1">Vide = affichée pour tous les établissements. Sinon uniquement pour ceux de cette ville.</p>
                 </div>
 
-                </div>
 
                 <div className="space-y-2">
                   <label className="text-xs text-muted-foreground">
