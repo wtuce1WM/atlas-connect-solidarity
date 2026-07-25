@@ -58,7 +58,7 @@ type Row = {
 };
 
 type BusinessOption = { id: string; name: string; slug: string | null };
-type DestinationOption = { id: string; name: string };
+type DestinationOption = { id: string; name_fr: string; name_en: string | null; name_ar: string | null };
 
 const EmbedAiSuggestionsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
