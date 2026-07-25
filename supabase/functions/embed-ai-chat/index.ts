@@ -369,6 +369,12 @@ Deno.serve(async (req) => {
                 instruction: "Carte rendue côté UI. Poursuis normalement.",
               };
             }
+            if (name === "get_weather") {
+              const city = args.city || host.city || "Marrakech";
+              const { data, error } = await admin.functions.invoke("get-weather", { body: { city } });
+              if (error) return { error: String(error), city };
+              return { city, ...(data || {}) };
+            }
           } catch (e) {
             return { error: String(e) };
           }
