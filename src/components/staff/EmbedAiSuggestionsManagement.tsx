@@ -58,12 +58,14 @@ type Row = {
   subcategory_ids: string[];
   badge_ids: string[];
   city: string | null;
+  disabled_followup_ids: string[];
 };
 
 type BusinessOption = { id: string; name: string; slug: string | null };
 type DestinationOption = { id: string; name_fr: string; name_en: string | null; name_ar: string | null };
 type SubcategoryOption = { id: string; name_fr: string };
 type BadgeOption = { id: string; name_fr: string };
+type GlobalFollowup = { id: string; label_fr: string; is_active: boolean; sort_order: number };
 
 const EmbedAiSuggestionsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
