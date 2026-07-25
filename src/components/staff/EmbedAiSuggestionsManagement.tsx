@@ -324,6 +324,51 @@ const EmbedAiSuggestionsManagement = () => {
                   </select>
                 </div>
 
+                <div className="space-y-2">
+                  <label className="text-xs text-muted-foreground">
+                    Destinations liées {r.destination_ids.length === 0 ? "(aucune)" : `(${r.destination_ids.length})`}
+                  </label>
+                  {r.destination_ids.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {r.destination_ids.map((did) => {
+                        const d = destinations.find((x) => x.id === did);
+                        return (
+                          <span key={did} className="inline-flex items-center gap-1 rounded-md bg-gold/10 text-gold text-xs px-2 py-1">
+                            {d?.name || did}
+                            <button
+                              type="button"
+                              onClick={() => update(r.id, { destination_ids: r.destination_ids.filter((x) => x !== did) })}
+                              className="hover:text-destructive"
+                              title="Retirer"
+                            >×</button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <select
+                    value=""
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (!v) return;
+                      if (!r.destination_ids.includes(v)) {
+                        update(r.id, { destination_ids: [...r.destination_ids, v] });
+                      }
+                    }}
+                    className="h-9 rounded-md border border-input bg-background px-2 text-sm w-full max-w-md"
+                    title="Ajouter une destination"
+                  >
+                    <option value="">— Ajouter une destination —</option>
+                    {destinations
+                      .filter((d) => !r.destination_ids.includes(d.id))
+                      .map((d) => (
+                        <option key={d.id} value={d.id}>{d.name}</option>
+                      ))}
+                  </select>
+                </div>
+
+
+
 
                 <button
                   type="button"
