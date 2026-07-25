@@ -465,7 +465,7 @@ const EmbedAsk = () => {
                 <button
                   key={s.id}
                   type="button"
-                  onClick={() => { setActiveSuggestionId(s.id); send(label); }}
+                  onClick={() => { setActiveSuggestionId(s.id); send(label, s.id); }}
                   className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
                 >
                   {label}
