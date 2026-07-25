@@ -9,6 +9,32 @@ import { Trash2, Plus, Save, Code2, Loader2, ChevronDown, ChevronRight, CornerDo
 
 type Followup = { label_fr: string; label_en: string | null; label_ar: string | null };
 
+type Route = { key: "weather" | "events" | "search" | "map" | "llm"; label: string; emoji: string; className: string };
+
+function detectRoute(label: string): Route {
+  const q = (label || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  if (!q.trim()) return { key: "llm", label: "LLM direct", emoji: "💬", className: "bg-muted text-muted-foreground" };
+  if (/\b(meteo|weather|forecast|temps|temperature|degres?|previsions?|il fait|quel temps)\b/.test(q))
+    return { key: "weather", label: "get_weather", emoji: "🌤", className: "bg-sky-500/15 text-sky-700 dark:text-sky-300" };
+  if (/\b(event|events|evenement|agenda|week[- ]?end|ce soir|festival|concert|expo|spectacle|whats on)\b/.test(q))
+    return { key: "events", label: "search_events", emoji: "📅", className: "bg-amber-500/15 text-amber-700 dark:text-amber-300" };
+  if (/\b(carte|map|montre.*carte|show.*map|localise)\b/.test(q))
+    return { key: "map", label: "show_on_map", emoji: "🗺", className: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" };
+  if (/\b(proximite|autour|pres de|nearby|around|ou |où |restaurant|bar|cafe|the|rooftop|terrasse|musee|galerie|activite|visite|visiter|beach[- ]?club|hotel|riad|spa|boutique|shopping|manger|boire|dejeuner|diner|sortie|things to do|what to do|where)\b/.test(q))
+    return { key: "search", label: "search_businesses", emoji: "🔍", className: "bg-primary/15 text-primary" };
+  return { key: "llm", label: "LLM direct", emoji: "💬", className: "bg-muted text-muted-foreground" };
+}
+
+const RouteBadge = ({ label }: { label: string }) => {
+  const r = detectRoute(label);
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${r.className}`} title={`Route détectée: ${r.label}`}>
+      <span>{r.emoji}</span>
+      <span>{r.label}</span>
+    </span>
+  );
+};
+
 const DEFAULT_FOLLOWUPS: Followup[] = [
   { label_fr: "Consulter les horaires", label_en: "Check opening hours", label_ar: "الاطلاع على ساعات العمل" },
   { label_fr: "Autres points d'intérêt à proximité", label_en: "Other points of interest nearby", label_ar: "نقاط اهتمام أخرى قريبة" },
