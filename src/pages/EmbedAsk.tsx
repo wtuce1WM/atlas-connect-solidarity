@@ -158,7 +158,7 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("id, name, latitude, longitude")
+        .select("id, name, latitude, longitude, city")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
@@ -166,6 +166,7 @@ const EmbedAsk = () => {
       const name = data?.name || "";
       setBusinessName(name);
       setBusinessId((data?.id as string) || null);
+      setBusinessCity((data?.city as string) || null);
       if (data?.latitude != null && data?.longitude != null) {
         setHostLocation({ lat: Number(data.latitude), lng: Number(data.longitude) });
       }
