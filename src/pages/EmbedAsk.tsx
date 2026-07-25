@@ -199,8 +199,8 @@ const EmbedAsk = () => {
       const bizCity = normCity(businessCity);
       const list: SuggestionRow[] = (data as any[])
         .filter((r) => {
-          const ids: string[] = Array.isArray(r.business_ids) ? r.business_ids : [];
-          if (ids.length > 0 && !ids.includes(businessId)) return false;
+          // business_ids ne filtre PAS la visibilité — il sert seulement à
+          // épingler l'établissement en tête des résultats côté edge function.
           const c = normCity(r.city);
           if (c && c !== bizCity) return false;
           return true;
