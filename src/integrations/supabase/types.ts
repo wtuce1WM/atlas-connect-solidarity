@@ -3548,6 +3548,7 @@ export type Database = {
           label_en: string | null
           label_fr: string
           sort_order: number
+          subcategory_ids: string[]
           updated_at: string
         }
         Insert: {
@@ -3561,6 +3562,7 @@ export type Database = {
           label_en?: string | null
           label_fr: string
           sort_order?: number
+          subcategory_ids?: string[]
           updated_at?: string
         }
         Update: {
@@ -3574,6 +3576,7 @@ export type Database = {
           label_en?: string | null
           label_fr?: string
           sort_order?: number
+          subcategory_ids?: string[]
           updated_at?: string
         }
         Relationships: []

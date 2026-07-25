@@ -196,11 +196,13 @@ Deno.serve(async (req) => {
         const language = pickLang(body.language);
         const sessionId: string | null = typeof body.sessionId === "string" ? body.sessionId : null;
         const messageIndex: number = Number.isFinite(body.messageIndex) ? Number(body.messageIndex) : 0;
+        const suggestionId: string | null = typeof body.suggestionId === "string" && body.suggestionId ? body.suggestionId : null;
         const t0 = Date.now();
         let firstTokenAt: number | null = null;
 
         if (!slugOrId) { emit({ type: "error", message: "businessSlug required" }); return close(); }
         if (!inMessages.length) { emit({ type: "error", message: "messages required" }); return close(); }
+
 
         // Resolve host business
         let bizQ = admin
@@ -261,6 +263,9 @@ Deno.serve(async (req) => {
               if (args.neighborhood) qParts.push(String(args.neighborhood));
               const fullQuery = qParts.filter(Boolean).join(" ").trim();
               const city = args.city || host.city || "Marrakech";
+              const subcategoryNames: string[] | undefined = Array.isArray(args._subcategoryNames) && args._subcategoryNames.length
+                ? args._subcategoryNames.map((s: any) => String(s)).filter(Boolean)
+                : undefined;
               const r = await fetch(`${SUPABASE_URL}/functions/v1/business-search`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${SERVICE}`, apikey: SERVICE, "Content-Type": "application/json" },
@@ -272,8 +277,10 @@ Deno.serve(async (req) => {
                   offset: 0,
                   compact: "card",
                   city,
+                  subcategoryNames,
                 }),
               });
+
               const text = await r.text();
               let sres: any = null; try { sres = JSON.parse(text); } catch { /* */ }
               const all: any[] = Array.isArray(sres?.businesses) ? sres.businesses : [];
@@ -425,7 +432,44 @@ Deno.serve(async (req) => {
           }
         };
 
-        if (shouldForceDirectorySearch(userMessage)) {
+        // Deterministic subcategory route: if the clicked suggestion has subcategory_ids,
+        // bypass LLM tool selection and run business-search filtered on those subcategories.
+        let deterministicSubcategoryNames: string[] | null = null;
+        if (suggestionId) {
+          try {
+            const { data: sugg } = await admin
+              .from("embed_ai_suggestions")
+              .select("subcategory_ids")
+              .eq("id", suggestionId)
+              .maybeSingle();
+            const subIds: string[] = Array.isArray(sugg?.subcategory_ids) ? sugg!.subcategory_ids : [];
+            if (subIds.length) {
+              const { data: subs } = await admin
+                .from("subcategories")
+                .select("name_fr")
+                .in("id", subIds);
+              const names = (subs || []).map((s: any) => s.name_fr).filter(Boolean);
+              if (names.length) deterministicSubcategoryNames = names;
+            }
+          } catch (e) {
+            console.error("[embed-ai-chat] suggestion_subcat_lookup_error", e);
+          }
+        }
+
+        if (deterministicSubcategoryNames) {
+          const forcedArgs: any = {
+            query: userMessage,
+            city: host.city || "Marrakech",
+            limit: 12,
+            _subcategoryNames: deterministicSubcategoryNames,
+          };
+          const forcedResult = await runTool("search_businesses", forcedArgs);
+          rememberSearchResult("search_businesses", forcedArgs, forcedResult);
+          convo.push({
+            role: "system",
+            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE (route déterministe sur sous-catégories ${deterministicSubcategoryNames.join(", ")}):\n${JSON.stringify(forcedResult).slice(0, 12000)}\nRecommande uniquement des résultats listés ci-dessus. Copie exactement disclosure_note sur sa propre ligne avant la question finale.`,
+          });
+        } else if (shouldForceDirectorySearch(userMessage)) {
           const forcedArgs = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
           const forcedResult = await runTool("search_businesses", forcedArgs);
           rememberSearchResult("search_businesses", forcedArgs, forcedResult);
@@ -434,6 +478,7 @@ Deno.serve(async (req) => {
             content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE:\n${JSON.stringify(forcedResult).slice(0, 12000)}\nTu dois recommander uniquement des résultats listés ci-dessus quand c'est pertinent et copier exactement disclosure_note sur sa propre ligne avant la question finale.`,
           });
         }
+
 
         const logTurn = async (opts: { finalText: string; streamCompleted: boolean }) => {
           try {

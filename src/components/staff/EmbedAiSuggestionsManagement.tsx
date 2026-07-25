@@ -55,28 +55,33 @@ type Row = {
   followups: Followup[];
   business_ids: string[];
   destination_ids: string[];
+  subcategory_ids: string[];
 };
 
 type BusinessOption = { id: string; name: string; slug: string | null };
 type DestinationOption = { id: string; name_fr: string; name_en: string | null; name_ar: string | null };
+type SubcategoryOption = { id: string; name_fr: string };
 
 const EmbedAiSuggestionsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
   const [businesses, setBusinesses] = useState<BusinessOption[]>([]);
   const [destinations, setDestinations] = useState<DestinationOption[]>([]);
+  const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [businessSearch, setBusinessSearch] = useState<Record<string, string>>({});
   const [destinationSearch, setDestinationSearch] = useState<Record<string, string>>({});
+  const [subcategorySearch, setSubcategorySearch] = useState<Record<string, string>>({});
+
 
   const load = async () => {
     setLoading(true);
-    const [{ data, error }, { data: bizs }, { data: dests }] = await Promise.all([
+    const [{ data, error }, { data: bizs }, { data: dests }, { data: subs }] = await Promise.all([
       supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,subcategory_ids")
         .order("sort_order", { ascending: true }),
       supabase
         .from("businesses")
@@ -87,6 +92,10 @@ const EmbedAiSuggestionsManagement = () => {
         .from("destinations")
         .select("id,name_fr,name_en,name_ar")
         .order("name_fr", { ascending: true }),
+      supabase
+        .from("subcategories")
+        .select("id,name_fr")
+        .order("name_fr", { ascending: true }),
     ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows(
@@ -95,10 +104,13 @@ const EmbedAiSuggestionsManagement = () => {
         followups: Array.isArray(r.followups) ? r.followups : [],
         business_ids: Array.isArray(r.business_ids) ? r.business_ids : [],
         destination_ids: Array.isArray(r.destination_ids) ? r.destination_ids : [],
+        subcategory_ids: Array.isArray(r.subcategory_ids) ? r.subcategory_ids : [],
       }))
     );
     setBusinesses(((bizs as any[]) || []).map((b) => ({ id: b.id, name: b.name || "(sans nom)", slug: b.slug })));
     setDestinations(((dests as any[]) || []).map((d) => ({ id: d.id, name_fr: d.name_fr || "(sans nom)", name_en: d.name_en || null, name_ar: d.name_ar || null })));
+    setSubcategories(((subs as any[]) || []).map((s) => ({ id: s.id, name_fr: s.name_fr || "(sans nom)" })));
+
     setDirty(new Set());
     setLoading(false);
   };
@@ -159,7 +171,7 @@ const EmbedAiSuggestionsManagement = () => {
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [] } as Row]);
+    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], subcategory_ids: [] } as Row]);
   };
 
 
@@ -184,6 +196,7 @@ const EmbedAiSuggestionsManagement = () => {
           followups: r.followups.filter((f) => (f.label_fr || "").trim()),
           business_ids: r.business_ids || [],
           destination_ids: r.destination_ids || [],
+          subcategory_ids: r.subcategory_ids || [],
         }).eq("id", r.id)
       )
     );
@@ -251,7 +264,13 @@ const EmbedAiSuggestionsManagement = () => {
                       className="w-20 h-8"
                     />
                     <span className="text-muted-foreground">Ordre</span>
-                    <RouteBadge label={r.label_fr || ""} />
+                    {r.subcategory_ids.length > 0 ? (
+                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" title={`Route déterministe: ${r.subcategory_ids.length} sous-catégorie(s)`}>
+                        <span>🎯</span><span>subcategory ({r.subcategory_ids.length})</span>
+                      </span>
+                    ) : (
+                      <RouteBadge label={r.label_fr || ""} />
+                    )}
                   </CardTitle>
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
@@ -388,6 +407,64 @@ const EmbedAiSuggestionsManagement = () => {
                     )}
                   </div>
                 </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs text-muted-foreground">
+                    Sous-catégories ciblées {r.subcategory_ids.length === 0 ? "(aucune — recherche libre par l'IA)" : `(${r.subcategory_ids.length} — route déterministe)`}
+                  </label>
+                  {r.subcategory_ids.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {r.subcategory_ids.map((sid) => {
+                        const s = subcategories.find((x) => x.id === sid);
+                        return (
+                          <span key={sid} className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs px-2 py-1">
+                            {s?.name_fr || sid}
+                            <button
+                              type="button"
+                              onClick={() => update(r.id, { subcategory_ids: r.subcategory_ids.filter((x) => x !== sid) })}
+                              className="hover:text-destructive"
+                              title="Retirer"
+                            >×</button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div className="relative max-w-md">
+                    <Input
+                      placeholder="Rechercher une sous-catégorie…"
+                      value={subcategorySearch[r.id] || ""}
+                      onChange={(e) => setSubcategorySearch((prev) => ({ ...prev, [r.id]: e.target.value }))}
+                      onKeyDown={(e) => { if (e.key === "Escape") setSubcategorySearch((prev) => ({ ...prev, [r.id]: "" })); }}
+                    />
+                    {subcategorySearch[r.id]?.trim() && (
+                      <div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg max-h-60 overflow-auto">
+                        {(() => {
+                          const q = subcategorySearch[r.id].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                          const matches = subcategories
+                            .filter((s) => !r.subcategory_ids.includes(s.id))
+                            .filter((s) => s.name_fr.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q));
+                          if (matches.length === 0) return <div className="px-3 py-2 text-sm text-muted-foreground">Aucune sous-catégorie trouvée</div>;
+                          return matches.slice(0, 8).map((s) => (
+                            <button
+                              key={s.id}
+                              type="button"
+                              onClick={() => { update(r.id, { subcategory_ids: [...r.subcategory_ids, s.id] }); setSubcategorySearch((prev) => ({ ...prev, [r.id]: "" })); }}
+                              className="w-full px-3 py-2 text-left text-sm hover:bg-muted truncate"
+                            >
+                              {s.name_fr}
+                            </button>
+                          ));
+                        })()}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    💡 Quand une ou plusieurs sous-catégories sont liées, l'IA court-circuite le LLM et affiche directement les établissements de ces sous-catégories (résultats déterministes).
+                  </p>
+                </div>
+
+
 
 
 
