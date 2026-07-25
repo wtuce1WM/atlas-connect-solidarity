@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { Send, Sun, Moon, MapPin, Calendar as CalendarIcon, MessageSquarePlus } from "lucide-react";
+import { Send, Sun, Moon, MapPin, Calendar as CalendarIcon, MessageSquarePlus, Info, Bed, Utensils, Wine, Coffee, ShoppingBag, Sparkles, Landmark, Camera } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlidePanel";
 import EventsSlidePanel from "@/components/club/EventsSlidePanel";
@@ -103,6 +103,21 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--KNOWN_BUSINESSES:[\s\S]*$/g, "")
     .trim();
   return { clean, maps, events, known };
+}
+
+// ============= Category icon + label helpers (Mindtrip-style miniatures) =============
+function categoryMeta(b: MapPanelBusiness): { Icon: typeof Bed; label: string } {
+  const cat = (b.main_category || (b.categories?.[0] ?? "") || "").toLowerCase();
+  const has = (s: string) => cat.includes(s);
+  if (has("hôtel") || has("hotel") || has("riad") || has("hébergement") || has("stay") || has("lodging")) return { Icon: Bed, label: b.main_category || "Hôtel" };
+  if (has("restaurant") || has("table") || has("dîner") || has("dining") || has("food")) return { Icon: Utensils, label: b.main_category || "Restaurant" };
+  if (has("bar") || has("club") || has("nightlife") || has("soirée")) return { Icon: Wine, label: b.main_category || "Bar" };
+  if (has("café") || has("cafe") || has("thé") || has("tea") || has("coffee") || has("salon de thé")) return { Icon: Coffee, label: b.main_category || "Café" };
+  if (has("boutique") || has("shop") || has("tapis") || has("souk") || has("shopping")) return { Icon: ShoppingBag, label: b.main_category || "Boutique" };
+  if (has("spa") || has("hammam") || has("wellness") || has("bien-être")) return { Icon: Sparkles, label: b.main_category || "Spa" };
+  if (has("musée") || has("museum") || has("monument") || has("patrimoine") || has("culture")) return { Icon: Landmark, label: b.main_category || "Culture" };
+  if (has("activité") || has("activity") || has("excursion") || has("tour") || has("expérience")) return { Icon: Camera, label: b.main_category || "Activité" };
+  return { Icon: MapPin, label: [b.neighborhood, b.city].filter(Boolean).join(", ") || b.main_category || "Établissement" };
 }
 
 // ============= Component =============
@@ -403,35 +418,46 @@ const EmbedAsk = () => {
                 </div>
               </div>
 
-              {/* Business carousel */}
+              {/* Business carousel — Mindtrip-style square thumbnails */}
               {mapPayload && mapPayload.businesses.length > 0 && (
                 <div className="w-full max-w-full overflow-x-auto -mx-1 px-1">
-                  <div className="flex gap-2 pb-1">
-                    {mapPayload.businesses.slice(0, 20).map((b) => (
-                      <button
-                        key={b.id}
-                        type="button"
-                        onClick={() => setOpenBusinessId(b.id)}
-                        className={`shrink-0 w-40 rounded-xl overflow-hidden text-left ${cardBg} hover:opacity-90 transition-opacity`}
-                      >
-                        <div className="w-full h-24 bg-neutral-800 relative overflow-hidden">
-                          {(b.images?.[0] || (b as any).logo_url) ? (
-                            <img
-                              src={(b.images?.[0] || (b as any).logo_url) as string}
-                              alt={b.name}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                            />
-                          ) : null}
-                        </div>
-                        <div className="p-2">
-                          <div className="text-xs font-semibold line-clamp-2">{b.name}</div>
-                          <div className="text-[10px] opacity-60 line-clamp-1 mt-0.5">
-                            {[b.neighborhood, b.city].filter(Boolean).join(" · ")}
+                  <div className="flex gap-3 pb-1">
+                    {mapPayload.businesses.slice(0, 20).map((b) => {
+                      const { Icon, label } = categoryMeta(b);
+                      const img = (b.images?.[0] || (b as any).logo_url) as string | undefined;
+                      return (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => setOpenBusinessId(b.id)}
+                          className="shrink-0 w-44 text-left group"
+                        >
+                          <div className="relative w-44 h-44 rounded-2xl overflow-hidden bg-neutral-800">
+                            {img ? (
+                              <img
+                                src={img}
+                                alt={b.name}
+                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                                loading="lazy"
+                              />
+                            ) : null}
+                            <span
+                              aria-hidden
+                              className="absolute bottom-2 right-2 h-6 w-6 rounded-full bg-white/95 text-neutral-900 flex items-center justify-center shadow-sm"
+                            >
+                              <Info className="w-3.5 h-3.5" />
+                            </span>
                           </div>
-                        </div>
-                      </button>
-                    ))}
+                          <div className="mt-2 px-0.5">
+                            <div className="text-sm font-semibold leading-tight line-clamp-2">{b.name}</div>
+                            <div className="mt-1 flex items-center gap-1.5 text-xs opacity-70 line-clamp-1">
+                              <Icon className="w-3.5 h-3.5 shrink-0" />
+                              <span className="truncate">{label}</span>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                   <button
                     type="button"
