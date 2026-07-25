@@ -698,6 +698,21 @@ Deno.serve(async (req) => {
           }
         };
 
+        // Deterministic short-circuit: "Que faire à proximité ?" overview.
+        // Lists active businesses within 1 km of the host, grouped by front_structure,
+        // excluding the host's own subcategories from the taxonomy (never revealed).
+        if (isNearbyOverviewIntent(userMessage)) {
+          const overview = await buildNearbyOverview(admin, host, hostSubIds, language);
+          if (overview) {
+            if (!firstTokenAt) firstTokenAt = Date.now();
+            emit({ type: "chunk", delta: overview });
+            emit({ type: "done", answer: overview });
+            toolsCalledLog.push({ name: "nearby_overview_1km", args: { lat: host.latitude, lng: host.longitude }, ok: true });
+            await logTurn({ finalText: overview, streamCompleted: true });
+            return close();
+          }
+        }
+
         // Tool loop (up to MAX_ROUNDS)
         for (let round = 0; round < MAX_ROUNDS; round++) {
           const isLast = round === MAX_ROUNDS - 1;
