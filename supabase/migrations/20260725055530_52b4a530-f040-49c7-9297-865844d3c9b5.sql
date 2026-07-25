@@ -1,0 +1,1 @@
+ALTER TABLE public.embed_ai_suggestions ADD COLUMN IF NOT EXISTS subcategory_ids uuid[] NOT NULL DEFAULT '{}'::uuid[];
