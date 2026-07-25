@@ -458,25 +458,28 @@ const EmbedAsk = () => {
                               {loc && (
                                 <div className="text-[11px] text-white/80 mt-0.5 line-clamp-1">{loc}</div>
                               )}
-                              {ratingOn20 != null && (
-                                <div className="mt-0.5 flex items-center gap-1 text-[12px] text-white">
-                                  <span style={{ color: "#D4AF37" }}>★</span>
-                                  <span className="font-semibold">{Number(ratingOn20).toFixed(1)}/20</span>
-                                  {reviewCount ? (
-                                    <span className="text-white/70">· {reviewCount} avis</span>
-                                  ) : null}
-                                </div>
-                              )}
-                            </div>
-                            {/* Distance badge */}
-                            {distStr && (
-                              <div
-                                className="absolute bottom-2 right-2 text-[11px] font-semibold px-1.5 py-0.5 rounded backdrop-blur-sm whitespace-nowrap"
-                                style={{ background: "rgba(0,0,0,0.6)", color: "#D4AF37" }}
-                              >
-                                {distStr}
+                              <div className="mt-0.5 flex items-center justify-between gap-2">
+                                {ratingOn20 != null ? (
+                                  <div className="flex items-center gap-1 text-[12px] text-white min-w-0">
+                                    <span style={{ color: "#D4AF37" }}>★</span>
+                                    <span className="font-semibold shrink-0">{Number(ratingOn20).toFixed(1)}/20</span>
+                                    {reviewCount ? (
+                                      <span className="text-white/70 truncate">· {reviewCount} avis</span>
+                                    ) : null}
+                                  </div>
+                                ) : (
+                                  <span />
+                                )}
+                                {distStr && (
+                                  <div
+                                    className="text-[11px] font-semibold px-1.5 py-0.5 rounded backdrop-blur-sm whitespace-nowrap shrink-0"
+                                    style={{ background: "rgba(0,0,0,0.6)", color: "#D4AF37" }}
+                                  >
+                                    {distStr}
+                                  </div>
+                                )}
                               </div>
-                            )}
+                            </div>
                           </div>
                         </button>
                       );
