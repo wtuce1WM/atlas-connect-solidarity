@@ -9,6 +9,16 @@ import { Trash2, Plus, Save, Code2, Loader2, ChevronDown, ChevronRight, CornerDo
 
 type Followup = { label_fr: string; label_en: string | null; label_ar: string | null };
 
+const DEFAULT_FOLLOWUPS: Followup[] = [
+  { label_fr: "Consulter les horaires", label_en: "Check opening hours", label_ar: "الاطلاع على ساعات العمل" },
+  { label_fr: "Autres points d'intérêt à proximité", label_en: "Other points of interest nearby", label_ar: "نقاط اهتمام أخرى قريبة" },
+  { label_fr: "Autres activités à proximité", label_en: "Other activities nearby", label_ar: "أنشطة أخرى قريبة" },
+  { label_fr: "Quelle est la météo prévue ?", label_en: "What's the weather forecast?", label_ar: "ما هي توقعات الطقس؟" },
+  { label_fr: "Quelles sont les distances depuis {businessName} ?", label_en: "What are the distances from {businessName}?", label_ar: "ما هي المسافات من {businessName}؟" },
+  { label_fr: "Montre-moi les coordonnées pour appeler", label_en: "Show me the contact details to call", label_ar: "أظهر لي بيانات الاتصال للاتصال" },
+  { label_fr: "On peut réserver en ligne ?", label_en: "Can we book online?", label_ar: "هل يمكن الحجز عبر الإنترنت؟" },
+];
+
 type Row = {
   id: string;
   label_fr: string;
@@ -64,11 +74,12 @@ const EmbedAiSuggestionsManagement = () => {
 
   const addFollowup = (id: string) => {
     setRows((prev) =>
-      prev.map((r) =>
-        r.id === id
-          ? { ...r, followups: [...r.followups, { label_fr: "", label_en: "", label_ar: "" }] }
-          : r
-      )
+      prev.map((r) => {
+        if (r.id !== id) return r;
+        const existing = new Set(r.followups.map((f) => (f.label_fr || "").trim().toLowerCase()));
+        const toAdd = DEFAULT_FOLLOWUPS.filter((f) => !existing.has(f.label_fr.trim().toLowerCase()));
+        return { ...r, followups: [...r.followups, ...toAdd] };
+      })
     );
     setDirty((prev) => { const n = new Set(prev); n.add(id); return n; });
   };
