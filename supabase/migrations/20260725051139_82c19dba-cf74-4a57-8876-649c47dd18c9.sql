@@ -1,0 +1,2 @@
+ALTER TABLE public.embed_ai_suggestions ADD COLUMN IF NOT EXISTS business_ids uuid[] NOT NULL DEFAULT '{}'::uuid[];
+CREATE INDEX IF NOT EXISTS idx_embed_ai_suggestions_business_ids ON public.embed_ai_suggestions USING GIN (business_ids);
