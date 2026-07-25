@@ -542,49 +542,9 @@ const EmbedAiSuggestionsManagement = () => {
 
 
 
-                <button
-                  type="button"
-                  onClick={() => toggleExpanded(r.id)}
-                  className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
-                >
-                  {isOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-                  Relances après la réponse IA ({r.followups.length})
-                </button>
-
-                {isOpen && (
-                  <div className="space-y-2 pl-4 border-l-2 border-muted">
-                    {r.followups.map((f, idx) => (
-                      <div key={idx} className="space-y-1">
-                        <div className="pl-6"><RouteBadge label={f.label_fr || ""} /></div>
-                        <div className="grid gap-2 md:grid-cols-[16px_1fr_1fr_1fr_40px] items-center">
-                          <CornerDownRight className="h-4 w-4 text-muted-foreground" />
-                          <Input
-                            value={f.label_fr || ""}
-                            onChange={(e) => updateFollowup(r.id, idx, { label_fr: e.target.value })}
-                            placeholder="Relance FR"
-                          />
-                          <Input
-                            value={f.label_en || ""}
-                            onChange={(e) => updateFollowup(r.id, idx, { label_en: e.target.value })}
-                            placeholder="EN"
-                          />
-                          <Input
-                            value={f.label_ar || ""}
-                            onChange={(e) => updateFollowup(r.id, idx, { label_ar: e.target.value })}
-                            placeholder="AR"
-                            dir="rtl"
-                          />
-                          <Button variant="ghost" size="icon" onClick={() => removeFollowup(r.id, idx)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                    <Button variant="outline" size="sm" onClick={() => addFollowup(r.id)}>
-                      <Plus className="h-3.5 w-3.5 mr-1" /> Ajouter une relance
-                    </Button>
-                  </div>
-                )}
+                <p className="text-[11px] text-muted-foreground">
+                  💬 Les relances après réponse IA sont gérées globalement dans l'onglet <b>Relances</b>.
+                </p>
               </CardContent>
             </Card>
           );
