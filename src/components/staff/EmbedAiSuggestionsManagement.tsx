@@ -9,6 +9,32 @@ import { Trash2, Plus, Save, Code2, Loader2, ChevronDown, ChevronRight, CornerDo
 
 type Followup = { label_fr: string; label_en: string | null; label_ar: string | null };
 
+type Route = { key: "weather" | "events" | "search" | "map" | "llm"; label: string; emoji: string; className: string };
+
+function detectRoute(label: string): Route {
+  const q = (label || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  if (!q.trim()) return { key: "llm", label: "LLM direct", emoji: "💬", className: "bg-muted text-muted-foreground" };
+  if (/\b(meteo|weather|forecast|temps|temperature|degres?|previsions?|il fait|quel temps)\b/.test(q))
+    return { key: "weather", label: "get_weather", emoji: "🌤", className: "bg-sky-500/15 text-sky-700 dark:text-sky-300" };
+  if (/\b(event|events|evenement|agenda|week[- ]?end|ce soir|festival|concert|expo|spectacle|whats on)\b/.test(q))
+    return { key: "events", label: "search_events", emoji: "📅", className: "bg-amber-500/15 text-amber-700 dark:text-amber-300" };
+  if (/\b(carte|map|montre.*carte|show.*map|localise)\b/.test(q))
+    return { key: "map", label: "show_on_map", emoji: "🗺", className: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" };
+  if (/\b(proximite|autour|pres de|nearby|around|ou |où |restaurant|bar|cafe|the|rooftop|terrasse|musee|galerie|activite|visite|visiter|beach[- ]?club|hotel|riad|spa|boutique|shopping|manger|boire|dejeuner|diner|sortie|things to do|what to do|where)\b/.test(q))
+    return { key: "search", label: "search_businesses", emoji: "🔍", className: "bg-primary/15 text-primary" };
+  return { key: "llm", label: "LLM direct", emoji: "💬", className: "bg-muted text-muted-foreground" };
+}
+
+const RouteBadge = ({ label }: { label: string }) => {
+  const r = detectRoute(label);
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${r.className}`} title={`Route détectée: ${r.label}`}>
+      <span>{r.emoji}</span>
+      <span>{r.label}</span>
+    </span>
+  );
+};
+
 const DEFAULT_FOLLOWUPS: Followup[] = [
   { label_fr: "Consulter les horaires", label_en: "Check opening hours", label_ar: "الاطلاع على ساعات العمل" },
   { label_fr: "Autres points d'intérêt à proximité", label_en: "Other points of interest nearby", label_ar: "نقاط اهتمام أخرى قريبة" },
@@ -188,6 +214,15 @@ const EmbedAiSuggestionsManagement = () => {
         </div>
       </div>
 
+      <div className="flex flex-wrap items-center gap-2 rounded-md border bg-muted/30 px-3 py-2 text-xs">
+        <span className="text-muted-foreground">Route détectée automatiquement selon le libellé FR :</span>
+        <RouteBadge label="météo" />
+        <RouteBadge label="ce week-end" />
+        <RouteBadge label="à proximité" />
+        <RouteBadge label="montre sur la carte" />
+        <RouteBadge label="" />
+      </div>
+
       <div className="space-y-3">
         {rows.map((r) => {
           const isOpen = expanded.has(r.id);
@@ -203,6 +238,7 @@ const EmbedAiSuggestionsManagement = () => {
                       className="w-20 h-8"
                     />
                     <span className="text-muted-foreground">Ordre</span>
+                    <RouteBadge label={r.label_fr || ""} />
                   </CardTitle>
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
@@ -290,27 +326,30 @@ const EmbedAiSuggestionsManagement = () => {
                 {isOpen && (
                   <div className="space-y-2 pl-4 border-l-2 border-muted">
                     {r.followups.map((f, idx) => (
-                      <div key={idx} className="grid gap-2 md:grid-cols-[16px_1fr_1fr_1fr_40px] items-center">
-                        <CornerDownRight className="h-4 w-4 text-muted-foreground" />
-                        <Input
-                          value={f.label_fr || ""}
-                          onChange={(e) => updateFollowup(r.id, idx, { label_fr: e.target.value })}
-                          placeholder="Relance FR"
-                        />
-                        <Input
-                          value={f.label_en || ""}
-                          onChange={(e) => updateFollowup(r.id, idx, { label_en: e.target.value })}
-                          placeholder="EN"
-                        />
-                        <Input
-                          value={f.label_ar || ""}
-                          onChange={(e) => updateFollowup(r.id, idx, { label_ar: e.target.value })}
-                          placeholder="AR"
-                          dir="rtl"
-                        />
-                        <Button variant="ghost" size="icon" onClick={() => removeFollowup(r.id, idx)}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                      <div key={idx} className="space-y-1">
+                        <div className="pl-6"><RouteBadge label={f.label_fr || ""} /></div>
+                        <div className="grid gap-2 md:grid-cols-[16px_1fr_1fr_1fr_40px] items-center">
+                          <CornerDownRight className="h-4 w-4 text-muted-foreground" />
+                          <Input
+                            value={f.label_fr || ""}
+                            onChange={(e) => updateFollowup(r.id, idx, { label_fr: e.target.value })}
+                            placeholder="Relance FR"
+                          />
+                          <Input
+                            value={f.label_en || ""}
+                            onChange={(e) => updateFollowup(r.id, idx, { label_en: e.target.value })}
+                            placeholder="EN"
+                          />
+                          <Input
+                            value={f.label_ar || ""}
+                            onChange={(e) => updateFollowup(r.id, idx, { label_ar: e.target.value })}
+                            placeholder="AR"
+                            dir="rtl"
+                          />
+                          <Button variant="ghost" size="icon" onClick={() => removeFollowup(r.id, idx)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                     <Button variant="outline" size="sm" onClick={() => addFollowup(r.id)}>
