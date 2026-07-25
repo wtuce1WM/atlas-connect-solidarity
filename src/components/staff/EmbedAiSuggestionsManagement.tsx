@@ -304,25 +304,35 @@ const EmbedAiSuggestionsManagement = () => {
                       })}
                     </div>
                   )}
-                  <select
-                    value=""
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      if (!v) return;
-                      if (!r.business_ids.includes(v)) {
-                        update(r.id, { business_ids: [...r.business_ids, v] });
-                      }
-                    }}
-                    className="h-9 rounded-md border border-input bg-background px-2 text-sm w-full max-w-md"
-                    title="Ajouter un établissement"
-                  >
-                    <option value="">— Ajouter un établissement —</option>
-                    {businesses
-                      .filter((b) => !r.business_ids.includes(b.id))
-                      .map((b) => (
-                        <option key={b.id} value={b.id}>{b.name}</option>
-                      ))}
-                  </select>
+                  <div className="relative max-w-md">
+                    <Input
+                      placeholder="Rechercher un établissement…"
+                      value={businessSearch[r.id] || ""}
+                      onChange={(e) => setBusinessSearch((prev) => ({ ...prev, [r.id]: e.target.value }))}
+                      onKeyDown={(e) => { if (e.key === "Escape") setBusinessSearch((prev) => ({ ...prev, [r.id]: "" })); }}
+                    />
+                    {businessSearch[r.id]?.trim() && (
+                      <div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg max-h-60 overflow-auto">
+                        {(() => {
+                          const q = businessSearch[r.id].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                          const matches = businesses
+                            .filter((b) => !r.business_ids.includes(b.id))
+                            .filter((b) => b.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q));
+                          if (matches.length === 0) return <div className="px-3 py-2 text-sm text-muted-foreground">Aucun établissement trouvé</div>;
+                          return matches.slice(0, 8).map((b) => (
+                            <button
+                              key={b.id}
+                              type="button"
+                              onClick={() => { update(r.id, { business_ids: [...r.business_ids, b.id] }); setBusinessSearch((prev) => ({ ...prev, [r.id]: "" })); }}
+                              className="w-full px-3 py-2 text-left text-sm hover:bg-muted truncate"
+                            >
+                              {b.name}
+                            </button>
+                          ));
+                        })()}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2">
