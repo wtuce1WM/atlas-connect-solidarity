@@ -288,7 +288,11 @@ Deno.serve(async (req) => {
               const text = await r.text();
               let sres: any = null; try { sres = JSON.parse(text); } catch { /* */ }
               const all: any[] = Array.isArray(sres?.businesses) ? sres.businesses : [];
-              let filtered = await filterOutCompetitors(all);
+              // Pinned bypass competitor filter (explicitly authored in backoffice).
+              const pinnedSet = new Set(suggestionPinnedIds);
+              const nonPinned = all.filter((b: any) => !pinnedSet.has(b.id));
+              const pinnedFromAll = all.filter((b: any) => pinnedSet.has(b.id));
+              let filtered = [...pinnedFromAll, ...(await filterOutCompetitors(nonPinned))];
 
               // Pinned businesses (from suggestion.business_ids) — always at the top.
               if (suggestionPinnedIds.length) {
