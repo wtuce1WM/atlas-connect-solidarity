@@ -457,16 +457,19 @@ const EmbedAsk = () => {
         )}
         {msgs.length <= 1 && !streaming && businessName && (
           <div className="flex flex-wrap gap-2 pt-1">
-            {suggestions.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => { setActiveSuggestionId(s.id); send(s.label); }}
-                className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
-              >
-                {s.label}
-              </button>
-            ))}
+            {suggestions.map((s) => {
+              const label = s.label.replace(/\{businessName\}/g, businessName || "").trim();
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => { setActiveSuggestionId(s.id); send(label); }}
+                  className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
         )}
 
