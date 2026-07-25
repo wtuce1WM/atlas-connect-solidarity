@@ -54,13 +54,16 @@ type Row = {
   is_active: boolean;
   followups: Followup[];
   business_ids: string[];
+  destination_ids: string[];
 };
 
 type BusinessOption = { id: string; name: string; slug: string | null };
+type DestinationOption = { id: string; name: string };
 
 const EmbedAiSuggestionsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
   const [businesses, setBusinesses] = useState<BusinessOption[]>([]);
+  const [destinations, setDestinations] = useState<DestinationOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
@@ -68,15 +71,19 @@ const EmbedAiSuggestionsManagement = () => {
 
   const load = async () => {
     setLoading(true);
-    const [{ data, error }, { data: bizs }] = await Promise.all([
+    const [{ data, error }, { data: bizs }, { data: dests }] = await Promise.all([
       supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids")
         .order("sort_order", { ascending: true }),
       supabase
         .from("businesses")
         .select("id,name,slug")
         .eq("is_active", true)
+        .order("name", { ascending: true }),
+      supabase
+        .from("destinations")
+        .select("id,name")
         .order("name", { ascending: true }),
     ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
@@ -85,9 +92,11 @@ const EmbedAiSuggestionsManagement = () => {
         ...r,
         followups: Array.isArray(r.followups) ? r.followups : [],
         business_ids: Array.isArray(r.business_ids) ? r.business_ids : [],
+        destination_ids: Array.isArray(r.destination_ids) ? r.destination_ids : [],
       }))
     );
     setBusinesses(((bizs as any[]) || []).map((b) => ({ id: b.id, name: b.name || "(sans nom)", slug: b.slug })));
+    setDestinations(((dests as any[]) || []).map((d) => ({ id: d.id, name: d.name || "(sans nom)" })));
     setDirty(new Set());
     setLoading(false);
   };
@@ -148,8 +157,9 @@ const EmbedAiSuggestionsManagement = () => {
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [] } as Row]);
+    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [] } as Row]);
   };
+
 
   const removeRow = async (id: string) => {
     if (!confirm("Supprimer cette suggestion ?")) return;
@@ -171,6 +181,7 @@ const EmbedAiSuggestionsManagement = () => {
           is_active: r.is_active,
           followups: r.followups.filter((f) => (f.label_fr || "").trim()),
           business_ids: r.business_ids || [],
+          destination_ids: r.destination_ids || [],
         }).eq("id", r.id)
       )
     );
@@ -312,6 +323,51 @@ const EmbedAiSuggestionsManagement = () => {
                       ))}
                   </select>
                 </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs text-muted-foreground">
+                    Destinations liées {r.destination_ids.length === 0 ? "(aucune)" : `(${r.destination_ids.length})`}
+                  </label>
+                  {r.destination_ids.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {r.destination_ids.map((did) => {
+                        const d = destinations.find((x) => x.id === did);
+                        return (
+                          <span key={did} className="inline-flex items-center gap-1 rounded-md bg-gold/10 text-gold text-xs px-2 py-1">
+                            {d?.name || did}
+                            <button
+                              type="button"
+                              onClick={() => update(r.id, { destination_ids: r.destination_ids.filter((x) => x !== did) })}
+                              className="hover:text-destructive"
+                              title="Retirer"
+                            >×</button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <select
+                    value=""
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (!v) return;
+                      if (!r.destination_ids.includes(v)) {
+                        update(r.id, { destination_ids: [...r.destination_ids, v] });
+                      }
+                    }}
+                    className="h-9 rounded-md border border-input bg-background px-2 text-sm w-full max-w-md"
+                    title="Ajouter une destination"
+                  >
+                    <option value="">— Ajouter une destination —</option>
+                    {destinations
+                      .filter((d) => !r.destination_ids.includes(d.id))
+                      .map((d) => (
+                        <option key={d.id} value={d.id}>{d.name}</option>
+                      ))}
+                  </select>
+                </div>
+
+
 
 
                 <button
