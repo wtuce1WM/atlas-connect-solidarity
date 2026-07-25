@@ -181,7 +181,7 @@ const EmbedAiSuggestionsManagement = () => {
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], subcategory_ids: [] } as Row]);
+    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], subcategory_ids: [], badge_ids: [] } as Row]);
   };
 
 
