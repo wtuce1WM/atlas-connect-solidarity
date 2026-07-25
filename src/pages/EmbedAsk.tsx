@@ -194,13 +194,27 @@ const EmbedAsk = () => {
         .map((r) => ({
           id: r.id as string,
           label: ((r[col] || r.label_fr || "") as string).trim(),
-          followups: Array.isArray(r.followups) ? (r.followups as FollowupRow[]) : [],
         }))
         .filter((r) => r.label);
       if (list.length > 0) setDbSuggestions(list);
     })();
     return () => { cancelled = true; };
   }, [lang, businessId]);
+
+  // Load global followups (shown after every assistant reply)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("embed_ai_followups")
+        .select("label_fr,label_en,label_ar")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      if (cancelled || !data) return;
+      setGlobalFollowups(data as FollowupRow[]);
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [msgs]);
   useEffect(() => { inputRef.current?.focus(); }, [businessName]);
