@@ -263,6 +263,9 @@ Deno.serve(async (req) => {
               if (args.neighborhood) qParts.push(String(args.neighborhood));
               const fullQuery = qParts.filter(Boolean).join(" ").trim();
               const city = args.city || host.city || "Marrakech";
+              const subcategoryNames: string[] | undefined = Array.isArray(args._subcategoryNames) && args._subcategoryNames.length
+                ? args._subcategoryNames.map((s: any) => String(s)).filter(Boolean)
+                : undefined;
               const r = await fetch(`${SUPABASE_URL}/functions/v1/business-search`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${SERVICE}`, apikey: SERVICE, "Content-Type": "application/json" },
@@ -274,8 +277,10 @@ Deno.serve(async (req) => {
                   offset: 0,
                   compact: "card",
                   city,
+                  subcategoryNames,
                 }),
               });
+
               const text = await r.text();
               let sres: any = null; try { sres = JSON.parse(text); } catch { /* */ }
               const all: any[] = Array.isArray(sres?.businesses) ? sres.businesses : [];
