@@ -215,7 +215,7 @@ const EmbedAsk = () => {
   const sessionIdRef = useRef<string>(typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `s-${Date.now()}-${Math.random().toString(36).slice(2)}`);
   const messageIndexRef = useRef<number>(0);
 
-  const send = async (overrideText?: string) => {
+  const send = async (overrideText?: string, suggestionId?: string) => {
     const text = (overrideText ?? input).trim();
     if (!text || streaming || !businessName) return;
     if (!overrideText) { setInput(""); setActiveSuggestionId(null); }
@@ -245,8 +245,10 @@ const EmbedAsk = () => {
           messages: cleanedHistory,
           sessionId: sessionIdRef.current,
           messageIndex,
+          suggestionId: suggestionId || null,
         }),
       });
+
       if (!resp.ok || !resp.body) throw new Error(`HTTP ${resp.status}`);
 
       const reader = resp.body.getReader();
