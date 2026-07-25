@@ -479,6 +479,64 @@ const EmbedAiSuggestionsManagement = () => {
                   </p>
                 </div>
 
+                <div className="space-y-2">
+                  <label className="text-xs text-muted-foreground">
+                    Badges ciblés {r.badge_ids.length === 0 ? "(aucun)" : `(${r.badge_ids.length} — route déterministe)`}
+                  </label>
+                  {r.badge_ids.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {r.badge_ids.map((bid) => {
+                        const b = badges.find((x) => x.id === bid);
+                        return (
+                          <span key={bid} className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs px-2 py-1">
+                            {b?.name_fr || bid}
+                            <button
+                              type="button"
+                              onClick={() => update(r.id, { badge_ids: r.badge_ids.filter((x) => x !== bid) })}
+                              className="hover:text-destructive"
+                              title="Retirer"
+                            >×</button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div className="relative max-w-md">
+                    <Input
+                      placeholder="Rechercher un badge…"
+                      value={badgeSearch[r.id] || ""}
+                      onChange={(e) => setBadgeSearch((prev) => ({ ...prev, [r.id]: e.target.value }))}
+                      onKeyDown={(e) => { if (e.key === "Escape") setBadgeSearch((prev) => ({ ...prev, [r.id]: "" })); }}
+                    />
+                    {badgeSearch[r.id]?.trim() && (
+                      <div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg max-h-60 overflow-auto">
+                        {(() => {
+                          const q = badgeSearch[r.id].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                          const matches = badges
+                            .filter((b) => !r.badge_ids.includes(b.id))
+                            .filter((b) => b.name_fr.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q));
+                          if (matches.length === 0) return <div className="px-3 py-2 text-sm text-muted-foreground">Aucun badge trouvé</div>;
+                          return matches.slice(0, 8).map((b) => (
+                            <button
+                              key={b.id}
+                              type="button"
+                              onClick={() => { update(r.id, { badge_ids: [...r.badge_ids, b.id] }); setBadgeSearch((prev) => ({ ...prev, [r.id]: "" })); }}
+                              className="w-full px-3 py-2 text-left text-sm hover:bg-muted truncate"
+                            >
+                              {b.name_fr}
+                            </button>
+                          ));
+                        })()}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    💡 Quand un ou plusieurs badges sont liés, l'IA court-circuite le LLM et affiche uniquement les établissements portant ces badges (croisé avec les sous-catégories si présentes).
+                  </p>
+                </div>
+
+
+
 
 
 
