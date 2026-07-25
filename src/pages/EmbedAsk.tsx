@@ -462,20 +462,8 @@ const EmbedAsk = () => {
             ))}
           </div>
         )}
-        {msgs.length > 1 && !streaming && businessName && activeFollowups.length > 0 && msgs[msgs.length - 1]?.role === "assistant" && (
-          <div className="flex flex-wrap gap-2 pt-1">
-            {activeFollowups.map((f, i) => (
-              <button
-                key={`${activeSuggestionId}-${i}`}
-                type="button"
-                onClick={() => send(f)}
-                className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-        )}
+
+
         {error && <div className="text-xs text-red-500">{error}</div>}
       </div>
 
