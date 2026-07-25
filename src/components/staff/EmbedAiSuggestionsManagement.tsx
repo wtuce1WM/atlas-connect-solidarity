@@ -74,11 +74,12 @@ const EmbedAiSuggestionsManagement = () => {
 
   const addFollowup = (id: string) => {
     setRows((prev) =>
-      prev.map((r) =>
-        r.id === id
-          ? { ...r, followups: [...r.followups, { label_fr: "", label_en: "", label_ar: "" }] }
-          : r
-      )
+      prev.map((r) => {
+        if (r.id !== id) return r;
+        const existing = new Set(r.followups.map((f) => (f.label_fr || "").trim().toLowerCase()));
+        const toAdd = DEFAULT_FOLLOWUPS.filter((f) => !existing.has(f.label_fr.trim().toLowerCase()));
+        return { ...r, followups: [...r.followups, ...toAdd] };
+      })
     );
     setDirty((prev) => { const n = new Set(prev); n.add(id); return n; });
   };
