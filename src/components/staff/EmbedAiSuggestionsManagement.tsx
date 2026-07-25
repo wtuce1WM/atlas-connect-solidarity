@@ -78,10 +78,10 @@ const EmbedAiSuggestionsManagement = () => {
 
   const load = async () => {
     setLoading(true);
-    const [{ data, error }, { data: bizs }, { data: dests }] = await Promise.all([
+    const [{ data, error }, { data: bizs }, { data: dests }, { data: subs }] = await Promise.all([
       supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,subcategory_ids")
         .order("sort_order", { ascending: true }),
       supabase
         .from("businesses")
@@ -92,6 +92,10 @@ const EmbedAiSuggestionsManagement = () => {
         .from("destinations")
         .select("id,name_fr,name_en,name_ar")
         .order("name_fr", { ascending: true }),
+      supabase
+        .from("subcategories")
+        .select("id,name_fr")
+        .order("name_fr", { ascending: true }),
     ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows(
@@ -100,10 +104,13 @@ const EmbedAiSuggestionsManagement = () => {
         followups: Array.isArray(r.followups) ? r.followups : [],
         business_ids: Array.isArray(r.business_ids) ? r.business_ids : [],
         destination_ids: Array.isArray(r.destination_ids) ? r.destination_ids : [],
+        subcategory_ids: Array.isArray(r.subcategory_ids) ? r.subcategory_ids : [],
       }))
     );
     setBusinesses(((bizs as any[]) || []).map((b) => ({ id: b.id, name: b.name || "(sans nom)", slug: b.slug })));
     setDestinations(((dests as any[]) || []).map((d) => ({ id: d.id, name_fr: d.name_fr || "(sans nom)", name_en: d.name_en || null, name_ar: d.name_ar || null })));
+    setSubcategories(((subs as any[]) || []).map((s) => ({ id: s.id, name_fr: s.name_fr || "(sans nom)" })));
+
     setDirty(new Set());
     setLoading(false);
   };
