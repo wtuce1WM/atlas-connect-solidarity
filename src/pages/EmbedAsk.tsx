@@ -124,6 +124,7 @@ const EmbedAsk = () => {
 
   const [businessName, setBusinessName] = useState<string>("");
   const [businessId, setBusinessId] = useState<string | null>(null);
+  const [businessCity, setBusinessCity] = useState<string | null>(null);
   const [hostLocation, setHostLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
