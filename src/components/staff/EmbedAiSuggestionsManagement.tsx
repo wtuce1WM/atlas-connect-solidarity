@@ -85,8 +85,8 @@ const EmbedAiSuggestionsManagement = () => {
         .order("name", { ascending: true }),
       supabase
         .from("destinations")
-        .select("id,name")
-        .order("name", { ascending: true }),
+        .select("id,name_fr,name_en,name_ar")
+        .order("name_fr", { ascending: true }),
     ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows(
@@ -98,7 +98,7 @@ const EmbedAiSuggestionsManagement = () => {
       }))
     );
     setBusinesses(((bizs as any[]) || []).map((b) => ({ id: b.id, name: b.name || "(sans nom)", slug: b.slug })));
-    setDestinations(((dests as any[]) || []).map((d) => ({ id: d.id, name: d.name || "(sans nom)" })));
+    setDestinations(((dests as any[]) || []).map((d) => ({ id: d.id, name_fr: d.name_fr || "(sans nom)", name_en: d.name_en || null, name_ar: d.name_ar || null })));
     setDirty(new Set());
     setLoading(false);
   };
@@ -346,7 +346,7 @@ const EmbedAiSuggestionsManagement = () => {
                         const d = destinations.find((x) => x.id === did);
                         return (
                           <span key={did} className="inline-flex items-center gap-1 rounded-md bg-gold/10 text-gold text-xs px-2 py-1">
-                            {d?.name || did}
+                            {d?.name_fr || did}
                             <button
                               type="button"
                               onClick={() => update(r.id, { destination_ids: r.destination_ids.filter((x) => x !== did) })}
@@ -371,7 +371,7 @@ const EmbedAiSuggestionsManagement = () => {
                           const q = destinationSearch[r.id].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                           const matches = destinations
                             .filter((d) => !r.destination_ids.includes(d.id))
-                            .filter((d) => d.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q));
+                            .filter((d) => d.name_fr.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q));
                           if (matches.length === 0) return <div className="px-3 py-2 text-sm text-muted-foreground">Aucune destination trouvée</div>;
                           return matches.slice(0, 8).map((d) => (
                             <button
@@ -380,7 +380,7 @@ const EmbedAiSuggestionsManagement = () => {
                               onClick={() => { update(r.id, { destination_ids: [...r.destination_ids, d.id] }); setDestinationSearch((prev) => ({ ...prev, [r.id]: "" })); }}
                               className="w-full px-3 py-2 text-left text-sm hover:bg-muted truncate"
                             >
-                              {d.name}
+                              {d.name_fr}
                             </button>
                           ));
                         })()}
