@@ -181,16 +181,21 @@ const EmbedAsk = () => {
   }, [slug]);
 
   useEffect(() => {
+    if (!businessId) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,followups")
+        .select("id,label_fr,label_en,label_ar,followups,business_ids")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (cancelled || !data) return;
       const col = lang === "en" ? "label_en" : lang === "ar" ? "label_ar" : "label_fr";
       const list: SuggestionRow[] = (data as any[])
+        .filter((r) => {
+          const ids: string[] = Array.isArray(r.business_ids) ? r.business_ids : [];
+          return ids.length === 0 || ids.includes(businessId);
+        })
         .map((r) => ({
           id: r.id as string,
           label: ((r[col] || r.label_fr || "") as string).trim(),
@@ -200,7 +205,7 @@ const EmbedAsk = () => {
       if (list.length > 0) setDbSuggestions(list);
     })();
     return () => { cancelled = true; };
-  }, [lang]);
+  }, [lang, businessId]);
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [msgs]);
   useEffect(() => { inputRef.current?.focus(); }, [businessName]);
