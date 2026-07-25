@@ -3538,6 +3538,7 @@ export type Database = {
       }
       embed_ai_suggestions: {
         Row: {
+          badge_ids: string[]
           business_ids: string[]
           created_at: string
           destination_ids: string[]
@@ -3552,6 +3553,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          badge_ids?: string[]
           business_ids?: string[]
           created_at?: string
           destination_ids?: string[]
@@ -3566,6 +3568,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          badge_ids?: string[]
           business_ids?: string[]
           created_at?: string
           destination_ids?: string[]
