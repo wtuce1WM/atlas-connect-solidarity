@@ -63,6 +63,7 @@ type DestinationOption = { id: string; name: string };
 const EmbedAiSuggestionsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
   const [businesses, setBusinesses] = useState<BusinessOption[]>([]);
+  const [destinations, setDestinations] = useState<DestinationOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
@@ -70,15 +71,19 @@ const EmbedAiSuggestionsManagement = () => {
 
   const load = async () => {
     setLoading(true);
-    const [{ data, error }, { data: bizs }] = await Promise.all([
+    const [{ data, error }, { data: bizs }, { data: dests }] = await Promise.all([
       supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids")
         .order("sort_order", { ascending: true }),
       supabase
         .from("businesses")
         .select("id,name,slug")
         .eq("is_active", true)
+        .order("name", { ascending: true }),
+      supabase
+        .from("destinations")
+        .select("id,name")
         .order("name", { ascending: true }),
     ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
@@ -87,9 +92,11 @@ const EmbedAiSuggestionsManagement = () => {
         ...r,
         followups: Array.isArray(r.followups) ? r.followups : [],
         business_ids: Array.isArray(r.business_ids) ? r.business_ids : [],
+        destination_ids: Array.isArray(r.destination_ids) ? r.destination_ids : [],
       }))
     );
     setBusinesses(((bizs as any[]) || []).map((b) => ({ id: b.id, name: b.name || "(sans nom)", slug: b.slug })));
+    setDestinations(((dests as any[]) || []).map((d) => ({ id: d.id, name: d.name || "(sans nom)" })));
     setDirty(new Set());
     setLoading(false);
   };
