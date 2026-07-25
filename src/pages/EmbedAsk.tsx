@@ -418,35 +418,46 @@ const EmbedAsk = () => {
                 </div>
               </div>
 
-              {/* Business carousel */}
+              {/* Business carousel — Mindtrip-style square thumbnails */}
               {mapPayload && mapPayload.businesses.length > 0 && (
                 <div className="w-full max-w-full overflow-x-auto -mx-1 px-1">
-                  <div className="flex gap-2 pb-1">
-                    {mapPayload.businesses.slice(0, 20).map((b) => (
-                      <button
-                        key={b.id}
-                        type="button"
-                        onClick={() => setOpenBusinessId(b.id)}
-                        className={`shrink-0 w-40 rounded-xl overflow-hidden text-left ${cardBg} hover:opacity-90 transition-opacity`}
-                      >
-                        <div className="w-full h-24 bg-neutral-800 relative overflow-hidden">
-                          {(b.images?.[0] || (b as any).logo_url) ? (
-                            <img
-                              src={(b.images?.[0] || (b as any).logo_url) as string}
-                              alt={b.name}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                            />
-                          ) : null}
-                        </div>
-                        <div className="p-2">
-                          <div className="text-xs font-semibold line-clamp-2">{b.name}</div>
-                          <div className="text-[10px] opacity-60 line-clamp-1 mt-0.5">
-                            {[b.neighborhood, b.city].filter(Boolean).join(" · ")}
+                  <div className="flex gap-3 pb-1">
+                    {mapPayload.businesses.slice(0, 20).map((b) => {
+                      const { Icon, label } = categoryMeta(b);
+                      const img = (b.images?.[0] || (b as any).logo_url) as string | undefined;
+                      return (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => setOpenBusinessId(b.id)}
+                          className="shrink-0 w-44 text-left group"
+                        >
+                          <div className="relative w-44 h-44 rounded-2xl overflow-hidden bg-neutral-800">
+                            {img ? (
+                              <img
+                                src={img}
+                                alt={b.name}
+                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                                loading="lazy"
+                              />
+                            ) : null}
+                            <span
+                              aria-hidden
+                              className="absolute bottom-2 right-2 h-6 w-6 rounded-full bg-white/95 text-neutral-900 flex items-center justify-center shadow-sm"
+                            >
+                              <Info className="w-3.5 h-3.5" />
+                            </span>
                           </div>
-                        </div>
-                      </button>
-                    ))}
+                          <div className="mt-2 px-0.5">
+                            <div className="text-sm font-semibold leading-tight line-clamp-2">{b.name}</div>
+                            <div className="mt-1 flex items-center gap-1.5 text-xs opacity-70 line-clamp-1">
+                              <Icon className="w-3.5 h-3.5 shrink-0" />
+                              <span className="truncate">{label}</span>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                   <button
                     type="button"
