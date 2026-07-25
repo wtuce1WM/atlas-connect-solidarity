@@ -266,6 +266,9 @@ Deno.serve(async (req) => {
               const subcategoryNames: string[] | undefined = Array.isArray(args._subcategoryNames) && args._subcategoryNames.length
                 ? args._subcategoryNames.map((s: any) => String(s)).filter(Boolean)
                 : undefined;
+              const badgeIds: string[] | undefined = Array.isArray(args._badgeIds) && args._badgeIds.length
+                ? args._badgeIds.map((s: any) => String(s)).filter(Boolean)
+                : undefined;
               const r = await fetch(`${SUPABASE_URL}/functions/v1/business-search`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${SERVICE}`, apikey: SERVICE, "Content-Type": "application/json" },
@@ -278,6 +281,7 @@ Deno.serve(async (req) => {
                   compact: "card",
                   city,
                   subcategoryNames,
+                  badgeIds,
                 }),
               });
 
