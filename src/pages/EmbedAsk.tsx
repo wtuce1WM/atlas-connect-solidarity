@@ -428,7 +428,7 @@ const EmbedAsk = () => {
                 <div className="flex flex-wrap gap-2 pt-1">
                   {activeFollowups.map((f, k) => (
                     <button
-                      key={`${activeSuggestionId}-${i}-${k}`}
+                      key={`fu-${i}-${k}`}
                       type="button"
                       onClick={() => send(f)}
                       className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
