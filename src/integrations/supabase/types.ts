@@ -3540,6 +3540,7 @@ export type Database = {
         Row: {
           business_ids: string[]
           created_at: string
+          destination_ids: string[]
           followups: Json
           id: string
           is_active: boolean
@@ -3552,6 +3553,7 @@ export type Database = {
         Insert: {
           business_ids?: string[]
           created_at?: string
+          destination_ids?: string[]
           followups?: Json
           id?: string
           is_active?: boolean
@@ -3564,6 +3566,7 @@ export type Database = {
         Update: {
           business_ids?: string[]
           created_at?: string
+          destination_ids?: string[]
           followups?: Json
           id?: string
           is_active?: boolean
