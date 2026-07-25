@@ -56,17 +56,20 @@ type Row = {
   business_ids: string[];
   destination_ids: string[];
   subcategory_ids: string[];
+  badge_ids: string[];
 };
 
 type BusinessOption = { id: string; name: string; slug: string | null };
 type DestinationOption = { id: string; name_fr: string; name_en: string | null; name_ar: string | null };
 type SubcategoryOption = { id: string; name_fr: string };
+type BadgeOption = { id: string; name_fr: string };
 
 const EmbedAiSuggestionsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
   const [businesses, setBusinesses] = useState<BusinessOption[]>([]);
   const [destinations, setDestinations] = useState<DestinationOption[]>([]);
   const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
+  const [badges, setBadges] = useState<BadgeOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
@@ -74,6 +77,7 @@ const EmbedAiSuggestionsManagement = () => {
   const [businessSearch, setBusinessSearch] = useState<Record<string, string>>({});
   const [destinationSearch, setDestinationSearch] = useState<Record<string, string>>({});
   const [subcategorySearch, setSubcategorySearch] = useState<Record<string, string>>({});
+  const [badgeSearch, setBadgeSearch] = useState<Record<string, string>>({});
 
 
   const load = async () => {
