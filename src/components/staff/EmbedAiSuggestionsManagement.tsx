@@ -181,6 +181,7 @@ const EmbedAiSuggestionsManagement = () => {
           is_active: r.is_active,
           followups: r.followups.filter((f) => (f.label_fr || "").trim()),
           business_ids: r.business_ids || [],
+          destination_ids: r.destination_ids || [],
         }).eq("id", r.id)
       )
     );
