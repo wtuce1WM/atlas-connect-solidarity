@@ -779,7 +779,8 @@ serve(async (req) => {
     mainCategory,
     compact,
     subcategoryNames,
-    }: SearchParams & { language?: string; mode?: string; spoken?: string; skipRerank?: boolean; mainCategory?: string; compact?: "ids" | "card" | null; subcategoryNames?: string[] } = await req.json();
+    badgeIds,
+    }: SearchParams & { language?: string; mode?: string; spoken?: string; skipRerank?: boolean; mainCategory?: string; compact?: "ids" | "card" | null; subcategoryNames?: string[]; badgeIds?: string[] } = await req.json();
 
     // ── Input validation & sanitization ──
     // Strip PostgREST filter special chars and clamp string lengths to prevent
@@ -811,16 +812,37 @@ serve(async (req) => {
         .filter((s): s is string => !!s)
         .slice(0, 20);
     }
+    if (Array.isArray(badgeIds)) {
+      badgeIds = badgeIds.filter((b) => typeof b === "string" && /^[0-9a-f-]{36}$/i.test(b)).slice(0, 20);
+    }
 
     // ── BYPASS: front-structure entry + city → deterministic filter (no FTS, no LLM) ──
-    if (Array.isArray(subcategoryNames) && subcategoryNames.length > 0 && city) {
+    if (city && ((Array.isArray(subcategoryNames) && subcategoryNames.length > 0) || (Array.isArray(badgeIds) && badgeIds.length > 0))) {
       const SELECT = "id, name, slug, city, neighborhood, address, phone, whatsapp, main_category, categories, services, keywords, logo_url, images, latitude, longitude, rating, computed_rating, total_review_count, wtuce_status, opening_hours, show_opening_hours, is_open_24h, default_service, engagements, priority_score, hook_fr, hook_en, hook_ar, gamme_id, badge_id, vacation_dates, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count";
-      const { data: allRows, error: bypassErr } = await supabase
+      let allowedIds: string[] | null = null;
+      if (Array.isArray(badgeIds) && badgeIds.length > 0) {
+        const { data: bb, error: bbErr } = await supabase
+          .from("business_badges")
+          .select("business_id")
+          .in("badge_id", badgeIds);
+        if (bbErr) throw bbErr;
+        allowedIds = Array.from(new Set((bb || []).map((r: any) => r.business_id).filter(Boolean)));
+        if (allowedIds.length === 0) {
+          return new Response(JSON.stringify({ businesses: [], searchLevel: "exact", message: "", totalResults: 0, totalCount: 0, detectedSubcategory: null, detectedCity: city, detectedNeighborhood: null, detectedCategory: null, detectedService: null, searchMode: "broad", disambiguationType: null }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+      }
+      let bypassQuery = supabase
         .from("businesses")
         .select(SELECT)
         .eq("is_active", true)
-        .overlaps("categories", subcategoryNames)
         .eq("city", city);
+      if (Array.isArray(subcategoryNames) && subcategoryNames.length > 0) {
+        bypassQuery = bypassQuery.overlaps("categories", subcategoryNames);
+      }
+      if (allowedIds) {
+        bypassQuery = bypassQuery.in("id", allowedIds);
+      }
+      const { data: allRows, error: bypassErr } = await bypassQuery;
       if (bypassErr) throw bypassErr;
       // Same ranking as text/voice search: verified > priority_score > rating (min 10 reviews) > id
       const sorted = (allRows || []).slice().sort((a: any, b: any) => {

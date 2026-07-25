@@ -56,17 +56,20 @@ type Row = {
   business_ids: string[];
   destination_ids: string[];
   subcategory_ids: string[];
+  badge_ids: string[];
 };
 
 type BusinessOption = { id: string; name: string; slug: string | null };
 type DestinationOption = { id: string; name_fr: string; name_en: string | null; name_ar: string | null };
 type SubcategoryOption = { id: string; name_fr: string };
+type BadgeOption = { id: string; name_fr: string };
 
 const EmbedAiSuggestionsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
   const [businesses, setBusinesses] = useState<BusinessOption[]>([]);
   const [destinations, setDestinations] = useState<DestinationOption[]>([]);
   const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
+  const [badges, setBadges] = useState<BadgeOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
@@ -74,14 +77,15 @@ const EmbedAiSuggestionsManagement = () => {
   const [businessSearch, setBusinessSearch] = useState<Record<string, string>>({});
   const [destinationSearch, setDestinationSearch] = useState<Record<string, string>>({});
   const [subcategorySearch, setSubcategorySearch] = useState<Record<string, string>>({});
+  const [badgeSearch, setBadgeSearch] = useState<Record<string, string>>({});
 
 
   const load = async () => {
     setLoading(true);
-    const [{ data, error }, { data: bizs }, { data: dests }, { data: subs }] = await Promise.all([
+    const [{ data, error }, { data: bizs }, { data: dests }, { data: subs }, { data: bdgs }] = await Promise.all([
       supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,subcategory_ids")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,subcategory_ids,badge_ids")
         .order("sort_order", { ascending: true }),
       supabase
         .from("businesses")
@@ -96,6 +100,10 @@ const EmbedAiSuggestionsManagement = () => {
         .from("subcategories")
         .select("id,name_fr")
         .order("name_fr", { ascending: true }),
+      supabase
+        .from("badges")
+        .select("id,name_fr")
+        .order("name_fr", { ascending: true }),
     ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows(
@@ -105,11 +113,13 @@ const EmbedAiSuggestionsManagement = () => {
         business_ids: Array.isArray(r.business_ids) ? r.business_ids : [],
         destination_ids: Array.isArray(r.destination_ids) ? r.destination_ids : [],
         subcategory_ids: Array.isArray(r.subcategory_ids) ? r.subcategory_ids : [],
+        badge_ids: Array.isArray(r.badge_ids) ? r.badge_ids : [],
       }))
     );
     setBusinesses(((bizs as any[]) || []).map((b) => ({ id: b.id, name: b.name || "(sans nom)", slug: b.slug })));
     setDestinations(((dests as any[]) || []).map((d) => ({ id: d.id, name_fr: d.name_fr || "(sans nom)", name_en: d.name_en || null, name_ar: d.name_ar || null })));
     setSubcategories(((subs as any[]) || []).map((s) => ({ id: s.id, name_fr: s.name_fr || "(sans nom)" })));
+    setBadges(((bdgs as any[]) || []).map((b) => ({ id: b.id, name_fr: b.name_fr || "(sans nom)" })));
 
     setDirty(new Set());
     setLoading(false);
@@ -171,7 +181,7 @@ const EmbedAiSuggestionsManagement = () => {
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], subcategory_ids: [] } as Row]);
+    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], subcategory_ids: [], badge_ids: [] } as Row]);
   };
 
 
@@ -197,6 +207,7 @@ const EmbedAiSuggestionsManagement = () => {
           business_ids: r.business_ids || [],
           destination_ids: r.destination_ids || [],
           subcategory_ids: r.subcategory_ids || [],
+          badge_ids: r.badge_ids || [],
         }).eq("id", r.id)
       )
     );
@@ -264,9 +275,13 @@ const EmbedAiSuggestionsManagement = () => {
                       className="w-20 h-8"
                     />
                     <span className="text-muted-foreground">Ordre</span>
-                    {r.subcategory_ids.length > 0 ? (
-                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" title={`Route déterministe: ${r.subcategory_ids.length} sous-catégorie(s)`}>
-                        <span>🎯</span><span>subcategory ({r.subcategory_ids.length})</span>
+                    {r.subcategory_ids.length > 0 || r.badge_ids.length > 0 ? (
+                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" title={`Route déterministe: ${r.subcategory_ids.length} sous-catégorie(s), ${r.badge_ids.length} badge(s)`}>
+                        <span>🎯</span><span>
+                          {r.subcategory_ids.length > 0 ? `subcat(${r.subcategory_ids.length})` : ""}
+                          {r.subcategory_ids.length > 0 && r.badge_ids.length > 0 ? " + " : ""}
+                          {r.badge_ids.length > 0 ? `badge(${r.badge_ids.length})` : ""}
+                        </span>
                       </span>
                     ) : (
                       <RouteBadge label={r.label_fr || ""} />
@@ -463,6 +478,64 @@ const EmbedAiSuggestionsManagement = () => {
                     💡 Quand une ou plusieurs sous-catégories sont liées, l'IA court-circuite le LLM et affiche directement les établissements de ces sous-catégories (résultats déterministes).
                   </p>
                 </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs text-muted-foreground">
+                    Badges ciblés {r.badge_ids.length === 0 ? "(aucun)" : `(${r.badge_ids.length} — route déterministe)`}
+                  </label>
+                  {r.badge_ids.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {r.badge_ids.map((bid) => {
+                        const b = badges.find((x) => x.id === bid);
+                        return (
+                          <span key={bid} className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs px-2 py-1">
+                            {b?.name_fr || bid}
+                            <button
+                              type="button"
+                              onClick={() => update(r.id, { badge_ids: r.badge_ids.filter((x) => x !== bid) })}
+                              className="hover:text-destructive"
+                              title="Retirer"
+                            >×</button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div className="relative max-w-md">
+                    <Input
+                      placeholder="Rechercher un badge…"
+                      value={badgeSearch[r.id] || ""}
+                      onChange={(e) => setBadgeSearch((prev) => ({ ...prev, [r.id]: e.target.value }))}
+                      onKeyDown={(e) => { if (e.key === "Escape") setBadgeSearch((prev) => ({ ...prev, [r.id]: "" })); }}
+                    />
+                    {badgeSearch[r.id]?.trim() && (
+                      <div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg max-h-60 overflow-auto">
+                        {(() => {
+                          const q = badgeSearch[r.id].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                          const matches = badges
+                            .filter((b) => !r.badge_ids.includes(b.id))
+                            .filter((b) => b.name_fr.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q));
+                          if (matches.length === 0) return <div className="px-3 py-2 text-sm text-muted-foreground">Aucun badge trouvé</div>;
+                          return matches.slice(0, 8).map((b) => (
+                            <button
+                              key={b.id}
+                              type="button"
+                              onClick={() => { update(r.id, { badge_ids: [...r.badge_ids, b.id] }); setBadgeSearch((prev) => ({ ...prev, [r.id]: "" })); }}
+                              className="w-full px-3 py-2 text-left text-sm hover:bg-muted truncate"
+                            >
+                              {b.name_fr}
+                            </button>
+                          ));
+                        })()}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    💡 Quand un ou plusieurs badges sont liés, l'IA court-circuite le LLM et affiche uniquement les établissements portant ces badges (croisé avec les sous-catégories si présentes).
+                  </p>
+                </div>
+
+
 
 
 
