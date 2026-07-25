@@ -402,6 +402,64 @@ const EmbedAiSuggestionsManagement = () => {
                   </div>
                 </div>
 
+                <div className="space-y-2">
+                  <label className="text-xs text-muted-foreground">
+                    Sous-catégories ciblées {r.subcategory_ids.length === 0 ? "(aucune — recherche libre par l'IA)" : `(${r.subcategory_ids.length} — route déterministe)`}
+                  </label>
+                  {r.subcategory_ids.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {r.subcategory_ids.map((sid) => {
+                        const s = subcategories.find((x) => x.id === sid);
+                        return (
+                          <span key={sid} className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs px-2 py-1">
+                            {s?.name_fr || sid}
+                            <button
+                              type="button"
+                              onClick={() => update(r.id, { subcategory_ids: r.subcategory_ids.filter((x) => x !== sid) })}
+                              className="hover:text-destructive"
+                              title="Retirer"
+                            >×</button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div className="relative max-w-md">
+                    <Input
+                      placeholder="Rechercher une sous-catégorie…"
+                      value={subcategorySearch[r.id] || ""}
+                      onChange={(e) => setSubcategorySearch((prev) => ({ ...prev, [r.id]: e.target.value }))}
+                      onKeyDown={(e) => { if (e.key === "Escape") setSubcategorySearch((prev) => ({ ...prev, [r.id]: "" })); }}
+                    />
+                    {subcategorySearch[r.id]?.trim() && (
+                      <div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg max-h-60 overflow-auto">
+                        {(() => {
+                          const q = subcategorySearch[r.id].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                          const matches = subcategories
+                            .filter((s) => !r.subcategory_ids.includes(s.id))
+                            .filter((s) => s.name_fr.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q));
+                          if (matches.length === 0) return <div className="px-3 py-2 text-sm text-muted-foreground">Aucune sous-catégorie trouvée</div>;
+                          return matches.slice(0, 8).map((s) => (
+                            <button
+                              key={s.id}
+                              type="button"
+                              onClick={() => { update(r.id, { subcategory_ids: [...r.subcategory_ids, s.id] }); setSubcategorySearch((prev) => ({ ...prev, [r.id]: "" })); }}
+                              className="w-full px-3 py-2 text-left text-sm hover:bg-muted truncate"
+                            >
+                              {s.name_fr}
+                            </button>
+                          ));
+                        })()}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    💡 Quand une ou plusieurs sous-catégories sont liées, l'IA court-circuite le LLM et affiche directement les établissements de ces sous-catégories (résultats déterministes).
+                  </p>
+                </div>
+
+
+
 
 
 
