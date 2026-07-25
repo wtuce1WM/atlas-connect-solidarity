@@ -16,6 +16,32 @@ type Row = {
   is_active: boolean;
 };
 
+type Route = { key: "weather" | "events" | "search" | "map" | "llm"; label: string; emoji: string; className: string };
+
+function detectRoute(label: string): Route {
+  const q = (label || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  if (!q.trim()) return { key: "llm", label: "LLM direct", emoji: "💬", className: "bg-muted text-muted-foreground" };
+  if (/\b(meteo|weather|forecast|temps|temperature|degres?|previsions?|il fait|quel temps)\b/.test(q))
+    return { key: "weather", label: "get_weather", emoji: "🌤", className: "bg-sky-500/15 text-sky-700 dark:text-sky-300" };
+  if (/\b(event|events|evenement|agenda|week[- ]?end|ce soir|festival|concert|expo|spectacle|whats on)\b/.test(q))
+    return { key: "events", label: "search_events", emoji: "📅", className: "bg-amber-500/15 text-amber-700 dark:text-amber-300" };
+  if (/\b(carte|map|montre.*carte|show.*map|localise|coordonnees|contact|appeler|telephone|distances?)\b/.test(q))
+    return { key: "map", label: "show_on_map", emoji: "🗺", className: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" };
+  if (/\b(proximite|autour|pres de|nearby|around|ou |où |restaurant|bar|cafe|the|rooftop|terrasse|musee|galerie|activite|visite|visiter|beach[- ]?club|hotel|riad|spa|boutique|shopping|manger|boire|dejeuner|diner|sortie|things to do|what to do|where|point.*interet|interets?)\b/.test(q))
+    return { key: "search", label: "search_businesses", emoji: "🔍", className: "bg-primary/15 text-primary" };
+  return { key: "llm", label: "LLM direct", emoji: "💬", className: "bg-muted text-muted-foreground" };
+}
+
+const RouteBadge = ({ label }: { label: string }) => {
+  const r = detectRoute(label);
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${r.className}`} title={`Route détectée: ${r.label}`}>
+      <span>{r.emoji}</span>
+      <span>{r.label}</span>
+    </span>
+  );
+};
+
 const EmbedAiFollowupsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
@@ -99,13 +125,22 @@ const EmbedAiFollowupsManagement = () => {
           <div className="text-sm text-muted-foreground">Chargement…</div>
         ) : (
           <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2 rounded-md border bg-muted/30 px-3 py-2 text-xs">
+              <span className="text-muted-foreground">Route détectée automatiquement selon le libellé FR :</span>
+              <RouteBadge label="météo" />
+              <RouteBadge label="ce week-end" />
+              <RouteBadge label="à proximité" />
+              <RouteBadge label="montre sur la carte" />
+              <RouteBadge label="" />
+            </div>
             {rows.map((r) => (
               <div key={r.id} className={`p-3 rounded-lg border ${dirty.has(r.id) ? "border-primary/50 bg-primary/5" : "border-border"}`}>
-                <div className="grid grid-cols-1 lg:grid-cols-[70px_1fr_1fr_1fr_100px_40px] gap-2 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-[70px_1fr_1fr_1fr_140px_100px_40px] gap-2 items-center">
                   <Input type="number" value={r.sort_order} onChange={(e) => update(r.id, { sort_order: parseInt(e.target.value) || 0 })} title="Ordre" />
                   <Input value={r.label_fr} onChange={(e) => update(r.id, { label_fr: e.target.value })} placeholder="Relance FR" />
                   <Input value={r.label_en || ""} onChange={(e) => update(r.id, { label_en: e.target.value })} placeholder="EN" />
                   <Input value={r.label_ar || ""} onChange={(e) => update(r.id, { label_ar: e.target.value })} placeholder="AR" dir="rtl" />
+                  <div className="flex justify-start"><RouteBadge label={r.label_fr || ""} /></div>
                   <div className="flex items-center gap-2">
                     <Switch checked={r.is_active} onCheckedChange={(v) => update(r.id, { is_active: v })} />
                     <span className="text-xs">{r.is_active ? "Actif" : "Off"}</span>
