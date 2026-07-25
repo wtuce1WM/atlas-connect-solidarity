@@ -234,6 +234,50 @@ const EmbedAiSuggestionsManagement = () => {
                   </div>
                 </div>
 
+                <div className="space-y-2">
+                  <label className="text-xs text-muted-foreground">
+                    Établissements ciblés {r.business_ids.length === 0 ? "(vide = tous)" : `(${r.business_ids.length})`}
+                  </label>
+                  {r.business_ids.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {r.business_ids.map((bid) => {
+                        const b = businesses.find((x) => x.id === bid);
+                        return (
+                          <span key={bid} className="inline-flex items-center gap-1 rounded-md bg-primary/10 text-primary text-xs px-2 py-1">
+                            {b?.name || bid}
+                            <button
+                              type="button"
+                              onClick={() => update(r.id, { business_ids: r.business_ids.filter((x) => x !== bid) })}
+                              className="hover:text-destructive"
+                              title="Retirer"
+                            >×</button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <select
+                    value=""
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (!v) return;
+                      if (!r.business_ids.includes(v)) {
+                        update(r.id, { business_ids: [...r.business_ids, v] });
+                      }
+                    }}
+                    className="h-9 rounded-md border border-input bg-background px-2 text-sm w-full max-w-md"
+                    title="Ajouter un établissement"
+                  >
+                    <option value="">— Ajouter un établissement —</option>
+                    {businesses
+                      .filter((b) => !r.business_ids.includes(b.id))
+                      .map((b) => (
+                        <option key={b.id} value={b.id}>{b.name}</option>
+                      ))}
+                  </select>
+                </div>
+
+
                 <button
                   type="button"
                   onClick={() => toggleExpanded(r.id)}
