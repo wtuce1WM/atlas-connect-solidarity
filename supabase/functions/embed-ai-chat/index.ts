@@ -438,13 +438,15 @@ Deno.serve(async (req) => {
 
         // Deterministic route: if the clicked suggestion has subcategory_ids and/or badge_ids,
         // bypass LLM tool selection and run business-search filtered on those.
+        // business_ids on a suggestion = "pin to top" of any search result set.
         let deterministicSubcategoryNames: string[] | null = null;
         let deterministicBadgeIds: string[] | null = null;
+        let suggestionPinnedIds: string[] = [];
         if (suggestionId) {
           try {
             const { data: sugg } = await admin
               .from("embed_ai_suggestions")
-              .select("subcategory_ids, badge_ids")
+              .select("subcategory_ids, badge_ids, business_ids")
               .eq("id", suggestionId)
               .maybeSingle();
             const subIds: string[] = Array.isArray(sugg?.subcategory_ids) ? sugg!.subcategory_ids : [];
@@ -458,6 +460,8 @@ Deno.serve(async (req) => {
             }
             const bIds: string[] = Array.isArray(sugg?.badge_ids) ? sugg!.badge_ids : [];
             if (bIds.length) deterministicBadgeIds = bIds;
+            const pIds: string[] = Array.isArray(sugg?.business_ids) ? sugg!.business_ids : [];
+            if (pIds.length) suggestionPinnedIds = pIds;
           } catch (e) {
             console.error("[embed-ai-chat] suggestion_route_lookup_error", e);
           }
