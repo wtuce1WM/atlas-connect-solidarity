@@ -329,6 +329,8 @@ Deno.serve(async (req) => {
                   main_category: b.main_category, hook_fr: b.hook_fr, hook_en: b.hook_en, hook_ar: b.hook_ar,
                   latitude: b.latitude, longitude: b.longitude,
                   price_range: b.manual_price_range || (b.min_price ? `${b.min_price}+ MAD` : null),
+                  is_pinned: suggestionPinnedIds.includes(b.id),
+                  pin_rank: suggestionPinnedIds.includes(b.id) ? suggestionPinnedIds.indexOf(b.id) + 1 : null,
                 })),
                 total_shown: results.length,
                 total_found: totalFound,
@@ -505,21 +507,27 @@ Deno.serve(async (req) => {
           if (deterministicBadgeIds) forcedArgs._badgeIds = deterministicBadgeIds;
           const forcedResult = await runTool("search_businesses", forcedArgs);
           rememberSearchResult("search_businesses", forcedArgs, forcedResult);
+          const pinnedNames = suggestionPinnedIds
+            .map((id) => forcedResult?.results?.find((b: any) => b?.id === id)?.name)
+            .filter(Boolean);
           const routeDesc = [
             deterministicSubcategoryNames ? `sous-catégories ${deterministicSubcategoryNames.join(", ")}` : null,
             deterministicBadgeIds ? `${deterministicBadgeIds.length} badge(s)` : null,
           ].filter(Boolean).join(" + ");
           convo.push({
             role: "system",
-            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE (route déterministe sur ${routeDesc}):\n${JSON.stringify(forcedResult).slice(0, 12000)}\nRecommande uniquement des résultats listés ci-dessus. Copie exactement disclosure_note sur sa propre ligne avant la question finale.`,
+            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE (route déterministe sur ${routeDesc}):\n${JSON.stringify(forcedResult).slice(0, 12000)}\n${pinnedNames.length ? `ORDRE PRIORITAIRE MANUEL À RESPECTER ABSOLUMENT: cite d'abord ${pinnedNames.join(" puis ")}, avant tout autre résultat. Aucun autre établissement ne doit être placé entre ces établissements épinglés.` : ""}\nRecommande uniquement des résultats listés ci-dessus. Respecte l'ordre des résultats. Copie exactement disclosure_note sur sa propre ligne avant la question finale.`,
           });
         } else if (shouldForceDirectorySearch(userMessage)) {
           const forcedArgs = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
           const forcedResult = await runTool("search_businesses", forcedArgs);
           rememberSearchResult("search_businesses", forcedArgs, forcedResult);
+          const pinnedNames = suggestionPinnedIds
+            .map((id) => forcedResult?.results?.find((b: any) => b?.id === id)?.name)
+            .filter(Boolean);
           convo.push({
             role: "system",
-            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE:\n${JSON.stringify(forcedResult).slice(0, 12000)}\nTu dois recommander uniquement des résultats listés ci-dessus quand c'est pertinent et copier exactement disclosure_note sur sa propre ligne avant la question finale.`,
+            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE:\n${JSON.stringify(forcedResult).slice(0, 12000)}\n${pinnedNames.length ? `ORDRE PRIORITAIRE MANUEL À RESPECTER ABSOLUMENT: cite d'abord ${pinnedNames.join(" puis ")}, avant tout autre résultat. Aucun autre établissement ne doit être placé entre ces établissements épinglés.` : ""}\nTu dois recommander uniquement des résultats listés ci-dessus quand c'est pertinent. Respecte l'ordre des résultats. Copie exactement disclosure_note sur sa propre ligne avant la question finale.`,
           });
         }
 
