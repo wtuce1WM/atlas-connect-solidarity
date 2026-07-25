@@ -58,12 +58,14 @@ type Row = {
   subcategory_ids: string[];
   badge_ids: string[];
   city: string | null;
+  disabled_followup_ids: string[];
 };
 
 type BusinessOption = { id: string; name: string; slug: string | null };
 type DestinationOption = { id: string; name_fr: string; name_en: string | null; name_ar: string | null };
 type SubcategoryOption = { id: string; name_fr: string };
 type BadgeOption = { id: string; name_fr: string };
+type GlobalFollowup = { id: string; label_fr: string; is_active: boolean; sort_order: number };
 
 const EmbedAiSuggestionsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
@@ -71,6 +73,7 @@ const EmbedAiSuggestionsManagement = () => {
   const [destinations, setDestinations] = useState<DestinationOption[]>([]);
   const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
   const [badges, setBadges] = useState<BadgeOption[]>([]);
+  const [globalFollowups, setGlobalFollowups] = useState<GlobalFollowup[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
@@ -83,10 +86,10 @@ const EmbedAiSuggestionsManagement = () => {
 
   const load = async () => {
     setLoading(true);
-    const [{ data, error }, { data: bizs }, { data: dests }, { data: subs }, { data: bdgs }] = await Promise.all([
+    const [{ data, error }, { data: bizs }, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }] = await Promise.all([
       supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,subcategory_ids,badge_ids,city")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,subcategory_ids,badge_ids,city,disabled_followup_ids")
         .order("sort_order", { ascending: true }),
       supabase
         .from("businesses")
@@ -105,6 +108,10 @@ const EmbedAiSuggestionsManagement = () => {
         .from("badges")
         .select("id,name_fr")
         .order("name_fr", { ascending: true }),
+      supabase
+        .from("embed_ai_followups")
+        .select("id,label_fr,is_active,sort_order")
+        .order("sort_order", { ascending: true }),
     ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows(
@@ -115,12 +122,14 @@ const EmbedAiSuggestionsManagement = () => {
         destination_ids: Array.isArray(r.destination_ids) ? r.destination_ids : [],
         subcategory_ids: Array.isArray(r.subcategory_ids) ? r.subcategory_ids : [],
         badge_ids: Array.isArray(r.badge_ids) ? r.badge_ids : [],
+        disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
       }))
     );
     setBusinesses(((bizs as any[]) || []).map((b) => ({ id: b.id, name: b.name || "(sans nom)", slug: b.slug })));
     setDestinations(((dests as any[]) || []).map((d) => ({ id: d.id, name_fr: d.name_fr || "(sans nom)", name_en: d.name_en || null, name_ar: d.name_ar || null })));
     setSubcategories(((subs as any[]) || []).map((s) => ({ id: s.id, name_fr: s.name_fr || "(sans nom)" })));
     setBadges(((bdgs as any[]) || []).map((b) => ({ id: b.id, name_fr: b.name_fr || "(sans nom)" })));
+    setGlobalFollowups(((fups as any[]) || []).map((f) => ({ id: f.id, label_fr: f.label_fr || "", is_active: !!f.is_active, sort_order: f.sort_order || 0 })));
 
     setDirty(new Set());
     setLoading(false);
@@ -182,7 +191,7 @@ const EmbedAiSuggestionsManagement = () => {
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], subcategory_ids: [], badge_ids: [], city: null } as Row]);
+    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], subcategory_ids: [], badge_ids: [], city: null, disabled_followup_ids: [] } as Row]);
   };
 
 
@@ -210,6 +219,7 @@ const EmbedAiSuggestionsManagement = () => {
           subcategory_ids: r.subcategory_ids || [],
           badge_ids: r.badge_ids || [],
           city: r.city || null,
+          disabled_followup_ids: r.disabled_followup_ids || [],
         }).eq("id", r.id)
       )
     );
@@ -560,9 +570,55 @@ const EmbedAiSuggestionsManagement = () => {
 
 
 
-                <p className="text-[11px] text-muted-foreground">
-                  💬 Les relances après réponse IA sont gérées globalement dans l'onglet <b>Relances</b>.
-                </p>
+                <div className="pt-2 border-t">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-semibold flex items-center gap-1.5">
+                      <CornerDownRight className="h-3.5 w-3.5" />
+                      Relances affichées après la réponse IA
+                    </label>
+                    <span className="text-[11px] text-muted-foreground">
+                      {globalFollowups.length - (r.disabled_followup_ids?.length || 0)}/{globalFollowups.length} activée(s)
+                    </span>
+                  </div>
+                  {globalFollowups.length === 0 ? (
+                    <p className="text-[11px] text-muted-foreground">Aucune relance dans l'onglet <b>Relances</b>.</p>
+                  ) : (
+                    <div className="grid gap-1.5 sm:grid-cols-2">
+                      {globalFollowups.map((f) => {
+                        const disabled = (r.disabled_followup_ids || []).includes(f.id);
+                        const enabled = !disabled;
+                        return (
+                          <label
+                            key={f.id}
+                            className={`flex items-start gap-2 rounded-md border px-2 py-1.5 text-xs cursor-pointer transition ${
+                              enabled ? "border-primary/40 bg-primary/5" : "border-border bg-muted/30 text-muted-foreground"
+                            } ${!f.is_active ? "opacity-50" : ""}`}
+                            title={!f.is_active ? "Relance désactivée globalement" : ""}
+                          >
+                            <input
+                              type="checkbox"
+                              className="mt-0.5"
+                              checked={enabled}
+                              onChange={(e) => {
+                                const cur = new Set(r.disabled_followup_ids || []);
+                                if (e.target.checked) cur.delete(f.id); else cur.add(f.id);
+                                update(r.id, { disabled_followup_ids: Array.from(cur) });
+                              }}
+                            />
+                            <span className="flex-1 leading-tight">
+                              {f.label_fr || <em className="text-muted-foreground">(sans libellé)</em>}
+                              {!f.is_active && <span className="ml-1 text-[10px]">(off global)</span>}
+                            </span>
+                            <RouteBadge label={f.label_fr || ""} />
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <p className="text-[11px] text-muted-foreground mt-2">
+                    ☑️ Cochée = affichée après la réponse IA quand cette suggestion est active. Par défaut, toutes les relances sont activées.
+                  </p>
+                </div>
               </CardContent>
             </Card>
           );

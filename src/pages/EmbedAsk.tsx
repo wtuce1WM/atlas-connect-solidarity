@@ -130,10 +130,11 @@ const EmbedAsk = () => {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  type FollowupRow = { label_fr: string; label_en: string | null; label_ar: string | null };
-  type SuggestionRow = { id: string; label: string };
+  type FollowupRow = { id: string; label_fr: string; label_en: string | null; label_ar: string | null };
+  type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[] };
   const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(null);
   const [globalFollowups, setGlobalFollowups] = useState<FollowupRow[]>([]);
+  const [activeSuggestionId, setActiveSuggestionId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const L = LANG_LABELS[lang];
@@ -144,7 +145,12 @@ const EmbedAsk = () => {
     const raw = (lang === "en" ? f.label_en : lang === "ar" ? f.label_ar : f.label_fr) || f.label_fr || "";
     return raw.replace(/\{businessName\}/g, businessName || "").trim();
   };
-  const activeFollowups: string[] = globalFollowups.map(pickFollowupLabel).filter(Boolean);
+  const activeSuggestion = activeSuggestionId ? suggestions.find((s) => s.id === activeSuggestionId) : null;
+  const disabledIds = new Set(activeSuggestion?.disabled_followup_ids || []);
+  const activeFollowups: string[] = globalFollowups
+    .filter((f) => !disabledIds.has(f.id))
+    .map(pickFollowupLabel)
+    .filter(Boolean);
 
   // Overlay states
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
@@ -183,7 +189,7 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,followups,business_ids,city")
+        .select("id,label_fr,label_en,label_ar,followups,business_ids,city,disabled_followup_ids")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (cancelled || !data) return;
@@ -202,6 +208,7 @@ const EmbedAsk = () => {
         .map((r) => ({
           id: r.id as string,
           label: ((r[col] || r.label_fr || "") as string).trim(),
+          disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
         }))
         .filter((r) => r.label);
       if (list.length > 0) setDbSuggestions(list);
@@ -215,7 +222,7 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await supabase
         .from("embed_ai_followups")
-        .select("label_fr,label_en,label_ar")
+        .select("id,label_fr,label_en,label_ar")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (cancelled || !data) return;
@@ -236,6 +243,7 @@ const EmbedAsk = () => {
     const text = (overrideText ?? input).trim();
     if (!text || streaming || !businessName) return;
     if (!overrideText) { setInput(""); }
+    if (suggestionId && !suggestionId.startsWith("default-")) setActiveSuggestionId(suggestionId);
     setError(null);
     const userMsg: Msg = { role: "user", content: text };
     const history = msgs.filter((_, i) => !(i === 0 && msgs[0].role === "assistant"));
@@ -328,6 +336,8 @@ const EmbedAsk = () => {
     setOpenMap(null);
     setOpenEvents(null);
     setOpenBusinessId(null);
+    setActiveSuggestionId(null);
+
     
     setMsgs(businessName ? [{ role: "assistant", content: L.opener(businessName) }] : []);
     setTimeout(() => inputRef.current?.focus(), 0);
