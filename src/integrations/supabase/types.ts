@@ -3573,6 +3573,7 @@ export type Database = {
         Row: {
           badge_ids: string[]
           business_ids: string[]
+          city: string | null
           created_at: string
           destination_ids: string[]
           followups: Json
@@ -3588,6 +3589,7 @@ export type Database = {
         Insert: {
           badge_ids?: string[]
           business_ids?: string[]
+          city?: string | null
           created_at?: string
           destination_ids?: string[]
           followups?: Json
@@ -3603,6 +3605,7 @@ export type Database = {
         Update: {
           badge_ids?: string[]
           business_ids?: string[]
+          city?: string | null
           created_at?: string
           destination_ids?: string[]
           followups?: Json

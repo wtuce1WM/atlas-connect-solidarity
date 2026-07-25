@@ -57,6 +57,7 @@ type Row = {
   destination_ids: string[];
   subcategory_ids: string[];
   badge_ids: string[];
+  city: string | null;
 };
 
 type BusinessOption = { id: string; name: string; slug: string | null };
@@ -85,7 +86,7 @@ const EmbedAiSuggestionsManagement = () => {
     const [{ data, error }, { data: bizs }, { data: dests }, { data: subs }, { data: bdgs }] = await Promise.all([
       supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,subcategory_ids,badge_ids")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,subcategory_ids,badge_ids,city")
         .order("sort_order", { ascending: true }),
       supabase
         .from("businesses")
@@ -181,7 +182,7 @@ const EmbedAiSuggestionsManagement = () => {
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], subcategory_ids: [], badge_ids: [] } as Row]);
+    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], subcategory_ids: [], badge_ids: [], city: null } as Row]);
   };
 
 
@@ -208,6 +209,7 @@ const EmbedAiSuggestionsManagement = () => {
           destination_ids: r.destination_ids || [],
           subcategory_ids: r.subcategory_ids || [],
           badge_ids: r.badge_ids || [],
+          city: r.city || null,
         }).eq("id", r.id)
       )
     );
@@ -316,6 +318,22 @@ const EmbedAiSuggestionsManagement = () => {
                     <Input value={r.label_ar || ""} onChange={(e) => update(r.id, { label_ar: e.target.value })} dir="rtl" />
                   </div>
                 </div>
+
+                <div className="max-w-xs">
+                  <label className="text-xs text-muted-foreground">Ville ciblée</label>
+                  <select
+                    value={r.city || ""}
+                    onChange={(e) => update(r.id, { city: e.target.value || null })}
+                    className="h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
+                    title="Ville"
+                  >
+                    <option value="">Toutes</option>
+                    <option value="Marrakech">Marrakech</option>
+                    <option value="Essaouira">Essaouira</option>
+                  </select>
+                  <p className="text-[11px] text-muted-foreground mt-1">Vide = affichée pour tous les établissements. Sinon uniquement pour ceux de cette ville.</p>
+                </div>
+
 
                 <div className="space-y-2">
                   <label className="text-xs text-muted-foreground">
