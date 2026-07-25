@@ -288,7 +288,31 @@ Deno.serve(async (req) => {
               const text = await r.text();
               let sres: any = null; try { sres = JSON.parse(text); } catch { /* */ }
               const all: any[] = Array.isArray(sres?.businesses) ? sres.businesses : [];
-              const filtered = await filterOutCompetitors(all);
+              let filtered = await filterOutCompetitors(all);
+
+              // Pinned businesses (from suggestion.business_ids) — always at the top.
+              if (suggestionPinnedIds.length) {
+                const already = new Set(filtered.map((b: any) => b.id));
+                const missingIds = suggestionPinnedIds.filter((id) => !already.has(id));
+                let pinnedFetched: any[] = [];
+                if (missingIds.length) {
+                  const { data: pinnedRows } = await admin
+                    .from("businesses")
+                    .select("id, name, slug, city, neighborhood, main_category, hook_fr, hook_en, hook_ar, latitude, longitude, min_price, manual_price_range")
+                    .in("id", missingIds)
+                    .eq("is_active", true);
+                  pinnedFetched = pinnedRows || [];
+                }
+                const pinnedFromFiltered = filtered.filter((b: any) => suggestionPinnedIds.includes(b.id));
+                const rest = filtered.filter((b: any) => !suggestionPinnedIds.includes(b.id));
+                // Order pinned in the exact order given by business_ids
+                const pinnedAll = [...pinnedFromFiltered, ...pinnedFetched];
+                const orderedPinned = suggestionPinnedIds
+                  .map((id) => pinnedAll.find((b: any) => b.id === id))
+                  .filter(Boolean);
+                filtered = [...orderedPinned, ...rest];
+              }
+
               const totalFound = filtered.length;
               const results = filtered.slice(0, limit);
               if (!results.length) {
