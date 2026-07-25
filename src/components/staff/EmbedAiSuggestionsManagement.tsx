@@ -142,7 +142,7 @@ const EmbedAiSuggestionsManagement = () => {
         disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
       }))
     );
-    setBusinesses(((bizs as any[]) || []).map((b) => ({ id: b.id, name: b.name || "(sans nom)", slug: b.slug })));
+    setBusinesses((bizs || []).map((b: any) => ({ id: b.id, name: b.name || "(sans nom)", slug: b.slug })));
     setDestinations(((dests as any[]) || []).map((d) => ({ id: d.id, name_fr: d.name_fr || "(sans nom)", name_en: d.name_en || null, name_ar: d.name_ar || null })));
     setSubcategories(((subs as any[]) || []).map((s) => ({ id: s.id, name_fr: s.name_fr || "(sans nom)" })));
     setBadges(((bdgs as any[]) || []).map((b) => ({ id: b.id, name_fr: b.name_fr || "(sans nom)" })));
