@@ -264,7 +264,13 @@ const EmbedAiSuggestionsManagement = () => {
                       className="w-20 h-8"
                     />
                     <span className="text-muted-foreground">Ordre</span>
-                    <RouteBadge label={r.label_fr || ""} />
+                    {r.subcategory_ids.length > 0 ? (
+                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" title={`Route déterministe: ${r.subcategory_ids.length} sous-catégorie(s)`}>
+                        <span>🎯</span><span>subcategory ({r.subcategory_ids.length})</span>
+                      </span>
+                    ) : (
+                      <RouteBadge label={r.label_fr || ""} />
+                    )}
                   </CardTitle>
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
