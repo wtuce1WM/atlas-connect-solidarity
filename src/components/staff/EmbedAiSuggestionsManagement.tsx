@@ -219,6 +219,7 @@ const EmbedAiSuggestionsManagement = () => {
           subcategory_ids: r.subcategory_ids || [],
           badge_ids: r.badge_ids || [],
           city: r.city || null,
+          disabled_followup_ids: r.disabled_followup_ids || [],
         }).eq("id", r.id)
       )
     );
