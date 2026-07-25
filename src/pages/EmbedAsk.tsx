@@ -213,7 +213,7 @@ const EmbedAsk = () => {
   const send = async (overrideText?: string, suggestionId?: string) => {
     const text = (overrideText ?? input).trim();
     if (!text || streaming || !businessName) return;
-    if (!overrideText) { setInput(""); setActiveSuggestionId(null); }
+    if (!overrideText) { setInput(""); }
     setError(null);
     const userMsg: Msg = { role: "user", content: text };
     const history = msgs.filter((_, i) => !(i === 0 && msgs[0].role === "assistant"));
