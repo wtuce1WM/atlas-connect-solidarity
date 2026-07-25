@@ -105,6 +105,21 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
   return { clean, maps, events, known };
 }
 
+// ============= Category icon + label helpers (Mindtrip-style miniatures) =============
+function categoryMeta(b: MapPanelBusiness): { Icon: typeof Bed; label: string } {
+  const cat = (b.main_category || (b.categories?.[0] ?? "") || "").toLowerCase();
+  const has = (s: string) => cat.includes(s);
+  if (has("hôtel") || has("hotel") || has("riad") || has("hébergement") || has("stay") || has("lodging")) return { Icon: Bed, label: b.main_category || "Hôtel" };
+  if (has("restaurant") || has("table") || has("dîner") || has("dining") || has("food")) return { Icon: Utensils, label: b.main_category || "Restaurant" };
+  if (has("bar") || has("club") || has("nightlife") || has("soirée")) return { Icon: Wine, label: b.main_category || "Bar" };
+  if (has("café") || has("cafe") || has("thé") || has("tea") || has("coffee") || has("salon de thé")) return { Icon: Coffee, label: b.main_category || "Café" };
+  if (has("boutique") || has("shop") || has("tapis") || has("souk") || has("shopping")) return { Icon: ShoppingBag, label: b.main_category || "Boutique" };
+  if (has("spa") || has("hammam") || has("wellness") || has("bien-être")) return { Icon: Sparkles, label: b.main_category || "Spa" };
+  if (has("musée") || has("museum") || has("monument") || has("patrimoine") || has("culture")) return { Icon: Landmark, label: b.main_category || "Culture" };
+  if (has("activité") || has("activity") || has("excursion") || has("tour") || has("expérience")) return { Icon: Camera, label: b.main_category || "Activité" };
+  return { Icon: MapPin, label: [b.neighborhood, b.city].filter(Boolean).join(", ") || b.main_category || "Établissement" };
+}
+
 // ============= Component =============
 const EmbedAsk = () => {
   const { slug = "" } = useParams();
