@@ -183,15 +183,21 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,followups,business_ids")
+        .select("id,label_fr,label_en,label_ar,followups,business_ids,city")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (cancelled || !data) return;
       const col = lang === "en" ? "label_en" : lang === "ar" ? "label_ar" : "label_fr";
+      const normCity = (s: string | null | undefined) =>
+        (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+      const bizCity = normCity(businessCity);
       const list: SuggestionRow[] = (data as any[])
         .filter((r) => {
           const ids: string[] = Array.isArray(r.business_ids) ? r.business_ids : [];
-          return ids.length === 0 || ids.includes(businessId);
+          if (ids.length > 0 && !ids.includes(businessId)) return false;
+          const c = normCity(r.city);
+          if (c && c !== bizCity) return false;
+          return true;
         })
         .map((r) => ({
           id: r.id as string,
@@ -201,7 +207,7 @@ const EmbedAsk = () => {
       if (list.length > 0) setDbSuggestions(list);
     })();
     return () => { cancelled = true; };
-  }, [lang, businessId]);
+  }, [lang, businessId, businessCity]);
 
   // Load global followups (shown after every assistant reply)
   useEffect(() => {
