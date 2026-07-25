@@ -779,7 +779,8 @@ serve(async (req) => {
     mainCategory,
     compact,
     subcategoryNames,
-    }: SearchParams & { language?: string; mode?: string; spoken?: string; skipRerank?: boolean; mainCategory?: string; compact?: "ids" | "card" | null; subcategoryNames?: string[] } = await req.json();
+    badgeIds,
+    }: SearchParams & { language?: string; mode?: string; spoken?: string; skipRerank?: boolean; mainCategory?: string; compact?: "ids" | "card" | null; subcategoryNames?: string[]; badgeIds?: string[] } = await req.json();
 
     // ── Input validation & sanitization ──
     // Strip PostgREST filter special chars and clamp string lengths to prevent
