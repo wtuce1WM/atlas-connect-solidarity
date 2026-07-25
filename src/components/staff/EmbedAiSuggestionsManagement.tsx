@@ -95,7 +95,8 @@ const EmbedAiSuggestionsManagement = () => {
         .from("businesses")
         .select("id,name,slug")
         .eq("is_active", true)
-        .order("name", { ascending: true }),
+        .order("name", { ascending: true })
+        .range(0, 4999),
       supabase
         .from("destinations")
         .select("id,name_fr,name_en,name_ar")
