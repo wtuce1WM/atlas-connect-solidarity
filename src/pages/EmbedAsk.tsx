@@ -426,8 +426,8 @@ const EmbedAsk = () => {
                     {mapPayload.businesses.slice(0, 20).map((b) => {
                       const img = (b.images?.[0] || (b as any).logo_url) as string | undefined;
                       const loc = [b.city, b.neighborhood].filter(Boolean).join(" · ");
-                      const ratingOn20 = (b.computed_rating ?? null) as number | null;
-                      const reviewCount = (b.total_review_count ?? b.google_review_count ?? null) as number | null;
+                      const ratingOn20 = computeWeightedRatingOn20(collectRatingSources(b as any));
+                      const reviewCount = getTotalReviewCount(b as any) || (b.google_review_count ?? null);
                       let distStr: string | null = null;
                       if (hostLocation && b.latitude != null && b.longitude != null) {
                         const R = 6371;
