@@ -55,21 +55,26 @@ type Row = {
   followups: Followup[];
   business_ids: string[];
   destination_ids: string[];
+  subcategory_ids: string[];
 };
 
 type BusinessOption = { id: string; name: string; slug: string | null };
 type DestinationOption = { id: string; name_fr: string; name_en: string | null; name_ar: string | null };
+type SubcategoryOption = { id: string; name_fr: string };
 
 const EmbedAiSuggestionsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
   const [businesses, setBusinesses] = useState<BusinessOption[]>([]);
   const [destinations, setDestinations] = useState<DestinationOption[]>([]);
+  const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [businessSearch, setBusinessSearch] = useState<Record<string, string>>({});
   const [destinationSearch, setDestinationSearch] = useState<Record<string, string>>({});
+  const [subcategorySearch, setSubcategorySearch] = useState<Record<string, string>>({});
+
 
   const load = async () => {
     setLoading(true);
