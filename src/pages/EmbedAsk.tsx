@@ -418,6 +418,22 @@ const EmbedAsk = () => {
                   {L.events} · {eventsPayload.events.length}
                 </button>
               )}
+
+              {/* Follow-up chips after each assistant response (except opener) */}
+              {i > 0 && !streaming && activeFollowups.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {activeFollowups.map((f, k) => (
+                    <button
+                      key={`${activeSuggestionId}-${i}-${k}`}
+                      type="button"
+                      onClick={() => send(f)}
+                      className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
+                    >
+                      {f}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           );
         })}
