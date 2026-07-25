@@ -229,6 +229,7 @@ const EmbedAiSuggestionsManagement = () => {
                       className="w-20 h-8"
                     />
                     <span className="text-muted-foreground">Ordre</span>
+                    <RouteBadge label={r.label_fr || ""} />
                   </CardTitle>
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
