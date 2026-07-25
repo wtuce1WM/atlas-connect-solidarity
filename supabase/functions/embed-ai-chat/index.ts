@@ -436,14 +436,15 @@ Deno.serve(async (req) => {
           }
         };
 
-        // Deterministic subcategory route: if the clicked suggestion has subcategory_ids,
-        // bypass LLM tool selection and run business-search filtered on those subcategories.
+        // Deterministic route: if the clicked suggestion has subcategory_ids and/or badge_ids,
+        // bypass LLM tool selection and run business-search filtered on those.
         let deterministicSubcategoryNames: string[] | null = null;
+        let deterministicBadgeIds: string[] | null = null;
         if (suggestionId) {
           try {
             const { data: sugg } = await admin
               .from("embed_ai_suggestions")
-              .select("subcategory_ids")
+              .select("subcategory_ids, badge_ids")
               .eq("id", suggestionId)
               .maybeSingle();
             const subIds: string[] = Array.isArray(sugg?.subcategory_ids) ? sugg!.subcategory_ids : [];
@@ -455,23 +456,30 @@ Deno.serve(async (req) => {
               const names = (subs || []).map((s: any) => s.name_fr).filter(Boolean);
               if (names.length) deterministicSubcategoryNames = names;
             }
+            const bIds: string[] = Array.isArray(sugg?.badge_ids) ? sugg!.badge_ids : [];
+            if (bIds.length) deterministicBadgeIds = bIds;
           } catch (e) {
-            console.error("[embed-ai-chat] suggestion_subcat_lookup_error", e);
+            console.error("[embed-ai-chat] suggestion_route_lookup_error", e);
           }
         }
 
-        if (deterministicSubcategoryNames) {
+        if (deterministicSubcategoryNames || deterministicBadgeIds) {
           const forcedArgs: any = {
             query: userMessage,
             city: host.city || "Marrakech",
             limit: 12,
-            _subcategoryNames: deterministicSubcategoryNames,
           };
+          if (deterministicSubcategoryNames) forcedArgs._subcategoryNames = deterministicSubcategoryNames;
+          if (deterministicBadgeIds) forcedArgs._badgeIds = deterministicBadgeIds;
           const forcedResult = await runTool("search_businesses", forcedArgs);
           rememberSearchResult("search_businesses", forcedArgs, forcedResult);
+          const routeDesc = [
+            deterministicSubcategoryNames ? `sous-catégories ${deterministicSubcategoryNames.join(", ")}` : null,
+            deterministicBadgeIds ? `${deterministicBadgeIds.length} badge(s)` : null,
+          ].filter(Boolean).join(" + ");
           convo.push({
             role: "system",
-            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE (route déterministe sur sous-catégories ${deterministicSubcategoryNames.join(", ")}):\n${JSON.stringify(forcedResult).slice(0, 12000)}\nRecommande uniquement des résultats listés ci-dessus. Copie exactement disclosure_note sur sa propre ligne avant la question finale.`,
+            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE (route déterministe sur ${routeDesc}):\n${JSON.stringify(forcedResult).slice(0, 12000)}\nRecommande uniquement des résultats listés ci-dessus. Copie exactement disclosure_note sur sa propre ligne avant la question finale.`,
           });
         } else if (shouldForceDirectorySearch(userMessage)) {
           const forcedArgs = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
