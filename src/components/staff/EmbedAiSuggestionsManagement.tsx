@@ -207,6 +207,7 @@ const EmbedAiSuggestionsManagement = () => {
           business_ids: r.business_ids || [],
           destination_ids: r.destination_ids || [],
           subcategory_ids: r.subcategory_ids || [],
+          badge_ids: r.badge_ids || [],
         }).eq("id", r.id)
       )
     );
