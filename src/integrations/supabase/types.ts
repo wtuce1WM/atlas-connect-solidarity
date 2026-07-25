@@ -3576,6 +3576,7 @@ export type Database = {
           city: string | null
           created_at: string
           destination_ids: string[]
+          disabled_followup_ids: string[]
           followups: Json
           id: string
           is_active: boolean
@@ -3592,6 +3593,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           destination_ids?: string[]
+          disabled_followup_ids?: string[]
           followups?: Json
           id?: string
           is_active?: boolean
@@ -3608,6 +3610,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           destination_ids?: string[]
+          disabled_followup_ids?: string[]
           followups?: Json
           id?: string
           is_active?: boolean
