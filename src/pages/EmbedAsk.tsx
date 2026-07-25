@@ -189,7 +189,7 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,followups,business_ids,city")
+        .select("id,label_fr,label_en,label_ar,followups,business_ids,city,disabled_followup_ids")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (cancelled || !data) return;
@@ -208,6 +208,7 @@ const EmbedAsk = () => {
         .map((r) => ({
           id: r.id as string,
           label: ((r[col] || r.label_fr || "") as string).trim(),
+          disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
         }))
         .filter((r) => r.label);
       if (list.length > 0) setDbSuggestions(list);
@@ -221,7 +222,7 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await supabase
         .from("embed_ai_followups")
-        .select("label_fr,label_en,label_ar")
+        .select("id,label_fr,label_en,label_ar")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (cancelled || !data) return;
