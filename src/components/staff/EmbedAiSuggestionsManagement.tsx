@@ -68,6 +68,7 @@ const EmbedAiSuggestionsManagement = () => {
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [businessSearch, setBusinessSearch] = useState<Record<string, string>>({});
 
   const load = async () => {
     setLoading(true);
