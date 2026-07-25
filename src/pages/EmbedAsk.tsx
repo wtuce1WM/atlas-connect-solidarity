@@ -418,21 +418,32 @@ const EmbedAsk = () => {
                 </div>
               </div>
 
-              {/* Business carousel — Mindtrip-style square thumbnails */}
+              {/* Business carousel — same visual language as the map hover card */}
               {mapPayload && mapPayload.businesses.length > 0 && (
                 <div className="w-full max-w-full overflow-x-auto -mx-1 px-1">
                   <div className="flex gap-3 pb-1">
                     {mapPayload.businesses.slice(0, 20).map((b) => {
-                      const { Icon, label } = categoryMeta(b);
                       const img = (b.images?.[0] || (b as any).logo_url) as string | undefined;
+                      const loc = [b.city, b.neighborhood].filter(Boolean).join(" · ");
+                      const ratingOn20 = (b.computed_rating ?? null) as number | null;
+                      const reviewCount = (b.total_review_count ?? b.google_review_count ?? null) as number | null;
+                      let distStr: string | null = null;
+                      if (hostLocation && b.latitude != null && b.longitude != null) {
+                        const R = 6371;
+                        const dLat = ((b.latitude - hostLocation.lat) * Math.PI) / 180;
+                        const dLon = ((b.longitude - hostLocation.lng) * Math.PI) / 180;
+                        const a = Math.sin(dLat / 2) ** 2 + Math.cos((hostLocation.lat * Math.PI) / 180) * Math.cos((b.latitude * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+                        const km = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                        distStr = km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`;
+                      }
                       return (
                         <button
                           key={b.id}
                           type="button"
                           onClick={() => setOpenBusinessId(b.id)}
-                          className="shrink-0 w-44 text-left group"
+                          className="shrink-0 w-64 text-left group"
                         >
-                          <div className="relative w-44 h-44 rounded-2xl overflow-hidden bg-neutral-800">
+                          <div className="relative w-64 h-44 rounded-xl overflow-hidden bg-neutral-800">
                             {img ? (
                               <img
                                 src={img}
@@ -441,19 +452,31 @@ const EmbedAsk = () => {
                                 loading="lazy"
                               />
                             ) : null}
-                            <span
-                              aria-hidden
-                              className="absolute bottom-2 right-2 h-6 w-6 rounded-full bg-white/95 text-neutral-900 flex items-center justify-center shadow-sm"
-                            >
-                              <Info className="w-3.5 h-3.5" />
-                            </span>
-                          </div>
-                          <div className="mt-2 px-0.5">
-                            <div className="text-sm font-semibold leading-tight line-clamp-2">{b.name}</div>
-                            <div className="mt-1 flex items-center gap-1.5 text-xs opacity-70 line-clamp-1">
-                              <Icon className="w-3.5 h-3.5 shrink-0" />
-                              <span className="truncate">{label}</span>
+                            {/* Bottom gradient overlay with meta */}
+                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-2.5">
+                              <div className="text-[13px] font-bold text-white leading-tight line-clamp-2">{b.name}</div>
+                              {loc && (
+                                <div className="text-[11px] text-white/80 mt-0.5 line-clamp-1">{loc}</div>
+                              )}
+                              {ratingOn20 != null && (
+                                <div className="mt-0.5 flex items-center gap-1 text-[12px] text-white">
+                                  <span style={{ color: "#D4AF37" }}>★</span>
+                                  <span className="font-semibold">{Number(ratingOn20).toFixed(1)}/20</span>
+                                  {reviewCount ? (
+                                    <span className="text-white/70">· {reviewCount} avis</span>
+                                  ) : null}
+                                </div>
+                              )}
                             </div>
+                            {/* Distance badge */}
+                            {distStr && (
+                              <div
+                                className="absolute bottom-2 right-2 text-[11px] font-semibold px-1.5 py-0.5 rounded backdrop-blur-sm whitespace-nowrap"
+                                style={{ background: "rgba(0,0,0,0.6)", color: "#D4AF37" }}
+                              >
+                                {distStr}
+                              </div>
+                            )}
                           </div>
                         </button>
                       );
