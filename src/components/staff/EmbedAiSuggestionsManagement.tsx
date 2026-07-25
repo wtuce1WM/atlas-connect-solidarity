@@ -570,9 +570,55 @@ const EmbedAiSuggestionsManagement = () => {
 
 
 
-                <p className="text-[11px] text-muted-foreground">
-                  💬 Les relances après réponse IA sont gérées globalement dans l'onglet <b>Relances</b>.
-                </p>
+                <div className="pt-2 border-t">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-semibold flex items-center gap-1.5">
+                      <CornerDownRight className="h-3.5 w-3.5" />
+                      Relances affichées après la réponse IA
+                    </label>
+                    <span className="text-[11px] text-muted-foreground">
+                      {globalFollowups.length - (r.disabled_followup_ids?.length || 0)}/{globalFollowups.length} activée(s)
+                    </span>
+                  </div>
+                  {globalFollowups.length === 0 ? (
+                    <p className="text-[11px] text-muted-foreground">Aucune relance dans l'onglet <b>Relances</b>.</p>
+                  ) : (
+                    <div className="grid gap-1.5 sm:grid-cols-2">
+                      {globalFollowups.map((f) => {
+                        const disabled = (r.disabled_followup_ids || []).includes(f.id);
+                        const enabled = !disabled;
+                        return (
+                          <label
+                            key={f.id}
+                            className={`flex items-start gap-2 rounded-md border px-2 py-1.5 text-xs cursor-pointer transition ${
+                              enabled ? "border-primary/40 bg-primary/5" : "border-border bg-muted/30 text-muted-foreground"
+                            } ${!f.is_active ? "opacity-50" : ""}`}
+                            title={!f.is_active ? "Relance désactivée globalement" : ""}
+                          >
+                            <input
+                              type="checkbox"
+                              className="mt-0.5"
+                              checked={enabled}
+                              onChange={(e) => {
+                                const cur = new Set(r.disabled_followup_ids || []);
+                                if (e.target.checked) cur.delete(f.id); else cur.add(f.id);
+                                update(r.id, { disabled_followup_ids: Array.from(cur) });
+                              }}
+                            />
+                            <span className="flex-1 leading-tight">
+                              {f.label_fr || <em className="text-muted-foreground">(sans libellé)</em>}
+                              {!f.is_active && <span className="ml-1 text-[10px]">(off global)</span>}
+                            </span>
+                            <RouteBadge label={f.label_fr || ""} />
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <p className="text-[11px] text-muted-foreground mt-2">
+                    ☑️ Cochée = affichée après la réponse IA quand cette suggestion est active. Par défaut, toutes les relances sont activées.
+                  </p>
+                </div>
               </CardContent>
             </Card>
           );
