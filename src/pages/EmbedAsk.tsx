@@ -306,7 +306,7 @@ const EmbedAsk = () => {
     setOpenMap(null);
     setOpenEvents(null);
     setOpenBusinessId(null);
-    setActiveSuggestionId(null);
+    
     setMsgs(businessName ? [{ role: "assistant", content: L.opener(businessName) }] : []);
     setTimeout(() => inputRef.current?.focus(), 0);
   };
