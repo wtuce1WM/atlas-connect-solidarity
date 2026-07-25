@@ -130,10 +130,11 @@ const EmbedAsk = () => {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  type FollowupRow = { label_fr: string; label_en: string | null; label_ar: string | null };
-  type SuggestionRow = { id: string; label: string };
+  type FollowupRow = { id: string; label_fr: string; label_en: string | null; label_ar: string | null };
+  type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[] };
   const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(null);
   const [globalFollowups, setGlobalFollowups] = useState<FollowupRow[]>([]);
+  const [activeSuggestionId, setActiveSuggestionId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const L = LANG_LABELS[lang];
@@ -144,7 +145,12 @@ const EmbedAsk = () => {
     const raw = (lang === "en" ? f.label_en : lang === "ar" ? f.label_ar : f.label_fr) || f.label_fr || "";
     return raw.replace(/\{businessName\}/g, businessName || "").trim();
   };
-  const activeFollowups: string[] = globalFollowups.map(pickFollowupLabel).filter(Boolean);
+  const activeSuggestion = activeSuggestionId ? suggestions.find((s) => s.id === activeSuggestionId) : null;
+  const disabledIds = new Set(activeSuggestion?.disabled_followup_ids || []);
+  const activeFollowups: string[] = globalFollowups
+    .filter((f) => !disabledIds.has(f.id))
+    .map(pickFollowupLabel)
+    .filter(Boolean);
 
   // Overlay states
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
