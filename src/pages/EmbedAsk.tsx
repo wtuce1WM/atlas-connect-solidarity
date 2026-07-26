@@ -255,7 +255,7 @@ const EmbedAsk = () => {
   const sessionIdRef = useRef<string>(typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `s-${Date.now()}-${Math.random().toString(36).slice(2)}`);
   const messageIndexRef = useRef<number>(0);
 
-  const send = async (overrideText?: string, suggestionId?: string) => {
+  const send = async (overrideText?: string, suggestionId?: string, followupId?: string) => {
     const text = (overrideText ?? input).trim();
     if (!text || streaming || !businessName) return;
     if (!overrideText) { setInput(""); }
@@ -287,6 +287,7 @@ const EmbedAsk = () => {
           sessionId: sessionIdRef.current,
           messageIndex,
           suggestionId: suggestionId || null,
+          followupId: followupId || null,
         }),
       });
 
