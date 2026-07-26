@@ -693,7 +693,7 @@ const EmbedAsk = () => {
                   <div className="flex gap-3 pb-1">
                     {mapPayload.businesses.slice(0, 20).map((b) => {
                       const img = (b.images?.[0] || (b as any).logo_url) as string | undefined;
-                      const loc = [b.city, b.neighborhood].filter(Boolean).join(" · ");
+                      const loc = b.neighborhood || "";
                       const ratingOn20 = computeWeightedRatingOn20(collectRatingSources(b as any));
                       const reviewCount = getTotalReviewCount(b as any) || (b.google_review_count ?? null);
                       let distStr: string | null = null;
@@ -724,7 +724,8 @@ const EmbedAsk = () => {
                                 loading="lazy"
                               />
                             ) : null}
-                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-2.5">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 pointer-events-none" />
+                            <div className="absolute inset-x-0 bottom-0 p-2.5">
                               <div className="text-[13px] font-bold text-white leading-tight line-clamp-2">{b.name}</div>
                               {loc && (
                                 <div className="text-[11px] text-white/80 mt-0.5 line-clamp-1">{loc}</div>
