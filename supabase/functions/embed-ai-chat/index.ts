@@ -53,6 +53,118 @@ function shouldForceDirectorySearch(text: string): boolean {
   return /\b(que faire|proximite|autour|pres de|ou |où |restaurant|dejeuner|diner|manger|boire|bar|cafe|the|rooftop|terrasse|visiter|activite|sortie|agenda|week[- ]?end|nearby|around|where|eat|drink|visit|activity|event)\b/i.test(q);
 }
 
+function isHoursIntent(text: string): boolean {
+  const n = normalize(text);
+  if (!n) return false;
+  if (/\b(horaires?|heures? d['\s]?ouverture|ouvert|ouverture|ferme|fermeture|jours? d['\s]?ouverture)\b/i.test(n)) return true;
+  if (/\b(opening hours?|open hours?|hours of operation|when (?:are you |is it )?open|what time|closing time)\b/i.test(n)) return true;
+  if (/(ساعات|مواعيد|أوقات).*(العمل|الفتح|الدوام)/.test(text)) return true;
+  return false;
+}
+
+function isBookingIntent(text: string): boolean {
+  const n = normalize(text);
+  if (!n) return false;
+  if (/\b(reserv|reservation|booker|reserver)\b/i.test(n)) return true;
+  if (/\b(book(?:ing)?|reserve|make a reservation)\b/i.test(n)) return true;
+  if (/(حجز|احجز|يحجز)/.test(text)) return true;
+  return false;
+}
+
+const DAY_LABELS = {
+  fr: ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"],
+  en: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+  ar: ["الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد"],
+};
+const DAY_KEYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+
+function buildHoursAnswer(host: any, lang: "fr" | "en" | "ar"): string | null {
+  if (host?.show_opening_hours !== true) {
+    if (lang === "en") return `The opening hours of **${host.name}** are not published here. The easiest way is to contact the team directly — ${host.phone ? `by phone at ${host.phone}` : host.whatsapp ? `on WhatsApp at ${host.whatsapp}` : "via the contact details on the site"}. Would you like me to help you with something else — a table nearby, a rooftop, an activity?`;
+    if (lang === "ar") return `ساعات عمل **${host.name}** غير منشورة هنا. الأفضل التواصل مباشرة مع الفريق${host.phone ? ` عبر الهاتف ${host.phone}` : host.whatsapp ? ` عبر واتساب ${host.whatsapp}` : ""}. هل تريد مساعدة في شيء آخر — مطعم قريب، سطح، أو نشاط؟`;
+    return `Les horaires de **${host.name}** ne sont pas publiés ici. Le plus simple est de contacter l'équipe directement${host.phone ? ` au ${host.phone}` : host.whatsapp ? ` sur WhatsApp au ${host.whatsapp}` : " via les coordonnées du site"}. Je peux t'aider sur autre chose — une table à proximité, un rooftop, une activité ?`;
+  }
+  const oh = host.opening_hours;
+  if (!oh || typeof oh !== "object") {
+    if (lang === "en") return `The hours of **${host.name}** haven't been filled in yet. Feel free to contact the team directly for the latest.`;
+    if (lang === "ar") return `لم تُعبأ ساعات عمل **${host.name}** بعد. يرجى الاتصال بالفريق مباشرة.`;
+    return `Les horaires de **${host.name}** ne sont pas encore renseignés. N'hésite pas à contacter l'équipe directement.`;
+  }
+  const labels = DAY_LABELS[lang];
+  const closedWord = lang === "en" ? "Closed" : lang === "ar" ? "مغلق" : "Fermé";
+  const lines: string[] = [];
+  DAY_KEYS.forEach((k, i) => {
+    const d = oh[k];
+    if (!d) { lines.push(`- ${labels[i]} — —`); return; }
+    if (d.closed) { lines.push(`- ${labels[i]} — ${closedWord}`); return; }
+    if (!d.open || !d.close) { lines.push(`- ${labels[i]} — —`); return; }
+    let s = `${d.open} – ${d.close}`;
+    if (d.open2 && d.close2 && !d.continuous) s += ` / ${d.open2} – ${d.close2}`;
+    lines.push(`- ${labels[i]} — ${s}`);
+  });
+  const intro = lang === "en"
+    ? `Here are the opening hours of **${host.name}**:`
+    : lang === "ar"
+      ? `إليك ساعات عمل **${host.name}**:`
+      : `Voici les horaires de **${host.name}** :`;
+  const outro = lang === "en"
+    ? `\n\nWant me to suggest something to do around **${host.name}** at a specific time of day?`
+    : lang === "ar"
+      ? `\n\nهل تريد اقتراحات لأنشطة قريبة من **${host.name}** في وقت معين؟`
+      : `\n\nJe peux te suggérer une activité autour de **${host.name}** à un moment précis de la journée ?`;
+  return `${intro}\n\n${lines.join("\n")}${outro}`;
+}
+
+function isReserveCta(cta: string | null | undefined, mode: string | null | undefined): boolean {
+  const raw = `${cta || ""} ${mode || ""}`;
+  const n = normalize(raw);
+  if (!n) return false;
+  if (/reserv/.test(n)) return true; // reserve / reservez / reserver_en_ligne / reservation
+  if (/\bbook(?:ing)?\b/.test(n)) return true;
+  return false;
+}
+
+function buildBookingAnswer(host: any, lang: "fr" | "en" | "ar"): string {
+  const candidates: { url: string; label: string }[] = [];
+  const push = (url: any, cta: any, mode: any) => {
+    if (!url || typeof url !== "string") return;
+    if (!isReserveCta(cta, mode)) return;
+    const fullUrl = url.startsWith("http") ? url : `https://${url}`;
+    const label = (cta && String(cta).trim()) || (lang === "en" ? "Book online" : lang === "ar" ? "احجز عبر الإنترنت" : "Réserver en ligne");
+    candidates.push({ url: fullUrl, label });
+  };
+  push(host.reserve_now_url, host.reserve_now_cta, host.presentation_mode);
+  push(host.online_shop_url, host.online_shop_cta, host.online_shop_presentation_mode);
+  push(host.url_4, host.url_4_cta, host.url_4_presentation_mode);
+  push(host.url_5, host.url_5_cta, host.url_5_presentation_mode);
+
+  if (candidates.length) {
+    const first = candidates[0];
+    const linksLine = candidates.map((c) => `[${c.label}](${c.url})`).join(" · ");
+    if (lang === "en") {
+      return `Yes — you can book **${host.name}** online right now. ${linksLine}\n\nWould you like me to suggest a great table or activity to combine with your stay?`;
+    }
+    if (lang === "ar") {
+      return `نعم — يمكنك حجز **${host.name}** مباشرة عبر الإنترنت. ${linksLine}\n\nهل تريد اقتراح مطعم أو نشاط لتكمل إقامتك؟`;
+    }
+    return `Oui — tu peux réserver **${host.name}** en ligne dès maintenant. ${linksLine}\n\nJe peux te suggérer une belle table ou une activité à combiner avec ton séjour ?`;
+  }
+
+  // No online reservation URL — fallback to phone/WhatsApp
+  const contacts: string[] = [];
+  if (host.whatsapp) contacts.push(lang === "en" ? `WhatsApp: ${host.whatsapp}` : lang === "ar" ? `واتساب: ${host.whatsapp}` : `WhatsApp : ${host.whatsapp}`);
+  if (host.phone) contacts.push(lang === "en" ? `phone: ${host.phone}` : lang === "ar" ? `هاتف: ${host.phone}` : `téléphone : ${host.phone}`);
+  const contactLine = contacts.length ? contacts.join(" · ") : (host.website || "");
+  if (lang === "en") {
+    return `**${host.name}** doesn't offer online booking on this page. The team handles reservations directly${contactLine ? ` — ${contactLine}` : ""}. Would you like me to suggest something to do nearby?`;
+  }
+  if (lang === "ar") {
+    return `**${host.name}** لا يوفر الحجز عبر الإنترنت على هذه الصفحة. يتولى الفريق الحجوزات مباشرة${contactLine ? ` — ${contactLine}` : ""}. هل تريد اقتراحات قريبة؟`;
+  }
+  return `**${host.name}** ne propose pas de réservation en ligne sur cette page. L'équipe s'occupe des réservations directement${contactLine ? ` — ${contactLine}` : ""}. Je peux te suggérer quelque chose à faire à proximité ?`;
+}
+
+
 function isNearbyOverviewIntent(text: string, hostName?: string): boolean {
   const q = String(text ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
   if (!q) return false;
@@ -664,7 +776,7 @@ Deno.serve(async (req) => {
         // Resolve host business
         let bizQ = admin
           .from("businesses")
-          .select("id, slug, name, city, neighborhood, address, main_category, categories, hook_fr, hook_en, hook_ar, description, description_en, description_ar, min_price, manual_price_range, phone, whatsapp, website, opening_hours, latitude, longitude, is_active")
+          .select("id, slug, name, city, neighborhood, address, main_category, categories, hook_fr, hook_en, hook_ar, description, description_en, description_ar, min_price, manual_price_range, phone, whatsapp, website, opening_hours, show_opening_hours, reserve_now_url, reserve_now_cta, presentation_mode, online_shop_url, online_shop_cta, online_shop_presentation_mode, url_4, url_4_cta, url_4_presentation_mode, url_5, url_5_cta, url_5_presentation_mode, latitude, longitude, is_active")
           .eq("is_active", true)
           .limit(1);
         const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
@@ -1190,6 +1302,30 @@ Deno.serve(async (req) => {
           }
           // No prior map payload — fall through to normal flow.
         }
+
+        // Deterministic: HOURS — read opening_hours directly from DB, gated by show_opening_hours.
+        if (isHoursIntent(userMessage)) {
+          const answer = buildHoursAnswer(host, language);
+          if (answer) {
+            emitDelta(answer);
+            toolsCalledLog.push({ name: "hours_lookup", args: { show: !!host.show_opening_hours }, ok: true });
+            endText();
+            await logTurn({ finalText: answer, streamCompleted: true });
+            return;
+          }
+        }
+
+        // Deterministic: ONLINE BOOKING — scan url_1..url_5 CTAs for a Reserve/Book label.
+        if (isBookingIntent(userMessage)) {
+          const answer = buildBookingAnswer(host, language);
+          emitDelta(answer);
+          toolsCalledLog.push({ name: "booking_lookup", args: {}, ok: true });
+          endText();
+          await logTurn({ finalText: answer, streamCompleted: true });
+          return;
+        }
+
+
 
 
         // Deterministic: POI-only nearby
