@@ -474,7 +474,8 @@ Deno.serve(async (req) => {
                     .from("businesses")
                     .select("id, name, slug, city, neighborhood, main_category, hook_fr, hook_en, hook_ar, latitude, longitude, min_price, manual_price_range")
                     .in("id", missingIds)
-                    .eq("is_active", true);
+                    .eq("is_active", true)
+                    .is("closure_message", null);
                   pinnedFetched = pinnedRows || [];
                 }
                 const pinnedFromFiltered = filtered.filter((b: any) => suggestionPinnedIds.includes(b.id));
