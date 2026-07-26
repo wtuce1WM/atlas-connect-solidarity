@@ -93,7 +93,7 @@ const FS_I18N: Record<string, { en: string; ar: string }> = {
 async function buildNearbyOverview(
   admin: any,
   host: any,
-  hostSubIds: Set<string>,
+  hostCategoryNames: Set<string>,
   lang: "fr" | "en" | "ar",
 ): Promise<string> {
   if (host.latitude == null || host.longitude == null) return "";
@@ -102,7 +102,7 @@ async function buildNearbyOverview(
   const dLng = RADIUS_KM / (111 * Math.max(Math.cos((host.latitude * Math.PI) / 180), 0.1));
   const { data: biz } = await admin
     .from("businesses")
-    .select("id, latitude, longitude")
+    .select("id, latitude, longitude, categories, main_category")
     .eq("is_active", true)
     .neq("id", host.id)
     .gte("latitude", host.latitude - dLat)
@@ -115,16 +115,12 @@ async function buildNearbyOverview(
   );
   if (!nearby.length) return "";
 
-  const ids = nearby.map((b: any) => b.id);
-  const { data: rels } = await admin
-    .from("subcategory_relations")
-    .select("business_id, subcategory_id")
-    .in("business_id", ids);
-  const bizSubs = new Map<string, Set<string>>();
-  for (const r of rels || []) {
-    if (!r.business_id || !r.subcategory_id) continue;
-    if (!bizSubs.has(r.business_id)) bizSubs.set(r.business_id, new Set());
-    bizSubs.get(r.business_id)!.add(r.subcategory_id);
+  const bizCategories = new Map<string, Set<string>>();
+  for (const b of nearby) {
+    const names = Array.isArray(b.categories) ? b.categories : [];
+    const normalized = names.map(normalize).filter(Boolean);
+    if (b.main_category) normalized.push(normalize(b.main_category));
+    if (normalized.length) bizCategories.set(b.id, new Set(normalized));
   }
 
   const [fsRes, fssRes] = await Promise.all([
@@ -132,12 +128,24 @@ async function buildNearbyOverview(
     admin.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
   ]);
   const fsEntries: any[] = fsRes.data || [];
+  const subIds = [...new Set((fssRes.data || []).map((l: any) => l.subcategory_id).filter(Boolean))];
+  const { data: subRows } = subIds.length
+    ? await admin.from("subcategories").select("id, name_fr").in("id", subIds)
+    : { data: [] };
+  const subNameById = new Map<string, string>();
+  for (const s of subRows || []) {
+    const n = normalize(s.name_fr);
+    if (s.id && n) subNameById.set(s.id, n);
+  }
+
   const fsSubs = new Map<string, Set<string>>();
   for (const l of fssRes.data || []) {
     if (!l.front_structure_id || !l.subcategory_id) continue;
-    if (hostSubIds.has(l.subcategory_id)) continue; // exclude host's own subcategories entirely
+    const subName = subNameById.get(l.subcategory_id);
+    if (!subName) continue;
+    if (hostCategoryNames.has(subName)) continue; // exclude host's own categories entirely
     if (!fsSubs.has(l.front_structure_id)) fsSubs.set(l.front_structure_id, new Set());
-    fsSubs.get(l.front_structure_id)!.add(l.subcategory_id);
+    fsSubs.get(l.front_structure_id)!.add(subName);
   }
 
   const rows: Array<{ name: string; count: number }> = [];
@@ -145,8 +153,8 @@ async function buildNearbyOverview(
     const sset = fsSubs.get(fs.id);
     if (!sset || !sset.size) continue;
     let count = 0;
-    for (const subs of bizSubs.values()) {
-      for (const s of subs) { if (sset.has(s)) { count++; break; } }
+    for (const cats of bizCategories.values()) {
+      for (const c of cats) { if (sset.has(c)) { count++; break; } }
     }
     if (count > 0) rows.push({ name: fs.name, count });
   }
@@ -158,10 +166,10 @@ async function buildNearbyOverview(
   const totalCategorized = rows.reduce((a, r) => a + r.count, 0);
 
   const header = lang === "en"
-    ? `I scanned **${nearby.length} active places** within **1 km** of ${host.name}${host.city ? ` (${host.city})` : ""}, grouped by the One World Morocco taxonomy${hostSubIds.size ? ` (categories overlapping ${host.name}'s own offer are excluded)` : ""}:`
+    ? `I scanned **${nearby.length} active places** within **1 km** of ${host.name}${host.city ? ` (${host.city})` : ""}, grouped by the One World Morocco taxonomy${hostCategoryNames.size ? ` (categories overlapping ${host.name}'s own offer are excluded)` : ""}:`
     : lang === "ar"
-      ? `مررت على **${nearby.length} مكانًا نشطًا** ضمن **1 كم** من ${host.name}${host.city ? ` (${host.city})` : ""} وفق تصنيف One World Morocco${hostSubIds.size ? ` (تُستثنى الفئات التي تتداخل مع عرض ${host.name})` : ""}:`
-      : `J'ai passé au crible **${nearby.length} adresses actives** à moins d'**1 km** de ${host.name}${host.city ? ` (${host.city})` : ""}, réparties dans la catégorisation One World Morocco${hostSubIds.size ? ` (les catégories qui recoupent l'offre de ${host.name} sont exclues)` : ""} :`;
+      ? `مررت على **${nearby.length} مكانًا نشطًا** ضمن **1 كم** من ${host.name}${host.city ? ` (${host.city})` : ""} وفق تصنيف One World Morocco${hostCategoryNames.size ? ` (تُستثنى الفئات التي تتداخل مع عرض ${host.name})` : ""}:`
+      : `J'ai passé au crible **${nearby.length} adresses actives** à moins d'**1 km** de ${host.name}${host.city ? ` (${host.city})` : ""}, réparties dans la catégorisation One World Morocco${hostCategoryNames.size ? ` (les catégories qui recoupent l'offre de ${host.name} sont exclues)` : ""} :`;
 
   const bullets = rows
     .map((r) => `- ${FS_EMOJI[r.name] || "•"} **${translate(r.name)}** — ${r.count} ${wordPlace(r.count)}`)
