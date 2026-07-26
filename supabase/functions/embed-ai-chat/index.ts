@@ -875,6 +875,7 @@ Deno.serve(async (req) => {
         const toolsCalledLog: Array<{ name: string; args: any; result_count?: number; ok?: boolean }> = [];
         let hadError = false;
         let errorMsg: string | null = null;
+        let finalText = "";
 
         const userMessage = (() => {
           for (let i = inMessages.length - 1; i >= 0; i--) {
@@ -1087,7 +1088,6 @@ Deno.serve(async (req) => {
 
         // Tool loop (up to MAX_ROUNDS). Non-stream rounds via direct gateway fetch
         // (keeps the existing tool_calls JSON contract). Final round streamed via AI SDK.
-        let finalText = "";
         const effectiveRounds = hasForcedResults ? 1 : MAX_ROUNDS;
         for (let round = 0; round < effectiveRounds; round++) {
           const isLast = round === effectiveRounds - 1;
