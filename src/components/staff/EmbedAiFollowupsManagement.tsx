@@ -98,6 +98,7 @@ const EmbedAiFollowupsManagement = () => {
         sort_order: r.sort_order,
         is_active: r.is_active,
         radius_km: r.radius_km,
+        mode: r.mode,
       }).eq("id", r.id);
       if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); setSaving(false); return; }
     }
