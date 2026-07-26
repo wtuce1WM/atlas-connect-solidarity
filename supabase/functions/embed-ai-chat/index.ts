@@ -1921,38 +1921,54 @@ Deno.serve(async (req) => {
 
         // Deterministic: TWO-ENTITY PROXIMITY — "A à côté d'un B" where B is a
         // category (not a named business). Runs BEFORE nearby overview & badge
-        // routing. Only triggers on free-text (no deterministic suggestion filter).
+        // routing.
+        //
+        // Two entry points:
+        //  1. Curated: the active suggestion has proximity_a_* and proximity_b_*
+        //     mappings — we trust them, bypass free-text term resolution.
+        //  2. Free-text: detected via TWO_ENTITY_RE. Only when no suggestion
+        //     deterministic filter is active.
         {
-          const hasDetFilter = !!(deterministicBadgeIds?.length || deterministicSubcategoryNames?.length);
-          if (!hasDetFilter) {
-            const twoEnt = detectTwoEntityProximity(userMessage);
-            if (twoEnt) {
-              const strict = parseInlineRadiusKm(userMessage) != null;
-              const built = await buildTwoEntityProximity(admin, host, twoEnt, language, strict);
-              if (built) {
-                const forcedResult = {
-                  results: built.results,
-                  total_found: built.results.length,
-                  city: host.city || "Marrakech",
-                  proximity_active: true,
-                  radius_km_used: built.radiusUsed,
-                  radius_expanded: built.radiusExpanded,
-                  disclosure_note: null,
-                };
-                rememberSearchResult("search_businesses", {
-                  _twoEntity: true,
-                  aTerms: built.aTerms,
-                  bTerm: built.bTerm,
-                  radius_km: built.radiusUsed,
-                }, forcedResult);
-                emitDelta(built.text);
-                const trailing = emitTrailingMarkers();
-                toolsCalledLog.push({ name: "two_entity_proximity", args: { aTerms: built.aTerms, bTerm: built.bTerm, radius_km: built.radiusUsed, count: built.results.length }, ok: true });
-                endText();
-                await logTurn({ finalText: built.text + trailing, streamCompleted: true });
-                return;
+          let built: Awaited<ReturnType<typeof buildTwoEntityProximity>> | null = null;
+          const strict = parseInlineRadiusKm(userMessage) != null;
+          if (curatedProximity) {
+            const intent: TwoEntityIntent = {
+              aTerms: [suggestionLabel || "A"],
+              bTerm: suggestionLabel || "B",
+              radiusKm: parseInlineRadiusKm(userMessage) ?? 1,
+            };
+            built = await buildTwoEntityProximityCurated(admin, host, intent, language, strict, curatedProximity);
+          } else {
+            const hasDetFilter = !!(deterministicBadgeIds?.length || deterministicSubcategoryNames?.length);
+            if (!hasDetFilter) {
+              const twoEnt = detectTwoEntityProximity(userMessage);
+              if (twoEnt) {
+                built = await buildTwoEntityProximity(admin, host, twoEnt, language, strict);
               }
             }
+          }
+          if (built) {
+            const forcedResult = {
+              results: built.results,
+              total_found: built.results.length,
+              city: host.city || "Marrakech",
+              proximity_active: true,
+              radius_km_used: built.radiusUsed,
+              radius_expanded: built.radiusExpanded,
+              disclosure_note: null,
+            };
+            rememberSearchResult("search_businesses", {
+              _twoEntity: true,
+              aTerms: built.aTerms,
+              bTerm: built.bTerm,
+              radius_km: built.radiusUsed,
+            }, forcedResult);
+            emitDelta(built.text);
+            const trailing = emitTrailingMarkers();
+            toolsCalledLog.push({ name: "two_entity_proximity", args: { aTerms: built.aTerms, bTerm: built.bTerm, radius_km: built.radiusUsed, count: built.results.length, curated: !!curatedProximity }, ok: true });
+            endText();
+            await logTurn({ finalText: built.text + trailing, streamCompleted: true });
+            return;
           }
         }
 
