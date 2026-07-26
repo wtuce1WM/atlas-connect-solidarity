@@ -742,21 +742,38 @@ Deno.serve(async (req) => {
 
         // Followup with an explicit radius → deterministic "aperçu à proximité" bounded to that radius.
         let followupRadiusKm: number | null = null;
+        let followupMode: string | null = null;
         if (followupId) {
           try {
             const { data: fu } = await admin
               .from("embed_ai_followups")
-              .select("radius_km")
+              .select("radius_km, mode")
               .eq("id", followupId)
               .maybeSingle();
             const rv = fu?.radius_km;
             if (rv != null && Number.isFinite(Number(rv)) && Number(rv) > 0) {
               followupRadiusKm = Number(rv);
             }
+            followupMode = (fu?.mode as string | null) || null;
           } catch (e) {
             console.error("[embed-ai-chat] followup_lookup_error", e);
           }
         }
+
+        // Deterministic route: POI-only nearby (points_of_interest table, geo-bounded).
+        if (followupMode === "poi_nearby") {
+          const radiusKm = followupRadiusKm ?? 1;
+          const answer = await buildPoiNearby(admin, host, language, radiusKm);
+          if (answer) {
+            if (!firstTokenAt) firstTokenAt = Date.now();
+            emit({ type: "chunk", delta: answer });
+            emit({ type: "done", answer });
+            toolsCalledLog.push({ name: "poi_nearby", args: { lat: host.latitude, lng: host.longitude, radius_km: radiusKm, source: "followup" }, ok: true });
+            await logTurn({ finalText: answer, streamCompleted: true });
+            return close();
+          }
+        }
+
 
         // Deterministic short-circuit: "Que faire à proximité ?" overview,
         // OR any followup that carries an explicit radius_km.
