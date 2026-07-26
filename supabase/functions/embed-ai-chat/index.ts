@@ -413,7 +413,8 @@ function buildImmersiveBusinessAnswer(
     const detail = hook || [b.main_category, Array.isArray(b.categories) ? b.categories.join(", ") : null].filter(Boolean).join(" · ");
     return `**${b.name}**${area ? `, ${area}` : ""}. ${detail || "Une adresse sélectionnée dans le guide One World Morocco, à garder dans ta shortlist."}`;
   }).join("\n\n");
-  return `${intro}\n\n${body}\n\n${disclosure}\n\nTu veux que je resserre plutôt par quartier, ambiance ou moment de la journée ?`;
+  const rl = radiusLine("fr");
+  return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nTu veux que je resserre plutôt par quartier, ambiance ou moment de la journée ?`;
 }
 
 function buildSystemPrompt(host: any, lang: "fr" | "en" | "ar"): string {
