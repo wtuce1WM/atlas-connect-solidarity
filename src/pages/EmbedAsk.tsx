@@ -516,10 +516,10 @@ const EmbedAsk = () => {
                     <button
                       key={`fu-${i}-${k}`}
                       type="button"
-                      onClick={() => send(f)}
+                      onClick={() => send(f.label, undefined, f.id)}
                       className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
                     >
-                      {f}
+                      {f.label}
                     </button>
                   ))}
                 </div>
