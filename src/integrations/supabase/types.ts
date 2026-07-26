@@ -3590,6 +3590,10 @@ export type Database = {
           label_en: string | null
           label_fr: string
           mode: string | null
+          proximity_a_badge_ids: string[]
+          proximity_a_subcategory_ids: string[]
+          proximity_b_badge_ids: string[]
+          proximity_b_subcategory_ids: string[]
           sort_order: number
           subcategory_ids: string[]
           updated_at: string
@@ -3608,6 +3612,10 @@ export type Database = {
           label_en?: string | null
           label_fr: string
           mode?: string | null
+          proximity_a_badge_ids?: string[]
+          proximity_a_subcategory_ids?: string[]
+          proximity_b_badge_ids?: string[]
+          proximity_b_subcategory_ids?: string[]
           sort_order?: number
           subcategory_ids?: string[]
           updated_at?: string
@@ -3626,6 +3634,10 @@ export type Database = {
           label_en?: string | null
           label_fr?: string
           mode?: string | null
+          proximity_a_badge_ids?: string[]
+          proximity_a_subcategory_ids?: string[]
+          proximity_b_badge_ids?: string[]
+          proximity_b_subcategory_ids?: string[]
           sort_order?: number
           subcategory_ids?: string[]
           updated_at?: string
