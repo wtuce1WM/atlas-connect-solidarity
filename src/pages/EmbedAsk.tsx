@@ -581,6 +581,9 @@ const EmbedAsk = () => {
   });
 
   const startNewConversation = () => {
+    try { window.localStorage.removeItem(storageKey); } catch { /* noop */ }
+    restoredRef.current = false;
+    sessionIdRef.current = newSessionId();
     sessionIdRef.current =
       typeof crypto !== "undefined" && "randomUUID" in crypto
         ? crypto.randomUUID()
