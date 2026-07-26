@@ -396,7 +396,23 @@ const EmbedAsk = () => {
               </div>
 
               {mapPayload && mapPayload.businesses.length > 0 && (
-                <div className="w-full max-w-full overflow-x-auto -mx-1 px-1">
+                <div
+                  className="w-full max-w-full overflow-x-auto scrollbar-hide -mx-1 px-1"
+                  onWheel={(e) => {
+                    if (e.deltaY === 0) return;
+                    const el = e.currentTarget;
+                    const maxScroll = el.scrollWidth - el.clientWidth;
+                    if (maxScroll <= 0) return;
+                    const atLeft = el.scrollLeft <= 0;
+                    const atRight = el.scrollLeft >= maxScroll - 1;
+                    const goingRight = e.deltaY > 0;
+                    const goingLeft = e.deltaY < 0;
+                    if ((goingRight && !atRight) || (goingLeft && !atLeft)) {
+                      e.preventDefault();
+                      el.scrollLeft += e.deltaY;
+                    }
+                  }}
+                >
                   <div className="flex gap-3 pb-1">
                     {mapPayload.businesses.slice(0, 20).map((b) => {
                       const img = (b.images?.[0] || (b as any).logo_url) as string | undefined;
