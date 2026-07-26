@@ -163,10 +163,10 @@ const EmbedAsk = () => {
   };
   const activeSuggestion = activeSuggestionId ? suggestions.find((s) => s.id === activeSuggestionId) : null;
   const disabledIds = new Set(activeSuggestion?.disabled_followup_ids || []);
-  const activeFollowups: string[] = globalFollowups
+  const activeFollowups: Array<{ id: string; label: string }> = globalFollowups
     .filter((f) => !disabledIds.has(f.id))
-    .map(pickFollowupLabel)
-    .filter(Boolean);
+    .map((f) => ({ id: f.id, label: pickFollowupLabel(f) }))
+    .filter((f) => f.label);
 
   // Overlay states
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
@@ -255,7 +255,7 @@ const EmbedAsk = () => {
   const sessionIdRef = useRef<string>(typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `s-${Date.now()}-${Math.random().toString(36).slice(2)}`);
   const messageIndexRef = useRef<number>(0);
 
-  const send = async (overrideText?: string, suggestionId?: string) => {
+  const send = async (overrideText?: string, suggestionId?: string, followupId?: string) => {
     const text = (overrideText ?? input).trim();
     if (!text || streaming || !businessName) return;
     if (!overrideText) { setInput(""); }
@@ -287,6 +287,7 @@ const EmbedAsk = () => {
           sessionId: sessionIdRef.current,
           messageIndex,
           suggestionId: suggestionId || null,
+          followupId: followupId || null,
         }),
       });
 
@@ -515,10 +516,10 @@ const EmbedAsk = () => {
                     <button
                       key={`fu-${i}-${k}`}
                       type="button"
-                      onClick={() => send(f)}
+                      onClick={() => send(f.label, undefined, f.id)}
                       className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
                     >
-                      {f}
+                      {f.label}
                     </button>
                   ))}
                 </div>

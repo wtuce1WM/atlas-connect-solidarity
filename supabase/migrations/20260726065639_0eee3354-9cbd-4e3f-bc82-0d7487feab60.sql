@@ -1,0 +1,2 @@
+ALTER TABLE public.embed_ai_followups ADD COLUMN IF NOT EXISTS radius_km numeric NULL;
+COMMENT ON COLUMN public.embed_ai_followups.radius_km IS 'Si renseigné, force la route "aperçu à proximité" avec ce rayon (km) autour de l''établissement hôte. NULL = pas de contrainte géo (route auto).';
