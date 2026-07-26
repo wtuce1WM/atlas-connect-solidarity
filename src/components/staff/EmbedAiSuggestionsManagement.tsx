@@ -59,6 +59,7 @@ type Row = {
   badge_ids: string[];
   city: string | null;
   disabled_followup_ids: string[];
+  mode: string | null;
 };
 
 type BusinessOption = { id: string; name: string; slug: string | null };
