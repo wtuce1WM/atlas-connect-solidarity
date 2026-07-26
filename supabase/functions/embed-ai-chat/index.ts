@@ -1074,7 +1074,7 @@ Deno.serve(async (req) => {
                     parts: [{ type: "text", text: String(m.content || "") }],
                   })) as any,
               ),
-              temperature: 0.7,
+              temperature: hasForcedResults ? 0.4 : 0.7,
             });
             for await (const delta of result.textStream) {
               finalText += delta;
