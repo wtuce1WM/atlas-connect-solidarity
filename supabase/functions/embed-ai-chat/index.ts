@@ -215,13 +215,6 @@ async function buildPoiNearby(
   const RADIUS_KM = radiusKm > 0 ? radiusKm : 1;
   const dLat = RADIUS_KM / 111;
   const dLng = RADIUS_KM / (111 * Math.max(Math.cos((host.latitude * Math.PI) / 180), 0.1));
-  const { data: pois } = await admin
-    .from("points_of_interest")
-    .select("id, name_fr, name_en, name_ar, description_fr, description_en, description_ar, description, hook, latitude, longitude, image_url, images")
-    .gte("latitude", host.latitude - dLat)
-    .lte("latitude", host.latitude + dLat)
-    .gte("longitude", host.longitude - dLng)
-    .lte("longitude", host.longitude + dLng);
   const stripHtml = (s: string) => String(s || "")
     .replace(/<br\s*\/?>/gi, " ")
     .replace(/<\/(p|div|li)>/gi, " ")
@@ -234,6 +227,20 @@ async function buildPoiNearby(
     .replace(/&gt;/g, ">")
     .replace(/\s+/g, " ")
     .trim();
+
+  // Source: businesses flagged is_poi=true (curated POIs from the catalog)
+  const { data: pois } = await admin
+    .from("businesses")
+    .select("id, slug, name, hook_fr, hook_en, hook_ar, description, description_en, description_ar, latitude, longitude, city, neighborhood, address, main_category, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, engagements")
+    .eq("is_poi", true)
+    .eq("published", true)
+    .is("closure_message", null)
+    .neq("id", host.id)
+    .gte("latitude", host.latitude - dLat)
+    .lte("latitude", host.latitude + dLat)
+    .gte("longitude", host.longitude - dLng)
+    .lte("longitude", host.longitude + dLng);
+
   const nearby = (pois || [])
     .filter((p: any) => p.latitude != null && p.longitude != null)
     .map((p: any) => ({
@@ -259,15 +266,14 @@ async function buildPoiNearby(
       ? `إليك **${nearby.length} نقاط اهتمام** ضمن **${radiusLabel}** من ${host.name}${host.city ? ` (${host.city})` : ""}، مرتبة حسب المسافة:`
       : `Voici les **${nearby.length} points d'intérêt** dans un rayon de **${radiusLabel}** autour de ${host.name}${host.city ? ` (${host.city})` : ""}, classés par distance :`;
 
-  const bullets = nearby.map((p: any) => {
-    const name = (lang === "en" && p.name_en) ? p.name_en : (lang === "ar" && p.name_ar) ? p.name_ar : p.name_fr;
-    const rawDesc = (lang === "en" && p.description_en) ? p.description_en
-      : (lang === "ar" && p.description_ar) ? p.description_ar
-      : (p.description_fr || p.hook || p.description || "");
+  const bullets = nearby.slice(0, 20).map((p: any) => {
+    const rawDesc = (lang === "en" && p.hook_en) ? p.hook_en
+      : (lang === "ar" && p.hook_ar) ? p.hook_ar
+      : (p.hook_fr || (lang === "en" ? p.description_en : lang === "ar" ? p.description_ar : p.description) || "");
     const desc = stripHtml(rawDesc);
     const distLabel = p.distance_km < 1 ? `${Math.round(p.distance_km * 1000)} m` : `${p.distance_km.toFixed(1)} km`;
     const short = desc ? ` — ${desc.slice(0, 180)}${desc.length > 180 ? "…" : ""}` : "";
-    return `- 📍 **${name}** _(${distLabel})_${short}`;
+    return `- 📍 **${p.name}** _(${distLabel})_${short}`;
   }).join("\n");
 
   const radiusLine = lang === "en"
@@ -276,25 +282,26 @@ async function buildPoiNearby(
       ? `\n\n> النطاق: **${radiusLabel}** حول ${host.name}. هل تريد **تضييقه** أو **توسيعه**؟`
       : `\n\n> Rayon : **${radiusLabel}** autour de ${host.name}. Tu veux le **resserrer** ou l'**étendre** ?`;
 
-  // Emit a SHOW_ON_MAP-compatible payload so the frontend can render the horizontal thumbnails carousel + "View on map".
-  const mapBusinesses = nearby.slice(0, 20).map((p: any) => {
-    const name = (lang === "en" && p.name_en) ? p.name_en : (lang === "ar" && p.name_ar) ? p.name_ar : p.name_fr;
-    const imgs = Array.isArray(p.images) && p.images.length ? p.images : (p.image_url ? [p.image_url] : []);
-    return {
-      id: p.id,
-      slug: null,
-      name,
-      city: host.city || null,
-      neighborhood: null,
-      address: null,
-      main_category: "Point d'intérêt",
-      categories: ["Point d'intérêt"],
-      latitude: p.latitude,
-      longitude: p.longitude,
-      logo_url: null,
-      images: imgs,
-    };
-  });
+  // Emit a SHOW_ON_MAP-compatible payload so the frontend renders the horizontal thumbnails carousel + "View on map".
+  const mapBusinesses = nearby.slice(0, 20).map((p: any) => ({
+    id: p.id,
+    slug: p.slug,
+    name: p.name,
+    city: p.city,
+    neighborhood: p.neighborhood,
+    address: p.address,
+    main_category: p.main_category || "Point d'intérêt",
+    categories: [p.main_category || "Point d'intérêt"],
+    latitude: p.latitude,
+    longitude: p.longitude,
+    logo_url: p.logo_url,
+    images: Array.isArray(p.images) ? p.images : [],
+    google_rating: p.google_rating,
+    google_review_count: p.google_review_count,
+    tripadvisor_rating: p.tripadvisor_rating,
+    tripadvisor_review_count: p.tripadvisor_review_count,
+    engagements: p.engagements,
+  }));
   const mapMarker = `\n\n<!--SHOW_ON_MAP:${JSON.stringify({ title: null, businesses: mapBusinesses })}-->`;
 
   return `${header}\n\n${bullets}${radiusLine}${mapMarker}`;
