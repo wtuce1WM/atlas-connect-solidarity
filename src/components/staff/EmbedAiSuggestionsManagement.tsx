@@ -247,6 +247,10 @@ const EmbedAiSuggestionsManagement = () => {
           city: r.city || null,
           disabled_followup_ids: r.disabled_followup_ids || [],
           mode: r.mode || null,
+          proximity_a_subcategory_ids: r.proximity_a_subcategory_ids || [],
+          proximity_a_badge_ids: r.proximity_a_badge_ids || [],
+          proximity_b_subcategory_ids: r.proximity_b_subcategory_ids || [],
+          proximity_b_badge_ids: r.proximity_b_badge_ids || [],
         }).eq("id", r.id)
       )
     );
