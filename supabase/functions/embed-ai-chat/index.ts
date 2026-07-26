@@ -799,7 +799,13 @@ Deno.serve(async (req) => {
               const pinnedSet = new Set(suggestionPinnedIds);
               const nonPinned = all.filter((b: any) => !pinnedSet.has(b.id));
               const pinnedFromAll = all.filter((b: any) => pinnedSet.has(b.id));
-              let filtered = await filterOutClosed([...pinnedFromAll, ...(await filterOutCompetitors(nonPinned))]);
+              // When a deterministic badge/subcategory filter is active, the user is
+              // explicitly asking for a different vertical than the host — skip the
+              // "competitor" filter so results aren't dropped for sharing generic
+              // subcategories (e.g. a rooftop restaurant hosted inside a riad).
+              const skipCompetitorFilter = !!(subcategoryNames?.length || badgeIds?.length);
+              const nonPinnedFiltered = skipCompetitorFilter ? nonPinned : await filterOutCompetitors(nonPinned);
+              let filtered = await filterOutClosed([...pinnedFromAll, ...nonPinnedFiltered]);
 
               if (suggestionPinnedIds.length) {
                 const already = new Set(filtered.map((b: any) => b.id));
