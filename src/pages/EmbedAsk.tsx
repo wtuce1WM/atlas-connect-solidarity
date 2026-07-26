@@ -539,9 +539,10 @@ const EmbedAsk = () => {
     if (suggestionId && !suggestionId.startsWith("default-")) setActiveSuggestionId(suggestionId);
     setError(null);
     messageIndexRef.current += 1;
+    const effectiveSuggestionId = suggestionId || activeSuggestionId || null;
     sendMessage(
       { text },
-      { body: { suggestionId: suggestionId || null, followupId: followupId || null } },
+      { body: { suggestionId: effectiveSuggestionId, followupId: followupId || null } },
     );
   };
 
