@@ -1,59 +1,86 @@
-# Embed IA affilié — parité avec /club
+# Plan de migration Embed IA → AI SDK
 
 ## Objectif
-`/embed/ask/:slug` doit avoir les mêmes capacités que le chat IA de `/club` (recherche, events, blog RAG, cartes Google Maps, marqueurs), mais scopé "complémentaires seulement" : jamais un concurrent direct de l'établissement hôte.
 
-## Architecture retenue
-Plutôt que dupliquer 3300 lignes de `club-ai-chat`, on **étend `club-ai-chat`** avec un mode `embedContext` et on **remplace `embed-ai-chat`** par un simple proxy anon → `club-ai-chat`.
+Migrer `embed-ai-chat` (edge function) et `EmbedAsk.tsx` (front) du `fetch` SSE custom vers l'AI SDK officiel + provider Lovable AI Gateway, **sans casser** les routes déterministes existantes (weather, events, search, map, nearby overview, POI nearby, blog RAG, suggestions ciblées, followups paramétrables).
 
+## Principe directeur
+
+Les routes déterministes (météo, events, search filtré, map, nearby, POI, count disclosure, pin-to-top) sont notre valeur ajoutée : elles restent **en amont** de l'AI SDK. L'AI SDK ne remplace que la partie "appel LLM + streaming" quand aucune route déterministe ne matche.
+
+```text
+requête ──► routeur déterministe ─┬─► réponse figée (weather/events/nearby/POI/...)
+                                  └─► fallback ──► AI SDK streamText ──► toUIMessageStreamResponse
 ```
-EmbedAsk (anon)  →  embed-ai-chat (proxy public)  →  club-ai-chat (tools + payloads)
-```
 
-`embed-ai-chat` :
-- reste public (pas d'auth requise, `verify_jwt = false`)
-- résout `slug` → business record (id, category_id, city, subcategory_ids)
-- appelle `club-ai-chat` en interne (service role) avec un `embedContext` construit
-- re-stream le SSE tel quel vers le client
+## Étapes
 
-## Modifs `club-ai-chat`
-1. Accepter `embedContext?: { businessId, businessName, city, excludeCategoryId, excludeSubcategoryIds[] }` dans le body.
-2. Si présent :
-   - Injecter dans le system prompt : *"Tu es intégré sur le site de {name} à {city}. Propose UNIQUEMENT des choses complémentaires — activités, events, restos/bars/cafés à proximité, expériences. NE JAMAIS proposer un concurrent direct (même category_id/subcategory_ids que l'hôte). Si l'utilisateur demande un concurrent, redirige vers ce que {name} propose."*
-   - Passer `excludeCategoryId` + `excludeSubcategoryIds` au tool `search_businesses` comme filtre dur post-résultats.
-   - Biaiser la ville par défaut sur `city` de l'hôte (sauf demande explicite d'une autre ville).
-   - Sauter la persistance (`ai_chats`, `ai_conversation_turns`) → mode éphémère.
-   - Désactiver les analytics user-scoped.
+### 1. Helper partagé Lovable AI Gateway
+- Créer `supabase/functions/_shared/ai-gateway.ts` avec `createLovableAiGatewayProvider` (pattern `ai-sdk-lovable-gateway`, header `Lovable-API-Key`, `X-Lovable-AIG-SDK: vercel-ai-sdk`, capture `X-Lovable-AIG-Run-ID`).
+- Réutilisable par toutes les edge functions IA (club-ai-chat, embed-ai-chat, futures).
 
-## Modifs `embed-ai-chat`
-- Retire l'appel direct au gateway ; devient proxy vers `club-ai-chat`.
-- Lit le business (id, category_id, subcategory_ids depuis `business_subcategories`, city, name).
-- Construit `embedContext` et forward messages + language.
-- Re-stream SSE sortant.
+### 2. Refactor `embed-ai-chat` — couche routeur (inchangée)
+- Garder tel quel : détection langue, cache sémantique, routes weather/events/nearby/POI/count, pin-to-top, filtre `closure_message`, blog RAG, suggestions ciblées (subcategories/badges/city/destinations/business_ids), followups (radius_km, mode).
+- Ces routes retournent déjà des `Response` SSE fabriquées manuellement → à convertir en `createUIMessageStream` de l'AI SDK pour parler le même protocole que le fallback LLM.
 
-## Modifs `EmbedAsk.tsx`
-Ajout du rendu des payloads SSE (mêmes markers HTML que `ClubAiAssistant`) :
-- `<!--SHOW_ON_MAP:...-->` → bouton "Voir sur la carte" ouvrant `MapSlidePanel`.
-- `<!--EVENTS_SNAPSHOT:...-->` → carte events + `EventsSlidePanel`.
-- `<!--BLOG_CARDS:...-->` → mini-carrousel articles.
-- `<!--KNOWN_BUSINESSES:...-->` → carrousel cartes établissements avec ouverture `BookOnlineSlidePanel`.
-- Extraction via une fonction utilitaire commune extraite de `ClubAiAssistant` vers `src/lib/embed/aiPayloads.ts` (partagée).
+### 3. Refactor `embed-ai-chat` — couche LLM (migrée)
+- Remplacer le `fetch` direct vers `/chat/completions` + parsing SSE par :
+  ```ts
+  const result = streamText({ model: gateway("google/gemini-3.6-flash"), system, messages });
+  return result.toUIMessageStreamResponse({ headers: corsHeaders });
+  ```
+- Les marqueurs actuels (`<!--SHOW_ON_MAP-->`, `<!--BLOG_CARDS-->`, `<!--RESULTS-->`) restent injectés dans le texte pour compat, ou migrés en `data parts` typés (phase 2).
 
-## Livrables techniques
-- `supabase/functions/club-ai-chat/index.ts` — ajout branche `embedContext`
-- `supabase/functions/embed-ai-chat/index.ts` — réécriture proxy
-- `src/lib/embed/aiPayloads.ts` — extraction payloads (nouveau, partagé)
-- `src/pages/EmbedAsk.tsx` — carrousels + slidepanels
-- `src/components/embed/EmbedBusinessCarousel.tsx`, `EmbedMapPanel.tsx`, `EmbedEventsPanel.tsx`, `EmbedBlogCarousel.tsx` — variantes légères sans dépendance auth/Club
+### 4. Refactor `EmbedAsk.tsx` — client
+- Remplacer le `fetch` + `ReadableStream` manuel par `useChat({ id, transport: new DefaultChatTransport({ api: ".../embed-ai-chat" }) })`.
+- Rendre `message.parts` au lieu du string concaténé.
+- Garder la logique de parsing des marqueurs (SHOW_ON_MAP, RESULTS, BLOG_CARDS) au-dessus de `message.parts.text` pendant la transition.
+- Conserver : reset session, suggestions dynamiques, followups, googlemap host marker, miniatures Mindtrip.
 
-## Points de contrôle
-1. Une question générique ("où boire un thé à la menthe près d'ici ?") → liste de complémentaires, jamais l'établissement hôte ni un concurrent même-catégorie.
-2. "Que se passe-t-il ce week-end ?" → events de la ville de l'hôte, panneau vertical.
-3. "Un restaurant marocain autour" (si l'hôte est un restaurant marocain) → l'IA redirige vers ce que l'hôte propose plutôt que lister des concurrents.
-4. Marqueurs Google Maps cliquables → ouvrent le panneau carte.
-5. Anon strict : aucune écriture en DB, aucune session Club consultée.
+### 5. Migration des outils (phase 2, optionnelle)
+- Une fois le fallback LLM stable, exposer certaines routes déterministes comme `tool()` AI SDK (`get_weather`, `search_businesses`, `search_events`, `show_on_map`) au lieu de les court-circuiter en amont.
+- Avantage : le modèle peut chaîner (ex: search → map). Inconvénient : perte du contrôle strict actuel.
+- **Décision** : à discuter après la phase 1. Pour l'instant on garde le routeur déterministe en amont.
 
-## Non-inclus (pour un chantier suivant si utile)
-- Bookings/réservation via l'embed
-- Bookmarks / partage de conversation
-- Historique persistant côté visiteur
+### 6. Tests avant de considérer la migration OK
+- Chaque suggestion Embed IA testée sur `/embed/ask/riad-dar-najat` : weather, events, search filtré, nearby overview, POI nearby, blog RAG.
+- Vérifier streaming fluide, marqueurs bien parsés, miniatures affichées, googlemap host marker OK.
+- Vérifier logs AI Gateway (`X-Lovable-AIG-Run-ID` propagé).
+- Vérifier snippet Wix (`wtucemorocco.wixstudio.com`) toujours fonctionnel.
+
+### 7. Rollout
+- Branche de travail, tests sur Riad Dar Najat.
+- Une fois validé : appliquer le même pattern à `club-ai-chat` (streaming SSE déjà en place, migration plus mécanique).
+
+## Ce qui NE change PAS
+
+- Backoffice IA (dashboards, suggestions, followups, embed usage).
+- Tables `embed_ai_suggestions`, `embed_ai_followups`, `ai_config`.
+- Routes déterministes et leur logique métier.
+- Design des miniatures, map slide panel, blog cards.
+
+## Ce qui change côté code
+
+| Fichier | Avant | Après |
+|---|---|---|
+| `supabase/functions/_shared/ai-gateway.ts` | n'existe pas | provider helper partagé |
+| `supabase/functions/embed-ai-chat/index.ts` | `fetch` + SSE manuel | `streamText` + `toUIMessageStreamResponse` |
+| `src/pages/EmbedAsk.tsx` | `fetch` + `ReadableStream` | `useChat` + `DefaultChatTransport` |
+
+## Détails techniques
+
+- Deno imports : `import { streamText } from "npm:ai"` et `import { createOpenAICompatible } from "npm:@ai-sdk/openai-compatible"`.
+- Front : `@ai-sdk/react` + `ai` (déjà installables via bun).
+- Le `sessionId` actuel devient l'`id` de `useChat` pour keyer les conversations.
+- Les suggestions/followups continuent d'être injectés via `sendMessage({ text, data: { suggestionId, followupId } })`.
+
+## Estimation
+
+- Étape 1-2 : ~1 session (helper + wiring routeur).
+- Étape 3-4 : ~1 session (LLM + client).
+- Étape 6 : ~1 session de tests.
+- Total : 3 sessions ciblées, sans régression visible pour l'utilisateur final.
+
+## Prochaine action
+
+Si tu valides, je commence par l'étape 1 (helper partagé) + étape 2 (adapter les routes déterministes au protocole UIMessageStream), sans encore toucher au fallback LLM ni au front.
