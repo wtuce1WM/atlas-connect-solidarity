@@ -145,6 +145,10 @@ const EmbedAiSuggestionsManagement = () => {
         subcategory_ids: Array.isArray(r.subcategory_ids) ? r.subcategory_ids : [],
         badge_ids: Array.isArray(r.badge_ids) ? r.badge_ids : [],
         disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
+        proximity_a_subcategory_ids: Array.isArray(r.proximity_a_subcategory_ids) ? r.proximity_a_subcategory_ids : [],
+        proximity_a_badge_ids: Array.isArray(r.proximity_a_badge_ids) ? r.proximity_a_badge_ids : [],
+        proximity_b_subcategory_ids: Array.isArray(r.proximity_b_subcategory_ids) ? r.proximity_b_subcategory_ids : [],
+        proximity_b_badge_ids: Array.isArray(r.proximity_b_badge_ids) ? r.proximity_b_badge_ids : [],
       }))
     );
     setBusinesses((bizs || []).map((b: any) => ({ id: b.id, name: b.name || "(sans nom)", slug: b.slug })));
