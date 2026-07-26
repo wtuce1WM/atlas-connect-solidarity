@@ -163,10 +163,10 @@ const EmbedAsk = () => {
   };
   const activeSuggestion = activeSuggestionId ? suggestions.find((s) => s.id === activeSuggestionId) : null;
   const disabledIds = new Set(activeSuggestion?.disabled_followup_ids || []);
-  const activeFollowups: string[] = globalFollowups
+  const activeFollowups: Array<{ id: string; label: string }> = globalFollowups
     .filter((f) => !disabledIds.has(f.id))
-    .map(pickFollowupLabel)
-    .filter(Boolean);
+    .map((f) => ({ id: f.id, label: pickFollowupLabel(f) }))
+    .filter((f) => f.label);
 
   // Overlay states
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
