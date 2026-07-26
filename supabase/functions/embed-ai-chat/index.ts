@@ -618,19 +618,9 @@ async function fetchEntityPool(admin: any, city: string, entity: EntityMapping, 
   // "golf" as a service is not a golf; a business offering "piscine" as a
   // service is not a swimming venue.
   const strictRuns: Promise<{ data: any[] | null }>[] = [];
-  if (entity.subcatIds.length) {
-    const { data: rels } = await admin
-      .from("subcategory_relations")
-      .select("business_id")
-      .in("subcategory_id", entity.subcatIds.slice(0, 100));
-    const relationIds = [...new Set((rels || []).map((r: any) => r.business_id).filter(Boolean))];
-    if (relationIds.length) strictRuns.push(base().in("id", relationIds.slice(0, 500)));
-  }
   if (entity.subcatNames.length) {
-    if (!requireCanonicalSubcategory) {
-      strictRuns.push(base().overlaps("categories", entity.subcatNames));
-      strictRuns.push(base().in("main_category", entity.subcatNames));
-    }
+    strictRuns.push(base().overlaps("categories", entity.subcatNames));
+    strictRuns.push(base().in("main_category", entity.subcatNames));
   }
   if (!requireCanonicalSubcategory && entity.badgeIds.length) {
     strictRuns.push(base().in("badge_id", entity.badgeIds));
