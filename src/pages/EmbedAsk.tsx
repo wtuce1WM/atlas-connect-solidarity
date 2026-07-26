@@ -724,7 +724,8 @@ const EmbedAsk = () => {
                                 loading="lazy"
                               />
                             ) : null}
-                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-2.5">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 pointer-events-none" />
+                            <div className="absolute inset-x-0 bottom-0 p-2.5">
                               <div className="text-[13px] font-bold text-white leading-tight line-clamp-2">{b.name}</div>
                               {loc && (
                                 <div className="text-[11px] text-white/80 mt-0.5 line-clamp-1">{loc}</div>
