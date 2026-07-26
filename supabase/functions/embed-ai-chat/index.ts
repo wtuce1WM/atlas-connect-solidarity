@@ -1305,10 +1305,24 @@ Deno.serve(async (req) => {
 
         // Deterministic: HOURS — read opening_hours directly from DB, gated by show_opening_hours.
         if (isHoursIntent(userMessage)) {
+          // 1) If the previous assistant turn returned a list of results (KNOWN_BUSINESSES marker),
+          //    the follow-up "Consulter les horaires" refers to those results — not to the host.
+          const priorIds = extractPriorKnownBusinessIds(inMessages, host.id);
+          if (priorIds.length) {
+            const answer = await buildHoursForBusinesses(admin, priorIds, language);
+            if (answer) {
+              emitDelta(answer);
+              toolsCalledLog.push({ name: "hours_lookup", args: { scope: "previous_results", count: priorIds.length }, ok: true });
+              endText();
+              await logTurn({ finalText: answer, streamCompleted: true });
+              return;
+            }
+          }
+          // 2) Fallback: hours of the host business.
           const answer = buildHoursAnswer(host, language);
           if (answer) {
             emitDelta(answer);
-            toolsCalledLog.push({ name: "hours_lookup", args: { show: !!host.show_opening_hours }, ok: true });
+            toolsCalledLog.push({ name: "hours_lookup", args: { scope: "host", show: !!host.show_opening_hours }, ok: true });
             endText();
             await logTurn({ finalText: answer, streamCompleted: true });
             return;
