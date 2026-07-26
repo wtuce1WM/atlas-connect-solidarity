@@ -600,6 +600,59 @@ Deno.serve(async (req) => {
           }
         };
 
+        const logTurn = async (opts: { finalText: string; streamCompleted: boolean }) => {
+          try {
+            const t_end = Date.now();
+            await admin.from("ai_conversation_turns").insert({
+              chat_id: null,
+              user_id: null,
+              affiliate_id: null,
+              user_message: userMessage,
+              intent_classified: null,
+              route_taken: "embed",
+              tools_called: {
+                business_id: host.id,
+                business_slug: host.slug,
+                business_name: host.name,
+                session_id: sessionId,
+                tools: toolsCalledLog,
+              },
+              latency_ms_total: t_end - t0,
+              latency_ms_first_token: firstTokenAt ? firstTokenAt - t0 : null,
+              latency_ms_synth: null,
+              tokens_in: null,
+              tokens_out: null,
+              cost_usd: null,
+              city_active: host.city || null,
+              city_detected: null,
+              results_count: knownBusinesses.length,
+              results_shown: (lastMapPayload?.businesses?.length ?? 0) + (lastEventsPayload?.events?.length ?? 0),
+              had_error: hadError,
+              error_message: errorMsg,
+              stream_completed: opts.streamCompleted,
+              message_index: messageIndex,
+              language,
+            });
+          } catch (e) {
+            console.error("[embed-ai-chat] log_error", e);
+          }
+        };
+
+        // Deterministic short-circuit: "Que faire à proximité ?" overview.
+        // This MUST run before generic directory search, otherwise the LLM can
+        // surface city-wide results farther than 1 km.
+        if (isNearbyOverviewIntent(userMessage)) {
+          const overview = await buildNearbyOverview(admin, host, hostSubIds, language);
+          if (overview) {
+            if (!firstTokenAt) firstTokenAt = Date.now();
+            emit({ type: "chunk", delta: overview });
+            emit({ type: "done", answer: overview });
+            toolsCalledLog.push({ name: "nearby_overview_1km", args: { lat: host.latitude, lng: host.longitude, radius_km: 1 }, ok: true });
+            await logTurn({ finalText: overview, streamCompleted: true });
+            return close();
+          }
+        }
+
         // Deterministic route: if the clicked suggestion has subcategory_ids and/or badge_ids,
         // bypass LLM tool selection and run business-search filtered on those.
         // business_ids on a suggestion = "pin to top" of any search result set.
@@ -664,61 +717,6 @@ Deno.serve(async (req) => {
             content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE:\n${JSON.stringify(forcedResult).slice(0, 12000)}\n${pinnedNames.length ? `ORDRE PRIORITAIRE MANUEL À RESPECTER ABSOLUMENT: cite d'abord ${pinnedNames.join(" puis ")}, avant tout autre résultat. Aucun autre établissement ne doit être placé entre ces établissements épinglés.` : ""}\nTu dois recommander uniquement des résultats listés ci-dessus quand c'est pertinent. Respecte l'ordre des résultats. Copie exactement disclosure_note sur sa propre ligne avant la question finale.`,
           });
         }
-
-
-        const logTurn = async (opts: { finalText: string; streamCompleted: boolean }) => {
-          try {
-            const t_end = Date.now();
-            await admin.from("ai_conversation_turns").insert({
-              chat_id: null,
-              user_id: null,
-              affiliate_id: null,
-              user_message: userMessage,
-              intent_classified: null,
-              route_taken: "embed",
-              tools_called: {
-                business_id: host.id,
-                business_slug: host.slug,
-                business_name: host.name,
-                session_id: sessionId,
-                tools: toolsCalledLog,
-              },
-              latency_ms_total: t_end - t0,
-              latency_ms_first_token: firstTokenAt ? firstTokenAt - t0 : null,
-              latency_ms_synth: null,
-              tokens_in: null,
-              tokens_out: null,
-              cost_usd: null,
-              city_active: host.city || null,
-              city_detected: null,
-              results_count: knownBusinesses.length,
-              results_shown: (lastMapPayload?.businesses?.length ?? 0) + (lastEventsPayload?.events?.length ?? 0),
-              had_error: hadError,
-              error_message: errorMsg,
-              stream_completed: opts.streamCompleted,
-              message_index: messageIndex,
-              language,
-            });
-          } catch (e) {
-            console.error("[embed-ai-chat] log_error", e);
-          }
-        };
-
-        // Deterministic short-circuit: "Que faire à proximité ?" overview.
-        // Lists active businesses within 1 km of the host, grouped by front_structure,
-        // excluding the host's own subcategories from the taxonomy (never revealed).
-        if (isNearbyOverviewIntent(userMessage)) {
-          const overview = await buildNearbyOverview(admin, host, hostSubIds, language);
-          if (overview) {
-            if (!firstTokenAt) firstTokenAt = Date.now();
-            emit({ type: "chunk", delta: overview });
-            emit({ type: "done", answer: overview });
-            toolsCalledLog.push({ name: "nearby_overview_1km", args: { lat: host.latitude, lng: host.longitude }, ok: true });
-            await logTurn({ finalText: overview, streamCompleted: true });
-            return close();
-          }
-        }
-
         // Tool loop (up to MAX_ROUNDS)
         for (let round = 0; round < MAX_ROUNDS; round++) {
           const isLast = round === MAX_ROUNDS - 1;
