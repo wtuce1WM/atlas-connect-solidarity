@@ -737,7 +737,8 @@ Deno.serve(async (req) => {
         const system = buildSystemPrompt(host, language);
         const convo: Msg[] = [
           { role: "system", content: system },
-          ...inMessages.map((m) => ({ role: m.role, content: String(m.content).slice(0, 4000) })),
+          // Assistant turns are long (recommandations markdown) — 1200 chars suffisent au rappel contextuel.
+          ...inMessages.map((m) => ({ role: m.role, content: String(m.content).slice(0, m.role === "user" ? 800 : 1200) })),
         ];
 
         let lastMapPayload: any = null;
