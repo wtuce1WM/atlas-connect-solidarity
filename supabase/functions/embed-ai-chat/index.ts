@@ -1365,11 +1365,18 @@ Deno.serve(async (req) => {
         let suggestionPinnedIds: string[] = [];
         let suggestionMode: string | null = null;
         let suggestionLabel: string | null = null;
+        // Curated two-entity proximity: staff-picked subcats/badges for A and B.
+        // When both sides have at least one mapping, the two-entity route runs
+        // with these exact mappings and bypasses free-text term resolution.
+        let curatedProximity: {
+          a: { subcatIds: string[]; badgeIds: string[]; subcatNames: string[] };
+          b: { subcatIds: string[]; badgeIds: string[]; subcatNames: string[] };
+        } | null = null;
         if (suggestionId) {
           try {
             const { data: sugg } = await admin
               .from("embed_ai_suggestions")
-              .select("subcategory_ids, badge_ids, business_ids, mode, label_fr, label_en, label_ar")
+              .select("subcategory_ids, badge_ids, business_ids, mode, label_fr, label_en, label_ar, proximity_a_subcategory_ids, proximity_a_badge_ids, proximity_b_subcategory_ids, proximity_b_badge_ids")
               .eq("id", suggestionId)
               .maybeSingle();
             const subIds: string[] = Array.isArray(sugg?.subcategory_ids) ? sugg!.subcategory_ids : [];
@@ -1387,6 +1394,26 @@ Deno.serve(async (req) => {
             if (pIds.length) suggestionPinnedIds = pIds;
             suggestionMode = (sugg?.mode as string | null) || null;
             suggestionLabel = (sugg?.label_fr as string | null) || (sugg?.label_en as string | null) || (sugg?.label_ar as string | null) || null;
+
+            // Load curated proximity mappings if both A and B are populated
+            const paSub: string[] = Array.isArray(sugg?.proximity_a_subcategory_ids) ? sugg!.proximity_a_subcategory_ids : [];
+            const paBadge: string[] = Array.isArray(sugg?.proximity_a_badge_ids) ? sugg!.proximity_a_badge_ids : [];
+            const pbSub: string[] = Array.isArray(sugg?.proximity_b_subcategory_ids) ? sugg!.proximity_b_subcategory_ids : [];
+            const pbBadge: string[] = Array.isArray(sugg?.proximity_b_badge_ids) ? sugg!.proximity_b_badge_ids : [];
+            const aHas = paSub.length > 0 || paBadge.length > 0;
+            const bHas = pbSub.length > 0 || pbBadge.length > 0;
+            if (aHas && bHas) {
+              const allSubIds = [...new Set([...paSub, ...pbSub])];
+              const namesMap = new Map<string, string>();
+              if (allSubIds.length) {
+                const { data: subs2 } = await admin.from("subcategories").select("id, name_fr").in("id", allSubIds);
+                for (const s of subs2 || []) if (s?.id && s?.name_fr) namesMap.set(String(s.id), String(s.name_fr));
+              }
+              curatedProximity = {
+                a: { subcatIds: paSub, badgeIds: paBadge, subcatNames: paSub.map((i) => namesMap.get(i)).filter(Boolean) as string[] },
+                b: { subcatIds: pbSub, badgeIds: pbBadge, subcatNames: pbSub.map((i) => namesMap.get(i)).filter(Boolean) as string[] },
+              };
+            }
           } catch (e) {
             console.error("[embed-ai-chat] suggestion_route_lookup_error", e);
           }
@@ -1407,6 +1434,7 @@ Deno.serve(async (req) => {
             deterministicBadgeIds = null;
             suggestionPinnedIds = [];
             suggestionMode = null;
+            curatedProximity = null;
           }
         }
 
