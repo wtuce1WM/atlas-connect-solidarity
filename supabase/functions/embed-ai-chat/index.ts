@@ -579,7 +579,6 @@ async function resolveEntityTerm(admin: any, term: string): Promise<EntityMappin
 
 async function fetchEntityPool(admin: any, city: string, entity: EntityMapping, excludeId?: string): Promise<any[]> {
   const cols = "id, slug, name, city, neighborhood, hook_fr, hook_en, hook_ar, description, description_en, description_ar, latitude, longitude, main_category, categories, services, badge_id, images, logo_url, priority_score, computed_rating, total_review_count";
-  const runs: Promise<{ data: any[] | null }>[] = [];
   const base = () => {
     let q = admin
       .from("businesses")
@@ -593,26 +592,33 @@ async function fetchEntityPool(admin: any, city: string, entity: EntityMapping, 
     if (excludeId) q = q.neq("id", excludeId);
     return q;
   };
+  // Cascade: subcategory + badge FIRST (canonical taxonomy).
+  // Only fall back to services if strict pool is empty — a business offering
+  // "golf" as a service is not a golf; a business offering "piscine" as a
+  // service is not a swimming venue.
+  const strictRuns: Promise<{ data: any[] | null }>[] = [];
   if (entity.subcatNames.length) {
-    runs.push(base().overlaps("categories", entity.subcatNames));
-    runs.push(base().in("main_category", entity.subcatNames));
-  }
-  if (entity.serviceNames.length) {
-    runs.push(base().overlaps("services", entity.serviceNames));
+    strictRuns.push(base().overlaps("categories", entity.subcatNames));
+    strictRuns.push(base().in("main_category", entity.subcatNames));
   }
   if (entity.badgeIds.length) {
-    runs.push(base().in("badge_id", entity.badgeIds));
+    strictRuns.push(base().in("badge_id", entity.badgeIds));
   }
-  if (!runs.length) return [];
-  const results = await Promise.all(runs);
-  const map = new Map<string, any>();
-  for (const r of results) {
-    for (const b of r.data || []) {
-      if (b?.id) map.set(b.id, b);
-    }
+  const strictMap = new Map<string, any>();
+  if (strictRuns.length) {
+    const strictResults = await Promise.all(strictRuns);
+    for (const r of strictResults) for (const b of r.data || []) if (b?.id) strictMap.set(b.id, b);
   }
-  return [...map.values()];
+  if (strictMap.size >= 3) return [...strictMap.values()];
+
+  // Fallback: services (only if subcategory/badge pool is thin)
+  if (entity.serviceNames.length) {
+    const { data } = await base().overlaps("services", entity.serviceNames);
+    for (const b of data || []) if (b?.id) strictMap.set(b.id, b);
+  }
+  return [...strictMap.values()];
 }
+
 
 async function buildTwoEntityProximity(
   admin: any,
