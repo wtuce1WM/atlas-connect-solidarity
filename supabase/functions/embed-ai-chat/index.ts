@@ -233,7 +233,6 @@ async function buildPoiNearby(
     .from("businesses")
     .select("id, slug, name, hook_fr, hook_en, hook_ar, description, description_en, description_ar, latitude, longitude, city, neighborhood, address, main_category, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, engagements")
     .eq("is_poi", true)
-    .eq("published", true)
     .is("closure_message", null)
     .neq("id", host.id)
     .gte("latitude", host.latitude - dLat)
