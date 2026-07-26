@@ -1303,6 +1303,30 @@ Deno.serve(async (req) => {
           // No prior map payload — fall through to normal flow.
         }
 
+        // Deterministic: HOURS — read opening_hours directly from DB, gated by show_opening_hours.
+        if (isHoursIntent(userMessage)) {
+          const answer = buildHoursAnswer(host, language);
+          if (answer) {
+            emitDelta(answer);
+            toolsCalledLog.push({ name: "hours_lookup", args: { show: !!host.show_opening_hours }, ok: true });
+            endText();
+            await logTurn({ finalText: answer, streamCompleted: true });
+            return;
+          }
+        }
+
+        // Deterministic: ONLINE BOOKING — scan url_1..url_5 CTAs for a Reserve/Book label.
+        if (isBookingIntent(userMessage)) {
+          const answer = buildBookingAnswer(host, language);
+          emitDelta(answer);
+          toolsCalledLog.push({ name: "booking_lookup", args: {}, ok: true });
+          endText();
+          await logTurn({ finalText: answer, streamCompleted: true });
+          return;
+        }
+
+
+
 
         // Deterministic: POI-only nearby
         if (followupMode === "poi_nearby") {
