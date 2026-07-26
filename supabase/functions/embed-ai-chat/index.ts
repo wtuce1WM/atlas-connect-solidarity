@@ -400,6 +400,22 @@ function isProximityIntent(text: string): boolean {
   return false;
 }
 
+// A free-text message keeps the previous suggestion's deterministic context
+// (badges / subcategories / pinned ids) only when it looks like a refinement
+// of the same thread — proximity phrase, explicit radius, or a very short
+// modifier ("à Marrakech", "moins cher", "500 m"). A longer free-text message
+// without those signals is treated as a NEW topic and the suggestion force is
+// dropped so we don't hijack the search with the previous badges.
+function isSuggestionRefinement(text: string): boolean {
+  const raw = String(text ?? "").trim();
+  if (!raw) return true;
+  if (isProximityIntent(raw)) return true;
+  if (parseInlineRadiusKm(raw) != null) return true;
+  const words = raw.split(/\s+/).filter(Boolean);
+  if (words.length <= 4) return true;
+  return false;
+}
+
 // Parse an explicit radius the user typed inline (FR/EN/AR).
 // Recognizes forms like "500 m", "500m", "à moins de 500 m", "0.5 km", "2 km",
 // "within 500 m", "within 2 km", "أقل من 500 م", "ضمن 2 كم".
@@ -1072,6 +1088,22 @@ Deno.serve(async (req) => {
             suggestionMode = (sugg?.mode as string | null) || null;
           } catch (e) {
             console.error("[embed-ai-chat] suggestion_route_lookup_error", e);
+          }
+        }
+
+        // If the user typed a fresh free-text message (no followup click) that
+        // doesn't look like a refinement of the current suggestion thread, drop
+        // the deterministic suggestion force so the previous badges/subcats
+        // don't hijack the new query. Keeps `suggestionMode === "events"` and
+        // pinned ids only for followup clicks or refinements.
+        if (suggestionId && !followupId) {
+          const lastUser = uiMessages[uiMessages.length - 1];
+          const lastUserText = lastUser?.role === "user" ? extractTextFromUIMessage(lastUser) : "";
+          if (!isSuggestionRefinement(lastUserText)) {
+            deterministicSubcategoryNames = null;
+            deterministicBadgeIds = null;
+            suggestionPinnedIds = [];
+            suggestionMode = null;
           }
         }
 
