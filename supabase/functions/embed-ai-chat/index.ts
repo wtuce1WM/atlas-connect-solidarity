@@ -1453,9 +1453,20 @@ Deno.serve(async (req) => {
 
         // Deterministic: ONLINE BOOKING — scan url_1..url_5 CTAs for a Reserve/Book label.
         if (isBookingIntent(userMessage)) {
+          const priorIds = extractPriorKnownBusinessIds(inMessages, host.id);
+          if (priorIds.length) {
+            const answer = await buildBookingForBusinesses(admin, priorIds, language);
+            if (answer) {
+              emitDelta(answer);
+              toolsCalledLog.push({ name: "booking_lookup", args: { scope: "previous_results", count: priorIds.length }, ok: true });
+              endText();
+              await logTurn({ finalText: answer, streamCompleted: true });
+              return;
+            }
+          }
           const answer = buildBookingAnswer(host, language);
           emitDelta(answer);
-          toolsCalledLog.push({ name: "booking_lookup", args: {}, ok: true });
+          toolsCalledLog.push({ name: "booking_lookup", args: { scope: "host" }, ok: true });
           endText();
           await logTurn({ finalText: answer, streamCompleted: true });
           return;
