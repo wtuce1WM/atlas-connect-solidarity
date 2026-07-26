@@ -402,7 +402,8 @@ function buildImmersiveBusinessAnswer(
       const detail = hook || [b.main_category, Array.isArray(b.categories) ? b.categories.join("، ") : null].filter(Boolean).join(" · ");
       return `**${b.name}**${area ? `، ${area}` : ""}. ${detail || "عنوان مختار ضمن دليل One World Morocco."}`;
     }).join("\n\n");
-    return `${intro}\n\n${body}\n\n${disclosure}\n\nهل تريد أن أضيّق الاختيار حسب الحي أو الأجواء أو الوقت؟`;
+    const rl = radiusLine("ar");
+    return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nهل تريد أن أضيّق الاختيار حسب الحي أو الأجواء أو الوقت؟`;
   }
 
   const intro = `Depuis **${host.name}**, ${city} se découvre très bien par touches : ${theme}, terrasses vivantes, coins de médina et adresses qui donnent tout de suite une ambiance. Je te propose une sélection issue uniquement des résultats One World Morocco, avec les lieux les plus pertinents en premier.`;
