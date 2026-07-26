@@ -407,9 +407,9 @@ const EmbedAsk = () => {
 
                     const goingLeft = e.deltaY < 0;
                     const goingRight = e.deltaY > 0;
-                    // Keep a small tolerance so the carousel doesn't release the
-                    // page scroll because of a single sub-pixel wheel event.
-                    const atLeft = el.scrollLeft <= 1;
+                    // Strict boundary: only release the page scroll when the
+                    // carousel is truly at the first or last item.
+                    const atLeft = el.scrollLeft <= 0;
                     const atRight = el.scrollLeft >= maxScroll - 1;
 
                     // Still inside the carousel range → consume the wheel event.
