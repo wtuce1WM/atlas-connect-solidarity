@@ -840,12 +840,15 @@ Deno.serve(async (req) => {
                   })
                   .filter(Boolean) as Array<{ b: any; d: number }>;
                 withDist.sort((x, y) => x.d - y.d);
-                const steps = Array.from(new Set([requestedRadius, requestedRadius * 2, requestedRadius * 3])).sort((a, b) => a - b);
+                const strict = !!args._strictRadius;
+                const steps = strict
+                  ? [requestedRadius]
+                  : Array.from(new Set([requestedRadius, requestedRadius * 2, requestedRadius * 3])).sort((a, b) => a - b);
                 let chosen: typeof withDist = [];
                 for (let i = 0; i < steps.length; i++) {
                   const r = steps[i];
                   chosen = withDist.filter((x) => x.d <= r);
-                  if (chosen.length >= 3 || i === steps.length - 1) {
+                  if (strict || chosen.length >= 3 || i === steps.length - 1) {
                     radiusUsedKm = r;
                     radiusExpanded = i > 0;
                     break;
