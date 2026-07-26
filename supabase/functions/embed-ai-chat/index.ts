@@ -173,7 +173,13 @@ async function buildNearbyOverview(
       ? `\n\n**${totalCategorized}** مكانًا يطابق فئة واحدة على الأقل. أخبرني بما تريد — عشاء، سبا، ثقافة، تسوق؟ — وسأقترح قائمة.`
       : `\n\n**${totalCategorized}** adresses correspondent à au moins une catégorie. Dis-moi ce qui te tente — une table pour dîner, un spa, une balade culturelle, du shopping ? — et je te propose une sélection ciblée.`;
 
-  return `${header}\n\n${bullets}${footer}`;
+  const radiusLine = lang === "en"
+    ? `\n\n> 🔎 Search radius: **1 km** around ${host.name}${host.city ? ` (${host.city})` : ""}.`
+    : lang === "ar"
+      ? `\n\n> 🔎 نطاق البحث: **1 كم** حول ${host.name}${host.city ? ` (${host.city})` : ""}.`
+      : `\n\n> 🔎 Rayon de recherche : **1 km** autour de ${host.name}${host.city ? ` (${host.city})` : ""}.`;
+
+  return `${header}\n\n${bullets}${footer}${radiusLine}`;
 }
 
 function buildDisclosureFromCounts(shown: number, found: number, city: string): string {
