@@ -397,7 +397,7 @@ const EmbedAsk = () => {
 
               {mapPayload && mapPayload.businesses.length > 0 && (
                 <div
-                  className="w-full max-w-full overflow-x-auto no-scrollbar -mx-1 px-1"
+                  className="w-full max-w-full overflow-x-auto scrollbar-hide -mx-1 px-1"
                   onWheel={(e) => {
                     if (e.deltaY === 0) return;
                     const el = e.currentTarget;
