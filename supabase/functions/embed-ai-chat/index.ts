@@ -632,7 +632,7 @@ async function fetchEntityPool(admin: any, city: string, entity: EntityMapping, 
       strictRuns.push(base().in("main_category", entity.subcatNames));
     }
   }
-  if (entity.badgeIds.length) {
+  if (!requireCanonicalSubcategory && entity.badgeIds.length) {
     strictRuns.push(base().in("badge_id", entity.badgeIds));
   }
   const strictMap = new Map<string, any>();
@@ -666,7 +666,7 @@ async function buildTwoEntityProximity(
   const bResolution = await resolveEntityTerm(admin, intent.bTerm);
 
   const aHasMapping = aResolutions.some((r) => r.subcatNames.length || r.serviceNames.length || r.badgeIds.length);
-  const bHasMapping = bResolution.subcatIds.length || bResolution.badgeIds.length;
+  const bHasMapping = bResolution.subcatIds.length > 0;
   if (!aHasMapping || !bHasMapping) return null;
 
   // Fetch pools
