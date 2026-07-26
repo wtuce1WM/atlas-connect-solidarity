@@ -679,16 +679,37 @@ Deno.serve(async (req) => {
           }
         };
 
-        // Deterministic short-circuit: "Que faire à proximité ?" overview.
+        // Followup with an explicit radius → deterministic "aperçu à proximité" bounded to that radius.
+        let followupRadiusKm: number | null = null;
+        if (followupId) {
+          try {
+            const { data: fu } = await admin
+              .from("embed_ai_followups")
+              .select("radius_km")
+              .eq("id", followupId)
+              .maybeSingle();
+            const rv = fu?.radius_km;
+            if (rv != null && Number.isFinite(Number(rv)) && Number(rv) > 0) {
+              followupRadiusKm = Number(rv);
+            }
+          } catch (e) {
+            console.error("[embed-ai-chat] followup_lookup_error", e);
+          }
+        }
+
+        // Deterministic short-circuit: "Que faire à proximité ?" overview,
+        // OR any followup that carries an explicit radius_km.
         // This MUST run before generic directory search, otherwise the LLM can
-        // surface city-wide results farther than 1 km.
-        if (isNearbyOverviewIntent(userMessage)) {
-          const overview = await buildNearbyOverview(admin, host, hostCategoryNames, language);
+        // surface city-wide results farther than the requested radius.
+        const forcedNearby = followupRadiusKm != null;
+        if (forcedNearby || isNearbyOverviewIntent(userMessage)) {
+          const radiusKm = followupRadiusKm ?? 1;
+          const overview = await buildNearbyOverview(admin, host, hostCategoryNames, language, radiusKm);
           if (overview) {
             if (!firstTokenAt) firstTokenAt = Date.now();
             emit({ type: "chunk", delta: overview });
             emit({ type: "done", answer: overview });
-            toolsCalledLog.push({ name: "nearby_overview_1km", args: { lat: host.latitude, lng: host.longitude, radius_km: 1 }, ok: true });
+            toolsCalledLog.push({ name: "nearby_overview", args: { lat: host.latitude, lng: host.longitude, radius_km: radiusKm, source: forcedNearby ? "followup" : "intent" }, ok: true });
             await logTurn({ finalText: overview, streamCompleted: true });
             return close();
           }
