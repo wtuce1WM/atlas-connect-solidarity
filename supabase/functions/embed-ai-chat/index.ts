@@ -756,10 +756,48 @@ Deno.serve(async (req) => {
                 filtered = [...orderedPinned, ...rest];
               }
 
+              // Proximity filter — progressive expansion around anchor (host by default).
+              const anchorLat = Number(args._anchorLat);
+              const anchorLng = Number(args._anchorLng);
+              const requestedRadius = Number(args._radiusKm);
+              let proximityActive = false;
+              let radiusUsedKm: number | null = null;
+              let radiusExpanded = false;
+              if (Number.isFinite(anchorLat) && Number.isFinite(anchorLng) && Number.isFinite(requestedRadius) && requestedRadius > 0) {
+                proximityActive = true;
+                const withDist = filtered
+                  .map((b: any) => {
+                    const la = Number(b.latitude), lo = Number(b.longitude);
+                    if (!Number.isFinite(la) || !Number.isFinite(lo)) return null;
+                    return { b, d: haversineKmLocal(anchorLat, anchorLng, la, lo) };
+                  })
+                  .filter(Boolean) as Array<{ b: any; d: number }>;
+                withDist.sort((x, y) => x.d - y.d);
+                const steps = Array.from(new Set([requestedRadius, requestedRadius * 2, requestedRadius * 3])).sort((a, b) => a - b);
+                let chosen: typeof withDist = [];
+                for (let i = 0; i < steps.length; i++) {
+                  const r = steps[i];
+                  chosen = withDist.filter((x) => x.d <= r);
+                  if (chosen.length >= 3 || i === steps.length - 1) {
+                    radiusUsedKm = r;
+                    radiusExpanded = i > 0;
+                    break;
+                  }
+                }
+                // Keep pinned regardless, then near-first ordering
+                const pinnedKept = filtered.filter((b: any) => suggestionPinnedIds.includes(b.id));
+                const nearIds = new Set(chosen.map((x) => x.b.id));
+                const nearOrdered = chosen.map((x) => x.b);
+                filtered = [
+                  ...pinnedKept.filter((b: any) => !nearIds.has(b.id)),
+                  ...nearOrdered,
+                ];
+              }
+
               const totalFound = filtered.length;
               const results = filtered.slice(0, limit);
               if (!results.length) {
-                return { results: [], total_shown: 0, total_found: 0, total_count: 0, city, disclosure_note: buildDisclosureFromCounts(0, 0, city), note: `Aucun établissement complémentaire trouvé pour "${fullQuery}" à ${city}.` };
+                return { results: [], total_shown: 0, total_found: 0, total_count: 0, city, disclosure_note: buildDisclosureFromCounts(0, 0, city), note: `Aucun établissement complémentaire trouvé pour "${fullQuery}" à ${city}.`, proximity_active: proximityActive, radius_km_used: radiusUsedKm, radius_expanded: radiusExpanded };
               }
               const disclosure = buildDisclosureFromCounts(results.length, totalFound, city);
               return {
