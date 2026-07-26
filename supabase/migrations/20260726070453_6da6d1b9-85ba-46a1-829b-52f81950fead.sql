@@ -1,0 +1,1 @@
+ALTER TABLE public.embed_ai_followups ADD COLUMN IF NOT EXISTS mode text;
