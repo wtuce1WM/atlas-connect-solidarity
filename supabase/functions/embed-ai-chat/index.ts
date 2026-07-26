@@ -200,6 +200,67 @@ async function buildNearbyOverview(
   return `${header}\n\n${bullets}${footer}${radiusLine}`;
 }
 
+async function buildPoiNearby(
+  admin: any,
+  host: any,
+  lang: "fr" | "en" | "ar",
+  radiusKm: number = 1,
+): Promise<string> {
+  if (host.latitude == null || host.longitude == null) return "";
+  const RADIUS_KM = radiusKm > 0 ? radiusKm : 1;
+  const dLat = RADIUS_KM / 111;
+  const dLng = RADIUS_KM / (111 * Math.max(Math.cos((host.latitude * Math.PI) / 180), 0.1));
+  const { data: pois } = await admin
+    .from("points_of_interest")
+    .select("id, name_fr, name_en, name_ar, description_fr, description_en, description_ar, description, hook, latitude, longitude")
+    .gte("latitude", host.latitude - dLat)
+    .lte("latitude", host.latitude + dLat)
+    .gte("longitude", host.longitude - dLng)
+    .lte("longitude", host.longitude + dLng);
+  const nearby = (pois || [])
+    .filter((p: any) => p.latitude != null && p.longitude != null)
+    .map((p: any) => ({
+      ...p,
+      distance_km: haversineKmLocal(host.latitude, host.longitude, p.latitude, p.longitude),
+    }))
+    .filter((p: any) => p.distance_km <= RADIUS_KM)
+    .sort((a: any, b: any) => a.distance_km - b.distance_km);
+
+  const radiusLabel = RADIUS_KM < 1 ? `${Math.round(RADIUS_KM * 1000)} m` : `${RADIUS_KM % 1 === 0 ? RADIUS_KM.toFixed(0) : RADIUS_KM} km`;
+
+  if (!nearby.length) {
+    return lang === "en"
+      ? `I couldn't find any point of interest within **${radiusLabel}** of ${host.name}. Want me to widen the radius?`
+      : lang === "ar"
+        ? `لم أجد أي نقطة اهتمام ضمن **${radiusLabel}** من ${host.name}. هل توسّع النطاق؟`
+        : `Je ne trouve aucun point d'intérêt dans un rayon de **${radiusLabel}** autour de ${host.name}. Tu veux que j'élargisse le rayon ?`;
+  }
+
+  const header = lang === "en"
+    ? `Here are the **${nearby.length} points of interest** within **${radiusLabel}** of ${host.name}${host.city ? ` (${host.city})` : ""}, sorted by distance:`
+    : lang === "ar"
+      ? `إليك **${nearby.length} نقاط اهتمام** ضمن **${radiusLabel}** من ${host.name}${host.city ? ` (${host.city})` : ""}، مرتبة حسب المسافة:`
+      : `Voici les **${nearby.length} points d'intérêt** dans un rayon de **${radiusLabel}** autour de ${host.name}${host.city ? ` (${host.city})` : ""}, classés par distance :`;
+
+  const bullets = nearby.map((p: any) => {
+    const name = (lang === "en" && p.name_en) ? p.name_en : (lang === "ar" && p.name_ar) ? p.name_ar : p.name_fr;
+    const desc = (lang === "en" && p.description_en) ? p.description_en
+      : (lang === "ar" && p.description_ar) ? p.description_ar
+      : (p.description_fr || p.hook || p.description || "");
+    const distLabel = p.distance_km < 1 ? `${Math.round(p.distance_km * 1000)} m` : `${p.distance_km.toFixed(1)} km`;
+    const short = desc ? ` — ${String(desc).replace(/\s+/g, " ").slice(0, 180)}${String(desc).length > 180 ? "…" : ""}` : "";
+    return `- 📍 **${name}** _(${distLabel})_${short}`;
+  }).join("\n");
+
+  const radiusLine = lang === "en"
+    ? `\n\n> Radius: **${radiusLabel}** around ${host.name}. Want to **narrow** or **expand** it?`
+    : lang === "ar"
+      ? `\n\n> النطاق: **${radiusLabel}** حول ${host.name}. هل تريد **تضييقه** أو **توسيعه**؟`
+      : `\n\n> Rayon : **${radiusLabel}** autour de ${host.name}. Tu veux le **resserrer** ou l'**étendre** ?`;
+
+  return `${header}\n\n${bullets}${radiusLine}`;
+}
+
 function buildDisclosureFromCounts(shown: number, found: number, city: string): string {
   if (shown <= 0) return `📍 Aucun résultat trouvé à ${city} pour cette recherche — dis-moi si tu veux que je reformule ou que j'élargisse autour de ${city}.`;
   return `📍 Je te présente ${shown} adresse${shown > 1 ? "s" : ""} sur ${found} trouvée${found > 1 ? "s" : ""} à ${city} — dis-moi si tu veux que je te montre les autres ou que j'affine par quartier, ambiance ou envie.`;
