@@ -93,7 +93,7 @@ const FS_I18N: Record<string, { en: string; ar: string }> = {
 async function buildNearbyOverview(
   admin: any,
   host: any,
-  hostSubIds: Set<string>,
+  hostCategoryNames: Set<string>,
   lang: "fr" | "en" | "ar",
 ): Promise<string> {
   if (host.latitude == null || host.longitude == null) return "";
@@ -102,7 +102,7 @@ async function buildNearbyOverview(
   const dLng = RADIUS_KM / (111 * Math.max(Math.cos((host.latitude * Math.PI) / 180), 0.1));
   const { data: biz } = await admin
     .from("businesses")
-    .select("id, latitude, longitude")
+    .select("id, latitude, longitude, categories, main_category")
     .eq("is_active", true)
     .neq("id", host.id)
     .gte("latitude", host.latitude - dLat)
@@ -115,16 +115,12 @@ async function buildNearbyOverview(
   );
   if (!nearby.length) return "";
 
-  const ids = nearby.map((b: any) => b.id);
-  const { data: rels } = await admin
-    .from("subcategory_relations")
-    .select("business_id, subcategory_id")
-    .in("business_id", ids);
-  const bizSubs = new Map<string, Set<string>>();
-  for (const r of rels || []) {
-    if (!r.business_id || !r.subcategory_id) continue;
-    if (!bizSubs.has(r.business_id)) bizSubs.set(r.business_id, new Set());
-    bizSubs.get(r.business_id)!.add(r.subcategory_id);
+  const bizCategories = new Map<string, Set<string>>();
+  for (const b of nearby) {
+    const names = Array.isArray(b.categories) ? b.categories : [];
+    const normalized = names.map(normalize).filter(Boolean);
+    if (b.main_category) normalized.push(normalize(b.main_category));
+    if (normalized.length) bizCategories.set(b.id, new Set(normalized));
   }
 
   const [fsRes, fssRes] = await Promise.all([
@@ -132,21 +128,41 @@ async function buildNearbyOverview(
     admin.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
   ]);
   const fsEntries: any[] = fsRes.data || [];
+  const subIds = [...new Set((fssRes.data || []).map((l: any) => l.subcategory_id).filter(Boolean))];
+  const { data: subRows } = subIds.length
+    ? await admin.from("subcategories").select("id, name_fr").in("id", subIds)
+    : { data: [] };
+  const subNameById = new Map<string, string>();
+  for (const s of subRows || []) {
+    const n = normalize(s.name_fr);
+    if (s.id && n) subNameById.set(s.id, n);
+  }
+
   const fsSubs = new Map<string, Set<string>>();
+  const excludedFsIds = new Set<string>();
+  for (const fs of fsEntries) {
+    if (fs?.id && hostCategoryNames.has(normalize(fs.name))) excludedFsIds.add(fs.id);
+  }
   for (const l of fssRes.data || []) {
     if (!l.front_structure_id || !l.subcategory_id) continue;
-    if (hostSubIds.has(l.subcategory_id)) continue; // exclude host's own subcategories entirely
+    const subName = subNameById.get(l.subcategory_id);
+    if (!subName) continue;
+    if (hostCategoryNames.has(subName)) {
+      excludedFsIds.add(l.front_structure_id);
+      continue;
+    }
     if (!fsSubs.has(l.front_structure_id)) fsSubs.set(l.front_structure_id, new Set());
-    fsSubs.get(l.front_structure_id)!.add(l.subcategory_id);
+    fsSubs.get(l.front_structure_id)!.add(subName);
   }
 
   const rows: Array<{ name: string; count: number }> = [];
   for (const fs of fsEntries) {
+    if (excludedFsIds.has(fs.id)) continue;
     const sset = fsSubs.get(fs.id);
     if (!sset || !sset.size) continue;
     let count = 0;
-    for (const subs of bizSubs.values()) {
-      for (const s of subs) { if (sset.has(s)) { count++; break; } }
+    for (const cats of bizCategories.values()) {
+      for (const c of cats) { if (sset.has(c)) { count++; break; } }
     }
     if (count > 0) rows.push({ name: fs.name, count });
   }
@@ -155,23 +171,22 @@ async function buildNearbyOverview(
 
   const translate = (n: string) => lang === "fr" ? n : (FS_I18N[n]?.[lang] || n);
   const wordPlace = (n: number) => lang === "en" ? (n > 1 ? "places" : "place") : lang === "ar" ? "مكان" : (n > 1 ? "adresses" : "adresse");
-  const totalCategorized = rows.reduce((a, r) => a + r.count, 0);
 
   const header = lang === "en"
-    ? `I scanned **${nearby.length} active places** within **1 km** of ${host.name}${host.city ? ` (${host.city})` : ""}, grouped by the One World Morocco taxonomy${hostSubIds.size ? ` (categories overlapping ${host.name}'s own offer are excluded)` : ""}:`
+    ? `I scanned **${nearby.length} active places** within **1 km** of ${host.name}${host.city ? ` (${host.city})` : ""}, grouped by the One World Morocco taxonomy${hostCategoryNames.size ? ` (categories overlapping ${host.name}'s own offer are excluded)` : ""}:`
     : lang === "ar"
-      ? `مررت على **${nearby.length} مكانًا نشطًا** ضمن **1 كم** من ${host.name}${host.city ? ` (${host.city})` : ""} وفق تصنيف One World Morocco${hostSubIds.size ? ` (تُستثنى الفئات التي تتداخل مع عرض ${host.name})` : ""}:`
-      : `J'ai passé au crible **${nearby.length} adresses actives** à moins d'**1 km** de ${host.name}${host.city ? ` (${host.city})` : ""}, réparties dans la catégorisation One World Morocco${hostSubIds.size ? ` (les catégories qui recoupent l'offre de ${host.name} sont exclues)` : ""} :`;
+      ? `مررت على **${nearby.length} مكانًا نشطًا** ضمن **1 كم** من ${host.name}${host.city ? ` (${host.city})` : ""} وفق تصنيف One World Morocco${hostCategoryNames.size ? ` (تُستثنى الفئات التي تتداخل مع عرض ${host.name})` : ""}:`
+      : `J'ai passé au crible **${nearby.length} adresses actives** à moins d'**1 km** de ${host.name}${host.city ? ` (${host.city})` : ""}, réparties dans la catégorisation One World Morocco${hostCategoryNames.size ? ` (les catégories qui recoupent l'offre de ${host.name} sont exclues)` : ""} :`;
 
   const bullets = rows
     .map((r) => `- ${FS_EMOJI[r.name] || "•"} **${translate(r.name)}** — ${r.count} ${wordPlace(r.count)}`)
     .join("\n");
 
   const footer = lang === "en"
-    ? `\n\n**${totalCategorized}** places match at least one category. Tell me what you'd like — a table for dinner, a spa, a cultural walk, some shopping? — and I'll curate a shortlist.`
+    ? `\n\nSome places may appear in several categories. Tell me what you'd like — a table for dinner, a spa, a cultural walk, some shopping? — and I'll curate a shortlist.`
     : lang === "ar"
-      ? `\n\n**${totalCategorized}** مكانًا يطابق فئة واحدة على الأقل. أخبرني بما تريد — عشاء، سبا، ثقافة، تسوق؟ — وسأقترح قائمة.`
-      : `\n\n**${totalCategorized}** adresses correspondent à au moins une catégorie. Dis-moi ce qui te tente — une table pour dîner, un spa, une balade culturelle, du shopping ? — et je te propose une sélection ciblée.`;
+      ? `\n\nقد تظهر بعض الأماكن في أكثر من فئة. أخبرني بما تريد — عشاء، سبا، ثقافة، تسوق؟ — وسأقترح قائمة.`
+      : `\n\nCertaines adresses peuvent relever de plusieurs catégories. Dis-moi ce qui te tente — une table pour dîner, un spa, une balade culturelle, du shopping ? — et je te propose une sélection ciblée.`;
 
   const radiusLine = lang === "en"
     ? `\n\n> Search radius: **1 km** around ${host.name}. Want to **narrow to 500 m** or **expand to 2 km / 5 km**?`
@@ -341,7 +356,7 @@ Deno.serve(async (req) => {
         // Resolve host business
         let bizQ = admin
           .from("businesses")
-          .select("id, slug, name, city, neighborhood, address, main_category, hook_fr, hook_en, hook_ar, description, description_en, description_ar, min_price, manual_price_range, phone, whatsapp, website, opening_hours, latitude, longitude, is_active")
+          .select("id, slug, name, city, neighborhood, address, main_category, categories, hook_fr, hook_en, hook_ar, description, description_en, description_ar, min_price, manual_price_range, phone, whatsapp, website, opening_hours, latitude, longitude, is_active")
           .eq("is_active", true)
           .limit(1);
         const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
@@ -356,6 +371,10 @@ Deno.serve(async (req) => {
           .select("subcategory_id")
           .eq("business_id", host.id);
         const hostSubIds = new Set<string>((hostSubs || []).map((r: any) => r.subcategory_id).filter(Boolean));
+        const hostCategoryNames = new Set<string>([
+          ...(Array.isArray(host.categories) ? host.categories : []),
+          host.main_category,
+        ].map(normalize).filter(Boolean));
         const hostMainCatN = normalize(host.main_category);
 
         // Filter: return true if candidate should be KEPT
@@ -600,6 +619,59 @@ Deno.serve(async (req) => {
           }
         };
 
+        const logTurn = async (opts: { finalText: string; streamCompleted: boolean }) => {
+          try {
+            const t_end = Date.now();
+            await admin.from("ai_conversation_turns").insert({
+              chat_id: null,
+              user_id: null,
+              affiliate_id: null,
+              user_message: userMessage,
+              intent_classified: null,
+              route_taken: "embed",
+              tools_called: {
+                business_id: host.id,
+                business_slug: host.slug,
+                business_name: host.name,
+                session_id: sessionId,
+                tools: toolsCalledLog,
+              },
+              latency_ms_total: t_end - t0,
+              latency_ms_first_token: firstTokenAt ? firstTokenAt - t0 : null,
+              latency_ms_synth: null,
+              tokens_in: null,
+              tokens_out: null,
+              cost_usd: null,
+              city_active: host.city || null,
+              city_detected: null,
+              results_count: knownBusinesses.length,
+              results_shown: (lastMapPayload?.businesses?.length ?? 0) + (lastEventsPayload?.events?.length ?? 0),
+              had_error: hadError,
+              error_message: errorMsg,
+              stream_completed: opts.streamCompleted,
+              message_index: messageIndex,
+              language,
+            });
+          } catch (e) {
+            console.error("[embed-ai-chat] log_error", e);
+          }
+        };
+
+        // Deterministic short-circuit: "Que faire à proximité ?" overview.
+        // This MUST run before generic directory search, otherwise the LLM can
+        // surface city-wide results farther than 1 km.
+        if (isNearbyOverviewIntent(userMessage)) {
+          const overview = await buildNearbyOverview(admin, host, hostCategoryNames, language);
+          if (overview) {
+            if (!firstTokenAt) firstTokenAt = Date.now();
+            emit({ type: "chunk", delta: overview });
+            emit({ type: "done", answer: overview });
+            toolsCalledLog.push({ name: "nearby_overview_1km", args: { lat: host.latitude, lng: host.longitude, radius_km: 1 }, ok: true });
+            await logTurn({ finalText: overview, streamCompleted: true });
+            return close();
+          }
+        }
+
         // Deterministic route: if the clicked suggestion has subcategory_ids and/or badge_ids,
         // bypass LLM tool selection and run business-search filtered on those.
         // business_ids on a suggestion = "pin to top" of any search result set.
@@ -664,61 +736,6 @@ Deno.serve(async (req) => {
             content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE:\n${JSON.stringify(forcedResult).slice(0, 12000)}\n${pinnedNames.length ? `ORDRE PRIORITAIRE MANUEL À RESPECTER ABSOLUMENT: cite d'abord ${pinnedNames.join(" puis ")}, avant tout autre résultat. Aucun autre établissement ne doit être placé entre ces établissements épinglés.` : ""}\nTu dois recommander uniquement des résultats listés ci-dessus quand c'est pertinent. Respecte l'ordre des résultats. Copie exactement disclosure_note sur sa propre ligne avant la question finale.`,
           });
         }
-
-
-        const logTurn = async (opts: { finalText: string; streamCompleted: boolean }) => {
-          try {
-            const t_end = Date.now();
-            await admin.from("ai_conversation_turns").insert({
-              chat_id: null,
-              user_id: null,
-              affiliate_id: null,
-              user_message: userMessage,
-              intent_classified: null,
-              route_taken: "embed",
-              tools_called: {
-                business_id: host.id,
-                business_slug: host.slug,
-                business_name: host.name,
-                session_id: sessionId,
-                tools: toolsCalledLog,
-              },
-              latency_ms_total: t_end - t0,
-              latency_ms_first_token: firstTokenAt ? firstTokenAt - t0 : null,
-              latency_ms_synth: null,
-              tokens_in: null,
-              tokens_out: null,
-              cost_usd: null,
-              city_active: host.city || null,
-              city_detected: null,
-              results_count: knownBusinesses.length,
-              results_shown: (lastMapPayload?.businesses?.length ?? 0) + (lastEventsPayload?.events?.length ?? 0),
-              had_error: hadError,
-              error_message: errorMsg,
-              stream_completed: opts.streamCompleted,
-              message_index: messageIndex,
-              language,
-            });
-          } catch (e) {
-            console.error("[embed-ai-chat] log_error", e);
-          }
-        };
-
-        // Deterministic short-circuit: "Que faire à proximité ?" overview.
-        // Lists active businesses within 1 km of the host, grouped by front_structure,
-        // excluding the host's own subcategories from the taxonomy (never revealed).
-        if (isNearbyOverviewIntent(userMessage)) {
-          const overview = await buildNearbyOverview(admin, host, hostSubIds, language);
-          if (overview) {
-            if (!firstTokenAt) firstTokenAt = Date.now();
-            emit({ type: "chunk", delta: overview });
-            emit({ type: "done", answer: overview });
-            toolsCalledLog.push({ name: "nearby_overview_1km", args: { lat: host.latitude, lng: host.longitude }, ok: true });
-            await logTurn({ finalText: overview, streamCompleted: true });
-            return close();
-          }
-        }
-
         // Tool loop (up to MAX_ROUNDS)
         for (let round = 0; round < MAX_ROUNDS; round++) {
           const isLast = round === MAX_ROUNDS - 1;
