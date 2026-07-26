@@ -161,6 +161,15 @@ const EmbedAiFollowupsManagement = () => {
                       update(r.id, { radius_km: v === "" ? null : parseFloat(v) });
                     }}
                   />
+                  <select
+                    className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+                    value={r.mode ?? ""}
+                    title="Mode de la relance à proximité"
+                    onChange={(e) => update(r.id, { mode: e.target.value || null })}
+                  >
+                    <option value="">Auto</option>
+                    <option value="poi_nearby">POI seulement</option>
+                  </select>
                   <div className="flex items-center gap-2">
                     <Switch checked={r.is_active} onCheckedChange={(v) => update(r.id, { is_active: v })} />
                     <span className="text-xs">{r.is_active ? "Actif" : "Off"}</span>
