@@ -1091,6 +1091,22 @@ Deno.serve(async (req) => {
           }
         }
 
+        // If the user typed a fresh free-text message (no followup click) that
+        // doesn't look like a refinement of the current suggestion thread, drop
+        // the deterministic suggestion force so the previous badges/subcats
+        // don't hijack the new query. Keeps `suggestionMode === "events"` and
+        // pinned ids only for followup clicks or refinements.
+        if (suggestionId && !followupId) {
+          const lastUser = uiMessages[uiMessages.length - 1];
+          const lastUserText = lastUser?.role === "user" ? extractTextFromUIMessage(lastUser) : "";
+          if (!isSuggestionRefinement(lastUserText)) {
+            deterministicSubcategoryNames = null;
+            deterministicBadgeIds = null;
+            suggestionPinnedIds = [];
+            suggestionMode = null;
+          }
+        }
+
         // Tool executor
         const runTool = async (name: string, args: any): Promise<any> => {
           try {
