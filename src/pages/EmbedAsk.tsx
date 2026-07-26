@@ -315,6 +315,7 @@ const EmbedAsk = () => {
   }, [theme]);
 
   const [businessName, setBusinessName] = useState<string>("");
+  const [assistantTitle, setAssistantTitle] = useState<string>("");
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [businessCity, setBusinessCity] = useState<string | null>(null);
   const [hostLocation, setHostLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -420,19 +421,21 @@ const EmbedAsk = () => {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("businesses")
-        .select("id, name, latitude, longitude, city")
+        .select("id, name, latitude, longitude, city, n_title")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
       if (cancelled) return;
-      const name = data?.name || "";
+      const row = (data || null) as any;
+      const name = row?.name || "";
       setBusinessName(name);
-      setBusinessId((data?.id as string) || null);
-      setBusinessCity((data?.city as string) || null);
-      if (data?.latitude != null && data?.longitude != null) {
-        setHostLocation({ lat: Number(data.latitude), lng: Number(data.longitude) });
+      setAssistantTitle((row?.n_title as string) || "");
+      setBusinessId((row?.id as string) || null);
+      setBusinessCity((row?.city as string) || null);
+      if (row?.latitude != null && row?.longitude != null) {
+        setHostLocation({ lat: Number(row.latitude), lng: Number(row.longitude) });
       }
       if (!name) {
         setError(lang === "en" ? "Establishment not found." : lang === "ar" ? "المؤسسة غير موجودة." : "Établissement introuvable.");
@@ -607,10 +610,10 @@ const EmbedAsk = () => {
     <div dir={dir} className={`fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""}`}>
       <header className={`px-4 py-3 border-b ${border} flex items-center gap-3`}>
         <div className="w-8 h-8 rounded-full bg-[#C24B3F] flex items-center justify-center text-white text-sm font-semibold">
-          {(businessName || "?").slice(0, 1).toUpperCase()}
+          {((assistantTitle || businessName) || "?").slice(0, 1).toUpperCase()}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="font-semibold truncate text-sm">{businessName || "…"}</div>
+          <div className="font-semibold truncate text-sm">{assistantTitle || businessName || "…"}</div>
           <div className="text-[11px] opacity-60 truncate">{L.hint}</div>
         </div>
         <button
