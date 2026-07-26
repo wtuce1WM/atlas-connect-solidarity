@@ -929,7 +929,7 @@ Deno.serve(async (req) => {
 
         // Deterministic: nearby overview
         const forcedNearby = followupRadiusKm != null;
-        if (forcedNearby || isNearbyOverviewIntent(userMessage)) {
+        if (forcedNearby || isNearbyOverviewIntent(userMessage, host.name)) {
           const radiusKm = followupRadiusKm ?? 1;
           const overview = await buildNearbyOverview(admin, host, hostCategoryNames, language, radiusKm);
           if (overview) {
