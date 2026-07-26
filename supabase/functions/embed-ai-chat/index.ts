@@ -53,12 +53,21 @@ function shouldForceDirectorySearch(text: string): boolean {
   return /\b(que faire|proximite|autour|pres de|ou |où |restaurant|dejeuner|diner|manger|boire|bar|cafe|the|rooftop|terrasse|visiter|activite|sortie|agenda|week[- ]?end|nearby|around|where|eat|drink|visit|activity|event)\b/i.test(q);
 }
 
-function isNearbyOverviewIntent(text: string): boolean {
+function isNearbyOverviewIntent(text: string, hostName?: string): boolean {
   const q = String(text ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
   if (!q) return false;
   if (/que faire.*(proximite|autour)/.test(q)) return true;
   if (/what to do.*(nearby|around|near me)/.test(q)) return true;
   if (/ما(ذا)?.*(قرب|حول)/.test(q)) return true;
+  // Generic "à proximité de / près de / autour de / near / around / close to <lieu>"
+  if (/\b(a\s+proximite\s+de|pres\s+de|proche\s+de|autour\s+de|a\s+cote\s+de|aux\s+alentours\s+de|near|around|close\s+to|next\s+to)\b/.test(q)) return true;
+  if (hostName) {
+    const hn = normalize(hostName);
+    if (hn && q.includes(hn)) {
+      // "à proximité", "autour", "nearby" mentioned near host name
+      if (/(proximite|autour|pres|nearby|around|close|near)/.test(q)) return true;
+    }
+  }
   return false;
 }
 
@@ -920,7 +929,7 @@ Deno.serve(async (req) => {
 
         // Deterministic: nearby overview
         const forcedNearby = followupRadiusKm != null;
-        if (forcedNearby || isNearbyOverviewIntent(userMessage)) {
+        if (forcedNearby || isNearbyOverviewIntent(userMessage, host.name)) {
           const radiusKm = followupRadiusKm ?? 1;
           const overview = await buildNearbyOverview(admin, host, hostCategoryNames, language, radiusKm);
           if (overview) {
