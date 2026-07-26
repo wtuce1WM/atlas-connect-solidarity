@@ -349,6 +349,7 @@ Deno.serve(async (req) => {
         const sessionId: string | null = typeof body.sessionId === "string" ? body.sessionId : null;
         const messageIndex: number = Number.isFinite(body.messageIndex) ? Number(body.messageIndex) : 0;
         const suggestionId: string | null = typeof body.suggestionId === "string" && body.suggestionId ? body.suggestionId : null;
+        const followupId: string | null = typeof body.followupId === "string" && body.followupId ? body.followupId : null;
         const t0 = Date.now();
         let firstTokenAt: number | null = null;
 
