@@ -139,17 +139,25 @@ async function buildNearbyOverview(
   }
 
   const fsSubs = new Map<string, Set<string>>();
+  const excludedFsIds = new Set<string>();
+  for (const fs of fsEntries) {
+    if (fs?.id && hostCategoryNames.has(normalize(fs.name))) excludedFsIds.add(fs.id);
+  }
   for (const l of fssRes.data || []) {
     if (!l.front_structure_id || !l.subcategory_id) continue;
     const subName = subNameById.get(l.subcategory_id);
     if (!subName) continue;
-    if (hostCategoryNames.has(subName)) continue; // exclude host's own categories entirely
+    if (hostCategoryNames.has(subName)) {
+      excludedFsIds.add(l.front_structure_id);
+      continue;
+    }
     if (!fsSubs.has(l.front_structure_id)) fsSubs.set(l.front_structure_id, new Set());
     fsSubs.get(l.front_structure_id)!.add(subName);
   }
 
   const rows: Array<{ name: string; count: number }> = [];
   for (const fs of fsEntries) {
+    if (excludedFsIds.has(fs.id)) continue;
     const sset = fsSubs.get(fs.id);
     if (!sset || !sset.size) continue;
     let count = 0;
@@ -163,7 +171,6 @@ async function buildNearbyOverview(
 
   const translate = (n: string) => lang === "fr" ? n : (FS_I18N[n]?.[lang] || n);
   const wordPlace = (n: number) => lang === "en" ? (n > 1 ? "places" : "place") : lang === "ar" ? "مكان" : (n > 1 ? "adresses" : "adresse");
-  const totalCategorized = rows.reduce((a, r) => a + r.count, 0);
 
   const header = lang === "en"
     ? `I scanned **${nearby.length} active places** within **1 km** of ${host.name}${host.city ? ` (${host.city})` : ""}, grouped by the One World Morocco taxonomy${hostCategoryNames.size ? ` (categories overlapping ${host.name}'s own offer are excluded)` : ""}:`
@@ -176,10 +183,10 @@ async function buildNearbyOverview(
     .join("\n");
 
   const footer = lang === "en"
-    ? `\n\n**${totalCategorized}** places match at least one category. Tell me what you'd like — a table for dinner, a spa, a cultural walk, some shopping? — and I'll curate a shortlist.`
+    ? `\n\nSome places may appear in several categories. Tell me what you'd like — a table for dinner, a spa, a cultural walk, some shopping? — and I'll curate a shortlist.`
     : lang === "ar"
-      ? `\n\n**${totalCategorized}** مكانًا يطابق فئة واحدة على الأقل. أخبرني بما تريد — عشاء، سبا، ثقافة، تسوق؟ — وسأقترح قائمة.`
-      : `\n\n**${totalCategorized}** adresses correspondent à au moins une catégorie. Dis-moi ce qui te tente — une table pour dîner, un spa, une balade culturelle, du shopping ? — et je te propose une sélection ciblée.`;
+      ? `\n\nقد تظهر بعض الأماكن في أكثر من فئة. أخبرني بما تريد — عشاء، سبا، ثقافة، تسوق؟ — وسأقترح قائمة.`
+      : `\n\nCertaines adresses peuvent relever de plusieurs catégories. Dis-moi ce qui te tente — une table pour dîner, un spa, une balade culturelle, du shopping ? — et je te propose une sélection ciblée.`;
 
   const radiusLine = lang === "en"
     ? `\n\n> Search radius: **1 km** around ${host.name}. Want to **narrow to 500 m** or **expand to 2 km / 5 km**?`
