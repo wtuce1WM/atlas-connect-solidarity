@@ -111,7 +111,7 @@ const EmbedAiSuggestionsManagement = () => {
     const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }] = await Promise.all([
       supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,subcategory_ids,badge_ids,city,disabled_followup_ids")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,subcategory_ids,badge_ids,city,disabled_followup_ids,mode")
         .order("sort_order", { ascending: true }),
       fetchAllBusinesses(),
       supabase
