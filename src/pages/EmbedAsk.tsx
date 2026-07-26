@@ -693,7 +693,7 @@ const EmbedAsk = () => {
                   <div className="flex gap-3 pb-1">
                     {mapPayload.businesses.slice(0, 20).map((b) => {
                       const img = (b.images?.[0] || (b as any).logo_url) as string | undefined;
-                      const loc = [b.city, b.neighborhood].filter(Boolean).join(" · ");
+                      const loc = b.neighborhood || "";
                       const ratingOn20 = computeWeightedRatingOn20(collectRatingSources(b as any));
                       const reviewCount = getTotalReviewCount(b as any) || (b.google_review_count ?? null);
                       let distStr: string | null = null;
