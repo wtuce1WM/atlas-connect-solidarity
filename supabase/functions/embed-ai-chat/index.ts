@@ -104,6 +104,7 @@ async function buildNearbyOverview(
     .from("businesses")
     .select("id, latitude, longitude, categories, main_category")
     .eq("is_active", true)
+    .is("closure_message", null)
     .neq("id", host.id)
     .gte("latitude", host.latitude - dLat)
     .lte("latitude", host.latitude + dLat)
@@ -403,6 +404,22 @@ Deno.serve(async (req) => {
           return kept;
         };
 
+        // Drop businesses flagged as closed via "Message du front" (closure_message).
+        const filterOutClosed = async (list: any[]): Promise<any[]> => {
+          const ids = list.map((b: any) => b?.id).filter(Boolean);
+          if (!ids.length) return list;
+          const { data } = await admin
+            .from("businesses")
+            .select("id, closure_message")
+            .in("id", ids);
+          const closed = new Set(
+            (data || [])
+              .filter((r: any) => r.closure_message && String(r.closure_message).trim())
+              .map((r: any) => r.id),
+          );
+          return list.filter((b: any) => !closed.has(b.id));
+        };
+
         // Tool executor
         const runTool = async (name: string, args: any): Promise<any> => {
           try {
@@ -445,7 +462,7 @@ Deno.serve(async (req) => {
               const pinnedSet = new Set(suggestionPinnedIds);
               const nonPinned = all.filter((b: any) => !pinnedSet.has(b.id));
               const pinnedFromAll = all.filter((b: any) => pinnedSet.has(b.id));
-              let filtered = [...pinnedFromAll, ...(await filterOutCompetitors(nonPinned))];
+              let filtered = await filterOutClosed([...pinnedFromAll, ...(await filterOutCompetitors(nonPinned))]);
 
               // Pinned businesses (from suggestion.business_ids) — always at the top.
               if (suggestionPinnedIds.length) {
@@ -457,7 +474,8 @@ Deno.serve(async (req) => {
                     .from("businesses")
                     .select("id, name, slug, city, neighborhood, main_category, hook_fr, hook_en, hook_ar, latitude, longitude, min_price, manual_price_range")
                     .in("id", missingIds)
-                    .eq("is_active", true);
+                    .eq("is_active", true)
+                    .is("closure_message", null);
                   pinnedFetched = pinnedRows || [];
                 }
                 const pinnedFromFiltered = filtered.filter((b: any) => suggestionPinnedIds.includes(b.id));
@@ -551,7 +569,8 @@ Deno.serve(async (req) => {
                 .from("businesses")
                 .select("id,name,slug,city,neighborhood,address,main_category,categories,latitude,longitude,logo_url,images,hook_fr,google_rating,google_review_count,tripadvisor_rating,tripadvisor_review_count,engagements")
                 .in("slug", slugs)
-                .eq("is_active", true);
+                .eq("is_active", true)
+                .is("closure_message", null);
               const rows = (data || []).filter((b: any) => b.id !== host.id);
               const nonCompetitor = await filterOutCompetitors(rows);
               const withCoords = nonCompetitor.filter((b: any) => b.latitude != null && b.longitude != null);
