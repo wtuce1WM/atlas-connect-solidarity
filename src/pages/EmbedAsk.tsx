@@ -444,7 +444,10 @@ const EmbedAsk = () => {
                         <button
                           key={b.id}
                           type="button"
-                          onClick={() => setOpenBusinessId(b.id)}
+                          onClick={() => {
+                            setOpenSiblings(mapPayload.businesses.slice(0, 20).map((x) => x.id));
+                            setOpenBusinessId(b.id);
+                          }}
                           className="shrink-0 w-64 text-left group"
                         >
                           <div className="relative w-64 h-44 rounded-xl overflow-hidden bg-neutral-800">
