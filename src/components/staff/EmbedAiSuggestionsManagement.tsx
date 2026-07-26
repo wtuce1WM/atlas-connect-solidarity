@@ -87,6 +87,7 @@ const EmbedAiSuggestionsManagement = () => {
   const [destinationSearch, setDestinationSearch] = useState<Record<string, string>>({});
   const [subcategorySearch, setSubcategorySearch] = useState<Record<string, string>>({});
   const [badgeSearch, setBadgeSearch] = useState<Record<string, string>>({});
+  const [proxSearch, setProxSearch] = useState<Record<string, string>>({}); // key: `${rowId}:${side}:${kind}`
 
 
   const load = async () => {
