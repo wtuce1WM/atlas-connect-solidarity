@@ -81,6 +81,28 @@ function isProximityIntent(text: string): boolean {
   return false;
 }
 
+// Parse an explicit radius the user typed inline (FR/EN/AR).
+// Recognizes forms like "500 m", "500m", "à moins de 500 m", "0.5 km", "2 km",
+// "within 500 m", "within 2 km", "أقل من 500 م", "ضمن 2 كم".
+// Returns kilometres, or null if not found.
+function parseInlineRadiusKm(text: string): number | null {
+  const raw = String(text ?? "");
+  if (!raw.trim()) return null;
+  const q = raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  // km first (avoids "m" of "km" being caught as metres)
+  const km = q.match(/(\d+(?:[.,]\d+)?)\s*(?:km|kilom[eè]tres?|kilomet(?:er|re)s?|كم|كيلومتر)\b/);
+  if (km) {
+    const v = Number(km[1].replace(",", "."));
+    if (Number.isFinite(v) && v > 0 && v <= 50) return v;
+  }
+  const m = q.match(/(\d{2,4})\s*(?:m|metres?|meters?|م)\b/);
+  if (m) {
+    const v = Number(m[1]);
+    if (Number.isFinite(v) && v >= 50 && v <= 20000) return v / 1000;
+  }
+  return null;
+}
+
 function haversineKmLocal(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
