@@ -421,20 +421,21 @@ const EmbedAsk = () => {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("businesses")
         .select("id, name, latitude, longitude, city, n_title")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
       if (cancelled) return;
-      const name = data?.name || "";
+      const row = (data || null) as any;
+      const name = row?.name || "";
       setBusinessName(name);
-      setAssistantTitle(((data as any)?.n_title as string) || "");
-      setBusinessId((data?.id as string) || null);
-      setBusinessCity((data?.city as string) || null);
-      if (data?.latitude != null && data?.longitude != null) {
-        setHostLocation({ lat: Number(data.latitude), lng: Number(data.longitude) });
+      setAssistantTitle((row?.n_title as string) || "");
+      setBusinessId((row?.id as string) || null);
+      setBusinessCity((row?.city as string) || null);
+      if (row?.latitude != null && row?.longitude != null) {
+        setHostLocation({ lat: Number(row.latitude), lng: Number(row.longitude) });
       }
       if (!name) {
         setError(lang === "en" ? "Establishment not found." : lang === "ar" ? "المؤسسة غير موجودة." : "Établissement introuvable.");
