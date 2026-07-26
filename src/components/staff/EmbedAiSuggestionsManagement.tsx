@@ -371,6 +371,23 @@ const EmbedAiSuggestionsManagement = () => {
                   <p className="text-[11px] text-muted-foreground mt-1">Vide = affichée pour tous les établissements. Sinon uniquement pour ceux de cette ville.</p>
                 </div>
 
+                <div className="max-w-xs">
+                  <label className="text-xs text-muted-foreground">Route déterministe forcée</label>
+                  <select
+                    value={r.mode || ""}
+                    onChange={(e) => update(r.id, { mode: e.target.value || null })}
+                    className="h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
+                    title="Mode"
+                  >
+                    <option value="">Auto (LLM décide)</option>
+                    <option value="events">📅 Events (search_events sur la ville hôte, badge_ids optionnels)</option>
+                  </select>
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    <b>Events</b> : force <code>search_events</code> (ville de l'établissement + prochain week-end). Si <b>Badges ciblés</b> renseignés → filtre les events par ces badges ; sinon fallback #Agenda.
+                  </p>
+                </div>
+
+
 
                 <div className="space-y-2">
                   <label className="text-xs text-muted-foreground">
