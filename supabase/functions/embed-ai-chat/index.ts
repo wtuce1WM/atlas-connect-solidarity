@@ -1267,9 +1267,11 @@ Deno.serve(async (req) => {
         } else if (shouldForceDirectorySearch(userMessage)) {
           const forcedArgs: any = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
           if (isProximityIntent(userMessage) && Number.isFinite(Number(host.latitude)) && Number.isFinite(Number(host.longitude))) {
+            const inlineR = parseInlineRadiusKm(userMessage);
             forcedArgs._anchorLat = Number(host.latitude);
             forcedArgs._anchorLng = Number(host.longitude);
-            forcedArgs._radiusKm = followupRadiusKm ?? 1;
+            forcedArgs._radiusKm = inlineR ?? followupRadiusKm ?? 1;
+            if (inlineR != null) forcedArgs._strictRadius = true;
           }
           const forcedResult = await runTool("search_businesses", forcedArgs);
           rememberSearchResult("search_businesses", forcedArgs, forcedResult);
