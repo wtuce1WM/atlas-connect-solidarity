@@ -9,13 +9,15 @@ import { useParams, useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import { Send, Sun, Moon, MapPin, Calendar as CalendarIcon, MessageSquarePlus, Bed, Utensils, Wine, Coffee, ShoppingBag, Sparkles, Landmark, Camera, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { Send, Sun, Moon, MapPin, Calendar as CalendarIcon, MessageSquarePlus, Bed, Utensils, Wine, Coffee, ShoppingBag, Sparkles, Landmark, Camera, Play, Pause, Volume2, VolumeX, Mic, MicOff, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlidePanel";
 import EventsSlidePanel from "@/components/club/EventsSlidePanel";
 import type { EventPanelItem } from "@/components/club/ClubAiAssistant";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
+import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
+import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
@@ -483,6 +485,17 @@ const EmbedAsk = () => {
     );
   };
 
+  const voiceLang = lang === "en" ? "en-US" : lang === "ar" ? "ar-MA" : "fr-FR";
+  const voice = useVoiceSearch({
+    lang: voiceLang,
+    onTranscript: (keywords, spoken) => {
+      const text = (spoken || keywords || "").trim();
+      if (!text) return;
+      send(text);
+    },
+    onError: (message) => setError(message),
+  });
+
   const startNewConversation = () => {
     sessionIdRef.current =
       typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -786,6 +799,45 @@ const EmbedAsk = () => {
 
         {error && <div className="text-xs text-red-500">{error}</div>}
       </div>
+
+      <div className={`px-3 pt-3 pb-1 flex justify-center ${bg}`}>
+        <div className="relative flex items-center justify-center">
+          <span className="absolute w-12 h-12 rounded-full border border-foreground/30 animate-[ripple_2.4s_ease-out_infinite] pointer-events-none" />
+          <span className="absolute w-12 h-12 rounded-full border border-foreground/20 animate-[ripple_2.4s_ease-out_0.6s_infinite] pointer-events-none" />
+          <span className="absolute w-12 h-12 rounded-full border border-foreground/10 animate-[ripple_2.4s_ease-out_1.2s_infinite] pointer-events-none" />
+          <button
+            type="button"
+            onClick={voice.toggleRecording}
+            disabled={streaming || voice.status === "processing" || !businessName}
+            className={`relative z-10 flex items-center justify-center w-12 h-12 rounded-full transition-all border border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.35)] ${
+              voice.status === "recording"
+                ? "bg-red-500 animate-pulse"
+                : voice.status === "processing"
+                  ? "bg-[#194CFF]"
+                  : "bg-[#194CFF] hover:bg-[#194CFF]/90"
+            } disabled:opacity-50`}
+            aria-label={lang === "en" ? "Voice search" : lang === "ar" ? "بحث صوتي" : "Recherche vocale"}
+            title={lang === "en" ? "Voice search" : lang === "ar" ? "بحث صوتي" : "Recherche vocale"}
+          >
+            {voice.status === "processing" ? (
+              <Loader2 className="h-5 w-5 text-white animate-spin" />
+            ) : voice.status === "recording" ? (
+              <MicOff className="h-5 w-5 text-white" />
+            ) : (
+              <Mic className="h-5 w-5 text-white" />
+            )}
+          </button>
+        </div>
+      </div>
+
+      <VoiceSearchOverlay
+        isOpen={voice.status === "recording" || voice.status === "processing"}
+        liveTranscript={voice.liveTranscript}
+        audioLevel={voice.audioLevel}
+        micReady={voice.micReady}
+        onClose={() => voice.toggleRecording()}
+        onFinish={() => voice.finishRecording()}
+      />
 
       <form onSubmit={(e) => { e.preventDefault(); send(); }} className={`p-3 border-t ${border} ${bg}`}>
         <div className={`flex items-end gap-2 rounded-2xl border ${border} ${inputBg} px-3 py-2`}>
