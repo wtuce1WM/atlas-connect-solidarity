@@ -584,10 +584,6 @@ const EmbedAsk = () => {
     try { window.localStorage.removeItem(storageKey); } catch { /* noop */ }
     restoredRef.current = false;
     sessionIdRef.current = newSessionId();
-    sessionIdRef.current =
-      typeof crypto !== "undefined" && "randomUUID" in crypto
-        ? crypto.randomUUID()
-        : `s-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     messageIndexRef.current = 0;
     setInput("");
     setError(null);
