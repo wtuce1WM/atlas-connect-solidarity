@@ -404,6 +404,22 @@ Deno.serve(async (req) => {
           return kept;
         };
 
+        // Drop businesses flagged as closed via "Message du front" (closure_message).
+        const filterOutClosed = async (list: any[]): Promise<any[]> => {
+          const ids = list.map((b: any) => b?.id).filter(Boolean);
+          if (!ids.length) return list;
+          const { data } = await admin
+            .from("businesses")
+            .select("id, closure_message")
+            .in("id", ids);
+          const closed = new Set(
+            (data || [])
+              .filter((r: any) => r.closure_message && String(r.closure_message).trim())
+              .map((r: any) => r.id),
+          );
+          return list.filter((b: any) => !closed.has(b.id));
+        };
+
         // Tool executor
         const runTool = async (name: string, args: any): Promise<any> => {
           try {
