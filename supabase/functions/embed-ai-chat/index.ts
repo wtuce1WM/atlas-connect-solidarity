@@ -1070,7 +1070,7 @@ Deno.serve(async (req) => {
           try {
             const { data: sugg } = await admin
               .from("embed_ai_suggestions")
-              .select("subcategory_ids, badge_ids, business_ids, mode, label")
+              .select("subcategory_ids, badge_ids, business_ids, mode, label_fr, label_en, label_ar")
               .eq("id", suggestionId)
               .maybeSingle();
             const subIds: string[] = Array.isArray(sugg?.subcategory_ids) ? sugg!.subcategory_ids : [];
