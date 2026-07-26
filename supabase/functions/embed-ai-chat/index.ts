@@ -446,6 +446,257 @@ function haversineKmLocal(lat1: number, lon1: number, lat2: number, lon2: number
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// TWO-ENTITY PROXIMITY: "A à côté d'un B" where B is a category, not a name.
+// Ex: "beach club ou piscine à côté d'un golf", "rooftop near a spa".
+// Both A and B are resolved through subcategories / services / badges / synonyms.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const TWO_ENTITY_RE =
+  /^(.+?)\s+(?:à\s+côté|a\s+cote|à\s+coté|à\s+proximité|a\s+proximite|près|pres|proche|autour|nearby|near|around|close\s+to|next\s+to)\s+(?:de\s+|d['’] ?|of\s+)?(un|une|des|a|an)\s+([\p{L}][\p{L}\s\-'’]{1,40}?)\s*[?.!]*$/iu;
+
+const LEADING_ARTICLE_RE = /^(?:une?|des|le|la|les|l['’] ?|a|an|the)\s+/i;
+
+function stripLeadingArticle(s: string): string {
+  return s.replace(LEADING_ARTICLE_RE, "").trim();
+}
+
+type EntityMapping = {
+  term: string;
+  subcatNames: string[];
+  serviceNames: string[];
+  badgeIds: string[];
+};
+
+type TwoEntityIntent = {
+  aTerms: string[];   // one or more (split by "ou"/"or"/"و"/"أو")
+  bTerm: string;
+  radiusKm?: number;
+};
+
+function detectTwoEntityProximity(text: string): TwoEntityIntent | null {
+  const raw = String(text ?? "").trim();
+  if (!raw) return null;
+  // Strip trailing punctuation and inline radius spec (already parsed elsewhere)
+  const stripped = raw.replace(/\s+[?.!]+$/, "").trim();
+  const m = stripped.match(TWO_ENTITY_RE);
+  if (!m) return null;
+  const aRaw = stripLeadingArticle(m[1].trim());
+  const bRaw = m[3].trim().replace(/[?.!,;:]+$/, "");
+  if (!aRaw || !bRaw) return null;
+  const aTerms = aRaw
+    .split(/\s+(?:ou|or|و|أو)\s+/i)
+    .map((s) => stripLeadingArticle(s.trim()))
+    .filter((s) => s.length >= 2);
+  if (!aTerms.length) return null;
+  const radiusKm = parseInlineRadiusKm(raw) ?? undefined;
+  return { aTerms, bTerm: bRaw, radiusKm };
+}
+
+async function resolveEntityTerm(admin: any, term: string): Promise<EntityMapping> {
+  const norm = normalize(term);
+  const like = `%${term.replace(/[%_]/g, "")}%`;
+  const likeNorm = `%${norm.replace(/[%_]/g, "")}%`;
+  const subcatNames = new Set<string>();
+  const serviceNames = new Set<string>();
+  const badgeIds = new Set<string>();
+
+  // 1) Subcategories — match on any language name
+  const { data: subs } = await admin
+    .from("subcategories")
+    .select("name_fr, name_en, name_ar, keywords")
+    .or(
+      `name_fr.ilike.${like},name_en.ilike.${like},name_ar.ilike.${like}`,
+    )
+    .limit(20);
+  for (const s of subs || []) {
+    if (s?.name_fr) subcatNames.add(String(s.name_fr));
+  }
+
+  // 2) Services — match on any language name
+  const { data: svcs } = await admin
+    .from("services")
+    .select("name_fr, name_en, name_ar")
+    .or(
+      `name_fr.ilike.${like},name_en.ilike.${like},name_ar.ilike.${like}`,
+    )
+    .eq("is_active", true)
+    .limit(50);
+  for (const s of svcs || []) {
+    if (s?.name_fr) serviceNames.add(String(s.name_fr));
+  }
+
+  // 3) Badges — match on any language name
+  const { data: badges } = await admin
+    .from("badges")
+    .select("id, name_fr, name_en, name_ar")
+    .or(
+      `name_fr.ilike.${like},name_en.ilike.${like},name_ar.ilike.${like}`,
+    )
+    .limit(10);
+  for (const b of badges || []) {
+    if (b?.id) badgeIds.add(String(b.id));
+  }
+
+  // 4) Synonyms — exact key match or term in synonyms array (FR/EN/AR)
+  const { data: syns } = await admin
+    .from("search_synonyms")
+    .select("subcategory_names, service_names, badge_id, synonyms, synonyms_en, synonyms_ar, key_word, key_word_en, key_word_ar")
+    .or(
+      `key_word.ilike.${likeNorm},key_word_en.ilike.${like},key_word_ar.ilike.${like},synonyms.cs.{${term}},synonyms_en.cs.{${term}},synonyms_ar.cs.{${term}}`,
+    )
+    .eq("is_active", true)
+    .limit(20);
+  for (const s of syns || []) {
+    for (const n of s?.subcategory_names || []) if (n) subcatNames.add(String(n));
+    for (const n of s?.service_names || []) if (n) serviceNames.add(String(n));
+    if (s?.badge_id) badgeIds.add(String(s.badge_id));
+  }
+
+  return {
+    term,
+    subcatNames: [...subcatNames],
+    serviceNames: [...serviceNames],
+    badgeIds: [...badgeIds],
+  };
+}
+
+async function fetchEntityPool(admin: any, city: string, entity: EntityMapping, excludeId?: string): Promise<any[]> {
+  const cols = "id, slug, name, city, neighborhood, hook_fr, hook_en, hook_ar, description, description_en, description_ar, latitude, longitude, main_category, categories, services, badge_id, images, logo_url, priority_score, computed_rating, total_review_count";
+  const runs: Promise<{ data: any[] | null }>[] = [];
+  const base = () => {
+    let q = admin
+      .from("businesses")
+      .select(cols)
+      .eq("is_active", true)
+      .is("closure_message", null)
+      .eq("city", city)
+      .not("latitude", "is", null)
+      .not("longitude", "is", null)
+      .limit(200);
+    if (excludeId) q = q.neq("id", excludeId);
+    return q;
+  };
+  if (entity.subcatNames.length) {
+    runs.push(base().overlaps("categories", entity.subcatNames));
+    runs.push(base().in("main_category", entity.subcatNames));
+  }
+  if (entity.serviceNames.length) {
+    runs.push(base().overlaps("services", entity.serviceNames));
+  }
+  if (entity.badgeIds.length) {
+    runs.push(base().in("badge_id", entity.badgeIds));
+  }
+  if (!runs.length) return [];
+  const results = await Promise.all(runs);
+  const map = new Map<string, any>();
+  for (const r of results) {
+    for (const b of r.data || []) {
+      if (b?.id) map.set(b.id, b);
+    }
+  }
+  return [...map.values()];
+}
+
+async function buildTwoEntityProximity(
+  admin: any,
+  host: any,
+  intent: TwoEntityIntent,
+  lang: "fr" | "en" | "ar",
+  strictRadius: boolean,
+): Promise<{ text: string; results: any[]; radiusUsed: number; radiusExpanded: boolean; bTerm: string; aTerms: string[] } | null> {
+  const city = host.city || "Marrakech";
+
+  // Resolve A terms (union) and B term
+  const aResolutions = await Promise.all(intent.aTerms.map((t) => resolveEntityTerm(admin, t)));
+  const bResolution = await resolveEntityTerm(admin, intent.bTerm);
+
+  const aHasMapping = aResolutions.some((r) => r.subcatNames.length || r.serviceNames.length || r.badgeIds.length);
+  const bHasMapping = bResolution.subcatNames.length || bResolution.serviceNames.length || bResolution.badgeIds.length;
+  if (!aHasMapping || !bHasMapping) return null;
+
+  // Fetch pools
+  const aPools = await Promise.all(aResolutions.map((r) => fetchEntityPool(admin, city, r, host?.id)));
+  const aMap = new Map<string, any>();
+  for (const pool of aPools) for (const b of pool) aMap.set(b.id, b);
+  const poolA = [...aMap.values()];
+  const poolB = await fetchEntityPool(admin, city, bResolution, host?.id);
+  if (!poolA.length || !poolB.length) return null;
+
+  // Progressive radius: initial → 2 → 3 km unless strict
+  const initial = intent.radiusKm ?? 1;
+  const ladder = strictRadius ? [initial] : [initial, Math.max(initial, 2), Math.max(initial, 3)];
+  let kept: any[] = [];
+  let radiusUsed = initial;
+  for (const r of ladder) {
+    kept = poolA
+      .map((a) => {
+        let bestKm = Infinity;
+        let bestB: any = null;
+        for (const b of poolB) {
+          if (b.id === a.id) continue;
+          if (a.latitude == null || a.longitude == null || b.latitude == null || b.longitude == null) continue;
+          const d = haversineKmLocal(a.latitude, a.longitude, b.latitude, b.longitude);
+          if (d < bestKm) { bestKm = d; bestB = b; }
+        }
+        return bestKm <= r ? { ...a, _nearest_b_km: bestKm, _nearest_b_name: bestB?.name || null } : null;
+      })
+      .filter(Boolean) as any[];
+    if (kept.length) { radiusUsed = r; break; }
+  }
+  if (!kept.length) return null;
+
+  // Sort by priority_score desc then rating
+  kept.sort((x, y) => (Number(y.priority_score ?? 0) - Number(x.priority_score ?? 0)) || (Number(y.computed_rating ?? 0) - Number(x.computed_rating ?? 0)));
+  const top = kept.slice(0, 12);
+
+  const radiusExpanded = radiusUsed > (intent.radiusKm ?? 1);
+  const fmt = (r: number) => (r < 1 ? `${Math.round(r * 1000)} m` : Number.isInteger(r) ? `${r} km` : `${r.toFixed(1)} km`);
+  const aLabel = intent.aTerms.join(lang === "en" ? " or " : lang === "ar" ? " أو " : " ou ");
+  const bLabel = intent.bTerm;
+
+  const intro = lang === "en"
+    ? `Cross-searching **${aLabel}** with **${bLabel}** nearby in ${city} — I kept only places with at least one ${bLabel} within **${fmt(radiusUsed)}**. Here is the short list, One World Morocco selection first.`
+    : lang === "ar"
+      ? `تقاطعت **${aLabel}** مع **${bLabel}** في ${city} — احتفظت فقط بالأماكن التي يوجد بجوارها ${bLabel} ضمن **${fmt(radiusUsed)}**. هذه القائمة المختصرة، من اختيار One World Morocco.`
+      : `Croisement de **${aLabel}** avec **${bLabel}** à ${city} — je n'ai gardé que les adresses avec au moins un ${bLabel} à moins de **${fmt(radiusUsed)}**. Voici la sélection courte, uniquement des adresses One World Morocco.`;
+
+  const body = top.map((b) => {
+    const hook = String(
+      lang === "en" ? (b.hook_en || b.hook_fr || b.description_en || b.description || "") :
+      lang === "ar" ? (b.hook_ar || b.hook_fr || b.description_ar || b.description || "") :
+                      (b.hook_fr || b.hook_en || b.description || b.description_en || "")
+    ).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    const area = [b.neighborhood, b.city].filter(Boolean).join(lang === "ar" ? "، " : ", ");
+    const km = Number(b._nearest_b_km);
+    const distStr = Number.isFinite(km) ? fmt(km) : null;
+    const nearestLabel = b._nearest_b_name
+      ? (lang === "en" ? ` — closest ${bLabel}: **${b._nearest_b_name}**${distStr ? ` (${distStr})` : ""}` :
+         lang === "ar" ? ` — أقرب ${bLabel}: **${b._nearest_b_name}**${distStr ? ` (${distStr})` : ""}` :
+                         ` — ${bLabel} le plus proche : **${b._nearest_b_name}**${distStr ? ` (${distStr})` : ""}`)
+      : "";
+    const detail = hook || (Array.isArray(b.categories) ? b.categories.join(", ") : b.main_category || "");
+    return `**${b.name}**${area ? `, ${area}` : ""}. ${detail}${nearestLabel}`;
+  }).join("\n\n");
+
+  const expansionNote = radiusExpanded
+    ? (lang === "en" ? `\n\n> Not enough matches within ${fmt(intent.radiusKm ?? 1)} — expanded to **${fmt(radiusUsed)}**.`
+      : lang === "ar" ? `\n\n> لا توجد نتائج كافية ضمن ${fmt(intent.radiusKm ?? 1)} — تم التوسيع إلى **${fmt(radiusUsed)}**.`
+      : `\n\n> Pas assez de résultats à ${fmt(intent.radiusKm ?? 1)} — périmètre élargi à **${fmt(radiusUsed)}**.`)
+    : "";
+
+  const closing = lang === "en"
+    ? `\n\nWant me to **narrow to ${fmt(Math.max(0.5, radiusUsed / 2))}** or **widen to ${fmt(radiusUsed * 2)}** — or filter by vibe or neighborhood?`
+    : lang === "ar"
+      ? `\n\nهل تريد **تضييق النطاق إلى ${fmt(Math.max(0.5, radiusUsed / 2))}** أو **توسيعه إلى ${fmt(radiusUsed * 2)}** — أو تصفية حسب الحي أو الأجواء؟`
+      : `\n\nTu veux que je **resserre à ${fmt(Math.max(0.5, radiusUsed / 2))}** ou **élargisse à ${fmt(radiusUsed * 2)}** — ou que je filtre par quartier ou ambiance ?`;
+
+  const text = `${intro}\n\n${body}${expansionNote}${closing}`;
+  return { text, results: top, radiusUsed, radiusExpanded, bTerm: intent.bTerm, aTerms: intent.aTerms };
+}
+
+
+
 const FS_EMOJI: Record<string, string> = {
   "Restauration": "🍽️", "Hébergement": "🏨", "Bien-être": "🌿", "Vie nocturne": "🌙",
   "Culture": "🎭", "Artisanat marocain": "🧵", "Décoration": "🛋️", "Sport & Loisirs": "🏄",
