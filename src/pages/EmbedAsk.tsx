@@ -423,7 +423,7 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("id, name, latitude, longitude, city, n_title")
+        .select("id, name, latitude, longitude, city, url_6_title")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
@@ -431,7 +431,7 @@ const EmbedAsk = () => {
       const row = (data || null) as any;
       const name = row?.name || "";
       setBusinessName(name);
-      setAssistantTitle((row?.n_title as string) || "");
+      setAssistantTitle((row?.url_6_title as string) || "");
       setBusinessId((row?.id as string) || null);
       setBusinessCity((row?.city as string) || null);
       if (row?.latitude != null && row?.longitude != null) {
