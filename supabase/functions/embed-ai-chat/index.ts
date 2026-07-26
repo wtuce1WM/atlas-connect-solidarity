@@ -941,13 +941,12 @@ Deno.serve(async (req) => {
           const from = today.toISOString().slice(0, 10);
           const to = new Date(today.getTime() + daysUntilSun * 86400000).toISOString().slice(0, 10);
           const forcedArgs: any = { city: host.city || "Marrakech", from_date: from, to_date: to, limit: 10 };
-          if (deterministicBadgeIds) forcedArgs._badgeIds = deterministicBadgeIds;
           const forcedResult = await runTool("search_events", forcedArgs);
           rememberSearchResult("search_events", forcedArgs, forcedResult);
           const hostName = (host as any).name || "cet établissement";
           convo.push({
             role: "system",
-            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE (route déterministe events, ville ${host.city || "Marrakech"}, période ${from} → ${to}${deterministicBadgeIds ? `, badge_ids=${deterministicBadgeIds.length}` : ""}):\n${JSON.stringify(forcedResult).slice(0, 12000)}\n\nFORMAT DE RÉPONSE OBLIGATOIRE :\n1. Ouvre par une phrase d'accroche immersive mentionnant **${hostName}** comme point de départ pour explorer la scène de ${host.city || "Marrakech"} ce week-end.\n2. Présente ensuite CHAQUE événement listé ci-dessus (dans l'ordre) sous forme d'un court paragraphe immersif de 2 à 3 phrases : nomme l'événement en **gras**, précise la date/récurrence et le quartier s'ils existent, décris l'ambiance à partir de hook/description UNIQUEMENT. Pas d'invention.\n3. Si aucun événement : dis-le franchement et propose une relance (autre ville, période plus large).\n4. Termine par UNE question de relance courte.\nRecommande uniquement des événements listés ci-dessus. Réponds dans la même langue que la question de l'utilisateur.`,
+            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE (route déterministe events, ville ${host.city || "Marrakech"}, période ${from} → ${to}, badge #Agenda):\n${JSON.stringify(forcedResult).slice(0, 12000)}\n\nFORMAT DE RÉPONSE OBLIGATOIRE :\n1. Ouvre par une phrase d'accroche immersive mentionnant **${hostName}** comme point de départ pour explorer la scène de ${host.city || "Marrakech"} ce week-end.\n2. Présente ensuite CHAQUE événement listé ci-dessus (dans l'ordre) sous forme d'un court paragraphe immersif de 2 à 3 phrases : nomme l'événement en **gras**, précise la date/récurrence et le quartier s'ils existent, décris l'ambiance à partir de hook/description UNIQUEMENT. Pas d'invention.\n3. Si aucun événement : dis-le franchement et propose une relance (autre ville, période plus large).\n4. Termine par UNE question de relance courte.\nRecommande uniquement des événements listés ci-dessus. Réponds dans la même langue que la question de l'utilisateur.`,
           });
         } else if (deterministicSubcategoryNames || deterministicBadgeIds) {
           const forcedArgs: any = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
