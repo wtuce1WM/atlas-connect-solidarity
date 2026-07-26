@@ -71,6 +71,16 @@ function isNearbyOverviewIntent(text: string, hostName?: string): boolean {
   return false;
 }
 
+// Detect any "à proximité / autour de / near / around / قرب" phrasing,
+// independent of the nearby-overview route (which requires no other filter).
+function isProximityIntent(text: string): boolean {
+  const q = String(text ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  if (!q) return false;
+  if (/\b(a\s+proximite|proximite|pres\s+de|proche\s+de|autour\s+de|autour|a\s+cote\s+de|aux\s+alentours|nearby|near\s+me|near\s+by|close\s+to|around|next\s+to|walking\s+distance)\b/.test(q)) return true;
+  if (/(قرب|بالقرب|حول|بجوار|بجانب)/.test(text || "")) return true;
+  return false;
+}
+
 function haversineKmLocal(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -344,7 +354,24 @@ function buildImmersiveBusinessAnswer(
   const rows: any[] = Array.isArray(result?.results) ? result.results : [];
   const city = result?.city || host.city || "Marrakech";
   const disclosure = result?.disclosure_note || buildDisclosureFromCounts(rows.length, Number(result?.total_found) || rows.length, city);
+  const proximityActive: boolean = !!result?.proximity_active;
+  const radiusUsed: number | null = Number.isFinite(Number(result?.radius_km_used)) ? Number(result.radius_km_used) : null;
+  const radiusExpanded: boolean = !!result?.radius_expanded;
+  const fmtRadius = (r: number) => (r < 1 ? `${Math.round(r * 1000)} m` : Number.isInteger(r) ? `${r} km` : `${r.toFixed(1)} km`);
+  const radiusLine = (l: "fr" | "en" | "ar"): string => {
+    if (!proximityActive || !radiusUsed) return "";
+    if (l === "en") return radiusExpanded
+      ? `Not enough results within 1 km — expanded to **${fmtRadius(radiusUsed)}** around **${host.name}**.`
+      : `Results within **${fmtRadius(radiusUsed)}** of **${host.name}**.`;
+    if (l === "ar") return radiusExpanded
+      ? `لا توجد نتائج كافية ضمن 1 كم — تم توسيع النطاق إلى **${fmtRadius(radiusUsed)}** حول **${host.name}**.`
+      : `النتائج ضمن **${fmtRadius(radiusUsed)}** حول **${host.name}**.`;
+    return radiusExpanded
+      ? `Pas assez de résultats à 1 km — périmètre élargi à **${fmtRadius(radiusUsed)}** autour de **${host.name}**.`
+      : `Résultats dans un rayon de **${fmtRadius(radiusUsed)}** autour de **${host.name}**.`;
+  };
   if (!rows.length) return disclosure;
+
 
   const q = normalize(userMessage);
   const theme = q.includes("rooftop") || q.includes("terrasse")
@@ -363,7 +390,8 @@ function buildImmersiveBusinessAnswer(
       const detail = hook || [b.main_category, Array.isArray(b.categories) ? b.categories.join(", ") : null].filter(Boolean).join(" · ");
       return `**${b.name}**${area ? `, ${area}` : ""}. ${detail || "A curated One World Morocco address to keep on your shortlist."}`;
     }).join("\n\n");
-    return `${intro}\n\n${body}\n\n${disclosure}\n\nWould you like me to narrow this by vibe, neighborhood, or moment of the day?`;
+    const rl = radiusLine("en");
+    return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nWould you like me to narrow this by vibe, neighborhood, or moment of the day?`;
   }
 
   if (lang === "ar") {
@@ -374,7 +402,8 @@ function buildImmersiveBusinessAnswer(
       const detail = hook || [b.main_category, Array.isArray(b.categories) ? b.categories.join("، ") : null].filter(Boolean).join(" · ");
       return `**${b.name}**${area ? `، ${area}` : ""}. ${detail || "عنوان مختار ضمن دليل One World Morocco."}`;
     }).join("\n\n");
-    return `${intro}\n\n${body}\n\n${disclosure}\n\nهل تريد أن أضيّق الاختيار حسب الحي أو الأجواء أو الوقت؟`;
+    const rl = radiusLine("ar");
+    return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nهل تريد أن أضيّق الاختيار حسب الحي أو الأجواء أو الوقت؟`;
   }
 
   const intro = `Depuis **${host.name}**, ${city} se découvre très bien par touches : ${theme}, terrasses vivantes, coins de médina et adresses qui donnent tout de suite une ambiance. Je te propose une sélection issue uniquement des résultats One World Morocco, avec les lieux les plus pertinents en premier.`;
@@ -384,7 +413,8 @@ function buildImmersiveBusinessAnswer(
     const detail = hook || [b.main_category, Array.isArray(b.categories) ? b.categories.join(", ") : null].filter(Boolean).join(" · ");
     return `**${b.name}**${area ? `, ${area}` : ""}. ${detail || "Une adresse sélectionnée dans le guide One World Morocco, à garder dans ta shortlist."}`;
   }).join("\n\n");
-  return `${intro}\n\n${body}\n\n${disclosure}\n\nTu veux que je resserre plutôt par quartier, ambiance ou moment de la journée ?`;
+  const rl = radiusLine("fr");
+  return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nTu veux que je resserre plutôt par quartier, ambiance ou moment de la journée ?`;
 }
 
 function buildSystemPrompt(host: any, lang: "fr" | "en" | "ar"): string {
@@ -746,10 +776,48 @@ Deno.serve(async (req) => {
                 filtered = [...orderedPinned, ...rest];
               }
 
+              // Proximity filter — progressive expansion around anchor (host by default).
+              const anchorLat = Number(args._anchorLat);
+              const anchorLng = Number(args._anchorLng);
+              const requestedRadius = Number(args._radiusKm);
+              let proximityActive = false;
+              let radiusUsedKm: number | null = null;
+              let radiusExpanded = false;
+              if (Number.isFinite(anchorLat) && Number.isFinite(anchorLng) && Number.isFinite(requestedRadius) && requestedRadius > 0) {
+                proximityActive = true;
+                const withDist = filtered
+                  .map((b: any) => {
+                    const la = Number(b.latitude), lo = Number(b.longitude);
+                    if (!Number.isFinite(la) || !Number.isFinite(lo)) return null;
+                    return { b, d: haversineKmLocal(anchorLat, anchorLng, la, lo) };
+                  })
+                  .filter(Boolean) as Array<{ b: any; d: number }>;
+                withDist.sort((x, y) => x.d - y.d);
+                const steps = Array.from(new Set([requestedRadius, requestedRadius * 2, requestedRadius * 3])).sort((a, b) => a - b);
+                let chosen: typeof withDist = [];
+                for (let i = 0; i < steps.length; i++) {
+                  const r = steps[i];
+                  chosen = withDist.filter((x) => x.d <= r);
+                  if (chosen.length >= 3 || i === steps.length - 1) {
+                    radiusUsedKm = r;
+                    radiusExpanded = i > 0;
+                    break;
+                  }
+                }
+                // Keep pinned regardless, then near-first ordering
+                const pinnedKept = filtered.filter((b: any) => suggestionPinnedIds.includes(b.id));
+                const nearIds = new Set(chosen.map((x) => x.b.id));
+                const nearOrdered = chosen.map((x) => x.b);
+                filtered = [
+                  ...pinnedKept.filter((b: any) => !nearIds.has(b.id)),
+                  ...nearOrdered,
+                ];
+              }
+
               const totalFound = filtered.length;
               const results = filtered.slice(0, limit);
               if (!results.length) {
-                return { results: [], total_shown: 0, total_found: 0, total_count: 0, city, disclosure_note: buildDisclosureFromCounts(0, 0, city), note: `Aucun établissement complémentaire trouvé pour "${fullQuery}" à ${city}.` };
+                return { results: [], total_shown: 0, total_found: 0, total_count: 0, city, disclosure_note: buildDisclosureFromCounts(0, 0, city), note: `Aucun établissement complémentaire trouvé pour "${fullQuery}" à ${city}.`, proximity_active: proximityActive, radius_km_used: radiusUsedKm, radius_expanded: radiusExpanded };
               }
               const disclosure = buildDisclosureFromCounts(results.length, totalFound, city);
               return {
@@ -774,6 +842,9 @@ Deno.serve(async (req) => {
                 total_count: results.length,
                 city,
                 disclosure_note: disclosure,
+                proximity_active: proximityActive,
+                radius_km_used: radiusUsedKm,
+                radius_expanded: radiusExpanded,
               };
             }
 
@@ -1043,6 +1114,11 @@ Deno.serve(async (req) => {
           const forcedArgs: any = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
           if (deterministicSubcategoryNames) forcedArgs._subcategoryNames = deterministicSubcategoryNames;
           if (deterministicBadgeIds) forcedArgs._badgeIds = deterministicBadgeIds;
+          if (isProximityIntent(userMessage) && Number.isFinite(Number(host.latitude)) && Number.isFinite(Number(host.longitude))) {
+            forcedArgs._anchorLat = Number(host.latitude);
+            forcedArgs._anchorLng = Number(host.longitude);
+            forcedArgs._radiusKm = followupRadiusKm ?? 1;
+          }
           const forcedResult = await runTool("search_businesses", forcedArgs);
           rememberSearchResult("search_businesses", forcedArgs, forcedResult);
           const pinnedNames = suggestionPinnedIds
@@ -1065,7 +1141,12 @@ Deno.serve(async (req) => {
             content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE (route déterministe sur ${routeDesc}):\n${JSON.stringify(forcedResult).slice(0, 12000)}\n${pinnedNames.length ? `ORDRE PRIORITAIRE MANUEL À RESPECTER ABSOLUMENT: cite d'abord ${pinnedNames.join(" puis ")}, avant tout autre résultat.` : ""}\n\nFORMAT DE RÉPONSE OBLIGATOIRE (STRICT — TA RÉPONSE SERA REJETÉE SI TU NE RESPECTES PAS CE FORMAT) :\n1. Ouvre par UN COURT PARAGRAPHE IMMERSIF de 2 à 3 phrases (60–120 mots) qui plante l'ambiance, le thème, l'art de vivre de la sélection à ${host.city || "Marrakech"}. INTERDIT de sauter cette introduction. INTERDIT de commencer par la phrase de comptage.\n2. Présente ensuite CHAQUE résultat listé ci-dessus (dans l'ordre imposé) sous forme d'un paragraphe court de 2 à 3 phrases (40–80 mots). RÈGLES DE MISE EN FORME :\n   - SÉPARE CHAQUE ÉTABLISSEMENT PAR UNE LIGNE VIDE (double saut de ligne en Markdown).\n   - INTERDIT : listes à puces, tirets en début de ligne, numérotation, titres Markdown (#, ##).\n   - Le SEUL élément en **gras** est le NOM de l'établissement, en tout début de paragraphe.\n   - Décris ambiance/quartier/pourquoi y aller en t'appuyant UNIQUEMENT sur les champs du résultat (categories, neighborhood, hook, description, badges). Pas d'invention.\n3. Termine par la phrase exacte de disclosure_note sur sa propre ligne, PRÉCÉDÉE d'une ligne vide, suivie d'UNE question de relance courte.\nUne réponse qui contient uniquement la phrase de comptage sans intro immersive ni paragraphes par résultat est INTERDITE. Recommande uniquement des résultats listés ci-dessus, respecte l'ordre. Réponds dans la même langue que la question de l'utilisateur.`,
           });
         } else if (shouldForceDirectorySearch(userMessage)) {
-          const forcedArgs = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
+          const forcedArgs: any = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
+          if (isProximityIntent(userMessage) && Number.isFinite(Number(host.latitude)) && Number.isFinite(Number(host.longitude))) {
+            forcedArgs._anchorLat = Number(host.latitude);
+            forcedArgs._anchorLng = Number(host.longitude);
+            forcedArgs._radiusKm = followupRadiusKm ?? 1;
+          }
           const forcedResult = await runTool("search_businesses", forcedArgs);
           rememberSearchResult("search_businesses", forcedArgs, forcedResult);
           const pinnedNames = suggestionPinnedIds
