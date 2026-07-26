@@ -65,6 +65,125 @@ const EmbedMediaBottomBar = () => {
   );
 };
 
+/**
+ * Wrapper around BookOnlineSlidePanel for the embed:
+ * - Vertical swipe (touch) + mouse wheel navigation between siblings
+ * - Extra bottom padding on the panel's scroll area so URL 2–5 CTAs
+ *   sit above the liquid-glass Play/Mute bar.
+ */
+const EmbedBookPanelWrapper = ({
+  businessId,
+  onClose,
+  onPrev,
+  onNext,
+  hasPrev,
+  hasNext,
+}: {
+  businessId: string;
+  onClose: () => void;
+  onPrev: () => void;
+  onNext: () => void;
+  hasPrev: boolean;
+  hasNext: boolean;
+}) => {
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const wheelAccumRef = useRef(0);
+  const wheelLockUntilRef = useRef(0);
+  const touchStartYRef = useRef<number | null>(null);
+  const touchActiveRef = useRef(false);
+  const onPrevRef = useRef(onPrev);
+  const onNextRef = useRef(onNext);
+  const hasPrevRef = useRef(hasPrev);
+  const hasNextRef = useRef(hasNext);
+  useEffect(() => { onPrevRef.current = onPrev; onNextRef.current = onNext; hasPrevRef.current = hasPrev; hasNextRef.current = hasNext; }, [onPrev, onNext, hasPrev, hasNext]);
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const isScrollableY = (node: HTMLElement) => {
+      const s = window.getComputedStyle(node);
+      return /(auto|scroll)/.test(s.overflowY) && node.scrollHeight > node.clientHeight + 1;
+    };
+    const getScrollable = (target: EventTarget | null) => {
+      const main = el.querySelector<HTMLElement>('[data-slidepanel-scroll="true"]');
+      if (main && isScrollableY(main)) return main;
+      if (!(target instanceof HTMLElement)) return null;
+      let n: HTMLElement | null = target;
+      while (n && n !== el) { if (isScrollableY(n)) return n; n = n.parentElement; }
+      return null;
+    };
+    const onWheel = (e: WheelEvent) => {
+      if (document.body.dataset.slidepanelOverlayOpen === "1") return;
+      if (e.target instanceof Element && e.target.closest('.gm-style')) return;
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
+      const scroller = getScrollable(e.target);
+      if (scroller) {
+        const maxTop = scroller.scrollHeight - scroller.clientHeight;
+        const canScroll = deltaY > 0 ? scroller.scrollTop < maxTop - 1 : scroller.scrollTop > 1;
+        if (canScroll) { wheelAccumRef.current = 0; return; }
+      }
+      const now = Date.now();
+      if (now < wheelLockUntilRef.current) { wheelAccumRef.current = 0; return; }
+      wheelAccumRef.current += deltaY;
+      if (Math.abs(wheelAccumRef.current) < 60) return;
+      const dir = wheelAccumRef.current > 0 ? 1 : -1;
+      wheelAccumRef.current = 0;
+      wheelLockUntilRef.current = now + 450;
+      if (dir > 0 && hasNextRef.current) onNextRef.current();
+      else if (dir < 0 && hasPrevRef.current) onPrevRef.current();
+    };
+    el.addEventListener("wheel", onWheel, { passive: true });
+    return () => el.removeEventListener("wheel", onWheel as any);
+  }, []);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    if (document.body.dataset.slidepanelOverlayOpen === "1") return;
+    const t = e.touches[0];
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    // Only initiate near the top of the panel (header) to avoid hijacking content scroll
+    if (t.clientY - rect.top > 96) return;
+    touchStartYRef.current = t.clientY;
+    touchActiveRef.current = true;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (!touchActiveRef.current || touchStartYRef.current == null) return;
+    const t = e.changedTouches[0];
+    const dy = t.clientY - touchStartYRef.current;
+    touchActiveRef.current = false;
+    touchStartYRef.current = null;
+    if (Math.abs(dy) < 120) return;
+    if (dy > 0 && hasPrev) onPrev();
+    else if (dy < 0 && hasNext) onNext();
+  };
+
+  return (
+    <div
+      ref={wrapRef}
+      className="fixed inset-0 z-[220] bg-background flex flex-col lg:left-auto lg:border-l lg:border-border lg:w-1/2 embed-book-panel-scope"
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+    >
+      {/* Extra bottom padding on the internal scroll area so URL 2–5 CTAs sit above the media bar */}
+      <style>{`.embed-book-panel-scope [data-slidepanel-scroll="true"]{padding-bottom:calc(96px + env(safe-area-inset-bottom)) !important;}`}</style>
+      <SlidePanelHeader onClose={onClose} alwaysDark glassClose />
+      <div className="flex-1 min-h-0 overflow-visible">
+        <Suspense fallback={null}>
+          <BookOnlineSlidePanel
+            businessId={businessId}
+            onClose={onClose}
+            onPrev={onPrev}
+            onNext={onNext}
+            hasPrev={hasPrev}
+            hasNext={hasNext}
+          />
+        </Suspense>
+      </div>
+      <EmbedMediaBottomBar />
+    </div>
+  );
+};
+
 const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
   fr: {
     placeholder: "Posez votre question…",
