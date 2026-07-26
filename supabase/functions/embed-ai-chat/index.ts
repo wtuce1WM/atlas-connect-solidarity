@@ -1043,6 +1043,14 @@ Deno.serve(async (req) => {
             deterministicSubcategoryNames ? `sous-catégories ${deterministicSubcategoryNames.join(", ")}` : null,
             deterministicBadgeIds ? `${deterministicBadgeIds.length} badge(s)` : null,
           ].filter(Boolean).join(" + ");
+          if (Array.isArray(forcedResult?.results) && forcedResult.results.length) {
+            finalText = buildImmersiveBusinessAnswer(forcedResult, host, userMessage, language);
+            emitDelta(finalText);
+            finalText += emitTrailingMarkers();
+            endText();
+            await logTurn({ finalText, streamCompleted: true });
+            return;
+          }
           convo.push({
             role: "system",
             content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE (route déterministe sur ${routeDesc}):\n${JSON.stringify(forcedResult).slice(0, 12000)}\n${pinnedNames.length ? `ORDRE PRIORITAIRE MANUEL À RESPECTER ABSOLUMENT: cite d'abord ${pinnedNames.join(" puis ")}, avant tout autre résultat.` : ""}\n\nFORMAT DE RÉPONSE OBLIGATOIRE (STRICT — TA RÉPONSE SERA REJETÉE SI TU NE RESPECTES PAS CE FORMAT) :\n1. Ouvre par UN COURT PARAGRAPHE IMMERSIF de 2 à 3 phrases (60–120 mots) qui plante l'ambiance, le thème, l'art de vivre de la sélection à ${host.city || "Marrakech"}. INTERDIT de sauter cette introduction. INTERDIT de commencer par la phrase de comptage.\n2. Présente ensuite CHAQUE résultat listé ci-dessus (dans l'ordre imposé) sous forme d'un paragraphe court de 2 à 3 phrases (40–80 mots). RÈGLES DE MISE EN FORME :\n   - SÉPARE CHAQUE ÉTABLISSEMENT PAR UNE LIGNE VIDE (double saut de ligne en Markdown).\n   - INTERDIT : listes à puces, tirets en début de ligne, numérotation, titres Markdown (#, ##).\n   - Le SEUL élément en **gras** est le NOM de l'établissement, en tout début de paragraphe.\n   - Décris ambiance/quartier/pourquoi y aller en t'appuyant UNIQUEMENT sur les champs du résultat (categories, neighborhood, hook, description, badges). Pas d'invention.\n3. Termine par la phrase exacte de disclosure_note sur sa propre ligne, PRÉCÉDÉE d'une ligne vide, suivie d'UNE question de relance courte.\nUne réponse qui contient uniquement la phrase de comptage sans intro immersive ni paragraphes par résultat est INTERDITE. Recommande uniquement des résultats listés ci-dessus, respecte l'ordre. Réponds dans la même langue que la question de l'utilisateur.`,
@@ -1054,6 +1062,14 @@ Deno.serve(async (req) => {
           const pinnedNames = suggestionPinnedIds
             .map((id) => forcedResult?.results?.find((b: any) => b?.id === id)?.name)
             .filter(Boolean);
+          if (Array.isArray(forcedResult?.results) && forcedResult.results.length) {
+            finalText = buildImmersiveBusinessAnswer(forcedResult, host, userMessage, language);
+            emitDelta(finalText);
+            finalText += emitTrailingMarkers();
+            endText();
+            await logTurn({ finalText, streamCompleted: true });
+            return;
+          }
           convo.push({
             role: "system",
             content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE:\n${JSON.stringify(forcedResult).slice(0, 12000)}\n${pinnedNames.length ? `ORDRE PRIORITAIRE MANUEL À RESPECTER ABSOLUMENT: cite d'abord ${pinnedNames.join(" puis ")}, avant tout autre résultat.` : ""}\n\nFORMAT DE RÉPONSE OBLIGATOIRE (STRICT — TA RÉPONSE SERA REJETÉE SI TU NE RESPECTES PAS CE FORMAT) :\n1. Ouvre par UN COURT PARAGRAPHE IMMERSIF de 2 à 3 phrases (60–120 mots) qui plante l'ambiance/le thème de la sélection à ${host.city || "Marrakech"}. INTERDIT de sauter cette introduction. INTERDIT de commencer par la phrase de comptage.\n2. Présente ensuite CHAQUE résultat listé ci-dessus sous forme d'un paragraphe court de 2 à 3 phrases (40–80 mots), séparé du suivant par une ligne vide. Le SEUL élément en **gras** est le NOM de l'établissement en début de paragraphe. Décris ambiance/quartier/pourquoi y aller en t'appuyant UNIQUEMENT sur les champs du résultat. INTERDIT : puces, tirets, numérotation, titres Markdown.\n3. Termine par la phrase exacte de disclosure_note sur sa propre ligne, précédée d'une ligne vide, suivie d'UNE question de relance courte.\nUne réponse qui contient uniquement la phrase de comptage sans intro immersive ni paragraphes par résultat est INTERDITE. Recommande uniquement des résultats listés ci-dessus.`,
