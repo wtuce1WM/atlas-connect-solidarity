@@ -625,15 +625,6 @@ html.hide-scrollbar-search::-webkit-scrollbar {
   .min-h-dvh { min-height: 100dvh; }
   .h-dvh { height: 100dvh; }
 
-  /* Hide scrollbar while keeping scrollability */
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-
   /* Safe-area helpers for sticky headers, footers, floating buttons */
   .pt-safe { padding-top: env(safe-area-inset-top); }
   .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
