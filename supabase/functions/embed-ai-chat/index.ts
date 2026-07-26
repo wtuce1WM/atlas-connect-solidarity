@@ -320,6 +320,73 @@ function buildDisclosureFromCounts(shown: number, found: number, city: string): 
   return `📍 Je te présente ${shown} adresse${shown > 1 ? "s" : ""} sur ${found} trouvée${found > 1 ? "s" : ""} à ${city} — dis-moi si tu veux que je te montre les autres ou que j'affine par quartier, ambiance ou envie.`;
 }
 
+function stripText(value: unknown): string {
+  return String(value || "")
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<\/(p|div|li)>/gi, " ")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function buildImmersiveBusinessAnswer(
+  result: any,
+  host: any,
+  userMessage: string,
+  lang: "fr" | "en" | "ar",
+): string {
+  const rows: any[] = Array.isArray(result?.results) ? result.results : [];
+  const city = result?.city || host.city || "Marrakech";
+  const disclosure = result?.disclosure_note || buildDisclosureFromCounts(rows.length, Number(result?.total_found) || rows.length, city);
+  if (!rows.length) return disclosure;
+
+  const q = normalize(userMessage);
+  const theme = q.includes("rooftop") || q.includes("terrasse")
+    ? "rooftops"
+    : q.includes("bar") || q.includes("cocktail") || q.includes("boire")
+      ? "adresses pour boire un verre"
+      : q.includes("restaurant") || q.includes("dejeuner") || q.includes("diner") || q.includes("manger")
+        ? "tables"
+        : "adresses";
+
+  if (lang === "en") {
+    const intro = `From **${host.name}**, ${city} opens into a compact, atmospheric selection of ${theme}: rooftops, medina corners and lively terraces where the setting matters as much as the address. Here are the places I would put forward first, keeping only addresses found in the One World Morocco selection.`;
+    const body = rows.map((b) => {
+      const hook = stripText(b.hook_en || b.hook_fr || b.description_en || b.description || "");
+      const area = [b.neighborhood, b.city].filter(Boolean).join(", ");
+      const detail = hook || [b.main_category, Array.isArray(b.categories) ? b.categories.join(", ") : null].filter(Boolean).join(" · ");
+      return `**${b.name}**${area ? `, ${area}` : ""}. ${detail || "A curated One World Morocco address to keep on your shortlist."}`;
+    }).join("\n\n");
+    return `${intro}\n\n${body}\n\n${disclosure}\n\nWould you like me to narrow this by vibe, neighborhood, or moment of the day?`;
+  }
+
+  if (lang === "ar") {
+    const intro = `انطلاقًا من **${host.name}**، تكشف ${city} عن مجموعة مختارة من العناوين ذات الأجواء الواضحة، حيث يهم المكان والإحساس بقدر ما تهم القائمة. هذه أولى الاقتراحات من اختيار One World Morocco فقط.`;
+    const body = rows.map((b) => {
+      const hook = stripText(b.hook_ar || b.hook_fr || b.description_ar || b.description || "");
+      const area = [b.neighborhood, b.city].filter(Boolean).join("، ");
+      const detail = hook || [b.main_category, Array.isArray(b.categories) ? b.categories.join("، ") : null].filter(Boolean).join(" · ");
+      return `**${b.name}**${area ? `، ${area}` : ""}. ${detail || "عنوان مختار ضمن دليل One World Morocco."}`;
+    }).join("\n\n");
+    return `${intro}\n\n${body}\n\n${disclosure}\n\nهل تريد أن أضيّق الاختيار حسب الحي أو الأجواء أو الوقت؟`;
+  }
+
+  const intro = `Depuis **${host.name}**, ${city} se découvre très bien par touches : ${theme}, terrasses vivantes, coins de médina et adresses qui donnent tout de suite une ambiance. Je te propose une sélection issue uniquement des résultats One World Morocco, avec les lieux les plus pertinents en premier.`;
+  const body = rows.map((b) => {
+    const hook = stripText(b.hook_fr || b.hook_en || b.description || b.description_en || "");
+    const area = [b.neighborhood, b.city].filter(Boolean).join(", ");
+    const detail = hook || [b.main_category, Array.isArray(b.categories) ? b.categories.join(", ") : null].filter(Boolean).join(" · ");
+    return `**${b.name}**${area ? `, ${area}` : ""}. ${detail || "Une adresse sélectionnée dans le guide One World Morocco, à garder dans ta shortlist."}`;
+  }).join("\n\n");
+  return `${intro}\n\n${body}\n\n${disclosure}\n\nTu veux que je resserre plutôt par quartier, ambiance ou moment de la journée ?`;
+}
+
 function buildSystemPrompt(host: any, lang: "fr" | "en" | "ar"): string {
   const hook = lang === "en" ? (host.hook_en || host.hook_fr) : lang === "ar" ? (host.hook_ar || host.hook_fr) : host.hook_fr;
   const description = lang === "en" ? (host.description_en || host.description) : lang === "ar" ? (host.description_ar || host.description) : host.description;
