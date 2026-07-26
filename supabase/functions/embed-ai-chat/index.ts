@@ -1065,11 +1065,12 @@ Deno.serve(async (req) => {
         let deterministicBadgeIds: string[] | null = null;
         let suggestionPinnedIds: string[] = [];
         let suggestionMode: string | null = null;
+        let suggestionLabel: string | null = null;
         if (suggestionId) {
           try {
             const { data: sugg } = await admin
               .from("embed_ai_suggestions")
-              .select("subcategory_ids, badge_ids, business_ids, mode")
+              .select("subcategory_ids, badge_ids, business_ids, mode, label")
               .eq("id", suggestionId)
               .maybeSingle();
             const subIds: string[] = Array.isArray(sugg?.subcategory_ids) ? sugg!.subcategory_ids : [];
@@ -1086,6 +1087,7 @@ Deno.serve(async (req) => {
             const pIds: string[] = Array.isArray(sugg?.business_ids) ? sugg!.business_ids : [];
             if (pIds.length) suggestionPinnedIds = pIds;
             suggestionMode = (sugg?.mode as string | null) || null;
+            suggestionLabel = (sugg?.label as string | null) || null;
           } catch (e) {
             console.error("[embed-ai-chat] suggestion_route_lookup_error", e);
           }
@@ -1094,18 +1096,21 @@ Deno.serve(async (req) => {
         // If the user typed a fresh free-text message (no followup click) that
         // doesn't look like a refinement of the current suggestion thread, drop
         // the deterministic suggestion force so the previous badges/subcats
-        // don't hijack the new query. Keeps `suggestionMode === "events"` and
-        // pinned ids only for followup clicks or refinements.
+        // don't hijack the new query. Initial suggestion click (message text ==
+        // suggestion label) always keeps the force.
         if (suggestionId && !followupId) {
           const lastUser = uiMessages[uiMessages.length - 1];
           const lastUserText = lastUser?.role === "user" ? extractTextFromUIMessage(lastUser) : "";
-          if (!isSuggestionRefinement(lastUserText)) {
+          const norm = (s: string) => s.toLowerCase().replace(/\s+/g, " ").replace(/[?!.\s]+$/g, "").trim();
+          const isInitialClick = suggestionLabel && norm(lastUserText) === norm(suggestionLabel);
+          if (!isInitialClick && !isSuggestionRefinement(lastUserText)) {
             deterministicSubcategoryNames = null;
             deterministicBadgeIds = null;
             suggestionPinnedIds = [];
             suggestionMode = null;
           }
         }
+
 
         // Tool executor
         const runTool = async (name: string, args: any): Promise<any> => {
