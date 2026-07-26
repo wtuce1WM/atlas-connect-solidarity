@@ -354,7 +354,24 @@ function buildImmersiveBusinessAnswer(
   const rows: any[] = Array.isArray(result?.results) ? result.results : [];
   const city = result?.city || host.city || "Marrakech";
   const disclosure = result?.disclosure_note || buildDisclosureFromCounts(rows.length, Number(result?.total_found) || rows.length, city);
+  const proximityActive: boolean = !!result?.proximity_active;
+  const radiusUsed: number | null = Number.isFinite(Number(result?.radius_km_used)) ? Number(result.radius_km_used) : null;
+  const radiusExpanded: boolean = !!result?.radius_expanded;
+  const fmtRadius = (r: number) => (r < 1 ? `${Math.round(r * 1000)} m` : Number.isInteger(r) ? `${r} km` : `${r.toFixed(1)} km`);
+  const radiusLine = (l: "fr" | "en" | "ar"): string => {
+    if (!proximityActive || !radiusUsed) return "";
+    if (l === "en") return radiusExpanded
+      ? `Not enough results within 1 km — expanded to **${fmtRadius(radiusUsed)}** around **${host.name}**.`
+      : `Results within **${fmtRadius(radiusUsed)}** of **${host.name}**.`;
+    if (l === "ar") return radiusExpanded
+      ? `لا توجد نتائج كافية ضمن 1 كم — تم توسيع النطاق إلى **${fmtRadius(radiusUsed)}** حول **${host.name}**.`
+      : `النتائج ضمن **${fmtRadius(radiusUsed)}** حول **${host.name}**.`;
+    return radiusExpanded
+      ? `Pas assez de résultats à 1 km — périmètre élargi à **${fmtRadius(radiusUsed)}** autour de **${host.name}**.`
+      : `Résultats dans un rayon de **${fmtRadius(radiusUsed)}** autour de **${host.name}**.`;
+  };
   if (!rows.length) return disclosure;
+
 
   const q = normalize(userMessage);
   const theme = q.includes("rooftop") || q.includes("terrasse")
