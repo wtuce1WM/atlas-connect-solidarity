@@ -1094,6 +1094,11 @@ Deno.serve(async (req) => {
           const forcedArgs: any = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
           if (deterministicSubcategoryNames) forcedArgs._subcategoryNames = deterministicSubcategoryNames;
           if (deterministicBadgeIds) forcedArgs._badgeIds = deterministicBadgeIds;
+          if (isProximityIntent(userMessage) && Number.isFinite(Number(host.latitude)) && Number.isFinite(Number(host.longitude))) {
+            forcedArgs._anchorLat = Number(host.latitude);
+            forcedArgs._anchorLng = Number(host.longitude);
+            forcedArgs._radiusKm = followupRadiusKm ?? 1;
+          }
           const forcedResult = await runTool("search_businesses", forcedArgs);
           rememberSearchResult("search_businesses", forcedArgs, forcedResult);
           const pinnedNames = suggestionPinnedIds
