@@ -1041,6 +1041,36 @@ Deno.serve(async (req) => {
           } catch (e) {
             console.error("[embed-ai-chat] log_error", e);
           }
+
+          // Persist a lightweight thread trace in ai_chats (kind='embed_ask').
+          // We key the row by the client-provided sessionId (UUID). This lets the
+          // backoffice inspect abandoned/completed conversations without depending
+          // on any authenticated user.
+          try {
+            const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            if (sessionId && uuidRe.test(sessionId)) {
+              const threadMessages = [
+                ...inMessages.map((m) => ({ role: m.role, content: m.content })),
+                { role: "assistant" as const, content: opts.finalText || "" },
+              ];
+              const title = (host.name ? String(host.name) : "Embed").slice(0, 120)
+                + (userMessage ? ` — ${userMessage.slice(0, 60)}` : "");
+              await admin
+                .from("ai_chats")
+                .upsert({
+                  id: sessionId,
+                  anon_token: sessionId,
+                  user_id: null,
+                  kind: "embed_ask",
+                  title,
+                  city: host.city || null,
+                  messages: threadMessages,
+                  updated_at: new Date().toISOString(),
+                }, { onConflict: "id" });
+            }
+          } catch (e) {
+            console.error("[embed-ai-chat] thread_persist_error", e);
+          }
         };
 
         const emitTrailingMarkers = (): string => {

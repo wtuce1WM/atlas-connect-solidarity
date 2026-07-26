@@ -331,9 +331,41 @@ const EmbedAsk = () => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const L = LANG_LABELS[lang];
 
-  const sessionIdRef = useRef<string>(typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `s-${Date.now()}-${Math.random().toString(36).slice(2)}`);
-  const messageIndexRef = useRef<number>(0);
+  // --- Persistence (localStorage): survives page reload for ~7 days per slug+lang. ---
+  const storageKey = `embed-ask:thread:${slug}:${lang}`;
+  const TTL_MS = 7 * 24 * 3600 * 1000;
+  type PersistedThread = {
+    sessionId: string;
+    messageIndex: number;
+    messages: any[];
+    activeSuggestionId: string | null;
+    savedAt: number;
+  };
+  const readPersisted = (): PersistedThread | null => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = window.localStorage.getItem(storageKey);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as PersistedThread;
+      if (!parsed?.sessionId || !Array.isArray(parsed.messages)) return null;
+      if (Date.now() - (parsed.savedAt || 0) > TTL_MS) {
+        window.localStorage.removeItem(storageKey);
+        return null;
+      }
+      return parsed;
+    } catch { return null; }
+  };
+  const initialPersisted = useMemo(readPersisted, [storageKey]);
+
+  const newSessionId = () =>
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `s-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+  const sessionIdRef = useRef<string>(initialPersisted?.sessionId || newSessionId());
+  const messageIndexRef = useRef<number>(initialPersisted?.messageIndex || 0);
   const [chatKey, setChatKey] = useState(0);
+  const restoredRef = useRef<boolean>(!!initialPersisted);
 
   // --- AI SDK useChat wiring ---
   const transport = useMemo(() => new DefaultChatTransport({
@@ -414,6 +446,11 @@ const EmbedAsk = () => {
   useEffect(() => {
     if (!businessName) return;
     if (messages.length > 0) return;
+    if (restoredRef.current && initialPersisted?.messages?.length) {
+      setMessages(initialPersisted.messages as any);
+      if (initialPersisted.activeSuggestionId) setActiveSuggestionId(initialPersisted.activeSuggestionId);
+      return;
+    }
     setMessages([{
       id: "opener",
       role: "assistant",
@@ -421,6 +458,26 @@ const EmbedAsk = () => {
     } as any]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [businessName, chatKey]);
+
+  // Persist thread to localStorage on every change (skip while streaming to avoid spam).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!businessName) return;
+    if (streaming) return;
+    if (messages.length <= 1) return;
+    try {
+      const payload: PersistedThread = {
+        sessionId: sessionIdRef.current,
+        messageIndex: messageIndexRef.current,
+        messages,
+        activeSuggestionId,
+        savedAt: Date.now(),
+      };
+      window.localStorage.setItem(storageKey, JSON.stringify(payload));
+    } catch { /* quota or serialization noop */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, streaming, businessName, activeSuggestionId]);
+
 
   useEffect(() => {
     if (!businessId) return;
@@ -524,10 +581,9 @@ const EmbedAsk = () => {
   });
 
   const startNewConversation = () => {
-    sessionIdRef.current =
-      typeof crypto !== "undefined" && "randomUUID" in crypto
-        ? crypto.randomUUID()
-        : `s-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    try { window.localStorage.removeItem(storageKey); } catch { /* noop */ }
+    restoredRef.current = false;
+    sessionIdRef.current = newSessionId();
     messageIndexRef.current = 0;
     setInput("");
     setError(null);
