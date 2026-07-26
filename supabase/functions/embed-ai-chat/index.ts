@@ -575,15 +575,16 @@ Deno.serve(async (req) => {
           return list.filter((b: any) => !closed.has(b.id));
         };
 
-        // Deterministic route context (suggestion pins / subcategories / badges)
+        // Deterministic route context (suggestion pins / subcategories / badges / mode)
         let deterministicSubcategoryNames: string[] | null = null;
         let deterministicBadgeIds: string[] | null = null;
         let suggestionPinnedIds: string[] = [];
+        let suggestionMode: string | null = null;
         if (suggestionId) {
           try {
             const { data: sugg } = await admin
               .from("embed_ai_suggestions")
-              .select("subcategory_ids, badge_ids, business_ids")
+              .select("subcategory_ids, badge_ids, business_ids, mode")
               .eq("id", suggestionId)
               .maybeSingle();
             const subIds: string[] = Array.isArray(sugg?.subcategory_ids) ? sugg!.subcategory_ids : [];
@@ -599,6 +600,7 @@ Deno.serve(async (req) => {
             if (bIds.length) deterministicBadgeIds = bIds;
             const pIds: string[] = Array.isArray(sugg?.business_ids) ? sugg!.business_ids : [];
             if (pIds.length) suggestionPinnedIds = pIds;
+            suggestionMode = (sugg?.mode as string | null) || null;
           } catch (e) {
             console.error("[embed-ai-chat] suggestion_route_lookup_error", e);
           }
