@@ -463,9 +463,16 @@ function stripLeadingArticle(s: string): string {
 
 type EntityMapping = {
   term: string;
+  subcatIds: string[];
   subcatNames: string[];
   serviceNames: string[];
   badgeIds: string[];
+};
+
+type EntityPoolOptions = {
+  excludeId?: string;
+  allowServiceFallback?: boolean;
+  requireCanonicalSubcategory?: boolean;
 };
 
 type TwoEntityIntent = {
@@ -497,6 +504,7 @@ async function resolveEntityTerm(admin: any, term: string): Promise<EntityMappin
   const norm = normalize(term);
   const like = `%${term.replace(/[%_]/g, "")}%`;
   const likeNorm = `%${norm.replace(/[%_]/g, "")}%`;
+  const subcatIds = new Set<string>();
   const subcatNames = new Set<string>();
   const serviceNames = new Set<string>();
   const badgeIds = new Set<string>();
@@ -517,11 +525,14 @@ async function resolveEntityTerm(admin: any, term: string): Promise<EntityMappin
   // 1) Subcategories
   const { data: subs } = await admin
     .from("subcategories")
-    .select("name_fr, name_en, name_ar, keywords")
+    .select("id, name_fr, name_en, name_ar, keywords")
     .or(`name_fr.ilike.${like},name_en.ilike.${like},name_ar.ilike.${like}`)
     .limit(30);
   for (const s of subs || []) {
-    if (s?.name_fr && anyLangMatches(s)) subcatNames.add(String(s.name_fr));
+    if (s?.name_fr && anyLangMatches(s)) {
+      subcatNames.add(String(s.name_fr));
+      if (s?.id) subcatIds.add(String(s.id));
+    }
   }
 
   // 2) Services
@@ -568,8 +579,17 @@ async function resolveEntityTerm(admin: any, term: string): Promise<EntityMappin
     if (s?.badge_id) badgeIds.add(String(s.badge_id));
   }
 
+  if (subcatNames.size) {
+    const { data: canonicalSubs } = await admin
+      .from("subcategories")
+      .select("id, name_fr")
+      .in("name_fr", [...subcatNames].slice(0, 100));
+    for (const s of canonicalSubs || []) if (s?.id) subcatIds.add(String(s.id));
+  }
+
   return {
     term,
+    subcatIds: [...subcatIds],
     subcatNames: [...subcatNames],
     serviceNames: [...serviceNames],
     badgeIds: [...badgeIds],
@@ -577,7 +597,8 @@ async function resolveEntityTerm(admin: any, term: string): Promise<EntityMappin
 }
 
 
-async function fetchEntityPool(admin: any, city: string, entity: EntityMapping, excludeId?: string): Promise<any[]> {
+async function fetchEntityPool(admin: any, city: string, entity: EntityMapping, options: EntityPoolOptions = {}): Promise<any[]> {
+  const { excludeId, allowServiceFallback = true, requireCanonicalSubcategory = false } = options;
   const cols = "id, slug, name, city, neighborhood, hook_fr, hook_en, hook_ar, description, description_en, description_ar, latitude, longitude, main_category, categories, services, badge_id, images, logo_url, priority_score, computed_rating, total_review_count";
   const base = () => {
     let q = admin
@@ -601,7 +622,7 @@ async function fetchEntityPool(admin: any, city: string, entity: EntityMapping, 
     strictRuns.push(base().overlaps("categories", entity.subcatNames));
     strictRuns.push(base().in("main_category", entity.subcatNames));
   }
-  if (entity.badgeIds.length) {
+  if (!requireCanonicalSubcategory && entity.badgeIds.length) {
     strictRuns.push(base().in("badge_id", entity.badgeIds));
   }
   const strictMap = new Map<string, any>();
@@ -610,9 +631,10 @@ async function fetchEntityPool(admin: any, city: string, entity: EntityMapping, 
     for (const r of strictResults) for (const b of r.data || []) if (b?.id) strictMap.set(b.id, b);
   }
   if (strictMap.size >= 3) return [...strictMap.values()];
+  if (requireCanonicalSubcategory) return [...strictMap.values()];
 
   // Fallback: services (only if subcategory/badge pool is thin)
-  if (entity.serviceNames.length) {
+  if (allowServiceFallback && entity.serviceNames.length) {
     const { data } = await base().overlaps("services", entity.serviceNames);
     for (const b of data || []) if (b?.id) strictMap.set(b.id, b);
   }
@@ -634,15 +656,19 @@ async function buildTwoEntityProximity(
   const bResolution = await resolveEntityTerm(admin, intent.bTerm);
 
   const aHasMapping = aResolutions.some((r) => r.subcatNames.length || r.serviceNames.length || r.badgeIds.length);
-  const bHasMapping = bResolution.subcatNames.length || bResolution.serviceNames.length || bResolution.badgeIds.length;
+  const bHasMapping = bResolution.subcatIds.length > 0;
   if (!aHasMapping || !bHasMapping) return null;
 
   // Fetch pools
-  const aPools = await Promise.all(aResolutions.map((r) => fetchEntityPool(admin, city, r, host?.id)));
+  const aPools = await Promise.all(aResolutions.map((r) => fetchEntityPool(admin, city, r, { excludeId: host?.id })));
   const aMap = new Map<string, any>();
   for (const pool of aPools) for (const b of pool) aMap.set(b.id, b);
   const poolA = [...aMap.values()];
-  const poolB = await fetchEntityPool(admin, city, bResolution, host?.id);
+  const poolB = await fetchEntityPool(admin, city, bResolution, {
+    excludeId: host?.id,
+    allowServiceFallback: false,
+    requireCanonicalSubcategory: true,
+  });
   if (!poolA.length || !poolB.length) return null;
 
   // Progressive radius: initial → 2 → 3 km unless strict
