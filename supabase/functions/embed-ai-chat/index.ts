@@ -744,6 +744,135 @@ async function buildTwoEntityProximity(
 }
 
 
+// Curated variant: uses staff-picked subcatIds/badgeIds for A and B directly,
+// skipping resolveEntityTerm. Any match on subcategory OR badge is trusted.
+async function fetchEntityPoolFromCurated(
+  admin: any,
+  city: string,
+  side: { subcatIds: string[]; badgeIds: string[]; subcatNames: string[] },
+  excludeId?: string,
+): Promise<any[]> {
+  const cols = "id, slug, name, city, neighborhood, hook_fr, hook_en, hook_ar, description, description_en, description_ar, latitude, longitude, main_category, categories, services, badge_id, images, logo_url, priority_score, computed_rating, total_review_count";
+  const base = () => {
+    let q = admin
+      .from("businesses")
+      .select(cols)
+      .eq("is_active", true)
+      .is("closure_message", null)
+      .eq("city", city)
+      .not("latitude", "is", null)
+      .not("longitude", "is", null)
+      .limit(200);
+    if (excludeId) q = q.neq("id", excludeId);
+    return q;
+  };
+  const runs: Promise<{ data: any[] | null }>[] = [];
+  if (side.subcatNames.length) {
+    runs.push(base().overlaps("categories", side.subcatNames));
+    runs.push(base().in("main_category", side.subcatNames));
+  }
+  if (side.badgeIds.length) {
+    runs.push(base().in("badge_id", side.badgeIds));
+  }
+  const out = new Map<string, any>();
+  if (runs.length) {
+    const results = await Promise.all(runs);
+    for (const r of results) for (const b of r.data || []) if (b?.id) out.set(b.id, b);
+  }
+  return [...out.values()];
+}
+
+async function buildTwoEntityProximityCurated(
+  admin: any,
+  host: any,
+  intent: TwoEntityIntent,
+  lang: "fr" | "en" | "ar",
+  strictRadius: boolean,
+  curated: {
+    a: { subcatIds: string[]; badgeIds: string[]; subcatNames: string[] };
+    b: { subcatIds: string[]; badgeIds: string[]; subcatNames: string[] };
+  },
+): Promise<{ text: string; results: any[]; radiusUsed: number; radiusExpanded: boolean; bTerm: string; aTerms: string[] } | null> {
+  const city = host.city || "Marrakech";
+  const [poolA, poolB] = await Promise.all([
+    fetchEntityPoolFromCurated(admin, city, curated.a, host?.id),
+    fetchEntityPoolFromCurated(admin, city, curated.b, host?.id),
+  ]);
+  if (!poolA.length || !poolB.length) return null;
+
+  const initial = intent.radiusKm ?? 1;
+  const ladder = strictRadius ? [initial] : [initial, Math.max(initial, 2), Math.max(initial, 3)];
+  let kept: any[] = [];
+  let radiusUsed = initial;
+  for (const r of ladder) {
+    kept = poolA
+      .map((a) => {
+        let bestKm = Infinity;
+        let bestB: any = null;
+        for (const b of poolB) {
+          if (b.id === a.id) continue;
+          if (a.latitude == null || a.longitude == null || b.latitude == null || b.longitude == null) continue;
+          const d = haversineKmLocal(a.latitude, a.longitude, b.latitude, b.longitude);
+          if (d < bestKm) { bestKm = d; bestB = b; }
+        }
+        return bestKm <= r ? { ...a, _nearest_b_km: bestKm, _nearest_b_name: bestB?.name || null } : null;
+      })
+      .filter(Boolean) as any[];
+    if (kept.length) { radiusUsed = r; break; }
+  }
+  if (!kept.length) return null;
+
+  kept.sort((x, y) => (Number(y.priority_score ?? 0) - Number(x.priority_score ?? 0)) || (Number(y.computed_rating ?? 0) - Number(x.computed_rating ?? 0)));
+  const top = kept.slice(0, 12);
+
+  const radiusExpanded = radiusUsed > (intent.radiusKm ?? 1);
+  const fmt = (r: number) => (r < 1 ? `${Math.round(r * 1000)} m` : Number.isInteger(r) ? `${r} km` : `${r.toFixed(1)} km`);
+  const aLabel = intent.aTerms[0] || (lang === "en" ? "matching places" : lang === "ar" ? "الأماكن المطابقة" : "les adresses");
+  const bLabel = intent.bTerm || (lang === "en" ? "reference" : lang === "ar" ? "المرجع" : "référence");
+
+  const intro = lang === "en"
+    ? `Curated cross-search in ${city} — I kept only places matching the selection with at least one reference within **${fmt(radiusUsed)}**. Here is the short list, One World Morocco selection only.`
+    : lang === "ar"
+      ? `تقاطع مُنسَّق في ${city} — احتفظت فقط بالأماكن التي تطابق الاختيار مع مرجع ضمن **${fmt(radiusUsed)}**. هذه القائمة المختصرة، من اختيار One World Morocco.`
+      : `Croisement curé à ${city} — je n'ai gardé que les adresses correspondant à la sélection avec au moins une référence à moins de **${fmt(radiusUsed)}**. Voici la sélection courte, uniquement des adresses One World Morocco.`;
+
+  const body = top.map((b) => {
+    const hook = String(
+      lang === "en" ? (b.hook_en || b.hook_fr || b.description_en || b.description || "") :
+      lang === "ar" ? (b.hook_ar || b.hook_fr || b.description_ar || b.description || "") :
+                      (b.hook_fr || b.hook_en || b.description || b.description_en || "")
+    ).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    const area = [b.neighborhood, b.city].filter(Boolean).join(lang === "ar" ? "، " : ", ");
+    const km = Number(b._nearest_b_km);
+    const distStr = Number.isFinite(km) ? fmt(km) : null;
+    const nearestLabel = b._nearest_b_name
+      ? (lang === "en" ? ` — closest reference: **${b._nearest_b_name}**${distStr ? ` (${distStr})` : ""}` :
+         lang === "ar" ? ` — أقرب مرجع: **${b._nearest_b_name}**${distStr ? ` (${distStr})` : ""}` :
+                         ` — référence la plus proche : **${b._nearest_b_name}**${distStr ? ` (${distStr})` : ""}`)
+      : "";
+    const detail = hook || (Array.isArray(b.categories) ? b.categories.join(", ") : b.main_category || "");
+    return `**${b.name}**${area ? `, ${area}` : ""}. ${detail}${nearestLabel}`;
+  }).join("\n\n");
+
+  const expansionNote = radiusExpanded
+    ? (lang === "en" ? `\n\n> Not enough matches within ${fmt(intent.radiusKm ?? 1)} — expanded to **${fmt(radiusUsed)}**.`
+      : lang === "ar" ? `\n\n> لا توجد نتائج كافية ضمن ${fmt(intent.radiusKm ?? 1)} — تم التوسيع إلى **${fmt(radiusUsed)}**.`
+      : `\n\n> Pas assez de résultats à ${fmt(intent.radiusKm ?? 1)} — périmètre élargi à **${fmt(radiusUsed)}**.`)
+    : "";
+
+  const closing = lang === "en"
+    ? `\n\nWant me to **narrow to ${fmt(Math.max(0.5, radiusUsed / 2))}** or **widen to ${fmt(radiusUsed * 2)}** — or filter by vibe or neighborhood?`
+    : lang === "ar"
+      ? `\n\nهل تريد **تضييق النطاق إلى ${fmt(Math.max(0.5, radiusUsed / 2))}** أو **توسيعه إلى ${fmt(radiusUsed * 2)}** — أو تصفية حسب الحي أو الأجواء؟`
+      : `\n\nTu veux que je **resserre à ${fmt(Math.max(0.5, radiusUsed / 2))}** ou **élargisse à ${fmt(radiusUsed * 2)}** — ou que je filtre par quartier ou ambiance ?`;
+
+  const text = `${intro}\n\n${body}${expansionNote}${closing}`;
+  return { text, results: top, radiusUsed, radiusExpanded, bTerm: bLabel, aTerms: [aLabel] };
+}
+
+
+
+
 
 const FS_EMOJI: Record<string, string> = {
   "Restauration": "🍽️", "Hébergement": "🏨", "Bien-être": "🌿", "Vie nocturne": "🌙",
@@ -1365,11 +1494,18 @@ Deno.serve(async (req) => {
         let suggestionPinnedIds: string[] = [];
         let suggestionMode: string | null = null;
         let suggestionLabel: string | null = null;
+        // Curated two-entity proximity: staff-picked subcats/badges for A and B.
+        // When both sides have at least one mapping, the two-entity route runs
+        // with these exact mappings and bypasses free-text term resolution.
+        let curatedProximity: {
+          a: { subcatIds: string[]; badgeIds: string[]; subcatNames: string[] };
+          b: { subcatIds: string[]; badgeIds: string[]; subcatNames: string[] };
+        } | null = null;
         if (suggestionId) {
           try {
             const { data: sugg } = await admin
               .from("embed_ai_suggestions")
-              .select("subcategory_ids, badge_ids, business_ids, mode, label_fr, label_en, label_ar")
+              .select("subcategory_ids, badge_ids, business_ids, mode, label_fr, label_en, label_ar, proximity_a_subcategory_ids, proximity_a_badge_ids, proximity_b_subcategory_ids, proximity_b_badge_ids")
               .eq("id", suggestionId)
               .maybeSingle();
             const subIds: string[] = Array.isArray(sugg?.subcategory_ids) ? sugg!.subcategory_ids : [];
@@ -1387,6 +1523,26 @@ Deno.serve(async (req) => {
             if (pIds.length) suggestionPinnedIds = pIds;
             suggestionMode = (sugg?.mode as string | null) || null;
             suggestionLabel = (sugg?.label_fr as string | null) || (sugg?.label_en as string | null) || (sugg?.label_ar as string | null) || null;
+
+            // Load curated proximity mappings if both A and B are populated
+            const paSub: string[] = Array.isArray(sugg?.proximity_a_subcategory_ids) ? sugg!.proximity_a_subcategory_ids : [];
+            const paBadge: string[] = Array.isArray(sugg?.proximity_a_badge_ids) ? sugg!.proximity_a_badge_ids : [];
+            const pbSub: string[] = Array.isArray(sugg?.proximity_b_subcategory_ids) ? sugg!.proximity_b_subcategory_ids : [];
+            const pbBadge: string[] = Array.isArray(sugg?.proximity_b_badge_ids) ? sugg!.proximity_b_badge_ids : [];
+            const aHas = paSub.length > 0 || paBadge.length > 0;
+            const bHas = pbSub.length > 0 || pbBadge.length > 0;
+            if (aHas && bHas) {
+              const allSubIds = [...new Set([...paSub, ...pbSub])];
+              const namesMap = new Map<string, string>();
+              if (allSubIds.length) {
+                const { data: subs2 } = await admin.from("subcategories").select("id, name_fr").in("id", allSubIds);
+                for (const s of subs2 || []) if (s?.id && s?.name_fr) namesMap.set(String(s.id), String(s.name_fr));
+              }
+              curatedProximity = {
+                a: { subcatIds: paSub, badgeIds: paBadge, subcatNames: paSub.map((i) => namesMap.get(i)).filter(Boolean) as string[] },
+                b: { subcatIds: pbSub, badgeIds: pbBadge, subcatNames: pbSub.map((i) => namesMap.get(i)).filter(Boolean) as string[] },
+              };
+            }
           } catch (e) {
             console.error("[embed-ai-chat] suggestion_route_lookup_error", e);
           }
@@ -1407,6 +1563,7 @@ Deno.serve(async (req) => {
             deterministicBadgeIds = null;
             suggestionPinnedIds = [];
             suggestionMode = null;
+            curatedProximity = null;
           }
         }
 
@@ -1893,38 +2050,54 @@ Deno.serve(async (req) => {
 
         // Deterministic: TWO-ENTITY PROXIMITY — "A à côté d'un B" where B is a
         // category (not a named business). Runs BEFORE nearby overview & badge
-        // routing. Only triggers on free-text (no deterministic suggestion filter).
+        // routing.
+        //
+        // Two entry points:
+        //  1. Curated: the active suggestion has proximity_a_* and proximity_b_*
+        //     mappings — we trust them, bypass free-text term resolution.
+        //  2. Free-text: detected via TWO_ENTITY_RE. Only when no suggestion
+        //     deterministic filter is active.
         {
-          const hasDetFilter = !!(deterministicBadgeIds?.length || deterministicSubcategoryNames?.length);
-          if (!hasDetFilter) {
-            const twoEnt = detectTwoEntityProximity(userMessage);
-            if (twoEnt) {
-              const strict = parseInlineRadiusKm(userMessage) != null;
-              const built = await buildTwoEntityProximity(admin, host, twoEnt, language, strict);
-              if (built) {
-                const forcedResult = {
-                  results: built.results,
-                  total_found: built.results.length,
-                  city: host.city || "Marrakech",
-                  proximity_active: true,
-                  radius_km_used: built.radiusUsed,
-                  radius_expanded: built.radiusExpanded,
-                  disclosure_note: null,
-                };
-                rememberSearchResult("search_businesses", {
-                  _twoEntity: true,
-                  aTerms: built.aTerms,
-                  bTerm: built.bTerm,
-                  radius_km: built.radiusUsed,
-                }, forcedResult);
-                emitDelta(built.text);
-                const trailing = emitTrailingMarkers();
-                toolsCalledLog.push({ name: "two_entity_proximity", args: { aTerms: built.aTerms, bTerm: built.bTerm, radius_km: built.radiusUsed, count: built.results.length }, ok: true });
-                endText();
-                await logTurn({ finalText: built.text + trailing, streamCompleted: true });
-                return;
+          let built: Awaited<ReturnType<typeof buildTwoEntityProximity>> | null = null;
+          const strict = parseInlineRadiusKm(userMessage) != null;
+          if (curatedProximity) {
+            const intent: TwoEntityIntent = {
+              aTerms: [suggestionLabel || "A"],
+              bTerm: suggestionLabel || "B",
+              radiusKm: parseInlineRadiusKm(userMessage) ?? 1,
+            };
+            built = await buildTwoEntityProximityCurated(admin, host, intent, language, strict, curatedProximity);
+          } else {
+            const hasDetFilter = !!(deterministicBadgeIds?.length || deterministicSubcategoryNames?.length);
+            if (!hasDetFilter) {
+              const twoEnt = detectTwoEntityProximity(userMessage);
+              if (twoEnt) {
+                built = await buildTwoEntityProximity(admin, host, twoEnt, language, strict);
               }
             }
+          }
+          if (built) {
+            const forcedResult = {
+              results: built.results,
+              total_found: built.results.length,
+              city: host.city || "Marrakech",
+              proximity_active: true,
+              radius_km_used: built.radiusUsed,
+              radius_expanded: built.radiusExpanded,
+              disclosure_note: null,
+            };
+            rememberSearchResult("search_businesses", {
+              _twoEntity: true,
+              aTerms: built.aTerms,
+              bTerm: built.bTerm,
+              radius_km: built.radiusUsed,
+            }, forcedResult);
+            emitDelta(built.text);
+            const trailing = emitTrailingMarkers();
+            toolsCalledLog.push({ name: "two_entity_proximity", args: { aTerms: built.aTerms, bTerm: built.bTerm, radius_km: built.radiusUsed, count: built.results.length, curated: !!curatedProximity }, ok: true });
+            endText();
+            await logTurn({ finalText: built.text + trailing, streamCompleted: true });
+            return;
           }
         }
 

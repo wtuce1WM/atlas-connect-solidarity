@@ -60,6 +60,10 @@ type Row = {
   city: string | null;
   disabled_followup_ids: string[];
   mode: string | null;
+  proximity_a_subcategory_ids: string[];
+  proximity_a_badge_ids: string[];
+  proximity_b_subcategory_ids: string[];
+  proximity_b_badge_ids: string[];
 };
 
 type BusinessOption = { id: string; name: string; slug: string | null };
@@ -83,6 +87,7 @@ const EmbedAiSuggestionsManagement = () => {
   const [destinationSearch, setDestinationSearch] = useState<Record<string, string>>({});
   const [subcategorySearch, setSubcategorySearch] = useState<Record<string, string>>({});
   const [badgeSearch, setBadgeSearch] = useState<Record<string, string>>({});
+  const [proxSearch, setProxSearch] = useState<Record<string, string>>({}); // key: `${rowId}:${side}:${kind}`
 
 
   const load = async () => {
@@ -111,7 +116,7 @@ const EmbedAiSuggestionsManagement = () => {
     const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }] = await Promise.all([
       supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,subcategory_ids,badge_ids,city,disabled_followup_ids,mode")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,subcategory_ids,badge_ids,city,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids")
         .order("sort_order", { ascending: true }),
       fetchAllBusinesses(),
       supabase
@@ -141,6 +146,10 @@ const EmbedAiSuggestionsManagement = () => {
         subcategory_ids: Array.isArray(r.subcategory_ids) ? r.subcategory_ids : [],
         badge_ids: Array.isArray(r.badge_ids) ? r.badge_ids : [],
         disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
+        proximity_a_subcategory_ids: Array.isArray(r.proximity_a_subcategory_ids) ? r.proximity_a_subcategory_ids : [],
+        proximity_a_badge_ids: Array.isArray(r.proximity_a_badge_ids) ? r.proximity_a_badge_ids : [],
+        proximity_b_subcategory_ids: Array.isArray(r.proximity_b_subcategory_ids) ? r.proximity_b_subcategory_ids : [],
+        proximity_b_badge_ids: Array.isArray(r.proximity_b_badge_ids) ? r.proximity_b_badge_ids : [],
       }))
     );
     setBusinesses((bizs || []).map((b: any) => ({ id: b.id, name: b.name || "(sans nom)", slug: b.slug })));
@@ -209,7 +218,7 @@ const EmbedAiSuggestionsManagement = () => {
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], subcategory_ids: [], badge_ids: [], city: null, disabled_followup_ids: [], mode: null } as Row]);
+    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], subcategory_ids: [], badge_ids: [], city: null, disabled_followup_ids: [], mode: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [] } as Row]);
   };
 
 
@@ -239,6 +248,10 @@ const EmbedAiSuggestionsManagement = () => {
           city: r.city || null,
           disabled_followup_ids: r.disabled_followup_ids || [],
           mode: r.mode || null,
+          proximity_a_subcategory_ids: r.proximity_a_subcategory_ids || [],
+          proximity_a_badge_ids: r.proximity_a_badge_ids || [],
+          proximity_b_subcategory_ids: r.proximity_b_subcategory_ids || [],
+          proximity_b_badge_ids: r.proximity_b_badge_ids || [],
         }).eq("id", r.id)
       )
     );
@@ -607,10 +620,118 @@ const EmbedAiSuggestionsManagement = () => {
                   </p>
                 </div>
 
-
-
-
-
+                {/* PROXIMITÉ DEUX ENTITÉS (A à côté d'un B) */}
+                {(() => {
+                  const sides: Array<{ key: "a" | "b"; label: string; subField: "proximity_a_subcategory_ids" | "proximity_b_subcategory_ids"; badgeField: "proximity_a_badge_ids" | "proximity_b_badge_ids" }> = [
+                    { key: "a", label: "Entité A (la cible cherchée)", subField: "proximity_a_subcategory_ids", badgeField: "proximity_a_badge_ids" },
+                    { key: "b", label: "Entité B (la référence de proximité)", subField: "proximity_b_subcategory_ids", badgeField: "proximity_b_badge_ids" },
+                  ];
+                  const aHas = r.proximity_a_subcategory_ids.length > 0 || r.proximity_a_badge_ids.length > 0;
+                  const bHas = r.proximity_b_subcategory_ids.length > 0 || r.proximity_b_badge_ids.length > 0;
+                  const active = aHas && bHas;
+                  return (
+                    <div className="pt-2 border-t space-y-3">
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs font-semibold">Proximité A à côté de B (deux entités)</label>
+                        {active ? (
+                          <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-primary/15 text-primary" title="Route déterministe two_entity_proximity">
+                            🔗 Route déterministe A/B active
+                          </span>
+                        ) : (aHas || bHas) ? (
+                          <span className="text-[10px] text-amber-600">⚠️ Un seul côté rempli — remplis A ET B pour activer</span>
+                        ) : null}
+                      </div>
+                      {sides.map((side) => {
+                        const subIds = r[side.subField] as string[];
+                        const badgeIds = r[side.badgeField] as string[];
+                        const subKey = `${r.id}:${side.key}:sub`;
+                        const badgeKey = `${r.id}:${side.key}:badge`;
+                        return (
+                          <div key={side.key} className="border border-border/60 rounded-md p-2 space-y-2">
+                            <div className="text-[11px] font-medium">{side.label}</div>
+                            {/* Sous-cat */}
+                            <div className="space-y-1">
+                              <div className="text-[10px] text-muted-foreground">Sous-catégories ({subIds.length})</div>
+                              {subIds.length > 0 && (
+                                <div className="flex flex-wrap gap-1">
+                                  {subIds.map((sid) => {
+                                    const s = subcategories.find((x) => x.id === sid);
+                                    return (
+                                      <span key={sid} className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] px-1.5 py-0.5">
+                                        {s?.name_fr || sid}
+                                        <button type="button" onClick={() => update(r.id, { [side.subField]: subIds.filter((x) => x !== sid) } as any)} className="hover:text-destructive">×</button>
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                              <div className="relative max-w-md">
+                                <Input
+                                  placeholder="Rechercher une sous-catégorie…"
+                                  value={proxSearch[subKey] || ""}
+                                  onChange={(e) => setProxSearch((prev) => ({ ...prev, [subKey]: e.target.value }))}
+                                  className="h-8 text-xs"
+                                />
+                                {proxSearch[subKey]?.trim() && (
+                                  <div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg max-h-52 overflow-auto">
+                                    {(() => {
+                                      const q = proxSearch[subKey].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                                      const matches = subcategories.filter((s) => !subIds.includes(s.id)).filter((s) => s.name_fr.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q));
+                                      if (matches.length === 0) return <div className="px-3 py-2 text-xs text-muted-foreground">Aucune sous-catégorie</div>;
+                                      return matches.slice(0, 8).map((s) => (
+                                        <button key={s.id} type="button" onClick={() => { update(r.id, { [side.subField]: [...subIds, s.id] } as any); setProxSearch((prev) => ({ ...prev, [subKey]: "" })); }} className="w-full px-3 py-1.5 text-left text-xs hover:bg-muted truncate">{s.name_fr}</button>
+                                      ));
+                                    })()}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            {/* Badges */}
+                            <div className="space-y-1">
+                              <div className="text-[10px] text-muted-foreground">Badges ({badgeIds.length})</div>
+                              {badgeIds.length > 0 && (
+                                <div className="flex flex-wrap gap-1">
+                                  {badgeIds.map((bid) => {
+                                    const b = badges.find((x) => x.id === bid);
+                                    return (
+                                      <span key={bid} className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] px-1.5 py-0.5">
+                                        {b?.name_fr || bid}
+                                        <button type="button" onClick={() => update(r.id, { [side.badgeField]: badgeIds.filter((x) => x !== bid) } as any)} className="hover:text-destructive">×</button>
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                              <div className="relative max-w-md">
+                                <Input
+                                  placeholder="Rechercher un badge…"
+                                  value={proxSearch[badgeKey] || ""}
+                                  onChange={(e) => setProxSearch((prev) => ({ ...prev, [badgeKey]: e.target.value }))}
+                                  className="h-8 text-xs"
+                                />
+                                {proxSearch[badgeKey]?.trim() && (
+                                  <div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg max-h-52 overflow-auto">
+                                    {(() => {
+                                      const q = proxSearch[badgeKey].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                                      const matches = badges.filter((b) => !badgeIds.includes(b.id)).filter((b) => b.name_fr.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q));
+                                      if (matches.length === 0) return <div className="px-3 py-2 text-xs text-muted-foreground">Aucun badge</div>;
+                                      return matches.slice(0, 8).map((b) => (
+                                        <button key={b.id} type="button" onClick={() => { update(r.id, { [side.badgeField]: [...badgeIds, b.id] } as any); setProxSearch((prev) => ({ ...prev, [badgeKey]: "" })); }} className="w-full px-3 py-1.5 text-left text-xs hover:bg-muted truncate">{b.name_fr}</button>
+                                      ));
+                                    })()}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                      <p className="text-[11px] text-muted-foreground">
+                        💡 Quand A et B sont tous deux définis (sous-cat et/ou badges), l'IA lance la route <b>two_entity_proximity</b> avec ces mappings exacts (pas de résolution texte). L'union sous-cat ∪ badges est utilisée comme pool pour chaque côté.
+                      </p>
+                    </div>
+                  );
+                })()}
 
 
 
