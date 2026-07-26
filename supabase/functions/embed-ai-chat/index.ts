@@ -104,6 +104,7 @@ async function buildNearbyOverview(
     .from("businesses")
     .select("id, latitude, longitude, categories, main_category")
     .eq("is_active", true)
+    .is("closure_message", null)
     .neq("id", host.id)
     .gte("latitude", host.latitude - dLat)
     .lte("latitude", host.latitude + dLat)
