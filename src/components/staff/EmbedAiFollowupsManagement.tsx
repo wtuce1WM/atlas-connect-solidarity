@@ -126,6 +126,8 @@ const EmbedAiFollowupsManagement = () => {
           Le libellé <b>FR</b> est obligatoire ; EN et AR sont utilisés selon la langue. Le placeholder <code>{"{businessName}"}</code> est remplacé dynamiquement par le nom de l'établissement.
           <br />
           <b>Rayon (km)</b> : si renseigné, la relance déclenche une route déterministe « aperçu à proximité » bornée à ce rayon autour de l'établissement (500 m = 0,5). Laisser vide pour la route auto.
+          <br />
+          <b>Mode</b> : <code>Auto</code> = établissements 1WM à proximité (par défaut). <code>POI seulement</code> = liste uniquement les Points d'intérêt (base <code>points_of_interest</code>) dans le rayon, sans passer par les POIs liés à l'établissement.
         </p>
         {loading ? (
           <div className="text-sm text-muted-foreground">Chargement…</div>
