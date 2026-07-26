@@ -305,9 +305,11 @@ const EmbedAiSuggestionsManagement = () => {
                     />
                     <span className="text-muted-foreground">Ordre</span>
                     {r.subcategory_ids.length > 0 || r.badge_ids.length > 0 ? (
-                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" title={`Route déterministe: ${r.subcategory_ids.length} sous-catégorie(s), ${r.badge_ids.length} badge(s)`}>
-                        <span>🎯</span><span>
-                          {r.subcategory_ids.length > 0 ? `subcat(${r.subcategory_ids.length})` : ""}
+                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-primary/15 text-primary" title={`Route déterministe search_businesses — ${r.subcategory_ids.length} sous-catégorie(s), ${r.badge_ids.length} badge(s)`}>
+                        <span>🔍</span>
+                        <span>search_businesses</span>
+                        <span className="opacity-70">
+                          · {r.subcategory_ids.length > 0 ? `subcat(${r.subcategory_ids.length})` : ""}
                           {r.subcategory_ids.length > 0 && r.badge_ids.length > 0 ? " + " : ""}
                           {r.badge_ids.length > 0 ? `badge(${r.badge_ids.length})` : ""}
                         </span>
