@@ -320,6 +320,73 @@ function buildDisclosureFromCounts(shown: number, found: number, city: string): 
   return `📍 Je te présente ${shown} adresse${shown > 1 ? "s" : ""} sur ${found} trouvée${found > 1 ? "s" : ""} à ${city} — dis-moi si tu veux que je te montre les autres ou que j'affine par quartier, ambiance ou envie.`;
 }
 
+function stripText(value: unknown): string {
+  return String(value || "")
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<\/(p|div|li)>/gi, " ")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function buildImmersiveBusinessAnswer(
+  result: any,
+  host: any,
+  userMessage: string,
+  lang: "fr" | "en" | "ar",
+): string {
+  const rows: any[] = Array.isArray(result?.results) ? result.results : [];
+  const city = result?.city || host.city || "Marrakech";
+  const disclosure = result?.disclosure_note || buildDisclosureFromCounts(rows.length, Number(result?.total_found) || rows.length, city);
+  if (!rows.length) return disclosure;
+
+  const q = normalize(userMessage);
+  const theme = q.includes("rooftop") || q.includes("terrasse")
+    ? "rooftops"
+    : q.includes("bar") || q.includes("cocktail") || q.includes("boire")
+      ? "adresses pour boire un verre"
+      : q.includes("restaurant") || q.includes("dejeuner") || q.includes("diner") || q.includes("manger")
+        ? "tables"
+        : "adresses";
+
+  if (lang === "en") {
+    const intro = `From **${host.name}**, ${city} opens into a compact, atmospheric selection of ${theme}: rooftops, medina corners and lively terraces where the setting matters as much as the address. Here are the places I would put forward first, keeping only addresses found in the One World Morocco selection.`;
+    const body = rows.map((b) => {
+      const hook = stripText(b.hook_en || b.hook_fr || b.description_en || b.description || "");
+      const area = [b.neighborhood, b.city].filter(Boolean).join(", ");
+      const detail = hook || [b.main_category, Array.isArray(b.categories) ? b.categories.join(", ") : null].filter(Boolean).join(" · ");
+      return `**${b.name}**${area ? `, ${area}` : ""}. ${detail || "A curated One World Morocco address to keep on your shortlist."}`;
+    }).join("\n\n");
+    return `${intro}\n\n${body}\n\n${disclosure}\n\nWould you like me to narrow this by vibe, neighborhood, or moment of the day?`;
+  }
+
+  if (lang === "ar") {
+    const intro = `انطلاقًا من **${host.name}**، تكشف ${city} عن مجموعة مختارة من العناوين ذات الأجواء الواضحة، حيث يهم المكان والإحساس بقدر ما تهم القائمة. هذه أولى الاقتراحات من اختيار One World Morocco فقط.`;
+    const body = rows.map((b) => {
+      const hook = stripText(b.hook_ar || b.hook_fr || b.description_ar || b.description || "");
+      const area = [b.neighborhood, b.city].filter(Boolean).join("، ");
+      const detail = hook || [b.main_category, Array.isArray(b.categories) ? b.categories.join("، ") : null].filter(Boolean).join(" · ");
+      return `**${b.name}**${area ? `، ${area}` : ""}. ${detail || "عنوان مختار ضمن دليل One World Morocco."}`;
+    }).join("\n\n");
+    return `${intro}\n\n${body}\n\n${disclosure}\n\nهل تريد أن أضيّق الاختيار حسب الحي أو الأجواء أو الوقت؟`;
+  }
+
+  const intro = `Depuis **${host.name}**, ${city} se découvre très bien par touches : ${theme}, terrasses vivantes, coins de médina et adresses qui donnent tout de suite une ambiance. Je te propose une sélection issue uniquement des résultats One World Morocco, avec les lieux les plus pertinents en premier.`;
+  const body = rows.map((b) => {
+    const hook = stripText(b.hook_fr || b.hook_en || b.description || b.description_en || "");
+    const area = [b.neighborhood, b.city].filter(Boolean).join(", ");
+    const detail = hook || [b.main_category, Array.isArray(b.categories) ? b.categories.join(", ") : null].filter(Boolean).join(" · ");
+    return `**${b.name}**${area ? `, ${area}` : ""}. ${detail || "Une adresse sélectionnée dans le guide One World Morocco, à garder dans ta shortlist."}`;
+  }).join("\n\n");
+  return `${intro}\n\n${body}\n\n${disclosure}\n\nTu veux que je resserre plutôt par quartier, ambiance ou moment de la journée ?`;
+}
+
 function buildSystemPrompt(host: any, lang: "fr" | "en" | "ar"): string {
   const hook = lang === "en" ? (host.hook_en || host.hook_fr) : lang === "ar" ? (host.hook_ar || host.hook_fr) : host.hook_fr;
   const description = lang === "en" ? (host.description_en || host.description) : lang === "ar" ? (host.description_ar || host.description) : host.description;
@@ -808,6 +875,7 @@ Deno.serve(async (req) => {
         const toolsCalledLog: Array<{ name: string; args: any; result_count?: number; ok?: boolean }> = [];
         let hadError = false;
         let errorMsg: string | null = null;
+        let finalText = "";
 
         const userMessage = (() => {
           for (let i = inMessages.length - 1; i >= 0; i--) {
@@ -976,6 +1044,14 @@ Deno.serve(async (req) => {
             deterministicSubcategoryNames ? `sous-catégories ${deterministicSubcategoryNames.join(", ")}` : null,
             deterministicBadgeIds ? `${deterministicBadgeIds.length} badge(s)` : null,
           ].filter(Boolean).join(" + ");
+          if (Array.isArray(forcedResult?.results) && forcedResult.results.length) {
+            finalText = buildImmersiveBusinessAnswer(forcedResult, host, userMessage, language);
+            emitDelta(finalText);
+            finalText += emitTrailingMarkers();
+            endText();
+            await logTurn({ finalText, streamCompleted: true });
+            return;
+          }
           convo.push({
             role: "system",
             content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE (route déterministe sur ${routeDesc}):\n${JSON.stringify(forcedResult).slice(0, 12000)}\n${pinnedNames.length ? `ORDRE PRIORITAIRE MANUEL À RESPECTER ABSOLUMENT: cite d'abord ${pinnedNames.join(" puis ")}, avant tout autre résultat.` : ""}\n\nFORMAT DE RÉPONSE OBLIGATOIRE (STRICT — TA RÉPONSE SERA REJETÉE SI TU NE RESPECTES PAS CE FORMAT) :\n1. Ouvre par UN COURT PARAGRAPHE IMMERSIF de 2 à 3 phrases (60–120 mots) qui plante l'ambiance, le thème, l'art de vivre de la sélection à ${host.city || "Marrakech"}. INTERDIT de sauter cette introduction. INTERDIT de commencer par la phrase de comptage.\n2. Présente ensuite CHAQUE résultat listé ci-dessus (dans l'ordre imposé) sous forme d'un paragraphe court de 2 à 3 phrases (40–80 mots). RÈGLES DE MISE EN FORME :\n   - SÉPARE CHAQUE ÉTABLISSEMENT PAR UNE LIGNE VIDE (double saut de ligne en Markdown).\n   - INTERDIT : listes à puces, tirets en début de ligne, numérotation, titres Markdown (#, ##).\n   - Le SEUL élément en **gras** est le NOM de l'établissement, en tout début de paragraphe.\n   - Décris ambiance/quartier/pourquoi y aller en t'appuyant UNIQUEMENT sur les champs du résultat (categories, neighborhood, hook, description, badges). Pas d'invention.\n3. Termine par la phrase exacte de disclosure_note sur sa propre ligne, PRÉCÉDÉE d'une ligne vide, suivie d'UNE question de relance courte.\nUne réponse qui contient uniquement la phrase de comptage sans intro immersive ni paragraphes par résultat est INTERDITE. Recommande uniquement des résultats listés ci-dessus, respecte l'ordre. Réponds dans la même langue que la question de l'utilisateur.`,
@@ -987,6 +1063,14 @@ Deno.serve(async (req) => {
           const pinnedNames = suggestionPinnedIds
             .map((id) => forcedResult?.results?.find((b: any) => b?.id === id)?.name)
             .filter(Boolean);
+          if (Array.isArray(forcedResult?.results) && forcedResult.results.length) {
+            finalText = buildImmersiveBusinessAnswer(forcedResult, host, userMessage, language);
+            emitDelta(finalText);
+            finalText += emitTrailingMarkers();
+            endText();
+            await logTurn({ finalText, streamCompleted: true });
+            return;
+          }
           convo.push({
             role: "system",
             content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE:\n${JSON.stringify(forcedResult).slice(0, 12000)}\n${pinnedNames.length ? `ORDRE PRIORITAIRE MANUEL À RESPECTER ABSOLUMENT: cite d'abord ${pinnedNames.join(" puis ")}, avant tout autre résultat.` : ""}\n\nFORMAT DE RÉPONSE OBLIGATOIRE (STRICT — TA RÉPONSE SERA REJETÉE SI TU NE RESPECTES PAS CE FORMAT) :\n1. Ouvre par UN COURT PARAGRAPHE IMMERSIF de 2 à 3 phrases (60–120 mots) qui plante l'ambiance/le thème de la sélection à ${host.city || "Marrakech"}. INTERDIT de sauter cette introduction. INTERDIT de commencer par la phrase de comptage.\n2. Présente ensuite CHAQUE résultat listé ci-dessus sous forme d'un paragraphe court de 2 à 3 phrases (40–80 mots), séparé du suivant par une ligne vide. Le SEUL élément en **gras** est le NOM de l'établissement en début de paragraphe. Décris ambiance/quartier/pourquoi y aller en t'appuyant UNIQUEMENT sur les champs du résultat. INTERDIT : puces, tirets, numérotation, titres Markdown.\n3. Termine par la phrase exacte de disclosure_note sur sa propre ligne, précédée d'une ligne vide, suivie d'UNE question de relance courte.\nUne réponse qui contient uniquement la phrase de comptage sans intro immersive ni paragraphes par résultat est INTERDITE. Recommande uniquement des résultats listés ci-dessus.`,
@@ -1004,7 +1088,6 @@ Deno.serve(async (req) => {
 
         // Tool loop (up to MAX_ROUNDS). Non-stream rounds via direct gateway fetch
         // (keeps the existing tool_calls JSON contract). Final round streamed via AI SDK.
-        let finalText = "";
         const effectiveRounds = hasForcedResults ? 1 : MAX_ROUNDS;
         for (let round = 0; round < effectiveRounds; round++) {
           const isLast = round === effectiveRounds - 1;
