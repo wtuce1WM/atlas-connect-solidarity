@@ -1064,11 +1064,20 @@ Deno.serve(async (req) => {
           try {
             const gateway = createLovableAiGatewayProvider(LOVABLE_API_KEY);
             const model = gateway(MODEL);
+            // IMPORTANT: pass system messages via the `system` option, not inside `messages`.
+            // The AI SDK does not reliably forward system messages nested in `messages`,
+            // which caused the LLM to skip the immersive intro / paragraph format and
+            // echo only the disclosure_note.
+            const systemText = convo
+              .filter((m) => m.role === "system")
+              .map((m) => String(m.content || ""))
+              .join("\n\n---\n\n");
             const result = streamText({
               model,
+              system: systemText,
               messages: convertToModelMessages(
                 convo
-                  .filter((m) => m.role === "user" || m.role === "assistant" || m.role === "system")
+                  .filter((m) => m.role === "user" || m.role === "assistant")
                   .map((m) => ({
                     role: m.role as any,
                     parts: [{ type: "text", text: String(m.content || "") }],
