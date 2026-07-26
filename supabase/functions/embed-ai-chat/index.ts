@@ -822,6 +822,9 @@ Deno.serve(async (req) => {
                 total_count: results.length,
                 city,
                 disclosure_note: disclosure,
+                proximity_active: proximityActive,
+                radius_km_used: radiusUsedKm,
+                radius_expanded: radiusExpanded,
               };
             }
 
