@@ -19,6 +19,52 @@ import SlidePanelHeader from "@/components/SlidePanelHeader";
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
+/**
+ * Liquid-glass bottom bar overlaying BookOnlineSlidePanel in the embed:
+ * Play/Pause + Mute/Unmute controls wired to the panel via window events.
+ */
+const EmbedMediaBottomBar = () => {
+  const [playing, setPlaying] = useState(true);
+  const [muted, setMuted] = useState(false);
+  useEffect(() => {
+    const onState = (e: Event) => {
+      const d = (e as CustomEvent).detail as { playing: boolean; muted: boolean } | undefined;
+      if (!d) return;
+      setPlaying(d.playing);
+      setMuted(d.muted);
+    };
+    window.addEventListener("book-panel:state", onState);
+    // Request a state sync once the panel has mounted
+    const t = setTimeout(() => window.dispatchEvent(new Event("book-panel:request-state")), 300);
+    return () => { window.removeEventListener("book-panel:state", onState); clearTimeout(t); };
+  }, []);
+  return (
+    <div
+      className="pointer-events-none absolute inset-x-0 bottom-4 z-[230] flex justify-center"
+      data-cta
+    >
+      <div className="pointer-events-auto flex items-center gap-3 px-3 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event("book-panel:toggle-play"))}
+          aria-label={playing ? "Pause" : "Play"}
+          className="w-11 h-11 rounded-full bg-black/70 hover:bg-black/90 flex items-center justify-center text-white transition-colors"
+        >
+          {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+        </button>
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event("book-panel:toggle-mute"))}
+          aria-label={muted ? "Unmute" : "Mute"}
+          className="w-11 h-11 rounded-full bg-black/70 hover:bg-black/90 flex items-center justify-center text-white transition-colors"
+        >
+          {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
   fr: {
     placeholder: "Posez votre question…",
