@@ -78,6 +78,9 @@ function isProximityIntent(text: string): boolean {
   if (!q) return false;
   if (/\b(a\s+proximite|proximite|pres\s+de|proche\s+de|autour\s+de|autour|a\s+cote\s+de|aux\s+alentours|nearby|near\s+me|near\s+by|close\s+to|around|next\s+to|walking\s+distance)\b/.test(q)) return true;
   if (/(قرب|بالقرب|حول|بجوار|بجانب)/.test(text || "")) return true;
+  // An explicit inline radius ("500 m", "à moins de 1 km", "within 2 km") implies
+  // a proximity refinement on the current thread.
+  if (parseInlineRadiusKm(text) != null) return true;
   return false;
 }
 
