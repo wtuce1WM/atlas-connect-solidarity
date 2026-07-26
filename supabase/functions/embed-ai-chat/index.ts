@@ -1,13 +1,18 @@
 // Public embed AI concierge scoped to a single affiliate business.
 // - Anonymous (no auth). Designed to be iframed on the business's own site.
-// - No persistence.
-// - Provides the SAME core tools as /club chat (search_businesses, search_events,
-//   show_on_map) but hard-filtered to "complementary only": never returns the
-//   host business itself, never returns direct competitors (same main_category
-//   OR ≥2 shared subcategories).
-// - Emits the SAME SSE markers as club-ai-chat so the client can render maps,
-//   business carousels and events panels using shared components.
+// - Streams via the Vercel AI SDK UIMessageStream protocol (useChat-compatible).
+// - Markers (SHOW_ON_MAP, EVENTS_SNAPSHOT, KNOWN_BUSINESSES) are still appended
+//   as trailing text so the front can render maps / carousels / events panels
+//   with the same components as before.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  createUIMessageStream,
+  createUIMessageStreamResponse,
+  streamText,
+  convertToModelMessages,
+  type UIMessage,
+} from "npm:ai@5";
+import { createLovableAiGatewayProvider } from "../_shared/ai-gateway.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -327,13 +332,13 @@ const TOOLS = [
       parameters: {
         type: "object",
         properties: {
-          query: { type: "string", description: "Mot-clé ou intention (ex: 'thé à la menthe rooftop', 'jardin secret')" },
-          category: { type: "string", description: "Catégorie: restaurant, bar, café, spa, activité, boutique, musée..." },
-          city: { type: "string", description: "Ville. Défaut: ville de l'hôte." },
+          query: { type: "string" },
+          category: { type: "string" },
+          city: { type: "string" },
           neighborhood: { type: "string" },
           badges: { type: "array", items: { type: "string" } },
           services: { type: "array", items: { type: "string" } },
-          limit: { type: "number", default: 12, description: "Nombre de résultats. Utilise 8-15 pour offrir plusieurs options au visiteur." },
+          limit: { type: "number", default: 12 },
         },
       },
     },
@@ -342,7 +347,7 @@ const TOOLS = [
     type: "function",
     function: {
       name: "search_events",
-      description: "Recherche d'événements #Agenda (concerts, festivals, expos, marchés) à venir. Utilise pour 'que faire ce week-end', 'événements', 'agenda'.",
+      description: "Recherche d'événements #Agenda à venir.",
       parameters: {
         type: "object",
         properties: {
@@ -359,11 +364,11 @@ const TOOLS = [
     type: "function",
     function: {
       name: "show_on_map",
-      description: "Affiche sur une carte Google Maps un ensemble d'établissements (par slugs issus de search_businesses).",
+      description: "Affiche sur une carte Google Maps un ensemble d'établissements (par slugs).",
       parameters: {
         type: "object",
         properties: {
-          business_slugs: { type: "array", items: { type: "string" }, description: "2 à 30 slugs" },
+          business_slugs: { type: "array", items: { type: "string" } },
           title: { type: "string" },
         },
         required: ["business_slugs"],
@@ -374,49 +379,93 @@ const TOOLS = [
     type: "function",
     function: {
       name: "get_weather",
-      description: "Météo actuelle et prévisions (jusqu'à 7 jours) pour une ville marocaine. Utilise-la pour toute question météo/temps/température/prévisions.",
+      description: "Météo actuelle et prévisions (jusqu'à 7 jours) pour une ville marocaine.",
       parameters: {
         type: "object",
-        properties: {
-          city: { type: "string", description: "Ville. Défaut: ville de l'hôte." },
-        },
+        properties: { city: { type: "string" } },
       },
     },
   },
 ];
 
+// Extract our custom body fields from a useChat request. `messages` is the UIMessage[]
+// array; the extra fields come from prepareSendMessagesRequest on the client.
+function extractTextFromUIMessage(m: UIMessage): string {
+  if (!m) return "";
+  const parts = (m as any).parts;
+  if (Array.isArray(parts)) {
+    return parts
+      .filter((p: any) => p?.type === "text" && typeof p.text === "string")
+      .map((p: any) => p.text)
+      .join("");
+  }
+  return String((m as any).content ?? "");
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  const encoder = new TextEncoder();
-  const stream = new ReadableStream({
-    async start(controller) {
-      const emit = (obj: any) => {
-        try { controller.enqueue(encoder.encode(`data: ${JSON.stringify(obj)}\n\n`)); } catch { /* closed */ }
-      };
-      const close = () => { try { controller.close(); } catch { /* noop */ } };
+  try {
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+    const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    if (!LOVABLE_API_KEY) {
+      return new Response(JSON.stringify({ error: "LOVABLE_API_KEY missing" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const admin = createClient(SUPABASE_URL, SERVICE);
 
-      try {
-        const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-        const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-        const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-        if (!LOVABLE_API_KEY) { emit({ type: "error", message: "LOVABLE_API_KEY missing" }); return close(); }
-        const admin = createClient(SUPABASE_URL, SERVICE);
+    const body = await req.json().catch(() => ({} as any));
+    const uiMessages: UIMessage[] = Array.isArray(body.messages) ? body.messages.slice(-16) : [];
+    const slugOrId = String(body.businessSlug || body.businessId || "").trim();
+    const language = pickLang(body.language);
+    const sessionId: string | null = typeof body.sessionId === "string" ? body.sessionId : null;
+    const messageIndex: number = Number.isFinite(body.messageIndex) ? Number(body.messageIndex) : 0;
+    const suggestionId: string | null = typeof body.suggestionId === "string" && body.suggestionId ? body.suggestionId : null;
+    const followupId: string | null = typeof body.followupId === "string" && body.followupId ? body.followupId : null;
 
-        const body = await req.json().catch(() => ({}));
-        const slugOrId = String(body.businessSlug || body.businessId || "").trim();
-        const inMessages: Msg[] = Array.isArray(body.messages) ? body.messages.slice(-16) : [];
-        const language = pickLang(body.language);
-        const sessionId: string | null = typeof body.sessionId === "string" ? body.sessionId : null;
-        const messageIndex: number = Number.isFinite(body.messageIndex) ? Number(body.messageIndex) : 0;
-        const suggestionId: string | null = typeof body.suggestionId === "string" && body.suggestionId ? body.suggestionId : null;
-        const followupId: string | null = typeof body.followupId === "string" && body.followupId ? body.followupId : null;
+    if (!slugOrId) {
+      return new Response(JSON.stringify({ error: "businessSlug required" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (!uiMessages.length) {
+      return new Response(JSON.stringify({ error: "messages required" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Convert UIMessages -> classic {role,content} for our existing tool loop.
+    const inMessages: Msg[] = uiMessages
+      .filter((m: any) => m && (m.role === "user" || m.role === "assistant"))
+      .map((m: any) => ({ role: m.role, content: extractTextFromUIMessage(m).slice(0, 4000) }));
+
+    // Build the UI message stream (AI SDK v5 protocol).
+    const stream = createUIMessageStream({
+      execute: async ({ writer }) => {
         const t0 = Date.now();
         let firstTokenAt: number | null = null;
-
-        if (!slugOrId) { emit({ type: "error", message: "businessSlug required" }); return close(); }
-        if (!inMessages.length) { emit({ type: "error", message: "messages required" }); return close(); }
-
+        const textId = crypto.randomUUID();
+        let textStarted = false;
+        const startText = () => {
+          if (!textStarted) {
+            writer.write({ type: "text-start", id: textId });
+            textStarted = true;
+          }
+        };
+        const emitDelta = (delta: string) => {
+          if (!delta) return;
+          if (!firstTokenAt) firstTokenAt = Date.now();
+          startText();
+          writer.write({ type: "text-delta", id: textId, delta });
+        };
+        const endText = () => {
+          if (textStarted) {
+            writer.write({ type: "text-end", id: textId });
+            textStarted = false;
+          }
+        };
 
         // Resolve host business
         let bizQ = admin
@@ -427,10 +476,14 @@ Deno.serve(async (req) => {
         const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
         bizQ = isUuid ? bizQ.eq("id", slugOrId) : bizQ.eq("slug", slugOrId);
         const { data: bizRows } = await bizQ;
-        if (!bizRows?.length) { emit({ type: "error", message: "business_not_found" }); return close(); }
+        if (!bizRows?.length) {
+          emitDelta("Établissement introuvable.");
+          endText();
+          return;
+        }
         const host = bizRows[0];
 
-        // Fetch host subcategories for competitor detection
+        // Host subcategories & category names for competitor filtering
         const { data: hostSubs } = await admin
           .from("subcategory_relations")
           .select("subcategory_id")
@@ -442,12 +495,10 @@ Deno.serve(async (req) => {
         ].map(normalize).filter(Boolean));
         const hostMainCatN = normalize(host.main_category);
 
-        // Filter: return true if candidate should be KEPT
         const isCompetitor = async (candidate: any): Promise<boolean> => {
           if (!candidate) return true;
           if (candidate.id === host.id) return true;
           if (hostMainCatN && normalize(candidate.main_category) === hostMainCatN) return true;
-          // Check subcategory overlap ≥ 2
           if (hostSubIds.size >= 2 && candidate.id) {
             const { data: subs } = await admin
               .from("subcategory_relations")
@@ -468,7 +519,6 @@ Deno.serve(async (req) => {
           return kept;
         };
 
-        // Drop businesses flagged as closed via "Message du front" (closure_message).
         const filterOutClosed = async (list: any[]): Promise<any[]> => {
           const ids = list.map((b: any) => b?.id).filter(Boolean);
           if (!ids.length) return list;
@@ -483,6 +533,35 @@ Deno.serve(async (req) => {
           );
           return list.filter((b: any) => !closed.has(b.id));
         };
+
+        // Deterministic route context (suggestion pins / subcategories / badges)
+        let deterministicSubcategoryNames: string[] | null = null;
+        let deterministicBadgeIds: string[] | null = null;
+        let suggestionPinnedIds: string[] = [];
+        if (suggestionId) {
+          try {
+            const { data: sugg } = await admin
+              .from("embed_ai_suggestions")
+              .select("subcategory_ids, badge_ids, business_ids")
+              .eq("id", suggestionId)
+              .maybeSingle();
+            const subIds: string[] = Array.isArray(sugg?.subcategory_ids) ? sugg!.subcategory_ids : [];
+            if (subIds.length) {
+              const { data: subs } = await admin
+                .from("subcategories")
+                .select("name_fr")
+                .in("id", subIds);
+              const names = (subs || []).map((s: any) => s.name_fr).filter(Boolean);
+              if (names.length) deterministicSubcategoryNames = names;
+            }
+            const bIds: string[] = Array.isArray(sugg?.badge_ids) ? sugg!.badge_ids : [];
+            if (bIds.length) deterministicBadgeIds = bIds;
+            const pIds: string[] = Array.isArray(sugg?.business_ids) ? sugg!.business_ids : [];
+            if (pIds.length) suggestionPinnedIds = pIds;
+          } catch (e) {
+            console.error("[embed-ai-chat] suggestion_route_lookup_error", e);
+          }
+        }
 
         // Tool executor
         const runTool = async (name: string, args: any): Promise<any> => {
@@ -518,17 +597,14 @@ Deno.serve(async (req) => {
                   badgeIds,
                 }),
               });
-
               const text = await r.text();
               let sres: any = null; try { sres = JSON.parse(text); } catch { /* */ }
               const all: any[] = Array.isArray(sres?.businesses) ? sres.businesses : [];
-              // Pinned bypass competitor filter (explicitly authored in backoffice).
               const pinnedSet = new Set(suggestionPinnedIds);
               const nonPinned = all.filter((b: any) => !pinnedSet.has(b.id));
               const pinnedFromAll = all.filter((b: any) => pinnedSet.has(b.id));
               let filtered = await filterOutClosed([...pinnedFromAll, ...(await filterOutCompetitors(nonPinned))]);
 
-              // Pinned businesses (from suggestion.business_ids) — always at the top.
               if (suggestionPinnedIds.length) {
                 const already = new Set(filtered.map((b: any) => b.id));
                 const missingIds = suggestionPinnedIds.filter((id) => !already.has(id));
@@ -544,7 +620,6 @@ Deno.serve(async (req) => {
                 }
                 const pinnedFromFiltered = filtered.filter((b: any) => suggestionPinnedIds.includes(b.id));
                 const rest = filtered.filter((b: any) => !suggestionPinnedIds.includes(b.id));
-                // Order pinned in the exact order given by business_ids
                 const pinnedAll = [...pinnedFromFiltered, ...pinnedFetched];
                 const orderedPinned = suggestionPinnedIds
                   .map((id) => pinnedAll.find((b: any) => b.id === id))
@@ -555,7 +630,7 @@ Deno.serve(async (req) => {
               const totalFound = filtered.length;
               const results = filtered.slice(0, limit);
               if (!results.length) {
-                return { results: [], total_shown: 0, total_found: 0, total_count: 0, city, disclosure_note: buildDisclosureFromCounts(0, 0, city), note: `Aucun établissement complémentaire trouvé pour "${fullQuery}" à ${city}. Propose une alternative ou reformule.` };
+                return { results: [], total_shown: 0, total_found: 0, total_count: 0, city, disclosure_note: buildDisclosureFromCounts(0, 0, city), note: `Aucun établissement complémentaire trouvé pour "${fullQuery}" à ${city}.` };
               }
               const disclosure = buildDisclosureFromCounts(results.length, totalFound, city);
               return {
@@ -580,7 +655,6 @@ Deno.serve(async (req) => {
               const today = new Date().toISOString().slice(0, 10);
               const from = (args.from_date && String(args.from_date).slice(0, 10)) || today;
               const to = (args.to_date && String(args.to_date).slice(0, 10)) || new Date(Date.now() + 60 * 86400000).toISOString().slice(0, 10);
-              // #Agenda badge filter
               let eventIds: string[] | null = null;
               const { data: badge } = await admin.from("badges").select("id").ilike("name_fr", "%agenda%").limit(1).maybeSingle();
               if (badge?.id) {
@@ -662,9 +736,7 @@ Deno.serve(async (req) => {
         const system = buildSystemPrompt(host, language);
         const convo: Msg[] = [
           { role: "system", content: system },
-          ...inMessages
-            .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
-            .map((m) => ({ role: m.role, content: String(m.content).slice(0, 4000) })),
+          ...inMessages.map((m) => ({ role: m.role, content: String(m.content).slice(0, 4000) })),
         ];
 
         let lastMapPayload: any = null;
@@ -740,7 +812,29 @@ Deno.serve(async (req) => {
           }
         };
 
-        // Followup with an explicit radius → deterministic "aperçu à proximité" bounded to that radius.
+        const emitTrailingMarkers = (): string => {
+          const markers: string[] = [];
+          if (lastMapPayload) {
+            const safe = JSON.stringify(lastMapPayload).replace(/-->/g, "--&gt;");
+            markers.push(`<!--SHOW_ON_MAP:${safe}-->`);
+          }
+          if (lastEventsPayload) {
+            const safe = JSON.stringify(lastEventsPayload).replace(/-->/g, "--&gt;");
+            markers.push(`<!--EVENTS_SNAPSHOT:${safe}-->`);
+          }
+          if (knownBusinesses.length) {
+            const seen = new Set<string>();
+            const dedup = knownBusinesses.filter((b) => (seen.has(b.id) ? false : (seen.add(b.id), true)));
+            const safe = JSON.stringify(dedup).replace(/-->/g, "--&gt;");
+            markers.push(`<!--KNOWN_BUSINESSES:${safe}-->`);
+          }
+          if (!markers.length) return "";
+          const chunk = "\n\n" + markers.join("\n");
+          emitDelta(chunk);
+          return chunk;
+        };
+
+        // Followup with radius / mode
         let followupRadiusKm: number | null = null;
         let followupMode: string | null = null;
         if (followupId) {
@@ -751,85 +845,43 @@ Deno.serve(async (req) => {
               .eq("id", followupId)
               .maybeSingle();
             const rv = fu?.radius_km;
-            if (rv != null && Number.isFinite(Number(rv)) && Number(rv) > 0) {
-              followupRadiusKm = Number(rv);
-            }
+            if (rv != null && Number.isFinite(Number(rv)) && Number(rv) > 0) followupRadiusKm = Number(rv);
             followupMode = (fu?.mode as string | null) || null;
           } catch (e) {
             console.error("[embed-ai-chat] followup_lookup_error", e);
           }
         }
 
-        // Deterministic route: POI-only nearby (points_of_interest table, geo-bounded).
+        // Deterministic: POI-only nearby
         if (followupMode === "poi_nearby") {
           const radiusKm = followupRadiusKm ?? 1;
           const answer = await buildPoiNearby(admin, host, language, radiusKm);
           if (answer) {
-            if (!firstTokenAt) firstTokenAt = Date.now();
-            emit({ type: "chunk", delta: answer });
-            emit({ type: "done", answer });
+            emitDelta(answer);
             toolsCalledLog.push({ name: "poi_nearby", args: { lat: host.latitude, lng: host.longitude, radius_km: radiusKm, source: "followup" }, ok: true });
+            endText();
             await logTurn({ finalText: answer, streamCompleted: true });
-            return close();
+            return;
           }
         }
 
-
-        // Deterministic short-circuit: "Que faire à proximité ?" overview,
-        // OR any followup that carries an explicit radius_km.
-        // This MUST run before generic directory search, otherwise the LLM can
-        // surface city-wide results farther than the requested radius.
+        // Deterministic: nearby overview
         const forcedNearby = followupRadiusKm != null;
         if (forcedNearby || isNearbyOverviewIntent(userMessage)) {
           const radiusKm = followupRadiusKm ?? 1;
           const overview = await buildNearbyOverview(admin, host, hostCategoryNames, language, radiusKm);
           if (overview) {
-            if (!firstTokenAt) firstTokenAt = Date.now();
-            emit({ type: "chunk", delta: overview });
-            emit({ type: "done", answer: overview });
+            emitDelta(overview);
             toolsCalledLog.push({ name: "nearby_overview", args: { lat: host.latitude, lng: host.longitude, radius_km: radiusKm, source: forcedNearby ? "followup" : "intent" }, ok: true });
+            endText();
             await logTurn({ finalText: overview, streamCompleted: true });
-            return close();
+            return;
           }
         }
 
-        // Deterministic route: if the clicked suggestion has subcategory_ids and/or badge_ids,
-        // bypass LLM tool selection and run business-search filtered on those.
-        // business_ids on a suggestion = "pin to top" of any search result set.
-        let deterministicSubcategoryNames: string[] | null = null;
-        let deterministicBadgeIds: string[] | null = null;
-        let suggestionPinnedIds: string[] = [];
-        if (suggestionId) {
-          try {
-            const { data: sugg } = await admin
-              .from("embed_ai_suggestions")
-              .select("subcategory_ids, badge_ids, business_ids")
-              .eq("id", suggestionId)
-              .maybeSingle();
-            const subIds: string[] = Array.isArray(sugg?.subcategory_ids) ? sugg!.subcategory_ids : [];
-            if (subIds.length) {
-              const { data: subs } = await admin
-                .from("subcategories")
-                .select("name_fr")
-                .in("id", subIds);
-              const names = (subs || []).map((s: any) => s.name_fr).filter(Boolean);
-              if (names.length) deterministicSubcategoryNames = names;
-            }
-            const bIds: string[] = Array.isArray(sugg?.badge_ids) ? sugg!.badge_ids : [];
-            if (bIds.length) deterministicBadgeIds = bIds;
-            const pIds: string[] = Array.isArray(sugg?.business_ids) ? sugg!.business_ids : [];
-            if (pIds.length) suggestionPinnedIds = pIds;
-          } catch (e) {
-            console.error("[embed-ai-chat] suggestion_route_lookup_error", e);
-          }
-        }
-
+        // Deterministic: forced subcategory / badge search
         if (deterministicSubcategoryNames || deterministicBadgeIds) {
-          const forcedArgs: any = {
-            query: userMessage,
-            city: host.city || "Marrakech",
-            limit: 12,
-          };
+          const forcedArgs: any = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
           if (deterministicSubcategoryNames) forcedArgs._subcategoryNames = deterministicSubcategoryNames;
           if (deterministicBadgeIds) forcedArgs._badgeIds = deterministicBadgeIds;
           const forcedResult = await runTool("search_businesses", forcedArgs);
@@ -843,7 +895,7 @@ Deno.serve(async (req) => {
           ].filter(Boolean).join(" + ");
           convo.push({
             role: "system",
-            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE (route déterministe sur ${routeDesc}):\n${JSON.stringify(forcedResult).slice(0, 12000)}\n${pinnedNames.length ? `ORDRE PRIORITAIRE MANUEL À RESPECTER ABSOLUMENT: cite d'abord ${pinnedNames.join(" puis ")}, avant tout autre résultat. Aucun autre établissement ne doit être placé entre ces établissements épinglés.` : ""}\nRecommande uniquement des résultats listés ci-dessus. Respecte l'ordre des résultats. Copie exactement disclosure_note sur sa propre ligne avant la question finale.`,
+            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE (route déterministe sur ${routeDesc}):\n${JSON.stringify(forcedResult).slice(0, 12000)}\n${pinnedNames.length ? `ORDRE PRIORITAIRE MANUEL À RESPECTER ABSOLUMENT: cite d'abord ${pinnedNames.join(" puis ")}, avant tout autre résultat.` : ""}\nRecommande uniquement des résultats listés ci-dessus. Respecte l'ordre. Copie exactement disclosure_note sur sa propre ligne avant la question finale.`,
           });
         } else if (shouldForceDirectorySearch(userMessage)) {
           const forcedArgs = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
@@ -854,10 +906,13 @@ Deno.serve(async (req) => {
             .filter(Boolean);
           convo.push({
             role: "system",
-            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE:\n${JSON.stringify(forcedResult).slice(0, 12000)}\n${pinnedNames.length ? `ORDRE PRIORITAIRE MANUEL À RESPECTER ABSOLUMENT: cite d'abord ${pinnedNames.join(" puis ")}, avant tout autre résultat. Aucun autre établissement ne doit être placé entre ces établissements épinglés.` : ""}\nTu dois recommander uniquement des résultats listés ci-dessus quand c'est pertinent. Respecte l'ordre des résultats. Copie exactement disclosure_note sur sa propre ligne avant la question finale.`,
+            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE:\n${JSON.stringify(forcedResult).slice(0, 12000)}\n${pinnedNames.length ? `ORDRE PRIORITAIRE MANUEL À RESPECTER ABSOLUMENT: cite d'abord ${pinnedNames.join(" puis ")}, avant tout autre résultat.` : ""}\nTu dois recommander uniquement des résultats listés ci-dessus. Copie exactement disclosure_note sur sa propre ligne avant la question finale.`,
           });
         }
-        // Tool loop (up to MAX_ROUNDS)
+
+        // Tool loop (up to MAX_ROUNDS). Non-stream rounds via direct gateway fetch
+        // (keeps the existing tool_calls JSON contract). Final round streamed via AI SDK.
+        let finalText = "";
         for (let round = 0; round < MAX_ROUNDS; round++) {
           const isLast = round === MAX_ROUNDS - 1;
           const resp = await fetch(GATEWAY, {
@@ -876,9 +931,10 @@ Deno.serve(async (req) => {
             const errTxt = await resp.text().catch(() => "");
             hadError = true;
             errorMsg = `gateway_${resp.status}: ${errTxt.slice(0, 200)}`;
-            emit({ type: "error", message: "gateway_error", status: resp.status, detail: errTxt.slice(0, 300) });
+            emitDelta(`\n\n_Erreur passerelle (${resp.status})._`);
+            endText();
             await logTurn({ finalText: "", streamCompleted: false });
-            return close();
+            return;
           }
           const json = await resp.json();
           const choice = json?.choices?.[0];
@@ -892,7 +948,6 @@ Deno.serve(async (req) => {
               let fargs: any = {};
               try { fargs = JSON.parse(tc.function?.arguments || "{}"); } catch { /* */ }
               const result = await runTool(fname, fargs);
-
               rememberSearchResult(fname, fargs, result);
               if (fname === "show_on_map" && (result as any)?.ok && Array.isArray((result as any).businesses)) {
                 lastMapPayload = { title: (result as any).title || null, businesses: (result as any).businesses };
@@ -903,7 +958,6 @@ Deno.serve(async (req) => {
               if (fname === "search_events" && Array.isArray((result as any)?.results) && (result as any).results.length) {
                 lastEventsPayload = { title: null, city: (result as any).city || null, events: (result as any).results };
               }
-
               convo.push({
                 role: "tool",
                 tool_call_id: tc.id,
@@ -913,103 +967,62 @@ Deno.serve(async (req) => {
             continue;
           }
 
-          // Final answer round — re-issue a streamed call
-          let finalText = "";
-          const streamResp = await fetch(GATEWAY, {
-            method: "POST",
-            headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-            body: JSON.stringify({
-              model: MODEL,
-              messages: convo,
+          // Final round → stream via AI SDK
+          try {
+            const gateway = createLovableAiGatewayProvider(LOVABLE_API_KEY);
+            const model = gateway(MODEL);
+            const result = streamText({
+              model,
+              messages: convertToModelMessages(
+                convo
+                  .filter((m) => m.role === "user" || m.role === "assistant" || m.role === "system")
+                  .map((m) => ({
+                    role: m.role as any,
+                    parts: [{ type: "text", text: String(m.content || "") }],
+                  })) as any,
+              ),
               temperature: 0.7,
-              stream: true,
-            }),
-          });
-          if (!streamResp.ok || !streamResp.body) {
-            // Fallback: use non-stream content
-            const fallback = String(msg.content || "");
-            if (fallback) { if (!firstTokenAt) firstTokenAt = Date.now(); emit({ type: "chunk", delta: fallback }); }
-            finalText = fallback;
-          } else {
-            const reader = streamResp.body.getReader();
-            const decoder = new TextDecoder();
-            let buf = "";
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
-              buf += decoder.decode(value, { stream: true });
-              const parts = buf.split("\n\n");
-              buf = parts.pop() || "";
-              for (const part of parts) {
-                const line = part.split("\n").find((l) => l.startsWith("data:"));
-                if (!line) continue;
-                const payload = line.slice(5).trim();
-                if (!payload || payload === "[DONE]") continue;
-                try {
-                  const evt = JSON.parse(payload);
-                  const delta = evt?.choices?.[0]?.delta?.content;
-                  if (typeof delta === "string" && delta.length) {
-                    if (!firstTokenAt) firstTokenAt = Date.now();
-                    finalText += delta;
-                    emit({ type: "chunk", delta });
-                  }
-                } catch { /* */ }
-              }
+            });
+            for await (const delta of result.textStream) {
+              finalText += delta;
+              emitDelta(delta);
             }
+          } catch (streamErr) {
+            const fallback = String(msg.content || "");
+            if (fallback) { emitDelta(fallback); finalText = fallback; }
+            console.error("[embed-ai-chat] stream_error", streamErr);
           }
 
-          // Deterministic disclosure — inject if the model didn't include it
+          // Inject disclosure if missing
           if (lastDisclosureNote) {
             const hasDisclosure = /\bsur\s+\d+\s+trouv/i.test(finalText) || finalText.includes(lastDisclosureNote);
             if (!hasDisclosure) {
               const injection = `\n\n${lastDisclosureNote}`;
-              emit({ type: "chunk", delta: injection });
+              emitDelta(injection);
               finalText += injection;
             }
           }
 
-          // Emit markers as trailing content
-          const markers: string[] = [];
-          if (lastMapPayload) {
-            const safe = JSON.stringify(lastMapPayload).replace(/-->/g, "--&gt;");
-            markers.push(`<!--SHOW_ON_MAP:${safe}-->`);
-          }
-          if (lastEventsPayload) {
-            const safe = JSON.stringify(lastEventsPayload).replace(/-->/g, "--&gt;");
-            markers.push(`<!--EVENTS_SNAPSHOT:${safe}-->`);
-          }
-          if (knownBusinesses.length) {
-            const seen = new Set<string>();
-            const dedup = knownBusinesses.filter((b) => (seen.has(b.id) ? false : (seen.add(b.id), true)));
-            const safe = JSON.stringify(dedup).replace(/-->/g, "--&gt;");
-            markers.push(`<!--KNOWN_BUSINESSES:${safe}-->`);
-          }
-          if (markers.length) {
-            const marker = "\n\n" + markers.join("\n");
-            emit({ type: "chunk", delta: marker });
-            finalText += marker;
-          }
-          emit({ type: "done", answer: finalText });
+          finalText += emitTrailingMarkers();
+          endText();
           await logTurn({ finalText, streamCompleted: true });
-          return close();
+          return;
         }
 
-        emit({ type: "done", answer: "" });
+        endText();
         await logTurn({ finalText: "", streamCompleted: false });
-        close();
-      } catch (e) {
-        emit({ type: "error", message: (e as Error).message });
-        close();
-      }
-    },
-  });
+      },
+      onError: (err) => {
+        console.error("[embed-ai-chat] stream_execute_error", err);
+        return String((err as Error)?.message || err);
+      },
+    });
 
-  return new Response(stream, {
-    headers: {
-      ...corsHeaders,
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      "Connection": "keep-alive",
-    },
-  });
+    return createUIMessageStreamResponse({ stream, headers: corsHeaders });
+  } catch (e) {
+    console.error("[embed-ai-chat] fatal", e);
+    return new Response(JSON.stringify({ error: (e as Error).message }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
 });
