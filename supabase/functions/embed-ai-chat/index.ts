@@ -1766,17 +1766,12 @@ Deno.serve(async (req) => {
         }
 
 
-        // Deterministic: TWO-ENTITY PROXIMITY — "A à côté d'un B" where B is a
-        // category (not a named business). Runs BEFORE nearby overview & badge
-        // routing.
-        //
-        // Two entry points:
-        //  1. Curated: the active suggestion has proximity_a_* and proximity_b_*
-        //     mappings — we trust them, bypass free-text term resolution.
-        //  2. Free-text: detected via TWO_ENTITY_RE. Only when no suggestion
-        //     deterministic filter is active.
+        // Deterministic: TWO-ENTITY PROXIMITY (curated only) — the active
+        // suggestion must carry proximity_a_* AND proximity_b_* mappings.
+        // Free-text "A à côté d'un B" is intentionally NOT handled here;
+        // it falls through to search_businesses via the LLM.
         {
-          let built: Awaited<ReturnType<typeof buildTwoEntityProximity>> | null = null;
+          let built: Awaited<ReturnType<typeof buildTwoEntityProximityCurated>> | null = null;
           const strict = parseInlineRadiusKm(userMessage) != null;
           if (curatedProximity) {
             const intent: TwoEntityIntent = {
@@ -1785,15 +1780,8 @@ Deno.serve(async (req) => {
               radiusKm: parseInlineRadiusKm(userMessage) ?? 1,
             };
             built = await buildTwoEntityProximityCurated(admin, host, intent, language, strict, curatedProximity);
-          } else {
-            const hasDetFilter = !!(deterministicBadgeIds?.length || deterministicSubcategoryNames?.length);
-            if (!hasDetFilter) {
-              const twoEnt = detectTwoEntityProximity(userMessage);
-              if (twoEnt) {
-                built = await buildTwoEntityProximity(admin, host, twoEnt, language, strict);
-              }
-            }
           }
+
           if (built) {
             const forcedResult = {
               results: built.results,
