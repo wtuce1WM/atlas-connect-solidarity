@@ -370,6 +370,14 @@ function buildImmersiveBusinessAnswer(
       ? `Pas assez de résultats à 1 km — périmètre élargi à **${fmtRadius(radiusUsed)}** autour de **${host.name}**.`
       : `Résultats dans un rayon de **${fmtRadius(radiusUsed)}** autour de **${host.name}**.`;
   };
+  const nextWider = radiusUsed ? (radiusUsed < 1 ? 1 : radiusUsed < 2 ? 2 : radiusUsed < 3 ? 3 : radiusUsed + 2) : null;
+  const nextTighter = radiusUsed ? (radiusUsed > 2 ? 2 : radiusUsed > 1 ? 1 : 0.5) : null;
+  const radiusCta = (l: "fr" | "en" | "ar"): string => {
+    if (!proximityActive || !radiusUsed || !nextWider || !nextTighter) return "";
+    if (l === "en") return ` I can also **widen the radius to ${fmtRadius(nextWider)}** or **tighten it to ${fmtRadius(nextTighter)}** — just say the word.`;
+    if (l === "ar") return ` يمكنني أيضًا **توسيع النطاق إلى ${fmtRadius(nextWider)}** أو **تضييقه إلى ${fmtRadius(nextTighter)}** — فقط أخبرني.`;
+    return ` Je peux aussi **élargir à ${fmtRadius(nextWider)}** ou **resserrer à ${fmtRadius(nextTighter)}** — dis-moi.`;
+  };
   if (!rows.length) return disclosure;
 
 
