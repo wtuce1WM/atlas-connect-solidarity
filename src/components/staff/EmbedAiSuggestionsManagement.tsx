@@ -60,6 +60,10 @@ type Row = {
   city: string | null;
   disabled_followup_ids: string[];
   mode: string | null;
+  proximity_a_subcategory_ids: string[];
+  proximity_a_badge_ids: string[];
+  proximity_b_subcategory_ids: string[];
+  proximity_b_badge_ids: string[];
 };
 
 type BusinessOption = { id: string; name: string; slug: string | null };
