@@ -349,7 +349,7 @@ Deno.serve(async (req) => {
         // Resolve host business
         let bizQ = admin
           .from("businesses")
-          .select("id, slug, name, city, neighborhood, address, main_category, hook_fr, hook_en, hook_ar, description, description_en, description_ar, min_price, manual_price_range, phone, whatsapp, website, opening_hours, latitude, longitude, is_active")
+          .select("id, slug, name, city, neighborhood, address, main_category, categories, hook_fr, hook_en, hook_ar, description, description_en, description_ar, min_price, manual_price_range, phone, whatsapp, website, opening_hours, latitude, longitude, is_active")
           .eq("is_active", true)
           .limit(1);
         const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
@@ -364,6 +364,10 @@ Deno.serve(async (req) => {
           .select("subcategory_id")
           .eq("business_id", host.id);
         const hostSubIds = new Set<string>((hostSubs || []).map((r: any) => r.subcategory_id).filter(Boolean));
+        const hostCategoryNames = new Set<string>([
+          ...(Array.isArray(host.categories) ? host.categories : []),
+          host.main_category,
+        ].map(normalize).filter(Boolean));
         const hostMainCatN = normalize(host.main_category);
 
         // Filter: return true if candidate should be KEPT
@@ -650,7 +654,7 @@ Deno.serve(async (req) => {
         // This MUST run before generic directory search, otherwise the LLM can
         // surface city-wide results farther than 1 km.
         if (isNearbyOverviewIntent(userMessage)) {
-          const overview = await buildNearbyOverview(admin, host, hostSubIds, language);
+          const overview = await buildNearbyOverview(admin, host, hostCategoryNames, language);
           if (overview) {
             if (!firstTokenAt) firstTokenAt = Date.now();
             emit({ type: "chunk", delta: overview });
