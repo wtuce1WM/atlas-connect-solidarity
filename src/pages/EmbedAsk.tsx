@@ -485,6 +485,33 @@ const EmbedAsk = () => {
     );
   };
 
+  const findLastMapPayload = (): MapPayload | null => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.role !== "assistant") continue;
+      const { maps } = extractPayloads(messageText(m));
+      const latest = maps[maps.length - 1];
+      if (latest && latest.businesses.length > 0) return latest;
+    }
+    return null;
+  };
+
+  const isMapReplayLabel = (label: string): boolean => {
+    const normalized = label.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    return /\b(carte|map|خريطة)\b/.test(normalized) && /(resultat|results?|voir|montre|show|view|affiche|اعرض|أرني)/.test(normalized);
+  };
+
+  const sendFollowup = (label: string, followupId: string) => {
+    if (isMapReplayLabel(label)) {
+      const lastMap = findLastMapPayload();
+      if (lastMap) {
+        setOpenMap(lastMap);
+        return;
+      }
+    }
+    send(label, undefined, followupId);
+  };
+
   const voiceLang = lang === "en" ? "en-US" : lang === "ar" ? "ar-MA" : "fr-FR";
   const voice = useVoiceSearch({
     lang: voiceLang,
@@ -755,7 +782,7 @@ const EmbedAsk = () => {
                     <button
                       key={`fu-${i}-${k}`}
                       type="button"
-                      onClick={() => send(f.label, undefined, f.id)}
+                      onClick={() => sendFollowup(f.label, f.id)}
                       className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
                     >
                       {f.label}

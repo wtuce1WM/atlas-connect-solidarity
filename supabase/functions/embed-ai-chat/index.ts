@@ -556,6 +556,13 @@ function extractTextFromUIMessage(m: UIMessage): string {
   return String((m as any).content ?? "");
 }
 
+function preserveEmbedMarkers(text: string, maxTextChars = 4000): string {
+  const markerRe = /<!--(?:SHOW_ON_MAP|EVENTS_SNAPSHOT|KNOWN_BUSINESSES):[\s\S]*?-->/g;
+  const markers = text.match(markerRe) || [];
+  const clean = text.replace(markerRe, "").slice(0, maxTextChars).trim();
+  return [clean, ...markers].filter(Boolean).join("\n\n");
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
@@ -594,7 +601,14 @@ Deno.serve(async (req) => {
     // Convert UIMessages -> classic {role,content} for our existing tool loop.
     const inMessages: Msg[] = uiMessages
       .filter((m: any) => m && (m.role === "user" || m.role === "assistant"))
-      .map((m: any) => ({ role: m.role, content: extractTextFromUIMessage(m).slice(0, 4000) }));
+      .map((m: any) => {
+        const role = m.role as "user" | "assistant";
+        const raw = extractTextFromUIMessage(m);
+        return {
+          role,
+          content: role === "assistant" ? preserveEmbedMarkers(raw, 4000) : raw.slice(0, 4000),
+        };
+      });
 
     // Build the UI message stream (AI SDK v5 protocol).
     const stream = createUIMessageStream({
