@@ -1,13 +1,15 @@
 // Public embed: iframe-friendly, business-scoped AI concierge.
 // Route: /embed/ask/:slug
 // - Anonymous, no auth.
-// - Streams via /functions/v1/embed-ai-chat.
-// - Parses SSE markers (SHOW_ON_MAP, EVENTS_SNAPSHOT, KNOWN_BUSINESSES) and
-//   renders the same map/business/events panels as /club.
+// - Streams via the Vercel AI SDK UIMessageStream protocol (useChat).
+// - Parses trailing markers (SHOW_ON_MAP, EVENTS_SNAPSHOT, KNOWN_BUSINESSES)
+//   from the assistant text to render the same panels as /club.
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { Send, Sun, Moon, MapPin, Calendar as CalendarIcon, MessageSquarePlus, Info, Bed, Utensils, Wine, Coffee, ShoppingBag, Sparkles, Landmark, Camera } from "lucide-react";
+import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport, type UIMessage } from "ai";
+import { Send, Sun, Moon, MapPin, Calendar as CalendarIcon, MessageSquarePlus, Bed, Utensils, Wine, Coffee, ShoppingBag, Sparkles, Landmark, Camera } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlidePanel";
@@ -16,8 +18,6 @@ import type { EventPanelItem } from "@/components/club/ClubAiAssistant";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
-
-type Msg = { role: "user" | "assistant"; content: string };
 
 const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
   fr: {
@@ -64,7 +64,7 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
   },
 };
 
-// ============= Marker extraction (mirrors ClubAiAssistant) =============
+// ============= Marker extraction =============
 const MAP_RE = /<!--SHOW_ON_MAP:([\s\S]*?)-->/g;
 const EVENTS_RE = /<!--EVENTS_SNAPSHOT:([\s\S]*?)-->/g;
 const KNOWN_RE = /<!--KNOWN_BUSINESSES:([\s\S]*?)-->/g;
@@ -97,7 +97,6 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     } catch { /* */ }
     return "";
   });
-  // Strip any unclosed marker so it doesn't render as raw text mid-stream.
   clean = clean
     .replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "")
     .replace(/<!--EVENTS_SNAPSHOT:[\s\S]*$/g, "")
@@ -106,7 +105,18 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
   return { clean, maps, events, known };
 }
 
-// ============= Category icon + label helpers (Mindtrip-style miniatures) =============
+// Concatenate all text parts of a UIMessage into a single string.
+function messageText(m: UIMessage): string {
+  const parts = (m as any).parts;
+  if (Array.isArray(parts)) {
+    return parts
+      .filter((p: any) => p?.type === "text" && typeof p.text === "string")
+      .map((p: any) => p.text)
+      .join("");
+  }
+  return String((m as any).content ?? "");
+}
+
 function categoryMeta(b: MapPanelBusiness): { Icon: typeof Bed; label: string } {
   const cat = (b.main_category || (b.categories?.[0] ?? "") || "").toLowerCase();
   const has = (s: string) => cat.includes(s);
@@ -121,7 +131,6 @@ function categoryMeta(b: MapPanelBusiness): { Icon: typeof Bed; label: string } 
   return { Icon: MapPin, label: [b.neighborhood, b.city].filter(Boolean).join(", ") || b.main_category || "Établissement" };
 }
 
-// ============= Component =============
 const EmbedAsk = () => {
   const { slug = "" } = useParams();
   const [params] = useSearchParams();
@@ -142,18 +151,51 @@ const EmbedAsk = () => {
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [businessCity, setBusinessCity] = useState<string | null>(null);
   const [hostLocation, setHostLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
-  const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
   type FollowupRow = { id: string; label_fr: string; label_en: string | null; label_ar: string | null };
   type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[] };
   const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(null);
   const [globalFollowups, setGlobalFollowups] = useState<FollowupRow[]>([]);
   const [activeSuggestionId, setActiveSuggestionId] = useState<string | null>(null);
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const L = LANG_LABELS[lang];
+
+  const sessionIdRef = useRef<string>(typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `s-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  const messageIndexRef = useRef<number>(0);
+  const [chatKey, setChatKey] = useState(0);
+
+  // --- AI SDK useChat wiring ---
+  const transport = useMemo(() => new DefaultChatTransport({
+    api: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/embed-ai-chat`,
+    headers: () => ({
+      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+    }),
+    prepareSendMessagesRequest: ({ messages, body }) => ({
+      body: {
+        messages,
+        businessSlug: slug,
+        language: lang,
+        sessionId: sessionIdRef.current,
+        messageIndex: messageIndexRef.current,
+        suggestionId: (body as any)?.suggestionId ?? null,
+        followupId: (body as any)?.followupId ?? null,
+      },
+    }),
+  }), [slug, lang]);
+
+  const { messages, sendMessage, status, setMessages } = useChat({
+    id: `embed-${slug}-${chatKey}`,
+    transport,
+    onError: (e) => setError(e.message),
+  });
+
+  const streaming = status === "submitted" || status === "streaming";
+
   const suggestions: SuggestionRow[] = dbSuggestions && dbSuggestions.length > 0
     ? dbSuggestions
     : L.suggestions.map((s, i) => ({ id: `default-${i}`, label: s }));
@@ -168,13 +210,13 @@ const EmbedAsk = () => {
     .map((f) => ({ id: f.id, label: pickFollowupLabel(f) }))
     .filter((f) => f.label);
 
-  // Overlay states
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
   const [openEvents, setOpenEvents] = useState<{ list: EventPanelItem[]; index: number } | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
 
   const isMobile = useMemo(() => typeof window !== "undefined" && window.innerWidth < 768, []);
 
+  // Load host business
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -192,12 +234,25 @@ const EmbedAsk = () => {
       if (data?.latitude != null && data?.longitude != null) {
         setHostLocation({ lat: Number(data.latitude), lng: Number(data.longitude) });
       }
-      if (name) setMsgs([{ role: "assistant", content: L.opener(name) }]);
-      else setError(lang === "en" ? "Establishment not found." : lang === "ar" ? "المؤسسة غير موجودة." : "Établissement introuvable.");
+      if (!name) {
+        setError(lang === "en" ? "Establishment not found." : lang === "ar" ? "المؤسسة غير موجودة." : "Établissement introuvable.");
+      }
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
+
+  // Seed the opener as an assistant UIMessage once we know the business
+  useEffect(() => {
+    if (!businessName) return;
+    if (messages.length > 0) return;
+    setMessages([{
+      id: "opener",
+      role: "assistant",
+      parts: [{ type: "text", text: L.opener(businessName) }],
+    } as any]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [businessName, chatKey]);
 
   useEffect(() => {
     if (!businessId) return;
@@ -215,8 +270,6 @@ const EmbedAsk = () => {
       const bizCity = normCity(businessCity);
       const list: SuggestionRow[] = (data as any[])
         .filter((r) => {
-          // business_ids ne filtre PAS la visibilité — il sert seulement à
-          // épingler l'établissement en tête des résultats côté edge function.
           const c = normCity(r.city);
           if (c && c !== bizCity) return false;
           return true;
@@ -232,7 +285,6 @@ const EmbedAsk = () => {
     return () => { cancelled = true; };
   }, [lang, businessId, businessCity]);
 
-  // Load global followups (shown after every assistant reply)
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -247,99 +299,22 @@ const EmbedAsk = () => {
     return () => { cancelled = true; };
   }, []);
 
-  useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [msgs]);
+  useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [messages]);
   useEffect(() => { inputRef.current?.focus(); }, [businessName]);
 
   const dir = lang === "ar" ? "rtl" : "ltr";
 
-  const sessionIdRef = useRef<string>(typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `s-${Date.now()}-${Math.random().toString(36).slice(2)}`);
-  const messageIndexRef = useRef<number>(0);
-
-  const send = async (overrideText?: string, suggestionId?: string, followupId?: string) => {
+  const send = (overrideText?: string, suggestionId?: string, followupId?: string) => {
     const text = (overrideText ?? input).trim();
     if (!text || streaming || !businessName) return;
-    if (!overrideText) { setInput(""); }
+    if (!overrideText) setInput("");
     if (suggestionId && !suggestionId.startsWith("default-")) setActiveSuggestionId(suggestionId);
     setError(null);
-    const userMsg: Msg = { role: "user", content: text };
-    const history = msgs.filter((_, i) => !(i === 0 && msgs[0].role === "assistant"));
-    const nextUi: Msg[] = [...msgs, userMsg, { role: "assistant", content: "" }];
-    setMsgs(nextUi);
-    setStreaming(true);
-    const assistantIdx = nextUi.length - 1;
-    const messageIndex = messageIndexRef.current++;
-
-    try {
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/embed-ai-chat`;
-      const anon = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      // Strip markers from prior assistant messages before sending back to server
-      const cleanedHistory = [...history, userMsg].map((m) => ({
-        role: m.role,
-        content: m.role === "assistant" ? extractPayloads(m.content).clean : m.content,
-      }));
-      const resp = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${anon}`, apikey: anon },
-        body: JSON.stringify({
-          businessSlug: slug,
-          language: lang,
-          messages: cleanedHistory,
-          sessionId: sessionIdRef.current,
-          messageIndex,
-          suggestionId: suggestionId || null,
-          followupId: followupId || null,
-        }),
-      });
-
-      if (!resp.ok || !resp.body) throw new Error(`HTTP ${resp.status}`);
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let buf = "";
-      let acc = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buf += decoder.decode(value, { stream: true });
-        const parts = buf.split("\n\n");
-        buf = parts.pop() || "";
-        for (const part of parts) {
-          const line = part.split("\n").find((l) => l.startsWith("data:"));
-          if (!line) continue;
-          const payload = line.slice(5).trim();
-          if (!payload) continue;
-          try {
-            const evt = JSON.parse(payload);
-            if (evt.type === "chunk" && typeof evt.delta === "string") {
-              acc += evt.delta;
-              setMsgs((cur) => {
-                const copy = cur.slice();
-                copy[assistantIdx] = { role: "assistant", content: acc };
-                return copy;
-              });
-            } else if (evt.type === "error") {
-              throw new Error(evt.message || "stream_error");
-            }
-          } catch { /* skip */ }
-        }
-      }
-      if (!acc) {
-        setMsgs((cur) => {
-          const copy = cur.slice();
-          copy[assistantIdx] = {
-            role: "assistant",
-            content: lang === "en" ? "Sorry, I couldn't answer right now." : lang === "ar" ? "عذرًا، لا أستطيع الإجابة الآن." : "Désolé, je ne peux pas répondre pour le moment.",
-          };
-          return copy;
-        });
-      }
-    } catch (e) {
-      setError((e as Error).message);
-      setMsgs((cur) => cur.slice(0, -1));
-    } finally {
-      setStreaming(false);
-      inputRef.current?.focus();
-    }
+    messageIndexRef.current += 1;
+    sendMessage(
+      { text },
+      { body: { suggestionId: suggestionId || null, followupId: followupId || null } },
+    );
   };
 
   const startNewConversation = () => {
@@ -354,9 +329,7 @@ const EmbedAsk = () => {
     setOpenEvents(null);
     setOpenBusinessId(null);
     setActiveSuggestionId(null);
-
-    
-    setMsgs(businessName ? [{ role: "assistant", content: L.opener(businessName) }] : []);
+    setChatKey((k) => k + 1); // resets useChat id → clears message list
     setTimeout(() => inputRef.current?.focus(), 0);
   };
 
@@ -399,28 +372,29 @@ const EmbedAsk = () => {
       </header>
 
       <div ref={scrollRef} className={`flex-1 overflow-y-auto px-4 py-4 space-y-3 ${bg}`}>
-        {msgs.map((m, i) => {
+        {messages.map((m, i) => {
           if (m.role === "user") {
             return (
-              <div key={i} className="flex justify-end">
+              <div key={m.id || i} className="flex justify-end">
                 <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${userBubble}`}>
-                  <div className="whitespace-pre-wrap">{m.content}</div>
+                  <div className="whitespace-pre-wrap">{messageText(m)}</div>
                 </div>
               </div>
             );
           }
-          const { clean, maps, events } = extractPayloads(m.content);
+          const raw = messageText(m);
+          const { clean, maps, events } = extractPayloads(raw);
           const mapPayload = maps[maps.length - 1] || null;
           const eventsPayload = events[events.length - 1] || null;
+          const isLast = i === messages.length - 1;
           return (
-            <div key={i} className="flex flex-col items-start gap-2">
+            <div key={m.id || i} className="flex flex-col items-start gap-2">
               <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${asstBubble}`}>
                 <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-ul:my-1">
-                  <ReactMarkdown>{clean || (streaming && i === msgs.length - 1 ? "…" : "")}</ReactMarkdown>
+                  <ReactMarkdown>{clean || (streaming && isLast ? "…" : "")}</ReactMarkdown>
                 </div>
               </div>
 
-              {/* Business carousel — same visual language as the map hover card */}
               {mapPayload && mapPayload.businesses.length > 0 && (
                 <div className="w-full max-w-full overflow-x-auto -mx-1 px-1">
                   <div className="flex gap-3 pb-1">
@@ -454,7 +428,6 @@ const EmbedAsk = () => {
                                 loading="lazy"
                               />
                             ) : null}
-                            {/* Bottom gradient overlay with meta */}
                             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-2.5">
                               <div className="text-[13px] font-bold text-white leading-tight line-clamp-2">{b.name}</div>
                               {loc && (
@@ -497,7 +470,6 @@ const EmbedAsk = () => {
                 </div>
               )}
 
-              {/* Events chip */}
               {eventsPayload && eventsPayload.events.length > 0 && (
                 <button
                   type="button"
@@ -509,7 +481,6 @@ const EmbedAsk = () => {
                 </button>
               )}
 
-              {/* Follow-up chips after each assistant response (except opener) */}
               {i > 0 && !streaming && activeFollowups.length > 0 && (
                 <div className="flex flex-wrap gap-2 pt-1">
                   {activeFollowups.map((f, k) => (
@@ -527,7 +498,8 @@ const EmbedAsk = () => {
             </div>
           );
         })}
-        {streaming && msgs[msgs.length - 1]?.role === "assistant" && !msgs[msgs.length - 1]?.content && (
+
+        {status === "submitted" && (
           <div className="flex justify-start">
             <div className={`rounded-2xl px-3.5 py-2.5 text-sm ${asstBubble}`}>
               <span className="inline-flex gap-1">
@@ -538,7 +510,8 @@ const EmbedAsk = () => {
             </div>
           </div>
         )}
-        {msgs.length <= 1 && !streaming && businessName && (
+
+        {messages.length <= 1 && !streaming && businessName && (
           <div className="flex flex-wrap gap-2 pt-1">
             {suggestions.map((s) => {
               const label = s.label.replace(/\{businessName\}/g, businessName || "").trim();
@@ -555,7 +528,6 @@ const EmbedAsk = () => {
             })}
           </div>
         )}
-
 
         {error && <div className="text-xs text-red-500">{error}</div>}
       </div>
@@ -583,7 +555,6 @@ const EmbedAsk = () => {
         </div>
       </form>
 
-      {/* Google Maps slide panel */}
       <MapSlidePanel
         open={!!openMap}
         onClose={() => setOpenMap(null)}
@@ -595,7 +566,6 @@ const EmbedAsk = () => {
         hostLabel={businessName}
       />
 
-      {/* Events slide panel */}
       <EventsSlidePanel
         open={!!openEvents}
         onClose={() => setOpenEvents(null)}
@@ -605,7 +575,6 @@ const EmbedAsk = () => {
         onOpenBusiness={(bid) => { setOpenEvents(null); setOpenBusinessId(bid); }}
       />
 
-      {/* Business detail slide panel */}
       {openBusinessId && (
         <div className="fixed inset-0 z-[220] bg-background flex flex-col lg:left-auto lg:border-l lg:border-border lg:w-1/2">
           <SlidePanelHeader onClose={() => setOpenBusinessId(null)} alwaysDark glassClose />
