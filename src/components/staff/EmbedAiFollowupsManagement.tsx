@@ -54,7 +54,7 @@ const EmbedAiFollowupsManagement = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("embed_ai_followups")
-      .select("id,label_fr,label_en,label_ar,sort_order,is_active,radius_km")
+      .select("id,label_fr,label_en,label_ar,sort_order,is_active,radius_km,mode")
       .order("sort_order", { ascending: true });
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows((data as Row[]) || []);
