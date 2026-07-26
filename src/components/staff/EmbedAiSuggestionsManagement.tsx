@@ -306,7 +306,13 @@ const EmbedAiSuggestionsManagement = () => {
                       className="w-20 h-8"
                     />
                     <span className="text-muted-foreground">Ordre</span>
-                    {r.subcategory_ids.length > 0 || r.badge_ids.length > 0 ? (
+                    {r.mode === "events" ? (
+                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-amber-500/15 text-amber-700" title={`Route déterministe search_events (ville hôte${r.badge_ids.length ? `, ${r.badge_ids.length} badge(s)` : ", badge #Agenda"})`}>
+                        <span>📅</span>
+                        <span>search_events</span>
+                        {r.badge_ids.length > 0 && <span className="opacity-70">· badge({r.badge_ids.length})</span>}
+                      </span>
+                    ) : r.subcategory_ids.length > 0 || r.badge_ids.length > 0 ? (
                       <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-primary/15 text-primary" title={`Route déterministe search_businesses — ${r.subcategory_ids.length} sous-catégorie(s), ${r.badge_ids.length} badge(s)`}>
                         <span>🔍</span>
                         <span>search_businesses</span>
