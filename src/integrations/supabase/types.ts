@@ -3589,6 +3589,7 @@ export type Database = {
           label_ar: string | null
           label_en: string | null
           label_fr: string
+          mode: string | null
           sort_order: number
           subcategory_ids: string[]
           updated_at: string
@@ -3606,6 +3607,7 @@ export type Database = {
           label_ar?: string | null
           label_en?: string | null
           label_fr: string
+          mode?: string | null
           sort_order?: number
           subcategory_ids?: string[]
           updated_at?: string
@@ -3623,6 +3625,7 @@ export type Database = {
           label_ar?: string | null
           label_en?: string | null
           label_fr?: string
+          mode?: string | null
           sort_order?: number
           subcategory_ids?: string[]
           updated_at?: string

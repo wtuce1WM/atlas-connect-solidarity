@@ -59,6 +59,7 @@ type Row = {
   badge_ids: string[];
   city: string | null;
   disabled_followup_ids: string[];
+  mode: string | null;
 };
 
 type BusinessOption = { id: string; name: string; slug: string | null };
@@ -110,7 +111,7 @@ const EmbedAiSuggestionsManagement = () => {
     const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }] = await Promise.all([
       supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,subcategory_ids,badge_ids,city,disabled_followup_ids")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,subcategory_ids,badge_ids,city,disabled_followup_ids,mode")
         .order("sort_order", { ascending: true }),
       fetchAllBusinesses(),
       supabase
@@ -208,7 +209,7 @@ const EmbedAiSuggestionsManagement = () => {
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], subcategory_ids: [], badge_ids: [], city: null, disabled_followup_ids: [] } as Row]);
+    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], subcategory_ids: [], badge_ids: [], city: null, disabled_followup_ids: [], mode: null } as Row]);
   };
 
 
@@ -237,6 +238,7 @@ const EmbedAiSuggestionsManagement = () => {
           badge_ids: r.badge_ids || [],
           city: r.city || null,
           disabled_followup_ids: r.disabled_followup_ids || [],
+          mode: r.mode || null,
         }).eq("id", r.id)
       )
     );
@@ -304,7 +306,13 @@ const EmbedAiSuggestionsManagement = () => {
                       className="w-20 h-8"
                     />
                     <span className="text-muted-foreground">Ordre</span>
-                    {r.subcategory_ids.length > 0 || r.badge_ids.length > 0 ? (
+                    {r.mode === "events" ? (
+                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-amber-500/15 text-amber-700" title={`Route déterministe search_events (ville hôte${r.badge_ids.length ? `, ${r.badge_ids.length} badge(s)` : ", badge #Agenda"})`}>
+                        <span>📅</span>
+                        <span>search_events</span>
+                        {r.badge_ids.length > 0 && <span className="opacity-70">· badge({r.badge_ids.length})</span>}
+                      </span>
+                    ) : r.subcategory_ids.length > 0 || r.badge_ids.length > 0 ? (
                       <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-primary/15 text-primary" title={`Route déterministe search_businesses — ${r.subcategory_ids.length} sous-catégorie(s), ${r.badge_ids.length} badge(s)`}>
                         <span>🔍</span>
                         <span>search_businesses</span>
@@ -362,6 +370,23 @@ const EmbedAiSuggestionsManagement = () => {
                   </select>
                   <p className="text-[11px] text-muted-foreground mt-1">Vide = affichée pour tous les établissements. Sinon uniquement pour ceux de cette ville.</p>
                 </div>
+
+                <div className="max-w-xs">
+                  <label className="text-xs text-muted-foreground">Route déterministe forcée</label>
+                  <select
+                    value={r.mode || ""}
+                    onChange={(e) => update(r.id, { mode: e.target.value || null })}
+                    className="h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
+                    title="Mode"
+                  >
+                    <option value="">Auto (LLM décide)</option>
+                    <option value="events">📅 Events (search_events sur la ville hôte, badge_ids optionnels)</option>
+                  </select>
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    <b>Events</b> : force <code>search_events</code> (ville de l'établissement + prochain week-end). Si <b>Badges ciblés</b> renseignés → filtre les events par ces badges ; sinon fallback #Agenda.
+                  </p>
+                </div>
+
 
 
                 <div className="space-y-2">

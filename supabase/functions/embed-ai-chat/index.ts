@@ -575,15 +575,16 @@ Deno.serve(async (req) => {
           return list.filter((b: any) => !closed.has(b.id));
         };
 
-        // Deterministic route context (suggestion pins / subcategories / badges)
+        // Deterministic route context (suggestion pins / subcategories / badges / mode)
         let deterministicSubcategoryNames: string[] | null = null;
         let deterministicBadgeIds: string[] | null = null;
         let suggestionPinnedIds: string[] = [];
+        let suggestionMode: string | null = null;
         if (suggestionId) {
           try {
             const { data: sugg } = await admin
               .from("embed_ai_suggestions")
-              .select("subcategory_ids, badge_ids, business_ids")
+              .select("subcategory_ids, badge_ids, business_ids, mode")
               .eq("id", suggestionId)
               .maybeSingle();
             const subIds: string[] = Array.isArray(sugg?.subcategory_ids) ? sugg!.subcategory_ids : [];
@@ -599,6 +600,7 @@ Deno.serve(async (req) => {
             if (bIds.length) deterministicBadgeIds = bIds;
             const pIds: string[] = Array.isArray(sugg?.business_ids) ? sugg!.business_ids : [];
             if (pIds.length) suggestionPinnedIds = pIds;
+            suggestionMode = (sugg?.mode as string | null) || null;
           } catch (e) {
             console.error("[embed-ai-chat] suggestion_route_lookup_error", e);
           }
@@ -697,11 +699,20 @@ Deno.serve(async (req) => {
               const from = (args.from_date && String(args.from_date).slice(0, 10)) || today;
               const to = (args.to_date && String(args.to_date).slice(0, 10)) || new Date(Date.now() + 60 * 86400000).toISOString().slice(0, 10);
               let eventIds: string[] | null = null;
-              const { data: badge } = await admin.from("badges").select("id").ilike("name_fr", "%agenda%").limit(1).maybeSingle();
-              if (badge?.id) {
-                const { data: eb } = await admin.from("event_badges").select("event_id").eq("badge_id", badge.id);
+              const overrideBadgeIds: string[] | undefined = Array.isArray(args._badgeIds) && args._badgeIds.length
+                ? args._badgeIds.map((s: any) => String(s)).filter(Boolean)
+                : undefined;
+              if (overrideBadgeIds) {
+                const { data: eb } = await admin.from("event_badges").select("event_id").in("badge_id", overrideBadgeIds);
                 eventIds = (eb || []).map((r: any) => r.event_id).filter(Boolean);
-                if (!eventIds.length) return { results: [], note: "Aucun événement #Agenda." };
+                if (!eventIds.length) return { results: [], note: "Aucun événement pour ce(s) badge(s)." };
+              } else {
+                const { data: badge } = await admin.from("badges").select("id").ilike("name_fr", "%agenda%").limit(1).maybeSingle();
+                if (badge?.id) {
+                  const { data: eb } = await admin.from("event_badges").select("event_id").eq("badge_id", badge.id);
+                  eventIds = (eb || []).map((r: any) => r.event_id).filter(Boolean);
+                  if (!eventIds.length) return { results: [], note: "Aucun événement #Agenda." };
+                }
               }
               let q = admin
                 .from("events")
@@ -921,8 +932,24 @@ Deno.serve(async (req) => {
           }
         }
 
-        // Deterministic: forced subcategory / badge search
-        if (deterministicSubcategoryNames || deterministicBadgeIds) {
+        // Deterministic: events search (suggestion mode = 'events')
+        if (suggestionMode === "events") {
+          // Compute a "this weekend" window: from today → next Sunday (+7 max)
+          const today = new Date();
+          const dow = today.getDay(); // 0=Sun ... 6=Sat
+          const daysUntilSun = (7 - dow) % 7 || 7;
+          const from = today.toISOString().slice(0, 10);
+          const to = new Date(today.getTime() + daysUntilSun * 86400000).toISOString().slice(0, 10);
+          const forcedArgs: any = { city: host.city || "Marrakech", from_date: from, to_date: to, limit: 10 };
+          if (deterministicBadgeIds) forcedArgs._badgeIds = deterministicBadgeIds;
+          const forcedResult = await runTool("search_events", forcedArgs);
+          rememberSearchResult("search_events", forcedArgs, forcedResult);
+          const hostName = (host as any).name || "cet établissement";
+          convo.push({
+            role: "system",
+            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE (route déterministe events, ville ${host.city || "Marrakech"}, période ${from} → ${to}${deterministicBadgeIds ? `, badge_ids=${deterministicBadgeIds.length}` : ""}):\n${JSON.stringify(forcedResult).slice(0, 12000)}\n\nFORMAT DE RÉPONSE OBLIGATOIRE :\n1. Ouvre par une phrase d'accroche immersive mentionnant **${hostName}** comme point de départ pour explorer la scène de ${host.city || "Marrakech"} ce week-end.\n2. Présente ensuite CHAQUE événement listé ci-dessus (dans l'ordre) sous forme d'un court paragraphe immersif de 2 à 3 phrases : nomme l'événement en **gras**, précise la date/récurrence et le quartier s'ils existent, décris l'ambiance à partir de hook/description UNIQUEMENT. Pas d'invention.\n3. Si aucun événement : dis-le franchement et propose une relance (autre ville, période plus large).\n4. Termine par UNE question de relance courte.\nRecommande uniquement des événements listés ci-dessus. Réponds dans la même langue que la question de l'utilisateur.`,
+          });
+        } else if (deterministicSubcategoryNames || deterministicBadgeIds) {
           const forcedArgs: any = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
           if (deterministicSubcategoryNames) forcedArgs._subcategoryNames = deterministicSubcategoryNames;
           if (deterministicBadgeIds) forcedArgs._badgeIds = deterministicBadgeIds;
