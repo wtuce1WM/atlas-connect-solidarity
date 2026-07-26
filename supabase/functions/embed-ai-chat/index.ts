@@ -1087,7 +1087,7 @@ Deno.serve(async (req) => {
             const pIds: string[] = Array.isArray(sugg?.business_ids) ? sugg!.business_ids : [];
             if (pIds.length) suggestionPinnedIds = pIds;
             suggestionMode = (sugg?.mode as string | null) || null;
-            suggestionLabel = (sugg?.label as string | null) || null;
+            suggestionLabel = (sugg?.label_fr as string | null) || (sugg?.label_en as string | null) || (sugg?.label_ar as string | null) || null;
           } catch (e) {
             console.error("[embed-ai-chat] suggestion_route_lookup_error", e);
           }
