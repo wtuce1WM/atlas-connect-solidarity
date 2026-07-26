@@ -217,11 +217,23 @@ async function buildPoiNearby(
   const dLng = RADIUS_KM / (111 * Math.max(Math.cos((host.latitude * Math.PI) / 180), 0.1));
   const { data: pois } = await admin
     .from("points_of_interest")
-    .select("id, name_fr, name_en, name_ar, description_fr, description_en, description_ar, description, hook, latitude, longitude")
+    .select("id, name_fr, name_en, name_ar, description_fr, description_en, description_ar, description, hook, latitude, longitude, image_url, images")
     .gte("latitude", host.latitude - dLat)
     .lte("latitude", host.latitude + dLat)
     .gte("longitude", host.longitude - dLng)
     .lte("longitude", host.longitude + dLng);
+  const stripHtml = (s: string) => String(s || "")
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<\/(p|div|li)>/gi, " ")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\s+/g, " ")
+    .trim();
   const nearby = (pois || [])
     .filter((p: any) => p.latitude != null && p.longitude != null)
     .map((p: any) => ({
@@ -249,11 +261,12 @@ async function buildPoiNearby(
 
   const bullets = nearby.map((p: any) => {
     const name = (lang === "en" && p.name_en) ? p.name_en : (lang === "ar" && p.name_ar) ? p.name_ar : p.name_fr;
-    const desc = (lang === "en" && p.description_en) ? p.description_en
+    const rawDesc = (lang === "en" && p.description_en) ? p.description_en
       : (lang === "ar" && p.description_ar) ? p.description_ar
       : (p.description_fr || p.hook || p.description || "");
+    const desc = stripHtml(rawDesc);
     const distLabel = p.distance_km < 1 ? `${Math.round(p.distance_km * 1000)} m` : `${p.distance_km.toFixed(1)} km`;
-    const short = desc ? ` — ${String(desc).replace(/\s+/g, " ").slice(0, 180)}${String(desc).length > 180 ? "…" : ""}` : "";
+    const short = desc ? ` — ${desc.slice(0, 180)}${desc.length > 180 ? "…" : ""}` : "";
     return `- 📍 **${name}** _(${distLabel})_${short}`;
   }).join("\n");
 
@@ -263,7 +276,28 @@ async function buildPoiNearby(
       ? `\n\n> النطاق: **${radiusLabel}** حول ${host.name}. هل تريد **تضييقه** أو **توسيعه**؟`
       : `\n\n> Rayon : **${radiusLabel}** autour de ${host.name}. Tu veux le **resserrer** ou l'**étendre** ?`;
 
-  return `${header}\n\n${bullets}${radiusLine}`;
+  // Emit a SHOW_ON_MAP-compatible payload so the frontend can render the horizontal thumbnails carousel + "View on map".
+  const mapBusinesses = nearby.slice(0, 20).map((p: any) => {
+    const name = (lang === "en" && p.name_en) ? p.name_en : (lang === "ar" && p.name_ar) ? p.name_ar : p.name_fr;
+    const imgs = Array.isArray(p.images) && p.images.length ? p.images : (p.image_url ? [p.image_url] : []);
+    return {
+      id: p.id,
+      slug: null,
+      name,
+      city: host.city || null,
+      neighborhood: null,
+      address: null,
+      main_category: "Point d'intérêt",
+      categories: ["Point d'intérêt"],
+      latitude: p.latitude,
+      longitude: p.longitude,
+      logo_url: null,
+      images: imgs,
+    };
+  });
+  const mapMarker = `\n\n<!--SHOW_ON_MAP:${JSON.stringify({ title: null, businesses: mapBusinesses })}-->`;
+
+  return `${header}\n\n${bullets}${radiusLine}${mapMarker}`;
 }
 
 function buildDisclosureFromCounts(shown: number, found: number, city: string): string {
