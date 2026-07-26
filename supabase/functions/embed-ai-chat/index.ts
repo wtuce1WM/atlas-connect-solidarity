@@ -285,7 +285,7 @@ function buildSystemPrompt(host: any, lang: "fr" | "en" | "ar"): string {
     host.neighborhood ? `Quartier: ${host.neighborhood}` : "",
     host.address ? `Adresse: ${host.address}` : "",
     hook ? `Accroche: ${hook}` : "",
-    description ? `Description: ${String(description).slice(0, 1200)}` : "",
+    description ? `Description: ${String(description).slice(0, 500)}` : "",
     price ? `Prix indicatif: ${price}` : "",
     hours ? `Horaires: ${hours}` : "",
     host.phone ? `Téléphone: ${host.phone}` : "",
