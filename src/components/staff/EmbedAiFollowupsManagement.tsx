@@ -15,6 +15,7 @@ type Row = {
   sort_order: number;
   is_active: boolean;
   radius_km: number | null;
+  mode: string | null;
 };
 
 type Route = { key: "weather" | "events" | "search" | "map" | "llm"; label: string; emoji: string; className: string };
