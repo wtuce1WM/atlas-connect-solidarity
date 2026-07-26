@@ -928,8 +928,11 @@ Deno.serve(async (req) => {
         }
 
         // Deterministic: nearby overview
+        // Skip when the suggestion carries a deterministic filter (badge/subcategory)
+        // — those must route through search_businesses with an immersive intro + carousel.
         const forcedNearby = followupRadiusKm != null;
-        if (forcedNearby || isNearbyOverviewIntent(userMessage, host.name)) {
+        const hasDeterministicFilter = !!(deterministicBadgeIds?.length || deterministicSubcategoryNames?.length);
+        if ((forcedNearby || isNearbyOverviewIntent(userMessage, host.name)) && !hasDeterministicFilter) {
           const radiusKm = followupRadiusKm ?? 1;
           const overview = await buildNearbyOverview(admin, host, hostCategoryNames, language, radiusKm);
           if (overview) {
