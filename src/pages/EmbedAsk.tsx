@@ -315,6 +315,7 @@ const EmbedAsk = () => {
   }, [theme]);
 
   const [businessName, setBusinessName] = useState<string>("");
+  const [assistantTitle, setAssistantTitle] = useState<string>("");
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [businessCity, setBusinessCity] = useState<string | null>(null);
   const [hostLocation, setHostLocation] = useState<{ lat: number; lng: number } | null>(null);
