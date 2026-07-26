@@ -659,23 +659,15 @@ const EmbedAsk = () => {
         const goPrev = () => { if (hasPrev) setOpenBusinessId(openSiblings[idx - 1]); };
         const goNext = () => { if (hasNext) setOpenBusinessId(openSiblings[idx + 1]); };
         return (
-          <div className="fixed inset-0 z-[220] bg-background flex flex-col lg:left-auto lg:border-l lg:border-border lg:w-1/2">
-            <SlidePanelHeader onClose={() => setOpenBusinessId(null)} alwaysDark glassClose />
-            <div className="flex-1 min-h-0 overflow-visible">
-              <Suspense fallback={null}>
-                <BookOnlineSlidePanel
-                  key={openBusinessId}
-                  businessId={openBusinessId}
-                  onClose={() => setOpenBusinessId(null)}
-                  onPrev={goPrev}
-                  onNext={goNext}
-                  hasPrev={hasPrev}
-                  hasNext={hasNext}
-                />
-              </Suspense>
-            </div>
-            <EmbedMediaBottomBar />
-          </div>
+          <EmbedBookPanelWrapper
+            key={openBusinessId}
+            businessId={openBusinessId}
+            onClose={() => setOpenBusinessId(null)}
+            onPrev={goPrev}
+            onNext={goNext}
+            hasPrev={hasPrev}
+            hasNext={hasNext}
+          />
         );
       })()}
     </div>
