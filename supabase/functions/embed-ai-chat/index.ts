@@ -78,7 +78,32 @@ function isProximityIntent(text: string): boolean {
   if (!q) return false;
   if (/\b(a\s+proximite|proximite|pres\s+de|proche\s+de|autour\s+de|autour|a\s+cote\s+de|aux\s+alentours|nearby|near\s+me|near\s+by|close\s+to|around|next\s+to|walking\s+distance)\b/.test(q)) return true;
   if (/(قرب|بالقرب|حول|بجوار|بجانب)/.test(text || "")) return true;
+  // An explicit inline radius ("500 m", "à moins de 1 km", "within 2 km") implies
+  // a proximity refinement on the current thread.
+  if (parseInlineRadiusKm(text) != null) return true;
   return false;
+}
+
+// Parse an explicit radius the user typed inline (FR/EN/AR).
+// Recognizes forms like "500 m", "500m", "à moins de 500 m", "0.5 km", "2 km",
+// "within 500 m", "within 2 km", "أقل من 500 م", "ضمن 2 كم".
+// Returns kilometres, or null if not found.
+function parseInlineRadiusKm(text: string): number | null {
+  const raw = String(text ?? "");
+  if (!raw.trim()) return null;
+  const q = raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  // km first (avoids "m" of "km" being caught as metres)
+  const km = q.match(/(\d+(?:[.,]\d+)?)\s*(?:km|kilom[eè]tres?|kilomet(?:er|re)s?|كم|كيلومتر)\b/);
+  if (km) {
+    const v = Number(km[1].replace(",", "."));
+    if (Number.isFinite(v) && v > 0 && v <= 50) return v;
+  }
+  const m = q.match(/(\d{2,4})\s*(?:m|metres?|meters?|م)\b/);
+  if (m) {
+    const v = Number(m[1]);
+    if (Number.isFinite(v) && v >= 50 && v <= 20000) return v / 1000;
+  }
+  return null;
 }
 
 function haversineKmLocal(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -815,12 +840,15 @@ Deno.serve(async (req) => {
                   })
                   .filter(Boolean) as Array<{ b: any; d: number }>;
                 withDist.sort((x, y) => x.d - y.d);
-                const steps = Array.from(new Set([requestedRadius, requestedRadius * 2, requestedRadius * 3])).sort((a, b) => a - b);
+                const strict = !!args._strictRadius;
+                const steps = strict
+                  ? [requestedRadius]
+                  : Array.from(new Set([requestedRadius, requestedRadius * 2, requestedRadius * 3])).sort((a, b) => a - b);
                 let chosen: typeof withDist = [];
                 for (let i = 0; i < steps.length; i++) {
                   const r = steps[i];
                   chosen = withDist.filter((x) => x.d <= r);
-                  if (chosen.length >= 3 || i === steps.length - 1) {
+                  if (strict || chosen.length >= 3 || i === steps.length - 1) {
                     radiusUsedKm = r;
                     radiusExpanded = i > 0;
                     break;
@@ -1212,9 +1240,11 @@ Deno.serve(async (req) => {
           if (deterministicSubcategoryNames) forcedArgs._subcategoryNames = deterministicSubcategoryNames;
           if (deterministicBadgeIds) forcedArgs._badgeIds = deterministicBadgeIds;
           if (isProximityIntent(userMessage) && Number.isFinite(Number(host.latitude)) && Number.isFinite(Number(host.longitude))) {
+            const inlineR = parseInlineRadiusKm(userMessage);
             forcedArgs._anchorLat = Number(host.latitude);
             forcedArgs._anchorLng = Number(host.longitude);
-            forcedArgs._radiusKm = followupRadiusKm ?? 1;
+            forcedArgs._radiusKm = inlineR ?? followupRadiusKm ?? 1;
+            if (inlineR != null) forcedArgs._strictRadius = true;
           }
           const forcedResult = await runTool("search_businesses", forcedArgs);
           rememberSearchResult("search_businesses", forcedArgs, forcedResult);
@@ -1240,9 +1270,11 @@ Deno.serve(async (req) => {
         } else if (shouldForceDirectorySearch(userMessage)) {
           const forcedArgs: any = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
           if (isProximityIntent(userMessage) && Number.isFinite(Number(host.latitude)) && Number.isFinite(Number(host.longitude))) {
+            const inlineR = parseInlineRadiusKm(userMessage);
             forcedArgs._anchorLat = Number(host.latitude);
             forcedArgs._anchorLng = Number(host.longitude);
-            forcedArgs._radiusKm = followupRadiusKm ?? 1;
+            forcedArgs._radiusKm = inlineR ?? followupRadiusKm ?? 1;
+            if (inlineR != null) forcedArgs._strictRadius = true;
           }
           const forcedResult = await runTool("search_businesses", forcedArgs);
           rememberSearchResult("search_businesses", forcedArgs, forcedResult);
