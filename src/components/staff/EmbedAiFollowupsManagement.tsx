@@ -15,6 +15,7 @@ type Row = {
   sort_order: number;
   is_active: boolean;
   radius_km: number | null;
+  mode: string | null;
 };
 
 type Route = { key: "weather" | "events" | "search" | "map" | "llm"; label: string; emoji: string; className: string };
@@ -53,7 +54,7 @@ const EmbedAiFollowupsManagement = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("embed_ai_followups")
-      .select("id,label_fr,label_en,label_ar,sort_order,is_active,radius_km")
+      .select("id,label_fr,label_en,label_ar,sort_order,is_active,radius_km,mode")
       .order("sort_order", { ascending: true });
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows((data as Row[]) || []);
@@ -97,6 +98,7 @@ const EmbedAiFollowupsManagement = () => {
         sort_order: r.sort_order,
         is_active: r.is_active,
         radius_km: r.radius_km,
+        mode: r.mode,
       }).eq("id", r.id);
       if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); setSaving(false); return; }
     }
@@ -124,6 +126,8 @@ const EmbedAiFollowupsManagement = () => {
           Le libellé <b>FR</b> est obligatoire ; EN et AR sont utilisés selon la langue. Le placeholder <code>{"{businessName}"}</code> est remplacé dynamiquement par le nom de l'établissement.
           <br />
           <b>Rayon (km)</b> : si renseigné, la relance déclenche une route déterministe « aperçu à proximité » bornée à ce rayon autour de l'établissement (500 m = 0,5). Laisser vide pour la route auto.
+          <br />
+          <b>Mode</b> : <code>Auto</code> = établissements 1WM à proximité (par défaut). <code>POI seulement</code> = liste uniquement les Points d'intérêt (base <code>points_of_interest</code>) dans le rayon, sans passer par les POIs liés à l'établissement.
         </p>
         {loading ? (
           <div className="text-sm text-muted-foreground">Chargement…</div>
@@ -139,7 +143,7 @@ const EmbedAiFollowupsManagement = () => {
             </div>
             {rows.map((r) => (
               <div key={r.id} className={`p-3 rounded-lg border ${dirty.has(r.id) ? "border-primary/50 bg-primary/5" : "border-border"}`}>
-                <div className="grid grid-cols-1 lg:grid-cols-[70px_1fr_1fr_1fr_140px_90px_100px_40px] gap-2 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-[70px_1fr_1fr_1fr_140px_90px_120px_100px_40px] gap-2 items-center">
                   <Input type="number" value={r.sort_order} onChange={(e) => update(r.id, { sort_order: parseInt(e.target.value) || 0 })} title="Ordre" />
                   <Input value={r.label_fr} onChange={(e) => update(r.id, { label_fr: e.target.value })} placeholder="Relance FR" />
                   <Input value={r.label_en || ""} onChange={(e) => update(r.id, { label_en: e.target.value })} placeholder="EN" />
@@ -157,6 +161,15 @@ const EmbedAiFollowupsManagement = () => {
                       update(r.id, { radius_km: v === "" ? null : parseFloat(v) });
                     }}
                   />
+                  <select
+                    className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+                    value={r.mode ?? ""}
+                    title="Mode de la relance à proximité"
+                    onChange={(e) => update(r.id, { mode: e.target.value || null })}
+                  >
+                    <option value="">Auto</option>
+                    <option value="poi_nearby">POI seulement</option>
+                  </select>
                   <div className="flex items-center gap-2">
                     <Switch checked={r.is_active} onCheckedChange={(v) => update(r.id, { is_active: v })} />
                     <span className="text-xs">{r.is_active ? "Actif" : "Off"}</span>
