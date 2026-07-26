@@ -158,10 +158,10 @@ async function buildNearbyOverview(
   const totalCategorized = rows.reduce((a, r) => a + r.count, 0);
 
   const header = lang === "en"
-    ? `🔎 I scanned **${nearby.length} active places** within **1 km** of ${host.name}${host.city ? ` (${host.city})` : ""}, grouped using the One World Morocco taxonomy${hostSubIds.size ? ` (categories overlapping ${host.name}'s own offer are excluded)` : ""}:`
+    ? `I scanned **${nearby.length} active places** within **1 km** of ${host.name}${host.city ? ` (${host.city})` : ""}, grouped by the One World Morocco taxonomy${hostSubIds.size ? ` (categories overlapping ${host.name}'s own offer are excluded)` : ""}:`
     : lang === "ar"
-      ? `🔎 مسحت **${nearby.length} مكانًا نشطًا** ضمن **1 كم** من ${host.name}${host.city ? `، ${host.city}` : ""} حسب تصنيف One World Morocco${hostSubIds.size ? ` (تُستثنى الفئات المطابقة لعرض ${host.name})` : ""}:`
-      : `🔎 J'ai passé au crible **${nearby.length} adresses actives** à moins d'**1 km** de ${host.name}${host.city ? ` (${host.city})` : ""}, réparties dans la catégorisation One World Morocco${hostSubIds.size ? ` (les catégories qui recoupent l'offre de ${host.name} sont exclues)` : ""} :`;
+      ? `مررت على **${nearby.length} مكانًا نشطًا** ضمن **1 كم** من ${host.name}${host.city ? ` (${host.city})` : ""} وفق تصنيف One World Morocco${hostSubIds.size ? ` (تُستثنى الفئات التي تتداخل مع عرض ${host.name})` : ""}:`
+      : `J'ai passé au crible **${nearby.length} adresses actives** à moins d'**1 km** de ${host.name}${host.city ? ` (${host.city})` : ""}, réparties dans la catégorisation One World Morocco${hostSubIds.size ? ` (les catégories qui recoupent l'offre de ${host.name} sont exclues)` : ""} :`;
 
   const bullets = rows
     .map((r) => `- ${FS_EMOJI[r.name] || "•"} **${translate(r.name)}** — ${r.count} ${wordPlace(r.count)}`)
@@ -174,10 +174,10 @@ async function buildNearbyOverview(
       : `\n\n**${totalCategorized}** adresses correspondent à au moins une catégorie. Dis-moi ce qui te tente — une table pour dîner, un spa, une balade culturelle, du shopping ? — et je te propose une sélection ciblée.`;
 
   const radiusLine = lang === "en"
-    ? `\n\n> 🔎 Search radius: **1 km** around ${host.name}${host.city ? ` (${host.city})` : ""}.`
+    ? `\n\n> Search radius: **1 km** around ${host.name}. Want to **narrow to 500 m** or **expand to 2 km / 5 km**?`
     : lang === "ar"
-      ? `\n\n> 🔎 نطاق البحث: **1 كم** حول ${host.name}${host.city ? ` (${host.city})` : ""}.`
-      : `\n\n> 🔎 Rayon de recherche : **1 km** autour de ${host.name}${host.city ? ` (${host.city})` : ""}.`;
+      ? `\n\n> نطاق البحث: **1 كم** حول ${host.name}. هل تريد **تضييقه إلى 500 م** أو **توسيعه إلى 2 كم / 5 كم**؟`
+      : `\n\n> Rayon de recherche : **1 km** autour de ${host.name}. Tu veux le **resserrer à 500 m** ou l'**étendre à 2 km / 5 km** ?`;
 
   return `${header}\n\n${bullets}${footer}${radiusLine}`;
 }
