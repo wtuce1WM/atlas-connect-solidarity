@@ -462,7 +462,7 @@ Deno.serve(async (req) => {
               const pinnedSet = new Set(suggestionPinnedIds);
               const nonPinned = all.filter((b: any) => !pinnedSet.has(b.id));
               const pinnedFromAll = all.filter((b: any) => pinnedSet.has(b.id));
-              let filtered = [...pinnedFromAll, ...(await filterOutCompetitors(nonPinned))];
+              let filtered = await filterOutClosed([...pinnedFromAll, ...(await filterOutCompetitors(nonPinned))]);
 
               // Pinned businesses (from suggestion.business_ids) — always at the top.
               if (suggestionPinnedIds.length) {
