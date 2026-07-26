@@ -422,7 +422,7 @@ function buildImmersiveBusinessAnswer(
     return `**${b.name}**${area ? `, ${area}` : ""}. ${detail || "Une adresse sélectionnée dans le guide One World Morocco, à garder dans ta shortlist."}`;
   }).join("\n\n");
   const rl = radiusLine("fr");
-  return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nTu veux que je resserre plutôt par quartier, ambiance ou moment de la journée ?`;
+  return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nTu veux que je resserre plutôt par quartier, ambiance ou moment de la journée ?${radiusCta("fr")}`;
 }
 
 function buildSystemPrompt(host: any, lang: "fr" | "en" | "ar"): string {
