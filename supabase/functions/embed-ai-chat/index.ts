@@ -501,44 +501,53 @@ async function resolveEntityTerm(admin: any, term: string): Promise<EntityMappin
   const serviceNames = new Set<string>();
   const badgeIds = new Set<string>();
 
-  // 1) Subcategories — match on any language name
+  // Word-boundary check on the normalized term to avoid false positives
+  // (e.g. "golf" matching "montgolfière"). ILIKE %golf% is used to fetch
+  // candidates; then we post-filter here.
+  const wordRe = new RegExp(`(?:^|[^\\p{L}])${norm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:$|[^\\p{L}])`, "iu");
+  const matchesWord = (s: unknown): boolean => {
+    if (!s) return false;
+    const n = normalize(s);
+    if (!n) return false;
+    return wordRe.test(n);
+  };
+  const anyLangMatches = (row: any): boolean =>
+    matchesWord(row?.name_fr) || matchesWord(row?.name_en) || matchesWord(row?.name_ar);
+
+  // 1) Subcategories
   const { data: subs } = await admin
     .from("subcategories")
     .select("name_fr, name_en, name_ar, keywords")
-    .or(
-      `name_fr.ilike.${like},name_en.ilike.${like},name_ar.ilike.${like}`,
-    )
-    .limit(20);
+    .or(`name_fr.ilike.${like},name_en.ilike.${like},name_ar.ilike.${like}`)
+    .limit(30);
   for (const s of subs || []) {
-    if (s?.name_fr) subcatNames.add(String(s.name_fr));
+    if (s?.name_fr && anyLangMatches(s)) subcatNames.add(String(s.name_fr));
   }
 
-  // 2) Services — match on any language name
+  // 2) Services
   const { data: svcs } = await admin
     .from("services")
     .select("name_fr, name_en, name_ar")
-    .or(
-      `name_fr.ilike.${like},name_en.ilike.${like},name_ar.ilike.${like}`,
-    )
+    .or(`name_fr.ilike.${like},name_en.ilike.${like},name_ar.ilike.${like}`)
     .eq("is_active", true)
-    .limit(50);
+    .limit(100);
   for (const s of svcs || []) {
-    if (s?.name_fr) serviceNames.add(String(s.name_fr));
+    if (s?.name_fr && anyLangMatches(s)) serviceNames.add(String(s.name_fr));
   }
 
-  // 3) Badges — match on any language name
+  // 3) Badges
   const { data: badges } = await admin
     .from("badges")
     .select("id, name_fr, name_en, name_ar")
-    .or(
-      `name_fr.ilike.${like},name_en.ilike.${like},name_ar.ilike.${like}`,
-    )
-    .limit(10);
+    .or(`name_fr.ilike.${like},name_en.ilike.${like},name_ar.ilike.${like}`)
+    .limit(15);
   for (const b of badges || []) {
-    if (b?.id) badgeIds.add(String(b.id));
+    if (b?.id && anyLangMatches(b)) badgeIds.add(String(b.id));
   }
 
-  // 4) Synonyms — exact key match or term in synonyms array (FR/EN/AR)
+  // 4) Synonyms — key match or term listed in synonyms array (FR/EN/AR).
+  // Synonyms mappings are curated by staff → we trust them without a
+  // word-boundary re-check (they map short keys to canonical taxonomy).
   const { data: syns } = await admin
     .from("search_synonyms")
     .select("subcategory_names, service_names, badge_id, synonyms, synonyms_en, synonyms_ar, key_word, key_word_en, key_word_ar")
@@ -548,6 +557,12 @@ async function resolveEntityTerm(admin: any, term: string): Promise<EntityMappin
     .eq("is_active", true)
     .limit(20);
   for (const s of syns || []) {
+    const keyMatch =
+      matchesWord(s?.key_word) || matchesWord(s?.key_word_en) || matchesWord(s?.key_word_ar) ||
+      (Array.isArray(s?.synonyms) && s.synonyms.some(matchesWord)) ||
+      (Array.isArray(s?.synonyms_en) && s.synonyms_en.some(matchesWord)) ||
+      (Array.isArray(s?.synonyms_ar) && s.synonyms_ar.some(matchesWord));
+    if (!keyMatch) continue;
     for (const n of s?.subcategory_names || []) if (n) subcatNames.add(String(n));
     for (const n of s?.service_names || []) if (n) serviceNames.add(String(n));
     if (s?.badge_id) badgeIds.add(String(s.badge_id));
@@ -560,6 +575,7 @@ async function resolveEntityTerm(admin: any, term: string): Promise<EntityMappin
     badgeIds: [...badgeIds],
   };
 }
+
 
 async function fetchEntityPool(admin: any, city: string, entity: EntityMapping, excludeId?: string): Promise<any[]> {
   const cols = "id, slug, name, city, neighborhood, hook_fr, hook_en, hook_ar, description, description_en, description_ar, latitude, longitude, main_category, categories, services, badge_id, images, logo_url, priority_score, computed_rating, total_review_count";
