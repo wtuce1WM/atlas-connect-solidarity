@@ -285,7 +285,7 @@ function buildSystemPrompt(host: any, lang: "fr" | "en" | "ar"): string {
     host.neighborhood ? `Quartier: ${host.neighborhood}` : "",
     host.address ? `Adresse: ${host.address}` : "",
     hook ? `Accroche: ${hook}` : "",
-    description ? `Description: ${String(description).slice(0, 1200)}` : "",
+    description ? `Description: ${String(description).slice(0, 500)}` : "",
     price ? `Prix indicatif: ${price}` : "",
     hours ? `Horaires: ${hours}` : "",
     host.phone ? `Téléphone: ${host.phone}` : "",
@@ -417,7 +417,8 @@ Deno.serve(async (req) => {
     const admin = createClient(SUPABASE_URL, SERVICE);
 
     const body = await req.json().catch(() => ({} as any));
-    const uiMessages: UIMessage[] = Array.isArray(body.messages) ? body.messages.slice(-16) : [];
+    // Keep last 8 turns only — older context inflates tokens without helping recall.
+    const uiMessages: UIMessage[] = Array.isArray(body.messages) ? body.messages.slice(-8) : [];
     const slugOrId = String(body.businessSlug || body.businessId || "").trim();
     const language = pickLang(body.language);
     const sessionId: string | null = typeof body.sessionId === "string" ? body.sessionId : null;
@@ -736,7 +737,8 @@ Deno.serve(async (req) => {
         const system = buildSystemPrompt(host, language);
         const convo: Msg[] = [
           { role: "system", content: system },
-          ...inMessages.map((m) => ({ role: m.role, content: String(m.content).slice(0, 4000) })),
+          // Assistant turns are long (recommandations markdown) — 1200 chars suffisent au rappel contextuel.
+          ...inMessages.map((m) => ({ role: m.role, content: String(m.content).slice(0, m.role === "user" ? 800 : 1200) })),
         ];
 
         let lastMapPayload: any = null;
