@@ -1069,6 +1069,51 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Deterministic: MAP REPLAY — the user asks to see the previous results on a map.
+        // We do NOT re-run any search. We reuse the last <!--SHOW_ON_MAP:...--> payload
+        // emitted in a previous assistant turn and re-attach it to a short reply.
+        const isMapReplayIntent = (t: string): boolean => {
+          const n = normalize(t);
+          if (!n) return false;
+          if (/(sur (?:une |la )?carte|voir sur (?:la |une )?carte|montre[rz]?[- ]moi.*carte|affiche.*carte|resultats?.*carte|carte des resultats?)/i.test(n)) return true;
+          if (/(on (?:a |the )?map|show (?:them |these |the )?(?:results? )?on (?:a |the )?map|view on map|map view)/i.test(n)) return true;
+          if (/(على (?:ال)?خريطة|في (?:ال)?خريطة|أرني.*خريطة)/.test(t)) return true;
+          return false;
+        };
+        if (isMapReplayIntent(userMessage)) {
+          // Walk backwards through prior assistant messages to find a SHOW_ON_MAP marker.
+          let mapJson: any = null;
+          for (let i = inMessages.length - 1; i >= 0; i--) {
+            const m = inMessages[i];
+            if (m.role !== "assistant") continue;
+            const match = String(m.content || "").match(/<!--SHOW_ON_MAP:([\s\S]*?)-->/);
+            if (match) {
+              try { mapJson = JSON.parse(match[1].replace(/--&gt;/g, "-->")); } catch { /* */ }
+              if (mapJson) break;
+            }
+          }
+          if (mapJson && Array.isArray(mapJson.businesses) && mapJson.businesses.length) {
+            lastMapPayload = mapJson;
+            for (const b of mapJson.businesses) {
+              if (b?.id && b?.name) knownBusinesses.push({ id: b.id, slug: b.slug || null, name: b.name });
+            }
+            const n = mapJson.businesses.length;
+            const reply = language === "en"
+              ? `Here are the **${n}** previous results plotted on the map — tap a marker to open its card.`
+              : language === "ar"
+                ? `إليك **${n}** من النتائج السابقة على الخريطة — انقر على العلامة لفتح بطاقة العنوان.`
+                : `Voici les **${n}** résultats précédents replacés sur la carte — clique sur un marqueur pour ouvrir la fiche.`;
+            emitDelta(reply);
+            finalText = reply + emitTrailingMarkers();
+            toolsCalledLog.push({ name: "map_replay", args: { count: n }, ok: true });
+            endText();
+            await logTurn({ finalText, streamCompleted: true });
+            return;
+          }
+          // No prior map payload — fall through to normal flow.
+        }
+
+
         // Deterministic: POI-only nearby
         if (followupMode === "poi_nearby") {
           const radiusKm = followupRadiusKm ?? 1;
