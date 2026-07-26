@@ -390,7 +390,8 @@ function buildImmersiveBusinessAnswer(
       const detail = hook || [b.main_category, Array.isArray(b.categories) ? b.categories.join(", ") : null].filter(Boolean).join(" · ");
       return `**${b.name}**${area ? `, ${area}` : ""}. ${detail || "A curated One World Morocco address to keep on your shortlist."}`;
     }).join("\n\n");
-    return `${intro}\n\n${body}\n\n${disclosure}\n\nWould you like me to narrow this by vibe, neighborhood, or moment of the day?`;
+    const rl = radiusLine("en");
+    return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nWould you like me to narrow this by vibe, neighborhood, or moment of the day?`;
   }
 
   if (lang === "ar") {
