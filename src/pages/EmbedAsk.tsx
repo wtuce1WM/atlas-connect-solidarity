@@ -607,12 +607,11 @@ const EmbedAsk = () => {
       />
 
       {openBusinessId && (() => {
-        const siblings = mapPayload?.businesses?.map((b) => b.id) ?? [];
-        const idx = siblings.indexOf(openBusinessId);
+        const idx = openSiblings.indexOf(openBusinessId);
         const hasPrev = idx > 0;
-        const hasNext = idx >= 0 && idx < siblings.length - 1;
-        const goPrev = () => { if (hasPrev) setOpenBusinessId(siblings[idx - 1]); };
-        const goNext = () => { if (hasNext) setOpenBusinessId(siblings[idx + 1]); };
+        const hasNext = idx >= 0 && idx < openSiblings.length - 1;
+        const goPrev = () => { if (hasPrev) setOpenBusinessId(openSiblings[idx - 1]); };
+        const goNext = () => { if (hasNext) setOpenBusinessId(openSiblings[idx + 1]); };
         return (
           <div className="fixed inset-0 z-[220] bg-background flex flex-col lg:left-auto lg:border-l lg:border-border lg:w-1/2">
             <SlidePanelHeader onClose={() => setOpenBusinessId(null)} alwaysDark glassClose />
