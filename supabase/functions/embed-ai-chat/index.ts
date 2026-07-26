@@ -370,6 +370,14 @@ function buildImmersiveBusinessAnswer(
       ? `Pas assez de résultats à 1 km — périmètre élargi à **${fmtRadius(radiusUsed)}** autour de **${host.name}**.`
       : `Résultats dans un rayon de **${fmtRadius(radiusUsed)}** autour de **${host.name}**.`;
   };
+  const nextWider = radiusUsed ? (radiusUsed < 1 ? 1 : radiusUsed < 2 ? 2 : radiusUsed < 3 ? 3 : radiusUsed + 2) : null;
+  const nextTighter = radiusUsed ? (radiusUsed > 2 ? 2 : radiusUsed > 1 ? 1 : 0.5) : null;
+  const radiusCta = (l: "fr" | "en" | "ar"): string => {
+    if (!proximityActive || !radiusUsed || !nextWider || !nextTighter) return "";
+    if (l === "en") return ` I can also **widen the radius to ${fmtRadius(nextWider)}** or **tighten it to ${fmtRadius(nextTighter)}** — just say the word.`;
+    if (l === "ar") return ` يمكنني أيضًا **توسيع النطاق إلى ${fmtRadius(nextWider)}** أو **تضييقه إلى ${fmtRadius(nextTighter)}** — فقط أخبرني.`;
+    return ` Je peux aussi **élargir à ${fmtRadius(nextWider)}** ou **resserrer à ${fmtRadius(nextTighter)}** — dis-moi.`;
+  };
   if (!rows.length) return disclosure;
 
 
@@ -391,7 +399,7 @@ function buildImmersiveBusinessAnswer(
       return `**${b.name}**${area ? `, ${area}` : ""}. ${detail || "A curated One World Morocco address to keep on your shortlist."}`;
     }).join("\n\n");
     const rl = radiusLine("en");
-    return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nWould you like me to narrow this by vibe, neighborhood, or moment of the day?`;
+    return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nWould you like me to narrow this by vibe, neighborhood, or moment of the day?${radiusCta("en")}`;
   }
 
   if (lang === "ar") {
@@ -403,7 +411,7 @@ function buildImmersiveBusinessAnswer(
       return `**${b.name}**${area ? `، ${area}` : ""}. ${detail || "عنوان مختار ضمن دليل One World Morocco."}`;
     }).join("\n\n");
     const rl = radiusLine("ar");
-    return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nهل تريد أن أضيّق الاختيار حسب الحي أو الأجواء أو الوقت؟`;
+    return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nهل تريد أن أضيّق الاختيار حسب الحي أو الأجواء أو الوقت؟${radiusCta("ar")}`;
   }
 
   const intro = `Depuis **${host.name}**, ${city} se découvre très bien par touches : ${theme}, terrasses vivantes, coins de médina et adresses qui donnent tout de suite une ambiance. Je te propose une sélection issue uniquement des résultats One World Morocco, avec les lieux les plus pertinents en premier.`;
@@ -414,7 +422,7 @@ function buildImmersiveBusinessAnswer(
     return `**${b.name}**${area ? `, ${area}` : ""}. ${detail || "Une adresse sélectionnée dans le guide One World Morocco, à garder dans ta shortlist."}`;
   }).join("\n\n");
   const rl = radiusLine("fr");
-  return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nTu veux que je resserre plutôt par quartier, ambiance ou moment de la journée ?`;
+  return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nTu veux que je resserre plutôt par quartier, ambiance ou moment de la journée ?${radiusCta("fr")}`;
 }
 
 function buildSystemPrompt(host: any, lang: "fr" | "en" | "ar"): string {
