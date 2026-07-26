@@ -699,11 +699,20 @@ Deno.serve(async (req) => {
               const from = (args.from_date && String(args.from_date).slice(0, 10)) || today;
               const to = (args.to_date && String(args.to_date).slice(0, 10)) || new Date(Date.now() + 60 * 86400000).toISOString().slice(0, 10);
               let eventIds: string[] | null = null;
-              const { data: badge } = await admin.from("badges").select("id").ilike("name_fr", "%agenda%").limit(1).maybeSingle();
-              if (badge?.id) {
-                const { data: eb } = await admin.from("event_badges").select("event_id").eq("badge_id", badge.id);
+              const overrideBadgeIds: string[] | undefined = Array.isArray(args._badgeIds) && args._badgeIds.length
+                ? args._badgeIds.map((s: any) => String(s)).filter(Boolean)
+                : undefined;
+              if (overrideBadgeIds) {
+                const { data: eb } = await admin.from("event_badges").select("event_id").in("badge_id", overrideBadgeIds);
                 eventIds = (eb || []).map((r: any) => r.event_id).filter(Boolean);
-                if (!eventIds.length) return { results: [], note: "Aucun événement #Agenda." };
+                if (!eventIds.length) return { results: [], note: "Aucun événement pour ce(s) badge(s)." };
+              } else {
+                const { data: badge } = await admin.from("badges").select("id").ilike("name_fr", "%agenda%").limit(1).maybeSingle();
+                if (badge?.id) {
+                  const { data: eb } = await admin.from("event_badges").select("event_id").eq("badge_id", badge.id);
+                  eventIds = (eb || []).map((r: any) => r.event_id).filter(Boolean);
+                  if (!eventIds.length) return { results: [], note: "Aucun événement #Agenda." };
+                }
               }
               let q = admin
                 .from("events")
