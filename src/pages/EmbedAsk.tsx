@@ -446,6 +446,11 @@ const EmbedAsk = () => {
   useEffect(() => {
     if (!businessName) return;
     if (messages.length > 0) return;
+    if (restoredRef.current && initialPersisted?.messages?.length) {
+      setMessages(initialPersisted.messages as any);
+      if (initialPersisted.activeSuggestionId) setActiveSuggestionId(initialPersisted.activeSuggestionId);
+      return;
+    }
     setMessages([{
       id: "opener",
       role: "assistant",
@@ -453,6 +458,26 @@ const EmbedAsk = () => {
     } as any]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [businessName, chatKey]);
+
+  // Persist thread to localStorage on every change (skip while streaming to avoid spam).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!businessName) return;
+    if (streaming) return;
+    if (messages.length <= 1) return;
+    try {
+      const payload: PersistedThread = {
+        sessionId: sessionIdRef.current,
+        messageIndex: messageIndexRef.current,
+        messages,
+        activeSuggestionId,
+        savedAt: Date.now(),
+      };
+      window.localStorage.setItem(storageKey, JSON.stringify(payload));
+    } catch { /* quota or serialization noop */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, streaming, businessName, activeSuggestionId]);
+
 
   useEffect(() => {
     if (!businessId) return;
