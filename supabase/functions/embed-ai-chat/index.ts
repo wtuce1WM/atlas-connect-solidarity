@@ -95,9 +95,10 @@ async function buildNearbyOverview(
   host: any,
   hostCategoryNames: Set<string>,
   lang: "fr" | "en" | "ar",
+  radiusKm: number = 1,
 ): Promise<string> {
   if (host.latitude == null || host.longitude == null) return "";
-  const RADIUS_KM = 1;
+  const RADIUS_KM = radiusKm > 0 ? radiusKm : 1;
   const dLat = RADIUS_KM / 111;
   const dLng = RADIUS_KM / (111 * Math.max(Math.cos((host.latitude * Math.PI) / 180), 0.1));
   const { data: biz } = await admin
@@ -172,12 +173,13 @@ async function buildNearbyOverview(
 
   const translate = (n: string) => lang === "fr" ? n : (FS_I18N[n]?.[lang] || n);
   const wordPlace = (n: number) => lang === "en" ? (n > 1 ? "places" : "place") : lang === "ar" ? "مكان" : (n > 1 ? "adresses" : "adresse");
+  const radiusLabel = RADIUS_KM < 1 ? `${Math.round(RADIUS_KM * 1000)} m` : `${RADIUS_KM % 1 === 0 ? RADIUS_KM.toFixed(0) : RADIUS_KM} km`;
 
   const header = lang === "en"
-    ? `I scanned **${nearby.length} active places** within **1 km** of ${host.name}${host.city ? ` (${host.city})` : ""}, grouped by the One World Morocco taxonomy${hostCategoryNames.size ? ` (categories overlapping ${host.name}'s own offer are excluded)` : ""}:`
+    ? `I scanned **${nearby.length} active places** within **${radiusLabel}** of ${host.name}${host.city ? ` (${host.city})` : ""}, grouped by the One World Morocco taxonomy${hostCategoryNames.size ? ` (categories overlapping ${host.name}'s own offer are excluded)` : ""}:`
     : lang === "ar"
-      ? `مررت على **${nearby.length} مكانًا نشطًا** ضمن **1 كم** من ${host.name}${host.city ? ` (${host.city})` : ""} وفق تصنيف One World Morocco${hostCategoryNames.size ? ` (تُستثنى الفئات التي تتداخل مع عرض ${host.name})` : ""}:`
-      : `J'ai passé au crible **${nearby.length} adresses actives** à moins d'**1 km** de ${host.name}${host.city ? ` (${host.city})` : ""}, réparties dans la catégorisation One World Morocco${hostCategoryNames.size ? ` (les catégories qui recoupent l'offre de ${host.name} sont exclues)` : ""} :`;
+      ? `مررت على **${nearby.length} مكانًا نشطًا** ضمن **${radiusLabel}** من ${host.name}${host.city ? ` (${host.city})` : ""} وفق تصنيف One World Morocco${hostCategoryNames.size ? ` (تُستثنى الفئات التي تتداخل مع عرض ${host.name})` : ""}:`
+      : `J'ai passé au crible **${nearby.length} adresses actives** à moins de **${radiusLabel}** de ${host.name}${host.city ? ` (${host.city})` : ""}, réparties dans la catégorisation One World Morocco${hostCategoryNames.size ? ` (les catégories qui recoupent l'offre de ${host.name} sont exclues)` : ""} :`;
 
   const bullets = rows
     .map((r) => `- ${FS_EMOJI[r.name] || "•"} **${translate(r.name)}** — ${r.count} ${wordPlace(r.count)}`)
@@ -190,10 +192,10 @@ async function buildNearbyOverview(
       : `\n\nCertaines adresses peuvent relever de plusieurs catégories. Dis-moi ce qui te tente — une table pour dîner, un spa, une balade culturelle, du shopping ? — et je te propose une sélection ciblée.`;
 
   const radiusLine = lang === "en"
-    ? `\n\n> Search radius: **1 km** around ${host.name}. Want to **narrow to 500 m** or **expand to 2 km / 5 km**?`
+    ? `\n\n> Search radius: **${radiusLabel}** around ${host.name}. Want to **narrow it** or **expand it**?`
     : lang === "ar"
-      ? `\n\n> نطاق البحث: **1 كم** حول ${host.name}. هل تريد **تضييقه إلى 500 م** أو **توسيعه إلى 2 كم / 5 كم**؟`
-      : `\n\n> Rayon de recherche : **1 km** autour de ${host.name}. Tu veux le **resserrer à 500 m** ou l'**étendre à 2 km / 5 km** ?`;
+      ? `\n\n> نطاق البحث: **${radiusLabel}** حول ${host.name}. هل تريد **تضييقه** أو **توسيعه**؟`
+      : `\n\n> Rayon de recherche : **${radiusLabel}** autour de ${host.name}. Tu veux le **resserrer** ou l'**étendre** ?`;
 
   return `${header}\n\n${bullets}${footer}${radiusLine}`;
 }
