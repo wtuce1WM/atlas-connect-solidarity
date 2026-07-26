@@ -398,18 +398,29 @@ const EmbedAsk = () => {
               {mapPayload && mapPayload.businesses.length > 0 && (
                 <div
                   className="w-full max-w-full overflow-x-auto scrollbar-hide -mx-1 px-1"
+                  style={{ overscrollBehaviorX: "contain" }}
                   onWheel={(e) => {
                     if (e.deltaY === 0) return;
                     const el = e.currentTarget;
                     const maxScroll = el.scrollWidth - el.clientWidth;
                     if (maxScroll <= 0) return;
+
+                    const goingLeft = e.deltaY < 0;
+                    const goingRight = e.deltaY > 0;
+                    // Strict boundary: only release the page scroll when the
+                    // carousel is truly at the first or last item.
                     const atLeft = el.scrollLeft <= 0;
                     const atRight = el.scrollLeft >= maxScroll - 1;
-                    const goingRight = e.deltaY > 0;
-                    const goingLeft = e.deltaY < 0;
-                    if ((goingRight && !atRight) || (goingLeft && !atLeft)) {
+
+                    // Still inside the carousel range → consume the wheel event.
+                    if ((goingLeft && !atLeft) || (goingRight && !atRight)) {
                       e.preventDefault();
-                      el.scrollLeft += e.deltaY;
+                      e.stopPropagation();
+                      // Cap the delta to avoid a large trackpad/wheel flick
+                      // overshooting the boundary and instantly unlocking page scroll.
+                      const capped = Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY), 50);
+                      const next = el.scrollLeft + capped;
+                      el.scrollLeft = Math.max(0, Math.min(maxScroll, next));
                     }
                   }}
                 >
