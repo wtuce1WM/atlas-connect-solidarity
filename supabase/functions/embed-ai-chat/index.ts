@@ -417,7 +417,8 @@ Deno.serve(async (req) => {
     const admin = createClient(SUPABASE_URL, SERVICE);
 
     const body = await req.json().catch(() => ({} as any));
-    const uiMessages: UIMessage[] = Array.isArray(body.messages) ? body.messages.slice(-16) : [];
+    // Keep last 8 turns only — older context inflates tokens without helping recall.
+    const uiMessages: UIMessage[] = Array.isArray(body.messages) ? body.messages.slice(-8) : [];
     const slugOrId = String(body.businessSlug || body.businessId || "").trim();
     const language = pickLang(body.language);
     const sessionId: string | null = typeof body.sessionId === "string" ? body.sessionId : null;
