@@ -613,9 +613,9 @@ const EmbedAsk = () => {
                             setOpenSiblings(mapPayload.businesses.slice(0, 20).map((x) => x.id));
                             setOpenBusinessId(b.id);
                           }}
-                          className="shrink-0 w-64 text-left group"
+                          className="shrink-0 w-44 text-left group"
                         >
-                          <div className="relative w-64 h-44 rounded-xl overflow-hidden bg-neutral-800">
+                          <div className="relative w-44 h-64 rounded-xl overflow-hidden bg-neutral-800">
                             {img ? (
                               <img
                                 src={img}
