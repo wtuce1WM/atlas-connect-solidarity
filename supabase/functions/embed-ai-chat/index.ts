@@ -399,7 +399,7 @@ function buildImmersiveBusinessAnswer(
       return `**${b.name}**${area ? `, ${area}` : ""}. ${detail || "A curated One World Morocco address to keep on your shortlist."}`;
     }).join("\n\n");
     const rl = radiusLine("en");
-    return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nWould you like me to narrow this by vibe, neighborhood, or moment of the day?`;
+    return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nWould you like me to narrow this by vibe, neighborhood, or moment of the day?${radiusCta("en")}`;
   }
 
   if (lang === "ar") {
