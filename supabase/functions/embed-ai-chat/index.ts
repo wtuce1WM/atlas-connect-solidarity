@@ -993,11 +993,21 @@ Deno.serve(async (req) => {
           });
         }
 
+        // When results are already forced deterministically (events / badge / subcategory /
+        // directory search), skip the tool loop entirely and stream directly. The tool
+        // loop otherwise gave the LLM room to skip the immersive intro and only echo the
+        // disclosure_note.
+        const hasForcedResults =
+          suggestionMode === "events" ||
+          !!(deterministicSubcategoryNames || deterministicBadgeIds) ||
+          shouldForceDirectorySearch(userMessage);
+
         // Tool loop (up to MAX_ROUNDS). Non-stream rounds via direct gateway fetch
         // (keeps the existing tool_calls JSON contract). Final round streamed via AI SDK.
         let finalText = "";
-        for (let round = 0; round < MAX_ROUNDS; round++) {
-          const isLast = round === MAX_ROUNDS - 1;
+        const effectiveRounds = hasForcedResults ? 1 : MAX_ROUNDS;
+        for (let round = 0; round < effectiveRounds; round++) {
+          const isLast = round === effectiveRounds - 1;
           const resp = await fetch(GATEWAY, {
             method: "POST",
             headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
@@ -1064,7 +1074,7 @@ Deno.serve(async (req) => {
                     parts: [{ type: "text", text: String(m.content || "") }],
                   })) as any,
               ),
-              temperature: 0.7,
+              temperature: hasForcedResults ? 0.4 : 0.7,
             });
             for await (const delta of result.textStream) {
               finalText += delta;
