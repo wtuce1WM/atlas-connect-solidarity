@@ -115,6 +115,128 @@ function buildHoursAnswer(host: any, lang: "fr" | "en" | "ar"): string | null {
   return `${intro}\n\n${lines.join("\n")}${outro}`;
 }
 
+/**
+ * Parse prior assistant messages for the `<!--KNOWN_BUSINESSES:[...]-->` marker
+ * and return the ids of previously-shown businesses (most recent turn first,
+ * host excluded, deduped).
+ */
+function extractPriorKnownBusinessIds(messages: { role: string; content: any }[], hostId: string): string[] {
+  const ids: string[] = [];
+  const seen = new Set<string>();
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i];
+    if (m.role !== "assistant") continue;
+    const content = String(m.content ?? "");
+    const match = content.match(/<!--KNOWN_BUSINESSES:(\[[\s\S]*?\])-->/);
+    if (!match) continue;
+    try {
+      const arr = JSON.parse(match[1].replace(/--&gt;/g, "-->"));
+      if (Array.isArray(arr)) {
+        for (const b of arr) {
+          const id = b?.id;
+          if (typeof id === "string" && id && id !== hostId && !seen.has(id)) {
+            seen.add(id);
+            ids.push(id);
+          }
+        }
+      }
+    } catch { /* ignore */ }
+    if (ids.length) break; // stop at the most recent turn that had results
+  }
+  return ids;
+}
+
+/**
+ * Build a multi-business hours summary for the previous search results.
+ * Only lists businesses that have `show_opening_hours = true`.
+ * For each, shows today's slot (Morocco time) + a compact weekly line.
+ */
+async function buildHoursForBusinesses(admin: any, ids: string[], lang: "fr" | "en" | "ar"): Promise<string | null> {
+  if (!ids.length) return null;
+  const { data, error } = await admin
+    .from("businesses")
+    .select("id, name, slug, city, neighborhood, show_opening_hours, opening_hours, is_open_24h, phone, whatsapp")
+    .in("id", ids.slice(0, 20));
+  if (error || !Array.isArray(data) || !data.length) return null;
+
+  // Preserve the order of the incoming ids.
+  const byId = new Map<string, any>(data.map((b: any) => [b.id, b]));
+  const ordered = ids.map((id) => byId.get(id)).filter(Boolean);
+
+  const withHours = ordered.filter((b: any) => b.show_opening_hours === true && (b.is_open_24h || (b.opening_hours && typeof b.opening_hours === "object")));
+  const withoutHours = ordered.filter((b: any) => !(b.show_opening_hours === true));
+
+  if (!withHours.length && !withoutHours.length) return null;
+
+  const labels = DAY_LABELS[lang];
+  const closedWord = lang === "en" ? "Closed" : lang === "ar" ? "مغلق" : "Fermé";
+  const open24Word = lang === "en" ? "Open 24/7" : lang === "ar" ? "مفتوح 24/24" : "Ouvert 24h/24";
+
+  // Morocco day-of-week index into DAY_KEYS (which starts Monday).
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: "Africa/Casablanca", weekday: "short" }).formatToParts(new Date());
+  const wd = parts.find((p) => p.type === "weekday")?.value || "";
+  const wdMap: Record<string, number> = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
+  const todayIdx = wdMap[wd] ?? 0;
+  const todayKey = DAY_KEYS[todayIdx];
+  const todayLabel = labels[todayIdx];
+
+  const formatSlot = (d: any): string => {
+    if (!d) return "—";
+    if (d.closed) return closedWord;
+    if (!d.open || !d.close) return "—";
+    let s = `${d.open}–${d.close}`;
+    if (d.open2 && d.close2 && !d.continuous) s += ` / ${d.open2}–${d.close2}`;
+    return s;
+  };
+
+  const formatWeek = (oh: any): string => {
+    const chunks: string[] = [];
+    DAY_KEYS.forEach((k, i) => {
+      const short = labels[i].slice(0, 3);
+      chunks.push(`${short} ${formatSlot(oh?.[k])}`);
+    });
+    return chunks.join(" · ");
+  };
+
+  const intro = lang === "en"
+    ? `Here are the opening hours for the results above (${todayLabel} first):`
+    : lang === "ar"
+      ? `إليك ساعات العمل للنتائج السابقة (${todayLabel} أولًا):`
+      : `Voici les horaires des résultats ci-dessus (${todayLabel} en premier) :`;
+
+  const blocks: string[] = [];
+  for (const b of withHours) {
+    const loc = [b.neighborhood, b.city].filter(Boolean).join(", ");
+    const header = `**${b.name}**${loc ? ` — ${loc}` : ""}`;
+    if (b.is_open_24h) {
+      blocks.push(`- ${header} — ${open24Word}`);
+      continue;
+    }
+    const today = formatSlot(b.opening_hours?.[todayKey]);
+    const week = formatWeek(b.opening_hours);
+    blocks.push(`- ${header}\n  · ${todayLabel} : ${today}\n  · ${week}`);
+  }
+
+  let out = `${intro}\n\n${blocks.join("\n")}`;
+
+  if (withoutHours.length) {
+    const names = withoutHours.map((b: any) => `**${b.name}**`).join(", ");
+    const line = lang === "en"
+      ? `\n\nHours are not published here for ${names} — best to contact them directly.`
+      : lang === "ar"
+        ? `\n\nساعات العمل غير منشورة لـ ${names} — يُفضّل التواصل معهم مباشرة.`
+        : `\n\nHoraires non publiés ici pour ${names} — le mieux est de les contacter directement.`;
+    out += line;
+  }
+
+  const outro = lang === "en"
+    ? `\n\nWant me to filter by "open now" or suggest one for a specific time slot?`
+    : lang === "ar"
+      ? `\n\nهل تريد التصفية حسب "مفتوح الآن" أو اقتراح واحد لوقت معين؟`
+      : `\n\nJe filtre sur « ouvert maintenant » ou je t'en propose un pour un créneau précis ?`;
+  return out + outro;
+}
+
 function isReserveCta(cta: string | null | undefined, mode: string | null | undefined): boolean {
   const raw = `${cta || ""} ${mode || ""}`;
   const n = normalize(raw);
