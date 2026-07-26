@@ -286,6 +286,88 @@ function buildBookingAnswer(host: any, lang: "fr" | "en" | "ar"): string {
   return `**${host.name}** ne propose pas de réservation en ligne sur cette page. L'équipe s'occupe des réservations directement${contactLine ? ` — ${contactLine}` : ""}. Je peux te suggérer quelque chose à faire à proximité ?`;
 }
 
+/**
+ * Build a multi-business booking summary for the previous search results.
+ * Scans reserve_now_url + online_shop_url + url_4 + url_5 with a Reserve/Book CTA.
+ * Businesses without an online booking URL fall back to phone/WhatsApp.
+ */
+async function buildBookingForBusinesses(admin: any, ids: string[], lang: "fr" | "en" | "ar"): Promise<string | null> {
+  if (!ids.length) return null;
+  const { data, error } = await admin
+    .from("businesses")
+    .select("id, name, city, neighborhood, phone, whatsapp, reserve_now_url, reserve_now_cta, presentation_mode, online_shop_url, online_shop_cta, online_shop_presentation_mode, url_4, url_4_cta, url_4_presentation_mode, url_5, url_5_cta, url_5_presentation_mode")
+    .in("id", ids.slice(0, 20));
+  if (error || !Array.isArray(data) || !data.length) return null;
+
+  const byId = new Map<string, any>(data.map((b: any) => [b.id, b]));
+  const ordered = ids.map((id) => byId.get(id)).filter(Boolean);
+
+  const defaultLabel = lang === "en" ? "Book online" : lang === "ar" ? "احجز عبر الإنترنت" : "Réserver en ligne";
+  const collectLinks = (b: any): { url: string; label: string }[] => {
+    const out: { url: string; label: string }[] = [];
+    const push = (url: any, cta: any, mode: any) => {
+      if (!url || typeof url !== "string") return;
+      if (!isReserveCta(cta, mode)) return;
+      const fullUrl = url.startsWith("http") ? url : `https://${url}`;
+      const label = (cta && String(cta).trim()) || defaultLabel;
+      out.push({ url: fullUrl, label });
+    };
+    push(b.reserve_now_url, b.reserve_now_cta, b.presentation_mode);
+    push(b.online_shop_url, b.online_shop_cta, b.online_shop_presentation_mode);
+    push(b.url_4, b.url_4_cta, b.url_4_presentation_mode);
+    push(b.url_5, b.url_5_cta, b.url_5_presentation_mode);
+    return out;
+  };
+
+  const bookable: { b: any; links: { url: string; label: string }[] }[] = [];
+  const contactOnly: any[] = [];
+  for (const b of ordered) {
+    const links = collectLinks(b);
+    if (links.length) bookable.push({ b, links });
+    else contactOnly.push(b);
+  }
+
+  if (!bookable.length && !contactOnly.length) return null;
+
+  const intro = lang === "en"
+    ? `Here's the online booking status for the results above:`
+    : lang === "ar"
+      ? `إليك حالة الحجز عبر الإنترنت للنتائج السابقة:`
+      : `Voici le statut de réservation en ligne pour les résultats ci-dessus :`;
+
+  const blocks: string[] = [];
+  for (const { b, links } of bookable) {
+    const loc = [b.neighborhood, b.city].filter(Boolean).join(", ");
+    const header = `**${b.name}**${loc ? ` — ${loc}` : ""}`;
+    const linksLine = links.map((c) => `[${c.label}](${c.url})`).join(" · ");
+    blocks.push(`- ${header}\n  · ${linksLine}`);
+  }
+  for (const b of contactOnly) {
+    const loc = [b.neighborhood, b.city].filter(Boolean).join(", ");
+    const header = `**${b.name}**${loc ? ` — ${loc}` : ""}`;
+    const contacts: string[] = [];
+    if (b.whatsapp) contacts.push(lang === "en" ? `WhatsApp ${b.whatsapp}` : lang === "ar" ? `واتساب ${b.whatsapp}` : `WhatsApp ${b.whatsapp}`);
+    if (b.phone) contacts.push(lang === "en" ? `phone ${b.phone}` : lang === "ar" ? `هاتف ${b.phone}` : `tél. ${b.phone}`);
+    const noOnline = lang === "en"
+      ? "No online booking"
+      : lang === "ar"
+        ? "لا حجز عبر الإنترنت"
+        : "Pas de réservation en ligne";
+    const line = contacts.length ? `${noOnline} — ${contacts.join(" · ")}` : noOnline;
+    blocks.push(`- ${header}\n  · ${line}`);
+  }
+
+  const outro = lang === "en"
+    ? `\n\nWant me to focus on the ones you can book right now?`
+    : lang === "ar"
+      ? `\n\nهل تريد أن أركز على الأماكن التي يمكنك حجزها الآن؟`
+      : `\n\nJe me concentre sur ceux que tu peux réserver directement en ligne ?`;
+
+  return `${intro}\n\n${blocks.join("\n")}${outro}`;
+}
+
+
+
 
 function isNearbyOverviewIntent(text: string, hostName?: string): boolean {
   const q = String(text ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
@@ -1453,9 +1535,20 @@ Deno.serve(async (req) => {
 
         // Deterministic: ONLINE BOOKING — scan url_1..url_5 CTAs for a Reserve/Book label.
         if (isBookingIntent(userMessage)) {
+          const priorIds = extractPriorKnownBusinessIds(inMessages, host.id);
+          if (priorIds.length) {
+            const answer = await buildBookingForBusinesses(admin, priorIds, language);
+            if (answer) {
+              emitDelta(answer);
+              toolsCalledLog.push({ name: "booking_lookup", args: { scope: "previous_results", count: priorIds.length }, ok: true });
+              endText();
+              await logTurn({ finalText: answer, streamCompleted: true });
+              return;
+            }
+          }
           const answer = buildBookingAnswer(host, language);
           emitDelta(answer);
-          toolsCalledLog.push({ name: "booking_lookup", args: {}, ok: true });
+          toolsCalledLog.push({ name: "booking_lookup", args: { scope: "host" }, ok: true });
           endText();
           await logTurn({ finalText: answer, streamCompleted: true });
           return;
