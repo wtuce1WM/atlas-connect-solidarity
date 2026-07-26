@@ -1086,6 +1086,57 @@ const BookOnlineSlidePanelInner = ({
     showPoiMapOverlay, activeVideoOverlay, showFallbackOverlay, searchOverlayActive, showDescriptionOverlay, showWelcomePopup, globalSoundOn,
   ]);
 
+  // ── External bridge: window events to control Play/Mute from an outer bar
+  //   dispatch "book-panel:toggle-play"  → play/pause current media
+  //   dispatch "book-panel:toggle-mute"  → mute/unmute current media
+  //   dispatch "book-panel:request-state" → panel emits "book-panel:state"
+  //   listen to "book-panel:state" → { playing, muted }
+  useEffect(() => {
+    const ytPost = (func: string, args: any[] = []) => {
+      iframeRef.current?.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func, args }),
+        "*"
+      );
+    };
+    const emitState = () => {
+      const v = videoRef.current;
+      const playing = v ? !v.paused : !videoPaused;
+      const muted = !globalSoundOn;
+      window.dispatchEvent(new CustomEvent("book-panel:state", { detail: { playing, muted } }));
+    };
+    const onTogglePlay = () => {
+      const v = videoRef.current;
+      if (v) {
+        if (v.paused) { v.play().catch(() => {}); ytPost("playVideo"); }
+        else { v.pause(); ytPost("pauseVideo"); }
+      } else {
+        // YT-only media
+        if (videoPaused) { ytPost("playVideo"); setVideoPaused(false); }
+        else { ytPost("pauseVideo"); setVideoPaused(true); }
+      }
+      setTimeout(emitState, 50);
+    };
+    const onToggleMute = () => {
+      const nextOn = !globalSoundOn;
+      setGlobalSoundOn(nextOn);
+      const v = videoRef.current;
+      if (v) { v.muted = !nextOn; v.volume = nextOn ? 1 : 0; }
+      if (nextOn) { ytPost("unMute"); ytPost("setVolume", [100]); }
+      else { ytPost("mute"); ytPost("setVolume", [0]); }
+      setTimeout(emitState, 50);
+    };
+    window.addEventListener("book-panel:toggle-play", onTogglePlay);
+    window.addEventListener("book-panel:toggle-mute", onToggleMute);
+    window.addEventListener("book-panel:request-state", emitState);
+    emitState();
+    return () => {
+      window.removeEventListener("book-panel:toggle-play", onTogglePlay);
+      window.removeEventListener("book-panel:toggle-mute", onToggleMute);
+      window.removeEventListener("book-panel:request-state", emitState);
+    };
+  }, [videoPaused, globalSoundOn, setGlobalSoundOn]);
+
+
 
   const hasOpeningHours = business?.show_opening_hours !== false && (business?.is_open_24h || business?.opening_hours);
 

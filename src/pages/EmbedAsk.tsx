@@ -9,7 +9,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import { Send, Sun, Moon, MapPin, Calendar as CalendarIcon, MessageSquarePlus, Bed, Utensils, Wine, Coffee, ShoppingBag, Sparkles, Landmark, Camera } from "lucide-react";
+import { Send, Sun, Moon, MapPin, Calendar as CalendarIcon, MessageSquarePlus, Bed, Utensils, Wine, Coffee, ShoppingBag, Sparkles, Landmark, Camera, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount } from "@/lib/ratingUtils";
 import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlidePanel";
@@ -18,6 +18,52 @@ import type { EventPanelItem } from "@/components/club/ClubAiAssistant";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
+
+/**
+ * Liquid-glass bottom bar overlaying BookOnlineSlidePanel in the embed:
+ * Play/Pause + Mute/Unmute controls wired to the panel via window events.
+ */
+const EmbedMediaBottomBar = () => {
+  const [playing, setPlaying] = useState(true);
+  const [muted, setMuted] = useState(false);
+  useEffect(() => {
+    const onState = (e: Event) => {
+      const d = (e as CustomEvent).detail as { playing: boolean; muted: boolean } | undefined;
+      if (!d) return;
+      setPlaying(d.playing);
+      setMuted(d.muted);
+    };
+    window.addEventListener("book-panel:state", onState);
+    // Request a state sync once the panel has mounted
+    const t = setTimeout(() => window.dispatchEvent(new Event("book-panel:request-state")), 300);
+    return () => { window.removeEventListener("book-panel:state", onState); clearTimeout(t); };
+  }, []);
+  return (
+    <div
+      className="pointer-events-none absolute inset-x-0 bottom-4 z-[230] flex justify-center"
+      data-cta
+    >
+      <div className="pointer-events-auto flex items-center gap-3 px-3 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event("book-panel:toggle-play"))}
+          aria-label={playing ? "Pause" : "Play"}
+          className="w-11 h-11 rounded-full bg-black/70 hover:bg-black/90 flex items-center justify-center text-white transition-colors"
+        >
+          {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+        </button>
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event("book-panel:toggle-mute"))}
+          aria-label={muted ? "Unmute" : "Mute"}
+          className="w-11 h-11 rounded-full bg-black/70 hover:bg-black/90 flex items-center justify-center text-white transition-colors"
+        >
+          {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
   fr: {
@@ -213,6 +259,7 @@ const EmbedAsk = () => {
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
   const [openEvents, setOpenEvents] = useState<{ list: EventPanelItem[]; index: number } | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+  const [openSiblings, setOpenSiblings] = useState<string[]>([]);
 
   const isMobile = useMemo(() => typeof window !== "undefined" && window.innerWidth < 768, []);
 
@@ -443,7 +490,10 @@ const EmbedAsk = () => {
                         <button
                           key={b.id}
                           type="button"
-                          onClick={() => setOpenBusinessId(b.id)}
+                          onClick={() => {
+                            setOpenSiblings(mapPayload.businesses.slice(0, 20).map((x) => x.id));
+                            setOpenBusinessId(b.id);
+                          }}
                           className="shrink-0 w-64 text-left group"
                         >
                           <div className="relative w-64 h-44 rounded-xl overflow-hidden bg-neutral-800">
@@ -602,20 +652,32 @@ const EmbedAsk = () => {
         onOpenBusiness={(bid) => { setOpenEvents(null); setOpenBusinessId(bid); }}
       />
 
-      {openBusinessId && (
-        <div className="fixed inset-0 z-[220] bg-background flex flex-col lg:left-auto lg:border-l lg:border-border lg:w-1/2">
-          <SlidePanelHeader onClose={() => setOpenBusinessId(null)} alwaysDark glassClose />
-          <div className="flex-1 min-h-0 overflow-visible">
-            <Suspense fallback={null}>
-              <BookOnlineSlidePanel
-                key={openBusinessId}
-                businessId={openBusinessId}
-                onClose={() => setOpenBusinessId(null)}
-              />
-            </Suspense>
+      {openBusinessId && (() => {
+        const idx = openSiblings.indexOf(openBusinessId);
+        const hasPrev = idx > 0;
+        const hasNext = idx >= 0 && idx < openSiblings.length - 1;
+        const goPrev = () => { if (hasPrev) setOpenBusinessId(openSiblings[idx - 1]); };
+        const goNext = () => { if (hasNext) setOpenBusinessId(openSiblings[idx + 1]); };
+        return (
+          <div className="fixed inset-0 z-[220] bg-background flex flex-col lg:left-auto lg:border-l lg:border-border lg:w-1/2">
+            <SlidePanelHeader onClose={() => setOpenBusinessId(null)} alwaysDark glassClose />
+            <div className="flex-1 min-h-0 overflow-visible">
+              <Suspense fallback={null}>
+                <BookOnlineSlidePanel
+                  key={openBusinessId}
+                  businessId={openBusinessId}
+                  onClose={() => setOpenBusinessId(null)}
+                  onPrev={goPrev}
+                  onNext={goNext}
+                  hasPrev={hasPrev}
+                  hasNext={hasNext}
+                />
+              </Suspense>
+            </div>
+            <EmbedMediaBottomBar />
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 };
