@@ -2,8 +2,121 @@
 // Usage is logged to public.ai_usage_events so we can attribute cost per user / affiliate / business.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createOpenAICompatible } from "npm:@ai-sdk/openai-compatible@1";
 
 export const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
+export const GATEWAY_BASE_URL = "https://ai.gateway.lovable.dev/v1";
+
+// ---------------------------------------------------------------------------
+// AI SDK provider (Vercel AI SDK v5) — used by the new streamText / useChat path.
+// The legacy fetchAiGateway() below stays in place for routes that still call
+// /chat/completions directly (deterministic router shortcuts, ai_usage_events
+// logging). Migrate one route at a time to the provider below.
+// ---------------------------------------------------------------------------
+
+const LOVABLE_AIG_RUN_ID_HEADER = "X-Lovable-AIG-Run-ID";
+
+export function createLovableAiGatewayRunIdFetch(initialRunId?: string) {
+  let runId = initialRunId?.trim() || undefined;
+  let resolveRunId: (value: string | undefined) => void = () => {};
+  let runIdResolved = false;
+  const runIdReady = new Promise<string | undefined>((resolve) => {
+    resolveRunId = resolve;
+  });
+
+  const publishRunId = (value?: string) => {
+    const nextRunId = value?.trim() || undefined;
+    if (!runId && nextRunId) runId = nextRunId;
+    if (!runIdResolved) {
+      runIdResolved = true;
+      resolveRunId(runId);
+    }
+  };
+  if (runId) publishRunId(runId);
+
+  return {
+    fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
+      const headers = new Headers(init?.headers);
+      if (runId && !headers.has(LOVABLE_AIG_RUN_ID_HEADER)) {
+        headers.set(LOVABLE_AIG_RUN_ID_HEADER, runId);
+      }
+      try {
+        const response = await fetch(input, { ...init, headers });
+        publishRunId(response.headers.get(LOVABLE_AIG_RUN_ID_HEADER) ?? undefined);
+        return response;
+      } catch (error) {
+        publishRunId(undefined);
+        throw error;
+      }
+    },
+    getRunId: () => runId,
+    waitForRunId: () => (runId ? Promise.resolve(runId) : runIdReady),
+  };
+}
+
+/**
+ * Create an AI SDK provider bound to Lovable AI Gateway.
+ * Usage:
+ *   const gateway = createLovableAiGatewayProvider(Deno.env.get("LOVABLE_API_KEY")!);
+ *   const model = gateway("google/gemini-3.6-flash");
+ *   const result = streamText({ model, system, messages });
+ *   return result.toUIMessageStreamResponse({ headers: corsHeaders });
+ */
+export function createLovableAiGatewayProvider(
+  lovableApiKey: string,
+  initialRunId?: string,
+  options?: { structuredOutputs?: boolean },
+) {
+  const runIdFetch = createLovableAiGatewayRunIdFetch(initialRunId);
+
+  const provider = createOpenAICompatible({
+    name: "lovable",
+    baseURL: GATEWAY_BASE_URL,
+    supportsStructuredOutputs: options?.structuredOutputs ?? false,
+    headers: {
+      "Lovable-API-Key": lovableApiKey,
+      "X-Lovable-AIG-SDK": "vercel-ai-sdk",
+    },
+    fetch: runIdFetch.fetch as any,
+  });
+
+  return Object.assign(provider, {
+    getRunId: runIdFetch.getRunId,
+    waitForRunId: runIdFetch.waitForRunId,
+  });
+}
+
+export function getLovableAiGatewayRunId(request: Request): string | undefined {
+  return request.headers.get(LOVABLE_AIG_RUN_ID_HEADER)?.trim() || undefined;
+}
+
+export function getLovableAiGatewayResponseHeaders(
+  providerHeaders: HeadersInit | undefined,
+  init?: HeadersInit,
+): Headers {
+  const headers = new Headers(init);
+  const exposedHeaders = new Set(
+    (headers.get("Access-Control-Expose-Headers") ?? "")
+      .split(",")
+      .map((h) => h.trim())
+      .filter(Boolean),
+  );
+  new Headers(providerHeaders).forEach((value, name) => {
+    if (name.toLowerCase().startsWith("x-lovable-aig-")) {
+      headers.set(name, value);
+      exposedHeaders.add(name);
+    }
+  });
+  headers.forEach((_, name) => {
+    if (name.toLowerCase().startsWith("x-lovable-aig-")) {
+      exposedHeaders.add(name);
+    }
+  });
+  if (exposedHeaders.size > 0) {
+    headers.set("Access-Control-Expose-Headers", Array.from(exposedHeaders).join(", "));
+  }
+  return headers;
+}
 
 export interface AiUsage {
   prompt_tokens?: number;
