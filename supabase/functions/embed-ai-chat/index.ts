@@ -937,7 +937,7 @@ Deno.serve(async (req) => {
           ].filter(Boolean).join(" + ");
           convo.push({
             role: "system",
-            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE (route déterministe sur ${routeDesc}):\n${JSON.stringify(forcedResult).slice(0, 12000)}\n${pinnedNames.length ? `ORDRE PRIORITAIRE MANUEL À RESPECTER ABSOLUMENT: cite d'abord ${pinnedNames.join(" puis ")}, avant tout autre résultat.` : ""}\nRecommande uniquement des résultats listés ci-dessus. Respecte l'ordre. Copie exactement disclosure_note sur sa propre ligne avant la question finale.`,
+            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE (route déterministe sur ${routeDesc}):\n${JSON.stringify(forcedResult).slice(0, 12000)}\n${pinnedNames.length ? `ORDRE PRIORITAIRE MANUEL À RESPECTER ABSOLUMENT: cite d'abord ${pinnedNames.join(" puis ")}, avant tout autre résultat.` : ""}\n\nFORMAT DE RÉPONSE OBLIGATOIRE :\n1. Ouvre par une phrase d'accroche immersive (1 phrase) qui plante l'ambiance/le thème de la sélection.\n2. Présente ensuite CHAQUE résultat listé ci-dessus (dans l'ordre imposé) sous forme d'un court paragraphe immersif de 2 à 3 phrases : nomme l'adresse en **gras**, décris l'ambiance/le lieu/pourquoi y aller en t'appuyant UNIQUEMENT sur les champs du résultat (categories, neighborhood, hook, description, badges). Pas d'invention. Pas de puces sèches.\n3. Termine par la phrase exacte de disclosure_note sur sa propre ligne, suivie d'UNE question de relance courte.\nRecommande uniquement des résultats listés ci-dessus, respecte l'ordre. Réponds dans la même langue que la question de l'utilisateur.`,
           });
         } else if (shouldForceDirectorySearch(userMessage)) {
           const forcedArgs = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
@@ -948,7 +948,7 @@ Deno.serve(async (req) => {
             .filter(Boolean);
           convo.push({
             role: "system",
-            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE:\n${JSON.stringify(forcedResult).slice(0, 12000)}\n${pinnedNames.length ? `ORDRE PRIORITAIRE MANUEL À RESPECTER ABSOLUMENT: cite d'abord ${pinnedNames.join(" puis ")}, avant tout autre résultat.` : ""}\nTu dois recommander uniquement des résultats listés ci-dessus. Copie exactement disclosure_note sur sa propre ligne avant la question finale.`,
+            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE:\n${JSON.stringify(forcedResult).slice(0, 12000)}\n${pinnedNames.length ? `ORDRE PRIORITAIRE MANUEL À RESPECTER ABSOLUMENT: cite d'abord ${pinnedNames.join(" puis ")}, avant tout autre résultat.` : ""}\n\nFORMAT DE RÉPONSE OBLIGATOIRE :\n1. Ouvre par une phrase d'accroche immersive (1 phrase).\n2. Présente ensuite CHAQUE résultat listé ci-dessus sous forme d'un court paragraphe immersif de 2 à 3 phrases : nomme l'adresse en **gras**, décris l'ambiance/le lieu/pourquoi y aller en t'appuyant UNIQUEMENT sur les champs du résultat (categories, neighborhood, hook, description, badges). Pas d'invention. Pas de puces sèches.\n3. Termine par la phrase exacte de disclosure_note sur sa propre ligne, suivie d'UNE question de relance courte.\nRecommande uniquement des résultats listés ci-dessus.`,
           });
         }
 
