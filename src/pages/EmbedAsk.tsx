@@ -485,6 +485,17 @@ const EmbedAsk = () => {
     );
   };
 
+  const voiceLang = lang === "en" ? "en-US" : lang === "ar" ? "ar-MA" : "fr-FR";
+  const voice = useVoiceSearch({
+    lang: voiceLang,
+    onTranscript: (keywords, spoken) => {
+      const text = (spoken || keywords || "").trim();
+      if (!text) return;
+      send(text);
+    },
+    onError: (message) => setError(message),
+  });
+
   const startNewConversation = () => {
     sessionIdRef.current =
       typeof crypto !== "undefined" && "randomUUID" in crypto
