@@ -71,6 +71,16 @@ function isNearbyOverviewIntent(text: string, hostName?: string): boolean {
   return false;
 }
 
+// Detect any "à proximité / autour de / near / around / قرب" phrasing,
+// independent of the nearby-overview route (which requires no other filter).
+function isProximityIntent(text: string): boolean {
+  const q = String(text ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  if (!q) return false;
+  if (/\b(a\s+proximite|proximite|pres\s+de|proche\s+de|autour\s+de|autour|a\s+cote\s+de|aux\s+alentours|nearby|near\s+me|near\s+by|close\s+to|around|next\s+to|walking\s+distance)\b/.test(q)) return true;
+  if (/(قرب|بالقرب|حول|بجوار|بجانب)/.test(text || "")) return true;
+  return false;
+}
+
 function haversineKmLocal(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
