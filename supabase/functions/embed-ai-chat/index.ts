@@ -569,7 +569,8 @@ Deno.serve(async (req) => {
                 .from("businesses")
                 .select("id,name,slug,city,neighborhood,address,main_category,categories,latitude,longitude,logo_url,images,hook_fr,google_rating,google_review_count,tripadvisor_rating,tripadvisor_review_count,engagements")
                 .in("slug", slugs)
-                .eq("is_active", true);
+                .eq("is_active", true)
+                .is("closure_message", null);
               const rows = (data || []).filter((b: any) => b.id !== host.id);
               const nonCompetitor = await filterOutCompetitors(rows);
               const withCoords = nonCompetitor.filter((b: any) => b.latitude != null && b.longitude != null);
