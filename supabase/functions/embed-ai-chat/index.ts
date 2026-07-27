@@ -251,9 +251,9 @@ async function buildHoursForBusinesses(admin: any, ids: string[], lang: "fr" | "
 function isOpensFirstIntent(text: string): boolean {
   const n = normalize(text);
   if (!n) return false;
-  if (/\b(premier|premiere|1er|1ere).{0,20}(ouvr|ouverture)\b/.test(n)) return true;
-  if (/\bqui ouvre.{0,15}(tot|premier|en premier|le plus tot)\b/.test(n)) return true;
-  if (/\bouvre.{0,10}le plus tot\b/.test(n)) return true;
+  if (/\b(premier|premiere|1er|1ere).{0,20}(ouvr|ouverture)/.test(n)) return true;
+  if (/\bqui ouvre.{0,15}(tot|premier|en premier|le plus tot)/.test(n)) return true;
+  if (/\bouvre.{0,10}le plus tot/.test(n)) return true;
   if (/\b(opens? (?:the )?(?:first|earliest)|earliest to open|which .* opens first)\b/i.test(text)) return true;
   if (/(الأول|أول).{0,15}(يفتح|فتح)/.test(text)) return true;
   return false;
