@@ -235,16 +235,19 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
 const MAP_RE = /<!--SHOW_ON_MAP:([\s\S]*?)-->/g;
 const EVENTS_RE = /<!--EVENTS_SNAPSHOT:([\s\S]*?)-->/g;
 const KNOWN_RE = /<!--KNOWN_BUSINESSES:([\s\S]*?)-->/g;
+const ARTICLE_RE = /<!--ARTICLE_CARD:([\s\S]*?)-->/g;
 
 type MapPayload = { title?: string | null; businesses: MapPanelBusiness[] };
 type EventsPayload = { title?: string | null; city?: string | null; events: EventPanelItem[] };
 type KnownBusiness = { id: string; slug: string | null; name: string };
+type ArticleCardPayload = { id: string; slug: string; title: string; image: string | null; isOwner?: boolean };
 
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[] } {
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[] } {
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
-  if (!text) return { clean: text, maps, events, known };
+  const articles: ArticleCardPayload[] = [];
+  if (!text) return { clean: text, maps, events, known, articles };
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -263,13 +266,20 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
       if (Array.isArray(p)) for (const b of p) if (b?.id && b?.name) known.push({ id: b.id, slug: b.slug || null, name: b.name });
     } catch { /* */ }
     return "";
+  }).replace(ARTICLE_RE, (_m, raw) => {
+    try {
+      const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (p && p.id && p.slug && p.title) articles.push(p as ArticleCardPayload);
+    } catch { /* */ }
+    return "";
   });
   clean = clean
     .replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "")
     .replace(/<!--EVENTS_SNAPSHOT:[\s\S]*$/g, "")
     .replace(/<!--KNOWN_BUSINESSES:[\s\S]*$/g, "")
+    .replace(/<!--ARTICLE_CARD:[\s\S]*$/g, "")
     .trim();
-  return { clean, maps, events, known };
+  return { clean, maps, events, known, articles };
 }
 
 // Concatenate all text parts of a UIMessage into a single string.
