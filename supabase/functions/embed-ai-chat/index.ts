@@ -1746,6 +1746,8 @@ Deno.serve(async (req) => {
     const messageIndex: number = Number.isFinite(body.messageIndex) ? Number(body.messageIndex) : 0;
     const suggestionId: string | null = typeof body.suggestionId === "string" && body.suggestionId ? body.suggestionId : null;
     const followupId: string | null = typeof body.followupId === "string" && body.followupId ? body.followupId : null;
+    const scope: "filter" | "broaden" | null =
+      body.scope === "filter" || body.scope === "broaden" ? body.scope : null;
 
     if (!slugOrId) {
       return new Response(JSON.stringify({ error: "businessSlug required" }), {
@@ -1938,7 +1940,16 @@ Deno.serve(async (req) => {
           const lastUserText = lastUser?.role === "user" ? extractTextFromUIMessage(lastUser) : "";
           const norm = (s: string) => s.toLowerCase().replace(/\s+/g, " ").replace(/[?!.\s]+$/g, "").trim();
           const isInitialClick = suggestionLabel && norm(lastUserText) === norm(suggestionLabel);
-          if (!isInitialClick && !isSuggestionRefinement(lastUserText)) {
+          // Explicit user scope overrides the heuristic:
+          //  - "broaden" → always drop the deterministic force (fresh city-wide search).
+          //  - "filter"  → always keep it (narrow among the current suggestion thread).
+          const shouldDrop =
+            scope === "broaden"
+              ? true
+              : scope === "filter"
+                ? false
+                : !isInitialClick && !isSuggestionRefinement(lastUserText);
+          if (shouldDrop) {
             deterministicSubcategoryNames = null;
             deterministicBadgeIds = null;
             suggestionPinnedIds = [];
