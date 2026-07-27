@@ -30,14 +30,11 @@ export const useVideoView = (
     const key = `${source}:${videoId}`;
     if (loggedKey.current === key) return;
     loggedKey.current = key;
-    const { data: { session } } = await supabase.auth.getSession();
-    await supabase
-      .from("video_views" as any)
-      .insert({
-        video_id: videoId,
-        video_source: source,
-        user_id: session?.user?.id ?? null,
-      } as any);
+    try {
+      await supabase.functions.invoke("log-video-view", {
+        body: { video_id: videoId, video_source: source },
+      });
+    } catch { /* silent — analytics never breaks UX */ }
     setCount((c) => c + 1);
     // GA4 event
     import("@/lib/analytics").then(({ trackEvent }) =>
