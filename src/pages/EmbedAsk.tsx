@@ -186,6 +186,12 @@ const EmbedBookPanelWrapper = ({
   );
 };
 
+const SCOPE_LABELS: Record<string, { filter: string; broaden: string }> = {
+  fr: { filter: "Filtrer parmi ces résultats", broaden: "Élargir la recherche" },
+  en: { filter: "Filter these results", broaden: "Broaden the search" },
+  ar: { filter: "تصفية هذه النتائج", broaden: "توسيع البحث" },
+};
+
 const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
   fr: {
     placeholder: "Posez votre question…",
