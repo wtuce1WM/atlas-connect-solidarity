@@ -389,6 +389,335 @@ async function buildHoursRanking(
   return `${intro}\n\n${lines.join("\n")}${outro}`;
 }
 
+// ============================================================
+// Deterministic ranking / filter / pick on prior results
+// ============================================================
+
+function isDistanceRankingIntent(text: string): "closest" | "farthest" | null {
+  const n = normalize(text);
+  if (!n) return null;
+  if (/\b(le plus proche|la plus proche|les plus proches|plus pres|le plus pres)\b/.test(n)) return "closest";
+  if (/\b(closest|nearest)\b/i.test(text)) return "closest";
+  if (/(الأقرب|أقرب واحد)/.test(text)) return "closest";
+  if (/\b(le plus loin|la plus loin|les plus loins|plus eloigne|le plus eloigne)\b/.test(n)) return "farthest";
+  if (/\b(farthest|furthest)\b/i.test(text)) return "farthest";
+  if (/(الأبعد)/.test(text)) return "farthest";
+  return null;
+}
+
+function isRatingRankingIntent(text: string): "best_rated" | "most_reviewed" | null {
+  const n = normalize(text);
+  if (!n) return null;
+  if (/\b(le plus d['\s]?avis|le plus commente|les plus commentes|le plus populaire|les plus populaires)\b/.test(n)) return "most_reviewed";
+  if (/\b(most reviews?|most reviewed|most popular)\b/i.test(text)) return "most_reviewed";
+  if (/(الأكثر تقييما|الأكثر شعبية|الأكثر مراجعة)/.test(text)) return "most_reviewed";
+  if (/\b(le mieux note|la mieux notee|le meilleur note|meilleure note|top note|le mieux classe)\b/.test(n)) return "best_rated";
+  if (/\b(highest[- ]?rated|best[- ]?rated|top[- ]?rated)\b/i.test(text)) return "best_rated";
+  if (/(الأعلى تقييما|الأفضل تقييما)/.test(text)) return "best_rated";
+  return null;
+}
+
+type OpenFilterIntent = { kind: "now" | "slot"; startH?: number; endH?: number; label: string; dayOffset?: number };
+
+function parseOpenFilterIntent(text: string): OpenFilterIntent | null {
+  const n = normalize(text);
+  if (!n) return null;
+  const filterHint = /\b(lesquels|lesquelles|quels|quelles|which|lequel|laquelle|filtre|filtrer|only|seulement|garde|ouverts?|open|مفتوح|أي(?:ها)?)\b/i.test(text);
+  if (!filterHint) return null;
+  if (/\b(demain\s+soir|tomorrow\s+(?:evening|night))\b/i.test(text)) return { kind: "slot", startH: 19, endH: 23, label: "tomorrow evening", dayOffset: 1 };
+  if (/\b(demain\s+midi|tomorrow\s+(?:noon|lunch))\b/i.test(text)) return { kind: "slot", startH: 12, endH: 14, label: "tomorrow lunch", dayOffset: 1 };
+  if (/\b(demain\s+matin|tomorrow\s+morning)\b/i.test(text)) return { kind: "slot", startH: 8, endH: 12, label: "tomorrow morning", dayOffset: 1 };
+  if (/\b(demain|tomorrow|غدا)\b/i.test(text)) return { kind: "slot", startH: 10, endH: 22, label: "tomorrow", dayOffset: 1 };
+  if (/\b(maintenant|actuellement|now|right now|الآن)\b/i.test(text)) return { kind: "now", label: "now" };
+  if (/\b(ce soir|soiree|tonight|this evening|الليلة)\b/i.test(text)) return { kind: "slot", startH: 19, endH: 23, label: "evening", dayOffset: 0 };
+  if (/\b(matin|morning|صباح)\b/i.test(text)) return { kind: "slot", startH: 8, endH: 12, label: "morning", dayOffset: 0 };
+  if (/\b(midi|dejeuner|lunch|غداء)\b/i.test(text)) return { kind: "slot", startH: 12, endH: 14, label: "lunch", dayOffset: 0 };
+  if (/\b(apres[- ]?midi|after ?noon|بعد الظهر)\b/i.test(text)) return { kind: "slot", startH: 14, endH: 18, label: "afternoon", dayOffset: 0 };
+  if (/\b(diner|dinner|عشاء)\b/i.test(text)) return { kind: "slot", startH: 19, endH: 23, label: "dinner", dayOffset: 0 };
+  if (/\b(nuit|night|nocturne|ليل)\b/i.test(text)) return { kind: "slot", startH: 22, endH: 26, label: "night", dayOffset: 0 };
+  if (/\b(ouverts?|open|مفتوح)\b/i.test(text)) return { kind: "now", label: "now" };
+  return null;
+}
+
+function parseOrdinalIntent(text: string, priorCount: number): number[] | null {
+  if (priorCount <= 0) return null;
+  const n = normalize(text);
+  const firstK = /\b(?:les?\s+)?(\d+)\s+premiers?\b/.exec(n) || /\b(?:the\s+)?(?:first|top)\s+(\d+)\b/i.exec(text);
+  if (firstK) {
+    const k = Math.max(1, Math.min(priorCount, parseInt(firstK[1], 10)));
+    return Array.from({ length: k }, (_, i) => i);
+  }
+  const lastK = /\b(?:les?\s+)?(\d+)\s+derniers?\b/.exec(n) || /\b(?:the\s+)?last\s+(\d+)\b/i.exec(text);
+  if (lastK) {
+    const k = Math.max(1, Math.min(priorCount, parseInt(lastK[1], 10)));
+    return Array.from({ length: k }, (_, i) => priorCount - k + i);
+  }
+  if (/\b(le\s+premier|la\s+premiere|the\s+first|1er|1ere)\b/i.test(text)) return [0];
+  if (/\b(le\s+dernier|la\s+derniere|the\s+last)\b/i.test(text)) return [priorCount - 1];
+  const nth = /\ble\s+(\d+)(?:e|eme|er|ere)?\b/.exec(n) || /\b(?:the\s+)?(\d+)(?:st|nd|rd|th)\b/i.exec(text);
+  if (nth) {
+    const i = parseInt(nth[1], 10) - 1;
+    if (i >= 0 && i < priorCount) return [i];
+  }
+  return null;
+}
+
+function isCountIntent(text: string): boolean {
+  const n = normalize(text);
+  if (!n) return false;
+  if (/\b(combien|combien y en a|combien il y en a|combien sont)\b/.test(n)) return true;
+  if (/\bhow many\b/i.test(text)) return true;
+  if (/(كم عدد|كم واحد|كم منها)/.test(text)) return true;
+  return false;
+}
+
+function extractPriorOrderedBusinesses(messages: any[], hostId: string): Array<{ id: string; slug?: string; name: string }> {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i];
+    if (m.role !== "assistant") continue;
+    const content = String(m.content ?? "");
+    const mapMatch = content.match(/<!--SHOW_ON_MAP:(\{[\s\S]*?\})-->/);
+    if (mapMatch) {
+      try {
+        const parsed = JSON.parse(mapMatch[1]);
+        if (parsed && Array.isArray(parsed.businesses)) {
+          const arr = parsed.businesses.filter((b: any) => b?.id && b.id !== hostId).map((b: any) => ({ id: b.id, slug: b.slug, name: b.name }));
+          if (arr.length) return arr;
+        }
+      } catch { /* ignore */ }
+    }
+    const knownMatch = content.match(/<!--KNOWN_BUSINESSES:(\[[\s\S]*?\])-->/);
+    if (knownMatch) {
+      try {
+        const arr = JSON.parse(knownMatch[1]);
+        if (Array.isArray(arr) && arr.length) {
+          return arr.filter((b: any) => b?.id && b.id !== hostId).map((b: any) => ({ id: b.id, slug: b.slug, name: b.name }));
+        }
+      } catch { /* ignore */ }
+    }
+  }
+  return [];
+}
+
+async function fetchPriorFull(admin: any, ids: string[]): Promise<any[]> {
+  if (!ids.length) return [];
+  const { data } = await admin.from("businesses").select(
+    "id, name, slug, city, neighborhood, address, main_category, latitude, longitude, logo_url, images, computed_rating, rating, total_review_count, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, engagements, opening_hours, is_open_24h, vacation_dates, show_opening_hours"
+  ).in("id", ids.slice(0, 30));
+  return Array.isArray(data) ? data : [];
+}
+
+function orderByIds<T extends { id: string }>(arr: T[], ids: string[]): T[] {
+  const map = new Map(arr.map((x) => [x.id, x]));
+  const out: T[] = [];
+  for (const id of ids) { const v = map.get(id); if (v) out.push(v); }
+  return out;
+}
+
+function fmtKm(km: number): string {
+  return km < 1 ? `${Math.round(km * 1000)} m` : Number.isInteger(km) ? `${km} km` : `${km.toFixed(1)} km`;
+}
+
+function toMapMarker(businesses: any[], title: string | null = null): string {
+  const mapBusinesses = businesses.slice(0, 20).map((p: any) => ({
+    id: p.id, slug: p.slug, name: p.name,
+    city: p.city, neighborhood: p.neighborhood, address: p.address,
+    main_category: p.main_category || "",
+    categories: p.main_category ? [p.main_category] : [],
+    latitude: p.latitude, longitude: p.longitude,
+    logo_url: p.logo_url,
+    images: Array.isArray(p.images) ? p.images : [],
+    google_rating: p.google_rating, google_review_count: p.google_review_count,
+    tripadvisor_rating: p.tripadvisor_rating, tripadvisor_review_count: p.tripadvisor_review_count,
+    engagements: p.engagements,
+  }));
+  return `\n\n<!--SHOW_ON_MAP:${JSON.stringify({ title, businesses: mapBusinesses })}-->`;
+}
+
+async function buildDistanceRanking(admin: any, host: any, ids: string[], mode: "closest" | "farthest", lang: "fr" | "en" | "ar"): Promise<string | null> {
+  if (!ids.length) return null;
+  const hLat = Number(host.latitude), hLng = Number(host.longitude);
+  if (!Number.isFinite(hLat) || !Number.isFinite(hLng)) return null;
+  const rows = await fetchPriorFull(admin, ids);
+  const withDist = rows
+    .filter((r: any) => Number.isFinite(Number(r.latitude)) && Number.isFinite(Number(r.longitude)))
+    .map((r: any) => ({ ...r, _dist_km: haversineKmLocal(hLat, hLng, Number(r.latitude), Number(r.longitude)) }));
+  if (!withDist.length) return null;
+  withDist.sort((a: any, b: any) => (mode === "closest" ? a._dist_km - b._dist_km : b._dist_km - a._dist_km));
+  const top = withDist.slice(0, 5);
+  const lines = top.map((r: any) => {
+    const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
+    return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${fmtKm(r._dist_km)}`;
+  });
+  const intro = mode === "closest"
+    ? (lang === "en" ? `Among the previous results, **${top[0].name}** is the closest to **${host.name}**:`
+      : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** هو الأقرب إلى **${host.name}**:`
+      : `Parmi les précédents, c'est **${top[0].name}** le plus proche de **${host.name}** :`)
+    : (lang === "en" ? `Among the previous results, **${top[0].name}** is the farthest from **${host.name}**:`
+      : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** هو الأبعد عن **${host.name}**:`
+      : `Parmi les précédents, c'est **${top[0].name}** le plus loin de **${host.name}** :`);
+  return `${intro}\n\n${lines.join("\n")}${toMapMarker(top)}`;
+}
+
+async function buildRatingRanking(admin: any, ids: string[], mode: "best_rated" | "most_reviewed", lang: "fr" | "en" | "ar"): Promise<string | null> {
+  if (!ids.length) return null;
+  const rows = await fetchPriorFull(admin, ids);
+  if (!rows.length) return null;
+  const scored = rows.map((r: any) => ({
+    ...r,
+    _rating: r.computed_rating != null ? Number(r.computed_rating) : (r.rating != null ? Number(r.rating) : null),
+    _count: r.total_review_count != null ? Number(r.total_review_count) : 0,
+  }));
+  if (mode === "best_rated") {
+    const eligible = scored.filter((r: any) => r._rating != null && r._count >= 10);
+    if (!eligible.length) {
+      if (lang === "en") return `I don't have enough public reviews on those results to rank them by rating. Want another angle?`;
+      if (lang === "ar") return `لا توجد مراجعات كافية لتصنيف هذه النتائج حسب التقييم. زاوية أخرى؟`;
+      return `Je n'ai pas assez d'avis publics sur ces adresses pour les classer par note. Un autre angle ?`;
+    }
+    eligible.sort((a: any, b: any) => (b._rating - a._rating) || (b._count - a._count));
+    const top = eligible.slice(0, 5);
+    const lines = top.map((r: any) => {
+      const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
+      return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ⭐ ${r._rating.toFixed(1)}/5 (${r._count} avis)`;
+    });
+    const intro = lang === "en" ? `Among the previous results, **${top[0].name}** has the highest overall rating:`
+      : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** لديه أعلى تقييم عام:`
+      : `Parmi les précédents, c'est **${top[0].name}** qui a la meilleure note globale :`;
+    return `${intro}\n\n${lines.join("\n")}${toMapMarker(top)}`;
+  }
+  scored.sort((a: any, b: any) => b._count - a._count);
+  const top = scored.filter((r: any) => r._count > 0).slice(0, 5);
+  if (!top.length) {
+    if (lang === "en") return `I don't have public review counts on those results.`;
+    if (lang === "ar") return `لا توجد أعداد مراجعات علنية لهذه النتائج.`;
+    return `Je n'ai pas de nombre d'avis publics sur ces adresses.`;
+  }
+  const lines = top.map((r: any) => {
+    const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
+    return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${r._count} avis`;
+  });
+  const intro = lang === "en" ? `Among the previous results, **${top[0].name}** has the most reviews:`
+    : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** لديه أكبر عدد من المراجعات:`
+    : `Parmi les précédents, c'est **${top[0].name}** qui a le plus d'avis :`;
+  return `${intro}\n\n${lines.join("\n")}${toMapMarker(top)}`;
+}
+
+async function buildOpenFilter(admin: any, ids: string[], intent: OpenFilterIntent, lang: "fr" | "en" | "ar"): Promise<string | null> {
+  if (!ids.length) return null;
+  const rows = await fetchPriorFull(admin, ids);
+  if (!rows.length) return null;
+
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Africa/Casablanca", year: "numeric", month: "2-digit", day: "2-digit", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false,
+  }).formatToParts(new Date());
+  const get = (t: string) => parts.find((p) => p.type === t)?.value || "";
+  const wdMap: Record<string, number> = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
+  const todayIdx = wdMap[get("weekday")] ?? 0;
+  const nowMin = parseInt(get("hour"), 10) * 60 + parseInt(get("minute"), 10);
+  const dayOffset = intent.kind === "now" ? 0 : (intent.dayOffset ?? 0);
+  const dayIdx = (todayIdx + dayOffset) % 7;
+  const dayKey = DAY_KEYS[dayIdx];
+
+  const slotStart = intent.kind === "now" ? nowMin : (intent.startH ?? 0) * 60;
+  const slotEnd = intent.kind === "now" ? nowMin + 1 : (intent.endH ?? 24) * 60;
+
+  const toMin = (s: string): number | null => { const m = /^(\d{1,2}):(\d{2})$/.exec(s || ""); return m ? parseInt(m[1], 10) * 60 + parseInt(m[2], 10) : null; };
+  const overlaps = (openStr?: string, closeStr?: string): boolean => {
+    if (!openStr || !closeStr) return false;
+    const o = toMin(openStr), c = toMin(closeStr); if (o == null || c == null) return false;
+    const cAdj = c <= o ? c + 1440 : c;
+    const sEnd = slotEnd <= slotStart ? slotEnd + 1440 : slotEnd;
+    return slotStart < cAdj && sEnd > o;
+  };
+
+  const y = get("year"), mo = get("month"), da = get("day");
+  const target = new Date(`${y}-${mo}-${da}T00:00:00Z`); target.setUTCDate(target.getUTCDate() + dayOffset);
+  const targetStr = target.toISOString().slice(0, 10);
+
+  const kept: any[] = [];
+  for (const b of rows) {
+    if (b.is_open_24h) { kept.push(b); continue; }
+    if (b.show_opening_hours !== true) continue;
+    if (Array.isArray(b.vacation_dates)) {
+      const onVac = b.vacation_dates.some((v: any) => v?.start_date && v?.end_date && targetStr >= v.start_date && targetStr <= v.end_date);
+      if (onVac) continue;
+    }
+    const d = b.opening_hours?.[dayKey];
+    if (!d || d.closed) continue;
+    if (overlaps(d.open, d.close) || (!d.continuous && overlaps(d.open2, d.close2))) kept.push(b);
+  }
+
+  const ordered = orderByIds(kept, ids);
+  const labelMap: Record<string, Record<string, string>> = {
+    now: { fr: "ouverts maintenant", en: "open now", ar: "مفتوحة الآن" },
+    evening: { fr: "ouverts ce soir", en: "open this evening", ar: "مفتوحة هذا المساء" },
+    dinner: { fr: "ouverts pour le dîner", en: "open for dinner", ar: "مفتوحة للعشاء" },
+    morning: { fr: "ouverts ce matin", en: "open this morning", ar: "مفتوحة هذا الصباح" },
+    lunch: { fr: "ouverts pour le déjeuner", en: "open for lunch", ar: "مفتوحة للغداء" },
+    afternoon: { fr: "ouverts cet après-midi", en: "open this afternoon", ar: "مفتوحة بعد الظهر" },
+    night: { fr: "ouverts en soirée tardive", en: "open late", ar: "مفتوحة ليلاً" },
+    tomorrow: { fr: "ouverts demain", en: "open tomorrow", ar: "مفتوحة غدًا" },
+    "tomorrow evening": { fr: "ouverts demain soir", en: "open tomorrow evening", ar: "مفتوحة غدًا مساءً" },
+    "tomorrow lunch": { fr: "ouverts demain midi", en: "open tomorrow at lunch", ar: "مفتوحة غدًا للغداء" },
+    "tomorrow morning": { fr: "ouverts demain matin", en: "open tomorrow morning", ar: "مفتوحة غدًا صباحًا" },
+  };
+  const label = labelMap[intent.label]?.[lang] || labelMap.now[lang];
+
+  if (!ordered.length) {
+    if (lang === "en") return `None of the previous results are **${label}** based on published hours.`;
+    if (lang === "ar") return `لا توجد من النتائج السابقة **${label}** حسب الساعات المنشورة.`;
+    return `Aucun des résultats précédents n'est **${label}** selon les horaires publiés.`;
+  }
+
+  const lines = ordered.slice(0, 10).map((r: any) => {
+    const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
+    return `- **${r.name}**${loc ? ` — ${loc}` : ""}`;
+  });
+  const skipped = ids.length - ordered.length;
+  const intro = lang === "en" ? `Filtered to **${ordered.length}** result${ordered.length > 1 ? "s" : ""} ${label}:`
+    : lang === "ar" ? `تم التصفية إلى **${ordered.length}** نتيجة ${label}:`
+    : `Filtré : **${ordered.length}** résultat${ordered.length > 1 ? "s" : ""} ${label} :`;
+  const outro = skipped > 0
+    ? (lang === "en" ? `\n\n_(${skipped} excluded: hours not published or closed.)_`
+      : lang === "ar" ? `\n\n_(${skipped} مستبعدة: الساعات غير منشورة أو مغلقة.)_`
+      : `\n\n_(${skipped} exclu${skipped > 1 ? "s" : ""} : horaires non publiés ou fermé.)_`)
+    : "";
+  return `${intro}\n\n${lines.join("\n")}${outro}${toMapMarker(ordered)}`;
+}
+
+function buildOrdinalPick(prior: Array<{ id: string; slug?: string; name: string }>, indices: number[], lang: "fr" | "en" | "ar"): string {
+  const picks = indices.map((i) => prior[i]).filter(Boolean);
+  if (!picks.length) {
+    if (lang === "en") return `That position isn't in the previous list.`;
+    if (lang === "ar") return `هذا الموقع ليس في القائمة السابقة.`;
+    return `Cette position n'est pas dans la liste précédente.`;
+  }
+  const names = picks.map((p) => `**${p.name}**`).join(lang === "ar" ? "، " : ", ");
+  if (picks.length === 1) {
+    if (lang === "en") return `That's ${names} — want more detail, hours, or a booking link?`;
+    if (lang === "ar") return `هذا ${names} — هل تريد تفاصيل، ساعات، أو رابط حجز؟`;
+    return `C'est ${names} — tu veux plus de détails, les horaires, ou un lien de réservation ?`;
+  }
+  if (lang === "en") return `Those are ${names}. Want me to compare them?`;
+  if (lang === "ar") return `هؤلاء هم ${names}. هل تريد المقارنة بينهم؟`;
+  return `Ce sont ${names}. Je te les compare ?`;
+}
+
+function buildCountAnswer(count: number, lang: "fr" | "en" | "ar"): string {
+  if (count === 0) {
+    if (lang === "en") return `There are no previous results to count.`;
+    if (lang === "ar") return `لا توجد نتائج سابقة للعد.`;
+    return `Il n'y a pas de résultats précédents à compter.`;
+  }
+  if (lang === "en") return `There ${count > 1 ? "are" : "is"} **${count}** result${count > 1 ? "s" : ""} in the previous selection. Want me to rank them or filter them?`;
+  if (lang === "ar") return `يوجد **${count}** نتيجة في الاختيار السابق. هل تريد ترتيبها أو تصفيتها؟`;
+  return `Il y a **${count}** résultat${count > 1 ? "s" : ""} dans la sélection précédente. Tu veux que je les classe ou les filtre ?`;
+}
+
+
+
+
 
 function isReserveCta(cta: string | null | undefined, mode: string | null | undefined): boolean {
   const raw = `${cta || ""} ${mode || ""}`;
@@ -1918,7 +2247,91 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Deterministic: DISTANCE RANKING — "le plus proche / le plus loin"
+        {
+          const mode = isDistanceRankingIntent(userMessage);
+          if (mode) {
+            const priorIds = extractPriorKnownBusinessIds(inMessages, host.id);
+            if (priorIds.length) {
+              const answer = await buildDistanceRanking(admin, host, priorIds, mode, language);
+              if (answer) {
+                emitDelta(answer);
+                toolsCalledLog.push({ name: "distance_ranking", args: { mode, count: priorIds.length }, ok: true });
+                endText();
+                await logTurn({ finalText: answer, streamCompleted: true });
+                return;
+              }
+            }
+          }
+        }
+
+        // Deterministic: RATING RANKING — "le mieux noté / le plus d'avis"
+        {
+          const mode = isRatingRankingIntent(userMessage);
+          if (mode) {
+            const priorIds = extractPriorKnownBusinessIds(inMessages, host.id);
+            if (priorIds.length) {
+              const answer = await buildRatingRanking(admin, priorIds, mode, language);
+              if (answer) {
+                emitDelta(answer);
+                toolsCalledLog.push({ name: "rating_ranking", args: { mode, count: priorIds.length }, ok: true });
+                endText();
+                await logTurn({ finalText: answer, streamCompleted: true });
+                return;
+              }
+            }
+          }
+        }
+
+        // Deterministic: OPEN-NOW / OPEN-DURING-SLOT filter on prior results.
+        {
+          const filterIntent = parseOpenFilterIntent(userMessage);
+          if (filterIntent) {
+            const priorIds = extractPriorKnownBusinessIds(inMessages, host.id);
+            if (priorIds.length) {
+              const answer = await buildOpenFilter(admin, priorIds, filterIntent, language);
+              if (answer) {
+                emitDelta(answer);
+                toolsCalledLog.push({ name: "open_filter", args: { intent: filterIntent, count: priorIds.length }, ok: true });
+                endText();
+                await logTurn({ finalText: answer, streamCompleted: true });
+                return;
+              }
+            }
+          }
+        }
+
+        // Deterministic: ORDINAL PICK — "le premier / le 2ème / les 3 premiers / le dernier"
+        {
+          const prior = extractPriorOrderedBusinesses(inMessages, host.id);
+          if (prior.length) {
+            const idx = parseOrdinalIntent(userMessage, prior.length);
+            if (idx && idx.length) {
+              const answer = buildOrdinalPick(prior, idx, language);
+              emitDelta(answer);
+              toolsCalledLog.push({ name: "ordinal_pick", args: { indices: idx }, ok: true });
+              endText();
+              await logTurn({ finalText: answer, streamCompleted: true });
+              return;
+            }
+          }
+        }
+
+        // Deterministic: COUNT — "combien ?"
+        if (isCountIntent(userMessage)) {
+          const prior = extractPriorOrderedBusinesses(inMessages, host.id);
+          if (prior.length) {
+            const answer = buildCountAnswer(prior.length, language);
+            emitDelta(answer);
+            toolsCalledLog.push({ name: "count_priors", args: { count: prior.length }, ok: true });
+            endText();
+            await logTurn({ finalText: answer, streamCompleted: true });
+            return;
+          }
+        }
+
         // Deterministic: HOURS — read opening_hours directly from DB, gated by show_opening_hours.
+
 
         if (isHoursIntent(userMessage)) {
           // 1) If the previous assistant turn returned a list of results (KNOWN_BUSINESSES marker),
