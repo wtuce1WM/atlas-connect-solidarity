@@ -127,21 +127,32 @@ function extractPriorKnownBusinessIds(messages: { role: string; content: any }[]
     const m = messages[i];
     if (m.role !== "assistant") continue;
     const content = String(m.content ?? "");
-    const match = content.match(/<!--KNOWN_BUSINESSES:(\[[\s\S]*?\])-->/);
-    if (!match) continue;
-    try {
-      const arr = JSON.parse(match[1].replace(/--&gt;/g, "-->"));
-      if (Array.isArray(arr)) {
-        for (const b of arr) {
-          const id = b?.id;
-          if (typeof id === "string" && id && id !== hostId && !seen.has(id)) {
-            seen.add(id);
-            ids.push(id);
-          }
+    // Prefer KNOWN_BUSINESSES, fall back to SHOW_ON_MAP (deterministic routes like
+    // poi_nearby emit only SHOW_ON_MAP but still represent the latest result set).
+    let arr: any = null;
+    const knownMatch = content.match(/<!--KNOWN_BUSINESSES:(\[[\s\S]*?\])-->/);
+    if (knownMatch) {
+      try { arr = JSON.parse(knownMatch[1].replace(/--&gt;/g, "-->")); } catch { /* ignore */ }
+    }
+    if (!arr) {
+      const mapMatch = content.match(/<!--SHOW_ON_MAP:(\{[\s\S]*?\})-->/);
+      if (mapMatch) {
+        try {
+          const parsed = JSON.parse(mapMatch[1].replace(/--&gt;/g, "-->"));
+          if (parsed && Array.isArray(parsed.businesses)) arr = parsed.businesses;
+        } catch { /* ignore */ }
+      }
+    }
+    if (Array.isArray(arr)) {
+      for (const b of arr) {
+        const id = b?.id;
+        if (typeof id === "string" && id && id !== hostId && !seen.has(id)) {
+          seen.add(id);
+          ids.push(id);
         }
       }
-    } catch { /* ignore */ }
-    if (ids.length) break; // stop at the most recent turn that had results
+      if (ids.length) break; // stop at the most recent turn that had results
+    }
   }
   return ids;
 }
