@@ -622,6 +622,7 @@ export type Database = {
       }
       blog_posts: {
         Row: {
+          anchor_business_id: string | null
           anchor_poi: Json | null
           author_name: string | null
           bookmark_slug: string | null
@@ -669,6 +670,7 @@ export type Database = {
           video_section_config: Json | null
         }
         Insert: {
+          anchor_business_id?: string | null
           anchor_poi?: Json | null
           author_name?: string | null
           bookmark_slug?: string | null
@@ -716,6 +718,7 @@ export type Database = {
           video_section_config?: Json | null
         }
         Update: {
+          anchor_business_id?: string | null
           anchor_poi?: Json | null
           author_name?: string | null
           bookmark_slug?: string | null
@@ -762,7 +765,22 @@ export type Database = {
           updated_at?: string
           video_section_config?: Json | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_anchor_business_id_fkey"
+            columns: ["anchor_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_posts_anchor_business_id_fkey"
+            columns: ["anchor_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       bookmarks: {
         Row: {
