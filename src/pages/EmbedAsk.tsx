@@ -609,8 +609,8 @@ const EmbedAsk = () => {
       { text },
       { body: { suggestionId: effectiveSuggestionId, followupId: followupId || null, scope: effectiveScope } },
     );
-    // Reset scope after each free-text send so it doesn't stick.
-    if (isFreeText && scope) setScope(null);
+    // Reset scope to its default after each free-text send so "Filter" remains selected.
+    if (isFreeText) setScope("filter");
   };
 
   const findLastMapPayload = (): MapPayload | null => {
