@@ -235,16 +235,19 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
 const MAP_RE = /<!--SHOW_ON_MAP:([\s\S]*?)-->/g;
 const EVENTS_RE = /<!--EVENTS_SNAPSHOT:([\s\S]*?)-->/g;
 const KNOWN_RE = /<!--KNOWN_BUSINESSES:([\s\S]*?)-->/g;
+const ARTICLE_RE = /<!--ARTICLE_CARD:([\s\S]*?)-->/g;
 
 type MapPayload = { title?: string | null; businesses: MapPanelBusiness[] };
 type EventsPayload = { title?: string | null; city?: string | null; events: EventPanelItem[] };
 type KnownBusiness = { id: string; slug: string | null; name: string };
+type ArticleCardPayload = { id: string; slug: string; title: string; image: string | null; isOwner?: boolean };
 
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[] } {
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[] } {
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
-  if (!text) return { clean: text, maps, events, known };
+  const articles: ArticleCardPayload[] = [];
+  if (!text) return { clean: text, maps, events, known, articles };
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -263,13 +266,20 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
       if (Array.isArray(p)) for (const b of p) if (b?.id && b?.name) known.push({ id: b.id, slug: b.slug || null, name: b.name });
     } catch { /* */ }
     return "";
+  }).replace(ARTICLE_RE, (_m, raw) => {
+    try {
+      const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (p && p.id && p.slug && p.title) articles.push(p as ArticleCardPayload);
+    } catch { /* */ }
+    return "";
   });
   clean = clean
     .replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "")
     .replace(/<!--EVENTS_SNAPSHOT:[\s\S]*$/g, "")
     .replace(/<!--KNOWN_BUSINESSES:[\s\S]*$/g, "")
+    .replace(/<!--ARTICLE_CARD:[\s\S]*$/g, "")
     .trim();
-  return { clean, maps, events, known };
+  return { clean, maps, events, known, articles };
 }
 
 // Concatenate all text parts of a UIMessage into a single string.
@@ -848,9 +858,10 @@ const EmbedAsk = () => {
             );
           }
           const raw = messageText(m);
-          const { clean, maps, events } = extractPayloads(raw);
+          const { clean, maps, events, articles } = extractPayloads(raw);
           const mapPayload = maps[maps.length - 1] || null;
           const eventsPayload = events[events.length - 1] || null;
+          const articleCard = articles[articles.length - 1] || null;
           const isLast = i === messages.length - 1;
           const citedFallback =
             !mapPayload || mapPayload.businesses.length === 0
@@ -858,6 +869,24 @@ const EmbedAsk = () => {
               : [];
           return (
             <div key={m.id || i} className="flex flex-col items-start gap-2">
+              {articleCard && (
+                <a
+                  href={`/embed/ask/${slug}/article/${articleCard.slug}`}
+                  className={`relative flex w-full max-w-[85%] gap-3 rounded-2xl overflow-hidden ${cardBg} hover:opacity-95 transition-opacity`}
+                >
+                  {articleCard.image ? (
+                    <img src={articleCard.image} alt={articleCard.title} className="w-24 h-24 object-cover flex-shrink-0" loading="lazy" />
+                  ) : (
+                    <div className="w-24 h-24 bg-neutral-800 flex-shrink-0" />
+                  )}
+                  <div className="flex-1 py-2 pr-3 flex flex-col justify-center gap-1">
+                    <span className="text-[10px] uppercase tracking-wide text-[#D4AF37] font-semibold">
+                      {lang === "en" ? "Recommended article" : lang === "ar" ? "مقال موصى به" : "Article recommandé"}
+                    </span>
+                    <div className="text-sm font-semibold leading-snug line-clamp-3">{articleCard.title}</div>
+                  </div>
+                </a>
+              )}
               <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${asstBubble}`}>
                 <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-ul:my-1">
                   <ReactMarkdown components={{ strong: StrongCited as any }}>
@@ -870,6 +899,8 @@ const EmbedAsk = () => {
                 renderCarousel(mapPayload.businesses, () => setOpenMap(mapPayload))}
 
               {citedFallback.length > 0 && renderCarousel(citedFallback)}
+
+
 
 
               {eventsPayload && eventsPayload.events.length > 0 && (

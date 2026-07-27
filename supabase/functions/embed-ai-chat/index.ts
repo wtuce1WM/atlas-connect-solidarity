@@ -26,6 +26,70 @@ const SEARCH_LIMIT_HARD = 30;
 
 type Msg = { role: "system" | "user" | "assistant" | "tool"; content: string; tool_call_id?: string; tool_calls?: any[] };
 
+// ============= Blog grounding (hybrid) =============
+// Cache published blog posts in module scope for 5 minutes to avoid a DB round-trip per turn.
+type BlogRow = {
+  id: string; slug: string;
+  title_fr: string | null; title_en: string | null; title_ar: string | null;
+  custom_hero_image_url: string | null; cover_image_url: string | null;
+  anchor_business_id: string | null;
+};
+let BLOG_CACHE: { at: number; items: BlogRow[] } | null = null;
+async function fetchBlogPostsCached(admin: any): Promise<BlogRow[]> {
+  const now = Date.now();
+  if (BLOG_CACHE && now - BLOG_CACHE.at < 5 * 60 * 1000) return BLOG_CACHE.items;
+  const { data } = await admin
+    .from("blog_posts")
+    .select("id, slug, title_fr, title_en, title_ar, custom_hero_image_url, cover_image_url, anchor_business_id")
+    .eq("is_published", true)
+    .limit(300);
+  BLOG_CACHE = { at: now, items: (data as BlogRow[]) || [] };
+  return BLOG_CACHE.items;
+}
+
+const BLOG_STOPWORDS = new Set<string>([
+  "le","la","les","un","une","des","de","du","au","aux","en","sur","dans","ou","et","pour","avec",
+  "a","à","d","l","s","c","que","qui","quoi","où","ou","est","sont","ce","ces","cet","cette","mon","ma","mes",
+  "the","a","an","of","to","in","on","at","and","or","for","with","near","close","best","top","by",
+  "meilleur","meilleure","meilleurs","meilleures","top","plus","proche","proches","autour",
+  "je","tu","il","elle","on","nous","vous","ils","elles","me","te","se","moi","toi",
+  "veux","voudrais","cherche","chercher","trouver","montre","montrer","voir",
+  "quoi","comment","quel","quelle","quels","quelles","what","which","how",
+]);
+function tokenizeForBlog(s: string): string[] {
+  return String(s || "")
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .split(/\s+/)
+    .filter((t) => t.length >= 3 && !BLOG_STOPWORDS.has(t));
+}
+function matchBlogArticle(userText: string, lang: "fr" | "en" | "ar", posts: BlogRow[], hostId: string): BlogRow | null {
+  const qTokens = new Set(tokenizeForBlog(userText));
+  if (qTokens.size < 2) return null;
+  let best: { row: BlogRow; score: number; overlap: number; owner: boolean } | null = null;
+  for (const p of posts) {
+    const titles = [p.title_fr, p.title_en, p.title_ar].filter(Boolean) as string[];
+    if (!titles.length) continue;
+    let bestForRow = 0, bestOverlap = 0;
+    for (const t of titles) {
+      const tTokens = new Set(tokenizeForBlog(t));
+      if (tTokens.size < 2) continue;
+      let overlap = 0;
+      for (const w of qTokens) if (tTokens.has(w)) overlap++;
+      if (overlap < 2) continue;
+      const score = overlap / Math.min(qTokens.size, tTokens.size);
+      if (score > bestForRow) { bestForRow = score; bestOverlap = overlap; }
+    }
+    if (bestForRow < 0.5) continue;
+    const owner = p.anchor_business_id === hostId;
+    const boost = owner ? 0.15 : 0;
+    const finalScore = bestForRow + boost;
+    if (!best || finalScore > best.score) best = { row: p, score: finalScore, overlap: bestOverlap, owner };
+  }
+  return best ? best.row : null;
+}
+
 function pickLang(v: unknown): "fr" | "en" | "ar" {
   return v === "en" || v === "ar" ? v : "fr";
 }
@@ -1653,7 +1717,7 @@ function extractTextFromUIMessage(m: UIMessage): string {
 }
 
 function preserveEmbedMarkers(text: string, maxTextChars = 4000): string {
-  const markerRe = /<!--(?:SHOW_ON_MAP|EVENTS_SNAPSHOT|KNOWN_BUSINESSES):[\s\S]*?-->/g;
+  const markerRe = /<!--(?:SHOW_ON_MAP|EVENTS_SNAPSHOT|KNOWN_BUSINESSES|ARTICLE_CARD):[\s\S]*?-->/g;
   const markers = text.match(markerRe) || [];
   const clean = text.replace(markerRe, "").slice(0, maxTextChars).trim();
   return [clean, ...markers].filter(Boolean).join("\n\n");
@@ -1882,6 +1946,39 @@ Deno.serve(async (req) => {
             curatedProximity = null;
           }
         }
+
+        // ============= Blog grounding (hybrid) =============
+        // If the last user message looks like it maps to a published blog article
+        // (by title similarity), emit an ARTICLE_CARD marker so the front renders
+        // an article card at the top of this assistant response. The rest of the
+        // routing (search_businesses / deterministic routes) still runs behind it.
+        try {
+          const lastUserMsg = uiMessages[uiMessages.length - 1];
+          const lastUserText = lastUserMsg?.role === "user" ? extractTextFromUIMessage(lastUserMsg) : "";
+          if (lastUserText && lastUserText.trim().length >= 6) {
+            const posts = await fetchBlogPostsCached(admin);
+            const match = matchBlogArticle(lastUserText, language, posts, host.id);
+            if (match) {
+              const title =
+                (language === "en" && match.title_en) ||
+                (language === "ar" && match.title_ar) ||
+                match.title_fr || match.title_en || match.title_ar || "";
+              const image = match.custom_hero_image_url || match.cover_image_url || null;
+              const payload = {
+                id: match.id,
+                slug: match.slug,
+                title,
+                image,
+                isOwner: match.anchor_business_id === host.id,
+              };
+              emitDelta(`\n\n<!--ARTICLE_CARD:${JSON.stringify(payload)}-->\n\n`);
+            }
+          }
+        } catch (e) {
+          console.error("[embed-ai-chat] blog_grounding_error", e);
+        }
+
+
 
 
         // Tool executor
