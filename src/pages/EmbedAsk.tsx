@@ -858,9 +858,10 @@ const EmbedAsk = () => {
             );
           }
           const raw = messageText(m);
-          const { clean, maps, events } = extractPayloads(raw);
+          const { clean, maps, events, articles } = extractPayloads(raw);
           const mapPayload = maps[maps.length - 1] || null;
           const eventsPayload = events[events.length - 1] || null;
+          const articleCard = articles[articles.length - 1] || null;
           const isLast = i === messages.length - 1;
           const citedFallback =
             !mapPayload || mapPayload.businesses.length === 0
@@ -868,6 +869,24 @@ const EmbedAsk = () => {
               : [];
           return (
             <div key={m.id || i} className="flex flex-col items-start gap-2">
+              {articleCard && (
+                <a
+                  href={`/embed/ask/${slug}/article/${articleCard.slug}`}
+                  className={`relative flex w-full max-w-[85%] gap-3 rounded-2xl overflow-hidden ${cardBg} hover:opacity-95 transition-opacity`}
+                >
+                  {articleCard.image ? (
+                    <img src={articleCard.image} alt={articleCard.title} className="w-24 h-24 object-cover flex-shrink-0" loading="lazy" />
+                  ) : (
+                    <div className="w-24 h-24 bg-neutral-800 flex-shrink-0" />
+                  )}
+                  <div className="flex-1 py-2 pr-3 flex flex-col justify-center gap-1">
+                    <span className="text-[10px] uppercase tracking-wide text-[#D4AF37] font-semibold">
+                      {lang === "en" ? "Recommended article" : lang === "ar" ? "مقال موصى به" : "Article recommandé"}
+                    </span>
+                    <div className="text-sm font-semibold leading-snug line-clamp-3">{articleCard.title}</div>
+                  </div>
+                </a>
+              )}
               <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${asstBubble}`}>
                 <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-ul:my-1">
                   <ReactMarkdown components={{ strong: StrongCited as any }}>
@@ -880,6 +899,8 @@ const EmbedAsk = () => {
                 renderCarousel(mapPayload.businesses, () => setOpenMap(mapPayload))}
 
               {citedFallback.length > 0 && renderCarousel(citedFallback)}
+
+
 
 
               {eventsPayload && eventsPayload.events.length > 0 && (
