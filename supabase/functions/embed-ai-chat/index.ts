@@ -1926,9 +1926,64 @@ Deno.serve(async (req) => {
           !!(deterministicSubcategoryNames || deterministicBadgeIds) ||
           shouldForceDirectorySearch(userMessage);
 
+        if (hasForcedResults) {
+          try {
+            const gateway = createLovableAiGatewayProvider(LOVABLE_API_KEY);
+            const model = gateway(MODEL);
+            const systemText = convo
+              .filter((m) => m.role === "system")
+              .map((m) => String(m.content || ""))
+              .join("\n\n---\n\n");
+            const result = streamText({
+              model,
+              system: systemText,
+              messages: convertToModelMessages(
+                convo
+                  .filter((m) => m.role === "user" || m.role === "assistant")
+                  .map((m) => ({
+                    role: m.role as any,
+                    parts: [{ type: "text", text: String(m.content || "") }],
+                  })) as any,
+              ),
+              temperature: 0.4,
+            });
+            for await (const delta of result.textStream) {
+              finalText += delta;
+              emitDelta(delta);
+            }
+          } catch (streamErr) {
+            hadError = true;
+            errorMsg = String(streamErr).slice(0, 500);
+            console.error("[embed-ai-chat] forced_stream_error", streamErr);
+            if (!finalText) {
+              const fallback = language === "en"
+                ? "I found the matching One World Morocco results, but I couldn't format the full answer this time. Please try again in a moment."
+                : language === "ar"
+                  ? "وجدت النتائج المطابقة في One World Morocco، لكن لم أتمكن من صياغة الإجابة الكاملة الآن. يرجى المحاولة بعد قليل."
+                  : "J'ai trouvé les résultats correspondants One World Morocco, mais je n'ai pas pu formuler la réponse complète cette fois-ci. Réessaie dans un instant.";
+              finalText = fallback;
+              emitDelta(fallback);
+            }
+          }
+
+          if (lastDisclosureNote) {
+            const hasDisclosure = /\bsur\s+\d+\s+trouv/i.test(finalText) || finalText.includes(lastDisclosureNote);
+            if (!hasDisclosure) {
+              const injection = `\n\n${lastDisclosureNote}`;
+              emitDelta(injection);
+              finalText += injection;
+            }
+          }
+
+          finalText += emitTrailingMarkers();
+          endText();
+          await logTurn({ finalText, streamCompleted: !hadError });
+          return;
+        }
+
         // Tool loop (up to MAX_ROUNDS). Non-stream rounds via direct gateway fetch
         // (keeps the existing tool_calls JSON contract). Final round streamed via AI SDK.
-        const effectiveRounds = hasForcedResults ? 1 : MAX_ROUNDS;
+        const effectiveRounds = MAX_ROUNDS;
         for (let round = 0; round < effectiveRounds; round++) {
           const isLast = round === effectiveRounds - 1;
           const resp = await fetch(GATEWAY, {
