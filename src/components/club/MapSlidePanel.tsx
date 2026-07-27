@@ -53,6 +53,8 @@ interface MapSlidePanelProps {
   /** Displays a terracotta marker at these coordinates instead of the user's geolocation. */
   hostLocation?: { lat: number; lng: number } | null;
   hostLabel?: string;
+  /** Optional theme for the underlying Google Map tiles ("light" | "dark"). */
+  mapTheme?: "light" | "dark";
 }
 
 const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
