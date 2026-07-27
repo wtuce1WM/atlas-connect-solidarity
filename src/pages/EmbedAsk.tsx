@@ -1025,6 +1025,7 @@ const EmbedAsk = () => {
         disableUserLocation
         hostLocation={hostLocation}
         hostLabel={businessName}
+        mapTheme={theme}
       />
 
       <EventsSlidePanel
