@@ -108,6 +108,8 @@ export interface BlogArticleTemplateProps {
   tldr?: string;
   /** FAQ items rendered at the bottom of the article and emitted as FAQPage JSON-LD. */
   faq?: BlogArticleFaqItem[];
+  /** Optional black anchor marker on the map (e.g. reference establishment for a proximity article). */
+  anchorPoi?: { name: string; latitude: number; longitude: number } | null;
 }
 
 const DEFAULT_SITE_URL = "https://oneworldmorocco.com";
@@ -131,6 +133,7 @@ const BlogArticleTemplate = ({
   videoSection,
   tldr,
   faq,
+  anchorPoi,
 }: BlogArticleTemplateProps) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
@@ -573,6 +576,15 @@ const BlogArticleTemplate = ({
                     neighborhood: b.neighborhood,
                     rating: b.rating,
                   }));
+                if (anchorPoi && anchorPoi.latitude != null && anchorPoi.longitude != null) {
+                  pois.push({
+                    id: "__anchor__",
+                    name: anchorPoi.name,
+                    latitude: anchorPoi.latitude,
+                    longitude: anchorPoi.longitude,
+                    markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
+                  });
+                }
                 return (
                   <PoiGoogleMap
                     pois={pois}

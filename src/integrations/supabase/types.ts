@@ -622,6 +622,7 @@ export type Database = {
       }
       blog_posts: {
         Row: {
+          anchor_poi: Json | null
           author_name: string | null
           bookmark_slug: string | null
           content_ar: string | null
@@ -668,6 +669,7 @@ export type Database = {
           video_section_config: Json | null
         }
         Insert: {
+          anchor_poi?: Json | null
           author_name?: string | null
           bookmark_slug?: string | null
           content_ar?: string | null
@@ -714,6 +716,7 @@ export type Database = {
           video_section_config?: Json | null
         }
         Update: {
+          anchor_poi?: Json | null
           author_name?: string | null
           bookmark_slug?: string | null
           content_ar?: string | null

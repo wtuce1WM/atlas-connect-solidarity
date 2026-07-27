@@ -64,6 +64,7 @@ interface BlogPostData {
   faq_fr: BlogArticleFaqItem[] | null;
   faq_en: BlogArticleFaqItem[] | null;
   faq_ar: BlogArticleFaqItem[] | null;
+  anchor_poi: { name: string; latitude: number; longitude: number } | null;
 }
 
 const BlogPost = () => {
@@ -188,6 +189,7 @@ const BlogPost = () => {
         videoSection={videoSection}
         tldr={tldr}
         faq={faq}
+        anchorPoi={post.anchor_poi ?? undefined}
       />
     );
   }
