@@ -543,6 +543,24 @@ async function buildTwoEntityProximityCurated(
   kept.sort((x, y) => (Number(y.priority_score ?? 0) - Number(x.priority_score ?? 0)) || (Number(y.computed_rating ?? 0) - Number(x.computed_rating ?? 0)));
   const top = kept.slice(0, 12);
 
+  // Collect the B references actually used (nearest B for each kept A within radius).
+  const usedBIds = new Set<string>();
+  const bReferences: any[] = [];
+  for (const a of top) {
+    let bestKm = Infinity;
+    let bestB: any = null;
+    for (const b of poolB) {
+      if (b.id === a.id) continue;
+      if (a.latitude == null || a.longitude == null || b.latitude == null || b.longitude == null) continue;
+      const d = haversineKmLocal(a.latitude, a.longitude, b.latitude, b.longitude);
+      if (d < bestKm) { bestKm = d; bestB = b; }
+    }
+    if (bestB && !usedBIds.has(bestB.id)) {
+      usedBIds.add(bestB.id);
+      bReferences.push({ ...bestB, _is_reference: true });
+    }
+  }
+
   const radiusExpanded = radiusUsed > (intent.radiusKm ?? 1);
   const fmt = (r: number) => (r < 1 ? `${Math.round(r * 1000)} m` : Number.isInteger(r) ? `${r} km` : `${r.toFixed(1)} km`);
   const aLabel = intent.aTerms[0] || (lang === "en" ? "matching places" : lang === "ar" ? "الأماكن المطابقة" : "les adresses");
