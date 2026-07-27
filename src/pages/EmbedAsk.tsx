@@ -404,6 +404,7 @@ const EmbedAsk = () => {
         messageIndex: messageIndexRef.current,
         suggestionId: (body as any)?.suggestionId ?? null,
         followupId: (body as any)?.followupId ?? null,
+        scope: (body as any)?.scope ?? null,
       },
     }),
   }), [slug, lang]);
