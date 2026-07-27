@@ -79,7 +79,48 @@ const StaffBlog = () => {
       </header>
 
       <main className="w-full px-4 py-8">
-        <BlogManagement />
+        <Tabs defaultValue="dashboard">
+          <TabsList className="mb-6 flex flex-wrap h-auto gap-1">
+            <TabsTrigger value="dashboard" className="gap-2">
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="articles" className="gap-2">
+              <Newspaper className="h-4 w-4" />
+              Articles
+            </TabsTrigger>
+            <TabsTrigger value="owner-articles" className="gap-2">
+              <UserSquare2 className="h-4 w-4" />
+              Articles propriétaires
+            </TabsTrigger>
+            <TabsTrigger value="templates" className="gap-2">
+              <LayoutTemplate className="h-4 w-4" />
+              Templates
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="dashboard">
+            <div className="text-sm text-muted-foreground py-10 text-center">
+              Dashboard blog — à venir.
+            </div>
+          </TabsContent>
+
+          <TabsContent value="articles">
+            <BlogManagement />
+          </TabsContent>
+
+          <TabsContent value="owner-articles">
+            <div className="text-sm text-muted-foreground py-10 text-center">
+              Articles propriétaires — à venir.
+            </div>
+          </TabsContent>
+
+          <TabsContent value="templates">
+            <div className="text-sm text-muted-foreground py-10 text-center">
+              Templates — à venir.
+            </div>
+          </TabsContent>
+        </Tabs>
       </main>
 
       <ScrollToTopButton />
