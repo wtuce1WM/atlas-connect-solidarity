@@ -52,23 +52,32 @@ const BlogManagement = ({
   subtitle,
   showInternalLinks = true,
 }: BlogManagementProps = {}) => {
+  const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [translating, setTranslating] = useState<Record<string, "en" | "ar" | null>>({});
   const [updating, setUpdating] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const { data } = await supabase
+      let q = supabase
         .from("blog_posts")
         .select(SELECT_COLS)
         .order("is_pinned", { ascending: false })
         .order("published_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false });
+      if (anchorBusinessId) {
+        q = q.eq("anchor_business_id", anchorBusinessId);
+      } else if (mode === "owner") {
+        q = q.not("anchor_business_id", "is", null);
+      } else {
+        q = q.is("anchor_business_id", null);
+      }
+      const { data } = await q;
       if (data) setPosts(data as BlogPost[]);
       setIsLoading(false);
     };
     fetchPosts();
-  }, []);
+  }, [mode, anchorBusinessId]);
 
   const handleTranslate = async (post: BlogPost, target: "en" | "ar") => {
     setTranslating((s) => ({ ...s, [post.id]: target }));
