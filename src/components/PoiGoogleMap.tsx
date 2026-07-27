@@ -36,7 +36,69 @@ interface PoiGoogleMapProps {
   userLocation?: { lat: number; lng: number } | null;
   /** Label shown on the user geolocation marker. Defaults to "Vous êtes ici". */
   userMarkerLabel?: string;
+  /** Visual theme for the map tiles. "light" (default) uses the 1WM beige palette; "dark" uses a 1WM dark palette. */
+  mapTheme?: "light" | "dark";
 }
+
+const LIGHT_MAP_STYLES: google.maps.MapTypeStyle[] = [
+  { featureType: "poi", elementType: "labels.text", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.business", elementType: "labels.icon", stylers: [{ visibility: "on" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ visibility: "on" }, { color: "#e8f0e3" }] },
+  { featureType: "poi.park", elementType: "labels.text", stylers: [{ visibility: "on" }, { color: "#7a8a6e" }] },
+  { featureType: "transit", stylers: [{ visibility: "off" }] },
+  { featureType: "transit.station", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  { elementType: "geometry", stylers: [{ color: "#ECD6B8" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#8a7a63" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#ECD6B8" }] },
+  { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#ECD6B8" }] },
+  { featureType: "landscape.man_made", elementType: "geometry", stylers: [{ color: "#E5CDAB" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#FBF1E1" }] },
+  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#DCC4A1" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#FBF1E1" }] },
+  { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#D4B98F" }] },
+  { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#FBF1E1" }] },
+  { featureType: "road.local", elementType: "geometry", stylers: [{ color: "#F6E8D0" }] },
+  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#b5b5b5" }] },
+  { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#d9e8f0" }] },
+  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#a8c0cc" }] },
+  { featureType: "administrative", elementType: "geometry", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative.neighborhood", elementType: "labels.text.fill", stylers: [{ color: "#1c1510" }] },
+];
+
+// Dark 1WM palette — deep neutral base with warm terracotta/gold accents for roads & labels
+const DARK_MAP_STYLES: google.maps.MapTypeStyle[] = [
+  { featureType: "poi", elementType: "labels.text", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.business", elementType: "labels.icon", stylers: [{ visibility: "on" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ visibility: "on" }, { color: "#1f2a1e" }] },
+  { featureType: "poi.park", elementType: "labels.text", stylers: [{ visibility: "on" }, { color: "#6b7a5e" }] },
+  { featureType: "transit", stylers: [{ visibility: "off" }] },
+  { featureType: "transit.station", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  // Base geometry — deep neutral
+  { elementType: "geometry", stylers: [{ color: "#1a1512" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#c9b58f" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#1a1512" }] },
+  // Landscape
+  { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#1a1512" }] },
+  { featureType: "landscape.man_made", elementType: "geometry", stylers: [{ color: "#241c17" }] },
+  // Roads — warm terracotta-tinted for readability on dark
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#3a2d24" }] },
+  { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#4a3a2e" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#4a3a2e" }] },
+  { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#5c4636" }] },
+  { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#3a2d24" }] },
+  { featureType: "road.local", elementType: "geometry", stylers: [{ color: "#2b2219" }] },
+  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#8a7a63" }] },
+  { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  // Water — deep muted blue
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#0f1a24" }] },
+  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#4a6272" }] },
+  // Administrative
+  { featureType: "administrative", elementType: "geometry", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative.neighborhood", elementType: "labels.text.fill", stylers: [{ color: "#d4af37" }] },
+];
 
 /* ── Google Maps loader (reuses shared singleton) ── */
 let gmapsPromise: Promise<void> | null = null;
@@ -231,7 +293,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     }
   };
 
-const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor, userLocation, userMarkerLabel }: PoiGoogleMapProps) => {
+const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor, userLocation, userMarkerLabel, mapTheme }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -300,38 +362,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       zoomControl: false,
       gestureHandling: "greedy",
       clickableIcons: false,
-      styles: [
-        // Show native Google POIs (icônes attractions, parcs, etc.), masquer libellés business pour rester lisible
-        { featureType: "poi", elementType: "labels.text", stylers: [{ visibility: "off" }] },
-        { featureType: "poi.business", elementType: "labels.icon", stylers: [{ visibility: "on" }] },
-        { featureType: "poi.park", elementType: "geometry", stylers: [{ visibility: "on" }, { color: "#e8f0e3" }] },
-        { featureType: "poi.park", elementType: "labels.text", stylers: [{ visibility: "on" }, { color: "#7a8a6e" }] },
-        { featureType: "transit", stylers: [{ visibility: "off" }] },
-        { featureType: "transit.station", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-        // Base geometry — teinte beige du front (#ECD6B8)
-        { elementType: "geometry", stylers: [{ color: "#ECD6B8" }] },
-        { elementType: "labels.text.fill", stylers: [{ color: "#8a7a63" }] },
-        { elementType: "labels.text.stroke", stylers: [{ color: "#ECD6B8" }] },
-        // Landscape
-        { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#ECD6B8" }] },
-        { featureType: "landscape.man_made", elementType: "geometry", stylers: [{ color: "#E5CDAB" }] },
-        // Roads — blanc cassé pour contraste doux sur le beige
-        { featureType: "road", elementType: "geometry", stylers: [{ color: "#FBF1E1" }] },
-        { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#DCC4A1" }] },
-        { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#FBF1E1" }] },
-        { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#D4B98F" }] },
-        { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#FBF1E1" }] },
-        { featureType: "road.local", elementType: "geometry", stylers: [{ color: "#F6E8D0" }] },
-        { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#b5b5b5" }] },
-        { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-        // Water — pale blue
-        { featureType: "water", elementType: "geometry", stylers: [{ color: "#d9e8f0" }] },
-        { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#a8c0cc" }] },
-        // Administrative — soft labels
-        { featureType: "administrative", elementType: "geometry", stylers: [{ visibility: "off" }] },
-        { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
-        { featureType: "administrative.neighborhood", elementType: "labels.text.fill", stylers: [{ color: "#1c1510" }] },
-      ],
+      styles: mapTheme === "dark" ? DARK_MAP_STYLES : LIGHT_MAP_STYLES,
     });
     infoWindowRef.current = new gmaps.InfoWindow();
     mapRef.current.addListener("click", () => {
@@ -345,6 +376,13 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     if (!map) return;
     map.setOptions({ fullscreenControl: false });
   }, [ready]);
+
+  // Swap tile styles live when theme changes
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    map.setOptions({ styles: mapTheme === "dark" ? DARK_MAP_STYLES : LIGHT_MAP_STYLES });
+  }, [mapTheme, ready]);
 
   // Serialized key to detect when pois/center actually change (not just iconCache)
   const poisKey = useMemo(() => {

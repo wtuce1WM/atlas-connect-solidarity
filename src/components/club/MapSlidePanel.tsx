@@ -53,6 +53,8 @@ interface MapSlidePanelProps {
   /** Displays a terracotta marker at these coordinates instead of the user's geolocation. */
   hostLocation?: { lat: number; lng: number } | null;
   hostLabel?: string;
+  /** Optional theme for the underlying Google Map tiles ("light" | "dark"). */
+  mapTheme?: "light" | "dark";
 }
 
 const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
@@ -70,7 +72,7 @@ const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
 };
 const normalize = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
-const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, onBookmark, isBookmarked, disableUserLocation, hostLocation, hostLabel }: MapSlidePanelProps) => {
+const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, onBookmark, isBookmarked, disableUserLocation, hostLocation, hostLabel, mapTheme }: MapSlidePanelProps) => {
   const { language } = useLanguage();
   const mt = MT[language as keyof typeof MT] || MT.fr;
 
@@ -219,6 +221,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
             fitToMarkers
             userLocation={hostLocation || userPos}
             userMarkerLabel={hostLocation ? (hostLabel || "") : mapLabel("youAreHere", language)}
+            mapTheme={mapTheme}
           />
 
           {/* Floating toolbar — same layout as /search */}
