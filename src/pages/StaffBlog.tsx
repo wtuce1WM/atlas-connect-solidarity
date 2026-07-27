@@ -111,9 +111,7 @@ const StaffBlog = () => {
           </TabsContent>
 
           <TabsContent value="owner-articles">
-            <div className="text-sm text-muted-foreground py-10 text-center">
-              Articles propriétaires — à venir.
-            </div>
+            <OwnerArticlesManagement />
           </TabsContent>
 
           <TabsContent value="templates">
