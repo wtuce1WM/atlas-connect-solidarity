@@ -328,6 +328,9 @@ const EmbedAsk = () => {
   const [globalFollowups, setGlobalFollowups] = useState<FollowupRow[]>([]);
   const [activeSuggestionId, setActiveSuggestionId] = useState<string | null>(null);
 
+  type BlogArticle = { id: string; slug: string; title: string; image: string | null; isOwner: boolean };
+  const [blogArticles, setBlogArticles] = useState<BlogArticle[]>([]);
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const L = LANG_LABELS[lang];
