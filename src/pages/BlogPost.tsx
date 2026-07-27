@@ -69,7 +69,7 @@ interface BlogPostData {
 }
 
 const BlogPost = () => {
-  const { slug } = useParams();
+  const { slug, embedSlug } = useParams();
   const navigate = useLocalizedNavigate();
   const { language, t } = useLanguage();
   const [post, setPost] = useState<BlogPostData | null>(null);
@@ -215,6 +215,7 @@ const BlogPost = () => {
         tldr={tldr}
         faq={faq}
         anchorPoi={anchorFromBusiness ?? post.anchor_poi ?? undefined}
+        embedBackSlug={embedSlug ?? undefined}
       />
     );
   }

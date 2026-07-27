@@ -1001,8 +1001,7 @@ const EmbedAsk = () => {
             {blogArticles.map((a) => (
               <a
                 key={a.id}
-                href={`/blog/${a.slug}`}
-                target="_top"
+                href={`/embed/ask/${slug}/article/${a.slug}`}
                 rel="noopener noreferrer"
                 className={`relative flex-shrink-0 w-44 h-64 rounded-xl overflow-hidden ${cardBg} hover:opacity-95 transition-opacity`}
               >

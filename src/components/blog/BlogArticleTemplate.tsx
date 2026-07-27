@@ -110,6 +110,8 @@ export interface BlogArticleTemplateProps {
   faq?: BlogArticleFaqItem[];
   /** Optional black anchor marker on the map (e.g. reference establishment for a proximity article). */
   anchorPoi?: { name: string; latitude: number; longitude: number } | null;
+  /** When set, render in embed mode (no site header/footer/bottom bar) and back-button returns to /embed/ask/{embedBackSlug}. */
+  embedBackSlug?: string | null;
 }
 
 const DEFAULT_SITE_URL = "https://oneworldmorocco.com";
@@ -134,6 +136,7 @@ const BlogArticleTemplate = ({
   tldr,
   faq,
   anchorPoi,
+  embedBackSlug,
 }: BlogArticleTemplateProps) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
@@ -473,7 +476,7 @@ const BlogArticleTemplate = ({
     <div className="min-h-screen bg-background">
       <div className={`transition-[width,max-width,margin] duration-300 ease-out ${panelOpen ? "lg:w-1/2 lg:max-w-[calc(50vw-1rem)] lg:mr-auto lg:ml-0" : "w-full"}`}>
 
-      <HomeMindtripHeader alwaysWhite />
+      {!embedBackSlug && <HomeMindtripHeader alwaysWhite />}
 
       {/* Hero */}
       <div className="relative h-[60vh] min-h-[420px] overflow-hidden">
@@ -490,11 +493,13 @@ const BlogArticleTemplate = ({
           <div className="container mx-auto px-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
               <button
-                onClick={() => navigate(withLangPrefix("/blog", language))}
+                onClick={() => navigate(embedBackSlug ? `/embed/ask/${embedBackSlug}` : withLangPrefix("/blog", language))}
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border border-white/20 bg-black/50 text-white hover:text-gold hover:border-gold hover:bg-black/70 backdrop-blur-md transition-all duration-300 shadow-sm"
               >
                 <ArrowLeft className="h-4 w-4" />
-                {language === "en" ? "Back to blog" : language === "ar" ? "العودة إلى المدونة" : "Retour au blog"}
+                {embedBackSlug
+                  ? (language === "en" ? "Back to assistant" : language === "ar" ? "العودة إلى المساعد" : "Retour à l'assistant")
+                  : (language === "en" ? "Back to blog" : language === "ar" ? "العودة إلى المدونة" : "Retour au blog")}
               </button>
               <button
                 onClick={handleSaveArticle}
@@ -975,9 +980,9 @@ const BlogArticleTemplate = ({
         </>
       )}
 
-      <Footer />
+      {!embedBackSlug && <Footer />}
       </div>
-      {!openBusinessId && !activeVideoId && <HomeBottomBar />}
+      {!embedBackSlug && !openBusinessId && !activeVideoId && <HomeBottomBar />}
       <ClubLoginPopup />
 
       {openBusinessId && (
