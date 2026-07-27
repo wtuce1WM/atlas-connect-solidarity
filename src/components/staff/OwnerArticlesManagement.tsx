@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Store, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader2, Store, ChevronDown, ChevronRight, Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import BlogManagement from "@/components/staff/BlogManagement";
+import AttachArticlesDialog from "@/components/staff/AttachArticlesDialog";
 
 interface OwnerGroup {
   business_id: string;
@@ -15,6 +16,8 @@ const OwnerArticlesManagement = () => {
   const [groups, setGroups] = useState<OwnerGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [attachTarget, setAttachTarget] = useState<OwnerGroup | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     const load = async () => {
