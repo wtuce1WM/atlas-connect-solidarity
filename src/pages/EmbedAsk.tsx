@@ -343,7 +343,7 @@ const EmbedAsk = () => {
   const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(null);
   const [globalFollowups, setGlobalFollowups] = useState<FollowupRow[]>([]);
   const [activeSuggestionId, setActiveSuggestionId] = useState<string | null>(null);
-  const [scope, setScope] = useState<"filter" | "broaden" | null>(null);
+  const [scope, setScope] = useState<"filter" | "broaden" | null>("filter");
 
   type BlogArticle = { id: string; slug: string; title: string; image: string | null; isOwner: boolean };
   const [blogArticles, setBlogArticles] = useState<BlogArticle[]>([]);
@@ -609,8 +609,8 @@ const EmbedAsk = () => {
       { text },
       { body: { suggestionId: effectiveSuggestionId, followupId: followupId || null, scope: effectiveScope } },
     );
-    // Reset scope after each free-text send so it doesn't stick.
-    if (isFreeText && scope) setScope(null);
+    // Reset scope to its default after each free-text send so "Filter" remains selected.
+    if (isFreeText) setScope("filter");
   };
 
   const findLastMapPayload = (): MapPayload | null => {
