@@ -596,11 +596,21 @@ const EmbedAsk = () => {
     if (suggestionId && !suggestionId.startsWith("default-")) setActiveSuggestionId(suggestionId);
     setError(null);
     messageIndexRef.current += 1;
-    const effectiveSuggestionId = suggestionId || activeSuggestionId || null;
+    // Scope is only meaningful for free-text follow-ups (no suggestion/followup click).
+    const isFreeText = !suggestionId && !followupId;
+    const effectiveScope = isFreeText ? scope : null;
+    // Broaden explicitly drops the current suggestion thread so previous filters don't hijack the new query.
+    let effectiveSuggestionId: string | null = suggestionId || activeSuggestionId || null;
+    if (effectiveScope === "broaden") {
+      effectiveSuggestionId = null;
+      setActiveSuggestionId(null);
+    }
     sendMessage(
       { text },
-      { body: { suggestionId: effectiveSuggestionId, followupId: followupId || null } },
+      { body: { suggestionId: effectiveSuggestionId, followupId: followupId || null, scope: effectiveScope } },
     );
+    // Reset scope after each free-text send so it doesn't stick.
+    if (isFreeText && scope) setScope(null);
   };
 
   const findLastMapPayload = (): MapPayload | null => {
