@@ -655,6 +655,7 @@ export type Database = {
           intro_ar: string | null
           intro_en: string | null
           intro_fr: string | null
+          is_pinned: boolean
           is_published: boolean
           published_at: string | null
           slug: string
@@ -703,6 +704,7 @@ export type Database = {
           intro_ar?: string | null
           intro_en?: string | null
           intro_fr?: string | null
+          is_pinned?: boolean
           is_published?: boolean
           published_at?: string | null
           slug: string
@@ -751,6 +753,7 @@ export type Database = {
           intro_ar?: string | null
           intro_en?: string | null
           intro_fr?: string | null
+          is_pinned?: boolean
           is_published?: boolean
           published_at?: string | null
           slug?: string
