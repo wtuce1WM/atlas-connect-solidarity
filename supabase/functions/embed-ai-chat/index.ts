@@ -1940,7 +1940,16 @@ Deno.serve(async (req) => {
           const lastUserText = lastUser?.role === "user" ? extractTextFromUIMessage(lastUser) : "";
           const norm = (s: string) => s.toLowerCase().replace(/\s+/g, " ").replace(/[?!.\s]+$/g, "").trim();
           const isInitialClick = suggestionLabel && norm(lastUserText) === norm(suggestionLabel);
-          if (!isInitialClick && !isSuggestionRefinement(lastUserText)) {
+          // Explicit user scope overrides the heuristic:
+          //  - "broaden" → always drop the deterministic force (fresh city-wide search).
+          //  - "filter"  → always keep it (narrow among the current suggestion thread).
+          const shouldDrop =
+            scope === "broaden"
+              ? true
+              : scope === "filter"
+                ? false
+                : !isInitialClick && !isSuggestionRefinement(lastUserText);
+          if (shouldDrop) {
             deterministicSubcategoryNames = null;
             deterministicBadgeIds = null;
             suggestionPinnedIds = [];
