@@ -603,7 +603,9 @@ async function buildTwoEntityProximityCurated(
       : `\n\nTu veux que je **resserre à ${fmt(Math.max(0.5, radiusUsed / 2))}** ou **élargisse à ${fmt(radiusUsed * 2)}** — ou que je filtre par quartier ou ambiance ?`;
 
   const text = `${intro}\n\n${body}${expansionNote}${closing}`;
-  return { text, results: top, radiusUsed, radiusExpanded, bTerm: bLabel, aTerms: [aLabel] };
+  // Append B references (e.g. golfs) so they appear in the carousel + map markers.
+  const combinedResults = [...top, ...bReferences];
+  return { text, results: combinedResults, radiusUsed, radiusExpanded, bTerm: bLabel, aTerms: [aLabel] };
 }
 
 
