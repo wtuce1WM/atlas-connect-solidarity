@@ -607,6 +607,166 @@ const EmbedAsk = () => {
   const inputBg = theme === "light" ? "bg-white" : "bg-neutral-900";
   const cardBg = theme === "light" ? "bg-white border border-neutral-200" : "bg-neutral-900 border border-neutral-800";
 
+  // Build conversation-wide dictionaries of businesses cited across all assistant messages.
+  // - richByName: full rich data (images, coords, ratings) coming from a SHOW_ON_MAP payload.
+  // - knownByName: minimal {id, slug, name} coming from a KNOWN_BUSINESSES marker.
+  const { richByName, knownByName } = useMemo(() => {
+    const rich = new Map<string, MapPanelBusiness>();
+    const known = new Map<string, KnownBusiness>();
+    for (const m of messages) {
+      if ((m as any).role !== "assistant") continue;
+      const raw = messageText(m as any);
+      const { maps, known: k } = extractPayloads(raw);
+      for (const p of maps) {
+        for (const b of p.businesses || []) {
+          if (b?.name) rich.set(String(b.name).toLowerCase().trim(), b);
+        }
+      }
+      for (const b of k) {
+        if (b?.name) known.set(String(b.name).toLowerCase().trim(), b);
+      }
+    }
+    return { richByName: rich, knownByName: known };
+  }, [messages]);
+
+  // Find businesses cited in a text (by name match), preserving order & deduped.
+  const findCitedBusinesses = (text: string): MapPanelBusiness[] => {
+    if (!text) return [];
+    const lower = text.toLowerCase();
+    const found: Array<{ b: MapPanelBusiness; at: number }> = [];
+    const seen = new Set<string>();
+    for (const [nameLower, b] of richByName.entries()) {
+      if (seen.has(b.id)) continue;
+      const at = lower.indexOf(nameLower);
+      if (at >= 0) { found.push({ b, at }); seen.add(b.id); }
+    }
+    found.sort((a, b) => a.at - b.at);
+    return found.map((x) => x.b);
+  };
+
+  const renderCarousel = (businesses: MapPanelBusiness[], onOpenMap?: () => void) => (
+    <div
+      className="w-full max-w-full overflow-x-auto scrollbar-hide -mx-1 px-1"
+      style={{ overscrollBehaviorX: "contain" }}
+      onWheel={(e) => {
+        if (e.deltaY === 0) return;
+        const el = e.currentTarget;
+        const maxScroll = el.scrollWidth - el.clientWidth;
+        if (maxScroll <= 0) return;
+        const goingLeft = e.deltaY < 0;
+        const goingRight = e.deltaY > 0;
+        const atLeft = el.scrollLeft <= 0;
+        const atRight = el.scrollLeft >= maxScroll - 1;
+        if ((goingLeft && !atLeft) || (goingRight && !atRight)) {
+          e.preventDefault();
+          e.stopPropagation();
+          const capped = Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY), 50);
+          el.scrollLeft = Math.max(0, Math.min(maxScroll, el.scrollLeft + capped));
+        }
+      }}
+    >
+      <div className="flex gap-3 pb-1">
+        {businesses.slice(0, 20).map((b) => {
+          const img = (b.images?.[0] || (b as any).logo_url) as string | undefined;
+          const loc = b.neighborhood || "";
+          const ratingOn20 = computeWeightedRatingOn20(collectRatingSources(b as any));
+          const reviewCount = getTotalReviewCount(b as any) || (b.google_review_count ?? null);
+          let distStr: string | null = null;
+          if (hostLocation && b.latitude != null && b.longitude != null) {
+            const R = 6371;
+            const dLat = ((b.latitude - hostLocation.lat) * Math.PI) / 180;
+            const dLon = ((b.longitude - hostLocation.lng) * Math.PI) / 180;
+            const a = Math.sin(dLat / 2) ** 2 + Math.cos((hostLocation.lat * Math.PI) / 180) * Math.cos((b.latitude * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+            const km = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            distStr = km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`;
+          }
+          return (
+            <button
+              key={b.id}
+              type="button"
+              onClick={() => {
+                setOpenSiblings(businesses.slice(0, 20).map((x) => x.id));
+                setOpenBusinessId(b.id);
+              }}
+              className="shrink-0 w-44 text-left group"
+            >
+              <div className="relative w-44 h-64 rounded-xl overflow-hidden bg-neutral-800">
+                {img ? (
+                  <img
+                    src={img}
+                    alt={b.name}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                    loading="lazy"
+                  />
+                ) : null}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 pointer-events-none" />
+                {distStr && (
+                  <div
+                    className="absolute top-2 right-2 text-[11px] font-semibold px-1.5 py-0.5 rounded backdrop-blur-sm whitespace-nowrap"
+                    style={{ background: "rgba(0,0,0,0.6)", color: "#D4AF37" }}
+                  >
+                    {distStr}
+                  </div>
+                )}
+                <div className="absolute inset-x-0 bottom-0 p-2.5">
+                  <div className="text-[13px] font-bold text-white leading-tight break-words">{b.name}</div>
+                  {loc && (
+                    <div className="text-[11px] text-white/80 mt-0.5 line-clamp-1">{loc}</div>
+                  )}
+                  {ratingOn20 != null && (
+                    <div className="mt-0.5 flex items-center gap-1 text-[12px] text-white min-w-0">
+                      <span style={{ color: "#D4AF37" }}>★</span>
+                      <span className="font-semibold shrink-0">{Number(ratingOn20).toFixed(1)}/20</span>
+                      {reviewCount ? (
+                        <span className="text-white/70 truncate">· {reviewCount} avis</span>
+                      ) : null}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      {onOpenMap && (
+        <button
+          type="button"
+          onClick={onOpenMap}
+          className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-[#C24B3F] hover:underline"
+        >
+          <MapPin className="w-3.5 h-3.5" /> {L.viewMap}
+        </button>
+      )}
+    </div>
+  );
+
+  // Custom <strong> renderer: bold + clickable when the label matches a cited business.
+  const StrongCited = ({ children }: { children?: React.ReactNode }) => {
+    const text = String(Array.isArray(children) ? children.join("") : children ?? "").trim();
+    const key = text.toLowerCase();
+    const rich = richByName.get(key);
+    const meta = rich || knownByName.get(key);
+    if (!meta) return <strong>{children}</strong>;
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          if (rich) {
+            // Provide siblings from the same message context: all rich businesses cited nearby.
+            const siblings = Array.from(richByName.values()).map((b) => b.id);
+            setOpenSiblings(siblings);
+          } else {
+            setOpenSiblings([meta.id]);
+          }
+          setOpenBusinessId(meta.id);
+        }}
+        className="font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid text-[#C24B3F] cursor-pointer"
+      >
+        {children}
+      </button>
+    );
+  };
+
   return (
     <div dir={dir} className={`fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""}`}>
       <header className={`px-4 py-3 border-b ${border} flex items-center gap-3`}>
@@ -653,115 +813,25 @@ const EmbedAsk = () => {
           const mapPayload = maps[maps.length - 1] || null;
           const eventsPayload = events[events.length - 1] || null;
           const isLast = i === messages.length - 1;
+          const citedFallback =
+            !mapPayload || mapPayload.businesses.length === 0
+              ? findCitedBusinesses(clean)
+              : [];
           return (
             <div key={m.id || i} className="flex flex-col items-start gap-2">
               <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${asstBubble}`}>
                 <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-ul:my-1">
-                  <ReactMarkdown>{clean || (streaming && isLast ? "…" : "")}</ReactMarkdown>
+                  <ReactMarkdown components={{ strong: StrongCited as any }}>
+                    {clean || (streaming && isLast ? "…" : "")}
+                  </ReactMarkdown>
                 </div>
               </div>
 
-              {mapPayload && mapPayload.businesses.length > 0 && (
-                <div
-                  className="w-full max-w-full overflow-x-auto scrollbar-hide -mx-1 px-1"
-                  style={{ overscrollBehaviorX: "contain" }}
-                  onWheel={(e) => {
-                    if (e.deltaY === 0) return;
-                    const el = e.currentTarget;
-                    const maxScroll = el.scrollWidth - el.clientWidth;
-                    if (maxScroll <= 0) return;
+              {mapPayload && mapPayload.businesses.length > 0 &&
+                renderCarousel(mapPayload.businesses, () => setOpenMap(mapPayload))}
 
-                    const goingLeft = e.deltaY < 0;
-                    const goingRight = e.deltaY > 0;
-                    // Strict boundary: only release the page scroll when the
-                    // carousel is truly at the first or last item.
-                    const atLeft = el.scrollLeft <= 0;
-                    const atRight = el.scrollLeft >= maxScroll - 1;
+              {citedFallback.length > 0 && renderCarousel(citedFallback)}
 
-                    // Still inside the carousel range → consume the wheel event.
-                    if ((goingLeft && !atLeft) || (goingRight && !atRight)) {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      // Cap the delta to avoid a large trackpad/wheel flick
-                      // overshooting the boundary and instantly unlocking page scroll.
-                      const capped = Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY), 50);
-                      const next = el.scrollLeft + capped;
-                      el.scrollLeft = Math.max(0, Math.min(maxScroll, next));
-                    }
-                  }}
-                >
-                  <div className="flex gap-3 pb-1">
-                    {mapPayload.businesses.slice(0, 20).map((b) => {
-                      const img = (b.images?.[0] || (b as any).logo_url) as string | undefined;
-                      const loc = b.neighborhood || "";
-                      const ratingOn20 = computeWeightedRatingOn20(collectRatingSources(b as any));
-                      const reviewCount = getTotalReviewCount(b as any) || (b.google_review_count ?? null);
-                      let distStr: string | null = null;
-                      if (hostLocation && b.latitude != null && b.longitude != null) {
-                        const R = 6371;
-                        const dLat = ((b.latitude - hostLocation.lat) * Math.PI) / 180;
-                        const dLon = ((b.longitude - hostLocation.lng) * Math.PI) / 180;
-                        const a = Math.sin(dLat / 2) ** 2 + Math.cos((hostLocation.lat * Math.PI) / 180) * Math.cos((b.latitude * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
-                        const km = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                        distStr = km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`;
-                      }
-                      return (
-                        <button
-                          key={b.id}
-                          type="button"
-                          onClick={() => {
-                            setOpenSiblings(mapPayload.businesses.slice(0, 20).map((x) => x.id));
-                            setOpenBusinessId(b.id);
-                          }}
-                          className="shrink-0 w-44 text-left group"
-                        >
-                          <div className="relative w-44 h-64 rounded-xl overflow-hidden bg-neutral-800">
-                            {img ? (
-                              <img
-                                src={img}
-                                alt={b.name}
-                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                                loading="lazy"
-                              />
-                            ) : null}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 pointer-events-none" />
-                            {distStr && (
-                              <div
-                                className="absolute top-2 right-2 text-[11px] font-semibold px-1.5 py-0.5 rounded backdrop-blur-sm whitespace-nowrap"
-                                style={{ background: "rgba(0,0,0,0.6)", color: "#D4AF37" }}
-                              >
-                                {distStr}
-                              </div>
-                            )}
-                            <div className="absolute inset-x-0 bottom-0 p-2.5">
-                              <div className="text-[13px] font-bold text-white leading-tight break-words">{b.name}</div>
-                              {loc && (
-                                <div className="text-[11px] text-white/80 mt-0.5 line-clamp-1">{loc}</div>
-                              )}
-                              {ratingOn20 != null && (
-                                <div className="mt-0.5 flex items-center gap-1 text-[12px] text-white min-w-0">
-                                  <span style={{ color: "#D4AF37" }}>★</span>
-                                  <span className="font-semibold shrink-0">{Number(ratingOn20).toFixed(1)}/20</span>
-                                  {reviewCount ? (
-                                    <span className="text-white/70 truncate">· {reviewCount} avis</span>
-                                  ) : null}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setOpenMap(mapPayload)}
-                    className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-[#C24B3F] hover:underline"
-                  >
-                    <MapPin className="w-3.5 h-3.5" /> {L.viewMap}
-                  </button>
-                </div>
-              )}
 
               {eventsPayload && eventsPayload.events.length > 0 && (
                 <div
