@@ -405,6 +405,15 @@ function isDistanceRankingIntent(text: string): "closest" | "farthest" | null {
   return null;
 }
 
+function isDistanceListIntent(text: string): boolean {
+  const n = normalize(text);
+  if (!n) return false;
+  if (/\b(quelles?\s+sont\s+les\s+distances?|distances?\s+(depuis|par\s+rapport|de\s+chaque)|liste\s+des\s+distances?|donne[- ]?moi\s+les\s+distances?|a\s+quelle\s+distance)\b/.test(n)) return true;
+  if (/\b(what\s+are\s+the\s+distances?|list\s+the\s+distances?|how\s+far\s+(is|are)\s+each|distances?\s+from)\b/i.test(text)) return true;
+  if (/(ما\s+هي\s+المسافات|المسافات\s+من|كم\s+تبعد)/.test(text)) return true;
+  return false;
+}
+
 function isRatingRankingIntent(text: string): "best_rated" | "most_reviewed" | null {
   const n = normalize(text);
   if (!n) return null;
