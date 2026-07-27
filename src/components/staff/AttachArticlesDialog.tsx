@@ -10,7 +10,7 @@ import { toast } from "sonner";
 interface UnassignedPost {
   id: string;
   title_fr: string | null;
-  slug_fr: string | null;
+  slug: string | null;
   published_at: string | null;
   created_at: string;
 }
@@ -38,7 +38,7 @@ const AttachArticlesDialog = ({ open, onOpenChange, businessId, businessName, on
       setLoading(true);
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("id, title_fr, slug_fr, published_at, created_at")
+        .select("id, title_fr, slug, published_at, created_at")
         .is("anchor_business_id", null)
         .order("published_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false });
@@ -53,7 +53,7 @@ const AttachArticlesDialog = ({ open, onOpenChange, businessId, businessName, on
     if (!t) return posts;
     return posts.filter((p) =>
       (p.title_fr ?? "").toLowerCase().includes(t) ||
-      (p.slug_fr ?? "").toLowerCase().includes(t)
+      (p.slug ?? "").toLowerCase().includes(t)
     );
   }, [posts, q]);
 
@@ -104,7 +104,7 @@ const AttachArticlesDialog = ({ open, onOpenChange, businessId, businessName, on
                   <Checkbox checked={checked} onCheckedChange={() => toggle(p.id)} className="mt-0.5" />
                   <div className="min-w-0 flex-1">
                     <div className="font-medium text-sm truncate">{p.title_fr ?? "(sans titre)"}</div>
-                    <div className="text-xs text-muted-foreground font-mono truncate">{p.slug_fr}</div>
+                    <div className="text-xs text-muted-foreground font-mono truncate">{p.slug}</div>
                   </div>
                 </label>
               );
