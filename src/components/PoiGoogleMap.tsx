@@ -377,6 +377,13 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     map.setOptions({ fullscreenControl: false });
   }, [ready]);
 
+  // Swap tile styles live when theme changes
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    map.setOptions({ styles: mapTheme === "dark" ? DARK_MAP_STYLES : LIGHT_MAP_STYLES });
+  }, [mapTheme, ready]);
+
   // Serialized key to detect when pois/center actually change (not just iconCache)
   const poisKey = useMemo(() => {
     const ids = pois.map(p => p.id).sort().join(",");
