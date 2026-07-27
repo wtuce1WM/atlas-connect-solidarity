@@ -568,6 +568,29 @@ async function buildDistanceRanking(admin: any, host: any, ids: string[], mode: 
   return `${intro}\n\n${lines.join("\n")}${toMapMarker(top)}`;
 }
 
+async function buildDistanceList(admin: any, host: any, ids: string[], lang: "fr" | "en" | "ar"): Promise<string | null> {
+  if (!ids.length) return null;
+  const hLat = Number(host.latitude), hLng = Number(host.longitude);
+  if (!Number.isFinite(hLat) || !Number.isFinite(hLng)) return null;
+  const rows = await fetchPriorFull(admin, ids);
+  const withDist = rows
+    .filter((r: any) => Number.isFinite(Number(r.latitude)) && Number.isFinite(Number(r.longitude)))
+    .map((r: any) => ({ ...r, _dist_km: haversineKmLocal(hLat, hLng, Number(r.latitude), Number(r.longitude)) }));
+  if (!withDist.length) return null;
+  withDist.sort((a: any, b: any) => a._dist_km - b._dist_km);
+  const lines = withDist.map((r: any) => {
+    const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
+    return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${fmtKm(r._dist_km)}`;
+  });
+  const intro = lang === "en"
+    ? `Distances from **${host.name}** for the previous results:`
+    : lang === "ar"
+      ? `المسافات من **${host.name}** للنتائج السابقة:`
+      : `Distances depuis **${host.name}** pour les résultats précédents :`;
+  return `${intro}\n\n${lines.join("\n")}${toMapMarker(withDist)}`;
+}
+
+
 async function buildRatingRanking(admin: any, ids: string[], mode: "best_rated" | "most_reviewed", lang: "fr" | "en" | "ar"): Promise<string | null> {
   if (!ids.length) return null;
   const rows = await fetchPriorFull(admin, ids);
