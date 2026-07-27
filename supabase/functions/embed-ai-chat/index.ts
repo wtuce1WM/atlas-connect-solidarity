@@ -1462,6 +1462,65 @@ function buildImmersiveBusinessAnswer(
   return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nTu veux que je resserre plutôt par quartier, ambiance ou moment de la journée ?${radiusCta("fr")}`;
 }
 
+function buildEventsWeekendAnswer(
+  events: any[],
+  host: any,
+  city: string,
+  from: string,
+  to: string,
+  lang: "fr" | "en" | "ar",
+): string {
+  const hostName = host?.name || "";
+  const fmtDate = (iso: string | null) => {
+    if (!iso) return "";
+    try {
+      const d = new Date(iso);
+      const locale = lang === "en" ? "en-GB" : lang === "ar" ? "ar-MA" : "fr-FR";
+      return d.toLocaleDateString(locale, { day: "numeric", month: "long" });
+    } catch { return ""; }
+  };
+  const fmtWhen = (e: any) => {
+    if (e.recurrence) {
+      const days = Array.isArray(e.days_of_week) ? e.days_of_week.join(", ") : "";
+      return days || (lang === "en" ? "recurring" : lang === "ar" ? "متكرر" : "récurrent");
+    }
+    const a = fmtDate(e.start_date);
+    const b = fmtDate(e.end_date);
+    if (a && b && a !== b) return lang === "en" ? `${a} → ${b}` : lang === "ar" ? `${a} ← ${b}` : `du ${a} au ${b}`;
+    return a || b;
+  };
+
+  if (!events?.length) {
+    if (lang === "en") return `No events found in **${city}** between **${from}** and **${to}**. Want me to widen the window or try another city?`;
+    if (lang === "ar") return `لا توجد فعاليات في **${city}** بين **${from}** و **${to}**. هل توسّع النطاق الزمني أو أجرّب مدينة أخرى؟`;
+    return `Aucun événement trouvé à **${city}** entre **${from}** et **${to}**. Tu veux que j'élargisse la période ou que je regarde une autre ville ?`;
+  }
+
+  const intro = lang === "en"
+    ? `From **${hostName}**, the ${city} scene this weekend offers a compact selection worth stepping out for — here is what stands out in the One World Morocco agenda.`
+    : lang === "ar"
+      ? `انطلاقًا من **${hostName}**، تقدّم أجواء ${city} هذا الأسبوع مجموعة مختارة من الفعاليات ضمن أجندة One World Morocco.`
+      : `Depuis **${hostName}**, la scène de ${city} propose ce week-end une sélection resserrée qui vaut le déplacement — voici ce qui se détache dans l'agenda One World Morocco.`;
+
+  const body = events.map((e: any) => {
+    const when = fmtWhen(e);
+    const where = [e.neighborhood, e.city].filter(Boolean).join(", ");
+    const hook = String(e.hook || "").trim();
+    const bits = [when, where].filter(Boolean).join(" · ");
+    return `**${e.name}**${bits ? `. ${bits}` : ""}${hook ? `. ${hook}` : ""}`;
+  }).join("\n\n");
+
+  const closing = lang === "en"
+    ? `\n\nWant me to filter by evening, family-friendly, or a specific neighborhood?`
+    : lang === "ar"
+      ? `\n\nهل أُصفّي حسب المساء، للعائلات، أو حسب حي محدّد؟`
+      : `\n\nTu veux que je filtre par soirée, en famille, ou par quartier précis ?`;
+
+  return `${intro}\n\n${body}${closing}`;
+}
+
+
+
 function buildSystemPrompt(host: any, lang: "fr" | "en" | "ar"): string {
   const hook = lang === "en" ? (host.hook_en || host.hook_fr) : lang === "ar" ? (host.hook_ar || host.hook_fr) : host.hook_fr;
   const description = lang === "en" ? (host.description_en || host.description) : lang === "ar" ? (host.description_ar || host.description) : host.description;
@@ -2515,12 +2574,17 @@ Deno.serve(async (req) => {
           if (Array.isArray((forcedResult as any)?.results) && (forcedResult as any).results.length) {
             lastEventsPayload = { title: null, city: (forcedResult as any).city || null, events: (forcedResult as any).results };
           }
-          const hostName = (host as any).name || "cet établissement";
-          convo.push({
-            role: "system",
-            content: `RÉSULTATS ONE WORLD MOROCCO OBLIGATOIRES POUR CETTE RÉPONSE (route déterministe events, ville ${host.city || "Marrakech"}, période ${from} → ${to}, badge #Agenda):\n${JSON.stringify(forcedResult).slice(0, 12000)}\n\nFORMAT DE RÉPONSE OBLIGATOIRE (STRICT) :\n1. Ouvre par UNE phrase d'accroche immersive mentionnant **${hostName}** comme point de départ pour explorer la scène de ${host.city || "Marrakech"} ce week-end.\n2. Présente ensuite CHAQUE événement listé ci-dessus (dans l'ordre) sous forme d'un paragraphe court de 2 à 3 phrases. RÈGLES DE MISE EN FORME :\n   - SÉPARE CHAQUE ÉVÉNEMENT PAR UNE LIGNE VIDE (double saut de ligne en Markdown) pour créer une vraie respiration visuelle.\n   - INTERDIT : listes à puces, tirets en début de ligne, numérotation, titres Markdown (#, ##).\n   - Le SEUL élément en **gras** est le NOM de l'événement, en tout début de paragraphe. Aucun autre mot ne doit être en gras.\n   - Rédige en prose fluide. Intègre date/récurrence, quartier et ambiance (depuis hook/description UNIQUEMENT) dans le texte, sans les afficher comme des champs.\n3. Si aucun événement : dis-le franchement et propose une relance (autre ville, période plus large).\n4. Termine par UNE question de relance courte, précédée d'une ligne vide.\nRecommande uniquement des événements listés ci-dessus. Réponds dans la même langue que la question de l'utilisateur.`,
-          });
-        } else if (deterministicSubcategoryNames || deterministicBadgeIds) {
+          const events = Array.isArray((forcedResult as any)?.results) ? (forcedResult as any).results : [];
+          const answer = buildEventsWeekendAnswer(events, host, host.city || "Marrakech", from, to, language);
+          emitDelta(answer);
+          const trailing = emitTrailingMarkers();
+          toolsCalledLog.push({ name: "events_weekend", args: { city: host.city, from, to, count: events.length }, ok: true });
+          endText();
+          await logTurn({ finalText: answer + trailing, streamCompleted: true });
+          return;
+        }
+
+        if (deterministicSubcategoryNames || deterministicBadgeIds) {
           const forcedArgs: any = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
           if (deterministicSubcategoryNames) forcedArgs._subcategoryNames = deterministicSubcategoryNames;
           if (deterministicBadgeIds) forcedArgs._badgeIds = deterministicBadgeIds;
@@ -2585,7 +2649,6 @@ Deno.serve(async (req) => {
         // loop otherwise gave the LLM room to skip the immersive intro and only echo the
         // disclosure_note.
         const hasForcedResults =
-          suggestionMode === "events" ||
           !!(deterministicSubcategoryNames || deterministicBadgeIds) ||
           shouldForceDirectorySearch(userMessage);
 
