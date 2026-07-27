@@ -43,6 +43,8 @@ project_id = "plnphgdrawpsnumnejzc"
     verify_jwt = false
   [functions.hotel-meta-search]
     verify_jwt = false
+  [functions.log-video-view]
+    verify_jwt = false
   [functions.liteapi-hotels]
     verify_jwt = false
   [functions.manage-affiliate-user]
