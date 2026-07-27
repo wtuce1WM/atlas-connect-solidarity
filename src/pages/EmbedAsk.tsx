@@ -343,7 +343,7 @@ const EmbedAsk = () => {
   const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(null);
   const [globalFollowups, setGlobalFollowups] = useState<FollowupRow[]>([]);
   const [activeSuggestionId, setActiveSuggestionId] = useState<string | null>(null);
-  const [scope, setScope] = useState<"filter" | "broaden" | null>(null);
+  const [scope, setScope] = useState<"filter" | "broaden" | null>("filter");
 
   type BlogArticle = { id: string; slug: string; title: string; image: string | null; isOwner: boolean };
   const [blogArticles, setBlogArticles] = useState<BlogArticle[]>([]);
