@@ -4,7 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, ExternalLink, Eye, EyeOff, Layout, Languages, Check, AlertTriangle } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Loader2, ExternalLink, Eye, EyeOff, Layout, Languages, Check, AlertTriangle, Pin } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -25,18 +28,24 @@ interface BlogPost {
   created_at: string;
   updated_at: string;
   is_published: boolean;
+  is_pinned: boolean;
 }
+
+const SELECT_COLS =
+  "id, title_fr, title_en, title_ar, slug, excerpt_fr, excerpt_en, excerpt_ar, content_en, content_ar, cover_image_url, published_at, created_at, updated_at, is_published, is_pinned";
 
 const BlogManagement = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [translating, setTranslating] = useState<Record<string, "en" | "ar" | null>>({});
+  const [updating, setUpdating] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const fetchPosts = async () => {
       const { data } = await supabase
         .from("blog_posts")
-        .select("id, title_fr, title_en, title_ar, slug, excerpt_fr, excerpt_en, excerpt_ar, content_en, content_ar, cover_image_url, published_at, created_at, updated_at, is_published")
+        .select(SELECT_COLS)
+        .order("is_pinned", { ascending: false })
         .order("published_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false });
       if (data) setPosts(data as BlogPost[]);
@@ -48,17 +57,14 @@ const BlogManagement = () => {
   const handleTranslate = async (post: BlogPost, target: "en" | "ar") => {
     setTranslating((s) => ({ ...s, [post.id]: target }));
     try {
-      const { data, error } = await supabase.functions.invoke("translate-blog-post", {
+      const { error } = await supabase.functions.invoke("translate-blog-post", {
         body: { slug: post.slug, target },
       });
       if (error) throw error;
-      toast.success(`Traduction ${target.toUpperCase()} relancée`, {
-        description: post.title_fr,
-      });
-      // Refresh row
+      toast.success(`Traduction ${target.toUpperCase()} relancée`, { description: post.title_fr });
       const { data: refreshed } = await supabase
         .from("blog_posts")
-        .select("id, title_fr, title_en, title_ar, slug, excerpt_fr, excerpt_en, excerpt_ar, content_en, content_ar, cover_image_url, published_at, created_at, updated_at, is_published")
+        .select(SELECT_COLS)
         .eq("id", post.id)
         .single();
       if (refreshed) {
@@ -68,6 +74,40 @@ const BlogManagement = () => {
       toast.error("Erreur de traduction", { description: e?.message ?? String(e) });
     } finally {
       setTranslating((s) => ({ ...s, [post.id]: null }));
+    }
+  };
+
+  const updatePost = async (post: BlogPost, patch: Partial<Pick<BlogPost, "is_published" | "is_pinned">>) => {
+    setUpdating((s) => ({ ...s, [post.id]: true }));
+    // Optimistic
+    setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, ...patch } : p)));
+    try {
+      const payload: any = { ...patch };
+      if (patch.is_published === true && !post.published_at) {
+        payload.published_at = new Date().toISOString();
+      }
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .update(payload)
+        .eq("id", post.id)
+        .select(SELECT_COLS)
+        .single();
+      if (error) throw error;
+      if (data) {
+        setPosts((prev) => prev.map((p) => (p.id === post.id ? (data as BlogPost) : p)));
+      }
+      if (patch.is_published !== undefined) {
+        toast.success(patch.is_published ? "Article publié" : "Article dépublié", { description: post.title_fr });
+      }
+      if (patch.is_pinned !== undefined) {
+        toast.success(patch.is_pinned ? "Article épinglé" : "Épingle retirée", { description: post.title_fr });
+      }
+    } catch (e: any) {
+      // Revert
+      setPosts((prev) => prev.map((p) => (p.id === post.id ? post : p)));
+      toast.error("Erreur de mise à jour", { description: e?.message ?? String(e) });
+    } finally {
+      setUpdating((s) => ({ ...s, [post.id]: false }));
     }
   };
 
@@ -85,7 +125,7 @@ const BlogManagement = () => {
         <div>
           <h2 className="text-xl font-bold">Articles</h2>
           <p className="text-sm text-muted-foreground">
-            {posts.length} article{posts.length > 1 ? "s" : ""} — même ordre que /blog
+            {posts.length} article{posts.length > 1 ? "s" : ""} — épinglés en tête, puis même ordre que /blog
           </p>
         </div>
       </div>
@@ -117,8 +157,9 @@ const BlogManagement = () => {
             const missingEn = !post.title_en || !post.content_en;
             const missingAr = !post.title_ar || !post.content_ar;
             const busy = translating[post.id];
+            const isUpdating = !!updating[post.id];
             return (
-              <Card key={post.id} className="overflow-hidden">
+              <Card key={post.id} className={`overflow-hidden ${post.is_pinned ? "ring-1 ring-primary/40" : ""}`}>
                 <div className="flex gap-4 p-4">
                   {post.cover_image_url ? (
                     <img
@@ -134,17 +175,39 @@ const BlogManagement = () => {
                   <div className="flex-1 min-w-0 space-y-2">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <h3 className="font-semibold text-sm">{post.title_fr}</h3>
+                        <h3 className="font-semibold text-sm flex items-center gap-2">
+                          {post.is_pinned && <Pin className="h-3.5 w-3.5 text-primary shrink-0" />}
+                          {post.title_fr}
+                        </h3>
                         <div className="font-mono text-[10px] text-muted-foreground/70">/{post.slug}</div>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <Badge variant={post.is_published ? "default" : "secondary"} className="text-xs">
-                          {post.is_published ? (
-                            <><Eye className="h-3 w-3 mr-1" /> Publié</>
-                          ) : (
-                            <><EyeOff className="h-3 w-3 mr-1" /> Brouillon</>
-                          )}
-                        </Badge>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            id={`pub-${post.id}`}
+                            checked={post.is_published}
+                            disabled={isUpdating}
+                            onCheckedChange={(v) => updatePost(post, { is_published: v })}
+                          />
+                          <Label htmlFor={`pub-${post.id}`} className="text-xs cursor-pointer flex items-center gap-1">
+                            {post.is_published ? (
+                              <><Eye className="h-3 w-3" /> Publié</>
+                            ) : (
+                              <><EyeOff className="h-3 w-3" /> Brouillon</>
+                            )}
+                          </Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            id={`pin-${post.id}`}
+                            checked={post.is_pinned}
+                            disabled={isUpdating}
+                            onCheckedChange={(v) => updatePost(post, { is_pinned: !!v })}
+                          />
+                          <Label htmlFor={`pin-${post.id}`} className="text-xs cursor-pointer flex items-center gap-1">
+                            <Pin className="h-3 w-3" /> Pin
+                          </Label>
+                        </div>
                         <a href={`/blog/${post.slug}`} target="_blank" rel="noopener noreferrer">
                           <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
                             <ExternalLink className="h-3.5 w-3.5" />
