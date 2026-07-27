@@ -1746,6 +1746,8 @@ Deno.serve(async (req) => {
     const messageIndex: number = Number.isFinite(body.messageIndex) ? Number(body.messageIndex) : 0;
     const suggestionId: string | null = typeof body.suggestionId === "string" && body.suggestionId ? body.suggestionId : null;
     const followupId: string | null = typeof body.followupId === "string" && body.followupId ? body.followupId : null;
+    const scope: "filter" | "broaden" | null =
+      body.scope === "filter" || body.scope === "broaden" ? body.scope : null;
 
     if (!slugOrId) {
       return new Response(JSON.stringify({ error: "businessSlug required" }), {
