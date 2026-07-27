@@ -189,6 +189,15 @@ const StaffHub = () => {
       iconColor: "text-amber-600",
       adminOnly: true,
     },
+    {
+      title: "Blog",
+      description: "Gestion des articles de blog éditoriaux et des rankings curés.",
+      icon: Newspaper,
+      href: "/staff/blog",
+      color: "from-rose-500/20 to-orange-500/10",
+      iconColor: "text-rose-600",
+      adminOnly: true,
+    },
   ];
 
   const sections = allSections.filter((s) => !s.adminOnly || isAdmin);
