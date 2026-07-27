@@ -133,6 +133,7 @@ const BlogArticleTemplate = ({
   videoSection,
   tldr,
   faq,
+  anchorPoi,
 }: BlogArticleTemplateProps) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
