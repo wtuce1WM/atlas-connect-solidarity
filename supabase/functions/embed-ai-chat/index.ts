@@ -1717,7 +1717,7 @@ function extractTextFromUIMessage(m: UIMessage): string {
 }
 
 function preserveEmbedMarkers(text: string, maxTextChars = 4000): string {
-  const markerRe = /<!--(?:SHOW_ON_MAP|EVENTS_SNAPSHOT|KNOWN_BUSINESSES):[\s\S]*?-->/g;
+  const markerRe = /<!--(?:SHOW_ON_MAP|EVENTS_SNAPSHOT|KNOWN_BUSINESSES|ARTICLE_CARD):[\s\S]*?-->/g;
   const markers = text.match(markerRe) || [];
   const clean = text.replace(markerRe, "").slice(0, maxTextChars).trim();
   return [clean, ...markers].filter(Boolean).join("\n\n");
