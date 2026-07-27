@@ -1139,6 +1139,11 @@ Deno.serve(async (req) => {
           }
         };
 
+        // Keep the iframe/client connection alive immediately. Some deterministic
+        // routes do DB work + synthesis before the first visible token; without an
+        // early stream frame, the browser/SDK can treat the request as interrupted.
+        startText();
+
         // Resolve host business
         let bizQ = admin
           .from("businesses")
