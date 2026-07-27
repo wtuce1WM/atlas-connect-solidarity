@@ -75,6 +75,7 @@ const BlogPost = () => {
   const [post, setPost] = useState<BlogPostData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [videos, setVideos] = useState<BlogArticleVideo[]>([]);
+  const [anchorFromBusiness, setAnchorFromBusiness] = useState<{ name: string; latitude: number; longitude: number } | null>(null);
 
   useEffect(() => {
     const fetchPost = async () => {
