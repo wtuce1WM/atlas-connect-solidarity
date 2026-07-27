@@ -102,8 +102,18 @@ const OwnerArticlesManagement = () => {
                       <div className="text-xs text-muted-foreground font-mono truncate">{g.business_id}</div>
                     </div>
                   </div>
-                  <div className="text-sm text-muted-foreground shrink-0">
-                    {g.count} article{g.count > 1 ? "s" : ""}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-sm text-muted-foreground">
+                      {g.count} article{g.count > 1 ? "s" : ""}
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => { e.stopPropagation(); setAttachTarget(g); }}
+                    >
+                      <Plus className="h-3.5 w-3.5 mr-1" />
+                      Rattacher
+                    </Button>
                   </div>
                 </button>
                 {open && (
