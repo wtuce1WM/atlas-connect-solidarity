@@ -530,6 +530,41 @@ const EmbedAsk = () => {
     return () => { cancelled = true; };
   }, []);
 
+  // Load blog articles: owner articles first (anchor = this business), then unassigned, both newest first.
+  useEffect(() => {
+    if (!businessId) return;
+    let cancelled = false;
+    (async () => {
+      const titleCol = lang === "en" ? "title_en" : lang === "ar" ? "title_ar" : "title_fr";
+      const [ownerRes, freeRes] = await Promise.all([
+        (supabase as any).from("blog_posts")
+          .select(`id, slug, title_fr, ${titleCol}, cover_image_url, custom_hero_image_url, anchor_business_id, published_at`)
+          .eq("is_published", true)
+          .eq("anchor_business_id", businessId)
+          .order("published_at", { ascending: false })
+          .limit(12),
+        (supabase as any).from("blog_posts")
+          .select(`id, slug, title_fr, ${titleCol}, cover_image_url, custom_hero_image_url, anchor_business_id, published_at`)
+          .eq("is_published", true)
+          .is("anchor_business_id", null)
+          .order("published_at", { ascending: false })
+          .limit(12),
+      ]);
+      if (cancelled) return;
+      const norm = (r: any, isOwner: boolean): BlogArticle => ({
+        id: r.id,
+        slug: r.slug,
+        title: (r[titleCol] || r.title_fr || "") as string,
+        image: (r.custom_hero_image_url || r.cover_image_url || null) as string | null,
+        isOwner,
+      });
+      const owner = ((ownerRes?.data as any[]) || []).map((r) => norm(r, true));
+      const free = ((freeRes?.data as any[]) || []).map((r) => norm(r, false));
+      setBlogArticles([...owner, ...free].filter((a) => a.title && a.slug));
+    })();
+    return () => { cancelled = true; };
+  }, [businessId, lang]);
+
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [messages]);
   useEffect(() => { inputRef.current?.focus(); }, [businessName]);
 
