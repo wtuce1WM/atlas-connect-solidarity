@@ -547,6 +547,7 @@ const EmbedAsk = () => {
           .select(`id, slug, title_fr, ${titleCol}, cover_image_url, custom_hero_image_url, anchor_business_id, published_at`)
           .eq("is_published", true)
           .is("anchor_business_id", null)
+          .filter("entries_fr", "cs", `[{"id":"${businessId}"}]`)
           .order("published_at", { ascending: false })
           .limit(12),
       ]);
