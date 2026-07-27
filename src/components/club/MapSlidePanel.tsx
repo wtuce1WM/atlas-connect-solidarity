@@ -221,6 +221,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
             fitToMarkers
             userLocation={hostLocation || userPos}
             userMarkerLabel={hostLocation ? (hostLabel || "") : mapLabel("youAreHere", language)}
+            mapTheme={mapTheme}
           />
 
           {/* Floating toolbar — same layout as /search */}
