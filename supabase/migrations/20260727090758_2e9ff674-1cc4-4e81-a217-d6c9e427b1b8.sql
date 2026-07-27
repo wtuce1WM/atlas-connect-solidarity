@@ -1,0 +1,1 @@
+UPDATE blog_posts SET cover_image_url = 'https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/84490ef0-48fe-4b59-ba13-e94279bc57ba-1781153619725-olwebc.webp' WHERE slug = '10-meilleures-tables-proche-riad-dar-najat-marrakech';
