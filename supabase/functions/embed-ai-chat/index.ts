@@ -248,6 +248,148 @@ async function buildHoursForBusinesses(admin: any, ids: string[], lang: "fr" | "
   return out + outro;
 }
 
+function isOpensFirstIntent(text: string): boolean {
+  const n = normalize(text);
+  if (!n) return false;
+  if (/\b(premier|premiere|1er|1ere).{0,20}(ouvr|ouverture)\b/.test(n)) return true;
+  if (/\bqui ouvre.{0,15}(tot|premier|en premier|le plus tot)\b/.test(n)) return true;
+  if (/\bouvre.{0,10}le plus tot\b/.test(n)) return true;
+  if (/\b(opens? (?:the )?(?:first|earliest)|earliest to open|which .* opens first)\b/i.test(text)) return true;
+  if (/(الأول|أول).{0,15}(يفتح|فتح)/.test(text)) return true;
+  return false;
+}
+
+function isClosesLastIntent(text: string): boolean {
+  const n = normalize(text);
+  if (!n) return false;
+  if (/\b(dernier|derniere).{0,20}(ferme|fermeture)\b/.test(n)) return true;
+  if (/\bqui ferme.{0,15}(tard|dernier|en dernier|le plus tard)\b/.test(n)) return true;
+  if (/\bferme.{0,10}le plus tard\b/.test(n)) return true;
+  if (/\b(closes? (?:the )?(?:last|latest)|latest to close|stays open (?:the )?latest)\b/i.test(text)) return true;
+  if (/(الأخير|آخر).{0,15}(يغلق|يقفل|إغلاق)/.test(text)) return true;
+  return false;
+}
+
+/**
+ * Rank previous results by earliest opening time or latest closing time today (Morocco).
+ * Uses opening_hours (both slots) and is_open_24h. Excludes businesses whose hours
+ * are hidden (show_opening_hours != true) or closed today / on vacation.
+ */
+async function buildHoursRanking(
+  admin: any,
+  ids: string[],
+  mode: "opens_first" | "closes_last",
+  lang: "fr" | "en" | "ar",
+): Promise<string | null> {
+  if (!ids.length) return null;
+  const { data, error } = await admin
+    .from("businesses")
+    .select("id, name, slug, city, neighborhood, show_opening_hours, opening_hours, is_open_24h, vacation_dates")
+    .in("id", ids.slice(0, 30));
+  if (error || !Array.isArray(data) || !data.length) return null;
+
+  // Morocco day + date
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Africa/Casablanca", year: "numeric", month: "2-digit", day: "2-digit", weekday: "short",
+  }).formatToParts(new Date());
+  const wd = parts.find((p) => p.type === "weekday")?.value || "";
+  const wdMap: Record<string, number> = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
+  const todayIdx = wdMap[wd] ?? 0;
+  const todayKey = DAY_KEYS[todayIdx];
+  const y = parts.find((p) => p.type === "year")?.value || "";
+  const mo = parts.find((p) => p.type === "month")?.value || "";
+  const da = parts.find((p) => p.type === "day")?.value || "";
+  const todayStr = `${y}-${mo}-${da}`;
+
+  const toMin = (s: string): number | null => {
+    const m = /^(\d{1,2}):(\d{2})$/.exec(s || "");
+    if (!m) return null;
+    return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+  };
+
+  type Row = { id: string; name: string; slug: string; city?: string; neighborhood?: string; opens: number; closes: number; is24: boolean };
+  const rows: Row[] = [];
+
+  for (const b of data) {
+    if (b.show_opening_hours !== true) continue;
+    // Vacation check
+    if (Array.isArray(b.vacation_dates)) {
+      const onVac = b.vacation_dates.some((v: any) => v?.start_date && v?.end_date && todayStr >= v.start_date && todayStr <= v.end_date);
+      if (onVac) continue;
+    }
+    if (b.is_open_24h) {
+      rows.push({ id: b.id, name: b.name, slug: b.slug, city: b.city, neighborhood: b.neighborhood, opens: 0, closes: 1440, is24: true });
+      continue;
+    }
+    const oh = b.opening_hours;
+    const d = oh?.[todayKey];
+    if (!d || d.closed || !d.open || !d.close) continue;
+    const o1 = toMin(d.open); const c1 = toMin(d.close);
+    if (o1 == null || c1 == null) continue;
+    const opens = o1;
+    let closes = c1 <= o1 ? c1 + 1440 : c1;
+    if (d.open2 && d.close2 && !d.continuous) {
+      const c2 = toMin(d.close2);
+      if (c2 != null) {
+        const c2Adj = c2 <= (toMin(d.open2) ?? 0) ? c2 + 1440 : c2;
+        if (c2Adj > closes) closes = c2Adj;
+      }
+    }
+    rows.push({ id: b.id, name: b.name, slug: b.slug, city: b.city, neighborhood: b.neighborhood, opens, closes, is24: false });
+  }
+
+  if (!rows.length) {
+    if (lang === "en") return `I don't have public hours for the previous results — hard to rank them. Want me to try something else?`;
+    if (lang === "ar") return `ليست لديّ ساعات عمل منشورة للنتائج السابقة — يصعب ترتيبها. هل تريد شيئًا آخر؟`;
+    return `Je n'ai pas d'horaires publics sur les précédentes adresses — difficile de les classer. Je peux t'aider autrement ?`;
+  }
+
+  const sorted = mode === "opens_first"
+    ? [...rows].sort((a, b) => (a.is24 ? -1 : b.is24 ? 1 : a.opens - b.opens))
+    : [...rows].sort((a, b) => (a.is24 ? -1 : b.is24 ? 1 : b.closes - a.closes));
+
+  const top = sorted.slice(0, Math.min(5, sorted.length));
+  const fmt = (m: number) => {
+    const mm = ((m % 1440) + 1440) % 1440;
+    const h = Math.floor(mm / 60); const min = mm % 60;
+    return `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
+  };
+  const dayLabel = DAY_LABELS[lang][todayIdx];
+
+  const lines = top.map((r) => {
+    const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
+    if (r.is24) {
+      const w = lang === "en" ? "Open 24/7" : lang === "ar" ? "مفتوح 24/24" : "Ouvert 24h/24";
+      return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${w}`;
+    }
+    if (mode === "opens_first") {
+      const w = lang === "en" ? "opens at" : lang === "ar" ? "يفتح في" : "ouvre à";
+      return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${w} ${fmt(r.opens)}`;
+    }
+    const w = lang === "en" ? "closes at" : lang === "ar" ? "يغلق في" : "ferme à";
+    return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${w} ${fmt(r.closes)}`;
+
+  });
+
+  const intro = mode === "opens_first"
+    ? (lang === "en" ? `Among the previous results, **${top[0].name}** opens the earliest today (${dayLabel}):`
+      : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** يفتح أبكر اليوم (${dayLabel}):`
+      : `Parmi les précédents, c'est **${top[0].name}** qui ouvre le plus tôt aujourd'hui (${dayLabel}) :`)
+    : (lang === "en" ? `Among the previous results, **${top[0].name}** closes the latest today (${dayLabel}):`
+      : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** يغلق متأخرًا اليوم (${dayLabel}):`
+      : `Parmi les précédents, c'est **${top[0].name}** qui ferme le plus tard aujourd'hui (${dayLabel}) :`);
+
+  const skipped = ids.length - rows.length;
+  const outro = skipped > 0
+    ? (lang === "en" ? `\n\n_(${skipped} result${skipped > 1 ? "s" : ""} excluded: hours not published or closed today.)_`
+      : lang === "ar" ? `\n\n_(${skipped} نتيجة مستبعدة: الساعات غير منشورة أو مغلقة اليوم.)_`
+      : `\n\n_(${skipped} résultat${skipped > 1 ? "s" : ""} exclu${skipped > 1 ? "s" : ""} : horaires non publiés ou fermé aujourd'hui.)_`)
+    : "";
+
+  return `${intro}\n\n${lines.join("\n")}${outro}`;
+}
+
+
 function isReserveCta(cta: string | null | undefined, mode: string | null | undefined): boolean {
   const raw = `${cta || ""} ${mode || ""}`;
   const n = normalize(raw);
@@ -1754,7 +1896,30 @@ Deno.serve(async (req) => {
           // No prior map payload — fall through to normal flow.
         }
 
+        // Deterministic: HOURS RANKING — "quel est le premier à ouvrir / dernier à fermer ?"
+        // Operates only on the previous turn's results; no LLM, no fallback if no priors.
+        {
+          const rankMode: "opens_first" | "closes_last" | null =
+            isOpensFirstIntent(userMessage) ? "opens_first"
+            : isClosesLastIntent(userMessage) ? "closes_last"
+            : null;
+          if (rankMode) {
+            const priorIds = extractPriorKnownBusinessIds(inMessages, host.id);
+            if (priorIds.length) {
+              const answer = await buildHoursRanking(admin, priorIds, rankMode, language);
+              if (answer) {
+                emitDelta(answer);
+                toolsCalledLog.push({ name: "hours_ranking", args: { mode: rankMode, count: priorIds.length }, ok: true });
+                endText();
+                await logTurn({ finalText: answer, streamCompleted: true });
+                return;
+              }
+            }
+          }
+        }
+
         // Deterministic: HOURS — read opening_hours directly from DB, gated by show_opening_hours.
+
         if (isHoursIntent(userMessage)) {
           // 1) If the previous assistant turn returned a list of results (KNOWN_BUSINESSES marker),
           //    the follow-up "Consulter les horaires" refers to those results — not to the host.
