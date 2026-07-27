@@ -367,7 +367,8 @@ async function buildHoursRanking(
       return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${w} ${fmt(r.opens)}`;
     }
     const w = lang === "en" ? "closes at" : lang === "ar" ? "يغلق في" : "ferme à";
-    return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${w} ${fmt(top[0] === r ? r.closes : r.closes)}`;
+    return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${w} ${fmt(r.closes)}`;
+
   });
 
   const intro = mode === "opens_first"
