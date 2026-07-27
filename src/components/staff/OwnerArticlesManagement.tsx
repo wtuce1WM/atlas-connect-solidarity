@@ -133,6 +133,16 @@ const OwnerArticlesManagement = () => {
           })}
         </div>
       )}
+
+      {attachTarget && (
+        <AttachArticlesDialog
+          open={!!attachTarget}
+          onOpenChange={(v) => { if (!v) setAttachTarget(null); }}
+          businessId={attachTarget.business_id}
+          businessName={attachTarget.business_name}
+          onAttached={() => setReloadKey((k) => k + 1)}
+        />
+      )}
     </div>
   );
 };
