@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { LogOut, ArrowLeft, LayoutDashboard, Newspaper, UserSquare2, LayoutTemplate } from "lucide-react";
 import BlogManagement from "@/components/staff/BlogManagement";
+import OwnerArticlesManagement from "@/components/staff/OwnerArticlesManagement";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -110,9 +111,7 @@ const StaffBlog = () => {
           </TabsContent>
 
           <TabsContent value="owner-articles">
-            <div className="text-sm text-muted-foreground py-10 text-center">
-              Articles propriétaires — à venir.
-            </div>
+            <OwnerArticlesManagement />
           </TabsContent>
 
           <TabsContent value="templates">

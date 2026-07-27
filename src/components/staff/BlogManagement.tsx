@@ -34,7 +34,24 @@ interface BlogPost {
 const SELECT_COLS =
   "id, title_fr, title_en, title_ar, slug, excerpt_fr, excerpt_en, excerpt_ar, content_en, content_ar, cover_image_url, published_at, created_at, updated_at, is_published, is_pinned";
 
-const BlogManagement = () => {
+interface BlogManagementProps {
+  /** "standard" = articles sans anchor_business_id (par défaut). "owner" = articles avec anchor_business_id. */
+  mode?: "standard" | "owner";
+  /** Filtrer sur un établissement précis (mode owner). */
+  anchorBusinessId?: string;
+  /** Titre/description personnalisés. */
+  title?: string;
+  subtitle?: string;
+  showInternalLinks?: boolean;
+}
+
+const BlogManagement = ({
+  mode = "standard",
+  anchorBusinessId,
+  title,
+  subtitle,
+  showInternalLinks = true,
+}: BlogManagementProps = {}) => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [translating, setTranslating] = useState<Record<string, "en" | "ar" | null>>({});
@@ -42,17 +59,25 @@ const BlogManagement = () => {
 
   useEffect(() => {
     const fetchPosts = async () => {
-      const { data } = await supabase
+      let q = supabase
         .from("blog_posts")
         .select(SELECT_COLS)
         .order("is_pinned", { ascending: false })
         .order("published_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false });
+      if (anchorBusinessId) {
+        q = q.eq("anchor_business_id", anchorBusinessId);
+      } else if (mode === "owner") {
+        q = q.not("anchor_business_id", "is", null);
+      } else {
+        q = q.is("anchor_business_id", null);
+      }
+      const { data } = await q;
       if (data) setPosts(data as BlogPost[]);
       setIsLoading(false);
     };
     fetchPosts();
-  }, []);
+  }, [mode, anchorBusinessId]);
 
   const handleTranslate = async (post: BlogPost, target: "en" | "ar") => {
     setTranslating((s) => ({ ...s, [post.id]: target }));
@@ -123,27 +148,33 @@ const BlogManagement = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold">Articles</h2>
+          <h2 className="text-xl font-bold">{title ?? "Articles"}</h2>
           <p className="text-sm text-muted-foreground">
-            {posts.length} article{posts.length > 1 ? "s" : ""} — épinglés en tête, puis même ordre que /blog
+            {subtitle ?? (
+              <>
+                {posts.length} article{posts.length > 1 ? "s" : ""} — épinglés en tête, puis même ordre que /blog
+              </>
+            )}
           </p>
         </div>
       </div>
 
-      <Card>
-        <CardContent className="p-4">
-          <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">Pages internes</h3>
-          <div className="flex flex-wrap gap-2">
-            <Link to="/staff/carousel-nav-demo">
-              <Button variant="outline" size="sm" className="gap-2">
-                <Layout className="h-3.5 w-3.5" />
-                Démo Navigation Carrousel
-                <ExternalLink className="h-3 w-3 text-muted-foreground" />
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+      {showInternalLinks && (
+        <Card>
+          <CardContent className="p-4">
+            <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">Pages internes</h3>
+            <div className="flex flex-wrap gap-2">
+              <Link to="/staff/carousel-nav-demo">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Layout className="h-3.5 w-3.5" />
+                  Démo Navigation Carrousel
+                  <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {posts.length === 0 ? (
         <Card>
