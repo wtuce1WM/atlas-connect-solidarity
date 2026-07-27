@@ -72,6 +72,7 @@ const Join = JoinEager;
 const SearchAnalytics = lazy(() => import("./pages/SearchAnalytics"));
 const StaffMaster = lazy(() => import("./pages/StaffMaster"));
 const StaffIA = lazy(() => import("./pages/StaffIA"));
+const StaffBlog = lazy(() => import("./pages/StaffBlog"));
 const StaffB2B = lazy(() => import("./pages/StaffB2B"));
 const StaffTranslations = lazy(() => import("./pages/StaffTranslations"));
 
