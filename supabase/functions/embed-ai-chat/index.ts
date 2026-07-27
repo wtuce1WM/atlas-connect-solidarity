@@ -2583,7 +2583,8 @@ Deno.serve(async (req) => {
           await logTurn({ finalText: answer + trailing, streamCompleted: true });
           return;
         }
-        } else if (deterministicSubcategoryNames || deterministicBadgeIds) {
+
+        if (deterministicSubcategoryNames || deterministicBadgeIds) {
           const forcedArgs: any = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
           if (deterministicSubcategoryNames) forcedArgs._subcategoryNames = deterministicSubcategoryNames;
           if (deterministicBadgeIds) forcedArgs._badgeIds = deterministicBadgeIds;
