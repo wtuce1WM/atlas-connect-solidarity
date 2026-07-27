@@ -108,6 +108,8 @@ export interface BlogArticleTemplateProps {
   tldr?: string;
   /** FAQ items rendered at the bottom of the article and emitted as FAQPage JSON-LD. */
   faq?: BlogArticleFaqItem[];
+  /** Optional black anchor marker on the map (e.g. reference establishment for a proximity article). */
+  anchorPoi?: { name: string; latitude: number; longitude: number } | null;
 }
 
 const DEFAULT_SITE_URL = "https://oneworldmorocco.com";
