@@ -136,6 +136,7 @@ const BlogArticleTemplate = ({
   tldr,
   faq,
   anchorPoi,
+  embedBackSlug,
 }: BlogArticleTemplateProps) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
