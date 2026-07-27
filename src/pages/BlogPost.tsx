@@ -65,6 +65,7 @@ interface BlogPostData {
   faq_en: BlogArticleFaqItem[] | null;
   faq_ar: BlogArticleFaqItem[] | null;
   anchor_poi: { name: string; latitude: number; longitude: number } | null;
+  anchor_business_id: string | null;
 }
 
 const BlogPost = () => {
