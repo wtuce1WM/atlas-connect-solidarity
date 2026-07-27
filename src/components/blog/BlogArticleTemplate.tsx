@@ -678,14 +678,24 @@ const BlogArticleTemplate = ({
                   </h2>
                   {entry.hook && (
                     <p
-                      className={`mb-6 text-base md:text-lg font-['Playfair_Display'] italic ${
+                      className={`mb-3 text-base md:text-lg font-['Playfair_Display'] italic ${
                         isDark ? "text-gold/90" : "text-primary/90"
                       }`}
                     >
                       « {entry.hook} »
                     </p>
                   )}
-                  {!entry.hook && <div className="mb-6" />}
+                  {entry.hours && (
+                    <div
+                      className={`flex items-center gap-1.5 text-xs mb-6 ${
+                        isDark ? "text-white/70" : "text-muted-foreground"
+                      }`}
+                    >
+                      <Clock className="h-3.5 w-3.5 shrink-0" />
+                      <span>{entry.hours}</span>
+                    </div>
+                  )}
+                  {!entry.hook && !entry.hours && <div className="mb-6" />}
 
                   <div className="space-y-4 mb-8">
                     {[entry.id, ...(entry.extraIds ?? [])]
