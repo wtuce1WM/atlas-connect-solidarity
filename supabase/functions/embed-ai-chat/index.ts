@@ -2648,7 +2648,6 @@ Deno.serve(async (req) => {
         // loop otherwise gave the LLM room to skip the immersive intro and only echo the
         // disclosure_note.
         const hasForcedResults =
-          suggestionMode === "events" ||
           !!(deterministicSubcategoryNames || deterministicBadgeIds) ||
           shouldForceDirectorySearch(userMessage);
 
