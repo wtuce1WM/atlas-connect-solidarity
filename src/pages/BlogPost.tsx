@@ -114,6 +114,29 @@ const BlogPost = () => {
     };
   }, [post?.video_section_config]);
 
+  useEffect(() => {
+    let cancelled = false;
+    const bid = post?.anchor_business_id;
+    if (!bid) {
+      setAnchorFromBusiness(null);
+      return;
+    }
+    (async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("name, latitude, longitude")
+        .eq("id", bid)
+        .maybeSingle();
+      if (cancelled) return;
+      if (data && data.latitude != null && data.longitude != null) {
+        setAnchorFromBusiness({ name: data.name, latitude: Number(data.latitude), longitude: Number(data.longitude) });
+      } else {
+        setAnchorFromBusiness(null);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [post?.anchor_business_id]);
+
   // -- Language helpers ----------------------------------------------------
 
   const pickLang = <T,>(fr: T, en: T | null | undefined, ar: T | null | undefined): T => {
