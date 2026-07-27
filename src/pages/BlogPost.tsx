@@ -189,6 +189,7 @@ const BlogPost = () => {
         videoSection={videoSection}
         tldr={tldr}
         faq={faq}
+        anchorPoi={post.anchor_poi ?? undefined}
       />
     );
   }
