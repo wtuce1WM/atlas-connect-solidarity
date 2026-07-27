@@ -50,8 +50,8 @@ async function fetchBlogPostsCached(admin: any): Promise<BlogRow[]> {
 const BLOG_STOPWORDS = new Set<string>([
   "le","la","les","un","une","des","de","du","au","aux","en","sur","dans","ou","et","pour","avec",
   "a","à","d","l","s","c","que","qui","quoi","où","ou","est","sont","ce","ces","cet","cette","mon","ma","mes",
-  "the","a","an","of","to","in","on","at","and","or","for","with","near","close","best","top","by",
-  "meilleur","meilleure","meilleurs","meilleures","top","plus","proche","proches","autour",
+  "the","a","an","of","to","in","on","at","and","or","for","with","near","close","by",
+  "plus","proche","proches","autour",
   "je","tu","il","elle","on","nous","vous","ils","elles","me","te","se","moi","toi",
   "veux","voudrais","cherche","chercher","trouver","montre","montrer","voir",
   "quoi","comment","quel","quelle","quels","quelles","what","which","how",
