@@ -262,9 +262,9 @@ function isOpensFirstIntent(text: string): boolean {
 function isClosesLastIntent(text: string): boolean {
   const n = normalize(text);
   if (!n) return false;
-  if (/\b(dernier|derniere).{0,20}(ferme|fermeture)\b/.test(n)) return true;
-  if (/\bqui ferme.{0,15}(tard|dernier|en dernier|le plus tard)\b/.test(n)) return true;
-  if (/\bferme.{0,10}le plus tard\b/.test(n)) return true;
+  if (/\b(dernier|derniere).{0,20}(ferm)/.test(n)) return true;
+  if (/\bqui ferme.{0,15}(tard|dernier|en dernier|le plus tard)/.test(n)) return true;
+  if (/\bferme.{0,10}le plus tard/.test(n)) return true;
   if (/\b(closes? (?:the )?(?:last|latest)|latest to close|stays open (?:the )?latest)\b/i.test(text)) return true;
   if (/(الأخير|آخر).{0,15}(يغلق|يقفل|إغلاق)/.test(text)) return true;
   return false;
