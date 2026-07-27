@@ -476,7 +476,7 @@ const BlogArticleTemplate = ({
     <div className="min-h-screen bg-background">
       <div className={`transition-[width,max-width,margin] duration-300 ease-out ${panelOpen ? "lg:w-1/2 lg:max-w-[calc(50vw-1rem)] lg:mr-auto lg:ml-0" : "w-full"}`}>
 
-      <HomeMindtripHeader alwaysWhite />
+      {!embedBackSlug && <HomeMindtripHeader alwaysWhite />}
 
       {/* Hero */}
       <div className="relative h-[60vh] min-h-[420px] overflow-hidden">
