@@ -148,27 +148,33 @@ const BlogManagement = ({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold">Articles</h2>
+          <h2 className="text-xl font-bold">{title ?? "Articles"}</h2>
           <p className="text-sm text-muted-foreground">
-            {posts.length} article{posts.length > 1 ? "s" : ""} — épinglés en tête, puis même ordre que /blog
+            {subtitle ?? (
+              <>
+                {posts.length} article{posts.length > 1 ? "s" : ""} — épinglés en tête, puis même ordre que /blog
+              </>
+            )}
           </p>
         </div>
       </div>
 
-      <Card>
-        <CardContent className="p-4">
-          <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">Pages internes</h3>
-          <div className="flex flex-wrap gap-2">
-            <Link to="/staff/carousel-nav-demo">
-              <Button variant="outline" size="sm" className="gap-2">
-                <Layout className="h-3.5 w-3.5" />
-                Démo Navigation Carrousel
-                <ExternalLink className="h-3 w-3 text-muted-foreground" />
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+      {showInternalLinks && (
+        <Card>
+          <CardContent className="p-4">
+            <h3 className="text-sm font-semibold mb-3 text-muted-foreground uppercase tracking-wide">Pages internes</h3>
+            <div className="flex flex-wrap gap-2">
+              <Link to="/staff/carousel-nav-demo">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Layout className="h-3.5 w-3.5" />
+                  Démo Navigation Carrousel
+                  <ExternalLink className="h-3 w-3 text-muted-foreground" />
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {posts.length === 0 ? (
         <Card>
