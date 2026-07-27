@@ -56,7 +56,7 @@ const OwnerArticlesManagement = () => {
       setIsLoading(false);
     };
     load();
-  }, []);
+  }, [reloadKey]);
 
   if (isLoading) {
     return (
