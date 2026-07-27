@@ -1947,6 +1947,39 @@ Deno.serve(async (req) => {
           }
         }
 
+        // ============= Blog grounding (hybrid) =============
+        // If the last user message looks like it maps to a published blog article
+        // (by title similarity), emit an ARTICLE_CARD marker so the front renders
+        // an article card at the top of this assistant response. The rest of the
+        // routing (search_businesses / deterministic routes) still runs behind it.
+        try {
+          const lastUserMsg = uiMessages[uiMessages.length - 1];
+          const lastUserText = lastUserMsg?.role === "user" ? extractTextFromUIMessage(lastUserMsg) : "";
+          if (lastUserText && lastUserText.trim().length >= 6) {
+            const posts = await fetchBlogPostsCached(admin);
+            const match = matchBlogArticle(lastUserText, language, posts, host.id);
+            if (match) {
+              const title =
+                (language === "en" && match.title_en) ||
+                (language === "ar" && match.title_ar) ||
+                match.title_fr || match.title_en || match.title_ar || "";
+              const image = match.custom_hero_image_url || match.cover_image_url || null;
+              const payload = {
+                id: match.id,
+                slug: match.slug,
+                title,
+                image,
+                isOwner: match.anchor_business_id === host.id,
+              };
+              emitDelta(`\n\n<!--ARTICLE_CARD:${JSON.stringify(payload)}-->\n\n`);
+            }
+          }
+        } catch (e) {
+          console.error("[embed-ai-chat] blog_grounding_error", e);
+        }
+
+
+
 
         // Tool executor
         const runTool = async (name: string, args: any): Promise<any> => {
