@@ -215,6 +215,7 @@ const BlogPost = () => {
         tldr={tldr}
         faq={faq}
         anchorPoi={anchorFromBusiness ?? post.anchor_poi ?? undefined}
+        embedBackSlug={embedSlug ?? undefined}
       />
     );
   }
