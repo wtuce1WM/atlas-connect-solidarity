@@ -579,7 +579,7 @@ async function buildRatingRanking(admin: any, ids: string[], mode: "best_rated" 
     const top = eligible.slice(0, 5);
     const lines = top.map((r: any) => {
       const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
-      return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ⭐ ${r._rating.toFixed(1)}/5 (${r._count} avis)`;
+      return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ⭐ ${r._rating.toFixed(1)}/20 (${r._count} avis)`;
     });
     const intro = lang === "en" ? `Among the previous results, **${top[0].name}** has the highest overall rating:`
       : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** لديه أعلى تقييم عام:`
