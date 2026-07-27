@@ -1896,7 +1896,30 @@ Deno.serve(async (req) => {
           // No prior map payload — fall through to normal flow.
         }
 
+        // Deterministic: HOURS RANKING — "quel est le premier à ouvrir / dernier à fermer ?"
+        // Operates only on the previous turn's results; no LLM, no fallback if no priors.
+        {
+          const rankMode: "opens_first" | "closes_last" | null =
+            isOpensFirstIntent(userMessage) ? "opens_first"
+            : isClosesLastIntent(userMessage) ? "closes_last"
+            : null;
+          if (rankMode) {
+            const priorIds = extractPriorKnownBusinessIds(inMessages, host.id);
+            if (priorIds.length) {
+              const answer = await buildHoursRanking(admin, priorIds, rankMode, language);
+              if (answer) {
+                emitDelta(answer);
+                toolsCalledLog.push({ name: "hours_ranking", args: { mode: rankMode, count: priorIds.length }, ok: true });
+                endText();
+                await logTurn({ finalText: answer, streamCompleted: true });
+                return;
+              }
+            }
+          }
+        }
+
         // Deterministic: HOURS — read opening_hours directly from DB, gated by show_opening_hours.
+
         if (isHoursIntent(userMessage)) {
           // 1) If the previous assistant turn returned a list of results (KNOWN_BUSINESSES marker),
           //    the follow-up "Consulter les horaires" refers to those results — not to the host.
