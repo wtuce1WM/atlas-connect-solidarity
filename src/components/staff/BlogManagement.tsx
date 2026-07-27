@@ -34,8 +34,24 @@ interface BlogPost {
 const SELECT_COLS =
   "id, title_fr, title_en, title_ar, slug, excerpt_fr, excerpt_en, excerpt_ar, content_en, content_ar, cover_image_url, published_at, created_at, updated_at, is_published, is_pinned";
 
-const BlogManagement = () => {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
+interface BlogManagementProps {
+  /** "standard" = articles sans anchor_business_id (par défaut). "owner" = articles avec anchor_business_id. */
+  mode?: "standard" | "owner";
+  /** Filtrer sur un établissement précis (mode owner). */
+  anchorBusinessId?: string;
+  /** Titre/description personnalisés. */
+  title?: string;
+  subtitle?: string;
+  showInternalLinks?: boolean;
+}
+
+const BlogManagement = ({
+  mode = "standard",
+  anchorBusinessId,
+  title,
+  subtitle,
+  showInternalLinks = true,
+}: BlogManagementProps = {}) => {
   const [isLoading, setIsLoading] = useState(true);
   const [translating, setTranslating] = useState<Record<string, "en" | "ar" | null>>({});
   const [updating, setUpdating] = useState<Record<string, boolean>>({});
