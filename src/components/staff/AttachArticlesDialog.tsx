@@ -10,7 +10,7 @@ import { toast } from "sonner";
 interface UnassignedPost {
   id: string;
   title_fr: string | null;
-  slug_fr: string | null;
+  slug: string | null;
   published_at: string | null;
   created_at: string;
 }
