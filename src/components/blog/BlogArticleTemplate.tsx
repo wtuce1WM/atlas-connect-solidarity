@@ -980,9 +980,9 @@ const BlogArticleTemplate = ({
         </>
       )}
 
-      <Footer />
+      {!embedBackSlug && <Footer />}
       </div>
-      {!openBusinessId && !activeVideoId && <HomeBottomBar />}
+      {!embedBackSlug && !openBusinessId && !activeVideoId && <HomeBottomBar />}
       <ClubLoginPopup />
 
       {openBusinessId && (
