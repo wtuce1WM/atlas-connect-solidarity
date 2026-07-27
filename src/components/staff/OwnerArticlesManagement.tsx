@@ -89,10 +89,12 @@ const OwnerArticlesManagement = () => {
             const open = !!expanded[g.business_id];
             return (
               <Card key={g.business_id} className="overflow-hidden">
-                <button
-                  type="button"
+                <div
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setExpanded((s) => ({ ...s, [g.business_id]: !open }))}
-                  className="w-full flex items-center justify-between gap-3 p-4 hover:bg-muted/50 transition-colors text-left"
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setExpanded((s) => ({ ...s, [g.business_id]: !open })); }}
+                  className="w-full flex items-center justify-between gap-3 p-4 hover:bg-muted/50 transition-colors text-left cursor-pointer"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     {open ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronRight className="h-4 w-4 shrink-0" />}
