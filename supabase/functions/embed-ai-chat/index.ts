@@ -2279,6 +2279,23 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Deterministic: DISTANCE LIST — "quelles sont les distances depuis X ?"
+        {
+          if (isDistanceListIntent(userMessage)) {
+            const priorIds = extractPriorKnownBusinessIds(inMessages, host.id);
+            if (priorIds.length) {
+              const answer = await buildDistanceList(admin, host, priorIds, language);
+              if (answer) {
+                emitDelta(answer);
+                toolsCalledLog.push({ name: "distance_list", args: { count: priorIds.length }, ok: true });
+                endText();
+                await logTurn({ finalText: answer, streamCompleted: true });
+                return;
+              }
+            }
+          }
+        }
+
         // Deterministic: DISTANCE RANKING — "le plus proche / le plus loin"
         {
           const mode = isDistanceRankingIntent(userMessage);
