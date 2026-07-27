@@ -65,6 +65,7 @@ interface BlogPostData {
   faq_en: BlogArticleFaqItem[] | null;
   faq_ar: BlogArticleFaqItem[] | null;
   anchor_poi: { name: string; latitude: number; longitude: number } | null;
+  anchor_business_id: string | null;
 }
 
 const BlogPost = () => {
@@ -74,6 +75,7 @@ const BlogPost = () => {
   const [post, setPost] = useState<BlogPostData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [videos, setVideos] = useState<BlogArticleVideo[]>([]);
+  const [anchorFromBusiness, setAnchorFromBusiness] = useState<{ name: string; latitude: number; longitude: number } | null>(null);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -111,6 +113,29 @@ const BlogPost = () => {
       cancelled = true;
     };
   }, [post?.video_section_config]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const bid = post?.anchor_business_id;
+    if (!bid) {
+      setAnchorFromBusiness(null);
+      return;
+    }
+    (async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("name, latitude, longitude")
+        .eq("id", bid)
+        .maybeSingle();
+      if (cancelled) return;
+      if (data && data.latitude != null && data.longitude != null) {
+        setAnchorFromBusiness({ name: data.name, latitude: Number(data.latitude), longitude: Number(data.longitude) });
+      } else {
+        setAnchorFromBusiness(null);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [post?.anchor_business_id]);
 
   // -- Language helpers ----------------------------------------------------
 
@@ -189,7 +214,7 @@ const BlogPost = () => {
         videoSection={videoSection}
         tldr={tldr}
         faq={faq}
-        anchorPoi={post.anchor_poi ?? undefined}
+        anchorPoi={anchorFromBusiness ?? post.anchor_poi ?? undefined}
       />
     );
   }
