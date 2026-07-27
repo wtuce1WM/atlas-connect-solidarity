@@ -576,6 +576,15 @@ const BlogArticleTemplate = ({
                     neighborhood: b.neighborhood,
                     rating: b.rating,
                   }));
+                if (anchorPoi && anchorPoi.latitude != null && anchorPoi.longitude != null) {
+                  pois.push({
+                    id: "__anchor__",
+                    name: anchorPoi.name,
+                    latitude: anchorPoi.latitude,
+                    longitude: anchorPoi.longitude,
+                    markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
+                  });
+                }
                 return (
                   <PoiGoogleMap
                     pois={pois}
