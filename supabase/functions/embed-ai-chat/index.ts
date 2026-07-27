@@ -405,6 +405,15 @@ function isDistanceRankingIntent(text: string): "closest" | "farthest" | null {
   return null;
 }
 
+function isDistanceListIntent(text: string): boolean {
+  const n = normalize(text);
+  if (!n) return false;
+  if (/\b(quelles?\s+sont\s+les\s+distances?|distances?\s+(depuis|par\s+rapport|de\s+chaque)|liste\s+des\s+distances?|donne[- ]?moi\s+les\s+distances?|a\s+quelle\s+distance)\b/.test(n)) return true;
+  if (/\b(what\s+are\s+the\s+distances?|list\s+the\s+distances?|how\s+far\s+(is|are)\s+each|distances?\s+from)\b/i.test(text)) return true;
+  if (/(ما\s+هي\s+المسافات|المسافات\s+من|كم\s+تبعد)/.test(text)) return true;
+  return false;
+}
+
 function isRatingRankingIntent(text: string): "best_rated" | "most_reviewed" | null {
   const n = normalize(text);
   if (!n) return null;
@@ -558,6 +567,29 @@ async function buildDistanceRanking(admin: any, host: any, ids: string[], mode: 
       : `Parmi les précédents, c'est **${top[0].name}** le plus loin de **${host.name}** :`);
   return `${intro}\n\n${lines.join("\n")}${toMapMarker(top)}`;
 }
+
+async function buildDistanceList(admin: any, host: any, ids: string[], lang: "fr" | "en" | "ar"): Promise<string | null> {
+  if (!ids.length) return null;
+  const hLat = Number(host.latitude), hLng = Number(host.longitude);
+  if (!Number.isFinite(hLat) || !Number.isFinite(hLng)) return null;
+  const rows = await fetchPriorFull(admin, ids);
+  const withDist = rows
+    .filter((r: any) => Number.isFinite(Number(r.latitude)) && Number.isFinite(Number(r.longitude)))
+    .map((r: any) => ({ ...r, _dist_km: haversineKmLocal(hLat, hLng, Number(r.latitude), Number(r.longitude)) }));
+  if (!withDist.length) return null;
+  withDist.sort((a: any, b: any) => a._dist_km - b._dist_km);
+  const lines = withDist.map((r: any) => {
+    const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
+    return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${fmtKm(r._dist_km)}`;
+  });
+  const intro = lang === "en"
+    ? `Distances from **${host.name}** for the previous results:`
+    : lang === "ar"
+      ? `المسافات من **${host.name}** للنتائج السابقة:`
+      : `Distances depuis **${host.name}** pour les résultats précédents :`;
+  return `${intro}\n\n${lines.join("\n")}${toMapMarker(withDist)}`;
+}
+
 
 async function buildRatingRanking(admin: any, ids: string[], mode: "best_rated" | "most_reviewed", lang: "fr" | "en" | "ar"): Promise<string | null> {
   if (!ids.length) return null;
@@ -2239,6 +2271,23 @@ Deno.serve(async (req) => {
               if (answer) {
                 emitDelta(answer);
                 toolsCalledLog.push({ name: "hours_ranking", args: { mode: rankMode, count: priorIds.length }, ok: true });
+                endText();
+                await logTurn({ finalText: answer, streamCompleted: true });
+                return;
+              }
+            }
+          }
+        }
+
+        // Deterministic: DISTANCE LIST — "quelles sont les distances depuis X ?"
+        {
+          if (isDistanceListIntent(userMessage)) {
+            const priorIds = extractPriorKnownBusinessIds(inMessages, host.id);
+            if (priorIds.length) {
+              const answer = await buildDistanceList(admin, host, priorIds, language);
+              if (answer) {
+                emitDelta(answer);
+                toolsCalledLog.push({ name: "distance_list", args: { count: priorIds.length }, ok: true });
                 endText();
                 await logTurn({ finalText: answer, streamCompleted: true });
                 return;
