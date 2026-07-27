@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Store, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader2, Store, ChevronDown, ChevronRight, Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import BlogManagement from "@/components/staff/BlogManagement";
+import AttachArticlesDialog from "@/components/staff/AttachArticlesDialog";
 
 interface OwnerGroup {
   business_id: string;
@@ -15,6 +16,8 @@ const OwnerArticlesManagement = () => {
   const [groups, setGroups] = useState<OwnerGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [attachTarget, setAttachTarget] = useState<OwnerGroup | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     const load = async () => {
@@ -53,7 +56,7 @@ const OwnerArticlesManagement = () => {
       setIsLoading(false);
     };
     load();
-  }, []);
+  }, [reloadKey]);
 
   if (isLoading) {
     return (
@@ -86,10 +89,12 @@ const OwnerArticlesManagement = () => {
             const open = !!expanded[g.business_id];
             return (
               <Card key={g.business_id} className="overflow-hidden">
-                <button
-                  type="button"
+                <div
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setExpanded((s) => ({ ...s, [g.business_id]: !open }))}
-                  className="w-full flex items-center justify-between gap-3 p-4 hover:bg-muted/50 transition-colors text-left"
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setExpanded((s) => ({ ...s, [g.business_id]: !open })); }}
+                  className="w-full flex items-center justify-between gap-3 p-4 hover:bg-muted/50 transition-colors text-left cursor-pointer"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     {open ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronRight className="h-4 w-4 shrink-0" />}
@@ -99,10 +104,20 @@ const OwnerArticlesManagement = () => {
                       <div className="text-xs text-muted-foreground font-mono truncate">{g.business_id}</div>
                     </div>
                   </div>
-                  <div className="text-sm text-muted-foreground shrink-0">
-                    {g.count} article{g.count > 1 ? "s" : ""}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-sm text-muted-foreground">
+                      {g.count} article{g.count > 1 ? "s" : ""}
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => { e.stopPropagation(); setAttachTarget(g); }}
+                    >
+                      <Plus className="h-3.5 w-3.5 mr-1" />
+                      Rattacher
+                    </Button>
                   </div>
-                </button>
+                </div>
                 {open && (
                   <div className="border-t p-4 bg-muted/20">
                     <BlogManagement
@@ -117,6 +132,16 @@ const OwnerArticlesManagement = () => {
             );
           })}
         </div>
+      )}
+
+      {attachTarget && (
+        <AttachArticlesDialog
+          open={!!attachTarget}
+          onOpenChange={(v) => { if (!v) setAttachTarget(null); }}
+          businessId={attachTarget.business_id}
+          businessName={attachTarget.business_name}
+          onAttached={() => setReloadKey((k) => k + 1)}
+        />
       )}
     </div>
   );
