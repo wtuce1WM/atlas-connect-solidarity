@@ -362,38 +362,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       zoomControl: false,
       gestureHandling: "greedy",
       clickableIcons: false,
-      styles: [
-        // Show native Google POIs (icônes attractions, parcs, etc.), masquer libellés business pour rester lisible
-        { featureType: "poi", elementType: "labels.text", stylers: [{ visibility: "off" }] },
-        { featureType: "poi.business", elementType: "labels.icon", stylers: [{ visibility: "on" }] },
-        { featureType: "poi.park", elementType: "geometry", stylers: [{ visibility: "on" }, { color: "#e8f0e3" }] },
-        { featureType: "poi.park", elementType: "labels.text", stylers: [{ visibility: "on" }, { color: "#7a8a6e" }] },
-        { featureType: "transit", stylers: [{ visibility: "off" }] },
-        { featureType: "transit.station", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-        // Base geometry — teinte beige du front (#ECD6B8)
-        { elementType: "geometry", stylers: [{ color: "#ECD6B8" }] },
-        { elementType: "labels.text.fill", stylers: [{ color: "#8a7a63" }] },
-        { elementType: "labels.text.stroke", stylers: [{ color: "#ECD6B8" }] },
-        // Landscape
-        { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#ECD6B8" }] },
-        { featureType: "landscape.man_made", elementType: "geometry", stylers: [{ color: "#E5CDAB" }] },
-        // Roads — blanc cassé pour contraste doux sur le beige
-        { featureType: "road", elementType: "geometry", stylers: [{ color: "#FBF1E1" }] },
-        { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#DCC4A1" }] },
-        { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#FBF1E1" }] },
-        { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#D4B98F" }] },
-        { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#FBF1E1" }] },
-        { featureType: "road.local", elementType: "geometry", stylers: [{ color: "#F6E8D0" }] },
-        { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#b5b5b5" }] },
-        { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-        // Water — pale blue
-        { featureType: "water", elementType: "geometry", stylers: [{ color: "#d9e8f0" }] },
-        { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#a8c0cc" }] },
-        // Administrative — soft labels
-        { featureType: "administrative", elementType: "geometry", stylers: [{ visibility: "off" }] },
-        { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
-        { featureType: "administrative.neighborhood", elementType: "labels.text.fill", stylers: [{ color: "#1c1510" }] },
-      ],
+      styles: mapTheme === "dark" ? DARK_MAP_STYLES : LIGHT_MAP_STYLES,
     });
     infoWindowRef.current = new gmaps.InfoWindow();
     mapRef.current.addListener("click", () => {
