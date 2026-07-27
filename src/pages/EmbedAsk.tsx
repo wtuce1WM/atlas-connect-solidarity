@@ -989,6 +989,39 @@ const EmbedAsk = () => {
           </div>
         )}
 
+        {messages.length <= 1 && !streaming && businessName && blogArticles.length > 0 && (
+          <div
+            className="flex gap-3 pt-2 overflow-x-auto scrollbar-hide"
+            onWheel={(e) => {
+              if (e.deltaY === 0) return;
+              (e.currentTarget as HTMLDivElement).scrollLeft += e.deltaY;
+            }}
+          >
+            {blogArticles.map((a) => (
+              <a
+                key={a.id}
+                href={`/blog/${a.slug}`}
+                target="_top"
+                rel="noopener noreferrer"
+                className={`relative flex-shrink-0 w-44 h-64 rounded-xl overflow-hidden ${cardBg} hover:opacity-95 transition-opacity`}
+              >
+                {a.image ? (
+                  <img src={a.image} alt={a.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+                ) : null}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+                {a.isOwner && (
+                  <span className="absolute top-2 right-2 text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-[#D4AF37] text-black font-semibold">
+                    {lang === "en" ? "Featured" : lang === "ar" ? "مميّز" : "À la une"}
+                  </span>
+                )}
+                <div className="absolute inset-x-0 bottom-0 p-3">
+                  <div className="text-white text-xs font-semibold leading-snug line-clamp-4">{a.title}</div>
+                </div>
+              </a>
+            ))}
+          </div>
+        )}
+
         {error && <div className="text-xs text-red-500">{error}</div>}
       </div>
 
