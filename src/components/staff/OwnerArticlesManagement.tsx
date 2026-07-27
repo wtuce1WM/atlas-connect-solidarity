@@ -117,7 +117,7 @@ const OwnerArticlesManagement = () => {
                       Rattacher
                     </Button>
                   </div>
-                </button>
+                </div>
                 {open && (
                   <div className="border-t p-4 bg-muted/20">
                     <BlogManagement
