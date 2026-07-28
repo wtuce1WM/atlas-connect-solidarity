@@ -2666,17 +2666,35 @@ Deno.serve(async (req) => {
                   if (businessIds.length >= 3) {
                     const { data: bizRows } = await admin
                       .from("businesses")
-                      .select("id, name, slug, city, neighborhood, main_category, categories, hook_fr, hook_en, hook_ar, latitude, longitude, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, computed_rating, total_review_count, engagements, closure_message, is_active")
+                      .select("id, name, slug, city, neighborhood, main_category, categories, hook_fr, hook_en, hook_ar, latitude, longitude, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, computed_rating, total_review_count, engagements, closure_message, is_active, is_featured, rating")
                       .in("id", businessIds)
                       .eq("is_active", true)
                       .is("closure_message", null);
                     const byId = new Map<string, any>((bizRows || []).map((b: any) => [b.id, b]));
-                    const orderedBiz = businessIds
-                      .map((id: string) => byId.get(id))
-                      .filter(Boolean) as any[];
+                    // Pair each entry with its business, then sort the same way BlogArticleTemplate does:
+                    // featured first, then rating desc, then review count desc, then name — keeping the
+                    // article's original order as the stable fallback.
+                    const paired = entries
+                      .map((entry: any, originalIdx: number) => ({ entry, originalIdx, biz: byId.get(entry?.id) }))
+                      .filter((p: any) => p.biz);
+                    paired.sort((a: any, b: any) => {
+                      const fa = a.biz?.is_featured ? 1 : 0;
+                      const fb = b.biz?.is_featured ? 1 : 0;
+                      if (fb !== fa) return fb - fa;
+                      const ra = a.biz?.computed_rating ?? a.biz?.rating ?? -1;
+                      const rb = b.biz?.computed_rating ?? b.biz?.rating ?? -1;
+                      if (rb !== ra) return rb - ra;
+                      const ca = a.biz?.total_review_count ?? 0;
+                      const cb = b.biz?.total_review_count ?? 0;
+                      if (cb !== ca) return cb - ca;
+                      return a.originalIdx - b.originalIdx;
+                    });
+                    const orderedBiz = paired.map((p: any) => p.biz);
+                    const orderedEntries = paired.map((p: any) => p.entry);
 
                     if (orderedBiz.length >= 3) {
                       const shown = orderedBiz.slice(0, Math.min(orderedBiz.length, 10));
+                      const shownEntries = orderedEntries.slice(0, shown.length);
                       const shownIds = shown.map((b: any) => b.id);
 
                       // Fetch reviews: prefer is_default; fall back to first review per business.
