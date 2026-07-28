@@ -2570,6 +2570,7 @@ Deno.serve(async (req) => {
                     if (orderedBiz.length >= 3) {
                       const shown = orderedBiz.slice(0, Math.min(orderedBiz.length, 10));
 
+                      articlePayload.inline = true;
                       emitDelta(`\n\n<!--ARTICLE_CARD:${JSON.stringify(articlePayload)}-->\n\n`);
 
                       const cityForCopy = host.city || "Marrakech";
