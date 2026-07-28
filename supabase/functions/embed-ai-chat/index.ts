@@ -3989,6 +3989,89 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Deterministic: DIRECT VIEWER (suggestion mode = 'direct_viewer').
+        // Show only the pinned business_ids in the defined order — no search, no LLM.
+        if (suggestionMode === "direct_viewer") {
+          try {
+            const ids = suggestionPinnedIds.length ? suggestionPinnedIds : [];
+            if (!ids.length) {
+              const empty = language === "en"
+                ? `No businesses were pinned for this suggestion.`
+                : language === "ar"
+                  ? `لم يتم تثبيت أي منشآت لهذا الاقتراح.`
+                  : `Aucun établissement n'a été ciblé pour cette suggestion.`;
+              emitDelta(empty);
+              endText();
+              await logTurn({ finalText: empty, streamCompleted: true });
+              return;
+            }
+            const { data: rows } = await admin
+              .from("businesses")
+              .select("id, name, slug, city, neighborhood, address, main_category, categories, latitude, longitude, logo_url, images, hook_fr, hook_en, hook_ar, description, description_en, description_ar, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, computed_rating, total_review_count, engagements, is_featured")
+              .in("id", ids)
+              .eq("is_active", true);
+            const ordered = ids
+              .map((id) => (rows || []).find((b: any) => b.id === id))
+              .filter(Boolean) as any[];
+            if (!ordered.length) {
+              const empty = language === "en"
+                ? `The pinned businesses are no longer available.`
+                : language === "ar"
+                  ? `المنشآت المثبتة لم تعد متاحة.`
+                  : `Les établissements ciblés ne sont plus disponibles.`;
+              emitDelta(empty);
+              endText();
+              await logTurn({ finalText: empty, streamCompleted: true });
+              return;
+            }
+            const wrapped = { results: ordered, city: host.city || "Marrakech", total_found: ordered.length };
+            rememberSearchResult("search_businesses", { _direct_viewer: true, ids }, wrapped);
+            const answer = buildImmersiveBusinessAnswer(wrapped, host, userMessage, language);
+            emitDelta(answer);
+            const trailing = emitTrailingMarkers();
+            toolsCalledLog.push({ name: "direct_viewer", args: { count: ordered.length }, ok: true });
+            endText();
+            await logTurn({ finalText: answer + trailing, streamCompleted: true });
+            return;
+          } catch (e) {
+            console.error("[embed-ai-chat] direct_viewer_error", e);
+          }
+        }
+
+        // Deterministic: STRUCTURE DU FRONT (suggestion mode = 'structure_front').
+        // Force search_businesses in host city with the suggestion's subcategories/badges.
+        if (suggestionMode === "structure_front" && (deterministicSubcategoryNames || deterministicBadgeIds)) {
+          try {
+            const forcedArgs: any = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
+            if (deterministicSubcategoryNames) forcedArgs._subcategoryNames = deterministicSubcategoryNames;
+            if (deterministicBadgeIds) forcedArgs._badgeIds = deterministicBadgeIds;
+            const forcedResult = await runTool("search_businesses", forcedArgs);
+            rememberSearchResult("search_businesses", forcedArgs, forcedResult);
+            if (Array.isArray(forcedResult?.results) && forcedResult.results.length) {
+              const answer = buildImmersiveBusinessAnswer(forcedResult, host, userMessage, language);
+              emitDelta(answer);
+              const trailing = emitTrailingMarkers();
+              toolsCalledLog.push({ name: "structure_front", args: forcedArgs, ok: true });
+              endText();
+              await logTurn({ finalText: answer + trailing, streamCompleted: true });
+              return;
+            }
+            const city = host.city || "Marrakech";
+            const empty = language === "ar"
+              ? `📍 لم أعثر على نتائج في ${city} لهذا البحث.`
+              : language === "en"
+                ? `📍 No results found in ${city} for this search.`
+                : `📍 Aucun résultat trouvé à ${city} pour cette recherche.`;
+            emitDelta(empty);
+            const trailing = emitTrailingMarkers();
+            endText();
+            await logTurn({ finalText: empty + trailing, streamCompleted: true });
+            return;
+          } catch (e) {
+            console.error("[embed-ai-chat] structure_front_error", e);
+          }
+        }
+
         // Deterministic: events search (suggestion mode = 'events')
 
         if (suggestionMode === "events") {
