@@ -2130,6 +2130,7 @@ Deno.serve(async (req) => {
                   offset: 0,
                   compact: "card",
                   city,
+                  neighborhood: args.neighborhood || undefined,
                   subcategoryNames,
                   badgeIds,
                 }),

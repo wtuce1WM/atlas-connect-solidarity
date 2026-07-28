@@ -780,7 +780,8 @@ serve(async (req) => {
     compact,
     subcategoryNames,
     badgeIds,
-    }: SearchParams & { language?: string; mode?: string; spoken?: string; skipRerank?: boolean; mainCategory?: string; compact?: "ids" | "card" | null; subcategoryNames?: string[]; badgeIds?: string[] } = await req.json();
+    neighborhood: neighborhoodParam,
+    }: SearchParams & { language?: string; mode?: string; spoken?: string; skipRerank?: boolean; mainCategory?: string; compact?: "ids" | "card" | null; subcategoryNames?: string[]; badgeIds?: string[]; neighborhood?: string } = await req.json();
 
     // ── Input validation & sanitization ──
     // Strip PostgREST filter special chars and clamp string lengths to prevent
@@ -844,8 +845,15 @@ serve(async (req) => {
       }
       const { data: allRows, error: bypassErr } = await bypassQuery;
       if (bypassErr) throw bypassErr;
+      // Optional strict neighborhood post-filter (used by embed-ai-chat scope-broaden)
+      let bypassRows = allRows || [];
+      const bypassNeighborhood = sanitizeFilter(neighborhoodParam, 100);
+      if (bypassNeighborhood && bypassRows.length > 0) {
+        const loadedNeighborhoods = await loadNeighborhoods(supabase);
+        bypassRows = filterByNeighborhood(bypassRows, bypassNeighborhood, false, loadedNeighborhoods);
+      }
       // Same ranking as text/voice search: verified > priority_score > rating (min 10 reviews) > id
-      const sorted = (allRows || []).slice().sort((a: any, b: any) => {
+      const sorted = bypassRows.slice().sort((a: any, b: any) => {
         const aV = a.wtuce_status === "verified" ? 0 : 1;
         const bV = b.wtuce_status === "verified" ? 0 : 1;
         if (aV !== bV) return aV - bV;
