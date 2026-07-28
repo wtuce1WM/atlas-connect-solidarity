@@ -3202,7 +3202,23 @@ Deno.serve(async (req) => {
                   await logTurn({ finalText: finalTextLocal + trailing, streamCompleted: true });
                   return;
                 }
-                // fall through to prior-filter behavior if broaden returned 0
+                // Broaden ran but found nothing → emit an explicit no-result
+                // message and STOP. Do not fall through: falling through would
+                // keep the previous map/markers, giving the impression the
+                // assistant is "stuck" on the old results.
+                lastMapPayload = null;
+                const noneMsg =
+                  language === "en"
+                    ? `I couldn't find matches in **${matchedHood}** for this request. Want to try another neighborhood, or broaden across ${host.city || "Marrakech"}?`
+                    : language === "ar"
+                      ? `لم أجد نتائج في **${matchedHood}** لهذا الطلب. هل تريد تجربة حي آخر أو التوسيع على ${host.city || "مراكش"}؟`
+                      : `Je n'ai pas trouvé de résultats à **${matchedHood}** pour cette demande. Tu veux essayer un autre quartier ou élargir sur ${host.city || "Marrakech"} ?`;
+                emitDelta(noneMsg);
+                const trailingNone = emitTrailingMarkers();
+                toolsCalledLog.push({ name: "neighborhood_scope_broaden", args: { neighborhood: matchedHood, count: 0, alias: detected.matchedAlias }, ok: true });
+                endText();
+                await logTurn({ finalText: noneMsg + trailingNone, streamCompleted: true });
+                return;
               }
 
               // (A) PRIOR FILTER on the matched neighborhood.
