@@ -55,6 +55,10 @@ const BLOG_STOPWORDS = new Set<string>([
   "je","tu","il","elle","on","nous","vous","ils","elles","me","te","se","moi","toi",
   "veux","voudrais","cherche","chercher","trouver","montre","montrer","voir",
   "quoi","comment","quel","quelle","quels","quelles","what","which","how",
+  // City / region names — trop génériques pour porter le signal éditorial
+  "marrakech","marrakesh","essaouira","casablanca","rabat","tanger","tangier",
+  "fes","fez","agadir","chefchaouen","ouarzazate","meknes","meknès","oujda",
+  "morocco","maroc","maghreb",
 ]);
 function tokenizeForBlog(s: string): string[] {
   return String(s || "")
