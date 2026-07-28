@@ -13,6 +13,7 @@ import AiConversationPerf from "@/components/staff/AiConversationPerf";
 import EmbedUsageManagement from "@/components/staff/EmbedUsageManagement";
 import EmbedAiSuggestionsManagement from "@/components/staff/EmbedAiSuggestionsManagement";
 import EmbedAiFollowupsManagement from "@/components/staff/EmbedAiFollowupsManagement";
+import EmbedAiHowItWorks from "@/components/staff/EmbedAiHowItWorks";
 import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement";
 import KBViewer from "@/components/staff/KBViewer";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
@@ -165,12 +166,19 @@ const StaffIA = () => {
                   <MessageSquare className="h-4 w-4" />
                   Relances
                 </TabsTrigger>
+                <TabsTrigger value="how-it-works" className="gap-2">
+                  <BookOpen className="h-4 w-4" />
+                  Fonctionnement
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="suggestions">
                 <EmbedAiSuggestionsManagement />
               </TabsContent>
               <TabsContent value="followups">
                 <EmbedAiFollowupsManagement />
+              </TabsContent>
+              <TabsContent value="how-it-works">
+                <EmbedAiHowItWorks />
               </TabsContent>
             </Tabs>
           </TabsContent>
