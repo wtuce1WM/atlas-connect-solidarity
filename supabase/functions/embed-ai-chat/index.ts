@@ -3219,6 +3219,24 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Deterministic: DESCRIBE PRIORS — "détaille / décris / types de cuisine / dis m'en plus…"
+        if (isDescribeIntent(userMessage)) {
+          const priorIds = extractPriorKnownBusinessIds(inMessages, host.id);
+          if (priorIds.length) {
+            const facet = parseDescribeFacet(userMessage);
+            const answer = await buildDescribePriors(admin, priorIds, facet, language);
+            if (answer) {
+              emitDelta(answer);
+              toolsCalledLog.push({ name: "describe_priors", args: { facet, count: priorIds.length }, ok: true });
+              endText();
+              await logTurn({ finalText: answer, streamCompleted: true });
+              return;
+            }
+          }
+        }
+
+
+
         // Deterministic: NEIGHBORHOOD ROUTE.
         // Short refinement like "à Guéliz", "dans hivernage", "en Palmeraie"
         // (with typo tolerance via neighborhoods.keywords / aliases DB).
