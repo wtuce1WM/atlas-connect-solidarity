@@ -1,0 +1,1 @@
+UPDATE public.blog_posts SET custom_hero_image_url = '/__l5e/assets-v1/ad938f73-a073-409b-8cf4-4898ab29fd86/top-20-cuisine-marocaine-marrakech-hero.webp', cover_image_url = '/__l5e/assets-v1/ad938f73-a073-409b-8cf4-4898ab29fd86/top-20-cuisine-marocaine-marrakech-hero.webp', updated_at = now() WHERE slug = 'top-20-cuisine-marocaine-marrakech';
