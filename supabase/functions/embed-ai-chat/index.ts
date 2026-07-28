@@ -121,6 +121,106 @@ function fmtHours(oh: any): string {
 
 const normalize = (s: any) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
+// Damerau-Levenshtein-lite (Levenshtein). Used for neighborhood typo tolerance.
+function levenshtein(a: string, b: string): number {
+  if (a === b) return 0;
+  const al = a.length, bl = b.length;
+  if (!al) return bl;
+  if (!bl) return al;
+  const v0 = new Array(bl + 1);
+  const v1 = new Array(bl + 1);
+  for (let i = 0; i <= bl; i++) v0[i] = i;
+  for (let i = 0; i < al; i++) {
+    v1[0] = i + 1;
+    for (let j = 0; j < bl; j++) {
+      const cost = a.charCodeAt(i) === b.charCodeAt(j) ? 0 : 1;
+      v1[j + 1] = Math.min(v1[j] + 1, v0[j + 1] + 1, v0[j] + cost);
+    }
+    for (let j = 0; j <= bl; j++) v0[j] = v1[j];
+  }
+  return v0[bl];
+}
+
+// Try to spot a neighborhood name in free text, tolerant to typos and aliases.
+// Aliases come from neighborhoods.{name,name_en,name_ar,keywords,keywords_en,keywords_ar}.
+// Returns the canonical neighborhood.name (as stored on businesses.neighborhood) or null.
+async function detectNeighborhoodInText(
+  admin: any,
+  cityName: string | null | undefined,
+  text: string,
+): Promise<{ name: string; matchedAlias: string } | null> {
+  const nq = normalize(text);
+  if (!nq) return null;
+  const words = nq.split(/[^\p{L}\p{N}]+/u).filter((w) => w && w.length >= 3);
+  if (!words.length) return null;
+
+  try {
+    // Look up city id first (case-insensitive).
+    let cityId: string | null = null;
+    if (cityName) {
+      const { data: cityRow } = await admin
+        .from("cities")
+        .select("id")
+        .ilike("name_fr", cityName)
+        .maybeSingle();
+      cityId = cityRow?.id ?? null;
+    }
+    let q = admin
+      .from("neighborhoods")
+      .select("name, name_en, name_ar, keywords, keywords_en, keywords_ar, city_id");
+    if (cityId) q = q.eq("city_id", cityId);
+    const { data: hoods } = await q;
+    const rows: any[] = Array.isArray(hoods) ? hoods : [];
+    if (!rows.length) return null;
+
+    type Cand = { canonical: string; alias: string; aliasN: string };
+    const cands: Cand[] = [];
+    for (const h of rows) {
+      const canonical = String(h.name || "");
+      if (!canonical) continue;
+      const push = (a: any) => {
+        const s = String(a || "").trim();
+        if (!s) return;
+        const n = normalize(s);
+        if (n.length < 3) return;
+        cands.push({ canonical, alias: s, aliasN: n });
+      };
+      push(h.name);
+      push(h.name_en);
+      push(h.name_ar);
+      for (const k of Array.isArray(h.keywords) ? h.keywords : []) push(k);
+      for (const k of Array.isArray(h.keywords_en) ? h.keywords_en : []) push(k);
+      for (const k of Array.isArray(h.keywords_ar) ? h.keywords_ar : []) push(k);
+    }
+    if (!cands.length) return null;
+
+    // 1) Exact substring on normalized text (multi-word aliases win first).
+    cands.sort((a, b) => b.aliasN.length - a.aliasN.length);
+    for (const c of cands) {
+      if (c.aliasN.length < 4) continue;
+      const re = new RegExp(`(^|[^\\p{L}\\p{N}])${c.aliasN.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}([^\\p{L}\\p{N}]|$)`, "u");
+      if (re.test(nq)) return { name: c.canonical, matchedAlias: c.alias };
+    }
+    // 2) Fuzzy per-word (Levenshtein ≤ 1 for len 4-6, ≤ 2 for len ≥ 7).
+    for (const w of words) {
+      for (const c of cands) {
+        if (c.aliasN.includes(" ")) continue; // fuzzy only on single-word aliases
+        const L = c.aliasN.length;
+        if (L < 4) continue;
+        const maxD = L >= 7 ? 2 : 1;
+        if (Math.abs(L - w.length) > maxD) continue;
+        if (levenshtein(w, c.aliasN) <= maxD) {
+          return { name: c.canonical, matchedAlias: c.alias };
+        }
+      }
+    }
+    return null;
+  } catch (e) {
+    console.error("[embed-ai-chat] detectNeighborhoodInText_error", e);
+    return null;
+  }
+}
+
 function shouldForceDirectorySearch(text: string): boolean {
   const q = normalize(text);
   if (!q) return false;
