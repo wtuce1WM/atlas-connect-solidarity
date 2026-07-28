@@ -2662,8 +2662,6 @@ Deno.serve(async (req) => {
                     (Array.isArray(full?.entries_fr) ? full!.entries_fr : []) as any[];
                   const entries = Array.isArray(entriesRaw) ? entriesRaw : [];
                   const businessIds = entries.map((e: any) => e?.id).filter(Boolean).slice(0, 12);
-                  const entries = Array.isArray(entriesRaw) ? entriesRaw : [];
-                  const businessIds = entries.map((e: any) => e?.id).filter(Boolean).slice(0, 12);
 
                   if (businessIds.length >= 3) {
                     const { data: bizRows } = await admin
