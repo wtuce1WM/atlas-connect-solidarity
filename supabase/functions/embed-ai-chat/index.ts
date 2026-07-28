@@ -2217,7 +2217,28 @@ Deno.serve(async (req) => {
                 return sd ? (sd <= toDate && (ed ?? sd) >= fromDate) : false;
               };
               results = results.filter(eventIntersectsWindow);
-              results = results.slice(0, limit).map((e: any) => ({
+              results = results.slice(0, limit);
+
+              // Fallback images from the linked default_business when the event has none.
+              const missingImgBizIds = Array.from(new Set(
+                results
+                  .filter((e: any) => !(Array.isArray(e.images) && e.images.length) && !e.logo_url && e.default_business_id)
+                  .map((e: any) => e.default_business_id as string)
+              ));
+              const bizImgMap: Record<string, string> = {};
+              if (missingImgBizIds.length) {
+                const { data: bizRows } = await admin
+                  .from("businesses")
+                  .select("id,images,logo_url")
+                  .in("id", missingImgBizIds);
+                for (const b of bizRows || []) {
+                  const first = Array.isArray((b as any).images) ? (b as any).images[0] : null;
+                  const img = first || (b as any).logo_url || null;
+                  if (img) bizImgMap[(b as any).id] = img;
+                }
+              }
+
+              results = results.map((e: any) => ({
                 id: e.id, name: e.name, hook: e.hook,
                 start_date: e.start_date, end_date: e.end_date,
                 recurrence: e.recurrence, days_of_week: e.days_of_week,
@@ -2227,7 +2248,11 @@ Deno.serve(async (req) => {
                 url: e.url || null,
                 sort_order: e.sort_order ?? null,
                 default_business_id: e.default_business_id || null,
-                image: (Array.isArray(e.images) ? e.images[0] : null) || e.logo_url || null,
+                image:
+                  (Array.isArray(e.images) ? e.images[0] : null)
+                  || e.logo_url
+                  || (e.default_business_id ? bizImgMap[e.default_business_id] : null)
+                  || null,
                 video: Array.isArray(e.videos) ? e.videos[0] : null,
               }));
               if (!results.length) return { results: [], note: `Aucun événement trouvé entre ${from} et ${to}.` };

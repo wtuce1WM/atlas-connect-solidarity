@@ -1098,29 +1098,53 @@ const EmbedAsk = () => {
               )}
 
               {eventsPayload && eventsPayload.events.length > 0 && (() => {
+                const locale = lang === "en" ? "en-GB" : lang === "ar" ? "ar-MA" : "fr-FR";
                 const fmtD = (d?: string | null) => {
                   if (!d) return null;
                   try {
-                    return new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
-                  } catch {
-                    return d;
+                    return new Date(d).toLocaleDateString(locale, { day: "numeric", month: "short" });
+                  } catch { return d; }
+                };
+                const DAY_NAMES: Record<string, string[]> = {
+                  fr: ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."],
+                  en: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+                  ar: ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"],
+                };
+                const fmtTime = (t?: string | null) => {
+                  if (!t) return "";
+                  const m = String(t).match(/^(\d{1,2}):(\d{2})/);
+                  return m ? `${m[1].padStart(2, "0")}h${m[2]}` : String(t);
+                };
+                const fmtWhen = (ev: any) => {
+                  const parts: string[] = [];
+                  const dowRaw = Array.isArray(ev.days_of_week) ? ev.days_of_week : [];
+                  if (dowRaw.length) {
+                    const names = DAY_NAMES[lang] || DAY_NAMES.fr;
+                    const asNames = dowRaw.map((d: any) => {
+                      const n = typeof d === "number" ? d : parseInt(String(d), 10);
+                      return Number.isFinite(n) ? names[n % 7] : String(d);
+                    });
+                    parts.push(asNames.join(", "));
+                  } else {
+                    const a = fmtD(ev.start_date), b = fmtD(ev.end_date);
+                    if (a && b && ev.start_date !== ev.end_date) parts.push(`${a} → ${b}`);
+                    else if (a || b) parts.push(a || b || "");
                   }
+                  const st = fmtTime(ev.start_time);
+                  const et = fmtTime(ev.end_time);
+                  if (st && et) parts.push(`${st}–${et}`);
+                  else if (st) parts.push(st);
+                  return parts.filter(Boolean).join(" · ");
                 };
                 const items: EmbedCardItem[] = eventsPayload.events.slice(0, 20).map((ev, idx) => {
-                  const loc = [ev.neighborhood, ev.city || eventsPayload.city].filter(Boolean).join(" · ");
-                  const a = fmtD(ev.start_date), b = fmtD(ev.end_date);
-                  const dateStr = a && b && ev.start_date !== ev.end_date ? `${a} → ${b}` : a || b || "";
+                  const when = fmtWhen(ev);
                   return {
                     key: ev.id + idx,
                     image: ev.image,
                     fallbackIcon: <CalendarIcon className="w-10 h-10" />,
+                    overline: when || null,
                     title: ev.name,
-                    subtitle: loc || null,
-                    badge: dateStr ? (
-                      <span className="inline-flex items-center gap-1">
-                        <CalendarIcon className="w-3 h-3" /> {dateStr}
-                      </span>
-                    ) : null,
+                    subtitle: ev.neighborhood || null,
                     onClick: () => setOpenEvents({ list: eventsPayload.events, index: idx }),
                   };
                 });
