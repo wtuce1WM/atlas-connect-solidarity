@@ -2373,7 +2373,7 @@ Deno.serve(async (req) => {
             const lastUserText = lastUserMsg?.role === "user" ? extractTextFromUIMessage(lastUserMsg) : "";
             if (lastUserText && lastUserText.trim().length >= 6) {
               const posts = await fetchBlogPostsCached(admin);
-              const match = matchBlogArticle(lastUserText, language, posts, host.id);
+              const match = matchBlogArticle(lastUserText, language, posts, host.id, host.name);
               if (match) {
                 const title =
                   (language === "en" && match.title_en) ||
