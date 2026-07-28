@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
@@ -76,6 +76,7 @@ const BlogPost = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [videos, setVideos] = useState<BlogArticleVideo[]>([]);
   const [anchorFromBusiness, setAnchorFromBusiness] = useState<{ name: string; latitude: number; longitude: number } | null>(null);
+  const didEmbedScrollRef = useRef(false);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -93,6 +94,22 @@ const BlogPost = () => {
     };
     fetchPost();
   }, [slug]);
+
+  // Embed-mode scroll: when opened from /embed/ask, the browser sometimes lands
+  // at the bottom of the page (chat history position). Force the article to open
+  // at the top once the post is rendered.
+  useEffect(() => {
+    if (!embedSlug || isLoading || !post || didEmbedScrollRef.current) return;
+    didEmbedScrollRef.current = true;
+    const scrollTop = () => window.scrollTo({ top: 0, behavior: "auto" });
+    scrollTop();
+    const raf = requestAnimationFrame(scrollTop);
+    const t = setTimeout(scrollTop, 100);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(t);
+    };
+  }, [embedSlug, isLoading, post]);
 
   useEffect(() => {
     let cancelled = false;
@@ -136,6 +153,7 @@ const BlogPost = () => {
     })();
     return () => { cancelled = true; };
   }, [post?.anchor_business_id]);
+
 
   // -- Language helpers ----------------------------------------------------
 
