@@ -1207,20 +1207,34 @@ const EmbedAsk = () => {
                 </div>
               )}
 
-              {i > 0 && !streaming && activeFollowups.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {activeFollowups.map((f, k) => (
-                    <button
-                      key={`fu-${i}-${k}`}
-                      type="button"
-                      onClick={() => sendFollowup(f.label, f.id)}
-                      className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
-                    >
-                      {f.label}
-                    </button>
-                  ))}
-                </div>
-              )}
+              {(() => {
+                if (!(i > 0 && !streaming && activeFollowups.length > 0)) return null;
+                const priorCount =
+                  (mapPayload?.businesses?.length ?? 0) ||
+                  citedFallback.length ||
+                  (destinationsPayload?.destinations?.length ?? 0) ||
+                  pinnedCards.length;
+                const isBestRated = (label: string) =>
+                  /\b(le mieux not[ée]e?|la mieux not[ée]e?|meilleure? note|top not[ée]|le mieux class[ée])\b/i.test(label) ||
+                  /\b(best|highest|top)[- ]?rated\b/i.test(label) ||
+                  /(الأعلى تقييما|الأفضل تقييما)/.test(label);
+                const filtered = activeFollowups.filter((f) => priorCount > 1 || !isBestRated(f.label));
+                if (filtered.length === 0) return null;
+                return (
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {filtered.map((f, k) => (
+                      <button
+                        key={`fu-${i}-${k}`}
+                        type="button"
+                        onClick={() => sendFollowup(f.label, f.id)}
+                        className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
+                      >
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+                );
+              })()}
 
             </div>
           );
