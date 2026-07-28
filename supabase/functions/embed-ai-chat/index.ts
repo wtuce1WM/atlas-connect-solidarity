@@ -2700,10 +2700,10 @@ Deno.serve(async (req) => {
                       emitDelta(`\n\n<!--ARTICLE_CARD:${JSON.stringify(articlePayload)}-->\n\n`);
 
                       const cityForCopy = host.city || "Marrakech";
-                      const introFr = `Bonne nouvelle : cette question rejoint exactement notre sélection éditoriale **${title}**. Je te déroule les **${shown.length} adresses** qu'on met en avant en priorité — extraites du guide, avec le contexte qui justifie leur place dans le classement. Dis-moi ensuite si tu veux qu'on affine par quartier, ambiance, budget ou moment de la journée.`;
-                      const introEn = `Good timing: your question maps directly to our editorial pick **${title}**. Here are the **${shown.length} addresses** we put forward first — straight from the guide, with the context that earned them their spot. Tell me if you'd like to narrow by neighborhood, vibe, budget or time of day.`;
-                      const introAr = `يتطابق سؤالك تمامًا مع اختيارنا التحريري **${title}**. إليك **${shown.length} عناوين** نقدّمها أولًا — من الدليل مباشرة، مع السياق الذي يبرّر ترتيبها. أخبرني إن أردت تضييق الاختيار حسب الحي أو الأجواء أو الميزانية أو الوقت.`;
-                      const intro = language === "en" ? introEn : language === "ar" ? introAr : introFr;
+                      // Intro/hook/tldr are rendered by the frontend from the ARTICLE_CARD payload
+                      // (hero + hook + En bref + intro). The streamed text bubble contains only the
+                      // ranked entries + disclosure so the map can be inserted between the intro
+                      // and the first result on the client.
 
                       const reviewsLabel = language === "en" ? "reviews" : language === "ar" ? "مراجعة" : "avis";
                       const anonLabel = language === "en" ? "Anonymous" : language === "ar" ? "مجهول" : "Anonyme";
