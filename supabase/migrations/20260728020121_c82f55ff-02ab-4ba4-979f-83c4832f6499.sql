@@ -1,0 +1,1 @@
+UPDATE public.blog_posts SET custom_hero_image_url = '/__l5e/assets-v1/61d7d057-51db-45f6-b0fb-ecd34c6bfce9/top-10-restaurants-italiens-marrakech-hero.jpg', cover_image_url = '/__l5e/assets-v1/61d7d057-51db-45f6-b0fb-ecd34c6bfce9/top-10-restaurants-italiens-marrakech-hero.jpg', updated_at = now() WHERE slug = 'top-10-restaurants-italiens-marrakech';
