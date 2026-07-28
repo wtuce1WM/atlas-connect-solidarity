@@ -84,6 +84,11 @@ export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) 
                 </div>
               )}
               <div className="absolute inset-x-0 bottom-0 p-2.5">
+                {it.overline && (
+                  <div className="text-[10.5px] uppercase tracking-wide font-semibold text-[#D4AF37] mb-0.5 line-clamp-1">
+                    {it.overline}
+                  </div>
+                )}
                 <div className="text-[13px] font-bold text-white leading-tight break-words">
                   {it.title}
                 </div>
