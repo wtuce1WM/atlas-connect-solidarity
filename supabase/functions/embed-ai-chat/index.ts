@@ -1097,6 +1097,44 @@ async function buildDescribePriors(
   return `${intro}\n\n${blocks.join("\n\n---\n\n")}${toMapMarker(ordered)}`;
 }
 
+/**
+ * Deterministic: ENGAGEMENT / CERTIFICATION / COMMODITÉ filter on priors.
+ * Reads businesses.engagements (raw values include "Certification:X", "Logistique:Y", "Marché:Z"
+ * plus standalone tokens like "Vegan", "WiFi", "Livraison Glovo"). Matches the user's free-text
+ * follow-up against the vocabulary present in the prior results, and returns those that carry
+ * at least one matched engagement. No LLM, no re-search.
+ */
+function stripEngPrefix(s: string): string {
+  return String(s || "").replace(/^\s*(Certification|Logistique|Marché|Marche)\s*:\s*/i, "").trim();
+}
+
+function matchEngagementsFromPriors(userText: string, priors: any[]): string[] {
+  const nq = " " + normalize(userText) + " ";
+  if (!nq.trim()) return [];
+  const uniq = new Map<string, string>(); // normalized -> raw (prefix stripped)
+  for (const b of priors) {
+    for (const e of (b?.engagements || [])) {
+      const raw = stripEngPrefix(e);
+      if (!raw) continue;
+      const norm = normalize(raw);
+      if (norm.length < 3) continue;
+      if (!uniq.has(norm)) uniq.set(norm, raw);
+    }
+  }
+  const matches: string[] = [];
+  for (const [norm, raw] of uniq) {
+    if (nq.includes(norm)) { matches.push(raw); continue; }
+    // Word-level: every "significant" word of the engagement (len>=4) must appear in query
+    const words = norm.split(/\s+/).filter((w) => w.length >= 4);
+    if (words.length && words.every((w) => nq.includes(w))) {
+      matches.push(raw);
+    }
+  }
+  return matches;
+}
+
+
+
 
 
 
