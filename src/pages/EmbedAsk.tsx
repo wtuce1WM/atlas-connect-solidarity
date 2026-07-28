@@ -21,6 +21,7 @@ import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 const DestinationSlidePanel = lazy(() => import("@/components/DestinationSlidePanel"));
+import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedCardCarousel";
 
 /**
  * Liquid-glass bottom bar overlaying BookOnlineSlidePanel in the embed:
@@ -801,101 +802,64 @@ const EmbedAsk = () => {
     return found.map((x) => x.b);
   };
 
-  const renderCarousel = (businesses: MapPanelBusiness[], onOpenMap?: () => void) => (
-    <div
-      className="w-full max-w-full overflow-x-auto scrollbar-hide -mx-1 px-1"
-      style={{ overscrollBehaviorX: "contain" }}
-      onWheel={(e) => {
-        if (e.deltaY === 0) return;
-        const el = e.currentTarget;
-        const maxScroll = el.scrollWidth - el.clientWidth;
-        if (maxScroll <= 0) return;
-        const goingLeft = e.deltaY < 0;
-        const goingRight = e.deltaY > 0;
-        const atLeft = el.scrollLeft <= 0;
-        const atRight = el.scrollLeft >= maxScroll - 1;
-        if ((goingLeft && !atLeft) || (goingRight && !atRight)) {
-          e.preventDefault();
-          e.stopPropagation();
-          const capped = Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY), 50);
-          el.scrollLeft = Math.max(0, Math.min(maxScroll, el.scrollLeft + capped));
-        }
-      }}
-    >
-      <div className="flex gap-3 pb-1">
-        {businesses.slice(0, 20).map((b) => {
-          const img = (b.images?.[0] || (b as any).logo_url) as string | undefined;
-          const loc = b.neighborhood || "";
-          const ratingOn20 = computeWeightedRatingOn20(collectRatingSources(b as any));
-          const reviewCount = getTotalReviewCount(b as any) || (b.google_review_count ?? null);
-          let distStr: string | null = null;
-          if (hostLocation && b.latitude != null && b.longitude != null) {
-            const R = 6371;
-            const dLat = ((b.latitude - hostLocation.lat) * Math.PI) / 180;
-            const dLon = ((b.longitude - hostLocation.lng) * Math.PI) / 180;
-            const a = Math.sin(dLat / 2) ** 2 + Math.cos((hostLocation.lat * Math.PI) / 180) * Math.cos((b.latitude * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
-            const km = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            distStr = km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`;
-          }
-          return (
+  const renderCarousel = (businesses: MapPanelBusiness[], onOpenMap?: () => void) => {
+    const items: EmbedCardItem[] = businesses.slice(0, 20).map((b) => {
+      const img = (b.images?.[0] || (b as any).logo_url) as string | undefined;
+      const loc = b.neighborhood || "";
+      const ratingOn20 = computeWeightedRatingOn20(collectRatingSources(b as any));
+      const reviewCount = getTotalReviewCount(b as any) || (b.google_review_count ?? null);
+      let distStr: string | null = null;
+      if (hostLocation && b.latitude != null && b.longitude != null) {
+        const R = 6371;
+        const dLat = ((b.latitude - hostLocation.lat) * Math.PI) / 180;
+        const dLon = ((b.longitude - hostLocation.lng) * Math.PI) / 180;
+        const a =
+          Math.sin(dLat / 2) ** 2 +
+          Math.cos((hostLocation.lat * Math.PI) / 180) *
+            Math.cos((b.latitude * Math.PI) / 180) *
+            Math.sin(dLon / 2) ** 2;
+        const km = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        distStr = km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`;
+      }
+      return {
+        key: b.id,
+        image: img,
+        title: b.name,
+        subtitle: loc || null,
+        badge: distStr,
+        extra:
+          ratingOn20 != null ? (
+            <div className="mt-0.5 flex items-center gap-1 text-[12px] text-white min-w-0">
+              <span style={{ color: "#D4AF37" }}>★</span>
+              <span className="font-semibold shrink-0">{Number(ratingOn20).toFixed(1)}/20</span>
+              {reviewCount ? (
+                <span className="text-white/70 truncate">· {reviewCount} avis</span>
+              ) : null}
+            </div>
+          ) : null,
+        onClick: () => {
+          setOpenSiblings(businesses.slice(0, 20).map((x) => x.id));
+          setOpenBusinessId(b.id);
+        },
+      };
+    });
+    return (
+      <EmbedCardCarousel
+        items={items}
+        footer={
+          onOpenMap ? (
             <button
-              key={b.id}
               type="button"
-              onClick={() => {
-                setOpenSiblings(businesses.slice(0, 20).map((x) => x.id));
-                setOpenBusinessId(b.id);
-              }}
-              className="shrink-0 w-44 text-left group"
+              onClick={onOpenMap}
+              className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-[#C24B3F] hover:underline"
             >
-              <div className="relative w-44 h-64 rounded-xl overflow-hidden bg-neutral-800">
-                {img ? (
-                  <img
-                    src={img}
-                    alt={b.name}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                    loading="lazy"
-                  />
-                ) : null}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 pointer-events-none" />
-                {distStr && (
-                  <div
-                    className="absolute top-2 right-2 text-[11px] font-semibold px-1.5 py-0.5 rounded backdrop-blur-sm whitespace-nowrap"
-                    style={{ background: "rgba(0,0,0,0.6)", color: "#D4AF37" }}
-                  >
-                    {distStr}
-                  </div>
-                )}
-                <div className="absolute inset-x-0 bottom-0 p-2.5">
-                  <div className="text-[13px] font-bold text-white leading-tight break-words">{b.name}</div>
-                  {loc && (
-                    <div className="text-[11px] text-white/80 mt-0.5 line-clamp-1">{loc}</div>
-                  )}
-                  {ratingOn20 != null && (
-                    <div className="mt-0.5 flex items-center gap-1 text-[12px] text-white min-w-0">
-                      <span style={{ color: "#D4AF37" }}>★</span>
-                      <span className="font-semibold shrink-0">{Number(ratingOn20).toFixed(1)}/20</span>
-                      {reviewCount ? (
-                        <span className="text-white/70 truncate">· {reviewCount} avis</span>
-                      ) : null}
-                    </div>
-                  )}
-                </div>
-              </div>
+              <MapPin className="w-3.5 h-3.5" /> {L.viewMap}
             </button>
-          );
-        })}
-      </div>
-      {onOpenMap && (
-        <button
-          type="button"
-          onClick={onOpenMap}
-          className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-[#C24B3F] hover:underline"
-        >
-          <MapPin className="w-3.5 h-3.5" /> {L.viewMap}
-        </button>
-      )}
-    </div>
-  );
+          ) : null
+        }
+      />
+    );
+  };
 
   // Custom <strong> renderer: bold + clickable when the label matches a cited business.
   const StrongCited = ({ children }: { children?: React.ReactNode }) => {
@@ -1114,143 +1078,68 @@ const EmbedAsk = () => {
               {citedFallback.length > 0 && renderCarousel(citedFallback)}
 
               {destinationsPayload && destinationsPayload.destinations.length > 0 && (
-                <div
-                  className="w-full max-w-full overflow-x-auto scrollbar-hide -mx-1 px-1"
-                  style={{ overscrollBehaviorX: "contain" }}
-                  onWheel={(e) => {
-                    if (e.deltaY === 0) return;
-                    const el = e.currentTarget;
-                    const maxScroll = el.scrollWidth - el.clientWidth;
-                    if (maxScroll <= 0) return;
-                    const goingLeft = e.deltaY < 0;
-                    const goingRight = e.deltaY > 0;
-                    const atLeft = el.scrollLeft <= 0;
-                    const atRight = el.scrollLeft >= maxScroll - 1;
-                    if ((goingLeft && !atLeft) || (goingRight && !atRight)) {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      const capped = Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY), 50);
-                      el.scrollLeft = Math.max(0, Math.min(maxScroll, el.scrollLeft + capped));
-                    }
-                  }}
-                >
-                  <div className="flex gap-3 pb-1">
-                    {destinationsPayload.destinations.slice(0, 20).map((d) => {
-                      const distStr = d.distKm != null
-                        ? (d.distKm < 1 ? `${Math.round(d.distKm * 1000)} m` : `${d.distKm.toFixed(1)} km`)
+                <EmbedCardCarousel
+                  items={destinationsPayload.destinations.slice(0, 20).map((d) => {
+                    const distStr =
+                      d.distKm != null
+                        ? d.distKm < 1
+                          ? `${Math.round(d.distKm * 1000)} m`
+                          : `${d.distKm.toFixed(1)} km`
                         : null;
-                      return (
-                        <button
-                          key={d.id}
-                          type="button"
-                          onClick={() => setOpenDestinationId(d.id)}
-                          className="shrink-0 w-44 text-left group"
-                        >
-                          <div className="relative w-44 h-64 rounded-xl overflow-hidden bg-neutral-800">
-                            {d.image ? (
-                              <img
-                                src={d.image}
-                                alt={d.name}
-                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                                loading="lazy"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-white/40">
-                                <MapPin className="w-10 h-10" />
-                              </div>
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 pointer-events-none" />
-                            {distStr && (
-                              <div
-                                className="absolute top-2 right-2 text-[11px] font-semibold px-1.5 py-0.5 rounded backdrop-blur-sm whitespace-nowrap"
-                                style={{ background: "rgba(0,0,0,0.6)", color: "#D4AF37" }}
-                              >
-                                {distStr}
-                              </div>
-                            )}
-                            <div className="absolute inset-x-0 bottom-0 p-2.5">
-                              <div className="text-[13px] font-bold text-white leading-tight break-words">{d.name}</div>
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+                    return {
+                      key: d.id,
+                      image: d.image,
+                      title: d.name,
+                      badge: distStr,
+                      onClick: () => setOpenDestinationId(d.id),
+                    };
+                  })}
+                />
               )}
 
-
-
-
-              {eventsPayload && eventsPayload.events.length > 0 && (
-                <div
-                  className="w-full max-w-full overflow-x-auto scrollbar-hide -mx-1 px-1"
-                  style={{ overscrollBehaviorX: "contain" }}
-                  onWheel={(e) => {
-                    if (e.deltaY === 0) return;
-                    const el = e.currentTarget;
-                    const maxScroll = el.scrollWidth - el.clientWidth;
-                    if (maxScroll <= 0) return;
-                    const goingLeft = e.deltaY < 0;
-                    const goingRight = e.deltaY > 0;
-                    const atLeft = el.scrollLeft <= 0;
-                    const atRight = el.scrollLeft >= maxScroll - 1;
-                    if ((goingLeft && !atLeft) || (goingRight && !atRight)) {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      const capped = Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY), 50);
-                      el.scrollLeft = Math.max(0, Math.min(maxScroll, el.scrollLeft + capped));
+              {eventsPayload && eventsPayload.events.length > 0 && (() => {
+                const fmtD = (d?: string | null) => {
+                  if (!d) return null;
+                  try {
+                    return new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+                  } catch {
+                    return d;
+                  }
+                };
+                const items: EmbedCardItem[] = eventsPayload.events.slice(0, 20).map((ev, idx) => {
+                  const loc = [ev.neighborhood, ev.city || eventsPayload.city].filter(Boolean).join(" · ");
+                  const a = fmtD(ev.start_date), b = fmtD(ev.end_date);
+                  const dateStr = a && b && ev.start_date !== ev.end_date ? `${a} → ${b}` : a || b || "";
+                  return {
+                    key: ev.id + idx,
+                    image: ev.image,
+                    fallbackIcon: <CalendarIcon className="w-10 h-10" />,
+                    title: ev.name,
+                    subtitle: loc || null,
+                    badge: dateStr ? (
+                      <span className="inline-flex items-center gap-1">
+                        <CalendarIcon className="w-3 h-3" /> {dateStr}
+                      </span>
+                    ) : null,
+                    onClick: () => setOpenEvents({ list: eventsPayload.events, index: idx }),
+                  };
+                });
+                return (
+                  <EmbedCardCarousel
+                    items={items}
+                    footer={
+                      <button
+                        type="button"
+                        onClick={() => setOpenEvents({ list: eventsPayload.events, index: 0 })}
+                        className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-[#C24B3F] hover:underline"
+                      >
+                        <CalendarIcon className="w-3.5 h-3.5" /> {L.events} · {eventsPayload.events.length}
+                      </button>
                     }
-                  }}
-                >
-                  <div className="flex gap-3 pb-1">
-                    {eventsPayload.events.slice(0, 20).map((ev, idx) => {
-                      const img = ev.image || null;
-                      const loc = [ev.neighborhood, ev.city || eventsPayload.city].filter(Boolean).join(" · ");
-                      const fmtD = (d?: string | null) => {
-                        if (!d) return null;
-                        try { return new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }); } catch { return d; }
-                      };
-                      const a = fmtD(ev.start_date), b = fmtD(ev.end_date);
-                      const dateStr = a && b && ev.start_date !== ev.end_date ? `${a} → ${b}` : (a || b || "");
-                      return (
-                        <button
-                          key={ev.id + idx}
-                          type="button"
-                          onClick={() => setOpenEvents({ list: eventsPayload.events, index: idx })}
-                          className="shrink-0 w-64 text-left group"
-                        >
-                          <div className="relative w-64 h-44 rounded-xl overflow-hidden bg-neutral-800">
-                            {img ? (
-                              <img src={img} alt={ev.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" loading="lazy" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-white/40">
-                                <CalendarIcon className="w-10 h-10" />
-                              </div>
-                            )}
-                            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-2.5">
-                              <div className="text-[13px] font-bold text-white leading-tight line-clamp-2">{ev.name}</div>
-                              {loc && <div className="text-[11px] text-white/80 mt-0.5 line-clamp-1">{loc}</div>}
-                              {dateStr && (
-                                <div className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold px-1.5 py-0.5 rounded backdrop-blur-sm whitespace-nowrap" style={{ background: "rgba(0,0,0,0.6)", color: "#D4AF37" }}>
-                                  <CalendarIcon className="w-3 h-3" /> {dateStr}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setOpenEvents({ list: eventsPayload.events, index: 0 })}
-                    className="mt-1 inline-flex items-center gap-1.5 text-xs font-medium text-[#C24B3F] hover:underline"
-                  >
-                    <CalendarIcon className="w-3.5 h-3.5" /> {L.events} · {eventsPayload.events.length}
-                  </button>
-                </div>
-              )}
+                  />
+                );
+              })()}
+
 
               {(() => {
                 if (!(i > 0 && !streaming && activeFollowups.length > 0)) return null;
