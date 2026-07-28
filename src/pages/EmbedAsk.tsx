@@ -1352,11 +1352,12 @@ const EmbedAsk = () => {
             }}
           >
             {blogArticles.map((a) => (
-              <a
+              <button
                 key={a.id}
-                href={`/embed/ask/${slug}/article/${a.slug}`}
-                rel="noopener noreferrer"
-                className={`relative flex-shrink-0 w-44 h-64 rounded-xl overflow-hidden ${cardBg} hover:opacity-95 transition-opacity`}
+                type="button"
+                onClick={() => send(a.title)}
+                disabled={streaming || !businessName}
+                className={`relative flex-shrink-0 w-44 h-64 rounded-xl overflow-hidden text-left ${cardBg} hover:opacity-95 transition-opacity disabled:opacity-60`}
               >
                 {a.image ? (
                   <img src={a.image} alt={a.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
@@ -1370,7 +1371,7 @@ const EmbedAsk = () => {
                 <div className="absolute inset-x-0 bottom-0 p-3">
                   <div className="text-white text-xs font-semibold leading-snug line-clamp-4">{a.title}</div>
                 </div>
-              </a>
+              </button>
             ))}
           </div>
         )}
