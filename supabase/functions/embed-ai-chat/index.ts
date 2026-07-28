@@ -3320,7 +3320,7 @@ Deno.serve(async (req) => {
           const priorIds = extractPriorKnownBusinessIds(inMessages, host.id);
           if (priorIds.length) {
             const facet = parseDescribeFacet(userMessage);
-            const answer = await buildDescribePriors(admin, priorIds, facet, language);
+            const answer = await buildDescribePriors(admin, priorIds, facet, language, host);
             if (answer) {
               emitDelta(answer);
               toolsCalledLog.push({ name: "describe_priors", args: { facet, count: priorIds.length }, ok: true });
