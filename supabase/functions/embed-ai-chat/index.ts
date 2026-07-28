@@ -2813,16 +2813,24 @@ Deno.serve(async (req) => {
             : null;
           if (rankMode) {
             const priorIds = extractPriorKnownBusinessIds(inMessages, host.id);
+            let answer: string | null = null;
             if (priorIds.length) {
-              const answer = await buildHoursRanking(admin, priorIds, rankMode, language);
-              if (answer) {
-                emitDelta(answer);
-                toolsCalledLog.push({ name: "hours_ranking", args: { mode: rankMode, count: priorIds.length }, ok: true });
-                endText();
-                await logTurn({ finalText: answer, streamCompleted: true });
-                return;
-              }
+              answer = await buildHoursRanking(admin, priorIds, rankMode, language);
             }
+            if (!answer) {
+              answer = rankMode === "opens_first"
+                ? (language === "en" ? `I don't have a previous list to rank by opening time yet. Ask me for a category first (e.g. "cafés in Guéliz") and I'll tell you which one opens the earliest.`
+                  : language === "ar" ? `ليست لديّ قائمة سابقة لأرتّبها حسب وقت الفتح. اطلب فئة أولًا وسأخبرك أيّها يفتح أبكر.`
+                  : `Je n'ai pas encore de liste précédente à classer par heure d'ouverture. Demande-moi d'abord une catégorie (ex. « les cafés à Guéliz ») et je te dirai lequel ouvre le plus tôt.`)
+                : (language === "en" ? `I don't have a previous list to rank by closing time yet. Ask me for a category first (e.g. "rooftops in Guéliz") and I'll tell you which one closes the latest.`
+                  : language === "ar" ? `ليست لديّ قائمة سابقة لأرتّبها حسب وقت الإغلاق. اطلب فئة أولًا وسأخبرك أيّها يغلق متأخرًا.`
+                  : `Je n'ai pas encore de liste précédente à classer par heure de fermeture. Demande-moi d'abord une catégorie (ex. « les rooftops à Guéliz ») et je te dirai lequel ferme le plus tard.`);
+            }
+            emitDelta(answer);
+            toolsCalledLog.push({ name: "hours_ranking", args: { mode: rankMode, count: priorIds.length }, ok: true });
+            endText();
+            await logTurn({ finalText: answer, streamCompleted: true });
+            return;
           }
         }
 
