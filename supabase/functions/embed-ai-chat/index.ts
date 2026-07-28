@@ -121,6 +121,106 @@ function fmtHours(oh: any): string {
 
 const normalize = (s: any) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
+// Damerau-Levenshtein-lite (Levenshtein). Used for neighborhood typo tolerance.
+function levenshtein(a: string, b: string): number {
+  if (a === b) return 0;
+  const al = a.length, bl = b.length;
+  if (!al) return bl;
+  if (!bl) return al;
+  const v0 = new Array(bl + 1);
+  const v1 = new Array(bl + 1);
+  for (let i = 0; i <= bl; i++) v0[i] = i;
+  for (let i = 0; i < al; i++) {
+    v1[0] = i + 1;
+    for (let j = 0; j < bl; j++) {
+      const cost = a.charCodeAt(i) === b.charCodeAt(j) ? 0 : 1;
+      v1[j + 1] = Math.min(v1[j] + 1, v0[j + 1] + 1, v0[j] + cost);
+    }
+    for (let j = 0; j <= bl; j++) v0[j] = v1[j];
+  }
+  return v0[bl];
+}
+
+// Try to spot a neighborhood name in free text, tolerant to typos and aliases.
+// Aliases come from neighborhoods.{name,name_en,name_ar,keywords,keywords_en,keywords_ar}.
+// Returns the canonical neighborhood.name (as stored on businesses.neighborhood) or null.
+async function detectNeighborhoodInText(
+  admin: any,
+  cityName: string | null | undefined,
+  text: string,
+): Promise<{ name: string; matchedAlias: string } | null> {
+  const nq = normalize(text);
+  if (!nq) return null;
+  const words = nq.split(/[^\p{L}\p{N}]+/u).filter((w) => w && w.length >= 3);
+  if (!words.length) return null;
+
+  try {
+    // Look up city id first (case-insensitive).
+    let cityId: string | null = null;
+    if (cityName) {
+      const { data: cityRow } = await admin
+        .from("cities")
+        .select("id")
+        .ilike("name_fr", cityName)
+        .maybeSingle();
+      cityId = cityRow?.id ?? null;
+    }
+    let q = admin
+      .from("neighborhoods")
+      .select("name, name_en, name_ar, keywords, keywords_en, keywords_ar, city_id");
+    if (cityId) q = q.eq("city_id", cityId);
+    const { data: hoods } = await q;
+    const rows: any[] = Array.isArray(hoods) ? hoods : [];
+    if (!rows.length) return null;
+
+    type Cand = { canonical: string; alias: string; aliasN: string };
+    const cands: Cand[] = [];
+    for (const h of rows) {
+      const canonical = String(h.name || "");
+      if (!canonical) continue;
+      const push = (a: any) => {
+        const s = String(a || "").trim();
+        if (!s) return;
+        const n = normalize(s);
+        if (n.length < 3) return;
+        cands.push({ canonical, alias: s, aliasN: n });
+      };
+      push(h.name);
+      push(h.name_en);
+      push(h.name_ar);
+      for (const k of Array.isArray(h.keywords) ? h.keywords : []) push(k);
+      for (const k of Array.isArray(h.keywords_en) ? h.keywords_en : []) push(k);
+      for (const k of Array.isArray(h.keywords_ar) ? h.keywords_ar : []) push(k);
+    }
+    if (!cands.length) return null;
+
+    // 1) Exact substring on normalized text (multi-word aliases win first).
+    cands.sort((a, b) => b.aliasN.length - a.aliasN.length);
+    for (const c of cands) {
+      if (c.aliasN.length < 4) continue;
+      const re = new RegExp(`(^|[^\\p{L}\\p{N}])${c.aliasN.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}([^\\p{L}\\p{N}]|$)`, "u");
+      if (re.test(nq)) return { name: c.canonical, matchedAlias: c.alias };
+    }
+    // 2) Fuzzy per-word (Levenshtein ≤ 1 for len 4-6, ≤ 2 for len ≥ 7).
+    for (const w of words) {
+      for (const c of cands) {
+        if (c.aliasN.includes(" ")) continue; // fuzzy only on single-word aliases
+        const L = c.aliasN.length;
+        if (L < 4) continue;
+        const maxD = L >= 7 ? 2 : 1;
+        if (Math.abs(L - w.length) > maxD) continue;
+        if (levenshtein(w, c.aliasN) <= maxD) {
+          return { name: c.canonical, matchedAlias: c.alias };
+        }
+      }
+    }
+    return null;
+  } catch (e) {
+    console.error("[embed-ai-chat] detectNeighborhoodInText_error", e);
+    return null;
+  }
+}
+
 function shouldForceDirectorySearch(text: string): boolean {
   const q = normalize(text);
   if (!q) return false;
@@ -3035,34 +3135,68 @@ Deno.serve(async (req) => {
           }
         }
 
-        // Deterministic: NEIGHBORHOOD FILTER on prior results.
-        // Short refinement like "à Guéliz", "dans la Medina", "en Palmeraie",
-        // or a bare neighborhood name → filter the previous result set by that
-        // neighborhood instead of relaunching a fresh LLM search (which often
-        // drops the topical query and returns 0 or off-topic results).
+        // Deterministic: NEIGHBORHOOD ROUTE.
+        // Short refinement like "à Guéliz", "dans hivernage", "en Palmeraie"
+        // (with typo tolerance via neighborhoods.keywords / aliases DB).
+        // Two behaviors:
+        //  (A) Same neighborhood as host or matches a prior → filter priors.
+        //  (B) Different neighborhood + root suggestion scope available →
+        //      SCOPE BROADEN: drop proximity, rerun subcats/badges in that quartier.
         {
-          const priorIdsForHood = extractPriorKnownBusinessIds(inMessages, host.id);
-          
-          if (priorIdsForHood.length >= 2) {
-            const { data: priorRowsHood } = await admin
-              .from("businesses")
-              .select("id, name, slug, city, neighborhood, latitude, longitude, main_category, categories, address, hook_fr, hook_en, hook_ar, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, computed_rating, engagements")
-              .in("id", priorIdsForHood);
-            const rowsHood = Array.isArray(priorRowsHood) ? priorRowsHood : [];
-            const nq = normalize(userMessage);
-            const present = Array.from(new Set(rowsHood.map((r: any) => r.neighborhood).filter(Boolean))) as string[];
-            let matchedHood: string | null = null;
-            for (const n of present) {
-              const nn = normalize(n);
-              if (!nn || nn.length < 3) continue;
-              const re = new RegExp(`(^|[^\\p{L}\\p{N}])${nn.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^\\p{L}\\p{N}]|$)`, "u");
-              if (re.test(nq)) { matchedHood = n; break; }
-            }
-            const words = nq.split(/\s+/).filter(Boolean);
-            const looksLikeRefinement = words.length <= 5 || /\b(quartier|dans|a|en|sur|au|aux|neighborhood|district|in)\b/.test(nq);
-            if (matchedHood && looksLikeRefinement) {
+          const nq = normalize(userMessage);
+          const words = nq.split(/\s+/).filter(Boolean);
+          const looksLikeRefinement = words.length <= 6 || /\b(quartier|dans|a|en|sur|au|aux|vers|cote|coté|neighborhood|district|in|at|near)\b/.test(nq);
+
+          if (looksLikeRefinement) {
+            const detected = await detectNeighborhoodInText(admin, host.city, userMessage);
+            if (detected) {
+              const matchedHood = detected.name;
               const nn = normalize(matchedHood);
-              const filteredHood = rowsHood.filter((r: any) => normalize(r.neighborhood) === nn);
+              const priorIdsForHood = extractPriorKnownBusinessIds(inMessages, host.id);
+
+              // Try prior-filter first (behavior A).
+              let filteredHood: any[] = [];
+              let rowsHood: any[] = [];
+              if (priorIdsForHood.length >= 2) {
+                const { data: priorRowsHood } = await admin
+                  .from("businesses")
+                  .select("id, name, slug, city, neighborhood, latitude, longitude, main_category, categories, address, hook_fr, hook_en, hook_ar, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, computed_rating, engagements")
+                  .in("id", priorIdsForHood);
+                rowsHood = Array.isArray(priorRowsHood) ? priorRowsHood : [];
+                filteredHood = rowsHood.filter((r: any) => normalize(r.neighborhood) === nn);
+              }
+
+              const hostHoodN = normalize(host.neighborhood || "");
+              const isDifferentFromHost = hostHoodN && nn !== hostHoodN;
+              const hasRootScope = !!(deterministicSubcategoryNames?.length || deterministicBadgeIds?.length);
+
+              // (B) SCOPE BROADEN: different neighborhood + root suggestion scope,
+              // OR prior filter yielded nothing but we can rerun the root scope.
+              if (hasRootScope && (isDifferentFromHost || filteredHood.length === 0)) {
+                const forcedArgs: any = {
+                  query: matchedHood,
+                  city: host.city || "Marrakech",
+                  neighborhood: matchedHood,
+                  limit: 12,
+                };
+                if (deterministicSubcategoryNames) forcedArgs._subcategoryNames = deterministicSubcategoryNames;
+                if (deterministicBadgeIds) forcedArgs._badgeIds = deterministicBadgeIds;
+                // Explicitly: no proximity anchor → we widen the scope.
+                const forcedResult = await runTool("search_businesses", forcedArgs);
+                rememberSearchResult("search_businesses", forcedArgs, forcedResult);
+                if (Array.isArray(forcedResult?.results) && forcedResult.results.length) {
+                  const finalTextLocal = buildImmersiveBusinessAnswer(forcedResult, host, userMessage, language);
+                  emitDelta(finalTextLocal);
+                  const trailing = emitTrailingMarkers();
+                  toolsCalledLog.push({ name: "neighborhood_scope_broaden", args: { neighborhood: matchedHood, count: forcedResult.results.length, alias: detected.matchedAlias }, ok: true });
+                  endText();
+                  await logTurn({ finalText: finalTextLocal + trailing, streamCompleted: true });
+                  return;
+                }
+                // fall through to prior-filter behavior if broaden returned 0
+              }
+
+              // (A) PRIOR FILTER on the matched neighborhood.
               if (filteredHood.length) {
                 const priorOrder = new Map(priorIdsForHood.map((id, i) => [id, i]));
                 filteredHood.sort((a: any, b: any) => (priorOrder.get(a.id) ?? 999) - (priorOrder.get(b.id) ?? 999));
@@ -3104,7 +3238,7 @@ Deno.serve(async (req) => {
                 lastMapPayload = { title: `${matchedHood}`, businesses: mapBusinesses };
                 emitDelta(answer);
                 const trailing = emitTrailingMarkers();
-                toolsCalledLog.push({ name: "neighborhood_filter_priors", args: { neighborhood: matchedHood, count: filteredHood.length }, ok: true });
+                toolsCalledLog.push({ name: "neighborhood_filter_priors", args: { neighborhood: matchedHood, count: filteredHood.length, alias: detected.matchedAlias }, ok: true });
                 endText();
                 await logTurn({ finalText: answer + trailing, streamCompleted: true });
                 return;
@@ -3112,6 +3246,8 @@ Deno.serve(async (req) => {
             }
           }
         }
+
+
 
         // Deterministic: HOURS — read opening_hours directly from DB, gated by show_opening_hours.
 
