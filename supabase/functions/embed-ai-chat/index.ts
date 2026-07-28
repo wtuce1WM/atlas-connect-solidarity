@@ -2219,22 +2219,20 @@ Deno.serve(async (req) => {
               results = results.filter(eventIntersectsWindow);
               results = results.slice(0, limit);
 
-              // Fallback images from the linked default_business when the event has none.
-              const missingImgBizIds = Array.from(new Set(
-                results
-                  .filter((e: any) => !(Array.isArray(e.images) && e.images.length) && !e.logo_url && e.default_business_id)
-                  .map((e: any) => e.default_business_id as string)
-              ));
-              const bizImgMap: Record<string, string> = {};
-              if (missingImgBizIds.length) {
-                const { data: bizRows } = await admin
-                  .from("businesses")
-                  .select("id,images,logo_url")
-                  .in("id", missingImgBizIds);
-                for (const b of bizRows || []) {
-                  const first = Array.isArray((b as any).images) ? (b as any).images[0] : null;
-                  const img = first || (b as any).logo_url || null;
-                  if (img) bizImgMap[(b as any).id] = img;
+              // Same thumbnail logic as /search #Agenda: event image 1 first,
+              // otherwise thumbnail_url from business_documents matching video 1.
+              const firstVideoUrls = results
+                .map((e: any) => (Array.isArray(e.videos) ? e.videos.filter(Boolean)[0] : null))
+                .filter(Boolean) as string[];
+              const thumbByUrl = new Map<string, string>();
+              if (firstVideoUrls.length) {
+                const { data: docs } = await admin
+                  .from("business_documents")
+                  .select("url,thumbnail_url")
+                  .eq("business_is_active", true)
+                  .in("url", firstVideoUrls);
+                for (const d of docs || []) {
+                  if ((d as any).url && (d as any).thumbnail_url) thumbByUrl.set((d as any).url, (d as any).thumbnail_url);
                 }
               }
 
@@ -2248,11 +2246,11 @@ Deno.serve(async (req) => {
                 url: e.url || null,
                 sort_order: e.sort_order ?? null,
                 default_business_id: e.default_business_id || null,
-                image:
-                  (Array.isArray(e.images) ? e.images[0] : null)
-                  || e.logo_url
-                  || (e.default_business_id ? bizImgMap[e.default_business_id] : null)
-                  || null,
+                image: (() => {
+                  const firstImage = Array.isArray(e.images) ? e.images.filter(Boolean)[0] : null;
+                  const firstVideo = Array.isArray(e.videos) ? e.videos.filter(Boolean)[0] : null;
+                  return firstImage || (firstVideo ? thumbByUrl.get(firstVideo) || null : null);
+                })(),
                 video: Array.isArray(e.videos) ? e.videos[0] : null,
               }));
               if (!results.length) return { results: [], note: `Aucun événement trouvé entre ${from} et ${to}.` };
