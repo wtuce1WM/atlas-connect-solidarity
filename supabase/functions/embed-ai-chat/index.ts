@@ -2158,10 +2158,10 @@ Deno.serve(async (req) => {
               let q = admin
                 .from("events")
                 .select("id,name,hook,description,start_date,end_date,recurrence,days_of_week,start_time,end_time,url,city_id,default_business_id,images,videos,sort_order,logo_url,cities:city_id(name_fr),neighborhoods:neighborhood_id(name)")
-                .or(`and(start_date.gte.${from},start_date.lte.${to}),and(start_date.lte.${to},end_date.gte.${from}),recurrence.not.is.null`)
+                .or(`and(start_date.gte.${from},start_date.lte.${to}),and(start_date.lte.${to},end_date.gte.${from}),recurrence.not.is.null,days_of_week.neq.{}`)
                 .order("sort_order", { ascending: true, nullsFirst: false })
                 .order("start_date", { ascending: true, nullsFirst: false })
-                .limit(limit * 3);
+                .limit(limit * 5);
               if (eventIds) q = q.in("id", eventIds.slice(0, 500));
               if (args.query) {
                 const qv = String(args.query).replace(/[,()"]/g, " ").trim();
@@ -2180,17 +2180,18 @@ Deno.serve(async (req) => {
               // only surface when a real occurrence falls in the window.
               const fromDate = new Date(from + "T00:00:00Z");
               const toDate = new Date(to + "T23:59:59Z");
+              const DOW_MAP: Record<string, number> = { sunday: 0, sun: 0, monday: 1, mon: 1, tuesday: 2, tue: 2, wednesday: 3, wed: 3, thursday: 4, thu: 4, friday: 5, fri: 5, saturday: 6, sat: 6 };
+              const normalizeDows = (arr: any): number[] => (Array.isArray(arr) ? arr : []).map((v: any) => typeof v === "number" ? v : DOW_MAP[String(v).toLowerCase()]).filter((n: any) => Number.isInteger(n));
               const eventIntersectsWindow = (e: any): boolean => {
                 const sd = e.start_date ? new Date(e.start_date + "T00:00:00Z") : null;
                 const ed = e.end_date ? new Date(e.end_date + "T23:59:59Z") : sd;
-                // Non-recurring: simple date range overlap
-                if (!e.recurrence) return sd ? (sd <= toDate && (ed ?? sd) >= fromDate) : false;
-                const rec = String(e.recurrence).toLowerCase();
+                const dows = normalizeDows(e.days_of_week);
+                // Implicit weekly: days_of_week set but no recurrence flag
+                const rec = e.recurrence ? String(e.recurrence).toLowerCase() : (dows.length ? "weekly" : "");
+                if (!rec) return sd ? (sd <= toDate && (ed ?? sd) >= fromDate) : false;
                 if (rec === "daily") return true;
                 if (rec === "weekly") {
-                  const dows: number[] = Array.isArray(e.days_of_week) ? e.days_of_week.map((n: any) => Number(n)) : [];
                   if (!dows.length) return true;
-                  // scan every day in window (small window)
                   for (let t = fromDate.getTime(); t <= toDate.getTime(); t += 86400000) {
                     const d = new Date(t).getUTCDay();
                     if (dows.includes(d)) return true;
