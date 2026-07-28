@@ -1332,7 +1332,7 @@ const EmbedAsk = () => {
                   <img src={a.image} alt={a.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
                 ) : null}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-                {a.isOwner && (
+                {a.isOwner && a.title.toLowerCase().includes((businessName || "").toLowerCase()) && (
                   <span className="absolute top-2 right-2 text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-[#D4AF37] text-black font-semibold">
                     {businessName}
                   </span>
