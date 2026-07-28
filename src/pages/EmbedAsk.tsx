@@ -375,6 +375,14 @@ const EmbedAsk = () => {
   const [hostLocation, setHostLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [locationOpen, setLocationOpen] = useState(false);
+  const geo = useGeolocation();
+
+  useEffect(() => {
+    const h = () => setLocationOpen(true);
+    window.addEventListener("open-location-picker", h);
+    return () => window.removeEventListener("open-location-picker", h);
+  }, []);
 
   type FollowupRow = { id: string; label_fr: string; label_en: string | null; label_ar: string | null };
   type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[] };
