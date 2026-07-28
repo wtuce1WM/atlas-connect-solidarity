@@ -2636,7 +2636,7 @@ Deno.serve(async (req) => {
                   if (businessIds.length >= 3) {
                     const { data: bizRows } = await admin
                       .from("businesses")
-                      .select("id, name, slug, city, neighborhood, main_category, categories, hook_fr, hook_en, hook_ar, latitude, longitude, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, engagements, closure_message, is_active")
+                      .select("id, name, slug, city, neighborhood, main_category, categories, hook_fr, hook_en, hook_ar, latitude, longitude, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, computed_rating, total_review_count, engagements, closure_message, is_active")
                       .in("id", businessIds)
                       .eq("is_active", true)
                       .is("closure_message", null);
