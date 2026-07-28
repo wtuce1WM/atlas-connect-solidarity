@@ -1973,6 +1973,7 @@ Deno.serve(async (req) => {
             suggestionPinnedIds = [];
             suggestionMode = null;
             curatedProximity = null;
+            suggestionDestinationIds = [];
           }
         }
 
