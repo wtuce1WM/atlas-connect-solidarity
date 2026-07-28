@@ -2811,7 +2811,7 @@ Deno.serve(async (req) => {
         // drops the topical query and returns 0 or off-topic results).
         {
           const priorIdsForHood = extractPriorKnownBusinessIds(inMessages, host.id);
-          console.log("[hood_route] priorIds:", priorIdsForHood.length, "userMsg:", JSON.stringify(userMessage));
+          console.error("[embed-ai-chat] hood_route_probe priorIds=" + priorIdsForHood.length + " userMsg=" + JSON.stringify(userMessage));
           if (priorIdsForHood.length >= 2) {
             const { data: priorRowsHood } = await admin
               .from("businesses")
