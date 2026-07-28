@@ -303,27 +303,59 @@ function buildHoursAnswer(host: any, lang: "fr" | "en" | "ar"): string | null {
  * and return the ids of previously-shown businesses (most recent turn first,
  * host excluded, deduped).
  */
-function extractPriorKnownBusinessIds(messages: { role: string; content: any }[], hostId: string): string[] {
+function textForEmbedMarkers(input: any): string {
+  const chunks: string[] = [];
+  const walk = (value: any, depth = 0) => {
+    if (value == null || depth > 5) return;
+    if (typeof value === "string") {
+      chunks.push(value);
+      return;
+    }
+    if (Array.isArray(value)) {
+      for (const item of value) walk(item, depth + 1);
+      return;
+    }
+    if (typeof value === "object") {
+      for (const key of ["content", "text", "delta", "parts"]) {
+        if (key in value) walk(value[key], depth + 1);
+      }
+    }
+  };
+  walk(input);
+  return chunks.join("\n");
+}
+
+function parseEmbedJsonMarker(raw: string): any | null {
+  const candidates = [
+    raw,
+    raw.replace(/&quot;/g, '"').replace(/--&gt;/g, "-->"),
+    raw.replace(/\\"/g, '"').replace(/\\n/g, "\n"),
+  ];
+  for (const candidate of candidates) {
+    try { return JSON.parse(candidate); } catch { /* try next */ }
+  }
+  return null;
+}
+
+function extractPriorKnownBusinessIds(messages: any[], hostId: string): string[] {
   const ids: string[] = [];
   const seen = new Set<string>();
   for (let i = messages.length - 1; i >= 0; i--) {
     const m = messages[i];
     if (m.role !== "assistant") continue;
-    const content = String(m.content ?? "");
+    const content = textForEmbedMarkers(m) || String(m.content ?? "");
     // Prefer KNOWN_BUSINESSES, fall back to SHOW_ON_MAP (deterministic routes like
     // poi_nearby emit only SHOW_ON_MAP but still represent the latest result set).
     let arr: any = null;
     const knownMatch = content.match(/<!--KNOWN_BUSINESSES:(\[[\s\S]*?\])-->/);
     if (knownMatch) {
-      try { arr = JSON.parse(knownMatch[1].replace(/--&gt;/g, "-->")); } catch { /* ignore */ }
+      arr = parseEmbedJsonMarker(knownMatch[1]);
     }
     if (!arr) {
       const mapMatch = content.match(/<!--SHOW_ON_MAP:(\{[\s\S]*?\})-->/);
       if (mapMatch) {
-        try {
-          const parsed = JSON.parse(mapMatch[1].replace(/--&gt;/g, "-->"));
-          if (parsed && Array.isArray(parsed.businesses)) arr = parsed.businesses;
-        } catch { /* ignore */ }
+        const parsed = parseEmbedJsonMarker(mapMatch[1]);
+        if (parsed && Array.isArray(parsed.businesses)) arr = parsed.businesses;
       }
     }
     if (Array.isArray(arr)) {
