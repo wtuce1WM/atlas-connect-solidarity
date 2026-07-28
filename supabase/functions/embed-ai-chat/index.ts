@@ -2600,9 +2600,18 @@ Deno.serve(async (req) => {
                   match.title_fr || match.title_en || match.title_ar || "";
                 const image = match.custom_hero_image_url || match.cover_image_url || null;
                 const tldr =
-                  (language === "en" && (match as any).excerpt_en) ||
-                  (language === "ar" && (match as any).excerpt_ar) ||
+                  (language === "en" && ((match as any).tldr_en || (match as any).excerpt_en)) ||
+                  (language === "ar" && ((match as any).tldr_ar || (match as any).excerpt_ar)) ||
+                  (match as any).tldr_fr || (match as any).tldr_en || (match as any).tldr_ar ||
                   (match as any).excerpt_fr || (match as any).excerpt_en || (match as any).excerpt_ar || null;
+                const hookText =
+                  (language === "en" && (match as any).hero_subtitle_en) ||
+                  (language === "ar" && (match as any).hero_subtitle_ar) ||
+                  (match as any).hero_subtitle_fr || (match as any).hero_subtitle_en || (match as any).hero_subtitle_ar || null;
+                const introText =
+                  (language === "en" && (match as any).intro_en) ||
+                  (language === "ar" && (match as any).intro_ar) ||
+                  (match as any).intro_fr || (match as any).intro_en || (match as any).intro_ar || null;
                 const articlePayload: any = {
                   id: match.id,
                   slug: match.slug,
@@ -2610,6 +2619,8 @@ Deno.serve(async (req) => {
                   image,
                   hero: image,
                   tldr,
+                  hook: hookText,
+                  intro: introText,
                   inline: false,
                   isOwner: match.anchor_business_id === host.id,
                 };
@@ -2623,13 +2634,34 @@ Deno.serve(async (req) => {
                 if (!curatedProximity) {
                   const { data: full } = await admin
                     .from("blog_posts")
-                    .select("entries_fr, entries_en, entries_ar")
+                    .select("entries_fr, entries_en, entries_ar, hero_subtitle_fr, hero_subtitle_en, hero_subtitle_ar, tldr_fr, tldr_en, tldr_ar, intro_fr, intro_en, intro_ar, excerpt_fr, excerpt_en, excerpt_ar")
                     .eq("id", match.id)
                     .maybeSingle();
+                  if (full) {
+                    for (const k of ["hero_subtitle_fr","hero_subtitle_en","hero_subtitle_ar","tldr_fr","tldr_en","tldr_ar","intro_fr","intro_en","intro_ar","excerpt_fr","excerpt_en","excerpt_ar"]) {
+                      (match as any)[k] = (full as any)[k];
+                    }
+                    // Recompute payload fields from full row
+                    articlePayload.tldr =
+                      (language === "en" && ((full as any).tldr_en || (full as any).excerpt_en)) ||
+                      (language === "ar" && ((full as any).tldr_ar || (full as any).excerpt_ar)) ||
+                      (full as any).tldr_fr || (full as any).tldr_en || (full as any).tldr_ar ||
+                      (full as any).excerpt_fr || (full as any).excerpt_en || (full as any).excerpt_ar || null;
+                    articlePayload.hook =
+                      (language === "en" && (full as any).hero_subtitle_en) ||
+                      (language === "ar" && (full as any).hero_subtitle_ar) ||
+                      (full as any).hero_subtitle_fr || (full as any).hero_subtitle_en || (full as any).hero_subtitle_ar || null;
+                    articlePayload.intro =
+                      (language === "en" && (full as any).intro_en) ||
+                      (language === "ar" && (full as any).intro_ar) ||
+                      (full as any).intro_fr || (full as any).intro_en || (full as any).intro_ar || null;
+                  }
                   const entriesRaw: any[] =
                     (language === "en" && Array.isArray(full?.entries_en) && full!.entries_en.length ? full!.entries_en : null) ||
                     (language === "ar" && Array.isArray(full?.entries_ar) && full!.entries_ar.length ? full!.entries_ar : null) ||
                     (Array.isArray(full?.entries_fr) ? full!.entries_fr : []) as any[];
+                  const entries = Array.isArray(entriesRaw) ? entriesRaw : [];
+                  const businessIds = entries.map((e: any) => e?.id).filter(Boolean).slice(0, 12);
                   const entries = Array.isArray(entriesRaw) ? entriesRaw : [];
                   const businessIds = entries.map((e: any) => e?.id).filter(Boolean).slice(0, 12);
 
@@ -2668,10 +2700,10 @@ Deno.serve(async (req) => {
                       emitDelta(`\n\n<!--ARTICLE_CARD:${JSON.stringify(articlePayload)}-->\n\n`);
 
                       const cityForCopy = host.city || "Marrakech";
-                      const introFr = `Bonne nouvelle : cette question rejoint exactement notre sélection éditoriale **${title}**. Je te déroule les **${shown.length} adresses** qu'on met en avant en priorité — extraites du guide, avec le contexte qui justifie leur place dans le classement. Dis-moi ensuite si tu veux qu'on affine par quartier, ambiance, budget ou moment de la journée.`;
-                      const introEn = `Good timing: your question maps directly to our editorial pick **${title}**. Here are the **${shown.length} addresses** we put forward first — straight from the guide, with the context that earned them their spot. Tell me if you'd like to narrow by neighborhood, vibe, budget or time of day.`;
-                      const introAr = `يتطابق سؤالك تمامًا مع اختيارنا التحريري **${title}**. إليك **${shown.length} عناوين** نقدّمها أولًا — من الدليل مباشرة، مع السياق الذي يبرّر ترتيبها. أخبرني إن أردت تضييق الاختيار حسب الحي أو الأجواء أو الميزانية أو الوقت.`;
-                      const intro = language === "en" ? introEn : language === "ar" ? introAr : introFr;
+                      // Intro/hook/tldr are rendered by the frontend from the ARTICLE_CARD payload
+                      // (hero + hook + En bref + intro). The streamed text bubble contains only the
+                      // ranked entries + disclosure so the map can be inserted between the intro
+                      // and the first result on the client.
 
                       const reviewsLabel = language === "en" ? "reviews" : language === "ar" ? "مراجعة" : "avis";
                       const anonLabel = language === "en" ? "Anonymous" : language === "ar" ? "مجهول" : "Anonyme";
@@ -2743,7 +2775,7 @@ Deno.serve(async (req) => {
                       }));
                       lastMapPayload = { title, businesses: mapBusinesses };
 
-                      const answer = `${intro}\n\n${body}\n\n${disclosure}`;
+                      const answer = `${body}\n\n${disclosure}`;
                       emitDelta(answer);
                       const trailing = emitTrailingMarkers();
                       toolsCalledLog.push({ name: "blog_article_route", args: { slug: match.slug, shown: shown.length, total }, ok: true });
