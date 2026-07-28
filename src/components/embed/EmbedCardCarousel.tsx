@@ -8,6 +8,8 @@ export interface EmbedCardItem {
   fallbackIcon?: React.ReactNode;
   /** Top-right badge (e.g. distance "450 m" or date "12 août") */
   badge?: React.ReactNode;
+  /** Small line above the bold title (e.g. event date + time) */
+  overline?: React.ReactNode;
   /** Bold title */
   title: string;
   /** Optional subtitle line (neighborhood, city…) */
