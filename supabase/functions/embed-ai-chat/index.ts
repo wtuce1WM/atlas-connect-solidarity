@@ -2382,13 +2382,13 @@ Deno.serve(async (req) => {
                   isOwner: match.anchor_business_id === host.id,
                 };
 
-                const suggestionRouteActive =
-                  (deterministicSubcategoryNames && deterministicSubcategoryNames.length > 0) ||
-                  (deterministicBadgeIds && deterministicBadgeIds.length > 0) ||
-                  (suggestionPinnedIds && suggestionPinnedIds.length > 0) ||
-                  !!curatedProximity;
-
-                if (!suggestionRouteActive) {
+                // Blog editorial listing wins over the LLM narration whenever a
+                // published article title clearly matches the user's message,
+                // even if the suggestion click also forced badges/subcats — the
+                // curated podium is what the user is actually after.
+                // Curated proximity ("X à côté de Y") is still preserved
+                // because it delivers its own two-entity carousel.
+                if (!curatedProximity) {
                   const { data: full } = await admin
                     .from("blog_posts")
                     .select("entries_fr, entries_en, entries_ar")
