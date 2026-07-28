@@ -990,7 +990,7 @@ const EmbedAsk = () => {
                         {articleCard.title}
                       </div>
                       {articleCard.hook && (
-                        <div className="text-white/90 text-xs sm:text-sm mt-1 italic line-clamp-3 drop-shadow">
+                        <div className="text-white/90 text-xs sm:text-sm mt-1 italic drop-shadow">
                           {articleCard.hook}
                         </div>
                       )}
@@ -1177,7 +1177,7 @@ const EmbedAsk = () => {
                         {p.review?.text && (
                           <div className="px-3 pb-3">
                             <div className={`rounded-lg p-2.5 text-[12px] leading-relaxed border ${border}`} style={{ background: theme === "light" ? "rgba(0,0,0,0.03)" : "rgba(255,255,255,0.04)" }}>
-                              <div className="line-clamp-4 italic opacity-90">« {p.review.text} »</div>
+                              <div className="italic opacity-90">« {p.review.text} »</div>
                               {p.review.author && (
                                 <div className="mt-1 text-[10px] opacity-60">
                                   — {p.review.author}{p.review.source ? ` · ${p.review.source}` : ""}
