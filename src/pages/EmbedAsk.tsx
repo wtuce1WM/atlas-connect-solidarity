@@ -1089,9 +1089,31 @@ const EmbedAsk = () => {
                 );
               })()}
 
-              <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${asstBubble}`}>
-                <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-ul:my-1">
-                  <ReactMarkdown components={{ strong: StrongCited as any }}>
+              <div className={`${articleCard?.inline ? "max-w-full w-full" : "max-w-[85%]"} rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${asstBubble}`}>
+                <div className={`prose prose-sm max-w-none dark:prose-invert prose-p:my-2 prose-ul:my-1 ${articleCard?.inline ? "prose-hr:my-6 prose-hr:border-neutral-300 dark:prose-hr:border-neutral-700" : ""}`}>
+                  <ReactMarkdown
+                    components={{
+                      strong: StrongCited as any,
+                      blockquote: articleCard?.inline
+                        ? (({ children }: any) => (
+                            <figure
+                              className={`my-5 rounded-xl border-l-4 p-5 md:p-6 not-italic ${
+                                theme === "dark"
+                                  ? "bg-white/5 border-[#D4AF37]/70"
+                                  : "bg-[#F2E4CC]/70 border-[#C04F17]/70"
+                              }`}
+                            >
+                              <div
+                                className={`text-base md:text-lg leading-relaxed italic ${theme === "dark" ? "text-white/90" : "text-neutral-900/90"}`}
+                                style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                              >
+                                {children}
+                              </div>
+                            </figure>
+                          )) as any
+                        : undefined,
+                    }}
+                  >
                     {clean || (streaming && isLast ? "…" : "")}
                   </ReactMarkdown>
                 </div>
