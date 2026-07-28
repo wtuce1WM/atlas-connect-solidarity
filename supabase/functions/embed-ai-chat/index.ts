@@ -3869,34 +3869,6 @@ Deno.serve(async (req) => {
           }
         }
 
-        // Deterministic: ONLINE BOOKING — scan url_1..url_5 CTAs for a Reserve/Book label.
-        // When prior results exist in the thread, always describe THEIR booking
-        // status (works even with an active suggestion filter). Otherwise fall
-        // back to the host — but only if no deterministic filter is active,
-        // to avoid "Réserver un jet privé" looping on the host.
-        if (isBookingIntent(userMessage)) {
-          const priorIds = extractPriorKnownBusinessIds(inMessages, host.id);
-          if (priorIds.length) {
-            const answer = await buildBookingForBusinesses(admin, priorIds, language);
-            if (answer) {
-              emitDelta(answer);
-              toolsCalledLog.push({ name: "booking_lookup", args: { scope: "previous_results", count: priorIds.length }, ok: true });
-              endText();
-              await logTurn({ finalText: answer, streamCompleted: true });
-              return;
-            }
-          }
-          if (!deterministicSubcategoryNames && !deterministicBadgeIds && !suggestionPinnedIds.length && !suggestionMode) {
-            const answer = buildBookingAnswer(host, language);
-            emitDelta(answer);
-            toolsCalledLog.push({ name: "booking_lookup", args: { scope: "host" }, ok: true });
-            endText();
-            await logTurn({ finalText: answer, streamCompleted: true });
-            return;
-          }
-        }
-
-
         // Deterministic: TWO-ENTITY PROXIMITY (curated only) — the active
         // suggestion must carry proximity_a_* AND proximity_b_* mappings.
         // Free-text "A à côté d'un B" is intentionally NOT handled here;
