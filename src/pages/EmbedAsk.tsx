@@ -932,11 +932,12 @@ const EmbedAsk = () => {
             );
           }
           const raw = messageText(m);
-          const { clean, maps, events, articles, destinations } = extractPayloads(raw);
+          const { clean, maps, events, articles, destinations, pinned } = extractPayloads(raw);
           const mapPayload = maps[maps.length - 1] || null;
           const eventsPayload = events[events.length - 1] || null;
           const articleCard = articles[articles.length - 1] || null;
           const destinationsPayload = destinations[destinations.length - 1] || null;
+          const pinnedCards = pinned;
           const isLast = i === messages.length - 1;
           const citedFallback =
             !mapPayload || mapPayload.businesses.length === 0
@@ -969,6 +970,98 @@ const EmbedAsk = () => {
                   </ReactMarkdown>
                 </div>
               </div>
+
+              {pinnedCards.length > 0 && (
+                <div className="w-full max-w-[85%] flex flex-col gap-3">
+                  {pinnedCards.map((p) => {
+                    const telHref = p.phone ? `tel:${p.phone.replace(/\s+/g, "")}` : null;
+                    const waRaw = (p.whatsapp || p.phone || "").replace(/[^\d+]/g, "").replace(/^\+/, "");
+                    const waHref = waRaw ? `https://wa.me/${waRaw}` : null;
+                    const loc = [p.neighborhood, p.city].filter(Boolean).join(" · ");
+                    const stars = p.rating20 != null ? (p.rating20 / 4).toFixed(1) : null;
+                    return (
+                      <div
+                        key={p.id}
+                        className={`relative rounded-2xl overflow-hidden border ${border} ${cardBg}`}
+                        style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}
+                      >
+                        <div className="flex gap-3 p-3">
+                          <button
+                            type="button"
+                            onClick={() => { setOpenSiblings([p.id]); setOpenBusinessId(p.id); }}
+                            className="shrink-0 w-24 h-24 rounded-xl overflow-hidden bg-neutral-800"
+                          >
+                            {p.image ? (
+                              <img src={p.image} alt={p.name} className="w-full h-full object-cover" loading="lazy" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-white/40 text-xs">—</div>
+                            )}
+                          </button>
+                          <div className="flex-1 min-w-0 flex flex-col gap-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-[9px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded" style={{ background: "#D4AF37", color: "#000" }}>
+                                {lang === "en" ? "Recommended by the host" : lang === "ar" ? "مُوصى به من المضيف" : "Recommandé par l'hôte"}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => { setOpenSiblings([p.id]); setOpenBusinessId(p.id); }}
+                              className="text-left font-bold text-[15px] leading-tight hover:underline decoration-dotted underline-offset-2 text-[#C24B3F] break-words"
+                            >
+                              {p.name}
+                            </button>
+                            {loc && <div className="text-[11px] opacity-70 truncate">{loc}</div>}
+                            {p.rating20 != null && (
+                              <div className="flex items-center gap-1.5 text-[12px]">
+                                <span className="font-bold">{p.rating20.toFixed(1)}/20</span>
+                                {stars && <span className="opacity-60">· ★ {stars}/5</span>}
+                                {p.review_count != null && p.review_count > 0 && (
+                                  <span className="opacity-60">· {p.review_count} {lang === "en" ? "reviews" : lang === "ar" ? "مراجعة" : "avis"}</span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        {p.review?.text && (
+                          <div className="px-3 pb-3">
+                            <div className={`rounded-lg p-2.5 text-[12px] leading-relaxed border ${border}`} style={{ background: theme === "light" ? "rgba(0,0,0,0.03)" : "rgba(255,255,255,0.04)" }}>
+                              <div className="line-clamp-4 italic opacity-90">« {p.review.text} »</div>
+                              {p.review.author && (
+                                <div className="mt-1 text-[10px] opacity-60">
+                                  — {p.review.author}{p.review.source ? ` · ${p.review.source}` : ""}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        {(telHref || waHref) && (
+                          <div className={`flex border-t ${border}`}>
+                            {telHref && (
+                              <a
+                                href={telHref}
+                                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[12px] font-semibold hover:opacity-80 transition-opacity ${waHref ? `border-r ${border}` : ""}`}
+                              >
+                                📞 {lang === "en" ? "Call" : lang === "ar" ? "اتصال" : "Appeler"}
+                              </a>
+                            )}
+                            {waHref && (
+                              <a
+                                href={waHref}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[12px] font-semibold hover:opacity-80 transition-opacity"
+                                style={{ color: "#25D366" }}
+                              >
+                                💬 WhatsApp
+                              </a>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
 
               {mapPayload && mapPayload.businesses.length > 0 &&
                 renderCarousel(mapPayload.businesses, () => setOpenMap(mapPayload))}
