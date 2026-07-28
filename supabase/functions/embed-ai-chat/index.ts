@@ -3568,13 +3568,24 @@ Deno.serve(async (req) => {
             }
           }
         }
+        // Deterministic: CITY-WIDE ENGAGEMENT / COMMODITÉ / CERTIFICATION SEARCH.
+        // Ex: "tous les commerçants de la ville qui ont la livraison glovo"
+        if (isCityEngagementSearchIntent(userMessage)) {
+          try {
+            const answer = await buildCityEngagementSearch(admin, host, userMessage, language);
+            if (answer) {
+              emitDelta(answer.text);
+              finalText = answer.text + answer.markers;
+              toolsCalledLog.push({ name: "city_engagement_search", args: { city: host.city || "Marrakech" }, ok: true });
+              endText();
+              await logTurn({ finalText, streamCompleted: true });
+              return;
+            }
+          } catch (e) {
+            console.error("[embed-ai-chat] city_engagement_search_error", e);
+          }
+        }
 
-
-
-
-
-
-        // Deterministic: NEIGHBORHOOD ROUTE.
         // Short refinement like "à Guéliz", "dans hivernage", "en Palmeraie"
         // (with typo tolerance via neighborhoods.keywords / aliases DB).
         // Two behaviors:
