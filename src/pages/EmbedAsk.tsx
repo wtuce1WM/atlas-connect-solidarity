@@ -956,7 +956,37 @@ const EmbedAsk = () => {
               : [];
           return (
             <div key={m.id || i} className="flex flex-col items-start gap-2">
-              {articleCard && (
+              {articleCard && articleCard.inline ? (
+                <div className={`w-full max-w-[85%] rounded-2xl overflow-hidden ${cardBg}`}>
+                  <a
+                    href={`/embed/ask/${slug}/article/${articleCard.slug}`}
+                    className="block relative w-full aspect-[16/7] bg-neutral-800 group"
+                  >
+                    {articleCard.hero || articleCard.image ? (
+                      <img
+                        src={(articleCard.hero || articleCard.image) as string}
+                        alt={articleCard.title}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    ) : null}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-4">
+                      <span className="inline-block text-[10px] uppercase tracking-wide text-[#D4AF37] font-semibold mb-1">
+                        {lang === "en" ? "Editorial pick" : lang === "ar" ? "اختيار تحريري" : "Sélection éditoriale"}
+                      </span>
+                      <div className="text-white text-lg sm:text-xl font-bold leading-tight drop-shadow">
+                        {articleCard.title}
+                      </div>
+                      {articleCard.tldr && (
+                        <div className="text-white/85 text-xs sm:text-sm mt-1 line-clamp-2">
+                          {articleCard.tldr}
+                        </div>
+                      )}
+                    </div>
+                  </a>
+                </div>
+              ) : articleCard ? (
                 <a
                   href={`/embed/ask/${slug}/article/${articleCard.slug}`}
                   className={`relative flex w-full max-w-[85%] gap-3 rounded-2xl overflow-hidden ${cardBg} hover:opacity-95 transition-opacity`}
@@ -973,7 +1003,7 @@ const EmbedAsk = () => {
                     <div className="text-sm font-semibold leading-snug line-clamp-3">{articleCard.title}</div>
                   </div>
                 </a>
-              )}
+              ) : null}
               <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${asstBubble}`}>
                 <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-ul:my-1">
                   <ReactMarkdown components={{ strong: StrongCited as any }}>
@@ -981,6 +1011,46 @@ const EmbedAsk = () => {
                   </ReactMarkdown>
                 </div>
               </div>
+
+              {articleCard?.inline && mapPayload && mapPayload.businesses.length > 0 && (() => {
+                const pois = mapPayload.businesses
+                  .filter((b) => b.latitude != null && b.longitude != null)
+                  .map((b) => ({
+                    id: b.id,
+                    name: b.name,
+                    latitude: b.latitude as number,
+                    longitude: b.longitude as number,
+                    images: Array.isArray(b.images) ? (b.images as string[]) : [],
+                    city: b.city ?? null,
+                    neighborhood: b.neighborhood ?? null,
+                    rating: (b as any).google_rating ?? null,
+                    totalReviews: (b as any).google_review_count ?? 0,
+                  }));
+                if (pois.length === 0) return null;
+                return (
+                  <div className="w-full max-w-[85%] relative rounded-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800" style={{ height: 340 }}>
+                    <Suspense fallback={<div className="w-full h-full bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center text-xs opacity-60">Chargement de la carte…</div>}>
+                      <PoiGoogleMap
+                        pois={pois}
+                        selectedPoiId={null}
+                        onPoiClick={(id) => { setOpenSiblings(pois.map((p) => p.id)); setOpenBusinessId(id); }}
+                        fitToMarkers
+                        mapTheme={theme === "dark" ? "default-dark" : "default-light"}
+                        showLayerControls
+                      />
+                    </Suspense>
+                    <button
+                      type="button"
+                      onClick={() => setOpenMap(mapPayload)}
+                      className="absolute top-2 right-2 z-[5] w-9 h-9 rounded-full bg-white/95 dark:bg-neutral-900/95 border border-neutral-200 dark:border-neutral-700 flex items-center justify-center shadow hover:scale-105 transition-transform"
+                      aria-label={lang === "en" ? "Fullscreen map" : lang === "ar" ? "خريطة كاملة الشاشة" : "Carte plein écran"}
+                      title={lang === "en" ? "Fullscreen map" : lang === "ar" ? "خريطة كاملة الشاشة" : "Carte plein écran"}
+                    >
+                      <Maximize2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                );
+              })()}
 
               {pinnedCards.length > 0 && (
                 <div className="w-full max-w-[85%] flex flex-col gap-3">
