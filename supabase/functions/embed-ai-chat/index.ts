@@ -931,6 +931,80 @@ function buildCountAnswer(count: number, lang: "fr" | "en" | "ar"): string {
 }
 
 
+/**
+ * Deterministic: DESCRIBE PRIORS — "détaille / décris / quels types de cuisine / dis m'en plus…"
+ * Operates on the previous turn's results. No LLM, no re-search.
+ */
+function isDescribeIntent(text: string): boolean {
+  const n = normalize(text || "");
+  if (!n) return false;
+  return /(^|\s)(detaille|detailles|detail|decris|decrire|explique|precise|presente|elaborate|describe|tell me more|dis m en plus|dis moi en plus|en dis plus|quels? types?|quelles? sortes?|quelles? cuisines?|quel style|quelle ambiance|quels services|specialite|specialites|types de|kind of|type of|what kind|what type)(\s|$)/.test(n);
+}
+
+function parseDescribeFacet(text: string): "cuisine" | "ambiance" | "services" | null {
+  const n = normalize(text || "");
+  if (/cuisine|gastronom|plat|carte|menu|specialit|dish|food/.test(n)) return "cuisine";
+  if (/service/.test(n)) return "services";
+  if (/ambiance|style|deco|atmosph|vibe|mood/.test(n)) return "ambiance";
+  return null;
+}
+
+async function buildDescribePriors(
+  admin: any,
+  ids: string[],
+  facet: "cuisine" | "ambiance" | "services" | null,
+  lang: "fr" | "en" | "ar",
+): Promise<string | null> {
+  if (!ids.length) return null;
+  const { data } = await admin.from("businesses").select(
+    "id, name, slug, city, neighborhood, main_category, categories, services, hook_fr, hook_en, hook_ar, latitude, longitude, logo_url, images, computed_rating, total_review_count, google_rating, google_review_count"
+  ).in("id", ids.slice(0, 20));
+  if (!Array.isArray(data) || !data.length) return null;
+  const ordered = orderByIds(data as any[], ids);
+  const pickHook = (r: any) => lang === "en" ? (r.hook_en || r.hook_fr) : lang === "ar" ? (r.hook_ar || r.hook_fr) : r.hook_fr;
+
+  const lines = ordered.map((r: any, i: number) => {
+    const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
+    const cats = Array.isArray(r.categories) ? r.categories.filter(Boolean) : [];
+    const services = Array.isArray(r.services) ? r.services.filter(Boolean) : [];
+    const main = r.main_category || null;
+    const hook = pickHook(r) || "";
+    const sepAr = "، ";
+    const sep = lang === "ar" ? sepAr : ", ";
+    let facetLine = "";
+    if (facet === "cuisine") {
+      const list = cats.length ? cats : (main ? [main] : []);
+      if (list.length) facetLine = lang === "en" ? `Cuisine: ${list.join(sep)}` : lang === "ar" ? `المطبخ: ${list.join(sep)}` : `Cuisine : ${list.join(sep)}`;
+    } else if (facet === "services") {
+      if (services.length) facetLine = lang === "en" ? `Services: ${services.slice(0,6).join(sep)}` : lang === "ar" ? `الخدمات: ${services.slice(0,6).join(sep)}` : `Services : ${services.slice(0,6).join(sep)}`;
+    } else if (facet === "ambiance") {
+      if (main) facetLine = lang === "en" ? `Style: ${main}` : lang === "ar" ? `الأسلوب: ${main}` : `Style : ${main}`;
+    } else {
+      const parts: string[] = [];
+      if (cats.length) parts.push(lang === "en" ? `Cuisine: ${cats.join(sep)}` : lang === "ar" ? `المطبخ: ${cats.join(sep)}` : `Cuisine : ${cats.join(sep)}`);
+      else if (main) parts.push(lang === "en" ? `Style: ${main}` : lang === "ar" ? `الأسلوب: ${main}` : `Style : ${main}`);
+      if (services.length) parts.push(lang === "en" ? `Services: ${services.slice(0,4).join(sep)}` : lang === "ar" ? `الخدمات: ${services.slice(0,4).join(sep)}` : `Services : ${services.slice(0,4).join(sep)}`);
+      facetLine = parts.join(" · ");
+    }
+    return `${i + 1}. **${r.name}**${loc ? ` — _${loc}_` : ""}${facetLine ? `\n   ${facetLine}` : ""}${hook ? `\n   ${hook}` : ""}`;
+  });
+
+  const facetLabel = facet === "cuisine" ? (lang === "en" ? "cuisine types" : lang === "ar" ? "أنواع المطبخ" : "types de cuisine")
+    : facet === "services" ? (lang === "en" ? "services" : lang === "ar" ? "الخدمات" : "services")
+    : facet === "ambiance" ? (lang === "en" ? "atmosphere" : lang === "ar" ? "الأجواء" : "ambiance")
+    : (lang === "en" ? "profile" : lang === "ar" ? "الملف" : "profil");
+  const intro = lang === "en"
+    ? `Here are the **${facetLabel}** for the previous results:`
+    : lang === "ar"
+      ? `إليك **${facetLabel}** للنتائج السابقة:`
+      : `Voici les **${facetLabel}** des résultats précédents :`;
+  return `${intro}\n\n${lines.join("\n\n")}${toMapMarker(ordered)}`;
+}
+
+
+
+
+
 
 
 
