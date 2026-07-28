@@ -20,6 +20,7 @@ import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
+const DestinationSlidePanel = lazy(() => import("@/components/DestinationSlidePanel"));
 
 /**
  * Liquid-glass bottom bar overlaying BookOnlineSlidePanel in the embed:
@@ -242,18 +243,22 @@ const MAP_RE = /<!--SHOW_ON_MAP:([\s\S]*?)-->/g;
 const EVENTS_RE = /<!--EVENTS_SNAPSHOT:([\s\S]*?)-->/g;
 const KNOWN_RE = /<!--KNOWN_BUSINESSES:([\s\S]*?)-->/g;
 const ARTICLE_RE = /<!--ARTICLE_CARD:([\s\S]*?)-->/g;
+const DEST_RE = /<!--DESTINATION_CARDS:([\s\S]*?)-->/g;
 
 type MapPayload = { title?: string | null; businesses: MapPanelBusiness[] };
 type EventsPayload = { title?: string | null; city?: string | null; events: EventPanelItem[] };
 type KnownBusiness = { id: string; slug: string | null; name: string };
 type ArticleCardPayload = { id: string; slug: string; title: string; image: string | null; isOwner?: boolean };
+type DestinationCard = { id: string; name: string; hook?: string | null; image?: string | null; latitude?: number | null; longitude?: number | null; distKm?: number | null };
+type DestinationsPayload = { title?: string | null; destinations: DestinationCard[] };
 
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[] } {
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[] } {
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
   const articles: ArticleCardPayload[] = [];
-  if (!text) return { clean: text, maps, events, known, articles };
+  const destinations: DestinationsPayload[] = [];
+  if (!text) return { clean: text, maps, events, known, articles, destinations };
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -278,14 +283,21 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
       if (p && p.id && p.slug && p.title) articles.push(p as ArticleCardPayload);
     } catch { /* */ }
     return "";
+  }).replace(DEST_RE, (_m, raw) => {
+    try {
+      const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (p && Array.isArray(p.destinations) && p.destinations.length) destinations.push({ title: p.title ?? null, destinations: p.destinations });
+    } catch { /* */ }
+    return "";
   });
   clean = clean
     .replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "")
     .replace(/<!--EVENTS_SNAPSHOT:[\s\S]*$/g, "")
     .replace(/<!--KNOWN_BUSINESSES:[\s\S]*$/g, "")
     .replace(/<!--ARTICLE_CARD:[\s\S]*$/g, "")
+    .replace(/<!--DESTINATION_CARDS:[\s\S]*$/g, "")
     .trim();
-  return { clean, maps, events, known, articles };
+  return { clean, maps, events, known, articles, destinations };
 }
 
 // Concatenate all text parts of a UIMessage into a single string.
@@ -434,6 +446,7 @@ const EmbedAsk = () => {
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
   const [openEvents, setOpenEvents] = useState<{ list: EventPanelItem[]; index: number } | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+  const [openDestinationId, setOpenDestinationId] = useState<string | null>(null);
   const [openSiblings, setOpenSiblings] = useState<string[]>([]);
 
   const isMobile = useMemo(() => typeof window !== "undefined" && window.innerWidth < 768, []);
@@ -876,10 +889,11 @@ const EmbedAsk = () => {
             );
           }
           const raw = messageText(m);
-          const { clean, maps, events, articles } = extractPayloads(raw);
+          const { clean, maps, events, articles, destinations } = extractPayloads(raw);
           const mapPayload = maps[maps.length - 1] || null;
           const eventsPayload = events[events.length - 1] || null;
           const articleCard = articles[articles.length - 1] || null;
+          const destinationsPayload = destinations[destinations.length - 1] || null;
           const isLast = i === messages.length - 1;
           const citedFallback =
             !mapPayload || mapPayload.businesses.length === 0
@@ -917,6 +931,75 @@ const EmbedAsk = () => {
                 renderCarousel(mapPayload.businesses, () => setOpenMap(mapPayload))}
 
               {citedFallback.length > 0 && renderCarousel(citedFallback)}
+
+              {destinationsPayload && destinationsPayload.destinations.length > 0 && (
+                <div
+                  className="w-full max-w-full overflow-x-auto scrollbar-hide -mx-1 px-1"
+                  style={{ overscrollBehaviorX: "contain" }}
+                  onWheel={(e) => {
+                    if (e.deltaY === 0) return;
+                    const el = e.currentTarget;
+                    const maxScroll = el.scrollWidth - el.clientWidth;
+                    if (maxScroll <= 0) return;
+                    const goingLeft = e.deltaY < 0;
+                    const goingRight = e.deltaY > 0;
+                    const atLeft = el.scrollLeft <= 0;
+                    const atRight = el.scrollLeft >= maxScroll - 1;
+                    if ((goingLeft && !atLeft) || (goingRight && !atRight)) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const capped = Math.sign(e.deltaY) * Math.min(Math.abs(e.deltaY), 50);
+                      el.scrollLeft = Math.max(0, Math.min(maxScroll, el.scrollLeft + capped));
+                    }
+                  }}
+                >
+                  <div className="flex gap-3 pb-1">
+                    {destinationsPayload.destinations.slice(0, 20).map((d) => {
+                      const distStr = d.distKm != null
+                        ? (d.distKm < 1 ? `${Math.round(d.distKm * 1000)} m` : `${d.distKm.toFixed(1)} km`)
+                        : null;
+                      return (
+                        <button
+                          key={d.id}
+                          type="button"
+                          onClick={() => setOpenDestinationId(d.id)}
+                          className="shrink-0 w-44 text-left group"
+                        >
+                          <div className="relative w-44 h-64 rounded-xl overflow-hidden bg-neutral-800">
+                            {d.image ? (
+                              <img
+                                src={d.image}
+                                alt={d.name}
+                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                                loading="lazy"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-white/40">
+                                <MapPin className="w-10 h-10" />
+                              </div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 pointer-events-none" />
+                            {distStr && (
+                              <div
+                                className="absolute top-2 right-2 text-[11px] font-semibold px-1.5 py-0.5 rounded backdrop-blur-sm whitespace-nowrap"
+                                style={{ background: "rgba(0,0,0,0.6)", color: "#D4AF37" }}
+                              >
+                                {distStr}
+                              </div>
+                            )}
+                            <div className="absolute inset-x-0 bottom-0 p-2.5">
+                              <div className="text-[13px] font-bold text-white leading-tight break-words">{d.name}</div>
+                              {d.hook && (
+                                <div className="text-[11px] text-white/80 mt-0.5 line-clamp-2">{d.hook}</div>
+                              )}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
 
 
@@ -1198,6 +1281,22 @@ const EmbedAsk = () => {
           />
         );
       })()}
+
+      {openDestinationId && (
+        <div
+          className="fixed top-0 left-0 right-0 z-[230] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:left-auto lg:w-1/2 lg:border-l lg:border-border"
+          style={{ height: "100dvh" }}
+        >
+          <Suspense fallback={<div className="flex-1" />}>
+            <DestinationSlidePanel
+              destinationId={openDestinationId}
+              onClose={() => setOpenDestinationId(null)}
+              slideFrom="right"
+              onSearchBusinessSelect={(bid) => { setOpenDestinationId(null); setOpenBusinessId(bid); }}
+            />
+          </Suspense>
+        </div>
+      )}
     </div>
   );
 };

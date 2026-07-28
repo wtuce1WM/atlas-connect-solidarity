@@ -1891,6 +1891,7 @@ Deno.serve(async (req) => {
         let suggestionPinnedIds: string[] = [];
         let suggestionMode: string | null = null;
         let suggestionLabel: string | null = null;
+        let suggestionDestinationIds: string[] = [];
         // Curated two-entity proximity: staff-picked subcats/badges for A and B.
         // When both sides have at least one mapping, the two-entity route runs
         // with these exact mappings and bypasses free-text term resolution.
@@ -1902,7 +1903,7 @@ Deno.serve(async (req) => {
           try {
             const { data: sugg } = await admin
               .from("embed_ai_suggestions")
-              .select("subcategory_ids, badge_ids, business_ids, mode, label_fr, label_en, label_ar, proximity_a_subcategory_ids, proximity_a_badge_ids, proximity_b_subcategory_ids, proximity_b_badge_ids")
+              .select("subcategory_ids, badge_ids, business_ids, destination_ids, mode, label_fr, label_en, label_ar, proximity_a_subcategory_ids, proximity_a_badge_ids, proximity_b_subcategory_ids, proximity_b_badge_ids")
               .eq("id", suggestionId)
               .maybeSingle();
             const subIds: string[] = Array.isArray(sugg?.subcategory_ids) ? sugg!.subcategory_ids : [];
@@ -1920,6 +1921,8 @@ Deno.serve(async (req) => {
             if (pIds.length) suggestionPinnedIds = pIds;
             suggestionMode = (sugg?.mode as string | null) || null;
             suggestionLabel = (sugg?.label_fr as string | null) || (sugg?.label_en as string | null) || (sugg?.label_ar as string | null) || null;
+            const dIds: string[] = Array.isArray(sugg?.destination_ids) ? sugg!.destination_ids : [];
+            if (dIds.length) suggestionDestinationIds = dIds;
 
             // Load curated proximity mappings if both A and B are populated
             const paSub: string[] = Array.isArray(sugg?.proximity_a_subcategory_ids) ? sugg!.proximity_a_subcategory_ids : [];
@@ -1970,6 +1973,7 @@ Deno.serve(async (req) => {
             suggestionPinnedIds = [];
             suggestionMode = null;
             curatedProximity = null;
+            suggestionDestinationIds = [];
           }
         }
 
@@ -2879,7 +2883,126 @@ Deno.serve(async (req) => {
         }
 
 
+        // Deterministic: DESTINATIONS — the active suggestion has linked destinations.
+        // We list them as clickable cards with immersive text and distance from the host.
+        if (suggestionDestinationIds.length > 0) {
+          try {
+            const { data: destsRaw } = await admin
+              .from("destinations")
+              .select("id, name_fr, name_en, name_ar, hook_fr, hook_en, hook_ar, description_fr, description_en, description_ar, image_url, images, latitude, longitude")
+              .in("id", suggestionDestinationIds);
+            const hostLat = Number(host.latitude);
+            const hostLng = Number(host.longitude);
+            const hasHostCoords = Number.isFinite(hostLat) && Number.isFinite(hostLng);
+            const toRad = (v: number) => (v * Math.PI) / 180;
+            const kmBetween = (aLat: number, aLng: number, bLat: number, bLng: number) => {
+              const R = 6371;
+              const dLat = toRad(bLat - aLat);
+              const dLng = toRad(bLng - aLng);
+              const s =
+                Math.sin(dLat / 2) ** 2 +
+                Math.cos(toRad(aLat)) * Math.cos(toRad(bLat)) * Math.sin(dLng / 2) ** 2;
+              return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+            };
+            const pick = <T,>(fr: T, en: T, ar: T): T =>
+              language === "en" ? (en ?? fr) : language === "ar" ? (ar ?? fr) : fr;
+            const dests = (destsRaw || []).map((d: any) => {
+              const name = pick(d.name_fr, d.name_en, d.name_ar) || d.name_fr;
+              const hook = pick(d.hook_fr, d.hook_en, d.hook_ar) || d.hook_fr || null;
+              const description = pick(d.description_fr, d.description_en, d.description_ar) || d.description_fr || null;
+              const image =
+                d.image_url ||
+                (Array.isArray(d.images) && d.images.length > 0 ? d.images[0] : null);
+              let distKm: number | null = null;
+              if (hasHostCoords && Number.isFinite(Number(d.latitude)) && Number.isFinite(Number(d.longitude))) {
+                distKm = kmBetween(hostLat, hostLng, Number(d.latitude), Number(d.longitude));
+              }
+              return {
+                id: d.id,
+                name,
+                hook,
+                description,
+                image,
+                latitude: d.latitude,
+                longitude: d.longitude,
+                distKm,
+              };
+            });
+            // Sort by distance if available, else keep suggestion order
+            if (hasHostCoords) {
+              dests.sort((a, b) => (a.distKm ?? Infinity) - (b.distKm ?? Infinity));
+            } else {
+              const order = new Map(suggestionDestinationIds.map((id, i) => [id, i]));
+              dests.sort((a, b) => (order.get(a.id) ?? 999) - (order.get(b.id) ?? 999));
+            }
+
+            const fmtDist = (km: number | null) => {
+              if (km == null) return null;
+              return km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`;
+            };
+
+            const hostName = host.name || "";
+            const intro =
+              language === "en"
+                ? `Here are ${dests.length} day-trip destinations you can reach from **${hostName}** — sorted by distance, closest first.`
+                : language === "ar"
+                ? `إليك ${dests.length} وجهة لرحلة يومية انطلاقاً من **${hostName}** — مرتبة حسب المسافة، الأقرب أولاً.`
+                : `Voici ${dests.length} destinations d'excursion à la journée au départ de **${hostName}** — classées par distance, la plus proche d'abord.`;
+
+            const lines: string[] = [intro, ""];
+            for (const d of dests.slice(0, 15)) {
+              const dist = fmtDist(d.distKm);
+              const teaser = (d.hook || d.description || "").toString().trim().replace(/\s+/g, " ").slice(0, 220);
+              const distTag = dist
+                ? language === "en"
+                  ? ` — ${dist} away`
+                  : language === "ar"
+                  ? ` — على بعد ${dist}`
+                  : ` — à ${dist}`
+                : "";
+              lines.push(`- **${d.name}**${distTag}${teaser ? ` : ${teaser}` : ""}`);
+            }
+            lines.push("");
+            const closing =
+              language === "en"
+                ? `Tap any destination to open its immersive page, or ask me for excursion providers linked to a specific spot.`
+                : language === "ar"
+                ? `اضغط على أي وجهة لفتح صفحتها الغامرة، أو اسألني عن مزودي الرحلات لموقع محدد.`
+                : `Clique sur une destination pour ouvrir sa fiche immersive, ou demande-moi les prestataires d'excursions liés à un lieu précis.`;
+            lines.push(closing);
+
+            const answer = lines.join("\n");
+            emitDelta(answer);
+
+            // Emit DESTINATION_CARDS marker for the UI carousel
+            const cardsPayload = {
+              title: suggestionLabel || null,
+              destinations: dests.slice(0, 20).map((d) => ({
+                id: d.id,
+                name: d.name,
+                hook: d.hook,
+                image: d.image,
+                latitude: d.latitude,
+                longitude: d.longitude,
+                distKm: d.distKm,
+              })),
+            };
+            const safe = JSON.stringify(cardsPayload).replace(/-->/g, "--&gt;");
+            const marker = `\n\n<!--DESTINATION_CARDS:${safe}-->`;
+            emitDelta(marker);
+
+            toolsCalledLog.push({ name: "destinations_list", args: { count: dests.length }, ok: true });
+            endText();
+            await logTurn({ finalText: answer + marker, streamCompleted: true });
+            return;
+          } catch (e) {
+            console.error("[embed-ai-chat] destinations_route_error", e);
+            // fall through to other routes
+          }
+        }
+
         // Deterministic: events search (suggestion mode = 'events')
+
         if (suggestionMode === "events") {
           // Compute a "this weekend" window: from today → next Sunday (+7 max)
           const today = new Date();
