@@ -446,6 +446,7 @@ const EmbedAsk = () => {
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
   const [openEvents, setOpenEvents] = useState<{ list: EventPanelItem[]; index: number } | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
+  const [openDestinationId, setOpenDestinationId] = useState<string | null>(null);
   const [openSiblings, setOpenSiblings] = useState<string[]>([]);
 
   const isMobile = useMemo(() => typeof window !== "undefined" && window.innerWidth < 768, []);
