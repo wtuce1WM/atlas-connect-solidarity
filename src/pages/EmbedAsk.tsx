@@ -1023,6 +1023,11 @@ const EmbedAsk = () => {
                 </div>
               </div>
 
+              {weatherPayload && (
+                <EmbedWeatherWidget data={weatherPayload} lang={lang} />
+              )}
+
+
               {articleCard?.inline && mapPayload && mapPayload.businesses.length > 0 && (() => {
                 const pois = mapPayload.businesses
                   .filter((b) => b.latitude != null && b.longitude != null)
