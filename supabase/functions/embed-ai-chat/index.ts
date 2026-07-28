@@ -2191,9 +2191,7 @@ Deno.serve(async (req) => {
                 if (!rec) return sd ? (sd <= toDate && (ed ?? sd) >= fromDate) : false;
                 if (rec === "daily") return true;
                 if (rec === "weekly") {
-                  const dows: number[] = Array.isArray(e.days_of_week) ? e.days_of_week.map((n: any) => Number(n)) : [];
                   if (!dows.length) return true;
-                  // scan every day in window (small window)
                   for (let t = fromDate.getTime(); t <= toDate.getTime(); t += 86400000) {
                     const d = new Date(t).getUTCDay();
                     if (dows.includes(d)) return true;
