@@ -54,7 +54,7 @@ interface MapSlidePanelProps {
   hostLocation?: { lat: number; lng: number } | null;
   hostLabel?: string;
   /** Optional theme for the underlying Google Map tiles ("light" | "dark"). */
-  mapTheme?: "light" | "dark";
+  mapTheme?: "light" | "dark" | "default-light" | "default-dark";
 }
 
 const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
@@ -214,6 +214,7 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
         {/* Map fills the panel; toolbar floats on top */}
         <div className="relative flex-1">
           <PoiGoogleMap
+            key={`map-${mapTheme || "light"}`}
             pois={displayedPois}
             selectedPoiId={selectedId}
             onPoiClick={(id) => setSelectedId(id)}

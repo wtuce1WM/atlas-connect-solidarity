@@ -10,15 +10,20 @@ import { getStoredConsent, setConsent } from "@/lib/analytics";
 const CookieBanner = () => {
   const [visible, setVisible] = useState(false);
 
+  // Neutralisée dans les routes /embed/ (l'iframe est hébergée par le partenaire,
+  // qui gère son propre consentement cookies).
+  const isEmbed = typeof window !== "undefined" && window.location.pathname.startsWith("/embed/");
+
   useEffect(() => {
+    if (isEmbed) return;
     // Affichage différé pour ne pas concurrencer le LCP du hero
     const id = window.setTimeout(() => {
       if (!getStoredConsent()) setVisible(true);
     }, 1200);
     return () => window.clearTimeout(id);
-  }, []);
+  }, [isEmbed]);
 
-  if (!visible) return null;
+  if (isEmbed || !visible) return null;
 
   const decide = (choice: "granted" | "denied") => {
     setConsent(choice);
