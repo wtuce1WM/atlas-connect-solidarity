@@ -22,9 +22,11 @@ import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 const DestinationSlidePanel = lazy(() => import("@/components/DestinationSlidePanel"));
 const PoiGoogleMap = lazy(() => import("@/components/PoiGoogleMap"));
+const LocationPickerDialog = lazy(() => import("@/components/LocationPickerDialog"));
 import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedCardCarousel";
 import { Maximize2 } from "lucide-react";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
+import { useGeolocation } from "@/hooks/useGeolocation";
 
 // EmbedMediaBottomBar (Pause/Mute) removed — the BookOnlineSlidePanel now renders
 // its own liquid-glass PanelSearchBar with 6 CTAs and integrated video controls.
@@ -373,6 +375,14 @@ const EmbedAsk = () => {
   const [hostLocation, setHostLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [locationOpen, setLocationOpen] = useState(false);
+  const geo = useGeolocation();
+
+  useEffect(() => {
+    const h = () => setLocationOpen(true);
+    window.addEventListener("open-location-picker", h);
+    return () => window.removeEventListener("open-location-picker", h);
+  }, []);
 
   type FollowupRow = { id: string; label_fr: string; label_en: string | null; label_ar: string | null };
   type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[] };
@@ -1576,6 +1586,31 @@ const EmbedAsk = () => {
           </Suspense>
         </div>
       )}
+      <Suspense fallback={null}>
+        <LocationPickerDialog
+          open={locationOpen}
+          onOpenChange={setLocationOpen}
+          coords={geo.coords}
+          detectedCity={geo.confirmedAddress || geo.detectedCity}
+          isEnabled={geo.isEnabled}
+          isDetecting={geo.isDetecting}
+          onUseCurrentPosition={() => {
+            if (!geo.isEnabled) geo.accept();
+          }}
+          onConfirm={(confirmedCoords, address) => {
+            geo.setManualLocation(confirmedCoords, address);
+          }}
+          onDisableGeo={() => {
+            try {
+              localStorage.removeItem("geo_manual_coords");
+              localStorage.removeItem("geo_manual_address");
+            } catch {
+              /* noop */
+            }
+            geo.decline();
+          }}
+        />
+      </Suspense>
     </div>
   );
 };
