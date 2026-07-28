@@ -1594,6 +1594,9 @@ const EmbedAsk = () => {
           detectedCity={geo.confirmedAddress || geo.detectedCity}
           isEnabled={geo.isEnabled}
           isDetecting={geo.isDetecting}
+          hostLocation={hostLocation}
+          hostLabel={businessName}
+          theme={theme}
           onUseCurrentPosition={() => {
             if (!geo.isEnabled) geo.accept();
           }}
