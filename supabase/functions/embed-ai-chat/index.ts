@@ -2525,6 +2525,34 @@ Deno.serve(async (req) => {
           if (/(على (?:ال)?خريطة|في (?:ال)?خريطة|أرني.*خريطة)/.test(t)) return true;
           return false;
         };
+
+        // Deterministic: WEATHER — appelle get-weather directement pour la ville de l'établissement hôte.
+        if (isWeatherIntent(userMessage)) {
+          try {
+            const city = host.city || "Marrakech";
+            const { data, error } = await admin.functions.invoke("get-weather", { body: { city } });
+            if (!error && data && !data.error) {
+              const w = data as any;
+              const desc = String(w.description || "").trim();
+              const reply = language === "en"
+                ? `In **${w.city_name || city}**, it's currently **${w.temp}°C** (feels ${w.feels_like}°C) — ${desc}. Min ${w.temp_min}° / max ${w.temp_max}°, humidity ${w.humidity}%, wind ${w.wind_speed} km/h.`
+                : language === "ar"
+                  ? `في **${w.city_name || city}**، الحرارة الآن **${w.temp}°م** (محسوسة ${w.feels_like}°م) — ${desc}. الصغرى ${w.temp_min}° / الكبرى ${w.temp_max}°، الرطوبة ${w.humidity}%، الرياح ${w.wind_speed} كم/س.`
+                  : `À **${w.city_name || city}**, il fait actuellement **${w.temp}°C** (ressenti ${w.feels_like}°C) — ${desc}. Min ${w.temp_min}° / max ${w.temp_max}°, humidité ${w.humidity}%, vent ${w.wind_speed} km/h.`;
+              emitDelta(reply);
+              finalText = reply;
+              toolsCalledLog.push({ name: "get_weather", args: { city }, ok: true });
+              endText();
+              await logTurn({ finalText, streamCompleted: true });
+              return;
+            }
+            console.error("[embed-ai-chat] weather_route_error", error || data?.error);
+          } catch (e) {
+            console.error("[embed-ai-chat] weather_route_exception", e);
+          }
+          // fall through to LLM if weather fetch failed
+        }
+
         if (isMapReplayIntent(userMessage)) {
           // Walk backwards through prior assistant messages to find a SHOW_ON_MAP marker.
           let mapJson: any = null;
