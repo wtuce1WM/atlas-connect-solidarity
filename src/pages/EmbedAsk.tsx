@@ -266,13 +266,14 @@ type PinnedBusinessCard = {
   review?: { author?: string | null; rating?: number | null; text?: string | null; source?: string | null } | null;
 };
 
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[] } {
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[] } {
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
   const articles: ArticleCardPayload[] = [];
   const destinations: DestinationsPayload[] = [];
-  if (!text) return { clean: text, maps, events, known, articles, destinations };
+  const pinned: PinnedBusinessCard[] = [];
+  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned };
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -303,6 +304,12 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
       if (p && Array.isArray(p.destinations) && p.destinations.length) destinations.push({ title: p.title ?? null, destinations: p.destinations });
     } catch { /* */ }
     return "";
+  }).replace(PINNED_RE, (_m, raw) => {
+    try {
+      const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (Array.isArray(p)) for (const b of p) if (b?.id && b?.name) pinned.push(b as PinnedBusinessCard);
+    } catch { /* */ }
+    return "";
   });
   clean = clean
     .replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "")
@@ -310,8 +317,9 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--KNOWN_BUSINESSES:[\s\S]*$/g, "")
     .replace(/<!--ARTICLE_CARD:[\s\S]*$/g, "")
     .replace(/<!--DESTINATION_CARDS:[\s\S]*$/g, "")
+    .replace(/<!--PINNED_BUSINESS_CARDS:[\s\S]*$/g, "")
     .trim();
-  return { clean, maps, events, known, articles, destinations };
+  return { clean, maps, events, known, articles, destinations, pinned };
 }
 
 // Concatenate all text parts of a UIMessage into a single string.
