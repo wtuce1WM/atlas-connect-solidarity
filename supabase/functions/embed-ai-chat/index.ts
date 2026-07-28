@@ -2696,7 +2696,7 @@ Deno.serve(async (req) => {
               };
               const marker = `\n\n<!--WEATHER_FORECAST:${JSON.stringify(weatherJson)}-->`;
 
-              emitDelta(L);
+              emitDelta(L + marker);
               finalText = L + marker;
               toolsCalledLog.push({ name: "get_weather", args: { city }, ok: true });
 
