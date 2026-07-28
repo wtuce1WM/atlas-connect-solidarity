@@ -3367,8 +3367,18 @@ Deno.serve(async (req) => {
               const result = await runTool(fname, fargs);
               rememberSearchResult(fname, fargs, result);
               if (fname === "show_on_map" && (result as any)?.ok && Array.isArray((result as any).businesses)) {
-                lastMapPayload = { title: (result as any).title || null, businesses: (result as any).businesses };
-                for (const b of (result as any).businesses) {
+                const incoming = (result as any).businesses as any[];
+                // Do NOT shrink an existing carousel: if search_businesses already
+                // returned e.g. 10 results and the LLM only cites 2 via show_on_map,
+                // keep the full list so miniatures match the disclosure ("10 sur 30").
+                const existingCount = Array.isArray(lastMapPayload?.businesses) ? lastMapPayload.businesses.length : 0;
+                if (incoming.length >= existingCount) {
+                  lastMapPayload = { title: (result as any).title || null, businesses: incoming };
+                } else if (lastMapPayload) {
+                  // Preserve prior list, just update the title if the LLM provided one.
+                  lastMapPayload = { title: (result as any).title || lastMapPayload.title || null, businesses: lastMapPayload.businesses };
+                }
+                for (const b of incoming) {
                   if (b?.id && b?.name) knownBusinesses.push({ id: b.id, slug: b.slug || null, name: b.name });
                 }
               }
