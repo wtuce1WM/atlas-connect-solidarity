@@ -2239,12 +2239,12 @@ Deno.serve(async (req) => {
               }
 
               // Fetch linked business names — prefer default_business_id, fall back to event_businesses
-              const eventIds = results.map((e: any) => e.id).filter(Boolean) as string[];
+              const resultEventIds = results.map((e: any) => e.id).filter(Boolean) as string[];
               const linkedByEvent = new Map<string, string>(); // event_id -> business_id
               for (const e of results) {
                 if (e.default_business_id) linkedByEvent.set(e.id, e.default_business_id);
               }
-              const missingEventIds = eventIds.filter((id) => !linkedByEvent.has(id));
+              const missingEventIds = resultEventIds.filter((id) => !linkedByEvent.has(id));
               if (missingEventIds.length) {
                 const { data: ebRows } = await admin
                   .from("event_businesses")
