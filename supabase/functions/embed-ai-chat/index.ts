@@ -1294,6 +1294,8 @@ function isReserveCta(cta: string | null | undefined, mode: string | null | unde
   if (!n) return false;
   if (/reserv/.test(n)) return true; // reserve / reservez / reserver_en_ligne / reservation
   if (/\bbook(?:ing)?\b/.test(n)) return true;
+  if (/billet/.test(n)) return true; // billetterie / billet en ligne / tickets
+  if (/\btickets?\b/.test(n)) return true;
   return false;
 }
 
@@ -1346,7 +1348,7 @@ async function buildBookingForBusinesses(admin: any, ids: string[], lang: "fr" |
   if (!ids.length) return null;
   const { data, error } = await admin
     .from("businesses")
-    .select("id, name, city, neighborhood, phone, whatsapp, reserve_now_url, reserve_now_cta, presentation_mode, online_shop_url, online_shop_cta, online_shop_presentation_mode, url_4, url_4_cta, url_4_presentation_mode, url_5, url_5_cta, url_5_presentation_mode")
+    .select("id, name, city, neighborhood, phone, whatsapp, hook_fr, hook_en, hook_ar, description, description_en, description_ar, reserve_now_url, reserve_now_cta, presentation_mode, online_shop_url, online_shop_cta, online_shop_presentation_mode, url_4, url_4_cta, url_4_presentation_mode, url_5, url_5_cta, url_5_presentation_mode, website, website_cta, url_4_title, url_5_title")
     .in("id", ids.slice(0, 20));
   if (error || !Array.isArray(data) || !data.length) return null;
 
@@ -1354,6 +1356,12 @@ async function buildBookingForBusinesses(admin: any, ids: string[], lang: "fr" |
   const ordered = ids.map((id) => byId.get(id)).filter(Boolean);
 
   const defaultLabel = lang === "en" ? "Book online" : lang === "ar" ? "احجز عبر الإنترنت" : "Réserver en ligne";
+  const pickHook = (b: any): string => {
+    const raw = lang === "en" ? (b.hook_en || b.hook_fr || b.description_en || b.description || "")
+      : lang === "ar" ? (b.hook_ar || b.hook_fr || b.description_ar || b.description || "")
+      : (b.hook_fr || b.hook_en || b.description || b.description_en || "");
+    return String(raw || "").replace(/\s+/g, " ").trim();
+  };
   const collectLinks = (b: any): { url: string; label: string }[] => {
     const out: { url: string; label: string }[] = [];
     const push = (url: any, cta: any, mode: any) => {
@@ -1370,42 +1378,47 @@ async function buildBookingForBusinesses(admin: any, ids: string[], lang: "fr" |
     return out;
   };
 
-  const bookable: { b: any; links: { url: string; label: string }[] }[] = [];
-  const contactOnly: any[] = [];
-  for (const b of ordered) {
-    const links = collectLinks(b);
-    if (links.length) bookable.push({ b, links });
-    else contactOnly.push(b);
-  }
-
-  if (!bookable.length && !contactOnly.length) return null;
-
   const intro = lang === "en"
     ? `Here's the online booking status for the results above:`
     : lang === "ar"
       ? `إليك حالة الحجز عبر الإنترنت للنتائج السابقة:`
       : `Voici le statut de réservation en ligne pour les résultats ci-dessus :`;
 
+  const yesOnline = lang === "en" ? "✅ Yes, you can book online" : lang === "ar" ? "✅ نعم، يمكنك الحجز عبر الإنترنت" : "✅ Oui, vous pouvez réserver en ligne";
+  const noOnline = lang === "en" ? "❌ No online booking — contact directly" : lang === "ar" ? "❌ لا حجز عبر الإنترنت — تواصل مباشرة" : "❌ Pas de réservation en ligne — contactez directement";
+  const phoneLbl = lang === "en" ? "Phone" : lang === "ar" ? "هاتف" : "Tél";
+  const waLbl = "WhatsApp";
+
   const blocks: string[] = [];
-  for (const { b, links } of bookable) {
+  for (const b of ordered) {
+    const links = collectLinks(b);
     const loc = [b.neighborhood, b.city].filter(Boolean).join(", ");
     const header = `**${b.name}**${loc ? ` — ${loc}` : ""}`;
-    const linksLine = links.map((c) => `[${c.label}](${c.url})`).join(" · ");
-    blocks.push(`- ${header}\n  · ${linksLine}`);
-  }
-  for (const b of contactOnly) {
-    const loc = [b.neighborhood, b.city].filter(Boolean).join(", ");
-    const header = `**${b.name}**${loc ? ` — ${loc}` : ""}`;
+    const hook = pickHook(b);
+    const status = links.length ? yesOnline : noOnline;
+
+    const parts: string[] = [];
+    parts.push(header);
+    if (hook) parts.push(hook);
+    parts.push(status);
+
+    if (links.length) {
+      const linksLine = links.map((c) => `[${c.label}](${c.url})`).join(" · ");
+      parts.push(linksLine);
+    }
+
     const contacts: string[] = [];
-    if (b.whatsapp) contacts.push(lang === "en" ? `WhatsApp ${b.whatsapp}` : lang === "ar" ? `واتساب ${b.whatsapp}` : `WhatsApp ${b.whatsapp}`);
-    if (b.phone) contacts.push(lang === "en" ? `phone ${b.phone}` : lang === "ar" ? `هاتف ${b.phone}` : `tél. ${b.phone}`);
-    const noOnline = lang === "en"
-      ? "No online booking"
-      : lang === "ar"
-        ? "لا حجز عبر الإنترنت"
-        : "Pas de réservation en ligne";
-    const line = contacts.length ? `${noOnline} — ${contacts.join(" · ")}` : noOnline;
-    blocks.push(`- ${header}\n  · ${line}`);
+    if (b.phone) {
+      const digits = String(b.phone).replace(/[^\d+]/g, "");
+      contacts.push(`📞 [${phoneLbl} ${b.phone}](tel:${digits})`);
+    }
+    if (b.whatsapp) {
+      const wa = String(b.whatsapp).replace(/\D/g, "");
+      contacts.push(`💬 [${waLbl} ${b.whatsapp}](https://wa.me/${wa})`);
+    }
+    if (contacts.length) parts.push(contacts.join(" · "));
+
+    blocks.push(parts.join("\n\n"));
   }
 
   const outro = lang === "en"
@@ -1414,7 +1427,7 @@ async function buildBookingForBusinesses(admin: any, ids: string[], lang: "fr" |
       ? `\n\nهل تريد أن أركز على الأماكن التي يمكنك حجزها الآن؟`
       : `\n\nJe me concentre sur ceux que tu peux réserver directement en ligne ?`;
 
-  return `${intro}\n\n${blocks.join("\n")}${outro}`;
+  return `${intro}\n\n${blocks.join("\n\n---\n\n")}${outro}`;
 }
 
 
