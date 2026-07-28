@@ -2341,7 +2341,7 @@ Deno.serve(async (req) => {
           try {
             const { data: pinnedRows } = await admin
               .from("businesses")
-              .select("id, name, slug, city, neighborhood, phone, whatsapp, computed_rating, total_review_count, main_image_url, images")
+              .select("id, name, slug, city, neighborhood, phone, whatsapp, computed_rating, total_review_count, images")
               .in("id", suggestionPinnedIds);
             const { data: defReviews } = await admin
               .from("reviews")
