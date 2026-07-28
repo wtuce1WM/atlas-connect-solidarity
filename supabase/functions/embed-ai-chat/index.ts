@@ -2170,7 +2170,7 @@ function buildContextualClosing(userMessage: string, lang: "fr" | "en" | "ar"): 
   return closingsFr[topic] || closingsFr.default;
 }
 
-
+function buildImmersiveBusinessAnswer(
   result: any,
   host: any,
   userMessage: string,
