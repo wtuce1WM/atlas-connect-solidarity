@@ -2238,39 +2238,57 @@ Deno.serve(async (req) => {
                 }
               }
 
-              // Fetch linked business names for default_business_id
-              const linkedBusinessIds = Array.from(new Set(
-                results.map((e: any) => e.default_business_id).filter(Boolean)
-              )) as string[];
+              // Fetch linked business names — prefer default_business_id, fall back to event_businesses
+              const eventIds = results.map((e: any) => e.id).filter(Boolean) as string[];
+              const linkedByEvent = new Map<string, string>(); // event_id -> business_id
+              for (const e of results) {
+                if (e.default_business_id) linkedByEvent.set(e.id, e.default_business_id);
+              }
+              const missingEventIds = eventIds.filter((id) => !linkedByEvent.has(id));
+              if (missingEventIds.length) {
+                const { data: ebRows } = await admin
+                  .from("event_businesses")
+                  .select("event_id,business_id")
+                  .in("event_id", missingEventIds);
+                for (const r of ebRows || []) {
+                  const eid = (r as any).event_id;
+                  const bid = (r as any).business_id;
+                  if (eid && bid && !linkedByEvent.has(eid)) linkedByEvent.set(eid, bid);
+                }
+              }
+              const allBizIds = Array.from(new Set(Array.from(linkedByEvent.values())));
               const bizNameById = new Map<string, string>();
-              if (linkedBusinessIds.length) {
+              if (allBizIds.length) {
                 const { data: bizRows } = await admin
                   .from("businesses")
                   .select("id,name")
-                  .in("id", linkedBusinessIds);
+                  .in("id", allBizIds);
                 for (const b of bizRows || []) {
                   if ((b as any).id) bizNameById.set((b as any).id, (b as any).name || "");
                 }
               }
 
-              results = results.map((e: any) => ({
-                id: e.id, name: e.name, hook: e.hook,
-                start_date: e.start_date, end_date: e.end_date,
-                recurrence: e.recurrence, days_of_week: e.days_of_week,
-                start_time: e.start_time, end_time: e.end_time,
-                city: e.cities?.name_fr || null,
-                neighborhood: e.neighborhoods?.name || null,
-                url: e.url || null,
-                sort_order: e.sort_order ?? null,
-                default_business_id: e.default_business_id || null,
-                business_name: e.default_business_id ? (bizNameById.get(e.default_business_id) || null) : null,
-                image: (() => {
-                  const firstImage = Array.isArray(e.images) ? e.images.filter(Boolean)[0] : null;
-                  const firstVideo = Array.isArray(e.videos) ? e.videos.filter(Boolean)[0] : null;
-                  return firstImage || (firstVideo ? thumbByUrl.get(firstVideo) || null : null);
-                })(),
-                video: Array.isArray(e.videos) ? e.videos[0] : null,
-              }));
+              results = results.map((e: any) => {
+                const bizId = linkedByEvent.get(e.id) || null;
+                return {
+                  id: e.id, name: e.name, hook: e.hook,
+                  start_date: e.start_date, end_date: e.end_date,
+                  recurrence: e.recurrence, days_of_week: e.days_of_week,
+                  start_time: e.start_time, end_time: e.end_time,
+                  city: e.cities?.name_fr || null,
+                  neighborhood: e.neighborhoods?.name || null,
+                  url: e.url || null,
+                  sort_order: e.sort_order ?? null,
+                  default_business_id: bizId,
+                  business_name: bizId ? (bizNameById.get(bizId) || null) : null,
+                  image: (() => {
+                    const firstImage = Array.isArray(e.images) ? e.images.filter(Boolean)[0] : null;
+                    const firstVideo = Array.isArray(e.videos) ? e.videos.filter(Boolean)[0] : null;
+                    return firstImage || (firstVideo ? thumbByUrl.get(firstVideo) || null : null);
+                  })(),
+                  video: Array.isArray(e.videos) ? e.videos[0] : null,
+                };
+              });
               if (!results.length) return { results: [], note: `Aucun événement trouvé entre ${from} et ${to}.` };
               return { results, period: { from, to }, city: targetCity || null };
             }
