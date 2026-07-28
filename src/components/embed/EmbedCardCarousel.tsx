@@ -85,7 +85,7 @@ export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) 
               )}
               <div className="absolute inset-x-0 bottom-0 p-2.5">
                 {it.overline && (
-                  <div className="text-[10.5px] uppercase tracking-wide font-semibold text-[#D4AF37] mb-0.5 line-clamp-1">
+                  <div className="text-[10.5px] uppercase tracking-wide font-semibold text-[#D4AF37] mb-0.5 break-words">
                     {it.overline}
                   </div>
                 )}
@@ -93,7 +93,7 @@ export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) 
                   {it.title}
                 </div>
                 {it.subtitle && (
-                  <div className="text-[11px] text-white/80 mt-0.5 line-clamp-1">
+                  <div className="text-[11px] text-white/80 mt-0.5 break-words">
                     {it.subtitle}
                   </div>
                 )}
