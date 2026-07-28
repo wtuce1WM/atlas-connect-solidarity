@@ -690,13 +690,15 @@ const EmbedAsk = () => {
   // Build conversation-wide dictionaries of businesses cited across all assistant messages.
   // - richByName: full rich data (images, coords, ratings) coming from a SHOW_ON_MAP payload.
   // - knownByName: minimal {id, slug, name} coming from a KNOWN_BUSINESSES marker.
-  const { richByName, knownByName } = useMemo(() => {
+  const { richByName, knownByName, destByName, allDestinations } = useMemo(() => {
     const rich = new Map<string, MapPanelBusiness>();
     const known = new Map<string, KnownBusiness>();
+    const dests = new Map<string, DestinationCard>();
+    const destList: DestinationCard[] = [];
     for (const m of messages) {
       if ((m as any).role !== "assistant") continue;
       const raw = messageText(m as any);
-      const { maps, known: k } = extractPayloads(raw);
+      const { maps, known: k, destinations: ds } = extractPayloads(raw);
       for (const p of maps) {
         for (const b of p.businesses || []) {
           if (b?.name) rich.set(String(b.name).toLowerCase().trim(), b);
@@ -705,8 +707,16 @@ const EmbedAsk = () => {
       for (const b of k) {
         if (b?.name) known.set(String(b.name).toLowerCase().trim(), b);
       }
+      for (const dp of ds) {
+        for (const d of dp.destinations || []) {
+          if (d?.name && !dests.has(String(d.name).toLowerCase().trim())) {
+            dests.set(String(d.name).toLowerCase().trim(), d);
+            destList.push(d);
+          }
+        }
+      }
     }
-    return { richByName: rich, knownByName: known };
+    return { richByName: rich, knownByName: known, destByName: dests, allDestinations: destList };
   }, [messages]);
 
   // Find businesses cited in a text (by name match), preserving order & deduped.
