@@ -3014,6 +3014,74 @@ Deno.serve(async (req) => {
           }
         }
 
+        const loadPriorBusinessIdsForThread = async (): Promise<string[]> => {
+          const immediate = extractPriorKnownBusinessIds(inMessages, host.id);
+          if (immediate.length) return immediate;
+
+          const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          if (!sessionId || !uuidRe.test(sessionId)) return [];
+
+          try {
+            const { data: trace } = await admin
+              .from("ai_chats")
+              .select("messages")
+              .eq("id", sessionId)
+              .maybeSingle();
+
+            const rawMessages = (trace as any)?.messages;
+            const rows: Msg[] = Array.isArray(rawMessages)
+              ? rawMessages
+                  .filter((m: any) => m && (m.role === "user" || m.role === "assistant"))
+                  .map((m: any) => ({ role: m.role, content: String(m.content || "") }))
+              : Array.isArray(rawMessages?.aiChat)
+                ? rawMessages.aiChat
+                    .filter((m: any) => m && (m.role === "user" || m.role === "assistant"))
+                    .map((m: any) => ({ role: m.role, content: String(m.content || "") }))
+                : [];
+
+            return extractPriorKnownBusinessIds(rows, host.id);
+          } catch (e) {
+            console.error("[embed-ai-chat] prior_thread_lookup_error", e);
+            return [];
+          }
+        };
+
+        // Deterministic ONLINE BOOKING must run before blog/suggestion routing.
+        // A follow-up like “On peut réserver en ligne ?” refers to the latest
+        // visible result set, not to the active suggestion nor to the host.
+        if (isBookingIntent(userMessage) || followupMode === "booking") {
+          const priorIds = await loadPriorBusinessIdsForThread();
+          if (priorIds.length) {
+            const answer = await buildBookingForBusinesses(admin, priorIds, language);
+            if (answer) {
+              const priorRows = orderByIds(await fetchPriorFull(admin, priorIds), priorIds);
+              if (priorRows.length) {
+                lastMapPayload = { title: null, businesses: priorRows };
+                for (const b of priorRows) {
+                  if (b?.id && b?.name) knownBusinesses.push({ id: b.id, slug: b.slug || null, name: b.name });
+                }
+              }
+              emitDelta(answer);
+              const trailing = emitTrailingMarkers();
+              finalText = answer + trailing;
+              toolsCalledLog.push({ name: "booking_lookup", args: { scope: "previous_results", count: priorIds.length, early: true }, ok: true });
+              endText();
+              await logTurn({ finalText, streamCompleted: true });
+              return;
+            }
+          }
+
+          if (!deterministicSubcategoryNames && !deterministicBadgeIds && !suggestionPinnedIds.length && !suggestionMode) {
+            const answer = buildBookingAnswer(host, language);
+            emitDelta(answer);
+            finalText = answer;
+            toolsCalledLog.push({ name: "booking_lookup", args: { scope: "host", early: true }, ok: true });
+            endText();
+            await logTurn({ finalText, streamCompleted: true });
+            return;
+          }
+        }
+
         // Deterministic WEATHER (early) — runs before blog grounding so a followup
         // like "Quelle est la météo prévue ?" always renders the immersive widget.
         if (isWeatherIntent(userMessage) || followupMode === "weather") {
