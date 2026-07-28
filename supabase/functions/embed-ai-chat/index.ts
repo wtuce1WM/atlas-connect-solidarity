@@ -1380,7 +1380,7 @@ async function buildBookingForBusinesses(admin: any, ids: string[], lang: "fr" |
   if (!ids.length) return null;
   const { data, error } = await admin
     .from("businesses")
-    .select("id, name, city, neighborhood, phone, whatsapp, hook_fr, hook_en, hook_ar, description, description_en, description_ar, reserve_now_url, reserve_now_cta, presentation_mode, online_shop_url, online_shop_cta, online_shop_presentation_mode, url_4, url_4_cta, url_4_presentation_mode, url_5, url_5_cta, url_5_presentation_mode, website, website_cta, url_4_title, url_5_title")
+    .select("id, name, city, neighborhood, phone, whatsapp, hook_fr, hook_en, hook_ar, description, description_en, description_ar, reserve_now_url, reserve_now_cta, presentation_mode, online_shop_url, online_shop_cta, online_shop_presentation_mode, url_4, url_4_cta, url_4_presentation_mode, url_5, url_5_cta, url_5_presentation_mode, website, website_cta")
     .in("id", ids.slice(0, 20));
   if (error || !Array.isArray(data) || !data.length) return null;
 
@@ -3048,17 +3048,6 @@ Deno.serve(async (req) => {
 
         const loadPriorBusinessIdsForThread = async (): Promise<string[]> => {
           const immediate = extractPriorKnownBusinessIds(inMessages, host.id);
-          console.error("[embed-ai-chat] booking_prior_probe", {
-            immediate_count: immediate.length,
-            roles: inMessages.map((m: any) => m.role),
-            assistant_marker_presence: inMessages
-              .filter((m: any) => m.role === "assistant")
-              .map((m: any) => ({
-                known: String(m.content || "").includes("KNOWN_BUSINESSES"),
-                map: String(m.content || "").includes("SHOW_ON_MAP"),
-                len: String(m.content || "").length,
-              })),
-          });
           if (immediate.length) return immediate;
 
           const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
