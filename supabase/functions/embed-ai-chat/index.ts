@@ -2775,7 +2775,7 @@ Deno.serve(async (req) => {
                       }));
                       lastMapPayload = { title, businesses: mapBusinesses };
 
-                      const answer = `${intro}\n\n${body}\n\n${disclosure}`;
+                      const answer = `${body}\n\n${disclosure}`;
                       emitDelta(answer);
                       const trailing = emitTrailingMarkers();
                       toolsCalledLog.push({ name: "blog_article_route", args: { slug: match.slug, shown: shown.length, total }, ok: true });
