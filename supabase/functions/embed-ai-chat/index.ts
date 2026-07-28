@@ -3369,6 +3369,64 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Deterministic: ENGAGEMENT / CERTIFICATION / COMMODITÉ FILTER on priors.
+        // Ex: "livraison glovo", "vegan", "wifi", "clef verte", "b-corp",
+        //     "commerce équitable", "accessible pmr", "paiement cash"…
+        {
+          const priorIdsForEng = extractPriorKnownBusinessIds(inMessages, host.id);
+          if (priorIdsForEng.length) {
+            const { data: engRows } = await admin
+              .from("businesses")
+              .select("id, name, slug, city, neighborhood, address, main_category, categories, latitude, longitude, logo_url, images, hook_fr, hook_en, hook_ar, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, computed_rating, total_review_count, engagements")
+              .in("id", priorIdsForEng);
+            const rows = Array.isArray(engRows) ? engRows : [];
+            const matched = matchEngagementsFromPriors(userMessage, rows);
+            if (matched.length) {
+              const matchedNorm = new Set(matched.map((m) => normalize(m)));
+              const filtered = rows.filter((r: any) =>
+                (r.engagements || []).some((e: string) => matchedNorm.has(normalize(stripEngPrefix(e))))
+              );
+              if (filtered.length) {
+                const priorOrder = new Map(priorIdsForEng.map((id, i) => [id, i]));
+                filtered.sort((a: any, b: any) => (priorOrder.get(a.id) ?? 999) - (priorOrder.get(b.id) ?? 999));
+                const shown = filtered.slice(0, 10);
+                const badges = matched.slice(0, 4).map((m) => `\`${m}\``).join(" · ");
+                const hookFor = (b: any) =>
+                  language === "en" ? (b.hook_en || b.hook_fr) :
+                  language === "ar" ? (b.hook_ar || b.hook_fr) : b.hook_fr;
+                const intro =
+                  language === "en"
+                    ? `Filtering previous picks on ${badges}:`
+                    : language === "ar"
+                      ? `تصفية النتائج السابقة حسب ${badges}:`
+                      : `Je filtre les résultats précédents sur ${badges} :`;
+                const lines = shown.map((b: any, i: number) => {
+                  const hk = String(hookFor(b) || "").trim();
+                  const own = (b.engagements || [])
+                    .map((e: string) => stripEngPrefix(e))
+                    .filter((raw: string) => matchedNorm.has(normalize(raw)));
+                  const tagLine = own.length ? ` — ${own.map((t: string) => `\`${t}\``).join(" · ")}` : "";
+                  return `${i + 1}. **${b.name}**${tagLine}${hk ? `\n${hk}` : ""}`;
+                });
+                const closing = language === "en"
+                  ? `\n\nWant me to narrow further, or broaden to the full city?`
+                  : language === "ar"
+                    ? `\n\nهل تريد التصفية أكثر أو التوسيع على المدينة كاملة؟`
+                    : `\n\nTu veux affiner encore, ou réélargir à toute la ville ?`;
+                const answer = `${intro}\n\n${lines.join("\n\n")}${closing}${toMapMarker(shown)}`;
+                emitDelta(answer);
+                toolsCalledLog.push({ name: "engagement_filter_priors", args: { matched, count: filtered.length }, ok: true });
+                endText();
+                await logTurn({ finalText: answer, streamCompleted: true });
+                return;
+              }
+            }
+          }
+        }
+
+
+
+
 
 
         // Deterministic: NEIGHBORHOOD ROUTE.
