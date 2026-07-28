@@ -22,9 +22,11 @@ import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 const DestinationSlidePanel = lazy(() => import("@/components/DestinationSlidePanel"));
 const PoiGoogleMap = lazy(() => import("@/components/PoiGoogleMap"));
+const LocationPickerDialog = lazy(() => import("@/components/LocationPickerDialog"));
 import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedCardCarousel";
 import { Maximize2 } from "lucide-react";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
+import { useGeolocation } from "@/hooks/useGeolocation";
 
 // EmbedMediaBottomBar (Pause/Mute) removed — the BookOnlineSlidePanel now renders
 // its own liquid-glass PanelSearchBar with 6 CTAs and integrated video controls.
