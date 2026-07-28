@@ -13,6 +13,7 @@ import AiConversationPerf from "@/components/staff/AiConversationPerf";
 import EmbedUsageManagement from "@/components/staff/EmbedUsageManagement";
 import EmbedAiSuggestionsManagement from "@/components/staff/EmbedAiSuggestionsManagement";
 import EmbedAiFollowupsManagement from "@/components/staff/EmbedAiFollowupsManagement";
+import EmbedAiHowItWorks from "@/components/staff/EmbedAiHowItWorks";
 import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement";
 import KBViewer from "@/components/staff/KBViewer";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
