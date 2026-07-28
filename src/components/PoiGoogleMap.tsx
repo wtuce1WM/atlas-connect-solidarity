@@ -414,6 +414,32 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     map.setOptions({ styles: mapTheme === "dark" ? DARK_MAP_STYLES : LIGHT_MAP_STYLES });
   }, [mapTheme, ready, isNativeTheme]);
 
+  // Traffic / Transit layer toggles
+  useEffect(() => {
+    const gmaps = window.google?.maps;
+    const map = mapRef.current;
+    if (!gmaps || !map) return;
+    if (trafficOn) {
+      if (!trafficLayerRef.current) trafficLayerRef.current = new gmaps.TrafficLayer();
+      trafficLayerRef.current.setMap(map);
+    } else if (trafficLayerRef.current) {
+      trafficLayerRef.current.setMap(null);
+    }
+  }, [trafficOn, ready]);
+
+  useEffect(() => {
+    const gmaps = window.google?.maps;
+    const map = mapRef.current;
+    if (!gmaps || !map) return;
+    if (transitOn) {
+      if (!transitLayerRef.current) transitLayerRef.current = new gmaps.TransitLayer();
+      transitLayerRef.current.setMap(map);
+    } else if (transitLayerRef.current) {
+      transitLayerRef.current.setMap(null);
+    }
+  }, [transitOn, ready]);
+
+
   // Serialized key to detect when pois/center actually change (not just iconCache)
   const poisKey = useMemo(() => {
     const ids = pois.map(p => p.id).sort().join(",");
