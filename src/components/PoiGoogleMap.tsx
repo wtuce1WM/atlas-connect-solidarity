@@ -36,8 +36,10 @@ interface PoiGoogleMapProps {
   userLocation?: { lat: number; lng: number } | null;
   /** Label shown on the user geolocation marker. Defaults to "Vous êtes ici". */
   userMarkerLabel?: string;
-  /** Visual theme for the map tiles. "light" (default) uses the 1WM beige palette; "dark" uses a 1WM dark palette. */
-  mapTheme?: "light" | "dark";
+  /** Visual theme for the map tiles.
+   * "light" (default) → 1WM beige palette. "dark" → 1WM dark palette.
+   * "default-light" / "default-dark" → native Google Maps color scheme (no custom styles). */
+  mapTheme?: "light" | "dark" | "default-light" | "default-dark";
 }
 
 const LIGHT_MAP_STYLES: google.maps.MapTypeStyle[] = [
@@ -349,11 +351,13 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     });
   }, [pois, subcategoryIconMap]);
 
+  const isNativeTheme = mapTheme === "default-light" || mapTheme === "default-dark";
+
   // Init map
   useEffect(() => {
     const gmaps = window.google?.maps;
     if (!ready || !gmaps || !containerRef.current || mapRef.current) return;
-    mapRef.current = new gmaps.Map(containerRef.current, {
+    const opts: google.maps.MapOptions = {
       center: center || { lat: 31.63, lng: -7.98 },
       zoom: 13,
       mapTypeControl: false,
@@ -362,8 +366,15 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       zoomControl: false,
       gestureHandling: "greedy",
       clickableIcons: false,
-      styles: mapTheme === "dark" ? DARK_MAP_STYLES : LIGHT_MAP_STYLES,
-    });
+    };
+    if (isNativeTheme) {
+      // Native Google Maps color scheme (only honored at construction time).
+      (opts as any).colorScheme = mapTheme === "default-dark" ? "DARK" : "LIGHT";
+      opts.styles = [];
+    } else {
+      opts.styles = mapTheme === "dark" ? DARK_MAP_STYLES : LIGHT_MAP_STYLES;
+    }
+    mapRef.current = new gmaps.Map(containerRef.current, opts);
     infoWindowRef.current = new gmaps.InfoWindow();
     mapRef.current.addListener("click", () => {
       openInfoPoiIdRef.current = null;
@@ -377,12 +388,13 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     map.setOptions({ fullscreenControl: false });
   }, [ready]);
 
-  // Swap tile styles live when theme changes
+  // Swap tile styles live when theme changes (only for 1WM styled themes;
+  // native colorScheme is fixed at construction — parent must remount via key prop).
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
+    if (!map || isNativeTheme) return;
     map.setOptions({ styles: mapTheme === "dark" ? DARK_MAP_STYLES : LIGHT_MAP_STYLES });
-  }, [mapTheme, ready]);
+  }, [mapTheme, ready, isNativeTheme]);
 
   // Serialized key to detect when pois/center actually change (not just iconCache)
   const poisKey = useMemo(() => {

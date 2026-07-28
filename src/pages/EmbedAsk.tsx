@@ -1419,7 +1419,7 @@ const EmbedAsk = () => {
         disableUserLocation
         hostLocation={hostLocation}
         hostLabel={businessName}
-        mapTheme={theme}
+        mapTheme={theme === "dark" ? "default-dark" : "default-light"}
       />
 
       <EventsSlidePanel
