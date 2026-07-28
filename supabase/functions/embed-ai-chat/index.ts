@@ -64,8 +64,14 @@ function tokenizeForBlog(s: string): string[] {
     .split(/\s+/)
     .filter((t) => t.length >= 3 && !BLOG_STOPWORDS.has(t));
 }
-function matchBlogArticle(userText: string, lang: "fr" | "en" | "ar", posts: BlogRow[], hostId: string): BlogRow | null {
-  const qTokens = new Set(tokenizeForBlog(userText));
+function matchBlogArticle(userText: string, lang: "fr" | "en" | "ar", posts: BlogRow[], hostId: string, hostName?: string | null): BlogRow | null {
+  // Strip host business name tokens from BOTH sides so that follow-ups mentioning
+  // "{businessName}" don't auto-match owner articles that contain the same name
+  // in their title (e.g. "…proches de Riad Dar Najat"). The match must rely on
+  // editorial/topical overlap only.
+  const hostTokens = new Set(tokenizeForBlog(hostName || ""));
+  const stripHost = (tokens: string[]) => tokens.filter((t) => !hostTokens.has(t));
+  const qTokens = new Set(stripHost(tokenizeForBlog(userText)));
   if (qTokens.size < 2) return null;
   let best: { row: BlogRow; score: number; overlap: number; owner: boolean } | null = null;
   for (const p of posts) {
@@ -73,7 +79,7 @@ function matchBlogArticle(userText: string, lang: "fr" | "en" | "ar", posts: Blo
     if (!titles.length) continue;
     let bestForRow = 0, bestOverlap = 0;
     for (const t of titles) {
-      const tTokens = new Set(tokenizeForBlog(t));
+      const tTokens = new Set(stripHost(tokenizeForBlog(t)));
       if (tTokens.size < 2) continue;
       let overlap = 0;
       for (const w of qTokens) if (tTokens.has(w)) overlap++;
@@ -2367,7 +2373,7 @@ Deno.serve(async (req) => {
             const lastUserText = lastUserMsg?.role === "user" ? extractTextFromUIMessage(lastUserMsg) : "";
             if (lastUserText && lastUserText.trim().length >= 6) {
               const posts = await fetchBlogPostsCached(admin);
-              const match = matchBlogArticle(lastUserText, language, posts, host.id);
+              const match = matchBlogArticle(lastUserText, language, posts, host.id, host.name);
               if (match) {
                 const title =
                   (language === "en" && match.title_en) ||
