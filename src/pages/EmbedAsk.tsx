@@ -1451,6 +1451,7 @@ const EmbedAsk = () => {
         hostLocation={hostLocation}
         hostLabel={businessName}
         mapTheme={theme === "dark" ? "default-dark" : "default-light"}
+        showLayerControls
       />
 
       <EventsSlidePanel
