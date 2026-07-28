@@ -24,6 +24,7 @@ const DestinationSlidePanel = lazy(() => import("@/components/DestinationSlidePa
 const PoiGoogleMap = lazy(() => import("@/components/PoiGoogleMap"));
 import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedCardCarousel";
 import { Maximize2 } from "lucide-react";
+import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 
 /**
  * Liquid-glass bottom bar overlaying BookOnlineSlidePanel in the embed:
@@ -248,6 +249,7 @@ const KNOWN_RE = /<!--KNOWN_BUSINESSES:([\s\S]*?)-->/g;
 const ARTICLE_RE = /<!--ARTICLE_CARD:([\s\S]*?)-->/g;
 const DEST_RE = /<!--DESTINATION_CARDS:([\s\S]*?)-->/g;
 const PINNED_RE = /<!--PINNED_BUSINESS_CARDS:([\s\S]*?)-->/g;
+const WEATHER_RE = /<!--WEATHER_FORECAST:([\s\S]*?)-->/g;
 
 type MapPayload = { title?: string | null; businesses: MapPanelBusiness[] };
 type EventsPayload = { title?: string | null; city?: string | null; events: EventPanelItem[] };
@@ -269,14 +271,15 @@ type PinnedBusinessCard = {
   review?: { author?: string | null; rating?: number | null; text?: string | null; source?: string | null } | null;
 };
 
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[] } {
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[] } {
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
   const articles: ArticleCardPayload[] = [];
   const destinations: DestinationsPayload[] = [];
   const pinned: PinnedBusinessCard[] = [];
-  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned };
+  const weather: WeatherPayload[] = [];
+  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather };
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -313,6 +316,12 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
       if (Array.isArray(p)) for (const b of p) if (b?.id && b?.name) pinned.push(b as PinnedBusinessCard);
     } catch { /* */ }
     return "";
+  }).replace(WEATHER_RE, (_m, raw) => {
+    try {
+      const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (p && typeof p.temp === "number") weather.push(p as WeatherPayload);
+    } catch { /* */ }
+    return "";
   });
   clean = clean
     .replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "")
@@ -321,9 +330,10 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--ARTICLE_CARD:[\s\S]*$/g, "")
     .replace(/<!--DESTINATION_CARDS:[\s\S]*$/g, "")
     .replace(/<!--PINNED_BUSINESS_CARDS:[\s\S]*$/g, "")
+    .replace(/<!--WEATHER_FORECAST:[\s\S]*$/g, "")
     .trim();
   clean = linkifyPhones(clean);
-  return { clean, maps, events, known, articles, destinations, pinned };
+  return { clean, maps, events, known, articles, destinations, pinned, weather };
 }
 
 // Convert bare phone / WhatsApp numbers found in AI markdown into clickable links.
@@ -943,12 +953,13 @@ const EmbedAsk = () => {
             );
           }
           const raw = messageText(m);
-          const { clean, maps, events, articles, destinations, pinned } = extractPayloads(raw);
+          const { clean, maps, events, articles, destinations, pinned, weather } = extractPayloads(raw);
           const mapPayload = maps[maps.length - 1] || null;
           const eventsPayload = events[events.length - 1] || null;
           const articleCard = articles[articles.length - 1] || null;
           const destinationsPayload = destinations[destinations.length - 1] || null;
           const pinnedCards = pinned;
+          const weatherPayload = weather[weather.length - 1] || null;
           const isLast = i === messages.length - 1;
           const citedFallback =
             !mapPayload || mapPayload.businesses.length === 0
@@ -1011,6 +1022,11 @@ const EmbedAsk = () => {
                   </ReactMarkdown>
                 </div>
               </div>
+
+              {weatherPayload && (
+                <EmbedWeatherWidget data={weatherPayload} lang={lang} />
+              )}
+
 
               {articleCard?.inline && mapPayload && mapPayload.businesses.length > 0 && (() => {
                 const pois = mapPayload.businesses
