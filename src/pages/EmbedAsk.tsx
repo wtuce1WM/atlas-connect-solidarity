@@ -187,10 +187,10 @@ const EmbedBookPanelWrapper = ({
   );
 };
 
-const SCOPE_LABELS: Record<string, { filter: string; broaden: string }> = {
-  fr: { filter: "Filtrer parmi ces résultats", broaden: "Élargir la recherche" },
-  en: { filter: "Filter these results", broaden: "Broaden the search" },
-  ar: { filter: "تصفية هذه النتائج", broaden: "توسيع البحث" },
+const SCOPE_LABELS: Record<string, { filter: string; broaden: string; newConversation: string }> = {
+  fr: { filter: "Filtrer parmi ces résultats", broaden: "Élargir la recherche", newConversation: "Nouvelle conversation" },
+  en: { filter: "Filter these results", broaden: "Broaden the search", newConversation: "New conversation" },
+  ar: { filter: "تصفية هذه النتائج", broaden: "توسيع البحث", newConversation: "محادثة جديدة" },
 };
 
 const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
@@ -1365,6 +1365,13 @@ const EmbedAsk = () => {
                 </button>
               );
             })}
+            <button
+              type="button"
+              onClick={startNewConversation}
+              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${cardBg} ${border} hover:opacity-90`}
+            >
+              {SCOPE_LABELS[lang]?.newConversation ?? SCOPE_LABELS.fr.newConversation}
+            </button>
           </div>
         )}
         <div className={`flex items-end gap-2 rounded-2xl border ${border} ${inputBg} px-3 py-2`}>
