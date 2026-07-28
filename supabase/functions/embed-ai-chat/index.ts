@@ -2063,10 +2063,22 @@ Deno.serve(async (req) => {
           const lastUser = uiMessages[uiMessages.length - 1];
           const lastUserText = lastUser?.role === "user" ? extractTextFromUIMessage(lastUser) : "";
           const norm = (s: string) => s.toLowerCase().replace(/\s+/g, " ").replace(/[?!.\s]+$/g, "").trim();
-          const isInitialClick = suggestionLabel && norm(lastUserText) === norm(suggestionLabel);
-          // Explicit user scope overrides the heuristic:
-          //  - "broaden" → always drop the deterministic force (fresh city-wide search).
-          //  - "filter"  → always keep it (narrow among the current suggestion thread).
+          const isInitialClick = !!(suggestionLabel && norm(lastUserText) === norm(suggestionLabel));
+
+          // Pinned businesses / destinations / mode are cited ONLY on the very
+          // first AI response (initial suggestion click). Any subsequent turn
+          // — free-text refinement, follow-up, broaden/filter — drops them so
+          // the linked establishments are never re-appended below new answers.
+          if (!isInitialClick) {
+            suggestionPinnedIds = [];
+            suggestionMode = null;
+            suggestionDestinationIds = [];
+          }
+
+          // Explicit user scope overrides the heuristic for the deterministic
+          // taxonomic scope (subcats / badges / curated proximity):
+          //  - "broaden" → always drop it (fresh city-wide search).
+          //  - "filter"  → always keep it (narrow within the current thread).
           const shouldDrop =
             scope === "broaden"
               ? true
@@ -2076,10 +2088,7 @@ Deno.serve(async (req) => {
           if (shouldDrop) {
             deterministicSubcategoryNames = null;
             deterministicBadgeIds = null;
-            suggestionPinnedIds = [];
-            suggestionMode = null;
             curatedProximity = null;
-            suggestionDestinationIds = [];
           }
         }
 
