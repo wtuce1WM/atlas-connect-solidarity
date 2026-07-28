@@ -3048,6 +3048,17 @@ Deno.serve(async (req) => {
 
         const loadPriorBusinessIdsForThread = async (): Promise<string[]> => {
           const immediate = extractPriorKnownBusinessIds(inMessages, host.id);
+          console.error("[embed-ai-chat] booking_prior_probe", {
+            immediate_count: immediate.length,
+            roles: inMessages.map((m: any) => m.role),
+            assistant_marker_presence: inMessages
+              .filter((m: any) => m.role === "assistant")
+              .map((m: any) => ({
+                known: String(m.content || "").includes("KNOWN_BUSINESSES"),
+                map: String(m.content || "").includes("SHOW_ON_MAP"),
+                len: String(m.content || "").length,
+              })),
+          });
           if (immediate.length) return immediate;
 
           const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
