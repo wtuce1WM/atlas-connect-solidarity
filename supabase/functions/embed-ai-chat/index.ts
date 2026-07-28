@@ -2906,10 +2906,20 @@ Deno.serve(async (req) => {
             };
             const pick = <T,>(fr: T, en: T, ar: T): T =>
               language === "en" ? (en ?? fr) : language === "ar" ? (ar ?? fr) : fr;
+            const stripHtml = (s: any) =>
+              String(s ?? "")
+                .replace(/<br\s*\/?>/gi, " ")
+                .replace(/<\/(p|div|li|h[1-6])>/gi, " ")
+                .replace(/<[^>]+>/g, " ")
+                .replace(/&nbsp;/gi, " ")
+                .replace(/&amp;/gi, "&")
+                .replace(/&(lt|gt|quot|#39);/gi, (_m, e) => ({ lt: "<", gt: ">", quot: '"', "#39": "'" } as any)[e])
+                .replace(/\s+/g, " ")
+                .trim();
             const dests = (destsRaw || []).map((d: any) => {
               const name = pick(d.name_fr, d.name_en, d.name_ar) || d.name_fr;
-              const hook = pick(d.hook_fr, d.hook_en, d.hook_ar) || d.hook_fr || null;
-              const description = pick(d.description_fr, d.description_en, d.description_ar) || d.description_fr || null;
+              const hook = stripHtml(pick(d.hook_fr, d.hook_en, d.hook_ar) || d.hook_fr) || null;
+              const description = stripHtml(pick(d.description_fr, d.description_en, d.description_ar) || d.description_fr) || null;
               const image =
                 d.image_url ||
                 (Array.isArray(d.images) && d.images.length > 0 ? d.images[0] : null);
@@ -2944,15 +2954,22 @@ Deno.serve(async (req) => {
             const hostName = host.name || "";
             const intro =
               language === "en"
-                ? `Here are ${dests.length} day-trip destinations you can reach from **${hostName}** — sorted by distance, closest first.`
+                ? `Here are ${dests.length} day-trip destinations you can reach from **${hostName}** — sorted by distance, closest first. Each name is clickable: tap it to open an immersive page with photos, context, and the excursion providers we've curated on the spot.`
                 : language === "ar"
-                ? `إليك ${dests.length} وجهة لرحلة يومية انطلاقاً من **${hostName}** — مرتبة حسب المسافة، الأقرب أولاً.`
-                : `Voici ${dests.length} destinations d'excursion à la journée au départ de **${hostName}** — classées par distance, la plus proche d'abord.`;
+                ? `إليك ${dests.length} وجهة لرحلة يومية انطلاقاً من **${hostName}** — مرتبة حسب المسافة، الأقرب أولاً. كل اسم قابل للنقر: اضغط عليه لفتح صفحة غامرة بالصور والسياق ومزودي الرحلات الذين اخترناهم على الأرض.`
+                : `Voici ${dests.length} destinations d'excursion à la journée au départ de **${hostName}** — classées par distance, la plus proche d'abord. Chaque nom est cliquable : ouvre une fiche immersive avec photos, contexte et les prestataires que nous avons sélectionnés sur place.`;
 
             const lines: string[] = [intro, ""];
-            for (const d of dests.slice(0, 15)) {
+            for (const d of dests.slice(0, 10)) {
               const dist = fmtDist(d.distKm);
-              const teaser = (d.hook || d.description || "").toString().trim().replace(/\s+/g, " ").slice(0, 220);
+              const raw = (d.hook || d.description || "").toString().trim();
+              // Longer immersive teaser: up to ~450 chars, cut on last sentence boundary.
+              let teaser = raw.slice(0, 480);
+              if (raw.length > 480) {
+                const lastDot = Math.max(teaser.lastIndexOf(". "), teaser.lastIndexOf("… "), teaser.lastIndexOf("! "), teaser.lastIndexOf("? "));
+                if (lastDot > 180) teaser = teaser.slice(0, lastDot + 1);
+                else teaser = teaser.replace(/[,;:\s]+$/, "") + "…";
+              }
               const distTag = dist
                 ? language === "en"
                   ? ` — ${dist} away`
@@ -2960,15 +2977,15 @@ Deno.serve(async (req) => {
                   ? ` — على بعد ${dist}`
                   : ` — à ${dist}`
                 : "";
-              lines.push(`- **${d.name}**${distTag}${teaser ? ` : ${teaser}` : ""}`);
+              lines.push(`**${d.name}**${distTag}${teaser ? ` — ${teaser}` : ""}`);
+              lines.push("");
             }
-            lines.push("");
             const closing =
               language === "en"
-                ? `Tap any destination to open its immersive page, or ask me for excursion providers linked to a specific spot.`
+                ? `Tap any bolded name above to open its immersive page, or ask me for excursion providers linked to a specific spot.`
                 : language === "ar"
-                ? `اضغط على أي وجهة لفتح صفحتها الغامرة، أو اسألني عن مزودي الرحلات لموقع محدد.`
-                : `Clique sur une destination pour ouvrir sa fiche immersive, ou demande-moi les prestataires d'excursions liés à un lieu précis.`;
+                ? `اضغط على أي اسم بارز أعلاه لفتح صفحته الغامرة، أو اسألني عن مزودي الرحلات لموقع محدد.`
+                : `Clique sur un nom en gras ci-dessus pour ouvrir la fiche immersive, ou demande-moi les prestataires d'excursions liés à un lieu précis.`;
             lines.push(closing);
 
             const answer = lines.join("\n");
