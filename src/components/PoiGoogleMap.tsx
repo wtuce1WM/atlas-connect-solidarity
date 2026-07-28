@@ -785,6 +785,28 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       <style>{`.gm-style { background-color: hsl(var(--map-surface)) !important; } .gm-style .gm-style-iw-chr { display: none !important; } .gm-style .gm-style-iw { padding: 0 !important; background: transparent !important; box-shadow: none !important; border-radius: 10px !important; } .gm-style .gm-style-iw-d { overflow: hidden !important; background: transparent !important; } .gm-style .gm-style-iw-tc { display: none !important; } .gm-style .gm-style-iw-t::after { display: none !important; } .gm-style .gm-fullscreen-control { display: none !important; } .gm-style .gm-bundled-control button[aria-label*="location" i], .gm-style .gm-bundled-control button[aria-label*="position" i], .gm-style .gm-bundled-control button[title*="location" i], .gm-style button.gm-control-active[draggable="false"][aria-label] { display: none !important; } .gm-style .gmnoprint[role="menubar"] ~ .gmnoprint:not([role]) { display: none !important; }`}</style>
       <div ref={mapShellRef} className="relative h-full w-full overflow-hidden bg-map-surface" style={{ opacity: mapOpacity, transition: "opacity 0.25s ease-in-out" }}>
         <div ref={containerRef} className="h-full w-full bg-map-surface" />
+        {showLayerControls && (
+          <div className="absolute bottom-3 left-3 z-10 flex gap-1.5">
+            <button
+              type="button"
+              onClick={() => setTrafficOn((v) => !v)}
+              className={`px-2.5 py-1 rounded-full text-[11px] font-semibold shadow-md backdrop-blur-sm transition-colors ${trafficOn ? "bg-black text-white" : "bg-white/90 text-black hover:bg-white"}`}
+              aria-pressed={trafficOn}
+              title="Trafic"
+            >
+              Trafic
+            </button>
+            <button
+              type="button"
+              onClick={() => setTransitOn((v) => !v)}
+              className={`px-2.5 py-1 rounded-full text-[11px] font-semibold shadow-md backdrop-blur-sm transition-colors ${transitOn ? "bg-black text-white" : "bg-white/90 text-black hover:bg-white"}`}
+              aria-pressed={transitOn}
+              title="Transports en commun"
+            >
+              Transports
+            </button>
+          </div>
+        )}
       </div>
     </>
   );
