@@ -2804,7 +2804,86 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Deterministic: NEIGHBORHOOD FILTER on prior results.
+        // Short refinement like "à Guéliz", "dans la Medina", "en Palmeraie",
+        // or a bare neighborhood name → filter the previous result set by that
+        // neighborhood instead of relaunching a fresh LLM search (which often
+        // drops the topical query and returns 0 or off-topic results).
+        {
+          const priorIdsForHood = extractPriorKnownBusinessIds(inMessages, host.id);
+          console.log("[hood_route] priorIds:", priorIdsForHood.length, "userMsg:", JSON.stringify(userMessage));
+          if (priorIdsForHood.length >= 2) {
+            const { data: priorRowsHood } = await admin
+              .from("businesses")
+              .select("id, name, slug, city, neighborhood, latitude, longitude, main_category, categories, address, hook_fr, hook_en, hook_ar, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, computed_rating, engagements")
+              .in("id", priorIdsForHood);
+            const rowsHood = Array.isArray(priorRowsHood) ? priorRowsHood : [];
+            const nq = normalize(userMessage);
+            const present = Array.from(new Set(rowsHood.map((r: any) => r.neighborhood).filter(Boolean))) as string[];
+            let matchedHood: string | null = null;
+            for (const n of present) {
+              const nn = normalize(n);
+              if (!nn || nn.length < 3) continue;
+              const re = new RegExp(`(^|[^\\p{L}\\p{N}])${nn.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^\\p{L}\\p{N}]|$)`, "u");
+              if (re.test(nq)) { matchedHood = n; break; }
+            }
+            const words = nq.split(/\s+/).filter(Boolean);
+            const looksLikeRefinement = words.length <= 5 || /\b(quartier|dans|a|en|sur|au|aux|neighborhood|district|in)\b/.test(nq);
+            if (matchedHood && looksLikeRefinement) {
+              const nn = normalize(matchedHood);
+              const filteredHood = rowsHood.filter((r: any) => normalize(r.neighborhood) === nn);
+              if (filteredHood.length) {
+                const priorOrder = new Map(priorIdsForHood.map((id, i) => [id, i]));
+                filteredHood.sort((a: any, b: any) => (priorOrder.get(a.id) ?? 999) - (priorOrder.get(b.id) ?? 999));
+                const shown = filteredHood.slice(0, 10);
+                const hookFor = (b: any) =>
+                  language === "en" ? (b.hook_en || b.hook_fr) :
+                  language === "ar" ? (b.hook_ar || b.hook_fr) : b.hook_fr;
+                const intro =
+                  language === "en"
+                    ? `Here are the previous picks located in **${matchedHood}**:`
+                    : language === "ar"
+                      ? `إليك العناوين السابقة الموجودة في **${matchedHood}**:`
+                      : `Voici les adresses des résultats précédents situées à **${matchedHood}** :`;
+                const lines = shown.map((b: any) => {
+                  const hk = String(hookFor(b) || "").trim();
+                  return hk ? `- **${b.name}** — ${hk}` : `- **${b.name}**`;
+                });
+                const disclosure = buildDisclosureFromCounts(shown.length, filteredHood.length, host.city || "Marrakech");
+                const closing =
+                  language === "en"
+                    ? `\n\nWant me to narrow further by vibe or moment of the day, or widen back to the full city?`
+                    : language === "ar"
+                      ? `\n\nهل تريد التصفية أكثر حسب الأجواء أو التوقيت، أو توسيع النطاق للمدينة كاملة؟`
+                      : `\n\nTu veux affiner par ambiance / moment de la journée, ou réélargir à toute la ville ?`;
+                const answer = `${intro}\n\n${lines.join("\n")}\n\n${disclosure}${closing}`;
+                const mapBusinesses = shown.map((b: any) => ({
+                  id: b.id, name: b.name, slug: b.slug, city: b.city, neighborhood: b.neighborhood,
+                  address: b.address, main_category: b.main_category, categories: b.categories,
+                  latitude: b.latitude, longitude: b.longitude,
+                  logo_url: b.logo_url ?? null,
+                  images: Array.isArray(b.images) ? b.images : [],
+                  hook_fr: b.hook_fr, hook_en: b.hook_en, hook_ar: b.hook_ar,
+                  google_rating: b.google_rating ?? null,
+                  google_review_count: b.google_review_count ?? null,
+                  tripadvisor_rating: b.tripadvisor_rating ?? null,
+                  tripadvisor_review_count: b.tripadvisor_review_count ?? null,
+                  engagements: Array.isArray(b.engagements) ? b.engagements : [],
+                }));
+                lastMapPayload = { title: `${matchedHood}`, businesses: mapBusinesses };
+                emitDelta(answer);
+                const trailing = emitTrailingMarkers();
+                toolsCalledLog.push({ name: "neighborhood_filter_priors", args: { neighborhood: matchedHood, count: filteredHood.length }, ok: true });
+                endText();
+                await logTurn({ finalText: answer + trailing, streamCompleted: true });
+                return;
+              }
+            }
+          }
+        }
+
         // Deterministic: HOURS — read opening_hours directly from DB, gated by show_opening_hours.
+
 
 
         if (isHoursIntent(userMessage)) {
