@@ -2634,13 +2634,34 @@ Deno.serve(async (req) => {
                 if (!curatedProximity) {
                   const { data: full } = await admin
                     .from("blog_posts")
-                    .select("entries_fr, entries_en, entries_ar")
+                    .select("entries_fr, entries_en, entries_ar, hero_subtitle_fr, hero_subtitle_en, hero_subtitle_ar, tldr_fr, tldr_en, tldr_ar, intro_fr, intro_en, intro_ar, excerpt_fr, excerpt_en, excerpt_ar")
                     .eq("id", match.id)
                     .maybeSingle();
+                  if (full) {
+                    for (const k of ["hero_subtitle_fr","hero_subtitle_en","hero_subtitle_ar","tldr_fr","tldr_en","tldr_ar","intro_fr","intro_en","intro_ar","excerpt_fr","excerpt_en","excerpt_ar"]) {
+                      (match as any)[k] = (full as any)[k];
+                    }
+                    // Recompute payload fields from full row
+                    articlePayload.tldr =
+                      (language === "en" && ((full as any).tldr_en || (full as any).excerpt_en)) ||
+                      (language === "ar" && ((full as any).tldr_ar || (full as any).excerpt_ar)) ||
+                      (full as any).tldr_fr || (full as any).tldr_en || (full as any).tldr_ar ||
+                      (full as any).excerpt_fr || (full as any).excerpt_en || (full as any).excerpt_ar || null;
+                    articlePayload.hook =
+                      (language === "en" && (full as any).hero_subtitle_en) ||
+                      (language === "ar" && (full as any).hero_subtitle_ar) ||
+                      (full as any).hero_subtitle_fr || (full as any).hero_subtitle_en || (full as any).hero_subtitle_ar || null;
+                    articlePayload.intro =
+                      (language === "en" && (full as any).intro_en) ||
+                      (language === "ar" && (full as any).intro_ar) ||
+                      (full as any).intro_fr || (full as any).intro_en || (full as any).intro_ar || null;
+                  }
                   const entriesRaw: any[] =
                     (language === "en" && Array.isArray(full?.entries_en) && full!.entries_en.length ? full!.entries_en : null) ||
                     (language === "ar" && Array.isArray(full?.entries_ar) && full!.entries_ar.length ? full!.entries_ar : null) ||
                     (Array.isArray(full?.entries_fr) ? full!.entries_fr : []) as any[];
+                  const entries = Array.isArray(entriesRaw) ? entriesRaw : [];
+                  const businessIds = entries.map((e: any) => e?.id).filter(Boolean).slice(0, 12);
                   const entries = Array.isArray(entriesRaw) ? entriesRaw : [];
                   const businessIds = entries.map((e: any) => e?.id).filter(Boolean).slice(0, 12);
 
