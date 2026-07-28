@@ -366,7 +366,19 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     const opts: google.maps.MapOptions = {
       center: center || { lat: 31.63, lng: -7.98 },
       zoom: 13,
-      mapTypeControl: false,
+      mapTypeControl: !!showLayerControls,
+      mapTypeControlOptions: showLayerControls
+        ? {
+            style: gmaps.MapTypeControlStyle.DROPDOWN_MENU,
+            position: gmaps.ControlPosition.TOP_RIGHT,
+            mapTypeIds: [
+              gmaps.MapTypeId.ROADMAP,
+              gmaps.MapTypeId.SATELLITE,
+              gmaps.MapTypeId.HYBRID,
+              gmaps.MapTypeId.TERRAIN,
+            ],
+          }
+        : undefined,
       streetViewControl: false,
       fullscreenControl: false,
       zoomControl: false,
