@@ -2600,9 +2600,18 @@ Deno.serve(async (req) => {
                   match.title_fr || match.title_en || match.title_ar || "";
                 const image = match.custom_hero_image_url || match.cover_image_url || null;
                 const tldr =
-                  (language === "en" && (match as any).excerpt_en) ||
-                  (language === "ar" && (match as any).excerpt_ar) ||
+                  (language === "en" && ((match as any).tldr_en || (match as any).excerpt_en)) ||
+                  (language === "ar" && ((match as any).tldr_ar || (match as any).excerpt_ar)) ||
+                  (match as any).tldr_fr || (match as any).tldr_en || (match as any).tldr_ar ||
                   (match as any).excerpt_fr || (match as any).excerpt_en || (match as any).excerpt_ar || null;
+                const hookText =
+                  (language === "en" && (match as any).hero_subtitle_en) ||
+                  (language === "ar" && (match as any).hero_subtitle_ar) ||
+                  (match as any).hero_subtitle_fr || (match as any).hero_subtitle_en || (match as any).hero_subtitle_ar || null;
+                const introText =
+                  (language === "en" && (match as any).intro_en) ||
+                  (language === "ar" && (match as any).intro_ar) ||
+                  (match as any).intro_fr || (match as any).intro_en || (match as any).intro_ar || null;
                 const articlePayload: any = {
                   id: match.id,
                   slug: match.slug,
@@ -2610,6 +2619,8 @@ Deno.serve(async (req) => {
                   image,
                   hero: image,
                   tldr,
+                  hook: hookText,
+                  intro: introText,
                   inline: false,
                   isOwner: match.anchor_business_id === host.id,
                 };
