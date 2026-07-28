@@ -2760,7 +2760,7 @@ Deno.serve(async (req) => {
                         const revLine = revText
                           ? `\n\n> « ${stripText(String(revText))} »\n> — _${rev.author_name || anonLabel}${rev.source ? ` · ${rev.source}` : ""}_`
                           : "";
-                        return `**${rank}. ${biz.name}**${area ? ` — _${area}_` : ""}\n\n${detail || fallback}${ratingLine}${revLine}${hoursLine}`;
+                        return `${rank}. **${biz.name}**${area ? ` — _${area}_` : ""}\n\n${detail || fallback}${ratingLine}${revLine}${hoursLine}`;
                       }).join("\n\n---\n\n");
 
                       const total = orderedBiz.length;
