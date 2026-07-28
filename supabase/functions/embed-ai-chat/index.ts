@@ -1379,10 +1379,10 @@ async function buildBookingForBusinesses(admin: any, ids: string[], lang: "fr" |
   };
 
   const intro = lang === "en"
-    ? `Here's the online booking status for the results above:`
+    ? `Here's which of these places let you book online right now, and how to reach the others directly:`
     : lang === "ar"
-      ? `إليك حالة الحجز عبر الإنترنت للنتائج السابقة:`
-      : `Voici le statut de réservation en ligne pour les résultats ci-dessus :`;
+      ? `إليك أي من هذه الأماكن يتيح الحجز عبر الإنترنت الآن، وكيفية التواصل مع الآخرين مباشرة:`
+      : `Voici lesquels de ces établissements permettent de réserver en ligne dès maintenant, et comment joindre les autres directement :`;
 
   const yesOnline = lang === "en" ? "✅ Yes, you can book online" : lang === "ar" ? "✅ نعم، يمكنك الحجز عبر الإنترنت" : "✅ Oui, vous pouvez réserver en ligne";
   const noOnline = lang === "en" ? "❌ No online booking — contact directly" : lang === "ar" ? "❌ لا حجز عبر الإنترنت — تواصل مباشرة" : "❌ Pas de réservation en ligne — contactez directement";
@@ -3759,11 +3759,11 @@ Deno.serve(async (req) => {
         }
 
         // Deterministic: ONLINE BOOKING — scan url_1..url_5 CTAs for a Reserve/Book label.
-        // Skip when the active suggestion carries a deterministic filter
-        // (subcategory/badge/pinned/mode) — those must route through
-        // search_businesses. Otherwise "Réserver un jet privé" would loop
-        // on the host business.
-        if (isBookingIntent(userMessage) && !deterministicSubcategoryNames && !deterministicBadgeIds && !suggestionPinnedIds.length && !suggestionMode) {
+        // When prior results exist in the thread, always describe THEIR booking
+        // status (works even with an active suggestion filter). Otherwise fall
+        // back to the host — but only if no deterministic filter is active,
+        // to avoid "Réserver un jet privé" looping on the host.
+        if (isBookingIntent(userMessage)) {
           const priorIds = extractPriorKnownBusinessIds(inMessages, host.id);
           if (priorIds.length) {
             const answer = await buildBookingForBusinesses(admin, priorIds, language);
@@ -3775,12 +3775,14 @@ Deno.serve(async (req) => {
               return;
             }
           }
-          const answer = buildBookingAnswer(host, language);
-          emitDelta(answer);
-          toolsCalledLog.push({ name: "booking_lookup", args: { scope: "host" }, ok: true });
-          endText();
-          await logTurn({ finalText: answer, streamCompleted: true });
-          return;
+          if (!deterministicSubcategoryNames && !deterministicBadgeIds && !suggestionPinnedIds.length && !suggestionMode) {
+            const answer = buildBookingAnswer(host, language);
+            emitDelta(answer);
+            toolsCalledLog.push({ name: "booking_lookup", args: { scope: "host" }, ok: true });
+            endText();
+            await logTurn({ finalText: answer, streamCompleted: true });
+            return;
+          }
         }
 
 
