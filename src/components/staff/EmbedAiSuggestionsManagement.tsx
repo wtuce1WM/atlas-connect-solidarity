@@ -394,9 +394,13 @@ const EmbedAiSuggestionsManagement = () => {
                   >
                     <option value="">Auto (LLM décide)</option>
                     <option value="events">📅 Events (search_events sur la ville hôte, badge_ids optionnels)</option>
+                    <option value="structure_front">🧭 Structure du Front (search_businesses ville hôte + sous-catégories/badges)</option>
+                    <option value="direct_viewer">📌 Direct viewer (carousel figé des business_ids ciblés)</option>
                   </select>
                   <p className="text-[11px] text-muted-foreground mt-1">
-                    <b>Events</b> : force <code>search_events</code> (ville de l'établissement + prochain week-end). Si <b>Badges ciblés</b> renseignés → filtre les events par ces badges ; sinon fallback #Agenda.
+                    <b>Events</b> : force <code>search_events</code> (ville + prochain week-end, filtré par <b>Badges ciblés</b> ou fallback #Agenda).<br />
+                    <b>Structure du Front</b> : force <code>search_businesses</code> dans la ville hôte avec les <b>sous-catégories</b> et <b>badges</b> ciblés (bypass LLM).<br />
+                    <b>Direct viewer</b> : affiche uniquement les <b>Établissements ciblés</b> dans l'ordre défini, en carousel figé (aucune recherche).
                   </p>
                 </div>
 
