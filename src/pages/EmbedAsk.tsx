@@ -1098,51 +1098,64 @@ const EmbedAsk = () => {
               )}
 
               {eventsPayload && eventsPayload.events.length > 0 && (() => {
+                // Même logique que /search #Agenda (formatEventDateRange / formatDaysOfWeek / formatTimeRange)
+                // mais localisée FR/EN/AR.
                 const locale = lang === "en" ? "en-GB" : lang === "ar" ? "ar-MA" : "fr-FR";
-                const fmtD = (d?: string | null) => {
-                  if (!d) return null;
+                const fmtDate = (d: string) => {
                   try {
-                    return new Date(d).toLocaleDateString(locale, { day: "numeric", month: "short" });
+                    return new Date(d).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" });
                   } catch { return d; }
                 };
-                const DAY_NAMES: Record<string, string[]> = {
-                  fr: ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."],
-                  en: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+                const formatEventDateRange = (start?: string | null, end?: string | null): string | null => {
+                  if (start && end && start !== end) return `${fmtDate(start)} → ${fmtDate(end)}`;
+                  if (start) return fmtDate(start);
+                  if (end) return fmtDate(end);
+                  return null;
+                };
+                // Jours: la DB stocke des noms textuels ("monday"/"lundi"...). On mappe -> index 0-6.
+                const DAY_INDEX: Record<string, number> = {
+                  sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6,
+                  dimanche: 0, lundi: 1, mardi: 2, mercredi: 3, jeudi: 4, vendredi: 5, samedi: 6,
+                };
+                const DAY_LABELS: Record<string, string[]> = {
+                  fr: ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"],
+                  en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
                   ar: ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"],
                 };
-                const fmtTime = (t?: string | null) => {
-                  if (!t) return "";
-                  const m = String(t).match(/^(\d{1,2}):(\d{2})/);
-                  return m ? `${m[1].padStart(2, "0")}h${m[2]}` : String(t);
+                const formatDaysOfWeek = (days?: any[] | null): string | null => {
+                  if (!days || !days.length) return null;
+                  const labels = DAY_LABELS[lang] || DAY_LABELS.fr;
+                  return days
+                    .map((d) => {
+                      if (typeof d === "number" && Number.isFinite(d)) return labels[d % 7];
+                      const key = String(d).trim().toLowerCase();
+                      const idx = DAY_INDEX[key];
+                      return typeof idx === "number" ? labels[idx] : String(d);
+                    })
+                    .join(" · ");
                 };
-                const fmtWhen = (ev: any) => {
-                  const parts: string[] = [];
-                  const dowRaw = Array.isArray(ev.days_of_week) ? ev.days_of_week : [];
-                  if (dowRaw.length) {
-                    const names = DAY_NAMES[lang] || DAY_NAMES.fr;
-                    const asNames = dowRaw.map((d: any) => {
-                      const n = typeof d === "number" ? d : parseInt(String(d), 10);
-                      return Number.isFinite(n) ? names[n % 7] : String(d);
-                    });
-                    parts.push(asNames.join(", "));
-                  } else {
-                    const a = fmtD(ev.start_date), b = fmtD(ev.end_date);
-                    if (a && b && ev.start_date !== ev.end_date) parts.push(`${a} → ${b}`);
-                    else if (a || b) parts.push(a || b || "");
-                  }
-                  const st = fmtTime(ev.start_time);
-                  const et = fmtTime(ev.end_time);
-                  if (st && et) parts.push(`${st}–${et}`);
-                  else if (st) parts.push(st);
-                  return parts.filter(Boolean).join(" · ");
+                const formatTimeRange = (start?: string | null, end?: string | null): string | null => {
+                  const trim = (t: string) => (t.length >= 5 ? t.slice(0, 5) : t);
+                  if (!start && !end) return null;
+                  if (start && end) return `${trim(start)} → ${trim(end)}`;
+                  return start ? trim(start) : end ? trim(end) : null;
                 };
                 const items: EmbedCardItem[] = eventsPayload.events.slice(0, 20).map((ev, idx) => {
-                  const when = fmtWhen(ev);
+                  const dateStr = formatEventDateRange(ev.start_date, ev.end_date);
+                  const daysStr = formatDaysOfWeek(ev.days_of_week);
+                  const timeStr = formatTimeRange(ev.start_time, ev.end_time);
+                  const overline = (dateStr || daysStr || timeStr) ? (
+                    <div className="flex flex-col gap-0.5" dir={lang === "ar" ? "rtl" : "ltr"}>
+                      {dateStr && <div className="break-words">{dateStr}</div>}
+                      {daysStr && <div className="break-words normal-case">{daysStr}</div>}
+                      {timeStr && <div className="break-words">{timeStr}</div>}
+                    </div>
+                  ) : null;
                   return {
                     key: ev.id + idx,
                     image: ev.image,
                     fallbackIcon: <CalendarIcon className="w-10 h-10" />,
-                    overline: when || null,
+                    overline,
                     title: ev.name,
                     subtitle: ev.neighborhood || null,
                     onClick: () => setOpenEvents({ list: eventsPayload.events, index: idx }),
