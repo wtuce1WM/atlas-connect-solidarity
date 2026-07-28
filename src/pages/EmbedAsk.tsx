@@ -21,6 +21,7 @@ import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 const DestinationSlidePanel = lazy(() => import("@/components/DestinationSlidePanel"));
+import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedCardCarousel";
 
 /**
  * Liquid-glass bottom bar overlaying BookOnlineSlidePanel in the embed:
