@@ -55,6 +55,8 @@ interface MapSlidePanelProps {
   hostLabel?: string;
   /** Optional theme for the underlying Google Map tiles ("light" | "dark"). */
   mapTheme?: "light" | "dark" | "default-light" | "default-dark";
+  /** When true, exposes native Plan/Satellite/Relief selector + Traffic/Transit toggles. */
+  showLayerControls?: boolean;
 }
 
 const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
