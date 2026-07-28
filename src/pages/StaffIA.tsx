@@ -165,12 +165,19 @@ const StaffIA = () => {
                   <MessageSquare className="h-4 w-4" />
                   Relances
                 </TabsTrigger>
+                <TabsTrigger value="how-it-works" className="gap-2">
+                  <BookOpen className="h-4 w-4" />
+                  Fonctionnement
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="suggestions">
                 <EmbedAiSuggestionsManagement />
               </TabsContent>
               <TabsContent value="followups">
                 <EmbedAiFollowupsManagement />
+              </TabsContent>
+              <TabsContent value="how-it-works">
+                <EmbedAiHowItWorks />
               </TabsContent>
             </Tabs>
           </TabsContent>
