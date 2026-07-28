@@ -1281,6 +1281,22 @@ const EmbedAsk = () => {
           />
         );
       })()}
+
+      {openDestinationId && (
+        <div
+          className="fixed top-0 left-0 right-0 z-[230] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:left-auto lg:w-1/2 lg:border-l lg:border-border"
+          style={{ height: "100dvh" }}
+        >
+          <Suspense fallback={<div className="flex-1" />}>
+            <DestinationSlidePanel
+              destinationId={openDestinationId}
+              onClose={() => setOpenDestinationId(null)}
+              slideFrom="right"
+              onSearchBusinessSelect={(bid) => { setOpenDestinationId(null); setOpenBusinessId(bid); }}
+            />
+          </Suspense>
+        </div>
+      )}
     </div>
   );
 };
