@@ -2532,7 +2532,7 @@ Deno.serve(async (req) => {
                   image,
                   hero: image,
                   tldr,
-                  inline: true,
+                  inline: false,
                   isOwner: match.anchor_business_id === host.id,
                 };
 
