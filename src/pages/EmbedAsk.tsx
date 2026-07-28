@@ -889,10 +889,11 @@ const EmbedAsk = () => {
             );
           }
           const raw = messageText(m);
-          const { clean, maps, events, articles } = extractPayloads(raw);
+          const { clean, maps, events, articles, destinations } = extractPayloads(raw);
           const mapPayload = maps[maps.length - 1] || null;
           const eventsPayload = events[events.length - 1] || null;
           const articleCard = articles[articles.length - 1] || null;
+          const destinationsPayload = destinations[destinations.length - 1] || null;
           const isLast = i === messages.length - 1;
           const citedFallback =
             !mapPayload || mapPayload.businesses.length === 0
