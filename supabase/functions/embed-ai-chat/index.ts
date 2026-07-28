@@ -1964,7 +1964,213 @@ function stripText(value: unknown): string {
     .trim();
 }
 
-function buildImmersiveBusinessAnswer(
+function buildContextualIntro(userMessage: string, host: any, city: string, lang: "fr" | "en" | "ar", proximityActive: boolean, radiusUsed: number | null): string {
+  const q = normalize(userMessage);
+  const hostName = host?.name || "";
+  const radiusLabel = radiusUsed ? (radiusUsed < 1 ? `${Math.round(radiusUsed * 1000)} m` : `${radiusUsed.toFixed(1).replace(/\.0$/, "")} km`) : "";
+  const proximity = proximityActive && radiusLabel && hostName ? ` à moins de ${radiusLabel} de **${hostName}**` : "";
+
+  const hasDelivery = /livraison|glovo|livrer|expedition|expédition|expedier|expédier|envoi|envoyer|internationale|ship|shipping/.test(q);
+  const hasShop = /magasin|boutique|shopping|souk|tapis|artisan|atelier|cuir|art de table|souvenir|boutiques/.test(q);
+  const hasRooftop = /rooftop|terrasse|toit|toit-terrasse|vue|panorama|rooftops/.test(q);
+  const hasBar = /bar|cocktail|boire|aperitif|apéritif|apero|apéro|soiree|soirée|afterwork|nightlife|verre/.test(q);
+  const hasRestaurant = /restaurant|manger|dejeuner|déjeuner|diner|dîner|table|cuisine|repas|brunch/.test(q);
+  const hasPool = /piscine|beach|plage|beach-club|beach club|bain|baigner|nager/.test(q);
+  const hasGolf = /golf|parcours|green|swing/.test(q);
+  const hasArt = /art|galerie|exposition|museum|musée|culture|artistique/.test(q);
+  const hasTea = /the|thé|menthe|salon de the|salon de thé|patisserie|pâtisserie|goûter|gouter/.test(q);
+  const hasPizza = /pizza|italien|pizzeria|trattoria/.test(q);
+  const hasHotel = /hotel|hôtel|riad|villa|hebergement|hébergement|dormir|loger/.test(q);
+  const hasNight = /night|club|boite|boîte|nocturne|afterwork|after-work|dj/.test(q);
+  const hasSpa = /spa|massage|hammam|bien-etre|bien-être|soin|soins|detente|détente/.test(q);
+  const hasCoffee = /cafe|café|coffee|work|cowork|wifi/.test(q);
+  const hasVegan = /vegan|vegetarien|végétarien|vegetalien|végétalien|sans viande/.test(q);
+  const hasKids = /famille|enfant|kids|familial|enfants|bebe|bébé/.test(q);
+  const hasPet = /chien|animal|pet|chiens|animaux/.test(q);
+
+  const topic = hasDelivery && hasShop ? "delivery_shop"
+    : hasDelivery ? "delivery"
+    : hasShop ? "shop"
+    : hasRooftop ? "rooftop"
+    : hasBar && !hasRestaurant ? "bar"
+    : hasRestaurant && hasPizza ? "pizza"
+    : hasRestaurant ? "restaurant"
+    : hasPool ? "pool"
+    : hasGolf ? "golf"
+    : hasArt ? "art"
+    : hasTea ? "tea"
+    : hasHotel ? "hotel"
+    : hasNight ? "night"
+    : hasSpa ? "spa"
+    : hasCoffee ? "coffee"
+    : hasVegan ? "vegan"
+    : hasKids ? "kids"
+    : hasPet ? "pet"
+    : "default";
+
+  const templatesFr: Record<string, string> = {
+    delivery_shop: `À **${city}**, pour les achats avec livraison internationale, voici les adresses qui gèrent l’expédition — pratique quand on repart avec un souvenir un peu lourd ou une commande précise.${proximity ? ` Je me suis concentré sur les boutiques à moins de ${radiusLabel} de **${hostName}**.` : ""}`,
+    delivery: `Voici les adresses à **${city}** qui proposent une livraison — pour recevoir chez toi ou expédier jusqu’à destination.${proximity ? ` J’ai privilégié celles à moins de ${radiusLabel} de **${hostName}**.` : ""}`,
+    shop: `Pour le shopping à **${city}**, voici les boutiques, ateliers et souks retenus dans le guide One World Morocco.${proximity ? ` Je me concentre sur ceux à moins de ${radiusLabel} de **${hostName}**.` : ""}`,
+    rooftop: `À **${city}**, les rooftops et terrasses en hauteur sont une pause à part : vue sur la médina, coucher de soleil ou soirée. Voici ceux qui ressortent dans le guide One World Morocco.${proximity ? ` Tous sont à moins de ${radiusLabel} de **${hostName}**.` : ""}`,
+    bar: `Pour boire un verre à **${city}**, entre cocktail soigné et adresse locale, voici les bars à mettre en premier.${proximity ? ` J’ai privilégié ceux à moins de ${radiusLabel} de **${hostName}**.` : ""}`,
+    pizza: `Pour une pizza à **${city}**, voici les adresses qui cuisinent l’Italie au coin de la rue — pizzerias, trattorias et tables italiennes retenues dans le guide.${proximity ? ` Je me suis concentré sur celles à moins de ${radiusLabel} de **${hostName}**.` : ""}`,
+    restaurant: `Pour manger à **${city}**, voici les tables qui ressortent dans le guide One World Morocco — sélectionnées pour leur ambiance et leur qualité.${proximity ? ` Toutes sont à moins de ${radiusLabel} de **${hostName}**.` : ""}`,
+    pool: `Pour se rafraîchir à **${city}**, entre piscine de ville et beach-club, voici les adresses qui proposent un vrai moment de détente.${proximity ? ` J’ai privilégié celles à moins de ${radiusLabel} de **${hostName}**.` : ""}`,
+    golf: `Pour jouer à **${city}**, voici les parcours et golfs les plus proches — greens, fairways et infrastructures retenues dans le guide.${proximity ? ` Tous sont à moins de ${radiusLabel} de **${hostName}**.` : ""}`,
+    art: `Pour de l’art et des galeries à **${city}**, voici les lieux où la culture se visite — expositions, œuvres locales et adresses curatoriales.${proximity ? ` Je me concentre sur ceux à moins de ${radiusLabel} de **${hostName}**.` : ""}`,
+    tea: `Pour un thé à la menthe à **${city}**, voici les adresses qui en font un vrai rituel — riads, salons de thé et terrasses au cœur de l’ambiance locale.${proximity ? ` Tous sont à moins de ${radiusLabel} de **${hostName}**.` : ""}`,
+    hotel: `Pour dormir à **${city}**, voici les hébergements retenus dans le guide One World Morocco — riads, hôtels et villas avec du caractère.${proximity ? ` Je me suis concentré sur ceux à moins de ${radiusLabel} de **${hostName}**.` : ""}`,
+    night: `Pour sortir le soir à **${city}**, voici les adresses nocturnes qui comptent — bars, clubs et afterworks retenus dans le guide.${proximity ? ` J’ai privilégié celles à moins de ${radiusLabel} de **${hostName}**.` : ""}`,
+    spa: `Pour un moment de soin à **${city}**, voici les spas, hammams et adresses bien-être du guide One World Morocco.${proximity ? ` Tous sont à moins de ${radiusLabel} de **${hostName}**.` : ""}`,
+    coffee: `Pour un café ou un moment de travail à **${city}**, voici les adresses avec bonne connexion et atmosphère calme.${proximity ? ` Je me suis concentré sur celles à moins de ${radiusLabel} de **${hostName}**.` : ""}`,
+    vegan: `Pour manger vegan ou végétarien à **${city}**, voici les adresses du guide One World Morocco qui proposent une offre adaptée.${proximity ? ` Toutes sont à moins de ${radiusLabel} de **${hostName}**.` : ""}`,
+    kids: `Pour une sortie en famille à **${city}**, voici les adresses accueillantes pour les enfants retenues dans le guide.${proximity ? ` J’ai privilégié celles à moins de ${radiusLabel} de **${hostName}**.` : ""}`,
+    pet: `Pour sortir avec son chien à **${city}**, voici les adresses du guide One World Morocco qui acceptent les animaux.${proximity ? ` Toutes sont à moins de ${radiusLabel} de **${hostName}**.` : ""}`,
+    default: `À **${city}**, voici une sélection d’adresses One World Morocco qui répond à ta demande, avec les lieux les plus pertinents en premier.${proximity ? ` Je me suis concentré sur ceux à moins de ${radiusLabel} de **${hostName}**.` : ""}`,
+  };
+
+  const templatesEn: Record<string, string> = {
+    delivery_shop: `In **${city}**, for shopping with international delivery, here are the addresses that handle shipping — handy when you’re heading home with a heavy souvenir or a specific order.${proximity ? ` I focused on shops within ${radiusLabel} of **${hostName}**.` : ""}`,
+    delivery: `Here are **${city}** addresses that offer delivery — to your door or shipped to your destination.${proximity ? ` I prioritized those within ${radiusLabel} of **${hostName}**.` : ""}`,
+    shop: `For shopping in **${city}**, here are the boutiques, workshops and souks featured in the One World Morocco guide.${proximity ? ` I focused on those within ${radiusLabel} of **${hostName}**.` : ""}`,
+    rooftop: `In **${city}**, rooftops and elevated terraces are a special kind of pause: medina views, sunsets or a night out. Here are the standouts in the One World Morocco guide.${proximity ? ` All within ${radiusLabel} of **${hostName}**.` : ""}`,
+    bar: `For a drink in **${city}**, from crafted cocktails to local spots, here are the bars to try first.${proximity ? ` I prioritized those within ${radiusLabel} of **${hostName}**.` : ""}`,
+    pizza: `For pizza in **${city}**, here are the places that bring Italy to the neighborhood — pizzerias, trattorias and Italian tables in the guide.${proximity ? ` I focused on those within ${radiusLabel} of **${hostName}**.` : ""}`,
+    restaurant: `For dining in **${city}**, here are the tables that stand out in the One World Morocco guide — selected for atmosphere and quality.${proximity ? ` All within ${radiusLabel} of **${hostName}**.` : ""}`,
+    pool: `To cool off in **${city}**, from city pools to beach clubs, here are the addresses for a real moment of relaxation.${proximity ? ` I prioritized those within ${radiusLabel} of **${hostName}**.` : ""}`,
+    golf: `To play in **${city}**, here are the nearest courses and golf clubs — greens, fairways and facilities featured in the guide.${proximity ? ` All within ${radiusLabel} of **${hostName}**.` : ""}`,
+    art: `For art and galleries in **${city}**, here are the places where culture is visited — exhibitions, local works and curated addresses.${proximity ? ` I focused on those within ${radiusLabel} of **${hostName}**.` : ""}`,
+    tea: `For mint tea in **${city}**, here are the addresses that make it a real ritual — riads, tea rooms and terraces at the heart of the local atmosphere.${proximity ? ` All within ${radiusLabel} of **${hostName}**.` : ""}`,
+    hotel: `To stay in **${city}**, here are the accommodations in the One World Morocco guide — riads, hotels and villas with character.${proximity ? ` I focused on those within ${radiusLabel} of **${hostName}**.` : ""}`,
+    night: `For a night out in **${city}**, here are the evening addresses that matter — bars, clubs and afterworks featured in the guide.${proximity ? ` I prioritized those within ${radiusLabel} of **${hostName}**.` : ""}`,
+    spa: `For a wellness moment in **${city}**, here are the spas, hammams and wellbeing addresses in the One World Morocco guide.${proximity ? ` All within ${radiusLabel} of **${hostName}**.` : ""}`,
+    coffee: `For coffee or a work session in **${city}**, here are the addresses with good connection and a calm atmosphere.${proximity ? ` I focused on those within ${radiusLabel} of **${hostName}**.` : ""}`,
+    vegan: `For vegan or vegetarian food in **${city}**, here are the One World Morocco guide addresses with a suitable offer.${proximity ? ` All within ${radiusLabel} of **${hostName}**.` : ""}`,
+    kids: `For a family outing in **${city}**, here are the kid-friendly addresses featured in the guide.${proximity ? ` I prioritized those within ${radiusLabel} of **${hostName}**.` : ""}`,
+    pet: `For going out with your dog in **${city}**, here are the One World Morocco guide addresses that welcome pets.${proximity ? ` All within ${radiusLabel} of **${hostName}**.` : ""}`,
+    default: `In **${city}**, here is a selection of One World Morocco addresses that match your request, with the most relevant places first.${proximity ? ` I focused on those within ${radiusLabel} of **${hostName}**.` : ""}`,
+  };
+
+  const templatesAr: Record<string, string> = {
+    delivery_shop: `في **${city}**， للتسوق مع توصيل دولي، إليك العناوين التي تتولى الشحن — عملي عند المغادرة مع تذكار ثقيل أو طلب محدد.${proximity ? ` ركّزت على المتاجر على بعد أقل من ${radiusLabel} من **${hostName}**.` : ""}`,
+    delivery: `إليك عناوين **${city}** التي تقدّم خدمة التوصيل — إلى باب منزلك أو شحنها إلى وجهتك.${proximity ? ` ركّزت على تلك التي تبعد أقل من ${radiusLabel} عن **${hostName}**.` : ""}`,
+    shop: `للتسوق في **${city}**، إليك المتاجر والورش والأسواق المختارة في دليل One World Morocco.${proximity ? ` ركّزت على تلك التي تبعد أقل من ${radiusLabel} عن **${hostName}**.` : ""}`,
+    rooftop: `في **${city}**، تشكّل الأسطح والتراسات المرتفعة نوعًا خاصًا من الاسترخاء: إطلالة على المدينة العتيقة، غروب الشمس أو ليلة خارجية. إليك الأفضل في دليل One World Morocco.${proximity ? ` جميعها على بعد أقل من ${radiusLabel} من **${hostName}**.` : ""}`,
+    bar: `لشرب كأس في **${city}**، من الكوكتيلات المصنّعة إلى الأماكن المحليّة، إليك الحانات التي تستحقّ التجربة أولاً.${proximity ? ` ركّزت على تلك التي تبعد أقل من ${radiusLabel} عن **${hostName}**.` : ""}`,
+    pizza: `للبيتزا في **${city}**، إليك الأماكن التي تحضّر إيطاليا في الحي — بيتزا محلّات ومطاعم إيطاليّة في الدليل.${proximity ? ` ركّزت على تلك التي تبعد أقل من ${radiusLabel} عن **${hostName}**.` : ""}`,
+    restaurant: `للطعام في **${city}**، إليك الطاولات التي تبرز في دليل One World Morocco — مختارة للأجواء والجودة.${proximity ? ` جميعها على بعد أقل من ${radiusLabel} من **${hostName}**.` : ""}`,
+    pool: `للاسترخاء في **${city}**، من المسابح الحضريّة إلى نوادي الشاطئ، إليك العناوين التي تقدّم لحظة راحة حقيقية.${proximity ? ` ركّزت على تلك التي تبعد أقل من ${radiusLabel} عن **${hostName}**.` : ""}`,
+    golf: `للعب في **${city}**، إليك أقرب الملاعب ونوادي الغولف — الميادين الخضراء والمرافق المختارة في الدليل.${proximity ? ` جميعها على بعد أقل من ${radiusLabel} من **${hostName}**.` : ""}`,
+    art: `للفن والمعارض في **${city}**، إليك الأماكن التي تُزار فيها الثقافة — معارض، أعمال محليّة وعناوين مختارة.${proximity ? ` ركّزت على تلك التي تبعد أقل من ${radiusLabel} عن **${hostName}**.` : ""}`,
+    tea: `لشرب الشاي بالنعناع في **${city}**، إليك العناوين التي تجعل منه طقسًا حقيقيًا — الرياضات، صالونات الشاي والتراسات في قلب الأجواء المحليّة.${proximity ? ` جميعها على بعد أقل من ${radiusLabel} من **${hostName}**.` : ""}`,
+    hotel: `للإقامة في **${city}**، إليك أماكن الإقامة في دليل One World Morocco — الرياضات والفنادق والفِلل ذات الطابع الخاص.${proximity ? ` ركّزت على تلك التي تبعد أقل من ${radiusLabel} عن **${hostName}**.` : ""}`,
+    night: `لقضاء ليلة في **${city}**، إليك عناوين المساء التي تهمّ — حانات ونوادي ومواقع ما بعد العمل المختارة في الدليل.${proximity ? ` ركّزت على تلك التي تبعد أقل من ${radiusLabel} عن **${hostName}**.` : ""}`,
+    spa: `للحصول على لحظة عناية في **${city}**، إليك المنتجعات الصحيّة والحَمّامات وعناوين الرفاهية في دليل One World Morocco.${proximity ? ` جميعها على بعد أقل من ${radiusLabel} من **${hostName}**.` : ""}`,
+    coffee: `للقهوة أو للعمل في **${city}**، إليك العناوين ذات الاتصال الجيد والأجواء الهادئة.${proximity ? ` ركّزت على تلك التي تبعد أقل من ${radiusLabel} عن **${hostName}**.` : ""}`,
+    vegan: `للطعام النباتي في **${city}**، إليك عناوين دليل One World Morocco التي تقدّم عروضًا مناسبة.${proximity ? ` جميعها على بعد أقل من ${radiusLabel} من **${hostName}**.` : ""}`,
+    kids: `للخروج العائلي في **${city}**، إليك العناوين الملائمة للأطفال المختارة في الدليل.${proximity ? ` ركّزت على تلك التي تبعد أقل من ${radiusLabel} عن **${hostName}**.` : ""}`,
+    pet: `للخروج مع الكلب في **${city}**، إليك عناوين دليل One World Morocco التي ترحّب بالحيوانات.${proximity ? ` جميعها على بعد أقل من ${radiusLabel} من **${hostName}**.` : ""}`,
+    default: `في **${city}**، إليك مجموعة من عناوين One World Morocco التي تطابق طلبك، مع الأماكن الأكثر صلة أولاً.${proximity ? ` ركّزت على تلك التي تبعد أقل من ${radiusLabel} عن **${hostName}**.` : ""}`,
+  };
+
+  if (lang === "en") return templatesEn[topic] || templatesEn.default;
+  if (lang === "ar") return templatesAr[topic] || templatesAr.default;
+  return templatesFr[topic] || templatesFr.default;
+}
+
+function buildContextualClosing(userMessage: string, lang: "fr" | "en" | "ar"): string {
+  const q = normalize(userMessage);
+  const hasDelivery = /livraison|glovo|livrer|expedition|expédition|expedier|expédier|envoi|envoyer|internationale|ship|shipping/.test(q);
+  const hasShop = /magasin|boutique|shopping|souk|tapis|artisan|atelier|cuir|art de table|souvenir/.test(q);
+  const hasRooftop = /rooftop|terrasse|toit|vue|panorama/.test(q);
+  const hasBar = /bar|cocktail|boire|aperitif|apéritif|apero|apéro|soiree|soirée|afterwork|verre/.test(q);
+  const hasRestaurant = /restaurant|manger|dejeuner|déjeuner|diner|dîner|table|cuisine|repas|brunch/.test(q);
+  const hasPool = /piscine|beach|plage|beach-club|beach club|bain|nager/.test(q);
+  const hasGolf = /golf|parcours|green|swing/.test(q);
+  const hasArt = /art|galerie|exposition|museum|musée|culture/.test(q);
+  const hasTea = /the|thé|menthe|salon de the|salon de thé|patisserie|pâtisserie|goûter|gouter/.test(q);
+  const hasPizza = /pizza|italien|pizzeria|trattoria/.test(q);
+  const hasHotel = /hotel|hôtel|riad|villa|hebergement|hébergement|dormir|loger/.test(q);
+  const hasNight = /night|club|boite|boîte|nocturne|afterwork|dj/.test(q);
+  const hasSpa = /spa|massage|hammam|bien-etre|bien-être|soin|detente|détente/.test(q);
+
+  const topic = hasDelivery && hasShop ? "delivery_shop"
+    : hasDelivery ? "delivery"
+    : hasShop ? "shop"
+    : hasRooftop ? "rooftop"
+    : hasBar && !hasRestaurant ? "bar"
+    : hasRestaurant && hasPizza ? "pizza"
+    : hasRestaurant ? "restaurant"
+    : hasPool ? "pool"
+    : hasGolf ? "golf"
+    : hasArt ? "art"
+    : hasTea ? "tea"
+    : hasHotel ? "hotel"
+    : hasNight ? "night"
+    : hasSpa ? "spa"
+    : "default";
+
+  const closingsFr: Record<string, string> = {
+    delivery_shop: "Tu veux que je précise par type d’article (tapis, cuir, art de table), par budget, ou que je te montre les boutiques ouvertes maintenant ?",
+    delivery: "Tu veux que je précise par délai de livraison, ville de destination, ou que je te montre les adresses ouvertes maintenant ?",
+    shop: "Tu veux que je précise par type de produit (tapis, cuir, art de table, souvenirs), par quartier, ou par budget ?",
+    rooftop: "Tu veux que je précise par vue (médina, Koutoubia, Atlas), par ambiance (calme, festif), ou par moment de la journée ?",
+    bar: "Tu veux que je précise par ambiance (intime, festif, vue), par type de cocktail, ou par quartier ?",
+    pizza: "Tu veux que je précise par type de pâte, ambiance, ou quartier ?",
+    restaurant: "Tu veux que je précise par type de cuisine, par quartier, ou que je te montre les tables ouvertes maintenant ?",
+    pool: "Tu veux que je précise par piscine payante, accès hôtel, plage, ou ambiance familiale ?",
+    golf: "Tu veux que je précise par niveau de difficulté, par tarif, ou que je te montre les parcours ouverts maintenant ?",
+    art: "Tu veux que je précise par type d’art (contemporain, traditionnel, artisanat), par quartier, ou par exposition en cours ?",
+    tea: "Tu veux que je précise par cadre (riad, terrasse, salon de thé), par quartier, ou que je te montre les adresses ouvertes maintenant ?",
+    hotel: "Tu veux que je précise par standing, par quartier, ou par budget (à partir de) ?",
+    night: "Tu veux que je précise par ambiance (lounge, club, rooftop), par quartier, ou par type de musique ?",
+    spa: "Tu veux que je précise par soin (hammam, massage, soin visage), par ambiance, ou par prix ?",
+    default: "Tu veux que je resserre par quartier, ambiance ou moment de la journée ?",
+  };
+
+  const closingsEn: Record<string, string> = {
+    delivery_shop: "Want me to narrow by product type (rugs, leather, tableware), budget, or show shops open now?",
+    delivery: "Want me to narrow by delivery time, destination city, or show addresses open now?",
+    shop: "Want me to narrow by product type (rugs, leather, tableware, souvenirs), neighborhood, or budget?",
+    rooftop: "Want me to narrow by view (medina, Koutoubia, Atlas), vibe (quiet, lively), or time of day?",
+    bar: "Want me to narrow by vibe (intimate, lively, view), cocktail style, or neighborhood?",
+    pizza: "Want me to narrow by crust style, vibe, or neighborhood?",
+    restaurant: "Want me to narrow by cuisine type, neighborhood, or show tables open now?",
+    pool: "Want me to narrow by day pass, hotel access, beach, or family-friendly?",
+    golf: "Want me to narrow by difficulty, price, or show courses open now?",
+    art: "Want me to narrow by art type (contemporary, traditional, crafts), neighborhood, or current exhibitions?",
+    tea: "Want me to narrow by setting (riad, terrace, tea room), neighborhood, or show places open now?",
+    hotel: "Want me to narrow by standard, neighborhood, or budget?",
+    night: "Want me to narrow by vibe (lounge, club, rooftop), neighborhood, or music style?",
+    spa: "Want me to narrow by treatment (hammam, massage, facial), vibe, or price?",
+    default: "Want me to narrow by neighborhood, vibe, or time of day?",
+  };
+
+  const closingsAr: Record<string, string> = {
+    delivery_shop: "هل تريد التحديد حسب نوع المنتج (سجاد، جلد، أدوات مائدة)، الميزانية، أو عرض المتاجر المفتوحة الآن؟",
+    delivery: "هل تريد التحديد حسب مدة التوصيل، مدينة الوجهة، أو عرض العناوين المفتوحة الآن؟",
+    shop: "هل تريد التحديد حسب نوع المنتج (سجاد، جلد، أدوات مائدة، تذكارات)، الحي، أو الميزانية؟",
+    rooftop: "هل تريد التحديد حسب الإطلالة (المدينة العتيقة، الكتبية، الأطلس)، الأجواء (هادئة، حيوية)، أو وقت الزيارة؟",
+    bar: "هل تريد التحديد حسب الأجواء (حميمة، حيوية، إطلالة)، نوع الكوكتيل، أو الحي؟",
+    pizza: "هل تريد التحديد حسب نوع العجين، الأجواء، أو الحي؟",
+    restaurant: "هل تريد التحديد حسب نوع المطبخ، الحي، أو عرض الطاولات المفتوحة الآن؟",
+    pool: "هل تريد التحديد حسب تذكرة الدخول، وصول الفندق، الشاطئ، أو ملاءمة العائلة؟",
+    golf: "هل تريد التحديد حسب مستوى الصعوبة، السعر، أو عرض الملاعب المفتوحة الآن؟",
+    art: "هل تريد التحديد حسب نوع الفن (معاصر، تقليدي، حرف)، الحي، أو المعارض الحالية؟",
+    tea: "هل تريد التحديد حسب الإطار (رياض، تراس، صالون شاي)، الحي، أو عرض الأماكن المفتوحة الآن؟",
+    hotel: "هل تريد التحديد حسب المستوى، الحي، أو الميزانية؟",
+    night: "هل تريد التحديد حسب الأجواء (صالة، نادي، سطح)، الحي، أو نوع الموسيقى؟",
+    spa: "هل تريد التحديد حسب العلاج (حمام، تدليك، عناية بالوجه)، الأجواء، أو السعر؟",
+    default: "هل تريد أن أضيّق حسب الحي أو الأجواء أو الوقت؟",
+  };
+
+  if (lang === "en") return closingsEn[topic] || closingsEn.default;
+  if (lang === "ar") return closingsAr[topic] || closingsAr.default;
+  return closingsFr[topic] || closingsFr.default;
+}
+
+
   result: any,
   host: any,
   userMessage: string,
