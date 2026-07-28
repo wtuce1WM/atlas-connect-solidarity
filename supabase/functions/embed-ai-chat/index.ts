@@ -3193,7 +3193,9 @@ Deno.serve(async (req) => {
                 if (deterministicSubcategoryNames) forcedArgs._subcategoryNames = deterministicSubcategoryNames;
                 if (deterministicBadgeIds) forcedArgs._badgeIds = deterministicBadgeIds;
                 // Explicitly: no proximity anchor → we widen the scope.
+                console.log("[embed-ai-chat] hood_route_broaden_start", { forcedArgs });
                 const forcedResult = await runTool("search_businesses", forcedArgs);
+                console.log("[embed-ai-chat] hood_route_broaden_result", { count: forcedResult?.results?.length ?? 0, firstHoods: (forcedResult?.results || []).slice(0, 5).map((r: any) => r?.neighborhood) });
                 rememberSearchResult("search_businesses", forcedArgs, forcedResult);
                 if (Array.isArray(forcedResult?.results) && forcedResult.results.length) {
                   const finalTextLocal = buildImmersiveBusinessAnswer(forcedResult, host, userMessage, language);
