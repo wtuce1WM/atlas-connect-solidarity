@@ -2355,7 +2355,7 @@ Deno.serve(async (req) => {
               .map((id) => (pinnedRows || []).find((b: any) => b.id === id))
               .filter(Boolean) as any[];
             pinnedBusinessCards = orderedRows.map((b: any) => {
-              const image = b.main_image_url || (Array.isArray(b.images) && b.images.length ? b.images[0] : null);
+              const image = Array.isArray(b.images) && b.images.length ? b.images[0] : null;
               const rev = revByBiz.get(String(b.id));
               const reviewText = rev
                 ? (language === "en" ? (rev.text_en || rev.text || rev.text_fr)
