@@ -171,8 +171,6 @@ const EmbedBookPanelWrapper = ({
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
-      {/* Extra bottom padding on the internal scroll area so URL 2–5 CTAs sit above the media bar */}
-      <style>{`.embed-book-panel-scope [data-slidepanel-scroll="true"]{padding-bottom:calc(96px + env(safe-area-inset-bottom)) !important;}`}</style>
       <SlidePanelHeader onClose={onClose} alwaysDark glassClose />
       <div className="flex-1 min-h-0 overflow-visible">
         <Suspense fallback={null}>
@@ -183,10 +181,12 @@ const EmbedBookPanelWrapper = ({
             onNext={onNext}
             hasPrev={hasPrev}
             hasNext={hasNext}
+            showSearchBar
+            onSearch={() => { /* embed: search bar is used for its 6 liquid CTAs + video controls only */ }}
+            onSearchBusinessSelect={() => { /* no-op inside embed */ }}
           />
         </Suspense>
       </div>
-      <EmbedMediaBottomBar />
     </div>
   );
 };
