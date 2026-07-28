@@ -2333,6 +2333,56 @@ Deno.serve(async (req) => {
           }
         };
 
+        // Pinned business highlight — when the active suggestion has business_ids,
+        // fetch their rich data (image, rating/20, default review, phone/whatsapp)
+        // so the frontend can render a prominent contact card alongside the AI text.
+        let pinnedBusinessCards: any[] | null = null;
+        if (suggestionPinnedIds.length > 0) {
+          try {
+            const { data: pinnedRows } = await admin
+              .from("businesses")
+              .select("id, name, slug, city, neighborhood, phone, whatsapp, computed_rating, total_review_count, main_image_url, images")
+              .in("id", suggestionPinnedIds);
+            const { data: defReviews } = await admin
+              .from("reviews")
+              .select("business_id, author_name, rating, text, text_fr, text_en, text_ar, source")
+              .in("business_id", suggestionPinnedIds)
+              .eq("is_default", true)
+              .neq("is_hidden", true);
+            const revByBiz = new Map<string, any>();
+            for (const r of defReviews || []) if (r?.business_id) revByBiz.set(String(r.business_id), r);
+            const orderedRows = suggestionPinnedIds
+              .map((id) => (pinnedRows || []).find((b: any) => b.id === id))
+              .filter(Boolean) as any[];
+            pinnedBusinessCards = orderedRows.map((b: any) => {
+              const image = b.main_image_url || (Array.isArray(b.images) && b.images.length ? b.images[0] : null);
+              const rev = revByBiz.get(String(b.id));
+              const reviewText = rev
+                ? (language === "en" ? (rev.text_en || rev.text || rev.text_fr)
+                  : language === "ar" ? (rev.text_ar || rev.text || rev.text_fr)
+                  : (rev.text_fr || rev.text))
+                : null;
+              return {
+                id: b.id,
+                name: b.name,
+                slug: b.slug,
+                city: b.city,
+                neighborhood: b.neighborhood,
+                phone: b.phone,
+                whatsapp: b.whatsapp,
+                image,
+                rating20: b.computed_rating != null ? Number(b.computed_rating) : null,
+                review_count: b.total_review_count ?? null,
+                review: rev
+                  ? { author: rev.author_name, rating: rev.rating, text: reviewText, source: rev.source }
+                  : null,
+              };
+            });
+          } catch (e) {
+            console.error("[embed-ai-chat] pinned_business_fetch_error", e);
+          }
+        }
+
         const emitTrailingMarkers = (): string => {
           const markers: string[] = [];
           if (lastMapPayload) {
@@ -2348,6 +2398,10 @@ Deno.serve(async (req) => {
             const dedup = knownBusinesses.filter((b) => (seen.has(b.id) ? false : (seen.add(b.id), true)));
             const safe = JSON.stringify(dedup).replace(/-->/g, "--&gt;");
             markers.push(`<!--KNOWN_BUSINESSES:${safe}-->`);
+          }
+          if (pinnedBusinessCards && pinnedBusinessCards.length) {
+            const safe = JSON.stringify(pinnedBusinessCards).replace(/-->/g, "--&gt;");
+            markers.push(`<!--PINNED_BUSINESS_CARDS:${safe}-->`);
           }
           if (!markers.length) return "";
           const chunk = "\n\n" + markers.join("\n");
