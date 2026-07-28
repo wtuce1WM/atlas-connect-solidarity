@@ -3746,7 +3746,11 @@ Deno.serve(async (req) => {
         }
 
         // Deterministic: ONLINE BOOKING — scan url_1..url_5 CTAs for a Reserve/Book label.
-        if (isBookingIntent(userMessage)) {
+        // Skip when the active suggestion carries a deterministic filter
+        // (subcategory/badge/pinned/mode) — those must route through
+        // search_businesses. Otherwise "Réserver un jet privé" would loop
+        // on the host business.
+        if (isBookingIntent(userMessage) && !deterministicSubcategoryNames && !deterministicBadgeIds && !suggestionPinnedIds.length && !suggestionMode) {
           const priorIds = extractPriorKnownBusinessIds(inMessages, host.id);
           if (priorIds.length) {
             const answer = await buildBookingForBusinesses(admin, priorIds, language);
