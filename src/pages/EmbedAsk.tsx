@@ -20,6 +20,7 @@ import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
+const DestinationSlidePanel = lazy(() => import("@/components/DestinationSlidePanel"));
 
 /**
  * Liquid-glass bottom bar overlaying BookOnlineSlidePanel in the embed:
