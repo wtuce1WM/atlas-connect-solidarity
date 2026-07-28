@@ -319,7 +319,38 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--DESTINATION_CARDS:[\s\S]*$/g, "")
     .replace(/<!--PINNED_BUSINESS_CARDS:[\s\S]*$/g, "")
     .trim();
+  clean = linkifyPhones(clean);
   return { clean, maps, events, known, articles, destinations, pinned };
+}
+
+// Convert bare phone / WhatsApp numbers found in AI markdown into clickable links.
+// - Numbers preceded (within ~30 chars) by "whatsapp" / "wa" / "💬" become wa.me links.
+// - Everything else becomes a tel: link.
+// Skips numbers that already sit inside a markdown link "](...)".
+function linkifyPhones(input: string): string {
+  if (!input) return input;
+  // Split preserving markdown links so we don't touch their internals.
+  const parts = input.split(/(\[[^\]]+\]\([^)]+\))/g);
+  const PHONE_RE = /(?<![\w./])(\+?\d(?:[\d\s.\-]{7,17})\d)(?![\w./])/g;
+  const isWaContext = (before: string) => /(whats\s*app|wa\.me|\bwa\b|💬)/i.test(before);
+  return parts
+    .map((part, i) => {
+      if (i % 2 === 1) return part; // markdown link, keep as-is
+      return part.replace(PHONE_RE, (match, _grp, offset: number) => {
+        // Require 8–15 digits total to avoid dates/prices.
+        const digits = match.replace(/\D/g, "");
+        if (digits.length < 8 || digits.length > 15) return match;
+        const before = part.slice(Math.max(0, offset - 30), offset);
+        const normalized = match.replace(/\s+/g, "").replace(/[.\-]/g, "");
+        const label = match.trim();
+        if (isWaContext(before)) {
+          const waNum = normalized.replace(/^\+/, "");
+          return `[${label}](https://wa.me/${waNum})`;
+        }
+        return `[${label}](tel:${normalized})`;
+      });
+    })
+    .join("");
 }
 
 // Concatenate all text parts of a UIMessage into a single string.
