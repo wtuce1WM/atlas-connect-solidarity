@@ -40,6 +40,8 @@ interface PoiGoogleMapProps {
    * "light" (default) → 1WM beige palette. "dark" → 1WM dark palette.
    * "default-light" / "default-dark" → native Google Maps color scheme (no custom styles). */
   mapTheme?: "light" | "dark" | "default-light" | "default-dark";
+  /** When true, shows native map type control (Plan/Satellite/Relief) + Traffic/Transit toggle buttons. */
+  showLayerControls?: boolean;
 }
 
 const LIGHT_MAP_STYLES: google.maps.MapTypeStyle[] = [
