@@ -2046,7 +2046,7 @@ Deno.serve(async (req) => {
                 if (missingIds.length) {
                   const { data: pinnedRows } = await admin
                     .from("businesses")
-                    .select("id, name, slug, city, neighborhood, main_category, hook_fr, hook_en, hook_ar, latitude, longitude, min_price, manual_price_range")
+                    .select("id, name, slug, city, neighborhood, main_category, hook_fr, hook_en, hook_ar, latitude, longitude, min_price, manual_price_range, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, computed_rating, total_review_count")
                     .in("id", missingIds)
                     .eq("is_active", true)
                     .is("closure_message", null);
