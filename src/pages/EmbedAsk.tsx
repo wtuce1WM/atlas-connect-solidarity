@@ -1144,7 +1144,7 @@ const EmbedAsk = () => {
                 </div>
               )}
 
-              {mapPayload && mapPayload.businesses.length > 0 &&
+              {mapPayload && mapPayload.businesses.length > 0 && !articleCard?.inline &&
                 renderCarousel(mapPayload.businesses, () => setOpenMap(mapPayload))}
 
               {citedFallback.length > 0 && renderCarousel(citedFallback)}
