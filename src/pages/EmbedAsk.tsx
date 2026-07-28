@@ -24,6 +24,7 @@ const DestinationSlidePanel = lazy(() => import("@/components/DestinationSlidePa
 const PoiGoogleMap = lazy(() => import("@/components/PoiGoogleMap"));
 import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedCardCarousel";
 import { Maximize2 } from "lucide-react";
+import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 
 /**
  * Liquid-glass bottom bar overlaying BookOnlineSlidePanel in the embed:
@@ -248,6 +249,7 @@ const KNOWN_RE = /<!--KNOWN_BUSINESSES:([\s\S]*?)-->/g;
 const ARTICLE_RE = /<!--ARTICLE_CARD:([\s\S]*?)-->/g;
 const DEST_RE = /<!--DESTINATION_CARDS:([\s\S]*?)-->/g;
 const PINNED_RE = /<!--PINNED_BUSINESS_CARDS:([\s\S]*?)-->/g;
+const WEATHER_RE = /<!--WEATHER_FORECAST:([\s\S]*?)-->/g;
 
 type MapPayload = { title?: string | null; businesses: MapPanelBusiness[] };
 type EventsPayload = { title?: string | null; city?: string | null; events: EventPanelItem[] };
