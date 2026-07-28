@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
