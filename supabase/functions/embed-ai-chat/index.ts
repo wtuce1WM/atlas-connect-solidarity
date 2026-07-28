@@ -1143,7 +1143,8 @@ function isCityEngagementSearchIntent(text: string): boolean {
   const n = normalize(text || "");
   if (!n) return false;
   // Broad / city-wide scope marker
-  const broad = /\b(tous les|tous les commercants|tous les etablissements|commercants de la ville|commerçants de la ville|etablissements de la ville|de la ville|dans la ville|en ville|toute la ville|ville entiere|all merchants|all businesses in the city|all places in)\b/.test(n);
+  const broad = /\b(tous les|tous les commercants|tous les etablissements|commercants de la ville|commerçants de la ville|commercant de la ville|commerçant de la ville|etablissements de la ville|de la ville|dans la ville|en ville|toute la ville|ville entiere|tout commercant|tout commerçant|tout etablissement|tous les magasins|all merchants|all businesses in the city|all places in)\b/.test(n);
+
   if (!broad) return false;
   // Engagement qualifier marker
   return /\b(avec|qui ont|qui proposent|ayant|disposent de|proposent|offrent|proposant|offrant|have|offering|with)\b/.test(n);
