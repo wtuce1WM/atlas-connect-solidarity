@@ -1029,7 +1029,7 @@ const EmbedAsk = () => {
 
 
               {articleCard?.inline && mapPayload && mapPayload.businesses.length > 0 && (() => {
-                const pois = mapPayload.businesses
+                const resultPois = mapPayload.businesses
                   .filter((b) => b.latitude != null && b.longitude != null)
                   .map((b) => ({
                     id: b.id,
@@ -1042,13 +1042,29 @@ const EmbedAsk = () => {
                     rating: (b as any).google_rating ?? null,
                     totalReviews: (b as any).google_review_count ?? 0,
                   }));
+                const hostPoi = hostLocation && businessId
+                  ? [{
+                      id: businessId,
+                      name: businessName || "",
+                      latitude: hostLocation.lat,
+                      longitude: hostLocation.lng,
+                      images: [] as string[],
+                      city: businessCity,
+                      neighborhood: null as string | null,
+                      rating: null as number | null,
+                      totalReviews: 0,
+                      markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
+                    }]
+                  : [];
+                const pois = [...hostPoi, ...resultPois.filter((p) => p.id !== businessId)];
                 if (pois.length === 0) return null;
                 return (
                   <div className="w-full max-w-[85%] relative rounded-2xl overflow-hidden border border-neutral-200 dark:border-neutral-800" style={{ height: 340 }}>
                     <Suspense fallback={<div className="w-full h-full bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center text-xs opacity-60">Chargement de la carte…</div>}>
                       <PoiGoogleMap
-                        pois={pois}
+                        pois={pois as any}
                         selectedPoiId={null}
+                        center={hostLocation || undefined}
                         onPoiClick={(id) => { setOpenSiblings(pois.map((p) => p.id)); setOpenBusinessId(id); }}
                         fitToMarkers
                         mapTheme={theme === "dark" ? "default-dark" : "default-light"}
@@ -1160,7 +1176,7 @@ const EmbedAsk = () => {
                 </div>
               )}
 
-              {mapPayload && mapPayload.businesses.length > 0 && !articleCard?.inline &&
+              {mapPayload && mapPayload.businesses.length > 0 &&
                 renderCarousel(mapPayload.businesses, () => setOpenMap(mapPayload))}
 
               {citedFallback.length > 0 && renderCarousel(citedFallback)}

@@ -2636,7 +2636,7 @@ Deno.serve(async (req) => {
                   if (businessIds.length >= 3) {
                     const { data: bizRows } = await admin
                       .from("businesses")
-                      .select("id, name, slug, city, neighborhood, main_category, categories, hook_fr, hook_en, hook_ar, latitude, longitude, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, engagements, closure_message, is_active")
+                      .select("id, name, slug, city, neighborhood, main_category, categories, hook_fr, hook_en, hook_ar, latitude, longitude, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, computed_rating, total_review_count, engagements, closure_message, is_active")
                       .in("id", businessIds)
                       .eq("is_active", true)
                       .is("closure_message", null);
@@ -2647,6 +2647,22 @@ Deno.serve(async (req) => {
 
                     if (orderedBiz.length >= 3) {
                       const shown = orderedBiz.slice(0, Math.min(orderedBiz.length, 10));
+                      const shownIds = shown.map((b: any) => b.id);
+
+                      // Fetch reviews: prefer is_default; fall back to first review per business.
+                      const revByBiz = new Map<string, any>();
+                      try {
+                        const { data: defRevs } = await admin
+                          .from("reviews")
+                          .select("business_id, author_name, rating, text, text_fr, text_en, text_ar, source, is_default")
+                          .in("business_id", shownIds)
+                          .neq("is_hidden", true)
+                          .order("is_default", { ascending: false });
+                        for (const r of defRevs || []) {
+                          const bid = String((r as any).business_id);
+                          if (!revByBiz.has(bid)) revByBiz.set(bid, r);
+                        }
+                      } catch (_) { /* noop */ }
 
                       articlePayload.inline = true;
                       emitDelta(`\n\n<!--ARTICLE_CARD:${JSON.stringify(articlePayload)}-->\n\n`);
@@ -2656,6 +2672,9 @@ Deno.serve(async (req) => {
                       const introEn = `Good timing: your question maps directly to our editorial pick **${title}**. Here are the **${shown.length} addresses** we put forward first — straight from the guide, with the context that earned them their spot. Tell me if you'd like to narrow by neighborhood, vibe, budget or time of day.`;
                       const introAr = `يتطابق سؤالك تمامًا مع اختيارنا التحريري **${title}**. إليك **${shown.length} عناوين** نقدّمها أولًا — من الدليل مباشرة، مع السياق الذي يبرّر ترتيبها. أخبرني إن أردت تضييق الاختيار حسب الحي أو الأجواء أو الميزانية أو الوقت.`;
                       const intro = language === "en" ? introEn : language === "ar" ? introAr : introFr;
+
+                      const reviewsLabel = language === "en" ? "reviews" : language === "ar" ? "مراجعة" : "avis";
+                      const anonLabel = language === "en" ? "Anonymous" : language === "ar" ? "مجهول" : "Anonyme";
 
                       const body = shown.map((biz: any, idx: number) => {
                         const entry = entries[idx] || {};
@@ -2677,8 +2696,24 @@ Deno.serve(async (req) => {
                         const fallback = language === "en" ? "A curated One World Morocco address."
                           : language === "ar" ? "عنوان مختار ضمن دليل One World Morocco."
                           : "Une adresse sélectionnée dans le guide One World Morocco.";
-                        return `**${rank}. ${biz.name}**${area ? ` — _${area}_` : ""}\n\n${detail || fallback}${hoursLine}`;
-                      }).join("\n\n");
+                        // Rating + review count line
+                        const rating20 = biz.computed_rating != null ? Number(biz.computed_rating) : null;
+                        const revCount = biz.total_review_count ?? null;
+                        const ratingLine = rating20 != null
+                          ? `\n\n⭐ **${rating20.toFixed(1)}/20**${revCount ? ` · ${revCount.toLocaleString(language === "en" ? "en-US" : "fr-FR")} ${reviewsLabel}` : ""}`
+                          : "";
+                        // First review (default preferred)
+                        const rev = revByBiz.get(String(biz.id));
+                        const revText = rev
+                          ? (language === "en" ? (rev.text_en || rev.text || rev.text_fr)
+                            : language === "ar" ? (rev.text_ar || rev.text || rev.text_fr)
+                            : (rev.text_fr || rev.text))
+                          : null;
+                        const revLine = revText
+                          ? `\n\n> « ${stripText(String(revText)).slice(0, 240)} »\n> — _${rev.author_name || anonLabel}${rev.source ? ` · ${rev.source}` : ""}_`
+                          : "";
+                        return `**${rank}. ${biz.name}**${area ? ` — _${area}_` : ""}\n\n${detail || fallback}${ratingLine}${revLine}${hoursLine}`;
+                      }).join("\n\n---\n\n");
 
                       const total = orderedBiz.length;
                       const disclosure = shown.length < total
