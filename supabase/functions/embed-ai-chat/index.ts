@@ -2716,12 +2716,12 @@ Deno.serve(async (req) => {
                             language === "ar" ? (biz.hook_ar || biz.hook_fr || "") :
                             (biz.hook_fr || biz.hook_en || "")
                           );
-                        const firstPara = Array.isArray(entry.paragraphs) && entry.paragraphs.length
-                          ? stripText(entry.paragraphs[0]).slice(0, 320)
+                        const paragraphs = Array.isArray(entry.paragraphs) && entry.paragraphs.length
+                          ? entry.paragraphs.map((p: any) => stripText(String(p || ""))).filter(Boolean).join("\n\n")
                           : "";
                         const hours = stripText(entry.hours || "");
                         const area = pretitle || [biz.neighborhood, biz.city].filter(Boolean).join(" · ");
-                        const detail = [hook, firstPara].filter(Boolean).join(" ");
+                        const detail = [hook, paragraphs].filter(Boolean).join("\n\n");
                         const hoursLine = hours ? `\n\n_${hours}_` : "";
                         const fallback = language === "en" ? "A curated One World Morocco address."
                           : language === "ar" ? "عنوان مختار ضمن دليل One World Morocco."
@@ -2740,7 +2740,7 @@ Deno.serve(async (req) => {
                             : (rev.text_fr || rev.text))
                           : null;
                         const revLine = revText
-                          ? `\n\n> « ${stripText(String(revText)).slice(0, 240)} »\n> — _${rev.author_name || anonLabel}${rev.source ? ` · ${rev.source}` : ""}_`
+                          ? `\n\n> « ${stripText(String(revText))} »\n> — _${rev.author_name || anonLabel}${rev.source ? ` · ${rev.source}` : ""}_`
                           : "";
                         return `**${rank}. ${biz.name}**${area ? ` — _${area}_` : ""}\n\n${detail || fallback}${ratingLine}${revLine}${hoursLine}`;
                       }).join("\n\n---\n\n");
