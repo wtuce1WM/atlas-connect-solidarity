@@ -3135,34 +3135,68 @@ Deno.serve(async (req) => {
           }
         }
 
-        // Deterministic: NEIGHBORHOOD FILTER on prior results.
-        // Short refinement like "à Guéliz", "dans la Medina", "en Palmeraie",
-        // or a bare neighborhood name → filter the previous result set by that
-        // neighborhood instead of relaunching a fresh LLM search (which often
-        // drops the topical query and returns 0 or off-topic results).
+        // Deterministic: NEIGHBORHOOD ROUTE.
+        // Short refinement like "à Guéliz", "dans hivernage", "en Palmeraie"
+        // (with typo tolerance via neighborhoods.keywords / aliases DB).
+        // Two behaviors:
+        //  (A) Same neighborhood as host or matches a prior → filter priors.
+        //  (B) Different neighborhood + root suggestion scope available →
+        //      SCOPE BROADEN: drop proximity, rerun subcats/badges in that quartier.
         {
-          const priorIdsForHood = extractPriorKnownBusinessIds(inMessages, host.id);
-          
-          if (priorIdsForHood.length >= 2) {
-            const { data: priorRowsHood } = await admin
-              .from("businesses")
-              .select("id, name, slug, city, neighborhood, latitude, longitude, main_category, categories, address, hook_fr, hook_en, hook_ar, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, computed_rating, engagements")
-              .in("id", priorIdsForHood);
-            const rowsHood = Array.isArray(priorRowsHood) ? priorRowsHood : [];
-            const nq = normalize(userMessage);
-            const present = Array.from(new Set(rowsHood.map((r: any) => r.neighborhood).filter(Boolean))) as string[];
-            let matchedHood: string | null = null;
-            for (const n of present) {
-              const nn = normalize(n);
-              if (!nn || nn.length < 3) continue;
-              const re = new RegExp(`(^|[^\\p{L}\\p{N}])${nn.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^\\p{L}\\p{N}]|$)`, "u");
-              if (re.test(nq)) { matchedHood = n; break; }
-            }
-            const words = nq.split(/\s+/).filter(Boolean);
-            const looksLikeRefinement = words.length <= 5 || /\b(quartier|dans|a|en|sur|au|aux|neighborhood|district|in)\b/.test(nq);
-            if (matchedHood && looksLikeRefinement) {
+          const nq = normalize(userMessage);
+          const words = nq.split(/\s+/).filter(Boolean);
+          const looksLikeRefinement = words.length <= 6 || /\b(quartier|dans|a|en|sur|au|aux|vers|cote|coté|neighborhood|district|in|at|near)\b/.test(nq);
+
+          if (looksLikeRefinement) {
+            const detected = await detectNeighborhoodInText(admin, host.city, userMessage);
+            if (detected) {
+              const matchedHood = detected.name;
               const nn = normalize(matchedHood);
-              const filteredHood = rowsHood.filter((r: any) => normalize(r.neighborhood) === nn);
+              const priorIdsForHood = extractPriorKnownBusinessIds(inMessages, host.id);
+
+              // Try prior-filter first (behavior A).
+              let filteredHood: any[] = [];
+              let rowsHood: any[] = [];
+              if (priorIdsForHood.length >= 2) {
+                const { data: priorRowsHood } = await admin
+                  .from("businesses")
+                  .select("id, name, slug, city, neighborhood, latitude, longitude, main_category, categories, address, hook_fr, hook_en, hook_ar, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, computed_rating, engagements")
+                  .in("id", priorIdsForHood);
+                rowsHood = Array.isArray(priorRowsHood) ? priorRowsHood : [];
+                filteredHood = rowsHood.filter((r: any) => normalize(r.neighborhood) === nn);
+              }
+
+              const hostHoodN = normalize(host.neighborhood || "");
+              const isDifferentFromHost = hostHoodN && nn !== hostHoodN;
+              const hasRootScope = !!(deterministicSubcategoryNames?.length || deterministicBadgeIds?.length);
+
+              // (B) SCOPE BROADEN: different neighborhood + root suggestion scope,
+              // OR prior filter yielded nothing but we can rerun the root scope.
+              if (hasRootScope && (isDifferentFromHost || filteredHood.length === 0)) {
+                const forcedArgs: any = {
+                  query: matchedHood,
+                  city: host.city || "Marrakech",
+                  neighborhood: matchedHood,
+                  limit: 12,
+                };
+                if (deterministicSubcategoryNames) forcedArgs._subcategoryNames = deterministicSubcategoryNames;
+                if (deterministicBadgeIds) forcedArgs._badgeIds = deterministicBadgeIds;
+                // Explicitly: no proximity anchor → we widen the scope.
+                const forcedResult = await runTool("search_businesses", forcedArgs);
+                rememberSearchResult("search_businesses", forcedArgs, forcedResult);
+                if (Array.isArray(forcedResult?.results) && forcedResult.results.length) {
+                  const finalTextLocal = buildImmersiveBusinessAnswer(forcedResult, host, userMessage, language);
+                  emitDelta(finalTextLocal);
+                  const trailing = emitTrailingMarkers();
+                  toolsCalledLog.push({ name: "neighborhood_scope_broaden", args: { neighborhood: matchedHood, count: forcedResult.results.length, alias: detected.matchedAlias }, ok: true });
+                  endText();
+                  await logTurn({ finalText: finalTextLocal + trailing, streamCompleted: true });
+                  return;
+                }
+                // fall through to prior-filter behavior if broaden returned 0
+              }
+
+              // (A) PRIOR FILTER on the matched neighborhood.
               if (filteredHood.length) {
                 const priorOrder = new Map(priorIdsForHood.map((id, i) => [id, i]));
                 filteredHood.sort((a: any, b: any) => (priorOrder.get(a.id) ?? 999) - (priorOrder.get(b.id) ?? 999));
@@ -3204,7 +3238,7 @@ Deno.serve(async (req) => {
                 lastMapPayload = { title: `${matchedHood}`, businesses: mapBusinesses };
                 emitDelta(answer);
                 const trailing = emitTrailingMarkers();
-                toolsCalledLog.push({ name: "neighborhood_filter_priors", args: { neighborhood: matchedHood, count: filteredHood.length }, ok: true });
+                toolsCalledLog.push({ name: "neighborhood_filter_priors", args: { neighborhood: matchedHood, count: filteredHood.length, alias: detected.matchedAlias }, ok: true });
                 endText();
                 await logTurn({ finalText: answer + trailing, streamCompleted: true });
                 return;
@@ -3212,6 +3246,8 @@ Deno.serve(async (req) => {
             }
           }
         }
+
+
 
         // Deterministic: HOURS — read opening_hours directly from DB, gated by show_opening_hours.
 
