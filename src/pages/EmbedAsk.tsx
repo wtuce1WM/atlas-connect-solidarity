@@ -1010,9 +1010,6 @@ const EmbedAsk = () => {
                             )}
                             <div className="absolute inset-x-0 bottom-0 p-2.5">
                               <div className="text-[13px] font-bold text-white leading-tight break-words">{d.name}</div>
-                              {d.hook && (
-                                <div className="text-[11px] text-white/80 mt-0.5 line-clamp-2">{d.hook}</div>
-                              )}
                             </div>
                           </div>
                         </button>
