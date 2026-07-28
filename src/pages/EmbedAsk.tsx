@@ -243,18 +243,22 @@ const MAP_RE = /<!--SHOW_ON_MAP:([\s\S]*?)-->/g;
 const EVENTS_RE = /<!--EVENTS_SNAPSHOT:([\s\S]*?)-->/g;
 const KNOWN_RE = /<!--KNOWN_BUSINESSES:([\s\S]*?)-->/g;
 const ARTICLE_RE = /<!--ARTICLE_CARD:([\s\S]*?)-->/g;
+const DEST_RE = /<!--DESTINATION_CARDS:([\s\S]*?)-->/g;
 
 type MapPayload = { title?: string | null; businesses: MapPanelBusiness[] };
 type EventsPayload = { title?: string | null; city?: string | null; events: EventPanelItem[] };
 type KnownBusiness = { id: string; slug: string | null; name: string };
 type ArticleCardPayload = { id: string; slug: string; title: string; image: string | null; isOwner?: boolean };
+type DestinationCard = { id: string; name: string; hook?: string | null; image?: string | null; latitude?: number | null; longitude?: number | null; distKm?: number | null };
+type DestinationsPayload = { title?: string | null; destinations: DestinationCard[] };
 
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[] } {
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[] } {
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
   const articles: ArticleCardPayload[] = [];
-  if (!text) return { clean: text, maps, events, known, articles };
+  const destinations: DestinationsPayload[] = [];
+  if (!text) return { clean: text, maps, events, known, articles, destinations };
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -279,14 +283,21 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
       if (p && p.id && p.slug && p.title) articles.push(p as ArticleCardPayload);
     } catch { /* */ }
     return "";
+  }).replace(DEST_RE, (_m, raw) => {
+    try {
+      const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (p && Array.isArray(p.destinations) && p.destinations.length) destinations.push({ title: p.title ?? null, destinations: p.destinations });
+    } catch { /* */ }
+    return "";
   });
   clean = clean
     .replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "")
     .replace(/<!--EVENTS_SNAPSHOT:[\s\S]*$/g, "")
     .replace(/<!--KNOWN_BUSINESSES:[\s\S]*$/g, "")
     .replace(/<!--ARTICLE_CARD:[\s\S]*$/g, "")
+    .replace(/<!--DESTINATION_CARDS:[\s\S]*$/g, "")
     .trim();
-  return { clean, maps, events, known, articles };
+  return { clean, maps, events, known, articles, destinations };
 }
 
 // Concatenate all text parts of a UIMessage into a single string.
