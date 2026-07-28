@@ -1922,7 +1922,9 @@ Deno.serve(async (req) => {
             const bIds: string[] = Array.isArray(sugg?.badge_ids) ? sugg!.badge_ids : [];
             if (bIds.length) deterministicBadgeIds = bIds;
             const pIds: string[] = Array.isArray(sugg?.business_ids) ? sugg!.business_ids : [];
-            if (pIds.length) suggestionPinnedIds = pIds;
+            // Cite the linked business only on the first response (initial suggestion click).
+            // On follow-ups (followupId present), drop the pin so it is not re-cited.
+            if (pIds.length && !followupId) suggestionPinnedIds = pIds;
             suggestionMode = (sugg?.mode as string | null) || null;
             suggestionLabel = (sugg?.label_fr as string | null) || (sugg?.label_en as string | null) || (sugg?.label_ar as string | null) || null;
             const dIds: string[] = Array.isArray(sugg?.destination_ids) ? sugg!.destination_ids : [];
