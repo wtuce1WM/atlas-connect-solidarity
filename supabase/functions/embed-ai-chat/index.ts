@@ -2354,6 +2354,151 @@ Deno.serve(async (req) => {
           }
         }
 
+        // ============= Blog grounding (hybrid) =============
+        // If the last user message maps to a published blog article (by title
+        // similarity), emit an ARTICLE_CARD marker AND — when no suggestion-forced
+        // route is active — build a full immersive answer from the article's
+        // curated entries (up to 10), so the user gets a real editorial listing
+        // instead of a laconic "3 sur 3 trouvées" disclosure.
+        {
+          let blogRouteHandled = false;
+          try {
+            const lastUserMsg = uiMessages[uiMessages.length - 1];
+            const lastUserText = lastUserMsg?.role === "user" ? extractTextFromUIMessage(lastUserMsg) : "";
+            if (lastUserText && lastUserText.trim().length >= 6) {
+              const posts = await fetchBlogPostsCached(admin);
+              const match = matchBlogArticle(lastUserText, language, posts, host.id);
+              if (match) {
+                const title =
+                  (language === "en" && match.title_en) ||
+                  (language === "ar" && match.title_ar) ||
+                  match.title_fr || match.title_en || match.title_ar || "";
+                const image = match.custom_hero_image_url || match.cover_image_url || null;
+                const articlePayload = {
+                  id: match.id,
+                  slug: match.slug,
+                  title,
+                  image,
+                  isOwner: match.anchor_business_id === host.id,
+                };
+
+                const suggestionRouteActive =
+                  (deterministicSubcategoryNames && deterministicSubcategoryNames.length > 0) ||
+                  (deterministicBadgeIds && deterministicBadgeIds.length > 0) ||
+                  (suggestionPinnedIds && suggestionPinnedIds.length > 0) ||
+                  !!curatedProximity;
+
+                if (!suggestionRouteActive) {
+                  const { data: full } = await admin
+                    .from("blog_posts")
+                    .select("entries_fr, entries_en, entries_ar")
+                    .eq("id", match.id)
+                    .maybeSingle();
+                  const entriesRaw: any[] =
+                    (language === "en" && Array.isArray(full?.entries_en) && full!.entries_en.length ? full!.entries_en : null) ||
+                    (language === "ar" && Array.isArray(full?.entries_ar) && full!.entries_ar.length ? full!.entries_ar : null) ||
+                    (Array.isArray(full?.entries_fr) ? full!.entries_fr : []) as any[];
+                  const entries = Array.isArray(entriesRaw) ? entriesRaw : [];
+                  const businessIds = entries.map((e: any) => e?.id).filter(Boolean).slice(0, 12);
+
+                  if (businessIds.length >= 3) {
+                    const { data: bizRows } = await admin
+                      .from("businesses")
+                      .select("id, name, slug, city, neighborhood, main_category, categories, hook_fr, hook_en, hook_ar, latitude, longitude, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, engagements, closure_message, is_active")
+                      .in("id", businessIds)
+                      .eq("is_active", true)
+                      .is("closure_message", null);
+                    const byId = new Map<string, any>((bizRows || []).map((b: any) => [b.id, b]));
+                    const orderedBiz = businessIds
+                      .map((id: string) => byId.get(id))
+                      .filter(Boolean) as any[];
+
+                    if (orderedBiz.length >= 3) {
+                      const shown = orderedBiz.slice(0, Math.min(orderedBiz.length, 10));
+
+                      emitDelta(`\n\n<!--ARTICLE_CARD:${JSON.stringify(articlePayload)}-->\n\n`);
+
+                      const cityForCopy = host.city || "Marrakech";
+                      const introFr = `Bonne nouvelle : cette question rejoint exactement notre sélection éditoriale **${title}**. Je te déroule les **${shown.length} adresses** qu'on met en avant en priorité — extraites du guide, avec le contexte qui justifie leur place dans le classement. Dis-moi ensuite si tu veux qu'on affine par quartier, ambiance, budget ou moment de la journée.`;
+                      const introEn = `Good timing: your question maps directly to our editorial pick **${title}**. Here are the **${shown.length} addresses** we put forward first — straight from the guide, with the context that earned them their spot. Tell me if you'd like to narrow by neighborhood, vibe, budget or time of day.`;
+                      const introAr = `يتطابق سؤالك تمامًا مع اختيارنا التحريري **${title}**. إليك **${shown.length} عناوين** نقدّمها أولًا — من الدليل مباشرة، مع السياق الذي يبرّر ترتيبها. أخبرني إن أردت تضييق الاختيار حسب الحي أو الأجواء أو الميزانية أو الوقت.`;
+                      const intro = language === "en" ? introEn : language === "ar" ? introAr : introFr;
+
+                      const body = shown.map((biz: any, idx: number) => {
+                        const entry = entries[idx] || {};
+                        const pretitle = stripText(entry.pretitle || "");
+                        const rank = Number(entry.rank) || idx + 1;
+                        const hook = stripText(entry.hook || "") ||
+                          stripText(
+                            language === "en" ? (biz.hook_en || biz.hook_fr || "") :
+                            language === "ar" ? (biz.hook_ar || biz.hook_fr || "") :
+                            (biz.hook_fr || biz.hook_en || "")
+                          );
+                        const firstPara = Array.isArray(entry.paragraphs) && entry.paragraphs.length
+                          ? stripText(entry.paragraphs[0]).slice(0, 320)
+                          : "";
+                        const hours = stripText(entry.hours || "");
+                        const area = pretitle || [biz.neighborhood, biz.city].filter(Boolean).join(" · ");
+                        const detail = [hook, firstPara].filter(Boolean).join(" ");
+                        const hoursLine = hours ? `\n\n_${hours}_` : "";
+                        const fallback = language === "en" ? "A curated One World Morocco address."
+                          : language === "ar" ? "عنوان مختار ضمن دليل One World Morocco."
+                          : "Une adresse sélectionnée dans le guide One World Morocco.";
+                        return `**${rank}. ${biz.name}**${area ? ` — _${area}_` : ""}\n\n${detail || fallback}${hoursLine}`;
+                      }).join("\n\n");
+
+                      const total = orderedBiz.length;
+                      const disclosure = shown.length < total
+                        ? (language === "en"
+                            ? `📍 Showing **${shown.length}** of **${total}** picks from **${title}** in ${cityForCopy} — want me to keep going, focus on the top 3, or refine by neighborhood / vibe / budget?`
+                            : language === "ar"
+                              ? `📍 أعرض **${shown.length}** من **${total}** اختيارًا من **${title}** في ${cityForCopy} — هل أواصل، أو أركّز على أفضل 3، أو أُضيّق حسب الحي / الأجواء / الميزانية؟`
+                              : `📍 Je te déroule **${shown.length}** adresses sur **${total}** issues de **${title}** à ${cityForCopy} — tu veux la suite, le podium en zoom, ou qu'on affine par quartier / ambiance / budget ?`)
+                        : (language === "en"
+                            ? `📍 That's the full **${title}** shortlist in ${cityForCopy} — say the word for the podium detailed, an alternative neighborhood, or the map view.`
+                            : language === "ar"
+                              ? `📍 هذه هي القائمة الكاملة **${title}** في ${cityForCopy} — أخبرني إن أردت تفصيل المنصة أو حيًا آخر أو عرض الخريطة.`
+                              : `📍 Voici la sélection complète **${title}** à ${cityForCopy} — dis-moi si tu veux le podium détaillé, un autre quartier, ou la vue carte.`);
+
+                      for (const b of shown) {
+                        if (b?.id && b?.name) knownBusinesses.push({ id: b.id, slug: b.slug || null, name: b.name });
+                      }
+                      const mapBusinesses = shown.map((b: any) => ({
+                        id: b.id, slug: b.slug, name: b.name, city: b.city, neighborhood: b.neighborhood,
+                        address: null, main_category: b.main_category,
+                        categories: Array.isArray(b.categories) ? b.categories : [],
+                        latitude: b.latitude, longitude: b.longitude, logo_url: b.logo_url,
+                        images: Array.isArray(b.images) ? b.images : [],
+                        google_rating: b.google_rating, google_review_count: b.google_review_count,
+                        tripadvisor_rating: b.tripadvisor_rating, tripadvisor_review_count: b.tripadvisor_review_count,
+                        engagements: b.engagements,
+                      }));
+                      lastMapPayload = { title, businesses: mapBusinesses };
+
+                      const answer = `${intro}\n\n${body}\n\n${disclosure}`;
+                      emitDelta(answer);
+                      const trailing = emitTrailingMarkers();
+                      toolsCalledLog.push({ name: "blog_article_route", args: { slug: match.slug, shown: shown.length, total }, ok: true });
+                      endText();
+                      await logTurn({ finalText: answer + trailing, streamCompleted: true });
+                      blogRouteHandled = true;
+                    }
+                  }
+                }
+
+                if (!blogRouteHandled) {
+                  emitDelta(`\n\n<!--ARTICLE_CARD:${JSON.stringify(articlePayload)}-->\n\n`);
+                }
+              }
+            }
+          } catch (e) {
+            console.error("[embed-ai-chat] blog_grounding_error", e);
+          }
+          if (blogRouteHandled) return;
+        }
+
+
+
         // Deterministic: MAP REPLAY — the user asks to see the previous results on a map.
         // We do NOT re-run any search. We reuse the last <!--SHOW_ON_MAP:...--> payload
         // emitted in a previous assistant turn and re-attach it to a short reply.
