@@ -303,27 +303,59 @@ function buildHoursAnswer(host: any, lang: "fr" | "en" | "ar"): string | null {
  * and return the ids of previously-shown businesses (most recent turn first,
  * host excluded, deduped).
  */
-function extractPriorKnownBusinessIds(messages: { role: string; content: any }[], hostId: string): string[] {
+function textForEmbedMarkers(input: any): string {
+  const chunks: string[] = [];
+  const walk = (value: any, depth = 0) => {
+    if (value == null || depth > 5) return;
+    if (typeof value === "string") {
+      chunks.push(value);
+      return;
+    }
+    if (Array.isArray(value)) {
+      for (const item of value) walk(item, depth + 1);
+      return;
+    }
+    if (typeof value === "object") {
+      for (const key of ["content", "text", "delta", "parts"]) {
+        if (key in value) walk(value[key], depth + 1);
+      }
+    }
+  };
+  walk(input);
+  return chunks.join("\n");
+}
+
+function parseEmbedJsonMarker(raw: string): any | null {
+  const candidates = [
+    raw,
+    raw.replace(/&quot;/g, '"').replace(/--&gt;/g, "-->"),
+    raw.replace(/\\"/g, '"').replace(/\\n/g, "\n"),
+  ];
+  for (const candidate of candidates) {
+    try { return JSON.parse(candidate); } catch { /* try next */ }
+  }
+  return null;
+}
+
+function extractPriorKnownBusinessIds(messages: any[], hostId: string): string[] {
   const ids: string[] = [];
   const seen = new Set<string>();
   for (let i = messages.length - 1; i >= 0; i--) {
     const m = messages[i];
     if (m.role !== "assistant") continue;
-    const content = String(m.content ?? "");
+    const content = textForEmbedMarkers(m) || String(m.content ?? "");
     // Prefer KNOWN_BUSINESSES, fall back to SHOW_ON_MAP (deterministic routes like
     // poi_nearby emit only SHOW_ON_MAP but still represent the latest result set).
     let arr: any = null;
     const knownMatch = content.match(/<!--KNOWN_BUSINESSES:(\[[\s\S]*?\])-->/);
     if (knownMatch) {
-      try { arr = JSON.parse(knownMatch[1].replace(/--&gt;/g, "-->")); } catch { /* ignore */ }
+      arr = parseEmbedJsonMarker(knownMatch[1]);
     }
     if (!arr) {
       const mapMatch = content.match(/<!--SHOW_ON_MAP:(\{[\s\S]*?\})-->/);
       if (mapMatch) {
-        try {
-          const parsed = JSON.parse(mapMatch[1].replace(/--&gt;/g, "-->"));
-          if (parsed && Array.isArray(parsed.businesses)) arr = parsed.businesses;
-        } catch { /* ignore */ }
+        const parsed = parseEmbedJsonMarker(mapMatch[1]);
+        if (parsed && Array.isArray(parsed.businesses)) arr = parsed.businesses;
       }
     }
     if (Array.isArray(arr)) {
@@ -1348,7 +1380,7 @@ async function buildBookingForBusinesses(admin: any, ids: string[], lang: "fr" |
   if (!ids.length) return null;
   const { data, error } = await admin
     .from("businesses")
-    .select("id, name, city, neighborhood, phone, whatsapp, hook_fr, hook_en, hook_ar, description, description_en, description_ar, reserve_now_url, reserve_now_cta, presentation_mode, online_shop_url, online_shop_cta, online_shop_presentation_mode, url_4, url_4_cta, url_4_presentation_mode, url_5, url_5_cta, url_5_presentation_mode, website, website_cta, url_4_title, url_5_title")
+    .select("id, name, city, neighborhood, phone, whatsapp, hook_fr, hook_en, hook_ar, description, description_en, description_ar, reserve_now_url, reserve_now_cta, presentation_mode, online_shop_url, online_shop_cta, online_shop_presentation_mode, url_4, url_4_cta, url_4_presentation_mode, url_5, url_5_cta, url_5_presentation_mode, website, website_cta")
     .in("id", ids.slice(0, 20));
   if (error || !Array.isArray(data) || !data.length) return null;
 
@@ -3014,6 +3046,74 @@ Deno.serve(async (req) => {
           }
         }
 
+        const loadPriorBusinessIdsForThread = async (): Promise<string[]> => {
+          const immediate = extractPriorKnownBusinessIds(inMessages, host.id);
+          if (immediate.length) return immediate;
+
+          const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          if (!sessionId || !uuidRe.test(sessionId)) return [];
+
+          try {
+            const { data: trace } = await admin
+              .from("ai_chats")
+              .select("messages")
+              .eq("id", sessionId)
+              .maybeSingle();
+
+            const rawMessages = (trace as any)?.messages;
+            const rows: Msg[] = Array.isArray(rawMessages)
+              ? rawMessages
+                  .filter((m: any) => m && (m.role === "user" || m.role === "assistant"))
+                  .map((m: any) => ({ role: m.role, content: String(m.content || "") }))
+              : Array.isArray(rawMessages?.aiChat)
+                ? rawMessages.aiChat
+                    .filter((m: any) => m && (m.role === "user" || m.role === "assistant"))
+                    .map((m: any) => ({ role: m.role, content: String(m.content || "") }))
+                : [];
+
+            return extractPriorKnownBusinessIds(rows, host.id);
+          } catch (e) {
+            console.error("[embed-ai-chat] prior_thread_lookup_error", e);
+            return [];
+          }
+        };
+
+        // Deterministic ONLINE BOOKING must run before blog/suggestion routing.
+        // A follow-up like “On peut réserver en ligne ?” refers to the latest
+        // visible result set, not to the active suggestion nor to the host.
+        if (isBookingIntent(userMessage) || followupMode === "booking") {
+          const priorIds = await loadPriorBusinessIdsForThread();
+          if (priorIds.length) {
+            const answer = await buildBookingForBusinesses(admin, priorIds, language);
+            if (answer) {
+              const priorRows = orderByIds(await fetchPriorFull(admin, priorIds), priorIds);
+              if (priorRows.length) {
+                lastMapPayload = { title: null, businesses: priorRows };
+                for (const b of priorRows) {
+                  if (b?.id && b?.name) knownBusinesses.push({ id: b.id, slug: b.slug || null, name: b.name });
+                }
+              }
+              emitDelta(answer);
+              const trailing = emitTrailingMarkers();
+              finalText = answer + trailing;
+              toolsCalledLog.push({ name: "booking_lookup", args: { scope: "previous_results", count: priorIds.length, early: true }, ok: true });
+              endText();
+              await logTurn({ finalText, streamCompleted: true });
+              return;
+            }
+          }
+
+          if (!deterministicSubcategoryNames && !deterministicBadgeIds && !suggestionPinnedIds.length && !suggestionMode) {
+            const answer = buildBookingAnswer(host, language);
+            emitDelta(answer);
+            finalText = answer;
+            toolsCalledLog.push({ name: "booking_lookup", args: { scope: "host", early: true }, ok: true });
+            endText();
+            await logTurn({ finalText, streamCompleted: true });
+            return;
+          }
+        }
+
         // Deterministic WEATHER (early) — runs before blog grounding so a followup
         // like "Quelle est la météo prévue ?" always renders the immersive widget.
         if (isWeatherIntent(userMessage) || followupMode === "weather") {
@@ -3757,34 +3857,6 @@ Deno.serve(async (req) => {
             return;
           }
         }
-
-        // Deterministic: ONLINE BOOKING — scan url_1..url_5 CTAs for a Reserve/Book label.
-        // When prior results exist in the thread, always describe THEIR booking
-        // status (works even with an active suggestion filter). Otherwise fall
-        // back to the host — but only if no deterministic filter is active,
-        // to avoid "Réserver un jet privé" looping on the host.
-        if (isBookingIntent(userMessage)) {
-          const priorIds = extractPriorKnownBusinessIds(inMessages, host.id);
-          if (priorIds.length) {
-            const answer = await buildBookingForBusinesses(admin, priorIds, language);
-            if (answer) {
-              emitDelta(answer);
-              toolsCalledLog.push({ name: "booking_lookup", args: { scope: "previous_results", count: priorIds.length }, ok: true });
-              endText();
-              await logTurn({ finalText: answer, streamCompleted: true });
-              return;
-            }
-          }
-          if (!deterministicSubcategoryNames && !deterministicBadgeIds && !suggestionPinnedIds.length && !suggestionMode) {
-            const answer = buildBookingAnswer(host, language);
-            emitDelta(answer);
-            toolsCalledLog.push({ name: "booking_lookup", args: { scope: "host" }, ok: true });
-            endText();
-            await logTurn({ finalText: answer, streamCompleted: true });
-            return;
-          }
-        }
-
 
         // Deterministic: TWO-ENTITY PROXIMITY (curated only) — the active
         // suggestion must carry proximity_a_* AND proximity_b_* mappings.
