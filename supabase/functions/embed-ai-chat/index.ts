@@ -1921,6 +1921,8 @@ Deno.serve(async (req) => {
             if (pIds.length) suggestionPinnedIds = pIds;
             suggestionMode = (sugg?.mode as string | null) || null;
             suggestionLabel = (sugg?.label_fr as string | null) || (sugg?.label_en as string | null) || (sugg?.label_ar as string | null) || null;
+            const dIds: string[] = Array.isArray(sugg?.destination_ids) ? sugg!.destination_ids : [];
+            if (dIds.length) suggestionDestinationIds = dIds;
 
             // Load curated proximity mappings if both A and B are populated
             const paSub: string[] = Array.isArray(sugg?.proximity_a_subcategory_ids) ? sugg!.proximity_a_subcategory_ids : [];
