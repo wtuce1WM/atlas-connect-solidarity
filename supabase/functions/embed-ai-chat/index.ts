@@ -2725,7 +2725,7 @@ Deno.serve(async (req) => {
                       const anonLabel = language === "en" ? "Anonymous" : language === "ar" ? "مجهول" : "Anonyme";
 
                       const body = shown.map((biz: any, idx: number) => {
-                        const entry = entries[idx] || {};
+                        const entry = shownEntries[idx] || {};
                         const pretitle = stripText(entry.pretitle || "");
                         const rank = Number(entry.rank) || idx + 1;
                         const hook = stripText(entry.hook || "") ||
