@@ -834,6 +834,18 @@ const EmbedAsk = () => {
   const StrongCited = ({ children }: { children?: React.ReactNode }) => {
     const text = String(Array.isArray(children) ? children.join("") : children ?? "").trim();
     const key = text.toLowerCase();
+    const dest = destByName.get(key);
+    if (dest) {
+      return (
+        <button
+          type="button"
+          onClick={() => setOpenDestinationId(dest.id)}
+          className="font-bold underline decoration-dotted underline-offset-2 hover:decoration-solid text-[#C24B3F] cursor-pointer"
+        >
+          {children}
+        </button>
+      );
+    }
     const rich = richByName.get(key);
     const meta = rich || knownByName.get(key);
     if (!meta) return <strong>{children}</strong>;
@@ -842,7 +854,6 @@ const EmbedAsk = () => {
         type="button"
         onClick={() => {
           if (rich) {
-            // Provide siblings from the same message context: all rich businesses cited nearby.
             const siblings = Array.from(richByName.values()).map((b) => b.id);
             setOpenSiblings(siblings);
           } else {
