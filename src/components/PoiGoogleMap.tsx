@@ -369,13 +369,11 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       mapTypeControl: !!showLayerControls,
       mapTypeControlOptions: showLayerControls
         ? {
-            style: gmaps.MapTypeControlStyle.DROPDOWN_MENU,
-            position: gmaps.ControlPosition.TOP_RIGHT,
+            style: gmaps.MapTypeControlStyle.HORIZONTAL_BAR,
+            position: gmaps.ControlPosition.BOTTOM_LEFT,
             mapTypeIds: [
               gmaps.MapTypeId.ROADMAP,
               gmaps.MapTypeId.SATELLITE,
-              gmaps.MapTypeId.HYBRID,
-              gmaps.MapTypeId.TERRAIN,
             ],
           }
         : undefined,
