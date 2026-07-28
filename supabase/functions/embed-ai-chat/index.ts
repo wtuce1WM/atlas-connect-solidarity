@@ -2673,47 +2673,31 @@ Deno.serve(async (req) => {
             const { data, error } = await admin.functions.invoke("get-weather", { body: { city } });
             if (!error && data && !data.error) {
               const w = data as any;
-              const desc = String(w.description || "").trim();
               const cityName = w.city_name || city;
 
-              // Trajectoire de la journée : on prend 4 créneaux (matin/midi/après-midi/soir)
-              const hourly: any[] = Array.isArray(w.hourly) ? w.hourly.slice(0, 4) : [];
-              const hourlyLine = hourly.length
-                ? hourly.map((h) => `${h.hour} · ${h.temp}° ${h.description || ""}${h.pop ? ` (${h.pop}% pluie)` : ""}`.trim()).join(" — ")
-                : "";
-
-              // Lendemain : 2e entrée daily (index 0 = aujourd'hui)
-              const daily: any[] = Array.isArray(w.daily) ? w.daily : [];
-              const tomorrow = daily.length >= 2 ? daily[1] : null;
-
               const L = {
-                fr: {
-                  now: `À **${cityName}**, il fait actuellement **${w.temp}°C** (ressenti ${w.feels_like}°C) — ${desc}. Min ${w.temp_min}° / max ${w.temp_max}°, humidité ${w.humidity}%, vent ${w.wind_speed} km/h.`,
-                  todayLbl: "Évolution aujourd'hui",
-                  tomorrowLbl: "Demain",
-                },
-                en: {
-                  now: `In **${cityName}**, it's currently **${w.temp}°C** (feels ${w.feels_like}°C) — ${desc}. Min ${w.temp_min}° / max ${w.temp_max}°, humidity ${w.humidity}%, wind ${w.wind_speed} km/h.`,
-                  todayLbl: "Today's evolution",
-                  tomorrowLbl: "Tomorrow",
-                },
-                ar: {
-                  now: `في **${cityName}**، الحرارة الآن **${w.temp}°م** (محسوسة ${w.feels_like}°م) — ${desc}. الصغرى ${w.temp_min}° / الكبرى ${w.temp_max}°، الرطوبة ${w.humidity}%، الرياح ${w.wind_speed} كم/س.`,
-                  todayLbl: "خلال اليوم",
-                  tomorrowLbl: "غدًا",
-                },
-              }[language] || L_fr_fallback();
-              function L_fr_fallback() { return { now: "", todayLbl: "Évolution aujourd'hui", tomorrowLbl: "Demain" }; }
+                fr: `Voici la météo à **${cityName}** ainsi que la tendance des 3 prochains jours. 👇`,
+                en: `Here's the weather in **${cityName}** and the trend for the next 3 days. 👇`,
+                ar: `إليك حالة الطقس في **${cityName}** والتوقعات للأيام الثلاثة القادمة. 👇`,
+              }[language] || `Voici la météo à **${cityName}**. 👇`;
 
-              const parts: string[] = [L.now];
-              if (hourlyLine) parts.push(`\n\n**${L.todayLbl}** — ${hourlyLine}.`);
-              if (tomorrow) {
-                const popTxt = tomorrow.pop_max ? (language === "en" ? `, rain ${tomorrow.pop_max}%` : language === "ar" ? `، احتمال المطر ${tomorrow.pop_max}%` : `, pluie ${tomorrow.pop_max}%`) : "";
-                parts.push(`\n\n**${L.tomorrowLbl}** — ${tomorrow.temp_min}°/${tomorrow.temp_max}°, ${tomorrow.description || ""}${popTxt}.`);
-              }
-              const reply = parts.join("");
-              emitDelta(reply);
-              finalText = reply;
+              const weatherJson = {
+                city_name: cityName,
+                temp: w.temp,
+                feels_like: w.feels_like,
+                temp_min: w.temp_min,
+                temp_max: w.temp_max,
+                humidity: w.humidity,
+                wind_speed: w.wind_speed,
+                description: w.description || "",
+                icon: w.icon || "",
+                hourly: Array.isArray(w.hourly) ? w.hourly.slice(0, 8) : [],
+                daily: Array.isArray(w.daily) ? w.daily.slice(0, 3) : [],
+              };
+              const marker = `\n\n<!--WEATHER_FORECAST:${JSON.stringify(weatherJson)}-->`;
+
+              emitDelta(L);
+              finalText = L + marker;
               toolsCalledLog.push({ name: "get_weather", args: { city }, ok: true });
 
               endText();
