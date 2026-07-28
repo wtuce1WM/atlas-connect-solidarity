@@ -990,7 +990,7 @@ const EmbedAsk = () => {
                         {articleCard.title}
                       </div>
                       {articleCard.hook && (
-                        <div className="text-white/90 text-xs sm:text-sm mt-1 italic line-clamp-3 drop-shadow">
+                        <div className="text-white/90 text-xs sm:text-sm mt-1 italic drop-shadow">
                           {articleCard.hook}
                         </div>
                       )}
