@@ -1309,12 +1309,24 @@ const EmbedAsk = () => {
           style={{ height: "100dvh" }}
         >
           <Suspense fallback={<div className="flex-1" />}>
-            <DestinationSlidePanel
-              destinationId={openDestinationId}
-              onClose={() => setOpenDestinationId(null)}
-              slideFrom="right"
-              onSearchBusinessSelect={(bid) => { setOpenDestinationId(null); setOpenBusinessId(bid); }}
-            />
+            {(() => {
+              const idx = allDestinations.findIndex((d) => d.id === openDestinationId);
+              const hasPrevD = idx > 0;
+              const hasNextD = idx >= 0 && idx < allDestinations.length - 1;
+              return (
+                <DestinationSlidePanel
+                  key={openDestinationId}
+                  destinationId={openDestinationId}
+                  onClose={() => setOpenDestinationId(null)}
+                  slideFrom="right"
+                  onSearchBusinessSelect={(bid) => { setOpenDestinationId(null); setOpenBusinessId(bid); }}
+                  hasPrevDestination={hasPrevD}
+                  hasNextDestination={hasNextD}
+                  onPrevDestination={hasPrevD ? () => setOpenDestinationId(allDestinations[idx - 1].id) : undefined}
+                  onNextDestination={hasNextD ? () => setOpenDestinationId(allDestinations[idx + 1].id) : undefined}
+                />
+              );
+            })()}
           </Suspense>
         </div>
       )}
