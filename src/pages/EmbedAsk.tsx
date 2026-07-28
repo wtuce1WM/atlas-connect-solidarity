@@ -686,7 +686,9 @@ const EmbedAsk = () => {
     onError: (message) => setError(message),
   });
 
+  const pendingSendRef = useRef<string | null>(null);
   const startNewConversation = () => {
+    const pending = input.trim();
     try { window.localStorage.removeItem(storageKey); } catch { /* noop */ }
     restoredRef.current = false;
     sessionIdRef.current = newSessionId();
@@ -697,9 +699,21 @@ const EmbedAsk = () => {
     setOpenEvents(null);
     setOpenBusinessId(null);
     setActiveSuggestionId(null);
+    pendingSendRef.current = pending || null;
     setChatKey((k) => k + 1); // resets useChat id → clears message list
     setTimeout(() => inputRef.current?.focus(), 0);
   };
+
+  // After a "Nouvelle conversation" reset, if the user had typed a question,
+  // send it as the first message of the new thread.
+  useEffect(() => {
+    const pending = pendingSendRef.current;
+    if (!pending) return;
+    pendingSendRef.current = null;
+    const t = setTimeout(() => { try { send(pending); } catch { /* noop */ } }, 50);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatKey]);
 
   const bg = theme === "light" ? "bg-white" : "bg-neutral-950";
   const surface = theme === "light" ? "bg-white text-neutral-900" : "bg-neutral-950 text-neutral-100";
