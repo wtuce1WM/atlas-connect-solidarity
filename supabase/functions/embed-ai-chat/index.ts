@@ -2205,18 +2205,10 @@ function buildContextualClosing(userMessage: string, lang: "fr" | "en" | "ar"): 
   };
   if (!rows.length) return disclosure;
 
-
-  const q = normalize(userMessage);
-  const theme = q.includes("rooftop") || q.includes("terrasse")
-    ? "rooftops"
-    : q.includes("bar") || q.includes("cocktail") || q.includes("boire")
-      ? "adresses pour boire un verre"
-      : q.includes("restaurant") || q.includes("dejeuner") || q.includes("diner") || q.includes("manger")
-        ? "tables"
-        : "adresses";
+  const intro = buildContextualIntro(userMessage, host, city, lang, proximityActive, radiusUsed);
+  const closing = buildContextualClosing(userMessage, lang);
 
   if (lang === "en") {
-    const intro = `From **${host.name}**, ${city} opens into a compact, atmospheric selection of ${theme}: rooftops, medina corners and lively terraces where the setting matters as much as the address. Here are the places I would put forward first, keeping only addresses found in the One World Morocco selection.`;
     const body = rows.map((b) => {
       const hook = stripText(b.hook_en || b.hook_fr || b.description_en || b.description || "");
       const area = [b.neighborhood, b.city].filter(Boolean).join(", ");
@@ -2224,11 +2216,10 @@ function buildContextualClosing(userMessage: string, lang: "fr" | "en" | "ar"): 
       return `**${b.name}**${area ? `, ${area}` : ""}. ${detail || "A curated One World Morocco address to keep on your shortlist."}`;
     }).join("\n\n");
     const rl = radiusLine("en");
-    return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nWould you like me to narrow this by vibe, neighborhood, or moment of the day?${radiusCta("en")}`;
+    return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\n${closing}${radiusCta("en")}`;
   }
 
   if (lang === "ar") {
-    const intro = `انطلاقًا من **${host.name}**، تكشف ${city} عن مجموعة مختارة من العناوين ذات الأجواء الواضحة، حيث يهم المكان والإحساس بقدر ما تهم القائمة. هذه أولى الاقتراحات من اختيار One World Morocco فقط.`;
     const body = rows.map((b) => {
       const hook = stripText(b.hook_ar || b.hook_fr || b.description_ar || b.description || "");
       const area = [b.neighborhood, b.city].filter(Boolean).join("، ");
@@ -2236,10 +2227,9 @@ function buildContextualClosing(userMessage: string, lang: "fr" | "en" | "ar"): 
       return `**${b.name}**${area ? `، ${area}` : ""}. ${detail || "عنوان مختار ضمن دليل One World Morocco."}`;
     }).join("\n\n");
     const rl = radiusLine("ar");
-    return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nهل تريد أن أضيّق الاختيار حسب الحي أو الأجواء أو الوقت؟${radiusCta("ar")}`;
+    return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\n${closing}${radiusCta("ar")}`;
   }
 
-  const intro = `Depuis **${host.name}**, ${city} se découvre très bien par touches : ${theme}, terrasses vivantes, coins de médina et adresses qui donnent tout de suite une ambiance. Je te propose une sélection issue uniquement des résultats One World Morocco, avec les lieux les plus pertinents en premier.`;
   const body = rows.map((b) => {
     const hook = stripText(b.hook_fr || b.hook_en || b.description || b.description_en || "");
     const area = [b.neighborhood, b.city].filter(Boolean).join(", ");
@@ -2247,7 +2237,7 @@ function buildContextualClosing(userMessage: string, lang: "fr" | "en" | "ar"): 
     return `**${b.name}**${area ? `, ${area}` : ""}. ${detail || "Une adresse sélectionnée dans le guide One World Morocco, à garder dans ta shortlist."}`;
   }).join("\n\n");
   const rl = radiusLine("fr");
-  return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\nTu veux que je resserre plutôt par quartier, ambiance ou moment de la journée ?${radiusCta("fr")}`;
+  return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\n${closing}${radiusCta("fr")}`;
 }
 
 function buildEventsWeekendAnswer(
