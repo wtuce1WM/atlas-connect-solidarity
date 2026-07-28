@@ -954,12 +954,13 @@ async function buildDescribePriors(
   ids: string[],
   facet: "cuisine" | "ambiance" | "services" | null,
   lang: "fr" | "en" | "ar",
+  host: any,
 ): Promise<string | null> {
   if (!ids.length) return null;
   const idsSlice = ids.slice(0, 20);
   const [bizRes, sumRes] = await Promise.all([
     admin.from("businesses").select(
-      "id, name, slug, city, neighborhood, main_category, categories, services, hook_fr, hook_en, hook_ar, description, description_en, description_ar, menu_url, menu_name, flipbook_url, flipbook_name, latitude, longitude, logo_url, images, computed_rating, total_review_count, google_rating, google_review_count"
+      "id, name, slug, city, neighborhood, main_category, hook_fr, hook_en, hook_ar, description, description_en, description_ar, menu_url, menu_name, flipbook_url, flipbook_name, latitude, longitude, logo_url, images, computed_rating, total_review_count, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, opening_hours, show_opening_hours, is_open_24h, vacation_dates, default_service"
     ).in("id", idsSlice),
     admin.from("business_menu_summaries").select("business_id, title, content, price_details").in("business_id", idsSlice),
   ]);
@@ -983,43 +984,91 @@ async function buildDescribePriors(
     return parts.length > 320 ? parts.slice(0, 317).trimEnd() + "…" : parts;
   };
 
-  const sepAr = "، ";
-  const sep = lang === "ar" ? sepAr : ", ";
-
   const menuLabel = lang === "en" ? "View menu" : lang === "ar" ? "عرض القائمة" : "Voir la carte";
   const flipbookLabel = lang === "en" ? "Browse flipbook" : lang === "ar" ? "تصفح الكتيب" : "Feuilleter le flipbook";
 
+  // Morocco "now"
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Africa/Casablanca", year: "numeric", month: "2-digit", day: "2-digit", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false,
+  }).formatToParts(new Date());
+  const gp = (t: string) => parts.find((p) => p.type === t)?.value || "";
+  const wdMap: Record<string, number> = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
+  const todayIdx = wdMap[gp("weekday")] ?? 0;
+  const todayKey = DAY_KEYS[todayIdx];
+  const nowMin = parseInt(gp("hour"), 10) * 60 + parseInt(gp("minute"), 10);
+  const todayStr = `${gp("year")}-${gp("month")}-${gp("day")}`;
+  const toMin = (s: string): number | null => { const m = /^(\d{1,2}):(\d{2})$/.exec(s || ""); return m ? parseInt(m[1], 10) * 60 + parseInt(m[2], 10) : null; };
+  const inSlot = (o?: string, c?: string): boolean => {
+    const om = toMin(o || ""), cm = toMin(c || ""); if (om == null || cm == null) return false;
+    const cAdj = cm <= om ? cm + 1440 : cm;
+    return nowMin >= om && nowMin < cAdj;
+  };
+
+  const openLbl = lang === "en" ? "Open" : lang === "ar" ? "مفتوح" : "Ouvert";
+  const closedLbl = lang === "en" ? "Closed" : lang === "ar" ? "مغلق" : "Fermé";
+  const open24Lbl = lang === "en" ? "Open 24/7" : lang === "ar" ? "مفتوح 24/24" : "Ouvert 24h/24";
+
+  const computeOpen = (r: any): { badge: string; hours: string | null } => {
+    if (r.is_open_24h) return { badge: `🟢 ${open24Lbl}`, hours: null };
+    if (r.show_opening_hours !== true || !r.opening_hours) return { badge: "", hours: null };
+    if (Array.isArray(r.vacation_dates)) {
+      const onVac = r.vacation_dates.some((v: any) => v?.start_date && v?.end_date && todayStr >= v.start_date && todayStr <= v.end_date);
+      if (onVac) return { badge: `🔴 ${closedLbl}`, hours: null };
+    }
+    const d = r.opening_hours?.[todayKey];
+    if (!d || d.closed) return { badge: `🔴 ${closedLbl}`, hours: null };
+    const isOpen = inSlot(d.open, d.close) || (!d.continuous && inSlot(d.open2, d.close2));
+    const slot1 = d.open && d.close ? `${d.open}–${d.close}` : "";
+    const slot2 = d.open2 && d.close2 && !d.continuous ? `${d.open2}–${d.close2}` : "";
+    const hoursStr = [slot1, slot2].filter(Boolean).join(" / ") || null;
+    return { badge: isOpen ? `🟢 ${openLbl}` : `🔴 ${closedLbl}`, hours: hoursStr };
+  };
+
+  const fmtDist = (km: number): string => {
+    if (!isFinite(km)) return "";
+    if (km < 1) return `${Math.round(km * 1000)} m`;
+    return `${km.toFixed(1)} km`;
+  };
+
+  const hLat = Number(host?.latitude), hLng = Number(host?.longitude);
+  const hasHostCoords = isFinite(hLat) && isFinite(hLng);
+  const hoursLbl = lang === "en" ? "Today" : lang === "ar" ? "اليوم" : "Aujourd'hui";
+  const fromHostLbl = host?.name ? (lang === "en" ? `from ${host.name}` : lang === "ar" ? `من ${host.name}` : `de ${host.name}`) : "";
+
   const blocks = ordered.map((r: any, i: number) => {
     const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
-    const cats = Array.isArray(r.categories) ? r.categories.filter(Boolean) : [];
-    const services = Array.isArray(r.services) ? r.services.filter(Boolean) : [];
-    const main = r.main_category || null;
     const hook = pickHook(r) || "";
     const desc = firstSentences(pickDesc(r), 2);
     const menuSums = summariesByBiz.get(r.id) || [];
     const menuExcerpt = menuSums.length
       ? firstSentences(menuSums.map((m: any) => `${m.title ? m.title + " : " : ""}${stripHtml(m.content || "")}`).join(" — "), 2)
       : "";
-    const priceHint = menuSums.map((m: any) => m.price_details).filter(Boolean)[0] || "";
 
-    // Immersive narrative: hook + description excerpt + menu excerpt (deduped)
+    // Immersive narrative
     const narrativeParts: string[] = [];
     if (hook) narrativeParts.push(hook);
     if (desc && !narrativeParts.some((p) => p.includes(desc.slice(0, 40)))) narrativeParts.push(desc);
-    if (menuExcerpt && (facet === "cuisine" || facet === null)) narrativeParts.push(menuExcerpt);
+    if (menuExcerpt) narrativeParts.push(menuExcerpt);
     const narrative = narrativeParts.join(" ");
 
-    // Compact facet chips
+    // Meta chips: open/closed · hours · rating · distance · default_service
     const chips: string[] = [];
-    if (facet === "cuisine" || facet === null) {
-      const list = cats.length ? cats : (main ? [main] : []);
-      if (list.length) chips.push(lang === "en" ? `🍽 ${list.slice(0, 5).join(sep)}` : lang === "ar" ? `🍽 ${list.slice(0, 5).join(sep)}` : `🍽 ${list.slice(0, 5).join(sep)}`);
+    const oc = computeOpen(r);
+    if (oc.badge) chips.push(oc.badge);
+    if (oc.hours) chips.push(`🕒 ${hoursLbl} ${oc.hours}`);
+    const rating = r.computed_rating != null ? Number(r.computed_rating) : null;
+    const revCount = r.total_review_count != null ? Number(r.total_review_count) : null;
+    if (rating != null && isFinite(rating)) {
+      const ratingStr = (Math.round(rating * 10) / 10).toString().replace(".", lang === "en" ? "." : ",");
+      chips.push(`⭐ ${ratingStr}/20${revCount ? ` (${revCount})` : ""}`);
     }
-    if (facet === "services" || facet === null) {
-      if (services.length) chips.push(`✨ ${services.slice(0, 5).join(sep)}`);
+    if (hasHostCoords && r.latitude != null && r.longitude != null) {
+      const d = haversineKmLocal(hLat, hLng, Number(r.latitude), Number(r.longitude));
+      if (isFinite(d)) chips.push(`📍 ${fmtDist(d)}${fromHostLbl ? ` ${fromHostLbl}` : ""}`);
     }
-    if (facet === "ambiance" && main) chips.push(`🎨 ${main}`);
-    if (priceHint) chips.push(`💰 ${stripHtml(priceHint).slice(0, 80)}`);
+    if (r.default_service && typeof r.default_service === "string" && r.default_service.trim()) {
+      chips.push(`✨ ${r.default_service.trim()}`);
+    }
 
     // External menu/flipbook links
     const links: string[] = [];
@@ -1040,15 +1089,11 @@ async function buildDescribePriors(
     return lines.join("\n\n");
   });
 
-  const facetLabel = facet === "cuisine" ? (lang === "en" ? "cuisines" : lang === "ar" ? "أنواع المطبخ" : "types de cuisine")
-    : facet === "services" ? (lang === "en" ? "services" : lang === "ar" ? "الخدمات" : "services")
-    : facet === "ambiance" ? (lang === "en" ? "atmospheres" : lang === "ar" ? "الأجواء" : "ambiances")
-    : (lang === "en" ? "profiles" : lang === "ar" ? "الملفات" : "profils");
   const intro = lang === "en"
-    ? `Here's a closer look at the **${facetLabel}** of the previous picks:`
+    ? `Here's a closer look at the previous picks:`
     : lang === "ar"
-      ? `إليك نظرة أعمق على **${facetLabel}** للنتائج السابقة:`
-      : `Voici un portrait plus détaillé des **${facetLabel}** des résultats précédents :`;
+      ? `إليك نظرة أعمق على النتائج السابقة:`
+      : `Voici un portrait plus détaillé des résultats précédents :`;
   return `${intro}\n\n${blocks.join("\n\n---\n\n")}${toMapMarker(ordered)}`;
 }
 
