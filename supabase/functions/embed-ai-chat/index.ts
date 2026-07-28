@@ -2501,7 +2501,49 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Deterministic WEATHER (early) — runs before blog grounding so a followup
+        // like "Quelle est la météo prévue ?" always renders the immersive widget.
+        if (isWeatherIntent(userMessage) || followupMode === "weather") {
+          try {
+            const city = host.city || "Marrakech";
+            const { data, error } = await admin.functions.invoke("get-weather", { body: { city } });
+            if (!error && data && !data.error) {
+              const w = data as any;
+              const cityName = w.city_name || city;
+              const L = {
+                fr: `Voici la météo à **${cityName}** ainsi que la tendance des 3 prochains jours. 👇`,
+                en: `Here's the weather in **${cityName}** and the trend for the next 3 days. 👇`,
+                ar: `إليك حالة الطقس في **${cityName}** والتوقعات للأيام الثلاثة القادمة. 👇`,
+              }[language] || `Voici la météo à **${cityName}**. 👇`;
+              const weatherJson = {
+                city_name: cityName,
+                temp: w.temp,
+                feels_like: w.feels_like,
+                temp_min: w.temp_min,
+                temp_max: w.temp_max,
+                humidity: w.humidity,
+                wind_speed: w.wind_speed,
+                description: w.description || "",
+                icon: w.icon || "",
+                hourly: Array.isArray(w.hourly) ? w.hourly.slice(0, 8) : [],
+                daily: Array.isArray(w.daily) ? w.daily.slice(0, 3) : [],
+              };
+              const marker = `\n\n<!--WEATHER_FORECAST:${JSON.stringify(weatherJson)}-->`;
+              emitDelta(L + marker);
+              finalText = L + marker;
+              toolsCalledLog.push({ name: "get_weather", args: { city, source: followupMode === "weather" ? "followup" : "intent" }, ok: true });
+              endText();
+              await logTurn({ finalText, streamCompleted: true });
+              return;
+            }
+            console.error("[embed-ai-chat] weather_route_early_error", error || data?.error);
+          } catch (e) {
+            console.error("[embed-ai-chat] weather_route_early_exception", e);
+          }
+        }
+
         // ============= Blog grounding (hybrid) =============
+
         // If the last user message maps to a published blog article (by title
         // similarity), emit an ARTICLE_CARD marker AND — when no suggestion-forced
         // route is active — build a full immersive answer from the article's

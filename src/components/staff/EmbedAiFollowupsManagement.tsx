@@ -183,6 +183,7 @@ const EmbedAiFollowupsManagement = () => {
                   >
                     <option value="">Auto</option>
                     <option value="poi_nearby">POI seulement</option>
+                    <option value="weather">Météo (widget)</option>
                   </select>
                   <div className="flex items-center gap-2">
                     <Switch checked={r.is_active} onCheckedChange={(v) => update(r.id, { is_active: v })} />
