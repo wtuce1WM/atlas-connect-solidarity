@@ -1215,8 +1215,8 @@ const EmbedAsk = () => {
                   (destinationsPayload?.destinations?.length ?? 0) ||
                   pinnedCards.length;
                 const isBestRated = (label: string) =>
-                  /\b(le mieux not[ée]e?|la mieux not[ée]e?|meilleure? note|top not[ée]|le mieux class[ée])\b/i.test(label) ||
-                  /\b(best|highest|top)[- ]?rated\b/i.test(label) ||
+                  /(le mieux not|la mieux not|meilleure? note|top not|le mieux class)/i.test(label) ||
+                  /(best|highest|top)[- ]?rated/i.test(label) ||
                   /(الأعلى تقييما|الأفضل تقييما)/.test(label);
                 const filtered = activeFollowups.filter((f) => priorCount > 1 || !isBestRated(f.label));
                 if (filtered.length === 0) return null;
