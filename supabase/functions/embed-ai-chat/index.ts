@@ -2262,9 +2262,13 @@ Deno.serve(async (req) => {
               if (b?.id && b?.name) knownBusinesses.push({ id: b.id, slug: b.slug || null, name: b.name });
             }
             if (result?.disclosure_note) lastDisclosureNote = String(result.disclosure_note);
-            const withCoords = result.results.filter((b: any) => b?.latitude != null && b?.longitude != null);
-            if (withCoords.length && !lastMapPayload) {
-              lastMapPayload = { title: null, businesses: withCoords };
+            // Include ALL results in the carousel payload; the map component
+            // itself will only place markers for businesses with valid coords.
+            // Previously we dropped coord-less rows here, which caused the
+            // carousel to show fewer businesses than the disclosure announced
+            // (e.g. "10 sur 30" but only 2 miniatures visible).
+            if (result.results.length && !lastMapPayload) {
+              lastMapPayload = { title: null, businesses: result.results };
             }
           }
         };
