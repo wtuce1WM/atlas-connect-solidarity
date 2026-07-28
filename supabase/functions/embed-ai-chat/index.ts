@@ -956,49 +956,100 @@ async function buildDescribePriors(
   lang: "fr" | "en" | "ar",
 ): Promise<string | null> {
   if (!ids.length) return null;
-  const { data } = await admin.from("businesses").select(
-    "id, name, slug, city, neighborhood, main_category, categories, services, hook_fr, hook_en, hook_ar, latitude, longitude, logo_url, images, computed_rating, total_review_count, google_rating, google_review_count"
-  ).in("id", ids.slice(0, 20));
+  const idsSlice = ids.slice(0, 20);
+  const [bizRes, sumRes] = await Promise.all([
+    admin.from("businesses").select(
+      "id, name, slug, city, neighborhood, main_category, categories, services, hook_fr, hook_en, hook_ar, description, description_en, description_ar, menu_url, menu_name, flipbook_url, flipbook_name, latitude, longitude, logo_url, images, computed_rating, total_review_count, google_rating, google_review_count"
+    ).in("id", idsSlice),
+    admin.from("business_menu_summaries").select("business_id, title, content, price_details").in("business_id", idsSlice),
+  ]);
+  const data = bizRes?.data;
   if (!Array.isArray(data) || !data.length) return null;
   const ordered = orderByIds(data as any[], ids);
-  const pickHook = (r: any) => lang === "en" ? (r.hook_en || r.hook_fr) : lang === "ar" ? (r.hook_ar || r.hook_fr) : r.hook_fr;
+  const summariesByBiz = new Map<string, any[]>();
+  (sumRes?.data || []).forEach((s: any) => {
+    const arr = summariesByBiz.get(s.business_id) || [];
+    arr.push(s);
+    summariesByBiz.set(s.business_id, arr);
+  });
 
-  const lines = ordered.map((r: any, i: number) => {
+  const pickHook = (r: any) => lang === "en" ? (r.hook_en || r.hook_fr) : lang === "ar" ? (r.hook_ar || r.hook_fr) : r.hook_fr;
+  const pickDesc = (r: any) => lang === "en" ? (r.description_en || r.description) : lang === "ar" ? (r.description_ar || r.description) : r.description;
+  const stripHtml = (s: string) => String(s || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const firstSentences = (s: string, n = 2) => {
+    const t = stripHtml(s);
+    if (!t) return "";
+    const parts = t.split(/(?<=[.!?…])\s+/).slice(0, n).join(" ").trim();
+    return parts.length > 320 ? parts.slice(0, 317).trimEnd() + "…" : parts;
+  };
+
+  const sepAr = "، ";
+  const sep = lang === "ar" ? sepAr : ", ";
+
+  const menuLabel = lang === "en" ? "View menu" : lang === "ar" ? "عرض القائمة" : "Voir la carte";
+  const flipbookLabel = lang === "en" ? "Browse flipbook" : lang === "ar" ? "تصفح الكتيب" : "Feuilleter le flipbook";
+
+  const blocks = ordered.map((r: any, i: number) => {
     const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
     const cats = Array.isArray(r.categories) ? r.categories.filter(Boolean) : [];
     const services = Array.isArray(r.services) ? r.services.filter(Boolean) : [];
     const main = r.main_category || null;
     const hook = pickHook(r) || "";
-    const sepAr = "، ";
-    const sep = lang === "ar" ? sepAr : ", ";
-    let facetLine = "";
-    if (facet === "cuisine") {
+    const desc = firstSentences(pickDesc(r), 2);
+    const menuSums = summariesByBiz.get(r.id) || [];
+    const menuExcerpt = menuSums.length
+      ? firstSentences(menuSums.map((m: any) => `${m.title ? m.title + " : " : ""}${stripHtml(m.content || "")}`).join(" — "), 2)
+      : "";
+    const priceHint = menuSums.map((m: any) => m.price_details).filter(Boolean)[0] || "";
+
+    // Immersive narrative: hook + description excerpt + menu excerpt (deduped)
+    const narrativeParts: string[] = [];
+    if (hook) narrativeParts.push(hook);
+    if (desc && !narrativeParts.some((p) => p.includes(desc.slice(0, 40)))) narrativeParts.push(desc);
+    if (menuExcerpt && (facet === "cuisine" || facet === null)) narrativeParts.push(menuExcerpt);
+    const narrative = narrativeParts.join(" ");
+
+    // Compact facet chips
+    const chips: string[] = [];
+    if (facet === "cuisine" || facet === null) {
       const list = cats.length ? cats : (main ? [main] : []);
-      if (list.length) facetLine = lang === "en" ? `Cuisine: ${list.join(sep)}` : lang === "ar" ? `المطبخ: ${list.join(sep)}` : `Cuisine : ${list.join(sep)}`;
-    } else if (facet === "services") {
-      if (services.length) facetLine = lang === "en" ? `Services: ${services.slice(0,6).join(sep)}` : lang === "ar" ? `الخدمات: ${services.slice(0,6).join(sep)}` : `Services : ${services.slice(0,6).join(sep)}`;
-    } else if (facet === "ambiance") {
-      if (main) facetLine = lang === "en" ? `Style: ${main}` : lang === "ar" ? `الأسلوب: ${main}` : `Style : ${main}`;
-    } else {
-      const parts: string[] = [];
-      if (cats.length) parts.push(lang === "en" ? `Cuisine: ${cats.join(sep)}` : lang === "ar" ? `المطبخ: ${cats.join(sep)}` : `Cuisine : ${cats.join(sep)}`);
-      else if (main) parts.push(lang === "en" ? `Style: ${main}` : lang === "ar" ? `الأسلوب: ${main}` : `Style : ${main}`);
-      if (services.length) parts.push(lang === "en" ? `Services: ${services.slice(0,4).join(sep)}` : lang === "ar" ? `الخدمات: ${services.slice(0,4).join(sep)}` : `Services : ${services.slice(0,4).join(sep)}`);
-      facetLine = parts.join(" · ");
+      if (list.length) chips.push(lang === "en" ? `🍽 ${list.slice(0, 5).join(sep)}` : lang === "ar" ? `🍽 ${list.slice(0, 5).join(sep)}` : `🍽 ${list.slice(0, 5).join(sep)}`);
     }
-    return `${i + 1}. **${r.name}**${loc ? ` — _${loc}_` : ""}${facetLine ? `\n   ${facetLine}` : ""}${hook ? `\n   ${hook}` : ""}`;
+    if (facet === "services" || facet === null) {
+      if (services.length) chips.push(`✨ ${services.slice(0, 5).join(sep)}`);
+    }
+    if (facet === "ambiance" && main) chips.push(`🎨 ${main}`);
+    if (priceHint) chips.push(`💰 ${stripHtml(priceHint).slice(0, 80)}`);
+
+    // External menu/flipbook links
+    const links: string[] = [];
+    if (r.menu_url && typeof r.menu_url === "string") {
+      const url = r.menu_url.startsWith("http") ? r.menu_url : `https://${r.menu_url}`;
+      links.push(`📖 [${r.menu_name || menuLabel}](${url})`);
+    }
+    if (r.flipbook_url && typeof r.flipbook_url === "string") {
+      const url = r.flipbook_url.startsWith("http") ? r.flipbook_url : `https://${r.flipbook_url}`;
+      links.push(`📚 [${r.flipbook_name || flipbookLabel}](${url})`);
+    }
+
+    const header = `${i + 1}. **${r.name}**${loc ? ` — _${loc}_` : ""}`;
+    const lines = [header];
+    if (narrative) lines.push(narrative);
+    if (chips.length) lines.push(chips.join(" · "));
+    if (links.length) lines.push(links.join(" · "));
+    return lines.join("\n\n");
   });
 
-  const facetLabel = facet === "cuisine" ? (lang === "en" ? "cuisine types" : lang === "ar" ? "أنواع المطبخ" : "types de cuisine")
+  const facetLabel = facet === "cuisine" ? (lang === "en" ? "cuisines" : lang === "ar" ? "أنواع المطبخ" : "types de cuisine")
     : facet === "services" ? (lang === "en" ? "services" : lang === "ar" ? "الخدمات" : "services")
-    : facet === "ambiance" ? (lang === "en" ? "atmosphere" : lang === "ar" ? "الأجواء" : "ambiance")
-    : (lang === "en" ? "profile" : lang === "ar" ? "الملف" : "profil");
+    : facet === "ambiance" ? (lang === "en" ? "atmospheres" : lang === "ar" ? "الأجواء" : "ambiances")
+    : (lang === "en" ? "profiles" : lang === "ar" ? "الملفات" : "profils");
   const intro = lang === "en"
-    ? `Here are the **${facetLabel}** for the previous results:`
+    ? `Here's a closer look at the **${facetLabel}** of the previous picks:`
     : lang === "ar"
-      ? `إليك **${facetLabel}** للنتائج السابقة:`
-      : `Voici les **${facetLabel}** des résultats précédents :`;
-  return `${intro}\n\n${lines.join("\n\n")}${toMapMarker(ordered)}`;
+      ? `إليك نظرة أعمق على **${facetLabel}** للنتائج السابقة:`
+      : `Voici un portrait plus détaillé des **${facetLabel}** des résultats précédents :`;
+  return `${intro}\n\n${blocks.join("\n\n---\n\n")}${toMapMarker(ordered)}`;
 }
 
 
