@@ -989,13 +989,30 @@ const EmbedAsk = () => {
                       <div className="text-white text-lg sm:text-xl font-bold leading-tight drop-shadow">
                         {articleCard.title}
                       </div>
-                      {articleCard.tldr && (
-                        <div className="text-white/85 text-xs sm:text-sm mt-1 line-clamp-2">
-                          {articleCard.tldr}
+                      {articleCard.hook && (
+                        <div className="text-white/90 text-xs sm:text-sm mt-1 italic line-clamp-3 drop-shadow">
+                          {articleCard.hook}
                         </div>
                       )}
                     </div>
                   </a>
+                  {(articleCard.tldr || articleCard.intro) && (
+                    <div className="p-4 space-y-3">
+                      {articleCard.tldr && (
+                        <div className={`rounded-lg p-3 border ${border}`} style={{ background: theme === "light" ? "rgba(196,75,63,0.06)" : "rgba(212,175,55,0.08)" }}>
+                          <div className="text-[10px] uppercase tracking-wide font-bold mb-1" style={{ color: "#D4AF37" }}>
+                            {lang === "en" ? "In brief" : lang === "ar" ? "باختصار" : "En bref"}
+                          </div>
+                          <div className="text-sm leading-relaxed">{articleCard.tldr}</div>
+                        </div>
+                      )}
+                      {articleCard.intro && (
+                        <div className="text-sm leading-relaxed opacity-90 whitespace-pre-line">
+                          {articleCard.intro}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : articleCard ? (
                 <a
@@ -1015,18 +1032,6 @@ const EmbedAsk = () => {
                   </div>
                 </a>
               ) : null}
-              <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${asstBubble}`}>
-                <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-ul:my-1">
-                  <ReactMarkdown components={{ strong: StrongCited as any }}>
-                    {clean || (streaming && isLast ? "…" : "")}
-                  </ReactMarkdown>
-                </div>
-              </div>
-
-              {weatherPayload && (
-                <EmbedWeatherWidget data={weatherPayload} lang={lang} />
-              )}
-
 
               {articleCard?.inline && mapPayload && mapPayload.businesses.length > 0 && (() => {
                 const resultPois = mapPayload.businesses
@@ -1083,6 +1088,18 @@ const EmbedAsk = () => {
                   </div>
                 );
               })()}
+
+              <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${asstBubble}`}>
+                <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-ul:my-1">
+                  <ReactMarkdown components={{ strong: StrongCited as any }}>
+                    {clean || (streaming && isLast ? "…" : "")}
+                  </ReactMarkdown>
+                </div>
+              </div>
+
+              {weatherPayload && (
+                <EmbedWeatherWidget data={weatherPayload} lang={lang} />
+              )}
 
               {pinnedCards.length > 0 && (
                 <div className="w-full max-w-[85%] flex flex-col gap-3">
