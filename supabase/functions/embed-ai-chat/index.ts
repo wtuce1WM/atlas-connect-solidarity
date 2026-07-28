@@ -2174,6 +2174,48 @@ Deno.serve(async (req) => {
                 const cv = normalize(targetCity);
                 results = results.filter((e: any) => normalize(e.cities?.name_fr || "").includes(cv));
               }
+              // Post-filter: an event with recurrence must ACTUALLY intersect [from, to].
+              // The SQL OR clause `recurrence.not.is.null` lets any recurring event through
+              // regardless of dates — we filter here so yearly/monthly/weekly recurrences
+              // only surface when a real occurrence falls in the window.
+              const fromDate = new Date(from + "T00:00:00Z");
+              const toDate = new Date(to + "T23:59:59Z");
+              const eventIntersectsWindow = (e: any): boolean => {
+                const sd = e.start_date ? new Date(e.start_date + "T00:00:00Z") : null;
+                const ed = e.end_date ? new Date(e.end_date + "T23:59:59Z") : sd;
+                // Non-recurring: simple date range overlap
+                if (!e.recurrence) return sd ? (sd <= toDate && (ed ?? sd) >= fromDate) : false;
+                const rec = String(e.recurrence).toLowerCase();
+                if (rec === "daily") return true;
+                if (rec === "weekly") {
+                  const dows: number[] = Array.isArray(e.days_of_week) ? e.days_of_week.map((n: any) => Number(n)) : [];
+                  if (!dows.length) return true;
+                  // scan every day in window (small window)
+                  for (let t = fromDate.getTime(); t <= toDate.getTime(); t += 86400000) {
+                    const d = new Date(t).getUTCDay();
+                    if (dows.includes(d)) return true;
+                  }
+                  return false;
+                }
+                if (rec === "monthly" && sd) {
+                  const dom = sd.getUTCDate();
+                  for (let t = fromDate.getTime(); t <= toDate.getTime(); t += 86400000) {
+                    if (new Date(t).getUTCDate() === dom) return true;
+                  }
+                  return false;
+                }
+                if (rec === "yearly" && sd) {
+                  const m = sd.getUTCMonth(), d = sd.getUTCDate();
+                  for (let t = fromDate.getTime(); t <= toDate.getTime(); t += 86400000) {
+                    const dt = new Date(t);
+                    if (dt.getUTCMonth() === m && dt.getUTCDate() === d) return true;
+                  }
+                  return false;
+                }
+                // Unknown recurrence type → keep only if start_date overlaps window
+                return sd ? (sd <= toDate && (ed ?? sd) >= fromDate) : false;
+              };
+              results = results.filter(eventIntersectsWindow);
               results = results.slice(0, limit).map((e: any) => ({
                 id: e.id, name: e.name, hook: e.hook,
                 start_date: e.start_date, end_date: e.end_date,
