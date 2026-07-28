@@ -780,7 +780,8 @@ serve(async (req) => {
     compact,
     subcategoryNames,
     badgeIds,
-    }: SearchParams & { language?: string; mode?: string; spoken?: string; skipRerank?: boolean; mainCategory?: string; compact?: "ids" | "card" | null; subcategoryNames?: string[]; badgeIds?: string[] } = await req.json();
+    neighborhood: neighborhoodParam,
+    }: SearchParams & { language?: string; mode?: string; spoken?: string; skipRerank?: boolean; mainCategory?: string; compact?: "ids" | "card" | null; subcategoryNames?: string[]; badgeIds?: string[]; neighborhood?: string } = await req.json();
 
     // ── Input validation & sanitization ──
     // Strip PostgREST filter special chars and clamp string lengths to prevent
