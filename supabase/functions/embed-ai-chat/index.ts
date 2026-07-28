@@ -1294,6 +1294,8 @@ function isReserveCta(cta: string | null | undefined, mode: string | null | unde
   if (!n) return false;
   if (/reserv/.test(n)) return true; // reserve / reservez / reserver_en_ligne / reservation
   if (/\bbook(?:ing)?\b/.test(n)) return true;
+  if (/billet/.test(n)) return true; // billetterie / billet en ligne / tickets
+  if (/\btickets?\b/.test(n)) return true;
   return false;
 }
 
