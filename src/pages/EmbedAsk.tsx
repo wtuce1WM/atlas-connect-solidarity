@@ -244,6 +244,7 @@ const EVENTS_RE = /<!--EVENTS_SNAPSHOT:([\s\S]*?)-->/g;
 const KNOWN_RE = /<!--KNOWN_BUSINESSES:([\s\S]*?)-->/g;
 const ARTICLE_RE = /<!--ARTICLE_CARD:([\s\S]*?)-->/g;
 const DEST_RE = /<!--DESTINATION_CARDS:([\s\S]*?)-->/g;
+const PINNED_RE = /<!--PINNED_BUSINESS_CARDS:([\s\S]*?)-->/g;
 
 type MapPayload = { title?: string | null; businesses: MapPanelBusiness[] };
 type EventsPayload = { title?: string | null; city?: string | null; events: EventPanelItem[] };
@@ -251,6 +252,19 @@ type KnownBusiness = { id: string; slug: string | null; name: string };
 type ArticleCardPayload = { id: string; slug: string; title: string; image: string | null; isOwner?: boolean };
 type DestinationCard = { id: string; name: string; hook?: string | null; image?: string | null; latitude?: number | null; longitude?: number | null; distKm?: number | null };
 type DestinationsPayload = { title?: string | null; destinations: DestinationCard[] };
+type PinnedBusinessCard = {
+  id: string;
+  name: string;
+  slug?: string | null;
+  city?: string | null;
+  neighborhood?: string | null;
+  phone?: string | null;
+  whatsapp?: string | null;
+  image?: string | null;
+  rating20?: number | null;
+  review_count?: number | null;
+  review?: { author?: string | null; rating?: number | null; text?: string | null; source?: string | null } | null;
+};
 
 function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[] } {
   const maps: MapPayload[] = [];
