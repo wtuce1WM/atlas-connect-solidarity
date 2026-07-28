@@ -2853,6 +2853,20 @@ Deno.serve(async (req) => {
         const forcedNearby = followupRadiusKm != null;
         const hasDeterministicFilter = !!(deterministicBadgeIds?.length || deterministicSubcategoryNames?.length);
         if ((forcedNearby || isNearbyOverviewIntent(userMessage, host.name)) && !hasDeterministicFilter) {
+          // If the thread already has prior results, treat "à proximité de {host}" as a
+          // FILTER on those priors, sorted closest → farthest — not a fresh nearby search.
+          const priorIdsForProximity = extractPriorKnownBusinessIds(inMessages, host.id);
+          if (priorIdsForProximity.length >= 2) {
+            const answer = await buildDistanceList(admin, host, priorIdsForProximity, language);
+            if (answer) {
+              emitDelta(answer);
+              const trailing = emitTrailingMarkers();
+              toolsCalledLog.push({ name: "proximity_filter_priors", args: { count: priorIdsForProximity.length }, ok: true });
+              endText();
+              await logTurn({ finalText: answer + trailing, streamCompleted: true });
+              return;
+            }
+          }
           const radiusKm = followupRadiusKm ?? 1;
           const overview = await buildNearbyOverview(admin, host, hostCategoryNames, language, radiusKm);
           if (overview) {
@@ -2863,6 +2877,7 @@ Deno.serve(async (req) => {
             return;
           }
         }
+
 
         // Deterministic: events search (suggestion mode = 'events')
         if (suggestionMode === "events") {
