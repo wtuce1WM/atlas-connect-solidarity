@@ -2063,10 +2063,22 @@ Deno.serve(async (req) => {
           const lastUser = uiMessages[uiMessages.length - 1];
           const lastUserText = lastUser?.role === "user" ? extractTextFromUIMessage(lastUser) : "";
           const norm = (s: string) => s.toLowerCase().replace(/\s+/g, " ").replace(/[?!.\s]+$/g, "").trim();
-          const isInitialClick = suggestionLabel && norm(lastUserText) === norm(suggestionLabel);
-          // Explicit user scope overrides the heuristic:
-          //  - "broaden" → always drop the deterministic force (fresh city-wide search).
-          //  - "filter"  → always keep it (narrow among the current suggestion thread).
+          const isInitialClick = !!(suggestionLabel && norm(lastUserText) === norm(suggestionLabel));
+
+          // Pinned businesses / destinations / mode are cited ONLY on the very
+          // first AI response (initial suggestion click). Any subsequent turn
+          // — free-text refinement, follow-up, broaden/filter — drops them so
+          // the linked establishments are never re-appended below new answers.
+          if (!isInitialClick) {
+            suggestionPinnedIds = [];
+            suggestionMode = null;
+            suggestionDestinationIds = [];
+          }
+
+          // Explicit user scope overrides the heuristic for the deterministic
+          // taxonomic scope (subcats / badges / curated proximity):
+          //  - "broaden" → always drop it (fresh city-wide search).
+          //  - "filter"  → always keep it (narrow within the current thread).
           const shouldDrop =
             scope === "broaden"
               ? true
@@ -2076,10 +2088,7 @@ Deno.serve(async (req) => {
           if (shouldDrop) {
             deterministicSubcategoryNames = null;
             deterministicBadgeIds = null;
-            suggestionPinnedIds = [];
-            suggestionMode = null;
             curatedProximity = null;
-            suggestionDestinationIds = [];
           }
         }
 
@@ -3193,7 +3202,23 @@ Deno.serve(async (req) => {
                   await logTurn({ finalText: finalTextLocal + trailing, streamCompleted: true });
                   return;
                 }
-                // fall through to prior-filter behavior if broaden returned 0
+                // Broaden ran but found nothing → emit an explicit no-result
+                // message and STOP. Do not fall through: falling through would
+                // keep the previous map/markers, giving the impression the
+                // assistant is "stuck" on the old results.
+                lastMapPayload = null;
+                const noneMsg =
+                  language === "en"
+                    ? `I couldn't find matches in **${matchedHood}** for this request. Want to try another neighborhood, or broaden across ${host.city || "Marrakech"}?`
+                    : language === "ar"
+                      ? `لم أجد نتائج في **${matchedHood}** لهذا الطلب. هل تريد تجربة حي آخر أو التوسيع على ${host.city || "مراكش"}؟`
+                      : `Je n'ai pas trouvé de résultats à **${matchedHood}** pour cette demande. Tu veux essayer un autre quartier ou élargir sur ${host.city || "Marrakech"} ?`;
+                emitDelta(noneMsg);
+                const trailingNone = emitTrailingMarkers();
+                toolsCalledLog.push({ name: "neighborhood_scope_broaden", args: { neighborhood: matchedHood, count: 0, alias: detected.matchedAlias }, ok: true });
+                endText();
+                await logTurn({ finalText: noneMsg + trailingNone, streamCompleted: true });
+                return;
               }
 
               // (A) PRIOR FILTER on the matched neighborhood.
