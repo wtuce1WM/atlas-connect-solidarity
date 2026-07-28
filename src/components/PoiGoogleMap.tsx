@@ -784,11 +784,12 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       <div ref={mapShellRef} className="relative h-full w-full overflow-hidden bg-map-surface" style={{ opacity: mapOpacity, transition: "opacity 0.25s ease-in-out" }}>
         <div ref={containerRef} className="h-full w-full bg-map-surface" />
         {showLayerControls && (
-          <div className="absolute bottom-3 left-3 z-10 flex gap-1.5">
+          <div className="absolute bottom-3 right-3 z-10 flex flex-col gap-[1px] rounded-sm overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.3)]" style={{ fontFamily: "Roboto, Arial, sans-serif" }}>
             <button
               type="button"
               onClick={() => setTrafficOn((v) => !v)}
-              className={`px-2.5 py-1 rounded-full text-[11px] font-semibold shadow-md backdrop-blur-sm transition-colors ${trafficOn ? "bg-black text-white" : "bg-white/90 text-black hover:bg-white"}`}
+              className="px-3 py-[6px] text-[11px] font-medium bg-white hover:bg-gray-50 transition-colors"
+              style={{ color: trafficOn ? "#1a73e8" : "#5f6368" }}
               aria-pressed={trafficOn}
               title="Trafic"
             >
@@ -797,7 +798,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
             <button
               type="button"
               onClick={() => setTransitOn((v) => !v)}
-              className={`px-2.5 py-1 rounded-full text-[11px] font-semibold shadow-md backdrop-blur-sm transition-colors ${transitOn ? "bg-black text-white" : "bg-white/90 text-black hover:bg-white"}`}
+              className="px-3 py-[6px] text-[11px] font-medium bg-white hover:bg-gray-50 transition-colors"
+              style={{ color: transitOn ? "#1a73e8" : "#5f6368" }}
               aria-pressed={transitOn}
               title="Transports en commun"
             >
