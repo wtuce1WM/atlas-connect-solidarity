@@ -40,6 +40,8 @@ interface PoiGoogleMapProps {
    * "light" (default) → 1WM beige palette. "dark" → 1WM dark palette.
    * "default-light" / "default-dark" → native Google Maps color scheme (no custom styles). */
   mapTheme?: "light" | "dark" | "default-light" | "default-dark";
+  /** When true, shows native map type control (Plan/Satellite/Relief) + Traffic/Transit toggle buttons. */
+  showLayerControls?: boolean;
 }
 
 const LIGHT_MAP_STYLES: google.maps.MapTypeStyle[] = [
@@ -295,7 +297,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     }
   };
 
-const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor, userLocation, userMarkerLabel, mapTheme }: PoiGoogleMapProps) => {
+const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -306,6 +308,10 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   const hasFittedRef = useRef(false);
   const [iconCache, setIconCache] = useState<Map<string, string>>(new Map());
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [trafficOn, setTrafficOn] = useState(false);
+  const [transitOn, setTransitOn] = useState(false);
+  const trafficLayerRef = useRef<google.maps.TrafficLayer | null>(null);
+  const transitLayerRef = useRef<google.maps.TransitLayer | null>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const infoWindowHoveredRef = useRef(false);
   const openInfoPoiIdRef = useRef<string | null>(null);
@@ -360,7 +366,19 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     const opts: google.maps.MapOptions = {
       center: center || { lat: 31.63, lng: -7.98 },
       zoom: 13,
-      mapTypeControl: false,
+      mapTypeControl: !!showLayerControls,
+      mapTypeControlOptions: showLayerControls
+        ? {
+            style: gmaps.MapTypeControlStyle.DROPDOWN_MENU,
+            position: gmaps.ControlPosition.TOP_RIGHT,
+            mapTypeIds: [
+              gmaps.MapTypeId.ROADMAP,
+              gmaps.MapTypeId.SATELLITE,
+              gmaps.MapTypeId.HYBRID,
+              gmaps.MapTypeId.TERRAIN,
+            ],
+          }
+        : undefined,
       streetViewControl: false,
       fullscreenControl: false,
       zoomControl: false,
@@ -395,6 +413,32 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     if (!map || isNativeTheme) return;
     map.setOptions({ styles: mapTheme === "dark" ? DARK_MAP_STYLES : LIGHT_MAP_STYLES });
   }, [mapTheme, ready, isNativeTheme]);
+
+  // Traffic / Transit layer toggles
+  useEffect(() => {
+    const gmaps = window.google?.maps;
+    const map = mapRef.current;
+    if (!gmaps || !map) return;
+    if (trafficOn) {
+      if (!trafficLayerRef.current) trafficLayerRef.current = new gmaps.TrafficLayer();
+      trafficLayerRef.current.setMap(map);
+    } else if (trafficLayerRef.current) {
+      trafficLayerRef.current.setMap(null);
+    }
+  }, [trafficOn, ready]);
+
+  useEffect(() => {
+    const gmaps = window.google?.maps;
+    const map = mapRef.current;
+    if (!gmaps || !map) return;
+    if (transitOn) {
+      if (!transitLayerRef.current) transitLayerRef.current = new gmaps.TransitLayer();
+      transitLayerRef.current.setMap(map);
+    } else if (transitLayerRef.current) {
+      transitLayerRef.current.setMap(null);
+    }
+  }, [transitOn, ready]);
+
 
   // Serialized key to detect when pois/center actually change (not just iconCache)
   const poisKey = useMemo(() => {
@@ -741,6 +785,28 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       <style>{`.gm-style { background-color: hsl(var(--map-surface)) !important; } .gm-style .gm-style-iw-chr { display: none !important; } .gm-style .gm-style-iw { padding: 0 !important; background: transparent !important; box-shadow: none !important; border-radius: 10px !important; } .gm-style .gm-style-iw-d { overflow: hidden !important; background: transparent !important; } .gm-style .gm-style-iw-tc { display: none !important; } .gm-style .gm-style-iw-t::after { display: none !important; } .gm-style .gm-fullscreen-control { display: none !important; } .gm-style .gm-bundled-control button[aria-label*="location" i], .gm-style .gm-bundled-control button[aria-label*="position" i], .gm-style .gm-bundled-control button[title*="location" i], .gm-style button.gm-control-active[draggable="false"][aria-label] { display: none !important; } .gm-style .gmnoprint[role="menubar"] ~ .gmnoprint:not([role]) { display: none !important; }`}</style>
       <div ref={mapShellRef} className="relative h-full w-full overflow-hidden bg-map-surface" style={{ opacity: mapOpacity, transition: "opacity 0.25s ease-in-out" }}>
         <div ref={containerRef} className="h-full w-full bg-map-surface" />
+        {showLayerControls && (
+          <div className="absolute bottom-3 left-3 z-10 flex gap-1.5">
+            <button
+              type="button"
+              onClick={() => setTrafficOn((v) => !v)}
+              className={`px-2.5 py-1 rounded-full text-[11px] font-semibold shadow-md backdrop-blur-sm transition-colors ${trafficOn ? "bg-black text-white" : "bg-white/90 text-black hover:bg-white"}`}
+              aria-pressed={trafficOn}
+              title="Trafic"
+            >
+              Trafic
+            </button>
+            <button
+              type="button"
+              onClick={() => setTransitOn((v) => !v)}
+              className={`px-2.5 py-1 rounded-full text-[11px] font-semibold shadow-md backdrop-blur-sm transition-colors ${transitOn ? "bg-black text-white" : "bg-white/90 text-black hover:bg-white"}`}
+              aria-pressed={transitOn}
+              title="Transports en commun"
+            >
+              Transports
+            </button>
+          </div>
+        )}
       </div>
     </>
   );
