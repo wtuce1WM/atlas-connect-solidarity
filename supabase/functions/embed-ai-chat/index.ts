@@ -2238,6 +2238,21 @@ Deno.serve(async (req) => {
                 }
               }
 
+              // Fetch linked business names for default_business_id
+              const linkedBusinessIds = Array.from(new Set(
+                results.map((e: any) => e.default_business_id).filter(Boolean)
+              )) as string[];
+              const bizNameById = new Map<string, string>();
+              if (linkedBusinessIds.length) {
+                const { data: bizRows } = await admin
+                  .from("businesses")
+                  .select("id,name")
+                  .in("id", linkedBusinessIds);
+                for (const b of bizRows || []) {
+                  if ((b as any).id) bizNameById.set((b as any).id, (b as any).name || "");
+                }
+              }
+
               results = results.map((e: any) => ({
                 id: e.id, name: e.name, hook: e.hook,
                 start_date: e.start_date, end_date: e.end_date,
@@ -2248,6 +2263,7 @@ Deno.serve(async (req) => {
                 url: e.url || null,
                 sort_order: e.sort_order ?? null,
                 default_business_id: e.default_business_id || null,
+                business_name: e.default_business_id ? (bizNameById.get(e.default_business_id) || null) : null,
                 image: (() => {
                   const firstImage = Array.isArray(e.images) ? e.images.filter(Boolean)[0] : null;
                   const firstVideo = Array.isArray(e.videos) ? e.videos.filter(Boolean)[0] : null;

@@ -126,6 +126,15 @@ const EventsSlidePanel = ({ open, onClose, items, initialIndex = 0, onOpenBusine
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/50" />
 
           <div className="absolute inset-x-0 top-[10%] px-6 text-center text-white">
+            {ev.business_name && ev.default_business_id && onOpenBusiness && (
+              <button
+                type="button"
+                onClick={() => onOpenBusiness(ev.default_business_id!)}
+                className="mb-2 text-xs sm:text-sm font-semibold text-[#D4AF37] hover:text-white underline underline-offset-2"
+              >
+                {ev.business_name}
+              </button>
+            )}
             <h2 className="text-lg sm:text-2xl font-bold leading-tight line-clamp-4" style={{ fontFamily: "'Montserrat', sans-serif" }}>
               {ev.name}
             </h2>
@@ -137,7 +146,7 @@ const EventsSlidePanel = ({ open, onClose, items, initialIndex = 0, onOpenBusine
               <p className="text-sm font-semibold">{fmtDateRange(ev.start_date, ev.end_date)}</p>
             )}
             {fmtDays(ev.days_of_week) && <p className="text-xs opacity-90">{fmtDays(ev.days_of_week)}</p>}
-            {fmtTime(ev.start_time, ev.end_time) && <p className="text-xs opacity-90">{fmtTime(ev.start_time, ev.end_time)}</p>}
+            {fmtTime(ev.start_time, ev.end_time) && <p className="text-sm font-semibold opacity-95">🕒 {fmtTime(ev.start_time, ev.end_time)}</p>}
             {(ev.city || ev.neighborhood) && (
               <p className="text-xs opacity-80 flex items-center justify-center gap-1">
                 <MapPin className="h-3 w-3" />{[ev.neighborhood, ev.city].filter(Boolean).join(" · ")}

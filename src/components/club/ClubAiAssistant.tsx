@@ -351,6 +351,7 @@ export type EventPanelItem = {
   neighborhood?: string | null;
   url?: string | null;
   default_business_id?: string | null;
+  business_name?: string | null;
   image?: string | null;
   video?: string | null;
   sort_order?: number | null;

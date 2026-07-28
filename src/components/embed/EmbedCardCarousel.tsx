@@ -10,6 +10,8 @@ export interface EmbedCardItem {
   badge?: React.ReactNode;
   /** Small line above the bold title (e.g. event date + time) */
   overline?: React.ReactNode;
+  /** Optional line above title, rendered inside the card (can contain a nested clickable) */
+  titlePrefix?: React.ReactNode;
   /** Bold title */
   title: string;
   /** Optional subtitle line (neighborhood, city…) */
@@ -55,11 +57,13 @@ export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) 
     >
       <div className="flex gap-3 pb-1">
         {items.slice(0, limit).map((it) => (
-          <button
+          <div
             key={it.key}
-            type="button"
+            role="button"
+            tabIndex={0}
             onClick={it.onClick}
-            className="shrink-0 w-44 text-left group"
+            onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && it.onClick) { e.preventDefault(); it.onClick(); } }}
+            className="shrink-0 w-44 text-left group cursor-pointer"
           >
             <div className="relative w-44 h-64 rounded-xl overflow-hidden bg-neutral-800">
               {it.image ? (
@@ -89,6 +93,9 @@ export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) 
                     {it.overline}
                   </div>
                 )}
+                {it.titlePrefix && (
+                  <div className="mb-0.5">{it.titlePrefix}</div>
+                )}
                 <div className="text-[13px] font-bold text-white leading-tight break-words">
                   {it.title}
                 </div>
@@ -100,7 +107,7 @@ export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) 
                 {it.extra}
               </div>
             </div>
-          </button>
+          </div>
         ))}
       </div>
       {footer}

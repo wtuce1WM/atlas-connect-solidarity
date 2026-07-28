@@ -1239,11 +1239,25 @@ const EmbedAsk = () => {
                       {timeStr && <div className="break-words">{timeStr}</div>}
                     </div>
                   ) : null;
+                  const bizName = ev.business_name || null;
+                  const bizId = ev.default_business_id || null;
+                  const titlePrefix = (bizName && bizId) ? (
+                    <span
+                      role="link"
+                      tabIndex={0}
+                      onClick={(e) => { e.stopPropagation(); setOpenSiblings([bizId]); setOpenBusinessId(bizId); }}
+                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); setOpenSiblings([bizId]); setOpenBusinessId(bizId); } }}
+                      className="text-[11px] font-semibold text-white/95 underline underline-offset-2 hover:text-[#D4AF37] cursor-pointer break-words"
+                    >
+                      {bizName}
+                    </span>
+                  ) : null;
                   return {
                     key: ev.id + idx,
                     image: ev.image,
                     fallbackIcon: <CalendarIcon className="w-10 h-10" />,
                     overline,
+                    titlePrefix,
                     title: ev.name,
                     subtitle: ev.neighborhood || null,
                     onClick: () => setOpenEvents({ list: eventsPayload.events, index: idx }),
