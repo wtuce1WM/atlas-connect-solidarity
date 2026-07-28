@@ -1891,6 +1891,7 @@ Deno.serve(async (req) => {
         let suggestionPinnedIds: string[] = [];
         let suggestionMode: string | null = null;
         let suggestionLabel: string | null = null;
+        let suggestionDestinationIds: string[] = [];
         // Curated two-entity proximity: staff-picked subcats/badges for A and B.
         // When both sides have at least one mapping, the two-entity route runs
         // with these exact mappings and bypasses free-text term resolution.
