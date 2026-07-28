@@ -3155,9 +3155,11 @@ Deno.serve(async (req) => {
           const nq = normalize(userMessage);
           const words = nq.split(/\s+/).filter(Boolean);
           const looksLikeRefinement = words.length <= 6 || /\b(quartier|dans|a|en|sur|au|aux|vers|cote|coté|neighborhood|district|in|at|near)\b/.test(nq);
+          console.log("[embed-ai-chat] hood_route_check", { userMessage, looksLikeRefinement, words: words.length, hasDetSub: !!deterministicSubcategoryNames, hasDetBadges: !!deterministicBadgeIds });
 
           if (looksLikeRefinement) {
             const detected = await detectNeighborhoodInText(admin, host.city, userMessage);
+            console.log("[embed-ai-chat] hood_route_detected", { detected, hostCity: host.city });
             if (detected) {
               const matchedHood = detected.name;
               const nn = normalize(matchedHood);
