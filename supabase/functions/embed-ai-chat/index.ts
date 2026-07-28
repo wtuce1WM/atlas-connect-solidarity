@@ -2158,10 +2158,10 @@ Deno.serve(async (req) => {
               let q = admin
                 .from("events")
                 .select("id,name,hook,description,start_date,end_date,recurrence,days_of_week,start_time,end_time,url,city_id,default_business_id,images,videos,sort_order,logo_url,cities:city_id(name_fr),neighborhoods:neighborhood_id(name)")
-                .or(`and(start_date.gte.${from},start_date.lte.${to}),and(start_date.lte.${to},end_date.gte.${from}),recurrence.not.is.null`)
+                .or(`and(start_date.gte.${from},start_date.lte.${to}),and(start_date.lte.${to},end_date.gte.${from}),recurrence.not.is.null,days_of_week.neq.{}`)
                 .order("sort_order", { ascending: true, nullsFirst: false })
                 .order("start_date", { ascending: true, nullsFirst: false })
-                .limit(limit * 3);
+                .limit(limit * 5);
               if (eventIds) q = q.in("id", eventIds.slice(0, 500));
               if (args.query) {
                 const qv = String(args.query).replace(/[,()"]/g, " ").trim();
