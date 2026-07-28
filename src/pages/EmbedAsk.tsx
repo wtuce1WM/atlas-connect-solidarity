@@ -1365,6 +1365,13 @@ const EmbedAsk = () => {
                 </button>
               );
             })}
+            <button
+              type="button"
+              onClick={startNewConversation}
+              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${cardBg} ${border} hover:opacity-90`}
+            >
+              {SCOPE_LABELS[lang]?.newConversation ?? SCOPE_LABELS.fr.newConversation}
+            </button>
           </div>
         )}
         <div className={`flex items-end gap-2 rounded-2xl border ${border} ${inputBg} px-3 py-2`}>
