@@ -3360,12 +3360,16 @@ Deno.serve(async (req) => {
 
           if (toolCalls.length && !isLast) {
             convo.push({ role: "assistant", content: msg.content || "", tool_calls: toolCalls });
+            let searchBusinessesResult: any = null;
             for (const tc of toolCalls) {
               const fname = tc.function?.name;
               let fargs: any = {};
               try { fargs = JSON.parse(tc.function?.arguments || "{}"); } catch { /* */ }
               const result = await runTool(fname, fargs);
               rememberSearchResult(fname, fargs, result);
+              if (fname === "search_businesses" && Array.isArray((result as any)?.results) && (result as any).results.length) {
+                searchBusinessesResult = result;
+              }
               if (fname === "show_on_map" && (result as any)?.ok && Array.isArray((result as any).businesses)) {
                 const incoming = (result as any).businesses as any[];
                 // Do NOT shrink an existing carousel: if search_businesses already
@@ -3390,6 +3394,33 @@ Deno.serve(async (req) => {
                 tool_call_id: tc.id,
                 content: JSON.stringify(result).slice(0, 12000),
               });
+            }
+
+            // Short-circuit: once search_businesses returned real results, the LLM
+            // often echoes only the laconic disclosure_note in the next round
+            // (e.g. "Je te présente 10 adresses sur 19 trouvées à Marrakech")
+            // instead of the immersive listing. Deterministically build the full
+            // answer — immersive intro + one paragraph per result (bold clickable
+            // name) + disclosure + closing question — matching the forced-directory
+            // path. Populate lastMapPayload so miniatures match the listing.
+            if (searchBusinessesResult) {
+              const rows: any[] = Array.isArray(searchBusinessesResult.results) ? searchBusinessesResult.results : [];
+              if (rows.length) {
+                lastDisclosureNote = String(searchBusinessesResult.disclosure_note || lastDisclosureNote || "");
+                if (!lastMapPayload || (Array.isArray(lastMapPayload?.businesses) && lastMapPayload.businesses.length < rows.length)) {
+                  lastMapPayload = { title: null, businesses: rows };
+                }
+                for (const b of rows) {
+                  if (b?.id && b?.name) knownBusinesses.push({ id: b.id, slug: b.slug || null, name: b.name });
+                }
+                const answer = buildImmersiveBusinessAnswer(searchBusinessesResult, host, userMessage, language);
+                finalText = answer;
+                emitDelta(answer);
+                finalText += emitTrailingMarkers();
+                endText();
+                await logTurn({ finalText, streamCompleted: true });
+                return;
+              }
             }
             continue;
           }
