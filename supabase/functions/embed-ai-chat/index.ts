@@ -2053,7 +2053,7 @@ function buildContextualIntro(userMessage: string, host: any, city: string, lang
   };
 
   const templatesAr: Record<string, string> = {
-    delivery_shop: `في **${city}**， للتسوق مع توصيل دولي، إليك العناوين التي تتولى الشحن — عملي عند المغادرة مع تذكار ثقيل أو طلب محدد.${proximity ? ` ركّزت على المتاجر على بعد أقل من ${radiusLabel} من **${hostName}**.` : ""}`,
+    delivery_shop: `في **${city}**، للتسوق مع توصيل دولي، إليك العناوين التي تتولى الشحن — عملي عند المغادرة مع تذكار ثقيل أو طلب محدد.${proximity ? ` ركّزت على المتاجر على بعد أقل من ${radiusLabel} من **${hostName}**.` : ""}`,
     delivery: `إليك عناوين **${city}** التي تقدّم خدمة التوصيل — إلى باب منزلك أو شحنها إلى وجهتك.${proximity ? ` ركّزت على تلك التي تبعد أقل من ${radiusLabel} عن **${hostName}**.` : ""}`,
     shop: `للتسوق في **${city}**، إليك المتاجر والورش والأسواق المختارة في دليل One World Morocco.${proximity ? ` ركّزت على تلك التي تبعد أقل من ${radiusLabel} عن **${hostName}**.` : ""}`,
     rooftop: `في **${city}**، تشكّل الأسطح والتراسات المرتفعة نوعًا خاصًا من الاسترخاء: إطلالة على المدينة العتيقة، غروب الشمس أو ليلة خارجية. إليك الأفضل في دليل One World Morocco.${proximity ? ` جميعها على بعد أقل من ${radiusLabel} من **${hostName}**.` : ""}`,
