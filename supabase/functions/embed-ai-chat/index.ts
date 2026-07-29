@@ -3230,6 +3230,10 @@ Deno.serve(async (req) => {
             const safe = JSON.stringify(pinnedBusinessCards).replace(/-->/g, "--&gt;");
             markers.push(`<!--PINNED_BUSINESS_CARDS:${safe}-->`);
           }
+          if (lastPoolIds && lastPoolIds.length) {
+            const safe = JSON.stringify({ ids: lastPoolIds, city: lastPoolCity }).replace(/-->/g, "--&gt;");
+            markers.push(`<!--POOL_BUSINESS_IDS:${safe}-->`);
+          }
           if (!markers.length) return "";
           const chunk = "\n\n" + markers.join("\n");
           emitDelta(chunk);
