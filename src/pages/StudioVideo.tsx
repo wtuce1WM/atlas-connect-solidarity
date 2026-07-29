@@ -1347,18 +1347,20 @@ export default function StudioVideo() {
                 rows={5}
                 placeholder={refineFrom
                   ? "Ex : remplace l'image de couverture par la 2e, raccourcis le hook, ajoute les horaires…"
-                  : "Ex : Présentation immersive mettant en avant le hook et la signature de l'établissement, ajoutes options cochées ci-dessous."}
+                  : "Le prompt se remplit automatiquement à partir de l'établissement sélectionné."}
                 value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
+                onChange={(e) => { if (refineFrom) setPrompt(e.target.value); }}
+                readOnly={!refineFrom}
                 maxLength={2000}
-                className="text-lg md:text-xl p-4 min-h-[220px] md:min-h-[150px]"
-                onFocus={() => {
-                  if (!prompt && !refineFrom) {
-                    const businessText = selected ? ` « ${selected.name} »` : "";
-                    setPrompt(`Présentation immersive mettant en avant le hook et la signature de l'établissement${businessText}, ajoutes options cochées ci-dessous.`);
-                  }
-                }}
+                className={`text-lg md:text-xl p-4 min-h-[220px] md:min-h-[150px] ${!refineFrom ? "cursor-default bg-muted/40" : ""}`}
+                aria-readonly={!refineFrom}
+                title={!refineFrom ? "Le prompt principal n'est pas modifiable — utilisez les options et l'aperçu du scénario ci-dessous." : undefined}
               />
+              {!refineFrom && (
+                <p className="text-[11px] text-muted-foreground italic">
+                  Prompt en lecture seule. Les options ci-dessous et l'aperçu du scénario permettent de personnaliser la vidéo.
+                </p>
+              )}
             </div>
 
             <div className="space-y-2 rounded-md border border-border bg-muted/30 p-3">
