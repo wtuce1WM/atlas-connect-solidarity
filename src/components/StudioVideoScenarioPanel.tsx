@@ -114,6 +114,10 @@ export function buildScenario(
     mapMarker: boolean;
     digitalId: boolean;
     installCta: boolean;
+    openWithLogo?: boolean;
+    logoUrl?: string | null;
+    whatsapp?: boolean;
+    whatsappNumber?: string | null;
   }
 ): Scenario {
   const keywords = extractKeywords(prompt);
@@ -136,6 +140,9 @@ export function buildScenario(
 
   const nameDuration = Math.max(2, Math.round(durationSec * 0.12));
   const hookDuration = Math.max(2, Math.round(durationSec * 0.15));
+  if (options.openWithLogo && options.logoUrl) {
+    push("logo", Math.max(2, Math.round(durationSec * 0.06)), "Ouverture sur le logo de l'établissement (fond transparent).");
+  }
   push("name", nameDuration, businessName ? `Affichage du nom ${businessName}.` : "Affichage du nom de l'établissement.");
   push("hook", hookDuration, businessName ? `Accroche sur ${businessName} et son ambiance.` : "Accroche immersive pour capter l'attention.");
   if (keywords.includes("offre") || keywords.includes("promotion") || keywords.includes("menu") || keywords.includes("pass") || keywords.includes("déjeuner") || keywords.includes("diner") || keywords.includes("spa")) {
@@ -145,6 +152,9 @@ export function buildScenario(
   if (options.hours) push("hours", Math.max(2, Math.round(durationSec * 0.08)), "Horaires d'ouverture en surimpression.");
   if (options.mapMarker) push("map", Math.max(2, Math.round(durationSec * 0.1)), "Marqueur Google Map et localisation.");
   if (options.digitalId) push("digital", Math.max(2, Math.round(durationSec * 0.1)), "Séquence ID numérique : fiche, partage, QR code.");
+  if (options.whatsapp && options.whatsappNumber) {
+    push("whatsapp", Math.max(2, Math.round(durationSec * 0.08)), `WhatsApp ${options.whatsappNumber} — logo #25D366 + effet libre au montage.`);
+  }
   push("cta", Math.max(2, Math.round(durationSec * 0.12)), options.installCta ? "CTA final + incitation à installer l'app." : "CTA final vers la fiche ou le contact.");
   if (options.installCta) push("outro", Math.max(2, Math.round(durationSec * 0.08)), "Outro avec logo et appel à l'installation.");
 
