@@ -539,7 +539,7 @@ export default function StudioVideo() {
 
   // Durée calculée automatiquement à partir des étapes actives du scénario.
   const autoDuration = useMemo(() => {
-    let s = 4 + 3; // hook + name
+    let s = 4 + 3; // name + hook
     const canLogo = !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo;
     if (canLogo) s += 2;
     const offerCount = selectedOfferIds.size;
