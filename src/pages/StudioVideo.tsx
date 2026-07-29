@@ -1628,6 +1628,95 @@ export default function StudioVideo() {
                   <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optReviews} onChange={(e) => setOptReviews(e.target.checked)} />
                   <span>Compteur d'avis client + badge avis (note/20)</span>
                 </label>
+                {/* Plateformes d'avis externes */}
+                {(() => {
+                  const platforms: Array<{ key: "google" | "tripadvisor" | "restaurant_guru"; label: string; checked: boolean; setter: (v: boolean) => void }> = [
+                    { key: "google", label: "Avis Google", checked: optGoogleReviews, setter: setOptGoogleReviews },
+                    { key: "tripadvisor", label: "TripAdvisor", checked: optTripAdvisor, setter: setOptTripAdvisor },
+                    { key: "restaurant_guru", label: "Restaurant Guru", checked: optRestaurantGuru, setter: setOptRestaurantGuru },
+                  ];
+                  return platforms.map((p) => {
+                    const d = platformData[p.key];
+                    const available = !selected || !!(d.rating || d.count || d.url);
+                    return (
+                      <label
+                        key={p.key}
+                        className={`flex items-start gap-2 ml-6 ${available ? "cursor-pointer" : "cursor-not-allowed opacity-50"}`}
+                        title={available ? undefined : `Pas de données ${p.label} pour cet établissement`}
+                      >
+                        <input
+                          type="checkbox"
+                          className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto disabled:cursor-not-allowed"
+                          checked={available && p.checked}
+                          disabled={!available}
+                          onChange={(e) => p.setter(e.target.checked)}
+                        />
+                        <span className="text-sm">
+                          {p.label}
+                          {selected && available && (
+                            <em className="ml-1 not-italic text-xs opacity-70">
+                              {d.rating ? `${d.rating.toFixed(1)}/5` : ""}
+                              {d.count ? ` · ${d.count} avis` : ""}
+                            </em>
+                          )}
+                          {selected && !available && <em className="ml-1 text-xs opacity-70">(indisponible)</em>}
+                        </span>
+                      </label>
+                    );
+                  });
+                })()}
+                {/* Montrer un avis client */}
+                {(() => {
+                  const available = !selected || reviewsList.length > 0;
+                  const chosen = selectedReviewId ? reviewsList.find((r) => r.id === selectedReviewId) : null;
+                  return (
+                    <div className={`rounded-md border border-border bg-background/40 p-2 ${available ? "" : "opacity-50"}`}>
+                      <label className={`flex items-start gap-2 ${available ? "cursor-pointer" : "cursor-not-allowed"}`}>
+                        <input
+                          type="checkbox"
+                          className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto disabled:cursor-not-allowed"
+                          checked={available && optCustomerReview}
+                          disabled={!available}
+                          onChange={(e) => {
+                            setOptCustomerReview(e.target.checked);
+                            if (e.target.checked && !selectedReviewId && reviewsList.length > 0) {
+                              setReviewDialogOpen(true);
+                            }
+                          }}
+                        />
+                        <span className="font-medium">Montrer un avis client {selected && !available && <em className="ml-1 text-xs opacity-70 font-normal">(aucun avis)</em>}</span>
+                      </label>
+                      {available && optCustomerReview && (
+                        <div className="mt-2 pl-6 space-y-2">
+                          {chosen ? (
+                            <div className="text-xs space-y-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-semibold">{chosen.author || "Anonyme"}</span>
+                                {chosen.rating != null && <span className="text-[#C04F17] font-bold">{chosen.rating}/5</span>}
+                                {chosen.source && <span className="text-muted-foreground">· {chosen.source}</span>}
+                              </div>
+                              <div className="text-muted-foreground line-clamp-3">{chosen.text}</div>
+                              {reviewHighlight && (
+                                <div className="mt-1 rounded bg-primary/10 text-primary p-1.5">
+                                  <span className="font-semibold">Extrait mis en avant : </span>« {reviewHighlight} »
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="text-xs text-muted-foreground italic">Aucun avis sélectionné</div>
+                          )}
+                          <button
+                            type="button"
+                            className="text-xs underline hover:text-primary"
+                            onClick={() => setReviewDialogOpen(true)}
+                          >
+                            {chosen ? "Modifier la sélection" : "Sélectionner un avis"}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
                 {(() => {
                   const hoursAvailable = !selected || (bizStats?.hoursPublished ?? false);
                   return (
