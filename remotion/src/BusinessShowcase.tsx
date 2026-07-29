@@ -1207,7 +1207,22 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             ) : (
               <SceneGallery images={defaultGalleryList.slice(1)} />
             )}
-            <HookOverlay text={hookPart2 || hookPart1} duration={duration} textPosition={textPosition} />
+            {(() => {
+              const fzT = (freeZoneTitle || "").trim();
+              const fzS = (freeZoneSubtitle || "").trim();
+              const primary = fzT || hookPart2 || hookPart1;
+              const secondary = fzS || (fzT ? "" : "");
+              return (
+                <>
+                  <HookOverlay text={primary} duration={duration} textPosition={textPosition} />
+                  {secondary ? (
+                    <AbsoluteFill style={{ pointerEvents: "none" }}>
+                      <div style={{ position: "absolute", left: 0, right: 0, bottom: 120, textAlign: "center", padding: "0 40px", fontFamily: "'Avenir Next', 'Nunito Sans', sans-serif", fontSize: 30, lineHeight: 1.3, color: "rgba(255,255,255,0.92)", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>{secondary}</div>
+                    </AbsoluteFill>
+                  ) : null}
+                </>
+              );
+            })()}
           </AbsoluteFill>
         );
       case "offer": {
