@@ -652,6 +652,9 @@ function CustomSceneMediaSlot({
           ) : (
             <img src={current.url} alt="" className="w-full h-full object-cover" />
           )}
+          {current.duration != null && current.kind === "video" && (
+            <div className="absolute bottom-0.5 right-0.5 text-[8px] px-1 rounded bg-black/70 text-white font-bold">{formatDuration(current.duration)}</div>
+          )}
         </div>
       )}
     </div>
