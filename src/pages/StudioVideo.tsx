@@ -1377,6 +1377,50 @@ export default function StudioVideo() {
                     </div>
                   </div>
                 )}
+                {highlightsList.length > 0 && (
+                  <div className="rounded-md border border-border bg-background/40 p-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="font-medium">Blocs highlights ({highlightsList.length})</div>
+                      <div className="flex gap-2 text-xs">
+                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedHighlightIds(new Set(highlightsList.map((h) => h.id)))}>Tout</button>
+                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedHighlightIds(new Set())}>Aucun</button>
+                      </div>
+                    </div>
+                    <div className="mt-2 flex flex-col gap-1.5">
+                      {highlightsList.map((h) => {
+                        const checked = selectedHighlightIds.has(h.id);
+                        return (
+                          <label key={h.id} className="flex items-start gap-2 cursor-pointer rounded-md border border-border/60 p-2 hover:bg-muted/40">
+                            <input
+                              type="checkbox"
+                              className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                              checked={checked}
+                              onChange={(e) => {
+                                setSelectedHighlightIds((prev) => {
+                                  const next = new Set(prev);
+                                  if (e.target.checked) next.add(h.id); else next.delete(h.id);
+                                  return next;
+                                });
+                              }}
+                            />
+                            {h.image_url ? (
+                              <img src={h.image_url} alt="" className="w-12 h-12 rounded object-cover shrink-0" />
+                            ) : (
+                              <div className="w-12 h-12 rounded bg-muted flex items-center justify-center shrink-0 text-lg">{h.icon || "✨"}</div>
+                            )}
+                            <div className="min-w-0 flex-1 text-xs">
+                              <div className="font-semibold truncate">{h.title || <em className="text-muted-foreground">(sans titre)</em>}</div>
+                              {h.description && <div className="mt-1 text-muted-foreground line-clamp-2">{h.description}</div>}
+                              {(h.metric_title || h.metric_value) && (
+                                <div className="mt-1 text-[#C04F17] font-semibold">{h.metric_value} {h.metric_title && <span className="text-muted-foreground font-normal">— {h.metric_title}</span>}</div>
+                              )}
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
                 <label className="flex items-start gap-2 cursor-pointer">
                   <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optReviews} onChange={(e) => setOptReviews(e.target.checked)} />
                   <span>Compteur d'avis client + badge avis (note/20)</span>
