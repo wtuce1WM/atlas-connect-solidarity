@@ -118,9 +118,10 @@ export function buildScenario(
     });
   };
 
-  const baseHook = Math.max(2, Math.round(durationSec * 0.15));
-  push("hook", baseHook, businessName ? `Accroche sur ${businessName} et son ambiance.` : "Accroche immersive pour capter l'attention.");
-  push("name", Math.max(2, Math.round(durationSec * 0.12)), businessName ? `Affichage du nom ${businessName}.` : "Affichage du nom de l'établissement.");
+  const nameDuration = Math.max(2, Math.round(durationSec * 0.12));
+  const hookDuration = Math.max(2, Math.round(durationSec * 0.15));
+  push("name", nameDuration, businessName ? `Affichage du nom ${businessName}.` : "Affichage du nom de l'établissement.");
+  push("hook", hookDuration, businessName ? `Accroche sur ${businessName} et son ambiance.` : "Accroche immersive pour capter l'attention.");
   if (keywords.includes("offre") || keywords.includes("promotion") || keywords.includes("menu") || keywords.includes("pass") || keywords.includes("déjeuner") || keywords.includes("diner") || keywords.includes("spa")) {
     push("offer", Math.max(4, Math.round(durationSec * 0.22)), "Mise en avant de l'offre ou du produit phare du prompt.");
   }
