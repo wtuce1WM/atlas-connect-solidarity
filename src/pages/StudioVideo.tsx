@@ -298,7 +298,7 @@ export default function StudioVideo() {
     setSelectedVideos(new Set());
     setSceneMedia({});
     (async () => {
-      const [biz, docs, yt, promos] = await Promise.all([
+      const [biz, docs, yt, promos, hls] = await Promise.all([
         supabase
           .from("businesses")
           .select("hook_fr,description,images,popup_image_url,opening_hours,show_opening_hours,is_active")
@@ -318,6 +318,11 @@ export default function StudioVideo() {
         supabase
           .from("affiliate_business_promotions")
           .select("id, title, title_fr, promotion_message, promotion_message_fr, promotion_type, promotion_value, promotion_currency, savings_amount")
+          .eq("business_id", selected.id)
+          .order("sort_order", { ascending: true }),
+        supabase
+          .from("front_highlights")
+          .select("id,icon,sort_order,image_url,title_fr,description_fr,metric_title_fr,metric_value_fr")
           .eq("business_id", selected.id)
           .order("sort_order", { ascending: true }),
       ]);
