@@ -631,6 +631,11 @@ function CustomSceneMediaSlot({
                         <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[10px] px-1.5 py-0.5 truncate">
                           {m.title || m.kind}
                         </div>
+                        {m.duration != null && m.kind === "video" && (
+                          <div className="absolute top-1 right-1 text-[9px] px-1.5 py-0.5 rounded bg-black/70 text-white font-bold uppercase">
+                            {formatDuration(m.duration)}
+                          </div>
+                        )}
                       </button>
                     );
                   })}
