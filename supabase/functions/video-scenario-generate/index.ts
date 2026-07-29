@@ -787,6 +787,16 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         template_props.popupImageUrl = businessDetails.popup_image_url;
       }
 
+      // WhatsApp — scène dédiée si option cochée et numéro disponible.
+      const wantsWhatsapp = !!options?.whatsapp;
+      const waNumber = (typeof options?.whatsapp_number === "string" && options.whatsapp_number.trim())
+        || (typeof businessDetails.whatsapp === "string" && businessDetails.whatsapp.trim())
+        || null;
+      if (wantsWhatsapp && waNumber) {
+        template_props.showWhatsapp = true;
+        template_props.whatsappNumber = waNumber;
+      }
+
       // Blocs highlights sélectionnés — une entrée par bloc dans le scénario.
       const rawHighlightIds = Array.isArray(options?.highlight_ids) ? options.highlight_ids : [];
       const highlightIds = rawHighlightIds.filter((v: unknown) => typeof v === "string" && /^[0-9a-f-]{36}$/i.test(v));
