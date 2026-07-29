@@ -372,7 +372,7 @@ export default function StudioVideo() {
           .order("sort_order", { ascending: true }),
         supabase
           .from("front_highlights")
-          .select("id,icon,sort_order,image_url,title_fr,description_fr,metric_title_fr,metric_value_fr")
+          .select("id,icon,sort_order,image_url,title,description,metric_title,metric_value,title_fr,description_fr,metric_title_fr,metric_value_fr")
           .eq("business_id", selected.id)
           .order("sort_order", { ascending: true }),
         supabase
