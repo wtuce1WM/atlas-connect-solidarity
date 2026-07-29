@@ -614,6 +614,16 @@ export function StudioVideoScenarioPanel({
                   <span className="text-[10px] text-neutral-600 tabular-nums">
                     {formatTime(scene.start)} → {formatTime(scene.start + scene.duration)}
                   </span>
+                  {(scene.icon === "hook" || scene.icon === "name") && (
+                    <button
+                      type="button"
+                      onClick={() => setEditingTextId(scene.icon)}
+                      className="p-1 rounded hover:bg-neutral-100 text-neutral-600 hover:text-black"
+                      aria-label="Modifier le texte de l'étape"
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </button>
+                  )}
                   {scene.icon === "custom" && isCustomToken(scene.id) && (
                     <div className="flex items-center gap-1">
                       <button
