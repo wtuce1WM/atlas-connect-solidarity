@@ -285,7 +285,7 @@ function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenar
 }
 
 function sceneKindFor(icon: Scene["icon"]): SceneMediaKind | null {
-  if (icon === "custom" || icon === "logo" || icon === "popup" || icon === "highlight") return null;
+  if (icon === "custom" || icon === "popup" || icon === "highlight") return null;
   return icon as SceneMediaKind;
 }
 
