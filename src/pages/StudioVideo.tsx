@@ -1104,6 +1104,9 @@ export default function StudioVideo() {
                           {v.kind === "youtube" && (
                             <span className="pointer-events-none absolute top-1 left-1 bg-red-600 text-white text-[9px] font-bold px-1 rounded">YT</span>
                           )}
+                          {v.kind === "file" && v.duration != null && (
+                            <span className="pointer-events-none absolute top-1 left-1 bg-black/70 text-white text-[9px] font-bold px-1 rounded">{formatVideoDuration(v.duration)}</span>
+                          )}
                           {matches.length > 0 && (
                             <div className="absolute bottom-1 left-1 bg-secondary text-secondary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded">
                               {matches.slice(0, 2).join(" · ")}
