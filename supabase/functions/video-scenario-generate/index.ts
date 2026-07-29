@@ -145,6 +145,12 @@ Deno.serve(async (req) => {
     const wantsHours = Boolean(options?.hours) || /horaires|heures d'ouverture|ouverture de l'établissement/i.test(promptText);
     const wantsMapMarker = Boolean(options?.map_marker) || /google\s*map|marqueur de l'établissement|marqueur.*carte|localisation/i.test(promptText);
     const wantsDigitalId = Boolean(options?.digital_id) || /id numérique|fiche.*qr|qr code/i.test(promptText);
+    const wantsGoogleReviews = Boolean(options?.google_reviews);
+    const wantsTripAdvisor = Boolean(options?.tripadvisor);
+    const wantsRestaurantGuru = Boolean(options?.restaurant_guru);
+    const wantsCustomerReview = Boolean(options?.customer_review);
+    const customerReviewId = typeof options?.customer_review_id === "string" ? options.customer_review_id : null;
+    const customerReviewHighlight = typeof options?.customer_review_highlight === "string" ? options.customer_review_highlight.slice(0, 240) : null;
     const wantsInstallCta = Boolean(options?.install_cta) || /installer l'app|installation de l'app|incitation à installer/i.test(promptText);
 
     const formatOpeningHours = (value: unknown): string | null => {
