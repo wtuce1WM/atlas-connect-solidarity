@@ -68,7 +68,7 @@ const ICONS: Record<Scene["icon"], React.ReactNode> = {
 const LABELS: Record<Exclude<Scene["icon"], "custom">, string> = {
   hook: "Hook",
   name: "Nom & identité",
-  media: "Médias",
+  media: "Zone libre",
   offer: "Offre",
   reviews: "Avis clients",
   hours: "Horaires",
