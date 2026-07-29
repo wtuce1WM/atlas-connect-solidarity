@@ -636,8 +636,12 @@ export default function StudioVideo() {
       mapMarker: optMapMarker,
       digitalId: optDigitalId,
       installCta: optInstallCta,
+      openWithLogo: !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo,
+      logoUrl: logoInfo.url,
+      whatsapp: optWhatsapp,
+      whatsappNumber: whatsappNumber,
     });
-  }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta]);
+  }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optOpenWithLogo, logoInfo, optWhatsapp, whatsappNumber]);
 
   const mediaMatches = useMemo(() => {
     const matches = new Map<string, string[]>();
@@ -1851,23 +1855,20 @@ export default function StudioVideo() {
                   );
                 })()}
                 {(() => {
-                  const waAvailable = !selected || !!whatsappNumber;
+                  // On ne propose l'option WhatsApp que si un numéro est effectivement renseigné.
+                  if (!whatsappNumber) return null;
                   return (
-                    <div className={`rounded-md border border-border bg-background/40 p-2 ${waAvailable ? "" : "opacity-50"}`}>
-                      <label className={`flex items-start gap-2 ${waAvailable ? "cursor-pointer" : "cursor-not-allowed"}`} title={waAvailable ? undefined : "Aucun numéro WhatsApp renseigné"}>
+                    <div className="rounded-md border border-border bg-background/40 p-2">
+                      <label className="flex items-start gap-2 cursor-pointer">
                         <input
                           type="checkbox"
-                          className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto disabled:cursor-not-allowed"
-                          checked={waAvailable && optWhatsapp}
-                          disabled={!waAvailable}
+                          className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                          checked={optWhatsapp}
                           onChange={(e) => setOptWhatsapp(e.target.checked)}
                         />
                         <span className="font-medium text-sm">
                           WhatsApp
-                          {selected && waAvailable && whatsappNumber && (
-                            <em className="ml-2 not-italic text-xs opacity-70 font-normal">{whatsappNumber}</em>
-                          )}
-                          {selected && !waAvailable && <em className="ml-2 text-xs opacity-70 font-normal">(numéro non renseigné)</em>}
+                          <em className="ml-2 not-italic text-xs opacity-70 font-normal">{whatsappNumber}</em>
                         </span>
                       </label>
                       <p className="mt-1 pl-6 text-[11px] text-muted-foreground">Scène dédiée avec effet libre au montage — logo WhatsApp (#25D366), numéro et invitation à contacter.</p>
