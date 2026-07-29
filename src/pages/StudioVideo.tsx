@@ -228,14 +228,30 @@ export default function StudioVideo() {
   } | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
   const [optReviews, setOptReviews] = useState(true);
+  const [optGoogleReviews, setOptGoogleReviews] = useState(false);
+  const [optTripAdvisor, setOptTripAdvisor] = useState(false);
+  const [optRestaurantGuru, setOptRestaurantGuru] = useState(false);
+  const [optCustomerReview, setOptCustomerReview] = useState(false);
   const [optHours, setOptHours] = useState(true);
   const [optInstallCta, setOptInstallCta] = useState(true);
   const [optMapMarker, setOptMapMarker] = useState(true);
   const [optDigitalId, setOptDigitalId] = useState(true);
   const [optPopup, setOptPopup] = useState(true);
   const [optOpenWithLogo, setOptOpenWithLogo] = useState(true);
-  // Zone libre supprimée — remplacée par « Ajouter une étape » dans l'aperçu du scénario.
   const [logoInfo, setLogoInfo] = useState<{ url: string | null; bg: string | null }>({ url: null, bg: null });
+  const [platformData, setPlatformData] = useState<{
+    google: { rating: number | null; count: number | null; url: string | null };
+    tripadvisor: { rating: number | null; count: number | null; url: string | null };
+    restaurant_guru: { rating: number | null; count: number | null; url: string | null };
+  }>({
+    google: { rating: null, count: null, url: null },
+    tripadvisor: { rating: null, count: null, url: null },
+    restaurant_guru: { rating: null, count: null, url: null },
+  });
+  const [reviewsList, setReviewsList] = useState<Array<{ id: string; author: string | null; rating: number | null; text: string; source: string | null; published_at: string | null }>>([]);
+  const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
+  const [reviewHighlight, setReviewHighlight] = useState<string>("");
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [offersList, setOffersList] = useState<Array<{ id: string; title: string; message: string | null; promotion_type: string | null; promotion_value: number | null; promotion_currency: string | null; savings_amount: number | null }>>([]);
   const [selectedOfferIds, setSelectedOfferIds] = useState<Set<string>>(new Set());
   const [highlightsList, setHighlightsList] = useState<Array<{ id: string; icon: string | null; title: string; description: string; image_url: string | null; metric_title: string | null; metric_value: string | null; sort_order: number }>>([]);
@@ -314,6 +330,14 @@ export default function StudioVideo() {
       setSelectedOfferIds(new Set());
       setHighlightsList([]);
       setSelectedHighlightIds(new Set());
+      setReviewsList([]);
+      setSelectedReviewId(null);
+      setReviewHighlight("");
+      setPlatformData({
+        google: { rating: null, count: null, url: null },
+        tripadvisor: { rating: null, count: null, url: null },
+        restaurant_guru: { rating: null, count: null, url: null },
+      });
       return;
     }
     let cancelled = false;
@@ -322,10 +346,10 @@ export default function StudioVideo() {
     setSelectedVideos(new Set());
     setSceneMedia({});
     (async () => {
-      const [biz, docs, yt, promos, hls] = await Promise.all([
+      const [biz, docs, yt, promos, hls, revs] = await Promise.all([
         supabase
           .from("businesses")
-          .select("hook_fr,description,images,popup_image_url,opening_hours,show_opening_hours,is_active,logo_url,logo_bg")
+          .select("hook_fr,description,images,popup_image_url,opening_hours,show_opening_hours,is_active,logo_url,logo_bg,google_rating,google_review_count,google_review_url,google_reviews_url,google_maps_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,tripadvisor_review_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url")
           .eq("id", selected.id)
           .maybeSingle(),
         supabase
@@ -349,6 +373,14 @@ export default function StudioVideo() {
           .select("id,icon,sort_order,image_url,title_fr,description_fr,metric_title_fr,metric_value_fr")
           .eq("business_id", selected.id)
           .order("sort_order", { ascending: true }),
+        supabase
+          .from("reviews")
+          .select("id,author_name,rating,text,text_fr,source,published_at,is_hidden")
+          .eq("business_id", selected.id)
+          .eq("is_hidden", false)
+          .order("rating", { ascending: false })
+          .order("published_at", { ascending: false })
+          .limit(50),
       ]);
       if (cancelled) return;
       const b: any = biz.data ?? {};
@@ -416,6 +448,43 @@ export default function StudioVideo() {
         .filter((h) => h.title.length > 0 || h.description.length > 0 || !!h.image_url);
       setHighlightsList(mappedHl);
       setSelectedHighlightIds(new Set(mappedHl.map((h) => h.id)));
+      // Plateformes d'avis
+      const num = (v: unknown) => {
+        const n = Number(v);
+        return Number.isFinite(n) && n > 0 ? n : null;
+      };
+      setPlatformData({
+        google: {
+          rating: num(b.google_rating),
+          count: num(b.google_review_count),
+          url: (b.google_review_url || b.google_reviews_url || b.google_maps_url || null) as string | null,
+        },
+        tripadvisor: {
+          rating: num(b.tripadvisor_rating),
+          count: num(b.tripadvisor_review_count),
+          url: (b.tripadvisor_review_url || b.tripadvisor_url || null) as string | null,
+        },
+        restaurant_guru: {
+          rating: num(b.restaurant_guru_rating),
+          count: num(b.restaurant_guru_review_count),
+          url: (b.restaurant_guru_url || null) as string | null,
+        },
+      });
+      // Avis clients
+      const revsRaw = (revs.data ?? []) as any[];
+      const mappedRevs = revsRaw
+        .map((r) => ({
+          id: r.id as string,
+          author: (r.author_name ?? null) as string | null,
+          rating: (r.rating ?? null) as number | null,
+          text: stripHtml((r.text_fr || r.text || "") as string),
+          source: (r.source ?? null) as string | null,
+          published_at: (r.published_at ?? null) as string | null,
+        }))
+        .filter((r) => r.text.length > 0);
+      setReviewsList(mappedRevs);
+      setSelectedReviewId(null);
+      setReviewHighlight("");
       setBizStats({
         hook: b.hook_fr ?? null,
         descLen: (b.description ?? "").length,
@@ -603,6 +672,12 @@ export default function StudioVideo() {
             map_marker: optMapMarker,
             digital_id: optDigitalId,
             install_cta: optInstallCta,
+            google_reviews: optGoogleReviews,
+            tripadvisor: optTripAdvisor,
+            restaurant_guru: optRestaurantGuru,
+            customer_review: optCustomerReview,
+            customer_review_id: selectedReviewId,
+            customer_review_highlight: reviewHighlight || null,
             popup: optPopup,
             open_with_logo: !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo,
             logo_url: logoInfo.url,
@@ -726,6 +801,12 @@ export default function StudioVideo() {
             map_marker: optMapMarker,
             digital_id: optDigitalId,
             install_cta: optInstallCta,
+            google_reviews: optGoogleReviews,
+            tripadvisor: optTripAdvisor,
+            restaurant_guru: optRestaurantGuru,
+            customer_review: optCustomerReview,
+            customer_review_id: selectedReviewId,
+            customer_review_highlight: reviewHighlight || null,
             popup: optPopup,
             open_with_logo: !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo,
             logo_url: logoInfo.url,
@@ -1278,6 +1359,93 @@ export default function StudioVideo() {
               </div>
             )}
 
+            {reviewDialogOpen && (
+              <div
+                className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in"
+                onClick={() => setReviewDialogOpen(false)}
+              >
+                <div
+                  className="relative w-full max-w-2xl max-h-[90vh] rounded-2xl bg-background border border-border shadow-2xl flex flex-col"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between p-4 border-b border-border">
+                    <h3 className="text-lg font-bold">Sélectionner un avis client</h3>
+                    <button
+                      type="button"
+                      onClick={() => setReviewDialogOpen(false)}
+                      className="h-8 w-8 rounded-full hover:bg-muted flex items-center justify-center"
+                      aria-label="Fermer"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                    {reviewsList.length === 0 ? (
+                      <div className="text-sm text-muted-foreground italic">Aucun avis publié pour cet établissement.</div>
+                    ) : (
+                      reviewsList.map((r) => {
+                        const isSel = selectedReviewId === r.id;
+                        return (
+                          <label
+                            key={r.id}
+                            className={`block rounded-md border p-3 cursor-pointer transition ${isSel ? "border-primary bg-primary/5" : "border-border hover:bg-muted/40"}`}
+                          >
+                            <div className="flex items-start gap-2">
+                              <input
+                                type="radio"
+                                name="reviewSelect"
+                                className="mt-1 h-4 w-4 accent-primary"
+                                checked={isSel}
+                                onChange={() => {
+                                  setSelectedReviewId(r.id);
+                                  // preselect the first sentence as default highlight
+                                  const first = r.text.split(/(?<=[.!?])\s+/)[0]?.slice(0, 200) || r.text.slice(0, 200);
+                                  setReviewHighlight(first);
+                                }}
+                              />
+                              <div className="min-w-0 flex-1 text-xs">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-semibold text-sm">{r.author || "Anonyme"}</span>
+                                  {r.rating != null && <span className="text-[#C04F17] font-bold">{r.rating}/5</span>}
+                                  {r.source && <span className="text-muted-foreground">· {r.source}</span>}
+                                </div>
+                                <div className="mt-1 text-muted-foreground whitespace-pre-wrap">{r.text}</div>
+                              </div>
+                            </div>
+                            {isSel && (
+                              <div className="mt-3 pl-6 space-y-1">
+                                <div className="text-[11px] font-medium text-muted-foreground">Sélectionner l'extrait à mettre en avant :</div>
+                                <textarea
+                                  value={reviewHighlight}
+                                  onChange={(e) => setReviewHighlight(e.target.value.slice(0, 240))}
+                                  onClick={(e) => e.stopPropagation()}
+                                  rows={2}
+                                  maxLength={240}
+                                  className="w-full text-xs rounded border border-border bg-background p-2"
+                                  placeholder="Colle ici la portion à mettre en avant"
+                                />
+                                <div className="text-[10px] text-muted-foreground text-right">{reviewHighlight.length}/240</div>
+                              </div>
+                            )}
+                          </label>
+                        );
+                      })
+                    )}
+                  </div>
+                  <div className="flex justify-end gap-2 p-3 border-t border-border">
+                    <Button variant="outline" size="sm" onClick={() => setReviewDialogOpen(false)}>Annuler</Button>
+                    <Button
+                      size="sm"
+                      disabled={!selectedReviewId}
+                      onClick={() => setReviewDialogOpen(false)}
+                    >
+                      Valider
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
 
           <section className="rounded-xl border border-border bg-card p-6 space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1418,13 +1586,19 @@ export default function StudioVideo() {
                       >
                         <img src={popupImageUrl} alt="Popup" className="w-full h-full object-cover" />
                       </button>
-                      <div className="min-w-0 flex-1 text-xs">
-                        {popupMeta.title && <div className="font-semibold truncate">{popupMeta.title}</div>}
-                        {popupMeta.description ? (
-                          <div className="mt-1 text-muted-foreground line-clamp-3" dangerouslySetInnerHTML={{ __html: popupMeta.description }} />
-                        ) : (
-                          !popupMeta.title && <div className="text-muted-foreground italic">Aucun titre / texte associé</div>
-                        )}
+                      <div className="min-w-0 flex-1 text-xs space-y-1">
+                        <div>
+                          <span className="text-muted-foreground">Titre : </span>
+                          {popupMeta.title
+                            ? <span className="font-semibold">{popupMeta.title}</span>
+                            : <span className="text-muted-foreground italic">—</span>}
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Texte : </span>
+                          {popupMeta.description
+                            ? <span className="text-muted-foreground" dangerouslySetInnerHTML={{ __html: popupMeta.description }} />
+                            : <span className="text-muted-foreground italic">—</span>}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1541,6 +1715,95 @@ export default function StudioVideo() {
                   <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optReviews} onChange={(e) => setOptReviews(e.target.checked)} />
                   <span>Compteur d'avis client + badge avis (note/20)</span>
                 </label>
+                {/* Plateformes d'avis externes */}
+                {(() => {
+                  const platforms: Array<{ key: "google" | "tripadvisor" | "restaurant_guru"; label: string; checked: boolean; setter: (v: boolean) => void }> = [
+                    { key: "google", label: "Avis Google", checked: optGoogleReviews, setter: setOptGoogleReviews },
+                    { key: "tripadvisor", label: "TripAdvisor", checked: optTripAdvisor, setter: setOptTripAdvisor },
+                    { key: "restaurant_guru", label: "Restaurant Guru", checked: optRestaurantGuru, setter: setOptRestaurantGuru },
+                  ];
+                  return platforms.map((p) => {
+                    const d = platformData[p.key];
+                    const available = !selected || !!(d.rating || d.count || d.url);
+                    return (
+                      <label
+                        key={p.key}
+                        className={`flex items-start gap-2 ml-6 ${available ? "cursor-pointer" : "cursor-not-allowed opacity-50"}`}
+                        title={available ? undefined : `Pas de données ${p.label} pour cet établissement`}
+                      >
+                        <input
+                          type="checkbox"
+                          className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto disabled:cursor-not-allowed"
+                          checked={available && p.checked}
+                          disabled={!available}
+                          onChange={(e) => p.setter(e.target.checked)}
+                        />
+                        <span className="text-sm">
+                          {p.label}
+                          {selected && available && (
+                            <em className="ml-1 not-italic text-xs opacity-70">
+                              {d.rating ? `${d.rating.toFixed(1)}/5` : ""}
+                              {d.count ? ` · ${d.count} avis` : ""}
+                            </em>
+                          )}
+                          {selected && !available && <em className="ml-1 text-xs opacity-70">(indisponible)</em>}
+                        </span>
+                      </label>
+                    );
+                  });
+                })()}
+                {/* Montrer un avis client */}
+                {(() => {
+                  const available = !selected || reviewsList.length > 0;
+                  const chosen = selectedReviewId ? reviewsList.find((r) => r.id === selectedReviewId) : null;
+                  return (
+                    <div className={`rounded-md border border-border bg-background/40 p-2 ${available ? "" : "opacity-50"}`}>
+                      <label className={`flex items-start gap-2 ${available ? "cursor-pointer" : "cursor-not-allowed"}`}>
+                        <input
+                          type="checkbox"
+                          className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto disabled:cursor-not-allowed"
+                          checked={available && optCustomerReview}
+                          disabled={!available}
+                          onChange={(e) => {
+                            setOptCustomerReview(e.target.checked);
+                            if (e.target.checked && !selectedReviewId && reviewsList.length > 0) {
+                              setReviewDialogOpen(true);
+                            }
+                          }}
+                        />
+                        <span className="font-medium">Montrer un avis client {selected && !available && <em className="ml-1 text-xs opacity-70 font-normal">(aucun avis)</em>}</span>
+                      </label>
+                      {available && optCustomerReview && (
+                        <div className="mt-2 pl-6 space-y-2">
+                          {chosen ? (
+                            <div className="text-xs space-y-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-semibold">{chosen.author || "Anonyme"}</span>
+                                {chosen.rating != null && <span className="text-[#C04F17] font-bold">{chosen.rating}/5</span>}
+                                {chosen.source && <span className="text-muted-foreground">· {chosen.source}</span>}
+                              </div>
+                              <div className="text-muted-foreground line-clamp-3">{chosen.text}</div>
+                              {reviewHighlight && (
+                                <div className="mt-1 rounded bg-primary/10 text-primary p-1.5">
+                                  <span className="font-semibold">Extrait mis en avant : </span>« {reviewHighlight} »
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="text-xs text-muted-foreground italic">Aucun avis sélectionné</div>
+                          )}
+                          <button
+                            type="button"
+                            className="text-xs underline hover:text-primary"
+                            onClick={() => setReviewDialogOpen(true)}
+                          >
+                            {chosen ? "Modifier la sélection" : "Sélectionner un avis"}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
                 {(() => {
                   const hoursAvailable = !selected || (bizStats?.hoursPublished ?? false);
                   return (

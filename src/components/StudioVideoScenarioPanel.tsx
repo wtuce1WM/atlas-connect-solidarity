@@ -34,7 +34,7 @@ export type Scene = {
   start: number;
   description: string;
   keywords: string[];
-  icon: "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro" | "custom";
+  icon: "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "cta" | "outro" | "custom";
 };
 
 export type Scenario = {
@@ -61,6 +61,10 @@ const ICONS: Record<Scene["icon"], React.ReactNode> = {
   offer: <MessageSquare className="h-3.5 w-3.5" />,
   highlight: <Star className="h-3.5 w-3.5" />,
   reviews: <MessageSquare className="h-3.5 w-3.5" />,
+  google_review: <Star className="h-3.5 w-3.5" />,
+  tripadvisor: <Star className="h-3.5 w-3.5" />,
+  restaurant_guru: <Star className="h-3.5 w-3.5" />,
+  customer_review: <MessageSquare className="h-3.5 w-3.5" />,
   hours: <Calendar className="h-3.5 w-3.5" />,
   map: <MapPin className="h-3.5 w-3.5" />,
   digital: <QrCode className="h-3.5 w-3.5" />,
@@ -78,6 +82,10 @@ const LABELS: Record<Exclude<Scene["icon"], "custom">, string> = {
   offer: "Offre",
   highlight: "Bloc highlight",
   reviews: "Avis clients",
+  google_review: "Avis Google",
+  tripadvisor: "TripAdvisor",
+  restaurant_guru: "Restaurant Guru",
+  customer_review: "Témoignage client",
   hours: "Horaires",
   map: "Localisation",
   digital: "ID numérique",
@@ -227,6 +235,24 @@ export function scenarioFromTemplateProps(
     const rating = props.rating ? ` (${props.rating}/5)` : "";
     const count = props.reviewsCount ? ` · ${props.reviewsCount} avis` : "";
     push("reviews", Math.max(2, Math.round(durationSec * 0.08)), `Badge avis clients${rating}${count}.`);
+  }
+  const platformScenes: Array<{ key: Scene["icon"]; enabled: boolean; label: string; data: any }> = [
+    { key: "google_review", enabled: !!props?.showGoogleReviews, label: "Avis Google", data: props?.googleReview },
+    { key: "tripadvisor", enabled: !!props?.showTripAdvisor, label: "TripAdvisor", data: props?.tripAdvisor },
+    { key: "restaurant_guru", enabled: !!props?.showRestaurantGuru, label: "Restaurant Guru", data: props?.restaurantGuru },
+  ];
+  for (const ps of platformScenes) {
+    if (!ps.enabled) continue;
+    const d = ps.data || {};
+    const rating = d.rating ? ` (${Number(d.rating).toFixed(1)}/5)` : "";
+    const count = d.count ? ` · ${d.count} avis` : "";
+    push(ps.key, Math.max(2, Math.round(durationSec * 0.07)), `${ps.label}${rating}${count} — logo plateforme + effet dynamique.`);
+  }
+  if (props?.showCustomerReview && props?.customerReview?.text) {
+    const cr = props.customerReview;
+    const highlight = (cr.highlight || cr.text || "").toString().slice(0, 120);
+    const author = cr.author ? ` — ${cr.author}` : "";
+    push("customer_review", Math.max(3, Math.round(durationSec * 0.1)), `Témoignage : « ${highlight} »${author}`);
   }
   if (props?.showOpeningHours) push("hours", Math.max(2, Math.round(durationSec * 0.07)), "Horaires d'ouverture en surimpression.");
   if (props?.showMap) push("map", Math.max(2, Math.round(durationSec * 0.09)), `Marqueur Google Map${props.address ? ` — ${String(props.address).slice(0, 60)}` : ""}.`);

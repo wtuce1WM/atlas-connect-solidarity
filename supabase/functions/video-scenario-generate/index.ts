@@ -78,7 +78,7 @@ Deno.serve(async (req) => {
     if (resolved_business_id) {
       const { data: biz } = await supa
         .from("businesses")
-        .select("id,name,slug,hook_fr,destination_hook,poi_hook,description,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,images,popup_image_url")
+        .select("id,name,slug,hook_fr,destination_hook,poi_hook,description,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,google_review_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url,images,popup_image_url")
         .eq("id", resolved_business_id)
         .maybeSingle();
 
@@ -145,6 +145,12 @@ Deno.serve(async (req) => {
     const wantsHours = Boolean(options?.hours) || /horaires|heures d'ouverture|ouverture de l'établissement/i.test(promptText);
     const wantsMapMarker = Boolean(options?.map_marker) || /google\s*map|marqueur de l'établissement|marqueur.*carte|localisation/i.test(promptText);
     const wantsDigitalId = Boolean(options?.digital_id) || /id numérique|fiche.*qr|qr code/i.test(promptText);
+    const wantsGoogleReviews = Boolean(options?.google_reviews);
+    const wantsTripAdvisor = Boolean(options?.tripadvisor);
+    const wantsRestaurantGuru = Boolean(options?.restaurant_guru);
+    const wantsCustomerReview = Boolean(options?.customer_review);
+    const customerReviewId = typeof options?.customer_review_id === "string" ? options.customer_review_id : null;
+    const customerReviewHighlight = typeof options?.customer_review_highlight === "string" ? options.customer_review_highlight.slice(0, 240) : null;
     const wantsInstallCta = Boolean(options?.install_cta) || /installer l'app|installation de l'app|incitation à installer/i.test(promptText);
 
     const formatOpeningHours = (value: unknown): string | null => {
@@ -403,7 +409,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     if (resolved_business_id) {
       const { data: freshBiz } = await supa
         .from("businesses")
-        .select("id,name,slug,hook_fr,destination_hook,poi_hook,description,city,neighborhood,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,logo_url,images,popup_image_url,whatsapp,instagram_url")
+        .select("id,name,slug,hook_fr,destination_hook,poi_hook,description,city,neighborhood,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,google_review_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url,logo_url,images,popup_image_url,whatsapp,instagram_url")
         .eq("id", resolved_business_id)
         .maybeSingle();
       if (freshBiz) businessDetails = { ...(businessContext ?? {}), ...freshBiz };
@@ -604,6 +610,67 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         template_props.showReviews = true;
         template_props.rating = rating;
         template_props.reviewsCount = reviewsCount;
+      }
+      // Plateformes d'avis externes
+      if (wantsGoogleReviews) {
+        const gr = Number(businessDetails.google_rating);
+        const gc = Number(businessDetails.google_review_count);
+        const gu = typeof businessDetails.google_review_url === "string" ? businessDetails.google_review_url : null;
+        if ((Number.isFinite(gr) && gr > 0) || (Number.isFinite(gc) && gc > 0) || gu) {
+          template_props.showGoogleReviews = true;
+          template_props.googleReview = {
+            rating: Number.isFinite(gr) && gr > 0 ? gr : null,
+            count: Number.isFinite(gc) && gc > 0 ? gc : null,
+            url: gu,
+          };
+        }
+      }
+      if (wantsTripAdvisor) {
+        const tr = Number((businessDetails as any).tripadvisor_rating);
+        const tc = Number((businessDetails as any).tripadvisor_review_count);
+        const tu = typeof (businessDetails as any).tripadvisor_url === "string" ? (businessDetails as any).tripadvisor_url : null;
+        if ((Number.isFinite(tr) && tr > 0) || (Number.isFinite(tc) && tc > 0) || tu) {
+          template_props.showTripAdvisor = true;
+          template_props.tripAdvisor = {
+            rating: Number.isFinite(tr) && tr > 0 ? tr : null,
+            count: Number.isFinite(tc) && tc > 0 ? tc : null,
+            url: tu,
+          };
+        }
+      }
+      if (wantsRestaurantGuru) {
+        const rr = Number((businessDetails as any).restaurant_guru_rating);
+        const rc = Number((businessDetails as any).restaurant_guru_review_count);
+        const ru = typeof (businessDetails as any).restaurant_guru_url === "string" ? (businessDetails as any).restaurant_guru_url : null;
+        if ((Number.isFinite(rr) && rr > 0) || (Number.isFinite(rc) && rc > 0) || ru) {
+          template_props.showRestaurantGuru = true;
+          template_props.restaurantGuru = {
+            rating: Number.isFinite(rr) && rr > 0 ? rr : null,
+            count: Number.isFinite(rc) && rc > 0 ? rc : null,
+            url: ru,
+          };
+        }
+      }
+      if (wantsCustomerReview && customerReviewId) {
+        try {
+          const { data: revRow } = await supa
+            .from("reviews")
+            .select("id,author_name,rating,text,text_fr,source,published_at")
+            .eq("id", customerReviewId)
+            .maybeSingle();
+          if (revRow) {
+            const fullText = (revRow.text_fr || revRow.text || "").toString();
+            template_props.showCustomerReview = true;
+            template_props.customerReview = {
+              id: revRow.id,
+              author: revRow.author_name || null,
+              rating: revRow.rating != null ? Number(revRow.rating) : null,
+              text: fullText.slice(0, 800),
+              highlight: customerReviewHighlight || fullText.split(/(?<=[.!?])\s+/)[0]?.slice(0, 200) || fullText.slice(0, 200),
+              source: revRow.source || null,
+            };
+          }
+        } catch (_) { /* silent */ }
       }
       const formattedOpeningHours = formatOpeningHours(businessDetails.opening_hours);
       if (wantsHours && formattedOpeningHours) {
