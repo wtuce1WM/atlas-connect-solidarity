@@ -295,14 +295,10 @@ const EmbedAiSuggestionsManagement = () => {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 rounded-md border bg-muted/30 px-3 py-2 text-xs">
-        <span className="text-muted-foreground">Route détectée automatiquement selon le libellé FR :</span>
-        <RouteBadge label="météo" />
-        <RouteBadge label="ce week-end" />
-        <RouteBadge label="à proximité" />
-        <RouteBadge label="montre sur la carte" />
-        <RouteBadge label="" />
+      <div className="rounded-md border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+        <b>Route</b> : laisse <code>Auto</code> pour que le runtime détecte la route depuis le libellé FR (météo, événements, proximité, carte…) ou force une route déterministe pour court-circuiter le LLM.
       </div>
+
 
       <div className="space-y-3">
         {rows.map((r) => {
