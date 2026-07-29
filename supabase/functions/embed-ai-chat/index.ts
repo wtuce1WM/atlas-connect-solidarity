@@ -4485,39 +4485,10 @@ Deno.serve(async (req) => {
           }
         }
 
-        // Deterministic: STRUCTURE DU FRONT (suggestion mode = 'structure_front').
-        // Force search_businesses in host city with the suggestion's subcategories/badges.
-        if (suggestionMode === "structure_front" && (deterministicSubcategoryNames || deterministicBadgeIds)) {
-          try {
-            const forcedArgs: any = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
-            if (deterministicSubcategoryNames) forcedArgs._subcategoryNames = deterministicSubcategoryNames;
-            if (deterministicBadgeIds) forcedArgs._badgeIds = deterministicBadgeIds;
-            const forcedResult = await runTool("search_businesses", forcedArgs);
-            rememberSearchResult("search_businesses", forcedArgs, forcedResult);
-            if (Array.isArray(forcedResult?.results) && forcedResult.results.length) {
-              const answer = buildImmersiveBusinessAnswer(forcedResult, host, userMessage, language);
-              emitDelta(answer);
-              const trailing = emitTrailingMarkers();
-              toolsCalledLog.push({ name: "structure_front", args: forcedArgs, ok: true });
-              endText();
-              await logTurn({ finalText: answer + trailing, streamCompleted: true });
-              return;
-            }
-            const city = host.city || "Marrakech";
-            const empty = language === "ar"
-              ? `📍 لم أعثر على نتائج في ${city} لهذا البحث.`
-              : language === "en"
-                ? `📍 No results found in ${city} for this search.`
-                : `📍 Aucun résultat trouvé à ${city} pour cette recherche.`;
-            emitDelta(empty);
-            const trailing = emitTrailingMarkers();
-            endText();
-            await logTurn({ finalText: empty + trailing, streamCompleted: true });
-            return;
-          } catch (e) {
-            console.error("[embed-ai-chat] structure_front_error", e);
-          }
-        }
+        // NOTE: 'structure_front' mode intentionally falls through to the normal
+        // pipeline (nearby overview / search_businesses via the classifier) — no
+        // forced citywide bypass here.
+
 
         // Deterministic: events search (suggestion mode = 'events')
 
