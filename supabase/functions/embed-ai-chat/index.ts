@@ -2813,8 +2813,9 @@ Deno.serve(async (req) => {
 
               const totalFound = filtered.length;
               const results = filtered.slice(0, limit);
+              const pool_ids: string[] = filtered.map((b: any) => String(b.id)).filter(Boolean);
               if (!results.length) {
-                return { results: [], total_shown: 0, total_found: 0, total_count: 0, city, disclosure_note: buildDisclosureFromCounts(0, 0, city), note: `Aucun établissement complémentaire trouvé pour "${fullQuery}" à ${city}.`, proximity_active: proximityActive, radius_km_used: radiusUsedKm, radius_expanded: radiusExpanded };
+                return { results: [], total_shown: 0, total_found: 0, total_count: 0, city, disclosure_note: buildDisclosureFromCounts(0, 0, city), note: `Aucun établissement complémentaire trouvé pour "${fullQuery}" à ${city}.`, proximity_active: proximityActive, radius_km_used: radiusUsedKm, radius_expanded: radiusExpanded, pool_ids };
               }
               const disclosure = buildDisclosureFromCounts(results.length, totalFound, city);
               return {
@@ -2842,6 +2843,7 @@ Deno.serve(async (req) => {
                 proximity_active: proximityActive,
                 radius_km_used: radiusUsedKm,
                 radius_expanded: radiusExpanded,
+                pool_ids,
               };
             }
 
