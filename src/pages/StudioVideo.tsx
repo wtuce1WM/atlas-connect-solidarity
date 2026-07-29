@@ -1624,6 +1624,47 @@ export default function StudioVideo() {
             </div>
           </section>
 
+          <section className="space-y-4 rounded-lg border border-border bg-background p-4">
+            <h2 className="font-semibold text-white">Comment fonctionnent les éléments à inclure dans la vidéo</h2>
+
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <p className="text-white font-medium">1. « Ouvrir avec le logo »</p>
+              <p>
+                Cette option n'est proposée que si l'établissement dispose d'un logo avec fond transparent.
+                Lorsqu'elle est cochée, le scénario démarre par une scène d'introduction (environ 2 s) :
+                le logo apparaît sur un fond terracotta radial avec un effet de fade-in spring.
+                L'option est automatiquement désactivée si le logo ne remplit pas la condition.
+              </p>
+            </div>
+
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <p className="text-white font-medium">2. Fond de la scène Offres — lisibilité renforcée</p>
+              <p>
+                Le rendu derrière les offres utilise la sélection globale ou le choix de l'IA, avec un overlay
+                sombre allégé (0,22 → 0,48) pour garder la vidéo/image de fond visible tout en assurant la lisibilité du texte.
+              </p>
+            </div>
+
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <p className="text-white font-medium">3. Ce que fait chaque case cochée</p>
+              <ul className="list-disc space-y-1 pl-5 text-xs sm:text-sm">
+                <li><strong>Ouvrir avec le logo</strong> : scène d'intro logo (2 s), visible uniquement si logo_bg = transparent.</li>
+                <li><strong>Avis clients</strong> : scène reviews avec note /20 et nombre d'avis.</li>
+                <li><strong>Horaires</strong> : scène hours depuis les horaires publiés.</li>
+                <li><strong>Google Map</strong> : scène map avec marqueur latitude/longitude.</li>
+                <li><strong>ID numérique</strong> : scène digital (screenshot mobile de la fiche + QR).</li>
+                <li><strong>CTA install app</strong> : scène CTA / outro « Découvrez {`{name}`} ».</li>
+                <li><strong>Popup de bienvenue</strong> : injecte l'image popup avec titre/description dans les directives IA.</li>
+                <li><strong>Offres</strong> (par offre cochée) : une scène offer par offre avec titre, prix, bullets et fond dédié.</li>
+                <li><strong>Highlights</strong> (par bloc coché) : blocs highlights transmis comme directives au scénario IA.</li>
+              </ul>
+              <p className="text-xs pt-1">
+                Ordre par défaut : logo → hook → name → media → offre(s) → avis → horaires → map → digital → CTA.
+                Vous pouvez réordonner et ajuster les durées dans l'aperçu du scénario avant le rendu.
+              </p>
+            </div>
+          </section>
+
           </div>
         </main>
         <Footer />
