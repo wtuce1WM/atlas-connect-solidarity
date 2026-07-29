@@ -972,6 +972,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   images = [],
   videos = [],
   offer = null,
+  offers = null,
   rating,
   reviewsCount,
   openingHours,
