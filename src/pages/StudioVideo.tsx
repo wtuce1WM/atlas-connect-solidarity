@@ -579,6 +579,8 @@ export default function StudioVideo() {
 
   const buildDirectivesPrompt = () => {
     const directives: string[] = [];
+    const logoAvailable = !!logoInfo.url && logoInfo.bg === "transparent";
+    if (logoAvailable && optOpenWithLogo) directives.push(`Ouvrir la vidéo par une séquence courte (env. 20 frames) affichant le logo de l'établissement (fond transparent) centré sur un fond de marque, avec un fondu d'entrée doux, avant d'enchaîner sur le hook. URL du logo : ${logoInfo.url}`);
     if (optReviews) directives.push("Faire figurer le compteur d'avis client et le badge des avis client (note/20 + nombre d'avis).");
     if (optHours) directives.push("Faire figurer les horaires d'ouverture de l'établissement.");
     if (optMapMarker) directives.push("Faire figurer le marqueur de l'établissement sur la Google Map.");
