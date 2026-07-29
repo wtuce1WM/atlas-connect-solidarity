@@ -636,8 +636,12 @@ export default function StudioVideo() {
       mapMarker: optMapMarker,
       digitalId: optDigitalId,
       installCta: optInstallCta,
+      openWithLogo: !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo,
+      logoUrl: logoInfo.url,
+      whatsapp: optWhatsapp,
+      whatsappNumber: whatsappNumber,
     });
-  }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta]);
+  }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optOpenWithLogo, logoInfo, optWhatsapp, whatsappNumber]);
 
   const mediaMatches = useMemo(() => {
     const matches = new Map<string, string[]>();
