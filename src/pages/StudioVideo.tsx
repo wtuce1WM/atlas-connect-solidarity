@@ -545,8 +545,11 @@ export default function StudioVideo() {
       mapMarker: optMapMarker,
       digitalId: optDigitalId,
       installCta: optInstallCta,
+      freeZone: optFreeZone,
+      freeZoneTitle,
+      freeZoneSubtitle,
     });
-  }, [prompt, selected?.name, duration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta]);
+  }, [prompt, selected?.name, duration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optFreeZone, freeZoneTitle, freeZoneSubtitle]);
 
   const mediaMatches = useMemo(() => {
     const matches = new Map<string, string[]>();
