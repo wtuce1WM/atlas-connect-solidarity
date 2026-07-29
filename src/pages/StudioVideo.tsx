@@ -232,6 +232,9 @@ export default function StudioVideo() {
   const [optDigitalId, setOptDigitalId] = useState(true);
   const [optPopup, setOptPopup] = useState(true);
   const [optOpenWithLogo, setOptOpenWithLogo] = useState(true);
+  const [optFreeZone, setOptFreeZone] = useState(false);
+  const [freeZoneTitle, setFreeZoneTitle] = useState("");
+  const [freeZoneSubtitle, setFreeZoneSubtitle] = useState("");
   const [logoInfo, setLogoInfo] = useState<{ url: string | null; bg: string | null }>({ url: null, bg: null });
   const [offersList, setOffersList] = useState<Array<{ id: string; title: string; message: string | null; promotion_type: string | null; promotion_value: number | null; promotion_currency: string | null; savings_amount: number | null }>>([]);
   const [selectedOfferIds, setSelectedOfferIds] = useState<Set<string>>(new Set());
