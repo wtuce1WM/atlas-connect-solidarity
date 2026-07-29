@@ -330,6 +330,8 @@ export function StudioVideoScenarioPanel({
   const [orderOverride, setOrderOverride] = useState<string[] | null>(null);
   const [customScenes, setCustomScenes] = useState<CustomScene[]>([]);
   const [splitOverrides, setSplitOverrides] = useState<Record<string, number>>({});
+  const [textOverrides, setTextOverrides] = useState<Record<string, { label?: string; description?: string }>>({});
+  const [editingTextId, setEditingTextId] = useState<string | null>(null);
   const [addOpenInternal, setAddOpenInternal] = useState(false);
   const [dragId, setDragId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
