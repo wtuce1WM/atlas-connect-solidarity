@@ -790,6 +790,35 @@ export default function StudioVideo() {
     return { finalPrompt, chosenImages, chosenVideos };
   };
 
+  const currentScenarioSig = useMemo(() => {
+    return JSON.stringify({
+      prompt: prompt.trim(),
+      duration: effectiveDuration,
+      tone,
+      business: selected?.id ?? null,
+      opts: {
+        optReviews, optHours, optMapMarker, optDigitalId, optInstallCta,
+        optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
+        optCustomerReview, optPopup, optOpenWithLogo,
+      },
+      offers: Array.from(selectedOfferIds).sort(),
+      highlights: Array.from(selectedHighlightIds).sort(),
+      images: Array.from(selectedImages).sort(),
+      videos: Array.from(selectedVideos).sort(),
+      reviewId: selectedReviewId,
+      reviewHighlight: reviewHighlight || null,
+      textPosition,
+    });
+  }, [
+    prompt, effectiveDuration, tone, selected?.id,
+    optReviews, optHours, optMapMarker, optDigitalId, optInstallCta,
+    optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
+    optCustomerReview, optPopup, optOpenWithLogo,
+    selectedOfferIds, selectedHighlightIds, selectedImages, selectedVideos,
+    selectedReviewId, reviewHighlight, textPosition,
+  ]);
+  const scenarioStale = !!aiScenario && aiScenarioSig !== null && aiScenarioSig !== currentScenarioSig;
+
   const previewScenario = async () => {
     if (previewing || submitting) return;
     if (!prompt.trim()) {
