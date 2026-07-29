@@ -730,6 +730,11 @@ function SceneMediaSlot({
                         {m.kind === "video" ? <Film className="h-2.5 w-2.5" /> : <ImageIcon className="h-2.5 w-2.5" />}
                         {m.kind}
                       </div>
+                      {m.duration != null && m.kind === "video" && (
+                        <div className="absolute top-1 right-1 text-[9px] px-1.5 py-0.5 rounded bg-black/70 text-white font-bold uppercase">
+                          {formatDuration(m.duration)}
+                        </div>
+                      )}
                       {selected && (
                         <div className="absolute inset-0 bg-primary/30 flex items-center justify-center">
                           <div className="rounded-full bg-primary text-primary-foreground text-xs font-bold w-6 h-6 flex items-center justify-center">
