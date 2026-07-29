@@ -543,7 +543,6 @@ export default function StudioVideo() {
     if (canLogo) s += 2;
     const offerCount = selectedOfferIds.size;
     if (offerCount > 0) s += Math.min(6, offerCount) * 5;
-    if (optFreeZone) s += 5;
     if (optReviews) s += 3;
     if (optHours) s += 3;
     if (optMapMarker) s += 3;
@@ -551,7 +550,7 @@ export default function StudioVideo() {
     s += 3; // cta
     if (optInstallCta) s += 2; // outro
     return Math.max(10, Math.min(90, s));
-  }, [logoInfo, optOpenWithLogo, selectedOfferIds, optFreeZone, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta]);
+  }, [logoInfo, optOpenWithLogo, selectedOfferIds, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta]);
 
   const effectiveDuration = durationAuto ? autoDuration : duration;
 
@@ -563,11 +562,8 @@ export default function StudioVideo() {
       mapMarker: optMapMarker,
       digitalId: optDigitalId,
       installCta: optInstallCta,
-      freeZone: optFreeZone,
-      freeZoneTitle,
-      freeZoneSubtitle,
     });
-  }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optFreeZone, freeZoneTitle, freeZoneSubtitle]);
+  }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta]);
 
   const mediaMatches = useMemo(() => {
     const matches = new Map<string, string[]>();
