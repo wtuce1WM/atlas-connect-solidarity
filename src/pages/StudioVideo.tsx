@@ -212,6 +212,8 @@ export default function StudioVideo() {
   const [optMapMarker, setOptMapMarker] = useState(true);
   const [optDigitalId, setOptDigitalId] = useState(true);
   const [optPopup, setOptPopup] = useState(true);
+  const [optOpenWithLogo, setOptOpenWithLogo] = useState(true);
+  const [logoInfo, setLogoInfo] = useState<{ url: string | null; bg: string | null }>({ url: null, bg: null });
   const [offersList, setOffersList] = useState<Array<{ id: string; title: string; message: string | null; promotion_type: string | null; promotion_value: number | null; promotion_currency: string | null; savings_amount: number | null }>>([]);
   const [selectedOfferIds, setSelectedOfferIds] = useState<Set<string>>(new Set());
   const [highlightsList, setHighlightsList] = useState<Array<{ id: string; icon: string | null; title: string; description: string; image_url: string | null; metric_title: string | null; metric_value: string | null; sort_order: number }>>([]);
@@ -301,7 +303,7 @@ export default function StudioVideo() {
       const [biz, docs, yt, promos, hls] = await Promise.all([
         supabase
           .from("businesses")
-          .select("hook_fr,description,images,popup_image_url,opening_hours,show_opening_hours,is_active")
+          .select("hook_fr,description,images,popup_image_url,opening_hours,show_opening_hours,is_active,logo_url,logo_bg")
           .eq("id", selected.id)
           .maybeSingle(),
         supabase
@@ -342,6 +344,8 @@ export default function StudioVideo() {
       setBizVideos([...docVideos, ...ytVideos]);
       const popupUrl: string | null = b.popup_image_url && imgs.includes(b.popup_image_url) ? b.popup_image_url : null;
       setPopupImageUrl(popupUrl);
+      setLogoInfo({ url: b.logo_url ?? null, bg: b.logo_bg ?? null });
+      setOptOpenWithLogo((b.logo_bg === "transparent") && !!b.logo_url);
       setPopupMeta({ title: null, description: null });
       if (popupUrl) {
         supabase
@@ -540,6 +544,8 @@ export default function StudioVideo() {
             digital_id: optDigitalId,
             install_cta: optInstallCta,
             popup: optPopup,
+            open_with_logo: !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo,
+            logo_url: logoInfo.url,
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
             selected_images: chosenImages,
@@ -575,6 +581,8 @@ export default function StudioVideo() {
 
   const buildDirectivesPrompt = () => {
     const directives: string[] = [];
+    const logoAvailable = !!logoInfo.url && logoInfo.bg === "transparent";
+    if (logoAvailable && optOpenWithLogo) directives.push(`Ouvrir la vidéo par une séquence courte (env. 20 frames) affichant le logo de l'établissement (fond transparent) centré sur un fond de marque, avec un fondu d'entrée doux, avant d'enchaîner sur le hook. URL du logo : ${logoInfo.url}`);
     if (optReviews) directives.push("Faire figurer le compteur d'avis client et le badge des avis client (note/20 + nombre d'avis).");
     if (optHours) directives.push("Faire figurer les horaires d'ouverture de l'établissement.");
     if (optMapMarker) directives.push("Faire figurer le marqueur de l'établissement sur la Google Map.");
@@ -658,6 +666,8 @@ export default function StudioVideo() {
             digital_id: optDigitalId,
             install_cta: optInstallCta,
             popup: optPopup,
+            open_with_logo: !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo,
+            logo_url: logoInfo.url,
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
             selected_images: chosenImages,
@@ -1282,6 +1292,27 @@ export default function StudioVideo() {
             <div className="space-y-2 rounded-md border border-border bg-muted/30 p-3">
               <Label className="text-sm">Éléments à inclure dans la vidéo</Label>
               <div className="flex flex-col gap-2 text-sm">
+                {logoInfo.url && logoInfo.bg === "transparent" && (
+                  <div className="rounded-md border border-border bg-background/40 p-2">
+                    <label className="flex items-start gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                        checked={optOpenWithLogo}
+                        onChange={(e) => setOptOpenWithLogo(e.target.checked)}
+                      />
+                      <span className="font-medium">Ouvrir avec le logo</span>
+                    </label>
+                    <div className={`mt-2 flex gap-3 items-center ${optOpenWithLogo ? "opacity-100" : "opacity-50"}`}>
+                      <div className="shrink-0 relative w-20 h-20 rounded-md overflow-hidden border border-border bg-[repeating-conic-gradient(#e5e7eb_0_25%,#f9fafb_0_50%)] bg-[length:16px_16px] flex items-center justify-center">
+                        <img src={logoInfo.url} alt="Logo" className="w-full h-full object-contain p-1" />
+                      </div>
+                      <div className="min-w-0 flex-1 text-xs text-muted-foreground">
+                        Logo sur fond transparent — utilisé comme séquence d'ouverture avant le hook.
+                      </div>
+                    </div>
+                  </div>
+                )}
                 {popupImageUrl && (
                   <div className="rounded-md border border-border bg-background/40 p-2">
                     <label className="flex items-start gap-2 cursor-pointer">
