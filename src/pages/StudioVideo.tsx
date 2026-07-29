@@ -1383,9 +1383,18 @@ export default function StudioVideo() {
                         <img src={logoInfo.url} alt="Logo" className="w-full h-full object-contain p-1" />
                       </div>
                       <div className="min-w-0 flex-1 text-xs text-muted-foreground">
-                        Logo sur fond transparent — utilisé comme séquence d'ouverture avant le hook.
+                        Logo sur fond transparent — utilisé comme séquence d'ouverture avant le nom.
                       </div>
                     </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="mt-3 h-8 text-[12px] px-3 w-full"
+                      onClick={() => setAddStepOpen(true)}
+                    >
+                      <Plus className="h-4 w-4 mr-1.5" /> Ajouter une étape
+                    </Button>
                   </div>
                 )}
                 {/* Zone libre supprimée — utiliser « Ajouter une étape » dans l'aperçu du scénario. */}
