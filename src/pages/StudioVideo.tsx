@@ -666,6 +666,8 @@ export default function StudioVideo() {
             digital_id: optDigitalId,
             install_cta: optInstallCta,
             popup: optPopup,
+            open_with_logo: !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo,
+            logo_url: logoInfo.url,
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
             selected_images: chosenImages,
