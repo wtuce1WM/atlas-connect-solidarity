@@ -253,10 +253,17 @@ export function StudioVideoScenarioPanel({
   const [orderOverride, setOrderOverride] = useState<string[] | null>(null);
   const [customScenes, setCustomScenes] = useState<CustomScene[]>([]);
   const [splitOverrides, setSplitOverrides] = useState<Record<string, number>>({});
+  const [addOpenInternal, setAddOpenInternal] = useState(false);
   const [dragId, setDragId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
-  const [addOpen, setAddOpen] = useState(false);
   const [editingCustomId, setEditingCustomId] = useState<string | null>(null);
+
+  const isAddOpenControlled = openAddDialog !== undefined && onOpenAddDialogChange !== undefined;
+  const addOpen = isAddOpenControlled ? openAddDialog : addOpenInternal;
+  const setAddOpen = (open: boolean) => {
+    if (isAddOpenControlled) onOpenAddDialogChange!(open);
+    else setAddOpenInternal(open);
+  };
 
   // Signature to reset local edits when the incoming scenario really changes
   const signature = scenario.scenes.map((s) => s.id).join("|") + "@" + scenario.totalDuration;
