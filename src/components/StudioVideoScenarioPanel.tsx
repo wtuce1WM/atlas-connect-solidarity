@@ -225,6 +225,8 @@ export type ScenarioEdits = {
   order: string[]; // ordered tokens: SceneMediaKind or `custom:<id>`
   durations: Partial<Record<SceneMediaKind, number>>; // seconds per built-in kind
   customScenes?: CustomScene[];
+  // Nb d'étapes pour découper le texte dans le montage (clé = "hook" | "name" | `custom:<id>`)
+  textSplits?: Record<string, number>;
 };
 
 export function StudioVideoScenarioPanel({
