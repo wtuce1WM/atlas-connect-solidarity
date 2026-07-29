@@ -1089,24 +1089,26 @@ const EmbedAsk = () => {
                   <ReactMarkdown
                     components={{
                       strong: StrongCited as any,
-                      blockquote: articleCard?.inline
-                        ? (({ children }: any) => (
-                            <figure
-                              className={`my-5 rounded-xl border-l-4 p-5 md:p-6 not-italic ${
-                                theme === "dark"
-                                  ? "bg-white/5 border-[#D4AF37]/70"
-                                  : "bg-[#F2E4CC]/70 border-[#C04F17]/70"
-                              }`}
-                            >
-                              <div
-                                className={`text-base md:text-lg leading-relaxed italic ${theme === "dark" ? "text-white/90" : "text-neutral-900/90"}`}
-                                style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                      ...(articleCard?.inline
+                        ? {
+                            blockquote: (({ children }: any) => (
+                              <figure
+                                className={`my-5 rounded-xl border-l-4 p-5 md:p-6 not-italic ${
+                                  theme === "dark"
+                                    ? "bg-white/5 border-[#D4AF37]/70"
+                                    : "bg-[#F2E4CC]/70 border-[#C04F17]/70"
+                                }`}
                               >
-                                {children}
-                              </div>
-                            </figure>
-                          )) as any
-                        : undefined,
+                                <div
+                                  className={`text-base md:text-lg leading-relaxed italic ${theme === "dark" ? "text-white/90" : "text-neutral-900/90"}`}
+                                  style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                                >
+                                  {children}
+                                </div>
+                              </figure>
+                            )) as any,
+                          }
+                        : {}),
                     }}
                   >
                     {clean || (streaming && isLast ? "…" : "")}
