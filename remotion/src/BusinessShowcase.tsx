@@ -966,6 +966,36 @@ const removeDecorativeTaglineWords = (value: string): string =>
     .replace(/^[\s,.:;!?-]+|[\s,.:;!?-]+$/g, "")
     .trim();
 
+const SceneLogo: React.FC<{ logoUrl: string; durationFrames?: number }> = ({ logoUrl, durationFrames = 60 }) => {
+  const frame = useCurrentFrame();
+  const s = spring({ frame, fps: 30, config: { damping: 18, stiffness: 120 } });
+  const outStart = Math.max(20, durationFrames - 14);
+  const out = 1 - ease(frame, outStart, durationFrames);
+  const scale = interpolate(s, [0, 1], [0.85, 1]);
+  return (
+    <AbsoluteFill
+      style={{
+        background: `radial-gradient(circle at 50% 50%, ${COLORS.terracotta}22 0%, ${COLORS.night} 70%)`,
+        alignItems: "center",
+        justifyContent: "center",
+        opacity: out,
+      }}
+    >
+      <Img
+        src={logoUrl}
+        style={{
+          maxWidth: "58%",
+          maxHeight: "58%",
+          objectFit: "contain",
+          opacity: s,
+          transform: `scale(${scale})`,
+          filter: "drop-shadow(0 8px 32px rgba(0,0,0,0.45))",
+        }}
+      />
+    </AbsoluteFill>
+  );
+};
+
 export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   name = "Établissement",
   hook = "Une adresse à découvrir.",
