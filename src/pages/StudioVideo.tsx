@@ -344,6 +344,8 @@ export default function StudioVideo() {
       setBizVideos([...docVideos, ...ytVideos]);
       const popupUrl: string | null = b.popup_image_url && imgs.includes(b.popup_image_url) ? b.popup_image_url : null;
       setPopupImageUrl(popupUrl);
+      setLogoInfo({ url: b.logo_url ?? null, bg: b.logo_bg ?? null });
+      setOptOpenWithLogo((b.logo_bg === "transparent") && !!b.logo_url);
       setPopupMeta({ title: null, description: null });
       if (popupUrl) {
         supabase
