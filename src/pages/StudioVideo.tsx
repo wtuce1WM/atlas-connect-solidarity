@@ -1720,11 +1720,14 @@ export default function StudioVideo() {
                     </div>
                   </div>
                 )}
-                <label className="flex items-start gap-2 cursor-pointer">
-                  <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optReviews} onChange={(e) => setOptReviews(e.target.checked)} />
-                  <span>Compteur d'avis client + badge avis (note/20)</span>
-                </label>
-                {/* Plateformes d'avis externes */}
+                <div className="rounded-md border border-border bg-background/40 p-2">
+                  <label className="flex items-start gap-2 cursor-pointer">
+                    <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optReviews} onChange={(e) => setOptReviews(e.target.checked)} />
+                    <span className="font-medium">Compteur d'avis client + badge avis (note/20)</span>
+                  </label>
+                  <p className="mt-1 pl-6 text-[11px] text-muted-foreground">Scène dédiée avec la note /20 agrégée et le nombre total d'avis.</p>
+                </div>
+                {/* Plateformes d'avis externes — chacune dans sa propre carte */}
                 {(() => {
                   const platforms: Array<{ key: "google" | "tripadvisor" | "restaurant_guru"; label: string; checked: boolean; setter: (v: boolean) => void }> = [
                     { key: "google", label: "Avis Google", checked: optGoogleReviews, setter: setOptGoogleReviews },
@@ -1735,29 +1738,31 @@ export default function StudioVideo() {
                     const d = platformData[p.key];
                     const available = !selected || !!(d.rating || d.count || d.url);
                     return (
-                      <label
-                        key={p.key}
-                        className={`flex items-start gap-2 ml-6 ${available ? "cursor-pointer" : "cursor-not-allowed opacity-50"}`}
-                        title={available ? undefined : `Pas de données ${p.label} pour cet établissement`}
-                      >
-                        <input
-                          type="checkbox"
-                          className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto disabled:cursor-not-allowed"
-                          checked={available && p.checked}
-                          disabled={!available}
-                          onChange={(e) => p.setter(e.target.checked)}
-                        />
-                        <span className="text-sm">
-                          {p.label}
-                          {selected && available && (
-                            <em className="ml-1 not-italic text-xs opacity-70">
-                              {d.rating ? `${d.rating.toFixed(1)}/5` : ""}
-                              {d.count ? ` · ${d.count} avis` : ""}
-                            </em>
-                          )}
-                          {selected && !available && <em className="ml-1 text-xs opacity-70">(indisponible)</em>}
-                        </span>
-                      </label>
+                      <div key={p.key} className={`rounded-md border border-border bg-background/40 p-2 ${available ? "" : "opacity-50"}`}>
+                        <label
+                          className={`flex items-start gap-2 ${available ? "cursor-pointer" : "cursor-not-allowed"}`}
+                          title={available ? undefined : `Pas de données ${p.label} pour cet établissement`}
+                        >
+                          <input
+                            type="checkbox"
+                            className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto disabled:cursor-not-allowed"
+                            checked={available && p.checked}
+                            disabled={!available}
+                            onChange={(e) => p.setter(e.target.checked)}
+                          />
+                          <span className="font-medium text-sm">
+                            {p.label}
+                            {selected && available && (
+                              <em className="ml-2 not-italic text-xs opacity-70 font-normal">
+                                {d.rating ? `${d.rating.toFixed(1)}/5` : ""}
+                                {d.count ? ` · ${d.count} avis` : ""}
+                              </em>
+                            )}
+                            {selected && !available && <em className="ml-2 text-xs opacity-70 font-normal">(indisponible)</em>}
+                          </span>
+                        </label>
+                        <p className="mt-1 pl-6 text-[11px] text-muted-foreground">Scène propre avec logo plateforme, note et effet dynamique.</p>
+                      </div>
                     );
                   });
                 })()}
