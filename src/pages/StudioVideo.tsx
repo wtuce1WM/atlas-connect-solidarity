@@ -106,6 +106,25 @@ type Job = {
 };
 
 const DURATIONS = [15, 30, 45, 60] as const;
+
+function getVideoDuration(url: string): Promise<number | null> {
+  return new Promise((resolve) => {
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    video.onloadedmetadata = () => resolve(video.duration);
+    video.onerror = () => resolve(null);
+    video.src = url;
+    setTimeout(() => resolve(null), 10000);
+  });
+}
+
+function formatVideoDuration(seconds: number): string {
+  if (!seconds || seconds < 0) return "0:00";
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${String(s).padStart(2, "0")}`;
+}
+
 const TONES = [
   { value: "immersif", label: "Immersif" },
   { value: "dynamique", label: "Dynamique" },
@@ -219,7 +238,7 @@ export default function StudioVideo() {
   const [highlightsList, setHighlightsList] = useState<Array<{ id: string; icon: string | null; title: string; description: string; image_url: string | null; metric_title: string | null; metric_value: string | null; sort_order: number }>>([]);
   const [selectedHighlightIds, setSelectedHighlightIds] = useState<Set<string>>(new Set());
   const [bizImages, setBizImages] = useState<string[]>([]);
-  const [bizVideos, setBizVideos] = useState<{ url: string; thumbnail: string | null; title: string; kind: "file" | "youtube" }[]>([]);
+  const [bizVideos, setBizVideos] = useState<{ url: string; thumbnail: string | null; title: string; kind: "file" | "youtube"; duration?: number }[]>([]);
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [selectedVideos, setSelectedVideos] = useState<Set<string>>(new Set());
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -238,7 +257,7 @@ export default function StudioVideo() {
     const imgs: SceneMediaItem[] = bizImages.map((url) => ({ url, kind: "image" }));
     const vids: SceneMediaItem[] = bizVideos
       .filter((v) => v.kind === "file")
-      .map((v) => ({ url: v.url, kind: "video", title: v.title, thumbnail: v.thumbnail }));
+      .map((v) => ({ url: v.url, kind: "video", title: v.title, thumbnail: v.thumbnail, duration: v.duration }));
     return [...imgs, ...vids];
   }, [bizImages, bizVideos]);
 
@@ -410,6 +429,26 @@ export default function StudioVideo() {
       cancelled = true;
     };
   }, [selected]);
+
+  // Load file video durations
+  useEffect(() => {
+    let cancelled = false;
+    const fileVideos = bizVideos.filter((v) => v.kind === "file" && v.duration == null);
+    if (fileVideos.length === 0) return;
+    const load = async () => {
+      const durations: Record<string, number> = {};
+      for (const v of fileVideos) {
+        const d = await getVideoDuration(v.url);
+        if (d != null) durations[v.url] = d;
+      }
+      if (!cancelled) {
+        setBizVideos((prev) => prev.map((v) => (v.url in durations ? { ...v, duration: durations[v.url] } : v)));
+      }
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [bizVideos]);
+
 
   // Update prompt automatically when selected business changes
   useEffect(() => {
@@ -1064,6 +1103,9 @@ export default function StudioVideo() {
                           </div>
                           {v.kind === "youtube" && (
                             <span className="pointer-events-none absolute top-1 left-1 bg-red-600 text-white text-[9px] font-bold px-1 rounded">YT</span>
+                          )}
+                          {v.kind === "file" && v.duration != null && (
+                            <span className="pointer-events-none absolute top-1 left-1 bg-black/70 text-white text-[9px] font-bold px-1 rounded">{formatVideoDuration(v.duration)}</span>
                           )}
                           {matches.length > 0 && (
                             <div className="absolute bottom-1 left-1 bg-secondary text-secondary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded">

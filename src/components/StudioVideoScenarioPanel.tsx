@@ -19,6 +19,7 @@ export type SceneMediaItem = {
   kind: "image" | "video";
   title?: string;
   thumbnail?: string | null;
+  duration?: number;
 };
 
 export type SceneMediaMap = Partial<Record<SceneMediaKind, SceneMediaItem[]>>;
@@ -405,7 +406,10 @@ export function StudioVideoScenarioPanel({
   return (
     <div className={cn("rounded-xl border border-border bg-card p-6 space-y-5", className)}>
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-card-foreground">Aperçu du scénario</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-card-foreground">Aperçu du scénario</h3>
+          <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold tabular-nums">{formatDuration(total)}</span>
+        </div>
         <div className="flex items-center gap-2">
           <Button
             size="sm"
@@ -627,6 +631,11 @@ function CustomSceneMediaSlot({
                         <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[10px] px-1.5 py-0.5 truncate">
                           {m.title || m.kind}
                         </div>
+                        {m.duration != null && m.kind === "video" && (
+                          <div className="absolute top-1 right-1 text-[9px] px-1.5 py-0.5 rounded bg-black/70 text-white font-bold uppercase">
+                            {formatDuration(m.duration)}
+                          </div>
+                        )}
                       </button>
                     );
                   })}
@@ -642,6 +651,9 @@ function CustomSceneMediaSlot({
             <video src={current.url} className="w-full h-full object-cover" muted playsInline preload="metadata" />
           ) : (
             <img src={current.url} alt="" className="w-full h-full object-cover" />
+          )}
+          {current.duration != null && current.kind === "video" && (
+            <div className="absolute bottom-0.5 right-0.5 text-[8px] px-1 rounded bg-black/70 text-white font-bold">{formatDuration(current.duration)}</div>
           )}
         </div>
       )}
@@ -726,6 +738,11 @@ function SceneMediaSlot({
                         {m.kind === "video" ? <Film className="h-2.5 w-2.5" /> : <ImageIcon className="h-2.5 w-2.5" />}
                         {m.kind}
                       </div>
+                      {m.duration != null && m.kind === "video" && (
+                        <div className="absolute top-1 right-1 text-[9px] px-1.5 py-0.5 rounded bg-black/70 text-white font-bold uppercase">
+                          {formatDuration(m.duration)}
+                        </div>
+                      )}
                       {selected && (
                         <div className="absolute inset-0 bg-primary/30 flex items-center justify-center">
                           <div className="rounded-full bg-primary text-primary-foreground text-xs font-bold w-6 h-6 flex items-center justify-center">
@@ -758,6 +775,9 @@ function SceneMediaSlot({
                 <img src={m.url} alt="" className="w-full h-full object-cover" />
               )}
               <div className="absolute top-0.5 left-0.5 text-[8px] px-1 rounded bg-black/70 text-white font-bold">{idx + 1}</div>
+              {m.duration != null && m.kind === "video" && (
+                <div className="absolute bottom-0.5 right-0.5 text-[8px] px-1 rounded bg-black/70 text-white font-bold">{formatDuration(m.duration)}</div>
+              )}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 flex items-center justify-center gap-1">
                 <button type="button" onClick={() => move(idx, -1)} className="p-1 rounded bg-white/20 hover:bg-white/40 disabled:opacity-30" disabled={idx === 0} aria-label="Reculer"><ChevronLeft className="h-3 w-3 text-white" /></button>
                 <button type="button" onClick={() => remove(idx)} className="p-1 rounded bg-red-500/70 hover:bg-red-500" aria-label="Retirer"><X className="h-3 w-3 text-white" /></button>
@@ -769,6 +789,13 @@ function SceneMediaSlot({
       )}
     </div>
   );
+}
+
+function formatDuration(seconds: number): string {
+  if (!seconds || seconds < 0) return "0:00";
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${String(s).padStart(2, "0")}`;
 }
 
 function formatTime(seconds: number): string {
