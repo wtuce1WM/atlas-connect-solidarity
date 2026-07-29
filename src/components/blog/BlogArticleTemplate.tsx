@@ -687,6 +687,18 @@ const BlogArticleTemplate = ({
                       « {entry.hook} »
                     </p>
                   )}
+                  {(() => {
+                    const primary = businesses[entry.id];
+                    const mp = primary?.min_price;
+                    if (mp && mp > 0) {
+                      return (
+                        <p className={`mb-3 text-sm ${isDark ? "text-white/75" : "text-muted-foreground"}`}>
+                          Prix minimum constaté en réservation directe : <span className="font-semibold">{Math.round(mp)} €</span>
+                        </p>
+                      );
+                    }
+                    return null;
+                  })()}
                   {entry.hours && (
                     <div
                       className={`flex items-center gap-1.5 text-xs mb-6 ${
