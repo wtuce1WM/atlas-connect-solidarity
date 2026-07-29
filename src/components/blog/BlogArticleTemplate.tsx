@@ -58,6 +58,8 @@ export interface BlogArticleBusiness {
   latitude: number | null;
   longitude: number | null;
   is_featured?: boolean | null;
+  min_price?: number | null;
+  manual_price_range?: string | null;
 }
 
 export interface BlogArticleEntryReview {
