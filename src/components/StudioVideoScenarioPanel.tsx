@@ -259,6 +259,9 @@ export function scenarioFromTemplateProps(
   if (props?.showOpeningHours) push("hours", Math.max(2, Math.round(durationSec * 0.07)), "Horaires d'ouverture en surimpression.");
   if (props?.showMap) push("map", Math.max(2, Math.round(durationSec * 0.09)), `Marqueur Google Map${props.address ? ` — ${String(props.address).slice(0, 60)}` : ""}.`);
   if (props?.showDigitalId) push("digital", Math.max(2, Math.round(durationSec * 0.1)), "ID numérique : capture fiche, partage, QR code.");
+  if (props?.showWhatsapp && props?.whatsappNumber) {
+    push("whatsapp", Math.max(2, Math.round(durationSec * 0.08)), `WhatsApp ${props.whatsappNumber} — logo #25D366 + effet libre au montage.`);
+  }
   push("cta", Math.max(2, Math.round(durationSec * 0.1)), props?.showAppInstall ? "CTA final + incitation à installer l'app." : "CTA final vers la fiche ou le contact.");
   if (props?.showAppInstall) push("outro", Math.max(2, Math.round(durationSec * 0.06)), "Outro logo + installation de l'app.");
   return normalize(scenes, durationSec, cursor);
