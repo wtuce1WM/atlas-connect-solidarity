@@ -530,6 +530,16 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         template_props.logoUrl = logoUrlFromClient;
       }
 
+      // Zone libre — étape "media" optionnelle avec texte + médias de fond au choix
+      const wantsFreeZone = !!options?.free_zone;
+      if (wantsFreeZone) {
+        template_props.freeZone = true;
+        const fzTitle = typeof options?.free_zone_title === "string" ? options.free_zone_title.trim().slice(0, 80) : "";
+        const fzSub = typeof options?.free_zone_subtitle === "string" ? options.free_zone_subtitle.trim().slice(0, 160) : "";
+        if (fzTitle) template_props.freeZoneTitle = fzTitle;
+        if (fzSub) template_props.freeZoneSubtitle = fzSub;
+      }
+
       // Ordre et durées personnalisés des scènes (édités par l'utilisateur dans l'aperçu)
       const ALLOWED_SCENE_KINDS = new Set(["logo", "hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro"]);
       const rawOrder = options?.scene_order;
@@ -539,6 +549,13 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         const cleanedOrder: string[] = [];
         for (const k of rawOrder) {
           if (typeof k !== "string" || seen.has(k)) continue;
+          // Zone libre désactivée → on retire "media" de l'ordre
+          if (k === "media" && !wantsFreeZone) continue;
+          if (ALLOWED_SCENE_KINDS.has(k) || allowedCustomIds.has(k)) {
+            seen.add(k);
+            cleanedOrder.push(k);
+          }
+        }
           if (ALLOWED_SCENE_KINDS.has(k) || allowedCustomIds.has(k)) {
             seen.add(k);
             cleanedOrder.push(k);
