@@ -236,6 +236,24 @@ export function scenarioFromTemplateProps(
     const count = props.reviewsCount ? ` · ${props.reviewsCount} avis` : "";
     push("reviews", Math.max(2, Math.round(durationSec * 0.08)), `Badge avis clients${rating}${count}.`);
   }
+  const platformScenes: Array<{ key: Scene["icon"]; enabled: boolean; label: string; data: any }> = [
+    { key: "google_review", enabled: !!props?.showGoogleReviews, label: "Avis Google", data: props?.googleReview },
+    { key: "tripadvisor", enabled: !!props?.showTripAdvisor, label: "TripAdvisor", data: props?.tripAdvisor },
+    { key: "restaurant_guru", enabled: !!props?.showRestaurantGuru, label: "Restaurant Guru", data: props?.restaurantGuru },
+  ];
+  for (const ps of platformScenes) {
+    if (!ps.enabled) continue;
+    const d = ps.data || {};
+    const rating = d.rating ? ` (${Number(d.rating).toFixed(1)}/5)` : "";
+    const count = d.count ? ` · ${d.count} avis` : "";
+    push(ps.key, Math.max(2, Math.round(durationSec * 0.07)), `${ps.label}${rating}${count} — logo plateforme + effet dynamique.`);
+  }
+  if (props?.showCustomerReview && props?.customerReview?.text) {
+    const cr = props.customerReview;
+    const highlight = (cr.highlight || cr.text || "").toString().slice(0, 120);
+    const author = cr.author ? ` — ${cr.author}` : "";
+    push("customer_review", Math.max(3, Math.round(durationSec * 0.1)), `Témoignage : « ${highlight} »${author}`);
+  }
   if (props?.showOpeningHours) push("hours", Math.max(2, Math.round(durationSec * 0.07)), "Horaires d'ouverture en surimpression.");
   if (props?.showMap) push("map", Math.max(2, Math.round(durationSec * 0.09)), `Marqueur Google Map${props.address ? ` — ${String(props.address).slice(0, 60)}` : ""}.`);
   if (props?.showDigitalId) push("digital", Math.max(2, Math.round(durationSec * 0.1)), "ID numérique : capture fiche, partage, QR code.");
