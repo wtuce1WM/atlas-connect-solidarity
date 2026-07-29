@@ -549,6 +549,13 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         const cleanedOrder: string[] = [];
         for (const k of rawOrder) {
           if (typeof k !== "string" || seen.has(k)) continue;
+          // Zone libre désactivée → on retire "media" de l'ordre
+          if (k === "media" && !wantsFreeZone) continue;
+          if (ALLOWED_SCENE_KINDS.has(k) || allowedCustomIds.has(k)) {
+            seen.add(k);
+            cleanedOrder.push(k);
+          }
+        }
           if (ALLOWED_SCENE_KINDS.has(k) || allowedCustomIds.has(k)) {
             seen.add(k);
             cleanedOrder.push(k);
