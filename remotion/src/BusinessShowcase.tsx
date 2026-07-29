@@ -1113,7 +1113,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     ? offers
     : (offer ? [offer] : []);
 
-  const renderBuiltinScene = (kind: SceneKind, duration: number): React.ReactNode => {
+  const renderBuiltinScene = (kind: SceneKind, duration: number, offerIndex?: number): React.ReactNode => {
     switch (kind) {
       case "hook":
         return heroIsVideo && heroMedia ? (
