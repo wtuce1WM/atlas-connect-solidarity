@@ -65,6 +65,7 @@ const ICONS: Record<Scene["icon"], React.ReactNode> = {
   tripadvisor: <Star className="h-3.5 w-3.5" />,
   restaurant_guru: <Star className="h-3.5 w-3.5" />,
   customer_review: <MessageSquare className="h-3.5 w-3.5" />,
+  whatsapp: <MessageSquare className="h-3.5 w-3.5" />,
   hours: <Calendar className="h-3.5 w-3.5" />,
   map: <MapPin className="h-3.5 w-3.5" />,
   digital: <QrCode className="h-3.5 w-3.5" />,
