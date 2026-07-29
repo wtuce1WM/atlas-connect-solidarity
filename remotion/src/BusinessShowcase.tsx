@@ -1193,16 +1193,16 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               <AbsoluteFill>
                 {mediaList.slice(0, 3).map((m, i) => (
                   m.kind === "video" ? (
-                    <VideoCover key={m.url + i} src={m.url} from={i * 50} duration={70} />
+                    <VideoCover key={m.url + i} src={m.url} from={i * 35} duration={70} />
                   ) : (
-                    <KenBurns key={m.url + i} src={m.url} from={i * 50} duration={70} />
+                    <KenBurns key={m.url + i} src={m.url} from={i * 35} duration={70} />
                   )
                 ))}
               </AbsoluteFill>
             ) : (mixedMode || useVideos) ? (
               <AbsoluteFill>
                 {defaultMediaSlice.map((src, i) => (
-                  <VideoCover key={src + i} src={src} from={i * 50} duration={70} />
+                  <VideoCover key={src + i} src={src} from={i * 35} duration={70} />
                 ))}
               </AbsoluteFill>
             ) : (
