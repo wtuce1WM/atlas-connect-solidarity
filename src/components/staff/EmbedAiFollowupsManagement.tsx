@@ -27,7 +27,7 @@ function detectRoute(label: string): Route {
     return { key: "weather", label: "get_weather", emoji: "🌤", className: "bg-sky-500/15 text-sky-700 dark:text-sky-300" };
   if (/\b(event|events|evenement|agenda|week[- ]?end|ce soir|festival|concert|expo|spectacle|whats on)\b/.test(q))
     return { key: "events", label: "search_events", emoji: "📅", className: "bg-amber-500/15 text-amber-700 dark:text-amber-300" };
-  if (/\b(horaire|horaires|ouvert|ouverture|ouvrir|fermeture|fermer|open|close|closing|hours)\b/.test(q))
+  if (/\b(horaire|horaires|ouvert|ouverts|ouverte|ouvertes|ouverture|ouvrir|ouvre|ouvrent|fermeture|fermer|ferme|ferment|tard|tot|early|late|open|close|closing|hours)\b/.test(q))
     return { key: "hours", label: "hours_ranking", emoji: "🕒", className: "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300" };
   if (/\b(reserv|book|booking|reserver|reservation)\b/.test(q))
     return { key: "booking", label: "booking", emoji: "🎟", className: "bg-fuchsia-500/15 text-fuchsia-700 dark:text-fuchsia-300" };
