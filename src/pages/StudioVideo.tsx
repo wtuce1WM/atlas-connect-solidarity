@@ -1707,9 +1707,19 @@ export default function StudioVideo() {
                             ) : (
                               <div className="w-12 h-12 rounded bg-muted flex items-center justify-center shrink-0 text-lg">{h.icon || "✨"}</div>
                             )}
-                            <div className="min-w-0 flex-1 text-xs">
-                              <div className="font-semibold break-words">{h.title || <em className="text-muted-foreground">(sans titre)</em>}</div>
-                              {h.description && <div className="mt-1 text-muted-foreground whitespace-pre-wrap break-words">{h.description}</div>}
+                            <div className="min-w-0 flex-1 text-xs space-y-1">
+                              <div>
+                                <span className="text-muted-foreground">Titre : </span>
+                                {h.title
+                                  ? <span className="font-semibold break-words">{h.title}</span>
+                                  : <span className="text-muted-foreground italic">—</span>}
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Texte : </span>
+                                {h.description
+                                  ? <span className="text-muted-foreground whitespace-pre-wrap break-words">{h.description}</span>
+                                  : <span className="text-muted-foreground italic">—</span>}
+                              </div>
                               {(h.metric_title || h.metric_value) && (
                                 <div className="mt-1 text-[#C04F17] font-semibold">{h.metric_value} {h.metric_title && <span className="text-muted-foreground font-normal">— {h.metric_title}</span>}</div>
                               )}
