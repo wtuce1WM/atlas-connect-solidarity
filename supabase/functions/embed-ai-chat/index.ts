@@ -1388,11 +1388,22 @@ async function buildBookingForBusinesses(admin: any, ids: string[], lang: "fr" |
   const ordered = ids.map((id) => byId.get(id)).filter(Boolean);
 
   const defaultLabel = lang === "en" ? "Book online" : lang === "ar" ? "احجز عبر الإنترنت" : "Réserver en ligne";
+  const stripHtml = (s: string): string =>
+    s
+      .replace(/<br\s*\/?>/gi, " ")
+      .replace(/<\/(p|div|li|h[1-6])>/gi, " ")
+      .replace(/<[^>]+>/g, "")
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&amp;/gi, "&")
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;|&apos;/gi, "'")
+      .replace(/&lt;/gi, "<")
+      .replace(/&gt;/gi, ">");
   const pickHook = (b: any): string => {
     const raw = lang === "en" ? (b.hook_en || b.hook_fr || b.description_en || b.description || "")
       : lang === "ar" ? (b.hook_ar || b.hook_fr || b.description_ar || b.description || "")
       : (b.hook_fr || b.hook_en || b.description || b.description_en || "");
-    return String(raw || "").replace(/\s+/g, " ").trim();
+    return stripHtml(String(raw || "")).replace(/\s+/g, " ").trim();
   };
   const collectLinks = (b: any): { url: string; label: string }[] => {
     const out: { url: string; label: string }[] = [];
