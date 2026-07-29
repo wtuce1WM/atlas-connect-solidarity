@@ -372,7 +372,7 @@ export default function StudioVideo() {
           .order("sort_order", { ascending: true }),
         supabase
           .from("front_highlights")
-          .select("id,icon,sort_order,image_url,title_fr,description_fr,metric_title_fr,metric_value_fr")
+          .select("id,icon,sort_order,image_url,title,description,metric_title,metric_value,title_fr,description_fr,metric_title_fr,metric_value_fr")
           .eq("business_id", selected.id)
           .order("sort_order", { ascending: true }),
         supabase
@@ -442,11 +442,11 @@ export default function StudioVideo() {
         .map((h) => ({
           id: h.id as string,
           icon: (h.icon ?? null) as string | null,
-          title: stripHtml(h.title_fr),
-          description: stripHtml(h.description_fr),
+          title: stripHtml(h.title_fr) || stripHtml(h.title),
+          description: stripHtml(h.description_fr) || stripHtml(h.description),
           image_url: (h.image_url ?? null) as string | null,
-          metric_title: stripHtml(h.metric_title_fr) || null,
-          metric_value: stripHtml(h.metric_value_fr) || null,
+          metric_title: (stripHtml(h.metric_title_fr) || stripHtml(h.metric_title)) || null,
+          metric_value: (stripHtml(h.metric_value_fr) || stripHtml(h.metric_value)) || null,
           sort_order: (h.sort_order ?? 0) as number,
         }))
         .filter((h) => h.title.length > 0 || h.description.length > 0 || !!h.image_url);
