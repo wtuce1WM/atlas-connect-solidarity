@@ -238,6 +238,8 @@ export default function StudioVideo() {
   const [optDigitalId, setOptDigitalId] = useState(true);
   const [optPopup, setOptPopup] = useState(true);
   const [optOpenWithLogo, setOptOpenWithLogo] = useState(true);
+  const [optWhatsapp, setOptWhatsapp] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
   const [logoInfo, setLogoInfo] = useState<{ url: string | null; bg: string | null }>({ url: null, bg: null });
   const [platformData, setPlatformData] = useState<{
     google: { rating: number | null; count: number | null; url: string | null };
@@ -349,7 +351,7 @@ export default function StudioVideo() {
       const [biz, docs, yt, promos, hls, revs] = await Promise.all([
         supabase
           .from("businesses")
-          .select("hook_fr,description,images,popup_image_url,opening_hours,show_opening_hours,is_active,logo_url,logo_bg,google_rating,google_review_count,google_review_url,google_reviews_url,google_maps_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,tripadvisor_review_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url")
+          .select("hook_fr,description,images,popup_image_url,opening_hours,show_opening_hours,is_active,logo_url,logo_bg,whatsapp,google_rating,google_review_count,google_review_url,google_reviews_url,google_maps_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,tripadvisor_review_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url")
           .eq("id", selected.id)
           .maybeSingle(),
         supabase
@@ -400,6 +402,8 @@ export default function StudioVideo() {
       setPopupImageUrl(popupUrl);
       setLogoInfo({ url: b.logo_url ?? null, bg: b.logo_bg ?? null });
       setOptOpenWithLogo((b.logo_bg === "transparent") && !!b.logo_url);
+      setWhatsappNumber((b.whatsapp as string) || null);
+      setOptWhatsapp(false);
       setPopupMeta({ title: null, description: null });
       if (popupUrl) {
         supabase
@@ -672,6 +676,8 @@ export default function StudioVideo() {
             map_marker: optMapMarker,
             digital_id: optDigitalId,
             install_cta: optInstallCta,
+            whatsapp: optWhatsapp,
+            whatsapp_number: whatsappNumber,
             google_reviews: optGoogleReviews,
             tripadvisor: optTripAdvisor,
             restaurant_guru: optRestaurantGuru,
@@ -724,6 +730,7 @@ export default function StudioVideo() {
     if (optMapMarker) directives.push("Faire figurer le marqueur de l'établissement sur la Google Map.");
     if (optDigitalId) directives.push("Insérer une courte séquence ID numérique (capture mock-up de la fiche /fiche/slug, étape de partage, puis QR code) AVANT l'incitation finale.");
     if (optInstallCta) directives.push("Terminer par une incitation à installer l'app (bouton carré terracotta inspiré de /install mobile).");
+    if (optWhatsapp && whatsappNumber) directives.push(`Ajouter une scène dédiée WhatsApp avec un effet libre au montage (logo WhatsApp vert #25D366, numéro « ${whatsappNumber} », animation dynamique, invitation à contacter directement l'établissement).`);
     if (popupImageUrl) {
       if (optPopup) {
         const parts: string[] = [];
@@ -801,6 +808,8 @@ export default function StudioVideo() {
             map_marker: optMapMarker,
             digital_id: optDigitalId,
             install_cta: optInstallCta,
+            whatsapp: optWhatsapp,
+            whatsapp_number: whatsappNumber,
             google_reviews: optGoogleReviews,
             tripadvisor: optTripAdvisor,
             restaurant_guru: optRestaurantGuru,
@@ -1554,18 +1563,18 @@ export default function StudioVideo() {
                         Logo sur fond transparent — utilisé comme séquence d'ouverture avant le nom.
                       </div>
                     </div>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      className="mt-3 h-8 text-[12px] px-3 w-full"
-                      onClick={() => setAddStepOpen(true)}
-                    >
-                      <Plus className="h-4 w-4 mr-1.5" /> Ajouter une étape
-                    </Button>
                   </div>
                 )}
-                {/* Zone libre supprimée — utiliser « Ajouter une étape » dans l'aperçu du scénario. */}
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-8 text-[12px] px-3 w-full"
+                  onClick={() => setAddStepOpen(true)}
+                >
+                  <Plus className="h-4 w-4 mr-1.5" /> Ajouter une étape
+                </Button>
+
                 {popupImageUrl && (
                   <div className="rounded-md border border-border bg-background/40 p-2">
                     <label className="flex items-start gap-2 cursor-pointer">
@@ -1698,9 +1707,19 @@ export default function StudioVideo() {
                             ) : (
                               <div className="w-12 h-12 rounded bg-muted flex items-center justify-center shrink-0 text-lg">{h.icon || "✨"}</div>
                             )}
-                            <div className="min-w-0 flex-1 text-xs">
-                              <div className="font-semibold break-words">{h.title || <em className="text-muted-foreground">(sans titre)</em>}</div>
-                              {h.description && <div className="mt-1 text-muted-foreground whitespace-pre-wrap break-words">{h.description}</div>}
+                            <div className="min-w-0 flex-1 text-xs space-y-1">
+                              <div>
+                                <span className="text-muted-foreground">Titre : </span>
+                                {h.title
+                                  ? <span className="font-semibold break-words">{h.title}</span>
+                                  : <span className="text-muted-foreground italic">—</span>}
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Texte : </span>
+                                {h.description
+                                  ? <span className="text-muted-foreground whitespace-pre-wrap break-words">{h.description}</span>
+                                  : <span className="text-muted-foreground italic">—</span>}
+                              </div>
                               {(h.metric_title || h.metric_value) && (
                                 <div className="mt-1 text-[#C04F17] font-semibold">{h.metric_value} {h.metric_title && <span className="text-muted-foreground font-normal">— {h.metric_title}</span>}</div>
                               )}
@@ -1711,11 +1730,14 @@ export default function StudioVideo() {
                     </div>
                   </div>
                 )}
-                <label className="flex items-start gap-2 cursor-pointer">
-                  <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optReviews} onChange={(e) => setOptReviews(e.target.checked)} />
-                  <span>Compteur d'avis client + badge avis (note/20)</span>
-                </label>
-                {/* Plateformes d'avis externes */}
+                <div className="rounded-md border border-border bg-background/40 p-2">
+                  <label className="flex items-start gap-2 cursor-pointer">
+                    <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optReviews} onChange={(e) => setOptReviews(e.target.checked)} />
+                    <span className="font-medium">Compteur d'avis client + badge avis (note/20)</span>
+                  </label>
+                  <p className="mt-1 pl-6 text-[11px] text-muted-foreground">Scène dédiée avec la note /20 agrégée et le nombre total d'avis.</p>
+                </div>
+                {/* Plateformes d'avis externes — chacune dans sa propre carte */}
                 {(() => {
                   const platforms: Array<{ key: "google" | "tripadvisor" | "restaurant_guru"; label: string; checked: boolean; setter: (v: boolean) => void }> = [
                     { key: "google", label: "Avis Google", checked: optGoogleReviews, setter: setOptGoogleReviews },
@@ -1726,29 +1748,31 @@ export default function StudioVideo() {
                     const d = platformData[p.key];
                     const available = !selected || !!(d.rating || d.count || d.url);
                     return (
-                      <label
-                        key={p.key}
-                        className={`flex items-start gap-2 ml-6 ${available ? "cursor-pointer" : "cursor-not-allowed opacity-50"}`}
-                        title={available ? undefined : `Pas de données ${p.label} pour cet établissement`}
-                      >
-                        <input
-                          type="checkbox"
-                          className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto disabled:cursor-not-allowed"
-                          checked={available && p.checked}
-                          disabled={!available}
-                          onChange={(e) => p.setter(e.target.checked)}
-                        />
-                        <span className="text-sm">
-                          {p.label}
-                          {selected && available && (
-                            <em className="ml-1 not-italic text-xs opacity-70">
-                              {d.rating ? `${d.rating.toFixed(1)}/5` : ""}
-                              {d.count ? ` · ${d.count} avis` : ""}
-                            </em>
-                          )}
-                          {selected && !available && <em className="ml-1 text-xs opacity-70">(indisponible)</em>}
-                        </span>
-                      </label>
+                      <div key={p.key} className={`rounded-md border border-border bg-background/40 p-2 ${available ? "" : "opacity-50"}`}>
+                        <label
+                          className={`flex items-start gap-2 ${available ? "cursor-pointer" : "cursor-not-allowed"}`}
+                          title={available ? undefined : `Pas de données ${p.label} pour cet établissement`}
+                        >
+                          <input
+                            type="checkbox"
+                            className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto disabled:cursor-not-allowed"
+                            checked={available && p.checked}
+                            disabled={!available}
+                            onChange={(e) => p.setter(e.target.checked)}
+                          />
+                          <span className="font-medium text-sm">
+                            {p.label}
+                            {selected && available && (
+                              <em className="ml-2 not-italic text-xs opacity-70 font-normal">
+                                {d.rating ? `${d.rating.toFixed(1)}/5` : ""}
+                                {d.count ? ` · ${d.count} avis` : ""}
+                              </em>
+                            )}
+                            {selected && !available && <em className="ml-2 text-xs opacity-70 font-normal">(indisponible)</em>}
+                          </span>
+                        </label>
+                        <p className="mt-1 pl-6 text-[11px] text-muted-foreground">Scène propre avec logo plateforme, note et effet dynamique.</p>
+                      </div>
                     );
                   });
                 })()}
@@ -1824,6 +1848,30 @@ export default function StudioVideo() {
                       <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto disabled:cursor-not-allowed" checked={digitalIdAvailable && optDigitalId} disabled={!digitalIdAvailable} onChange={(e) => setOptDigitalId(e.target.checked)} />
                       <span>ID numérique (fiche + partage + QR code) {selected && !digitalIdAvailable ? <em className="text-xs opacity-70">(établissement inactif)</em> : null}</span>
                     </label>
+                  );
+                })()}
+                {(() => {
+                  const waAvailable = !selected || !!whatsappNumber;
+                  return (
+                    <div className={`rounded-md border border-border bg-background/40 p-2 ${waAvailable ? "" : "opacity-50"}`}>
+                      <label className={`flex items-start gap-2 ${waAvailable ? "cursor-pointer" : "cursor-not-allowed"}`} title={waAvailable ? undefined : "Aucun numéro WhatsApp renseigné"}>
+                        <input
+                          type="checkbox"
+                          className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto disabled:cursor-not-allowed"
+                          checked={waAvailable && optWhatsapp}
+                          disabled={!waAvailable}
+                          onChange={(e) => setOptWhatsapp(e.target.checked)}
+                        />
+                        <span className="font-medium text-sm">
+                          WhatsApp
+                          {selected && waAvailable && whatsappNumber && (
+                            <em className="ml-2 not-italic text-xs opacity-70 font-normal">{whatsappNumber}</em>
+                          )}
+                          {selected && !waAvailable && <em className="ml-2 text-xs opacity-70 font-normal">(numéro non renseigné)</em>}
+                        </span>
+                      </label>
+                      <p className="mt-1 pl-6 text-[11px] text-muted-foreground">Scène dédiée avec effet libre au montage — logo WhatsApp (#25D366), numéro et invitation à contacter.</p>
+                    </div>
                   );
                 })()}
                 <label className="flex items-start gap-2 cursor-pointer">

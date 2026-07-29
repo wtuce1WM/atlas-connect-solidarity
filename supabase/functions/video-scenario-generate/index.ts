@@ -547,7 +547,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       }
 
       // Ordre et durées personnalisés des scènes (édités par l'utilisateur dans l'aperçu)
-      const ALLOWED_SCENE_KINDS = new Set(["logo", "hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro"]);
+      const ALLOWED_SCENE_KINDS = new Set(["logo", "hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro", "whatsapp"]);
       const rawOrder = options?.scene_order;
       let orderedFromClient: string[] | null = null;
       if (Array.isArray(rawOrder)) {
@@ -785,6 +785,16 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       if (wantsPopup && businessDetails.popup_image_url) {
         template_props.showPopup = true;
         template_props.popupImageUrl = businessDetails.popup_image_url;
+      }
+
+      // WhatsApp — scène dédiée si option cochée et numéro disponible.
+      const wantsWhatsapp = !!options?.whatsapp;
+      const waNumber = (typeof options?.whatsapp_number === "string" && options.whatsapp_number.trim())
+        || (typeof businessDetails.whatsapp === "string" && businessDetails.whatsapp.trim())
+        || null;
+      if (wantsWhatsapp && waNumber) {
+        template_props.showWhatsapp = true;
+        template_props.whatsappNumber = waNumber;
       }
 
       // Blocs highlights sélectionnés — une entrée par bloc dans le scénario.
