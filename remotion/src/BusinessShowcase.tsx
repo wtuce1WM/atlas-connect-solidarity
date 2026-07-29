@@ -434,7 +434,7 @@ const SceneGallery: React.FC<{ images: string[] }> = ({ images }) => {
   const out = 1 - ease(frame, 130, 150);
   const imgs = images.slice(0, 3);
   if (imgs.length === 0) return null;
-  const perDuration = 50;
+  const perDuration = 35;
   return (
     <AbsoluteFill style={{ opacity: out }}>
       {imgs.map((src, i) => (
