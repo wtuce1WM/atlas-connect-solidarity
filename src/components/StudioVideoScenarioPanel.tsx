@@ -260,6 +260,7 @@ export function StudioVideoScenarioPanel({
     setDurationOverrides({});
     setOrderOverride(null);
     setCustomScenes([]);
+    setSplitOverrides({});
     onChangeScenarioEdits?.(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signature]);
