@@ -403,7 +403,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     if (resolved_business_id) {
       const { data: freshBiz } = await supa
         .from("businesses")
-        .select("id,name,slug,hook_fr,destination_hook,poi_hook,description,city,neighborhood,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,logo_url,images,whatsapp,instagram_url")
+        .select("id,name,slug,hook_fr,destination_hook,poi_hook,description,city,neighborhood,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,logo_url,images,popup_image_url,whatsapp,instagram_url")
         .eq("id", resolved_business_id)
         .maybeSingle();
       if (freshBiz) businessDetails = { ...(businessContext ?? {}), ...freshBiz };
@@ -710,6 +710,51 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         if (built.length > 0) {
           template_props.offers = built;
           template_props.offer = built[0]; // backward compat with single-offer template
+        }
+      }
+
+      // Popup (image d'accueil) — expose une scène dédiée si option cochée et image disponible.
+      const wantsPopup = !!options?.popup;
+      if (wantsPopup && businessDetails.popup_image_url) {
+        template_props.showPopup = true;
+        template_props.popupImageUrl = businessDetails.popup_image_url;
+      }
+
+      // Blocs highlights sélectionnés — une entrée par bloc dans le scénario.
+      const rawHighlightIds = Array.isArray(options?.highlight_ids) ? options.highlight_ids : [];
+      const highlightIds = rawHighlightIds.filter((v: unknown) => typeof v === "string" && /^[0-9a-f-]{36}$/i.test(v));
+      if (highlightIds.length > 0) {
+        const { data: hlRows } = await supa
+          .from("front_highlights")
+          .select("id,icon,image_url,title_fr,description_fr,metric_title_fr,metric_value_fr,sort_order")
+          .eq("business_id", resolved_business_id)
+          .in("id", highlightIds)
+          .order("sort_order", { ascending: true });
+        const rows = (hlRows ?? []).slice().sort((a: any, b: any) => {
+          const ia = highlightIds.indexOf(a.id);
+          const ib = highlightIds.indexOf(b.id);
+          return ia - ib;
+        });
+        const builtH = rows
+          .map((row: any) => {
+            const title = cleanDisplayText(row.title_fr) || "";
+            const description = stripHtml(row.description_fr) || "";
+            const metric_title = cleanDisplayText(row.metric_title_fr) || "";
+            const metric_value = cleanDisplayText(row.metric_value_fr) || "";
+            if (!title && !description && !row.image_url && !metric_title && !metric_value) return null;
+            return {
+              id: row.id,
+              icon: row.icon || null,
+              image_url: row.image_url || null,
+              title,
+              description,
+              metric_title: metric_title || undefined,
+              metric_value: metric_value || undefined,
+            };
+          })
+          .filter((h: any) => h !== null);
+        if (builtH.length > 0) {
+          template_props.highlights = builtH;
         }
       }
     }

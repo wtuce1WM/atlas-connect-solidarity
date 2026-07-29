@@ -34,7 +34,7 @@ export type Scene = {
   start: number;
   description: string;
   keywords: string[];
-  icon: "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro" | "custom";
+  icon: "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro" | "custom";
 };
 
 export type Scenario = {
@@ -53,10 +53,13 @@ export type CustomScene = {
 };
 
 const ICONS: Record<Scene["icon"], React.ReactNode> = {
+  logo: <ImageIcon className="h-3.5 w-3.5" />,
   hook: <Star className="h-3.5 w-3.5" />,
   name: <MessageSquare className="h-3.5 w-3.5" />,
   media: <MessageSquare className="h-3.5 w-3.5" />,
+  popup: <ImageIcon className="h-3.5 w-3.5" />,
   offer: <MessageSquare className="h-3.5 w-3.5" />,
+  highlight: <Star className="h-3.5 w-3.5" />,
   reviews: <MessageSquare className="h-3.5 w-3.5" />,
   hours: <Calendar className="h-3.5 w-3.5" />,
   map: <MapPin className="h-3.5 w-3.5" />,
@@ -67,10 +70,13 @@ const ICONS: Record<Scene["icon"], React.ReactNode> = {
 };
 
 const LABELS: Record<Exclude<Scene["icon"], "custom">, string> = {
+  logo: "Ouverture logo",
   hook: "Hook",
   name: "Nom & identité",
   media: "Montage",
+  popup: "Popup",
   offer: "Offre",
+  highlight: "Bloc highlight",
   reviews: "Avis clients",
   hours: "Horaires",
   map: "Localisation",
@@ -177,19 +183,46 @@ export function scenarioFromTemplateProps(
     return normalize(scenes, durationSec, cursor);
   }
 
+  // Ouverture logo (si option activée et logo transparent disponible)
+  if (props?.openWithLogo && props?.logoUrl) {
+    push("logo", Math.max(2, Math.round(durationSec * 0.06)), "Ouverture sur le logo de l'établissement.");
+  }
+
   push("name", Math.max(2, Math.round(durationSec * 0.1)), tagline ? `${name} — ${tagline}` : `Affichage du nom ${name}.`);
   push("hook", Math.max(2, Math.round(durationSec * 0.12)), hook ? `Accroche : « ${hook} »` : `Accroche immersive sur ${name}.`);
   // Étape "media" (montage) : ajoutée manuellement par l'utilisateur via "Ajouter une étape".
 
-  if (offer) {
-    const parts: string[] = [];
-    if (offer.title) parts.push(offer.title);
-    if (offer.price) parts.push(offer.price);
-    const desc = parts.length ? parts.join(" · ") : "Offre mise en avant.";
-    const lines = Array.isArray(offer.lines) ? offer.lines : [];
-    const bg = offer.background_video_url ? " (fond vidéo)" : offer.background_image_url ? " (fond image)" : "";
-    push("offer", Math.max(4, Math.round(durationSec * 0.22)), `${desc}${bg}${lines.length ? ` — ${lines.length} ligne${lines.length > 1 ? "s" : ""}` : ""}.`);
+  // Popup (une scène dédiée si l'option est cochée et qu'une image popup existe)
+  if (props?.showPopup && props?.popupImageUrl) {
+    push("popup", Math.max(2, Math.round(durationSec * 0.08)), "Image d'accueil (popup) en plein écran.");
   }
+
+  // Une scène par offre sélectionnée
+  const offersList: any[] = Array.isArray(props?.offers) ? props.offers : (offer ? [offer] : []);
+  if (offersList.length > 0) {
+    const perOffer = Math.max(3, Math.round((durationSec * 0.22) / offersList.length));
+    for (const off of offersList) {
+      const parts: string[] = [];
+      if (off?.title) parts.push(String(off.title));
+      if (off?.price) parts.push(String(off.price));
+      const lines = Array.isArray(off?.lines) ? off.lines : [];
+      const desc = parts.length ? parts.join(" · ") : "Offre mise en avant.";
+      push("offer", perOffer, `${desc}${lines.length ? ` — ${lines.length} ligne${lines.length > 1 ? "s" : ""}` : ""}.`, off?.title ? `Offre — ${String(off.title).slice(0, 40)}` : undefined);
+    }
+  }
+
+  // Une scène par bloc highlight sélectionné
+  const highlightsList: any[] = Array.isArray(props?.highlights) ? props.highlights : [];
+  if (highlightsList.length > 0) {
+    const perHl = Math.max(2, Math.round((durationSec * 0.18) / highlightsList.length));
+    for (const h of highlightsList) {
+      const title = (h?.title || "").toString().trim();
+      const desc = (h?.description || "").toString().trim();
+      const summary = [title, desc].filter(Boolean).join(" — ") || "Bloc highlight.";
+      push("highlight", perHl, summary.slice(0, 200), title ? `Highlight — ${title.slice(0, 40)}` : undefined);
+    }
+  }
+
   if (props?.showReviews) {
     const rating = props.rating ? ` (${props.rating}/5)` : "";
     const count = props.reviewsCount ? ` · ${props.reviewsCount} avis` : "";
@@ -211,7 +244,7 @@ function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenar
 }
 
 function sceneKindFor(icon: Scene["icon"]): SceneMediaKind | null {
-  if (icon === "custom") return null;
+  if (icon === "custom" || icon === "logo" || icon === "popup" || icon === "highlight") return null;
   return icon as SceneMediaKind;
 }
 
