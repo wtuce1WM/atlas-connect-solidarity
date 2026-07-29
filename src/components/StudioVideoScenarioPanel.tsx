@@ -19,6 +19,7 @@ export type SceneMediaItem = {
   kind: "image" | "video";
   title?: string;
   thumbnail?: string | null;
+  duration?: number;
 };
 
 export type SceneMediaMap = Partial<Record<SceneMediaKind, SceneMediaItem[]>>;
@@ -405,7 +406,10 @@ export function StudioVideoScenarioPanel({
   return (
     <div className={cn("rounded-xl border border-border bg-card p-6 space-y-5", className)}>
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-card-foreground">Aperçu du scénario</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-card-foreground">Aperçu du scénario</h3>
+          <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold tabular-nums">{formatDuration(total)}</span>
+        </div>
         <div className="flex items-center gap-2">
           <Button
             size="sm"
