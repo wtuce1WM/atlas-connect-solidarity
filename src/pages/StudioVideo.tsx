@@ -807,6 +807,8 @@ export default function StudioVideo() {
             map_marker: optMapMarker,
             digital_id: optDigitalId,
             install_cta: optInstallCta,
+            whatsapp: optWhatsapp,
+            whatsapp_number: whatsappNumber,
             google_reviews: optGoogleReviews,
             tripadvisor: optTripAdvisor,
             restaurant_guru: optRestaurantGuru,
