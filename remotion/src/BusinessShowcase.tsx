@@ -1185,7 +1185,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                 return (
                   <>
                     <VideoBackdrop src={finalVideo} image={finalImage} />
-                    <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.55) 0%,rgba(14,11,8,0.78) 100%)" }} />
+                    <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.22) 0%,rgba(14,11,8,0.48) 100%)" }} />
                   </>
                 );
               }
