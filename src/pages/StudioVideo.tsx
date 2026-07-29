@@ -599,7 +599,7 @@ export default function StudioVideo() {
         body: {
           prompt: finalPrompt,
           business_id: selected?.id ?? null,
-          duration_sec: duration,
+          duration_sec: effectiveDuration,
           tone,
           parent_job_id: refineFrom?.id ?? null,
           options: {
@@ -723,7 +723,7 @@ export default function StudioVideo() {
         body: {
           prompt: finalPrompt,
           business_id: selected?.id ?? null,
-          duration_sec: duration,
+          duration_sec: effectiveDuration,
           tone,
           parent_job_id: refineFrom?.id ?? null,
           preview_only: true,
@@ -754,7 +754,7 @@ export default function StudioVideo() {
       });
       if (error) throw error;
       const payload = data as any;
-      const scenario = scenarioFromTemplateProps(payload.template_id, payload.template_props, payload.duration_sec ?? duration, payload.rationale);
+      const scenario = scenarioFromTemplateProps(payload.template_id, payload.template_props, payload.duration_sec ?? effectiveDuration, payload.rationale);
       setAiScenario({ scenario, rationale: payload.rationale, templateId: payload.template_id });
       toast.success("Scénario IA généré.");
     } catch (e: any) {
@@ -767,6 +767,7 @@ export default function StudioVideo() {
   const startRefine = (job: Job) => {
     setRefineFrom(job);
     setDuration(job.duration_sec as 15 | 30 | 45 | 60);
+    setDurationAuto(false);
     setTone(job.tone);
     setPrompt("");
     setTimeout(() => {
