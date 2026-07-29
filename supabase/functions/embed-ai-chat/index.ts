@@ -3694,6 +3694,139 @@ Deno.serve(async (req) => {
           // No prior map payload — fall through to normal flow.
         }
 
+        // Deterministic: SHOW MORE — the user asks to see the remaining results
+        // from the last search (pool_ids). We re-fetch the un-shown businesses
+        // and render them with the same immersive template. No LLM.
+        const isShowMoreIntent = (t: string): boolean => {
+          const n = normalize(t);
+          if (!n) return false;
+          if (/\b(montre|montrer|montre[- ]moi|affiche|donne|voir|vois|liste)\b[^\.]*\b(les? )?(autres?|suivants?|restants?|reste)\b/i.test(n)) return true;
+          if (/^\s*(les? )?(autres?|suivants?|reste|restants?)\s*[!\.\?]*\s*$/i.test(n)) return true;
+          if (/\b(show|see|list|give)\b[^\.]*\b(the )?(others?|rest|remaining|more)\b/i.test(n)) return true;
+          if (/^\s*(the )?(others?|more|rest)\s*[!\.\?]*\s*$/i.test(n)) return true;
+          if (/(الباقي|البقية|الأخرى|المزيد)/.test(t)) return true;
+          return false;
+        };
+        if (isShowMoreIntent(userMessage)) {
+          // Walk back for the most recent POOL_BUSINESS_IDS marker.
+          let poolInfo: { ids: string[]; city: string } | null = null;
+          for (let i = inMessages.length - 1; i >= 0; i--) {
+            const m = inMessages[i];
+            if (m.role !== "assistant") continue;
+            const match = String(m.content || "").match(/<!--POOL_BUSINESS_IDS:([\s\S]*?)-->/);
+            if (match) {
+              try {
+                const parsed = JSON.parse(match[1].replace(/--&gt;/g, "-->"));
+                if (Array.isArray(parsed?.ids) && parsed.ids.length) {
+                  poolInfo = { ids: parsed.ids.map((x: any) => String(x)), city: String(parsed?.city || host.city || "Marrakech") };
+                }
+              } catch { /* */ }
+              if (poolInfo) break;
+            }
+          }
+          if (poolInfo) {
+            // Compute already-shown IDs from prior KNOWN_BUSINESSES / SHOW_ON_MAP markers.
+            const shownSet = new Set<string>();
+            for (const m of inMessages) {
+              if (m.role !== "assistant") continue;
+              const c = String(m.content || "");
+              const kb = c.match(/<!--KNOWN_BUSINESSES:([\s\S]*?)-->/);
+              if (kb) {
+                try {
+                  const arr = JSON.parse(kb[1].replace(/--&gt;/g, "-->"));
+                  if (Array.isArray(arr)) for (const b of arr) if (b?.id) shownSet.add(String(b.id));
+                } catch { /* */ }
+              }
+              const som = c.match(/<!--SHOW_ON_MAP:([\s\S]*?)-->/);
+              if (som) {
+                try {
+                  const obj = JSON.parse(som[1].replace(/--&gt;/g, "-->"));
+                  if (Array.isArray(obj?.businesses)) for (const b of obj.businesses) if (b?.id) shownSet.add(String(b.id));
+                } catch { /* */ }
+              }
+            }
+            const remainingIds = poolInfo.ids.filter((id) => !shownSet.has(id));
+            if (remainingIds.length) {
+              const nextIds = remainingIds.slice(0, 10);
+              try {
+                const { data: rows } = await admin
+                  .from("businesses")
+                  .select("id, name, slug, city, neighborhood, main_category, hook_fr, hook_en, hook_ar, description, description_en, description_ar, latitude, longitude, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, computed_rating, total_review_count, min_price, manual_price_range, phone, whatsapp")
+                  .in("id", nextIds);
+                const ordered = Array.isArray(rows)
+                  ? nextIds.map((id) => rows.find((r: any) => String(r.id) === id)).filter(Boolean) as any[]
+                  : [];
+                if (ordered.length) {
+                  const totalFound = poolInfo.ids.length;
+                  const priorShownCount = shownSet.size;
+                  const newShownCount = priorShownCount + ordered.length;
+                  const city = poolInfo.city;
+                  const disclosure = language === "en"
+                    ? `📍 Here are **${ordered.length}** more addresses (${newShownCount} of ${totalFound} shown in ${city}) — tell me if you want to refine by area, mood or vibe.`
+                    : language === "ar"
+                      ? `📍 إليك **${ordered.length}** عناوين إضافية (${newShownCount} من ${totalFound} في ${city}) — أخبرني إذا أردت التصفية حسب الحي أو الأجواء.`
+                      : `📍 Voici **${ordered.length}** adresses supplémentaires (${newShownCount} sur ${totalFound} montrées à ${city}) — dis-moi si tu veux affiner par quartier, ambiance ou envie.`;
+                  const wrapped = {
+                    results: ordered.map((b: any) => ({
+                      id: b.id, name: b.name, slug: b.slug, city: b.city, neighborhood: b.neighborhood,
+                      main_category: b.main_category, hook_fr: b.hook_fr, hook_en: b.hook_en, hook_ar: b.hook_ar,
+                      description: b.description, description_en: b.description_en, description_ar: b.description_ar,
+                      latitude: b.latitude, longitude: b.longitude,
+                      logo_url: b.logo_url ?? null,
+                      images: Array.isArray(b.images) ? b.images : [],
+                      google_rating: b.google_rating ?? null,
+                      google_review_count: b.google_review_count ?? null,
+                      tripadvisor_rating: b.tripadvisor_rating ?? null,
+                      tripadvisor_review_count: b.tripadvisor_review_count ?? null,
+                      computed_rating: b.computed_rating ?? null,
+                      total_review_count: b.total_review_count ?? null,
+                      price_range: b.manual_price_range || (b.min_price ? `${b.min_price}+ MAD` : null),
+                    })),
+                    total_shown: ordered.length,
+                    total_found: totalFound,
+                    city,
+                    disclosure_note: disclosure,
+                    proximity_active: false,
+                    radius_km_used: null,
+                    radius_expanded: false,
+                    pool_ids: poolInfo.ids,
+                  };
+                  // Populate markers so the frontend renders the carousel + map.
+                  lastMapPayload = { title: null, businesses: wrapped.results };
+                  for (const b of wrapped.results) {
+                    if (b?.id && b?.name) knownBusinesses.push({ id: b.id, slug: b.slug || null, name: b.name });
+                  }
+                  lastPoolIds = poolInfo.ids;
+                  lastPoolCity = city;
+                  const answer = buildImmersiveBusinessAnswer(wrapped, host, userMessage, language);
+                  emitDelta(answer);
+                  finalText = answer + emitTrailingMarkers();
+                  toolsCalledLog.push({ name: "show_more", args: { new_count: ordered.length, remaining: remainingIds.length - ordered.length }, ok: true });
+                  endText();
+                  await logTurn({ finalText, streamCompleted: true });
+                  return;
+                }
+              } catch (e) {
+                console.error("[embed-ai-chat] show_more_error", e);
+              }
+            } else {
+              // Everything already shown.
+              const reply = language === "en"
+                ? `You've already seen all **${poolInfo.ids.length}** results from the previous search — want me to refine by area, mood, or open now?`
+                : language === "ar"
+                  ? `لقد رأيت بالفعل جميع النتائج (**${poolInfo.ids.length}**) من البحث السابق — هل تريد التصفية حسب الحي أو الأجواء؟`
+                  : `Tu as déjà vu les **${poolInfo.ids.length}** résultats de la recherche précédente — tu veux affiner par quartier, ambiance, ou n'afficher que les lieux ouverts maintenant ?`;
+              emitDelta(reply);
+              finalText = reply + emitTrailingMarkers();
+              toolsCalledLog.push({ name: "show_more", args: { exhausted: true }, ok: true });
+              endText();
+              await logTurn({ finalText, streamCompleted: true });
+              return;
+            }
+          }
+          // No pool available — fall through to normal flow.
+        }
+
         // Deterministic: HOURS RANKING — "quel est le premier à ouvrir / dernier à fermer ?"
         // Operates only on the previous turn's results; no LLM, no fallback if no priors.
         {
