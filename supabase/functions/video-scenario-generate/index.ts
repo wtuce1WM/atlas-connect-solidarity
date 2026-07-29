@@ -611,6 +611,67 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         template_props.rating = rating;
         template_props.reviewsCount = reviewsCount;
       }
+      // Plateformes d'avis externes
+      if (wantsGoogleReviews) {
+        const gr = Number(businessDetails.google_rating);
+        const gc = Number(businessDetails.google_review_count);
+        const gu = typeof businessDetails.google_review_url === "string" ? businessDetails.google_review_url : null;
+        if ((Number.isFinite(gr) && gr > 0) || (Number.isFinite(gc) && gc > 0) || gu) {
+          template_props.showGoogleReviews = true;
+          template_props.googleReview = {
+            rating: Number.isFinite(gr) && gr > 0 ? gr : null,
+            count: Number.isFinite(gc) && gc > 0 ? gc : null,
+            url: gu,
+          };
+        }
+      }
+      if (wantsTripAdvisor) {
+        const tr = Number((businessDetails as any).tripadvisor_rating);
+        const tc = Number((businessDetails as any).tripadvisor_review_count);
+        const tu = typeof (businessDetails as any).tripadvisor_url === "string" ? (businessDetails as any).tripadvisor_url : null;
+        if ((Number.isFinite(tr) && tr > 0) || (Number.isFinite(tc) && tc > 0) || tu) {
+          template_props.showTripAdvisor = true;
+          template_props.tripAdvisor = {
+            rating: Number.isFinite(tr) && tr > 0 ? tr : null,
+            count: Number.isFinite(tc) && tc > 0 ? tc : null,
+            url: tu,
+          };
+        }
+      }
+      if (wantsRestaurantGuru) {
+        const rr = Number((businessDetails as any).restaurant_guru_rating);
+        const rc = Number((businessDetails as any).restaurant_guru_review_count);
+        const ru = typeof (businessDetails as any).restaurant_guru_url === "string" ? (businessDetails as any).restaurant_guru_url : null;
+        if ((Number.isFinite(rr) && rr > 0) || (Number.isFinite(rc) && rc > 0) || ru) {
+          template_props.showRestaurantGuru = true;
+          template_props.restaurantGuru = {
+            rating: Number.isFinite(rr) && rr > 0 ? rr : null,
+            count: Number.isFinite(rc) && rc > 0 ? rc : null,
+            url: ru,
+          };
+        }
+      }
+      if (wantsCustomerReview && customerReviewId) {
+        try {
+          const { data: revRow } = await supa
+            .from("reviews")
+            .select("id,author_name,rating,text,text_fr,source,published_at")
+            .eq("id", customerReviewId)
+            .maybeSingle();
+          if (revRow) {
+            const fullText = (revRow.text_fr || revRow.text || "").toString();
+            template_props.showCustomerReview = true;
+            template_props.customerReview = {
+              id: revRow.id,
+              author: revRow.author_name || null,
+              rating: revRow.rating != null ? Number(revRow.rating) : null,
+              text: fullText.slice(0, 800),
+              highlight: customerReviewHighlight || fullText.split(/(?<=[.!?])\s+/)[0]?.slice(0, 200) || fullText.slice(0, 200),
+              source: revRow.source || null,
+            };
+          }
+        } catch (_) { /* silent */ }
+      }
       const formattedOpeningHours = formatOpeningHours(businessDetails.opening_hours);
       if (wantsHours && formattedOpeningHours) {
         template_props.showOpeningHours = true;
