@@ -102,12 +102,13 @@ const splitHookInTwo = (h: string): [string, string] => {
   return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
 };
 
-type SceneKind = "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro";
+type SceneKind = "logo" | "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro";
 
-const DEFAULT_SCENE_ORDER: SceneKind[] = ["hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta"];
+const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta"];
 
 function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
   switch (kind) {
+    case "logo": return !!(p.openWithLogo && p.logoUrl);
     case "hook":
     case "name":
     case "media": return true;
