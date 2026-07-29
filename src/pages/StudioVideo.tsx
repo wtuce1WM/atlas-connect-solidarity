@@ -730,6 +730,7 @@ export default function StudioVideo() {
     if (optMapMarker) directives.push("Faire figurer le marqueur de l'établissement sur la Google Map.");
     if (optDigitalId) directives.push("Insérer une courte séquence ID numérique (capture mock-up de la fiche /fiche/slug, étape de partage, puis QR code) AVANT l'incitation finale.");
     if (optInstallCta) directives.push("Terminer par une incitation à installer l'app (bouton carré terracotta inspiré de /install mobile).");
+    if (optWhatsapp && whatsappNumber) directives.push(`Ajouter une scène dédiée WhatsApp avec un effet libre au montage (logo WhatsApp vert #25D366, numéro « ${whatsappNumber} », animation dynamique, invitation à contacter directement l'établissement).`);
     if (popupImageUrl) {
       if (optPopup) {
         const parts: string[] = [];
