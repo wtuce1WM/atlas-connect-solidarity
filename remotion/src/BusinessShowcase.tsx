@@ -68,6 +68,7 @@ export type ShowcaseProps = {
   showDigitalId?: boolean;
   slug?: string | null;
   logoUrl?: string | null;
+  openWithLogo?: boolean;
   whatsapp?: string | null;
   instagramUrl?: string | null;
   ficheScreenshotUrl?: string | null;
@@ -101,12 +102,13 @@ const splitHookInTwo = (h: string): [string, string] => {
   return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
 };
 
-type SceneKind = "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro";
+type SceneKind = "logo" | "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro";
 
-const DEFAULT_SCENE_ORDER: SceneKind[] = ["hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta"];
+const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta"];
 
 function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
   switch (kind) {
+    case "logo": return !!(p.openWithLogo && p.logoUrl);
     case "hook":
     case "name":
     case "media": return true;
@@ -122,6 +124,7 @@ function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
 
 function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
   switch (kind) {
+    case "logo": return 60;
     case "hook": return 120;
     case "name": return 120;
     case "media": return 150;
@@ -963,6 +966,36 @@ const removeDecorativeTaglineWords = (value: string): string =>
     .replace(/^[\s,.:;!?-]+|[\s,.:;!?-]+$/g, "")
     .trim();
 
+const SceneLogo: React.FC<{ logoUrl: string; durationFrames?: number }> = ({ logoUrl, durationFrames = 60 }) => {
+  const frame = useCurrentFrame();
+  const s = spring({ frame, fps: 30, config: { damping: 18, stiffness: 120 } });
+  const outStart = Math.max(20, durationFrames - 14);
+  const out = 1 - ease(frame, outStart, durationFrames);
+  const scale = interpolate(s, [0, 1], [0.85, 1]);
+  return (
+    <AbsoluteFill
+      style={{
+        background: `radial-gradient(circle at 50% 50%, ${COLORS.terracotta}22 0%, ${COLORS.night} 70%)`,
+        alignItems: "center",
+        justifyContent: "center",
+        opacity: out,
+      }}
+    >
+      <Img
+        src={logoUrl}
+        style={{
+          maxWidth: "58%",
+          maxHeight: "58%",
+          objectFit: "contain",
+          opacity: s,
+          transform: `scale(${scale})`,
+          filter: "drop-shadow(0 8px 32px rgba(0,0,0,0.45))",
+        }}
+      />
+    </AbsoluteFill>
+  );
+};
+
 export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   name = "Établissement",
   hook = "Une adresse à découvrir.",
@@ -986,6 +1019,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   showDigitalId,
   slug,
   logoUrl,
+  openWithLogo,
   whatsapp,
   instagramUrl,
   ficheScreenshotUrl,
@@ -1055,6 +1089,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     showAppInstall,
     showDigitalId,
     slug,
+    logoUrl,
+    openWithLogo,
     durationSec,
     scene_order,
     scene_durations,
@@ -1115,6 +1151,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
   const renderBuiltinScene = (kind: SceneKind, duration: number, offerIndex?: number): React.ReactNode => {
     switch (kind) {
+      case "logo":
+        return (
+          <AbsoluteFill style={{ backgroundColor: COLORS.night, alignItems: "center", justifyContent: "center" }}>
+            <SceneLogo logoUrl={logoUrl!} durationFrames={duration} />
+          </AbsoluteFill>
+        );
       case "hook":
         return heroIsVideo && heroMedia ? (
           <AbsoluteFill>
@@ -1182,7 +1224,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                 return (
                   <>
                     <VideoBackdrop src={finalVideo} image={finalImage} />
-                    <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.55) 0%,rgba(14,11,8,0.78) 100%)" }} />
+                    <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.22) 0%,rgba(14,11,8,0.48) 100%)" }} />
                   </>
                 );
               }

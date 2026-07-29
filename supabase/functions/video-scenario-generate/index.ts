@@ -520,9 +520,20 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       }
       const allowedCustomIds = new Set(cleanedCustomScenes.map((c) => `custom:${c.id}`));
 
+      // "Ouvrir avec le logo" — active la scène logo d'intro dans Remotion.
+      const wantsLogoIntro = !!options?.open_with_logo;
+      const logoUrlFromClient = typeof options?.logo_url === "string" && /^https?:\/\//i.test(options.logo_url as string)
+        ? (options.logo_url as string)
+        : (businessDetails.logo_url || null);
+      if (wantsLogoIntro && logoUrlFromClient) {
+        template_props.openWithLogo = true;
+        template_props.logoUrl = logoUrlFromClient;
+      }
+
       // Ordre et durées personnalisés des scènes (édités par l'utilisateur dans l'aperçu)
-      const ALLOWED_SCENE_KINDS = new Set(["hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro"]);
+      const ALLOWED_SCENE_KINDS = new Set(["logo", "hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro"]);
       const rawOrder = options?.scene_order;
+      let orderedFromClient: string[] | null = null;
       if (Array.isArray(rawOrder)) {
         const seen = new Set<string>();
         const cleanedOrder: string[] = [];
@@ -533,7 +544,16 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
             cleanedOrder.push(k);
           }
         }
-        if (cleanedOrder.length) template_props.scene_order = cleanedOrder;
+        if (cleanedOrder.length) orderedFromClient = cleanedOrder;
+      }
+      // Si logo intro demandé, on force sa présence en tête de l'ordre.
+      if (wantsLogoIntro && logoUrlFromClient) {
+        const base = orderedFromClient ?? [];
+        const withoutLogo = base.filter((k) => k !== "logo");
+        orderedFromClient = ["logo", ...withoutLogo];
+      }
+      if (orderedFromClient && orderedFromClient.length) {
+        template_props.scene_order = orderedFromClient;
       }
       const rawDurations = options?.scene_durations;
       if (rawDurations && typeof rawDurations === "object") {
