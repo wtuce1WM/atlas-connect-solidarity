@@ -1385,38 +1385,7 @@ export default function StudioVideo() {
                     </div>
                   </div>
                 )}
-                <div className="rounded-md border border-border bg-background/40 p-2">
-                  <label className="flex items-start gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
-                      checked={optFreeZone}
-                      onChange={(e) => setOptFreeZone(e.target.checked)}
-                    />
-                    <span className="font-medium">Zone libre (texte + médias de fond)</span>
-                  </label>
-                  <div className={`mt-2 space-y-2 ${optFreeZone ? "opacity-100" : "opacity-50 pointer-events-none"}`}>
-                    <p className="text-xs text-muted-foreground">
-                      Étape libre insérée dans le scénario. Le titre et le sous-titre s'affichent en surimpression. Les médias de fond et la durée se règlent dans l'aperçu du scénario ci-dessous (étape « Zone libre »).
-                    </p>
-                    <input
-                      type="text"
-                      maxLength={80}
-                      value={freeZoneTitle}
-                      onChange={(e) => setFreeZoneTitle(e.target.value)}
-                      placeholder="Titre (max 80 caractères)"
-                      className="w-full rounded-md border border-border bg-background px-2 py-1 text-sm text-foreground"
-                    />
-                    <input
-                      type="text"
-                      maxLength={160}
-                      value={freeZoneSubtitle}
-                      onChange={(e) => setFreeZoneSubtitle(e.target.value)}
-                      placeholder="Sous-titre (max 160 caractères)"
-                      className="w-full rounded-md border border-border bg-background px-2 py-1 text-sm text-foreground"
-                    />
-                  </div>
-                </div>
+                {/* Zone libre supprimée — utiliser « Ajouter une étape » dans l'aperçu du scénario. */}
                 {popupImageUrl && (
                   <div className="rounded-md border border-border bg-background/40 p-2">
                     <label className="flex items-start gap-2 cursor-pointer">
