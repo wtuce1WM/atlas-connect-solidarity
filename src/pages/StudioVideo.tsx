@@ -202,6 +202,7 @@ export default function StudioVideo() {
   const [submitting, setSubmitting] = useState(false);
   const [previewing, setPreviewing] = useState(false);
   const [aiScenario, setAiScenario] = useState<{ scenario: Scenario; rationale?: string; templateId: string } | null>(null);
+  const [aiScenarioSig, setAiScenarioSig] = useState<string | null>(null);
   const [scenarioEdits, setScenarioEdits] = useState<ScenarioEdits | null>(null);
   const [addStepOpen, setAddStepOpen] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -789,6 +790,35 @@ export default function StudioVideo() {
     return { finalPrompt, chosenImages, chosenVideos };
   };
 
+  const currentScenarioSig = useMemo(() => {
+    return JSON.stringify({
+      prompt: prompt.trim(),
+      duration: effectiveDuration,
+      tone,
+      business: selected?.id ?? null,
+      opts: {
+        optReviews, optHours, optMapMarker, optDigitalId, optInstallCta,
+        optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
+        optCustomerReview, optPopup, optOpenWithLogo,
+      },
+      offers: Array.from(selectedOfferIds).sort(),
+      highlights: Array.from(selectedHighlightIds).sort(),
+      images: Array.from(selectedImages).sort(),
+      videos: Array.from(selectedVideos).sort(),
+      reviewId: selectedReviewId,
+      reviewHighlight: reviewHighlight || null,
+      textPosition,
+    });
+  }, [
+    prompt, effectiveDuration, tone, selected?.id,
+    optReviews, optHours, optMapMarker, optDigitalId, optInstallCta,
+    optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
+    optCustomerReview, optPopup, optOpenWithLogo,
+    selectedOfferIds, selectedHighlightIds, selectedImages, selectedVideos,
+    selectedReviewId, reviewHighlight, textPosition,
+  ]);
+  const scenarioStale = !!aiScenario && aiScenarioSig !== null && aiScenarioSig !== currentScenarioSig;
+
   const previewScenario = async () => {
     if (previewing || submitting) return;
     if (!prompt.trim()) {
@@ -841,6 +871,7 @@ export default function StudioVideo() {
       const payload = data as any;
       const scenario = scenarioFromTemplateProps(payload.template_id, payload.template_props, payload.duration_sec ?? effectiveDuration, payload.rationale);
       setAiScenario({ scenario, rationale: payload.rationale, templateId: payload.template_id });
+      setAiScenarioSig(currentScenarioSig);
       toast.success("Scénario IA généré.");
     } catch (e: any) {
       toast.error(e.message ?? "Erreur lors de la prévisualisation.");
@@ -1924,9 +1955,9 @@ export default function StudioVideo() {
 
 
             <div className="flex flex-wrap gap-2">
-              <Button onClick={previewScenario} disabled={previewing || submitting} variant="secondary" className="gap-2">
+              <Button onClick={previewScenario} disabled={previewing || submitting} variant={scenarioStale ? "default" : "secondary"} className="gap-2">
                 {previewing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                Prévisualiser le scénario (IA)
+                {aiScenario ? (scenarioStale ? "Régénérer le scénario (paramètres modifiés)" : "Régénérer le scénario (IA)") : "Prévisualiser le scénario (IA)"}
               </Button>
               <Button onClick={submit} disabled={submitting || hasActiveJob} className="gap-2">
                 {submitting || hasActiveJob ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}

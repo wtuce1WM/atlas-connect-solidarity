@@ -12,7 +12,7 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export type SceneMediaKind = "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro";
+export type SceneMediaKind = "logo" | "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro";
 
 export type SceneMediaItem = {
   url: string;
@@ -24,7 +24,7 @@ export type SceneMediaItem = {
 
 export type SceneMediaMap = Partial<Record<SceneMediaKind, SceneMediaItem[]>>;
 
-export const SCENE_KINDS_WITH_MEDIA: SceneMediaKind[] = ["hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro"];
+export const SCENE_KINDS_WITH_MEDIA: SceneMediaKind[] = ["logo", "hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro"];
 
 
 export type Scene = {
@@ -285,7 +285,7 @@ function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenar
 }
 
 function sceneKindFor(icon: Scene["icon"]): SceneMediaKind | null {
-  if (icon === "custom" || icon === "logo" || icon === "popup" || icon === "highlight") return null;
+  if (icon === "custom" || icon === "popup" || icon === "highlight") return null;
   return icon as SceneMediaKind;
 }
 
@@ -302,6 +302,8 @@ export type ScenarioEdits = {
   customScenes?: CustomScene[];
   // Nb d'étapes pour découper le texte dans le montage (clé = "hook" | "name" | `custom:<id>`)
   textSplits?: Record<string, number>;
+  // Overrides libres du texte des scènes (titre + description). Clé = SceneMediaKind pour built-in.
+  textOverrides?: Partial<Record<SceneMediaKind, { label?: string; description?: string }>>;
 };
 
 export function StudioVideoScenarioPanel({
@@ -328,6 +330,8 @@ export function StudioVideoScenarioPanel({
   const [orderOverride, setOrderOverride] = useState<string[] | null>(null);
   const [customScenes, setCustomScenes] = useState<CustomScene[]>([]);
   const [splitOverrides, setSplitOverrides] = useState<Record<string, number>>({});
+  const [textOverrides, setTextOverrides] = useState<Record<string, { label?: string; description?: string }>>({});
+  const [editingTextId, setEditingTextId] = useState<string | null>(null);
   const [addOpenInternal, setAddOpenInternal] = useState(false);
   const [dragId, setDragId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
@@ -347,6 +351,7 @@ export function StudioVideoScenarioPanel({
     setOrderOverride(null);
     setCustomScenes([]);
     setSplitOverrides({});
+    setTextOverrides({});
     onChangeScenarioEdits?.(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signature]);
@@ -384,11 +389,18 @@ export function StudioVideoScenarioPanel({
         const duration = durationOverrides[s.id] ?? s.duration;
         const start = cursor;
         cursor += duration;
-        out.push({ ...s, duration, start });
+        const ov = textOverrides[s.icon as string];
+        out.push({
+          ...s,
+          duration,
+          start,
+          label: ov?.label ?? s.label,
+          description: ov?.description ?? s.description,
+        });
       }
     }
     return out;
-  }, [scenario.scenes, orderOverride, durationOverrides, customById]);
+  }, [scenario.scenes, orderOverride, durationOverrides, customById, textOverrides]);
 
   // Emit edits upstream whenever they change (dedup: only when non-default)
   useEffect(() => {
@@ -397,7 +409,8 @@ export function StudioVideoScenarioPanel({
     const hasDurations = Object.keys(durationOverrides).length > 0;
     const hasCustom = customScenes.length > 0;
     const hasSplits = Object.keys(splitOverrides).length > 0;
-    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits) {
+    const hasTextOv = Object.keys(textOverrides).length > 0;
+    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits && !hasTextOv) {
       onChangeScenarioEdits(null);
       return;
     }
@@ -431,9 +444,10 @@ export function StudioVideoScenarioPanel({
       durations,
       customScenes: hasCustom ? customScenes : undefined,
       textSplits: hasSplits ? textSplits : undefined,
+      textOverrides: hasTextOv ? (textOverrides as any) : undefined,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides]);
+  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, textOverrides]);
 
   const total = editedScenes.reduce((acc, s) => acc + s.duration, 0);
   if (!editedScenes.length && customScenes.length === 0) return null;
@@ -543,6 +557,47 @@ export function StudioVideoScenarioPanel({
         onSubmit={(draft) => { upsertCustomScene(draft); setAddOpen(false); setEditingCustomId(null); }}
       />
 
+      <SceneTextEditDialog
+        open={!!editingTextId}
+        onOpenChange={(o) => { if (!o) setEditingTextId(null); }}
+        sceneKind={editingTextId}
+        currentLabel={
+          editingTextId
+            ? textOverrides[editingTextId]?.label
+              ?? editedScenes.find((s) => s.icon === editingTextId)?.label
+              ?? ""
+            : ""
+        }
+        currentDescription={
+          editingTextId
+            ? textOverrides[editingTextId]?.description
+              ?? editedScenes.find((s) => s.icon === editingTextId)?.description
+              ?? ""
+            : ""
+        }
+        onSubmit={(label, description) => {
+          if (!editingTextId) return;
+          setTextOverrides((prev) => {
+            const next = { ...prev };
+            const trimmedLabel = label.trim();
+            const trimmedDesc = description.trim();
+            if (!trimmedLabel && !trimmedDesc) delete next[editingTextId];
+            else next[editingTextId] = { label: trimmedLabel || undefined, description: trimmedDesc || undefined };
+            return next;
+          });
+          setEditingTextId(null);
+        }}
+        onReset={() => {
+          if (!editingTextId) return;
+          setTextOverrides((prev) => {
+            const next = { ...prev };
+            delete next[editingTextId];
+            return next;
+          });
+          setEditingTextId(null);
+        }}
+      />
+
       <p className="text-[11px] text-muted-foreground italic">Glissez-déposez les scènes pour les réordonner. Ajustez la durée avec les boutons +/−.</p>
 
       <div className="space-y-3">
@@ -600,6 +655,16 @@ export function StudioVideoScenarioPanel({
                   <span className="text-[10px] text-neutral-600 tabular-nums">
                     {formatTime(scene.start)} → {formatTime(scene.start + scene.duration)}
                   </span>
+                  {(scene.icon === "hook" || scene.icon === "name") && (
+                    <button
+                      type="button"
+                      onClick={() => setEditingTextId(scene.icon)}
+                      className="p-1 rounded hover:bg-neutral-100 text-neutral-600 hover:text-black"
+                      aria-label="Modifier le texte de l'étape"
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </button>
+                  )}
                   {scene.icon === "custom" && isCustomToken(scene.id) && (
                     <div className="flex items-center gap-1">
                       <button
@@ -1093,6 +1158,58 @@ function CustomSceneDialog({
           <Button onClick={submit} disabled={!canSubmit}>
             {initial ? "Enregistrer" : "Ajouter"}
           </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function SceneTextEditDialog({
+  open,
+  onOpenChange,
+  sceneKind,
+  currentLabel,
+  currentDescription,
+  onSubmit,
+  onReset,
+}: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  sceneKind: string | null;
+  currentLabel: string;
+  currentDescription: string;
+  onSubmit: (label: string, description: string) => void;
+  onReset: () => void;
+}) {
+  const [label, setLabel] = useState(currentLabel);
+  const [description, setDescription] = useState(currentDescription);
+  useEffect(() => {
+    if (open) {
+      setLabel(currentLabel);
+      setDescription(currentDescription);
+    }
+  }, [open, currentLabel, currentDescription]);
+  const kindLabel = sceneKind === "hook" ? "Hook" : sceneKind === "name" ? "Nom & identité" : "Étape";
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg bg-white text-black">
+        <DialogHeader>
+          <DialogTitle className="text-black">Modifier le texte — {kindLabel}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label className="text-black text-xs uppercase tracking-wider">Titre</Label>
+            <Input value={label} onChange={(e) => setLabel(e.target.value)} className="bg-white text-black" />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-black text-xs uppercase tracking-wider">Description / texte affiché</Label>
+            <Textarea rows={4} value={description} onChange={(e) => setDescription(e.target.value)} className="bg-white text-black" />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={onReset}>Réinitialiser</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Annuler</Button>
+          <Button onClick={() => onSubmit(label, description)}>Enregistrer</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
