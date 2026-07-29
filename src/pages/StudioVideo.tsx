@@ -1638,6 +1638,8 @@ export default function StudioVideo() {
                 sceneMedia={sceneMedia}
                 onChangeSceneMedia={setSceneMedia}
                 onChangeScenarioEdits={setScenarioEdits}
+                openAddDialog={addStepOpen}
+                onOpenAddDialogChange={setAddStepOpen}
               />
             </div>
           ) : scenario ? (
@@ -1647,6 +1649,8 @@ export default function StudioVideo() {
               sceneMedia={sceneMedia}
               onChangeSceneMedia={setSceneMedia}
               onChangeScenarioEdits={setScenarioEdits}
+              openAddDialog={addStepOpen}
+              onOpenAddDialogChange={setAddStepOpen}
             />
           ) : null}
 
