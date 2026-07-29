@@ -236,6 +236,8 @@ export function StudioVideoScenarioPanel({
   sceneMedia,
   onChangeSceneMedia,
   onChangeScenarioEdits,
+  openAddDialog,
+  onOpenAddDialogChange,
 }: {
   scenario: Scenario;
   className?: string;
@@ -243,6 +245,8 @@ export function StudioVideoScenarioPanel({
   sceneMedia?: SceneMediaMap;
   onChangeSceneMedia?: (next: SceneMediaMap) => void;
   onChangeScenarioEdits?: (edits: ScenarioEdits | null) => void;
+  openAddDialog?: boolean;
+  onOpenAddDialogChange?: (open: boolean) => void;
 }) {
   // Local edits: per-scene duration overrides + order override (by token) + custom scenes + text splits
   const [durationOverrides, setDurationOverrides] = useState<Record<string, number>>({});
