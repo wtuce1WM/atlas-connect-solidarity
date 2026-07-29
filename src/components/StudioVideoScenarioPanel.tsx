@@ -389,11 +389,18 @@ export function StudioVideoScenarioPanel({
         const duration = durationOverrides[s.id] ?? s.duration;
         const start = cursor;
         cursor += duration;
-        out.push({ ...s, duration, start });
+        const ov = textOverrides[s.icon as string];
+        out.push({
+          ...s,
+          duration,
+          start,
+          label: ov?.label ?? s.label,
+          description: ov?.description ?? s.description,
+        });
       }
     }
     return out;
-  }, [scenario.scenes, orderOverride, durationOverrides, customById]);
+  }, [scenario.scenes, orderOverride, durationOverrides, customById, textOverrides]);
 
   // Emit edits upstream whenever they change (dedup: only when non-default)
   useEffect(() => {
