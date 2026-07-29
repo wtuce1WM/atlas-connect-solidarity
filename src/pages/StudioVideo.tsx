@@ -238,6 +238,8 @@ export default function StudioVideo() {
   const [optDigitalId, setOptDigitalId] = useState(true);
   const [optPopup, setOptPopup] = useState(true);
   const [optOpenWithLogo, setOptOpenWithLogo] = useState(true);
+  const [optWhatsapp, setOptWhatsapp] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
   const [logoInfo, setLogoInfo] = useState<{ url: string | null; bg: string | null }>({ url: null, bg: null });
   const [platformData, setPlatformData] = useState<{
     google: { rating: number | null; count: number | null; url: string | null };
