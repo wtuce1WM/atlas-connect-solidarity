@@ -302,6 +302,8 @@ export type ScenarioEdits = {
   customScenes?: CustomScene[];
   // Nb d'étapes pour découper le texte dans le montage (clé = "hook" | "name" | `custom:<id>`)
   textSplits?: Record<string, number>;
+  // Overrides libres du texte des scènes (titre + description). Clé = SceneMediaKind pour built-in.
+  textOverrides?: Partial<Record<SceneMediaKind, { label?: string; description?: string }>>;
 };
 
 export function StudioVideoScenarioPanel({
