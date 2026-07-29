@@ -1071,7 +1071,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
   // Scene 3 (Media montage 240-390)
   const mediaList = mediaOverride.length ? mediaOverride : null;
-  const defaultMediaSlice = defaultGalleryList.slice(1, 4);
+  // Montage : consomme jusqu'à 5 clips distincts (indices 1→5), en plus du héro (index 0) = 6 clips max
+  const defaultMediaSlice = defaultGalleryList.slice(1, 6);
 
   // Outro/CTA backdrop
   const outroItem = outroOverride[0];
