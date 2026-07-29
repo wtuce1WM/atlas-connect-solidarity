@@ -347,8 +347,8 @@ serve(async (req) => {
         return out.length ? out.join(", ") : undefined;
       };
       const fmtPrice = (r: any): string | undefined => {
+        if (r.min_price) return `Prix minimum constaté en réservation directe : ${Math.round(Number(r.min_price))} €`;
         if (r.manual_price_range) return String(r.manual_price_range);
-        if (r.min_price) return `à partir de ${r.min_price} MAD`;
         if (r.avg_price_range) return String(r.avg_price_range);
         return undefined;
       };
@@ -854,6 +854,7 @@ RÈGLES :
 - VILLE PAR DÉFAUT : La recherche concerne ${defaultCity}. Ne suggère JAMAIS à l'utilisateur de chercher dans une autre ville (ni Fès, ni Casablanca, ni Rabat, ni aucune autre). Ne propose JAMAIS de "préciser une ville" ou de "choisir une ville comme Marrakech ou Fès" — la ville est déjà ${defaultCity}. Concentre toute ta réponse exclusivement sur ${defaultCity}.
 - Propose à l'utilisateur d'affiner sa recherche avec d'autres mots-clés (quartier, type de cuisine, ambiance, budget…), mais TOUJOURS dans ${defaultCity}.` : (!mode ? `\n- Si la liste contient peu de résultats (1-2), complète ta réponse avec des conseils généraux sur la destination/thématique pour enrichir l'expérience.` : '')}
 - Si la liste ne semble pas correspondre à la question, dis-le honnêtement.
+- PRIX — RÈGLE STRICTE : N'invente JAMAIS de tarifs, fourchettes de prix ou "entre X et Y €". Utilise UNIQUEMENT le champ "— Prix:" fourni dans les données de l'établissement. Si ce champ existe et commence par "Prix minimum constaté en réservation directe :", cite-le TEL QUEL (mets le montant en gras, ex. "Prix minimum constaté en réservation directe : **200 €**"). Si aucun "— Prix:" n'est fourni pour un établissement, ne mentionne AUCUN tarif pour lui.
 - Entoure chaque nom de doubles astérisques, par exemple **Nom**.
 - FORMATAGE STRICT : Rédige UNIQUEMENT en prose fluide, avec des sauts de paragraphe (\\n\\n) entre chaque établissement. INTERDICTION ABSOLUE d'utiliser des listes à puces ("- ", "* ", "• ") ou numérotées ("1.", "2.") en début de ligne. INTERDICTION ABSOLUE d'utiliser l'italique simple (*texte*) — n'utilise QUE le gras avec doubles astérisques (**texte**) et uniquement pour les noms d'établissements, prix, distances ou horaires. Pas de titres (#). Pour CHAQUE établissement cité, commence un nouveau paragraphe par son nom en gras puis donne une description immersive et sensorielle complète (2-3 phrases : ambiance, spécialités, ce qui le rend unique, vue/cadre, expérience vécue) avant de passer au suivant. Ne regroupe JAMAIS deux établissements dans la même phrase ou le même paragraphe.
 - Commence par une phrase d'accroche engageante liée à la recherche, puis laisse DEUX lignes vides avant de continuer avec les recommandations.
