@@ -31,8 +31,9 @@ Deno.serve(async (req) => {
     if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0 || prompt.length > 8000) {
       return json({ error: "prompt invalide" }, 400);
     }
-    if (![15, 30, 45, 60].includes(Number(duration_sec))) {
-      return json({ error: "duration_sec doit être 15, 30, 45 ou 60" }, 400);
+    const durationNum = Number(duration_sec);
+    if (!Number.isFinite(durationNum) || durationNum < 5 || durationNum > 180) {
+      return json({ error: "duration_sec doit être entre 5 et 180 secondes" }, 400);
     }
 
     const supa = createClient(SUPABASE_URL, SERVICE_ROLE);
