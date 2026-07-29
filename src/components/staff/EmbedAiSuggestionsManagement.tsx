@@ -386,17 +386,22 @@ const EmbedAiSuggestionsManagement = () => {
 
                 <div className="max-w-xs">
                   <label className="text-xs text-muted-foreground">Route déterministe forcée</label>
-                  <select
-                    value={r.mode || ""}
-                    onChange={(e) => update(r.id, { mode: e.target.value || null })}
-                    className="h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
-                    title="Mode"
-                  >
-                    <option value="">Auto (LLM décide)</option>
-                    <option value="events">📅 Events (search_events sur la ville hôte, badge_ids optionnels)</option>
-                    <option value="structure_front">🧭 Structure du Front (search_businesses ville hôte + sous-catégories/badges)</option>
-                    <option value="direct_viewer">📌 Direct viewer (carousel figé des business_ids ciblés)</option>
-                  </select>
+                  {(() => {
+                    const effectiveMode = r.mode || ((r.subcategory_ids.length > 0 || r.badge_ids.length > 0) ? "structure_front" : "");
+                    return (
+                      <select
+                        value={effectiveMode}
+                        onChange={(e) => update(r.id, { mode: e.target.value || null })}
+                        className="h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
+                        title="Mode"
+                      >
+                        <option value="">Auto (LLM décide)</option>
+                        <option value="events">📅 Events (search_events sur la ville hôte, badge_ids optionnels)</option>
+                        <option value="structure_front">🧭 Structure du Front (search_businesses ville hôte + sous-catégories/badges)</option>
+                        <option value="direct_viewer">📌 Direct viewer (carousel figé des business_ids ciblés)</option>
+                      </select>
+                    );
+                  })()}
                   <p className="text-[11px] text-muted-foreground mt-1">
                     <b>Events</b> : force <code>search_events</code> (ville + prochain week-end, filtré par <b>Badges ciblés</b> ou fallback #Agenda).<br />
                     <b>Structure du Front</b> : force <code>search_businesses</code> dans la ville hôte avec les <b>sous-catégories</b> et <b>badges</b> ciblés (bypass LLM).<br />
