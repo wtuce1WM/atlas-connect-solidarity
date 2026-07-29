@@ -3085,6 +3085,10 @@ Deno.serve(async (req) => {
             if (result.results.length && !lastMapPayload) {
               lastMapPayload = { title: null, businesses: result.results };
             }
+            if (Array.isArray(result?.pool_ids) && result.pool_ids.length) {
+              lastPoolIds = result.pool_ids.map((x: any) => String(x)).filter(Boolean);
+              lastPoolCity = String(result?.city || host.city || "Marrakech");
+            }
           }
         };
 
