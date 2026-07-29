@@ -1359,6 +1359,93 @@ export default function StudioVideo() {
               </div>
             )}
 
+            {reviewDialogOpen && (
+              <div
+                className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in"
+                onClick={() => setReviewDialogOpen(false)}
+              >
+                <div
+                  className="relative w-full max-w-2xl max-h-[90vh] rounded-2xl bg-background border border-border shadow-2xl flex flex-col"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between p-4 border-b border-border">
+                    <h3 className="text-lg font-bold">Sélectionner un avis client</h3>
+                    <button
+                      type="button"
+                      onClick={() => setReviewDialogOpen(false)}
+                      className="h-8 w-8 rounded-full hover:bg-muted flex items-center justify-center"
+                      aria-label="Fermer"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                    {reviewsList.length === 0 ? (
+                      <div className="text-sm text-muted-foreground italic">Aucun avis publié pour cet établissement.</div>
+                    ) : (
+                      reviewsList.map((r) => {
+                        const isSel = selectedReviewId === r.id;
+                        return (
+                          <label
+                            key={r.id}
+                            className={`block rounded-md border p-3 cursor-pointer transition ${isSel ? "border-primary bg-primary/5" : "border-border hover:bg-muted/40"}`}
+                          >
+                            <div className="flex items-start gap-2">
+                              <input
+                                type="radio"
+                                name="reviewSelect"
+                                className="mt-1 h-4 w-4 accent-primary"
+                                checked={isSel}
+                                onChange={() => {
+                                  setSelectedReviewId(r.id);
+                                  // preselect the first sentence as default highlight
+                                  const first = r.text.split(/(?<=[.!?])\s+/)[0]?.slice(0, 200) || r.text.slice(0, 200);
+                                  setReviewHighlight(first);
+                                }}
+                              />
+                              <div className="min-w-0 flex-1 text-xs">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-semibold text-sm">{r.author || "Anonyme"}</span>
+                                  {r.rating != null && <span className="text-[#C04F17] font-bold">{r.rating}/5</span>}
+                                  {r.source && <span className="text-muted-foreground">· {r.source}</span>}
+                                </div>
+                                <div className="mt-1 text-muted-foreground whitespace-pre-wrap">{r.text}</div>
+                              </div>
+                            </div>
+                            {isSel && (
+                              <div className="mt-3 pl-6 space-y-1">
+                                <div className="text-[11px] font-medium text-muted-foreground">Sélectionner l'extrait à mettre en avant :</div>
+                                <textarea
+                                  value={reviewHighlight}
+                                  onChange={(e) => setReviewHighlight(e.target.value.slice(0, 240))}
+                                  onClick={(e) => e.stopPropagation()}
+                                  rows={2}
+                                  maxLength={240}
+                                  className="w-full text-xs rounded border border-border bg-background p-2"
+                                  placeholder="Colle ici la portion à mettre en avant"
+                                />
+                                <div className="text-[10px] text-muted-foreground text-right">{reviewHighlight.length}/240</div>
+                              </div>
+                            )}
+                          </label>
+                        );
+                      })
+                    )}
+                  </div>
+                  <div className="flex justify-end gap-2 p-3 border-t border-border">
+                    <Button variant="outline" size="sm" onClick={() => setReviewDialogOpen(false)}>Annuler</Button>
+                    <Button
+                      size="sm"
+                      disabled={!selectedReviewId}
+                      onClick={() => setReviewDialogOpen(false)}
+                    >
+                      Valider
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
 
           <section className="rounded-xl border border-border bg-card p-6 space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
