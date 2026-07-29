@@ -1,17 +1,33 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
+import { createClient } from 'npm:@supabase/supabase-js@2';
 import { assertStaff } from '../_shared/auth-helpers.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
-  // Allow calls from the DB trigger (uses SUPABASE_SERVICE_ROLE_KEY as Bearer),
-  // otherwise require a staff user.
-  const bearer = (req.headers.get('Authorization') || '').replace('Bearer ', '');
-  const serviceRole = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-  if (!bearer || bearer !== serviceRole) {
+  // Accept internal DB trigger: header Lovable-Context: trigger + a valid pending job_id.
+  // Otherwise: staff-only.
+  const isInternalTrigger = (req.headers.get('Lovable-Context') || '').toLowerCase() === 'trigger';
+  let internalAllowed = false;
+  if (isInternalTrigger) {
+    try {
+      const body = await req.clone().json().catch(() => ({}));
+      const jobId = typeof body?.job_id === 'string' ? body.job_id : null;
+      if (jobId) {
+        const supa = createClient(
+          Deno.env.get('SUPABASE_URL')!,
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? Deno.env.get('SUPABASE_ANON_KEY')!,
+        );
+        const { data } = await supa.from('video_jobs').select('id,status').eq('id', jobId).maybeSingle();
+        if (data && (data.status === 'pending' || data.status === 'rendering')) internalAllowed = true;
+      }
+    } catch (_) { /* fallthrough to staff check */ }
+  }
+  if (!internalAllowed) {
     const auth = await assertStaff(req, corsHeaders);
     if (auth instanceof Response) return auth;
   }
+
 
 
   try {
