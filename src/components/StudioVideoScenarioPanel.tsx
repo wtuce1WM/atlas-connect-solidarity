@@ -87,6 +87,7 @@ const LABELS: Record<Exclude<Scene["icon"], "custom">, string> = {
   tripadvisor: "TripAdvisor",
   restaurant_guru: "Restaurant Guru",
   customer_review: "Témoignage client",
+  whatsapp: "WhatsApp",
   hours: "Horaires",
   map: "Localisation",
   digital: "ID numérique",
