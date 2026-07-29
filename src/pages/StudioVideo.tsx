@@ -374,6 +374,22 @@ export default function StudioVideo() {
       }));
       setOffersList(mappedOffers);
       setSelectedOfferIds(new Set(mappedOffers.map((o) => o.id)));
+      const stripHtml = (s: string | null) => (s || "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+      const hlRaw = (hls.data ?? []) as any[];
+      const mappedHl = hlRaw
+        .map((h) => ({
+          id: h.id as string,
+          icon: (h.icon ?? null) as string | null,
+          title: stripHtml(h.title_fr),
+          description: stripHtml(h.description_fr),
+          image_url: (h.image_url ?? null) as string | null,
+          metric_title: stripHtml(h.metric_title_fr) || null,
+          metric_value: stripHtml(h.metric_value_fr) || null,
+          sort_order: (h.sort_order ?? 0) as number,
+        }))
+        .filter((h) => h.title.length > 0 || h.description.length > 0 || !!h.image_url);
+      setHighlightsList(mappedHl);
+      setSelectedHighlightIds(new Set(mappedHl.map((h) => h.id)));
       setBizStats({
         hook: b.hook_fr ?? null,
         descLen: (b.description ?? "").length,
