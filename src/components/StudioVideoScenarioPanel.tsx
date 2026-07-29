@@ -310,7 +310,8 @@ export function StudioVideoScenarioPanel({
     const hasOrder = !!orderOverride;
     const hasDurations = Object.keys(durationOverrides).length > 0;
     const hasCustom = customScenes.length > 0;
-    if (!hasOrder && !hasDurations && !hasCustom) {
+    const hasSplits = Object.keys(splitOverrides).length > 0;
+    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits) {
       onChangeScenarioEdits(null);
       return;
     }
@@ -330,9 +331,23 @@ export function StudioVideoScenarioPanel({
       const s = byId.get(id);
       if (s) durations[s.icon as SceneMediaKind] = d;
     }
-    onChangeScenarioEdits({ order: orderTokens, durations, customScenes: hasCustom ? customScenes : undefined });
+    // Normalize splitOverrides keys: built-in scene.id → its icon (kind), custom token stays as-is
+    const textSplits: Record<string, number> = {};
+    for (const [id, n] of Object.entries(splitOverrides)) {
+      if (isCustomToken(id)) textSplits[id] = n;
+      else {
+        const s = byId.get(id);
+        if (s) textSplits[s.icon] = n;
+      }
+    }
+    onChangeScenarioEdits({
+      order: orderTokens,
+      durations,
+      customScenes: hasCustom ? customScenes : undefined,
+      textSplits: hasSplits ? textSplits : undefined,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderOverride, durationOverrides, customScenes, customById]);
+  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides]);
 
   const total = editedScenes.reduce((acc, s) => acc + s.duration, 0);
   if (!editedScenes.length && customScenes.length === 0) return null;
