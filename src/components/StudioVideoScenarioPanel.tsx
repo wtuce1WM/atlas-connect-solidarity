@@ -244,10 +244,11 @@ export function StudioVideoScenarioPanel({
   onChangeSceneMedia?: (next: SceneMediaMap) => void;
   onChangeScenarioEdits?: (edits: ScenarioEdits | null) => void;
 }) {
-  // Local edits: per-scene duration overrides + order override (by token) + custom scenes
+  // Local edits: per-scene duration overrides + order override (by token) + custom scenes + text splits
   const [durationOverrides, setDurationOverrides] = useState<Record<string, number>>({});
   const [orderOverride, setOrderOverride] = useState<string[] | null>(null);
   const [customScenes, setCustomScenes] = useState<CustomScene[]>([]);
+  const [splitOverrides, setSplitOverrides] = useState<Record<string, number>>({});
   const [dragId, setDragId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
