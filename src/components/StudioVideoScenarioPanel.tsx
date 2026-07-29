@@ -409,7 +409,8 @@ export function StudioVideoScenarioPanel({
     const hasDurations = Object.keys(durationOverrides).length > 0;
     const hasCustom = customScenes.length > 0;
     const hasSplits = Object.keys(splitOverrides).length > 0;
-    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits) {
+    const hasTextOv = Object.keys(textOverrides).length > 0;
+    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits && !hasTextOv) {
       onChangeScenarioEdits(null);
       return;
     }
@@ -443,9 +444,10 @@ export function StudioVideoScenarioPanel({
       durations,
       customScenes: hasCustom ? customScenes : undefined,
       textSplits: hasSplits ? textSplits : undefined,
+      textOverrides: hasTextOv ? (textOverrides as any) : undefined,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides]);
+  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, textOverrides]);
 
   const total = editedScenes.reduce((acc, s) => acc + s.duration, 0);
   if (!editedScenes.length && customScenes.length === 0) return null;
