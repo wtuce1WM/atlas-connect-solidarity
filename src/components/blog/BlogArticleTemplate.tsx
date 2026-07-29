@@ -420,7 +420,7 @@ const BlogArticleTemplate = ({
       const { data } = await supabase
         .from("businesses")
         .select(
-          "id, name, slug, neighborhood, city, images, rating, computed_rating, total_review_count, categories, hook_fr, hook_en, hook_ar, wtuce_status, latitude, longitude, is_featured"
+          "id, name, slug, neighborhood, city, images, rating, computed_rating, total_review_count, categories, hook_fr, hook_en, hook_ar, wtuce_status, latitude, longitude, is_featured, min_price, manual_price_range"
         )
         .in("id", allIds)
         .eq("is_active", true);
