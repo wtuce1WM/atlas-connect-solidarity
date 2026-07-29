@@ -647,31 +647,37 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       if (offerIds.length > 0) {
         const { data: offerRows } = await supa
           .from("affiliate_business_promotions")
-          .select("id,title,title_fr,promotion_type,promotion_value,promotion_currency,promotion_message,promotion_message_fr,savings_amount")
+          .select("id,title,title_fr,promotion_type,promotion_value,promotion_currency,promotion_message,promotion_message_fr,savings_amount,sort_order")
           .eq("business_id", resolved_business_id)
           .in("id", offerIds)
           .order("sort_order", { ascending: true });
-        const first = (offerRows ?? [])[0];
-        if (first) {
-          const title = cleanDisplayText(first.title_fr || first.title) || undefined;
-          const priceStr = first.promotion_type === "percentage" && first.promotion_value != null
-            ? `-${first.promotion_value}%`
-            : first.promotion_type === "fixed" && first.promotion_value != null
-              ? `-${first.promotion_value} ${first.promotion_currency || "MAD"}`
-              : first.savings_amount != null
-                ? `-${first.savings_amount} ${first.promotion_currency || "MAD"}`
-                : undefined;
-          const rawMsg = stripHtml(first.promotion_message_fr || first.promotion_message) || "";
-          const lines = rawMsg
-            ? rawMsg.split(/[\n•·|]+|(?:\.\s)/).map((l) => cleanDisplayText(l) || "").filter((l) => l && l.length <= 120).slice(0, 6)
-            : [];
-          if (title || priceStr || lines.length) {
-            template_props.offer = {
-              title,
-              price: priceStr,
-              lines: lines.length ? lines : undefined,
-            };
-          }
+        // Preserve the exact user-selected order (offerIds) when sort_order collides.
+        const rows = (offerRows ?? []).slice().sort((a: any, b: any) => {
+          const ia = offerIds.indexOf(a.id);
+          const ib = offerIds.indexOf(b.id);
+          return ia - ib;
+        });
+        const built = rows
+          .map((row: any) => {
+            const title = cleanDisplayText(row.title_fr || row.title) || undefined;
+            const priceStr = row.promotion_type === "percentage" && row.promotion_value != null
+              ? `-${row.promotion_value}%`
+              : row.promotion_type === "fixed" && row.promotion_value != null
+                ? `-${row.promotion_value} ${row.promotion_currency || "MAD"}`
+                : row.savings_amount != null
+                  ? `-${row.savings_amount} ${row.promotion_currency || "MAD"}`
+                  : undefined;
+            const rawMsg = stripHtml(row.promotion_message_fr || row.promotion_message) || "";
+            const lines = rawMsg
+              ? rawMsg.split(/[\n•·|]+|(?:\.\s)/).map((l: string) => cleanDisplayText(l) || "").filter((l: string) => l && l.length <= 120).slice(0, 6)
+              : [];
+            if (!title && !priceStr && lines.length === 0) return null;
+            return { title, price: priceStr, lines: lines.length ? lines : undefined };
+          })
+          .filter((o: any) => o !== null);
+        if (built.length > 0) {
+          template_props.offers = built;
+          template_props.offer = built[0]; // backward compat with single-offer template
         }
       }
     }

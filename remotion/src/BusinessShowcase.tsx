@@ -54,6 +54,7 @@ export type ShowcaseProps = {
   images?: string[];
   videos?: string[];
   offer?: { title?: string; price?: string; lines?: string[]; background_video_url?: string; background_image_url?: string } | null;
+  offers?: Array<{ title?: string; price?: string; lines?: string[]; background_video_url?: string; background_image_url?: string }> | null;
   rating?: number | null;
   reviewsCount?: number | null;
   openingHours?: string | Record<string, string> | null;
@@ -110,12 +111,12 @@ function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
     case "name":
     case "media": return true;
     case "cta": return p.showAppInstall !== false;
-    case "offer": return !!p.offer;
+    case "offer": return !!p.offer || (Array.isArray(p.offers) && p.offers.length > 0);
     case "reviews": return !!(p.showReviews && (p.rating || p.reviewsCount));
     case "hours": return !!(p.showOpeningHours && p.openingHours);
     case "map": return !!(p.showMap && p.latitude && p.longitude);
     case "digital": return !!(p.showDigitalId && p.slug);
-    case "outro": return false; // merged into cta scene
+    case "outro": return p.showAppInstall !== false;
   }
 }
 
@@ -140,6 +141,7 @@ function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
 export type ScenePlanItem = {
   kind: SceneKind | "custom";
   customId?: string;
+  offerIndex?: number;
   from: number;
   duration: number;
 };
@@ -149,7 +151,7 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
   const customById = new Map<string, NonNullable<ShowcaseProps["custom_scenes"]>[number]>();
   for (const c of p.custom_scenes ?? []) customById.set(c.id, c);
 
-  type Tok = { kind: SceneKind | "custom"; customId?: string };
+  type Tok = { kind: SceneKind | "custom"; customId?: string; offerIndex?: number };
   let order: Tok[];
   if (Array.isArray(p.scene_order) && p.scene_order.length) {
     const seen = new Set<string>();
@@ -164,7 +166,11 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
         }
         continue;
       }
-      if ((active as string[]).includes(raw)) {
+      // Accept outro explicitly when the CTA is enabled, even though outro is
+      // not in DEFAULT_SCENE_ORDER (it shares rendering with cta).
+      const isRequested = (active as string[]).includes(raw)
+        || (raw === "outro" && isSceneActive("outro", p));
+      if (isRequested) {
         seen.add(raw);
         requested.push({ kind: raw as SceneKind });
       }
@@ -172,9 +178,35 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
     for (const k of active) {
       if (!requested.some((t) => t.kind === k)) requested.push({ kind: k });
     }
+    // cta and outro are two names for the same closing scene: keep only one.
+    const hasOutro = requested.some((t) => t.kind === "outro");
+    const hasCta = requested.some((t) => t.kind === "cta");
+    if (hasOutro && hasCta) {
+      // Drop the auto-appended cta; honor user's explicit outro position.
+      const idxCta = requested.findIndex((t) => t.kind === "cta");
+      if (idxCta >= 0) requested.splice(idxCta, 1);
+    }
     order = requested;
   } else {
     order = active.map((k) => ({ kind: k as SceneKind }));
+  }
+
+  // Expand a single "offer" token into N tokens (one per selected offer).
+  const offersArr = Array.isArray(p.offers) ? p.offers : (p.offer ? [p.offer] : []);
+  if (offersArr.length > 1) {
+    const expanded: Tok[] = [];
+    for (const t of order) {
+      if (t.kind === "offer") {
+        for (let i = 0; i < offersArr.length; i++) {
+          expanded.push({ kind: "offer", offerIndex: i });
+        }
+      } else {
+        expanded.push(t);
+      }
+    }
+    order = expanded;
+  } else if (offersArr.length === 1) {
+    for (const t of order) if (t.kind === "offer") t.offerIndex = 0;
   }
 
   const durOverride = (k: SceneKind): number | null => {
@@ -201,16 +233,17 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
   const requestedFrames = Number.isFinite(p.durationSec) && p.durationSec
     ? Math.round(Number(p.durationSec) * 30)
     : SHOWCASE_TOTAL_FRAMES;
-  const ctaIdx = order.findIndex((t) => t.kind === "cta");
-  if (ctaIdx >= 0 && durOverride("cta") == null && !hasAnyDurationOverride && !hasCustomScenes) {
-    const nonCta = durations.reduce((acc, d, i) => (i === ctaIdx ? acc : acc + d), 0);
-    durations[ctaIdx] = Math.max(150, requestedFrames - nonCta);
+  const closingIdx = order.findIndex((t) => t.kind === "cta" || t.kind === "outro");
+  const closingKind = closingIdx >= 0 ? (order[closingIdx].kind as SceneKind) : null;
+  if (closingIdx >= 0 && closingKind && durOverride(closingKind) == null && !hasAnyDurationOverride && !hasCustomScenes) {
+    const nonClosing = durations.reduce((acc, d, i) => (i === closingIdx ? acc : acc + d), 0);
+    durations[closingIdx] = Math.max(150, requestedFrames - nonClosing);
   }
 
   const plan: ScenePlanItem[] = [];
   let cursor = 0;
   order.forEach((tok, i) => {
-    plan.push({ kind: tok.kind, customId: tok.customId, from: cursor, duration: durations[i] });
+    plan.push({ kind: tok.kind, customId: tok.customId, offerIndex: tok.offerIndex, from: cursor, duration: durations[i] });
     cursor += durations[i];
   });
   return plan;
@@ -939,6 +972,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   images = [],
   videos = [],
   offer = null,
+  offers = null,
   rating,
   reviewsCount,
   openingHours,
@@ -1009,6 +1043,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   // Build the ordered scene plan (honors props.scene_order + props.scene_durations)
   const plan = buildScenePlan({
     offer,
+    offers,
     rating,
     reviewsCount,
     openingHours,
@@ -1017,6 +1052,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     showReviews,
     showOpeningHours,
     showMap,
+    showAppInstall,
     showDigitalId,
     slug,
     durationSec,
@@ -1070,10 +1106,14 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         </AbsoluteFill>
       );
     }
-    return renderBuiltinScene(kind as SceneKind, duration);
+    return renderBuiltinScene(kind as SceneKind, duration, item.offerIndex);
   };
 
-  const renderBuiltinScene = (kind: SceneKind, duration: number): React.ReactNode => {
+  const offersArr: NonNullable<ShowcaseProps["offers"]> = Array.isArray(offers) && offers.length > 0
+    ? offers
+    : (offer ? [offer] : []);
+
+  const renderBuiltinScene = (kind: SceneKind, duration: number, offerIndex?: number): React.ReactNode => {
     switch (kind) {
       case "hook":
         return heroIsVideo && heroMedia ? (
@@ -1122,27 +1162,36 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             <HookOverlay text={hookPart2 || hookPart1} duration={duration} textPosition={textPosition} />
           </AbsoluteFill>
         );
-      case "offer":
-        if (!offer) return null;
+      case "offer": {
+        const idx = typeof offerIndex === "number" ? offerIndex : 0;
+        const currentOffer = offersArr[idx] ?? offer;
+        if (!currentOffer) return null;
         return (
           <AbsoluteFill>
             {(() => {
-              const offerBgItem = offerOverride[0];
-              const bgVideo = offerBgItem?.kind === "video" ? offerBgItem.url : offer.background_video_url;
-              const bgImage = offerBgItem?.kind === "image" ? offerBgItem.url : offer.background_image_url;
-              if (bgVideo || bgImage) {
+              const offerBgItem = offerOverride[idx] ?? offerOverride[0];
+              const bgVideo = offerBgItem?.kind === "video" ? offerBgItem.url : currentOffer.background_video_url;
+              const bgImage = offerBgItem?.kind === "image" ? offerBgItem.url : currentOffer.background_image_url;
+              // Fallback to the global media selection (or AI-picked list) so the offer scene
+              // is never left with just the dark default background.
+              const fallbackVideo = !bgVideo && !bgImage ? safeVideos[idx % Math.max(1, safeVideos.length)] : undefined;
+              const fallbackImage = !bgVideo && !bgImage && !fallbackVideo ? safeImages[idx % Math.max(1, safeImages.length)] : undefined;
+              const finalVideo = bgVideo || fallbackVideo;
+              const finalImage = bgImage || fallbackImage;
+              if (finalVideo || finalImage) {
                 return (
                   <>
-                    <VideoBackdrop src={bgVideo} image={bgImage} />
+                    <VideoBackdrop src={finalVideo} image={finalImage} />
                     <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.55) 0%,rgba(14,11,8,0.78) 100%)" }} />
                   </>
                 );
               }
               return null;
             })()}
-            <SceneOffer offer={offer} city={city} durationFrames={duration} textPosition={textPosition} />
+            <SceneOffer offer={currentOffer} city={city} durationFrames={duration} textPosition={textPosition} />
           </AbsoluteFill>
         );
+      }
       case "reviews": {
         const it = (sm.reviews || [])[0];
         return (
