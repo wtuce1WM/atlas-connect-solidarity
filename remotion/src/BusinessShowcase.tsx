@@ -1043,6 +1043,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   // Build the ordered scene plan (honors props.scene_order + props.scene_durations)
   const plan = buildScenePlan({
     offer,
+    offers,
     rating,
     reviewsCount,
     openingHours,
@@ -1051,6 +1052,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     showReviews,
     showOpeningHours,
     showMap,
+    showAppInstall,
     showDigitalId,
     slug,
     durationSec,
