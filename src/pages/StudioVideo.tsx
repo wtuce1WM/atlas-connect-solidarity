@@ -196,6 +196,7 @@ export default function StudioVideo() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selected, setSelected] = useState<Business | null>(null);
   const [duration, setDuration] = useState<15 | 30 | 45 | 60>(30);
+  const [durationAuto, setDurationAuto] = useState(true);
   const [tone, setTone] = useState("immersif");
   const [prompt, setPrompt] = useState("");
   const [submitting, setSubmitting] = useState(false);
