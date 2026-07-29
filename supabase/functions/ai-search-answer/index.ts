@@ -347,8 +347,8 @@ serve(async (req) => {
         return out.length ? out.join(", ") : undefined;
       };
       const fmtPrice = (r: any): string | undefined => {
+        if (r.min_price) return `Prix minimum constaté en réservation directe : ${Math.round(Number(r.min_price))} €`;
         if (r.manual_price_range) return String(r.manual_price_range);
-        if (r.min_price) return `à partir de ${r.min_price} MAD`;
         if (r.avg_price_range) return String(r.avg_price_range);
         return undefined;
       };
