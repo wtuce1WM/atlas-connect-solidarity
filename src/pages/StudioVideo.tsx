@@ -608,6 +608,23 @@ export default function StudioVideo() {
         directives.push(`Afficher UNIQUEMENT ces offres (dans cet ordre) :\n  * ${chosen.map(fmt).join("\n  * ")}`);
       }
     }
+    if (highlightsList.length > 0) {
+      const chosenH = highlightsList.filter((h) => selectedHighlightIds.has(h.id));
+      if (chosenH.length === 0) {
+        directives.push("Ne pas utiliser les blocs highlights de l'établissement.");
+      } else {
+        const fmtH = (h: typeof highlightsList[number]) => {
+          const bits: string[] = [];
+          if (h.title) bits.push(`titre « ${h.title.slice(0, 120)} »`);
+          if (h.description) bits.push(`texte « ${h.description.slice(0, 300)} »`);
+          if (h.metric_title || h.metric_value) bits.push(`chiffre-clé « ${(h.metric_value || "").slice(0, 40)}${h.metric_title ? ` — ${h.metric_title.slice(0, 60)}` : ""} »`);
+          if (h.icon) bits.push(`icône ${h.icon}`);
+          if (h.image_url) bits.push(`image ${h.image_url}`);
+          return bits.join(" · ");
+        };
+        directives.push(`Reprendre les blocs highlights suivants (dans cet ordre) comme séquences de la vidéo :\n  * ${chosenH.map(fmtH).join("\n  * ")}`);
+      }
+    }
     const chosenImages = Array.from(selectedImages);
     const chosenVideos = Array.from(selectedVideos);
     if (chosenImages.length > 0) directives.push(`Utiliser EXCLUSIVEMENT les images suivantes (dans cet ordre) pour le montage :\n  * ${chosenImages.join("\n  * ")}`);
