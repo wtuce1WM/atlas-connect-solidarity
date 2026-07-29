@@ -203,6 +203,7 @@ export default function StudioVideo() {
   const [previewing, setPreviewing] = useState(false);
   const [aiScenario, setAiScenario] = useState<{ scenario: Scenario; rationale?: string; templateId: string } | null>(null);
   const [scenarioEdits, setScenarioEdits] = useState<ScenarioEdits | null>(null);
+  const [addStepOpen, setAddStepOpen] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [businessNames, setBusinessNames] = useState<Record<string, string>>({});
   const [currentJobId, setCurrentJobIdState] = useState<string | null>(
