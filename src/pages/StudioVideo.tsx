@@ -402,6 +402,8 @@ export default function StudioVideo() {
       setPopupImageUrl(popupUrl);
       setLogoInfo({ url: b.logo_url ?? null, bg: b.logo_bg ?? null });
       setOptOpenWithLogo((b.logo_bg === "transparent") && !!b.logo_url);
+      setWhatsappNumber((b.whatsapp as string) || null);
+      setOptWhatsapp(false);
       setPopupMeta({ title: null, description: null });
       if (popupUrl) {
         supabase
