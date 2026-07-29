@@ -775,6 +775,13 @@ function SceneMediaSlot({
   );
 }
 
+function formatDuration(seconds: number): string {
+  if (!seconds || seconds < 0) return "0:00";
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${String(s).padStart(2, "0")}`;
+}
+
 function formatTime(seconds: number): string {
   const s = Math.round(seconds);
   return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}s`;
