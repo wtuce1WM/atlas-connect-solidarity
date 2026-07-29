@@ -989,6 +989,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   showDigitalId,
   slug,
   logoUrl,
+  openWithLogo,
   whatsapp,
   instagramUrl,
   ficheScreenshotUrl,
