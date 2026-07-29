@@ -202,6 +202,7 @@ export default function StudioVideo() {
   const [submitting, setSubmitting] = useState(false);
   const [previewing, setPreviewing] = useState(false);
   const [aiScenario, setAiScenario] = useState<{ scenario: Scenario; rationale?: string; templateId: string } | null>(null);
+  const [aiScenarioSig, setAiScenarioSig] = useState<string | null>(null);
   const [scenarioEdits, setScenarioEdits] = useState<ScenarioEdits | null>(null);
   const [addStepOpen, setAddStepOpen] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
