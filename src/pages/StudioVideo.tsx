@@ -228,14 +228,30 @@ export default function StudioVideo() {
   } | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
   const [optReviews, setOptReviews] = useState(true);
+  const [optGoogleReviews, setOptGoogleReviews] = useState(false);
+  const [optTripAdvisor, setOptTripAdvisor] = useState(false);
+  const [optRestaurantGuru, setOptRestaurantGuru] = useState(false);
+  const [optCustomerReview, setOptCustomerReview] = useState(false);
   const [optHours, setOptHours] = useState(true);
   const [optInstallCta, setOptInstallCta] = useState(true);
   const [optMapMarker, setOptMapMarker] = useState(true);
   const [optDigitalId, setOptDigitalId] = useState(true);
   const [optPopup, setOptPopup] = useState(true);
   const [optOpenWithLogo, setOptOpenWithLogo] = useState(true);
-  // Zone libre supprimée — remplacée par « Ajouter une étape » dans l'aperçu du scénario.
   const [logoInfo, setLogoInfo] = useState<{ url: string | null; bg: string | null }>({ url: null, bg: null });
+  const [platformData, setPlatformData] = useState<{
+    google: { rating: number | null; count: number | null; url: string | null };
+    tripadvisor: { rating: number | null; count: number | null; url: string | null };
+    restaurant_guru: { rating: number | null; count: number | null; url: string | null };
+  }>({
+    google: { rating: null, count: null, url: null },
+    tripadvisor: { rating: null, count: null, url: null },
+    restaurant_guru: { rating: null, count: null, url: null },
+  });
+  const [reviewsList, setReviewsList] = useState<Array<{ id: string; author: string | null; rating: number | null; text: string; source: string | null; published_at: string | null }>>([]);
+  const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
+  const [reviewHighlight, setReviewHighlight] = useState<string>("");
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [offersList, setOffersList] = useState<Array<{ id: string; title: string; message: string | null; promotion_type: string | null; promotion_value: number | null; promotion_currency: string | null; savings_amount: number | null }>>([]);
   const [selectedOfferIds, setSelectedOfferIds] = useState<Set<string>>(new Set());
   const [highlightsList, setHighlightsList] = useState<Array<{ id: string; icon: string | null; title: string; description: string; image_url: string | null; metric_title: string | null; metric_value: string | null; sort_order: number }>>([]);
@@ -314,6 +330,14 @@ export default function StudioVideo() {
       setSelectedOfferIds(new Set());
       setHighlightsList([]);
       setSelectedHighlightIds(new Set());
+      setReviewsList([]);
+      setSelectedReviewId(null);
+      setReviewHighlight("");
+      setPlatformData({
+        google: { rating: null, count: null, url: null },
+        tripadvisor: { rating: null, count: null, url: null },
+        restaurant_guru: { rating: null, count: null, url: null },
+      });
       return;
     }
     let cancelled = false;
@@ -322,10 +346,10 @@ export default function StudioVideo() {
     setSelectedVideos(new Set());
     setSceneMedia({});
     (async () => {
-      const [biz, docs, yt, promos, hls] = await Promise.all([
+      const [biz, docs, yt, promos, hls, revs] = await Promise.all([
         supabase
           .from("businesses")
-          .select("hook_fr,description,images,popup_image_url,opening_hours,show_opening_hours,is_active,logo_url,logo_bg")
+          .select("hook_fr,description,images,popup_image_url,opening_hours,show_opening_hours,is_active,logo_url,logo_bg,google_rating,google_review_count,google_review_url,google_reviews_url,google_maps_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,tripadvisor_review_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url")
           .eq("id", selected.id)
           .maybeSingle(),
         supabase
@@ -349,6 +373,14 @@ export default function StudioVideo() {
           .select("id,icon,sort_order,image_url,title_fr,description_fr,metric_title_fr,metric_value_fr")
           .eq("business_id", selected.id)
           .order("sort_order", { ascending: true }),
+        supabase
+          .from("reviews")
+          .select("id,author_name,rating,text,text_fr,source,published_at,is_hidden")
+          .eq("business_id", selected.id)
+          .eq("is_hidden", false)
+          .order("rating", { ascending: false })
+          .order("published_at", { ascending: false })
+          .limit(50),
       ]);
       if (cancelled) return;
       const b: any = biz.data ?? {};
@@ -416,6 +448,43 @@ export default function StudioVideo() {
         .filter((h) => h.title.length > 0 || h.description.length > 0 || !!h.image_url);
       setHighlightsList(mappedHl);
       setSelectedHighlightIds(new Set(mappedHl.map((h) => h.id)));
+      // Plateformes d'avis
+      const num = (v: unknown) => {
+        const n = Number(v);
+        return Number.isFinite(n) && n > 0 ? n : null;
+      };
+      setPlatformData({
+        google: {
+          rating: num(b.google_rating),
+          count: num(b.google_review_count),
+          url: (b.google_review_url || b.google_reviews_url || b.google_maps_url || null) as string | null,
+        },
+        tripadvisor: {
+          rating: num(b.tripadvisor_rating),
+          count: num(b.tripadvisor_review_count),
+          url: (b.tripadvisor_review_url || b.tripadvisor_url || null) as string | null,
+        },
+        restaurant_guru: {
+          rating: num(b.restaurant_guru_rating),
+          count: num(b.restaurant_guru_review_count),
+          url: (b.restaurant_guru_url || null) as string | null,
+        },
+      });
+      // Avis clients
+      const revsRaw = (revs.data ?? []) as any[];
+      const mappedRevs = revsRaw
+        .map((r) => ({
+          id: r.id as string,
+          author: (r.author_name ?? null) as string | null,
+          rating: (r.rating ?? null) as number | null,
+          text: stripHtml((r.text_fr || r.text || "") as string),
+          source: (r.source ?? null) as string | null,
+          published_at: (r.published_at ?? null) as string | null,
+        }))
+        .filter((r) => r.text.length > 0);
+      setReviewsList(mappedRevs);
+      setSelectedReviewId(null);
+      setReviewHighlight("");
       setBizStats({
         hook: b.hook_fr ?? null,
         descLen: (b.description ?? "").length,
@@ -603,6 +672,12 @@ export default function StudioVideo() {
             map_marker: optMapMarker,
             digital_id: optDigitalId,
             install_cta: optInstallCta,
+            google_reviews: optGoogleReviews,
+            tripadvisor: optTripAdvisor,
+            restaurant_guru: optRestaurantGuru,
+            customer_review: optCustomerReview,
+            customer_review_id: selectedReviewId,
+            customer_review_highlight: reviewHighlight || null,
             popup: optPopup,
             open_with_logo: !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo,
             logo_url: logoInfo.url,
@@ -726,6 +801,12 @@ export default function StudioVideo() {
             map_marker: optMapMarker,
             digital_id: optDigitalId,
             install_cta: optInstallCta,
+            google_reviews: optGoogleReviews,
+            tripadvisor: optTripAdvisor,
+            restaurant_guru: optRestaurantGuru,
+            customer_review: optCustomerReview,
+            customer_review_id: selectedReviewId,
+            customer_review_highlight: reviewHighlight || null,
             popup: optPopup,
             open_with_logo: !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo,
             logo_url: logoInfo.url,
@@ -1418,13 +1499,19 @@ export default function StudioVideo() {
                       >
                         <img src={popupImageUrl} alt="Popup" className="w-full h-full object-cover" />
                       </button>
-                      <div className="min-w-0 flex-1 text-xs">
-                        {popupMeta.title && <div className="font-semibold truncate">{popupMeta.title}</div>}
-                        {popupMeta.description ? (
-                          <div className="mt-1 text-muted-foreground line-clamp-3" dangerouslySetInnerHTML={{ __html: popupMeta.description }} />
-                        ) : (
-                          !popupMeta.title && <div className="text-muted-foreground italic">Aucun titre / texte associé</div>
-                        )}
+                      <div className="min-w-0 flex-1 text-xs space-y-1">
+                        <div>
+                          <span className="text-muted-foreground">Titre : </span>
+                          {popupMeta.title
+                            ? <span className="font-semibold">{popupMeta.title}</span>
+                            : <span className="text-muted-foreground italic">—</span>}
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Texte : </span>
+                          {popupMeta.description
+                            ? <span className="text-muted-foreground" dangerouslySetInnerHTML={{ __html: popupMeta.description }} />
+                            : <span className="text-muted-foreground italic">—</span>}
+                        </div>
                       </div>
                     </div>
                   </div>
