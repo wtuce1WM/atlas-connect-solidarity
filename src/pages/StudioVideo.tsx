@@ -1292,13 +1292,20 @@ export default function StudioVideo() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Durée</Label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap items-center">
+                  <Button
+                    type="button"
+                    variant={durationAuto ? "default" : "outline"}
+                    onClick={() => setDurationAuto(true)}
+                  >
+                    Laisse l'IA décider{durationAuto ? ` (~${autoDuration}s)` : ""}
+                  </Button>
                   {DURATIONS.map((d) => (
                     <Button
                       key={d}
                       type="button"
-                      variant={duration === d ? "default" : "outline"}
-                      onClick={() => setDuration(d)}
+                      variant={!durationAuto && duration === d ? "default" : "outline"}
+                      onClick={() => { setDurationAuto(false); setDuration(d); }}
                     >
                       {d}s
                     </Button>
