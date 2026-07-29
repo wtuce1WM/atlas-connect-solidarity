@@ -1840,6 +1840,30 @@ export default function StudioVideo() {
                     </label>
                   );
                 })()}
+                {(() => {
+                  const waAvailable = !selected || !!whatsappNumber;
+                  return (
+                    <div className={`rounded-md border border-border bg-background/40 p-2 ${waAvailable ? "" : "opacity-50"}`}>
+                      <label className={`flex items-start gap-2 ${waAvailable ? "cursor-pointer" : "cursor-not-allowed"}`} title={waAvailable ? undefined : "Aucun numéro WhatsApp renseigné"}>
+                        <input
+                          type="checkbox"
+                          className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto disabled:cursor-not-allowed"
+                          checked={waAvailable && optWhatsapp}
+                          disabled={!waAvailable}
+                          onChange={(e) => setOptWhatsapp(e.target.checked)}
+                        />
+                        <span className="font-medium text-sm">
+                          WhatsApp
+                          {selected && waAvailable && whatsappNumber && (
+                            <em className="ml-2 not-italic text-xs opacity-70 font-normal">{whatsappNumber}</em>
+                          )}
+                          {selected && !waAvailable && <em className="ml-2 text-xs opacity-70 font-normal">(numéro non renseigné)</em>}
+                        </span>
+                      </label>
+                      <p className="mt-1 pl-6 text-[11px] text-muted-foreground">Scène dédiée avec effet libre au montage — logo WhatsApp (#25D366), numéro et invitation à contacter.</p>
+                    </div>
+                  );
+                })()}
                 <label className="flex items-start gap-2 cursor-pointer">
                   <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optInstallCta} onChange={(e) => setOptInstallCta(e.target.checked)} />
                   <span>Incitation finale à installer l'app</span>
