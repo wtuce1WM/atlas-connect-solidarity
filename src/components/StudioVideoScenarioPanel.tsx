@@ -12,7 +12,7 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export type SceneMediaKind = "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro";
+export type SceneMediaKind = "logo" | "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro";
 
 export type SceneMediaItem = {
   url: string;
@@ -24,7 +24,7 @@ export type SceneMediaItem = {
 
 export type SceneMediaMap = Partial<Record<SceneMediaKind, SceneMediaItem[]>>;
 
-export const SCENE_KINDS_WITH_MEDIA: SceneMediaKind[] = ["hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro"];
+export const SCENE_KINDS_WITH_MEDIA: SceneMediaKind[] = ["logo", "hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro"];
 
 
 export type Scene = {
