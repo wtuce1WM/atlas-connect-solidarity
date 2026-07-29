@@ -113,8 +113,8 @@ function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
   switch (kind) {
     case "logo": return !!(p.openWithLogo && p.logoUrl);
     case "hook":
-    case "name":
-    case "media": return true;
+    case "name": return true;
+    case "media": return !!p.freeZone;
     case "cta": return p.showAppInstall !== false;
     case "offer": return !!p.offer || (Array.isArray(p.offers) && p.offers.length > 0);
     case "reviews": return !!(p.showReviews && (p.rating || p.reviewsCount));
