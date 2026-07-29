@@ -34,7 +34,7 @@ export type Scene = {
   start: number;
   description: string;
   keywords: string[];
-  icon: "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro" | "custom";
+  icon: "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "cta" | "outro" | "custom";
 };
 
 export type Scenario = {
@@ -61,6 +61,10 @@ const ICONS: Record<Scene["icon"], React.ReactNode> = {
   offer: <MessageSquare className="h-3.5 w-3.5" />,
   highlight: <Star className="h-3.5 w-3.5" />,
   reviews: <MessageSquare className="h-3.5 w-3.5" />,
+  google_review: <Star className="h-3.5 w-3.5" />,
+  tripadvisor: <Star className="h-3.5 w-3.5" />,
+  restaurant_guru: <Star className="h-3.5 w-3.5" />,
+  customer_review: <MessageSquare className="h-3.5 w-3.5" />,
   hours: <Calendar className="h-3.5 w-3.5" />,
   map: <MapPin className="h-3.5 w-3.5" />,
   digital: <QrCode className="h-3.5 w-3.5" />,
@@ -78,6 +82,10 @@ const LABELS: Record<Exclude<Scene["icon"], "custom">, string> = {
   offer: "Offre",
   highlight: "Bloc highlight",
   reviews: "Avis clients",
+  google_review: "Avis Google",
+  tripadvisor: "TripAdvisor",
+  restaurant_guru: "Restaurant Guru",
+  customer_review: "Témoignage client",
   hours: "Horaires",
   map: "Localisation",
   digital: "ID numérique",
