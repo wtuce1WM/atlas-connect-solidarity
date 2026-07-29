@@ -9,10 +9,9 @@ const corsHeaders = {
 };
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
-// Modèle "pro" pour précision et meilleur raisonnement multi-tools.
-// Cost optimization: default to flash (≈6× cheaper than pro). Pro is only used as upgrade fallback for degeneracy.
-const MODEL = "google/gemini-3-flash-preview";
-const FALLBACK_MODEL = "google/gemini-3-flash-preview";
+// Modèle Flash pour latence/cout ; Pro en fallback si dégénérescence.
+const MODEL = "google/gemini-3.6-flash";
+const FALLBACK_MODEL = "google/gemini-3.6-flash";
 const SEARCH_RESULT_LIMIT = 50;
 
 // ------------------------------------------------------------------
