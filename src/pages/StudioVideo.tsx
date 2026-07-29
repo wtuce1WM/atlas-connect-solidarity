@@ -257,7 +257,7 @@ export default function StudioVideo() {
     const imgs: SceneMediaItem[] = bizImages.map((url) => ({ url, kind: "image" }));
     const vids: SceneMediaItem[] = bizVideos
       .filter((v) => v.kind === "file")
-      .map((v) => ({ url: v.url, kind: "video", title: v.title, thumbnail: v.thumbnail }));
+      .map((v) => ({ url: v.url, kind: "video", title: v.title, thumbnail: v.thumbnail, duration: v.duration }));
     return [...imgs, ...vids];
   }, [bizImages, bizVideos]);
 
