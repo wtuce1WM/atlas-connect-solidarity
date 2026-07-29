@@ -1164,3 +1164,55 @@ function CustomSceneDialog({
   );
 }
 
+function SceneTextEditDialog({
+  open,
+  onOpenChange,
+  sceneKind,
+  currentLabel,
+  currentDescription,
+  onSubmit,
+  onReset,
+}: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  sceneKind: string | null;
+  currentLabel: string;
+  currentDescription: string;
+  onSubmit: (label: string, description: string) => void;
+  onReset: () => void;
+}) {
+  const [label, setLabel] = useState(currentLabel);
+  const [description, setDescription] = useState(currentDescription);
+  useEffect(() => {
+    if (open) {
+      setLabel(currentLabel);
+      setDescription(currentDescription);
+    }
+  }, [open, currentLabel, currentDescription]);
+  const kindLabel = sceneKind === "hook" ? "Hook" : sceneKind === "name" ? "Nom & identité" : "Étape";
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg bg-white text-black">
+        <DialogHeader>
+          <DialogTitle className="text-black">Modifier le texte — {kindLabel}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label className="text-black text-xs uppercase tracking-wider">Titre</Label>
+            <Input value={label} onChange={(e) => setLabel(e.target.value)} className="bg-white text-black" />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-black text-xs uppercase tracking-wider">Description / texte affiché</Label>
+            <Textarea rows={4} value={description} onChange={(e) => setDescription(e.target.value)} className="bg-white text-black" />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={onReset}>Réinitialiser</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Annuler</Button>
+          <Button onClick={() => onSubmit(label, description)}>Enregistrer</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
