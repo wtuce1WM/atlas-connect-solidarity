@@ -106,6 +106,25 @@ type Job = {
 };
 
 const DURATIONS = [15, 30, 45, 60] as const;
+
+function getVideoDuration(url: string): Promise<number | null> {
+  return new Promise((resolve) => {
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    video.onloadedmetadata = () => resolve(video.duration);
+    video.onerror = () => resolve(null);
+    video.src = url;
+    setTimeout(() => resolve(null), 10000);
+  });
+}
+
+function formatVideoDuration(seconds: number): string {
+  if (!seconds || seconds < 0) return "0:00";
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${String(s).padStart(2, "0")}`;
+}
+
 const TONES = [
   { value: "immersif", label: "Immersif" },
   { value: "dynamique", label: "Dynamique" },
