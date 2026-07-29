@@ -74,9 +74,9 @@ export type ShowcaseProps = {
   ficheScreenshotUrl?: string | null;
   durationSec?: number;
   useFullHookScene?: boolean;
-  scene_media?: Partial<Record<"hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro", Array<{ url: string; kind: "image" | "video" }>>>;
+  scene_media?: Partial<Record<"logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "whatsapp" | "cta" | "outro", Array<{ url: string; kind: "image" | "video" }>>>;
   scene_order?: Array<string>; // built-in kinds or `custom:<id>`
-  scene_durations?: Partial<Record<"hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro", number>>;
+  scene_durations?: Partial<Record<string, number>>;
   custom_scenes?: Array<{
     id: string;
     mode: "fullscreen" | "overlay";
@@ -90,6 +90,23 @@ export type ShowcaseProps = {
   freeZone?: boolean;
   freeZoneTitle?: string;
   freeZoneSubtitle?: string;
+  showPopup?: boolean;
+  popupImageUrl?: string | null;
+  popupTitle?: string | null;
+  popupDescription?: string | null;
+  highlights?: Array<{ id?: string; icon?: string | null; image_url?: string | null; title?: string; description?: string; metric_title?: string; metric_value?: string }> | null;
+  showGoogleReviews?: boolean;
+  googleReview?: { rating: number | null; count: number | null; url: string | null } | null;
+  showTripAdvisor?: boolean;
+  tripAdvisor?: { rating: number | null; count: number | null; url: string | null } | null;
+  showRestaurantGuru?: boolean;
+  restaurantGuru?: { rating: number | null; count: number | null; url: string | null } | null;
+  showCustomerReview?: boolean;
+  customerReview?: { id?: string; author?: string | null; rating?: number | null; text?: string; highlight?: string; source?: string | null } | null;
+  showWhatsapp?: boolean;
+  whatsappNumber?: string | null;
+  textSplits?: Record<string, number>;
+  splitCount?: number;
 };
 
 export const DIGITAL_ID_FRAMES = 150; // 5s — 2 phases (fiche, QR)
@@ -105,9 +122,9 @@ const splitHookInTwo = (h: string): [string, string] => {
   return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
 };
 
-type SceneKind = "logo" | "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro";
+type SceneKind = "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "whatsapp" | "cta" | "outro";
 
-const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta"];
+const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "popup", "hook", "name", "media", "highlight", "offer", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta"];
 
 function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
   switch (kind) {
@@ -115,12 +132,31 @@ function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
     case "hook":
     case "name": return true;
     case "media": return !!p.freeZone;
+    case "popup": return !!(p.showPopup && p.popupImageUrl);
+    case "highlight": return Array.isArray(p.highlights) && p.highlights.length > 0;
     case "cta": return p.showAppInstall !== false;
     case "offer": return !!p.offer || (Array.isArray(p.offers) && p.offers.length > 0);
     case "reviews": return !!(p.showReviews && (p.rating || p.reviewsCount));
+    case "google_review": {
+      const g = p.googleReview;
+      return !!(p.showGoogleReviews && g && (g.rating || g.count || g.url));
+    }
+    case "tripadvisor": {
+      const t = p.tripAdvisor;
+      return !!(p.showTripAdvisor && t && (t.rating || t.count || t.url));
+    }
+    case "restaurant_guru": {
+      const r = p.restaurantGuru;
+      return !!(p.showRestaurantGuru && r && (r.rating || r.count || r.url));
+    }
+    case "customer_review": {
+      const c = p.customerReview;
+      return !!(p.showCustomerReview && c && (c.text || c.highlight));
+    }
     case "hours": return !!(p.showOpeningHours && p.openingHours);
     case "map": return !!(p.showMap && p.latitude && p.longitude);
     case "digital": return !!(p.showDigitalId && p.slug);
+    case "whatsapp": return !!(p.showWhatsapp && p.whatsappNumber);
     case "outro": return p.showAppInstall !== false;
   }
 }
@@ -131,6 +167,8 @@ function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
     case "hook": return 120;
     case "name": return 120;
     case "media": return 150;
+    case "popup": return 120;
+    case "highlight": return 140;
     case "offer": {
       const lines = p.offer && Array.isArray(p.offer.lines) ? p.offer.lines.length : 0;
       return 120 + Math.min(lines, 6) * 22;
@@ -138,6 +176,11 @@ function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
     case "reviews":
     case "hours":
     case "map": return OPTION_SCENE_FRAMES;
+    case "google_review":
+    case "tripadvisor":
+    case "restaurant_guru": return 120;
+    case "customer_review": return 180;
+    case "whatsapp": return 120;
     case "digital": return DIGITAL_ID_FRAMES;
     case "cta":
     case "outro": return 150;
@@ -214,6 +257,26 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
   } else if (offersArr.length === 1) {
     for (const t of order) if (t.kind === "offer") t.offerIndex = 0;
   }
+
+  // Expand a single "highlight" token into N tokens (one per highlight block).
+  const highlightsArr = Array.isArray(p.highlights) ? p.highlights : [];
+  if (highlightsArr.length > 1) {
+    const expanded: Tok[] = [];
+    for (const t of order) {
+      if (t.kind === "highlight") {
+        for (let i = 0; i < highlightsArr.length; i++) {
+          expanded.push({ kind: "highlight", offerIndex: i });
+        }
+      } else {
+        expanded.push(t);
+      }
+    }
+    order = expanded;
+  } else if (highlightsArr.length === 1) {
+    for (const t of order) if (t.kind === "highlight") t.offerIndex = 0;
+  }
+
+
 
   const durOverride = (k: SceneKind): number | null => {
     const v = p.scene_durations?.[k];
@@ -969,32 +1032,185 @@ const removeDecorativeTaglineWords = (value: string): string =>
     .replace(/^[\s,.:;!?-]+|[\s,.:;!?-]+$/g, "")
     .trim();
 
-const SceneLogo: React.FC<{ logoUrl: string; durationFrames?: number }> = ({ logoUrl, durationFrames = 60 }) => {
+const SceneLogo: React.FC<{ logoUrl: string; durationFrames?: number; background?: { url: string; kind: "image" | "video" } | null }> = ({ logoUrl, durationFrames = 60, background = null }) => {
   const frame = useCurrentFrame();
   const s = spring({ frame, fps: 30, config: { damping: 18, stiffness: 120 } });
   const outStart = Math.max(20, durationFrames - 14);
   const out = 1 - ease(frame, outStart, durationFrames);
   const scale = interpolate(s, [0, 1], [0.85, 1]);
   return (
-    <AbsoluteFill
-      style={{
-        background: `radial-gradient(circle at 50% 50%, ${COLORS.terracotta}22 0%, ${COLORS.night} 70%)`,
-        alignItems: "center",
-        justifyContent: "center",
-        opacity: out,
-      }}
-    >
-      <Img
-        src={logoUrl}
-        style={{
-          maxWidth: "58%",
-          maxHeight: "58%",
-          objectFit: "contain",
-          opacity: s,
-          transform: `scale(${scale})`,
-          filter: "drop-shadow(0 8px 32px rgba(0,0,0,0.45))",
-        }}
-      />
+    <AbsoluteFill style={{ opacity: out }}>
+      {background ? (
+        background.kind === "video" ? (
+          <VideoCover src={background.url} from={0} duration={durationFrames} />
+        ) : (
+          <KenBurns src={background.url} from={0} duration={durationFrames} />
+        )
+      ) : (
+        <AbsoluteFill
+          style={{ background: `radial-gradient(circle at 50% 50%, ${COLORS.terracotta}22 0%, ${COLORS.night} 70%)` }}
+        />
+      )}
+      {background && (
+        <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0.55) 100%)" }} />
+      )}
+      <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
+        <Img
+          src={logoUrl}
+          style={{
+            maxWidth: "58%",
+            maxHeight: "58%",
+            objectFit: "contain",
+            opacity: s,
+            transform: `scale(${scale})`,
+            filter: "drop-shadow(0 8px 32px rgba(0,0,0,0.55))",
+          }}
+        />
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
+const ScenePopup: React.FC<{ imageUrl: string; title?: string | null; description?: string | null; durationFrames: number; textPosition?: TextPosition }> = ({ imageUrl, title, description, durationFrames, textPosition = "middle" }) => {
+  const frame = useCurrentFrame();
+  const inO = ease(frame, 0, 16);
+  const out = 1 - ease(frame, durationFrames - 14, durationFrames);
+  const desc = (description || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  return (
+    <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
+      <KenBurns src={imageUrl} from={0} duration={durationFrames} />
+      <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.15) 0%,rgba(0,0,0,0.7) 100%)" }} />
+      <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
+        {title && (
+          <div style={{ fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 54, lineHeight: 1.1, textShadow: "0 4px 20px rgba(0,0,0,0.7)", textAlign: "center" }}>
+            {title}
+          </div>
+        )}
+        {desc && (
+          <div style={{ marginTop: 18, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.35, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.6)" }}>
+            {desc.slice(0, 240)}
+          </div>
+        )}
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
+const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[number]; background?: string | null; backgroundIsVideo?: boolean; durationFrames: number; textPosition?: TextPosition }> = ({ data, background, backgroundIsVideo, durationFrames, textPosition = "middle" }) => {
+  const frame = useCurrentFrame();
+  const inO = ease(frame, 0, 16);
+  const out = 1 - ease(frame, durationFrames - 14, durationFrames);
+  const titleY = interpolate(spring({ frame: frame - 6, fps: 30, config: { damping: 18 } }), [0, 1], [30, 0]);
+  const heroImg = data.image_url || background || undefined;
+  return (
+    <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
+      {heroImg && (backgroundIsVideo && background === heroImg
+        ? <VideoCover src={heroImg} from={0} duration={durationFrames} />
+        : <KenBurns src={heroImg} from={0} duration={durationFrames} />)}
+      <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.4) 0%,rgba(0,0,0,0.75) 100%)" }} />
+      <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
+        <div style={{ fontFamily: body, color: COLORS.gold, fontSize: 20, letterSpacing: 6, textTransform: "uppercase", textAlign: "center" }}>
+          Signature
+        </div>
+        {data.title && (
+          <div style={{ marginTop: 14, transform: `translateY(${titleY}px)`, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 56, lineHeight: 1.1, textAlign: "center", textShadow: "0 4px 20px rgba(0,0,0,0.7)" }}>
+            {data.title}
+          </div>
+        )}
+        {data.description && (
+          <div style={{ marginTop: 20, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.4, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 620 }}>
+            {(data.description || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 280)}
+          </div>
+        )}
+        {(data.metric_title || data.metric_value) && (
+          <div style={{ marginTop: 28, padding: "14px 26px", border: `1px solid ${COLORS.gold}`, borderRadius: 14, fontFamily: display, color: COLORS.gold, fontSize: 28, textAlign: "center", background: "rgba(212,175,55,0.08)" }}>
+            {[data.metric_value, data.metric_title].filter(Boolean).join(" · ")}
+          </div>
+        )}
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
+const PLATFORM_META: Record<"google_review" | "tripadvisor" | "restaurant_guru", { label: string; brand: string; accent: string }> = {
+  google_review:   { label: "Google",          brand: "#4285F4", accent: "#EA4335" },
+  tripadvisor:     { label: "TripAdvisor",     brand: "#00AA6C", accent: "#F2B203" },
+  restaurant_guru: { label: "Restaurant Guru", brand: "#F26D21", accent: "#F2B203" },
+};
+
+const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "restaurant_guru"; rating: number | null; count: number | null; durationFrames: number; textPosition?: TextPosition }> = ({ kind, rating, count, durationFrames, textPosition = "middle" }) => {
+  const meta = PLATFORM_META[kind];
+  const frame = useCurrentFrame();
+  const inO = ease(frame, 0, 16);
+  const out = 1 - ease(frame, durationFrames - 14, durationFrames);
+  const badgeS = spring({ frame: frame - 10, fps: 30, config: { damping: 12, stiffness: 140 } });
+  return (
+    <AbsoluteFill style={{ opacity: Math.min(inO, out), padding: 60, ...textPositionStyle(textPosition) }}>
+      <div style={{ fontFamily: body, color: meta.brand, fontSize: 22, letterSpacing: 6, textTransform: "uppercase", textAlign: "center" }}>
+        Avis {meta.label}
+      </div>
+      <div style={{ marginTop: 28, alignSelf: "center", transform: `scale(${interpolate(badgeS, [0, 1], [0.85, 1])})`, padding: "28px 40px", background: "rgba(255,255,255,0.06)", border: `2px solid ${meta.brand}`, borderRadius: 22, textAlign: "center", boxShadow: `0 12px 48px ${meta.brand}44` }}>
+        {rating != null && (
+          <div style={{ fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 96, lineHeight: 1 }}>
+            {rating.toFixed(1)}<span style={{ fontSize: 40, color: meta.accent }}>/5</span>
+          </div>
+        )}
+        <div style={{ marginTop: 6, fontFamily: body, fontSize: 32, color: meta.accent }}>
+          {"★★★★★".slice(0, Math.round(rating ?? 0))}<span style={{ opacity: 0.3 }}>{"★★★★★".slice(Math.round(rating ?? 0))}</span>
+        </div>
+        {count != null && (
+          <div style={{ marginTop: 12, fontFamily: body, color: COLORS.cream, fontSize: 26 }}>
+            {count.toLocaleString("fr-FR")} avis
+          </div>
+        )}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+const SceneCustomerReview: React.FC<{ author?: string | null; rating?: number | null; highlight: string; durationFrames: number; textPosition?: TextPosition }> = ({ author, rating, highlight, durationFrames, textPosition = "middle" }) => {
+  const frame = useCurrentFrame();
+  const inO = ease(frame, 0, 20);
+  const out = 1 - ease(frame, durationFrames - 16, durationFrames);
+  const y = interpolate(spring({ frame: frame - 8, fps: 30, config: { damping: 18 } }), [0, 1], [40, 0]);
+  return (
+    <AbsoluteFill style={{ opacity: Math.min(inO, out), padding: 60, ...textPositionStyle(textPosition) }}>
+      <div style={{ transform: `translateY(${y}px)`, alignSelf: "center", maxWidth: 620, padding: 40, background: "rgba(14,11,8,0.75)", border: `1px solid ${COLORS.gold}55`, borderRadius: 22, textAlign: "center" }}>
+        <div style={{ fontFamily: display, fontSize: 100, color: COLORS.gold, lineHeight: 0.7, marginBottom: 12 }}>“</div>
+        <div style={{ fontFamily: body, color: COLORS.cream, fontSize: 30, lineHeight: 1.4 }}>
+          {highlight.slice(0, 320)}
+        </div>
+        {rating != null && Number.isFinite(rating) && (
+          <div style={{ marginTop: 20, fontFamily: body, color: COLORS.gold, fontSize: 30 }}>
+            {"★★★★★".slice(0, Math.round(rating))}<span style={{ opacity: 0.3 }}>{"★★★★★".slice(Math.round(rating))}</span>
+          </div>
+        )}
+        {author && (
+          <div style={{ marginTop: 16, fontFamily: body, color: "rgba(255,255,255,0.7)", fontSize: 24, letterSpacing: 2, textTransform: "uppercase" }}>
+            — {author}
+          </div>
+        )}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+const SceneWhatsapp: React.FC<{ number: string; durationFrames: number; textPosition?: TextPosition }> = ({ number, durationFrames, textPosition = "middle" }) => {
+  const frame = useCurrentFrame();
+  const inO = ease(frame, 0, 16);
+  const out = 1 - ease(frame, durationFrames - 14, durationFrames);
+  const pulse = 1 + 0.06 * Math.sin(frame / 8);
+  return (
+    <AbsoluteFill style={{ opacity: Math.min(inO, out), padding: 60, ...textPositionStyle(textPosition), alignItems: "center" }}>
+      <div style={{ transform: `scale(${pulse})`, width: 180, height: 180, borderRadius: 90, background: "#25D366", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 12px 48px rgba(37,211,102,0.45)" }}>
+        <svg viewBox="0 0 24 24" width="100" height="100" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.966-.273-.099-.471-.148-.67.15-.198.297-.767.966-.94 1.164-.173.198-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.148-.669-1.611-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.273.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.247-.694.247-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M20.52 3.449C18.24 1.245 15.24.02 12.045.02c-6.62 0-12 5.38-12 12.001 0 2.115.549 4.186 1.596 6.014L0 24l6.116-1.611a11.964 11.964 0 005.919 1.55h.005c6.616 0 11.998-5.38 11.998-12.002 0-3.203-1.249-6.213-3.518-8.488M12.045 21.789h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.999-3.648-.235-.374a9.86 9.86 0 01-1.511-5.234c0-5.463 4.443-9.906 9.905-9.906 2.649 0 5.135 1.03 7.008 2.9 1.873 1.872 2.905 4.359 2.904 7.005 0 5.463-4.444 9.907-9.933 9.907"/></svg>
+      </div>
+      <div style={{ marginTop: 28, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 44, letterSpacing: 1, textAlign: "center", textShadow: "0 4px 16px rgba(0,0,0,0.6)" }}>
+        {number}
+      </div>
+      <div style={{ marginTop: 14, fontFamily: body, color: "#25D366", fontSize: 26, letterSpacing: 4, textTransform: "uppercase" }}>
+        WhatsApp direct
+      </div>
     </AbsoluteFill>
   );
 };
@@ -1037,6 +1253,21 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   freeZone,
   freeZoneTitle,
   freeZoneSubtitle,
+  showPopup,
+  popupImageUrl,
+  popupTitle,
+  popupDescription,
+  highlights,
+  showGoogleReviews,
+  googleReview,
+  showTripAdvisor,
+  tripAdvisor,
+  showRestaurantGuru,
+  restaurantGuru,
+  showCustomerReview,
+  customerReview,
+  showWhatsapp,
+  whatsappNumber,
 }) => {
   const safeVideos = sanitizeUrls(videos);
   const safeImages = sanitizeUrls(images);
@@ -1102,6 +1333,19 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     scene_order,
     scene_durations,
     custom_scenes,
+    showPopup,
+    popupImageUrl,
+    highlights,
+    showGoogleReviews,
+    googleReview,
+    showTripAdvisor,
+    tripAdvisor,
+    showRestaurantGuru,
+    restaurantGuru,
+    showCustomerReview,
+    customerReview,
+    showWhatsapp,
+    whatsappNumber,
   });
 
   const customById = new Map<string, NonNullable<ShowcaseProps["custom_scenes"]>[number]>();
@@ -1158,12 +1402,78 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
   const renderBuiltinScene = (kind: SceneKind, duration: number, offerIndex?: number): React.ReactNode => {
     switch (kind) {
-      case "logo":
+      case "logo": {
+        const logoBg = Array.isArray((scene_media as any)?.logo) ? (scene_media as any).logo[0] : null;
         return (
-          <AbsoluteFill style={{ backgroundColor: COLORS.night, alignItems: "center", justifyContent: "center" }}>
-            <SceneLogo logoUrl={logoUrl!} durationFrames={duration} />
+          <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+            <SceneLogo logoUrl={logoUrl!} durationFrames={duration} background={logoBg} />
           </AbsoluteFill>
         );
+      }
+      case "popup": {
+        if (!popupImageUrl) return null;
+        return (
+          <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+            <ScenePopup imageUrl={popupImageUrl} title={popupTitle} description={popupDescription} durationFrames={duration} textPosition={textPosition} />
+          </AbsoluteFill>
+        );
+      }
+      case "highlight": {
+        const idx = typeof offerIndex === "number" ? offerIndex : 0;
+        const list = Array.isArray(highlights) ? highlights : [];
+        const h = list[idx];
+        if (!h) return null;
+        const hArr = Array.isArray((scene_media as any)?.highlight) ? (scene_media as any).highlight : [];
+        const bgItem = hArr[idx] ?? hArr[0];
+        return (
+          <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+            <SceneHighlight
+              data={h}
+              background={bgItem?.url ?? h.image_url ?? defaultGalleryList[idx % Math.max(defaultGalleryList.length, 1)] ?? null}
+              backgroundIsVideo={bgItem?.kind === "video"}
+              durationFrames={duration}
+              textPosition={textPosition}
+            />
+          </AbsoluteFill>
+        );
+      }
+      case "google_review":
+      case "tripadvisor":
+      case "restaurant_guru": {
+        const data = kind === "google_review" ? googleReview : kind === "tripadvisor" ? tripAdvisor : restaurantGuru;
+        if (!data) return null;
+        const bgArr = Array.isArray((scene_media as any)?.[kind]) ? (scene_media as any)[kind] : [];
+        const bg = bgArr[0];
+        return (
+          <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+            {bg ? (bg.kind === "video" ? <VideoBackdrop src={bg.url} /> : <VideoBackdrop image={bg.url} />) : null}
+            <ScenePlatformReview kind={kind} rating={data.rating ?? null} count={data.count ?? null} durationFrames={duration} textPosition={textPosition} />
+          </AbsoluteFill>
+        );
+      }
+      case "customer_review": {
+        if (!customerReview) return null;
+        const bgArr = Array.isArray((scene_media as any)?.customer_review) ? (scene_media as any).customer_review : [];
+        const bg = bgArr[0];
+        const text = (customerReview.highlight || customerReview.text || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+        return (
+          <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+            {bg ? (bg.kind === "video" ? <VideoBackdrop src={bg.url} /> : <VideoBackdrop image={bg.url} />) : <VideoBackdrop image={defaultGalleryList[0]} />}
+            <SceneCustomerReview author={customerReview.author} rating={customerReview.rating ?? null} highlight={text} durationFrames={duration} textPosition={textPosition} />
+          </AbsoluteFill>
+        );
+      }
+      case "whatsapp": {
+        if (!whatsappNumber) return null;
+        const bgArr = Array.isArray((scene_media as any)?.whatsapp) ? (scene_media as any).whatsapp : [];
+        const bg = bgArr[0];
+        return (
+          <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+            {bg ? (bg.kind === "video" ? <VideoBackdrop src={bg.url} /> : <VideoBackdrop image={bg.url} />) : null}
+            <SceneWhatsapp number={whatsappNumber} durationFrames={duration} textPosition={textPosition} />
+          </AbsoluteFill>
+        );
+      }
       case "hook":
         return heroIsVideo && heroMedia ? (
           <AbsoluteFill>

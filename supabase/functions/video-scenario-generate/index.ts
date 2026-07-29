@@ -473,7 +473,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         selImages.forEach((u) => allowedUrls.add(u));
         selVideos.forEach((u) => allowedUrls.add(u));
 
-        const ALLOWED_KINDS = new Set(["hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro"]);
+        const ALLOWED_KINDS = new Set(["logo", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro"]);
         const cleaned: Record<string, Array<{ url: string; kind: "image" | "video" }>> = {};
         for (const [k, v] of Object.entries(rawSceneMedia)) {
           if (!ALLOWED_KINDS.has(k) || !Array.isArray(v)) continue;
@@ -548,7 +548,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       }
 
       // Ordre et durées personnalisés des scènes (édités par l'utilisateur dans l'aperçu)
-      const ALLOWED_SCENE_KINDS = new Set(["logo", "hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro", "whatsapp"]);
+      const ALLOWED_SCENE_KINDS = new Set(["logo", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro"]);
       const rawOrder = options?.scene_order;
       let orderedFromClient: string[] | null = null;
       if (Array.isArray(rawOrder)) {
@@ -595,6 +595,22 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       // Le ton pilote le rendu Remotion (Ken Burns, fondus, finition visuelle).
       if (tone === "immersif" || tone === "dynamique" || tone === "elegant") {
         template_props.tone = tone;
+      }
+      // Découpe du texte sur le montage vidéo (nb d'étapes)
+      const rawSplitCount = Number(options?.split_count);
+      if (Number.isFinite(rawSplitCount) && rawSplitCount >= 1 && rawSplitCount <= 10) {
+        template_props.splitCount = Math.round(rawSplitCount);
+      }
+      const rawTextSplits = options?.text_splits;
+      if (rawTextSplits && typeof rawTextSplits === "object" && !Array.isArray(rawTextSplits)) {
+        const cleanedSplits: Record<string, number> = {};
+        for (const [k, v] of Object.entries(rawTextSplits)) {
+          const n = Number(v);
+          if (typeof k === "string" && Number.isFinite(n) && n >= 1 && n <= 10) {
+            cleanedSplits[k] = Math.round(n);
+          }
+        }
+        if (Object.keys(cleanedSplits).length) template_props.textSplits = cleanedSplits;
       }
       const googleRating = Number(businessDetails.google_rating);
       const computedRating = Number(businessDetails.computed_rating);

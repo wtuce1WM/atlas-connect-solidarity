@@ -1,86 +1,61 @@
-# Plan de migration Embed IA → AI SDK
+## Diagnostic — cause racine
 
-## Objectif
+Les 5 options sont bien envoyées par le client `StudioVideo.tsx` et parfois traduites en props par `video-scenario-generate/index.ts`, mais **la template Remotion `BusinessShowcase.tsx` ne connaît pas ces scènes**. Résultat : le serveur pose `showPopup`, `highlights`, `showGoogleReviews`, etc. dans `template_props`, mais Remotion les ignore silencieusement au rendu.
 
-Migrer `embed-ai-chat` (edge function) et `EmbedAsk.tsx` (front) du `fetch` SSE custom vers l'AI SDK officiel + provider Lovable AI Gateway, **sans casser** les routes déterministes existantes (weather, events, search, map, nearby overview, POI nearby, blog RAG, suggestions ciblées, followups paramétrables).
+Détail par point :
 
-## Principe directeur
+| Défaillance | Où ça casse |
+|---|---|
+| Média de fond « Ouverture logo » | `ALLOWED_KINDS` (edge fn L.476) exclut `"logo"` → `scene_media.logo` filtré côté serveur. `SceneLogo` (Remotion L.972) ne prend même pas de prop `background`. |
+| Découper le texte en X étapes | Client envoie `text_splits`. Serveur ne lit jamais cette clé. Aucun prop `splitCount` côté Remotion. |
+| Popup ignoré | Serveur pose `showPopup` + `popupImageUrl` mais aucune `SceneKind = "popup"` dans Remotion. |
+| Blocs highlights ignorés | Serveur pose `template_props.highlights` mais aucune scène côté Remotion. |
+| Avis Google / TripAdvisor / Témoignage client ignorés | Serveur pose `showGoogleReviews`, `showTripAdvisor`, `showCustomerReview` et leurs payloads, mais aucune scène dédiée dans Remotion (seule la scène `reviews` générique existe). |
 
-Les routes déterministes (météo, events, search filtré, map, nearby, POI, count disclosure, pin-to-top) sont notre valeur ajoutée : elles restent **en amont** de l'AI SDK. L'AI SDK ne remplace que la partie "appel LLM + streaming" quand aucune route déterministe ne matche.
+## Plan d'implémentation
 
-```text
-requête ──► routeur déterministe ─┬─► réponse figée (weather/events/nearby/POI/...)
-                                  └─► fallback ──► AI SDK streamText ──► toUIMessageStreamResponse
-```
+### 1. `remotion/src/BusinessShowcase.tsx` — ajouter les scènes manquantes
+- Étendre `SceneKind` avec : `popup`, `highlight`, `google_reviews`, `tripadvisor`, `restaurant_guru`, `customer_review`, `whatsapp`.
+- Ajouter les props correspondantes (`showPopup`, `popupImageUrl`, `highlights[]`, `googleReview`, `tripAdvisor`, `restaurantGuru`, `customerReview`, `showWhatsapp`, `whatsappNumber`).
+- Créer les composants scènes :
+  - `ScenePopup` : image popup plein cadre + overlay titre/texte.
+  - `SceneHighlight` : une scène par bloc (title, description, image_url, metric).
+  - `SceneGoogleReviews` / `SceneTripAdvisor` / `SceneRestaurantGuru` : logo plateforme + note + nombre d'avis.
+  - `SceneCustomerReview` : témoignage encadré (auteur, note, texte highlight).
+  - `SceneWhatsapp` : logo #25D366 + numéro cliquable animé.
+- Étendre `isSceneActive`, `defaultSceneFrames`, `DEFAULT_SCENE_ORDER` et `buildScenePlan` pour émettre une entrée par highlight (comme les offres multiples).
+- **Média de fond logo** : `SceneLogo` accepte un `background?: { url; kind }` optionnel tiré de `scene_media.logo?.[0]`.
+- **Découpage texte** : ajouter prop `splitCount` — la scène `media` (montage vidéos/images) découpe la description du hook / tagline en `splitCount` cartons synchronisés avec le nombre de clips.
 
-## Étapes
+### 2. `supabase/functions/video-scenario-generate/index.ts` — brancher les options
+- Ajouter `"logo"` à `ALLOWED_KINDS` (L.476) pour laisser passer `scene_media.logo`.
+- Lire `options.text_splits` (entier 1–10) → `template_props.splitCount`.
+- Ajouter aux `ALLOWED_SCENE_KINDS` (L.551) : `popup`, `highlight`, `google_reviews`, `tripadvisor`, `restaurant_guru`, `customer_review`.
+- Auto-injection dans `scene_order` par défaut quand :
+  - `showPopup` → insérer `popup` après `logo`
+  - `highlights.length > 0` → insérer autant d'entrées `highlight` après `media`
+  - `showGoogleReviews` / `showTripAdvisor` / `showRestaurantGuru` / `showCustomerReview` → insérer avant `hours`
+  - `showWhatsapp` → insérer avant `cta`
+- Ne pas casser un `scene_order` explicite envoyé par le client (l'utilisateur peut ré-ordonner dans l'aperçu).
 
-### 1. Helper partagé Lovable AI Gateway
-- Créer `supabase/functions/_shared/ai-gateway.ts` avec `createLovableAiGatewayProvider` (pattern `ai-sdk-lovable-gateway`, header `Lovable-API-Key`, `X-Lovable-AIG-SDK: vercel-ai-sdk`, capture `X-Lovable-AIG-Run-ID`).
-- Réutilisable par toutes les edge functions IA (club-ai-chat, embed-ai-chat, futures).
+### 3. `src/pages/StudioVideo.tsx` + `StudioVideoScenarioPanel.tsx` — refléter dans l'aperçu
+- Injecter les nouvelles scènes dans la prévisualisation client (le tableau `scenes` construit avant `Prévisualiser le scénario`).
+- Ajouter les icônes/labels correspondants.
+- S'assurer que la signature de staleness inclut `optPopup`, `selectedHighlightIds`, `optGoogleReviews`, etc. (probablement déjà OK, à vérifier).
 
-### 2. Refactor `embed-ai-chat` — couche routeur (inchangée)
-- Garder tel quel : détection langue, cache sémantique, routes weather/events/nearby/POI/count, pin-to-top, filtre `closure_message`, blog RAG, suggestions ciblées (subcategories/badges/city/destinations/business_ids), followups (radius_km, mode).
-- Ces routes retournent déjà des `Response` SSE fabriquées manuellement → à convertir en `createUIMessageStream` de l'AI SDK pour parler le même protocole que le fallback LLM.
+### 4. Vérification
+- Rendre un job avec toutes les options cochées sur Riad Dar Najat (popup + 2 highlights + Google + TripAdvisor + témoignage + logo transparent avec vidéo de fond + `text_splits=3`).
+- Contrôler dans `template_props` (via `video_jobs`) que tous les champs remontent.
+- Vérifier le rendu final MP4 : logo avec fond vidéo, popup, 2 scènes highlights, 3 scènes plateformes d'avis, témoignage.
 
-### 3. Refactor `embed-ai-chat` — couche LLM (migrée)
-- Remplacer le `fetch` direct vers `/chat/completions` + parsing SSE par :
-  ```ts
-  const result = streamText({ model: gateway("google/gemini-3.6-flash"), system, messages });
-  return result.toUIMessageStreamResponse({ headers: corsHeaders });
-  ```
-- Les marqueurs actuels (`<!--SHOW_ON_MAP-->`, `<!--BLOG_CARDS-->`, `<!--RESULTS-->`) restent injectés dans le texte pour compat, ou migrés en `data parts` typés (phase 2).
+## Points techniques
 
-### 4. Refactor `EmbedAsk.tsx` — client
-- Remplacer le `fetch` + `ReadableStream` manuel par `useChat({ id, transport: new DefaultChatTransport({ api: ".../embed-ai-chat" }) })`.
-- Rendre `message.parts` au lieu du string concaténé.
-- Garder la logique de parsing des marqueurs (SHOW_ON_MAP, RESULTS, BLOG_CARDS) au-dessus de `message.parts.text` pendant la transition.
-- Conserver : reset session, suggestions dynamiques, followups, googlemap host marker, miniatures Mindtrip.
+- **Ordre par défaut proposé** : `logo → popup → hook → name → media → highlight×N → offer×N → reviews → google_reviews → tripadvisor → restaurant_guru → customer_review → hours → map → digital → whatsapp → cta → outro`.
+- **Durées par défaut** : `popup` = 120f, `highlight` = 140f, plateformes d'avis = 120f, `customer_review` = 180f, `whatsapp` = 120f.
+- **Découpage texte** : si `splitCount=N` et la scène `media` a M clips, on répartit le hook/description en N segments et on affiche 1 segment par tranche de `duration/N` frames, indépendamment du nombre de clips.
+- **Fallback logo background** : si `scene_media.logo[0]` est une vidéo → `<Video>` en fond avec overlay ; sinon image ; sinon fond de marque actuel.
+- Aucun changement de schéma DB.
 
-### 5. Migration des outils (phase 2, optionnelle)
-- Une fois le fallback LLM stable, exposer certaines routes déterministes comme `tool()` AI SDK (`get_weather`, `search_businesses`, `search_events`, `show_on_map`) au lieu de les court-circuiter en amont.
-- Avantage : le modèle peut chaîner (ex: search → map). Inconvénient : perte du contrôle strict actuel.
-- **Décision** : à discuter après la phase 1. Pour l'instant on garde le routeur déterministe en amont.
+Ampleur estimée : ~600 lignes de code Remotion (nouvelles scènes), ~40 lignes serveur, ~80 lignes client. Pas de dépendance externe.
 
-### 6. Tests avant de considérer la migration OK
-- Chaque suggestion Embed IA testée sur `/embed/ask/riad-dar-najat` : weather, events, search filtré, nearby overview, POI nearby, blog RAG.
-- Vérifier streaming fluide, marqueurs bien parsés, miniatures affichées, googlemap host marker OK.
-- Vérifier logs AI Gateway (`X-Lovable-AIG-Run-ID` propagé).
-- Vérifier snippet Wix (`wtucemorocco.wixstudio.com`) toujours fonctionnel.
-
-### 7. Rollout
-- Branche de travail, tests sur Riad Dar Najat.
-- Une fois validé : appliquer le même pattern à `club-ai-chat` (streaming SSE déjà en place, migration plus mécanique).
-
-## Ce qui NE change PAS
-
-- Backoffice IA (dashboards, suggestions, followups, embed usage).
-- Tables `embed_ai_suggestions`, `embed_ai_followups`, `ai_config`.
-- Routes déterministes et leur logique métier.
-- Design des miniatures, map slide panel, blog cards.
-
-## Ce qui change côté code
-
-| Fichier | Avant | Après |
-|---|---|---|
-| `supabase/functions/_shared/ai-gateway.ts` | n'existe pas | provider helper partagé |
-| `supabase/functions/embed-ai-chat/index.ts` | `fetch` + SSE manuel | `streamText` + `toUIMessageStreamResponse` |
-| `src/pages/EmbedAsk.tsx` | `fetch` + `ReadableStream` | `useChat` + `DefaultChatTransport` |
-
-## Détails techniques
-
-- Deno imports : `import { streamText } from "npm:ai"` et `import { createOpenAICompatible } from "npm:@ai-sdk/openai-compatible"`.
-- Front : `@ai-sdk/react` + `ai` (déjà installables via bun).
-- Le `sessionId` actuel devient l'`id` de `useChat` pour keyer les conversations.
-- Les suggestions/followups continuent d'être injectés via `sendMessage({ text, data: { suggestionId, followupId } })`.
-
-## Estimation
-
-- Étape 1-2 : ~1 session (helper + wiring routeur).
-- Étape 3-4 : ~1 session (LLM + client).
-- Étape 6 : ~1 session de tests.
-- Total : 3 sessions ciblées, sans régression visible pour l'utilisateur final.
-
-## Prochaine action
-
-Si tu valides, je commence par l'étape 1 (helper partagé) + étape 2 (adapter les routes déterministes au protocole UIMessageStream), sans encore toucher au fallback LLM ni au front.
+Je pars là-dessus ?
