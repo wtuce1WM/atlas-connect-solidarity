@@ -1106,8 +1106,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         </AbsoluteFill>
       );
     }
-    return renderBuiltinScene(kind as SceneKind, duration);
+    return renderBuiltinScene(kind as SceneKind, duration, item.offerIndex);
   };
+
+  const offersArr: NonNullable<ShowcaseProps["offers"]> = Array.isArray(offers) && offers.length > 0
+    ? offers
+    : (offer ? [offer] : []);
 
   const renderBuiltinScene = (kind: SceneKind, duration: number): React.ReactNode => {
     switch (kind) {
