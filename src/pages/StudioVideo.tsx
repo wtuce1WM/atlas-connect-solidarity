@@ -288,6 +288,8 @@ export default function StudioVideo() {
       setSceneMedia({});
       setOffersList([]);
       setSelectedOfferIds(new Set());
+      setHighlightsList([]);
+      setSelectedHighlightIds(new Set());
       return;
     }
     let cancelled = false;
