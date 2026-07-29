@@ -291,6 +291,8 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--DESTINATION_CARDS:[\s\S]*$/g, "")
     .replace(/<!--PINNED_BUSINESS_CARDS:[\s\S]*$/g, "")
     .replace(/<!--WEATHER_FORECAST:[\s\S]*$/g, "")
+    .replace(/<!--POOL_BUSINESS_IDS:[\s\S]*?-->/g, "")
+    .replace(/<!--POOL_BUSINESS_IDS:[\s\S]*$/g, "")
     .trim();
   clean = linkifyPhones(clean);
   return { clean, maps, events, known, articles, destinations, pinned, weather };
