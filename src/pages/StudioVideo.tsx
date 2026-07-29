@@ -538,9 +538,28 @@ export default function StudioVideo() {
 
   const promptKeywords = useMemo(() => extractKeywords(prompt), [prompt]);
 
+  // Durée calculée automatiquement à partir des étapes actives du scénario.
+  const autoDuration = useMemo(() => {
+    let s = 4 + 3; // hook + name
+    const canLogo = !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo;
+    if (canLogo) s += 2;
+    const offerCount = selectedOfferIds.size;
+    if (offerCount > 0) s += Math.min(6, offerCount) * 5;
+    if (optFreeZone) s += 5;
+    if (optReviews) s += 3;
+    if (optHours) s += 3;
+    if (optMapMarker) s += 3;
+    if (optDigitalId) s += 4;
+    s += 3; // cta
+    if (optInstallCta) s += 2; // outro
+    return Math.max(10, Math.min(90, s));
+  }, [logoInfo, optOpenWithLogo, selectedOfferIds, optFreeZone, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta]);
+
+  const effectiveDuration = durationAuto ? autoDuration : duration;
+
   const scenario = useMemo(() => {
     if (!prompt.trim() || prompt.length < 20) return null;
-    return buildScenario(prompt, selected?.name ?? null, duration, {
+    return buildScenario(prompt, selected?.name ?? null, effectiveDuration, {
       reviews: optReviews,
       hours: optHours,
       mapMarker: optMapMarker,
@@ -550,7 +569,7 @@ export default function StudioVideo() {
       freeZoneTitle,
       freeZoneSubtitle,
     });
-  }, [prompt, selected?.name, duration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optFreeZone, freeZoneTitle, freeZoneSubtitle]);
+  }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optFreeZone, freeZoneTitle, freeZoneSubtitle]);
 
   const mediaMatches = useMemo(() => {
     const matches = new Map<string, string[]>();
