@@ -430,6 +430,26 @@ export default function StudioVideo() {
     };
   }, [selected]);
 
+  // Load file video durations
+  useEffect(() => {
+    let cancelled = false;
+    const fileVideos = bizVideos.filter((v) => v.kind === "file" && v.duration == null);
+    if (fileVideos.length === 0) return;
+    const load = async () => {
+      const durations: Record<string, number> = {};
+      for (const v of fileVideos) {
+        const d = await getVideoDuration(v.url);
+        if (d != null) durations[v.url] = d;
+      }
+      if (!cancelled) {
+        setBizVideos((prev) => prev.map((v) => (v.url in durations ? { ...v, duration: durations[v.url] } : v)));
+      }
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [bizVideos]);
+
+
   // Update prompt automatically when selected business changes
   useEffect(() => {
     if (refineFrom) return;
