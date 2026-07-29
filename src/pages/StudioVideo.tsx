@@ -214,6 +214,8 @@ export default function StudioVideo() {
   const [optPopup, setOptPopup] = useState(true);
   const [offersList, setOffersList] = useState<Array<{ id: string; title: string; message: string | null; promotion_type: string | null; promotion_value: number | null; promotion_currency: string | null; savings_amount: number | null }>>([]);
   const [selectedOfferIds, setSelectedOfferIds] = useState<Set<string>>(new Set());
+  const [highlightsList, setHighlightsList] = useState<Array<{ id: string; icon: string | null; title: string; description: string; image_url: string | null; metric_title: string | null; metric_value: string | null; sort_order: number }>>([]);
+  const [selectedHighlightIds, setSelectedHighlightIds] = useState<Set<string>>(new Set());
   const [bizImages, setBizImages] = useState<string[]>([]);
   const [bizVideos, setBizVideos] = useState<{ url: string; thumbnail: string | null; title: string; kind: "file" | "youtube" }[]>([]);
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
@@ -286,6 +288,8 @@ export default function StudioVideo() {
       setSceneMedia({});
       setOffersList([]);
       setSelectedOfferIds(new Set());
+      setHighlightsList([]);
+      setSelectedHighlightIds(new Set());
       return;
     }
     let cancelled = false;
@@ -294,7 +298,7 @@ export default function StudioVideo() {
     setSelectedVideos(new Set());
     setSceneMedia({});
     (async () => {
-      const [biz, docs, yt, promos] = await Promise.all([
+      const [biz, docs, yt, promos, hls] = await Promise.all([
         supabase
           .from("businesses")
           .select("hook_fr,description,images,popup_image_url,opening_hours,show_opening_hours,is_active")
@@ -314,6 +318,11 @@ export default function StudioVideo() {
         supabase
           .from("affiliate_business_promotions")
           .select("id, title, title_fr, promotion_message, promotion_message_fr, promotion_type, promotion_value, promotion_currency, savings_amount")
+          .eq("business_id", selected.id)
+          .order("sort_order", { ascending: true }),
+        supabase
+          .from("front_highlights")
+          .select("id,icon,sort_order,image_url,title_fr,description_fr,metric_title_fr,metric_value_fr")
           .eq("business_id", selected.id)
           .order("sort_order", { ascending: true }),
       ]);
@@ -365,6 +374,22 @@ export default function StudioVideo() {
       }));
       setOffersList(mappedOffers);
       setSelectedOfferIds(new Set(mappedOffers.map((o) => o.id)));
+      const stripHtml = (s: string | null) => (s || "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+      const hlRaw = (hls.data ?? []) as any[];
+      const mappedHl = hlRaw
+        .map((h) => ({
+          id: h.id as string,
+          icon: (h.icon ?? null) as string | null,
+          title: stripHtml(h.title_fr),
+          description: stripHtml(h.description_fr),
+          image_url: (h.image_url ?? null) as string | null,
+          metric_title: stripHtml(h.metric_title_fr) || null,
+          metric_value: stripHtml(h.metric_value_fr) || null,
+          sort_order: (h.sort_order ?? 0) as number,
+        }))
+        .filter((h) => h.title.length > 0 || h.description.length > 0 || !!h.image_url);
+      setHighlightsList(mappedHl);
+      setSelectedHighlightIds(new Set(mappedHl.map((h) => h.id)));
       setBizStats({
         hook: b.hook_fr ?? null,
         descLen: (b.description ?? "").length,
@@ -516,6 +541,7 @@ export default function StudioVideo() {
             install_cta: optInstallCta,
             popup: optPopup,
             offer_ids: Array.from(selectedOfferIds),
+            highlight_ids: Array.from(selectedHighlightIds),
             selected_images: chosenImages,
             selected_videos: chosenVideos,
             scene_media: sceneMedia,
@@ -583,6 +609,23 @@ export default function StudioVideo() {
         directives.push(`Afficher UNIQUEMENT ces offres (dans cet ordre) :\n  * ${chosen.map(fmt).join("\n  * ")}`);
       }
     }
+    if (highlightsList.length > 0) {
+      const chosenH = highlightsList.filter((h) => selectedHighlightIds.has(h.id));
+      if (chosenH.length === 0) {
+        directives.push("Ne pas utiliser les blocs highlights de l'établissement.");
+      } else {
+        const fmtH = (h: typeof highlightsList[number]) => {
+          const bits: string[] = [];
+          if (h.title) bits.push(`titre « ${h.title.slice(0, 120)} »`);
+          if (h.description) bits.push(`texte « ${h.description.slice(0, 300)} »`);
+          if (h.metric_title || h.metric_value) bits.push(`chiffre-clé « ${(h.metric_value || "").slice(0, 40)}${h.metric_title ? ` — ${h.metric_title.slice(0, 60)}` : ""} »`);
+          if (h.icon) bits.push(`icône ${h.icon}`);
+          if (h.image_url) bits.push(`image ${h.image_url}`);
+          return bits.join(" · ");
+        };
+        directives.push(`Reprendre les blocs highlights suivants (dans cet ordre) comme séquences de la vidéo :\n  * ${chosenH.map(fmtH).join("\n  * ")}`);
+      }
+    }
     const chosenImages = Array.from(selectedImages);
     const chosenVideos = Array.from(selectedVideos);
     if (chosenImages.length > 0) directives.push(`Utiliser EXCLUSIVEMENT les images suivantes (dans cet ordre) pour le montage :\n  * ${chosenImages.join("\n  * ")}`);
@@ -616,6 +659,7 @@ export default function StudioVideo() {
             install_cta: optInstallCta,
             popup: optPopup,
             offer_ids: Array.from(selectedOfferIds),
+            highlight_ids: Array.from(selectedHighlightIds),
             selected_images: chosenImages,
             selected_videos: chosenVideos,
             scene_media: sceneMedia,
@@ -1325,6 +1369,50 @@ export default function StudioVideo() {
                                   className="mt-1 text-muted-foreground line-clamp-2"
                                   dangerouslySetInnerHTML={{ __html: o.message }}
                                 />
+                              )}
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+                {highlightsList.length > 0 && (
+                  <div className="rounded-md border border-border bg-background/40 p-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="font-medium">Blocs highlights ({highlightsList.length})</div>
+                      <div className="flex gap-2 text-xs">
+                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedHighlightIds(new Set(highlightsList.map((h) => h.id)))}>Tout</button>
+                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedHighlightIds(new Set())}>Aucun</button>
+                      </div>
+                    </div>
+                    <div className="mt-2 flex flex-col gap-1.5">
+                      {highlightsList.map((h) => {
+                        const checked = selectedHighlightIds.has(h.id);
+                        return (
+                          <label key={h.id} className="flex items-start gap-2 cursor-pointer rounded-md border border-border/60 p-2 hover:bg-muted/40">
+                            <input
+                              type="checkbox"
+                              className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                              checked={checked}
+                              onChange={(e) => {
+                                setSelectedHighlightIds((prev) => {
+                                  const next = new Set(prev);
+                                  if (e.target.checked) next.add(h.id); else next.delete(h.id);
+                                  return next;
+                                });
+                              }}
+                            />
+                            {h.image_url ? (
+                              <img src={h.image_url} alt="" className="w-12 h-12 rounded object-cover shrink-0" />
+                            ) : (
+                              <div className="w-12 h-12 rounded bg-muted flex items-center justify-center shrink-0 text-lg">{h.icon || "✨"}</div>
+                            )}
+                            <div className="min-w-0 flex-1 text-xs">
+                              <div className="font-semibold truncate">{h.title || <em className="text-muted-foreground">(sans titre)</em>}</div>
+                              {h.description && <div className="mt-1 text-muted-foreground line-clamp-2">{h.description}</div>}
+                              {(h.metric_title || h.metric_value) && (
+                                <div className="mt-1 text-[#C04F17] font-semibold">{h.metric_value} {h.metric_title && <span className="text-muted-foreground font-normal">— {h.metric_title}</span>}</div>
                               )}
                             </div>
                           </label>
