@@ -1059,6 +1059,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     showAppInstall,
     showDigitalId,
     slug,
+    logoUrl,
+    openWithLogo,
     durationSec,
     scene_order,
     scene_durations,
