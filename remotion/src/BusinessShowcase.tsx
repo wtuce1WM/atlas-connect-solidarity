@@ -1162,27 +1162,36 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             <HookOverlay text={hookPart2 || hookPart1} duration={duration} textPosition={textPosition} />
           </AbsoluteFill>
         );
-      case "offer":
-        if (!offer) return null;
+      case "offer": {
+        const idx = typeof offerIndex === "number" ? offerIndex : 0;
+        const currentOffer = offersArr[idx] ?? offer;
+        if (!currentOffer) return null;
         return (
           <AbsoluteFill>
             {(() => {
-              const offerBgItem = offerOverride[0];
-              const bgVideo = offerBgItem?.kind === "video" ? offerBgItem.url : offer.background_video_url;
-              const bgImage = offerBgItem?.kind === "image" ? offerBgItem.url : offer.background_image_url;
-              if (bgVideo || bgImage) {
+              const offerBgItem = offerOverride[idx] ?? offerOverride[0];
+              const bgVideo = offerBgItem?.kind === "video" ? offerBgItem.url : currentOffer.background_video_url;
+              const bgImage = offerBgItem?.kind === "image" ? offerBgItem.url : currentOffer.background_image_url;
+              // Fallback to the global media selection (or AI-picked list) so the offer scene
+              // is never left with just the dark default background.
+              const fallbackVideo = !bgVideo && !bgImage ? safeVideos[idx % Math.max(1, safeVideos.length)] : undefined;
+              const fallbackImage = !bgVideo && !bgImage && !fallbackVideo ? safeImages[idx % Math.max(1, safeImages.length)] : undefined;
+              const finalVideo = bgVideo || fallbackVideo;
+              const finalImage = bgImage || fallbackImage;
+              if (finalVideo || finalImage) {
                 return (
                   <>
-                    <VideoBackdrop src={bgVideo} image={bgImage} />
+                    <VideoBackdrop src={finalVideo} image={finalImage} />
                     <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.55) 0%,rgba(14,11,8,0.78) 100%)" }} />
                   </>
                 );
               }
               return null;
             })()}
-            <SceneOffer offer={offer} city={city} durationFrames={duration} textPosition={textPosition} />
+            <SceneOffer offer={currentOffer} city={city} durationFrames={duration} textPosition={textPosition} />
           </AbsoluteFill>
         );
+      }
       case "reviews": {
         const it = (sm.reviews || [])[0];
         return (
