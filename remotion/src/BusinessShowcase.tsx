@@ -87,6 +87,9 @@ export type ShowcaseProps = {
   }>;
   textPosition?: TextPosition;
   tone?: Tone;
+  freeZone?: boolean;
+  freeZoneTitle?: string;
+  freeZoneSubtitle?: string;
 };
 
 export const DIGITAL_ID_FRAMES = 150; // 5s — 2 phases (fiche, QR)
