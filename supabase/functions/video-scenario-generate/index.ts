@@ -556,11 +556,6 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
             cleanedOrder.push(k);
           }
         }
-          if (ALLOWED_SCENE_KINDS.has(k) || allowedCustomIds.has(k)) {
-            seen.add(k);
-            cleanedOrder.push(k);
-          }
-        }
         if (cleanedOrder.length) orderedFromClient = cleanedOrder;
       }
       // Si logo intro demandé, on force sa présence en tête de l'ordre.

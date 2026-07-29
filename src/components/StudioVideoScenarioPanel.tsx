@@ -118,9 +118,10 @@ export function buildScenario(
     });
   };
 
-  const baseHook = Math.max(2, Math.round(durationSec * 0.15));
-  push("hook", baseHook, businessName ? `Accroche sur ${businessName} et son ambiance.` : "Accroche immersive pour capter l'attention.");
-  push("name", Math.max(2, Math.round(durationSec * 0.12)), businessName ? `Affichage du nom ${businessName}.` : "Affichage du nom de l'établissement.");
+  const nameDuration = Math.max(2, Math.round(durationSec * 0.12));
+  const hookDuration = Math.max(2, Math.round(durationSec * 0.15));
+  push("name", nameDuration, businessName ? `Affichage du nom ${businessName}.` : "Affichage du nom de l'établissement.");
+  push("hook", hookDuration, businessName ? `Accroche sur ${businessName} et son ambiance.` : "Accroche immersive pour capter l'attention.");
   if (keywords.includes("offre") || keywords.includes("promotion") || keywords.includes("menu") || keywords.includes("pass") || keywords.includes("déjeuner") || keywords.includes("diner") || keywords.includes("spa")) {
     push("offer", Math.max(4, Math.round(durationSec * 0.22)), "Mise en avant de l'offre ou du produit phare du prompt.");
   }
@@ -176,8 +177,8 @@ export function scenarioFromTemplateProps(
     return normalize(scenes, durationSec, cursor);
   }
 
-  push("hook", Math.max(2, Math.round(durationSec * 0.12)), hook ? `Accroche : « ${hook} »` : `Accroche immersive sur ${name}.`);
   push("name", Math.max(2, Math.round(durationSec * 0.1)), tagline ? `${name} — ${tagline}` : `Affichage du nom ${name}.`);
+  push("hook", Math.max(2, Math.round(durationSec * 0.12)), hook ? `Accroche : « ${hook} »` : `Accroche immersive sur ${name}.`);
   // Étape "media" (montage) : ajoutée manuellement par l'utilisateur via "Ajouter une étape".
 
   if (offer) {
@@ -236,6 +237,8 @@ export function StudioVideoScenarioPanel({
   sceneMedia,
   onChangeSceneMedia,
   onChangeScenarioEdits,
+  openAddDialog,
+  onOpenAddDialogChange,
 }: {
   scenario: Scenario;
   className?: string;
@@ -243,16 +246,25 @@ export function StudioVideoScenarioPanel({
   sceneMedia?: SceneMediaMap;
   onChangeSceneMedia?: (next: SceneMediaMap) => void;
   onChangeScenarioEdits?: (edits: ScenarioEdits | null) => void;
+  openAddDialog?: boolean;
+  onOpenAddDialogChange?: (open: boolean) => void;
 }) {
   // Local edits: per-scene duration overrides + order override (by token) + custom scenes + text splits
   const [durationOverrides, setDurationOverrides] = useState<Record<string, number>>({});
   const [orderOverride, setOrderOverride] = useState<string[] | null>(null);
   const [customScenes, setCustomScenes] = useState<CustomScene[]>([]);
   const [splitOverrides, setSplitOverrides] = useState<Record<string, number>>({});
+  const [addOpenInternal, setAddOpenInternal] = useState(false);
   const [dragId, setDragId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
-  const [addOpen, setAddOpen] = useState(false);
   const [editingCustomId, setEditingCustomId] = useState<string | null>(null);
+
+  const isAddOpenControlled = openAddDialog !== undefined && onOpenAddDialogChange !== undefined;
+  const addOpen = isAddOpenControlled ? openAddDialog : addOpenInternal;
+  const setAddOpen = (open: boolean) => {
+    if (isAddOpenControlled) onOpenAddDialogChange!(open);
+    else setAddOpenInternal(open);
+  };
 
   // Signature to reset local edits when the incoming scenario really changes
   const signature = scenario.scenes.map((s) => s.id).join("|") + "@" + scenario.totalDuration;

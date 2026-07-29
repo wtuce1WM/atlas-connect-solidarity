@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut, Maximize2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react";
+import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut, Maximize2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Plus } from "lucide-react";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { StudioVideoScenarioPanel, buildScenario, extractKeywords, scenarioFromTemplateProps, type Scenario, type SceneMediaMap, type SceneMediaItem, type ScenarioEdits } from "@/components/StudioVideoScenarioPanel";
@@ -203,6 +203,7 @@ export default function StudioVideo() {
   const [previewing, setPreviewing] = useState(false);
   const [aiScenario, setAiScenario] = useState<{ scenario: Scenario; rationale?: string; templateId: string } | null>(null);
   const [scenarioEdits, setScenarioEdits] = useState<ScenarioEdits | null>(null);
+  const [addStepOpen, setAddStepOpen] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [businessNames, setBusinessNames] = useState<Record<string, string>>({});
   const [currentJobId, setCurrentJobIdState] = useState<string | null>(
@@ -538,7 +539,7 @@ export default function StudioVideo() {
 
   // Durée calculée automatiquement à partir des étapes actives du scénario.
   const autoDuration = useMemo(() => {
-    let s = 4 + 3; // hook + name
+    let s = 4 + 3; // name + hook
     const canLogo = !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo;
     if (canLogo) s += 2;
     const offerCount = selectedOfferIds.size;
@@ -1382,9 +1383,18 @@ export default function StudioVideo() {
                         <img src={logoInfo.url} alt="Logo" className="w-full h-full object-contain p-1" />
                       </div>
                       <div className="min-w-0 flex-1 text-xs text-muted-foreground">
-                        Logo sur fond transparent — utilisé comme séquence d'ouverture avant le hook.
+                        Logo sur fond transparent — utilisé comme séquence d'ouverture avant le nom.
                       </div>
                     </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="mt-3 h-8 text-[12px] px-3 w-full"
+                      onClick={() => setAddStepOpen(true)}
+                    >
+                      <Plus className="h-4 w-4 mr-1.5" /> Ajouter une étape
+                    </Button>
                   </div>
                 )}
                 {/* Zone libre supprimée — utiliser « Ajouter une étape » dans l'aperçu du scénario. */}
@@ -1628,6 +1638,8 @@ export default function StudioVideo() {
                 sceneMedia={sceneMedia}
                 onChangeSceneMedia={setSceneMedia}
                 onChangeScenarioEdits={setScenarioEdits}
+                openAddDialog={addStepOpen}
+                onOpenAddDialogChange={setAddStepOpen}
               />
             </div>
           ) : scenario ? (
@@ -1637,6 +1649,8 @@ export default function StudioVideo() {
               sceneMedia={sceneMedia}
               onChangeSceneMedia={setSceneMedia}
               onChangeScenarioEdits={setScenarioEdits}
+              openAddDialog={addStepOpen}
+              onOpenAddDialogChange={setAddStepOpen}
             />
           ) : null}
 
