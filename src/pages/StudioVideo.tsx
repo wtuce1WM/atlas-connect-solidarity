@@ -659,6 +659,7 @@ export default function StudioVideo() {
             install_cta: optInstallCta,
             popup: optPopup,
             offer_ids: Array.from(selectedOfferIds),
+            highlight_ids: Array.from(selectedHighlightIds),
             selected_images: chosenImages,
             selected_videos: chosenVideos,
             scene_media: sceneMedia,
