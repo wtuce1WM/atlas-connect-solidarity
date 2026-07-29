@@ -141,6 +141,7 @@ function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
 export type ScenePlanItem = {
   kind: SceneKind | "custom";
   customId?: string;
+  offerIndex?: number;
   from: number;
   duration: number;
 };
@@ -150,7 +151,7 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
   const customById = new Map<string, NonNullable<ShowcaseProps["custom_scenes"]>[number]>();
   for (const c of p.custom_scenes ?? []) customById.set(c.id, c);
 
-  type Tok = { kind: SceneKind | "custom"; customId?: string };
+  type Tok = { kind: SceneKind | "custom"; customId?: string; offerIndex?: number };
   let order: Tok[];
   if (Array.isArray(p.scene_order) && p.scene_order.length) {
     const seen = new Set<string>();
@@ -165,7 +166,11 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
         }
         continue;
       }
-      if ((active as string[]).includes(raw)) {
+      // Accept outro explicitly when the CTA is enabled, even though outro is
+      // not in DEFAULT_SCENE_ORDER (it shares rendering with cta).
+      const isRequested = (active as string[]).includes(raw)
+        || (raw === "outro" && isSceneActive("outro", p));
+      if (isRequested) {
         seen.add(raw);
         requested.push({ kind: raw as SceneKind });
       }
@@ -173,9 +178,35 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
     for (const k of active) {
       if (!requested.some((t) => t.kind === k)) requested.push({ kind: k });
     }
+    // cta and outro are two names for the same closing scene: keep only one.
+    const hasOutro = requested.some((t) => t.kind === "outro");
+    const hasCta = requested.some((t) => t.kind === "cta");
+    if (hasOutro && hasCta) {
+      // Drop the auto-appended cta; honor user's explicit outro position.
+      const idxCta = requested.findIndex((t) => t.kind === "cta");
+      if (idxCta >= 0) requested.splice(idxCta, 1);
+    }
     order = requested;
   } else {
     order = active.map((k) => ({ kind: k as SceneKind }));
+  }
+
+  // Expand a single "offer" token into N tokens (one per selected offer).
+  const offersArr = Array.isArray(p.offers) ? p.offers : (p.offer ? [p.offer] : []);
+  if (offersArr.length > 1) {
+    const expanded: Tok[] = [];
+    for (const t of order) {
+      if (t.kind === "offer") {
+        for (let i = 0; i < offersArr.length; i++) {
+          expanded.push({ kind: "offer", offerIndex: i });
+        }
+      } else {
+        expanded.push(t);
+      }
+    }
+    order = expanded;
+  } else if (offersArr.length === 1) {
+    for (const t of order) if (t.kind === "offer") t.offerIndex = 0;
   }
 
   const durOverride = (k: SceneKind): number | null => {
@@ -202,16 +233,17 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
   const requestedFrames = Number.isFinite(p.durationSec) && p.durationSec
     ? Math.round(Number(p.durationSec) * 30)
     : SHOWCASE_TOTAL_FRAMES;
-  const ctaIdx = order.findIndex((t) => t.kind === "cta");
-  if (ctaIdx >= 0 && durOverride("cta") == null && !hasAnyDurationOverride && !hasCustomScenes) {
-    const nonCta = durations.reduce((acc, d, i) => (i === ctaIdx ? acc : acc + d), 0);
-    durations[ctaIdx] = Math.max(150, requestedFrames - nonCta);
+  const closingIdx = order.findIndex((t) => t.kind === "cta" || t.kind === "outro");
+  const closingKind = closingIdx >= 0 ? (order[closingIdx].kind as SceneKind) : null;
+  if (closingIdx >= 0 && closingKind && durOverride(closingKind) == null && !hasAnyDurationOverride && !hasCustomScenes) {
+    const nonClosing = durations.reduce((acc, d, i) => (i === closingIdx ? acc : acc + d), 0);
+    durations[closingIdx] = Math.max(150, requestedFrames - nonClosing);
   }
 
   const plan: ScenePlanItem[] = [];
   let cursor = 0;
   order.forEach((tok, i) => {
-    plan.push({ kind: tok.kind, customId: tok.customId, from: cursor, duration: durations[i] });
+    plan.push({ kind: tok.kind, customId: tok.customId, offerIndex: tok.offerIndex, from: cursor, duration: durations[i] });
     cursor += durations[i];
   });
   return plan;
