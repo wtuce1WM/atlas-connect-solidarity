@@ -111,12 +111,12 @@ function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
     case "name":
     case "media": return true;
     case "cta": return p.showAppInstall !== false;
-    case "offer": return !!p.offer;
+    case "offer": return !!p.offer || (Array.isArray(p.offers) && p.offers.length > 0);
     case "reviews": return !!(p.showReviews && (p.rating || p.reviewsCount));
     case "hours": return !!(p.showOpeningHours && p.openingHours);
     case "map": return !!(p.showMap && p.latitude && p.longitude);
     case "digital": return !!(p.showDigitalId && p.slug);
-    case "outro": return false; // merged into cta scene
+    case "outro": return p.showAppInstall !== false;
   }
 }
 
