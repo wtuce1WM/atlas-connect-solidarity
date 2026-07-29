@@ -1946,7 +1946,11 @@ async function buildPoiNearby(
 
 function buildDisclosureFromCounts(shown: number, found: number, city: string): string {
   if (shown <= 0) return `📍 Aucun résultat trouvé à ${city} pour cette recherche — dis-moi si tu veux que je reformule ou que j'élargisse autour de ${city}.`;
-  return `📍 Je te présente ${shown} adresse${shown > 1 ? "s" : ""} sur ${found} trouvée${found > 1 ? "s" : ""} à ${city} — dis-moi si tu veux que je te montre les autres ou que j'affine par quartier, ambiance ou envie.`;
+  const hasMore = found > shown;
+  const tail = hasMore
+    ? `dis-moi si tu veux que je te **montre les autres** ou que j'affine par quartier, ambiance ou envie.`
+    : `dis-moi si tu veux que j'affine par quartier, ambiance ou envie.`;
+  return `📍 Je te présente ${shown} adresse${shown > 1 ? "s" : ""} sur ${found} trouvée${found > 1 ? "s" : ""} à ${city} — ${tail}`;
 }
 
 function stripText(value: unknown): string {
