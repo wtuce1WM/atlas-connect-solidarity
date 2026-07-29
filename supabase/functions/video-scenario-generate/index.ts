@@ -547,7 +547,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       }
 
       // Ordre et durées personnalisés des scènes (édités par l'utilisateur dans l'aperçu)
-      const ALLOWED_SCENE_KINDS = new Set(["logo", "hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro"]);
+      const ALLOWED_SCENE_KINDS = new Set(["logo", "hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro", "whatsapp"]);
       const rawOrder = options?.scene_order;
       let orderedFromClient: string[] | null = null;
       if (Array.isArray(rawOrder)) {
