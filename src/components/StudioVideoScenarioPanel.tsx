@@ -97,6 +97,9 @@ export function buildScenario(
     mapMarker: boolean;
     digitalId: boolean;
     installCta: boolean;
+    freeZone?: boolean;
+    freeZoneTitle?: string;
+    freeZoneSubtitle?: string;
   }
 ): Scenario {
   const keywords = extractKeywords(prompt);
@@ -122,8 +125,13 @@ export function buildScenario(
   push("name", Math.max(2, Math.round(durationSec * 0.12)), businessName ? `Affichage du nom ${businessName}.` : "Affichage du nom de l'établissement.");
   if (keywords.includes("offre") || keywords.includes("promotion") || keywords.includes("menu") || keywords.includes("pass") || keywords.includes("déjeuner") || keywords.includes("diner") || keywords.includes("spa")) {
     push("offer", Math.max(4, Math.round(durationSec * 0.22)), "Mise en avant de l'offre ou du produit phare du prompt.");
-  } else {
-    push("media", Math.max(4, Math.round(durationSec * 0.22)), "Montage des médias sélectionnés pour montrer l'expérience.");
+  } else if (options.freeZone) {
+    const t = (options.freeZoneTitle || "").trim();
+    const s = (options.freeZoneSubtitle || "").trim();
+    const desc = t || s
+      ? `Zone libre : ${[t, s].filter(Boolean).join(" — ")}`
+      : "Zone libre : texte + médias de fond au choix.";
+    push("media", Math.max(4, Math.round(durationSec * 0.22)), desc, t ? `Zone libre — ${t.slice(0, 40)}` : "Zone libre");
   }
   if (options.reviews) push("reviews", Math.max(2, Math.round(durationSec * 0.12)), "Badge avis clients avec note/20 et nombre d'avis.");
   if (options.hours) push("hours", Math.max(2, Math.round(durationSec * 0.08)), "Horaires d'ouverture en surimpression.");
