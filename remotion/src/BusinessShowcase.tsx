@@ -68,6 +68,7 @@ export type ShowcaseProps = {
   showDigitalId?: boolean;
   slug?: string | null;
   logoUrl?: string | null;
+  openWithLogo?: boolean;
   whatsapp?: string | null;
   instagramUrl?: string | null;
   ficheScreenshotUrl?: string | null;
