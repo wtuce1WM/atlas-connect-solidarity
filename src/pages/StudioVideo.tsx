@@ -219,7 +219,7 @@ export default function StudioVideo() {
   const [highlightsList, setHighlightsList] = useState<Array<{ id: string; icon: string | null; title: string; description: string; image_url: string | null; metric_title: string | null; metric_value: string | null; sort_order: number }>>([]);
   const [selectedHighlightIds, setSelectedHighlightIds] = useState<Set<string>>(new Set());
   const [bizImages, setBizImages] = useState<string[]>([]);
-  const [bizVideos, setBizVideos] = useState<{ url: string; thumbnail: string | null; title: string; kind: "file" | "youtube" }[]>([]);
+  const [bizVideos, setBizVideos] = useState<{ url: string; thumbnail: string | null; title: string; kind: "file" | "youtube"; duration?: number }[]>([]);
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [selectedVideos, setSelectedVideos] = useState<Set<string>>(new Set());
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
