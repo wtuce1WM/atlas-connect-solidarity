@@ -303,7 +303,7 @@ export default function StudioVideo() {
       const [biz, docs, yt, promos, hls] = await Promise.all([
         supabase
           .from("businesses")
-          .select("hook_fr,description,images,popup_image_url,opening_hours,show_opening_hours,is_active")
+          .select("hook_fr,description,images,popup_image_url,opening_hours,show_opening_hours,is_active,logo_url,logo_bg")
           .eq("id", selected.id)
           .maybeSingle(),
         supabase
