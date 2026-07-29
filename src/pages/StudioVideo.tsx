@@ -196,6 +196,7 @@ export default function StudioVideo() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selected, setSelected] = useState<Business | null>(null);
   const [duration, setDuration] = useState<15 | 30 | 45 | 60>(30);
+  const [durationAuto, setDurationAuto] = useState(true);
   const [tone, setTone] = useState("immersif");
   const [prompt, setPrompt] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -537,9 +538,28 @@ export default function StudioVideo() {
 
   const promptKeywords = useMemo(() => extractKeywords(prompt), [prompt]);
 
+  // Durée calculée automatiquement à partir des étapes actives du scénario.
+  const autoDuration = useMemo(() => {
+    let s = 4 + 3; // hook + name
+    const canLogo = !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo;
+    if (canLogo) s += 2;
+    const offerCount = selectedOfferIds.size;
+    if (offerCount > 0) s += Math.min(6, offerCount) * 5;
+    if (optFreeZone) s += 5;
+    if (optReviews) s += 3;
+    if (optHours) s += 3;
+    if (optMapMarker) s += 3;
+    if (optDigitalId) s += 4;
+    s += 3; // cta
+    if (optInstallCta) s += 2; // outro
+    return Math.max(10, Math.min(90, s));
+  }, [logoInfo, optOpenWithLogo, selectedOfferIds, optFreeZone, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta]);
+
+  const effectiveDuration = durationAuto ? autoDuration : duration;
+
   const scenario = useMemo(() => {
     if (!prompt.trim() || prompt.length < 20) return null;
-    return buildScenario(prompt, selected?.name ?? null, duration, {
+    return buildScenario(prompt, selected?.name ?? null, effectiveDuration, {
       reviews: optReviews,
       hours: optHours,
       mapMarker: optMapMarker,
@@ -549,7 +569,7 @@ export default function StudioVideo() {
       freeZoneTitle,
       freeZoneSubtitle,
     });
-  }, [prompt, selected?.name, duration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optFreeZone, freeZoneTitle, freeZoneSubtitle]);
+  }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optFreeZone, freeZoneTitle, freeZoneSubtitle]);
 
   const mediaMatches = useMemo(() => {
     const matches = new Map<string, string[]>();
@@ -579,7 +599,7 @@ export default function StudioVideo() {
         body: {
           prompt: finalPrompt,
           business_id: selected?.id ?? null,
-          duration_sec: duration,
+          duration_sec: effectiveDuration,
           tone,
           parent_job_id: refineFrom?.id ?? null,
           options: {
@@ -703,7 +723,7 @@ export default function StudioVideo() {
         body: {
           prompt: finalPrompt,
           business_id: selected?.id ?? null,
-          duration_sec: duration,
+          duration_sec: effectiveDuration,
           tone,
           parent_job_id: refineFrom?.id ?? null,
           preview_only: true,
@@ -734,7 +754,7 @@ export default function StudioVideo() {
       });
       if (error) throw error;
       const payload = data as any;
-      const scenario = scenarioFromTemplateProps(payload.template_id, payload.template_props, payload.duration_sec ?? duration, payload.rationale);
+      const scenario = scenarioFromTemplateProps(payload.template_id, payload.template_props, payload.duration_sec ?? effectiveDuration, payload.rationale);
       setAiScenario({ scenario, rationale: payload.rationale, templateId: payload.template_id });
       toast.success("Scénario IA généré.");
     } catch (e: any) {
@@ -747,6 +767,7 @@ export default function StudioVideo() {
   const startRefine = (job: Job) => {
     setRefineFrom(job);
     setDuration(job.duration_sec as 15 | 30 | 45 | 60);
+    setDurationAuto(false);
     setTone(job.tone);
     setPrompt("");
     setTimeout(() => {
@@ -1271,13 +1292,20 @@ export default function StudioVideo() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Durée</Label>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap items-center">
+                  <Button
+                    type="button"
+                    variant={durationAuto ? "default" : "outline"}
+                    onClick={() => setDurationAuto(true)}
+                  >
+                    Laisse l'IA décider{durationAuto ? ` (~${autoDuration}s)` : ""}
+                  </Button>
                   {DURATIONS.map((d) => (
                     <Button
                       key={d}
                       type="button"
-                      variant={duration === d ? "default" : "outline"}
-                      onClick={() => setDuration(d)}
+                      variant={!durationAuto && duration === d ? "default" : "outline"}
+                      onClick={() => { setDurationAuto(false); setDuration(d); }}
                     >
                       {d}s
                     </Button>
