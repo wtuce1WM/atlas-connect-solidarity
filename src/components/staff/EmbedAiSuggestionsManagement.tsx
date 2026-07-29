@@ -295,14 +295,10 @@ const EmbedAiSuggestionsManagement = () => {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 rounded-md border bg-muted/30 px-3 py-2 text-xs">
-        <span className="text-muted-foreground">Route détectée automatiquement selon le libellé FR :</span>
-        <RouteBadge label="météo" />
-        <RouteBadge label="ce week-end" />
-        <RouteBadge label="à proximité" />
-        <RouteBadge label="montre sur la carte" />
-        <RouteBadge label="" />
+      <div className="rounded-md border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+        <b>Route</b> : laisse <code>Auto</code> pour que le runtime détecte la route depuis le libellé FR (météo, événements, proximité, carte…) ou force une route déterministe pour court-circuiter le LLM.
       </div>
+
 
       <div className="space-y-3">
         {rows.map((r) => {
@@ -384,30 +380,33 @@ const EmbedAiSuggestionsManagement = () => {
                   <p className="text-[11px] text-muted-foreground mt-1">Vide = affichée pour tous les établissements. Sinon uniquement pour ceux de cette ville.</p>
                 </div>
 
-                <div className="max-w-xs">
-                  <label className="text-xs text-muted-foreground">Route déterministe forcée</label>
+                <div className="max-w-md">
+                  <label className="text-xs text-muted-foreground">Route</label>
                   {(() => {
                     const effectiveMode = r.mode || ((r.subcategory_ids.length > 0 || r.badge_ids.length > 0) ? "structure_front" : "");
+                    const autoDetected = detectRoute(r.label_fr || "");
                     return (
-                      <select
-                        value={effectiveMode}
-                        onChange={(e) => update(r.id, { mode: e.target.value || null })}
-                        className="h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
-                        title="Mode"
-                      >
-                        <option value="">Auto (LLM décide)</option>
-                        <option value="events">📅 Events (search_events sur la ville hôte, badge_ids optionnels)</option>
-                        <option value="structure_front">🧭 Structure du Front (search_businesses ville hôte + sous-catégories/badges)</option>
-                        <option value="direct_viewer">📌 Direct viewer (carousel figé des business_ids ciblés)</option>
-                      </select>
+                      <>
+                        <select
+                          value={effectiveMode}
+                          onChange={(e) => update(r.id, { mode: e.target.value || null })}
+                          className="h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
+                          title="Route"
+                        >
+                          <option value="">Auto — détectée depuis le libellé FR : {autoDetected.emoji} {autoDetected.label}</option>
+                          <option value="events">📅 Events (search_events ville hôte, badge_ids ou #Agenda)</option>
+                          <option value="structure_front">🧭 Structure du Front (search_businesses + sous-catégories/badges)</option>
+                          <option value="direct_viewer">📌 Direct viewer (carousel figé des business_ids)</option>
+                        </select>
+                        <p className="text-[11px] text-muted-foreground mt-1">
+                          <b>Auto</b> : le runtime choisit la route (météo, événements, proximité, carte, recherche…) à partir du libellé FR et du message utilisateur.<br />
+                          <b>Events / Structure du Front / Direct viewer</b> : court-circuitent le LLM et forcent la route indiquée.
+                        </p>
+                      </>
                     );
                   })()}
-                  <p className="text-[11px] text-muted-foreground mt-1">
-                    <b>Events</b> : force <code>search_events</code> (ville + prochain week-end, filtré par <b>Badges ciblés</b> ou fallback #Agenda).<br />
-                    <b>Structure du Front</b> : force <code>search_businesses</code> dans la ville hôte avec les <b>sous-catégories</b> et <b>badges</b> ciblés (bypass LLM).<br />
-                    <b>Direct viewer</b> : affiche uniquement les <b>Établissements ciblés</b> dans l'ordre défini, en carousel figé (aucune recherche).
-                  </p>
                 </div>
+
 
 
 
