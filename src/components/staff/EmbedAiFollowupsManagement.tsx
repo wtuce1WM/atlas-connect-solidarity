@@ -43,7 +43,7 @@ function detectRoute(label: string): Route {
     return { key: "count", label: "count_priors", emoji: "🔢", className: "bg-slate-500/15 text-slate-700 dark:text-slate-300" };
   if (/\b(carte|map|montre.*carte|show.*map|localise|coordonnees|contact|appeler|telephone)\b/.test(q))
     return { key: "map", label: "show_on_map", emoji: "🗺", className: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300" };
-  if (/\b(proximite|autour|pres de|nearby|around|ou |où |restaurant|bar|cafe|the|rooftop|terrasse|musee|galerie|activite|visite|visiter|beach[- ]?club|hotel|riad|spa|boutique|shopping|manger|boire|dejeuner|diner|sortie|things to do|what to do|where|point.*interet|interets?)\b/.test(q))
+  if (/\b(que faire|sur place|proximite|autour|pres de|nearby|around|ou |où |restaurant|bar|cafe|the|rooftop|terrasse|musee|galerie|activite|activites|visite|visiter|beach[- ]?club|hotel|riad|spa|boutique|shopping|manger|boire|dejeuner|diner|sortie|things to do|what to do|where|point.*interet|interets?)\b/.test(q))
     return { key: "search", label: "search_businesses", emoji: "🔍", className: "bg-primary/15 text-primary" };
   return { key: "llm", label: "LLM direct", emoji: "💬", className: "bg-muted text-muted-foreground" };
 }
