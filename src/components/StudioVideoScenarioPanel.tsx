@@ -557,6 +557,47 @@ export function StudioVideoScenarioPanel({
         onSubmit={(draft) => { upsertCustomScene(draft); setAddOpen(false); setEditingCustomId(null); }}
       />
 
+      <SceneTextEditDialog
+        open={!!editingTextId}
+        onOpenChange={(o) => { if (!o) setEditingTextId(null); }}
+        sceneKind={editingTextId}
+        currentLabel={
+          editingTextId
+            ? textOverrides[editingTextId]?.label
+              ?? editedScenes.find((s) => s.icon === editingTextId)?.label
+              ?? ""
+            : ""
+        }
+        currentDescription={
+          editingTextId
+            ? textOverrides[editingTextId]?.description
+              ?? editedScenes.find((s) => s.icon === editingTextId)?.description
+              ?? ""
+            : ""
+        }
+        onSubmit={(label, description) => {
+          if (!editingTextId) return;
+          setTextOverrides((prev) => {
+            const next = { ...prev };
+            const trimmedLabel = label.trim();
+            const trimmedDesc = description.trim();
+            if (!trimmedLabel && !trimmedDesc) delete next[editingTextId];
+            else next[editingTextId] = { label: trimmedLabel || undefined, description: trimmedDesc || undefined };
+            return next;
+          });
+          setEditingTextId(null);
+        }}
+        onReset={() => {
+          if (!editingTextId) return;
+          setTextOverrides((prev) => {
+            const next = { ...prev };
+            delete next[editingTextId];
+            return next;
+          });
+          setEditingTextId(null);
+        }}
+      />
+
       <p className="text-[11px] text-muted-foreground italic">Glissez-déposez les scènes pour les réordonner. Ajustez la durée avec les boutons +/−.</p>
 
       <div className="space-y-3">
