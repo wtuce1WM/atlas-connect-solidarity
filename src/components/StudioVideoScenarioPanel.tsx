@@ -49,6 +49,7 @@ export type CustomScene = {
   subtitle?: string;
   duration: number;           // seconds
   media?: SceneMediaItem;     // required in overlay mode, optional backdrop in fullscreen
+  splitCount?: number;        // nb d'étapes pour découper le texte sur le montage vidéo
 };
 
 const ICONS: Record<Scene["icon"], React.ReactNode> = {
@@ -68,7 +69,7 @@ const ICONS: Record<Scene["icon"], React.ReactNode> = {
 const LABELS: Record<Exclude<Scene["icon"], "custom">, string> = {
   hook: "Hook",
   name: "Nom & identité",
-  media: "Zone libre",
+  media: "Montage",
   offer: "Offre",
   reviews: "Avis clients",
   hours: "Horaires",
@@ -97,9 +98,6 @@ export function buildScenario(
     mapMarker: boolean;
     digitalId: boolean;
     installCta: boolean;
-    freeZone?: boolean;
-    freeZoneTitle?: string;
-    freeZoneSubtitle?: string;
   }
 ): Scenario {
   const keywords = extractKeywords(prompt);
@@ -125,13 +123,6 @@ export function buildScenario(
   push("name", Math.max(2, Math.round(durationSec * 0.12)), businessName ? `Affichage du nom ${businessName}.` : "Affichage du nom de l'établissement.");
   if (keywords.includes("offre") || keywords.includes("promotion") || keywords.includes("menu") || keywords.includes("pass") || keywords.includes("déjeuner") || keywords.includes("diner") || keywords.includes("spa")) {
     push("offer", Math.max(4, Math.round(durationSec * 0.22)), "Mise en avant de l'offre ou du produit phare du prompt.");
-  } else if (options.freeZone) {
-    const t = (options.freeZoneTitle || "").trim();
-    const s = (options.freeZoneSubtitle || "").trim();
-    const desc = t || s
-      ? `Zone libre : ${[t, s].filter(Boolean).join(" — ")}`
-      : "Zone libre : texte + médias de fond au choix.";
-    push("media", Math.max(4, Math.round(durationSec * 0.22)), desc, t ? `Zone libre — ${t.slice(0, 40)}` : "Zone libre");
   }
   if (options.reviews) push("reviews", Math.max(2, Math.round(durationSec * 0.12)), "Badge avis clients avec note/20 et nombre d'avis.");
   if (options.hours) push("hours", Math.max(2, Math.round(durationSec * 0.08)), "Horaires d'ouverture en surimpression.");
@@ -187,17 +178,8 @@ export function scenarioFromTemplateProps(
 
   push("hook", Math.max(2, Math.round(durationSec * 0.12)), hook ? `Accroche : « ${hook} »` : `Accroche immersive sur ${name}.`);
   push("name", Math.max(2, Math.round(durationSec * 0.1)), tagline ? `${name} — ${tagline}` : `Affichage du nom ${name}.`);
-  const mediaLabel = (() => {
-    const t = typeof props?.freeZoneTitle === "string" ? props.freeZoneTitle.trim() : "";
-    const s = typeof props?.freeZoneSubtitle === "string" ? props.freeZoneSubtitle.trim() : "";
-    if (t || s) return `Zone libre : ${[t, s].filter(Boolean).join(" — ")}`;
-    if (videos.length > 0) return `Montage de ${videos.length} vidéo${videos.length > 1 ? "s" : ""} de l'établissement.`;
-    if (images.length > 0) return `Montage de ${images.length} image${images.length > 1 ? "s" : ""} de l'établissement.`;
-    return "Zone libre : texte + médias de fond au choix.";
-  })();
-  if (props?.freeZone) {
-    push("media", Math.max(3, Math.round(durationSec * (offer ? 0.18 : 0.28))), mediaLabel, typeof props?.freeZoneTitle === "string" && props.freeZoneTitle.trim() ? `Zone libre — ${props.freeZoneTitle.trim().slice(0, 40)}` : "Zone libre");
-  }
+  // Étape "media" (montage) : ajoutée manuellement par l'utilisateur via "Ajouter une étape".
+
   if (offer) {
     const parts: string[] = [];
     if (offer.title) parts.push(offer.title);
@@ -243,6 +225,8 @@ export type ScenarioEdits = {
   order: string[]; // ordered tokens: SceneMediaKind or `custom:<id>`
   durations: Partial<Record<SceneMediaKind, number>>; // seconds per built-in kind
   customScenes?: CustomScene[];
+  // Nb d'étapes pour découper le texte dans le montage (clé = "hook" | "name" | `custom:<id>`)
+  textSplits?: Record<string, number>;
 };
 
 export function StudioVideoScenarioPanel({
@@ -260,10 +244,11 @@ export function StudioVideoScenarioPanel({
   onChangeSceneMedia?: (next: SceneMediaMap) => void;
   onChangeScenarioEdits?: (edits: ScenarioEdits | null) => void;
 }) {
-  // Local edits: per-scene duration overrides + order override (by token) + custom scenes
+  // Local edits: per-scene duration overrides + order override (by token) + custom scenes + text splits
   const [durationOverrides, setDurationOverrides] = useState<Record<string, number>>({});
   const [orderOverride, setOrderOverride] = useState<string[] | null>(null);
   const [customScenes, setCustomScenes] = useState<CustomScene[]>([]);
+  const [splitOverrides, setSplitOverrides] = useState<Record<string, number>>({});
   const [dragId, setDragId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
@@ -275,6 +260,7 @@ export function StudioVideoScenarioPanel({
     setDurationOverrides({});
     setOrderOverride(null);
     setCustomScenes([]);
+    setSplitOverrides({});
     onChangeScenarioEdits?.(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signature]);
@@ -324,7 +310,8 @@ export function StudioVideoScenarioPanel({
     const hasOrder = !!orderOverride;
     const hasDurations = Object.keys(durationOverrides).length > 0;
     const hasCustom = customScenes.length > 0;
-    if (!hasOrder && !hasDurations && !hasCustom) {
+    const hasSplits = Object.keys(splitOverrides).length > 0;
+    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits) {
       onChangeScenarioEdits(null);
       return;
     }
@@ -344,9 +331,23 @@ export function StudioVideoScenarioPanel({
       const s = byId.get(id);
       if (s) durations[s.icon as SceneMediaKind] = d;
     }
-    onChangeScenarioEdits({ order: orderTokens, durations, customScenes: hasCustom ? customScenes : undefined });
+    // Normalize splitOverrides keys: built-in scene.id → its icon (kind), custom token stays as-is
+    const textSplits: Record<string, number> = {};
+    for (const [id, n] of Object.entries(splitOverrides)) {
+      if (isCustomToken(id)) textSplits[id] = n;
+      else {
+        const s = byId.get(id);
+        if (s) textSplits[s.icon] = n;
+      }
+    }
+    onChangeScenarioEdits({
+      order: orderTokens,
+      durations,
+      customScenes: hasCustom ? customScenes : undefined,
+      textSplits: hasSplits ? textSplits : undefined,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderOverride, durationOverrides, customScenes, customById]);
+  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides]);
 
   const total = editedScenes.reduce((acc, s) => acc + s.duration, 0);
   if (!editedScenes.length && customScenes.length === 0) return null;
@@ -543,6 +544,37 @@ export function StudioVideoScenarioPanel({
                   ))}
                 </div>
               )}
+
+              {(scene.icon === "hook" || scene.icon === "name" || scene.icon === "custom") && (
+                <div className="mt-3 flex items-center gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2.5 py-1.5">
+                  <Type className="h-3.5 w-3.5 text-neutral-500" />
+                  <span className="text-[11px] text-neutral-700">
+                    Découper le texte sur le montage en
+                  </span>
+                  <input
+                    type="number"
+                    min={1}
+                    max={10}
+                    step={1}
+                    value={splitOverrides[scene.id] ?? 1}
+                    onChange={(e) => {
+                      const raw = parseInt(e.target.value, 10);
+                      const n = Number.isFinite(raw) ? Math.max(1, Math.min(10, raw)) : 1;
+                      setSplitOverrides((prev) => {
+                        const next = { ...prev };
+                        if (n <= 1) delete next[scene.id];
+                        else next[scene.id] = n;
+                        return next;
+                      });
+                    }}
+                    className="w-14 h-7 rounded border border-neutral-300 bg-white px-1.5 text-center text-[12px] tabular-nums text-black focus:outline-none focus:border-primary"
+                    aria-label="Nombre d'étapes de découpe du texte"
+                  />
+                  <span className="text-[11px] text-neutral-700">étape{(splitOverrides[scene.id] ?? 1) > 1 ? "s" : ""}</span>
+                  <span className="ml-auto text-[10px] text-neutral-500 italic">1 = pas de découpe</span>
+                </div>
+              )}
+
 
               {editable && kind && (
                 <SceneMediaSlot

@@ -233,9 +233,7 @@ export default function StudioVideo() {
   const [optDigitalId, setOptDigitalId] = useState(true);
   const [optPopup, setOptPopup] = useState(true);
   const [optOpenWithLogo, setOptOpenWithLogo] = useState(true);
-  const [optFreeZone, setOptFreeZone] = useState(false);
-  const [freeZoneTitle, setFreeZoneTitle] = useState("");
-  const [freeZoneSubtitle, setFreeZoneSubtitle] = useState("");
+  // Zone libre supprimée — remplacée par « Ajouter une étape » dans l'aperçu du scénario.
   const [logoInfo, setLogoInfo] = useState<{ url: string | null; bg: string | null }>({ url: null, bg: null });
   const [offersList, setOffersList] = useState<Array<{ id: string; title: string; message: string | null; promotion_type: string | null; promotion_value: number | null; promotion_currency: string | null; savings_amount: number | null }>>([]);
   const [selectedOfferIds, setSelectedOfferIds] = useState<Set<string>>(new Set());
@@ -545,7 +543,6 @@ export default function StudioVideo() {
     if (canLogo) s += 2;
     const offerCount = selectedOfferIds.size;
     if (offerCount > 0) s += Math.min(6, offerCount) * 5;
-    if (optFreeZone) s += 5;
     if (optReviews) s += 3;
     if (optHours) s += 3;
     if (optMapMarker) s += 3;
@@ -553,7 +550,7 @@ export default function StudioVideo() {
     s += 3; // cta
     if (optInstallCta) s += 2; // outro
     return Math.max(10, Math.min(90, s));
-  }, [logoInfo, optOpenWithLogo, selectedOfferIds, optFreeZone, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta]);
+  }, [logoInfo, optOpenWithLogo, selectedOfferIds, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta]);
 
   const effectiveDuration = durationAuto ? autoDuration : duration;
 
@@ -565,11 +562,8 @@ export default function StudioVideo() {
       mapMarker: optMapMarker,
       digitalId: optDigitalId,
       installCta: optInstallCta,
-      freeZone: optFreeZone,
-      freeZoneTitle,
-      freeZoneSubtitle,
     });
-  }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optFreeZone, freeZoneTitle, freeZoneSubtitle]);
+  }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta]);
 
   const mediaMatches = useMemo(() => {
     const matches = new Map<string, string[]>();
@@ -611,9 +605,7 @@ export default function StudioVideo() {
             popup: optPopup,
             open_with_logo: !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo,
             logo_url: logoInfo.url,
-            free_zone: optFreeZone,
-            free_zone_title: freeZoneTitle,
-            free_zone_subtitle: freeZoneSubtitle,
+            text_splits: scenarioEdits?.textSplits,
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
             selected_images: chosenImages,
@@ -736,9 +728,7 @@ export default function StudioVideo() {
             popup: optPopup,
             open_with_logo: !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo,
             logo_url: logoInfo.url,
-            free_zone: optFreeZone,
-            free_zone_title: freeZoneTitle,
-            free_zone_subtitle: freeZoneSubtitle,
+            text_splits: scenarioEdits?.textSplits,
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
             selected_images: chosenImages,
@@ -1357,18 +1347,20 @@ export default function StudioVideo() {
                 rows={5}
                 placeholder={refineFrom
                   ? "Ex : remplace l'image de couverture par la 2e, raccourcis le hook, ajoute les horaires…"
-                  : "Ex : Présentation immersive mettant en avant le hook et la signature de l'établissement, ajoutes options cochées ci-dessous."}
+                  : "Le prompt se remplit automatiquement à partir de l'établissement sélectionné."}
                 value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
+                onChange={(e) => { if (refineFrom) setPrompt(e.target.value); }}
+                readOnly={!refineFrom}
                 maxLength={2000}
-                className="text-lg md:text-xl p-4 min-h-[220px] md:min-h-[150px]"
-                onFocus={() => {
-                  if (!prompt && !refineFrom) {
-                    const businessText = selected ? ` « ${selected.name} »` : "";
-                    setPrompt(`Présentation immersive mettant en avant le hook et la signature de l'établissement${businessText}, ajoutes options cochées ci-dessous.`);
-                  }
-                }}
+                className={`text-lg md:text-xl p-4 min-h-[220px] md:min-h-[150px] ${!refineFrom ? "cursor-default bg-muted/40" : ""}`}
+                aria-readonly={!refineFrom}
+                title={!refineFrom ? "Le prompt principal n'est pas modifiable — utilisez les options et l'aperçu du scénario ci-dessous." : undefined}
               />
+              {!refineFrom && (
+                <p className="text-[11px] text-muted-foreground italic">
+                  Prompt en lecture seule. Les options ci-dessous et l'aperçu du scénario permettent de personnaliser la vidéo.
+                </p>
+              )}
             </div>
 
             <div className="space-y-2 rounded-md border border-border bg-muted/30 p-3">
@@ -1395,38 +1387,7 @@ export default function StudioVideo() {
                     </div>
                   </div>
                 )}
-                <div className="rounded-md border border-border bg-background/40 p-2">
-                  <label className="flex items-start gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
-                      checked={optFreeZone}
-                      onChange={(e) => setOptFreeZone(e.target.checked)}
-                    />
-                    <span className="font-medium">Zone libre (texte + médias de fond)</span>
-                  </label>
-                  <div className={`mt-2 space-y-2 ${optFreeZone ? "opacity-100" : "opacity-50 pointer-events-none"}`}>
-                    <p className="text-xs text-muted-foreground">
-                      Étape libre insérée dans le scénario. Le titre et le sous-titre s'affichent en surimpression. Les médias de fond et la durée se règlent dans l'aperçu du scénario ci-dessous (étape « Zone libre »).
-                    </p>
-                    <input
-                      type="text"
-                      maxLength={80}
-                      value={freeZoneTitle}
-                      onChange={(e) => setFreeZoneTitle(e.target.value)}
-                      placeholder="Titre (max 80 caractères)"
-                      className="w-full rounded-md border border-border bg-background px-2 py-1 text-sm text-foreground"
-                    />
-                    <input
-                      type="text"
-                      maxLength={160}
-                      value={freeZoneSubtitle}
-                      onChange={(e) => setFreeZoneSubtitle(e.target.value)}
-                      placeholder="Sous-titre (max 160 caractères)"
-                      className="w-full rounded-md border border-border bg-background px-2 py-1 text-sm text-foreground"
-                    />
-                  </div>
-                </div>
+                {/* Zone libre supprimée — utiliser « Ajouter une étape » dans l'aperçu du scénario. */}
                 {popupImageUrl && (
                   <div className="rounded-md border border-border bg-background/40 p-2">
                     <label className="flex items-start gap-2 cursor-pointer">
