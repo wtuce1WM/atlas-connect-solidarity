@@ -1118,6 +1118,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
   const renderBuiltinScene = (kind: SceneKind, duration: number, offerIndex?: number): React.ReactNode => {
     switch (kind) {
+      case "logo":
+        return (
+          <AbsoluteFill style={{ backgroundColor: COLORS.night, alignItems: "center", justifyContent: "center" }}>
+            <SceneLogo logoUrl={logoUrl!} durationFrames={duration} />
+          </AbsoluteFill>
+        );
       case "hook":
         return heroIsVideo && heroMedia ? (
           <AbsoluteFill>
