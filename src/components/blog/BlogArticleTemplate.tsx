@@ -58,6 +58,8 @@ export interface BlogArticleBusiness {
   latitude: number | null;
   longitude: number | null;
   is_featured?: boolean | null;
+  min_price?: number | null;
+  manual_price_range?: string | null;
 }
 
 export interface BlogArticleEntryReview {
@@ -418,7 +420,7 @@ const BlogArticleTemplate = ({
       const { data } = await supabase
         .from("businesses")
         .select(
-          "id, name, slug, neighborhood, city, images, rating, computed_rating, total_review_count, categories, hook_fr, hook_en, hook_ar, wtuce_status, latitude, longitude, is_featured"
+          "id, name, slug, neighborhood, city, images, rating, computed_rating, total_review_count, categories, hook_fr, hook_en, hook_ar, wtuce_status, latitude, longitude, is_featured, min_price, manual_price_range"
         )
         .in("id", allIds)
         .eq("is_active", true);
@@ -685,6 +687,18 @@ const BlogArticleTemplate = ({
                       « {entry.hook} »
                     </p>
                   )}
+                  {(() => {
+                    const primary = businesses[entry.id];
+                    const mp = primary?.min_price;
+                    if (mp && mp > 0) {
+                      return (
+                        <p className={`mb-3 text-sm ${isDark ? "text-white/75" : "text-muted-foreground"}`}>
+                          Prix minimum constaté en réservation directe : <span className="font-semibold">{Math.round(mp)} €</span>
+                        </p>
+                      );
+                    }
+                    return null;
+                  })()}
                   {entry.hours && (
                     <div
                       className={`flex items-center gap-1.5 text-xs mb-6 ${
