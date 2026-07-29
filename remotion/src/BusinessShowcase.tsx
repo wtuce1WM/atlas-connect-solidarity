@@ -124,6 +124,7 @@ function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
 
 function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
   switch (kind) {
+    case "logo": return 60;
     case "hook": return 120;
     case "name": return 120;
     case "media": return 150;
