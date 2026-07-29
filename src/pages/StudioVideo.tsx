@@ -1292,6 +1292,27 @@ export default function StudioVideo() {
             <div className="space-y-2 rounded-md border border-border bg-muted/30 p-3">
               <Label className="text-sm">Éléments à inclure dans la vidéo</Label>
               <div className="flex flex-col gap-2 text-sm">
+                {logoInfo.url && logoInfo.bg === "transparent" && (
+                  <div className="rounded-md border border-border bg-background/40 p-2">
+                    <label className="flex items-start gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                        checked={optOpenWithLogo}
+                        onChange={(e) => setOptOpenWithLogo(e.target.checked)}
+                      />
+                      <span className="font-medium">Ouvrir avec le logo</span>
+                    </label>
+                    <div className={`mt-2 flex gap-3 items-center ${optOpenWithLogo ? "opacity-100" : "opacity-50"}`}>
+                      <div className="shrink-0 relative w-20 h-20 rounded-md overflow-hidden border border-border bg-[repeating-conic-gradient(#e5e7eb_0_25%,#f9fafb_0_50%)] bg-[length:16px_16px] flex items-center justify-center">
+                        <img src={logoInfo.url} alt="Logo" className="w-full h-full object-contain p-1" />
+                      </div>
+                      <div className="min-w-0 flex-1 text-xs text-muted-foreground">
+                        Logo sur fond transparent — utilisé comme séquence d'ouverture avant le hook.
+                      </div>
+                    </div>
+                  </div>
+                )}
                 {popupImageUrl && (
                   <div className="rounded-md border border-border bg-background/40 p-2">
                     <label className="flex items-start gap-2 cursor-pointer">
