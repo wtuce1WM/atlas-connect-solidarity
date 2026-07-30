@@ -1505,7 +1505,7 @@ export default function StudioVideo() {
                     variant={durationAuto ? "default" : "outline"}
                     onClick={() => setDurationAuto(true)}
                   >
-                    Laisse l'IA décider{durationAuto ? ` (~${autoDuration}s)` : ""}
+                    LAISSE L'IA DÉCIDER
                   </Button>
                   {DURATIONS.map((d) => (
                     <Button
