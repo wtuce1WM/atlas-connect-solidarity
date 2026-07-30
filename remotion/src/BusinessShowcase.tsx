@@ -1131,9 +1131,11 @@ const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[
         : <KenBurns src={heroImg} from={0} duration={durationFrames} />)}
       <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.4) 0%,rgba(0,0,0,0.75) 100%)" }} />
       <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
-        <div style={{ fontFamily: body, color: COLORS.gold, fontSize: 20, letterSpacing: 6, textTransform: "uppercase", textAlign: "center" }}>
-          Signature
-        </div>
+        {!data.title && (
+          <div style={{ fontFamily: body, color: COLORS.gold, fontSize: 20, letterSpacing: 6, textTransform: "uppercase", textAlign: "center" }}>
+            Signature
+          </div>
+        )}
         {data.title && (
           <div style={{ marginTop: 14, transform: `translateY(${titleY}px)`, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 56, lineHeight: 1.1, textAlign: "center", textShadow: "0 4px 20px rgba(0,0,0,0.7)" }}>
             {data.title}
@@ -1339,9 +1341,10 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const locationLine =
     (ovHook.description || "").trim().replace(/^📍\s*/, "") ||
     [city, neighborhood].filter(Boolean).join(" · ");
-  const [rawHookPart1, hookPart2] = splitHookInTwo(hook);
+  const [, hookPart2] = splitHookInTwo(hook);
   const nameSceneTitle = (ovName.label || "").trim();
-  const hookPart1 = (ovName.description || "").trim() || rawHookPart1;
+  // Le hook est monté INTÉGRALEMENT dans la scène dédiée (override manuel prioritaire).
+  const hookFull = (ovName.description || "").trim() || (hook || "").trim();
 
 
   // Build the ordered scene plan (honors props.scene_order + props.scene_durations)
@@ -1525,7 +1528,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                 <KenBurns src={nameMediaUrl} from={0} duration={duration} />
               )
             ) : null}
-            <HookOverlay title={nameSceneTitle} text={hookPart1} duration={duration} textPosition={textPosition} />
+            <HookOverlay title={nameSceneTitle} text={hookFull} duration={duration} textPosition={textPosition} />
           </AbsoluteFill>
         );
 
@@ -1554,7 +1557,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             {(() => {
               const fzT = (freeZoneTitle || "").trim();
               const fzS = (freeZoneSubtitle || "").trim();
-              const primary = fzT || hookPart2 || hookPart1;
+              const primary = fzT || hookPart2 || hookFull;
               const secondary = fzS || (fzT ? "" : "");
               return (
                 <>

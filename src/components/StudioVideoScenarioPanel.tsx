@@ -199,7 +199,7 @@ export function scenarioFromTemplateProps(
     });
   };
   const name = props?.name || "Établissement";
-  const hook = typeof props?.hook === "string" ? props.hook.slice(0, 120) : "";
+  const hook = typeof props?.hook === "string" ? props.hook.trim() : "";
   const tagline = typeof props?.tagline === "string" ? props.tagline : "";
   const videos: string[] = Array.isArray(props?.videos) ? props.videos : [];
   const images: string[] = Array.isArray(props?.images) ? props.images : [];
@@ -229,14 +229,16 @@ export function scenarioFromTemplateProps(
   const neighborhood = typeof props?.neighborhood === "string" ? props.neighborhood.trim() : "";
   const locationLine = [city, neighborhood].filter(Boolean).join(" · ");
   push("hook", Math.max(2, Math.round(durationSec * 0.1)), [name, locationLine ? `📍 ${locationLine}` : ""].filter(Boolean).join("\n"));
-  // Scène "name" du montage = TEXTE du hook (1re moitié, comme dans Remotion)
-  const [hookPart1] = splitHookInTwo(hook);
-  push("name", Math.max(2, Math.round(durationSec * 0.12)), hookPart1 || hook || tagline || name);
+  // Scène "name" du montage = TEXTE INTÉGRAL du hook (identique à Remotion)
+  push("name", Math.max(2, Math.round(durationSec * 0.12)), hook || tagline || name);
   // Étape "media" (montage) : ajoutée manuellement par l'utilisateur via "Ajouter une étape".
 
   // Popup (une scène dédiée si l'option est cochée et qu'une image popup existe)
   if (props?.showPopup && props?.popupImageUrl) {
-    push("popup", Math.max(2, Math.round(durationSec * 0.08)), "Image d'accueil (popup) en plein écran.");
+    push("popup", Math.max(2, Math.round(durationSec * 0.08)), [
+      typeof props?.popupTitle === "string" ? props.popupTitle.trim() : "",
+      typeof props?.popupDescription === "string" ? props.popupDescription.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : "",
+    ].filter(Boolean).join("\n") || "Image d'accueil (popup) en plein écran.");
   }
 
   // Une scène par offre sélectionnée — texte exact repris dans la vidéo
