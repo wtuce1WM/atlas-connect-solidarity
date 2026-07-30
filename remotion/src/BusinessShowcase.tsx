@@ -1235,10 +1235,44 @@ const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[
   );
 };
 
-const PLATFORM_META: Record<"google_review" | "tripadvisor" | "restaurant_guru", { label: string; brand: string; accent: string }> = {
-  google_review:   { label: "Google",          brand: "#4285F4", accent: "#EA4335" },
-  tripadvisor:     { label: "TripAdvisor",     brand: "#00AA6C", accent: "#F2B203" },
-  restaurant_guru: { label: "Restaurant Guru", brand: "#F26D21", accent: "#F2B203" },
+const PLATFORM_META: Record<"google_review" | "tripadvisor" | "restaurant_guru", { label: string; brand: string; accent: string; logo: string }> = {
+  google_review:   { label: "Google",          brand: "#4285F4", accent: "#EA4335", logo: "brands/google-logo.webp" },
+  tripadvisor:     { label: "TripAdvisor",     brand: "#34E0A1", accent: "#F2B203", logo: "brands/logo_tripadvisor.webp" },
+  restaurant_guru: { label: "Restaurant Guru", brand: "#CB2027", accent: "#F2B203", logo: "brands/logo_restaurant_guru.webp" },
+};
+
+/** Logo géant en filigrane qui déborde du cadre + dérive lente : signature visuelle des séquences de marque */
+const BrandBleedLogo: React.FC<{ src: string; color: string; durationFrames: number; side?: "left" | "right" }> = ({ src, color, durationFrames, side = "left" }) => {
+  const frame = useCurrentFrame();
+  const enter = spring({ frame, fps: 30, config: { damping: 22, stiffness: 90 } });
+  const drift = interpolate(frame, [0, durationFrames], [0, side === "left" ? 60 : -60]);
+  const rot = interpolate(frame, [0, durationFrames], [side === "left" ? -14 : 14, side === "left" ? -4 : 4]);
+  const scale = interpolate(enter, [0, 1], [1.35, 1]);
+  const fade = ease(frame, 0, 18) * (1 - ease(frame, durationFrames - 14, durationFrames));
+  return (
+    <AbsoluteFill style={{ overflow: "hidden", pointerEvents: "none", opacity: fade }}>
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          [side]: -260,
+          transform: `translateY(-50%) translateX(${drift}px) rotate(${rot}deg) scale(${scale})`,
+          width: 760,
+          height: 760,
+          filter: `drop-shadow(0 0 90px ${color}88)`,
+          opacity: 0.22,
+        } as React.CSSProperties}
+      >
+        <Img src={staticFile(src)} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+      </div>
+      <AbsoluteFill
+        style={{
+          background: `radial-gradient(60% 55% at ${side === "left" ? "12%" : "88%"} 50%, ${color}33 0%, transparent 70%)`,
+          mixBlendMode: "screen",
+        }}
+      />
+    </AbsoluteFill>
+  );
 };
 
 const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "restaurant_guru"; rating: number | null; count: number | null; durationFrames: number; textPosition?: TextPosition }> = ({ kind, rating, count, durationFrames, textPosition = "middle" }) => {
@@ -1247,29 +1281,55 @@ const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "r
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
   const badgeS = spring({ frame: frame - 10, fps: 30, config: { damping: 12, stiffness: 140 } });
+  const chipS = spring({ frame: frame - 4, fps: 30, config: { damping: 10, stiffness: 180 } });
+  const ringPulse = 1 + 0.05 * Math.sin(frame / 9);
   return (
-    <AbsoluteFill style={{ opacity: Math.min(inO, out), padding: 60, ...textPositionStyle(textPosition) }}>
-      <div style={{ fontFamily: body, color: meta.brand, fontSize: 22, letterSpacing: 6, textTransform: "uppercase", textAlign: "center" }}>
-        Avis {meta.label}
-      </div>
-      <div style={{ marginTop: 28, alignSelf: "center", transform: `scale(${interpolate(badgeS, [0, 1], [0.85, 1])})`, padding: "28px 40px", background: "rgba(255,255,255,0.06)", border: `2px solid ${meta.brand}`, borderRadius: 22, textAlign: "center", boxShadow: `0 12px 48px ${meta.brand}44` }}>
-        {rating != null && (
-          <div style={{ fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 96, lineHeight: 1 }}>
-            {rating.toFixed(1)}<span style={{ fontSize: 40, color: meta.accent }}>/5</span>
-          </div>
-        )}
-        <div style={{ marginTop: 6, fontFamily: body, fontSize: 32, color: meta.accent }}>
-          {"★★★★★".slice(0, Math.round(rating ?? 0))}<span style={{ opacity: 0.3 }}>{"★★★★★".slice(Math.round(rating ?? 0))}</span>
+    <AbsoluteFill>
+      <BrandBleedLogo src={meta.logo} color={meta.brand} durationFrames={durationFrames} side={kind === "tripadvisor" ? "right" : "left"} />
+      <AbsoluteFill style={{ opacity: Math.min(inO, out), padding: 60, ...textPositionStyle(textPosition) }}>
+        {/* Pastille logo en avant-plan, débordant du bloc note */}
+        <div
+          style={{
+            alignSelf: "center",
+            width: 132,
+            height: 132,
+            borderRadius: 66,
+            background: "rgba(255,255,255,0.96)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transform: `scale(${interpolate(chipS, [0, 1], [0.4, 1]) * ringPulse}) rotate(${interpolate(chipS, [0, 1], [-25, 0])}deg)`,
+            boxShadow: `0 0 0 6px ${meta.brand}, 0 18px 60px ${meta.brand}66`,
+            marginBottom: -34,
+            zIndex: 2,
+            overflow: "hidden",
+          }}
+        >
+          <Img src={staticFile(meta.logo)} style={{ width: 132, height: 132, objectFit: "cover" }} />
         </div>
-        {count != null && (
-          <div style={{ marginTop: 12, fontFamily: body, color: COLORS.cream, fontSize: 26 }}>
-            {count.toLocaleString("fr-FR")} avis
+        <div style={{ marginTop: 24, alignSelf: "center", transform: `scale(${interpolate(badgeS, [0, 1], [0.85, 1])})`, padding: "48px 46px 30px", background: "rgba(14,11,8,0.72)", border: `2px solid ${meta.brand}`, borderRadius: 26, textAlign: "center", boxShadow: `0 12px 60px ${meta.brand}55` }}>
+          <div style={{ fontFamily: body, color: meta.brand, fontSize: 20, letterSpacing: 6, textTransform: "uppercase" }}>
+            Avis {meta.label}
           </div>
-        )}
-      </div>
+          {rating != null && (
+            <div style={{ marginTop: 10, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 100, lineHeight: 1 }}>
+              {rating.toFixed(1)}<span style={{ fontSize: 40, color: meta.accent }}>/5</span>
+            </div>
+          )}
+          <div style={{ marginTop: 6, fontFamily: body, fontSize: 32, color: meta.accent }}>
+            {"★★★★★".slice(0, Math.round(rating ?? 0))}<span style={{ opacity: 0.3 }}>{"★★★★★".slice(Math.round(rating ?? 0))}</span>
+          </div>
+          {count != null && (
+            <div style={{ marginTop: 12, fontFamily: body, color: COLORS.cream, fontSize: 26 }}>
+              {count.toLocaleString("fr-FR")} avis
+            </div>
+          )}
+        </div>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };
+
 
 const SceneCustomerReview: React.FC<{ author?: string | null; rating?: number | null; highlight: string; durationFrames: number; textPosition?: TextPosition }> = ({ author, rating, highlight, durationFrames, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
