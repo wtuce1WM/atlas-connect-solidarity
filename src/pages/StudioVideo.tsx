@@ -271,6 +271,10 @@ export default function StudioVideo() {
   const [continuousBg, setContinuousBg] = useState(false);
   const [continuousBgUrl, setContinuousBgUrl] = useState<string>("");
   const [continuousPickerOpen, setContinuousPickerOpen] = useState(false);
+  const [continuousBgSound, setContinuousBgSound] = useState(false);
+  // Ordre de montage des vidéos sélectionnées (glisser / déposer)
+  const [videoOrder, setVideoOrder] = useState<string[]>([]);
+  const [dragUrl, setDragUrl] = useState<string | null>(null);
 
   const [showImages, setShowImages] = useState(true);
   const [showVideos, setShowVideos] = useState(true);
