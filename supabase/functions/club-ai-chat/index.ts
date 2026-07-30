@@ -2371,7 +2371,9 @@ serve(async (req) => {
     if (isWeatherIntent(lastUserMsg)) {
       try {
         const mem = buildSessionMemory(messages, clientContext?.activeCity);
-        const city = mem.city || cleanActiveCityTop(clientContext?.activeCity) || "Marrakech";
+        // Ville explicite dans la question > ville active connue > ville par défaut géo
+        const explicitCity = knownWeatherCity(lastUserMsg) || knownWeatherCity(mem.city) || knownWeatherCity(clientContext?.activeCity);
+        const city = explicitCity || resolveGeoDefaultCity(clientContext?.coords);
         const { data: w, error: wErr } = await admin.functions.invoke("get-weather", { body: { city } });
         if (!wErr && w && !w.error && typeof w.temp === "number") {
           const cityName = w.city_name || city;
