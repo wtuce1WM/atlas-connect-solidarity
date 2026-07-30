@@ -537,6 +537,16 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         template_props.logoUrl = logoUrlFromClient;
       }
 
+      // Vidéo unique jouée en fond continu (neutralise les fonds de scène côté Remotion)
+      const contBgUrl = typeof options?.continuous_bg_video_url === "string" && /^https?:\/\//i.test(options.continuous_bg_video_url as string)
+        ? (options.continuous_bg_video_url as string)
+        : null;
+      if (contBgUrl) {
+        template_props.continuousBgVideoUrl = contBgUrl;
+        const vids = Array.isArray(template_props.videos) ? template_props.videos as string[] : [];
+        if (!vids.includes(contBgUrl)) template_props.videos = [contBgUrl, ...vids].slice(0, 8);
+      }
+
       // Zone libre — étape "media" optionnelle avec texte + médias de fond au choix
       const wantsFreeZone = !!options?.free_zone;
       if (wantsFreeZone) {
