@@ -1125,6 +1125,54 @@ const VideoBackdrop: React.FC<{ src?: string; image?: string }> = ({ src, image 
   );
 };
 
+// Fond animé — applique l'effet sélectionné (Ken Burns, zoom, slide…) sur les images fixes.
+// Les vidéos gardent leur lecture en boucle. Utilisé par toutes les scènes "info"
+// (avis, plateformes, horaires, carte, ID numérique, offres, WhatsApp, outro).
+const MotionBackdrop: React.FC<{
+  src?: string;
+  image?: string;
+  duration: number;
+  effect: TransitionEffect;
+  veil?: string;
+}> = ({ src, image, duration, effect, veil = "rgba(14,11,8,0.72)" }) => {
+  const frame = useCurrentFrame();
+  const tone = useTone();
+  const suppressBg = useSuppressBg();
+  const url = src || image;
+  if (suppressBg || !url) return null;
+  const isVid = isVideoSrc(url);
+  const p = duration > 0 ? Math.max(0, Math.min(1, frame / duration)) : 0;
+  let transform = "scale(1.02)";
+  if (!isVid) {
+    switch (effect) {
+      case "kenburns":
+        transform = `scale(${1.04 + p * (tone.kenBurnsZoom || 0.1)}) translate(${(p - 0.5) * 1.6}%, ${(0.5 - p) * 1.1}%)`;
+        break;
+      case "zoom":
+        transform = `scale(${1.16 - p * 0.12})`;
+        break;
+      case "slide":
+        transform = `scale(1.12) translateX(${(0.5 - p) * 4}%)`;
+        break;
+      case "wipe":
+        transform = `scale(${1.06 + p * 0.04})`;
+        break;
+      default:
+        transform = `scale(${1.03 + p * 0.03})`;
+    }
+  }
+  return (
+    <AbsoluteFill style={{ overflow: "hidden" }}>
+      {isVid ? (
+        <OffthreadVideo src={url} muted loop style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      ) : (
+        <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover", transform }} />
+      )}
+      <AbsoluteFill style={{ background: veil }} />
+    </AbsoluteFill>
+  );
+};
+
 const removeDecorativeTaglineWords = (value: string): string =>
   value
     .replace(/\bterracotta(?:é|e|s)?\b/gi, "")
