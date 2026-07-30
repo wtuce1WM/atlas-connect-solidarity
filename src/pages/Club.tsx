@@ -123,8 +123,10 @@ const Club = () => {
       setUser(session?.user ?? null);
       setAuthLoading(false);
     });
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+    // Vérification serveur : une session locale rejetée (bad_jwt, révoquée…) est purgée
+    // au lieu d'afficher une UI "connectée" fantôme.
+    verifySession().then(({ user: verifiedUser }) => {
+      setUser(verifiedUser);
       setAuthLoading(false);
     });
     supabase.from("countries").select("id, name_fr, name_en, name_ar, code").order("sort_order").then(({ data }) => {
@@ -132,6 +134,7 @@ const Club = () => {
     });
     return () => subscription.unsubscribe();
   }, []);
+
 
   // Ping "last activity" each time a logged-in member opens /club
   useEffect(() => {
