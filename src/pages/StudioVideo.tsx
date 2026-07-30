@@ -1963,10 +1963,6 @@ export default function StudioVideo() {
                 {previewing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                 {aiScenario ? (scenarioStale ? "Régénérer le scénario (paramètres modifiés)" : "Régénérer le scénario (IA)") : "Prévisualiser le scénario (IA)"}
               </Button>
-              <Button onClick={submit} disabled={submitting || hasActiveJob} className="gap-2">
-                {submitting || hasActiveJob ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-                {hasActiveJob ? "Job déjà lancé…" : refineFrom ? "Générer la version affinée" : "Générer la vidéo"}
-              </Button>
             </div>
           </section>
 
