@@ -711,7 +711,7 @@ export function StudioVideoScenarioPanel({
                   )}
                 </div>
               </div>
-              <p className="text-sm text-neutral-600 leading-relaxed italic">{scene.description}</p>
+              <p className="text-sm text-neutral-700 leading-relaxed whitespace-pre-line">{scene.description}</p>
               {scene.keywords.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {scene.keywords.map((k) => (
