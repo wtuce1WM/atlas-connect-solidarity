@@ -298,6 +298,11 @@ export default function StudioVideo() {
     return [...imgs, ...vids];
   }, [bizImages, bizVideos]);
 
+  // Fermer la zone "Votre établissement" dès qu'un établissement est choisi
+  useEffect(() => {
+    if (selected) setShowEstablishment(false);
+  }, [selected]);
+
   useEffect(() => {
     if (lightboxIndex === null) return;
     const onKey = (e: KeyboardEvent) => {
