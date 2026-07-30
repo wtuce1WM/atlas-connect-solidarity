@@ -307,6 +307,7 @@ const KnowledgeBaseManagement = ({
 
   const uniqueCategories = [...new Set(entries.map(e => e.category))].sort();
   const uniqueTags = [...new Set(entries.flatMap(e => e.tags || []))].sort();
+  const formatDate = (d: string) =>
     new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
   const isEditing = editingId || showNew;
 
