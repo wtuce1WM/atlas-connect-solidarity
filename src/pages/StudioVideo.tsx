@@ -1378,7 +1378,8 @@ export default function StudioVideo() {
               <button
                 type="button"
                 onClick={() => setShowEstablishment((s) => !s)}
-                className="text-muted-foreground hover:text-foreground p-1 rounded"
+                disabled={!isCorporate && !selected}
+                className="text-muted-foreground hover:text-foreground p-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label={showEstablishment ? "Masquer l'établissement" : "Afficher l'établissement"}
                 title={showEstablishment ? "Masquer" : "Afficher"}
               >
