@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
 
   let body: any;
   try { body = await req.json(); } catch { body = {}; }
-  const { job_id, status, output_url, error_message } = body || {};
+  const { job_id, status, output_url, error_message, duration_sec } = body || {};
 
   if (!job_id || !['done', 'error', 'rendering'].includes(status)) {
     return new Response(JSON.stringify({ error: 'invalid payload' }), {
@@ -32,6 +32,7 @@ Deno.serve(async (req) => {
   };
   if (output_url) patch.output_url = output_url;
   if (error_message) patch.error_message = error_message;
+  if (duration_sec != null && Number.isFinite(Number(duration_sec))) patch.duration_sec = Number(duration_sec);
 
   const { error } = await supabase.from('video_jobs').update(patch).eq('id', job_id);
   if (error) {

@@ -616,16 +616,24 @@ export default function StudioVideo() {
     let s = 4 + 3; // name + hook
     const canLogo = !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo;
     if (canLogo) s += 2;
+    if (optPopup) s += 4;
     const offerCount = selectedOfferIds.size;
     if (offerCount > 0) s += Math.min(6, offerCount) * 5;
+    const highlightCount = selectedHighlightIds.size;
+    if (highlightCount > 0) s += Math.min(4, highlightCount) * 4;
     if (optReviews) s += 3;
+    if (optGoogleReviews) s += 4;
+    if (optTripAdvisor) s += 4;
+    if (optRestaurantGuru) s += 4;
+    if (optCustomerReview) s += 6;
     if (optHours) s += 3;
     if (optMapMarker) s += 3;
-    if (optDigitalId) s += 4;
+    if (optDigitalId) s += 5;
+    if (optWhatsapp && whatsappNumber) s += 3;
     s += 3; // cta
     if (optInstallCta) s += 2; // outro
     return Math.max(10, Math.min(90, s));
-  }, [logoInfo, optOpenWithLogo, selectedOfferIds, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta]);
+  }, [logoInfo, optOpenWithLogo, optPopup, selectedOfferIds, selectedHighlightIds, optReviews, optGoogleReviews, optTripAdvisor, optRestaurantGuru, optCustomerReview, optHours, optMapMarker, optDigitalId, optWhatsapp, whatsappNumber, optInstallCta]);
 
   const effectiveDuration = durationAuto ? autoDuration : duration;
 

@@ -3,6 +3,7 @@ import { renderMedia, selectComposition, openBrowser } from "@remotion/renderer"
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
+import { execSync } from "node:child_process";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootEnvPath = path.resolve(__dirname, "../../.env");
@@ -69,6 +70,19 @@ async function uploadToSignedUrl(signedUrl, buffer) {
     body: buffer,
   });
   if (!r.ok) throw new Error(`upload ${r.status}: ${await r.text()}`);
+}
+
+function getVideoDurationSeconds(videoPath) {
+  try {
+    const out = execSync(
+      `ffprobe -v error -show_entries format=duration -of csv=p=0 "${videoPath}"`,
+      { encoding: "utf-8" }
+    );
+    const sec = parseFloat(out.trim());
+    return Number.isFinite(sec) ? Math.round(sec) : null;
+  } catch (e) {
+    return null;
+  }
 }
 
 async function renderOne() {
@@ -141,8 +155,16 @@ async function renderOne() {
     const buffer = fs.readFileSync(outPath);
     await uploadToSignedUrl(upload.signedUrl, buffer);
 
+    const realDuration = getVideoDurationSeconds(outPath);
+    if (realDuration) console.log(`⏱️ Durée réelle : ${realDuration}s`);
+
     console.log(`✅ Terminé : ${upload.publicUrl}`);
-    await finalizeJob({ job_id: job.id, status: "done", output_url: upload.publicUrl });
+    await finalizeJob({
+      job_id: job.id,
+      status: "done",
+      output_url: upload.publicUrl,
+      duration_sec: realDuration,
+    });
 
     fs.unlinkSync(outPath);
     return true;
