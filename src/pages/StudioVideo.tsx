@@ -1413,7 +1413,7 @@ export default function StudioVideo() {
                 onClick={() => setReviewDialogOpen(false)}
               >
                 <div
-                  className="relative w-full max-w-2xl max-h-[90vh] rounded-2xl bg-background border border-border shadow-2xl flex flex-col"
+                  className="relative w-full max-w-2xl max-h-[90vh] rounded-2xl bg-white text-neutral-900 border border-neutral-200 shadow-2xl flex flex-col"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="flex items-center justify-between p-4 border-b border-border">
