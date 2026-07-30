@@ -1997,6 +1997,13 @@ export default function StudioVideo() {
             />
           ) : null}
 
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={submit} disabled={submitting || hasActiveJob} className="gap-2">
+              {submitting || hasActiveJob ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+              {hasActiveJob ? "Job déjà lancé…" : refineFrom ? "Générer la version affinée" : "Générer la vidéo"}
+            </Button>
+          </div>
+
           {currentJob && (
             <section className="rounded-xl border border-border bg-card p-6 space-y-3">
               <h2 className="font-semibold">Job en cours</h2>
