@@ -797,7 +797,18 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
                 : row.savings_amount != null
                   ? `-${row.savings_amount} ${row.promotion_currency || "MAD"}`
                   : undefined;
-            const rawMsg = (stripHtml(row.promotion_message_fr || row.promotion_message) || "").replace(/\s+/g, " ").trim();
+            // Préserve les retours à la ligne du texte de l'offre (HTML <br>, </p>, \n)
+            const rawSrc = (row.promotion_message_fr || row.promotion_message);
+            const rawMsg = typeof rawSrc === "string"
+              ? rawSrc
+                  .replace(/<br\s*\/?>/gi, "\n")
+                  .replace(/<\/(p|div|li|h[1-6])>/gi, "\n")
+                  .replace(/<[^>]+>/g, " ")
+                  .replace(/&nbsp;/gi, " ")
+                  .replace(/[ \t]+/g, " ")
+                  .replace(/\n{2,}/g, "\n")
+                  .trim()
+              : "";
             // Le texte de l'offre doit TOUJOURS être affiché : on découpe en segments,
             // et les segments trop longs sont recoupés (au lieu d'être supprimés).
             const chunkLong = (t: string): string[] => {
@@ -814,11 +825,11 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
             };
             const lines = rawMsg
               ? rawMsg
-                  .split(/[\n•·|]+|(?:\.\s)/)
+                  .split(/[\n•·|]+/)
                   .map((l: string) => cleanDisplayText(l) || "")
                   .filter(Boolean)
                   .flatMap(chunkLong)
-                  .slice(0, 6)
+                  .slice(0, 8)
               : [];
             if (!title && !priceStr && lines.length === 0) return null;
             return { title, price: priceStr, lines: lines.length ? lines : undefined };

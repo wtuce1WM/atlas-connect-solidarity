@@ -714,13 +714,7 @@ export function StudioVideoScenarioPanel({
                 </div>
               </div>
               <p className="text-sm text-neutral-700 leading-relaxed whitespace-pre-line">{scene.description}</p>
-              {scene.keywords.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {scene.keywords.map((k) => (
-                    <span key={k} className="text-[10px] bg-primary/10 text-black px-2 py-0.5 rounded border border-primary/20">#{k}</span>
-                  ))}
-                </div>
-              )}
+
 
               {(scene.icon === "hook" || scene.icon === "name" || scene.icon === "custom") && (
                 <div className="mt-3 flex items-center gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2.5 py-1.5">
