@@ -416,28 +416,47 @@ const SceneHook: React.FC<{ name: string; location: string; img?: string; textPo
   );
 };
 
-const HookOverlay: React.FC<{ text: string; duration: number; textPosition?: TextPosition }> = ({ text, duration, textPosition = "middle" }) => {
+const HookOverlay: React.FC<{ text: string; duration: number; textPosition?: TextPosition; title?: string }> = ({ text, duration, textPosition = "middle", title }) => {
   const frame = useCurrentFrame();
   const o = Math.min(ease(frame, 6, 26), 1 - ease(frame, duration - 20, duration - 2));
-  if (!text) return null;
+  if (!text && !title) return null;
   return (
     <AbsoluteFill style={{ padding: 70, ...textPositionStyle(textPosition), opacity: o }}>
-      <div
-        style={{
-          fontFamily: display,
-          fontWeight: 700,
-          color: COLORS.cream,
-          fontSize: 52,
-          lineHeight: 1.18,
-          textAlign: "center",
-          textShadow: "0 4px 24px rgba(0,0,0,0.75)",
-        }}
-      >
-        {text}
-      </div>
+      {title ? (
+        <div
+          style={{
+            fontFamily: body,
+            color: COLORS.gold,
+            fontSize: 30,
+            letterSpacing: 3,
+            textTransform: "uppercase",
+            textAlign: "center",
+            marginBottom: 18,
+            textShadow: "0 2px 12px rgba(0,0,0,0.7)",
+          }}
+        >
+          {title}
+        </div>
+      ) : null}
+      {text ? (
+        <div
+          style={{
+            fontFamily: display,
+            fontWeight: 700,
+            color: COLORS.cream,
+            fontSize: 52,
+            lineHeight: 1.18,
+            textAlign: "center",
+            textShadow: "0 4px 24px rgba(0,0,0,0.75)",
+          }}
+        >
+          {text}
+        </div>
+      ) : null}
     </AbsoluteFill>
   );
 };
+
 
 const SceneTagline: React.FC<{ tagline: string; fullHook?: string; showFullHook?: boolean }> = ({ tagline, fullHook, showFullHook }) => {
   const frame = useCurrentFrame();
