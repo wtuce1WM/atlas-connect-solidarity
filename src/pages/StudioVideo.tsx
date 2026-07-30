@@ -2317,6 +2317,10 @@ export default function StudioVideo() {
               )}
               <p className="text-[11px] text-muted-foreground">
                 Le mode <strong>Auto</strong> applique un fondu enchaîné aux plans vidéo et un Ken Burns aux plans images.
+                {continuousBg && continuousBgUrl ? (
+                  <> <br />Avec <strong>une seule vidéo en continu</strong>, le fond ne change jamais : la transition s'applique uniquement aux textes et blocs graphiques (fondu enchaîné ou slide).</>
+                ) : null}
+
               </p>
             </div>
 
