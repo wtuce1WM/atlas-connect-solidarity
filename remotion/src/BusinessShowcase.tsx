@@ -1371,6 +1371,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   textOverrides,
   continuousBgVideoUrl,
   continuousBgSound,
+  transitions,
+
 
 }) => {
   const continuousMode = typeof continuousBgVideoUrl === "string" && /^https?:\/\//i.test(continuousBgVideoUrl);
