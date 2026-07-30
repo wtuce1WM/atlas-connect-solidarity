@@ -775,11 +775,11 @@ export function StudioVideoScenarioPanel({
           <div className="text-[10px] font-bold uppercase tracking-widest text-neutral-600">Timeline de production</div>
           <div className="text-[10px] text-neutral-600">{editedScenes.length} scènes · {total}s</div>
         </div>
-        <div className="flex gap-1 h-10">
+        <div className="flex flex-wrap gap-1">
           {editedScenes.map((scene) => {
-            const width = total > 0 ? Math.max(4, (scene.duration / total) * 100) : 0;
+            const width = total > 0 ? Math.max(6, (scene.duration / total) * 100) : 0;
             return (
-              <div key={scene.id} className="relative flex flex-col justify-center px-2 rounded-md border border-border bg-neutral-100 hover:bg-neutral-200 transition-colors cursor-pointer overflow-hidden" style={{ width: `${width}%`, minWidth: "48px" }} title={`${scene.label} · ${scene.duration}s`}>
+              <div key={scene.id} className="relative flex flex-col justify-center px-2 py-1 h-10 rounded-md border border-border bg-neutral-100 hover:bg-neutral-200 transition-colors cursor-pointer overflow-hidden" style={{ flex: `1 1 ${width}%`, minWidth: "72px", maxWidth: "100%" }} title={`${scene.label} · ${scene.duration}s`}>
                 <span className="text-[9px] font-bold truncate text-black">{scene.label}</span>
                 <div className="h-1 mt-1 rounded-full bg-primary/60" />
               </div>
