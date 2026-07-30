@@ -354,7 +354,7 @@ export default function StudioVideo() {
 
   const [showImages, setShowImages] = useState(true);
   const [showVideos, setShowVideos] = useState(true);
-  const [showEstablishment, setShowEstablishment] = useState(false);
+  const [showEstablishment, setShowEstablishment] = useState(true);
   const [popupImageUrl, setPopupImageUrl] = useState<string | null>(null);
   const [popupMeta, setPopupMeta] = useState<{ title: string | null; description: string | null }>({ title: null, description: null });
   const [popupPreviewOpen, setPopupPreviewOpen] = useState(false);
@@ -418,14 +418,18 @@ export default function StudioVideo() {
     return [...imgs, ...vids];
   }, [bizImages, bizVideos]);
 
-  // Fermer la zone "Votre établissement" et réinitialiser l'aperçu dès qu'un établissement est choisi
+  // En Mode établissement, la sélection d'établissement est obligatoire : on garde la
+  // section ouverte tant qu'aucun établissement n'est choisi. Dès qu'un établissement change,
+  // on ferme la section et on réinitialise l'aperçu du scénario (pour éviter les mélanges).
   useEffect(() => {
     if (selected) {
       setShowEstablishment(false);
       setScenarioPreviewed(false);
       setAiScenario(null);
+    } else if (studioMode !== "corporate") {
+      setShowEstablishment(true);
     }
-  }, [selected]);
+  }, [studioMode, selected]);
 
   useEffect(() => {
     if (lightboxIndex === null) return;
@@ -1369,12 +1373,13 @@ export default function StudioVideo() {
           <section className="rounded-xl border border-border bg-card p-6 space-y-5">
             <div className="flex items-center justify-between">
               <Label>
-                {isStaff ? "Établissement (optionnel)" : "Votre établissement"}
+                {isStaff ? "Établissement (obligatoire)" : "Votre établissement"}
               </Label>
               <button
                 type="button"
                 onClick={() => setShowEstablishment((s) => !s)}
-                className="text-muted-foreground hover:text-foreground p-1 rounded"
+                disabled={!isCorporate && !selected}
+                className="text-muted-foreground hover:text-foreground p-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label={showEstablishment ? "Masquer l'établissement" : "Afficher l'établissement"}
                 title={showEstablishment ? "Masquer" : "Afficher"}
               >
@@ -1386,6 +1391,11 @@ export default function StudioVideo() {
               <div className="space-y-2">
                 {isStaff ? (
                   <>
+                    {!selected && (
+                      <p className="text-sm text-destructive">
+                        En Mode établissement, la sélection d'un établissement est obligatoire pour générer une vidéo.
+                      </p>
+                    )}
                     <Input
                       placeholder="Rechercher par nom…"
                       value={selected ? selected.name : query}
