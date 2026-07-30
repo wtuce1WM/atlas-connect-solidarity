@@ -1654,6 +1654,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     ? safeVideos
     : (useVideos ? safeVideos.slice(1) : safeImages.slice(1));
   const defaultGalleryList = defaultGallery.length ? defaultGallery : (useVideos ? safeVideos : safeImages);
+  // Fond par défaut pour les scènes "info" sans média dédié (avis plateformes, WhatsApp…)
+  const bgFallback = (i: number): string | undefined => {
+    if (safeImages.length) return safeImages[i % safeImages.length];
+    if (safeVideos.length) return safeVideos[i % safeVideos.length];
+    return undefined;
+  };
 
   // Scene 1 (Hook 0-120)
   const hookItem = hookOverride[0];
