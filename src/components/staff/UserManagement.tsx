@@ -206,7 +206,6 @@ const UserManagement = () => {
       if (!data) throw new Error("Aucun compte trouvé avec cette adresse email.");
       toast({ title: "Succès", description: `Accès « ${grantRole} » accordé à ${email}.` });
       setGrantEmail("");
-      setGrantDialogOpen(false);
       fetchUsers();
     } catch (error: any) {
       toast({
