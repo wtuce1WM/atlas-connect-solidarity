@@ -420,6 +420,9 @@ const HookOverlay: React.FC<{ text: string; duration: number; textPosition?: Tex
   const frame = useCurrentFrame();
   const o = Math.min(ease(frame, 6, 26), 1 - ease(frame, duration - 20, duration - 2));
   if (!text && !title) return null;
+  // Taille adaptative : le hook est monté intégralement, on réduit si le texte est long.
+  const len = (text || "").length;
+  const textSize = len > 260 ? 30 : len > 180 ? 34 : len > 120 ? 40 : len > 70 ? 46 : 52;
   return (
     <AbsoluteFill style={{ padding: 70, ...textPositionStyle(textPosition), opacity: o }}>
       {title ? (
@@ -444,7 +447,7 @@ const HookOverlay: React.FC<{ text: string; duration: number; textPosition?: Tex
             fontFamily: display,
             fontWeight: 700,
             color: COLORS.cream,
-            fontSize: 52,
+            fontSize: textSize,
             lineHeight: 1.18,
             textAlign: "center",
             textShadow: "0 4px 24px rgba(0,0,0,0.75)",
