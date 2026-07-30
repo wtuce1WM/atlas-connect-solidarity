@@ -7,11 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut, Maximize2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Plus } from "lucide-react";
+import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut, Maximize2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Plus, GripVertical } from "lucide-react";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { StudioVideoScenarioPanel, buildScenario, extractKeywords, scenarioFromTemplateProps, type Scenario, type SceneMediaMap, type SceneMediaItem, type ScenarioEdits } from "@/components/StudioVideoScenarioPanel";
-import { MediaPickerGrid } from "@/components/StudioVideoMediaPicker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 import maisonBrummellAsset from "@/assets/maison-brummell.mp4.asset.json";
@@ -271,6 +270,10 @@ export default function StudioVideo() {
   const [continuousBg, setContinuousBg] = useState(false);
   const [continuousBgUrl, setContinuousBgUrl] = useState<string>("");
   const [continuousPickerOpen, setContinuousPickerOpen] = useState(false);
+  const [continuousBgSound, setContinuousBgSound] = useState(false);
+  // Ordre de montage des vidéos sélectionnées (glisser / déposer)
+  const [videoOrder, setVideoOrder] = useState<string[]>([]);
+  const [dragUrl, setDragUrl] = useState<string | null>(null);
 
   const [showImages, setShowImages] = useState(true);
   const [showVideos, setShowVideos] = useState(true);
@@ -280,6 +283,34 @@ export default function StudioVideo() {
   const [popupPreviewOpen, setPopupPreviewOpen] = useState(false);
   const [sceneMedia, setSceneMedia] = useState<SceneMediaMap>({});
   const [textPosition, setTextPosition] = useState<"top" | "middle" | "bottom">("middle");
+
+  // Garde l'ordre de montage synchronisé avec la sélection de vidéos.
+  useEffect(() => {
+    setVideoOrder((prev) => {
+      const kept = prev.filter((u) => selectedVideos.has(u));
+      const added = bizVideos.map((v) => v.url).filter((u) => selectedVideos.has(u) && !kept.includes(u));
+      const next = [...kept, ...added];
+      return next.length === prev.length && next.every((u, i) => u === prev[i]) ? prev : next;
+    });
+  }, [selectedVideos, bizVideos]);
+
+  const orderedSelectedVideos = useMemo(
+    () => videoOrder.filter((u) => selectedVideos.has(u)),
+    [videoOrder, selectedVideos],
+  );
+
+  const moveVideo = (from: string, to: string) => {
+    if (from === to) return;
+    setVideoOrder((prev) => {
+      const arr = prev.filter((u) => selectedVideos.has(u));
+      const i = arr.indexOf(from);
+      const j = arr.indexOf(to);
+      if (i < 0 || j < 0) return prev;
+      arr.splice(i, 1);
+      arr.splice(j, 0, from);
+      return arr;
+    });
+  };
 
 
 
@@ -641,7 +672,7 @@ export default function StudioVideo() {
     if (optCustomerReview) s += 6;
     if (optHours) s += 3;
     if (optMapMarker) s += 3;
-    if (optDigitalId) s += 5;
+    if (optDigitalId) s += 3;
     if (optWhatsapp && whatsappNumber) s += 3;
     s += 3; // cta
     if (optInstallCta) s += 2; // outro
@@ -732,6 +763,7 @@ export default function StudioVideo() {
             custom_scenes: scenarioEdits?.customScenes,
             text_position: textPosition,
             continuous_bg_video_url: continuousBg && continuousBgUrl ? continuousBgUrl : null,
+            continuous_bg_sound: continuousBg && continuousBgUrl ? continuousBgSound : false,
           },
 
         },
@@ -807,7 +839,7 @@ export default function StudioVideo() {
       }
     }
     const chosenImages = Array.from(selectedImages);
-    const chosenVideos = Array.from(selectedVideos);
+    const chosenVideos = orderedSelectedVideos;
     if (chosenImages.length > 0) directives.push(`Utiliser EXCLUSIVEMENT les images suivantes (dans cet ordre) pour le montage :\n  * ${chosenImages.join("\n  * ")}`);
     if (continuousBg && continuousBgUrl) directives.push(`Une seule vidéo est jouée EN FOND CONTINU sur toute la durée (${continuousBgUrl}) : ne pas prévoir de montage de fonds différents par scène, seuls les textes et éléments graphiques changent.`);
     if (chosenVideos.length > 0) directives.push(`Utiliser EXCLUSIVEMENT les vidéos suivantes (dans cet ordre) pour le montage :\n  * ${chosenVideos.join("\n  * ")}`);
@@ -829,19 +861,19 @@ export default function StudioVideo() {
       offers: Array.from(selectedOfferIds).sort(),
       highlights: Array.from(selectedHighlightIds).sort(),
       images: Array.from(selectedImages).sort(),
-      videos: Array.from(selectedVideos).sort(),
+      videos: orderedSelectedVideos,
       reviewId: selectedReviewId,
       reviewHighlight: reviewHighlight || null,
       textPosition,
-      continuousBg: continuousBg ? continuousBgUrl : null,
+      continuousBg: continuousBg ? `${continuousBgUrl}|${continuousBgSound ? "sound" : "mute"}` : null,
     });
   }, [
     prompt, effectiveDuration, tone, selected?.id,
     optReviews, optHours, optMapMarker, optDigitalId, optInstallCta,
     optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
     optCustomerReview, optPopup, optOpenWithLogo,
-    selectedOfferIds, selectedHighlightIds, selectedImages, selectedVideos,
-    selectedReviewId, reviewHighlight, textPosition, continuousBg, continuousBgUrl,
+    selectedOfferIds, selectedHighlightIds, selectedImages, orderedSelectedVideos,
+    selectedReviewId, reviewHighlight, textPosition, continuousBg, continuousBgUrl, continuousBgSound,
   ]);
   const scenarioStale = !!aiScenario && aiScenarioSig !== null && aiScenarioSig !== currentScenarioSig;
 
@@ -892,6 +924,7 @@ export default function StudioVideo() {
             custom_scenes: scenarioEdits?.customScenes,
             text_position: textPosition,
             continuous_bg_video_url: continuousBg && continuousBgUrl ? continuousBgUrl : null,
+            continuous_bg_sound: continuousBg && continuousBgUrl ? continuousBgSound : false,
           },
 
         },
@@ -1319,6 +1352,52 @@ export default function StudioVideo() {
                   </div>
                   <p className="text-[11px] text-muted-foreground">Si aucune n'est cochée, l'IA choisit librement parmi toutes les vidéos.</p>
 
+                  {orderedSelectedVideos.length > 1 && (
+                    <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2">
+                      <Label className="text-sm">
+                        Ordre des vidéos dans le montage
+                        <span className="block text-[11px] text-muted-foreground font-normal">
+                          Glissez / déposez les vignettes pour changer l'ordre.
+                        </span>
+                      </Label>
+                      <div className="flex flex-wrap gap-2">
+                        {orderedSelectedVideos.map((url, i) => {
+                          const v = bizVideos.find((x) => x.url === url);
+                          return (
+                            <div
+                              key={url}
+                              draggable
+                              onDragStart={() => setDragUrl(url)}
+                              onDragEnd={() => setDragUrl(null)}
+                              onDragOver={(e) => e.preventDefault()}
+                              onDrop={(e) => {
+                                e.preventDefault();
+                                if (dragUrl) moveVideo(dragUrl, url);
+                                setDragUrl(null);
+                              }}
+                              className={`relative w-20 aspect-[9/16] rounded-md overflow-hidden border-2 bg-black cursor-grab active:cursor-grabbing ${
+                                dragUrl === url ? "border-[#C04F17] opacity-60" : "border-border"
+                              }`}
+                              title={v?.title || url}
+                            >
+                              {v?.kind === "file" ? (
+                                <video src={url} preload="metadata" muted playsInline className="w-full h-full object-cover pointer-events-none" />
+                              ) : v?.thumbnail ? (
+                                <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover pointer-events-none" loading="lazy" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-white/60"><Video className="h-5 w-5" /></div>
+                              )}
+                              <span className="absolute top-1 left-1 bg-[#C04F17] text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{i + 1}</span>
+                              <span className="absolute bottom-1 right-1 text-white/80"><GripVertical className="h-3.5 w-3.5" /></span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+
+
                   <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
                     <label className="flex items-start gap-2 cursor-pointer">
                       <input
@@ -1356,21 +1435,56 @@ export default function StudioVideo() {
                             </div>
                           );
                         })()}
+                        <label className="flex items-start gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="mt-1 accent-[#C04F17]"
+                            checked={continuousBgSound}
+                            onChange={(e) => setContinuousBgSound(e.target.checked)}
+                          />
+                          <span className="text-sm">
+                            Utiliser le son
+                            <span className="block text-[11px] text-muted-foreground">
+                              La bande son d'origine de la vidéo est conservée dans le rendu final (aucun coût IA).
+                            </span>
+                          </span>
+                        </label>
                         <Dialog open={continuousPickerOpen} onOpenChange={setContinuousPickerOpen}>
                           <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-white text-black">
                             <DialogHeader>
                               <DialogTitle className="text-black">Sélection médias — vidéo de fond continue</DialogTitle>
                             </DialogHeader>
-                            <MediaPickerGrid
-                              available={bizVideos
-                                .filter((v) => v.kind === "file")
-                                .map((v) => ({ url: v.url, kind: "video" as const, title: v.title, thumbnail: v.thumbnail, duration: v.duration }))}
-                              showImages={false}
-                              isSelected={(m) => m.url === continuousBgUrl}
-                              onSelect={(m) => { setContinuousBgUrl(m.url); setContinuousPickerOpen(false); }}
-                            />
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                              {bizVideos.filter((v) => v.kind === "file").map((v) => {
+                                const isSel = v.url === continuousBgUrl;
+                                return (
+                                  <div
+                                    key={v.url}
+                                    className={`relative aspect-[9/16] rounded-md overflow-hidden border-2 transition bg-black ${isSel ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : "border-neutral-300 hover:border-neutral-500"}`}
+                                    title={v.title}
+                                  >
+                                    <video src={v.url} controls preload="metadata" playsInline className="w-full h-full object-cover bg-black" />
+                                    <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/80 to-transparent p-1">
+                                      <p className="text-[10px] text-white truncate">{v.title}</p>
+                                    </div>
+                                    {v.duration != null && (
+                                      <span className="pointer-events-none absolute top-1 left-1 bg-black/70 text-white text-[9px] font-bold px-1 rounded">{formatVideoDuration(v.duration)}</span>
+                                    )}
+                                    <button
+                                      type="button"
+                                      onClick={() => { setContinuousBgUrl(v.url); setContinuousPickerOpen(false); }}
+                                      aria-label={isSel ? "Vidéo de fond sélectionnée" : "Choisir cette vidéo"}
+                                      className={`absolute top-1 right-1 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold border transition ${isSel ? "bg-[#C04F17] text-white border-[#C04F17]" : "bg-black/60 text-white border-white/40 hover:bg-black/80"}`}
+                                    >
+                                      {isSel ? "✓" : "+"}
+                                    </button>
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </DialogContent>
                         </Dialog>
+
 
                         <p className="text-[11px] text-amber-500">
                           ⚠️ Faites attention à utiliser une vidéo plus longue que votre scénario, sinon elle bouclera sur le début une fois arrivée en fin de vidéo.

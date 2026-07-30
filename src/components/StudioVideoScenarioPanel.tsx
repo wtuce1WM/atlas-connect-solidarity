@@ -169,7 +169,7 @@ export function buildScenario(
   if (options.reviews) push("reviews", Math.max(2, Math.round(durationSec * 0.12)), "Badge avis clients avec note/20 et nombre d'avis.");
   if (options.hours) push("hours", Math.max(2, Math.round(durationSec * 0.08)), "Horaires d'ouverture en surimpression.");
   if (options.mapMarker) push("map", Math.max(2, Math.round(durationSec * 0.1)), "Marqueur Google Map et localisation.");
-  if (options.digitalId) push("digital", Math.max(2, Math.round(durationSec * 0.1)), "Séquence ID numérique : fiche, partage, QR code.");
+  if (options.digitalId) push("digital", 3, "Séquence ID numérique : fiche, partage, QR code.");
   if (options.whatsapp && options.whatsappNumber) {
     push("whatsapp", Math.max(2, Math.round(durationSec * 0.08)), `WhatsApp ${options.whatsappNumber} — logo #25D366 + effet libre au montage.`);
   }
@@ -296,7 +296,7 @@ export function scenarioFromTemplateProps(
   }
   if (props?.showOpeningHours) push("hours", Math.max(2, Math.round(durationSec * 0.07)), "Horaires d'ouverture en surimpression.");
   if (props?.showMap) push("map", Math.max(2, Math.round(durationSec * 0.09)), `Marqueur Google Map${props.address ? ` — ${String(props.address).slice(0, 60)}` : ""}.`);
-  if (props?.showDigitalId) push("digital", Math.max(2, Math.round(durationSec * 0.1)), "ID numérique : capture fiche, partage, QR code.");
+  if (props?.showDigitalId) push("digital", 3, "ID numérique : capture fiche, partage, QR code.");
   if (props?.showWhatsapp && props?.whatsappNumber) {
     push("whatsapp", Math.max(2, Math.round(durationSec * 0.08)), `WhatsApp ${props.whatsappNumber} — logo #25D366 + effet libre au montage.`);
   }

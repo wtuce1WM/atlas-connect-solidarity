@@ -12,7 +12,12 @@ const CookieBanner = () => {
 
   // Neutralisée dans les routes /embed/ (l'iframe est hébergée par le partenaire,
   // qui gère son propre consentement cookies).
-  const isEmbed = typeof window !== "undefined" && window.location.pathname.startsWith("/embed/");
+  // Neutralisée aussi en mode capture (?bare=1) pour ne pas polluer le screenshot
+  // de la fiche utilisé dans la scène "ID numérique" du Studio Vidéo.
+  const isEmbed =
+    typeof window !== "undefined" &&
+    (window.location.pathname.startsWith("/embed/") ||
+      new URLSearchParams(window.location.search).get("bare") === "1");
 
   useEffect(() => {
     if (isEmbed) return;

@@ -543,6 +543,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         : null;
       if (contBgUrl) {
         template_props.continuousBgVideoUrl = contBgUrl;
+        template_props.continuousBgSound = Boolean(options?.continuous_bg_sound);
         const vids = Array.isArray(template_props.videos) ? template_props.videos as string[] : [];
         if (!vids.includes(contBgUrl)) template_props.videos = [contBgUrl, ...vids].slice(0, 8);
       }
