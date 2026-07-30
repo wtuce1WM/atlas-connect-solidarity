@@ -42,6 +42,9 @@ export const TONE_CONFIG: Record<Tone, ToneConfig> = {
   elegant:   { kenBurnsZoom: 0.06, fadeFrames: 20, overlay: "linear-gradient(180deg,rgba(255,255,255,0.04) 0%,rgba(0,0,0,0.10) 100%)" },
 };
 const ToneContext = React.createContext<Tone>("immersif");
+// Mode "vidéo unique en fond continu" : neutralise tous les fonds de scène
+const SuppressBgContext = React.createContext<boolean>(false);
+const useSuppressBg = (): boolean => React.useContext(SuppressBgContext);
 const useTone = (): ToneConfig => TONE_CONFIG[React.useContext(ToneContext)] ?? TONE_CONFIG.immersif;
 
 export type ShowcaseProps = {
@@ -348,10 +351,12 @@ const Background: React.FC = () => (
 const KenBurns: React.FC<{ src: string; from: number; duration: number }> = ({ src, from, duration }) => {
   const frame = useCurrentFrame();
   const tone = useTone();
+  const suppressBg = useSuppressBg();
   const local = frame - from;
   const progress = Math.max(0, Math.min(1, local / duration));
   const scale = 1.04 + progress * tone.kenBurnsZoom;
   const o = Math.min(ease(local, 0, tone.fadeFrames), 1 - ease(local, duration - tone.fadeFrames, duration));
+  if (suppressBg) return null;
   return (
     <AbsoluteFill style={{ opacity: o, overflow: "hidden" }}>
       <Img
@@ -1018,8 +1023,10 @@ const sanitizeUrls = (arr: string[]): string[] =>
 
 const VideoCover: React.FC<{ src: string; from: number; duration: number }> = ({ src, from, duration }) => {
   const frame = useCurrentFrame();
+  const suppressBg = useSuppressBg();
   const local = frame - from;
   const o = Math.min(ease(local, 0, 12), 1 - ease(local, duration - 12, duration));
+  if (suppressBg) return null;
   return (
     <AbsoluteFill style={{ opacity: o, overflow: "hidden" }}>
       <OffthreadVideo src={src} muted loop style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -1032,6 +1039,8 @@ const VideoCover: React.FC<{ src: string; from: number; duration: number }> = ({
 
 // Fond vidéo en boucle + voile sombre — pour scènes Avis / Horaires / Map / CTA
 const VideoBackdrop: React.FC<{ src?: string; image?: string }> = ({ src, image }) => {
+  const suppressBg = useSuppressBg();
+  if (suppressBg) return null;
   if (src) {
     return (
       <AbsoluteFill style={{ overflow: "hidden" }}>
@@ -1404,7 +1413,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             ? (backdrop.kind === "video"
                 ? <VideoCover src={backdrop.url} from={0} duration={duration} />
                 : <VideoBackdrop image={backdrop.url} />)
-            : <AbsoluteFill style={{ backgroundColor: COLORS.night }} />}
+            : <AbsoluteFill style={{ backgroundColor: sceneBaseBg }} />}
           {c.mode === "overlay" && (
             <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.7) 100%)" }} />
           )}
@@ -1445,7 +1454,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
       case "logo": {
         const logoBg = Array.isArray((scene_media as any)?.logo) ? (scene_media as any).logo[0] : null;
         return (
-          <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+          <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             <SceneLogo logoUrl={logoUrl!} durationFrames={duration} background={logoBg} />
           </AbsoluteFill>
         );
@@ -1453,7 +1462,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
       case "popup": {
         if (!popupImageUrl) return null;
         return (
-          <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+          <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             <ScenePopup imageUrl={popupImageUrl} title={popupTitle} description={popupDescription} durationFrames={duration} textPosition={textPosition} />
           </AbsoluteFill>
         );
@@ -1466,7 +1475,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         const hArr = Array.isArray((scene_media as any)?.highlight) ? (scene_media as any).highlight : [];
         const bgItem = hArr[idx] ?? hArr[0];
         return (
-          <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+          <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             <SceneHighlight
               data={h}
               background={bgItem?.url ?? h.image_url ?? defaultGalleryList[idx % Math.max(defaultGalleryList.length, 1)] ?? null}
@@ -1485,7 +1494,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         const bgArr = Array.isArray((scene_media as any)?.[kind]) ? (scene_media as any)[kind] : [];
         const bg = bgArr[0];
         return (
-          <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+          <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             {bg ? (bg.kind === "video" ? <VideoBackdrop src={bg.url} /> : <VideoBackdrop image={bg.url} />) : null}
             <ScenePlatformReview kind={kind} rating={data.rating ?? null} count={data.count ?? null} durationFrames={duration} textPosition={textPosition} />
           </AbsoluteFill>
@@ -1497,7 +1506,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         const bg = bgArr[0];
         const text = (customerReview.highlight || customerReview.text || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
         return (
-          <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+          <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             {bg ? (bg.kind === "video" ? <VideoBackdrop src={bg.url} /> : <VideoBackdrop image={bg.url} />) : <VideoBackdrop image={defaultGalleryList[0]} />}
             <SceneCustomerReview author={customerReview.author} rating={customerReview.rating ?? null} highlight={text} durationFrames={duration} textPosition={textPosition} />
           </AbsoluteFill>
@@ -1508,7 +1517,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         const bgArr = Array.isArray((scene_media as any)?.whatsapp) ? (scene_media as any).whatsapp : [];
         const bg = bgArr[0];
         return (
-          <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+          <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             {bg ? (bg.kind === "video" ? <VideoBackdrop src={bg.url} /> : <VideoBackdrop image={bg.url} />) : null}
             <SceneWhatsapp number={whatsappNumber} durationFrames={duration} textPosition={textPosition} />
           </AbsoluteFill>
@@ -1685,7 +1694,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const toneOverlay = TONE_CONFIG[tone]?.overlay ?? TONE_CONFIG.immersif.overlay;
   return (
     <ToneContext.Provider value={tone}>
-      <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+      <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
         <Background />
         {plan.map((s) => (
           <Sequence key={`${s.kind}-${s.from}`} from={s.from} durationInFrames={s.duration}>
