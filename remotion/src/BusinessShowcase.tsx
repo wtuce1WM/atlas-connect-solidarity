@@ -1694,16 +1694,30 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const toneOverlay = TONE_CONFIG[tone]?.overlay ?? TONE_CONFIG.immersif.overlay;
   return (
     <ToneContext.Provider value={tone}>
-      <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
-        <Background />
-        {plan.map((s) => (
-          <Sequence key={`${s.kind}-${s.from}`} from={s.from} durationInFrames={s.duration}>
-            {renderScene(s)}
-          </Sequence>
-        ))}
-        {/* Finition visuelle liée au ton (vignette / teinte / désaturation) */}
-        <AbsoluteFill style={{ background: toneOverlay, pointerEvents: "none" }} />
-      </AbsoluteFill>
+      <SuppressBgContext.Provider value={continuousMode}>
+        <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+          {continuousMode ? (
+            <AbsoluteFill style={{ overflow: "hidden" }}>
+              <OffthreadVideo
+                src={continuousBgVideoUrl as string}
+                muted
+                loop
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+              <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.45) 0%,rgba(14,11,8,0.62) 100%)" }} />
+            </AbsoluteFill>
+          ) : (
+            <Background />
+          )}
+          {plan.map((s) => (
+            <Sequence key={`${s.kind}-${s.from}`} from={s.from} durationInFrames={s.duration}>
+              {renderScene(s)}
+            </Sequence>
+          ))}
+          {/* Finition visuelle liée au ton (vignette / teinte / désaturation) */}
+          <AbsoluteFill style={{ background: toneOverlay, pointerEvents: "none" }} />
+        </AbsoluteFill>
+      </SuppressBgContext.Provider>
     </ToneContext.Provider>
   );
 };
