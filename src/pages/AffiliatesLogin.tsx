@@ -69,7 +69,25 @@ const AffiliatesLogin = () => {
 
   const t = translations[language] || translations.fr;
 
+  const redirectTarget = (() => {
+    const raw = new URLSearchParams(window.location.search).get("redirect");
+    return raw && raw.startsWith("/") && !raw.startsWith("//") ? raw : null;
+  })();
+
   const redirectIfAffiliate = async (userId: string) => {
+    if (redirectTarget) {
+      const [{ data: affiliateRow }, { data: staff }, { data: studio }] = await Promise.all([
+        supabase.from("affiliates").select("id").eq("user_id", userId).maybeSingle(),
+        supabase.rpc("is_staff", { _user_id: userId }),
+        supabase.rpc("has_role", { _user_id: userId, _role: "video_studio" as any }),
+      ]);
+      if (affiliateRow || staff || studio) {
+        navigate(redirectTarget);
+        return true;
+      }
+      return false;
+    }
+
     const { data: affiliate } = await supabase
       .from("affiliates")
       .select("id")
@@ -129,7 +147,9 @@ const AffiliatesLogin = () => {
         await supabase.auth.signOut();
         toast({
           title: t.error,
-          description: "Cet email correspond à un compte Club/utilisateur, pas à un compte affilié.",
+          description: redirectTarget
+            ? "Ce compte n'a pas accès à cette page. Demandez un accès à One World Morocco."
+            : "Cet email correspond à un compte Club/utilisateur, pas à un compte affilié.",
           variant: "destructive",
         });
       }
