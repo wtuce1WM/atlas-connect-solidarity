@@ -28,13 +28,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { UserPlus, Trash2, Shield, Users, Loader2, Pencil, Eye, EyeOff } from "lucide-react";
+import { UserPlus, Trash2, Shield, Users, Loader2, Pencil, Eye, EyeOff, Video, KeyRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+
+type StaffRole = "admin" | "staff" | "video_studio";
 
 interface UserRole {
   id: string;
   user_id: string;
-  role: "admin" | "staff" | "affiliate";
+  role: "admin" | "staff" | "affiliate" | "video_studio";
   created_at: string;
   email?: string;
 }
@@ -48,9 +50,13 @@ const UserManagement = () => {
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserPassword, setNewUserPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [newUserRole, setNewUserRole] = useState<"admin" | "staff">("staff");
-  const [editRole, setEditRole] = useState<"admin" | "staff">("staff");
+  const [newUserRole, setNewUserRole] = useState<StaffRole>("staff");
+  const [editRole, setEditRole] = useState<StaffRole>("staff");
   const [adding, setAdding] = useState(false);
+  const [grantDialogOpen, setGrantDialogOpen] = useState(false);
+  const [grantEmail, setGrantEmail] = useState("");
+  const [grantRole, setGrantRole] = useState<StaffRole>("video_studio");
+  const [granting, setGranting] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const { toast } = useToast();
@@ -79,16 +85,16 @@ const UserManagement = () => {
         const { data: roles, error: rolesError } = await supabase
           .from("user_roles")
           .select("*")
-          .in("role", ["admin", "staff"])
+          .in("role", ["admin", "staff", "video_studio"])
           .order("created_at", { ascending: false });
 
         if (rolesError) {
           throw rolesError;
         }
-        setUsers(roles || []);
+        setUsers((roles || []) as UserRole[]);
       } else {
         // Filter out affiliates from the result
-        const filteredData = (data || []).filter((u: UserRole) => u.role === "admin" || u.role === "staff");
+        const filteredData = (data || []).filter((u: UserRole) => u.role === "admin" || u.role === "staff" || u.role === "video_studio");
         setUsers(filteredData);
       }
     } catch (error: any) {
@@ -184,10 +190,39 @@ const UserManagement = () => {
     }
   };
 
+  const handleGrantRole = async () => {
+    const email = grantEmail.trim().toLowerCase();
+    if (!email) {
+      toast({ variant: "destructive", title: "Erreur", description: "Veuillez entrer une adresse email." });
+      return;
+    }
+    setGranting(true);
+    try {
+      const { data, error } = await supabase.rpc("add_user_role_by_email" as any, {
+        _email: email,
+        _role: grantRole as any,
+      });
+      if (error) throw error;
+      if (!data) throw new Error("Aucun compte trouvé avec cette adresse email.");
+      toast({ title: "Succès", description: `Accès « ${grantRole} » accordé à ${email}.` });
+      setGrantEmail("");
+      setGrantDialogOpen(false);
+      fetchUsers();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: error.message || "Impossible d'accorder cet accès.",
+      });
+    } finally {
+      setGranting(false);
+    }
+  };
+
   const handleEditUser = (user: UserRole) => {
     setEditingUser(user);
     // Cast is safe because we filter out affiliates in fetchUsers
-    setEditRole(user.role as "admin" | "staff");
+    setEditRole(user.role as StaffRole);
     setEditDialogOpen(true);
   };
 
@@ -299,6 +334,74 @@ const UserManagement = () => {
           </div>
         </div>
 
+        <div className="flex flex-wrap gap-2">
+        <Dialog open={grantDialogOpen} onOpenChange={setGrantDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline">
+              <KeyRound className="h-4 w-4 mr-2" />
+              Donner un accès à un compte existant
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Donner un accès</DialogTitle>
+              <DialogDescription>
+                Attribuez un accès à un compte déjà existant (membre du Club ou affilié), via son adresse email.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="grant-email">Email du compte</Label>
+                <Input
+                  id="grant-email"
+                  type="email"
+                  placeholder="membre@exemple.com"
+                  value={grantEmail}
+                  onChange={(e) => setGrantEmail(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Accès</Label>
+                <Select value={grantRole} onValueChange={(value: StaffRole) => setGrantRole(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="video_studio">
+                      <div className="flex items-center gap-2">
+                        <Video className="h-4 w-4 text-primary" />
+                        Studio Vidéo
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="staff">
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-4 w-4" />
+                        Staff
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="admin">
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-4 w-4 text-gold" />
+                        Admin
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  « Studio Vidéo » donne un accès complet à /studio-video sans donner accès au backoffice.
+                </p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setGrantDialogOpen(false)}>Annuler</Button>
+              <Button onClick={handleGrantRole} disabled={granting} className="bg-gold hover:bg-gold/90 text-gold-foreground">
+                {granting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                Accorder
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-gold hover:bg-gold/90 text-gold-foreground">
@@ -348,7 +451,7 @@ const UserManagement = () => {
                 <Label htmlFor="role">Rôle</Label>
                 <Select
                   value={newUserRole}
-                  onValueChange={(value: "admin" | "staff") => setNewUserRole(value)}
+                  onValueChange={(value: StaffRole) => setNewUserRole(value)}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -364,6 +467,12 @@ const UserManagement = () => {
                       <div className="flex items-center gap-2">
                         <Shield className="h-4 w-4 text-gold" />
                         Admin
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="video_studio">
+                      <div className="flex items-center gap-2">
+                        <Video className="h-4 w-4 text-primary" />
+                        Studio Vidéo
                       </div>
                     </SelectItem>
                   </SelectContent>
@@ -388,6 +497,7 @@ const UserManagement = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Edit Role Dialog */}
@@ -404,7 +514,7 @@ const UserManagement = () => {
               <Label>Rôle</Label>
               <Select
                 value={editRole}
-                onValueChange={(value: "admin" | "staff") => setEditRole(value)}
+                onValueChange={(value: StaffRole) => setEditRole(value)}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -420,6 +530,12 @@ const UserManagement = () => {
                     <div className="flex items-center gap-2">
                       <Shield className="h-4 w-4 text-gold" />
                       Admin
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="video_studio">
+                    <div className="flex items-center gap-2">
+                      <Video className="h-4 w-4 text-primary" />
+                      Studio Vidéo
                     </div>
                   </SelectItem>
                 </SelectContent>
@@ -488,7 +604,7 @@ const UserManagement = () => {
                       variant={user.role === "admin" ? "default" : "secondary"}
                       className={user.role === "admin" ? "bg-gold text-gold-foreground" : ""}
                     >
-                      {user.role === "admin" ? "Admin" : "Staff"}
+                      {user.role === "admin" ? "Admin" : user.role === "video_studio" ? "Studio Vidéo" : "Staff"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground">

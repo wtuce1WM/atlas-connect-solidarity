@@ -188,6 +188,8 @@ export default function StudioVideo() {
   const [hasDashboard, setHasDashboard] = useState(false);
   const [hasVideoStudio, setHasVideoStudio] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
+  const [hasStudioRole, setHasStudioRole] = useState(false);
+  const [accessChecked, setAccessChecked] = useState(false);
   const [ownedBusinessIds, setOwnedBusinessIds] = useState<string[] | null>(null); // null = not loaded, [] = none
 
   const [notifyEmail, setNotifyEmail] = useState(false);
@@ -216,16 +218,18 @@ export default function StudioVideo() {
       const uid = session.user.id;
 
       // Detect staff/admin role
-      const [{ data: staffRow }, { data: affiliate }] = await Promise.all([
+      const [{ data: staffRow }, { data: studioRow }, { data: affiliate }] = await Promise.all([
         supabase.rpc("is_staff", { _user_id: uid }),
+        supabase.rpc("has_role", { _user_id: uid, _role: "video_studio" as any }),
         supabase
           .from("affiliates")
           .select("id, has_dashboard, has_video_studio")
           .eq("user_id", uid)
           .maybeSingle(),
       ]);
-      const staff = !!staffRow;
+      const staff = !!staffRow || !!studioRow;
       setIsStaff(staff);
+      setHasStudioRole(!!studioRow);
       if (affiliate) {
         setHasDashboard(!!(affiliate as any).has_dashboard);
         setHasVideoStudio(!!(affiliate as any).has_video_studio);
@@ -246,6 +250,7 @@ export default function StudioVideo() {
       } else {
         setOwnedBusinessIds([]);
       }
+      setAccessChecked(true);
     })();
   }, [authState]);
 
@@ -1117,7 +1122,19 @@ export default function StudioVideo() {
     );
   }
   if (authState === "out") {
-    return <Navigate to="/club" replace state={{ from: "/studio-video" }} />;
+    return <Navigate to="/affiliates/login?redirect=/studio-video" replace />;
+  }
+  if (accessChecked && !isStaff && ownedBusinessIds !== null && ownedBusinessIds.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background px-6">
+        <div className="max-w-md text-center space-y-3">
+          <h1 className="text-xl font-semibold">Accès non autorisé</h1>
+          <p className="text-sm text-muted-foreground">
+            Votre compte n'a pas accès au Studio Vidéo IA. Contactez One World Morocco pour demander un accès.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   const soundtrackBlock = (
