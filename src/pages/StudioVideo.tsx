@@ -1756,6 +1756,7 @@ export default function StudioVideo() {
             )}
 
 
+          {selected && (
           <section className="rounded-xl border border-border bg-card p-6 space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
