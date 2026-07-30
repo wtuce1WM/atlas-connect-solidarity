@@ -28,13 +28,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { UserPlus, Trash2, Shield, Users, Loader2, Pencil, Eye, EyeOff } from "lucide-react";
+import { UserPlus, Trash2, Shield, Users, Loader2, Pencil, Eye, EyeOff, Video, KeyRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+
+type StaffRole = "admin" | "staff" | "video_studio";
 
 interface UserRole {
   id: string;
   user_id: string;
-  role: "admin" | "staff" | "affiliate";
+  role: "admin" | "staff" | "affiliate" | "video_studio";
   created_at: string;
   email?: string;
 }
@@ -48,8 +50,8 @@ const UserManagement = () => {
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserPassword, setNewUserPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [newUserRole, setNewUserRole] = useState<"admin" | "staff">("staff");
-  const [editRole, setEditRole] = useState<"admin" | "staff">("staff");
+  const [newUserRole, setNewUserRole] = useState<StaffRole>("staff");
+  const [editRole, setEditRole] = useState<StaffRole>("staff");
   const [adding, setAdding] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -79,16 +81,16 @@ const UserManagement = () => {
         const { data: roles, error: rolesError } = await supabase
           .from("user_roles")
           .select("*")
-          .in("role", ["admin", "staff"])
+          .in("role", ["admin", "staff", "video_studio"])
           .order("created_at", { ascending: false });
 
         if (rolesError) {
           throw rolesError;
         }
-        setUsers(roles || []);
+        setUsers((roles || []) as UserRole[]);
       } else {
         // Filter out affiliates from the result
-        const filteredData = (data || []).filter((u: UserRole) => u.role === "admin" || u.role === "staff");
+        const filteredData = (data || []).filter((u: UserRole) => u.role === "admin" || u.role === "staff" || u.role === "video_studio");
         setUsers(filteredData);
       }
     } catch (error: any) {
@@ -187,7 +189,7 @@ const UserManagement = () => {
   const handleEditUser = (user: UserRole) => {
     setEditingUser(user);
     // Cast is safe because we filter out affiliates in fetchUsers
-    setEditRole(user.role as "admin" | "staff");
+    setEditRole(user.role as StaffRole);
     setEditDialogOpen(true);
   };
 
@@ -348,7 +350,7 @@ const UserManagement = () => {
                 <Label htmlFor="role">Rôle</Label>
                 <Select
                   value={newUserRole}
-                  onValueChange={(value: "admin" | "staff") => setNewUserRole(value)}
+                  onValueChange={(value: StaffRole) => setNewUserRole(value)}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -364,6 +366,12 @@ const UserManagement = () => {
                       <div className="flex items-center gap-2">
                         <Shield className="h-4 w-4 text-gold" />
                         Admin
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="video_studio">
+                      <div className="flex items-center gap-2">
+                        <Video className="h-4 w-4 text-primary" />
+                        Studio Vidéo
                       </div>
                     </SelectItem>
                   </SelectContent>
@@ -404,7 +412,7 @@ const UserManagement = () => {
               <Label>Rôle</Label>
               <Select
                 value={editRole}
-                onValueChange={(value: "admin" | "staff") => setEditRole(value)}
+                onValueChange={(value: StaffRole) => setEditRole(value)}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -420,6 +428,12 @@ const UserManagement = () => {
                     <div className="flex items-center gap-2">
                       <Shield className="h-4 w-4 text-gold" />
                       Admin
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="video_studio">
+                    <div className="flex items-center gap-2">
+                      <Video className="h-4 w-4 text-primary" />
+                      Studio Vidéo
                     </div>
                   </SelectItem>
                 </SelectContent>
@@ -488,7 +502,7 @@ const UserManagement = () => {
                       variant={user.role === "admin" ? "default" : "secondary"}
                       className={user.role === "admin" ? "bg-gold text-gold-foreground" : ""}
                     >
-                      {user.role === "admin" ? "Admin" : "Staff"}
+                      {user.role === "admin" ? "Admin" : user.role === "video_studio" ? "Studio Vidéo" : "Staff"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
