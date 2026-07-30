@@ -418,14 +418,15 @@ export default function StudioVideo() {
     return [...imgs, ...vids];
   }, [bizImages, bizVideos]);
 
-  // Fermer la zone "Votre établissement" et réinitialiser l'aperçu dès qu'un établissement est choisi
+  // Garde la zone "Votre établissement" ouverte tant qu'aucun établissement n'est choisi
+  // en Mode établissement (choix obligatoire). Ferme automatiquement dès qu'un établissement est sélectionné.
   useEffect(() => {
-    if (selected) {
+    if (!isCorporate && !selected) {
+      setShowEstablishment(true);
+    } else if (selected) {
       setShowEstablishment(false);
-      setScenarioPreviewed(false);
-      setAiScenario(null);
     }
-  }, [selected]);
+  }, [isCorporate, selected]);
 
   useEffect(() => {
     if (lightboxIndex === null) return;
