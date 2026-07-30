@@ -188,17 +188,23 @@ export default function StudioVideo() {
   const [isStaff, setIsStaff] = useState(false);
   const [ownedBusinessIds, setOwnedBusinessIds] = useState<string[] | null>(null); // null = not loaded, [] = none
 
+  const [notifyEmail, setNotifyEmail] = useState(false);
+  const [notifyEmailTo, setNotifyEmailTo] = useState("");
+
   useEffect(() => {
     let cancelled = false;
     supabase.auth.getUser().then(({ data }) => {
       if (cancelled) return;
       setAuthState(data.user ? "in" : "out");
+      if (data.user?.email) setNotifyEmailTo((prev) => prev || data.user!.email!);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       setAuthState(session?.user ? "in" : "out");
+      if (session?.user?.email) setNotifyEmailTo((prev) => prev || session.user!.email!);
     });
     return () => { cancelled = true; sub.subscription.unsubscribe(); };
   }, []);
+
 
   useEffect(() => {
     if (authState !== "in") return;
