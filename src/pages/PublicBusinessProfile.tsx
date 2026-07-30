@@ -192,10 +192,12 @@ const PublicBusinessProfile = () => {
     });
   }
 
+  const bare = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("bare") === "1";
+
   return (
     <div
-      className="min-h-screen w-full flex items-center justify-center py-6 px-3 sm:py-10"
-      style={{ backgroundColor: "#ECD6B8" }}
+      className={bare ? "min-h-screen w-full flex items-stretch justify-center" : "min-h-screen w-full flex items-center justify-center py-6 px-3 sm:py-10"}
+      style={{ backgroundColor: bare ? "#000000" : "#ECD6B8" }}
     >
       <style>{`
         @keyframes b-rise {
@@ -271,7 +273,7 @@ const PublicBusinessProfile = () => {
           z-index: 10;
         }
       `}</style>
-      <div className="relative w-full max-w-[420px] min-h-[85vh] rounded-[2.5rem] bg-gradient-to-b from-neutral-900 via-neutral-900 to-black text-neutral-100 shadow-2xl ring-1 ring-white/10 overflow-hidden">
+      <div className={`relative w-full ${bare ? "max-w-none rounded-none min-h-screen" : "max-w-[420px] rounded-[2.5rem] min-h-[85vh] shadow-2xl ring-1 ring-white/10"} bg-gradient-to-b from-neutral-900 via-neutral-900 to-black text-neutral-100 overflow-hidden`}>
         <div className="absolute top-4 right-4 z-10">
           <ShareButton
             variant="dark"

@@ -731,7 +731,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         try {
           const fcKey = Deno.env.get("FIRECRAWL_API_KEY");
           if (fcKey) {
-            const ficheUrl = `https://oneworldmorocco.com/b/${encodeURIComponent(template_props.slug)}`;
+            const ficheUrl = `https://oneworldmorocco.com/b/${encodeURIComponent(template_props.slug)}?bare=1`;
             const fcRes = await fetch("https://api.firecrawl.dev/v2/scrape", {
               method: "POST",
               headers: { "Authorization": `Bearer ${fcKey}`, "Content-Type": "application/json" },

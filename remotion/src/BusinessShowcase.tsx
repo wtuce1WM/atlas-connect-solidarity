@@ -943,7 +943,7 @@ const SceneDigitalId: React.FC<{
         <AbsoluteFill style={{ opacity: phase1O, padding: 14 }}>
           <div style={{ width: "100%", height: "100%", borderRadius: 36, overflow: "hidden", background: "#0a0807", display: "flex", flexDirection: "column" }}>
             {ficheScreenshotUrl ? (
-              <Img src={ficheScreenshotUrl} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center" }} />
+              <Img src={ficheScreenshotUrl} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center", background: "#0a0807" }} />
             ) : (
               <>
                 <div style={{ position: "relative", width: "100%", height: 360, background: "#1a1410" }}>
