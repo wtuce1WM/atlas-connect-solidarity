@@ -570,7 +570,7 @@ const SceneOffer: React.FC<{
           padding: "0 20px",
         }}
       >
-        {offer.title || "Une expérience signature"}
+        {offer.title || lines[0] || "Offre"}
       </div>
       {hasPrice && (
         <div
