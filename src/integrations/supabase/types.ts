@@ -6828,6 +6828,8 @@ export type Database = {
           duration_sec: number
           error_message: string | null
           id: string
+          notify_email: boolean
+          notify_email_to: string | null
           output_url: string | null
           parent_job_id: string | null
           prompt: string
@@ -6846,6 +6848,8 @@ export type Database = {
           duration_sec?: number
           error_message?: string | null
           id?: string
+          notify_email?: boolean
+          notify_email_to?: string | null
           output_url?: string | null
           parent_job_id?: string | null
           prompt: string
@@ -6864,6 +6868,8 @@ export type Database = {
           duration_sec?: number
           error_message?: string | null
           id?: string
+          notify_email?: boolean
+          notify_email_to?: string | null
           output_url?: string | null
           parent_job_id?: string | null
           prompt?: string
