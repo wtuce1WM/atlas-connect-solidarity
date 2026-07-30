@@ -2263,6 +2263,65 @@ export default function StudioVideo() {
               </div>
             </div>
 
+            <div className="space-y-3 rounded-md border border-border bg-muted/30 p-3">
+              <Label className="text-sm">Transitions entre les plans</Label>
+              <div className="space-y-1.5">
+                <span className="text-xs text-muted-foreground">Type de transition</span>
+                <select
+                  value={transitionStyle}
+                  onChange={(e) => setTransitionStyle(e.target.value as typeof transitionStyle)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="auto">Auto — l'IA choisit selon le média (par défaut)</option>
+                  <option value="doux">Doux</option>
+                  <option value="dynamique">Dynamique</option>
+                  <option value="minimal">Minimal</option>
+                </select>
+              </div>
+              <label className="flex items-start gap-2 cursor-pointer text-sm">
+                <input
+                  type="checkbox"
+                  className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                  checked={transitionDifferentiate}
+                  onChange={(e) => setTransitionDifferentiate(e.target.checked)}
+                />
+                <span>Différencier selon le média (vidéos / images)</span>
+              </label>
+              {transitionDifferentiate && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <span className="text-xs text-muted-foreground">Plans vidéo</span>
+                    <select
+                      value={transitionVideo}
+                      onChange={(e) => setTransitionVideo(e.target.value as TransitionEffectId)}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    >
+                      {(["crossfade", "fade_black", "wipe", "zoom", "cut"] as TransitionEffectId[]).map((k) => (
+                        <option key={k} value={k}>{TRANSITION_EFFECT_LABELS[k]}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <span className="text-xs text-muted-foreground">Plans images</span>
+                    <select
+                      value={transitionImage}
+                      onChange={(e) => setTransitionImage(e.target.value as TransitionEffectId)}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    >
+                      {(["kenburns", "crossfade", "slide", "fade_black", "wipe", "cut"] as TransitionEffectId[]).map((k) => (
+                        <option key={k} value={k}>{TRANSITION_EFFECT_LABELS[k]}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+              <p className="text-[11px] text-muted-foreground">
+                Le mode <strong>Auto</strong> applique un fondu enchaîné aux plans vidéo et un Ken Burns aux plans images.
+              </p>
+            </div>
+
+
+
 
 
             <div className="flex flex-wrap gap-2">
