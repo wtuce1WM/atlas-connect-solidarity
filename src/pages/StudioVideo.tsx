@@ -1040,6 +1040,11 @@ export default function StudioVideo() {
       if (error) throw error;
       const payload = data as any;
       const scenario = scenarioFromTemplateProps(payload.template_id, payload.template_props, payload.duration_sec ?? effectiveDuration, payload.rationale);
+      if (optClosingSequence && Array.isArray(scenario?.scenes)) {
+        const head = scenario.scenes.filter((s: any) => !CLOSING_KINDS.includes(s.icon));
+        const tail = CLOSING_KINDS.flatMap((k) => scenario.scenes.filter((s: any) => s.icon === k));
+        scenario.scenes = [...head, ...tail];
+      }
       setAiScenario({ scenario, rationale: payload.rationale, templateId: payload.template_id });
       setAiScenarioSig(currentScenarioSig);
       setScenarioPreviewed(true);
