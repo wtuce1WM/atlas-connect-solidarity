@@ -3,7 +3,7 @@
   "@type": "ItemList",
   "name": "Catalogue ONE WORLD MOROCCO",
   "url": "https://oneworldmorocco.com/ai/catalog.jsonld",
-  "numberOfItems": 1837,
+  "numberOfItems": 1840,
   "itemListElement": [
     {
       "@type": "ListItem",
@@ -3665,7 +3665,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 1202,
+          "reviewCount": 1212,
           "bestRating": 5
         }
       }
@@ -4282,7 +4282,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.1,
-          "reviewCount": 2846,
+          "reviewCount": 3127,
           "bestRating": 5
         }
       }
@@ -7431,7 +7431,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 254,
+          "reviewCount": 262,
           "bestRating": 5
         }
       }
@@ -8867,13 +8867,14 @@
     {
       "@type": "ListItem",
       "position": 307,
-      "url": "https://oneworldmorocco.com/dardar-cocktails-eat",
+      "url": "https://oneworldmorocco.com/rooftop-dardar",
       "item": {
         "@type": "LocalBusiness",
-        "@id": "https://oneworldmorocco.com/dardar-cocktails-eat#business",
+        "@id": "https://oneworldmorocco.com/rooftop-dardar#business",
         "name": "Dardar Cocktails & Eat",
-        "url": "https://oneworldmorocco.com/dardar-cocktails-eat",
+        "url": "https://oneworldmorocco.com/rooftop-dardar",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/12ead7f1-dc1d-429a-88a1-60fdd35a8b87-1777886222014-lktg7j.jpg",
+        "description": "Découvrez Dardar Cocktails & Eat, l'un des rooftops les plus emblématiques de la médina de Marrakech, où gastronomie, cocktails créatifs, musique et panorama exceptionnel se rencontrent pour offrir une expérience inoubliable. Situé à quelques pas de la célèbre place Jemaa el-Fna, ce restaurant rooftop séduit autant les voyageurs que les habitants grâce à son atmosphère élégante, son décor inspiré de l'artisanat marocain contemporain et sa vue spectaculaire sur les toits de la vieille ville, la m",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "4 Riad Zitoun Lakdim",
@@ -8890,7 +8891,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.4,
-          "reviewCount": 4480,
+          "reviewCount": 4998,
           "bestRating": 5
         }
       }
@@ -9614,8 +9615,8 @@
         },
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.8,
-          "reviewCount": 102,
+          "ratingValue": 4.9,
+          "reviewCount": 196,
           "bestRating": 5
         }
       }
@@ -11188,7 +11189,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.2,
-          "reviewCount": 1054,
+          "reviewCount": 1114,
           "bestRating": 5
         }
       }
@@ -12930,7 +12931,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 730,
+          "reviewCount": 1033,
           "bestRating": 5
         }
       }
@@ -12962,7 +12963,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.3,
-          "reviewCount": 3965,
+          "reviewCount": 4002,
           "bestRating": 5
         }
       }
@@ -13522,7 +13523,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 2193,
+          "reviewCount": 2234,
           "bestRating": 5
         }
       }
@@ -14055,7 +14056,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4,
-          "reviewCount": 184,
+          "reviewCount": 207,
           "bestRating": 5
         }
       }
@@ -16437,7 +16438,7 @@
         "description": "Bienvenue à l' Ardoise du Marché , votre destination culinaire incontournable au cœur du quartier vibrant de Guéliz . Passionnés par le terroir et les produits d'exception, nous vous proposons une immersion dans la gastronomie française authentique, où chaque assiette raconte une histoire de goût et de savoir-faire. Plus qu'un simple repas, nous vous invitons à une véritable table gastronomique où la qualité des ingrédients est érigée en priorité absolue. De nos viandes sélectionnées avec soin à",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Rue Oummo el Banin Imm Jaffa, Gueliz El Harti",
+          "streetAddress": "Rue Oummo el Banin Imm Jaffa",
           "addressLocality": "Gueliz",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -16451,7 +16452,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 343,
+          "reviewCount": 372,
           "bestRating": 5
         }
       }
@@ -17336,8 +17337,8 @@
         "telephone": "+212665861253",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.9,
-          "reviewCount": 344,
+          "ratingValue": 4.8,
+          "reviewCount": 353,
           "bestRating": 5
         }
       }
@@ -17487,7 +17488,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.1,
-          "reviewCount": 628,
+          "reviewCount": 631,
           "bestRating": 5
         }
       }
@@ -26211,7 +26212,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.3,
-          "reviewCount": 1323,
+          "reviewCount": 1325,
           "bestRating": 5
         }
       }
@@ -27954,7 +27955,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 95,
+          "reviewCount": 122,
           "bestRating": 5
         }
       }
@@ -29325,7 +29326,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 696,
+          "reviewCount": 742,
           "bestRating": 5
         }
       }
@@ -30046,12 +30047,12 @@
     {
       "@type": "ListItem",
       "position": 1027,
-      "url": "https://oneworldmorocco.com/pikala-bike-tours",
+      "url": "https://oneworldmorocco.com/pikala",
       "item": {
         "@type": "LocalBusiness",
-        "@id": "https://oneworldmorocco.com/pikala-bike-tours#business",
+        "@id": "https://oneworldmorocco.com/pikala#business",
         "name": "Pikala Bike Tours",
-        "url": "https://oneworldmorocco.com/pikala-bike-tours",
+        "url": "https://oneworldmorocco.com/pikala",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/98189953-9dcd-40a3-adc5-a7c607dfe5d2-1774327862957-x6vomc.jpg",
         "description": "Nous créons des expériences cyclistes inoubliables et donnons aux jeunes Marocains les moyens de construire un avenir plus sain. 45 jeunes actuellement employés 650 femmes ont appris à faire du vélo 23 000 enfants éduqués 400 000 participants à nos événements cyclistes Le Maroc, capitale africaine du cyclisme Le vélo offre une solution de transport non polluante. Il occupe moins de place sur les routes et est plus sûr à utiliser. Chez Pikala, nous nous concentrons sur trois niveaux de la société",
         "address": {
@@ -30066,13 +30067,7 @@
           "latitude": 31.6336951,
           "longitude": -7.9920822
         },
-        "telephone": "+212 6 128 60 739",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": 4.9,
-          "reviewCount": 687,
-          "bestRating": 5
-        }
+        "telephone": "+212 6 128 60 739"
       }
     },
     {
@@ -35119,7 +35114,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 130,
+          "reviewCount": 154,
           "bestRating": 5
         }
       }
@@ -39025,7 +39020,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 640,
+          "reviewCount": 670,
           "bestRating": 5
         }
       }
@@ -41393,7 +41388,7 @@
         "@id": "https://oneworldmorocco.com/91-leather-store#business",
         "name": "91 Leather Store",
         "url": "https://oneworldmorocco.com/91-leather-store",
-        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/af896f57-d96d-47a1-a241-e0d4a45fe2a1-1780762388575-gr9ppg.jpg",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/af896f57-d96d-47a1-a241-e0d4a45fe2a1-1780762385478-utarjl.jpg",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "91 Av. Hommane Fetouaki",
@@ -41409,7 +41404,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 268,
+          "reviewCount": 269,
           "bestRating": 5
         }
       }
@@ -44450,8 +44445,8 @@
         },
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.5,
-          "reviewCount": 370,
+          "ratingValue": 4.4,
+          "reviewCount": 371,
           "bestRating": 5
         }
       }
@@ -45023,6 +45018,7 @@
         "name": "Le Marrakchi",
         "url": "https://oneworldmorocco.com/le-marrakchi",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/5a31e844-552e-4abf-aaf0-7a9f9923f34d-1780231594368-5zn3x.webp",
+        "description": "Au cœur de la mythique place Jemaa el-Fna, Le Marrakchi est une véritable institution de Marrakech. Depuis plusieurs décennies, ce restaurant emblématique accueille voyageurs, familles, couples et amateurs de gastronomie marocaine dans un cadre authentique mêlant architecture traditionnelle, élégance orientale et terrasse panoramique offrant l'une des plus belles vues sur l'effervescence de la médina. De jour comme au coucher du soleil, l'établissement permet d'admirer les charmeurs de serpents,",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "52 Rue des banques",
@@ -45037,8 +45033,8 @@
         },
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 3.9,
-          "reviewCount": 1566,
+          "ratingValue": 4,
+          "reviewCount": 1587,
           "bestRating": 5
         }
       }
@@ -46577,7 +46573,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 252,
+          "reviewCount": 256,
           "bestRating": 5
         }
       }
@@ -46897,7 +46893,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 53,
+          "reviewCount": 58,
           "bestRating": 5
         }
       }
@@ -48803,7 +48799,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.2,
-          "reviewCount": 1246,
+          "reviewCount": 1254,
           "bestRating": 5
         }
       }
@@ -49865,7 +49861,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 426,
+          "reviewCount": 440,
           "bestRating": 5
         }
       }
@@ -50014,7 +50010,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.2,
-          "reviewCount": 2261,
+          "reviewCount": 2288,
           "bestRating": 5
         }
       }
@@ -51574,7 +51570,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 215,
+          "reviewCount": 217,
           "bestRating": 5
         }
       }
@@ -51773,7 +51769,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 497,
+          "reviewCount": 503,
           "bestRating": 5
         }
       }
@@ -52120,7 +52116,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 60,
+          "reviewCount": 124,
           "bestRating": 5
         }
       }
@@ -52407,7 +52403,7 @@
         "name": "La Terrasse Du Jardin",
         "url": "https://oneworldmorocco.com/la-terrasse-du-jardin",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/cf46f291-b56f-4bda-9df5-6cae13b6c7f8-1782893153747-80lvi9.webp",
-        "description": "Le Restaurant Niché au cœur de la vibrante médina de Marrakech, La Terrasse Du Jardin vous invite à découvrir une expérience gastronomique unique. Notre établissement allie tradition et modernité, offrant une sélection exquise de plats marocains authentiques préparés avec des ingrédients frais et locaux. Dès votre arrivée, laissez-vous séduire par l’ambiance chaleureuse et accueillante de notre restaurant. Que vous soyez ici pour un repas en famille, un dîner romantique ou une célébration spécia",
+        "description": "Découvrez La Terrasse du Jardin , l'une des adresses les plus prisées de Marrakech, où nature, gastronomie et art de vivre se rencontrent dans un véritable écrin de verdure. Situé sur le toit du concept store Le Jardin , ce restaurant rooftop offre une parenthèse de calme au cœur du quartier moderne de Marrakech. Entourée de plantes luxuriantes, de palmiers, de bougainvilliers et d'une décoration bohème chic mêlant matériaux naturels, mobilier artisanal et touches contemporaines, La Terrasse du ",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Derb sidi masaaoud, Rue el Gza",
@@ -52423,7 +52419,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 7153,
+          "reviewCount": 7160,
           "bestRating": 5
         }
       }
@@ -52641,6 +52637,38 @@
     {
       "@type": "ListItem",
       "position": 1835,
+      "url": "https://oneworldmorocco.com/naneakite",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/naneakite#business",
+        "name": "NaneaKite",
+        "url": "https://oneworldmorocco.com/naneakite",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/04b4a5e2-e80c-4ba8-92cd-bee77f821d04-1785313792418-tcvn8d.jpg",
+        "description": "Bienvenue dans notre école de kitesurf à Essaouira, où le vent est notre allié et les vagues notre terrain de jeu. Que vous soyez débutant désireux d'apprendre les bases ou kitesurfeur confirmé souhaitant perfectionner votre technique, notre école propose des cours et des expériences adaptés à vos besoins. Notre école de kitesurf est basée sur la plage, sur le spot principal. Nous disposons de toutes les commodités, comme des douches, des chambres et un service de location de voitures. Nous avon",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Rue Abdari",
+          "addressLocality": "Plage",
+          "addressRegion": "Essaouira",
+          "addressCountry": "MA"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.5012194,
+          "longitude": -9.761832
+        },
+        "telephone": "+212601297087",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 5,
+          "reviewCount": 288,
+          "bestRating": 5
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1836,
       "url": "https://oneworldmorocco.com/le-spa-de-la-maison-arab",
       "item": {
         "@type": "LocalBusiness",
@@ -52672,7 +52700,39 @@
     },
     {
       "@type": "ListItem",
-      "position": 1836,
+      "position": 1837,
+      "url": "https://oneworldmorocco.com/rooftop-dardar",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/rooftop-dardar#business",
+        "name": "Dardar Cocktails & Eat",
+        "url": "https://oneworldmorocco.com/rooftop-dardar",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/12ead7f1-dc1d-429a-88a1-60fdd35a8b87-1777886222014-lktg7j.jpg",
+        "description": "Découvrez Dardar Cocktails & Eat, l'un des rooftops les plus emblématiques de la médina de Marrakech, où gastronomie, cocktails créatifs, musique et panorama exceptionnel se rencontrent pour offrir une expérience inoubliable. Situé à quelques pas de la célèbre place Jemaa el-Fna, ce restaurant rooftop séduit autant les voyageurs que les habitants grâce à son atmosphère élégante, son décor inspiré de l'artisanat marocain contemporain et sa vue spectaculaire sur les toits de la vieille ville, la m",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "4 Riad Zitoun Lakdim",
+          "addressLocality": "Medina",
+          "addressRegion": "Marrakech",
+          "addressCountry": "MA"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.6194381,
+          "longitude": -7.9860734
+        },
+        "telephone": "+212623611121",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.4,
+          "reviewCount": 4998,
+          "bestRating": 5
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1838,
       "url": "https://oneworldmorocco.com/makassar-marrakech-restaurant",
       "item": {
         "@type": "LocalBusiness",
@@ -52698,7 +52758,33 @@
     },
     {
       "@type": "ListItem",
-      "position": 1837,
+      "position": 1839,
+      "url": "https://oneworldmorocco.com/pikala",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/pikala#business",
+        "name": "Pikala Bike Tours",
+        "url": "https://oneworldmorocco.com/pikala",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/98189953-9dcd-40a3-adc5-a7c607dfe5d2-1774327862957-x6vomc.jpg",
+        "description": "Nous créons des expériences cyclistes inoubliables et donnons aux jeunes Marocains les moyens de construire un avenir plus sain. 45 jeunes actuellement employés 650 femmes ont appris à faire du vélo 23 000 enfants éduqués 400 000 participants à nos événements cyclistes Le Maroc, capitale africaine du cyclisme Le vélo offre une solution de transport non polluante. Il occupe moins de place sur les routes et est plus sûr à utiliser. Chez Pikala, nous nous concentrons sur trois niveaux de la société",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Av. El Glaoui, Riad Larousse",
+          "addressLocality": "Medina",
+          "addressRegion": "Marrakech",
+          "addressCountry": "MA"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.6336951,
+          "longitude": -7.9920822
+        },
+        "telephone": "+212 6 128 60 739"
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1840,
       "url": "https://oneworldmorocco.com/elevate-cycle",
       "item": {
         "@type": "LocalBusiness",

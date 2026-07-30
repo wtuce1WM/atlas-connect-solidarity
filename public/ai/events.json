@@ -2,8 +2,8 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/events.json",
-    "generated_at": "2026-07-25T07:52:48.381Z",
-    "count": 38
+    "generated_at": "2026-07-30T03:54:57.018Z",
+    "count": 37
   },
   "events": [
     {
@@ -295,6 +295,70 @@
       "url": "https://oneworldmorocco.com/events"
     },
     {
+      "id": "ccdcac0c-71e6-4ce1-95a0-7d42dcde3864",
+      "name": "La Garden à La Villa Nour : pétanque, grillades & huîtres, apéro sunset, DJ.",
+      "hook": null,
+      "description": "L es samedis prennent une nouvelle dimension à La GARDEN💚 Dès 10h30, profitez d’une journée complète dans le cadre verdoyant de Villa Nour : Tournoi de pétanque (sur réservation) Grillades & huîtres – Spéciale Carte La Garden Apéro sunset Dîner & DJ set avec Salim Ash Accès piscine sous réserve de disponibilité À partir du samedi 20 juin : Wellness à La Garden avec Sasha – Terra Feminae Yoga, pil",
+      "start_date": null,
+      "end_date": null,
+      "start_time": "10:30",
+      "end_time": null,
+      "recurrence": null,
+      "days_of_week": [
+        "saturday"
+      ],
+      "type": "Restaurant",
+      "city": null,
+      "latitude": 31.4547196,
+      "longitude": -9.7457477,
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1781075573005-do2k7j.jpg",
+      "url": "https://oneworldmorocco.com/events"
+    },
+    {
+      "id": "e0fa2953-90bd-41b0-93c3-e6a2414eaca5",
+      "name": "Entrée et boissons offertes pour les filles le mardi soir au 555 Famous Club !🍸",
+      "hook": "✨ Mesdames, tous les mardis, c'est VOTRE soirée ! Entrée et boissons offertes 🍸",
+      "description": null,
+      "start_date": null,
+      "end_date": null,
+      "start_time": null,
+      "end_time": null,
+      "recurrence": "weekly",
+      "days_of_week": [
+        "tuesday"
+      ],
+      "type": "Night Club",
+      "city": null,
+      "latitude": null,
+      "longitude": null,
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1777609318859-ua345v.webp",
+      "url": "https://oneworldmorocco.com/events"
+    },
+    {
+      "id": "89161ec7-75dd-4725-959d-32c9bdbe75f8",
+      "name": "Live Concert à l'Epicurien",
+      "hook": "Live Concert du Mercredi au Dimanche à partir de 23h30",
+      "description": null,
+      "start_date": null,
+      "end_date": null,
+      "start_time": "23:30",
+      "end_time": "05:00",
+      "recurrence": null,
+      "days_of_week": [
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday"
+      ],
+      "type": "Concert",
+      "city": null,
+      "latitude": null,
+      "longitude": null,
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1777605438666-1a1hda.jpg",
+      "url": "https://oneworldmorocco.com/events"
+    },
+    {
       "id": "1a70a16e-b129-4f7a-a4a5-7f0fb8a4827f",
       "name": "L’Expérience Exclusive du Brunch au Palais Ronsard",
       "hook": "Votre rendez-vous gastronomique, chaque dimanche, au cœur de la Palmeraie.",
@@ -315,48 +379,22 @@
       "url": "https://oneworldmorocco.com/events"
     },
     {
-      "id": "89161ec7-75dd-4725-959d-32c9bdbe75f8",
-      "name": "Live Concert du Mercredi au Dimanche à partir de 23h30",
+      "id": "66540fab-82da-4d6f-967a-cf650338978d",
+      "name": "Soirées Piano",
       "hook": null,
       "description": null,
       "start_date": null,
       "end_date": null,
-      "start_time": "23:30",
-      "end_time": "05:00",
-      "recurrence": null,
-      "days_of_week": [
-        "wednesday",
-        "thursday",
-        "friday",
-        "saturday",
-        "sunday"
-      ],
-      "type": "Night Club",
-      "city": null,
-      "latitude": null,
-      "longitude": null,
-      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1777605438666-1a1hda.jpg",
-      "url": "https://oneworldmorocco.com/events"
-    },
-    {
-      "id": "42c61264-f739-4eee-bb8d-c89b0b91def1",
-      "name": "Découvrez l'art ancestral marocain de la peinture Zwaq, où tradition et créativité se rencontrent.",
-      "hook": null,
-      "description": "DEVENEZ CRÉATEUR — 🎨ATELIER DE PEINTURE ZWAQ AVEC TOUFIK Découvrez l'art ancestral marocain de la peinture Zwaq, où tradition et créativité se rencontrent. Animé par des artisans locaux, cet atelier pratique vous invite à explorer l'un des artisanats les plus emblématiques du Maroc. Ce que vous apprendrez : • La technique de la peinture Zwaq traditionnelle marocaine • Comment appliquer des motifs",
-      "start_date": null,
-      "end_date": null,
-      "start_time": "10:00",
-      "end_time": "18:00",
+      "start_time": "20:00",
+      "end_time": null,
       "recurrence": null,
       "days_of_week": [
         "monday",
         "tuesday",
         "wednesday",
-        "thursday",
-        "friday",
-        "saturday"
+        "thursday"
       ],
-      "type": null,
+      "type": "Concert",
       "city": null,
       "latitude": null,
       "longitude": null,
@@ -364,61 +402,19 @@
       "url": "https://oneworldmorocco.com/events"
     },
     {
-      "id": "e0fa2953-90bd-41b0-93c3-e6a2414eaca5",
-      "name": "✨ Mesdames, tous les mardis, c'est VOTRE soirée ! Entrée et boissons offertes 🍸",
-      "hook": null,
-      "description": null,
+      "id": "a7dd8bd6-be5b-4128-92b8-965ca35f6e58",
+      "name": "DJ Leska au Famous Beach Marrakech",
+      "hook": "Tous les Mercredis, DJ Leska au Famous Beach Marrakech",
+      "description": "Tous les mercredis, @djleska transforme Famous Beach en le lieu incontournable de Marrakech en milieu de semaine. Eau fraîche, musique entraînante et soleil ☀🌴 On se retrouve au bord de la piscine ! Ne manquez pas notre pool party quotidienne réservée aux femmes ! Entrée gratuite pour les filles + transat avant 14h (sous réserve de disponibilité). 🚐 Navette gratuite 🍽 Restaurant by @nommosmarra",
       "start_date": null,
       "end_date": null,
       "start_time": null,
       "end_time": null,
       "recurrence": "weekly",
       "days_of_week": [
-        "tuesday"
+        "wednesday"
       ],
-      "type": "Night Club",
-      "city": null,
-      "latitude": null,
-      "longitude": null,
-      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1777609318859-ua345v.webp",
-      "url": "https://oneworldmorocco.com/events"
-    },
-    {
-      "id": "7941b4e9-9996-4c38-86fd-138719a4e0dc",
-      "name": "Musique live les jeudis, vendredis et samedis au Jardin du Royal Mansour",
-      "hook": null,
-      "description": "À partir du 7 mai 2026, le dîner est servi au restaurant Le Jardin. Saveurs méditerranéennes, cocktails artisanaux, musique en direct et la magie du plus enchanteur jardin de Marrakech, le tout sous les étoiles. Le Jardin du Royal Mansour Marrakech, à la nuit tombée. 🌴 Ambiance différente le soir. Cocktails, assiettes à partager, musique live les jeudis, vendredis et samedis. L'endroit idéal pour",
-      "start_date": null,
-      "end_date": null,
-      "start_time": null,
-      "end_time": null,
-      "recurrence": null,
-      "days_of_week": [
-        "thursday",
-        "friday",
-        "saturday"
-      ],
-      "type": "Concert",
-      "city": null,
-      "latitude": null,
-      "longitude": null,
-      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1781428581874-kyg0j.jpg",
-      "url": "https://oneworldmorocco.com/events"
-    },
-    {
-      "id": "30606baa-3b91-4e48-8aef-afb4e36ddb74",
-      "name": "FRIDAY SOUL au Salon du Grand Café De La Poste",
-      "hook": "Tous les vendredis à partir de 20h30",
-      "description": null,
-      "start_date": null,
-      "end_date": null,
-      "start_time": "20:30",
-      "end_time": null,
-      "recurrence": "weekly",
-      "days_of_week": [
-        "friday"
-      ],
-      "type": "Concert",
+      "type": "Restaurant",
       "city": null,
       "latitude": null,
       "longitude": null,
@@ -446,6 +442,26 @@
       "url": "https://oneworldmorocco.com/events"
     },
     {
+      "id": "c5e5ebb9-7d40-46a4-8bb0-c06b938a87f3",
+      "name": "Dirty Disco 🪩 Every Tuesday ✨",
+      "hook": null,
+      "description": null,
+      "start_date": null,
+      "end_date": null,
+      "start_time": "20:00",
+      "end_time": "05:00",
+      "recurrence": "weekly",
+      "days_of_week": [
+        "tuesday"
+      ],
+      "type": "Night Club",
+      "city": null,
+      "latitude": null,
+      "longitude": null,
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1777605259834-orpq8.jpeg",
+      "url": "https://oneworldmorocco.com/events"
+    },
+    {
       "id": "525f1c98-f786-44a6-8714-7b5cd14c750c",
       "name": "Musique live à la Terrasse des épices chaque dimanche midi",
       "hook": null,
@@ -463,24 +479,6 @@
       "latitude": null,
       "longitude": null,
       "image": null,
-      "url": "https://oneworldmorocco.com/events"
-    },
-    {
-      "id": "c5e5ebb9-7d40-46a4-8bb0-c06b938a87f3",
-      "name": "Dirty Disco 🪩 Every Tuesday ✨",
-      "hook": null,
-      "description": null,
-      "start_date": null,
-      "end_date": null,
-      "start_time": "20:00",
-      "end_time": "05:00",
-      "recurrence": "weekly",
-      "days_of_week": [],
-      "type": "Night Club",
-      "city": null,
-      "latitude": null,
-      "longitude": null,
-      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1777605259834-orpq8.jpeg",
       "url": "https://oneworldmorocco.com/events"
     },
     {
@@ -564,20 +562,39 @@
       "url": "https://oneworldmorocco.com/events"
     },
     {
-      "id": "4358c03f-24ab-4217-860e-b8dc90b511ff",
-      "name": "Soirée Jazz au Salon du Grand Café De La Poste",
-      "hook": "Du lundi au jeudi dès 20h.",
-      "description": "Jazz & musiques du monde au piano par @franckynk.officiel Du lundi au jeudi dès 20h Retrouvez également FRIDAY SOUL, tous les vendredis à partir de 20h30 JAZZ LIVE, tous les dimanches à partir de 20h30",
+      "id": "7941b4e9-9996-4c38-86fd-138719a4e0dc",
+      "name": "Musique live au Jardin du Royal Mansour",
+      "hook": "Cocktails, assiettes à partager, musique live les jeudis, vendredis et samedis.",
+      "description": "À partir du 7 mai 2026, le dîner est servi au restaurant Le Jardin. Saveurs méditerranéennes, cocktails artisanaux, musique en direct et la magie du plus enchanteur jardin de Marrakech, le tout sous les étoiles. Le Jardin du Royal Mansour Marrakech, à la nuit tombée. 🌴 Ambiance différente le soir. Cocktails, assiettes à partager, musique live les jeudis, vendredis et samedis. L'endroit idéal pour",
       "start_date": null,
       "end_date": null,
-      "start_time": "20:00",
+      "start_time": null,
       "end_time": null,
       "recurrence": null,
       "days_of_week": [
-        "monday",
-        "tuesday",
-        "wednesday",
-        "thursday"
+        "thursday",
+        "friday",
+        "saturday"
+      ],
+      "type": "Concert",
+      "city": null,
+      "latitude": null,
+      "longitude": null,
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1781428581874-kyg0j.jpg",
+      "url": "https://oneworldmorocco.com/events"
+    },
+    {
+      "id": "03d1b551-203d-432d-be1e-f027a8ee8ac3",
+      "name": "JAZZ LIVE au Grand Café de La Poste",
+      "hook": "Tous les dimanches à partir de 20h30",
+      "description": null,
+      "start_date": null,
+      "end_date": null,
+      "start_time": "20:30",
+      "end_time": null,
+      "recurrence": "weekly",
+      "days_of_week": [
+        "sunday"
       ],
       "type": "Concert",
       "city": null,
@@ -608,9 +625,9 @@
       "url": "https://oneworldmorocco.com/events"
     },
     {
-      "id": "03d1b551-203d-432d-be1e-f027a8ee8ac3",
-      "name": "JAZZ LIVE au Grand Café de La Poste",
-      "hook": "Tous les dimanches à partir de 20h30",
+      "id": "30606baa-3b91-4e48-8aef-afb4e36ddb74",
+      "name": "FRIDAY SOUL au Salon du Grand Café De La Poste",
+      "hook": "Tous les vendredis à partir de 20h30",
       "description": null,
       "start_date": null,
       "end_date": null,
@@ -618,7 +635,30 @@
       "end_time": null,
       "recurrence": "weekly",
       "days_of_week": [
-        "sunday"
+        "friday"
+      ],
+      "type": "Concert",
+      "city": null,
+      "latitude": null,
+      "longitude": null,
+      "image": null,
+      "url": "https://oneworldmorocco.com/events"
+    },
+    {
+      "id": "4358c03f-24ab-4217-860e-b8dc90b511ff",
+      "name": "Soirée Jazz au Salon du Grand Café De La Poste",
+      "hook": "Du lundi au jeudi dès 20h.",
+      "description": "Jazz & musiques du monde au piano par @franckynk.officiel Du lundi au jeudi dès 20h Retrouvez également FRIDAY SOUL, tous les vendredis à partir de 20h30 JAZZ LIVE, tous les dimanches à partir de 20h30",
+      "start_date": null,
+      "end_date": null,
+      "start_time": "20:00",
+      "end_time": null,
+      "recurrence": null,
+      "days_of_week": [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday"
       ],
       "type": "Concert",
       "city": null,
@@ -666,29 +706,6 @@
       "url": "https://oneworldmorocco.com/events"
     },
     {
-      "id": "66540fab-82da-4d6f-967a-cf650338978d",
-      "name": "Soirées Piano",
-      "hook": null,
-      "description": null,
-      "start_date": null,
-      "end_date": null,
-      "start_time": "20:00",
-      "end_time": null,
-      "recurrence": null,
-      "days_of_week": [
-        "monday",
-        "tuesday",
-        "wednesday",
-        "thursday"
-      ],
-      "type": "Concert",
-      "city": null,
-      "latitude": null,
-      "longitude": null,
-      "image": null,
-      "url": "https://oneworldmorocco.com/events"
-    },
-    {
       "id": "25c9e2de-0b2c-487c-8820-d0ae8875f4cf",
       "name": "Marché Bio Corner Café",
       "hook": "🌿 Marché bio & local. 🕙Tous les mercredis de 9h30 à 15h30.",
@@ -705,46 +722,6 @@
       "city": null,
       "latitude": 31.5039172,
       "longitude": -9.757834,
-      "image": null,
-      "url": "https://oneworldmorocco.com/events"
-    },
-    {
-      "id": "ccdcac0c-71e6-4ce1-95a0-7d42dcde3864",
-      "name": "La Garden à La Villa Nour : pétanque, grillades & huîtres, apéro sunset, DJ.",
-      "hook": null,
-      "description": "L es samedis prennent une nouvelle dimension à La GARDEN💚 Dès 10h30, profitez d’une journée complète dans le cadre verdoyant de Villa Nour : Tournoi de pétanque (sur réservation) Grillades & huîtres – Spéciale Carte La Garden Apéro sunset Dîner & DJ set avec Salim Ash Accès piscine sous réserve de disponibilité À partir du samedi 20 juin : Wellness à La Garden avec Sasha – Terra Feminae Yoga, pil",
-      "start_date": null,
-      "end_date": null,
-      "start_time": "10:30",
-      "end_time": null,
-      "recurrence": null,
-      "days_of_week": [
-        "saturday"
-      ],
-      "type": "Restaurant",
-      "city": null,
-      "latitude": 31.4547196,
-      "longitude": -9.7457477,
-      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1781075573005-do2k7j.jpg",
-      "url": "https://oneworldmorocco.com/events"
-    },
-    {
-      "id": "a7dd8bd6-be5b-4128-92b8-965ca35f6e58",
-      "name": "Tous les Mercredis, DJ Leska au Famous Beach Marrakech",
-      "hook": null,
-      "description": "Tous les mercredis, @djleska transforme Famous Beach en le lieu incontournable de Marrakech en milieu de semaine. Eau fraîche, musique entraînante et soleil ☀🌴 On se retrouve au bord de la piscine ! Ne manquez pas notre pool party quotidienne réservée aux femmes ! Entrée gratuite pour les filles + transat avant 14h (sous réserve de disponibilité). 🚐 Navette gratuite 🍽 Restaurant by @nommosmarra",
-      "start_date": null,
-      "end_date": null,
-      "start_time": null,
-      "end_time": null,
-      "recurrence": "weekly",
-      "days_of_week": [
-        "wednesday"
-      ],
-      "type": "Restaurant",
-      "city": null,
-      "latitude": null,
-      "longitude": null,
       "image": null,
       "url": "https://oneworldmorocco.com/events"
     }
