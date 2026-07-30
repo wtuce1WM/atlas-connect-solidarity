@@ -2000,16 +2000,17 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     <ToneContext.Provider value={tone}>
       <SuppressBgContext.Provider value={continuousMode}>
         <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
-          {soundtrack && <Audio src={soundtrack} loop volume={1} />}
+          {soundtrack && <Audio src={soundtrack} loop volume={audioFadeVolume} />}
           {continuousMode ? (
             <AbsoluteFill style={{ overflow: "hidden" }}>
               <OffthreadVideo
                 src={continuousBgVideoUrl as string}
                 muted={!bgSoundOn}
-                volume={bgSoundOn ? 1 : 0}
+                volume={bgSoundOn ? audioFadeVolume : 0}
                 loop
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
+
               <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.45) 0%,rgba(14,11,8,0.62) 100%)" }} />
             </AbsoluteFill>
           ) : (
