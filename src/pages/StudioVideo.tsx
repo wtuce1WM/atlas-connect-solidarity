@@ -11,6 +11,9 @@ import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video,
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { StudioVideoScenarioPanel, buildScenario, extractKeywords, scenarioFromTemplateProps, type Scenario, type SceneMediaMap, type SceneMediaItem, type ScenarioEdits } from "@/components/StudioVideoScenarioPanel";
+import { MediaPickerGrid } from "@/components/StudioVideoMediaPicker";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
 import maisonBrummellAsset from "@/assets/maison-brummell.mp4.asset.json";
 import riadDarNajatAsset from "@/assets/riad-dar-najat.mp4.asset.json";
 import narComplexeAsset from "@/assets/nar-complexe.mp4.asset.json";
