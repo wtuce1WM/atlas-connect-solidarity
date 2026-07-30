@@ -984,6 +984,20 @@ export default function StudioVideo() {
     }, 50);
   };
 
+  const renameJob = async (job: Job, title: string) => {
+    const clean = title.trim();
+    setJobs((prev) => prev.map((j) => (j.id === job.id ? { ...j, title: clean || null } : j)));
+    const { error } = await supabase
+      .from("video_jobs")
+      .update({ title: clean || null })
+      .eq("id", job.id);
+    if (error) {
+      toast({ title: "Renommage impossible", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Titre mis à jour" });
+    }
+  };
+
   const deleteJob = async (job: Job) => {
     if (!window.confirm(`Supprimer définitivement cette vidéo ?\n\n« ${job.prompt.slice(0, 120)}${job.prompt.length > 120 ? "…" : ""} »`)) {
       return;
