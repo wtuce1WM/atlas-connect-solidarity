@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/neighborhoods.json",
-    "generated_at": "2026-07-25T07:52:48.388Z",
+    "generated_at": "2026-07-30T03:54:57.025Z",
     "count": 104
   },
   "neighborhoods": [
@@ -307,6 +307,10 @@
         {
           "name": "Hôtel Miramar",
           "url": "https://oneworldmorocco.com/hotel-miramar"
+        },
+        {
+          "name": "NaneaKite",
+          "url": "https://oneworldmorocco.com/naneakite"
         }
       ]
     },
@@ -1778,138 +1782,6 @@
       ]
     },
     {
-      "id": "cfc2bcbd-1ff5-4334-8d80-b7151c9fd96c",
-      "name": "Sidi Ghanem",
-      "name_en": "Sidi Ghanem",
-      "city": "Marrakech",
-      "latitude": 31.662,
-      "longitude": -8.056,
-      "image": null,
-      "hook": null,
-      "businesses": [
-        {
-          "name": "Agro-Food Industrie",
-          "url": "https://oneworldmorocco.com/agro-food-industrie"
-        },
-        {
-          "name": "Ace Marée",
-          "url": "https://oneworldmorocco.com/ace-maree"
-        },
-        {
-          "name": "Azalaï Nomad Living",
-          "url": "https://oneworldmorocco.com/azalai-nomad-living"
-        },
-        {
-          "name": "Azalaï Life Experience",
-          "url": "https://oneworldmorocco.com/azalai-life-experience"
-        },
-        {
-          "name": "Atelier Landon",
-          "url": "https://oneworldmorocco.com/atelier-landon"
-        },
-        {
-          "name": "Baba Camper Van",
-          "url": "https://oneworldmorocco.com/baba-camper-van"
-        },
-        {
-          "name": "Café Jajjah by Hassan Hajjaj",
-          "url": "https://oneworldmorocco.com/cafe-jajjah-by-hassan-hajjaj"
-        },
-        {
-          "name": "Chabi Chic Showroom",
-          "url": "https://oneworldmorocco.com/chabi-chic-showroom"
-        },
-        {
-          "name": "Charcuterie chez Fred",
-          "url": "https://oneworldmorocco.com/charcuterie-chez-fred"
-        },
-        {
-          "name": "Cartier Saada",
-          "url": "https://oneworldmorocco.com/cartier-saada"
-        },
-        {
-          "name": "D&CO Art Gallery",
-          "url": "https://oneworldmorocco.com/d-co-art-gallery"
-        },
-        {
-          "name": "Côté Bougie Marrakech",
-          "url": "https://oneworldmorocco.com/cote-bougie-marrakech"
-        },
-        {
-          "name": "De Bouche à Oreille",
-          "url": "https://oneworldmorocco.com/de-bouche-a-oreille"
-        },
-        {
-          "name": "Huilarome",
-          "url": "https://oneworldmorocco.com/huilarome"
-        },
-        {
-          "name": "Jajjah by Hassan Hajjaj",
-          "url": "https://oneworldmorocco.com/jajjah-by-hassan-hajjaj"
-        },
-        {
-          "name": "KE’CH Collective",
-          "url": "https://oneworldmorocco.com/ke-ch-collective"
-        },
-        {
-          "name": "L'Atelier by Héritage Berbère",
-          "url": "https://oneworldmorocco.com/l-atelier-by-heritage-berbere"
-        },
-        {
-          "name": "La Marrakechoise",
-          "url": "https://oneworldmorocco.com/la-marrakechoise"
-        },
-        {
-          "name": "Le Comptoir Paysan",
-          "url": "https://oneworldmorocco.com/le-comptoir-paysan"
-        },
-        {
-          "name": "LRNCE",
-          "url": "https://oneworldmorocco.com/lrnce"
-        },
-        {
-          "name": "Maison Nicole",
-          "url": "https://oneworldmorocco.com/maison-nicole"
-        },
-        {
-          "name": "Maison Olivier Bearzatto",
-          "url": "https://oneworldmorocco.com/maison-olivier-bearzatto"
-        },
-        {
-          "name": "Maison Sarayan",
-          "url": "https://oneworldmorocco.com/maison-sarayan"
-        },
-        {
-          "name": "Marrakech Fine Food (MFF)",
-          "url": "https://oneworldmorocco.com/marrakech-fine-food-mff"
-        },
-        {
-          "name": "MCC Gallery",
-          "url": "https://oneworldmorocco.com/mcc-gallery"
-        },
-        {
-          "name": "Marrakech Viande Bio",
-          "url": "https://oneworldmorocco.com/marrakech-viande-bio"
-        },
-        {
-          "name": "Marrakine",
-          "url": "https://oneworldmorocco.com/marrakine"
-        },
-        {
-          "name": "Marrakshi Life",
-          "url": "https://oneworldmorocco.com/marrakshi-life"
-        },
-        {
-          "name": "Moon Garden",
-          "url": "https://oneworldmorocco.com/moon-garden"
-        },
-        {
-          "name": "Mosaic Traiteur",
-          "url": "https://oneworldmorocco.com/mosaic-by-l-adresse"
-        }
-      ]
-    },
-    {
       "id": "8ea58768-4cff-4407-b222-77db74dd477c",
       "name": "Massira",
       "name_en": "Massira",
@@ -2150,22 +2022,6 @@
         {
           "name": "Café - Cuisine L'Atelier Essaouira",
           "url": "https://oneworldmorocco.com/cafe-cuisine-l-atelier-essaouira"
-        }
-      ]
-    },
-    {
-      "id": "20ff3e6b-1624-4c54-bb17-f7c86ea24c24",
-      "name": "Agafay",
-      "name_en": "Agafay",
-      "city": "Marrakech",
-      "latitude": 31.58,
-      "longitude": -8.13,
-      "image": null,
-      "hook": null,
-      "businesses": [
-        {
-          "name": "Quad Lac et Désert",
-          "url": "https://oneworldmorocco.com/quad-lac-et-desert"
         }
       ]
     },
@@ -2978,6 +2834,138 @@
         {
           "name": "La Secret Beach",
           "url": "https://oneworldmorocco.com/la-secret-beach"
+        }
+      ]
+    },
+    {
+      "id": "cfc2bcbd-1ff5-4334-8d80-b7151c9fd96c",
+      "name": "Sidi Ghanem",
+      "name_en": "Sidi Ghanem",
+      "city": "Marrakech",
+      "latitude": 31.662,
+      "longitude": -8.056,
+      "image": null,
+      "hook": null,
+      "businesses": [
+        {
+          "name": "Agro-Food Industrie",
+          "url": "https://oneworldmorocco.com/agro-food-industrie"
+        },
+        {
+          "name": "Ace Marée",
+          "url": "https://oneworldmorocco.com/ace-maree"
+        },
+        {
+          "name": "Azalaï Nomad Living",
+          "url": "https://oneworldmorocco.com/azalai-nomad-living"
+        },
+        {
+          "name": "Azalaï Life Experience",
+          "url": "https://oneworldmorocco.com/azalai-life-experience"
+        },
+        {
+          "name": "Atelier Landon",
+          "url": "https://oneworldmorocco.com/atelier-landon"
+        },
+        {
+          "name": "Baba Camper Van",
+          "url": "https://oneworldmorocco.com/baba-camper-van"
+        },
+        {
+          "name": "Café Jajjah by Hassan Hajjaj",
+          "url": "https://oneworldmorocco.com/cafe-jajjah-by-hassan-hajjaj"
+        },
+        {
+          "name": "Chabi Chic Showroom",
+          "url": "https://oneworldmorocco.com/chabi-chic-showroom"
+        },
+        {
+          "name": "Charcuterie chez Fred",
+          "url": "https://oneworldmorocco.com/charcuterie-chez-fred"
+        },
+        {
+          "name": "Cartier Saada",
+          "url": "https://oneworldmorocco.com/cartier-saada"
+        },
+        {
+          "name": "D&CO Art Gallery",
+          "url": "https://oneworldmorocco.com/d-co-art-gallery"
+        },
+        {
+          "name": "Côté Bougie Marrakech",
+          "url": "https://oneworldmorocco.com/cote-bougie-marrakech"
+        },
+        {
+          "name": "De Bouche à Oreille",
+          "url": "https://oneworldmorocco.com/de-bouche-a-oreille"
+        },
+        {
+          "name": "Huilarome",
+          "url": "https://oneworldmorocco.com/huilarome"
+        },
+        {
+          "name": "Jajjah by Hassan Hajjaj",
+          "url": "https://oneworldmorocco.com/jajjah-by-hassan-hajjaj"
+        },
+        {
+          "name": "KE’CH Collective",
+          "url": "https://oneworldmorocco.com/ke-ch-collective"
+        },
+        {
+          "name": "L'Atelier by Héritage Berbère",
+          "url": "https://oneworldmorocco.com/l-atelier-by-heritage-berbere"
+        },
+        {
+          "name": "La Marrakechoise",
+          "url": "https://oneworldmorocco.com/la-marrakechoise"
+        },
+        {
+          "name": "Le Comptoir Paysan",
+          "url": "https://oneworldmorocco.com/le-comptoir-paysan"
+        },
+        {
+          "name": "LRNCE",
+          "url": "https://oneworldmorocco.com/lrnce"
+        },
+        {
+          "name": "Maison Nicole",
+          "url": "https://oneworldmorocco.com/maison-nicole"
+        },
+        {
+          "name": "Maison Olivier Bearzatto",
+          "url": "https://oneworldmorocco.com/maison-olivier-bearzatto"
+        },
+        {
+          "name": "Maison Sarayan",
+          "url": "https://oneworldmorocco.com/maison-sarayan"
+        },
+        {
+          "name": "Marrakech Fine Food (MFF)",
+          "url": "https://oneworldmorocco.com/marrakech-fine-food-mff"
+        },
+        {
+          "name": "MCC Gallery",
+          "url": "https://oneworldmorocco.com/mcc-gallery"
+        },
+        {
+          "name": "Marrakech Viande Bio",
+          "url": "https://oneworldmorocco.com/marrakech-viande-bio"
+        },
+        {
+          "name": "Marrakine",
+          "url": "https://oneworldmorocco.com/marrakine"
+        },
+        {
+          "name": "Marrakshi Life",
+          "url": "https://oneworldmorocco.com/marrakshi-life"
+        },
+        {
+          "name": "Moon Garden",
+          "url": "https://oneworldmorocco.com/moon-garden"
+        },
+        {
+          "name": "Mosaic Traiteur",
+          "url": "https://oneworldmorocco.com/mosaic-by-l-adresse"
         }
       ]
     },
@@ -4397,138 +4385,6 @@
       ]
     },
     {
-      "id": "72c4f226-a687-4f77-a56a-2809b810ffb3",
-      "name": "Medina",
-      "name_en": "Medina",
-      "city": "Marrakech",
-      "latitude": 31.6295,
-      "longitude": -7.9811,
-      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/logos/72c4f226-a687-4f77-a56a-2809b810ffb3-logo-1775582884204.webp",
-      "hook": null,
-      "businesses": [
-        {
-          "name": "1112 Marrakech",
-          "url": "https://oneworldmorocco.com/1112-marrakech"
-        },
-        {
-          "name": "Amazigh Surf School",
-          "url": "https://oneworldmorocco.com/amazigh-surf-school"
-        },
-        {
-          "name": "Ana Yela",
-          "url": "https://oneworldmorocco.com/ana-yela"
-        },
-        {
-          "name": "1-54 Marrakech",
-          "url": "https://oneworldmorocco.com/1-54-marrakech"
-        },
-        {
-          "name": "Artizashop",
-          "url": "https://oneworldmorocco.com/artizashop"
-        },
-        {
-          "name": "Ateliers de cuisine La Maison Arabe",
-          "url": "https://oneworldmorocco.com/ateliers-de-cuisine-la-maison-arabe"
-        },
-        {
-          "name": "Bab Ssour",
-          "url": "https://oneworldmorocco.com/bab-ssour"
-        },
-        {
-          "name": "Bab Agnaou",
-          "url": "https://oneworldmorocco.com/bab-agnaou"
-        },
-        {
-          "name": "BaB Doukkala",
-          "url": "https://oneworldmorocco.com/bab-doukkala-2"
-        },
-        {
-          "name": "Artisanat Dar Essalam",
-          "url": "https://oneworldmorocco.com/artisanat-dar-essalam"
-        },
-        {
-          "name": "Artsmarrai",
-          "url": "https://oneworldmorocco.com/artsmarrai"
-        },
-        {
-          "name": "Atika Waves",
-          "url": "https://oneworldmorocco.com/atika-waves"
-        },
-        {
-          "name": "Atelier Cuisine de L'Atelier Essaouira",
-          "url": "https://oneworldmorocco.com/atelier-cuisine-de-l-atelier-essaouira"
-        },
-        {
-          "name": "Azur Spa",
-          "url": "https://oneworldmorocco.com/azur-spa"
-        },
-        {
-          "name": "Association Essaouira Mogador",
-          "url": "https://oneworldmorocco.com/association-essaouira-mogador"
-        },
-        {
-          "name": "Bayt Dakira",
-          "url": "https://oneworldmorocco.com/bayt-dakira"
-        },
-        {
-          "name": "Bosworth Property Marrakech",
-          "url": "https://oneworldmorocco.com/bosworth-property-marrakech"
-        },
-        {
-          "name": "Bijouterie El Wady",
-          "url": "https://oneworldmorocco.com/bijouterie-el-wady"
-        },
-        {
-          "name": "Bazaar Cafe",
-          "url": "https://oneworldmorocco.com/bazaar-cafe"
-        },
-        {
-          "name": "Beldi Chic Maroc",
-          "url": "https://oneworldmorocco.com/beldi-chic-maroc"
-        },
-        {
-          "name": "Bill Willis Bar",
-          "url": "https://oneworldmorocco.com/bill-willis-bar"
-        },
-        {
-          "name": "BlackChich",
-          "url": "https://oneworldmorocco.com/blackchich"
-        },
-        {
-          "name": "Bo Boutik Mogador",
-          "url": "https://oneworldmorocco.com/bo-boutik-mogador"
-        },
-        {
-          "name": "Bazar Ali Baba Essaouira",
-          "url": "https://oneworldmorocco.com/bazar-ali-baba-essaouira"
-        },
-        {
-          "name": "Banksy Universe Marrakech",
-          "url": "https://oneworldmorocco.com/banksy-universe-marrakech"
-        },
-        {
-          "name": "Bonzo Coffee Shop",
-          "url": "https://oneworldmorocco.com/bonzo-coffee-shop"
-        },
-        {
-          "name": "Bar des Jardins de la Médina",
-          "url": "https://oneworldmorocco.com/bar-des-jardins-de-la-medina"
-        },
-        {
-          "name": "Bacha Coffee",
-          "url": "https://oneworldmorocco.com/bacha-coffee"
-        },
-        {
-          "name": "Café L'Esprit",
-          "url": "https://oneworldmorocco.com/cafe-l-esprit"
-        },
-        {
-          "name": "Café - Cuisine L'Atelier Essaouira",
-          "url": "https://oneworldmorocco.com/cafe-cuisine-l-atelier-essaouira"
-        }
-      ]
-    },
-    {
       "id": "4ee3b65f-ac50-4dd2-8ad3-0bc86d0659d4",
       "name": "Hivernage",
       "name_en": "Wintering",
@@ -4657,6 +4513,154 @@
         {
           "name": "Longchamp M Avenue",
           "url": "https://oneworldmorocco.com/longchamp-m-avenue"
+        }
+      ]
+    },
+    {
+      "id": "20ff3e6b-1624-4c54-bb17-f7c86ea24c24",
+      "name": "Agafay",
+      "name_en": "Agafay",
+      "city": "Marrakech",
+      "latitude": 31.58,
+      "longitude": -8.13,
+      "image": null,
+      "hook": null,
+      "businesses": [
+        {
+          "name": "Quad Lac et Désert",
+          "url": "https://oneworldmorocco.com/quad-lac-et-desert"
+        }
+      ]
+    },
+    {
+      "id": "72c4f226-a687-4f77-a56a-2809b810ffb3",
+      "name": "Medina",
+      "name_en": "Medina",
+      "city": "Marrakech",
+      "latitude": 31.6295,
+      "longitude": -7.9811,
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/logos/72c4f226-a687-4f77-a56a-2809b810ffb3-logo-1775582884204.webp",
+      "hook": null,
+      "businesses": [
+        {
+          "name": "1112 Marrakech",
+          "url": "https://oneworldmorocco.com/1112-marrakech"
+        },
+        {
+          "name": "Amazigh Surf School",
+          "url": "https://oneworldmorocco.com/amazigh-surf-school"
+        },
+        {
+          "name": "Ana Yela",
+          "url": "https://oneworldmorocco.com/ana-yela"
+        },
+        {
+          "name": "1-54 Marrakech",
+          "url": "https://oneworldmorocco.com/1-54-marrakech"
+        },
+        {
+          "name": "Artizashop",
+          "url": "https://oneworldmorocco.com/artizashop"
+        },
+        {
+          "name": "Ateliers de cuisine La Maison Arabe",
+          "url": "https://oneworldmorocco.com/ateliers-de-cuisine-la-maison-arabe"
+        },
+        {
+          "name": "Bab Ssour",
+          "url": "https://oneworldmorocco.com/bab-ssour"
+        },
+        {
+          "name": "Bab Agnaou",
+          "url": "https://oneworldmorocco.com/bab-agnaou"
+        },
+        {
+          "name": "BaB Doukkala",
+          "url": "https://oneworldmorocco.com/bab-doukkala-2"
+        },
+        {
+          "name": "Artisanat Dar Essalam",
+          "url": "https://oneworldmorocco.com/artisanat-dar-essalam"
+        },
+        {
+          "name": "Artsmarrai",
+          "url": "https://oneworldmorocco.com/artsmarrai"
+        },
+        {
+          "name": "Atika Waves",
+          "url": "https://oneworldmorocco.com/atika-waves"
+        },
+        {
+          "name": "Atelier Cuisine de L'Atelier Essaouira",
+          "url": "https://oneworldmorocco.com/atelier-cuisine-de-l-atelier-essaouira"
+        },
+        {
+          "name": "Azur Spa",
+          "url": "https://oneworldmorocco.com/azur-spa"
+        },
+        {
+          "name": "Association Essaouira Mogador",
+          "url": "https://oneworldmorocco.com/association-essaouira-mogador"
+        },
+        {
+          "name": "Bayt Dakira",
+          "url": "https://oneworldmorocco.com/bayt-dakira"
+        },
+        {
+          "name": "Bosworth Property Marrakech",
+          "url": "https://oneworldmorocco.com/bosworth-property-marrakech"
+        },
+        {
+          "name": "Bijouterie El Wady",
+          "url": "https://oneworldmorocco.com/bijouterie-el-wady"
+        },
+        {
+          "name": "Bazaar Cafe",
+          "url": "https://oneworldmorocco.com/bazaar-cafe"
+        },
+        {
+          "name": "Beldi Chic Maroc",
+          "url": "https://oneworldmorocco.com/beldi-chic-maroc"
+        },
+        {
+          "name": "Bill Willis Bar",
+          "url": "https://oneworldmorocco.com/bill-willis-bar"
+        },
+        {
+          "name": "BlackChich",
+          "url": "https://oneworldmorocco.com/blackchich"
+        },
+        {
+          "name": "Bo Boutik Mogador",
+          "url": "https://oneworldmorocco.com/bo-boutik-mogador"
+        },
+        {
+          "name": "Bazar Ali Baba Essaouira",
+          "url": "https://oneworldmorocco.com/bazar-ali-baba-essaouira"
+        },
+        {
+          "name": "Banksy Universe Marrakech",
+          "url": "https://oneworldmorocco.com/banksy-universe-marrakech"
+        },
+        {
+          "name": "Bonzo Coffee Shop",
+          "url": "https://oneworldmorocco.com/bonzo-coffee-shop"
+        },
+        {
+          "name": "Bar des Jardins de la Médina",
+          "url": "https://oneworldmorocco.com/bar-des-jardins-de-la-medina"
+        },
+        {
+          "name": "Bacha Coffee",
+          "url": "https://oneworldmorocco.com/bacha-coffee"
+        },
+        {
+          "name": "Café L'Esprit",
+          "url": "https://oneworldmorocco.com/cafe-l-esprit"
+        },
+        {
+          "name": "Café - Cuisine L'Atelier Essaouira",
+          "url": "https://oneworldmorocco.com/cafe-cuisine-l-atelier-essaouira"
         }
       ]
     }
