@@ -344,7 +344,7 @@ export default function StudioVideo() {
 
   const [showImages, setShowImages] = useState(true);
   const [showVideos, setShowVideos] = useState(true);
-  const [showEstablishment, setShowEstablishment] = useState(true);
+  const [showEstablishment, setShowEstablishment] = useState(false);
   const [popupImageUrl, setPopupImageUrl] = useState<string | null>(null);
   const [popupMeta, setPopupMeta] = useState<{ title: string | null; description: string | null }>({ title: null, description: null });
   const [popupPreviewOpen, setPopupPreviewOpen] = useState(false);
@@ -731,10 +731,11 @@ export default function StudioVideo() {
     }
   }, [currentJob]);
 
-  const hasActiveJob = useMemo(
-    () => jobs.some((j) => j.status === "pending" || j.status === "rendering"),
+  const activeJobs = useMemo(
+    () => jobs.filter((j) => j.status === "pending" || j.status === "rendering"),
     [jobs]
   );
+  const hasActiveJob = activeJobs.length > 0;
 
   const promptKeywords = useMemo(() => extractKeywords(prompt), [prompt]);
 
@@ -1269,6 +1270,33 @@ export default function StudioVideo() {
                 <p>💡 Signalisez dans le prompt si vous voulez mettre en avant les horaires, la localisation, une offre/popup.</p>
               </div>
             </header>
+
+            {hasActiveJob && (
+              <div className="rounded-xl border border-[#C04F17]/50 bg-[#C04F17]/10 p-4 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <Loader2 className="h-5 w-5 text-[#C04F17] animate-spin" />
+                  <div>
+                    <p className="text-sm font-semibold text-white">
+                      Vidéo en cours de génération
+                      {activeJobs.length > 1 ? ` (${activeJobs.length})` : ""}
+                    </p>
+                    <p className="text-xs text-white/70">
+                      {activeJobs[0]?.business_id && businessNames[activeJobs[0].business_id]
+                        ? `${businessNames[activeJobs[0].business_id]} · `
+                        : ""}
+                      {activeJobs[0]?.status === "rendering" ? "Rendu en cours" : "En file d'attente"} · peut prendre jusqu'à 10 minutes.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById("studio-active-job")?.scrollIntoView({ behavior: "smooth", block: "center" })}
+                  className="text-xs font-medium text-[#C04F17] hover:text-white underline"
+                >
+                  Voir le job
+                </button>
+              </div>
+            )}
 
           <section className="rounded-xl border border-border bg-card p-6 space-y-5">
             <div className="flex items-center justify-between">
@@ -2551,13 +2579,17 @@ export default function StudioVideo() {
           )}
 
 
-          {currentJob && (
-            <section className="rounded-xl border border-border bg-card p-6 space-y-3">
-              <h2 className="font-semibold">Job en cours</h2>
+          {activeJobs.length > 0 && (
+            <section id="studio-active-job" className="rounded-xl border border-border bg-card p-6 space-y-3">
+              <h2 className="font-semibold">{activeJobs.length === 1 ? "Job en cours" : "Jobs en cours"}</h2>
               <p className="text-xs text-muted-foreground">
                 Une vidéo peut prendre jusqu'à 10 minutes pour être générée.
               </p>
-              <JobCard job={currentJob} businessName={currentJob.business_id ? businessNames[currentJob.business_id] : undefined} />
+              <div className="space-y-3">
+                {activeJobs.map((j) => (
+                  <JobCard key={j.id} job={j} businessName={j.business_id ? businessNames[j.business_id] : undefined} />
+                ))}
+              </div>
             </section>
           )}
 
