@@ -1,6 +1,7 @@
 import { useState, useEffect, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { verifySession } from "@/hooks/useAuthSession";
 
 const hasBackofficeAccess = (roles: Array<{ role: string }> | null | undefined) =>
   !!roles?.some((r) => r.role === "admin" || r.role === "staff");
@@ -11,12 +12,13 @@ const StaffRouteGuard = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const check = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { navigate("/staff/login"); return; }
+      // Vérification serveur (pas seulement le localStorage)
+      const { user } = await verifySession();
+      if (!user) { navigate("/staff/login"); return; }
       const { data: roles } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", session.user.id);
+        .eq("user_id", user.id);
       if (!hasBackofficeAccess(roles as Array<{ role: string }> | null | undefined)) {
         await supabase.auth.signOut();
         navigate("/staff/login");
@@ -26,6 +28,7 @@ const StaffRouteGuard = ({ children }: { children: ReactNode }) => {
     };
     check();
   }, [navigate]);
+
 
   if (authorized === null) {
     return (

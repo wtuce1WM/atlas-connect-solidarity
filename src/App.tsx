@@ -14,6 +14,7 @@ const FloatingWhatsAppButton = lazy(() => import("@/components/FloatingWhatsAppB
 import ScrollToTop from "./components/ScrollToTop";
 import RouteTransition from "./components/RouteTransition";
 import AnalyticsTracker from "./components/AnalyticsTracker";
+import AuthSessionSentinel from "./components/AuthSessionSentinel";
 const CookieBanner = lazy(() => import("./components/CookieBanner"));
 
 import RouteSeo from "./seo/RouteSeo";
@@ -269,6 +270,7 @@ const AppContent = () => {
           <BackofficeBodyFlag />
           <ScrollToTop />
           <AnalyticsTracker />
+          <AuthSessionSentinel />
           <RouteSeo />
           <PageMetaOverridesLoader />
           <Suspense fallback={null}><CookieBanner /></Suspense>

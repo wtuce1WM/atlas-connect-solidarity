@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { verifySession } from "@/hooks/useAuthSession";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -212,14 +213,15 @@ const AffiliatePresence = () => {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { navigate("/affiliates"); return; }
+      const { user } = await verifySession();
+      if (!user) { navigate("/affiliates"); return; }
 
       const { data: affiliate } = await supabase
         .from("affiliates")
         .select("id, max_businesses, has_dashboard, has_video_studio, has_showcase_site")
-        .eq("user_id", session.user.id)
+        .eq("user_id", user.id)
         .maybeSingle();
+
 
       if (!affiliate) {
         setIsLoading(false);
