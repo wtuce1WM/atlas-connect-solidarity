@@ -1331,32 +1331,145 @@ const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "r
 };
 
 
-const SceneCustomerReview: React.FC<{ author?: string | null; rating?: number | null; highlight: string; durationFrames: number; textPosition?: TextPosition }> = ({ author, rating, highlight, durationFrames, textPosition = "middle" }) => {
+const platformKeyFromSource = (source?: string | null): "google_review" | "tripadvisor" | "restaurant_guru" | null => {
+  const s = (source || "").toLowerCase();
+  if (s.includes("google")) return "google_review";
+  if (s.includes("trip")) return "tripadvisor";
+  if (s.includes("guru")) return "restaurant_guru";
+  return null;
+};
+
+const reviewFontSize = (len: number) => (len > 700 ? 20 : len > 500 ? 23 : len > 340 ? 26 : len > 180 ? 29 : 33);
+
+const SceneCustomerReview: React.FC<{
+  author?: string | null;
+  rating?: number | null;
+  /** extrait à mettre en avant (optionnel) */
+  highlight?: string;
+  /** avis complet */
+  fullText?: string;
+  source?: string | null;
+  durationFrames: number;
+  textPosition?: TextPosition;
+}> = ({ author, rating, highlight, fullText, source, durationFrames, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 20);
   const out = 1 - ease(frame, durationFrames - 16, durationFrames);
   const y = interpolate(spring({ frame: frame - 8, fps: 30, config: { damping: 18 } }), [0, 1], [40, 0]);
+
+  const full = (fullText || "").trim();
+  const excerpt = (highlight || "").trim();
+  const hasExcerpt = excerpt.length > 0 && full.length > 0 && excerpt.length < full.length;
+
+  // Découpe avant / extrait / après (recherche insensible à la casse)
+  const idx = hasExcerpt ? full.toLowerCase().indexOf(excerpt.toLowerCase()) : -1;
+  const before = idx >= 0 ? full.slice(0, idx) : "";
+  const mid = idx >= 0 ? full.slice(idx, idx + excerpt.length) : excerpt;
+  const after = idx >= 0 ? full.slice(idx + excerpt.length) : "";
+
+  // Phases : 1) avis entier  2) surlignage doré  3) focus sur l'extrait
+  const swipeStart = Math.round(durationFrames * 0.3);
+  const swipeEnd = Math.round(durationFrames * 0.48);
+  const focusStart = Math.round(durationFrames * 0.55);
+  const focusEnd = Math.round(durationFrames * 0.7);
+  const swipe = hasExcerpt ? ease(frame, swipeStart, swipeEnd) : 0;
+  const focus = hasExcerpt ? ease(frame, focusStart, focusEnd) : 0;
+
+  const displayText = hasExcerpt ? full : full || excerpt;
+  const baseSize = reviewFontSize(displayText.length);
+  const size = interpolate(focus, [0, 1], [baseSize, hasExcerpt ? reviewFontSize(mid.length) : baseSize]);
+  const sideOpacity = interpolate(focus, [0, 1], [1, 0]);
+  const sideBlur = interpolate(focus, [0, 1], [0, 6]);
+  const cardScale = interpolate(focus, [0, 1], [1, 1.04]);
+
+  const platform = platformKeyFromSource(source);
+  const meta = platform ? PLATFORM_META[platform] : null;
+
   return (
-    <AbsoluteFill style={{ opacity: Math.min(inO, out), padding: 60, ...textPositionStyle(textPosition) }}>
-      <div style={{ transform: `translateY(${y}px)`, alignSelf: "center", maxWidth: 620, padding: 40, background: "rgba(14,11,8,0.75)", border: `1px solid ${COLORS.gold}55`, borderRadius: 22, textAlign: "center" }}>
-        <div style={{ fontFamily: display, fontSize: 100, color: COLORS.gold, lineHeight: 0.7, marginBottom: 12 }}>“</div>
-        <div style={{ fontFamily: body, color: COLORS.cream, fontSize: 30, lineHeight: 1.4 }}>
-          {highlight.slice(0, 320)}
+    <AbsoluteFill>
+      {meta && <BrandBleedLogo src={meta.logo} color={meta.brand} durationFrames={durationFrames} side="right" />}
+      <AbsoluteFill style={{ opacity: Math.min(inO, out), padding: 60, ...textPositionStyle(textPosition) }}>
+        <div
+          style={{
+            transform: `translateY(${y}px) scale(${cardScale})`,
+            alignSelf: "center",
+            maxWidth: 660,
+            padding: 40,
+            background: "rgba(14,11,8,0.78)",
+            border: `1px solid ${meta ? meta.brand + "99" : COLORS.gold + "55"}`,
+            borderRadius: 22,
+            textAlign: "center",
+            boxShadow: meta ? `0 16px 60px ${meta.brand}44` : undefined,
+          }}
+        >
+          {meta && (
+            <div
+              style={{
+                position: "absolute",
+                marginTop: -96,
+                marginLeft: -18,
+                width: 96,
+                height: 96,
+                borderRadius: 48,
+                background: "rgba(255,255,255,0.97)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                overflow: "hidden",
+                transform: `scale(${interpolate(spring({ frame: frame - 6, fps: 30, config: { damping: 11, stiffness: 160 } }), [0, 1], [0.3, 1]) * (1 + 0.04 * Math.sin(frame / 9))}) rotate(${interpolate(spring({ frame: frame - 6, fps: 30, config: { damping: 11, stiffness: 160 } }), [0, 1], [-30, 0])}deg)`,
+                boxShadow: `0 0 0 5px ${meta.brand}, 0 14px 40px ${meta.brand}66`,
+                zIndex: 3,
+              }}
+            >
+              <Img src={staticFile(meta.logo)} style={{ width: 96, height: 96, objectFit: "cover" }} />
+            </div>
+          )}
+          <div style={{ fontFamily: display, fontSize: 90, color: meta ? meta.brand : COLORS.gold, lineHeight: 0.7, marginBottom: 12 }}>“</div>
+          <div style={{ fontFamily: body, color: COLORS.cream, fontSize: size, lineHeight: 1.45 }}>
+            {hasExcerpt ? (
+              <>
+                {before && (
+                  <span style={{ opacity: sideOpacity, filter: `blur(${sideBlur}px)` }}>{before}</span>
+                )}
+                <span
+                  style={{
+                    position: "relative",
+                    display: "inline",
+                    padding: "2px 4px",
+                    borderRadius: 6,
+                    backgroundImage: `linear-gradient(90deg, ${COLORS.gold}55 0%, ${COLORS.gold}55 100%)`,
+                    backgroundRepeat: "no-repeat",
+                    backgroundSize: `${swipe * 100}% 100%`,
+                    color: COLORS.cream,
+                    fontWeight: 600,
+                  }}
+                >
+                  {mid}
+                </span>
+                {after && (
+                  <span style={{ opacity: sideOpacity, filter: `blur(${sideBlur}px)` }}>{after}</span>
+                )}
+              </>
+            ) : (
+              displayText
+            )}
+          </div>
+          {rating != null && Number.isFinite(rating) && (
+            <div style={{ marginTop: 20, fontFamily: body, color: meta ? meta.accent : COLORS.gold, fontSize: 30 }}>
+              {"★★★★★".slice(0, Math.round(rating))}<span style={{ opacity: 0.3 }}>{"★★★★★".slice(Math.round(rating))}</span>
+            </div>
+          )}
+          {author && (
+            <div style={{ marginTop: 16, fontFamily: body, color: "rgba(255,255,255,0.7)", fontSize: 24, letterSpacing: 2, textTransform: "uppercase" }}>
+              — {author}{meta ? ` · ${meta.label}` : ""}
+            </div>
+          )}
         </div>
-        {rating != null && Number.isFinite(rating) && (
-          <div style={{ marginTop: 20, fontFamily: body, color: COLORS.gold, fontSize: 30 }}>
-            {"★★★★★".slice(0, Math.round(rating))}<span style={{ opacity: 0.3 }}>{"★★★★★".slice(Math.round(rating))}</span>
-          </div>
-        )}
-        {author && (
-          <div style={{ marginTop: 16, fontFamily: body, color: "rgba(255,255,255,0.7)", fontSize: 24, letterSpacing: 2, textTransform: "uppercase" }}>
-            — {author}
-          </div>
-        )}
-      </div>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };
+
 
 const SceneWhatsapp: React.FC<{ number: string; durationFrames: number; textPosition?: TextPosition }> = ({ number, durationFrames, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
