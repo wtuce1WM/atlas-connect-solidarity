@@ -778,19 +778,14 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
                 waitFor: 5000,
                 // Ceinture + bretelles : ?bare=1 masque déjà la bannière cookies côté app,
                 // mais si le build publié est en retard on la supprime aussi du DOM avant la capture.
-                // On force également le chargement immédiat des images (avatar/logo) puis on attend
-                // leur décodage : sinon la capture part avant que l'avatar ne soit peint.
+                // On force également le chargement immédiat des images (avatar/logo) et on attend 5 s :
+                // sinon la capture part avant que l'avatar ne soit peint (cercle vide).
                 actions: [
                   {
                     type: "executeJavascript",
                     script: `try{localStorage.setItem('cookie-consent-v1',JSON.stringify({analytics:'denied',ts:Date.now()}));}catch(e){};document.querySelectorAll('[aria-label="Bannière de consentement aux cookies"],[role="dialog"][aria-live="polite"]').forEach(function(n){n.remove();});Array.prototype.forEach.call(document.images,function(i){i.loading='eager';i.decoding='sync';if(!i.complete&&i.src){var s=i.src;i.src='';i.src=s;}});`,
                   },
-                  { type: "wait", milliseconds: 3000 },
-                  {
-                    type: "executeJavascript",
-                    script: `return Promise.all(Array.prototype.map.call(document.images,function(i){return i.decode?i.decode().catch(function(){}):Promise.resolve();})).then(function(){return document.images.length;});`,
-                  },
-                  { type: "wait", milliseconds: 1500 },
+                  { type: "wait", milliseconds: 5000 },
                 ],
               }),
             });
