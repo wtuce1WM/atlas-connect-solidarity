@@ -54,7 +54,6 @@ const UserManagement = () => {
   const [newUserRole, setNewUserRole] = useState<StaffRole>("staff");
   const [editRole, setEditRole] = useState<StaffRole>("staff");
   const [adding, setAdding] = useState(false);
-  const [grantDialogOpen, setGrantDialogOpen] = useState(false);
   const [grantEmail, setGrantEmail] = useState("");
   const [grantRole, setGrantRole] = useState<StaffRole>("video_studio");
   const [granting, setGranting] = useState(false);
