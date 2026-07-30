@@ -26,9 +26,8 @@ const BecomeAffiliate = () => {
   const translations = {
     fr: {
       title: "Devenir affilié",
-      subtitle: "Rejoignez la première place de marché solidaire du Maroc",
-      description: "Développez votre visibilité et rejoignez un réseau de partenaires engagés.",
-      pricingTitle: "Titre 2",
+      subtitle: "Prenez le contrôle de votre présence numérique à l'heure de l'IA",
+      description: "",
       pricingSubtitle: "Pas de frais cachés. Tout ce dont vous avez besoin pour développer votre visibilité.",
       offerBadge: "Offre de lancement",
       price: "Gratuit",
