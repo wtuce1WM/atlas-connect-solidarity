@@ -27,6 +27,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { UserPlus, Trash2, Shield, Users, Loader2, Pencil, Eye, EyeOff, Video, KeyRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
