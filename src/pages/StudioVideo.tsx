@@ -2484,13 +2484,31 @@ export default function StudioVideo() {
           )}
 
           {selected && scenarioPreviewed && (
-            <div className="flex flex-wrap gap-2">
-              <Button onClick={submit} disabled={submitting || hasActiveJob} className="gap-2">
-                {submitting || hasActiveJob ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-                {hasActiveJob ? "Job déjà lancé…" : refineFrom ? "Générer la version affinée" : "Générer la vidéo"}
-              </Button>
+            <div className="space-y-3">
+              <div className="rounded-lg border border-border bg-card/50 p-3 space-y-2">
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <Checkbox checked={notifyEmail} onCheckedChange={(v) => setNotifyEmail(!!v)} />
+                  <span>Confirmation par email quand la vidéo est prête</span>
+                </label>
+                {notifyEmail && (
+                  <Input
+                    type="email"
+                    value={notifyEmailTo}
+                    onChange={(e) => setNotifyEmailTo(e.target.value)}
+                    placeholder="votre@email.com"
+                    className="max-w-sm"
+                  />
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button onClick={submit} disabled={submitting || hasActiveJob} className="gap-2">
+                  {submitting || hasActiveJob ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                  {hasActiveJob ? "Job déjà lancé…" : refineFrom ? "Générer la version affinée" : "Générer la vidéo"}
+                </Button>
+              </div>
             </div>
           )}
+
 
           {currentJob && (
             <section className="rounded-xl border border-border bg-card p-6 space-y-3">
