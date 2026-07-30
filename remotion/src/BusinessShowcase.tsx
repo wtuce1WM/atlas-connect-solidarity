@@ -1362,21 +1362,50 @@ const SceneWhatsapp: React.FC<{ number: string; durationFrames: number; textPosi
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
-  const pulse = 1 + 0.06 * Math.sin(frame / 8);
+  const pop = spring({ frame: frame - 4, fps: 30, config: { damping: 9, stiffness: 190 } });
+  const pulse = 1 + 0.05 * Math.sin(frame / 8);
+  // Onde radar qui part du logo
+  const wave = (frame % 40) / 40;
   return (
-    <AbsoluteFill style={{ opacity: Math.min(inO, out), padding: 60, ...textPositionStyle(textPosition), alignItems: "center" }}>
-      <div style={{ transform: `scale(${pulse})`, width: 180, height: 180, borderRadius: 90, background: "#25D366", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 12px 48px rgba(37,211,102,0.45)" }}>
-        <svg viewBox="0 0 24 24" width="100" height="100" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.966-.273-.099-.471-.148-.67.15-.198.297-.767.966-.94 1.164-.173.198-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.148-.669-1.611-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.273.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.247-.694.247-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M20.52 3.449C18.24 1.245 15.24.02 12.045.02c-6.62 0-12 5.38-12 12.001 0 2.115.549 4.186 1.596 6.014L0 24l6.116-1.611a11.964 11.964 0 005.919 1.55h.005c6.616 0 11.998-5.38 11.998-12.002 0-3.203-1.249-6.213-3.518-8.488M12.045 21.789h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.999-3.648-.235-.374a9.86 9.86 0 01-1.511-5.234c0-5.463 4.443-9.906 9.905-9.906 2.649 0 5.135 1.03 7.008 2.9 1.873 1.872 2.905 4.359 2.904 7.005 0 5.463-4.444 9.907-9.933 9.907"/></svg>
-      </div>
-      <div style={{ marginTop: 28, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 44, letterSpacing: 1, textAlign: "center", textShadow: "0 4px 16px rgba(0,0,0,0.6)" }}>
-        {number}
-      </div>
-      <div style={{ marginTop: 14, fontFamily: body, color: "#25D366", fontSize: 26, letterSpacing: 4, textTransform: "uppercase" }}>
-        WhatsApp direct
-      </div>
+    <AbsoluteFill>
+      <BrandBleedLogo src="brands/logo_whatsapp.webp" color="#25D366" durationFrames={durationFrames} side="right" />
+      <AbsoluteFill style={{ opacity: Math.min(inO, out), padding: 60, ...textPositionStyle(textPosition), alignItems: "center" }}>
+        <div style={{ position: "relative", width: 200, height: 200, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div
+            style={{
+              position: "absolute",
+              width: 180,
+              height: 180,
+              borderRadius: 999,
+              border: "3px solid #25D366",
+              transform: `scale(${1 + wave * 1.1})`,
+              opacity: 0.55 * (1 - wave),
+            }}
+          />
+          <div
+            style={{
+              width: 180,
+              height: 180,
+              borderRadius: 90,
+              overflow: "hidden",
+              transform: `scale(${interpolate(pop, [0, 1], [0.5, 1]) * pulse}) rotate(${interpolate(pop, [0, 1], [-18, 0])}deg)`,
+              boxShadow: "0 18px 60px rgba(37,211,102,0.55)",
+            }}
+          >
+            <Img src={staticFile("brands/logo_whatsapp.webp")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          </div>
+        </div>
+        <div style={{ marginTop: 24, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 44, letterSpacing: 1, textAlign: "center", textShadow: "0 4px 16px rgba(0,0,0,0.6)" }}>
+          {number}
+        </div>
+        <div style={{ marginTop: 14, fontFamily: body, color: "#25D366", fontSize: 26, letterSpacing: 4, textTransform: "uppercase" }}>
+          WhatsApp direct
+        </div>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };
+
 
 export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   name = "Établissement",
