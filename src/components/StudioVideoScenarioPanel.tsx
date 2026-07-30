@@ -292,7 +292,7 @@ export function scenarioFromTemplateProps(
     const cr = props.customerReview;
     const highlight = (cr.highlight || cr.text || "").toString().slice(0, 120);
     const author = cr.author ? ` — ${cr.author}` : "";
-    push("customer_review", Math.max(3, Math.round(durationSec * 0.1)), `Témoignage : « ${highlight} »${author}`);
+    push("customer_review", 7, `Témoignage : « ${highlight} »${author}`);
   }
   if (props?.showOpeningHours) push("hours", Math.max(2, Math.round(durationSec * 0.07)), "Horaires d'ouverture en surimpression.");
   if (props?.showMap) push("map", Math.max(2, Math.round(durationSec * 0.09)), `Marqueur Google Map${props.address ? ` — ${String(props.address).slice(0, 60)}` : ""}.`);
