@@ -31,6 +31,7 @@ const SECTIONS = [
   { id: "previews-sociales-bots", label: "Previews sociales /b/", icon: Share2, content: previewsSocialesBotsMd },
   { id: "cout-generation-videos", label: "Coût génération vidéos", icon: Video, content: coutGenerationVideosMd },
   { id: "cout-tokens-ia-runtime", label: "Coût tokens IA runtime", icon: Coins, content: coutTokensIaRuntimeMd },
+  { id: "methode-prompts-economie-credits", label: "Méthode prompts & crédits", icon: Wallet, content: methodePromptsMd },
 ];
 
 
