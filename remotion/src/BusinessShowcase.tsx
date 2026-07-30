@@ -1271,6 +1271,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   customerReview,
   showWhatsapp,
   whatsappNumber,
+  textOverrides,
+
 }) => {
   const safeVideos = sanitizeUrls(videos);
   const safeImages = sanitizeUrls(images);
