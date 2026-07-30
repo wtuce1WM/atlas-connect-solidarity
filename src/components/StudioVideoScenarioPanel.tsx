@@ -343,6 +343,7 @@ export function StudioVideoScenarioPanel({
   onChangeScenarioEdits,
   openAddDialog,
   onOpenAddDialogChange,
+  beforeTimeline,
 }: {
   scenario: Scenario;
   className?: string;
@@ -352,6 +353,8 @@ export function StudioVideoScenarioPanel({
   onChangeScenarioEdits?: (edits: ScenarioEdits | null) => void;
   openAddDialog?: boolean;
   onOpenAddDialogChange?: (open: boolean) => void;
+  /** Contenu inséré juste avant la Timeline de production (ex. bande son). */
+  beforeTimeline?: React.ReactNode;
 }) {
   // Local edits: per-scene duration overrides + order override (by token) + custom scenes + text splits
   const [durationOverrides, setDurationOverrides] = useState<Record<string, number>>({});
@@ -771,6 +774,8 @@ export function StudioVideoScenarioPanel({
           );
         })}
       </div>
+
+      {beforeTimeline}
 
       <div className="bg-white text-black rounded-xl border border-border p-4 space-y-3">
         <div className="flex items-center justify-between">
