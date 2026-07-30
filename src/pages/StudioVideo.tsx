@@ -1271,6 +1271,33 @@ export default function StudioVideo() {
               </div>
             </header>
 
+            {hasActiveJob && (
+              <div className="rounded-xl border border-[#C04F17]/50 bg-[#C04F17]/10 p-4 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <Loader2 className="h-5 w-5 text-[#C04F17] animate-spin" />
+                  <div>
+                    <p className="text-sm font-semibold text-white">
+                      Vidéo en cours de génération
+                      {activeJobs.length > 1 ? ` (${activeJobs.length})` : ""}
+                    </p>
+                    <p className="text-xs text-white/70">
+                      {activeJobs[0]?.business_id && businessNames[activeJobs[0].business_id]
+                        ? `${businessNames[activeJobs[0].business_id]} · `
+                        : ""}
+                      {activeJobs[0]?.status === "rendering" ? "Rendu en cours" : "En file d'attente"} · peut prendre jusqu'à 10 minutes.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById("studio-active-job")?.scrollIntoView({ behavior: "smooth", block: "center" })}
+                  className="text-xs font-medium text-[#C04F17] hover:text-white underline"
+                >
+                  Voir le job
+                </button>
+              </div>
+            )}
+
           <section className="rounded-xl border border-border bg-card p-6 space-y-5">
             <div className="flex items-center justify-between">
               <Label>
