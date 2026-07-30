@@ -2457,6 +2457,7 @@ export default function StudioVideo() {
                   onChangeScenarioEdits={setScenarioEdits}
                   openAddDialog={addStepOpen}
                   onOpenAddDialogChange={setAddStepOpen}
+                  beforeTimeline={soundtrackBlock}
                 />
               </div>
             ) : scenario ? (
@@ -2468,6 +2469,7 @@ export default function StudioVideo() {
                 onChangeScenarioEdits={setScenarioEdits}
                 openAddDialog={addStepOpen}
                 onOpenAddDialogChange={setAddStepOpen}
+                beforeTimeline={soundtrackBlock}
               />
             ) : null
           )}
