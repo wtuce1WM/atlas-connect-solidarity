@@ -2373,25 +2373,27 @@ serve(async (req) => {
         const mem = buildSessionMemory(messages, clientContext?.activeCity);
         const city = mem.city || cleanActiveCityTop(clientContext?.activeCity) || "Marrakech";
         const { data: w, error: wErr } = await admin.functions.invoke("get-weather", { body: { city } });
-        if (!wErr && w) {
-          const temp = w?.current?.temperature ?? w?.temperature ?? null;
-          const desc = w?.current?.description ?? w?.description ?? "";
-          const wind = w?.current?.wind_kph ?? w?.wind ?? null;
-          const parts: string[] = [];
-          if (temp != null) parts.push(`${Math.round(Number(temp))}°C`);
-          if (desc) parts.push(String(desc));
-          if (wind != null) parts.push(`vent ${Math.round(Number(wind))} km/h`);
-          const line = parts.length ? parts.join(" · ") : "";
-          const daily: any[] = Array.isArray(w?.daily) ? w.daily.slice(0, 3) : [];
-          const dailyLines = daily.map((d: any) => {
-            const day = d?.day || d?.date || "";
-            const tmax = d?.temp_max ?? d?.max ?? null;
-            const tmin = d?.temp_min ?? d?.min ?? null;
-            const dd = d?.description ?? d?.summary ?? "";
-            return `- ${day} · ${tmin != null ? Math.round(Number(tmin)) + "°" : ""}${tmax != null ? "/" + Math.round(Number(tmax)) + "°" : ""}${dd ? ` · ${dd}` : ""}`;
-          }).join("\n");
-          const header = lang === "en" ? `**Weather in ${city}**` : lang === "ar" ? `**الطقس في ${city}**` : `**Météo à ${city}**`;
-          const answer = [header, line, dailyLines].filter(Boolean).join("\n\n");
+        if (!wErr && w && !w.error && typeof w.temp === "number") {
+          const cityName = w.city_name || city;
+          const intro = lang === "en"
+            ? `Here's the weather in **${cityName}** and the trend for the next 3 days. 👇`
+            : lang === "ar"
+              ? `إليك حالة الطقس في **${cityName}** والتوقعات للأيام الثلاثة القادمة. 👇`
+              : `Voici la météo à **${cityName}** ainsi que la tendance des 3 prochains jours. 👇`;
+          const weatherJson = {
+            city_name: cityName,
+            temp: w.temp,
+            feels_like: w.feels_like,
+            temp_min: w.temp_min,
+            temp_max: w.temp_max,
+            humidity: w.humidity,
+            wind_speed: w.wind_speed,
+            description: w.description || "",
+            icon: w.icon || "",
+            hourly: Array.isArray(w.hourly) ? w.hourly.slice(0, 8) : [],
+            daily: Array.isArray(w.daily) ? w.daily.slice(0, 3) : [],
+          };
+          const answer = `${intro}\n\n<!--WEATHER_FORECAST:${JSON.stringify(weatherJson)}-->`;
           const newMessages = [...messages, { role: "assistant", content: answer }];
           let resultChatId: string | null = null;
           if (chatId) {
