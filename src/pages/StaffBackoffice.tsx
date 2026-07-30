@@ -844,6 +844,12 @@ const StaffBackoffice = () => {
               <QRCodeManagement businesses={businesses as any} />
             </TabsContent>
 
+            {isAdmin && (
+              <TabsContent value="users">
+                <UserManagement />
+              </TabsContent>
+            )}
+
           </Tabs>
         )}
       </main>
