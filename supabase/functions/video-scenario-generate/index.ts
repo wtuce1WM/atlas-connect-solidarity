@@ -776,6 +776,15 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
                 onlyMainContent: false,
                 mobile: true,
                 waitFor: 2500,
+                // Ceinture + bretelles : ?bare=1 masque déjà la bannière cookies côté app,
+                // mais si le build publié est en retard on la supprime aussi du DOM avant la capture.
+                actions: [
+                  {
+                    type: "executeJavascript",
+                    script: `try{localStorage.setItem('cookie-consent-v1',JSON.stringify({analytics:'denied',ts:Date.now()}));}catch(e){};document.querySelectorAll('[aria-label="Bannière de consentement aux cookies"],[role="dialog"][aria-live="polite"]').forEach(function(n){n.remove();});`,
+                  },
+                  { type: "wait", milliseconds: 800 },
+                ],
               }),
             });
             const fcJson = await fcRes.json().catch(() => null) as any;
