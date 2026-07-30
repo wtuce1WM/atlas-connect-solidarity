@@ -780,8 +780,11 @@ export default function StudioVideo() {
   const effectiveDuration = durationAuto ? autoDuration : duration;
 
   // Séquence de fin déterministe : offre(s) → WhatsApp → récap/CTA final.
+  // Si l'utilisateur a réordonné manuellement les étapes dans l'aperçu du scénario,
+  // son ordre est prioritaire et n'est plus réécrit.
   const CLOSING_KINDS = ["offer", "whatsapp", "cta", "outro"];
-  const applyClosingSequence = (order?: string[] | null): string[] | undefined => {
+  const applyClosingSequence = (order?: string[] | null, manual?: boolean): string[] | undefined => {
+    if (manual) return order ?? undefined;
     if (!optClosingSequence || !Array.isArray(order) || order.length === 0) return order ?? undefined;
     const head = order.filter((k) => !CLOSING_KINDS.includes(k));
     const tail = CLOSING_KINDS.filter((k) => order.includes(k));
