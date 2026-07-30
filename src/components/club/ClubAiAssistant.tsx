@@ -10,6 +10,7 @@ import VoiceSearchOverlay from "@/components/VoiceSearchOverlay";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLanguage } from "@/contexts/LanguageContext";
 import MapSlidePanel, { type MapPanelBusiness } from "@/components/club/MapSlidePanel";
+import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import EventsSlidePanel from "@/components/club/EventsSlidePanel";
 import BlogSlidePanel from "@/components/club/BlogSlidePanel";
@@ -336,6 +337,7 @@ const EVENTS_RE = /<!--EVENTS_SNAPSHOT:([\s\S]*?)-->/g;
 const KNOWN_RE = /<!--KNOWN_BUSINESSES:([\s\S]*?)-->/g;
 const BLOG_CARDS_RE = /<!--BLOG_CARDS:([\s\S]*?)-->/g;
 const BLOG_CTX_RE = /<!--BLOG_CTX:[\s\S]*?-->/g;
+const WEATHER_RE = /<!--WEATHER_FORECAST:([\s\S]*?)-->/g;
 type MapPayload = { title?: string; businesses: MapPanelBusiness[] };
 export type BlogCardItem = { id: string; slug: string; title: string; cover: string | null; tldr: string | null };
 export type EventPanelItem = {
@@ -358,8 +360,9 @@ export type EventPanelItem = {
 };
 type EventsPayload = { title?: string; city?: string | null; events: EventPanelItem[] };
 type KnownBusiness = { id: string; slug: string | null; name: string };
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; blogs: BlogCardItem[] } {
-  if (!text) return { clean: text, maps: [], events: [], known: [], blogs: [] };
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; blogs: BlogCardItem[]; weather: WeatherPayload[] } {
+  if (!text) return { clean: text, maps: [], events: [], known: [], blogs: [], weather: [] };
+  const weather: WeatherPayload[] = [];
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
@@ -400,6 +403,12 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
       }
     } catch { /* ignore */ }
     return "";
+  }).replace(WEATHER_RE, (_m, raw) => {
+    try {
+      const parsed = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (parsed && typeof parsed.temp === "number") weather.push(parsed as WeatherPayload);
+    } catch { /* ignore */ }
+    return "";
   }).replace(BLOG_CTX_RE, "");
   // Safety net: strip any unclosed/truncated marker (would otherwise render as raw JSON).
   clean = clean
@@ -413,8 +422,9 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--OPEN_BOOKING:[\s\S]*$/g, "")
     .replace(/<!--BLOG_CARDS:[\s\S]*$/g, "")
     .replace(/<!--BLOG_CTX:[\s\S]*$/g, "")
+    .replace(/<!--WEATHER_FORECAST:[\s\S]*$/g, "")
     .trim();
-  return { clean, maps, events, known, blogs };
+  return { clean, maps, events, known, blogs, weather };
 }
 // Backward-compat alias
 const extractMapPayloads = (text: string) => {
@@ -1220,9 +1230,10 @@ const ClubAiAssistant = ({ userId }: Props) => {
           {(() => null)()}
           {messages.map((m, i) => {
             const lastAssistantIndex = (() => { for (let k = messages.length - 1; k >= 0; k--) { if (messages[k].role === "assistant") return k; } return -1; })();
-            const { clean, maps, events: eventPayloads, known, blogs: blogPayloads } = m.role === "assistant"
+            const { clean, maps, events: eventPayloads, known, blogs: blogPayloads, weather: weatherPayloads } = m.role === "assistant"
               ? extractPayloads(m.content)
-              : { clean: m.content, maps: [] as MapPayload[], events: [] as EventsPayload[], known: [] as KnownBusiness[], blogs: [] as BlogCardItem[] };
+              : { clean: m.content, maps: [] as MapPayload[], events: [] as EventsPayload[], known: [] as KnownBusiness[], blogs: [] as BlogCardItem[], weather: [] as WeatherPayload[] };
+            const weatherPayload = weatherPayloads[weatherPayloads.length - 1] || null;
             // Index business names for clickable bold names.
             for (const mp of maps) {
               for (const b of mp.businesses) {
@@ -1357,6 +1368,11 @@ const ClubAiAssistant = ({ userId }: Props) => {
                         );
                       })()}
                     </div>
+                    {weatherPayload && (
+                      <div className="mt-3">
+                        <EmbedWeatherWidget data={weatherPayload} lang={(language === "en" || language === "ar" ? language : "fr") as "fr" | "en" | "ar"} />
+                      </div>
+                    )}
                     {(() => {
                       // Thumbnails carousel of cited businesses (from map payloads, which include images).
                       const seen = new Set<string>();
