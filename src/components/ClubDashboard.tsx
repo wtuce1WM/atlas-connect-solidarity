@@ -517,7 +517,7 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
               </div>
               {form.nickname && (
                 <a
-                  href={withLangPrefix(`/u/${encodeURIComponent(form.nickname)}`, language as "fr" | "en" | "ar")}
+                  href={`https://oneworldmorocco.com${withLangPrefix(`/u/${encodeURIComponent(form.nickname)}`, language as "fr" | "en" | "ar")}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex w-20 flex-col items-center gap-1 group md:w-auto md:gap-1.5"
