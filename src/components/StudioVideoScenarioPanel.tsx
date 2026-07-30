@@ -223,8 +223,14 @@ export function scenarioFromTemplateProps(
     push("logo", Math.max(2, Math.round(durationSec * 0.06)), "Ouverture sur le logo de l'établissement.");
   }
 
-  push("name", Math.max(2, Math.round(durationSec * 0.1)), tagline ? `${name} — ${tagline}` : `Affichage du nom ${name}.`);
-  push("hook", Math.max(2, Math.round(durationSec * 0.12)), hook ? `Accroche : « ${hook} »` : `Accroche immersive sur ${name}.`);
+  // Scène "hook" du montage = NOM + 📍 ville · quartier (texte exact affiché à l'écran)
+  const city = typeof props?.city === "string" ? props.city.trim() : "";
+  const neighborhood = typeof props?.neighborhood === "string" ? props.neighborhood.trim() : "";
+  const locationLine = [city, neighborhood].filter(Boolean).join(" · ");
+  push("hook", Math.max(2, Math.round(durationSec * 0.1)), [name, locationLine ? `📍 ${locationLine}` : ""].filter(Boolean).join("\n"));
+  // Scène "name" du montage = TEXTE du hook (1re moitié, comme dans Remotion)
+  const [hookPart1] = splitHookInTwo(hook);
+  push("name", Math.max(2, Math.round(durationSec * 0.12)), hookPart1 || hook || tagline || name);
   // Étape "media" (montage) : ajoutée manuellement par l'utilisateur via "Ajouter une étape".
 
   // Popup (une scène dédiée si l'option est cochée et qu'une image popup existe)
@@ -232,31 +238,33 @@ export function scenarioFromTemplateProps(
     push("popup", Math.max(2, Math.round(durationSec * 0.08)), "Image d'accueil (popup) en plein écran.");
   }
 
-  // Une scène par offre sélectionnée
+  // Une scène par offre sélectionnée — texte exact repris dans la vidéo
   const offersList: any[] = Array.isArray(props?.offers) ? props.offers : (offer ? [offer] : []);
   if (offersList.length > 0) {
     const perOffer = Math.max(3, Math.round((durationSec * 0.22) / offersList.length));
     for (const off of offersList) {
-      const parts: string[] = [];
-      if (off?.title) parts.push(String(off.title));
-      if (off?.price) parts.push(String(off.price));
-      const lines = Array.isArray(off?.lines) ? off.lines : [];
-      const desc = parts.length ? parts.join(" · ") : "Offre mise en avant.";
-      push("offer", perOffer, `${desc}${lines.length ? ` — ${lines.length} ligne${lines.length > 1 ? "s" : ""}` : ""}.`, off?.title ? `Offre — ${String(off.title).slice(0, 40)}` : undefined);
+      const title = (off?.title || "").toString().trim();
+      const price = (off?.price || "").toString().trim();
+      const lines: string[] = Array.isArray(off?.lines) ? off.lines.map((l: any) => String(l).trim()).filter(Boolean) : [];
+      const head = [title, price].filter(Boolean).join(" · ");
+      const desc = [head, ...lines].filter(Boolean).join("\n") || "Offre mise en avant.";
+      push("offer", perOffer, desc, title ? `Offre — ${title.slice(0, 40)}` : undefined);
     }
   }
 
-  // Une scène par bloc highlight sélectionné
+  // Une scène par bloc highlight sélectionné — titre + texte exacts repris dans la vidéo
   const highlightsList: any[] = Array.isArray(props?.highlights) ? props.highlights : [];
   if (highlightsList.length > 0) {
     const perHl = Math.max(2, Math.round((durationSec * 0.18) / highlightsList.length));
     for (const h of highlightsList) {
       const title = (h?.title || "").toString().trim();
       const desc = (h?.description || "").toString().trim();
-      const summary = [title, desc].filter(Boolean).join(" — ") || "Bloc highlight.";
-      push("highlight", perHl, summary.slice(0, 200), title ? `Highlight — ${title.slice(0, 40)}` : undefined);
+      const metric = [h?.metric_value, h?.metric_title].filter(Boolean).map((x: any) => String(x).trim()).join(" ");
+      const summary = [title, desc, metric].filter(Boolean).join("\n") || "Bloc highlight.";
+      push("highlight", perHl, summary, title ? `Highlight — ${title.slice(0, 40)}` : undefined);
     }
   }
+
 
   if (props?.showReviews) {
     const rating = props.rating ? ` (${props.rating}/5)` : "";
