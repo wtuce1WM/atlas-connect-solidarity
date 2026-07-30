@@ -1124,7 +1124,7 @@ export default function StudioVideo() {
   if (authState === "out") {
     return <Navigate to="/affiliates/login?redirect=/studio-video" replace />;
   }
-  if (accessChecked && !isStaff && !hasVideoStudio) {
+  if (accessChecked && !isStaff && ownedBusinessIds !== null && ownedBusinessIds.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background px-6">
         <div className="max-w-md text-center space-y-3">
