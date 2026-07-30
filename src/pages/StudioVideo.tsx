@@ -293,6 +293,7 @@ export default function StudioVideo() {
   const [optCustomerReview, setOptCustomerReview] = useState(false);
   const [optHours, setOptHours] = useState(true);
   const [optInstallCta, setOptInstallCta] = useState(true);
+  const [optClosingSequence, setOptClosingSequence] = useState(true);
   const [optMapMarker, setOptMapMarker] = useState(true);
   const [optDigitalId, setOptDigitalId] = useState(true);
   const [optPopup, setOptPopup] = useState(true);
@@ -758,6 +759,15 @@ export default function StudioVideo() {
 
   const effectiveDuration = durationAuto ? autoDuration : duration;
 
+  // Séquence de fin déterministe : offre(s) → WhatsApp → récap/CTA final.
+  const CLOSING_KINDS = ["offer", "whatsapp", "cta", "outro"];
+  const applyClosingSequence = (order?: string[] | null): string[] | undefined => {
+    if (!optClosingSequence || !Array.isArray(order) || order.length === 0) return order ?? undefined;
+    const head = order.filter((k) => !CLOSING_KINDS.includes(k));
+    const tail = CLOSING_KINDS.filter((k) => order.includes(k));
+    return [...head, ...tail];
+  };
+
   const scenario = useMemo(() => {
     if (!prompt.trim() || prompt.length < 20) return null;
     return buildScenario(prompt, selected?.name ?? null, effectiveDuration, {
@@ -832,7 +842,7 @@ export default function StudioVideo() {
             selected_images: chosenImages,
             selected_videos: chosenVideos,
             scene_media: sceneMedia,
-            scene_order: scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon),
+            scene_order: applyClosingSequence(scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon)),
             scene_durations: scenarioEdits?.durations ?? (() => {
               const src = (aiScenario?.scenario ?? scenario)?.scenes;
               if (!src) return undefined;
@@ -943,7 +953,7 @@ export default function StudioVideo() {
       opts: {
         optReviews, optHours, optMapMarker, optDigitalId, optInstallCta,
         optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
-        optCustomerReview, optPopup, optOpenWithLogo,
+        optCustomerReview, optPopup, optOpenWithLogo, optClosingSequence,
       },
       offers: Array.from(selectedOfferIds).sort(),
       highlights: Array.from(selectedHighlightIds).sort(),
@@ -960,7 +970,7 @@ export default function StudioVideo() {
     prompt, effectiveDuration, tone, selected?.id,
     optReviews, optHours, optMapMarker, optDigitalId, optInstallCta,
     optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
-    optCustomerReview, optPopup, optOpenWithLogo,
+    optCustomerReview, optPopup, optOpenWithLogo, optClosingSequence,
     selectedOfferIds, selectedHighlightIds, selectedImages, orderedSelectedVideos,
     selectedReviewId, reviewHighlight, textPosition, continuousBg, continuousBgUrl, continuousBgSound,
     soundtrackOn, soundtrackUrl,
@@ -1010,7 +1020,7 @@ export default function StudioVideo() {
             selected_images: chosenImages,
             selected_videos: chosenVideos,
             scene_media: sceneMedia,
-            scene_order: scenarioEdits?.order,
+            scene_order: applyClosingSequence(scenarioEdits?.order),
             scene_durations: scenarioEdits?.durations,
             custom_scenes: scenarioEdits?.customScenes,
             text_position: textPosition,
@@ -1030,6 +1040,11 @@ export default function StudioVideo() {
       if (error) throw error;
       const payload = data as any;
       const scenario = scenarioFromTemplateProps(payload.template_id, payload.template_props, payload.duration_sec ?? effectiveDuration, payload.rationale);
+      if (optClosingSequence && Array.isArray(scenario?.scenes)) {
+        const head = scenario.scenes.filter((s: any) => !CLOSING_KINDS.includes(s.icon));
+        const tail = CLOSING_KINDS.flatMap((k) => scenario.scenes.filter((s: any) => s.icon === k));
+        scenario.scenes = [...head, ...tail];
+      }
       setAiScenario({ scenario, rationale: payload.rationale, templateId: payload.template_id });
       setAiScenarioSig(currentScenarioSig);
       setScenarioPreviewed(true);
@@ -2334,6 +2349,13 @@ export default function StudioVideo() {
                   <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optInstallCta} onChange={(e) => setOptInstallCta(e.target.checked)} />
                   <span>Incitation finale à installer l'app</span>
                 </label>
+                <div>
+                  <label className="flex items-start gap-2 cursor-pointer">
+                    <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optClosingSequence} onChange={(e) => setOptClosingSequence(e.target.checked)} />
+                    <span>Séquence de fin fixe</span>
+                  </label>
+                  <p className="mt-1 pl-6 text-[11px] text-muted-foreground">Force la fin du montage dans cet ordre : offre(s) → WhatsApp → récap / CTA final. Décoché, l'ordre proposé par l'IA est conservé (le final peut varier d'une génération à l'autre).</p>
+                </div>
               </div>
             </div>
 
