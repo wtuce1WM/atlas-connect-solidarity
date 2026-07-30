@@ -1791,7 +1791,7 @@ export default function StudioVideo() {
               </div>
             </div>
 
-            </div>
+
 
             <div className="space-y-2">
               <Label>Prompt</Label>
