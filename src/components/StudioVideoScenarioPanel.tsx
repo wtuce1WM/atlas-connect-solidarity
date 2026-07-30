@@ -76,8 +76,10 @@ const ICONS: Record<Scene["icon"], React.ReactNode> = {
 
 const LABELS: Record<Exclude<Scene["icon"], "custom">, string> = {
   logo: "Ouverture logo",
-  hook: "Hook",
-  name: "Nom & identité",
+  // Dans le montage vidéo, la scène "hook" affiche le NOM + 📍 ville · quartier
+  hook: "Nom & identité",
+  // ... et la scène "name" affiche le TEXTE du hook.
+  name: "Hook",
   media: "Montage",
   popup: "Popup",
   offer: "Offre",
@@ -94,6 +96,19 @@ const LABELS: Record<Exclude<Scene["icon"], "custom">, string> = {
   cta: "Appel à l'action",
   outro: "Outro",
 };
+
+// Même découpe que le montage Remotion (BusinessShowcase.splitHookInTwo)
+export function splitHookInTwo(h: string): [string, string] {
+  const t = (h || "").trim();
+  if (!t) return ["", ""];
+  const m = t.match(/^(.+?[,;:—–-])\s+(.+)$/);
+  if (m && m[1].length > 10 && m[2].length > 10) return [m[1].trim(), m[2].trim()];
+  const words = t.split(/\s+/);
+  if (words.length < 4) return [t, ""];
+  const mid = Math.ceil(words.length / 2);
+  return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
+}
+
 
 export function extractKeywords(text: string): string[] {
   const stop = new Set([
