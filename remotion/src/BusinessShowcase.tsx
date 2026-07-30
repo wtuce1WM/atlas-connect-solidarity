@@ -1996,6 +1996,22 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
   const toneOverlay = TONE_CONFIG[tone]?.overlay ?? TONE_CONFIG.immersif.overlay;
 
+  // Fondu audio : léger à l'entrée (~0.8s), plus prononcé à la sortie (~2.5s)
+  const AUDIO_FADE_IN = 24;
+  const AUDIO_FADE_OUT = 75;
+  const audioFadeVolume = (f: number) => {
+    const inV = interpolate(f, [0, AUDIO_FADE_IN], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+    const outV = interpolate(
+      f,
+      [Math.max(0, totalFrames - AUDIO_FADE_OUT), totalFrames],
+      [1, 0],
+      { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+    );
+    return Math.min(inV, outV);
+  };
+
+
+
   return (
     <ToneContext.Provider value={tone}>
       <SuppressBgContext.Provider value={continuousMode}>
