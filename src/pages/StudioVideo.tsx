@@ -105,9 +105,13 @@ type Job = {
   output_url: string | null;
   error_message: string | null;
   created_at: string;
+  title?: string | null;
 };
 
 const DURATIONS = [15, 30, 45, 60] as const;
+// Options gelées pour l'instant : on conserve les valeurs (utilisées côté logique
+// et jobs existants) mais on ne les propose plus dans l'UI.
+const VISIBLE_DURATIONS: number[] = [];
 
 function getVideoDuration(url: string): Promise<number | null> {
   return new Promise((resolve) => {
@@ -127,11 +131,37 @@ function formatVideoDuration(seconds: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
+function formatDateTime(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function slugifyFileName(name: string): string {
+  return (
+    name
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .toLowerCase() || "video"
+  );
+}
+
 const TONES = [
   { value: "immersif", label: "Immersif" },
-  { value: "dynamique", label: "Dynamique" },
-  { value: "elegant", label: "Élégant" },
+  // Gelés pour l'instant — conservés pour les jobs existants
+  { value: "dynamique", label: "Dynamique", frozen: true },
+  { value: "elegant", label: "Élégant", frozen: true },
 ];
+const VISIBLE_TONES = TONES.filter((t) => !t.frozen);
 
 export default function StudioVideo() {
   const navigate = useNavigate();
