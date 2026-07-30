@@ -344,7 +344,7 @@ export default function StudioVideo() {
 
   const [showImages, setShowImages] = useState(true);
   const [showVideos, setShowVideos] = useState(true);
-  const [showEstablishment, setShowEstablishment] = useState(true);
+  const [showEstablishment, setShowEstablishment] = useState(false);
   const [popupImageUrl, setPopupImageUrl] = useState<string | null>(null);
   const [popupMeta, setPopupMeta] = useState<{ title: string | null; description: string | null }>({ title: null, description: null });
   const [popupPreviewOpen, setPopupPreviewOpen] = useState(false);
@@ -731,10 +731,11 @@ export default function StudioVideo() {
     }
   }, [currentJob]);
 
-  const hasActiveJob = useMemo(
-    () => jobs.some((j) => j.status === "pending" || j.status === "rendering"),
+  const activeJobs = useMemo(
+    () => jobs.filter((j) => j.status === "pending" || j.status === "rendering"),
     [jobs]
   );
+  const hasActiveJob = activeJobs.length > 0;
 
   const promptKeywords = useMemo(() => extractKeywords(prompt), [prompt]);
 
