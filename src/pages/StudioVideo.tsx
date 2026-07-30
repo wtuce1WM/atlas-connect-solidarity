@@ -2579,13 +2579,17 @@ export default function StudioVideo() {
           )}
 
 
-          {currentJob && (
-            <section className="rounded-xl border border-border bg-card p-6 space-y-3">
-              <h2 className="font-semibold">Job en cours</h2>
+          {activeJobs.length > 0 && (
+            <section id="studio-active-job" className="rounded-xl border border-border bg-card p-6 space-y-3">
+              <h2 className="font-semibold">{activeJobs.length === 1 ? "Job en cours" : "Jobs en cours"}</h2>
               <p className="text-xs text-muted-foreground">
                 Une vidéo peut prendre jusqu'à 10 minutes pour être générée.
               </p>
-              <JobCard job={currentJob} businessName={currentJob.business_id ? businessNames[currentJob.business_id] : undefined} />
+              <div className="space-y-3">
+                {activeJobs.map((j) => (
+                  <JobCard key={j.id} job={j} businessName={j.business_id ? businessNames[j.business_id] : undefined} />
+                ))}
+              </div>
             </section>
           )}
 
