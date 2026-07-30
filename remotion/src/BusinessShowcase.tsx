@@ -1766,7 +1766,15 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const trVideoEffect: TransitionEffect = trDifferentiate ? (transitions?.video ?? trPreset.video) : trPreset.video;
   const trImageEffect: TransitionEffect = trDifferentiate ? (transitions?.image ?? trPreset.image) : trPreset.video;
   const transitionFor = (kind: string): TransitionEffect => {
-    if (continuousMode) return trVideoEffect;
+    if (continuousMode) {
+      // Fond vidéo unique en continu : pas de coupe de plan à enchaîner,
+      // la transition ne s'applique qu'aux calques texte/contenu.
+      // On limite aux effets lisibles sur du texte.
+      if (trVideoEffect === "kenburns" || trVideoEffect === "zoom" || trVideoEffect === "wipe") return "crossfade";
+      if (trVideoEffect === "fade_black") return "crossfade";
+      return trVideoEffect;
+    }
+
     const arr = (sm as Record<string, Array<{ url: string; kind: "image" | "video" }> | undefined>)[kind];
     const first = Array.isArray(arr) ? arr[0] : undefined;
     if (first) return first.kind === "video" ? trVideoEffect : trImageEffect;
