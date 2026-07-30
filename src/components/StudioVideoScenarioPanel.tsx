@@ -1213,7 +1213,7 @@ function SceneTextEditDialog({
       setDescription(currentDescription);
     }
   }, [open, currentLabel, currentDescription]);
-  const kindLabel = sceneKind === "hook" ? "Hook" : sceneKind === "name" ? "Nom & identité" : "Étape";
+  const kindLabel = sceneKind === "hook" ? "Nom & identité" : sceneKind === "name" ? "Hook" : "Étape";
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg bg-white text-black">
