@@ -4,6 +4,8 @@ import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
@@ -188,17 +190,23 @@ export default function StudioVideo() {
   const [isStaff, setIsStaff] = useState(false);
   const [ownedBusinessIds, setOwnedBusinessIds] = useState<string[] | null>(null); // null = not loaded, [] = none
 
+  const [notifyEmail, setNotifyEmail] = useState(false);
+  const [notifyEmailTo, setNotifyEmailTo] = useState("");
+
   useEffect(() => {
     let cancelled = false;
     supabase.auth.getUser().then(({ data }) => {
       if (cancelled) return;
       setAuthState(data.user ? "in" : "out");
+      if (data.user?.email) setNotifyEmailTo((prev) => prev || data.user!.email!);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       setAuthState(session?.user ? "in" : "out");
+      if (session?.user?.email) setNotifyEmailTo((prev) => prev || session.user!.email!);
     });
     return () => { cancelled = true; sub.subscription.unsubscribe(); };
   }, []);
+
 
   useEffect(() => {
     if (authState !== "in") return;
@@ -796,6 +804,9 @@ export default function StudioVideo() {
           duration_sec: effectiveDuration,
           tone,
           parent_job_id: refineFrom?.id ?? null,
+          notify_email: notifyEmail,
+          notify_email_to: notifyEmail ? (notifyEmailTo || null) : null,
+
           options: {
             reviews: optReviews,
             hours: optHours,
@@ -2475,13 +2486,31 @@ export default function StudioVideo() {
           )}
 
           {selected && scenarioPreviewed && (
-            <div className="flex flex-wrap gap-2">
-              <Button onClick={submit} disabled={submitting || hasActiveJob} className="gap-2">
-                {submitting || hasActiveJob ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-                {hasActiveJob ? "Job déjà lancé…" : refineFrom ? "Générer la version affinée" : "Générer la vidéo"}
-              </Button>
+            <div className="space-y-3">
+              <div className="rounded-lg border border-border bg-card/50 p-3 space-y-2">
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <Checkbox checked={notifyEmail} onCheckedChange={(v) => setNotifyEmail(!!v)} />
+                  <span>Confirmation par email quand la vidéo est prête</span>
+                </label>
+                {notifyEmail && (
+                  <Input
+                    type="email"
+                    value={notifyEmailTo}
+                    onChange={(e) => setNotifyEmailTo(e.target.value)}
+                    placeholder="votre@email.com"
+                    className="max-w-sm"
+                  />
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button onClick={submit} disabled={submitting || hasActiveJob} className="gap-2">
+                  {submitting || hasActiveJob ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                  {hasActiveJob ? "Job déjà lancé…" : refineFrom ? "Générer la version affinée" : "Générer la vidéo"}
+                </Button>
+              </div>
             </div>
           )}
+
 
           {currentJob && (
             <section className="rounded-xl border border-border bg-card p-6 space-y-3">

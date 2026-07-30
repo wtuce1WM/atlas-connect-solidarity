@@ -34,12 +34,48 @@ Deno.serve(async (req) => {
   if (error_message) patch.error_message = error_message;
   if (duration_sec != null && Number.isFinite(Number(duration_sec))) patch.duration_sec = Number(duration_sec);
 
-  const { error } = await supabase.from('video_jobs').update(patch).eq('id', job_id);
+  const { data: updated, error } = await supabase
+    .from('video_jobs')
+    .update(patch)
+    .eq('id', job_id)
+    .select('id, title, prompt, duration_sec, output_url, notify_email, notify_email_to, business_id')
+    .maybeSingle();
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
+  // Confirmation email when the video is ready
+  if (status === 'done' && updated?.notify_email && updated?.notify_email_to) {
+    try {
+      let businessName = '';
+      if (updated.business_id) {
+        const { data: biz } = await supabase
+          .from('businesses')
+          .select('name')
+          .eq('id', updated.business_id)
+          .maybeSingle();
+        businessName = biz?.name ?? '';
+      }
+      await supabase.functions.invoke('send-transactional-email', {
+        body: {
+          templateName: 'video-ready',
+          recipientEmail: updated.notify_email_to,
+          idempotencyKey: `video-ready-${updated.id}`,
+          templateData: {
+            businessName,
+            videoTitle: updated.title || (updated.prompt ?? '').slice(0, 80),
+            durationSec: updated.duration_sec ?? null,
+            studioUrl: 'https://oneworldmorocco.com/studio-video',
+            videoUrl: updated.output_url ?? '',
+          },
+        },
+      });
+    } catch (e) {
+      console.error('video-ready email failed:', (e as Error).message);
+    }
+  }
+
   return new Response(JSON.stringify({ ok: true }), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });

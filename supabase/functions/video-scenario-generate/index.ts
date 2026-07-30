@@ -969,6 +969,8 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         scenario_json: parsed,
         status: "pending",
         parent_job_id: parentJob?.id ?? null,
+        notify_email: !!body?.notify_email,
+        notify_email_to: body?.notify_email ? (body?.notify_email_to ?? null) : null,
       })
       .select()
       .single();
