@@ -336,6 +336,11 @@ export default function StudioVideo() {
   const [transitionDifferentiate, setTransitionDifferentiate] = useState(true);
   const [transitionVideo, setTransitionVideo] = useState<TransitionEffectId>("crossfade");
   const [transitionImage, setTransitionImage] = useState<TransitionEffectId>("kenburns");
+  useEffect(() => {
+    const preset = TRANSITION_STYLE_PRESETS[transitionStyle];
+    setTransitionVideo(preset.video);
+    setTransitionImage(preset.image);
+  }, [transitionStyle]);
 
 
 
@@ -821,6 +826,12 @@ export default function StudioVideo() {
             })(),
             custom_scenes: scenarioEdits?.customScenes,
             text_position: textPosition,
+            transitions: {
+              style: transitionStyle,
+              differentiate: transitionDifferentiate,
+              video: transitionVideo,
+              image: transitionImage,
+            },
             continuous_bg_video_url: continuousBg && continuousBgUrl ? continuousBgUrl : null,
             continuous_bg_sound: continuousBg && continuousBgUrl ? continuousBgSound : false,
           },
@@ -924,6 +935,7 @@ export default function StudioVideo() {
       reviewId: selectedReviewId,
       reviewHighlight: reviewHighlight || null,
       textPosition,
+      transitions: `${transitionStyle}|${transitionDifferentiate ? "diff" : "uni"}|${transitionVideo}|${transitionImage}`,
       continuousBg: continuousBg ? `${continuousBgUrl}|${continuousBgSound ? "sound" : "mute"}` : null,
     });
   }, [
@@ -933,6 +945,7 @@ export default function StudioVideo() {
     optCustomerReview, optPopup, optOpenWithLogo,
     selectedOfferIds, selectedHighlightIds, selectedImages, orderedSelectedVideos,
     selectedReviewId, reviewHighlight, textPosition, continuousBg, continuousBgUrl, continuousBgSound,
+    transitionStyle, transitionDifferentiate, transitionVideo, transitionImage,
   ]);
   const scenarioStale = !!aiScenario && aiScenarioSig !== null && aiScenarioSig !== currentScenarioSig;
 
@@ -982,6 +995,12 @@ export default function StudioVideo() {
             scene_durations: scenarioEdits?.durations,
             custom_scenes: scenarioEdits?.customScenes,
             text_position: textPosition,
+            transitions: {
+              style: transitionStyle,
+              differentiate: transitionDifferentiate,
+              video: transitionVideo,
+              image: transitionImage,
+            },
             continuous_bg_video_url: continuousBg && continuousBgUrl ? continuousBgUrl : null,
             continuous_bg_sound: continuousBg && continuousBgUrl ? continuousBgSound : false,
           },
