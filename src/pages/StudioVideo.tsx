@@ -233,6 +233,7 @@ export default function StudioVideo() {
   const [prompt, setPrompt] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [previewing, setPreviewing] = useState(false);
+  const [scenarioPreviewed, setScenarioPreviewed] = useState(false);
   const [aiScenario, setAiScenario] = useState<{ scenario: Scenario; rationale?: string; templateId: string } | null>(null);
   const [aiScenarioSig, setAiScenarioSig] = useState<string | null>(null);
   const [scenarioEdits, setScenarioEdits] = useState<ScenarioEdits | null>(null);
@@ -359,9 +360,13 @@ export default function StudioVideo() {
     return [...imgs, ...vids];
   }, [bizImages, bizVideos]);
 
-  // Fermer la zone "Votre établissement" dès qu'un établissement est choisi
+  // Fermer la zone "Votre établissement" et réinitialiser l'aperçu dès qu'un établissement est choisi
   useEffect(() => {
-    if (selected) setShowEstablishment(false);
+    if (selected) {
+      setShowEstablishment(false);
+      setScenarioPreviewed(false);
+      setAiScenario(null);
+    }
   }, [selected]);
 
   useEffect(() => {
@@ -964,6 +969,7 @@ export default function StudioVideo() {
       const scenario = scenarioFromTemplateProps(payload.template_id, payload.template_props, payload.duration_sec ?? effectiveDuration, payload.rationale);
       setAiScenario({ scenario, rationale: payload.rationale, templateId: payload.template_id });
       setAiScenarioSig(currentScenarioSig);
+      setScenarioPreviewed(true);
       toast.success("Scénario IA généré.");
     } catch (e: any) {
       toast.error(e.message ?? "Erreur lors de la prévisualisation.");
@@ -1750,6 +1756,7 @@ export default function StudioVideo() {
             )}
 
 
+          {selected && (
           <section className="rounded-xl border border-border bg-card p-6 space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -2222,18 +2229,31 @@ export default function StudioVideo() {
               </Button>
             </div>
           </section>
+          )}
 
-          {aiScenario ? (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Scénario IA · template {aiScenario.templateId}</span>
-                <Button size="sm" variant="ghost" onClick={() => setAiScenario(null)} className="h-7 text-xs">Effacer</Button>
+          {selected && scenarioPreviewed && (
+            aiScenario ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Scénario IA · template {aiScenario.templateId}</span>
+                  <Button size="sm" variant="ghost" onClick={() => setAiScenario(null)} className="h-7 text-xs">Effacer</Button>
+                </div>
+                {aiScenario.rationale && (
+                  <p className="text-xs italic text-muted-foreground">{aiScenario.rationale}</p>
+                )}
+                <StudioVideoScenarioPanel
+                  scenario={aiScenario.scenario}
+                  availableMedia={availableSceneMedia}
+                  sceneMedia={sceneMedia}
+                  onChangeSceneMedia={setSceneMedia}
+                  onChangeScenarioEdits={setScenarioEdits}
+                  openAddDialog={addStepOpen}
+                  onOpenAddDialogChange={setAddStepOpen}
+                />
               </div>
-              {aiScenario.rationale && (
-                <p className="text-xs italic text-muted-foreground">{aiScenario.rationale}</p>
-              )}
+            ) : scenario ? (
               <StudioVideoScenarioPanel
-                scenario={aiScenario.scenario}
+                scenario={scenario}
                 availableMedia={availableSceneMedia}
                 sceneMedia={sceneMedia}
                 onChangeSceneMedia={setSceneMedia}
@@ -2241,18 +2261,8 @@ export default function StudioVideo() {
                 openAddDialog={addStepOpen}
                 onOpenAddDialogChange={setAddStepOpen}
               />
-            </div>
-          ) : scenario ? (
-            <StudioVideoScenarioPanel
-              scenario={scenario}
-              availableMedia={availableSceneMedia}
-              sceneMedia={sceneMedia}
-              onChangeSceneMedia={setSceneMedia}
-              onChangeScenarioEdits={setScenarioEdits}
-              openAddDialog={addStepOpen}
-              onOpenAddDialogChange={setAddStepOpen}
-            />
-          ) : null}
+            ) : null
+          )}
 
           <div className="flex flex-wrap gap-2">
             <Button onClick={submit} disabled={submitting || hasActiveJob} className="gap-2">

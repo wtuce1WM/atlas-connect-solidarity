@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-07-30T03:54:56.917Z",
+    "generated_at": "2026-07-30T05:50:46.097Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
     "count": 1840
   },
@@ -54162,7 +54162,8 @@
         "Mixologie",
         "Cocktails",
         "Climatisé",
-        "Cave à vin"
+        "Cave à vin",
+        "Champagne"
       ],
       "city": "Marrakech",
       "neighborhood": "Gueliz",
@@ -54170,13 +54171,13 @@
       "country": "MA",
       "latitude": 31.6371481,
       "longitude": -8.0139932,
-      "address": "Residence Al Houda, Rue Moulay Ali, Guéliz",
+      "address": "Residence Al Houda, Rue Moulay Ali",
       "phone": "+212 524379012",
       "whatsapp": "+212 524379012",
       "website": "https://www.lebarometre.net/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/ffa7f368-30d4-4e69-b1ae-8d6a600502dc-1775228922973-6se0ea.jpg",
       "google_rating": 4.8,
-      "google_review_count": 1535,
+      "google_review_count": 1607,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -54216,7 +54217,7 @@
       "social": {
         "instagram": "https://www.instagram.com/barometremarrakech/",
         "facebook": "https://www.facebook.com/barometremarrakech",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293734-d11962970-Reviews-Barometre_Marrakech-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -57863,7 +57864,7 @@
       "booking_url": null,
       "menu_url": "https://www.restaurantlechaletdelaplage.com/menu-2/",
       "social": {
-        "instagram": null,
+        "instagram": "https://www.instagram.com/chez_jeannot_essaouira/",
         "facebook": "https://www.facebook.com/chezjeannotessaouira/",
         "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g298349-d1736460-Reviews-Le_Chalet_de_la_Plage_Essaouira-Essaouira_Marrakech_Safi.html?m=66827",
         "youtube": null,
