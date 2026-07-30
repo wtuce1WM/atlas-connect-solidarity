@@ -1353,6 +1353,52 @@ export default function StudioVideo() {
                   </div>
                   <p className="text-[11px] text-muted-foreground">Si aucune n'est cochée, l'IA choisit librement parmi toutes les vidéos.</p>
 
+                  {orderedSelectedVideos.length > 1 && (
+                    <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2">
+                      <Label className="text-sm">
+                        Ordre des vidéos dans le montage
+                        <span className="block text-[11px] text-muted-foreground font-normal">
+                          Glissez / déposez les vignettes pour changer l'ordre.
+                        </span>
+                      </Label>
+                      <div className="flex flex-wrap gap-2">
+                        {orderedSelectedVideos.map((url, i) => {
+                          const v = bizVideos.find((x) => x.url === url);
+                          return (
+                            <div
+                              key={url}
+                              draggable
+                              onDragStart={() => setDragUrl(url)}
+                              onDragEnd={() => setDragUrl(null)}
+                              onDragOver={(e) => e.preventDefault()}
+                              onDrop={(e) => {
+                                e.preventDefault();
+                                if (dragUrl) moveVideo(dragUrl, url);
+                                setDragUrl(null);
+                              }}
+                              className={`relative w-20 aspect-[9/16] rounded-md overflow-hidden border-2 bg-black cursor-grab active:cursor-grabbing ${
+                                dragUrl === url ? "border-[#C04F17] opacity-60" : "border-border"
+                              }`}
+                              title={v?.title || url}
+                            >
+                              {v?.kind === "file" ? (
+                                <video src={url} preload="metadata" muted playsInline className="w-full h-full object-cover pointer-events-none" />
+                              ) : v?.thumbnail ? (
+                                <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover pointer-events-none" loading="lazy" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-white/60"><Video className="h-5 w-5" /></div>
+                              )}
+                              <span className="absolute top-1 left-1 bg-[#C04F17] text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{i + 1}</span>
+                              <span className="absolute bottom-1 right-1 text-white/80"><GripVertical className="h-3.5 w-3.5" /></span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+
+
                   <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
                     <label className="flex items-start gap-2 cursor-pointer">
                       <input
