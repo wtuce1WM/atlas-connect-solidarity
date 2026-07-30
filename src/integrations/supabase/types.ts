@@ -6835,6 +6835,7 @@ export type Database = {
           status: string
           template_id: string | null
           template_props: Json | null
+          title: string | null
           tone: string
           updated_at: string
           user_id: string | null
@@ -6852,6 +6853,7 @@ export type Database = {
           status?: string
           template_id?: string | null
           template_props?: Json | null
+          title?: string | null
           tone?: string
           updated_at?: string
           user_id?: string | null
@@ -6869,6 +6871,7 @@ export type Database = {
           status?: string
           template_id?: string | null
           template_props?: Json | null
+          title?: string | null
           tone?: string
           updated_at?: string
           user_id?: string | null
