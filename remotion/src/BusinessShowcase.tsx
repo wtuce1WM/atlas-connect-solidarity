@@ -132,6 +132,9 @@ export type ShowcaseProps = {
   // Vidéo unique jouée en fond continu sur toute la durée (les fonds de scène sont neutralisés)
   continuousBgVideoUrl?: string | null;
   continuousBgSound?: boolean;
+  // Transitions entre les plans (vidéos / images)
+  transitions?: TransitionsConfig | null;
+
 
 };
 
