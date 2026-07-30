@@ -953,7 +953,7 @@ export default function StudioVideo() {
       opts: {
         optReviews, optHours, optMapMarker, optDigitalId, optInstallCta,
         optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
-        optCustomerReview, optPopup, optOpenWithLogo,
+        optCustomerReview, optPopup, optOpenWithLogo, optClosingSequence,
       },
       offers: Array.from(selectedOfferIds).sort(),
       highlights: Array.from(selectedHighlightIds).sort(),
