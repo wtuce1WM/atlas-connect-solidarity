@@ -970,7 +970,7 @@ export default function StudioVideo() {
     prompt, effectiveDuration, tone, selected?.id,
     optReviews, optHours, optMapMarker, optDigitalId, optInstallCta,
     optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
-    optCustomerReview, optPopup, optOpenWithLogo,
+    optCustomerReview, optPopup, optOpenWithLogo, optClosingSequence,
     selectedOfferIds, selectedHighlightIds, selectedImages, orderedSelectedVideos,
     selectedReviewId, reviewHighlight, textPosition, continuousBg, continuousBgUrl, continuousBgSound,
     soundtrackOn, soundtrackUrl,
