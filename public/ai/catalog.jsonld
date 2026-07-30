@@ -18899,7 +18899,7 @@
         "description": "Caché dans une ruelle discrète du quartier de Guéliz, Le Baromètre Marrakech est l’un des secrets les mieux gardés de la scène nocturne marrakchie. Inspiré des speakeasies de l’époque de la prohibition, ce lieu sans enseigne apparente plonge immédiatement ses visiteurs dans une atmosphère mystérieuse et intimiste. Dès l’entrée, le ton est donné : éclairage tamisé, décor élégant et ambiance feutrée créent un cadre sophistiqué, presque confidentiel. Le bar central devient rapidement le cœur du lie",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Residence Al Houda, Rue Moulay Ali, Guéliz",
+          "streetAddress": "Residence Al Houda, Rue Moulay Ali",
           "addressLocality": "Gueliz",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -18913,7 +18913,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 1535,
+          "reviewCount": 1607,
           "bestRating": 5
         }
       }
