@@ -2349,6 +2349,13 @@ export default function StudioVideo() {
                   <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optInstallCta} onChange={(e) => setOptInstallCta(e.target.checked)} />
                   <span>Incitation finale à installer l'app</span>
                 </label>
+                <div>
+                  <label className="flex items-start gap-2 cursor-pointer">
+                    <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optClosingSequence} onChange={(e) => setOptClosingSequence(e.target.checked)} />
+                    <span>Séquence de fin fixe</span>
+                  </label>
+                  <p className="mt-1 pl-6 text-[11px] text-muted-foreground">Force la fin du montage dans cet ordre : offre(s) → WhatsApp → récap / CTA final. Décoché, l'ordre proposé par l'IA est conservé (le final peut varier d'une génération à l'autre).</p>
+                </div>
               </div>
             </div>
 
