@@ -95,6 +95,23 @@ const SHOWCASE_FEATURES: ShowcaseItem[] = [
 
 
 type Business = { id: string; name: string; city: string | null };
+type TransitionEffectId = "crossfade" | "fade_black" | "wipe" | "zoom" | "kenburns" | "slide" | "cut";
+const TRANSITION_EFFECT_LABELS: Record<TransitionEffectId, string> = {
+  crossfade: "Fondu enchaîné",
+  fade_black: "Fondu au noir",
+  wipe: "Wipe latéral",
+  zoom: "Zoom doux",
+  kenburns: "Ken Burns (pan + zoom)",
+  slide: "Glissement",
+  cut: "Coupe franche",
+};
+const TRANSITION_STYLE_PRESETS: Record<"auto" | "doux" | "dynamique" | "minimal", { video: TransitionEffectId; image: TransitionEffectId }> = {
+  auto: { video: "crossfade", image: "kenburns" },
+  doux: { video: "crossfade", image: "crossfade" },
+  dynamique: { video: "zoom", image: "slide" },
+  minimal: { video: "cut", image: "fade_black" },
+};
+
 type Job = {
   id: string;
   business_id: string | null;
