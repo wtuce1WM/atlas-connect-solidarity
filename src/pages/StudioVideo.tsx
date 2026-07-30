@@ -317,8 +317,9 @@ export default function StudioVideo() {
   // Transitions entre les plans
   const [transitionStyle, setTransitionStyle] = useState<"auto" | "doux" | "dynamique" | "minimal">("auto");
   const [transitionDifferentiate, setTransitionDifferentiate] = useState(true);
-  const [transitionVideo, setTransitionVideo] = useState<TransitionEffect>("crossfade");
-  const [transitionImage, setTransitionImage] = useState<TransitionEffect>("kenburns");
+  const [transitionVideo, setTransitionVideo] = useState<TransitionEffectId>("crossfade");
+  const [transitionImage, setTransitionImage] = useState<TransitionEffectId>("kenburns");
+
 
 
   // Garde l'ordre de montage synchronisé avec la sélection de vidéos.
