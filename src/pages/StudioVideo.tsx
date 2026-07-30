@@ -838,7 +838,8 @@ export default function StudioVideo() {
               image: transitionImage,
             },
             continuous_bg_video_url: continuousBg && continuousBgUrl ? continuousBgUrl : null,
-            continuous_bg_sound: continuousBg && continuousBgUrl ? continuousBgSound : false,
+            continuous_bg_sound: continuousBg && continuousBgUrl && !(soundtrackOn && soundtrackUrl) ? continuousBgSound : false,
+            soundtrack_url: soundtrackOn && soundtrackUrl ? soundtrackUrl : null,
           },
 
         },
@@ -942,6 +943,7 @@ export default function StudioVideo() {
       textPosition,
       transitions: `${transitionStyle}|${transitionDifferentiate ? "diff" : "uni"}|${transitionVideo}|${transitionImage}`,
       continuousBg: continuousBg ? `${continuousBgUrl}|${continuousBgSound ? "sound" : "mute"}` : null,
+      soundtrack: soundtrackOn && soundtrackUrl ? soundtrackUrl : null,
     });
   }, [
     prompt, effectiveDuration, tone, selected?.id,
@@ -950,6 +952,7 @@ export default function StudioVideo() {
     optCustomerReview, optPopup, optOpenWithLogo,
     selectedOfferIds, selectedHighlightIds, selectedImages, orderedSelectedVideos,
     selectedReviewId, reviewHighlight, textPosition, continuousBg, continuousBgUrl, continuousBgSound,
+    soundtrackOn, soundtrackUrl,
     transitionStyle, transitionDifferentiate, transitionVideo, transitionImage,
   ]);
   const scenarioStale = !!aiScenario && aiScenarioSig !== null && aiScenarioSig !== currentScenarioSig;
@@ -1007,7 +1010,8 @@ export default function StudioVideo() {
               image: transitionImage,
             },
             continuous_bg_video_url: continuousBg && continuousBgUrl ? continuousBgUrl : null,
-            continuous_bg_sound: continuousBg && continuousBgUrl ? continuousBgSound : false,
+            continuous_bg_sound: continuousBg && continuousBgUrl && !(soundtrackOn && soundtrackUrl) ? continuousBgSound : false,
+            soundtrack_url: soundtrackOn && soundtrackUrl ? soundtrackUrl : null,
           },
 
         },
