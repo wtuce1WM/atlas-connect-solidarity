@@ -548,6 +548,16 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         if (!vids.includes(contBgUrl)) template_props.videos = [contBgUrl, ...vids].slice(0, 8);
       }
 
+      // Bande son issue d'une vidéo (prioritaire sur le son de la vidéo de fond continue)
+      const soundtrackUrl = typeof options?.soundtrack_url === "string" && /^https?:\/\//i.test(options.soundtrack_url as string)
+        ? (options.soundtrack_url as string)
+        : null;
+      if (soundtrackUrl) {
+        template_props.soundtrackUrl = soundtrackUrl;
+        template_props.continuousBgSound = false;
+      }
+
+
       // Zone libre — étape "media" optionnelle avec texte + médias de fond au choix
       const wantsFreeZone = !!options?.free_zone;
       if (wantsFreeZone) {
