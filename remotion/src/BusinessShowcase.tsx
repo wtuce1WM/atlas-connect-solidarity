@@ -1314,8 +1314,16 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const outroItem = outroOverride[0];
 
 
-  const locationLine = [city, neighborhood].filter(Boolean).join(" · ");
-  const [hookPart1, hookPart2] = splitHookInTwo(hook);
+  const ovHook = textOverrides?.hook ?? {};
+  const ovName = textOverrides?.name ?? {};
+  const displayName = (ovHook.label || "").trim() || name;
+  const locationLine =
+    (ovHook.description || "").trim().replace(/^📍\s*/, "") ||
+    [city, neighborhood].filter(Boolean).join(" · ");
+  const [rawHookPart1, hookPart2] = splitHookInTwo(hook);
+  const nameSceneTitle = (ovName.label || "").trim();
+  const hookPart1 = (ovName.description || "").trim() || rawHookPart1;
+
 
   // Build the ordered scene plan (honors props.scene_order + props.scene_durations)
   const plan = buildScenePlan({
