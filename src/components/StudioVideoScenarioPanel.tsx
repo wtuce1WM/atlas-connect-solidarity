@@ -834,40 +834,12 @@ function CustomSceneMediaSlot({
               <DialogHeader>
                 <DialogTitle className="text-black">Sélection média de fond</DialogTitle>
               </DialogHeader>
-              {available.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Aucun média disponible pour cet établissement.</p>
-              ) : (
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                  {available.map((m) => {
-                    const selected = current?.url === m.url;
-                    return (
-                      <button
-                        key={m.url}
-                        type="button"
-                        onClick={() => { onChange(m); setOpen(false); }}
-                        className={cn(
-                          "relative aspect-video rounded-md overflow-hidden border-2 group",
-                          selected ? "border-primary" : "border-transparent hover:border-primary/40"
-                        )}
-                      >
-                        {m.kind === "video" ? (
-                          <video src={m.url} className="w-full h-full object-cover" muted playsInline preload="metadata" />
-                        ) : (
-                          <img src={m.url} alt="" className="w-full h-full object-cover" />
-                        )}
-                        <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[10px] px-1.5 py-0.5 truncate">
-                          {m.title || m.kind}
-                        </div>
-                        {m.duration != null && m.kind === "video" && (
-                          <div className="absolute top-1 right-1 text-[9px] px-1.5 py-0.5 rounded bg-black/70 text-white font-bold uppercase">
-                            {formatDuration(m.duration)}
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
+              <MediaPickerGrid
+                available={available}
+                isSelected={(m) => current?.url === m.url}
+                onSelect={(m) => { onChange(m); setOpen(false); }}
+              />
+
             </DialogContent>
           </Dialog>
         </div>
