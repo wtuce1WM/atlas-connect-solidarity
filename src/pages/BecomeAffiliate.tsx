@@ -126,9 +126,8 @@ const BecomeAffiliate = () => {
     },
     ar: {
       title: "كن شريكًا",
-      subtitle: "انضم إلى أول سوق تضامني في المغرب",
-      description: "طور رؤيتك وانضم إلى شبكة شركاء ملتزمين.",
-      pricingTitle: "Titre 2",
+      subtitle: "سيطر على حضورك الرقمي في عصر الذكاء الاصطناعي",
+      description: "",
       pricingSubtitle: "لا رسوم خفية. كل ما تحتاجه لتطوير رؤيتك.",
       offerBadge: "عرض الانطلاق",
       price: "مجاني",
