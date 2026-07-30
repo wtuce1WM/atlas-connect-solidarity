@@ -796,6 +796,9 @@ export default function StudioVideo() {
           duration_sec: effectiveDuration,
           tone,
           parent_job_id: refineFrom?.id ?? null,
+          notify_email: notifyEmail,
+          notify_email_to: notifyEmail ? (notifyEmailTo || null) : null,
+
           options: {
             reviews: optReviews,
             hours: optHours,
