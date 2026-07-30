@@ -114,6 +114,8 @@ serve(async (req: Request) => {
         email: normalizedEmail,
         password,
         email_confirm: true,
+        // Empêche la création automatique d'une fiche "Invité du club" pour un compte B2B
+        user_metadata: { is_affiliate_signup: true },
       });
       let newUser = createResult.data;
       const createError = createResult.error;
