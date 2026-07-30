@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, BookMarked, CheckCircle2, Palette, Mic, Pin, Users, Globe, Search, Share2, Video, Coins, Wallet } from "lucide-react";
+import { Building2, BookMarked, CheckCircle2, Palette, Mic, Pin, Users, Globe, Search, Share2, Video, Coins, Wallet, History } from "lucide-react";
 
 import architectureMd from "@/content/kb/architecture.md?raw";
 import glossaireMd from "@/content/kb/glossaire.md?raw";
