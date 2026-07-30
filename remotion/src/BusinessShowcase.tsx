@@ -4,6 +4,7 @@ import {
   Sequence,
   Img,
   OffthreadVideo,
+  Audio,
   interpolate,
   spring,
   useCurrentFrame,
@@ -132,6 +133,8 @@ export type ShowcaseProps = {
   // Vidéo unique jouée en fond continu sur toute la durée (les fonds de scène sont neutralisés)
   continuousBgVideoUrl?: string | null;
   continuousBgSound?: boolean;
+  // Bande son extraite d'une vidéo (prioritaire sur continuousBgSound), bouclée si trop courte
+  soundtrackUrl?: string | null;
   // Transitions entre les plans (vidéos / images)
   transitions?: TransitionsConfig | null;
 
@@ -1371,6 +1374,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   textOverrides,
   continuousBgVideoUrl,
   continuousBgSound,
+  soundtrackUrl,
   transitions,
 
 
