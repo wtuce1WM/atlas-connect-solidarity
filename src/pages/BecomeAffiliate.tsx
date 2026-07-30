@@ -26,9 +26,8 @@ const BecomeAffiliate = () => {
   const translations = {
     fr: {
       title: "Devenir affilié",
-      subtitle: "Rejoignez la première place de marché solidaire du Maroc",
-      description: "Développez votre visibilité et rejoignez un réseau de partenaires engagés.",
-      pricingTitle: "Titre 2",
+      subtitle: "Prenez le contrôle de votre présence numérique à l'heure de l'IA",
+      description: "",
       pricingSubtitle: "Pas de frais cachés. Tout ce dont vous avez besoin pour développer votre visibilité.",
       offerBadge: "Offre de lancement",
       price: "Gratuit",
@@ -77,9 +76,8 @@ const BecomeAffiliate = () => {
     },
     en: {
       title: "Become an affiliate",
-      subtitle: "Join Morocco's first solidarity marketplace",
-      description: "Grow your visibility and join a network of committed partners.",
-      pricingTitle: "Titre 2",
+      subtitle: "Take control of your digital presence in the age of AI",
+      description: "",
       pricingSubtitle: "No hidden fees. Everything you need to grow your visibility.",
       offerBadge: "Launch offer",
       price: "Free",
@@ -128,9 +126,8 @@ const BecomeAffiliate = () => {
     },
     ar: {
       title: "كن شريكًا",
-      subtitle: "انضم إلى أول سوق تضامني في المغرب",
-      description: "طور رؤيتك وانضم إلى شبكة شركاء ملتزمين.",
-      pricingTitle: "Titre 2",
+      subtitle: "سيطر على حضورك الرقمي في عصر الذكاء الاصطناعي",
+      description: "",
       pricingSubtitle: "لا رسوم خفية. كل ما تحتاجه لتطوير رؤيتك.",
       offerBadge: "عرض الانطلاق",
       price: "مجاني",
@@ -238,16 +235,13 @@ const BecomeAffiliate = () => {
       <main className="pt-24 pb-20">
         {/* Hero */}
         <section className="container mx-auto px-4 text-center mb-20">
-          <div className="max-w-3xl mx-auto">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6" style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          <div className="max-w-4xl mx-auto">
+            <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground mb-4">
               {t.title}
-            </h1>
-            <p className="text-xl md:text-2xl text-gold mb-4">
+            </p>
+            <h1 className="font-josefin text-[26px] sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#C04F17]" style={{ lineHeight: 1.2 }}>
               {t.subtitle}
-            </p>
-            <p className="text-lg text-muted-foreground">
-              {t.description}
-            </p>
+            </h1>
           </div>
         </section>
 
