@@ -797,9 +797,28 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
                 : row.savings_amount != null
                   ? `-${row.savings_amount} ${row.promotion_currency || "MAD"}`
                   : undefined;
-            const rawMsg = stripHtml(row.promotion_message_fr || row.promotion_message) || "";
+            const rawMsg = (stripHtml(row.promotion_message_fr || row.promotion_message) || "").replace(/\s+/g, " ").trim();
+            // Le texte de l'offre doit TOUJOURS être affiché : on découpe en segments,
+            // et les segments trop longs sont recoupés (au lieu d'être supprimés).
+            const chunkLong = (t: string): string[] => {
+              if (t.length <= 120) return [t];
+              const words = t.split(" ");
+              const out: string[] = [];
+              let cur = "";
+              for (const w of words) {
+                if ((cur + " " + w).trim().length > 120) { if (cur) out.push(cur.trim()); cur = w; }
+                else cur = (cur + " " + w).trim();
+              }
+              if (cur) out.push(cur.trim());
+              return out;
+            };
             const lines = rawMsg
-              ? rawMsg.split(/[\n•·|]+|(?:\.\s)/).map((l: string) => cleanDisplayText(l) || "").filter((l: string) => l && l.length <= 120).slice(0, 6)
+              ? rawMsg
+                  .split(/[\n•·|]+|(?:\.\s)/)
+                  .map((l: string) => cleanDisplayText(l) || "")
+                  .filter(Boolean)
+                  .flatMap(chunkLong)
+                  .slice(0, 6)
               : [];
             if (!title && !priceStr && lines.length === 0) return null;
             return { title, price: priceStr, lines: lines.length ? lines : undefined };
@@ -816,6 +835,19 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       if (wantsPopup && businessDetails.popup_image_url) {
         template_props.showPopup = true;
         template_props.popupImageUrl = businessDetails.popup_image_url;
+        // Titre & texte de l'image popup (business_image_titles) — affichés dans la scène.
+        const { data: popupMeta } = await supa
+          .from("business_image_titles")
+          .select("title,description,title_fr,description_fr")
+          .eq("business_id", resolved_business_id)
+          .eq("image_url", businessDetails.popup_image_url)
+          .maybeSingle();
+        if (popupMeta) {
+          const pTitle = cleanDisplayText(stripHtml(popupMeta.title_fr || popupMeta.title) || "");
+          const pDesc = cleanDisplayText(stripHtml(popupMeta.description_fr || popupMeta.description) || "");
+          if (pTitle) template_props.popupTitle = pTitle;
+          if (pDesc) template_props.popupDescription = pDesc;
+        }
       }
 
       // WhatsApp — scène dédiée si option cochée et numéro disponible.
@@ -834,7 +866,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       if (highlightIds.length > 0) {
         const { data: hlRows } = await supa
           .from("front_highlights")
-          .select("id,icon,image_url,title_fr,description_fr,metric_title_fr,metric_value_fr,sort_order")
+          .select("id,icon,image_url,title,description,title_fr,description_fr,metric_title,metric_value,metric_title_fr,metric_value_fr,sort_order")
           .eq("business_id", resolved_business_id)
           .in("id", highlightIds)
           .order("sort_order", { ascending: true });
@@ -845,10 +877,10 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         });
         const builtH = rows
           .map((row: any) => {
-            const title = cleanDisplayText(row.title_fr) || "";
-            const description = stripHtml(row.description_fr) || "";
-            const metric_title = cleanDisplayText(row.metric_title_fr) || "";
-            const metric_value = cleanDisplayText(row.metric_value_fr) || "";
+            const title = cleanDisplayText(row.title_fr || row.title) || "";
+            const description = stripHtml(row.description_fr || row.description) || "";
+            const metric_title = cleanDisplayText(row.metric_title_fr || row.metric_title) || "";
+            const metric_value = cleanDisplayText(row.metric_value_fr || row.metric_value) || "";
             if (!title && !description && !row.image_url && !metric_title && !metric_value) return null;
             return {
               id: row.id,
