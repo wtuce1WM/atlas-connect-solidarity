@@ -418,13 +418,16 @@ export default function StudioVideo() {
     return [...imgs, ...vids];
   }, [bizImages, bizVideos]);
 
-  // Garde la zone "Votre établissement" ouverte tant qu'aucun établissement n'est choisi
-  // en Mode établissement (choix obligatoire). Ferme automatiquement dès qu'un établissement est sélectionné.
+  // En Mode établissement, la sélection d'établissement est obligatoire : on garde la
+  // section ouverte tant qu'aucun établissement n'est choisi. Dès qu'un établissement change,
+  // on ferme la section et on réinitialise l'aperçu du scénario (pour éviter les mélanges).
   useEffect(() => {
-    if (studioMode !== "corporate" && !selected) {
-      setShowEstablishment(true);
-    } else if (selected) {
+    if (selected) {
       setShowEstablishment(false);
+      setScenarioPreviewed(false);
+      setAiScenario(null);
+    } else if (studioMode !== "corporate") {
+      setShowEstablishment(true);
     }
   }, [studioMode, selected]);
 
