@@ -1818,9 +1818,15 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         if (!data) return null;
         const bgArr = Array.isArray((scene_media as any)?.[kind]) ? (scene_media as any)[kind] : [];
         const bg = bgArr[0];
+        const fbIdx = kind === "google_review" ? 0 : kind === "tripadvisor" ? 1 : 2;
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
-            {bg ? (bg.kind === "video" ? <VideoBackdrop src={bg.url} /> : <VideoBackdrop image={bg.url} />) : null}
+            <MotionBackdrop
+              src={bg?.kind === "video" ? bg.url : undefined}
+              image={bg?.kind === "image" ? bg.url : (bg ? undefined : bgFallback(fbIdx))}
+              duration={duration}
+              effect={trImageEffect}
+            />
             <ScenePlatformReview kind={kind} rating={data.rating ?? null} count={data.count ?? null} durationFrames={duration} textPosition={textPosition} />
           </AbsoluteFill>
         );
@@ -1834,7 +1840,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         const excerpt = clean(customerReview.highlight);
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
-            {bg ? (bg.kind === "video" ? <VideoBackdrop src={bg.url} /> : <VideoBackdrop image={bg.url} />) : <VideoBackdrop image={defaultGalleryList[0]} />}
+            <MotionBackdrop
+              src={bg?.kind === "video" ? bg.url : undefined}
+              image={bg?.kind === "image" ? bg.url : (bg ? undefined : (defaultGalleryList[0] ?? bgFallback(0)))}
+              duration={duration}
+              effect={trImageEffect}
+            />
             <SceneCustomerReview author={customerReview.author} rating={customerReview.rating ?? null} highlight={excerpt} fullText={fullText} source={customerReview.source ?? null} durationFrames={duration} textPosition={textPosition} />
 
           </AbsoluteFill>
@@ -1846,7 +1857,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         const bg = bgArr[0];
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
-            {bg ? (bg.kind === "video" ? <VideoBackdrop src={bg.url} /> : <VideoBackdrop image={bg.url} />) : null}
+            <MotionBackdrop
+              src={bg?.kind === "video" ? bg.url : undefined}
+              image={bg?.kind === "image" ? bg.url : (bg ? undefined : bgFallback(3))}
+              duration={duration}
+              effect={trImageEffect}
+            />
             <SceneWhatsapp number={whatsappNumber} durationFrames={duration} textPosition={textPosition} />
           </AbsoluteFill>
         );
