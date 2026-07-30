@@ -69,16 +69,18 @@ const AffiliatesDashboard = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+      const { user: authUser } = await verifySession();
+      if (!authUser) {
         navigate("/affiliates");
         return;
       }
+      const session = { user: authUser };
       const { data: affiliate } = await supabase
         .from("affiliates")
         .select("id, has_dashboard, has_video_studio")
-        .eq("user_id", session.user.id)
+        .eq("user_id", authUser.id)
         .maybeSingle();
+
 
       if (!affiliate) {
         await supabase.auth.signOut();
