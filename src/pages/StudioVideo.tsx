@@ -293,6 +293,7 @@ export default function StudioVideo() {
   const [optCustomerReview, setOptCustomerReview] = useState(false);
   const [optHours, setOptHours] = useState(true);
   const [optInstallCta, setOptInstallCta] = useState(true);
+  const [optClosingSequence, setOptClosingSequence] = useState(true);
   const [optMapMarker, setOptMapMarker] = useState(true);
   const [optDigitalId, setOptDigitalId] = useState(true);
   const [optPopup, setOptPopup] = useState(true);
