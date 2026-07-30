@@ -106,7 +106,10 @@ export type ShowcaseProps = {
   showWhatsapp?: boolean;
   whatsappNumber?: string | null;
   textSplits?: Record<string, number>;
+  // Overrides manuels du texte des scènes (clé = kind de scène, ex. "hook" | "name")
+  textOverrides?: Record<string, { label?: string; description?: string }>;
   splitCount?: number;
+
 };
 
 export const DIGITAL_ID_FRAMES = 150; // 5s — 2 phases (fiche, QR)
