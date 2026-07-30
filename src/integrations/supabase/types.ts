@@ -7998,7 +7998,7 @@ export type Database = {
       unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {
-      app_role: "admin" | "staff" | "affiliate"
+      app_role: "admin" | "staff" | "affiliate" | "video_studio"
       wtuce_status: "verified" | "pending"
     }
     CompositeTypes: {
@@ -8127,7 +8127,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "staff", "affiliate"],
+      app_role: ["admin", "staff", "affiliate", "video_studio"],
       wtuce_status: ["verified", "pending"],
     },
   },
