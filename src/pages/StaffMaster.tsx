@@ -149,10 +149,10 @@ const StaffMaster = () => {
               Alias URL
             </TabsTrigger>
             {isAdmin && (
-              <TabsTrigger value="users" className="gap-2">
-                <Users className="h-4 w-4" />
-                Utilisateurs
-              </TabsTrigger>
+            <TabsTrigger value="users" className="gap-2">
+              <Users className="h-4 w-4" />
+              Gestion des utilisateurs
+            </TabsTrigger>
             )}
           </TabsList>
 
