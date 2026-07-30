@@ -1326,12 +1326,16 @@ export default function StudioVideo() {
                 )}
               </div>
               <p className="text-white/70">
-                Générez une vidéo verticale 720×1280 (15 à 60 s) à partir d'un prompt et d'un établissement.
+                {isCorporate
+                  ? "Générez une vidéo corporate verticale 720×1280 à partir d'un prompt, sans établissement."
+                  : "Générez une vidéo verticale 720×1280 (15 à 60 s) à partir d'un prompt et d'un établissement."}
               </p>
+              {!isCorporate && (
               <div className="text-xs text-white/70 mt-1 space-y-1 bg-white/10 p-3 rounded-lg border border-white/20">
                 <p>📌 Il faut savoir avant si l'établissement a un Hook, suffisamment d'images, de vidéos, une offre/popup...</p>
                 <p>💡 Signalisez dans le prompt si vous voulez mettre en avant les horaires, la localisation, une offre/popup.</p>
               </div>
+              )}
             </header>
 
             {hasActiveJob && (
