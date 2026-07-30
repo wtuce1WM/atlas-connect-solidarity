@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building2, BookMarked, CheckCircle2, Palette, Mic, Pin, Users, Globe, Search, Share2, Video, Coins, Wallet, History } from "lucide-react";
@@ -61,9 +62,10 @@ const KBViewer = () => {
           </TabsList>
           {SECTIONS.map((s) => (
             <TabsContent key={s.id} value={s.id}>
-              <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:font-serif prose-headings:text-foreground prose-a:text-primary">
-                <ReactMarkdown>{s.content}</ReactMarkdown>
+              <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:font-serif prose-headings:text-foreground prose-a:text-primary prose-table:w-full prose-th:text-left prose-th:border prose-th:border-border prose-th:p-2 prose-td:border prose-td:border-border prose-td:p-2 overflow-x-auto">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{s.content}</ReactMarkdown>
               </div>
+
             </TabsContent>
           ))}
         </Tabs>
