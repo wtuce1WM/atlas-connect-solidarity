@@ -1235,10 +1235,44 @@ const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[
   );
 };
 
-const PLATFORM_META: Record<"google_review" | "tripadvisor" | "restaurant_guru", { label: string; brand: string; accent: string }> = {
-  google_review:   { label: "Google",          brand: "#4285F4", accent: "#EA4335" },
-  tripadvisor:     { label: "TripAdvisor",     brand: "#00AA6C", accent: "#F2B203" },
-  restaurant_guru: { label: "Restaurant Guru", brand: "#F26D21", accent: "#F2B203" },
+const PLATFORM_META: Record<"google_review" | "tripadvisor" | "restaurant_guru", { label: string; brand: string; accent: string; logo: string }> = {
+  google_review:   { label: "Google",          brand: "#4285F4", accent: "#EA4335", logo: "brands/google-logo.webp" },
+  tripadvisor:     { label: "TripAdvisor",     brand: "#34E0A1", accent: "#F2B203", logo: "brands/logo_tripadvisor.webp" },
+  restaurant_guru: { label: "Restaurant Guru", brand: "#CB2027", accent: "#F2B203", logo: "brands/logo_restaurant_guru.webp" },
+};
+
+/** Logo géant en filigrane qui déborde du cadre + dérive lente : signature visuelle des séquences de marque */
+const BrandBleedLogo: React.FC<{ src: string; color: string; durationFrames: number; side?: "left" | "right" }> = ({ src, color, durationFrames, side = "left" }) => {
+  const frame = useCurrentFrame();
+  const enter = spring({ frame, fps: 30, config: { damping: 22, stiffness: 90 } });
+  const drift = interpolate(frame, [0, durationFrames], [0, side === "left" ? 60 : -60]);
+  const rot = interpolate(frame, [0, durationFrames], [side === "left" ? -14 : 14, side === "left" ? -4 : 4]);
+  const scale = interpolate(enter, [0, 1], [1.35, 1]);
+  const fade = ease(frame, 0, 18) * (1 - ease(frame, durationFrames - 14, durationFrames));
+  return (
+    <AbsoluteFill style={{ overflow: "hidden", pointerEvents: "none", opacity: fade }}>
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          [side]: -260,
+          transform: `translateY(-50%) translateX(${drift}px) rotate(${rot}deg) scale(${scale})`,
+          width: 760,
+          height: 760,
+          filter: `drop-shadow(0 0 90px ${color}88)`,
+          opacity: 0.22,
+        } as React.CSSProperties}
+      >
+        <Img src={staticFile(src)} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+      </div>
+      <AbsoluteFill
+        style={{
+          background: `radial-gradient(60% 55% at ${side === "left" ? "12%" : "88%"} 50%, ${color}33 0%, transparent 70%)`,
+          mixBlendMode: "screen",
+        }}
+      />
+    </AbsoluteFill>
+  );
 };
 
 const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "restaurant_guru"; rating: number | null; count: number | null; durationFrames: number; textPosition?: TextPosition }> = ({ kind, rating, count, durationFrames, textPosition = "middle" }) => {
@@ -1247,29 +1281,55 @@ const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "r
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
   const badgeS = spring({ frame: frame - 10, fps: 30, config: { damping: 12, stiffness: 140 } });
+  const chipS = spring({ frame: frame - 4, fps: 30, config: { damping: 10, stiffness: 180 } });
+  const ringPulse = 1 + 0.05 * Math.sin(frame / 9);
   return (
-    <AbsoluteFill style={{ opacity: Math.min(inO, out), padding: 60, ...textPositionStyle(textPosition) }}>
-      <div style={{ fontFamily: body, color: meta.brand, fontSize: 22, letterSpacing: 6, textTransform: "uppercase", textAlign: "center" }}>
-        Avis {meta.label}
-      </div>
-      <div style={{ marginTop: 28, alignSelf: "center", transform: `scale(${interpolate(badgeS, [0, 1], [0.85, 1])})`, padding: "28px 40px", background: "rgba(255,255,255,0.06)", border: `2px solid ${meta.brand}`, borderRadius: 22, textAlign: "center", boxShadow: `0 12px 48px ${meta.brand}44` }}>
-        {rating != null && (
-          <div style={{ fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 96, lineHeight: 1 }}>
-            {rating.toFixed(1)}<span style={{ fontSize: 40, color: meta.accent }}>/5</span>
-          </div>
-        )}
-        <div style={{ marginTop: 6, fontFamily: body, fontSize: 32, color: meta.accent }}>
-          {"★★★★★".slice(0, Math.round(rating ?? 0))}<span style={{ opacity: 0.3 }}>{"★★★★★".slice(Math.round(rating ?? 0))}</span>
+    <AbsoluteFill>
+      <BrandBleedLogo src={meta.logo} color={meta.brand} durationFrames={durationFrames} side={kind === "tripadvisor" ? "right" : "left"} />
+      <AbsoluteFill style={{ opacity: Math.min(inO, out), padding: 60, ...textPositionStyle(textPosition) }}>
+        {/* Pastille logo en avant-plan, débordant du bloc note */}
+        <div
+          style={{
+            alignSelf: "center",
+            width: 132,
+            height: 132,
+            borderRadius: 66,
+            background: "rgba(255,255,255,0.96)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transform: `scale(${interpolate(chipS, [0, 1], [0.4, 1]) * ringPulse}) rotate(${interpolate(chipS, [0, 1], [-25, 0])}deg)`,
+            boxShadow: `0 0 0 6px ${meta.brand}, 0 18px 60px ${meta.brand}66`,
+            marginBottom: -34,
+            zIndex: 2,
+            overflow: "hidden",
+          }}
+        >
+          <Img src={staticFile(meta.logo)} style={{ width: 132, height: 132, objectFit: "cover" }} />
         </div>
-        {count != null && (
-          <div style={{ marginTop: 12, fontFamily: body, color: COLORS.cream, fontSize: 26 }}>
-            {count.toLocaleString("fr-FR")} avis
+        <div style={{ marginTop: 24, alignSelf: "center", transform: `scale(${interpolate(badgeS, [0, 1], [0.85, 1])})`, padding: "48px 46px 30px", background: "rgba(14,11,8,0.72)", border: `2px solid ${meta.brand}`, borderRadius: 26, textAlign: "center", boxShadow: `0 12px 60px ${meta.brand}55` }}>
+          <div style={{ fontFamily: body, color: meta.brand, fontSize: 20, letterSpacing: 6, textTransform: "uppercase" }}>
+            Avis {meta.label}
           </div>
-        )}
-      </div>
+          {rating != null && (
+            <div style={{ marginTop: 10, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 100, lineHeight: 1 }}>
+              {rating.toFixed(1)}<span style={{ fontSize: 40, color: meta.accent }}>/5</span>
+            </div>
+          )}
+          <div style={{ marginTop: 6, fontFamily: body, fontSize: 32, color: meta.accent }}>
+            {"★★★★★".slice(0, Math.round(rating ?? 0))}<span style={{ opacity: 0.3 }}>{"★★★★★".slice(Math.round(rating ?? 0))}</span>
+          </div>
+          {count != null && (
+            <div style={{ marginTop: 12, fontFamily: body, color: COLORS.cream, fontSize: 26 }}>
+              {count.toLocaleString("fr-FR")} avis
+            </div>
+          )}
+        </div>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };
+
 
 const SceneCustomerReview: React.FC<{ author?: string | null; rating?: number | null; highlight: string; durationFrames: number; textPosition?: TextPosition }> = ({ author, rating, highlight, durationFrames, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
@@ -1302,21 +1362,50 @@ const SceneWhatsapp: React.FC<{ number: string; durationFrames: number; textPosi
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
-  const pulse = 1 + 0.06 * Math.sin(frame / 8);
+  const pop = spring({ frame: frame - 4, fps: 30, config: { damping: 9, stiffness: 190 } });
+  const pulse = 1 + 0.05 * Math.sin(frame / 8);
+  // Onde radar qui part du logo
+  const wave = (frame % 40) / 40;
   return (
-    <AbsoluteFill style={{ opacity: Math.min(inO, out), padding: 60, ...textPositionStyle(textPosition), alignItems: "center" }}>
-      <div style={{ transform: `scale(${pulse})`, width: 180, height: 180, borderRadius: 90, background: "#25D366", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 12px 48px rgba(37,211,102,0.45)" }}>
-        <svg viewBox="0 0 24 24" width="100" height="100" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.966-.273-.099-.471-.148-.67.15-.198.297-.767.966-.94 1.164-.173.198-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.148-.669-1.611-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.273.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.247-.694.247-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M20.52 3.449C18.24 1.245 15.24.02 12.045.02c-6.62 0-12 5.38-12 12.001 0 2.115.549 4.186 1.596 6.014L0 24l6.116-1.611a11.964 11.964 0 005.919 1.55h.005c6.616 0 11.998-5.38 11.998-12.002 0-3.203-1.249-6.213-3.518-8.488M12.045 21.789h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.999-3.648-.235-.374a9.86 9.86 0 01-1.511-5.234c0-5.463 4.443-9.906 9.905-9.906 2.649 0 5.135 1.03 7.008 2.9 1.873 1.872 2.905 4.359 2.904 7.005 0 5.463-4.444 9.907-9.933 9.907"/></svg>
-      </div>
-      <div style={{ marginTop: 28, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 44, letterSpacing: 1, textAlign: "center", textShadow: "0 4px 16px rgba(0,0,0,0.6)" }}>
-        {number}
-      </div>
-      <div style={{ marginTop: 14, fontFamily: body, color: "#25D366", fontSize: 26, letterSpacing: 4, textTransform: "uppercase" }}>
-        WhatsApp direct
-      </div>
+    <AbsoluteFill>
+      <BrandBleedLogo src="brands/logo_whatsapp.webp" color="#25D366" durationFrames={durationFrames} side="right" />
+      <AbsoluteFill style={{ opacity: Math.min(inO, out), padding: 60, ...textPositionStyle(textPosition), alignItems: "center" }}>
+        <div style={{ position: "relative", width: 200, height: 200, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div
+            style={{
+              position: "absolute",
+              width: 180,
+              height: 180,
+              borderRadius: 999,
+              border: "3px solid #25D366",
+              transform: `scale(${1 + wave * 1.1})`,
+              opacity: 0.55 * (1 - wave),
+            }}
+          />
+          <div
+            style={{
+              width: 180,
+              height: 180,
+              borderRadius: 90,
+              overflow: "hidden",
+              transform: `scale(${interpolate(pop, [0, 1], [0.5, 1]) * pulse}) rotate(${interpolate(pop, [0, 1], [-18, 0])}deg)`,
+              boxShadow: "0 18px 60px rgba(37,211,102,0.55)",
+            }}
+          >
+            <Img src={staticFile("brands/logo_whatsapp.webp")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          </div>
+        </div>
+        <div style={{ marginTop: 24, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 44, letterSpacing: 1, textAlign: "center", textShadow: "0 4px 16px rgba(0,0,0,0.6)" }}>
+          {number}
+        </div>
+        <div style={{ marginTop: 14, fontFamily: body, color: "#25D366", fontSize: 26, letterSpacing: 4, textTransform: "uppercase" }}>
+          WhatsApp direct
+        </div>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };
+
 
 export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   name = "Établissement",
