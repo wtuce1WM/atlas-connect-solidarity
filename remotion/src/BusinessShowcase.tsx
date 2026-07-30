@@ -525,6 +525,8 @@ const SceneTagline: React.FC<{ tagline: string; fullHook?: string; showFullHook?
 };
 
 const SceneGallery: React.FC<{ images: string[] }> = ({ images }) => {
+  const suppressBg = useSuppressBg();
+  if (suppressBg) return null;
   const frame = useCurrentFrame();
   const out = 1 - ease(frame, 130, 150);
   const imgs = images.slice(0, 3);
@@ -1307,8 +1309,11 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   showWhatsapp,
   whatsappNumber,
   textOverrides,
+  continuousBgVideoUrl,
 
 }) => {
+  const continuousMode = typeof continuousBgVideoUrl === "string" && /^https?:\/\//i.test(continuousBgVideoUrl);
+  const sceneBaseBg = continuousMode ? "transparent" : COLORS.night;
   const safeVideos = sanitizeUrls(videos);
   const safeImages = sanitizeUrls(images);
   const hasVideos = safeVideos.length > 0;
