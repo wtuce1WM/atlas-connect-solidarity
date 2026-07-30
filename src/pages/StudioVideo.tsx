@@ -992,9 +992,9 @@ export default function StudioVideo() {
       .update({ title: clean || null })
       .eq("id", job.id);
     if (error) {
-      toast({ title: "Renommage impossible", description: error.message, variant: "destructive" });
+      toast.error(error.message ?? "Renommage impossible");
     } else {
-      toast({ title: "Titre mis à jour" });
+      toast.success("Titre mis à jour");
     }
   };
 
