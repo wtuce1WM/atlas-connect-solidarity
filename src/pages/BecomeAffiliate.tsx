@@ -76,9 +76,8 @@ const BecomeAffiliate = () => {
     },
     en: {
       title: "Become an affiliate",
-      subtitle: "Join Morocco's first solidarity marketplace",
-      description: "Grow your visibility and join a network of committed partners.",
-      pricingTitle: "Titre 2",
+      subtitle: "Take control of your digital presence in the age of AI",
+      description: "",
       pricingSubtitle: "No hidden fees. Everything you need to grow your visibility.",
       offerBadge: "Launch offer",
       price: "Free",
