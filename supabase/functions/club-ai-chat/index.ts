@@ -257,6 +257,34 @@ function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: num
   return 2 * R * Math.asin(Math.sqrt(s));
 }
 
+// ============= Ville par défaut selon la géoloc =============
+// Essaouira si l'utilisateur est à moins de 80 km d'Essaouira, sinon Marrakech.
+const ESSAOUIRA_COORDS = { lat: 31.5085, lng: -9.7595 };
+const ESSAOUIRA_RADIUS_KM = 80;
+function resolveGeoDefaultCity(coords: any): string {
+  const lat = Number(coords?.lat);
+  const lng = Number(coords?.lng);
+  if (Number.isFinite(lat) && Number.isFinite(lng)) {
+    if (haversineKm({ lat, lng }, ESSAOUIRA_COORDS) <= ESSAOUIRA_RADIUS_KM) return "Essaouira";
+  }
+  return "Marrakech";
+}
+
+// Ne retient qu'une ville marocaine réellement connue (évite les quartiers / adresses GPS)
+const WEATHER_KNOWN_CITIES = ["Marrakech", "Essaouira", "Casablanca", "Agadir", "Taghazout", "Rabat", "Fès", "Tanger", "Chefchaouen", "Ouarzazate", "Merzouga", "Oualidia", "Sidi Kaouki", "Sidi Ifni", "Dakhla", "Meknès", "Tétouan", "Al Hoceima", "Ifrane", "Imlil", "Ouzoud"];
+function knownWeatherCity(raw: any): string | undefined {
+  const s = String(raw || "").trim();
+  if (!s) return undefined;
+  const norm = s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  for (const c of WEATHER_KNOWN_CITIES) {
+    const cn = c.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    if (norm.includes(cn)) return c;
+  }
+  return undefined;
+}
+
+
+
 // Price intent : « moins de 300 dh », « pas cher », « haut de gamme », « entre 200 et 500 »
 const PRICE_INTENT_RE = /\b(moins\s+de\s+\d{2,5}|plus\s+de\s+\d{2,5}|entre\s+\d{2,5}\s+et\s+\d{2,5}|under\s+\d{2,5}|less\s+than\s+\d{2,5}|pas\s+cher(?:s|es)?|cheap(?:er)?|[eé]conomique|budget|haut\s+de\s+gamme|luxury|luxe|premium|abordable|affordable|mid[- ]range)\b/i;
 type PriceFilter = { max?: number; min?: number; tier?: "cheap" | "premium" | "mid" };
@@ -2371,7 +2399,9 @@ serve(async (req) => {
     if (isWeatherIntent(lastUserMsg)) {
       try {
         const mem = buildSessionMemory(messages, clientContext?.activeCity);
-        const city = mem.city || cleanActiveCityTop(clientContext?.activeCity) || "Marrakech";
+        // Ville explicite dans la question > ville active connue > ville par défaut géo
+        const explicitCity = knownWeatherCity(lastUserMsg) || knownWeatherCity(mem.city) || knownWeatherCity(clientContext?.activeCity);
+        const city = explicitCity || resolveGeoDefaultCity(clientContext?.coords);
         const { data: w, error: wErr } = await admin.functions.invoke("get-weather", { body: { city } });
         if (!wErr && w && !w.error && typeof w.temp === "number") {
           const cityName = w.city_name || city;
