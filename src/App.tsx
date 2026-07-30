@@ -270,6 +270,7 @@ const AppContent = () => {
           <BackofficeBodyFlag />
           <ScrollToTop />
           <AnalyticsTracker />
+          <AuthSessionSentinel />
           <RouteSeo />
           <PageMetaOverridesLoader />
           <Suspense fallback={null}><CookieBanner /></Suspense>
