@@ -95,6 +95,23 @@ const SHOWCASE_FEATURES: ShowcaseItem[] = [
 
 
 type Business = { id: string; name: string; city: string | null };
+type TransitionEffectId = "crossfade" | "fade_black" | "wipe" | "zoom" | "kenburns" | "slide" | "cut";
+const TRANSITION_EFFECT_LABELS: Record<TransitionEffectId, string> = {
+  crossfade: "Fondu enchaîné",
+  fade_black: "Fondu au noir",
+  wipe: "Wipe latéral",
+  zoom: "Zoom doux",
+  kenburns: "Ken Burns (pan + zoom)",
+  slide: "Glissement",
+  cut: "Coupe franche",
+};
+const TRANSITION_STYLE_PRESETS: Record<"auto" | "doux" | "dynamique" | "minimal", { video: TransitionEffectId; image: TransitionEffectId }> = {
+  auto: { video: "crossfade", image: "kenburns" },
+  doux: { video: "crossfade", image: "crossfade" },
+  dynamique: { video: "zoom", image: "slide" },
+  minimal: { video: "cut", image: "fade_black" },
+};
+
 type Job = {
   id: string;
   business_id: string | null;
@@ -314,6 +331,18 @@ export default function StudioVideo() {
   const [popupPreviewOpen, setPopupPreviewOpen] = useState(false);
   const [sceneMedia, setSceneMedia] = useState<SceneMediaMap>({});
   const [textPosition, setTextPosition] = useState<"top" | "middle" | "bottom">("middle");
+  // Transitions entre les plans
+  const [transitionStyle, setTransitionStyle] = useState<"auto" | "doux" | "dynamique" | "minimal">("auto");
+  const [transitionDifferentiate, setTransitionDifferentiate] = useState(true);
+  const [transitionVideo, setTransitionVideo] = useState<TransitionEffectId>("crossfade");
+  const [transitionImage, setTransitionImage] = useState<TransitionEffectId>("kenburns");
+  useEffect(() => {
+    const preset = TRANSITION_STYLE_PRESETS[transitionStyle];
+    setTransitionVideo(preset.video);
+    setTransitionImage(preset.image);
+  }, [transitionStyle]);
+
+
 
   // Garde l'ordre de montage synchronisé avec la sélection de vidéos.
   useEffect(() => {
@@ -797,6 +826,12 @@ export default function StudioVideo() {
             })(),
             custom_scenes: scenarioEdits?.customScenes,
             text_position: textPosition,
+            transitions: {
+              style: transitionStyle,
+              differentiate: transitionDifferentiate,
+              video: transitionVideo,
+              image: transitionImage,
+            },
             continuous_bg_video_url: continuousBg && continuousBgUrl ? continuousBgUrl : null,
             continuous_bg_sound: continuousBg && continuousBgUrl ? continuousBgSound : false,
           },
@@ -900,6 +935,7 @@ export default function StudioVideo() {
       reviewId: selectedReviewId,
       reviewHighlight: reviewHighlight || null,
       textPosition,
+      transitions: `${transitionStyle}|${transitionDifferentiate ? "diff" : "uni"}|${transitionVideo}|${transitionImage}`,
       continuousBg: continuousBg ? `${continuousBgUrl}|${continuousBgSound ? "sound" : "mute"}` : null,
     });
   }, [
@@ -909,6 +945,7 @@ export default function StudioVideo() {
     optCustomerReview, optPopup, optOpenWithLogo,
     selectedOfferIds, selectedHighlightIds, selectedImages, orderedSelectedVideos,
     selectedReviewId, reviewHighlight, textPosition, continuousBg, continuousBgUrl, continuousBgSound,
+    transitionStyle, transitionDifferentiate, transitionVideo, transitionImage,
   ]);
   const scenarioStale = !!aiScenario && aiScenarioSig !== null && aiScenarioSig !== currentScenarioSig;
 
@@ -958,6 +995,12 @@ export default function StudioVideo() {
             scene_durations: scenarioEdits?.durations,
             custom_scenes: scenarioEdits?.customScenes,
             text_position: textPosition,
+            transitions: {
+              style: transitionStyle,
+              differentiate: transitionDifferentiate,
+              video: transitionVideo,
+              image: transitionImage,
+            },
             continuous_bg_video_url: continuousBg && continuousBgUrl ? continuousBgUrl : null,
             continuous_bg_sound: continuousBg && continuousBgUrl ? continuousBgSound : false,
           },
@@ -2219,6 +2262,65 @@ export default function StudioVideo() {
                 </label>
               </div>
             </div>
+
+            <div className="space-y-3 rounded-md border border-border bg-muted/30 p-3">
+              <Label className="text-sm">Transitions entre les plans</Label>
+              <div className="space-y-1.5">
+                <span className="text-xs text-muted-foreground">Type de transition</span>
+                <select
+                  value={transitionStyle}
+                  onChange={(e) => setTransitionStyle(e.target.value as typeof transitionStyle)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="auto">Auto — l'IA choisit selon le média (par défaut)</option>
+                  <option value="doux">Doux</option>
+                  <option value="dynamique">Dynamique</option>
+                  <option value="minimal">Minimal</option>
+                </select>
+              </div>
+              <label className="flex items-start gap-2 cursor-pointer text-sm">
+                <input
+                  type="checkbox"
+                  className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                  checked={transitionDifferentiate}
+                  onChange={(e) => setTransitionDifferentiate(e.target.checked)}
+                />
+                <span>Différencier selon le média (vidéos / images)</span>
+              </label>
+              {transitionDifferentiate && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <span className="text-xs text-muted-foreground">Plans vidéo</span>
+                    <select
+                      value={transitionVideo}
+                      onChange={(e) => setTransitionVideo(e.target.value as TransitionEffectId)}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    >
+                      {(["crossfade", "fade_black", "wipe", "zoom", "cut"] as TransitionEffectId[]).map((k) => (
+                        <option key={k} value={k}>{TRANSITION_EFFECT_LABELS[k]}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <span className="text-xs text-muted-foreground">Plans images</span>
+                    <select
+                      value={transitionImage}
+                      onChange={(e) => setTransitionImage(e.target.value as TransitionEffectId)}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    >
+                      {(["kenburns", "crossfade", "slide", "fade_black", "wipe", "cut"] as TransitionEffectId[]).map((k) => (
+                        <option key={k} value={k}>{TRANSITION_EFFECT_LABELS[k]}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+              <p className="text-[11px] text-muted-foreground">
+                Le mode <strong>Auto</strong> applique un fondu enchaîné aux plans vidéo et un Ken Burns aux plans images.
+              </p>
+            </div>
+
+
 
 
 

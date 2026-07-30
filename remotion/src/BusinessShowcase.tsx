@@ -27,6 +27,23 @@ const textPositionStyle = (position: TextPosition = "middle"): React.CSSProperti
   }
 };
 
+// ===== Transitions entre les plans =====
+export type TransitionEffect = "crossfade" | "fade_black" | "wipe" | "zoom" | "kenburns" | "slide" | "cut";
+export type TransitionStyle = "auto" | "doux" | "dynamique" | "minimal";
+export type TransitionsConfig = {
+  style?: TransitionStyle;
+  differentiate?: boolean;
+  video?: TransitionEffect;
+  image?: TransitionEffect;
+};
+const STYLE_PRESETS: Record<TransitionStyle, { video: TransitionEffect; image: TransitionEffect }> = {
+  auto: { video: "crossfade", image: "kenburns" },
+  doux: { video: "crossfade", image: "crossfade" },
+  dynamique: { video: "zoom", image: "slide" },
+  minimal: { video: "cut", image: "fade_black" },
+};
+
+
 // Tone drives visual pacing + finishing:
 // - immersif : lent, ample, chaleureux (Ken Burns fort, fondus longs, vignette profonde)
 // - dynamique : rapide, punchy (Ken Burns bref, fondus courts, contraste chaud)
@@ -115,6 +132,9 @@ export type ShowcaseProps = {
   // Vidéo unique jouée en fond continu sur toute la durée (les fonds de scène sont neutralisés)
   continuousBgVideoUrl?: string | null;
   continuousBgSound?: boolean;
+  // Transitions entre les plans (vidéos / images)
+  transitions?: TransitionsConfig | null;
+
 
 };
 
@@ -336,6 +356,39 @@ export const computeShowcaseFrames = (p: ShowcaseProps): number => {
 
 const ease = (f: number, a: number, b: number) =>
   interpolate(f, [a, b], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+
+// Enveloppe une scène avec une transition d'entrée / sortie
+const SceneTransition: React.FC<{ effect: TransitionEffect; duration: number; children: React.ReactNode }> = ({ effect, duration, children }) => {
+  const frame = useCurrentFrame();
+  if (effect === "cut") return <AbsoluteFill>{children}</AbsoluteFill>;
+  const d = Math.max(5, Math.min(18, Math.round(duration * 0.18)));
+  const inP = ease(frame, 0, d);
+  const outP = 1 - ease(frame, duration - d, duration);
+  const p = Math.min(inP, outP);
+  let style: React.CSSProperties = {};
+  switch (effect) {
+    case "crossfade":
+      style = { opacity: p };
+      break;
+    case "fade_black":
+      style = { opacity: p * p };
+      break;
+    case "zoom":
+      style = { opacity: p, transform: `scale(${1 + (1 - inP) * 0.08 - (1 - outP) * 0.05})` };
+      break;
+    case "kenburns":
+      style = { opacity: p, transform: `scale(${1.02 + inP * 0.035})` };
+      break;
+    case "slide":
+      style = { opacity: Math.min(1, p * 1.6), transform: `translateX(${(1 - inP) * 12 - (1 - outP) * 12}%)` };
+      break;
+    case "wipe":
+      style = { clipPath: `inset(0 ${(1 - inP) * 100}% 0 0)`, opacity: outP };
+      break;
+  }
+  return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
+};
+
 
 const Background: React.FC = () => (
   <AbsoluteFill style={{ background: COLORS.night, overflow: "hidden" }}>
@@ -1318,6 +1371,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   textOverrides,
   continuousBgVideoUrl,
   continuousBgSound,
+  transitions,
+
 
 }) => {
   const continuousMode = typeof continuousBgVideoUrl === "string" && /^https?:\/\//i.test(continuousBgVideoUrl);
@@ -1704,7 +1759,23 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     }
   };
 
+  // ==== Transitions entre les plans ====
+  const trStyle: TransitionStyle = transitions?.style ?? "auto";
+  const trPreset = STYLE_PRESETS[trStyle] ?? STYLE_PRESETS.auto;
+  const trDifferentiate = transitions?.differentiate !== false;
+  const trVideoEffect: TransitionEffect = trDifferentiate ? (transitions?.video ?? trPreset.video) : trPreset.video;
+  const trImageEffect: TransitionEffect = trDifferentiate ? (transitions?.image ?? trPreset.image) : trPreset.video;
+  const transitionFor = (kind: string): TransitionEffect => {
+    if (continuousMode) return trVideoEffect;
+    const arr = (sm as Record<string, Array<{ url: string; kind: "image" | "video" }> | undefined>)[kind];
+    const first = Array.isArray(arr) ? arr[0] : undefined;
+    if (first) return first.kind === "video" ? trVideoEffect : trImageEffect;
+    if (hasVideos && !hasImages) return trVideoEffect;
+    return trImageEffect;
+  };
+
   const toneOverlay = TONE_CONFIG[tone]?.overlay ?? TONE_CONFIG.immersif.overlay;
+
   return (
     <ToneContext.Provider value={tone}>
       <SuppressBgContext.Provider value={continuousMode}>
@@ -1725,9 +1796,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           )}
           {plan.map((s) => (
             <Sequence key={`${s.kind}-${s.from}`} from={s.from} durationInFrames={s.duration}>
-              {renderScene(s)}
+              <SceneTransition effect={transitionFor(s.kind)} duration={s.duration}>
+                {renderScene(s)}
+              </SceneTransition>
             </Sequence>
           ))}
+
           {/* Finition visuelle liée au ton (vignette / teinte / désaturation) */}
           <AbsoluteFill style={{ background: toneOverlay, pointerEvents: "none" }} />
         </AbsoluteFill>
