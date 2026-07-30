@@ -602,6 +602,20 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         template_props.textPosition = rawTextPosition;
       }
 
+      // Transitions entre les plans (vidéos / images)
+      const rawTransitions = options?.transitions;
+      if (rawTransitions && typeof rawTransitions === "object") {
+        const STYLES = new Set(["auto", "doux", "dynamique", "minimal"]);
+        const EFFECTS = new Set(["crossfade", "fade_black", "wipe", "zoom", "kenburns", "slide", "cut"]);
+        const t: Record<string, unknown> = {};
+        if (STYLES.has(rawTransitions.style)) t.style = rawTransitions.style;
+        t.differentiate = rawTransitions.differentiate !== false;
+        if (EFFECTS.has(rawTransitions.video)) t.video = rawTransitions.video;
+        if (EFFECTS.has(rawTransitions.image)) t.image = rawTransitions.image;
+        template_props.transitions = t;
+      }
+
+
       template_props.durationSec = Number(duration_sec);
       // Le ton pilote le rendu Remotion (Ken Burns, fondus, finition visuelle).
       if (tone === "immersif" || tone === "dynamique" || tone === "elegant") {
