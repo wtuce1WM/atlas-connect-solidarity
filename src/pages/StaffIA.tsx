@@ -7,6 +7,7 @@ import { LogOut, ArrowLeft, BarChart3, BookOpen, Sparkles, Brain, MessageSquare,
 import IADashboard from "@/components/staff/IADashboard";
 import AIConfigManagement from "@/components/staff/AIConfigManagement";
 import ClubAiSuggestionsManagement from "@/components/staff/ClubAiSuggestionsManagement";
+import ClubFollowupPromptEditor from "@/components/staff/ClubFollowupPromptEditor";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import AiUsageManagement from "@/components/staff/AiUsageManagement";
 import AiConversationPerf from "@/components/staff/AiConversationPerf";
@@ -149,12 +150,19 @@ const StaffIA = () => {
                   <MessageSquare className="h-4 w-4" />
                   Suggestions Club
                 </TabsTrigger>
+                <TabsTrigger value="followups-prompt" className="gap-2">
+                  <Brain className="h-4 w-4" />
+                  Prompt follow-ups
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="search">
                 <PopularSearchesManagement />
               </TabsContent>
               <TabsContent value="club">
                 <ClubAiSuggestionsManagement />
+              </TabsContent>
+              <TabsContent value="followups-prompt">
+                <ClubFollowupPromptEditor />
               </TabsContent>
             </Tabs>
           </TabsContent>
