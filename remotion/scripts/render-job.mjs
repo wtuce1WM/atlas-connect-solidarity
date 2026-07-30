@@ -137,6 +137,10 @@ async function renderOne() {
       inputProps: props,
     });
 
+    // Audio : activé si une bande son globale est définie ou si le fond continu doit garder son son
+    const wantsAudio = Boolean(props?.soundtrackUrl) || Boolean(props?.continuousBgSound);
+    console.log(`🔊 Audio ${wantsAudio ? "activé" : "désactivé"} (soundtrack=${Boolean(props?.soundtrackUrl)}, bgSound=${Boolean(props?.continuousBgSound)})`);
+
     console.log("🎥 Rendu...");
     await renderMedia({
       composition,
@@ -144,10 +148,13 @@ async function renderOne() {
       codec: "h264",
       outputLocation: outPath,
       puppeteerInstance: browser,
-      muted: true,
+      muted: !wantsAudio,
+      audioCodec: wantsAudio ? "aac" : undefined,
+      enforceAudioTrack: wantsAudio,
       concurrency: 1,
       inputProps: props,
     });
+
 
     await browser.close({ silent: false });
 
