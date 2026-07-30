@@ -2229,6 +2229,7 @@ export default function StudioVideo() {
               </Button>
             </div>
           </section>
+          )}
 
           {aiScenario ? (
             <div className="space-y-2">
