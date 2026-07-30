@@ -1491,10 +1491,10 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         return heroIsVideo && heroMedia ? (
           <AbsoluteFill>
             <VideoCover src={heroMedia} from={0} duration={duration} />
-            <SceneHook name={name} location={locationLine} textPosition={textPosition} />
+            <SceneHook name={displayName} location={locationLine} textPosition={textPosition} />
           </AbsoluteFill>
         ) : (
-          <SceneHook name={name} location={locationLine} img={heroMedia} textPosition={textPosition} />
+          <SceneHook name={displayName} location={locationLine} img={heroMedia} textPosition={textPosition} />
         );
       case "name":
         return (
@@ -1506,9 +1506,10 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                 <KenBurns src={nameMediaUrl} from={0} duration={duration} />
               )
             ) : null}
-            <HookOverlay text={hookPart1} duration={duration} textPosition={textPosition} />
+            <HookOverlay title={nameSceneTitle} text={hookPart1} duration={duration} textPosition={textPosition} />
           </AbsoluteFill>
         );
+
       case "media":
         return (
           <AbsoluteFill>
