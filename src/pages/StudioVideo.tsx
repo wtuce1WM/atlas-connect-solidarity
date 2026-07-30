@@ -354,7 +354,7 @@ export default function StudioVideo() {
 
   const [showImages, setShowImages] = useState(true);
   const [showVideos, setShowVideos] = useState(true);
-  const [showEstablishment, setShowEstablishment] = useState(false);
+  const [showEstablishment, setShowEstablishment] = useState(true);
   const [popupImageUrl, setPopupImageUrl] = useState<string | null>(null);
   const [popupMeta, setPopupMeta] = useState<{ title: string | null; description: string | null }>({ title: null, description: null });
   const [popupPreviewOpen, setPopupPreviewOpen] = useState(false);
