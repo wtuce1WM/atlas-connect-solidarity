@@ -1762,12 +1762,12 @@ export default function StudioVideo() {
                   >
                     LAISSE L'IA DÉCIDER
                   </Button>
-                  {DURATIONS.map((d) => (
+                  {VISIBLE_DURATIONS.map((d) => (
                     <Button
                       key={d}
                       type="button"
                       variant={!durationAuto && duration === d ? "default" : "outline"}
-                      onClick={() => { setDurationAuto(false); setDuration(d); }}
+                      onClick={() => { setDurationAuto(false); setDuration(d as 15 | 30 | 45 | 60); }}
                     >
                       {d}s
                     </Button>
@@ -1777,7 +1777,7 @@ export default function StudioVideo() {
               <div className="space-y-2">
                 <Label>Ton</Label>
                 <div className="flex gap-2 flex-wrap">
-                  {TONES.map((t) => (
+                  {VISIBLE_TONES.map((t) => (
                     <Button
                       key={t.value}
                       type="button"
@@ -1789,6 +1789,8 @@ export default function StudioVideo() {
                   ))}
                 </div>
               </div>
+            </div>
+
             </div>
 
             <div className="space-y-2">
