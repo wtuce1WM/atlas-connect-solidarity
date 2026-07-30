@@ -962,7 +962,7 @@ export default function StudioVideo() {
   return (
     <>
       <Helmet>
-        <title>Studio Vidéo IA — 1WM</title>
+        <title>{selected ? `Studio Vidéo IA — ${selected.name}` : "Studio Vidéo IA — 1WM"}</title>
         <meta name="robots" content="noindex,nofollow" />
       </Helmet>
 
@@ -981,7 +981,9 @@ export default function StudioVideo() {
           <div className="mx-auto max-w-3xl space-y-8">
             <header className="space-y-4">
               <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-3xl font-bold tracking-tight text-white">Studio Vidéo IA</h1>
+                <h1 className="text-3xl font-bold tracking-tight text-white">
+                  Studio Vidéo IA {selected ? <span className="text-white/70">/ {selected.name}</span> : null}
+                </h1>
                 {isStaff && (
                   <span className="text-xs font-semibold px-2 py-1 rounded-full bg-[#C04F17] text-white uppercase tracking-wide">
                     Mode admin
