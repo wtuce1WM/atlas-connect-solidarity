@@ -1999,6 +1999,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   // Fondu audio : léger à l'entrée (~0.8s), plus prononcé à la sortie (~2.5s)
   const AUDIO_FADE_IN = 24;
   const AUDIO_FADE_OUT = 75;
+  const { durationInFrames: totalFrames } = useVideoConfig();
+
   const audioFadeVolume = (f: number) => {
     const inV = interpolate(f, [0, AUDIO_FADE_IN], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
     const outV = interpolate(
