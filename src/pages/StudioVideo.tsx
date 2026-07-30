@@ -188,6 +188,15 @@ export default function StudioVideo() {
   const [hasDashboard, setHasDashboard] = useState(false);
   const [hasVideoStudio, setHasVideoStudio] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
+  const [studioMode, setStudioModeState] = useState<"business" | "corporate" | null>(
+    () => (typeof window !== "undefined" ? (localStorage.getItem("studio-video:mode") as "business" | "corporate" | null) : null)
+  );
+  const setStudioMode = (m: "business" | "corporate" | null) => {
+    setStudioModeState(m);
+    if (typeof window === "undefined") return;
+    if (m) localStorage.setItem("studio-video:mode", m);
+    else localStorage.removeItem("studio-video:mode");
+  };
   const [hasStudioRole, setHasStudioRole] = useState(false);
   const [accessChecked, setAccessChecked] = useState(false);
   const [ownedBusinessIds, setOwnedBusinessIds] = useState<string[] | null>(null); // null = not loaded, [] = none
@@ -250,6 +259,7 @@ export default function StudioVideo() {
       } else {
         setOwnedBusinessIds([]);
       }
+      if (!staff) setStudioMode("business");
       setAccessChecked(true);
     })();
   }, [authState]);
@@ -1230,6 +1240,50 @@ export default function StudioVideo() {
     </div>
   );
 
+  if (isStaff && !studioMode) {
+    return (
+      <>
+        <Helmet>
+          <title>Studio Vidéo IA — Choix du mode</title>
+          <meta name="robots" content="noindex,nofollow" />
+        </Helmet>
+        <div className="min-h-screen bg-black flex items-center justify-center px-6">
+          <div className="w-full max-w-3xl space-y-8">
+            <div className="text-center space-y-2">
+              <h1 className="text-3xl font-bold tracking-tight text-white">Studio Vidéo IA</h1>
+              <p className="text-white/70 text-sm">Choisissez le type de production à lancer.</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={() => setStudioMode("business")}
+                className="text-left rounded-xl border border-white/20 bg-white/5 hover:bg-white/10 hover:border-[#C04F17] transition p-6 space-y-2"
+              >
+                <div className="text-lg font-semibold text-white">Mode établissement</div>
+                <p className="text-sm text-white/70">
+                  Vidéo verticale à partir d'un établissement réel : images, vidéos, avis, horaires, offres, ID numérique.
+                </p>
+              </button>
+              <button
+                type="button"
+                onClick={() => setStudioMode("corporate")}
+                className="text-left rounded-xl border border-white/20 bg-white/5 hover:bg-white/10 hover:border-[#C04F17] transition p-6 space-y-2"
+              >
+                <div className="text-lg font-semibold text-white">Mode corporate</div>
+                <p className="text-sm text-white/70">
+                  Vidéo produit / démo générique, sans établissement. Alimente le Showcase — features &amp; démos génériques.
+                </p>
+              </button>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  const isCorporate = studioMode === "corporate";
+  const canCompose = isCorporate || !!selected;
+
   return (
 
     <>
@@ -1257,9 +1311,18 @@ export default function StudioVideo() {
                   Studio Vidéo IA {selected ? <span className="text-white/70">/ {selected.name}</span> : null}
                 </h1>
                 {isStaff && (
-                  <span className="text-xs font-semibold px-2 py-1 rounded-full bg-[#C04F17] text-white uppercase tracking-wide">
-                    Mode admin
-                  </span>
+                  <>
+                    <span className="text-xs font-semibold px-2 py-1 rounded-full bg-[#C04F17] text-white uppercase tracking-wide">
+                      {isCorporate ? "Mode corporate" : "Mode établissement"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => { setStudioMode(null); setSelected(null); setScenarioPreviewed(false); setAiScenario(null); }}
+                      className="text-xs text-white/70 underline hover:text-white"
+                    >
+                      Changer de mode
+                    </button>
+                  </>
                 )}
               </div>
               <p className="text-white/70">
@@ -1298,6 +1361,7 @@ export default function StudioVideo() {
               </div>
             )}
 
+          {!isCorporate && (
           <section className="rounded-xl border border-border bg-card p-6 space-y-5">
             <div className="flex items-center justify-between">
               <Label>
@@ -1395,6 +1459,7 @@ export default function StudioVideo() {
             </div>
           )}
         </section>
+          )}
 
           {selected && bizImages.length > 0 && (
             <section className="rounded-xl border border-border bg-card p-6 space-y-5">
@@ -1972,7 +2037,7 @@ export default function StudioVideo() {
             )}
 
 
-          {selected && (
+          {canCompose && (
           <section className="rounded-xl border border-border bg-card p-6 space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -2517,7 +2582,7 @@ export default function StudioVideo() {
           </section>
           )}
 
-          {selected && scenarioPreviewed && (
+          {canCompose && scenarioPreviewed && (
             aiScenario ? (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -2552,7 +2617,7 @@ export default function StudioVideo() {
             ) : null
           )}
 
-          {selected && scenarioPreviewed && (
+          {canCompose && scenarioPreviewed && (
             <div className="space-y-3">
               <div className="rounded-lg border border-border bg-card/50 p-3 space-y-2">
                 <label className="flex items-center gap-2 text-sm cursor-pointer">
@@ -2599,14 +2664,14 @@ export default function StudioVideo() {
             <p className="text-xs text-muted-foreground">
               Les vidéos produites via ce studio apparaissent ici avec le prompt utilisé.
             </p>
-            {jobs.filter((j) => j.status === "done" && j.output_url).length === 0 ? (
+            {jobs.filter((j) => j.status === "done" && j.output_url && (isCorporate ? !j.business_id : !!j.business_id)).length === 0 ? (
               <p className="text-sm text-muted-foreground italic">
                 Aucune vidéo générée pour l'instant. Lancez une génération ci-dessus.
               </p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {jobs
-                  .filter((j) => j.status === "done" && j.output_url)
+                  .filter((j) => j.status === "done" && j.output_url && (isCorporate ? !j.business_id : !!j.business_id))
                   .map((j) => (
                     <JobCard key={j.id} job={j} businessName={j.business_id ? businessNames[j.business_id] : undefined} onRefine={startRefine} onDelete={deleteJob} onRename={renameJob} />
                   ))}
@@ -2614,6 +2679,7 @@ export default function StudioVideo() {
             )}
           </section>
 
+          {!isCorporate && (
           <section className="space-y-3">
             <h2 className="font-semibold text-white">Showcase — établissements</h2>
             <p className="text-xs text-muted-foreground">
@@ -2629,7 +2695,9 @@ export default function StudioVideo() {
               ))}
             </div>
           </section>
+          )}
 
+          {isCorporate && (
           <section className="space-y-3">
             <h2 className="font-semibold text-white">Showcase — features & démos génériques</h2>
             <p className="text-xs text-muted-foreground">
@@ -2645,6 +2713,7 @@ export default function StudioVideo() {
               ))}
             </div>
           </section>
+          )}
 
           <section className="space-y-4 rounded-lg border border-border bg-background p-4">
             <h2 className="font-semibold text-white">Comment fonctionnent les éléments à inclure dans la vidéo</h2>
