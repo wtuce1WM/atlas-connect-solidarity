@@ -1331,18 +1331,35 @@ export default function StudioVideo() {
                     </label>
                     {continuousBg && (
                       <>
-                        <select
-                          value={continuousBgUrl}
-                          onChange={(e) => setContinuousBgUrl(e.target.value)}
-                          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-                        >
-                          <option value="">— Choisir la vidéo de fond —</option>
-                          {bizVideos.filter((v) => v.kind === "file").map((v) => (
-                            <option key={v.url} value={v.url}>
-                              {v.title}{v.duration != null ? ` (${formatVideoDuration(v.duration)})` : ""}
-                            </option>
-                          ))}
-                        </select>
+                        {(() => {
+                          const sel = bizVideos.find((x) => x.url === continuousBgUrl);
+                          return (
+                            <div className="flex items-center gap-3">
+                              <Button type="button" variant="outline" size="sm" onClick={() => setContinuousPickerOpen(true)}>
+                                {continuousBgUrl ? "Changer la vidéo" : "Choisir la vidéo de fond"}
+                              </Button>
+                              <span className="text-[11px] text-muted-foreground truncate">
+                                {sel ? `${sel.title}${sel.duration != null ? ` · ${formatVideoDuration(sel.duration)}` : ""}` : "Aucune vidéo sélectionnée"}
+                              </span>
+                            </div>
+                          );
+                        })()}
+                        <Dialog open={continuousPickerOpen} onOpenChange={setContinuousPickerOpen}>
+                          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-white text-black">
+                            <DialogHeader>
+                              <DialogTitle className="text-black">Sélection médias — vidéo de fond continue</DialogTitle>
+                            </DialogHeader>
+                            <MediaPickerGrid
+                              available={bizVideos
+                                .filter((v) => v.kind === "file")
+                                .map((v) => ({ url: v.url, kind: "video" as const, title: v.title, thumbnail: v.thumbnail, duration: v.duration }))}
+                              showImages={false}
+                              isSelected={(m) => m.url === continuousBgUrl}
+                              onSelect={(m) => { setContinuousBgUrl(m.url); setContinuousPickerOpen(false); }}
+                            />
+                          </DialogContent>
+                        </Dialog>
+
                         <p className="text-[11px] text-amber-500">
                           ⚠️ Faites attention à utiliser une vidéo plus longue que votre scénario, sinon elle bouclera sur le début une fois arrivée en fin de vidéo.
                         </p>
