@@ -264,6 +264,9 @@ export default function StudioVideo() {
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [selectedVideos, setSelectedVideos] = useState<Set<string>>(new Set());
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  // Mode "une seule vidéo en fond continu"
+  const [continuousBg, setContinuousBg] = useState(false);
+  const [continuousBgUrl, setContinuousBgUrl] = useState<string>("");
   const [showImages, setShowImages] = useState(true);
   const [showVideos, setShowVideos] = useState(true);
   const [showEstablishment, setShowEstablishment] = useState(true);
@@ -718,6 +721,7 @@ export default function StudioVideo() {
             })(),
             custom_scenes: scenarioEdits?.customScenes,
             text_position: textPosition,
+            continuous_bg_video_url: continuousBg && continuousBgUrl ? continuousBgUrl : null,
           },
 
         },
@@ -795,6 +799,7 @@ export default function StudioVideo() {
     const chosenImages = Array.from(selectedImages);
     const chosenVideos = Array.from(selectedVideos);
     if (chosenImages.length > 0) directives.push(`Utiliser EXCLUSIVEMENT les images suivantes (dans cet ordre) pour le montage :\n  * ${chosenImages.join("\n  * ")}`);
+    if (continuousBg && continuousBgUrl) directives.push(`Une seule vidéo est jouée EN FOND CONTINU sur toute la durée (${continuousBgUrl}) : ne pas prévoir de montage de fonds différents par scène, seuls les textes et éléments graphiques changent.`);
     if (chosenVideos.length > 0) directives.push(`Utiliser EXCLUSIVEMENT les vidéos suivantes (dans cet ordre) pour le montage :\n  * ${chosenVideos.join("\n  * ")}`);
     const finalPrompt = directives.length ? `${prompt.trim()}\n\nContraintes supplémentaires :\n- ${directives.join("\n- ")}` : prompt.trim();
     return { finalPrompt, chosenImages, chosenVideos };
@@ -818,6 +823,7 @@ export default function StudioVideo() {
       reviewId: selectedReviewId,
       reviewHighlight: reviewHighlight || null,
       textPosition,
+      continuousBg: continuousBg ? continuousBgUrl : null,
     });
   }, [
     prompt, effectiveDuration, tone, selected?.id,
@@ -825,7 +831,7 @@ export default function StudioVideo() {
     optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
     optCustomerReview, optPopup, optOpenWithLogo,
     selectedOfferIds, selectedHighlightIds, selectedImages, selectedVideos,
-    selectedReviewId, reviewHighlight, textPosition,
+    selectedReviewId, reviewHighlight, textPosition, continuousBg, continuousBgUrl,
   ]);
   const scenarioStale = !!aiScenario && aiScenarioSig !== null && aiScenarioSig !== currentScenarioSig;
 
@@ -875,6 +881,7 @@ export default function StudioVideo() {
             scene_durations: scenarioEdits?.durations,
             custom_scenes: scenarioEdits?.customScenes,
             text_position: textPosition,
+            continuous_bg_video_url: continuousBg && continuousBgUrl ? continuousBgUrl : null,
           },
 
         },
@@ -1299,6 +1306,59 @@ export default function StudioVideo() {
                     })}
                   </div>
                   <p className="text-[11px] text-muted-foreground">Si aucune n'est cochée, l'IA choisit librement parmi toutes les vidéos.</p>
+
+                  <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
+                    <label className="flex items-start gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="mt-1 accent-[#C04F17]"
+                        checked={continuousBg}
+                        onChange={(e) => {
+                          const on = e.target.checked;
+                          setContinuousBg(on);
+                          if (on && !continuousBgUrl) {
+                            const first = bizVideos.find((v) => v.kind === "file" && selectedVideos.has(v.url)) ?? bizVideos.find((v) => v.kind === "file");
+                            if (first) setContinuousBgUrl(first.url);
+                          }
+                        }}
+                      />
+                      <span className="text-sm">
+                        Afficher une seule vidéo en continu
+                        <span className="block text-[11px] text-muted-foreground">
+                          La vidéo choisie est montée en fond du début à la fin ; tous les autres fonds de scène sont neutralisés (seuls les textes défilent).
+                        </span>
+                      </span>
+                    </label>
+                    {continuousBg && (
+                      <>
+                        <select
+                          value={continuousBgUrl}
+                          onChange={(e) => setContinuousBgUrl(e.target.value)}
+                          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                        >
+                          <option value="">— Choisir la vidéo de fond —</option>
+                          {bizVideos.filter((v) => v.kind === "file").map((v) => (
+                            <option key={v.url} value={v.url}>
+                              {v.title}{v.duration != null ? ` (${formatVideoDuration(v.duration)})` : ""}
+                            </option>
+                          ))}
+                        </select>
+                        <p className="text-[11px] text-amber-500">
+                          ⚠️ Faites attention à utiliser une vidéo plus longue que votre scénario, sinon elle bouclera sur le début une fois arrivée en fin de vidéo.
+                        </p>
+                        {(() => {
+                          const v = bizVideos.find((x) => x.url === continuousBgUrl);
+                          if (!v || v.duration == null) return null;
+                          const ok = v.duration >= effectiveDuration;
+                          return (
+                            <p className={`text-[11px] ${ok ? "text-emerald-500" : "text-red-500"}`}>
+                              Vidéo {formatVideoDuration(v.duration)} · scénario {effectiveDuration}s — {ok ? "durée suffisante." : "trop courte : elle bouclera."}
+                            </p>
+                          );
+                        })()}
+                      </>
+                    )}
+                  </div>
                 </>
               )}
             </section>
