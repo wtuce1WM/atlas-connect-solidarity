@@ -270,6 +270,8 @@ export default function StudioVideo() {
   // Mode "une seule vidéo en fond continu"
   const [continuousBg, setContinuousBg] = useState(false);
   const [continuousBgUrl, setContinuousBgUrl] = useState<string>("");
+  const [continuousPickerOpen, setContinuousPickerOpen] = useState(false);
+
   const [showImages, setShowImages] = useState(true);
   const [showVideos, setShowVideos] = useState(true);
   const [showEstablishment, setShowEstablishment] = useState(true);
