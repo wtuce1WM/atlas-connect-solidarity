@@ -421,12 +421,12 @@ export default function StudioVideo() {
   // Garde la zone "Votre établissement" ouverte tant qu'aucun établissement n'est choisi
   // en Mode établissement (choix obligatoire). Ferme automatiquement dès qu'un établissement est sélectionné.
   useEffect(() => {
-    if (!isCorporate && !selected) {
+    if (studioMode !== "corporate" && !selected) {
       setShowEstablishment(true);
     } else if (selected) {
       setShowEstablishment(false);
     }
-  }, [isCorporate, selected]);
+  }, [studioMode, selected]);
 
   useEffect(() => {
     if (lightboxIndex === null) return;
