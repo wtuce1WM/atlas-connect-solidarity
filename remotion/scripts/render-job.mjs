@@ -155,8 +155,16 @@ async function renderOne() {
     const buffer = fs.readFileSync(outPath);
     await uploadToSignedUrl(upload.signedUrl, buffer);
 
+    const realDuration = getVideoDurationSeconds(outPath);
+    if (realDuration) console.log(`⏱️ Durée réelle : ${realDuration}s`);
+
     console.log(`✅ Terminé : ${upload.publicUrl}`);
-    await finalizeJob({ job_id: job.id, status: "done", output_url: upload.publicUrl });
+    await finalizeJob({
+      job_id: job.id,
+      status: "done",
+      output_url: upload.publicUrl,
+      duration_sec: realDuration,
+    });
 
     fs.unlinkSync(outPath);
     return true;
