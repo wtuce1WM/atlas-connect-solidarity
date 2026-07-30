@@ -1759,7 +1759,23 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     }
   };
 
+  // ==== Transitions entre les plans ====
+  const trStyle: TransitionStyle = transitions?.style ?? "auto";
+  const trPreset = STYLE_PRESETS[trStyle] ?? STYLE_PRESETS.auto;
+  const trDifferentiate = transitions?.differentiate !== false;
+  const trVideoEffect: TransitionEffect = trDifferentiate ? (transitions?.video ?? trPreset.video) : trPreset.video;
+  const trImageEffect: TransitionEffect = trDifferentiate ? (transitions?.image ?? trPreset.image) : trPreset.video;
+  const transitionFor = (kind: string): TransitionEffect => {
+    if (continuousMode) return trVideoEffect;
+    const arr = (sm as Record<string, Array<{ url: string; kind: "image" | "video" }> | undefined>)[kind];
+    const first = Array.isArray(arr) ? arr[0] : undefined;
+    if (first) return first.kind === "video" ? trVideoEffect : trImageEffect;
+    if (hasVideos && !hasImages) return trVideoEffect;
+    return trImageEffect;
+  };
+
   const toneOverlay = TONE_CONFIG[tone]?.overlay ?? TONE_CONFIG.immersif.overlay;
+
   return (
     <ToneContext.Provider value={tone}>
       <SuppressBgContext.Provider value={continuousMode}>
