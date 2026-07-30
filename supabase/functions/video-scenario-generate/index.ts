@@ -825,11 +825,11 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
             };
             const lines = rawMsg
               ? rawMsg
-                  .split(/[\n•·|]+|(?:\.\s)/)
+                  .split(/[\n•·|]+/)
                   .map((l: string) => cleanDisplayText(l) || "")
                   .filter(Boolean)
                   .flatMap(chunkLong)
-                  .slice(0, 6)
+                  .slice(0, 8)
               : [];
             if (!title && !priceStr && lines.length === 0) return null;
             return { title, price: priceStr, lines: lines.length ? lines : undefined };
