@@ -1781,11 +1781,14 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         if (!customerReview) return null;
         const bgArr = Array.isArray((scene_media as any)?.customer_review) ? (scene_media as any).customer_review : [];
         const bg = bgArr[0];
-        const text = (customerReview.highlight || customerReview.text || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+        const clean = (s?: string | null) => (s || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+        const fullText = clean(customerReview.text) || clean(customerReview.highlight);
+        const excerpt = clean(customerReview.highlight);
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             {bg ? (bg.kind === "video" ? <VideoBackdrop src={bg.url} /> : <VideoBackdrop image={bg.url} />) : <VideoBackdrop image={defaultGalleryList[0]} />}
-            <SceneCustomerReview author={customerReview.author} rating={customerReview.rating ?? null} highlight={text} durationFrames={duration} textPosition={textPosition} />
+            <SceneCustomerReview author={customerReview.author} rating={customerReview.rating ?? null} highlight={excerpt} fullText={fullText} source={customerReview.source ?? null} durationFrames={duration} textPosition={textPosition} />
+
           </AbsoluteFill>
         );
       }
