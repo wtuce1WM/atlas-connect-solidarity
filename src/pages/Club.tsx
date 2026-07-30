@@ -824,11 +824,28 @@ const Club = () => {
 
       {user && (
         <main className={activeTab === "assistant" ? "" : "pb-40 md:pb-24"}>
-          <section className="w-full pt-20 pb-12 px-4">
+          {/* Identité de session : l'utilisateur voit toujours avec quel compte il est connecté */}
+          <div className="w-full pt-20 px-4">
+            <div className="mx-auto max-w-5xl flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/25 bg-black/20 px-4 py-2 text-xs sm:text-sm">
+              <span className="text-white/85 truncate">
+                {language === "en" ? "Signed in as" : language === "ar" ? "متصل باسم" : "Connecté en tant que"}{" "}
+                <strong className="text-white break-all">{user.email || user.phone}</strong>
+              </span>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="shrink-0 underline underline-offset-2 text-white/80 hover:text-white"
+              >
+                {language === "en" ? "Sign out" : language === "ar" ? "تسجيل الخروج" : "Se déconnecter"}
+              </button>
+            </div>
+          </div>
+          <section className="w-full pt-6 pb-12 px-4">
             <div className="w-full">
               <ClubDashboard user={user} onLogout={handleLogout} />
             </div>
           </section>
+
           {activeTab !== "assistant" && (
             <div className="flex justify-center pb-8">
               <button
