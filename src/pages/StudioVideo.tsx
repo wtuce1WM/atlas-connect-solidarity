@@ -865,7 +865,7 @@ export default function StudioVideo() {
             selected_images: chosenImages,
             selected_videos: chosenVideos,
             scene_media: sceneMedia,
-            scene_order: applyClosingSequence(scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon)),
+            scene_order: applyClosingSequence(scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon), !!scenarioEdits?.order),
             scene_durations: scenarioEdits?.durations ?? (() => {
               const src = (aiScenario?.scenario ?? scenario)?.scenes;
               if (!src) return undefined;
@@ -1043,7 +1043,7 @@ export default function StudioVideo() {
             selected_images: chosenImages,
             selected_videos: chosenVideos,
             scene_media: sceneMedia,
-            scene_order: applyClosingSequence(scenarioEdits?.order),
+            scene_order: applyClosingSequence(scenarioEdits?.order, !!scenarioEdits?.order),
             scene_durations: scenarioEdits?.durations,
             custom_scenes: scenarioEdits?.customScenes,
             text_position: textPosition,
