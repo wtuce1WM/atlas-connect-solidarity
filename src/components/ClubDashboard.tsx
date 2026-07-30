@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { businessUrl } from "@/lib/businessUrl";
+import digitalIdCardAsset from "@/assets/digital-id-card.webp.asset.json";
 import { Crown, Loader2, LogOut, Save, Bookmark, Trash2, ExternalLink, Tag, Sparkles, Mail } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
@@ -524,24 +525,14 @@ const ClubDashboard = ({ user, onLogout }: ClubDashboardProps) => {
                   aria-label="Digital ID"
                 >
                   <span className="relative h-16 w-16 rounded-full overflow-hidden border border-white/30 bg-white/10 hover:scale-[1.03] active:scale-95 transition shadow-[inset_0_2px_8px_rgba(0,0,0,0.15)] md:h-24 md:w-24">
-                    <iframe
-                      src={`/u/${encodeURIComponent(form.nickname)}`}
-                      title="Digital ID preview"
-                      loading="lazy"
-                      scrolling="no"
-                      tabIndex={-1}
+                    <img
+                      src={digitalIdCardAsset.url}
+                      alt=""
                       aria-hidden="true"
-                      className="pointer-events-none border-0"
-                      style={{
-                        width: "1200px",
-                        height: "1600px",
-                        transform: "scale(0.053333)",
-                        transformOrigin: "top left",
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                      }}
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover pointer-events-none"
                     />
+
                     <span className="absolute inset-0 rounded-full ring-1 ring-white/40 pointer-events-none" />
                   </span>
                   <span className="text-[10px] font-semibold text-white text-center leading-tight md:text-xs">Digital ID</span>
