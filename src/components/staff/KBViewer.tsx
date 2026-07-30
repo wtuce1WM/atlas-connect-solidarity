@@ -16,6 +16,7 @@ import seoMetaTagsLovableMd from "@/content/kb/seo-meta-tags-lovable.md?raw";
 import previewsSocialesBotsMd from "@/content/kb/previews-sociales-bots.md?raw";
 import coutGenerationVideosMd from "@/content/kb/cout-generation-videos.md?raw";
 import coutTokensIaRuntimeMd from "@/content/kb/cout-tokens-ia-runtime.md?raw";
+import methodePromptsMd from "@/content/kb/methode-prompts-economie-credits.md?raw";
 
 const SECTIONS = [
   { id: "architecture", label: "Règles d'architecture", icon: Building2, content: architectureMd },
