@@ -314,6 +314,12 @@ export default function StudioVideo() {
   const [popupPreviewOpen, setPopupPreviewOpen] = useState(false);
   const [sceneMedia, setSceneMedia] = useState<SceneMediaMap>({});
   const [textPosition, setTextPosition] = useState<"top" | "middle" | "bottom">("middle");
+  // Transitions entre les plans
+  const [transitionStyle, setTransitionStyle] = useState<"auto" | "doux" | "dynamique" | "minimal">("auto");
+  const [transitionDifferentiate, setTransitionDifferentiate] = useState(true);
+  const [transitionVideo, setTransitionVideo] = useState<TransitionEffect>("crossfade");
+  const [transitionImage, setTransitionImage] = useState<TransitionEffect>("kenburns");
+
 
   // Garde l'ordre de montage synchronisé avec la sélection de vidéos.
   useEffect(() => {
