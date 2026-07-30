@@ -673,7 +673,7 @@ export default function StudioVideo() {
     if (optCustomerReview) s += 6;
     if (optHours) s += 3;
     if (optMapMarker) s += 3;
-    if (optDigitalId) s += 5;
+    if (optDigitalId) s += 3;
     if (optWhatsapp && whatsappNumber) s += 3;
     s += 3; // cta
     if (optInstallCta) s += 2; // outro
@@ -764,6 +764,7 @@ export default function StudioVideo() {
             custom_scenes: scenarioEdits?.customScenes,
             text_position: textPosition,
             continuous_bg_video_url: continuousBg && continuousBgUrl ? continuousBgUrl : null,
+            continuous_bg_sound: continuousBg && continuousBgUrl ? continuousBgSound : false,
           },
 
         },
@@ -839,7 +840,7 @@ export default function StudioVideo() {
       }
     }
     const chosenImages = Array.from(selectedImages);
-    const chosenVideos = Array.from(selectedVideos);
+    const chosenVideos = orderedSelectedVideos;
     if (chosenImages.length > 0) directives.push(`Utiliser EXCLUSIVEMENT les images suivantes (dans cet ordre) pour le montage :\n  * ${chosenImages.join("\n  * ")}`);
     if (continuousBg && continuousBgUrl) directives.push(`Une seule vidéo est jouée EN FOND CONTINU sur toute la durée (${continuousBgUrl}) : ne pas prévoir de montage de fonds différents par scène, seuls les textes et éléments graphiques changent.`);
     if (chosenVideos.length > 0) directives.push(`Utiliser EXCLUSIVEMENT les vidéos suivantes (dans cet ordre) pour le montage :\n  * ${chosenVideos.join("\n  * ")}`);
@@ -861,11 +862,11 @@ export default function StudioVideo() {
       offers: Array.from(selectedOfferIds).sort(),
       highlights: Array.from(selectedHighlightIds).sort(),
       images: Array.from(selectedImages).sort(),
-      videos: Array.from(selectedVideos).sort(),
+      videos: orderedSelectedVideos,
       reviewId: selectedReviewId,
       reviewHighlight: reviewHighlight || null,
       textPosition,
-      continuousBg: continuousBg ? continuousBgUrl : null,
+      continuousBg: continuousBg ? `${continuousBgUrl}|${continuousBgSound ? "sound" : "mute"}` : null,
     });
   }, [
     prompt, effectiveDuration, tone, selected?.id,
@@ -924,6 +925,7 @@ export default function StudioVideo() {
             custom_scenes: scenarioEdits?.customScenes,
             text_position: textPosition,
             continuous_bg_video_url: continuousBg && continuousBgUrl ? continuousBgUrl : null,
+            continuous_bg_sound: continuousBg && continuousBgUrl ? continuousBgSound : false,
           },
 
         },
