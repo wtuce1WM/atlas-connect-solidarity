@@ -348,6 +348,9 @@ const Background: React.FC = () => (
   </AbsoluteFill>
 );
 
+const isVideoSrc = (u?: string | null): boolean =>
+  typeof u === "string" && /\.(mp4|mov|webm|m4v|avi|mkv)(\?|#|$)/i.test(u);
+
 const KenBurns: React.FC<{ src: string; from: number; duration: number }> = ({ src, from, duration }) => {
   const frame = useCurrentFrame();
   const tone = useTone();
