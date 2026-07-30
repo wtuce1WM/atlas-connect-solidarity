@@ -192,10 +192,12 @@ const PublicBusinessProfile = () => {
     });
   }
 
+  const bare = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("bare") === "1";
+
   return (
     <div
-      className="min-h-screen w-full flex items-center justify-center py-6 px-3 sm:py-10"
-      style={{ backgroundColor: "#ECD6B8" }}
+      className={bare ? "min-h-screen w-full flex items-stretch justify-center" : "min-h-screen w-full flex items-center justify-center py-6 px-3 sm:py-10"}
+      style={{ backgroundColor: bare ? "#000000" : "#ECD6B8" }}
     >
       <style>{`
         @keyframes b-rise {
