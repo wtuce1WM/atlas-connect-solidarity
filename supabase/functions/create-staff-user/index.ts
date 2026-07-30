@@ -10,7 +10,7 @@ const corsHeaders = {
 interface CreateUserRequest {
   email: string;
   password: string;
-  role: "admin" | "staff";
+  role: "admin" | "staff" | "video_studio";
 }
 
 serve(async (req: Request) => {

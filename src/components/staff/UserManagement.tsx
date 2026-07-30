@@ -53,6 +53,10 @@ const UserManagement = () => {
   const [newUserRole, setNewUserRole] = useState<StaffRole>("staff");
   const [editRole, setEditRole] = useState<StaffRole>("staff");
   const [adding, setAdding] = useState(false);
+  const [grantDialogOpen, setGrantDialogOpen] = useState(false);
+  const [grantEmail, setGrantEmail] = useState("");
+  const [grantRole, setGrantRole] = useState<StaffRole>("video_studio");
+  const [granting, setGranting] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const { toast } = useToast();
@@ -186,6 +190,35 @@ const UserManagement = () => {
     }
   };
 
+  const handleGrantRole = async () => {
+    const email = grantEmail.trim().toLowerCase();
+    if (!email) {
+      toast({ variant: "destructive", title: "Erreur", description: "Veuillez entrer une adresse email." });
+      return;
+    }
+    setGranting(true);
+    try {
+      const { data, error } = await supabase.rpc("add_user_role_by_email" as any, {
+        _email: email,
+        _role: grantRole as any,
+      });
+      if (error) throw error;
+      if (!data) throw new Error("Aucun compte trouvé avec cette adresse email.");
+      toast({ title: "Succès", description: `Accès « ${grantRole} » accordé à ${email}.` });
+      setGrantEmail("");
+      setGrantDialogOpen(false);
+      fetchUsers();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: error.message || "Impossible d'accorder cet accès.",
+      });
+    } finally {
+      setGranting(false);
+    }
+  };
+
   const handleEditUser = (user: UserRole) => {
     setEditingUser(user);
     // Cast is safe because we filter out affiliates in fetchUsers
@@ -301,6 +334,74 @@ const UserManagement = () => {
           </div>
         </div>
 
+        <div className="flex flex-wrap gap-2">
+        <Dialog open={grantDialogOpen} onOpenChange={setGrantDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline">
+              <KeyRound className="h-4 w-4 mr-2" />
+              Donner un accès à un compte existant
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Donner un accès</DialogTitle>
+              <DialogDescription>
+                Attribuez un accès à un compte déjà existant (membre du Club ou affilié), via son adresse email.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="grant-email">Email du compte</Label>
+                <Input
+                  id="grant-email"
+                  type="email"
+                  placeholder="membre@exemple.com"
+                  value={grantEmail}
+                  onChange={(e) => setGrantEmail(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Accès</Label>
+                <Select value={grantRole} onValueChange={(value: StaffRole) => setGrantRole(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="video_studio">
+                      <div className="flex items-center gap-2">
+                        <Video className="h-4 w-4 text-primary" />
+                        Studio Vidéo
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="staff">
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-4 w-4" />
+                        Staff
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="admin">
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-4 w-4 text-gold" />
+                        Admin
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  « Studio Vidéo » donne un accès complet à /studio-video sans donner accès au backoffice.
+                </p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setGrantDialogOpen(false)}>Annuler</Button>
+              <Button onClick={handleGrantRole} disabled={granting} className="bg-gold hover:bg-gold/90 text-gold-foreground">
+                {granting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                Accorder
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-gold hover:bg-gold/90 text-gold-foreground">
@@ -396,6 +497,7 @@ const UserManagement = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Edit Role Dialog */}
