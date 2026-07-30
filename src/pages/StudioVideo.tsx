@@ -285,6 +285,34 @@ export default function StudioVideo() {
   const [sceneMedia, setSceneMedia] = useState<SceneMediaMap>({});
   const [textPosition, setTextPosition] = useState<"top" | "middle" | "bottom">("middle");
 
+  // Garde l'ordre de montage synchronisé avec la sélection de vidéos.
+  useEffect(() => {
+    setVideoOrder((prev) => {
+      const kept = prev.filter((u) => selectedVideos.has(u));
+      const added = bizVideos.map((v) => v.url).filter((u) => selectedVideos.has(u) && !kept.includes(u));
+      const next = [...kept, ...added];
+      return next.length === prev.length && next.every((u, i) => u === prev[i]) ? prev : next;
+    });
+  }, [selectedVideos, bizVideos]);
+
+  const orderedSelectedVideos = useMemo(
+    () => videoOrder.filter((u) => selectedVideos.has(u)),
+    [videoOrder, selectedVideos],
+  );
+
+  const moveVideo = (from: string, to: string) => {
+    if (from === to) return;
+    setVideoOrder((prev) => {
+      const arr = prev.filter((u) => selectedVideos.has(u));
+      const i = arr.indexOf(from);
+      const j = arr.indexOf(to);
+      if (i < 0 || j < 0) return prev;
+      arr.splice(i, 1);
+      arr.splice(j, 0, from);
+      return arr;
+    });
+  };
+
 
 
   const availableSceneMedia = useMemo<SceneMediaItem[]>(() => {
