@@ -109,6 +109,8 @@ export type ShowcaseProps = {
   // Overrides manuels du texte des scènes (clé = kind de scène, ex. "hook" | "name")
   textOverrides?: Record<string, { label?: string; description?: string }>;
   splitCount?: number;
+  // Vidéo unique jouée en fond continu sur toute la durée (les fonds de scène sont neutralisés)
+  continuousBgVideoUrl?: string | null;
 
 };
 
