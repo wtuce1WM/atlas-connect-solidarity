@@ -612,6 +612,20 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         }
         if (Object.keys(cleanedSplits).length) template_props.textSplits = cleanedSplits;
       }
+      // Overrides manuels du texte des scènes (titre + texte), saisis dans l'aperçu du scénario.
+      const rawTextOverrides = options?.text_overrides;
+      if (rawTextOverrides && typeof rawTextOverrides === "object" && !Array.isArray(rawTextOverrides)) {
+        const cleanedOv: Record<string, { label?: string; description?: string }> = {};
+        for (const [k, v] of Object.entries(rawTextOverrides as Record<string, any>)) {
+          if (typeof k !== "string" || !v || typeof v !== "object") continue;
+          const label = typeof v.label === "string" ? v.label.trim().slice(0, 200) : "";
+          const description = typeof v.description === "string" ? v.description.trim().slice(0, 600) : "";
+          if (!label && !description) continue;
+          cleanedOv[k] = { ...(label ? { label } : {}), ...(description ? { description } : {}) };
+        }
+        if (Object.keys(cleanedOv).length) template_props.textOverrides = cleanedOv;
+      }
+
       const googleRating = Number(businessDetails.google_rating);
       const computedRating = Number(businessDetails.computed_rating);
       const googleReviews = Number(businessDetails.google_review_count);

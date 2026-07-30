@@ -106,7 +106,10 @@ export type ShowcaseProps = {
   showWhatsapp?: boolean;
   whatsappNumber?: string | null;
   textSplits?: Record<string, number>;
+  // Overrides manuels du texte des scènes (clé = kind de scène, ex. "hook" | "name")
+  textOverrides?: Record<string, { label?: string; description?: string }>;
   splitCount?: number;
+
 };
 
 export const DIGITAL_ID_FRAMES = 150; // 5s — 2 phases (fiche, QR)
@@ -413,28 +416,47 @@ const SceneHook: React.FC<{ name: string; location: string; img?: string; textPo
   );
 };
 
-const HookOverlay: React.FC<{ text: string; duration: number; textPosition?: TextPosition }> = ({ text, duration, textPosition = "middle" }) => {
+const HookOverlay: React.FC<{ text: string; duration: number; textPosition?: TextPosition; title?: string }> = ({ text, duration, textPosition = "middle", title }) => {
   const frame = useCurrentFrame();
   const o = Math.min(ease(frame, 6, 26), 1 - ease(frame, duration - 20, duration - 2));
-  if (!text) return null;
+  if (!text && !title) return null;
   return (
     <AbsoluteFill style={{ padding: 70, ...textPositionStyle(textPosition), opacity: o }}>
-      <div
-        style={{
-          fontFamily: display,
-          fontWeight: 700,
-          color: COLORS.cream,
-          fontSize: 52,
-          lineHeight: 1.18,
-          textAlign: "center",
-          textShadow: "0 4px 24px rgba(0,0,0,0.75)",
-        }}
-      >
-        {text}
-      </div>
+      {title ? (
+        <div
+          style={{
+            fontFamily: body,
+            color: COLORS.gold,
+            fontSize: 30,
+            letterSpacing: 3,
+            textTransform: "uppercase",
+            textAlign: "center",
+            marginBottom: 18,
+            textShadow: "0 2px 12px rgba(0,0,0,0.7)",
+          }}
+        >
+          {title}
+        </div>
+      ) : null}
+      {text ? (
+        <div
+          style={{
+            fontFamily: display,
+            fontWeight: 700,
+            color: COLORS.cream,
+            fontSize: 52,
+            lineHeight: 1.18,
+            textAlign: "center",
+            textShadow: "0 4px 24px rgba(0,0,0,0.75)",
+          }}
+        >
+          {text}
+        </div>
+      ) : null}
     </AbsoluteFill>
   );
 };
+
 
 const SceneTagline: React.FC<{ tagline: string; fullHook?: string; showFullHook?: boolean }> = ({ tagline, fullHook, showFullHook }) => {
   const frame = useCurrentFrame();
@@ -533,7 +555,7 @@ const SceneOffer: React.FC<{
           textTransform: "uppercase",
         }}
       >
-        {city ? `Offre · ${city}` : "Offre signature"}
+        {city ? `Offre · ${city}` : "Offre"}
       </div>
       <div
         style={{
@@ -548,7 +570,7 @@ const SceneOffer: React.FC<{
           padding: "0 20px",
         }}
       >
-        {offer.title || "Une expérience signature"}
+        {offer.title || lines[0] || "Offre"}
       </div>
       {hasPrice && (
         <div
@@ -1268,6 +1290,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   customerReview,
   showWhatsapp,
   whatsappNumber,
+  textOverrides,
+
 }) => {
   const safeVideos = sanitizeUrls(videos);
   const safeImages = sanitizeUrls(images);
@@ -1309,8 +1333,16 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const outroItem = outroOverride[0];
 
 
-  const locationLine = [city, neighborhood].filter(Boolean).join(" · ");
-  const [hookPart1, hookPart2] = splitHookInTwo(hook);
+  const ovHook = textOverrides?.hook ?? {};
+  const ovName = textOverrides?.name ?? {};
+  const displayName = (ovHook.label || "").trim() || name;
+  const locationLine =
+    (ovHook.description || "").trim().replace(/^📍\s*/, "") ||
+    [city, neighborhood].filter(Boolean).join(" · ");
+  const [rawHookPart1, hookPart2] = splitHookInTwo(hook);
+  const nameSceneTitle = (ovName.label || "").trim();
+  const hookPart1 = (ovName.description || "").trim() || rawHookPart1;
+
 
   // Build the ordered scene plan (honors props.scene_order + props.scene_durations)
   const plan = buildScenePlan({
@@ -1478,10 +1510,10 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         return heroIsVideo && heroMedia ? (
           <AbsoluteFill>
             <VideoCover src={heroMedia} from={0} duration={duration} />
-            <SceneHook name={name} location={locationLine} textPosition={textPosition} />
+            <SceneHook name={displayName} location={locationLine} textPosition={textPosition} />
           </AbsoluteFill>
         ) : (
-          <SceneHook name={name} location={locationLine} img={heroMedia} textPosition={textPosition} />
+          <SceneHook name={displayName} location={locationLine} img={heroMedia} textPosition={textPosition} />
         );
       case "name":
         return (
@@ -1493,9 +1525,10 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                 <KenBurns src={nameMediaUrl} from={0} duration={duration} />
               )
             ) : null}
-            <HookOverlay text={hookPart1} duration={duration} textPosition={textPosition} />
+            <HookOverlay title={nameSceneTitle} text={hookPart1} duration={duration} textPosition={textPosition} />
           </AbsoluteFill>
         );
+
       case "media":
         return (
           <AbsoluteFill>

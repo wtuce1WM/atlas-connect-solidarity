@@ -76,8 +76,10 @@ const ICONS: Record<Scene["icon"], React.ReactNode> = {
 
 const LABELS: Record<Exclude<Scene["icon"], "custom">, string> = {
   logo: "Ouverture logo",
-  hook: "Hook",
-  name: "Nom & identité",
+  // Dans le montage vidéo, la scène "hook" affiche le NOM + 📍 ville · quartier
+  hook: "Nom & identité",
+  // ... et la scène "name" affiche le TEXTE du hook.
+  name: "Hook",
   media: "Montage",
   popup: "Popup",
   offer: "Offre",
@@ -94,6 +96,19 @@ const LABELS: Record<Exclude<Scene["icon"], "custom">, string> = {
   cta: "Appel à l'action",
   outro: "Outro",
 };
+
+// Même découpe que le montage Remotion (BusinessShowcase.splitHookInTwo)
+export function splitHookInTwo(h: string): [string, string] {
+  const t = (h || "").trim();
+  if (!t) return ["", ""];
+  const m = t.match(/^(.+?[,;:—–-])\s+(.+)$/);
+  if (m && m[1].length > 10 && m[2].length > 10) return [m[1].trim(), m[2].trim()];
+  const words = t.split(/\s+/);
+  if (words.length < 4) return [t, ""];
+  const mid = Math.ceil(words.length / 2);
+  return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
+}
+
 
 export function extractKeywords(text: string): string[] {
   const stop = new Set([
@@ -143,8 +158,9 @@ export function buildScenario(
   if (options.openWithLogo && options.logoUrl) {
     push("logo", Math.max(2, Math.round(durationSec * 0.06)), "Ouverture sur le logo de l'établissement (fond transparent).");
   }
-  push("name", nameDuration, businessName ? `Affichage du nom ${businessName}.` : "Affichage du nom de l'établissement.");
-  push("hook", hookDuration, businessName ? `Accroche sur ${businessName} et son ambiance.` : "Accroche immersive pour capter l'attention.");
+  push("hook", nameDuration, businessName ? `${businessName}` : "Nom de l'établissement");
+  push("name", hookDuration, businessName ? `Accroche sur ${businessName} et son ambiance.` : "Accroche immersive pour capter l'attention.");
+
   if (keywords.includes("offre") || keywords.includes("promotion") || keywords.includes("menu") || keywords.includes("pass") || keywords.includes("déjeuner") || keywords.includes("diner") || keywords.includes("spa")) {
     push("offer", Math.max(4, Math.round(durationSec * 0.22)), "Mise en avant de l'offre ou du produit phare du prompt.");
   }
@@ -208,8 +224,14 @@ export function scenarioFromTemplateProps(
     push("logo", Math.max(2, Math.round(durationSec * 0.06)), "Ouverture sur le logo de l'établissement.");
   }
 
-  push("name", Math.max(2, Math.round(durationSec * 0.1)), tagline ? `${name} — ${tagline}` : `Affichage du nom ${name}.`);
-  push("hook", Math.max(2, Math.round(durationSec * 0.12)), hook ? `Accroche : « ${hook} »` : `Accroche immersive sur ${name}.`);
+  // Scène "hook" du montage = NOM + 📍 ville · quartier (texte exact affiché à l'écran)
+  const city = typeof props?.city === "string" ? props.city.trim() : "";
+  const neighborhood = typeof props?.neighborhood === "string" ? props.neighborhood.trim() : "";
+  const locationLine = [city, neighborhood].filter(Boolean).join(" · ");
+  push("hook", Math.max(2, Math.round(durationSec * 0.1)), [name, locationLine ? `📍 ${locationLine}` : ""].filter(Boolean).join("\n"));
+  // Scène "name" du montage = TEXTE du hook (1re moitié, comme dans Remotion)
+  const [hookPart1] = splitHookInTwo(hook);
+  push("name", Math.max(2, Math.round(durationSec * 0.12)), hookPart1 || hook || tagline || name);
   // Étape "media" (montage) : ajoutée manuellement par l'utilisateur via "Ajouter une étape".
 
   // Popup (une scène dédiée si l'option est cochée et qu'une image popup existe)
@@ -217,31 +239,33 @@ export function scenarioFromTemplateProps(
     push("popup", Math.max(2, Math.round(durationSec * 0.08)), "Image d'accueil (popup) en plein écran.");
   }
 
-  // Une scène par offre sélectionnée
+  // Une scène par offre sélectionnée — texte exact repris dans la vidéo
   const offersList: any[] = Array.isArray(props?.offers) ? props.offers : (offer ? [offer] : []);
   if (offersList.length > 0) {
     const perOffer = Math.max(3, Math.round((durationSec * 0.22) / offersList.length));
     for (const off of offersList) {
-      const parts: string[] = [];
-      if (off?.title) parts.push(String(off.title));
-      if (off?.price) parts.push(String(off.price));
-      const lines = Array.isArray(off?.lines) ? off.lines : [];
-      const desc = parts.length ? parts.join(" · ") : "Offre mise en avant.";
-      push("offer", perOffer, `${desc}${lines.length ? ` — ${lines.length} ligne${lines.length > 1 ? "s" : ""}` : ""}.`, off?.title ? `Offre — ${String(off.title).slice(0, 40)}` : undefined);
+      const title = (off?.title || "").toString().trim();
+      const price = (off?.price || "").toString().trim();
+      const lines: string[] = Array.isArray(off?.lines) ? off.lines.map((l: any) => String(l).trim()).filter(Boolean) : [];
+      const head = [title, price].filter(Boolean).join(" · ");
+      const desc = [head, ...lines].filter(Boolean).join("\n") || "Offre mise en avant.";
+      push("offer", perOffer, desc, title ? `Offre — ${title.slice(0, 40)}` : undefined);
     }
   }
 
-  // Une scène par bloc highlight sélectionné
+  // Une scène par bloc highlight sélectionné — titre + texte exacts repris dans la vidéo
   const highlightsList: any[] = Array.isArray(props?.highlights) ? props.highlights : [];
   if (highlightsList.length > 0) {
     const perHl = Math.max(2, Math.round((durationSec * 0.18) / highlightsList.length));
     for (const h of highlightsList) {
       const title = (h?.title || "").toString().trim();
       const desc = (h?.description || "").toString().trim();
-      const summary = [title, desc].filter(Boolean).join(" — ") || "Bloc highlight.";
-      push("highlight", perHl, summary.slice(0, 200), title ? `Highlight — ${title.slice(0, 40)}` : undefined);
+      const metric = [h?.metric_value, h?.metric_title].filter(Boolean).map((x: any) => String(x).trim()).join(" ");
+      const summary = [title, desc, metric].filter(Boolean).join("\n") || "Bloc highlight.";
+      push("highlight", perHl, summary, title ? `Highlight — ${title.slice(0, 40)}` : undefined);
     }
   }
+
 
   if (props?.showReviews) {
     const rating = props.rating ? ` (${props.rating}/5)` : "";
@@ -687,7 +711,7 @@ export function StudioVideoScenarioPanel({
                   )}
                 </div>
               </div>
-              <p className="text-sm text-neutral-600 leading-relaxed italic">{scene.description}</p>
+              <p className="text-sm text-neutral-700 leading-relaxed whitespace-pre-line">{scene.description}</p>
               {scene.keywords.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {scene.keywords.map((k) => (
@@ -1189,7 +1213,7 @@ function SceneTextEditDialog({
       setDescription(currentDescription);
     }
   }, [open, currentLabel, currentDescription]);
-  const kindLabel = sceneKind === "hook" ? "Hook" : sceneKind === "name" ? "Nom & identité" : "Étape";
+  const kindLabel = sceneKind === "hook" ? "Nom & identité" : sceneKind === "name" ? "Hook" : "Étape";
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg bg-white text-black">
