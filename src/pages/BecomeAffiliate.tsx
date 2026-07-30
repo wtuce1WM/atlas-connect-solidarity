@@ -235,16 +235,13 @@ const BecomeAffiliate = () => {
       <main className="pt-24 pb-20">
         {/* Hero */}
         <section className="container mx-auto px-4 text-center mb-20">
-          <div className="max-w-3xl mx-auto">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6" style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          <div className="max-w-4xl mx-auto">
+            <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground mb-4">
               {t.title}
-            </h1>
-            <p className="text-xl md:text-2xl text-gold mb-4">
+            </p>
+            <h1 className="font-josefin text-[26px] sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#C04F17]" style={{ lineHeight: 1.2 }}>
               {t.subtitle}
-            </p>
-            <p className="text-lg text-muted-foreground">
-              {t.description}
-            </p>
+            </h1>
           </div>
         </section>
 
