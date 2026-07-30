@@ -969,6 +969,7 @@ export default function StudioVideo() {
       const scenario = scenarioFromTemplateProps(payload.template_id, payload.template_props, payload.duration_sec ?? effectiveDuration, payload.rationale);
       setAiScenario({ scenario, rationale: payload.rationale, templateId: payload.template_id });
       setAiScenarioSig(currentScenarioSig);
+      setScenarioPreviewed(true);
       toast.success("Scénario IA généré.");
     } catch (e: any) {
       toast.error(e.message ?? "Erreur lors de la prévisualisation.");
