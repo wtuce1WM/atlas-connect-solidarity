@@ -1373,7 +1373,7 @@ export default function StudioVideo() {
           <section className="rounded-xl border border-border bg-card p-6 space-y-5">
             <div className="flex items-center justify-between">
               <Label>
-                {isStaff ? "Établissement (optionnel)" : "Votre établissement"}
+                {isStaff ? "Établissement (obligatoire)" : "Votre établissement"}
               </Label>
               <button
                 type="button"
