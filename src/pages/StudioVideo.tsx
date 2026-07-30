@@ -360,9 +360,13 @@ export default function StudioVideo() {
     return [...imgs, ...vids];
   }, [bizImages, bizVideos]);
 
-  // Fermer la zone "Votre établissement" dès qu'un établissement est choisi
+  // Fermer la zone "Votre établissement" et réinitialiser l'aperçu dès qu'un établissement est choisi
   useEffect(() => {
-    if (selected) setShowEstablishment(false);
+    if (selected) {
+      setShowEstablishment(false);
+      setScenarioPreviewed(false);
+      setAiScenario(null);
+    }
   }, [selected]);
 
   useEffect(() => {
