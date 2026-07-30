@@ -759,6 +759,15 @@ export default function StudioVideo() {
 
   const effectiveDuration = durationAuto ? autoDuration : duration;
 
+  // Séquence de fin déterministe : offre(s) → WhatsApp → récap/CTA final.
+  const CLOSING_KINDS = ["offer", "whatsapp", "cta", "outro"];
+  const applyClosingSequence = (order?: string[] | null): string[] | undefined => {
+    if (!optClosingSequence || !Array.isArray(order) || order.length === 0) return order ?? undefined;
+    const head = order.filter((k) => !CLOSING_KINDS.includes(k));
+    const tail = CLOSING_KINDS.filter((k) => order.includes(k));
+    return [...head, ...tail];
+  };
+
   const scenario = useMemo(() => {
     if (!prompt.trim() || prompt.length < 20) return null;
     return buildScenario(prompt, selected?.name ?? null, effectiveDuration, {
