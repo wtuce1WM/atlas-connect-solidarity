@@ -526,9 +526,9 @@ const SceneTagline: React.FC<{ tagline: string; fullHook?: string; showFullHook?
 
 const SceneGallery: React.FC<{ images: string[] }> = ({ images }) => {
   const suppressBg = useSuppressBg();
-  if (suppressBg) return null;
   const frame = useCurrentFrame();
   const out = 1 - ease(frame, 130, 150);
+  if (suppressBg) return null;
   const imgs = images.slice(0, 3);
   if (imgs.length === 0) return null;
   const perDuration = 35;
