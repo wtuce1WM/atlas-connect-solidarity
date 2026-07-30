@@ -873,8 +873,8 @@ export default function StudioVideo() {
     optReviews, optHours, optMapMarker, optDigitalId, optInstallCta,
     optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
     optCustomerReview, optPopup, optOpenWithLogo,
-    selectedOfferIds, selectedHighlightIds, selectedImages, selectedVideos,
-    selectedReviewId, reviewHighlight, textPosition, continuousBg, continuousBgUrl,
+    selectedOfferIds, selectedHighlightIds, selectedImages, orderedSelectedVideos,
+    selectedReviewId, reviewHighlight, textPosition, continuousBg, continuousBgUrl, continuousBgSound,
   ]);
   const scenarioStale = !!aiScenario && aiScenarioSig !== null && aiScenarioSig !== currentScenarioSig;
 
