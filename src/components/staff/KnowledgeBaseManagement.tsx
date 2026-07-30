@@ -127,6 +127,7 @@ const KnowledgeBaseManagement = ({
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [tagFilter, setTagFilter] = useState("all");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showNew, setShowNew] = useState(false);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
@@ -294,16 +295,18 @@ const KnowledgeBaseManagement = ({
   };
 
   const filtered = entries.filter(e => {
+    const q = searchQuery.toLowerCase();
     const matchSearch = !searchQuery ||
-      e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      e.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      e.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+      e.title.toLowerCase().includes(q) ||
+      e.content.toLowerCase().includes(q) ||
+      e.tags.some(t => t.toLowerCase().includes(q));
     const matchCat = categoryFilter === "all" || e.category === categoryFilter;
-    return matchSearch && matchCat;
+    const matchTag = tagFilter === "all" || e.tags.includes(tagFilter);
+    return matchSearch && matchCat && matchTag;
   });
 
   const uniqueCategories = [...new Set(entries.map(e => e.category))].sort();
-  const formatDate = (d: string) =>
+  const uniqueTags = [...new Set(entries.flatMap(e => e.tags || []))].sort();
     new Date(d).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
   const isEditing = editingId || showNew;
 
@@ -521,20 +524,29 @@ const KnowledgeBaseManagement = ({
       )}
 
       {/* Toolbar */}
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 min-w-[200px]">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="relative flex-1 min-w-[160px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Rechercher…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
         </div>
-        {categories.length > 1 && (
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-[180px]"><SelectValue placeholder="Catégorie" /></SelectTrigger>
+        <div className="flex items-center gap-3">
+          {categories.length > 1 && (
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-[160px]"><SelectValue placeholder="Catégorie" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes les catégories</SelectItem>
+                {uniqueCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          )}
+          <Select value={tagFilter} onValueChange={setTagFilter}>
+            <SelectTrigger className="w-[160px]"><SelectValue placeholder="Tag" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Toutes les catégories</SelectItem>
-              {uniqueCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              <SelectItem value="all">Tous les tags</SelectItem>
+              {uniqueTags.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
             </SelectContent>
           </Select>
-        )}
+        </div>
         {!isEditing && (
           <Button className="shrink-0" onClick={() => setShowNew(true)}><Plus className="h-4 w-4 mr-2" />{newEntryLabel}</Button>
         )}
