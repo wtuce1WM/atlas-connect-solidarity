@@ -27,6 +27,23 @@ const textPositionStyle = (position: TextPosition = "middle"): React.CSSProperti
   }
 };
 
+// ===== Transitions entre les plans =====
+export type TransitionEffect = "crossfade" | "fade_black" | "wipe" | "zoom" | "kenburns" | "slide" | "cut";
+export type TransitionStyle = "auto" | "doux" | "dynamique" | "minimal";
+export type TransitionsConfig = {
+  style?: TransitionStyle;
+  differentiate?: boolean;
+  video?: TransitionEffect;
+  image?: TransitionEffect;
+};
+const STYLE_PRESETS: Record<TransitionStyle, { video: TransitionEffect; image: TransitionEffect }> = {
+  auto: { video: "crossfade", image: "kenburns" },
+  doux: { video: "crossfade", image: "crossfade" },
+  dynamique: { video: "zoom", image: "slide" },
+  minimal: { video: "cut", image: "fade_black" },
+};
+
+
 // Tone drives visual pacing + finishing:
 // - immersif : lent, ample, chaleureux (Ken Burns fort, fondus longs, vignette profonde)
 // - dynamique : rapide, punchy (Ken Burns bref, fondus courts, contraste chaud)
