@@ -555,7 +555,7 @@ const SceneOffer: React.FC<{
           textTransform: "uppercase",
         }}
       >
-        {city ? `Offre · ${city}` : "Offre signature"}
+        {city ? `Offre · ${city}` : "Offre"}
       </div>
       <div
         style={{
