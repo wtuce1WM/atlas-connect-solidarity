@@ -2486,9 +2486,13 @@ export default function StudioVideo() {
           {currentJob && (
             <section className="rounded-xl border border-border bg-card p-6 space-y-3">
               <h2 className="font-semibold">Job en cours</h2>
+              <p className="text-xs text-muted-foreground">
+                Une vidéo peut prendre jusqu'à 10 minutes pour être générée.
+              </p>
               <JobCard job={currentJob} businessName={currentJob.business_id ? businessNames[currentJob.business_id] : undefined} />
             </section>
           )}
+
 
           <section className="space-y-3">
             <h2 className="font-semibold text-white">Galerie — dernières vidéos générées</h2>
