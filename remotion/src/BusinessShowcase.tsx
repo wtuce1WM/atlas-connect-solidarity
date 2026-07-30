@@ -114,10 +114,11 @@ export type ShowcaseProps = {
   splitCount?: number;
   // Vidéo unique jouée en fond continu sur toute la durée (les fonds de scène sont neutralisés)
   continuousBgVideoUrl?: string | null;
+  continuousBgSound?: boolean;
 
 };
 
-export const DIGITAL_ID_FRAMES = 150; // 5s — 2 phases (fiche, QR)
+export const DIGITAL_ID_FRAMES = 90; // 3s — 2 phases (fiche, QR)
 
 const splitHookInTwo = (h: string): [string, string] => {
   const t = (h || "").trim();
@@ -1316,6 +1317,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   whatsappNumber,
   textOverrides,
   continuousBgVideoUrl,
+  continuousBgSound,
 
 }) => {
   const continuousMode = typeof continuousBgVideoUrl === "string" && /^https?:\/\//i.test(continuousBgVideoUrl);
@@ -1711,7 +1713,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             <AbsoluteFill style={{ overflow: "hidden" }}>
               <OffthreadVideo
                 src={continuousBgVideoUrl as string}
-                muted
+                muted={!continuousBgSound}
+                volume={continuousBgSound ? 1 : 0}
                 loop
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
