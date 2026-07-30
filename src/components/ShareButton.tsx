@@ -52,8 +52,9 @@ const ShareButton = ({ title, shareUrl, previewImage, avatarImage, variant = "go
   // Strip internal cache-buster _t from shared URLs ; route public pages via the
   // og-meta proxy so social bots (WhatsApp, Facebook, LinkedIn…) get a dynamic
   // OG preview even though the site is hosted as a static SPA on Lovable.
+  // NOTE: /search is intentionally excluded — les liens de recherche doivent
+  // rester sur le domaine public (oneworldmorocco.com) et non sur le proxy.
   const PROXIED_PREFIXES = [
-    "/search",
     "/fiche/",
     "/destination/",
     "/category/",
