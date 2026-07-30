@@ -362,15 +362,19 @@ const KenBurns: React.FC<{ src: string; from: number; duration: number }> = ({ s
   if (suppressBg) return null;
   return (
     <AbsoluteFill style={{ opacity: o, overflow: "hidden" }}>
-      <Img
-        src={src}
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          transform: `scale(${scale})`,
-        }}
-      />
+      {isVideoSrc(src) ? (
+        <OffthreadVideo src={src} muted loop style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      ) : (
+        <Img
+          src={src}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            transform: `scale(${scale})`,
+          }}
+        />
+      )}
       <AbsoluteFill
         style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.05) 40%,rgba(14,11,8,0.85) 100%)" }}
       />
