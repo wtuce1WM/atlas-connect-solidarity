@@ -1391,6 +1391,11 @@ export default function StudioVideo() {
               <div className="space-y-2">
                 {isStaff ? (
                   <>
+                    {!selected && (
+                      <p className="text-sm text-destructive">
+                        En Mode établissement, la sélection d'un établissement est obligatoire pour générer une vidéo.
+                      </p>
+                    )}
                     <Input
                       placeholder="Rechercher par nom…"
                       value={selected ? selected.name : query}
