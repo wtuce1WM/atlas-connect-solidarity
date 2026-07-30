@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, BookMarked, CheckCircle2, Palette, Mic, Pin, Users, Globe, Search, Share2, Video, Coins } from "lucide-react";
+import { Building2, BookMarked, CheckCircle2, Palette, Mic, Pin, Users, Globe, Search, Share2, Video, Coins, Wallet } from "lucide-react";
 
 import architectureMd from "@/content/kb/architecture.md?raw";
 import glossaireMd from "@/content/kb/glossaire.md?raw";
@@ -16,6 +16,7 @@ import seoMetaTagsLovableMd from "@/content/kb/seo-meta-tags-lovable.md?raw";
 import previewsSocialesBotsMd from "@/content/kb/previews-sociales-bots.md?raw";
 import coutGenerationVideosMd from "@/content/kb/cout-generation-videos.md?raw";
 import coutTokensIaRuntimeMd from "@/content/kb/cout-tokens-ia-runtime.md?raw";
+import methodePromptsMd from "@/content/kb/methode-prompts-economie-credits.md?raw";
 
 const SECTIONS = [
   { id: "architecture", label: "Règles d'architecture", icon: Building2, content: architectureMd },
@@ -30,6 +31,7 @@ const SECTIONS = [
   { id: "previews-sociales-bots", label: "Previews sociales /b/", icon: Share2, content: previewsSocialesBotsMd },
   { id: "cout-generation-videos", label: "Coût génération vidéos", icon: Video, content: coutGenerationVideosMd },
   { id: "cout-tokens-ia-runtime", label: "Coût tokens IA runtime", icon: Coins, content: coutTokensIaRuntimeMd },
+  { id: "methode-prompts-economie-credits", label: "Méthode prompts & crédits", icon: Wallet, content: methodePromptsMd },
 ];
 
 
