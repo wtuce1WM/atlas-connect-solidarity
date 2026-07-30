@@ -492,6 +492,12 @@ const StaffBackoffice = () => {
                 <QrCode className="h-4 w-4" />
                 QR Codes
               </TabsTrigger>
+              {isAdmin && (
+                <TabsTrigger value="users" className="gap-2">
+                  <Users className="h-4 w-4" />
+                  Gestion des utilisateurs
+                </TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="dashboard">
