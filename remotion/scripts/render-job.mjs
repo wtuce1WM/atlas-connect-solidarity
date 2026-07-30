@@ -72,6 +72,19 @@ async function uploadToSignedUrl(signedUrl, buffer) {
   if (!r.ok) throw new Error(`upload ${r.status}: ${await r.text()}`);
 }
 
+function getVideoDurationSeconds(videoPath) {
+  try {
+    const out = execSync(
+      `ffprobe -v error -show_entries format=duration -of csv=p=0 "${videoPath}"`,
+      { encoding: "utf-8" }
+    );
+    const sec = parseFloat(out.trim());
+    return Number.isFinite(sec) ? Math.round(sec) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
 async function renderOne() {
   console.log("🔍 Recherche d'une vidéo en file d'attente...");
   const claim = await claimJob();
