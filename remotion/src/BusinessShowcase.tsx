@@ -354,6 +354,39 @@ export const computeShowcaseFrames = (p: ShowcaseProps): number => {
 const ease = (f: number, a: number, b: number) =>
   interpolate(f, [a, b], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
+// Enveloppe une scène avec une transition d'entrée / sortie
+const SceneTransition: React.FC<{ effect: TransitionEffect; duration: number; children: React.ReactNode }> = ({ effect, duration, children }) => {
+  const frame = useCurrentFrame();
+  if (effect === "cut") return <AbsoluteFill>{children}</AbsoluteFill>;
+  const d = Math.max(5, Math.min(18, Math.round(duration * 0.18)));
+  const inP = ease(frame, 0, d);
+  const outP = 1 - ease(frame, duration - d, duration);
+  const p = Math.min(inP, outP);
+  let style: React.CSSProperties = {};
+  switch (effect) {
+    case "crossfade":
+      style = { opacity: p };
+      break;
+    case "fade_black":
+      style = { opacity: p * p };
+      break;
+    case "zoom":
+      style = { opacity: p, transform: `scale(${1 + (1 - inP) * 0.08 - (1 - outP) * 0.05})` };
+      break;
+    case "kenburns":
+      style = { opacity: p, transform: `scale(${1.02 + inP * 0.035})` };
+      break;
+    case "slide":
+      style = { opacity: Math.min(1, p * 1.6), transform: `translateX(${(1 - inP) * 12 - (1 - outP) * 12}%)` };
+      break;
+    case "wipe":
+      style = { clipPath: `inset(0 ${(1 - inP) * 100}% 0 0)`, opacity: outP };
+      break;
+  }
+  return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
+};
+
+
 const Background: React.FC = () => (
   <AbsoluteFill style={{ background: COLORS.night, overflow: "hidden" }}>
     <AbsoluteFill style={{ background: "linear-gradient(180deg,#1a120a 0%,#0e0b08 50%,#1a120a 100%)" }} />
