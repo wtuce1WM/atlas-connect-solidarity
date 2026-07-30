@@ -928,58 +928,16 @@ function SceneMediaSlot({
             <DialogHeader>
               <DialogTitle>Sélection médias — {kind}</DialogTitle>
             </DialogHeader>
-            {available.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Aucun média disponible pour cet établissement.</p>
-            ) : (
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                {available.map((m) => {
-                  const selected = items.some((i) => i.url === m.url);
-                  return (
-                    <button
-                      key={m.url}
-                      type="button"
-                      onClick={() => toggle(m)}
-                      className={cn(
-                        "relative aspect-video rounded-md overflow-hidden border-2 group",
-                        selected ? "border-primary" : "border-transparent hover:border-primary/40"
-                      )}
-                    >
-                      {m.kind === "video" ? (
-                        m.thumbnail ? (
-                          <img src={m.thumbnail} alt="" className="w-full h-full object-cover" />
-                        ) : (
-                          <video
-                            src={m.url}
-                            className="w-full h-full object-cover"
-                            muted
-                            playsInline
-                            preload="metadata"
-                          />
-                        )
-                      ) : (
-                        <img src={m.url} alt="" className="w-full h-full object-cover" />
-                      )}
-                      <div className="absolute top-1 left-1 text-[9px] px-1.5 py-0.5 rounded bg-black/70 text-white font-bold uppercase flex items-center gap-1">
-                        {m.kind === "video" ? <Film className="h-2.5 w-2.5" /> : <ImageIcon className="h-2.5 w-2.5" />}
-                        {m.kind}
-                      </div>
-                      {m.duration != null && m.kind === "video" && (
-                        <div className="absolute top-1 right-1 text-[9px] px-1.5 py-0.5 rounded bg-black/70 text-white font-bold uppercase">
-                          {formatDuration(m.duration)}
-                        </div>
-                      )}
-                      {selected && (
-                        <div className="absolute inset-0 bg-primary/30 flex items-center justify-center">
-                          <div className="rounded-full bg-primary text-primary-foreground text-xs font-bold w-6 h-6 flex items-center justify-center">
-                            {items.findIndex((i) => i.url === m.url) + 1}
-                          </div>
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+            <MediaPickerGrid
+              available={available}
+              isSelected={(m) => items.some((i) => i.url === m.url)}
+              badgeFor={(m) => {
+                const i = items.findIndex((x) => x.url === m.url);
+                return i >= 0 ? i + 1 : null;
+              }}
+              onSelect={(m) => toggle(m)}
+            />
+
             <div className="flex justify-end pt-2">
               <Button size="sm" onClick={() => setOpen(false)}>Fermer</Button>
             </div>
