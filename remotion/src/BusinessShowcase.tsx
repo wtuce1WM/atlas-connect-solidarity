@@ -1125,6 +1125,54 @@ const VideoBackdrop: React.FC<{ src?: string; image?: string }> = ({ src, image 
   );
 };
 
+// Fond animé — applique l'effet sélectionné (Ken Burns, zoom, slide…) sur les images fixes.
+// Les vidéos gardent leur lecture en boucle. Utilisé par toutes les scènes "info"
+// (avis, plateformes, horaires, carte, ID numérique, offres, WhatsApp, outro).
+const MotionBackdrop: React.FC<{
+  src?: string;
+  image?: string;
+  duration: number;
+  effect: TransitionEffect;
+  veil?: string;
+}> = ({ src, image, duration, effect, veil = "rgba(14,11,8,0.72)" }) => {
+  const frame = useCurrentFrame();
+  const tone = useTone();
+  const suppressBg = useSuppressBg();
+  const url = src || image;
+  if (suppressBg || !url) return null;
+  const isVid = isVideoSrc(url);
+  const p = duration > 0 ? Math.max(0, Math.min(1, frame / duration)) : 0;
+  let transform = "scale(1.02)";
+  if (!isVid) {
+    switch (effect) {
+      case "kenburns":
+        transform = `scale(${1.04 + p * (tone.kenBurnsZoom || 0.1)}) translate(${(p - 0.5) * 1.6}%, ${(0.5 - p) * 1.1}%)`;
+        break;
+      case "zoom":
+        transform = `scale(${1.16 - p * 0.12})`;
+        break;
+      case "slide":
+        transform = `scale(1.12) translateX(${(0.5 - p) * 4}%)`;
+        break;
+      case "wipe":
+        transform = `scale(${1.06 + p * 0.04})`;
+        break;
+      default:
+        transform = `scale(${1.03 + p * 0.03})`;
+    }
+  }
+  return (
+    <AbsoluteFill style={{ overflow: "hidden" }}>
+      {isVid ? (
+        <OffthreadVideo src={url} muted loop style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      ) : (
+        <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover", transform }} />
+      )}
+      <AbsoluteFill style={{ background: veil }} />
+    </AbsoluteFill>
+  );
+};
+
 const removeDecorativeTaglineWords = (value: string): string =>
   value
     .replace(/\bterracotta(?:é|e|s)?\b/gi, "")
@@ -1606,6 +1654,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     ? safeVideos
     : (useVideos ? safeVideos.slice(1) : safeImages.slice(1));
   const defaultGalleryList = defaultGallery.length ? defaultGallery : (useVideos ? safeVideos : safeImages);
+  // Fond par défaut pour les scènes "info" sans média dédié (avis plateformes, WhatsApp…)
+  const bgFallback = (i: number): string | undefined => {
+    if (safeImages.length) return safeImages[i % safeImages.length];
+    if (safeVideos.length) return safeVideos[i % safeVideos.length];
+    return undefined;
+  };
 
   // Scene 1 (Hook 0-120)
   const hookItem = hookOverride[0];
@@ -1770,9 +1824,15 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         if (!data) return null;
         const bgArr = Array.isArray((scene_media as any)?.[kind]) ? (scene_media as any)[kind] : [];
         const bg = bgArr[0];
+        const fbIdx = kind === "google_review" ? 0 : kind === "tripadvisor" ? 1 : 2;
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
-            {bg ? (bg.kind === "video" ? <VideoBackdrop src={bg.url} /> : <VideoBackdrop image={bg.url} />) : null}
+            <MotionBackdrop
+              src={bg?.kind === "video" ? bg.url : undefined}
+              image={bg?.kind === "image" ? bg.url : (bg ? undefined : bgFallback(fbIdx))}
+              duration={duration}
+              effect={trImageEffect}
+            />
             <ScenePlatformReview kind={kind} rating={data.rating ?? null} count={data.count ?? null} durationFrames={duration} textPosition={textPosition} />
           </AbsoluteFill>
         );
@@ -1786,7 +1846,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         const excerpt = clean(customerReview.highlight);
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
-            {bg ? (bg.kind === "video" ? <VideoBackdrop src={bg.url} /> : <VideoBackdrop image={bg.url} />) : <VideoBackdrop image={defaultGalleryList[0]} />}
+            <MotionBackdrop
+              src={bg?.kind === "video" ? bg.url : undefined}
+              image={bg?.kind === "image" ? bg.url : (bg ? undefined : (defaultGalleryList[0] ?? bgFallback(0)))}
+              duration={duration}
+              effect={trImageEffect}
+            />
             <SceneCustomerReview author={customerReview.author} rating={customerReview.rating ?? null} highlight={excerpt} fullText={fullText} source={customerReview.source ?? null} durationFrames={duration} textPosition={textPosition} />
 
           </AbsoluteFill>
@@ -1798,7 +1863,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         const bg = bgArr[0];
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
-            {bg ? (bg.kind === "video" ? <VideoBackdrop src={bg.url} /> : <VideoBackdrop image={bg.url} />) : null}
+            <MotionBackdrop
+              src={bg?.kind === "video" ? bg.url : undefined}
+              image={bg?.kind === "image" ? bg.url : (bg ? undefined : bgFallback(3))}
+              duration={duration}
+              effect={trImageEffect}
+            />
             <SceneWhatsapp number={whatsappNumber} durationFrames={duration} textPosition={textPosition} />
           </AbsoluteFill>
         );
@@ -1885,7 +1955,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               if (finalVideo || finalImage) {
                 return (
                   <>
-                    <VideoBackdrop src={finalVideo} image={finalImage} />
+                    <MotionBackdrop src={finalVideo} image={finalImage} duration={duration} effect={trImageEffect} veil="rgba(14,11,8,0.35)" />
                     <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.22) 0%,rgba(14,11,8,0.48) 100%)" }} />
                   </>
                 );
@@ -1900,9 +1970,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         const it = (sm.reviews || [])[0];
         return (
           <>
-            {it
-              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
-              : <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />}
+            <MotionBackdrop
+              src={it ? (it.kind === "video" ? it.url : undefined) : safeVideos[0]}
+              image={it ? (it.kind === "image" ? it.url : undefined) : safeImages[0]}
+              duration={duration}
+              effect={trImageEffect}
+            />
             <SceneReviews rating={rating} count={reviewsCount} textPosition={textPosition} />
           </>
         );
@@ -1911,9 +1984,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         const it = (sm.hours || [])[0];
         return (
           <>
-            {it
-              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
-              : <VideoBackdrop src={safeVideos[1] ?? safeVideos[0]} image={safeImages[1] ?? safeImages[0]} />}
+            <MotionBackdrop
+              src={it ? (it.kind === "video" ? it.url : undefined) : (safeVideos[1] ?? safeVideos[0])}
+              image={it ? (it.kind === "image" ? it.url : undefined) : (safeImages[1] ?? safeImages[0])}
+              duration={duration}
+              effect={trImageEffect}
+            />
             <SceneHours openingHours={openingHours!} textPosition={textPosition} />
           </>
         );
@@ -1922,9 +1998,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         const it = (sm.map || [])[0];
         return (
           <>
-            {it
-              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
-              : <VideoBackdrop src={safeVideos[2] ?? safeVideos[0]} image={safeImages[2] ?? safeImages[0]} />}
+            <MotionBackdrop
+              src={it ? (it.kind === "video" ? it.url : undefined) : (safeVideos[2] ?? safeVideos[0])}
+              image={it ? (it.kind === "image" ? it.url : undefined) : (safeImages[2] ?? safeImages[0])}
+              duration={duration}
+              effect={trImageEffect}
+            />
             <SceneMap lat={latitude!} lng={longitude!} name={name} address={address} textPosition={textPosition} />
           </>
         );
@@ -1933,9 +2012,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         const it = (sm.digital || [])[0];
         return (
           <>
-            {it
-              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
-              : <VideoBackdrop src={safeVideos[3] ?? safeVideos[0]} image={safeImages[3] ?? safeImages[0]} />}
+            <MotionBackdrop
+              src={it ? (it.kind === "video" ? it.url : undefined) : (safeVideos[3] ?? safeVideos[0])}
+              image={it ? (it.kind === "image" ? it.url : undefined) : (safeImages[3] ?? safeImages[0])}
+              duration={duration}
+              effect={trImageEffect}
+            />
             <SceneDigitalId
               name={name}
               slug={slug!}
@@ -1959,9 +2041,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         const it = (sm.cta || [])[0] ?? outroItem;
         return (
           <>
-            {it
-              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
-              : <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />}
+            <MotionBackdrop
+              src={it ? (it.kind === "video" ? it.url : undefined) : safeVideos[0]}
+              image={it ? (it.kind === "image" ? it.url : undefined) : safeImages[0]}
+              duration={duration}
+              effect={trImageEffect}
+            />
             {showAppInstall
               ? <SceneInstallCta name={name} textPosition={textPosition} />
               : <SceneCta name={name} textPosition={textPosition} />}
