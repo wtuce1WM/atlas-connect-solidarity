@@ -202,6 +202,27 @@ const BecomeAffiliate = () => {
     }
     setFormLoading(true);
     try {
+      // 1. Crée l'entrée affilié (statut inactif) dans Back-office / B2B / Liste des Affiliés
+      const { error: affiliateError } = await supabase.functions.invoke('submit-affiliate-request', {
+        body: {
+          businessName: form.businessName,
+          firstName: form.firstName,
+          lastName: form.lastName,
+          phone: form.phone,
+          email: form.email,
+          city: form.city,
+          projectName: form.projectName,
+          website: form.website,
+          paymentMethod: form.paymentMethod,
+          multipleListings: form.multipleListings,
+          contentReady: form.contentReady,
+          paymentPlan: form.paymentPlan,
+          message: form.message,
+        },
+      });
+      if (affiliateError) console.error('affiliate request failed', affiliateError);
+
+      // 2. Notification email interne
       await supabase.functions.invoke('send-transactional-email', {
         body: {
           templateName: 'affiliate-request',
