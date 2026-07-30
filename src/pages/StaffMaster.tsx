@@ -17,7 +17,6 @@ import TestSuitePanel from "@/components/staff/TestSuitePanel";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement";
 import EasterEggManagement from "@/components/staff/EasterEggManagement";
-import ClubFollowupPromptEditor from "@/components/staff/ClubFollowupPromptEditor";
 import MasterDashboard from "@/components/staff/MasterDashboard";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import BlockedDomainsManagement from "@/components/staff/BlockedDomainsManagement";
@@ -174,7 +173,6 @@ const StaffMaster = () => {
           </TabsContent>
 
           <TabsContent value="knowledge" className="space-y-6">
-            <ClubFollowupPromptEditor />
             <KnowledgeBaseManagement
               categories={["search-engine", "voice-search", "opening-hours", "UI", "architecture", "business-rules", "bug-fix", "tech", "technique"]}
               newEntryLabel="Nouvelle note technique"
