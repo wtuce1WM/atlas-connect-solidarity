@@ -211,7 +211,7 @@ function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
     case "google_review":
     case "tripadvisor":
     case "restaurant_guru": return 120;
-    case "customer_review": return 180;
+    case "customer_review": return 210;
     case "whatsapp": return 120;
     case "digital": return DIGITAL_ID_FRAMES;
     case "cta":
