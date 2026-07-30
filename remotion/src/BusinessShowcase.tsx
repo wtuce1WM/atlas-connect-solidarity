@@ -1949,7 +1949,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               if (finalVideo || finalImage) {
                 return (
                   <>
-                    <VideoBackdrop src={finalVideo} image={finalImage} />
+                    <MotionBackdrop src={finalVideo} image={finalImage} duration={duration} effect={trImageEffect} veil="rgba(14,11,8,0.35)" />
                     <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.22) 0%,rgba(14,11,8,0.48) 100%)" }} />
                   </>
                 );
@@ -1964,9 +1964,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         const it = (sm.reviews || [])[0];
         return (
           <>
-            {it
-              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
-              : <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />}
+            <MotionBackdrop
+              src={it ? (it.kind === "video" ? it.url : undefined) : safeVideos[0]}
+              image={it ? (it.kind === "image" ? it.url : undefined) : safeImages[0]}
+              duration={duration}
+              effect={trImageEffect}
+            />
             <SceneReviews rating={rating} count={reviewsCount} textPosition={textPosition} />
           </>
         );
@@ -1975,9 +1978,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         const it = (sm.hours || [])[0];
         return (
           <>
-            {it
-              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
-              : <VideoBackdrop src={safeVideos[1] ?? safeVideos[0]} image={safeImages[1] ?? safeImages[0]} />}
+            <MotionBackdrop
+              src={it ? (it.kind === "video" ? it.url : undefined) : (safeVideos[1] ?? safeVideos[0])}
+              image={it ? (it.kind === "image" ? it.url : undefined) : (safeImages[1] ?? safeImages[0])}
+              duration={duration}
+              effect={trImageEffect}
+            />
             <SceneHours openingHours={openingHours!} textPosition={textPosition} />
           </>
         );
@@ -1986,9 +1992,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         const it = (sm.map || [])[0];
         return (
           <>
-            {it
-              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
-              : <VideoBackdrop src={safeVideos[2] ?? safeVideos[0]} image={safeImages[2] ?? safeImages[0]} />}
+            <MotionBackdrop
+              src={it ? (it.kind === "video" ? it.url : undefined) : (safeVideos[2] ?? safeVideos[0])}
+              image={it ? (it.kind === "image" ? it.url : undefined) : (safeImages[2] ?? safeImages[0])}
+              duration={duration}
+              effect={trImageEffect}
+            />
             <SceneMap lat={latitude!} lng={longitude!} name={name} address={address} textPosition={textPosition} />
           </>
         );
@@ -1997,9 +2006,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         const it = (sm.digital || [])[0];
         return (
           <>
-            {it
-              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
-              : <VideoBackdrop src={safeVideos[3] ?? safeVideos[0]} image={safeImages[3] ?? safeImages[0]} />}
+            <MotionBackdrop
+              src={it ? (it.kind === "video" ? it.url : undefined) : (safeVideos[3] ?? safeVideos[0])}
+              image={it ? (it.kind === "image" ? it.url : undefined) : (safeImages[3] ?? safeImages[0])}
+              duration={duration}
+              effect={trImageEffect}
+            />
             <SceneDigitalId
               name={name}
               slug={slug!}
@@ -2023,9 +2035,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         const it = (sm.cta || [])[0] ?? outroItem;
         return (
           <>
-            {it
-              ? <VideoBackdrop src={it.kind === "video" ? it.url : undefined} image={it.kind === "image" ? it.url : undefined} />
-              : <VideoBackdrop src={safeVideos[0]} image={safeImages[0]} />}
+            <MotionBackdrop
+              src={it ? (it.kind === "video" ? it.url : undefined) : safeVideos[0]}
+              image={it ? (it.kind === "image" ? it.url : undefined) : safeImages[0]}
+              duration={duration}
+              effect={trImageEffect}
+            />
             {showAppInstall
               ? <SceneInstallCta name={name} textPosition={textPosition} />
               : <SceneCta name={name} textPosition={textPosition} />}
