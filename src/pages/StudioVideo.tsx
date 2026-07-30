@@ -1390,21 +1390,56 @@ export default function StudioVideo() {
                             </div>
                           );
                         })()}
+                        <label className="flex items-start gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="mt-1 accent-[#C04F17]"
+                            checked={continuousBgSound}
+                            onChange={(e) => setContinuousBgSound(e.target.checked)}
+                          />
+                          <span className="text-sm">
+                            Utiliser le son
+                            <span className="block text-[11px] text-muted-foreground">
+                              La bande son d'origine de la vidéo est conservée dans le rendu final (aucun coût IA).
+                            </span>
+                          </span>
+                        </label>
                         <Dialog open={continuousPickerOpen} onOpenChange={setContinuousPickerOpen}>
                           <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-white text-black">
                             <DialogHeader>
                               <DialogTitle className="text-black">Sélection médias — vidéo de fond continue</DialogTitle>
                             </DialogHeader>
-                            <MediaPickerGrid
-                              available={bizVideos
-                                .filter((v) => v.kind === "file")
-                                .map((v) => ({ url: v.url, kind: "video" as const, title: v.title, thumbnail: v.thumbnail, duration: v.duration }))}
-                              showImages={false}
-                              isSelected={(m) => m.url === continuousBgUrl}
-                              onSelect={(m) => { setContinuousBgUrl(m.url); setContinuousPickerOpen(false); }}
-                            />
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                              {bizVideos.filter((v) => v.kind === "file").map((v) => {
+                                const isSel = v.url === continuousBgUrl;
+                                return (
+                                  <div
+                                    key={v.url}
+                                    className={`relative aspect-[9/16] rounded-md overflow-hidden border-2 transition bg-black ${isSel ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : "border-neutral-300 hover:border-neutral-500"}`}
+                                    title={v.title}
+                                  >
+                                    <video src={v.url} controls preload="metadata" playsInline className="w-full h-full object-cover bg-black" />
+                                    <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/80 to-transparent p-1">
+                                      <p className="text-[10px] text-white truncate">{v.title}</p>
+                                    </div>
+                                    {v.duration != null && (
+                                      <span className="pointer-events-none absolute top-1 left-1 bg-black/70 text-white text-[9px] font-bold px-1 rounded">{formatVideoDuration(v.duration)}</span>
+                                    )}
+                                    <button
+                                      type="button"
+                                      onClick={() => { setContinuousBgUrl(v.url); setContinuousPickerOpen(false); }}
+                                      aria-label={isSel ? "Vidéo de fond sélectionnée" : "Choisir cette vidéo"}
+                                      className={`absolute top-1 right-1 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold border transition ${isSel ? "bg-[#C04F17] text-white border-[#C04F17]" : "bg-black/60 text-white border-white/40 hover:bg-black/80"}`}
+                                    >
+                                      {isSel ? "✓" : "+"}
+                                    </button>
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </DialogContent>
                         </Dialog>
+
 
                         <p className="text-[11px] text-amber-500">
                           ⚠️ Faites attention à utiliser une vidéo plus longue que votre scénario, sinon elle bouclera sur le début une fois arrivée en fin de vidéo.
