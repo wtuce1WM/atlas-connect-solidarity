@@ -1780,9 +1780,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           )}
           {plan.map((s) => (
             <Sequence key={`${s.kind}-${s.from}`} from={s.from} durationInFrames={s.duration}>
-              {renderScene(s)}
+              <SceneTransition effect={transitionFor(s.kind)} duration={s.duration}>
+                {renderScene(s)}
+              </SceneTransition>
             </Sequence>
           ))}
+
           {/* Finition visuelle liée au ton (vignette / teinte / désaturation) */}
           <AbsoluteFill style={{ background: toneOverlay, pointerEvents: "none" }} />
         </AbsoluteFill>
