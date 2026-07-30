@@ -233,6 +233,7 @@ export default function StudioVideo() {
   const [prompt, setPrompt] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [previewing, setPreviewing] = useState(false);
+  const [scenarioPreviewed, setScenarioPreviewed] = useState(false);
   const [aiScenario, setAiScenario] = useState<{ scenario: Scenario; rationale?: string; templateId: string } | null>(null);
   const [aiScenarioSig, setAiScenarioSig] = useState<string | null>(null);
   const [scenarioEdits, setScenarioEdits] = useState<ScenarioEdits | null>(null);
