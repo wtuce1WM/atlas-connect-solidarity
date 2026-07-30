@@ -1380,6 +1380,9 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
 }) => {
   const continuousMode = typeof continuousBgVideoUrl === "string" && /^https?:\/\//i.test(continuousBgVideoUrl);
+  // Bande son sélectionnée dans l'aperçu du scénario : prioritaire sur le son de la vidéo de fond continue
+  const soundtrack = typeof soundtrackUrl === "string" && /^https?:\/\//i.test(soundtrackUrl) ? soundtrackUrl : null;
+  const bgSoundOn = !soundtrack && !!continuousBgSound;
   const sceneBaseBg = continuousMode ? "transparent" : COLORS.night;
   const safeVideos = sanitizeUrls(videos);
   const safeImages = sanitizeUrls(images);
@@ -1792,12 +1795,13 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     <ToneContext.Provider value={tone}>
       <SuppressBgContext.Provider value={continuousMode}>
         <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+          {soundtrack && <Audio src={soundtrack} loop volume={1} />}
           {continuousMode ? (
             <AbsoluteFill style={{ overflow: "hidden" }}>
               <OffthreadVideo
                 src={continuousBgVideoUrl as string}
-                muted={!continuousBgSound}
-                volume={continuousBgSound ? 1 : 0}
+                muted={!bgSoundOn}
+                volume={bgSoundOn ? 1 : 0}
                 loop
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
