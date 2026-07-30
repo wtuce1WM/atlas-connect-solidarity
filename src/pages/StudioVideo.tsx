@@ -2378,10 +2378,43 @@ function estimateVideoCost(durationSec: number) {
   };
 }
 
-function VideoWithMeta({ src }: { src: string }) {
+function ShareVideoButton({ src }: { src: string }) {
+  const [copied, setCopied] = useState(false);
+  const share = async () => {
+    const url = src.startsWith("http") ? src : `${window.location.origin}${src}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ url });
+        return;
+      } catch {
+        /* annulé → on retombe sur la copie */
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.success("Lien de la vidéo copié");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Impossible de copier le lien");
+    }
+  };
+  return (
+    <button
+      type="button"
+      onClick={share}
+      className="inline-flex items-center gap-1 text-xs underline"
+    >
+      <Share2 className="h-3 w-3" /> {copied ? "Lien copié" : "Partager"}
+    </button>
+  );
+}
+
+function VideoWithMeta({ src, createdAt }: { src: string; createdAt?: string | null }) {
   const [dim, setDim] = useState<{ w: number; h: number } | null>(null);
   const [size, setSize] = useState<number | null>(null);
   const [duration, setDuration] = useState<number | null>(null);
+  const [lastModified, setLastModified] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -2389,6 +2422,8 @@ function VideoWithMeta({ src }: { src: string }) {
       .then((r) => {
         const len = r.headers.get("content-length");
         if (!cancelled && len) setSize(parseInt(len, 10));
+        const lm = r.headers.get("last-modified");
+        if (!cancelled && lm) setLastModified(new Date(lm).toISOString());
       })
       .catch(() => {});
     return () => {
@@ -2402,6 +2437,7 @@ function VideoWithMeta({ src }: { src: string }) {
   };
 
   const cost = duration != null ? estimateVideoCost(duration) : null;
+  const createdLabel = formatDateTime(createdAt ?? lastModified);
 
   return (
     <div className="space-y-1">
@@ -2416,33 +2452,123 @@ function VideoWithMeta({ src }: { src: string }) {
         }}
         className="rounded-md aspect-[9/16] bg-black max-w-[200px] w-full"
       />
+      {createdLabel && (
+        <div className="text-[11px] text-muted-foreground">Créée le {createdLabel}</div>
+      )}
       <div className="text-[11px] text-muted-foreground">
         {dim ? `${dim.w}×${dim.h}` : "…"}
         {duration != null ? ` · ${duration.toFixed(1)}s` : ""}
         {size != null ? ` · ${fmtSize(size)}` : ""}
         {cost && ` · Coût estimé : ~${cost.usd} $`}
       </div>
+      <ShareVideoButton src={src} />
     </div>
   );
 }
 
-function JobCard({ job, businessName, onRefine, onDelete }: { job: Job; businessName?: string; onRefine?: (job: Job) => void; onDelete?: (job: Job) => void }) {
+function JobCard({
+  job,
+  businessName,
+  onRefine,
+  onDelete,
+  onRename,
+}: {
+  job: Job;
+  businessName?: string;
+  onRefine?: (job: Job) => void;
+  onDelete?: (job: Job) => void;
+  onRename?: (job: Job, title: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(job.title ?? "");
+
+  const fileName = `${slugifyFileName(job.title || businessName || "video-1wm")}.mp4`;
+
+  const download = async () => {
+    if (!job.output_url) return;
+    try {
+      const res = await fetch(job.output_url);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    } catch {
+      window.open(job.output_url, "_blank");
+    }
+  };
+
   return (
     <div className="rounded-lg border border-border bg-background p-3 space-y-2">
       {businessName && <div className="text-sm font-medium">{businessName}</div>}
-      
+
       {job.status === "done" && job.output_url ? (
         <div className="space-y-2">
-          <VideoWithMeta src={job.output_url} />
+          {onRename && (
+            <div className="space-y-1">
+              {editing ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={draft}
+                    autoFocus
+                    maxLength={80}
+                    placeholder="Titre de la vidéo"
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        onRename(job, draft);
+                        setEditing(false);
+                      }
+                      if (e.key === "Escape") {
+                        setDraft(job.title ?? "");
+                        setEditing(false);
+                      }
+                    }}
+                    className="h-8 text-sm"
+                  />
+                  <Button
+                    size="sm"
+                    className="h-8"
+                    onClick={() => {
+                      onRename(job, draft);
+                      setEditing(false);
+                    }}
+                  >
+                    OK
+                  </Button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDraft(job.title ?? "");
+                    setEditing(true);
+                  }}
+                  className="group inline-flex items-center gap-1.5 text-left text-sm font-medium"
+                >
+                  <span className={job.title ? "" : "italic text-muted-foreground"}>
+                    {job.title || "Sans titre"}
+                  </span>
+                  <Pencil className="h-3 w-3 opacity-50 group-hover:opacity-100" />
+                </button>
+              )}
+              <div className="text-[11px] text-muted-foreground">Fichier : {fileName}</div>
+            </div>
+          )}
+          <VideoWithMeta src={job.output_url} createdAt={job.created_at} />
           <p className="text-xs text-muted-foreground whitespace-pre-line">{job.prompt}</p>
           <div className="flex items-center gap-3">
-            <a
-              href={job.output_url}
-              download
+            <button
+              type="button"
+              onClick={download}
               className="inline-flex items-center gap-1 text-xs underline"
             >
               <Download className="h-3 w-3" /> Télécharger
-            </a>
+            </button>
             {onRefine && (
               <button
                 type="button"
