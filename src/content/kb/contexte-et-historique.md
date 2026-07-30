@@ -41,7 +41,20 @@ Contrainte : [règle à respecter, issue du KB si possible]
 - **KB + mémoire** : la source de vérité stable.
 - **Message de reprise** : précis, réancré, un seul sujet.
 
+## Les 3 règles anti-fuite de crédits
+
+Le poste de dépense principal n'est pas la formulation du prompt, c'est **la longueur du fil de discussion** : chaque message réinjecte tout l'historique avant même la première ligne de code.
+
+1. **Un nouveau chat par chantier.** Studio Vidéo, Club AI, Blog Top 20, back-office → un thread séparé pour chacun. C'est le gain le plus important et le plus immédiat.
+2. **Questions produit, méta ou arbitrage → ChatGPT / Claude.** Jamais dans le fil de build : elles alourdissent l'historique pour zéro ligne de code.
+3. **Un fichier par message.** Si deux symptômes touchent deux fichiers différents (ex. un effet visuel dans `BusinessShowcase.tsx` et un bug d'ordre dans `StudioVideo.tsx`), ce sont deux messages — sinon l'agent relit deux gros fichiers en un seul tour.
+
+### Exemple de fuite observée
+
+Un message combinant « corrige l'effet Ken Burns sur 7 scènes » **et** « l'ordre de l'étape Offre n'est pas conservé » : deux causes racines, deux fichiers volumineux relus intégralement dans le même tour. Découpé en deux messages, chaque tour n'aurait chargé qu'un seul fichier.
+
 ---
+
 
 # Crédits : runtime IA vs build mode
 
