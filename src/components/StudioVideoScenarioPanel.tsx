@@ -158,8 +158,9 @@ export function buildScenario(
   if (options.openWithLogo && options.logoUrl) {
     push("logo", Math.max(2, Math.round(durationSec * 0.06)), "Ouverture sur le logo de l'établissement (fond transparent).");
   }
-  push("name", nameDuration, businessName ? `Affichage du nom ${businessName}.` : "Affichage du nom de l'établissement.");
-  push("hook", hookDuration, businessName ? `Accroche sur ${businessName} et son ambiance.` : "Accroche immersive pour capter l'attention.");
+  push("hook", nameDuration, businessName ? `${businessName}` : "Nom de l'établissement");
+  push("name", hookDuration, businessName ? `Accroche sur ${businessName} et son ambiance.` : "Accroche immersive pour capter l'attention.");
+
   if (keywords.includes("offre") || keywords.includes("promotion") || keywords.includes("menu") || keywords.includes("pass") || keywords.includes("déjeuner") || keywords.includes("diner") || keywords.includes("spa")) {
     push("offer", Math.max(4, Math.round(durationSec * 0.22)), "Mise en avant de l'offre ou du produit phare du prompt.");
   }
