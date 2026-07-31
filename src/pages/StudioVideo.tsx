@@ -284,6 +284,8 @@ export default function StudioVideo() {
   const [optBlogArticles, setOptBlogArticles] = useState(false);
   const [selectedBlogIds, setSelectedBlogIds] = useState<Set<string>>(new Set());
   const [blogMode, setBlogMode] = useState<"scroll" | "hero_map">("hero_map");
+  /** Effet visuel par article de blog (surclasse le mode global). */
+  const [blogModes, setBlogModes] = useState<Record<string, "scroll" | "hero_map">>({});
   const [prompt, setPrompt] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [previewing, setPreviewing] = useState(false);
@@ -942,6 +944,7 @@ export default function StudioVideo() {
             blog_articles: optBlogArticles && selectedBlogIds.size > 0,
             blog_article_ids: Array.from(selectedBlogIds),
             blog_mode: blogMode,
+            blog_modes: Object.fromEntries(Array.from(selectedBlogIds).map((id) => [id, blogModes[id] || blogMode])),
 
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
@@ -1126,6 +1129,7 @@ export default function StudioVideo() {
             blog_articles: optBlogArticles && selectedBlogIds.size > 0,
             blog_article_ids: Array.from(selectedBlogIds),
             blog_mode: blogMode,
+            blog_modes: Object.fromEntries(Array.from(selectedBlogIds).map((id) => [id, blogModes[id] || blogMode])),
 
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
@@ -2336,7 +2340,8 @@ export default function StudioVideo() {
                     </label>
                     {optBlogArticles && (
                       <div className="mt-2 space-y-2">
-                        <div className="flex flex-wrap gap-2 text-xs">
+                        <div className="flex flex-wrap items-center gap-2 text-xs">
+                          <span className="text-muted-foreground">Effet par défaut :</span>
                           <button
                             type="button"
                             onClick={() => setBlogMode("hero_map")}
@@ -2352,26 +2357,51 @@ export default function StudioVideo() {
                             Scroll vertical de l'article
                           </button>
                         </div>
-                        <div className="max-h-56 overflow-y-auto space-y-1 pr-1">
-                          {blogPosts.map((b) => (
-                            <label key={b.id} className="flex items-center gap-2 text-xs cursor-pointer rounded px-1 py-1 hover:bg-muted/50">
-                              <input
-                                type="checkbox"
-                                className="h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
-                                checked={selectedBlogIds.has(b.id)}
-                                onChange={(e) => {
-                                  setSelectedBlogIds((prev) => {
-                                    const next = new Set(prev);
-                                    if (e.target.checked) next.add(b.id); else next.delete(b.id);
-                                    return next;
-                                  });
-                                }}
-                              />
-                              {b.cover && <img src={b.cover} alt="" className="h-8 w-12 rounded object-cover shrink-0" />}
-                              <span className="truncate">{b.title}</span>
-                            </label>
-                          ))}
+                        <div className="max-h-72 overflow-y-auto space-y-1 pr-1">
+                          {blogPosts.map((b) => {
+                            const checked = selectedBlogIds.has(b.id);
+                            const mode = blogModes[b.id] || blogMode;
+                            return (
+                              <div key={b.id} className="rounded px-1 py-1 hover:bg-muted/50">
+                                <label className="flex items-center gap-2 text-xs cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    className="h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                                    checked={checked}
+                                    onChange={(e) => {
+                                      setSelectedBlogIds((prev) => {
+                                        const next = new Set(prev);
+                                        if (e.target.checked) next.add(b.id); else next.delete(b.id);
+                                        return next;
+                                      });
+                                    }}
+                                  />
+                                  {b.cover && <img src={b.cover} alt="" className="h-8 w-12 rounded object-cover shrink-0" />}
+                                  <span className="truncate">{b.title}</span>
+                                </label>
+                                {checked && (
+                                  <div className="mt-1 ml-6 flex flex-wrap gap-1.5 text-[11px]">
+                                    <button
+                                      type="button"
+                                      onClick={() => setBlogModes((prev) => ({ ...prev, [b.id]: "hero_map" }))}
+                                      className={`rounded-full border px-2 py-0.5 ${mode === "hero_map" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
+                                    >
+                                      Hero + zoom
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setBlogModes((prev) => ({ ...prev, [b.id]: "scroll" }))}
+                                      className={`rounded-full border px-2 py-0.5 ${mode === "scroll" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
+                                    >
+                                      Scroll vertical
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
+
                       </div>
                     )}
                   </div>

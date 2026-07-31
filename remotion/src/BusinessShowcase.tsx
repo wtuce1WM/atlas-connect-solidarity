@@ -147,7 +147,7 @@ export type ShowcaseProps = {
   ficheScreenshotUrl?: string | null;
   showBlogArticles?: boolean;
   blogMode?: "scroll" | "hero_map";
-  blogArticles?: Array<{ id: string; slug: string; title: string; excerpt?: string | null; heroUrl?: string | null; url?: string | null; scrollShotUrl?: string | null }>;
+  blogArticles?: Array<{ id: string; slug: string; mode?: "scroll" | "hero_map"; title: string; excerpt?: string | null; heroUrl?: string | null; url?: string | null; scrollShotUrl?: string | null }>;
   scenePois?: Record<string, Array<{ id: string; name: string; hook?: string | null; image_url?: string | null; latitude?: number | null; longitude?: number | null }>>;
   sceneDestinations?: Record<string, Array<{ id: string; name: string; hook?: string | null; image_url?: string | null; latitude?: number | null; longitude?: number | null }>>;
   durationSec?: number;
@@ -2407,7 +2407,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             />
             <SceneBlogArticle
               article={art}
-              mode={blogMode === "scroll" ? "scroll" : "hero_map"}
+              mode={((art as any).mode ?? blogMode) === "scroll" ? "scroll" : "hero_map"}
               duration={duration}
               lat={latitude ?? null}
               lng={longitude ?? null}

@@ -1318,44 +1318,107 @@ function PlacesPickerDialog({
       if (!m.has(g)) m.set(g, []);
       m.get(g)!.push(poi);
     }
-    return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0], "fr"));
+    return [...m.entries()].sort((a, b) => {
+      const aOther = /^autres?$/i.test(a[0]);
+      const bOther = /^autres?$/i.test(b[0]);
+      if (aOther !== bOther) return aOther ? 1 : -1;
+      return a[0].localeCompare(b[0], "fr");
+    });
   }, [pois, q]);
 
   const toggle = (arr: string[], id: string) => (arr.includes(id) ? arr.filter((x) => x !== id) : [...arr, id]);
 
+  const toggleGroup = (items: PlaceOption[]) => {
+    const ids = items.map((i) => i.id);
+    setP((prev) => {
+      const all = ids.every((id) => prev.includes(id));
+      if (all) return prev.filter((id) => !ids.includes(id));
+      return [...new Set([...prev, ...ids])];
+    });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl">
+      <DialogContent className="max-w-2xl bg-white text-foreground">
         <DialogHeader>
           <DialogTitle>Lieux liés à l'étape</DialogTitle>
         </DialogHeader>
         <Input placeholder="Rechercher un lieu…" value={q} onChange={(e) => setQ(e.target.value)} />
-        <div className="max-h-[50vh] overflow-y-auto space-y-4 pr-1">
-          {groups.map(([group, items]) => (
-            <div key={group}>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">{group}</p>
-              <div className="grid grid-cols-2 gap-1.5">
-                {items.map((poi) => (
-                  <label key={poi.id} className="flex items-center gap-2 text-xs cursor-pointer rounded px-1.5 py-1 hover:bg-muted">
-                    <input type="checkbox" checked={p.includes(poi.id)} onChange={() => setP((prev) => toggle(prev, poi.id))} />
-                    <span className="truncate">{poi.name}</span>
-                  </label>
-                ))}
+        <div className="max-h-[55vh] overflow-y-auto space-y-4 pr-1">
+          {groups.map(([group, items]) => {
+            const ids = items.map((i) => i.id);
+            const allSelected = ids.every((id) => p.includes(id));
+            return (
+              <div key={group}>
+                <div className="mb-1.5 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => toggleGroup(items)}
+                    className={cn(
+                      "h-4 w-4 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors",
+                      allSelected ? "border-primary bg-primary" : "border-primary/50 bg-white"
+                    )}
+                    aria-label={allSelected ? `Désélectionner ${group}` : `Sélectionner ${group}`}
+                  >
+                    {allSelected && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => toggleGroup(items)}
+                    className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
+                    title={allSelected ? "Désélectionner tout le quartier" : "Sélectionner tout le quartier"}
+                  >
+                    {group}
+                    <span className="text-[10px] font-normal opacity-60">({ids.length})</span>
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {items.map((poi) => {
+                    const isSelected = p.includes(poi.id);
+                    return (
+                      <button
+                        key={poi.id}
+                        type="button"
+                        onClick={() => setP((prev) => toggle(prev, poi.id))}
+                        className={cn(
+                          "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                          isSelected
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-white border-border text-foreground hover:bg-muted"
+                        )}
+                      >
+                        {poi.name}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           {destinations.length > 0 && (
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">Destinations</p>
-              <div className="grid grid-cols-2 gap-1.5">
+              <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Destinations</p>
+              <div className="flex flex-wrap gap-2">
                 {destinations
                   .filter((x) => !q.trim() || x.name.toLowerCase().includes(q.trim().toLowerCase()))
-                  .map((x) => (
-                    <label key={x.id} className="flex items-center gap-2 text-xs cursor-pointer rounded px-1.5 py-1 hover:bg-muted">
-                      <input type="checkbox" checked={d.includes(x.id)} onChange={() => setD((prev) => toggle(prev, x.id))} />
-                      <span className="truncate">{x.name}</span>
-                    </label>
-                  ))}
+                  .map((x) => {
+                    const isSelected = d.includes(x.id);
+                    return (
+                      <button
+                        key={x.id}
+                        type="button"
+                        onClick={() => setD((prev) => toggle(prev, x.id))}
+                        className={cn(
+                          "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                          isSelected
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-white border-border text-foreground hover:bg-muted"
+                        )}
+                      >
+                        {x.name}
+                      </button>
+                    );
+                  })}
               </div>
             </div>
           )}
@@ -1371,3 +1434,4 @@ function PlacesPickerDialog({
     </Dialog>
   );
 }
+
