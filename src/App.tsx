@@ -95,6 +95,7 @@ const VanityResolver = lazy(() => import("./pages/VanityResolver"));
 const DestinationResolver = lazy(() => import("./pages/DestinationResolver"));
 const YouTubeChannelResolver = lazy(() => import("./pages/YouTubeChannelResolver"));
 const PublicClubProfile = lazy(() => import("./pages/PublicClubProfile"));
+const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 const PublicBusinessProfile = lazy(() => import("./pages/PublicBusinessProfile"));
 const Card = lazy(() => import("./pages/Card"));
 const ShowcaseSite = lazy(() => import("./pages/ShowcaseSite"));
