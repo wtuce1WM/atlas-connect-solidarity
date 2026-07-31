@@ -1,6 +1,6 @@
 ---
 name: one-world-morocco
-DESCRIPTION: Contexte de travail et règles projet pour One World Morocco — Maroc, Marrakech/Essaouira. S'applique à toute tâche sur ce projet (Club AI, Studio Vidéo, blog, back-office, affiliés, fiches établissements, SEO).
+description: Contexte de travail et règles projet pour One World Morocco — Maroc, Marrakech/Essaouira. S'applique à toute tâche sur ce projet (Club AI, Studio Vidéo, blog, back-office, affiliés, fiches établissements, SEO).
 ---
 
 # One World Morocco — Contexte & Règles de travail
