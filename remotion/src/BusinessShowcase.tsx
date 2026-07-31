@@ -1767,7 +1767,13 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
 
 }) => {
+  const _lang: VideoLang = lang === "en" ? "en" : "fr";
+  const _L = LABELS[_lang];
+  const name = nameProp || _L.defaultName;
+  const hook = hookProp || _L.defaultHook;
+  const tagline = taglineProp || _L.defaultTagline;
   const continuousMode = typeof continuousBgVideoUrl === "string" && /^https?:\/\//i.test(continuousBgVideoUrl);
+
   // Bande son sélectionnée dans l'aperçu du scénario : prioritaire sur le son de la vidéo de fond continue
   const soundtrack = typeof soundtrackUrl === "string" && /^https?:\/\//i.test(soundtrackUrl) ? soundtrackUrl : null;
   const bgSoundOn = !soundtrack && !!continuousBgSound;
