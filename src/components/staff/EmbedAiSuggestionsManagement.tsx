@@ -91,6 +91,7 @@ type GlobalFollowup = { id: string; label_fr: string; is_active: boolean; sort_o
 const EmbedAiSuggestionsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
   const [businesses, setBusinesses] = useState<BusinessOption[]>([]);
+  const [blogPosts, setBlogPosts] = useState<BlogOption[]>([]);
   const [destinations, setDestinations] = useState<DestinationOption[]>([]);
   const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
   const [badges, setBadges] = useState<BadgeOption[]>([]);
