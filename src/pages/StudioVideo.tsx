@@ -1106,6 +1106,11 @@ export default function StudioVideo() {
               image: transitionImage,
             },
             continuous_bg_video_url: continuousBg && continuousBgUrl ? continuousBgUrl : null,
+            // Durée réelle de la vidéo de fond : permet à Remotion de la boucler (image + son)
+            // si elle est plus courte que le scénario.
+            continuous_bg_video_duration: continuousBg && continuousBgUrl
+              ? (bizVideos.find((x) => x.url === continuousBgUrl)?.duration ?? null)
+              : null,
             continuous_bg_sound: continuousBg && continuousBgUrl && !(soundtrackOn && soundtrackUrl) ? continuousBgSound : false,
             soundtrack_url: soundtrackOn && soundtrackUrl ? soundtrackUrl : null,
           },
@@ -1292,6 +1297,11 @@ export default function StudioVideo() {
               image: transitionImage,
             },
             continuous_bg_video_url: continuousBg && continuousBgUrl ? continuousBgUrl : null,
+            // Durée réelle de la vidéo de fond : permet à Remotion de la boucler (image + son)
+            // si elle est plus courte que le scénario.
+            continuous_bg_video_duration: continuousBg && continuousBgUrl
+              ? (bizVideos.find((x) => x.url === continuousBgUrl)?.duration ?? null)
+              : null,
             continuous_bg_sound: continuousBg && continuousBgUrl && !(soundtrackOn && soundtrackUrl) ? continuousBgSound : false,
             soundtrack_url: soundtrackOn && soundtrackUrl ? soundtrackUrl : null,
           },
