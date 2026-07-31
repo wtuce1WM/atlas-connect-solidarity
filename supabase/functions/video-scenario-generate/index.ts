@@ -170,15 +170,25 @@ Deno.serve(async (req) => {
       if (typeof value === "string") return value.trim() || null;
       if (typeof value !== "object") return null;
 
-      const dayLabels: Record<string, string> = {
-        monday: "Lundi",
-        tuesday: "Mardi",
-        wednesday: "Mercredi",
-        thursday: "Jeudi",
-        friday: "Vendredi",
-        saturday: "Samedi",
-        sunday: "Dimanche",
-      };
+      const dayLabels: Record<string, string> = videoLang === "en"
+        ? {
+            monday: "Monday",
+            tuesday: "Tuesday",
+            wednesday: "Wednesday",
+            thursday: "Thursday",
+            friday: "Friday",
+            saturday: "Saturday",
+            sunday: "Sunday",
+          }
+        : {
+            monday: "Lundi",
+            tuesday: "Mardi",
+            wednesday: "Mercredi",
+            thursday: "Jeudi",
+            friday: "Vendredi",
+            saturday: "Samedi",
+            sunday: "Dimanche",
+          };
       const orderedDays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
       const source = value as Record<string, any>;
 
@@ -186,7 +196,7 @@ Deno.serve(async (req) => {
         const label = dayLabels[day] ?? day;
         if (typeof raw === "string") return `${label}: ${raw}`;
         if (!raw || typeof raw !== "object") return null;
-        if (raw.closed) return `${label}: Fermé`;
+        if (raw.closed) return `${label}: ${videoLang === "en" ? "Closed" : "Fermé"}`;
         const first = raw.open && raw.close ? `${raw.open}–${raw.close}` : "";
         const second = raw.open2 && raw.close2 ? `${raw.open2}–${raw.close2}` : "";
         const hours = raw.continuous ? first : [first, second].filter(Boolean).join(" / ");
