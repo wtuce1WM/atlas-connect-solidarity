@@ -2298,28 +2298,63 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           {c.mode === "overlay" && (
             <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0.18) 50%, rgba(0,0,0,0.45) 100%)" }} />
           )}
-          <AbsoluteFill style={{ display: "flex", flexDirection: "column", padding: "80px 60px", ...align }}>
-            <div style={{
-              color: "#fff",
-              fontFamily: display,
-              fontSize: 68,
-              fontWeight: 800,
-              lineHeight: 1.1,
-              textAlign: "center",
-              textShadow: "0 4px 24px rgba(0,0,0,0.55)",
-            }}>{c.title}</div>
-            {c.subtitle && (
+          {(() => {
+            const rawSplit = Number(
+              (textSplits ?? {})[`custom:${c.id}`] ?? (c as any).splitCount ?? splitCount ?? 1,
+            );
+            const nSplit = Number.isFinite(rawSplit) ? Math.max(1, Math.min(10, Math.round(rawSplit))) : 1;
+            const words = (c.subtitle ?? "").trim().split(/\s+/).filter(Boolean);
+            const chunks: string[] = [];
+            if (nSplit > 1 && words.length > 1) {
+              const per = Math.ceil(words.length / nSplit);
+              for (let i = 0; i < words.length; i += per) chunks.push(words.slice(i, i + per).join(" "));
+            }
+            const titleBlock = (
               <div style={{
-                marginTop: 20,
-                color: "rgba(255,255,255,0.92)",
-                fontFamily: body,
-                fontSize: 34,
-                lineHeight: 1.3,
+                color: "#fff",
+                fontFamily: display,
+                fontSize: 68,
+                fontWeight: 800,
+                lineHeight: 1.1,
                 textAlign: "center",
-                textShadow: "0 2px 12px rgba(0,0,0,0.5)",
-              }}>{c.subtitle}</div>
-            )}
-          </AbsoluteFill>
+                textShadow: "0 4px 24px rgba(0,0,0,0.55)",
+              }}>{c.title}</div>
+            );
+            const textStyle: React.CSSProperties = {
+              marginTop: 20,
+              color: "rgba(255,255,255,0.92)",
+              fontFamily: body,
+              fontSize: 34,
+              lineHeight: 1.3,
+              textAlign: "center",
+              textShadow: "0 2px 12px rgba(0,0,0,0.5)",
+            };
+            if (chunks.length > 1) {
+              const segFrames = Math.max(1, Math.round((duration * 30) / chunks.length));
+              return (
+                <>
+                  <AbsoluteFill style={{ display: "flex", flexDirection: "column", padding: "80px 60px", ...align }}>
+                    {titleBlock}
+                  </AbsoluteFill>
+                  {chunks.map((txt, i) => (
+                    <Sequence key={`split-${i}`} from={i * segFrames} durationInFrames={segFrames}>
+                      <AbsoluteFill style={{ display: "flex", flexDirection: "column", padding: "80px 60px", ...align }}>
+                        <div style={{ opacity: 0, fontSize: 68, lineHeight: 1.1 }}>{c.title}</div>
+                        <div style={textStyle}>{txt}</div>
+                      </AbsoluteFill>
+                    </Sequence>
+                  ))}
+                </>
+              );
+            }
+            return (
+              <AbsoluteFill style={{ display: "flex", flexDirection: "column", padding: "80px 60px", ...align }}>
+                {titleBlock}
+                {c.subtitle && <div style={textStyle}>{c.subtitle}</div>}
+              </AbsoluteFill>
+            );
+          })()}
+
           {c.priceBadge && <PriceBadge label={c.priceBadge} duration={duration} />}
         </AbsoluteFill>
       );
