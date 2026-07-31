@@ -1506,9 +1506,13 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   const [imageTitles, setImageTitles] = useState<Record<string, string>>({});
   // --- Image descriptions (per image URL, max 500) ---
   const [imageDescriptions, setImageDescriptions] = useState<Record<string, string>>({});
+  // Guard: media/documents are loaded asynchronously. Saving before they land
+  // would wipe videos/images associations (empty arrays sent to the DB).
+  const [mediaLoaded, setMediaLoaded] = useState(!business?.id);
 
   useEffect(() => {
-    if (!business?.id) return;
+    if (!business?.id) { setMediaLoaded(true); return; }
+    setMediaLoaded(false);
     const fetchDocs = async () => {
       const { data } = await supabase
         .from("business_documents" as any)
