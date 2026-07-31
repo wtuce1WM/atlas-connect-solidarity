@@ -3185,6 +3185,8 @@ export default function StudioVideo() {
                   availableDestinations={destOptions}
                   pendingCustomScene={pendingCustomScene}
                   onPendingCustomSceneConsumed={() => setPendingCustomScene(null)}
+                  onRegenerate={previewScenario}
+                  regenerating={previewing}
                 />
               </div>
             ) : scenario ? (
@@ -3201,6 +3203,8 @@ export default function StudioVideo() {
                 availableDestinations={destOptions}
                 pendingCustomScene={pendingCustomScene}
                 onPendingCustomSceneConsumed={() => setPendingCustomScene(null)}
+                onRegenerate={previewScenario}
+                regenerating={previewing}
               />
             ) : null
           )}

@@ -8,6 +8,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { MediaPickerGrid } from "@/components/StudioVideoMediaPicker";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 
 function cn(...inputs: ClassValue[]) {
@@ -374,6 +384,8 @@ export function StudioVideoScenarioPanel({
   availableDestinations,
   pendingCustomScene,
   onPendingCustomSceneConsumed,
+  onRegenerate,
+  regenerating,
 }: {
   scenario: Scenario;
   className?: string;
@@ -392,6 +404,9 @@ export function StudioVideoScenarioPanel({
   /** Étape personnalisée injectée depuis l'extérieur (ex. « Estimer la durée »). */
   pendingCustomScene?: (Omit<CustomScene, "id"> & { id?: string }) | null;
   onPendingCustomSceneConsumed?: () => void;
+  /** Relance la génération du scénario IA (proposée après suppression d'étapes). */
+  onRegenerate?: () => void;
+  regenerating?: boolean;
 }) {
   // Local edits: per-scene duration overrides + order override (by token) + custom scenes + text splits
   const [durationOverrides, setDurationOverrides] = useState<Record<string, number>>({});
@@ -408,6 +423,7 @@ export function StudioVideoScenarioPanel({
   const [dragId, setDragId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const [editingCustomId, setEditingCustomId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; label: string; duration: number } | null>(null);
 
   const isAddOpenControlled = openAddDialog !== undefined && onOpenAddDialogChange !== undefined;
   const addOpen = isAddOpenControlled ? openAddDialog : addOpenInternal;
@@ -555,7 +571,17 @@ export function StudioVideoScenarioPanel({
   }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, textOverrides, poiOverrides, destOverrides, placesMediaMode]);
 
   const total = editedScenes.reduce((acc, s) => acc + s.duration, 0);
+  // Étapes d'origine supprimées (built-in retirées de l'ordre)
+  const removedBuiltIns = useMemo(() => {
+    const kept = new Set(editedScenes.map((s) => s.id));
+    return scenario.scenes.filter((s) => !kept.has(s.id));
+  }, [scenario.scenes, editedScenes]);
+  const targetDuration = scenario.totalDuration;
+  const suggestRegenerate =
+    removedBuiltIns.length > 0 &&
+    (total < Math.round(targetDuration * 0.85) || editedScenes.length < 3);
   if (!editedScenes.length && customScenes.length === 0) return null;
+
 
   const editable = !!onChangeSceneMedia && !!availableMedia;
   const setForKind = (kind: SceneMediaKind, items: SceneMediaItem[]) => {
@@ -624,6 +650,27 @@ export function StudioVideoScenarioPanel({
     setCustomScenes((prev) => prev.filter((c) => c.id !== cid));
     setOrderOverride((prev) => (prev ? prev.filter((t) => t !== tok) : prev));
   };
+
+  /** Supprime n'importe quelle étape (built-in ou personnalisée). */
+  const removeScene = (id: string) => {
+    if (isCustomToken(id)) {
+      removeCustomScene(customIdFromToken(id));
+      return;
+    }
+    const base = orderOverride ?? editedScenes.map((s) => s.id);
+    setOrderOverride(base.filter((t) => t !== id));
+    setDurationOverrides((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+    setSplitOverrides((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  };
+
 
 
   return (
@@ -731,7 +778,46 @@ export function StudioVideoScenarioPanel({
         }}
       />
 
-      <p className="text-[11px] text-muted-foreground italic">Glissez-déposez les scènes pour les réordonner. Ajustez la durée avec les boutons +/−.</p>
+      <AlertDialog open={!!pendingDelete} onOpenChange={(o) => { if (!o) setPendingDelete(null); }}>
+        <AlertDialogContent className="max-w-sm bg-white text-black">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer cette étape ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingDelete
+                ? `« ${pendingDelete.label} » (${pendingDelete.duration}s) sera retirée du scénario. La durée totale passera à ${formatDuration(Math.max(0, total - pendingDelete.duration))}.`
+                : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (pendingDelete) removeScene(pendingDelete.id);
+                setPendingDelete(null);
+              }}
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {suggestRegenerate && (
+        <div className="rounded-lg border border-primary/40 bg-primary/5 p-3 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-[11px] text-foreground">
+            {removedBuiltIns.length} étape{removedBuiltIns.length > 1 ? "s" : ""} supprimée{removedBuiltIns.length > 1 ? "s" : ""} · durée actuelle {formatDuration(total)} pour une cible de {formatDuration(targetDuration)}. Une régénération du scénario peut mieux répartir le montage.
+          </p>
+          {onRegenerate && (
+            <Button size="sm" variant="outline" className="h-7 text-[11px] px-2" disabled={!!regenerating} onClick={onRegenerate}>
+              {regenerating ? "Régénération…" : "Régénérer le scénario"}
+            </Button>
+          )}
+        </div>
+      )}
+
+      <p className="text-[11px] text-muted-foreground italic">Glissez-déposez les scènes pour les réordonner, ajustez la durée avec +/− ou supprimez une étape via l'icône corbeille.</p>
+
 
       <div className="space-y-3">
         {editedScenes.map((scene) => {
@@ -799,25 +885,24 @@ export function StudioVideoScenarioPanel({
                     </button>
                   )}
                   {scene.icon === "custom" && isCustomToken(scene.id) && (
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={() => { setEditingCustomId(customIdFromToken(scene.id)); setAddOpen(true); }}
-                        className="p-1 rounded hover:bg-neutral-100 text-neutral-600 hover:text-black"
-                        aria-label="Modifier l'étape"
-                      >
-                        <Pencil className="h-3 w-3" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeCustomScene(customIdFromToken(scene.id))}
-                        className="p-1 rounded hover:bg-destructive/10 text-neutral-600 hover:text-destructive"
-                        aria-label="Supprimer l'étape"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setEditingCustomId(customIdFromToken(scene.id)); setAddOpen(true); }}
+                      className="p-1 rounded hover:bg-neutral-100 text-neutral-600 hover:text-black"
+                      aria-label="Modifier l'étape"
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </button>
                   )}
+                  <button
+                    type="button"
+                    onClick={() => setPendingDelete({ id: scene.id, label: scene.label, duration: scene.duration })}
+                    className="p-1 rounded hover:bg-destructive/10 text-neutral-600 hover:text-destructive"
+                    aria-label="Supprimer l'étape"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+
                 </div>
               </div>
               <p className="text-sm text-neutral-700 leading-relaxed whitespace-pre-line">{scene.description}</p>
