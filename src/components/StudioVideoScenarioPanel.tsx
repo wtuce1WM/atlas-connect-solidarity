@@ -354,6 +354,9 @@ export type ScenarioEdits = {
   scenePois?: Record<string, string[]>;
   /** Destinations liées à une scène personnalisée. Clé = `custom:<id>`. */
   sceneDestinations?: Record<string, string[]>;
+  /** Média utilisé pour le montage des lieux liés (vidéo 1 ou image 1). Défaut : vidéos. */
+  placesMediaMode?: "videos" | "images";
+
 };
 
 export function StudioVideoScenarioPanel({
@@ -392,6 +395,7 @@ export function StudioVideoScenarioPanel({
   const [textOverrides, setTextOverrides] = useState<Record<string, { label?: string; description?: string }>>({});
   const [poiOverrides, setPoiOverrides] = useState<Record<string, string[]>>({});
   const [destOverrides, setDestOverrides] = useState<Record<string, string[]>>({});
+  const [placesMediaMode, setPlacesMediaMode] = useState<"videos" | "images">("videos");
   const [placesSceneKey, setPlacesSceneKey] = useState<string | null>(null);
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
   const [addOpenInternal, setAddOpenInternal] = useState(false);
@@ -416,6 +420,7 @@ export function StudioVideoScenarioPanel({
     setTextOverrides({});
     setPoiOverrides({});
     setDestOverrides({});
+    setPlacesMediaMode("videos");
     onChangeScenarioEdits?.(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signature]);
@@ -513,9 +518,10 @@ export function StudioVideoScenarioPanel({
       textOverrides: hasTextOv ? (textOverrides as any) : undefined,
       scenePois: hasPois ? poiOverrides : undefined,
       sceneDestinations: hasDests ? destOverrides : undefined,
+      placesMediaMode: (hasPois || hasDests) ? placesMediaMode : undefined,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, textOverrides, poiOverrides, destOverrides]);
+  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, textOverrides, poiOverrides, destOverrides, placesMediaMode]);
 
   const total = editedScenes.reduce((acc, s) => acc + s.duration, 0);
   if (!editedScenes.length && customScenes.length === 0) return null;
@@ -827,19 +833,44 @@ export function StudioVideoScenarioPanel({
                     ...dests.map((id) => availableDestinations?.find((d) => d.id === id)?.name).filter(Boolean),
                   ] as string[];
                   return (
-                    <div className="mt-2 flex items-center gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2.5 py-1.5">
-                      <MapPin className="h-3.5 w-3.5 text-neutral-500 shrink-0" />
-                      <span className="text-[11px] text-neutral-700 truncate">
-                        {names.length > 0 ? names.join(" · ") : "Aucun lieu lié"}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setPlacesSceneKey(key)}
-                        className="ml-auto shrink-0 text-[11px] underline text-neutral-700 hover:text-black"
-                      >
-                        {names.length > 0 ? "Modifier" : "Lier des lieux"}
-                      </button>
+                    <div className="mt-2 space-y-1.5">
+                      <div className="flex items-center gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2.5 py-1.5">
+                        <MapPin className="h-3.5 w-3.5 text-neutral-500 shrink-0" />
+                        <span className="text-[11px] text-neutral-700 truncate">
+                          {names.length > 0 ? names.join(" · ") : "Aucun lieu lié"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setPlacesSceneKey(key)}
+                          className="ml-auto shrink-0 text-[11px] underline text-neutral-700 hover:text-black"
+                        >
+                          {names.length > 0 ? "Modifier" : "Lier des lieux"}
+                        </button>
+                      </div>
+                      {names.length > 0 && (
+                        <div className="flex items-center gap-2 rounded-md border border-neutral-200 bg-white px-2.5 py-1.5">
+                          <span className="text-[11px] text-neutral-600">Montage des lieux</span>
+                          <div className="ml-auto flex overflow-hidden rounded-md border border-neutral-200">
+                            {(["videos", "images"] as const).map((m) => (
+                              <button
+                                key={m}
+                                type="button"
+                                onClick={() => setPlacesMediaMode(m)}
+                                className={cn(
+                                  "px-2 py-0.5 text-[11px] transition-colors",
+                                  placesMediaMode === m
+                                    ? "bg-primary text-primary-foreground"
+                                    : "bg-white text-neutral-600 hover:bg-neutral-100",
+                                )}
+                              >
+                                {m === "videos" ? "Vidéo 1" : "Image 1"}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
+
                   );
                 })()}
 
