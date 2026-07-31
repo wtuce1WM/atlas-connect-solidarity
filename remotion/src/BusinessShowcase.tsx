@@ -163,6 +163,7 @@ export type ShowcaseProps = {
     subtitle?: string;
     duration: number; // seconds
     media?: { url: string; kind: "image" | "video" };
+    mediaList?: Array<{ url: string; kind: "image" | "video" }>;
   }>;
   textPosition?: TextPosition;
   tone?: Tone;
@@ -2090,8 +2091,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             ? list.map((m, i) => (
                 <Sequence
                   key={`${m.url}-${i}`}
-                  from={Math.round(i * seg * fps)}
-                  durationInFrames={Math.max(1, Math.round(seg * fps))}
+                  from={Math.round(i * seg * 30)}
+                  durationInFrames={Math.max(1, Math.round(seg * 30))}
                 >
                   {m.kind === "video"
                     ? <VideoCover src={m.url} from={0} duration={seg} />
