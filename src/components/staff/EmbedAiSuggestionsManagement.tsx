@@ -544,7 +544,6 @@ const EmbedAiSuggestionsManagement = () => {
                   </div>
                 </div>
 
-                </div>
 
                 <div className="space-y-2">
                   <label className="text-xs text-muted-foreground">
