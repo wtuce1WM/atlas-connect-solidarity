@@ -505,7 +505,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         selImages.forEach((u) => allowedUrls.add(u));
         selVideos.forEach((u) => allowedUrls.add(u));
 
-        const ALLOWED_KINDS = new Set(["logo", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro"]);
+        const ALLOWED_KINDS = new Set(["logo", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog"]);
         const cleaned: Record<string, Array<{ url: string; kind: "image" | "video" }>> = {};
         for (const [k, v] of Object.entries(rawSceneMedia)) {
           if (!ALLOWED_KINDS.has(k) || !Array.isArray(v)) continue;
@@ -600,8 +600,126 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         if (fzSub) template_props.freeZoneSubtitle = fzSub;
       }
 
+      // ---- Lieux liés aux scènes (POIs / destinations) ----
+      const isUuid = (v: unknown) => typeof v === "string" && /^[0-9a-f-]{36}$/i.test(v);
+      const rawScenePois = (options?.scene_pois && typeof options.scene_pois === "object") ? options.scene_pois as Record<string, unknown> : null;
+      const rawSceneDests = (options?.scene_destinations && typeof options.scene_destinations === "object") ? options.scene_destinations as Record<string, unknown> : null;
+      if (rawScenePois) {
+        const allIds = [...new Set(Object.values(rawScenePois).flatMap((v) => Array.isArray(v) ? v : []).filter(isUuid))] as string[];
+        if (allIds.length) {
+          const { data: poiRows } = await supa
+            .from("points_of_interest")
+            .select("id,name_fr,name_en,hook,image_url,latitude,longitude")
+            .in("id", allIds.slice(0, 60));
+          const byId = new Map<string, any>((poiRows ?? []).map((r: any) => [r.id, r]));
+          const out: Record<string, any[]> = {};
+          for (const [key, v] of Object.entries(rawScenePois)) {
+            const ids = (Array.isArray(v) ? v : []).filter(isUuid) as string[];
+            const items = ids.map((id) => byId.get(id)).filter(Boolean).map((r: any) => ({
+              id: r.id,
+              name: (videoLang === "en" ? (r.name_en || r.name_fr) : r.name_fr) || r.name_fr,
+              hook: r.hook || null,
+              image_url: r.image_url || null,
+              latitude: Number.isFinite(Number(r.latitude)) ? Number(r.latitude) : null,
+              longitude: Number.isFinite(Number(r.longitude)) ? Number(r.longitude) : null,
+            }));
+            if (items.length) out[key] = items;
+          }
+          if (Object.keys(out).length) template_props.scenePois = out;
+        }
+      }
+      if (rawSceneDests) {
+        const allIds = [...new Set(Object.values(rawSceneDests).flatMap((v) => Array.isArray(v) ? v : []).filter(isUuid))] as string[];
+        if (allIds.length) {
+          const { data: destRows } = await supa
+            .from("destinations")
+            .select("id,name_fr,name_en,hook,image_url,latitude,longitude")
+            .in("id", allIds.slice(0, 40));
+          const byId = new Map<string, any>((destRows ?? []).map((r: any) => [r.id, r]));
+          const out: Record<string, any[]> = {};
+          for (const [key, v] of Object.entries(rawSceneDests)) {
+            const ids = (Array.isArray(v) ? v : []).filter(isUuid) as string[];
+            const items = ids.map((id) => byId.get(id)).filter(Boolean).map((r: any) => ({
+              id: r.id,
+              name: (videoLang === "en" ? (r.name_en || r.name_fr) : r.name_fr) || r.name_fr,
+              hook: r.hook || null,
+              image_url: r.image_url || null,
+              latitude: Number.isFinite(Number(r.latitude)) ? Number(r.latitude) : null,
+              longitude: Number.isFinite(Number(r.longitude)) ? Number(r.longitude) : null,
+            }));
+            if (items.length) out[key] = items;
+          }
+          if (Object.keys(out).length) template_props.sceneDestinations = out;
+        }
+      }
+
+      // ---- Articles de blog propriétaires ----
+      const wantsBlog = options?.blog_articles === true;
+      const blogIds = (Array.isArray(options?.blog_article_ids) ? options.blog_article_ids : []).filter(isUuid).slice(0, 6) as string[];
+      if (wantsBlog && blogIds.length) {
+        const blogMode: "scroll" | "hero_map" = options?.blog_mode === "scroll" ? "scroll" : "hero_map";
+        const { data: postRows } = await supa
+          .from("blog_posts")
+          .select("id,slug,title_fr,title_en,excerpt_fr,excerpt_en,cover_image_url,custom_hero_image_url")
+          .in("id", blogIds);
+        const ordered = blogIds.map((id) => (postRows ?? []).find((r: any) => r.id === id)).filter(Boolean) as any[];
+        if (ordered.length) {
+          const fcKey = Deno.env.get("FIRECRAWL_API_KEY");
+          const articles: any[] = [];
+          for (const post of ordered) {
+            const item: any = {
+              id: post.id,
+              slug: post.slug,
+              title: (videoLang === "en" ? (post.title_en || post.title_fr) : post.title_fr) || post.slug,
+              excerpt: (videoLang === "en" ? (post.excerpt_en || post.excerpt_fr) : post.excerpt_fr) || null,
+              heroUrl: post.custom_hero_image_url || post.cover_image_url || null,
+              url: `https://oneworldmorocco.com/blog/${post.slug}`,
+            };
+            if (blogMode === "scroll" && fcKey) {
+              try {
+                const fcRes = await fetch("https://api.firecrawl.dev/v2/scrape", {
+                  method: "POST",
+                  headers: { "Authorization": `Bearer ${fcKey}`, "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    url: `${item.url}?bare=1`,
+                    formats: [{ type: "screenshot", fullPage: true }],
+                    onlyMainContent: false,
+                    mobile: true,
+                    waitFor: 5000,
+                    actions: [
+                      { type: "executeJavascript", script: `try{localStorage.setItem('cookie-consent-v1',JSON.stringify({analytics:'denied',ts:Date.now()}));}catch(e){};document.querySelectorAll('[aria-label="Bannière de consentement aux cookies"],[role="dialog"][aria-live="polite"]').forEach(function(n){n.remove();});Array.prototype.forEach.call(document.images,function(i){i.loading='eager';i.decoding='sync';});` },
+                      { type: "wait", milliseconds: 4000 },
+                    ],
+                  }),
+                });
+                const fcJson = await fcRes.json().catch(() => null) as any;
+                const shotUrl: string | undefined = fcJson?.data?.screenshot || fcJson?.screenshot;
+                if (shotUrl && /^https?:\/\//i.test(shotUrl)) {
+                  const imgRes = await fetch(shotUrl);
+                  if (imgRes.ok) {
+                    const bytes = new Uint8Array(await imgRes.arrayBuffer());
+                    const path = `blog/${post.slug}-${Date.now()}.png`;
+                    const up = await supa.storage.from("studio-videos").upload(path, bytes, { contentType: "image/png", upsert: true });
+                    if (!up.error) {
+                      const { data: pub } = supa.storage.from("studio-videos").getPublicUrl(path);
+                      if (pub?.publicUrl) item.scrollShotUrl = pub.publicUrl;
+                    }
+                  }
+                }
+              } catch (e) {
+                console.warn("[blog] firecrawl screenshot failed", (e as Error).message);
+              }
+            }
+            articles.push(item);
+          }
+          template_props.showBlogArticles = true;
+          template_props.blogMode = blogMode;
+          template_props.blogArticles = articles;
+        }
+      }
+
       // Ordre et durées personnalisés des scènes (édités par l'utilisateur dans l'aperçu)
-      const ALLOWED_SCENE_KINDS = new Set(["logo", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro"]);
+      const ALLOWED_SCENE_KINDS = new Set(["logo", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog"]);
       const rawOrder = options?.scene_order;
       let orderedFromClient: string[] | null = null;
       if (Array.isArray(rawOrder)) {
@@ -1015,7 +1133,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         tone,
         template_id,
         template_props,
-        scenario_json: parsed,
+        scenario_json: { ...parsed, studio_options: { ...(options ?? {}), lang: videoLang } },
         status: "pending",
         parent_job_id: parentJob?.id ?? null,
         notify_email: !!body?.notify_email,

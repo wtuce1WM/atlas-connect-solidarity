@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut, Maximize2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Plus, GripVertical, Share2, Pencil } from "lucide-react";
+import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut, Maximize2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Plus, GripVertical, Share2, Pencil, SlidersHorizontal } from "lucide-react";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { StudioVideoScenarioPanel, buildScenario, extractKeywords, scenarioFromTemplateProps, type Scenario, type SceneMediaMap, type SceneMediaItem, type ScenarioEdits } from "@/components/StudioVideoScenarioPanel";
@@ -20,6 +20,8 @@ import riadDarNajatAsset from "@/assets/riad-dar-najat.mp4.asset.json";
 import narComplexeAsset from "@/assets/nar-complexe.mp4.asset.json";
 import farashaAsset from "@/assets/farasha-farmhouse.mp4.asset.json";
 import boZinAsset from "@/assets/bo-zin.mp4.asset.json";
+import { haversineKm } from "@/lib/haversine";
+import type { PlaceOption } from "@/components/StudioVideoScenarioPanel";
 
 const maisonBrummellVideo = maisonBrummellAsset.url;
 const riadDarNajatVideo = riadDarNajatAsset.url;
@@ -127,6 +129,8 @@ type Job = {
   error_message: string | null;
   created_at: string;
   title?: string | null;
+  scenario_json?: any;
+  template_props?: any;
 };
 
 const DURATIONS = [15, 30, 45, 60] as const;
@@ -274,6 +278,12 @@ export default function StudioVideo() {
   const [tone, setTone] = useState("immersif");
   // Langue du montage vidéo — indépendante de la langue du header du front.
   const [videoLang, setVideoLang] = useState<"fr" | "en">("fr");
+  const [poiOptions, setPoiOptions] = useState<PlaceOption[]>([]);
+  const [destOptions, setDestOptions] = useState<PlaceOption[]>([]);
+  const [blogPosts, setBlogPosts] = useState<{ id: string; slug: string; title: string; cover: string | null }[]>([]);
+  const [optBlogArticles, setOptBlogArticles] = useState(false);
+  const [selectedBlogIds, setSelectedBlogIds] = useState<Set<string>>(new Set());
+  const [blogMode, setBlogMode] = useState<"scroll" | "hero_map">("hero_map");
   const [prompt, setPrompt] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [previewing, setPreviewing] = useState(false);
@@ -489,6 +499,7 @@ export default function StudioVideo() {
       return;
     }
     let cancelled = false;
+    const isEn = videoLang === "en";
     setStatsLoading(true);
     setSelectedImages(new Set());
     setSelectedVideos(new Set());
@@ -497,7 +508,7 @@ export default function StudioVideo() {
       const [biz, docs, yt, promos, hls, revs] = await Promise.all([
         supabase
           .from("businesses")
-          .select("hook_fr,description,images,popup_image_url,opening_hours,show_opening_hours,is_active,logo_url,logo_bg,whatsapp,google_rating,google_review_count,google_review_url,google_reviews_url,google_maps_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,tripadvisor_review_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url")
+          .select("hook_fr,hook_en,description,description_en,images,popup_image_url,opening_hours,show_opening_hours,is_active,logo_url,logo_bg,whatsapp,google_rating,google_review_count,google_review_url,google_reviews_url,google_maps_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,tripadvisor_review_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url")
           .eq("id", selected.id)
           .maybeSingle(),
         supabase
@@ -513,17 +524,17 @@ export default function StudioVideo() {
           .order("sort_order", { ascending: true }),
         supabase
           .from("affiliate_business_promotions")
-          .select("id, title, title_fr, promotion_message, promotion_message_fr, promotion_type, promotion_value, promotion_currency, savings_amount")
+          .select("id, title, title_fr, title_en, promotion_message, promotion_message_fr, promotion_message_en, promotion_type, promotion_value, promotion_currency, savings_amount")
           .eq("business_id", selected.id)
           .order("sort_order", { ascending: true }),
         supabase
           .from("front_highlights")
-          .select("id,icon,sort_order,image_url,title,description,metric_title,metric_value,title_fr,description_fr,metric_title_fr,metric_value_fr")
+          .select("id,icon,sort_order,image_url,title,description,metric_title,metric_value,title_fr,description_fr,metric_title_fr,metric_value_fr,title_en,description_en,metric_title_en,metric_value_en")
           .eq("business_id", selected.id)
           .order("sort_order", { ascending: true }),
         supabase
           .from("reviews")
-          .select("id,author_name,rating,text,text_fr,source,published_at,is_hidden")
+          .select("id,author_name,rating,text,text_fr,text_en,source,published_at,is_hidden")
           .eq("business_id", selected.id)
           .eq("is_hidden", false)
           .order("rating", { ascending: false })
@@ -554,7 +565,7 @@ export default function StudioVideo() {
       if (popupUrl) {
         supabase
           .from("business_image_titles")
-          .select("title, description, title_fr, description_fr")
+          .select("title, description, title_fr, description_fr, title_en, description_en")
           .eq("business_id", selected.id)
           .eq("image_url", popupUrl)
           .maybeSingle()
@@ -562,8 +573,8 @@ export default function StudioVideo() {
             if (cancelled || !data) return;
             const d = data as any;
             setPopupMeta({
-              title: (d.title_fr || d.title) ?? null,
-              description: (d.description_fr || d.description) ?? null,
+              title: (isEn ? (d.title_en || d.title_fr || d.title) : (d.title_fr || d.title)) ?? null,
+              description: (isEn ? (d.description_en || d.description_fr || d.description) : (d.description_fr || d.description)) ?? null,
             });
           });
       }
@@ -573,8 +584,8 @@ export default function StudioVideo() {
       const offersRaw = (promos.data ?? []) as any[];
       const mappedOffers = offersRaw.map((o) => ({
         id: o.id as string,
-        title: (o.title_fr || o.title || "Offre") as string,
-        message: (o.promotion_message_fr || o.promotion_message || null) as string | null,
+        title: ((isEn ? (o.title_en || o.title_fr) : o.title_fr) || o.title || "Offre") as string,
+        message: ((isEn ? (o.promotion_message_en || o.promotion_message_fr) : o.promotion_message_fr) || o.promotion_message || null) as string | null,
         promotion_type: (o.promotion_type ?? null) as string | null,
         promotion_value: (o.promotion_value ?? null) as number | null,
         promotion_currency: (o.promotion_currency ?? null) as string | null,
@@ -588,11 +599,11 @@ export default function StudioVideo() {
         .map((h) => ({
           id: h.id as string,
           icon: (h.icon ?? null) as string | null,
-          title: stripHtml(h.title_fr) || stripHtml(h.title),
-          description: stripHtml(h.description_fr) || stripHtml(h.description),
+          title: (isEn && stripHtml(h.title_en)) || stripHtml(h.title_fr) || stripHtml(h.title),
+          description: (isEn && stripHtml(h.description_en)) || stripHtml(h.description_fr) || stripHtml(h.description),
           image_url: (h.image_url ?? null) as string | null,
-          metric_title: (stripHtml(h.metric_title_fr) || stripHtml(h.metric_title)) || null,
-          metric_value: (stripHtml(h.metric_value_fr) || stripHtml(h.metric_value)) || null,
+          metric_title: ((isEn && stripHtml(h.metric_title_en)) || stripHtml(h.metric_title_fr) || stripHtml(h.metric_title)) || null,
+          metric_value: ((isEn && stripHtml(h.metric_value_en)) || stripHtml(h.metric_value_fr) || stripHtml(h.metric_value)) || null,
           sort_order: (h.sort_order ?? 0) as number,
         }))
         .filter((h) => h.title.length > 0 || h.description.length > 0 || !!h.image_url);
@@ -627,7 +638,7 @@ export default function StudioVideo() {
           id: r.id as string,
           author: (r.author_name ?? null) as string | null,
           rating: (r.rating ?? null) as number | null,
-          text: stripHtml((r.text_fr || r.text || "") as string),
+          text: stripHtml(((isEn ? (r.text_en || r.text_fr) : r.text_fr) || r.text || "") as string),
           source: (r.source ?? null) as string | null,
           published_at: (r.published_at ?? null) as string | null,
         }))
@@ -636,7 +647,7 @@ export default function StudioVideo() {
       setSelectedReviewId(null);
       setReviewHighlight("");
       setBizStats({
-        hook: b.hook_fr ?? null,
+        hook: (isEn ? (b.hook_en || b.hook_fr) : b.hook_fr) ?? null,
         descLen: (b.description ?? "").length,
         images: imgs.length,
         videos: docVideos.length + ytVideos.length,
@@ -650,7 +661,69 @@ export default function StudioVideo() {
     return () => {
       cancelled = true;
     };
-  }, [selected]);
+  }, [selected, videoLang]);
+
+  // POIs (groupés par quartier), destinations et articles de blog propriétaires
+  useEffect(() => {
+    if (!selected?.id) {
+      setPoiOptions([]); setDestOptions([]); setBlogPosts([]);
+      setOptBlogArticles(false); setSelectedBlogIds(new Set());
+      return;
+    }
+    let cancelled = false;
+    const isEn = videoLang === "en";
+    (async () => {
+      const [bizRow, posts, dests] = await Promise.all([
+        supabase.from("businesses").select("city").eq("id", selected.id).maybeSingle(),
+        supabase
+          .from("blog_posts")
+          .select("id, slug, title_fr, title_en, cover_image_url, custom_hero_image_url")
+          .eq("anchor_business_id", selected.id)
+          .order("title_fr", { ascending: true }),
+        supabase.from("destinations").select("id, name_fr, name_en").order("sort_order", { ascending: true }),
+      ]);
+      if (cancelled) return;
+      setBlogPosts(((posts.data ?? []) as any[]).map((b) => ({
+        id: b.id as string,
+        slug: b.slug as string,
+        title: ((isEn ? (b.title_en || b.title_fr) : b.title_fr) || b.slug) as string,
+        cover: (b.custom_hero_image_url || b.cover_image_url || null) as string | null,
+      })));
+      setDestOptions(((dests.data ?? []) as any[]).map((d) => ({
+        id: d.id as string,
+        name: ((isEn ? (d.name_en || d.name_fr) : d.name_fr) || "") as string,
+      })).filter((d) => d.name));
+
+      const cityName = (bizRow.data as any)?.city as string | undefined;
+      if (!cityName) { setPoiOptions([]); return; }
+      const { data: cityRow } = await supabase.from("cities").select("id").eq("name_fr", cityName).maybeSingle();
+      const cityId = (cityRow as any)?.id as string | undefined;
+      if (cancelled || !cityId) { setPoiOptions([]); return; }
+      const [poisRes, hoodsRes] = await Promise.all([
+        supabase.from("points_of_interest").select("id, name_fr, name_en, latitude, longitude").eq("city_id", cityId).order("sort_order", { ascending: true }),
+        supabase.from("neighborhoods").select("id, name, name_en, latitude, longitude").eq("city_id", cityId),
+      ]);
+      if (cancelled) return;
+      const hoods = ((hoodsRes.data ?? []) as any[]).filter((h) => Number.isFinite(Number(h.latitude)) && Number.isFinite(Number(h.longitude)));
+      setPoiOptions(((poisRes.data ?? []) as any[]).map((poi) => {
+        const lat = Number(poi.latitude), lng = Number(poi.longitude);
+        let group: string | null = null;
+        if (Number.isFinite(lat) && Number.isFinite(lng) && hoods.length > 0) {
+          let best = Infinity;
+          for (const h of hoods) {
+            const d = haversineKm(lat, lng, Number(h.latitude), Number(h.longitude));
+            if (d < best) { best = d; group = (isEn ? (h.name_en || h.name) : h.name) as string; }
+          }
+        }
+        return {
+          id: poi.id as string,
+          name: ((isEn ? (poi.name_en || poi.name_fr) : poi.name_fr) || "") as string,
+          group,
+        };
+      }).filter((p) => p.name));
+    })();
+    return () => { cancelled = true; };
+  }, [selected, videoLang]);
 
   // Load file video durations
   useEffect(() => {
@@ -864,6 +937,11 @@ export default function StudioVideo() {
             logo_url: logoInfo.url,
             text_splits: scenarioEdits?.textSplits,
             text_overrides: scenarioEdits?.textOverrides,
+            scene_pois: scenarioEdits?.scenePois,
+            scene_destinations: scenarioEdits?.sceneDestinations,
+            blog_articles: optBlogArticles && selectedBlogIds.size > 0,
+            blog_article_ids: Array.from(selectedBlogIds),
+            blog_mode: blogMode,
 
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
@@ -1043,6 +1121,11 @@ export default function StudioVideo() {
             logo_url: logoInfo.url,
             text_splits: scenarioEdits?.textSplits,
             text_overrides: scenarioEdits?.textOverrides,
+            scene_pois: scenarioEdits?.scenePois,
+            scene_destinations: scenarioEdits?.sceneDestinations,
+            blog_articles: optBlogArticles && selectedBlogIds.size > 0,
+            blog_article_ids: Array.from(selectedBlogIds),
+            blog_mode: blogMode,
 
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
@@ -2240,6 +2323,59 @@ export default function StudioVideo() {
                     </div>
                   </div>
                 )}
+                {blogPosts.length > 0 && (
+                  <div className="rounded-md border border-border bg-background/40 p-2">
+                    <label className="flex items-start gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                        checked={optBlogArticles}
+                        onChange={(e) => setOptBlogArticles(e.target.checked)}
+                      />
+                      <span className="font-medium">Articles de blog propriétaires ({blogPosts.length})</span>
+                    </label>
+                    {optBlogArticles && (
+                      <div className="mt-2 space-y-2">
+                        <div className="flex flex-wrap gap-2 text-xs">
+                          <button
+                            type="button"
+                            onClick={() => setBlogMode("hero_map")}
+                            className={`rounded-full border px-2.5 py-1 ${blogMode === "hero_map" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
+                          >
+                            Hero + zoom carte animée
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setBlogMode("scroll")}
+                            className={`rounded-full border px-2.5 py-1 ${blogMode === "scroll" ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
+                          >
+                            Scroll vertical de l'article
+                          </button>
+                        </div>
+                        <div className="max-h-56 overflow-y-auto space-y-1 pr-1">
+                          {blogPosts.map((b) => (
+                            <label key={b.id} className="flex items-center gap-2 text-xs cursor-pointer rounded px-1 py-1 hover:bg-muted/50">
+                              <input
+                                type="checkbox"
+                                className="h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                                checked={selectedBlogIds.has(b.id)}
+                                onChange={(e) => {
+                                  setSelectedBlogIds((prev) => {
+                                    const next = new Set(prev);
+                                    if (e.target.checked) next.add(b.id); else next.delete(b.id);
+                                    return next;
+                                  });
+                                }}
+                              />
+                              {b.cover && <img src={b.cover} alt="" className="h-8 w-12 rounded object-cover shrink-0" />}
+                              <span className="truncate">{b.title}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
                 {offersList.length > 0 && (
                   <div className="rounded-md border border-border bg-background/40 p-2">
                     <div className="flex items-center justify-between gap-2">
@@ -2647,6 +2783,8 @@ export default function StudioVideo() {
                   openAddDialog={addStepOpen}
                   onOpenAddDialogChange={setAddStepOpen}
                   beforeTimeline={soundtrackBlock}
+                  availablePois={poiOptions}
+                  availableDestinations={destOptions}
                 />
               </div>
             ) : scenario ? (
@@ -2659,6 +2797,8 @@ export default function StudioVideo() {
                 openAddDialog={addStepOpen}
                 onOpenAddDialogChange={setAddStepOpen}
                 beforeTimeline={soundtrackBlock}
+                availablePois={poiOptions}
+                availableDestinations={destOptions}
               />
             ) : null
           )}
@@ -2719,7 +2859,7 @@ export default function StudioVideo() {
                 {jobs
                   .filter((j) => j.status === "done" && j.output_url && (isCorporate ? !j.business_id : !!j.business_id))
                   .map((j) => (
-                    <JobCard key={j.id} job={j} businessName={j.business_id ? businessNames[j.business_id] : undefined} onRefine={startRefine} onDelete={deleteJob} onRename={renameJob} />
+                    <JobCard key={j.id} job={j} businessName={j.business_id ? businessNames[j.business_id] : undefined} onDelete={deleteJob} onRename={renameJob} />
                   ))}
               </div>
             )}
@@ -2851,7 +2991,7 @@ function ShareVideoButton({ src }: { src: string }) {
   );
 }
 
-function VideoWithMeta({ src, createdAt }: { src: string; createdAt?: string | null }) {
+function VideoWithMeta({ src, createdAt, extra }: { src: string; createdAt?: string | null; extra?: React.ReactNode }) {
   const [dim, setDim] = useState<{ w: number; h: number } | null>(null);
   const [size, setSize] = useState<number | null>(null);
   const [duration, setDuration] = useState<number | null>(null);
@@ -2902,7 +3042,10 @@ function VideoWithMeta({ src, createdAt }: { src: string; createdAt?: string | n
         {size != null ? ` · ${fmtSize(size)}` : ""}
         {cost && ` · Coût estimé : ~${cost.usd} $`}
       </div>
-      <ShareVideoButton src={src} />
+      <div className="flex items-center gap-3 flex-wrap">
+        <ShareVideoButton src={src} />
+        {extra}
+      </div>
     </div>
   );
 }
@@ -2910,13 +3053,11 @@ function VideoWithMeta({ src, createdAt }: { src: string; createdAt?: string | n
 function JobCard({
   job,
   businessName,
-  onRefine,
   onDelete,
   onRename,
 }: {
   job: Job;
   businessName?: string;
-  onRefine?: (job: Job) => void;
   onDelete?: (job: Job) => void;
   onRename?: (job: Job, title: string) => void;
 }) {
@@ -3000,7 +3141,11 @@ function JobCard({
               <div className="text-[11px] text-muted-foreground">Fichier : {fileName}</div>
             </div>
           )}
-          <VideoWithMeta src={job.output_url} createdAt={job.created_at} />
+          <VideoWithMeta
+            src={job.output_url}
+            createdAt={job.created_at}
+            extra={<VideoParamsDialog job={job} />}
+          />
           <p className="text-xs text-muted-foreground whitespace-pre-line">{job.prompt}</p>
           <div className="flex items-center gap-3">
             <button
@@ -3010,15 +3155,7 @@ function JobCard({
             >
               <Download className="h-3 w-3" /> Télécharger
             </button>
-            {onRefine && (
-              <button
-                type="button"
-                onClick={() => onRefine(job)}
-                className="inline-flex items-center gap-1 text-xs underline text-primary"
-              >
-                <Sparkles className="h-3 w-3" /> Affiner
-              </button>
-            )}
+
             {onDelete && (
               <button
                 type="button"
@@ -3048,5 +3185,140 @@ function JobCard({
         </div>
       )}
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Popup « Paramètres » — récapitulatif langue + scénario mémorisés pour la vidéo
+// ---------------------------------------------------------------------------
+
+const TRANSITION_LABELS: Record<string, string> = {
+  crossfade: "Fondu enchaîné",
+  fade_black: "Fondu au noir",
+  cut: "Coupe franche",
+  zoom: "Zoom",
+  slide: "Glissement",
+  kenburns: "Ken Burns",
+  fast: "Enchaînement rapide",
+  mix: "Mix",
+};
+
+function VideoParamsDialog({ job }: { job: Job }) {
+  const [open, setOpen] = useState(false);
+  const opts = (job.scenario_json?.studio_options ?? {}) as Record<string, any>;
+  const props = (job.template_props ?? {}) as Record<string, any>;
+  const lang: string = opts.lang ?? props.lang ?? "fr";
+  const hasParams = Object.keys(opts).length > 0;
+
+  const order: string[] = Array.isArray(opts.scene_order)
+    ? opts.scene_order
+    : Array.isArray(props.scene_order)
+      ? props.scene_order
+      : [];
+  const durations: Record<string, number> = opts.scene_durations ?? {};
+  const customScenes: any[] = Array.isArray(opts.custom_scenes) ? opts.custom_scenes : [];
+
+  const included: string[] = [];
+  if (opts.open_with_logo) included.push("Ouverture logo");
+  if (opts.reviews) included.push("Avis clients");
+  if (opts.google_reviews) included.push("Avis Google");
+  if (opts.tripadvisor) included.push("TripAdvisor");
+  if (opts.restaurant_guru) included.push("Restaurant Guru");
+  if (opts.customer_review) included.push("Témoignage client");
+  if (opts.whatsapp) included.push("WhatsApp");
+  if (opts.hours) included.push("Horaires");
+  if (opts.map_marker) included.push("Google Map");
+  if (opts.digital_id) included.push("ID numérique");
+  if (opts.install_cta) included.push("CTA install app");
+  if (opts.popup) included.push("Popup de bienvenue");
+  if (Array.isArray(opts.offer_ids) && opts.offer_ids.length) included.push(`Offres (${opts.offer_ids.length})`);
+  if (Array.isArray(opts.highlight_ids) && opts.highlight_ids.length) included.push(`Highlights (${opts.highlight_ids.length})`);
+  if (Array.isArray(opts.blog_post_ids) && opts.blog_post_ids.length) included.push(`Articles de blog (${opts.blog_post_ids.length})`);
+
+  const tr = opts.transitions ?? {};
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="inline-flex items-center gap-1 text-xs underline"
+      >
+        <SlidersHorizontal className="h-3 w-3" /> Paramètres
+      </button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Paramètres de la vidéo</DialogTitle>
+          </DialogHeader>
+          {!hasParams ? (
+            <p className="text-sm text-muted-foreground">
+              Aucun paramètre mémorisé pour cette vidéo (générée avant l'activation de l'historique).
+            </p>
+          ) : (
+            <div className="space-y-4 text-sm">
+              <div className="flex flex-wrap gap-x-6 gap-y-1">
+                <div><span className="text-muted-foreground">Langue : </span><strong>{lang === "en" ? "English" : lang === "ar" ? "العربية" : "Français"}</strong></div>
+                <div><span className="text-muted-foreground">Durée : </span><strong>{job.duration_sec}s</strong></div>
+                <div><span className="text-muted-foreground">Ton : </span><strong>{job.tone}</strong></div>
+              </div>
+
+              {included.length > 0 && (
+                <div>
+                  <div className="text-xs font-medium text-muted-foreground mb-1">Éléments inclus</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {included.map((i) => (
+                      <span key={i} className="rounded-full border border-border px-2 py-0.5 text-[11px]">{i}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {order.length > 0 && (
+                <div>
+                  <div className="text-xs font-medium text-muted-foreground mb-1">Scénario ({order.length} étapes)</div>
+                  <ol className="space-y-0.5 text-xs">
+                    {order.map((k, i) => (
+                      <li key={`${k}-${i}`} className="flex justify-between gap-3">
+                        <span>{i + 1}. {k}</span>
+                        {durations[k] != null && <span className="text-muted-foreground">{durations[k]}s</span>}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
+              {customScenes.length > 0 && (
+                <div>
+                  <div className="text-xs font-medium text-muted-foreground mb-1">Étapes texte ajoutées</div>
+                  <ul className="space-y-0.5 text-xs list-disc pl-4">
+                    {customScenes.map((c: any, i: number) => (
+                      <li key={c.id ?? i}>{c.title || "Sans titre"}{c.subtitle ? ` — ${c.subtitle}` : ""} ({c.duration}s)</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {(tr.video || tr.image) && (
+                <div className="text-xs">
+                  <span className="text-muted-foreground">Transitions : </span>
+                  vidéos <strong>{TRANSITION_LABELS[tr.video] ?? tr.video ?? "—"}</strong>
+                  {" · "}images <strong>{TRANSITION_LABELS[tr.image] ?? tr.image ?? "—"}</strong>
+                  {tr.style ? ` · style ${tr.style}` : ""}
+                </div>
+              )}
+
+              <div className="text-xs space-y-0.5 text-muted-foreground">
+                {opts.text_position && <div>Position du texte : {opts.text_position}</div>}
+                {opts.soundtrack_url && <div>Bande son : vidéo source utilisée en boucle</div>}
+                {opts.continuous_bg_video_url && <div>Fond vidéo continu activé</div>}
+                {Array.isArray(opts.selected_images) && opts.selected_images.length > 0 && <div>{opts.selected_images.length} image(s) sélectionnée(s)</div>}
+                {Array.isArray(opts.selected_videos) && opts.selected_videos.length > 0 && <div>{opts.selected_videos.length} vidéo(s) sélectionnée(s)</div>}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
