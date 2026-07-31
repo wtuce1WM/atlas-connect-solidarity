@@ -163,6 +163,7 @@ export type ShowcaseProps = {
     subtitle?: string;
     duration: number; // seconds
     media?: { url: string; kind: "image" | "video" };
+    mediaList?: Array<{ url: string; kind: "image" | "video" }>;
   }>;
   textPosition?: TextPosition;
   tone?: Tone;
@@ -2077,18 +2078,27 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     if (kind === "custom") {
       const c = customId ? customById.get(customId) : undefined;
       if (!c) return null;
-      const backdrop = c.media;
+      const list = (Array.isArray(c.mediaList) && c.mediaList.length ? c.mediaList : (c.media ? [c.media] : []));
       const align = textPositionStyle(textPosition);
       // Aucun média assigné → même comportement que les autres étapes :
       // repli sur les médias de l'établissement avec effet de mouvement.
       const cIdx = Math.max(0, (custom_scenes ?? []).findIndex((x) => x.id === c.id));
       const fallbackUrl = bgFallback(cIdx);
+      const seg = list.length > 0 ? duration / list.length : duration;
       return (
         <AbsoluteFill>
-          {backdrop
-            ? (backdrop.kind === "video"
-                ? <VideoCover src={backdrop.url} from={0} duration={duration} />
-                : <VideoBackdrop image={backdrop.url} />)
+          {list.length > 0
+            ? list.map((m, i) => (
+                <Sequence
+                  key={`${m.url}-${i}`}
+                  from={Math.round(i * seg * 30)}
+                  durationInFrames={Math.max(1, Math.round(seg * 30))}
+                >
+                  {m.kind === "video"
+                    ? <VideoCover src={m.url} from={0} duration={seg} />
+                    : <VideoBackdrop image={m.url} />}
+                </Sequence>
+              ))
             : (
               <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
                 {fallbackUrl && (
@@ -2101,6 +2111,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                 )}
               </AbsoluteFill>
             )}
+
 
           {c.mode === "overlay" && (
             <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.7) 100%)" }} />

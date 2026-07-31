@@ -50,7 +50,8 @@ export type CustomScene = {
   title: string;
   subtitle?: string;
   duration: number;           // seconds
-  media?: SceneMediaItem;     // required in overlay mode, optional backdrop in fullscreen
+  media?: SceneMediaItem;     // premier média (compat rendu)
+  mediaList?: SceneMediaItem[]; // plusieurs images/vidéos jouées en séquence
   splitCount?: number;        // nb d'étapes pour découper le texte sur le montage vidéo
 };
 
@@ -848,16 +849,28 @@ export function StudioVideoScenarioPanel({
                   onChange={(next) => setForKind(kind, next)}
                 />
               )}
-              {editable && scene.icon === "custom" && isCustomToken(scene.id) && (
-                <CustomSceneMediaSlot
-                  available={availableMedia!}
-                  current={customById.get(customIdFromToken(scene.id))?.media ?? null}
-                  onChange={(media) => {
-                    const cid = customIdFromToken(scene.id);
-                    setCustomScenes((prev) => prev.map((c) => (c.id === cid ? { ...c, media: media ?? undefined } : c)));
-                  }}
-                />
-              )}
+              {editable && scene.icon === "custom" && isCustomToken(scene.id) && (() => {
+                const c = customById.get(customIdFromToken(scene.id));
+                const list = c?.mediaList ?? (c?.media ? [c.media] : []);
+                return (
+                  <SceneMediaSlot
+                    kind={"media" as SceneMediaKind}
+                    label="Médias de fond"
+                    items={list}
+                    available={availableMedia!}
+                    onChange={(next) => {
+                      const cid = customIdFromToken(scene.id);
+                      setCustomScenes((prev) =>
+                        prev.map((x) =>
+                          x.id === cid
+                            ? { ...x, mediaList: next.length ? next : undefined, media: next[0] ?? undefined }
+                            : x,
+                        ),
+                      );
+                    }}
+                  />
+                );
+              })()}
             </div>
           );
         })}
@@ -895,71 +908,15 @@ export function StudioVideoScenarioPanel({
   );
 }
 
-function CustomSceneMediaSlot({
-  available,
-  current,
-  onChange,
-}: {
-  available: SceneMediaItem[];
-  current: SceneMediaItem | null;
-  onChange: (media: SceneMediaItem | null) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
-      <div className="flex items-center justify-between">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-600">
-          Média de fond {current ? "· 1" : "· 0"}
-        </div>
-        <div className="flex items-center gap-1">
-          {current && (
-            <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => onChange(null)}>
-              Retirer
-            </Button>
-          )}
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm" variant="outline" className="h-7 gap-1 text-[11px]" disabled={available.length === 0}>
-                <Plus className="h-3 w-3" /> {current ? "Changer" : "Ajouter"}
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-white text-black">
-              <DialogHeader>
-                <DialogTitle className="text-black">Sélection média de fond</DialogTitle>
-              </DialogHeader>
-              <MediaPickerGrid
-                available={available}
-                isSelected={(m) => current?.url === m.url}
-                onSelect={(m) => { onChange(m); setOpen(false); }}
-              />
-
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
-      {current && (
-        <div className="relative aspect-video w-32 rounded-md overflow-hidden border border-border">
-          {current.kind === "video" ? (
-            <video src={current.url} className="w-full h-full object-cover" muted playsInline preload="metadata" />
-          ) : (
-            <img src={current.url} alt="" className="w-full h-full object-cover" />
-          )}
-          {current.duration != null && current.kind === "video" && (
-            <div className="absolute bottom-0.5 right-0.5 text-[8px] px-1 rounded bg-black/70 text-white font-bold">{formatDuration(current.duration)}</div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
 function SceneMediaSlot({
   kind,
+  label,
   items,
   available,
   onChange,
 }: {
   kind: SceneMediaKind;
+  label?: string;
   items: SceneMediaItem[];
   available: SceneMediaItem[];
   onChange: (next: SceneMediaItem[]) => void;
@@ -983,8 +940,9 @@ function SceneMediaSlot({
     <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
       <div className="flex items-center justify-between">
         <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-600">
-          Médias assignés · {items.length}
+          {label ?? "Médias assignés"} · {items.length}
         </div>
+
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button size="sm" variant="outline" className="h-7 gap-1 text-[11px]" disabled={available.length === 0}>
@@ -1070,7 +1028,8 @@ function CustomSceneDialog({
   const [title, setTitle] = useState(initial?.title ?? "");
   const [subtitle, setSubtitle] = useState(initial?.subtitle ?? "");
   const [duration, setDuration] = useState(initial?.duration ?? 4);
-  const [mediaUrl, setMediaUrl] = useState<string | null>(initial?.media?.url ?? null);
+  const initialUrls = (initial?.mediaList ?? (initial?.media ? [initial.media] : [])).map((m) => m.url);
+  const [mediaUrls, setMediaUrls] = useState<string[]>(initialUrls);
 
   useEffect(() => {
     if (!open) return;
@@ -1078,23 +1037,30 @@ function CustomSceneDialog({
     setTitle(initial?.title ?? "");
     setSubtitle(initial?.subtitle ?? "");
     setDuration(initial?.duration ?? 4);
-    setMediaUrl(initial?.media?.url ?? null);
+    setMediaUrls((initial?.mediaList ?? (initial?.media ? [initial.media] : [])).map((m) => m.url));
   }, [open, initial]);
+
+  const toggleUrl = (url: string) =>
+    setMediaUrls((prev) => (prev.includes(url) ? prev.filter((u) => u !== url) : [...prev, url]));
 
   const canSubmit = title.trim().length > 0 && duration >= 1 && duration <= 60;
 
   const submit = () => {
     if (!canSubmit) return;
-    const media = mediaUrl ? available.find((m) => m.url === mediaUrl) ?? undefined : undefined;
+    const list = mediaUrls
+      .map((u) => available.find((m) => m.url === u))
+      .filter(Boolean) as SceneMediaItem[];
     onSubmit({
       id: initial?.id ?? newCustomId(),
       mode,
       title: title.trim(),
       subtitle: subtitle.trim() || undefined,
       duration,
-      media,
+      media: list[0],
+      mediaList: list.length ? list : undefined,
     });
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -1168,55 +1134,62 @@ function CustomSceneDialog({
             />
           </div>
 
-          {mode === "overlay" && (
-            <div>
-              <div className="flex items-center justify-between">
-                <Label className="text-xs uppercase tracking-wider">Média de fond (optionnel)</Label>
-                {mediaUrl && (
-                  <Button size="sm" variant="ghost" className="h-6 text-[11px]" onClick={() => setMediaUrl(null)}>
-                    Retirer
-                  </Button>
-                )}
-              </div>
-              {available.length === 0 ? (
-                <p className="text-xs text-muted-foreground mt-2">Aucun média disponible pour l'établissement sélectionné.</p>
-              ) : (
-                <div className="grid grid-cols-4 gap-2 mt-2 max-h-52 overflow-y-auto">
-                  {available.map((m) => {
-                    const selected = mediaUrl === m.url;
-                    return (
-                      <button
-                        key={m.url}
-                        type="button"
-                        onClick={() => setMediaUrl(selected ? null : m.url)}
-                        className={cn(
-                          "relative aspect-square rounded overflow-hidden border-2 transition-colors",
-                          selected ? "border-primary" : "border-transparent hover:border-primary/40"
-                        )}
-                      >
-                        {m.kind === "video" ? (
-                          <video
-                            src={m.url}
-                            className="w-full h-full object-cover"
-                            muted
-                            playsInline
-                            preload="metadata"
-                          />
-                        ) : (
-                          <img src={m.url} alt="" className="w-full h-full object-cover" />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-              {!mediaUrl && (
-                <p className="text-[11px] text-neutral-600 italic mt-2">
-                  Aucun média assigné — le rendu utilisera la sélection globale ou l'auto-choix IA.
-                </p>
+          <div>
+            <div className="flex items-center justify-between">
+              <Label className="text-xs uppercase tracking-wider">
+                Médias de fond (optionnel) · {mediaUrls.length}
+              </Label>
+              {mediaUrls.length > 0 && (
+                <Button size="sm" variant="ghost" className="h-6 text-[11px]" onClick={() => setMediaUrls([])}>
+                  Tout retirer
+                </Button>
               )}
             </div>
-          )}
+            {available.length === 0 ? (
+              <p className="text-xs text-muted-foreground mt-2">Aucun média disponible pour l'établissement sélectionné.</p>
+            ) : (
+              <div className="grid grid-cols-4 gap-2 mt-2 max-h-52 overflow-y-auto">
+                {available.map((m) => {
+                  const idx = mediaUrls.indexOf(m.url);
+                  const selected = idx >= 0;
+                  return (
+                    <button
+                      key={m.url}
+                      type="button"
+                      onClick={() => toggleUrl(m.url)}
+                      className={cn(
+                        "relative aspect-square rounded overflow-hidden border-2 transition-colors",
+                        selected ? "border-primary" : "border-transparent hover:border-primary/40"
+                      )}
+                    >
+                      {m.kind === "video" ? (
+                        <video
+                          src={m.url}
+                          className="w-full h-full object-cover"
+                          muted
+                          playsInline
+                          preload="metadata"
+                        />
+                      ) : (
+                        <img src={m.url} alt="" className="w-full h-full object-cover" />
+                      )}
+                      {selected && (
+                        <span className="absolute top-1 right-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold w-5 h-5 flex items-center justify-center">
+                          {idx + 1}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {mediaUrls.length === 0 && (
+              <p className="text-[11px] text-neutral-600 italic mt-2">
+                Aucun média assigné — le rendu utilisera la sélection globale ou l'auto-choix IA.
+              </p>
+            )}
+          </div>
+
         </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Annuler</Button>
