@@ -581,6 +581,11 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       if (contBgUrl) {
         template_props.continuousBgVideoUrl = contBgUrl;
         template_props.continuousBgSound = Boolean(options?.continuous_bg_sound);
+        // Durée réelle de la vidéo (secondes) : Remotion la boucle si < durée du scénario.
+        const contBgDur = Number(options?.continuous_bg_video_duration);
+        if (Number.isFinite(contBgDur) && contBgDur > 0.5 && contBgDur < 3600) {
+          template_props.continuousBgVideoDurationSec = Math.round(contBgDur * 100) / 100;
+        }
         const vids = Array.isArray(template_props.videos) ? template_props.videos as string[] : [];
         if (!vids.includes(contBgUrl)) template_props.videos = [contBgUrl, ...vids].slice(0, 8);
       }
