@@ -235,13 +235,147 @@ var list_businesses_near_poi_default = defineTool4({
   }
 });
 
+// src/lib/mcp/tools/list-blog-articles.ts
+import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.22.0";
+import { createClient as createClient5 } from "npm:@supabase/supabase-js@^2.94.1";
+import { z as z5 } from "npm:zod@^4.3.6";
+var SUPABASE_URL5 = "https://plnphgdrawpsnumnejzc.supabase.co";
+var SUPABASE_ANON_KEY5 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsbnBoZ2RyYXdwc251bW5lanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjA5ODcsImV4cCI6MjA4NTgzNjk4N30.RwHKmL6E0Gd2LTVvDkfYx5RkZ-k7LKKp4iUoCS34pW4";
+var list_blog_articles_default = defineTool5({
+  name: "list_blog_articles",
+  title: "List One World Morocco blog articles",
+  description: "List the published One World Morocco editorial articles (slug, title, excerpt, URL). Optionally filter by free-text on the title. Use it to find the slug to pass to `get_blog_article`.",
+  inputSchema: {
+    query: z5.string().optional().describe("Optional free-text filter on the title or slug."),
+    limit: z5.number().int().min(1).max(50).optional().describe("Max articles to return (1-50, default 25).")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ query, limit }) => {
+    const supabase = createClient5(SUPABASE_URL5, SUPABASE_ANON_KEY5, {
+      auth: { persistSession: false, autoRefreshToken: false }
+    });
+    let q = supabase.from("blog_posts").select("slug, title_fr, title_en, excerpt_fr, published_at, updated_at").eq("is_published", true).order("published_at", { ascending: false, nullsFirst: false }).limit(Math.min(limit ?? 25, 50));
+    if (query) {
+      q = q.or(`title_fr.ilike.%${query}%,title_en.ilike.%${query}%,slug.ilike.%${query}%`);
+    }
+    const { data, error } = await q;
+    if (error) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }], isError: true };
+    }
+    const results = (data ?? []).map((p) => ({
+      slug: p.slug,
+      title: p.title_fr ?? p.title_en,
+      excerpt: p.excerpt_fr,
+      published_at: p.published_at,
+      updated_at: p.updated_at,
+      url: `https://oneworldmorocco.com/blog/${p.slug}`
+    }));
+    return {
+      content: [
+        {
+          type: "text",
+          text: results.length ? JSON.stringify(results, null, 2) : "No published article found."
+        }
+      ],
+      structuredContent: { results, count: results.length }
+    };
+  }
+});
+
+// src/lib/mcp/tools/get-blog-article.ts
+import { defineTool as defineTool6 } from "npm:@lovable.dev/mcp-js@0.22.0";
+import { createClient as createClient6 } from "npm:@supabase/supabase-js@^2.94.1";
+import { z as z6 } from "npm:zod@^4.3.6";
+var SUPABASE_URL6 = "https://plnphgdrawpsnumnejzc.supabase.co";
+var SUPABASE_ANON_KEY6 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsbnBoZ2RyYXdwc251bW5lanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjA5ODcsImV4cCI6MjA4NTgzNjk4N30.RwHKmL6E0Gd2LTVvDkfYx5RkZ-k7LKKp4iUoCS34pW4";
+var get_blog_article_default = defineTool6({
+  name: "get_blog_article",
+  title: "Read a One World Morocco blog article",
+  description: "Read the full public content of a One World Morocco editorial article (blog) by slug, or by free-text title search. Returns title, TL;DR, intro, every ranked entry (pretitle, title, paragraphs, opening hours), FAQ and the public URL. Example slug: 'idee-cadeau-marrakech' for the article 'Trouver une bonne id\xE9e cadeau \xE0 Marrakech'.",
+  inputSchema: {
+    slug: z6.string().optional().describe("Article slug from the URL, e.g. 'idee-cadeau-marrakech'."),
+    query: z6.string().optional().describe("Free-text search on the article title if the slug is unknown, e.g. 'id\xE9e cadeau'."),
+    lang: z6.enum(["fr", "en", "ar"]).optional().describe("Language of the content to return (default 'fr').")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ slug, query, lang }) => {
+    if (!slug && !query) {
+      return {
+        content: [{ type: "text", text: "Provide either `slug` or `query`." }],
+        isError: true
+      };
+    }
+    const l = lang ?? "fr";
+    const supabase = createClient6(SUPABASE_URL6, SUPABASE_ANON_KEY6, {
+      auth: { persistSession: false, autoRefreshToken: false }
+    });
+    let q = supabase.from("blog_posts").select(
+      "slug, title_fr, title_en, title_ar, excerpt_fr, excerpt_en, excerpt_ar, tldr_fr, tldr_en, tldr_ar, intro_fr, intro_en, intro_ar, entries_fr, entries_en, entries_ar, faq_fr, faq_en, faq_ar, author_name, published_at, updated_at, cover_image_url"
+    ).eq("is_published", true).limit(1);
+    q = slug ? q.eq("slug", slug) : q.or(
+      `title_fr.ilike.%${query}%,title_en.ilike.%${query}%,slug.ilike.%${query}%`
+    );
+    const { data, error } = await q.maybeSingle();
+    if (error) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }], isError: true };
+    }
+    if (!data) {
+      return {
+        content: [
+          { type: "text", text: `No published blog article found for '${slug ?? query}'.` }
+        ],
+        isError: true
+      };
+    }
+    const pick = (base) => data[`${base}_${l}`] ?? data[`${base}_fr`] ?? null;
+    const rawEntries = pick("entries") ?? [];
+    const entries = (Array.isArray(rawEntries) ? rawEntries : []).map((e, i) => {
+      const entry = e ?? {};
+      return {
+        rank: i + 1,
+        pretitle: entry.pretitle ?? null,
+        title: entry.title ?? null,
+        paragraphs: entry.paragraphs ?? null,
+        hours: entry.hours ?? null
+      };
+    });
+    const payload = {
+      slug: data.slug,
+      lang: l,
+      title: pick("title"),
+      excerpt: pick("excerpt"),
+      tldr: pick("tldr"),
+      intro: pick("intro"),
+      author: data.author_name,
+      published_at: data.published_at,
+      updated_at: data.updated_at,
+      cover_image_url: data.cover_image_url,
+      url: `https://oneworldmorocco.com/blog/${data.slug}`,
+      entries_count: entries.length,
+      entries,
+      faq: pick("faq")
+    };
+    return {
+      content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
+      structuredContent: payload
+    };
+  }
+});
+
 // src/lib/mcp/index.ts
 var mcp_default = defineMcp({
   name: "one-world-morocco",
   title: "One World Morocco",
-  version: "0.2.0",
-  instructions: "Public read-only access to the One World Morocco catalog: curated restaurants, hotels, riads, activities and boutiques in Marrakech, Essaouira and across Morocco. Tools: `search_businesses` (free-text search), `get_business` (full details by slug), `get_business_relations` (linked POIs, destinations, events for a business), `list_businesses_near_poi` (businesses tied to a landmark like Jemaa el-Fna or Jardin Majorelle). All data is public \u2014 no personal or member data is exposed.",
-  tools: [search_businesses_default, get_business_default, get_business_relations_default, list_businesses_near_poi_default]
+  version: "0.3.0",
+  instructions: "Public read-only access to the One World Morocco catalog and editorial blog: curated restaurants, hotels, riads, activities and boutiques in Marrakech, Essaouira and across Morocco. Tools: `search_businesses` (free-text search), `get_business` (full details by slug), `get_business_relations` (linked POIs, destinations, events for a business), `list_businesses_near_poi` (businesses tied to a landmark like Jemaa el-Fna or Jardin Majorelle), `list_blog_articles` (published editorial articles) and `get_blog_article` (full article content by slug, e.g. 'idee-cadeau-marrakech'). All data is public \u2014 no personal or member data is exposed.",
+  tools: [
+    search_businesses_default,
+    get_business_default,
+    get_business_relations_default,
+    list_businesses_near_poi_default,
+    list_blog_articles_default,
+    get_blog_article_default
+  ]
 });
 
 // lovable-mcp-supabase-entry.ts

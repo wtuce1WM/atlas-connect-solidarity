@@ -8,7 +8,7 @@
   "mcp": {
     "server": {
       "name": "one-world-morocco",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "title": "One World Morocco"
     },
     "tools": [
@@ -129,6 +129,67 @@
           "required": [
             "poi"
           ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_blog_articles",
+        "title": "List One World Morocco blog articles",
+        "description": "List the published One World Morocco editorial articles (slug, title, excerpt, URL). Optionally filter by free-text on the title. Use it to find the slug to pass to `get_blog_article`.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "query": {
+              "description": "Optional free-text filter on the title or slug.",
+              "type": "string"
+            },
+            "limit": {
+              "description": "Max articles to return (1-50, default 25).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_blog_article",
+        "title": "Read a One World Morocco blog article",
+        "description": "Read the full public content of a One World Morocco editorial article (blog) by slug, or by free-text title search. Returns title, TL;DR, intro, every ranked entry (pretitle, title, paragraphs, opening hours), FAQ and the public URL. Example slug: 'idee-cadeau-marrakech' for the article 'Trouver une bonne idée cadeau à Marrakech'.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "slug": {
+              "description": "Article slug from the URL, e.g. 'idee-cadeau-marrakech'.",
+              "type": "string"
+            },
+            "query": {
+              "description": "Free-text search on the article title if the slug is unknown, e.g. 'idée cadeau'.",
+              "type": "string"
+            },
+            "lang": {
+              "description": "Language of the content to return (default 'fr').",
+              "type": "string",
+              "enum": [
+                "fr",
+                "en",
+                "ar"
+              ]
+            }
+          }
         },
         "outputSchema": null
       }
