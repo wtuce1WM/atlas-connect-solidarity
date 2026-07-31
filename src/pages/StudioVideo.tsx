@@ -681,6 +681,36 @@ export default function StudioVideo() {
     };
   }, [selected, videoLang]);
 
+  // Seuil minimum d'avis pour proposer les scènes "avis"
+  const MIN_REVIEWS_FOR_SCENE = 10;
+  const platformReviewAvailable = useMemo(() => {
+    const ok = (c: number | null) => (c ?? 0) >= MIN_REVIEWS_FOR_SCENE;
+    return {
+      google: !selected || ok(platformData.google.count),
+      tripadvisor: !selected || ok(platformData.tripadvisor.count),
+      restaurant_guru: !selected || ok(platformData.restaurant_guru.count),
+    };
+  }, [selected, platformData]);
+  const totalReviewCount = useMemo(() => {
+    const sum =
+      (platformData.google.count ?? 0) +
+      (platformData.tripadvisor.count ?? 0) +
+      (platformData.restaurant_guru.count ?? 0);
+    return Math.max(sum, reviewsList.length);
+  }, [platformData, reviewsList]);
+  const reviewsCounterAvailable = !selected || totalReviewCount >= MIN_REVIEWS_FOR_SCENE;
+
+  // Désactive automatiquement les options avis non éligibles (impacte le scénario généré)
+  useEffect(() => {
+    if (!selected) return;
+    if (!platformReviewAvailable.google) setOptGoogleReviews(false);
+    if (!platformReviewAvailable.tripadvisor) setOptTripAdvisor(false);
+    if (!platformReviewAvailable.restaurant_guru) setOptRestaurantGuru(false);
+    if (!reviewsCounterAvailable) setOptReviews(false);
+  }, [selected, platformReviewAvailable, reviewsCounterAvailable]);
+
+
+
   // POIs (groupés par quartier), destinations et articles de blog propriétaires
   useEffect(() => {
     if (!selected?.id) {
