@@ -867,7 +867,7 @@ export default function StudioVideo() {
     if (optDigitalId) s += 3;
     if (optWhatsapp && whatsappNumber) s += 3;
     s += 3; // cta
-    if (optInstallCta) s += 2; // outro
+    if (optInstallCta) s += 3; // outro
     return Math.max(10, Math.min(90, s));
   }, [logoInfo, optOpenWithLogo, optPopup, selectedOfferIds, selectedHighlightIds, optReviews, optGoogleReviews, optTripAdvisor, optRestaurantGuru, optCustomerReview, optHours, optMapMarker, optDigitalId, optWhatsapp, whatsappNumber, optInstallCta]);
 
@@ -2393,7 +2393,9 @@ export default function StudioVideo() {
                         {bizVideos.map((v) => (
                           <option key={v.url} value={v.url}>
                             {v.kind === "youtube" ? "▶ " : "🎬 "}{v.title}
+                            {v.duration ? ` — ${Math.floor(v.duration / 60)}:${String(Math.round(v.duration % 60)).padStart(2, "0")}` : ""}
                           </option>
+
                         ))}
                       </select>
                       {fromVideoUrl && youtubeIdFromUrl(fromVideoUrl) && (
