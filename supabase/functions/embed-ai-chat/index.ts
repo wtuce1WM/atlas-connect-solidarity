@@ -2688,6 +2688,7 @@ Deno.serve(async (req) => {
             suggestionPinnedIds = [];
             suggestionMode = null;
             suggestionDestinationIds = [];
+            suggestionBlogIds = [];
           }
 
           // Explicit user scope overrides the heuristic for the deterministic
