@@ -97,7 +97,7 @@ const SHOWCASE_FEATURES: ShowcaseItem[] = [
 
 
 type Business = { id: string; name: string; city: string | null };
-type TransitionEffectId = "crossfade" | "fade_black" | "wipe" | "zoom" | "kenburns" | "slide" | "cut";
+type TransitionEffectId = "crossfade" | "fade_black" | "wipe" | "zoom" | "kenburns" | "slide" | "cut" | "fast" | "mix";
 const TRANSITION_EFFECT_LABELS: Record<TransitionEffectId, string> = {
   crossfade: "Fondu enchaîné",
   fade_black: "Fondu au noir",
@@ -106,6 +106,8 @@ const TRANSITION_EFFECT_LABELS: Record<TransitionEffectId, string> = {
   kenburns: "Ken Burns (pan + zoom)",
   slide: "Glissement",
   cut: "Coupe franche",
+  fast: "Enchaînement rapide",
+  mix: "Mix (tous les effets)",
 };
 const TRANSITION_STYLE_PRESETS: Record<"auto" | "doux" | "dynamique" | "minimal", { video: TransitionEffectId; image: TransitionEffectId }> = {
   auto: { video: "crossfade", image: "kenburns" },
