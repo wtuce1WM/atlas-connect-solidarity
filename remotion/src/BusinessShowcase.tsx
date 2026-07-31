@@ -2008,8 +2008,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             <MotionBackdrop
-              src={bg?.kind === "video" ? bg.url : undefined}
-              image={bg?.kind === "image" ? bg.url : (bg ? undefined : bgFallback(fbIdx))}
+              src={bg?.kind === "video" ? bg.url : (bg ? undefined : fallbackBackdrop(bgFallback(fbIdx)).src)}
+              image={bg?.kind === "image" ? bg.url : (bg ? undefined : fallbackBackdrop(bgFallback(fbIdx)).image)}
               duration={duration}
               effect={trImageEffect}
             />
@@ -2027,8 +2027,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             <MotionBackdrop
-              src={bg?.kind === "video" ? bg.url : undefined}
-              image={bg?.kind === "image" ? bg.url : (bg ? undefined : (defaultGalleryList[0] ?? bgFallback(0)))}
+              src={bg?.kind === "video" ? bg.url : (bg ? undefined : fallbackBackdrop(bgFallback(0)).src)}
+              image={bg?.kind === "image" ? bg.url : (bg ? undefined : fallbackBackdrop(bgFallback(0)).image)}
               duration={duration}
               effect={trImageEffect}
             />
@@ -2044,8 +2044,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             <MotionBackdrop
-              src={bg?.kind === "video" ? bg.url : undefined}
-              image={bg?.kind === "image" ? bg.url : (bg ? undefined : bgFallback(3))}
+              src={bg?.kind === "video" ? bg.url : (bg ? undefined : fallbackBackdrop(bgFallback(3)).src)}
+              image={bg?.kind === "image" ? bg.url : (bg ? undefined : fallbackBackdrop(bgFallback(3)).image)}
               duration={duration}
               effect={trImageEffect}
             />
