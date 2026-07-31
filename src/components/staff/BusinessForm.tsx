@@ -6274,11 +6274,11 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </Button>
           <Button
             type="submit"
-            disabled={loading}
+            disabled={loading || !mediaLoaded}
             className="bg-gold hover:bg-gold/90 text-gold-foreground"
           >
             <Save className="h-4 w-4 mr-2" />
-            {loading ? "Enregistrement..." : "Enregistrer"}
+            {loading ? "Enregistrement..." : !mediaLoaded ? "Chargement des médias…" : "Enregistrer"}
           </Button>
         </div>
       </form>
