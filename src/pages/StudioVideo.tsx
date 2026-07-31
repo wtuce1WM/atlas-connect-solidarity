@@ -951,6 +951,33 @@ export default function StudioVideo() {
     }
   };
 
+  // Titre / corps / découpage dérivés du texte estimé (même logique que l'insertion).
+  const estimateParts = useMemo(() => {
+    const raw = estimateText.trim();
+    const lines = raw.split("\n").map((l) => l.trim()).filter(Boolean);
+    const title = (synthTitle || lines[0] || "Texte").slice(0, 80);
+    const body = (synthText || lines.slice(synthTitle ? 0 : 1).join(" ") || raw).trim();
+    const words = (body || raw).split(/\s+/).filter(Boolean);
+    const splitCount = Math.max(1, Math.ceil(words.length / wordsPerBlock));
+    return { raw, title, body, words, splitCount };
+  }, [estimateText, synthTitle, synthText, wordsPerBlock]);
+
+  // Aperçu : blocs de mots + leur fenêtre temporelle sur la durée estimée.
+  const estimateBlocks = useMemo(() => {
+    const seconds = estimateResult?.seconds ?? 0;
+    const { words, splitCount } = estimateParts;
+    if (!seconds || words.length === 0) return [] as { text: string; start: number; end: number }[];
+    const per = Math.ceil(words.length / splitCount);
+    const chunks: string[] = [];
+    for (let i = 0; i < words.length; i += per) chunks.push(words.slice(i, i + per).join(" "));
+    const slot = seconds / chunks.length;
+    return chunks.map((text, i) => ({
+      text,
+      start: i * slot,
+      end: i === chunks.length - 1 ? seconds : (i + 1) * slot,
+    }));
+  }, [estimateResult, estimateParts]);
+
   // Insère une étape personnalisée de la durée estimée, avec la vidéo sélectionnée
   // en fond et le texte découpé en blocs de `wordsPerBlock` mots.
   const insertEstimatedStep = () => {
@@ -971,11 +998,7 @@ export default function StudioVideo() {
         }
       : undefined;
 
-    const lines = raw.split("\n").map((l) => l.trim()).filter(Boolean);
-    const title = (synthTitle || lines[0] || "Texte").slice(0, 80);
-    const body = (synthText || lines.slice(synthTitle ? 0 : 1).join(" ") || raw).trim();
-    const words = (body || raw).split(/\s+/).filter(Boolean).length;
-    const splitCount = Math.max(1, Math.ceil(words / wordsPerBlock));
+    const { title, body, splitCount } = estimateParts;
 
     setPendingCustomScene({
       mode: media ? "overlay" : "fullscreen",
@@ -2464,6 +2487,36 @@ export default function StudioVideo() {
                       </span>
                     )}
                   </div>
+                  {estimateResult && estimateBlocks.length > 0 && (
+                    <div className="rounded-md border border-neutral-200 bg-neutral-50 p-3 space-y-2">
+                      <div className="flex items-center justify-between text-[11px] text-neutral-500">
+                        <span className="font-semibold uppercase tracking-wider">Aperçu du découpage</span>
+                        <span>{estimateBlocks.length} bloc(s) · {estimateResult.seconds}s</span>
+                      </div>
+                      <div className="flex h-2 w-full overflow-hidden rounded-full bg-neutral-200">
+                        {estimateBlocks.map((b, i) => (
+                          <div
+                            key={i}
+                            style={{ width: `${((b.end - b.start) / estimateResult.seconds) * 100}%` }}
+                            className={i % 2 === 0 ? "bg-primary" : "bg-primary/50"}
+                          />
+                        ))}
+                      </div>
+                      <div className="max-h-40 overflow-y-auto space-y-1.5">
+                        {estimateBlocks.map((b, i) => (
+                          <div key={i} className="flex gap-2 text-xs">
+                            <span className="font-mono text-[11px] text-neutral-500 whitespace-nowrap pt-0.5">
+                              {b.start.toFixed(1)}s → {b.end.toFixed(1)}s
+                            </span>
+                            <span className="text-black">{b.text}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-[11px] text-neutral-500">
+                        Le dernier bloc se termine exactement à la fin de la durée estimée.
+                      </p>
+                    </div>
+                  )}
                   <div className="flex gap-2 flex-wrap">
                     <Button type="button" size="sm" onClick={runEstimate} disabled={estimateLoading}>
                       {estimateLoading
