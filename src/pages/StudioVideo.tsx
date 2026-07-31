@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
+import { isInternalVideoUrl } from "@/lib/videoSourceFilter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -9,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut, Maximize2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Plus, GripVertical, Share2, Pencil, SlidersHorizontal } from "lucide-react";
+import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut, Maximize2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Plus, GripVertical, Share2, Pencil, SlidersHorizontal, FileText } from "lucide-react";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { StudioVideoScenarioPanel, buildScenario, extractKeywords, scenarioFromTemplateProps, type Scenario, type SceneMediaMap, type SceneMediaItem, type ScenarioEdits } from "@/components/StudioVideoScenarioPanel";
@@ -562,7 +563,7 @@ export default function StudioVideo() {
       const b: any = biz.data ?? {};
       const imgs: string[] = Array.isArray(b.images) ? b.images : [];
       const docVideos = ((docs.data ?? []) as any[])
-        .filter((d) => d.url)
+        .filter((d) => d.url && isInternalVideoUrl(d.url))
         .map((d) => ({ url: d.url as string, thumbnail: (d.thumbnail_url as string) || null, title: (d.name as string) || "Vidéo", kind: "file" as const }));
       const ytVideos = ((yt.data ?? []) as any[]).map((v) => ({
         url: `https://www.youtube.com/watch?v=${v.video_id}`,
@@ -3283,8 +3284,7 @@ export default function StudioVideo() {
               {SHOWCASE_BUSINESS.map((s) => (
                 <div key={s.title} className="rounded-lg border border-border bg-background p-3 space-y-2">
                   <div className="text-sm font-medium">{s.title}</div>
-                  <VideoWithMeta src={s.src} />
-                  <p className="text-xs text-muted-foreground whitespace-pre-line">{s.prompt}</p>
+                  <VideoWithMeta src={s.src} extra={<PromptDialog prompt={s.prompt} />} />
                 </div>
               ))}
             </div>
@@ -3301,8 +3301,7 @@ export default function StudioVideo() {
               {SHOWCASE_FEATURES.map((s) => (
                 <div key={s.title} className="rounded-lg border border-border bg-background p-3 space-y-2">
                   <div className="text-sm font-medium">{s.title}</div>
-                  <VideoWithMeta src={s.src} />
-                  <p className="text-xs text-muted-foreground whitespace-pre-line">{s.prompt}</p>
+                  <VideoWithMeta src={s.src} extra={<PromptDialog prompt={s.prompt} />} />
                 </div>
               ))}
             </div>
@@ -3396,6 +3395,30 @@ function ShareVideoButton({ src }: { src: string }) {
     >
       <Share2 className="h-3 w-3" /> {copied ? "Lien copié" : "Partager"}
     </button>
+  );
+}
+
+function PromptDialog({ prompt }: { prompt: string }) {
+  const [open, setOpen] = useState(false);
+  if (!prompt) return null;
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="inline-flex items-center gap-1 text-xs underline"
+      >
+        <FileText className="h-3 w-3" /> Prompt
+      </button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto bg-white text-neutral-900">
+          <DialogHeader>
+            <DialogTitle className="text-neutral-900">Prompt utilisé</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm whitespace-pre-line text-neutral-700">{prompt}</p>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -3552,9 +3575,8 @@ function JobCard({
           <VideoWithMeta
             src={job.output_url}
             createdAt={job.created_at}
-            extra={<VideoParamsDialog job={job} />}
+            extra={<><PromptDialog prompt={job.prompt} /><VideoParamsDialog job={job} /></>}
           />
-          <p className="text-xs text-muted-foreground whitespace-pre-line">{job.prompt}</p>
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -3577,12 +3599,12 @@ function JobCard({
         </div>
       ) : job.status === "error" ? (
         <div className="space-y-2">
-          <p className="text-xs text-muted-foreground whitespace-pre-line">{job.prompt}</p>
+          <PromptDialog prompt={job.prompt} />
           <p className="text-xs text-destructive">{job.error_message ?? "Erreur"}</p>
         </div>
       ) : (
         <div className="space-y-2">
-          <p className="text-xs text-muted-foreground whitespace-pre-line">{job.prompt}</p>
+          <PromptDialog prompt={job.prompt} />
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>{job.duration_sec}s · {job.tone}</span>
             <span className="uppercase tracking-wide">{job.status}</span>
@@ -3655,9 +3677,9 @@ function VideoParamsDialog({ job }: { job: Job }) {
         <SlidersHorizontal className="h-3 w-3" /> Paramètres
       </button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto bg-white text-neutral-900 [&_.text-muted-foreground]:text-neutral-500 [&_p]:text-neutral-700">
           <DialogHeader>
-            <DialogTitle>Paramètres de la vidéo</DialogTitle>
+            <DialogTitle className="text-neutral-900">Paramètres de la vidéo</DialogTitle>
           </DialogHeader>
           {!hasParams ? (
             <p className="text-sm text-muted-foreground">
