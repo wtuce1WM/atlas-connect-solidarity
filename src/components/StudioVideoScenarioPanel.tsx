@@ -651,6 +651,27 @@ export function StudioVideoScenarioPanel({
     setOrderOverride((prev) => (prev ? prev.filter((t) => t !== tok) : prev));
   };
 
+  /** Supprime n'importe quelle étape (built-in ou personnalisée). */
+  const removeScene = (id: string) => {
+    if (isCustomToken(id)) {
+      removeCustomScene(customIdFromToken(id));
+      return;
+    }
+    const base = orderOverride ?? editedScenes.map((s) => s.id);
+    setOrderOverride(base.filter((t) => t !== id));
+    setDurationOverrides((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+    setSplitOverrides((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  };
+
+
 
   return (
     <div className={cn("rounded-xl border border-border bg-card p-6 space-y-5", className)}>
