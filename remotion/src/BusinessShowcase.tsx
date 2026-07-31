@@ -1707,9 +1707,9 @@ const SceneWhatsapp: React.FC<{ number: string; durationFrames: number; textPosi
 
 export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   lang = "fr",
-  name,
-  hook,
-  tagline,
+  name: nameProp,
+  hook: hookProp,
+  tagline: taglineProp,
   city,
   neighborhood,
   images = [],
