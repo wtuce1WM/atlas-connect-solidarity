@@ -150,6 +150,10 @@ const StaffIA = () => {
                   <MessageSquare className="h-4 w-4" />
                   Suggestions Club
                 </TabsTrigger>
+                <TabsTrigger value="club-followups" className="gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  Relances Club
+                </TabsTrigger>
                 <TabsTrigger value="followups-prompt" className="gap-2">
                   <Brain className="h-4 w-4" />
                   Prompt follow-ups
@@ -160,6 +164,9 @@ const StaffIA = () => {
               </TabsContent>
               <TabsContent value="club">
                 <ClubAiSuggestionsManagement />
+              </TabsContent>
+              <TabsContent value="club-followups">
+                <ClubAiFollowupsManagement />
               </TabsContent>
               <TabsContent value="followups-prompt">
                 <ClubFollowupPromptEditor />
