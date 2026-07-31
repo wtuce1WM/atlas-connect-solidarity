@@ -4970,6 +4970,45 @@ export type Database = {
         }
         Relationships: []
       }
+      image_compression_log: {
+        Row: {
+          business_id: string
+          compressed_path: string
+          compressed_size_kb: number | null
+          compressed_url: string
+          created_at: string
+          id: string
+          original_path: string
+          original_size_kb: number | null
+          original_url: string
+          reverted_at: string | null
+        }
+        Insert: {
+          business_id: string
+          compressed_path: string
+          compressed_size_kb?: number | null
+          compressed_url: string
+          created_at?: string
+          id?: string
+          original_path: string
+          original_size_kb?: number | null
+          original_url: string
+          reverted_at?: string | null
+        }
+        Update: {
+          business_id?: string
+          compressed_path?: string
+          compressed_size_kb?: number | null
+          compressed_url?: string
+          created_at?: string
+          id?: string
+          original_path?: string
+          original_size_kb?: number | null
+          original_url?: string
+          reverted_at?: string | null
+        }
+        Relationships: []
+      }
       knowledge_entries: {
         Row: {
           business_id: string | null
