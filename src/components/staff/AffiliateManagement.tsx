@@ -28,6 +28,11 @@ import { Loader2, Users, TrendingUp, DollarSign, Plus, Edit, Trash2, Key, UserPl
 import BusinessAnalyticsPanel from "@/components/affiliate/BusinessAnalyticsPanel";
 
 
+interface AffiliateBusiness {
+  id: string;
+  name: string;
+}
+
 interface Affiliate {
   id: string;
   account_type: string | null;
@@ -69,6 +74,7 @@ interface AffiliateManagementProps {
 const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementProps) => {
   const { toast } = useToast();
   const [affiliates, setAffiliates] = useState<Affiliate[]>([]);
+  const [businessesByAffiliate, setBusinessesByAffiliate] = useState<Record<string, AffiliateBusiness[]>>({});
   const [categories, setCategories] = useState<{ id: string; name_fr: string }[]>([]);
   const [countries, setCountries] = useState<{ id: string; name_fr: string }[]>([]);
   const [loading, setLoading] = useState(true);
@@ -131,8 +137,34 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
         description: "Impossible de charger les affiliés.",
       });
       setAffiliates([]);
+      setBusinessesByAffiliate({});
     } else {
-      setAffiliates(data || []);
+      const affiliateList = data || [];
+      setAffiliates(affiliateList);
+
+      if (affiliateList.length > 0) {
+        const ids = affiliateList.map(a => a.id);
+        const { data: bizData, error: bizError } = await supabase
+          .from('businesses')
+          .select('id, name, affiliate_id')
+          .in('affiliate_id', ids)
+          .order('name');
+
+        if (!bizError && bizData) {
+          const map: Record<string, AffiliateBusiness[]> = {};
+          affiliateList.forEach(a => { map[a.id] = []; });
+          bizData.forEach((b: any) => {
+            if (b.affiliate_id && map[b.affiliate_id] !== undefined) {
+              map[b.affiliate_id].push({ id: b.id, name: b.name });
+            }
+          });
+          setBusinessesByAffiliate(map);
+        } else {
+          setBusinessesByAffiliate({});
+        }
+      } else {
+        setBusinessesByAffiliate({});
+      }
     }
     setLoading(false);
   };
@@ -1108,12 +1140,36 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                           <Building2 className="h-4 w-4 text-primary" />
                         </Button>
                       </TableCell>
-                      <TableCell className="font-medium">
-                        {affiliate.name}
+                      <TableCell className="font-medium align-top">
+                        <div>{affiliate.name}</div>
                         {affiliate.ice && (
                           <span className="block text-xs text-muted-foreground">
                             ICE: {affiliate.ice}
                           </span>
+                        )}
+                        {(businessesByAffiliate[affiliate.id] || []).length > 0 && (
+                          <div className="mt-1.5 flex flex-wrap gap-1">
+                            {(businessesByAffiliate[affiliate.id] || []).slice(0, 5).map((b) => (
+                              <button
+                                key={b.id}
+                                onClick={() => setEditingBusinessesAffiliate(affiliate)}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-terracotta/10 text-terracotta text-xs hover:bg-terracotta/20 transition-colors whitespace-nowrap"
+                                title="Voir les établissements de cet affilié"
+                              >
+                                <Building2 className="h-3 w-3 shrink-0" />
+                                <span className="truncate max-w-[140px]">{b.name}</span>
+                              </button>
+                            ))}
+                            {(businessesByAffiliate[affiliate.id] || []).length > 5 && (
+                              <button
+                                onClick={() => setEditingBusinessesAffiliate(affiliate)}
+                                className="inline-flex items-center px-2 py-0.5 rounded bg-muted text-muted-foreground text-xs hover:bg-muted/80 transition-colors"
+                                title="Voir tous les établissements de cet affilié"
+                              >
+                                +{(businessesByAffiliate[affiliate.id] || []).length - 5} établissements
+                              </button>
+                            )}
+                          </div>
                         )}
                       </TableCell>
                        <TableCell className="text-center">
