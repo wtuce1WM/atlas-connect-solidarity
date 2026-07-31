@@ -36,7 +36,7 @@ export type Scene = {
   start: number;
   description: string;
   keywords: string[];
-  icon: "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "whatsapp" | "hours" | "map" | "digital" | "cta" | "outro" | "custom";
+  icon: "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "whatsapp" | "hours" | "map" | "digital" | "blog" | "cta" | "outro" | "custom";
 };
 
 export type Scenario = {
@@ -71,6 +71,7 @@ const ICONS: Record<Scene["icon"], React.ReactNode> = {
   hours: <Calendar className="h-3.5 w-3.5" />,
   map: <MapPin className="h-3.5 w-3.5" />,
   digital: <QrCode className="h-3.5 w-3.5" />,
+  blog: <Type className="h-3.5 w-3.5" />,
   cta: <Download className="h-3.5 w-3.5" />,
   outro: <Clock className="h-3.5 w-3.5" />,
   custom: <Type className="h-3.5 w-3.5" />,
@@ -95,6 +96,7 @@ const LABELS: Record<Exclude<Scene["icon"], "custom">, string> = {
   hours: "Horaires",
   map: "Localisation",
   digital: "ID numérique",
+  blog: "Articles de blog",
   cta: "Appel à l'action",
   outro: "Outro",
 };
@@ -298,6 +300,16 @@ export function scenarioFromTemplateProps(
   if (props?.showOpeningHours) push("hours", Math.max(2, Math.round(durationSec * 0.07)), "Horaires d'ouverture en surimpression.");
   if (props?.showMap) push("map", Math.max(2, Math.round(durationSec * 0.09)), `Marqueur Google Map${props.address ? ` — ${String(props.address).slice(0, 60)}` : ""}.`);
   if (props?.showDigitalId) push("digital", 3, "ID numérique : capture fiche, partage, QR code.");
+  if (props?.showBlogArticles && Array.isArray(props?.blogArticles) && props.blogArticles.length > 0) {
+    const titles = props.blogArticles.map((a: any) => a?.title).filter(Boolean).join(" · ");
+    push(
+      "blog",
+      Math.max(3, props.blogArticles.length * 3),
+      props?.blogMode === "scroll"
+        ? `Articles de blog (scroll vertical) : ${titles}`
+        : `Articles de blog (hero + zoom carte) : ${titles}`,
+    );
+  }
   if (props?.showWhatsapp && props?.whatsappNumber) {
     push("whatsapp", Math.max(2, Math.round(durationSec * 0.08)), `WhatsApp ${props.whatsappNumber} — logo #25D366 + effet libre au montage.`);
   }
@@ -314,7 +326,7 @@ function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenar
 }
 
 function sceneKindFor(icon: Scene["icon"]): SceneMediaKind | null {
-  if (icon === "custom" || icon === "popup" || icon === "highlight") return null;
+  if (icon === "custom" || icon === "popup" || icon === "highlight" || icon === "blog") return null;
   return icon as SceneMediaKind;
 }
 
@@ -325,6 +337,8 @@ const tokenForCustom = (id: string) => `custom:${id}`;
 const newCustomId = () =>
   `c_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
+export type PlaceOption = { id: string; name: string; group?: string | null };
+
 export type ScenarioEdits = {
   order: string[]; // ordered tokens: SceneMediaKind or `custom:<id>`
   durations: Partial<Record<SceneMediaKind, number>>; // seconds per built-in kind
@@ -333,6 +347,10 @@ export type ScenarioEdits = {
   textSplits?: Record<string, number>;
   // Overrides libres du texte des scènes (titre + description). Clé = SceneMediaKind pour built-in.
   textOverrides?: Partial<Record<SceneMediaKind, { label?: string; description?: string }>>;
+  /** POIs liés à une scène. Clé = SceneMediaKind ("hook" | "map") ou `custom:<id>`. */
+  scenePois?: Record<string, string[]>;
+  /** Destinations liées à une scène personnalisée. Clé = `custom:<id>`. */
+  sceneDestinations?: Record<string, string[]>;
 };
 
 export function StudioVideoScenarioPanel({
@@ -345,6 +363,8 @@ export function StudioVideoScenarioPanel({
   openAddDialog,
   onOpenAddDialogChange,
   beforeTimeline,
+  availablePois,
+  availableDestinations,
 }: {
   scenario: Scenario;
   className?: string;
@@ -356,6 +376,10 @@ export function StudioVideoScenarioPanel({
   onOpenAddDialogChange?: (open: boolean) => void;
   /** Contenu inséré juste avant la Timeline de production (ex. bande son). */
   beforeTimeline?: React.ReactNode;
+  /** POIs de la ville de l'établissement, regroupés par quartier (`group`). */
+  availablePois?: PlaceOption[];
+  /** Destinations sélectionnables (étapes personnalisées). */
+  availableDestinations?: PlaceOption[];
 }) {
   // Local edits: per-scene duration overrides + order override (by token) + custom scenes + text splits
   const [durationOverrides, setDurationOverrides] = useState<Record<string, number>>({});
@@ -363,6 +387,9 @@ export function StudioVideoScenarioPanel({
   const [customScenes, setCustomScenes] = useState<CustomScene[]>([]);
   const [splitOverrides, setSplitOverrides] = useState<Record<string, number>>({});
   const [textOverrides, setTextOverrides] = useState<Record<string, { label?: string; description?: string }>>({});
+  const [poiOverrides, setPoiOverrides] = useState<Record<string, string[]>>({});
+  const [destOverrides, setDestOverrides] = useState<Record<string, string[]>>({});
+  const [placesSceneKey, setPlacesSceneKey] = useState<string | null>(null);
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
   const [addOpenInternal, setAddOpenInternal] = useState(false);
   const [dragId, setDragId] = useState<string | null>(null);
@@ -384,6 +411,8 @@ export function StudioVideoScenarioPanel({
     setCustomScenes([]);
     setSplitOverrides({});
     setTextOverrides({});
+    setPoiOverrides({});
+    setDestOverrides({});
     onChangeScenarioEdits?.(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signature]);
@@ -442,7 +471,9 @@ export function StudioVideoScenarioPanel({
     const hasCustom = customScenes.length > 0;
     const hasSplits = Object.keys(splitOverrides).length > 0;
     const hasTextOv = Object.keys(textOverrides).length > 0;
-    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits && !hasTextOv) {
+    const hasPois = Object.values(poiOverrides).some((a) => a.length > 0);
+    const hasDests = Object.values(destOverrides).some((a) => a.length > 0);
+    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits && !hasTextOv && !hasPois && !hasDests) {
       onChangeScenarioEdits(null);
       return;
     }
@@ -477,9 +508,11 @@ export function StudioVideoScenarioPanel({
       customScenes: hasCustom ? customScenes : undefined,
       textSplits: hasSplits ? textSplits : undefined,
       textOverrides: hasTextOv ? (textOverrides as any) : undefined,
+      scenePois: hasPois ? poiOverrides : undefined,
+      sceneDestinations: hasDests ? destOverrides : undefined,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, textOverrides]);
+  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, textOverrides, poiOverrides, destOverrides]);
 
   const total = editedScenes.reduce((acc, s) => acc + s.duration, 0);
   if (!editedScenes.length && customScenes.length === 0) return null;
@@ -634,6 +667,30 @@ export function StudioVideoScenarioPanel({
         }}
       />
 
+      <PlacesPickerDialog
+        open={!!placesSceneKey}
+        onOpenChange={(o) => { if (!o) setPlacesSceneKey(null); }}
+        pois={availablePois ?? []}
+        destinations={placesSceneKey && isCustomToken(placesSceneKey) ? (availableDestinations ?? []) : []}
+        selectedPois={placesSceneKey ? (poiOverrides[placesSceneKey] ?? []) : []}
+        selectedDestinations={placesSceneKey ? (destOverrides[placesSceneKey] ?? []) : []}
+        onSubmit={(poiIds, destIds) => {
+          if (!placesSceneKey) return;
+          const k = placesSceneKey;
+          setPoiOverrides((prev) => {
+            const next = { ...prev };
+            if (poiIds.length === 0) delete next[k]; else next[k] = poiIds;
+            return next;
+          });
+          setDestOverrides((prev) => {
+            const next = { ...prev };
+            if (destIds.length === 0) delete next[k]; else next[k] = destIds;
+            return next;
+          });
+          setPlacesSceneKey(null);
+        }}
+      />
+
       <p className="text-[11px] text-muted-foreground italic">Glissez-déposez les scènes pour les réordonner. Ajustez la durée avec les boutons +/−.</p>
 
       <div className="space-y-3">
@@ -756,6 +813,32 @@ export function StudioVideoScenarioPanel({
                 </div>
               )}
 
+
+              {(scene.icon === "hook" || scene.icon === "map" || scene.icon === "custom") &&
+                ((availablePois?.length ?? 0) > 0 || (scene.icon === "custom" && (availableDestinations?.length ?? 0) > 0)) && (() => {
+                  const key = scene.icon === "custom" ? scene.id : scene.icon;
+                  const pois = poiOverrides[key] ?? [];
+                  const dests = destOverrides[key] ?? [];
+                  const names = [
+                    ...pois.map((id) => availablePois?.find((p) => p.id === id)?.name).filter(Boolean),
+                    ...dests.map((id) => availableDestinations?.find((d) => d.id === id)?.name).filter(Boolean),
+                  ] as string[];
+                  return (
+                    <div className="mt-2 flex items-center gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2.5 py-1.5">
+                      <MapPin className="h-3.5 w-3.5 text-neutral-500 shrink-0" />
+                      <span className="text-[11px] text-neutral-700 truncate">
+                        {names.length > 0 ? names.join(" · ") : "Aucun lieu lié"}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setPlacesSceneKey(key)}
+                        className="ml-auto shrink-0 text-[11px] underline text-neutral-700 hover:text-black"
+                      >
+                        {names.length > 0 ? "Modifier" : "Lier des lieux"}
+                      </button>
+                    </div>
+                  );
+                })()}
 
               {editable && kind && (
                 <SceneMediaSlot
@@ -1198,3 +1281,93 @@ function SceneTextEditDialog({
   );
 }
 
+
+
+function PlacesPickerDialog({
+  open,
+  onOpenChange,
+  pois,
+  destinations,
+  selectedPois,
+  selectedDestinations,
+  onSubmit,
+}: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  pois: PlaceOption[];
+  destinations: PlaceOption[];
+  selectedPois: string[];
+  selectedDestinations: string[];
+  onSubmit: (poiIds: string[], destIds: string[]) => void;
+}) {
+  const [p, setP] = useState<string[]>(selectedPois);
+  const [d, setD] = useState<string[]>(selectedDestinations);
+  const [q, setQ] = useState("");
+
+  useEffect(() => {
+    if (open) { setP(selectedPois); setD(selectedDestinations); setQ(""); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  const groups = useMemo(() => {
+    const norm = q.trim().toLowerCase();
+    const m = new Map<string, PlaceOption[]>();
+    for (const poi of pois) {
+      if (norm && !poi.name.toLowerCase().includes(norm)) continue;
+      const g = poi.group || "Autres";
+      if (!m.has(g)) m.set(g, []);
+      m.get(g)!.push(poi);
+    }
+    return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0], "fr"));
+  }, [pois, q]);
+
+  const toggle = (arr: string[], id: string) => (arr.includes(id) ? arr.filter((x) => x !== id) : [...arr, id]);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle>Lieux liés à l'étape</DialogTitle>
+        </DialogHeader>
+        <Input placeholder="Rechercher un lieu…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <div className="max-h-[50vh] overflow-y-auto space-y-4 pr-1">
+          {groups.map(([group, items]) => (
+            <div key={group}>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">{group}</p>
+              <div className="grid grid-cols-2 gap-1.5">
+                {items.map((poi) => (
+                  <label key={poi.id} className="flex items-center gap-2 text-xs cursor-pointer rounded px-1.5 py-1 hover:bg-muted">
+                    <input type="checkbox" checked={p.includes(poi.id)} onChange={() => setP((prev) => toggle(prev, poi.id))} />
+                    <span className="truncate">{poi.name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))}
+          {destinations.length > 0 && (
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">Destinations</p>
+              <div className="grid grid-cols-2 gap-1.5">
+                {destinations
+                  .filter((x) => !q.trim() || x.name.toLowerCase().includes(q.trim().toLowerCase()))
+                  .map((x) => (
+                    <label key={x.id} className="flex items-center gap-2 text-xs cursor-pointer rounded px-1.5 py-1 hover:bg-muted">
+                      <input type="checkbox" checked={d.includes(x.id)} onChange={() => setD((prev) => toggle(prev, x.id))} />
+                      <span className="truncate">{x.name}</span>
+                    </label>
+                  ))}
+              </div>
+            </div>
+          )}
+          {groups.length === 0 && destinations.length === 0 && (
+            <p className="text-xs text-muted-foreground">Aucun lieu disponible.</p>
+          )}
+        </div>
+        <DialogFooter>
+          <Button type="button" variant="ghost" onClick={() => { setP([]); setD([]); }}>Tout décocher</Button>
+          <Button type="button" onClick={() => onSubmit(p, d)}>Valider</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
