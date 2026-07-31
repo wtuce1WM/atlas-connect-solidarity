@@ -436,6 +436,31 @@ export function StudioVideoScenarioPanel({
     return m;
   }, [customScenes]);
 
+  // Insertion d'une étape depuis l'extérieur (popup « Estimer la durée »)
+  useEffect(() => {
+    if (!pendingCustomScene) return;
+    const scene: CustomScene = { ...pendingCustomScene, id: pendingCustomScene.id ?? newCustomId() };
+    setCustomScenes((prev) => [...prev, scene]);
+    setOrderOverride((prev) => {
+      const base = prev ?? scenario.scenes.map((s) => s.id);
+      const token = tokenForCustom(scene.id);
+      const closingIdx = base.findIndex((tok) => {
+        if (isCustomToken(tok)) return false;
+        const s = scenario.scenes.find((x) => x.id === tok);
+        return s?.icon === "cta" || s?.icon === "outro";
+      });
+      if (closingIdx === -1) return [...base, token];
+      return [...base.slice(0, closingIdx), token, ...base.slice(closingIdx)];
+    });
+    if (scene.splitCount && scene.splitCount > 1) {
+      setSplitOverrides((prev) => ({ ...prev, [tokenForCustom(scene.id)]: scene.splitCount! }));
+    }
+    onPendingCustomSceneConsumed?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingCustomScene]);
+
+
+
   const editedScenes = useMemo(() => {
     const byId = new Map(scenario.scenes.map((s) => [s.id, s]));
     const baseTokens = scenario.scenes.map((s) => s.id);
