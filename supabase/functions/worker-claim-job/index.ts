@@ -19,7 +19,7 @@ Deno.serve(async (req) => {
   const supabase = createClient(url, serviceRole);
 
   try {
-    const { data: candidate, error: selErr } = await supabase
+    let { data: candidate, error: selErr } = await supabase
       .from('video_jobs')
       .select('id')
       .eq('status', 'pending')
@@ -28,7 +28,30 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (selErr) throw selErr;
+
+    // Reclaim stale jobs: a runner that was killed (timeout/OOM) leaves the job
+    // stuck in "rendering" forever. After 25 min, put it back in the queue.
     if (!candidate) {
+      const staleBefore = new Date(Date.now() - 25 * 60 * 1000).toISOString();
+      const { data: stale } = await supabase
+        .from('video_jobs')
+        .select('id')
+        .eq('status', 'rendering')
+        .lt('updated_at', staleBefore)
+        .order('updated_at', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (stale) {
+        await supabase
+          .from('video_jobs')
+          .update({ status: 'pending', updated_at: new Date().toISOString() })
+          .eq('id', stale.id);
+        candidate = stale;
+      }
+    }
+
+    if (!candidate) {
+
       return new Response(JSON.stringify({ job: null }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
