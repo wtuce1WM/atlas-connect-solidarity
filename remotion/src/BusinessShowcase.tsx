@@ -1186,6 +1186,79 @@ const MotionBackdrop: React.FC<{
   );
 };
 
+// ===== Diaporama global d'images =====
+// Utilisé quand AUCUNE étape du scénario n'a de média assigné et que seules des
+// images sont sélectionnées : toutes les images défilent linéairement sur toute
+// la durée de la vidéo, à fréquence constante (indépendante de la durée des étapes).
+const SLIDESHOW_FAST_FRAMES = 22;
+
+const SlideshowSlide: React.FC<{ src: string; duration: number; effect: TransitionEffect; fade: number }> = ({ src, duration, effect, fade }) => {
+  const frame = useCurrentFrame();
+  const tone = useTone();
+  const p = duration > 0 ? Math.max(0, Math.min(1, frame / duration)) : 0;
+  const o = Math.min(ease(frame, 0, fade), 1 - ease(frame, duration - fade, duration));
+  let transform = `scale(${1.03 + p * 0.03})`;
+  let clipPath: string | undefined;
+  let opacity = o;
+  switch (effect) {
+    case "kenburns":
+      transform = `scale(${1.04 + p * (tone.kenBurnsZoom || 0.1)}) translate(${(p - 0.5) * 1.6}%, ${(0.5 - p) * 1.1}%)`;
+      break;
+    case "zoom":
+      transform = `scale(${1.16 - p * 0.12})`;
+      break;
+    case "slide":
+      transform = `scale(1.12) translateX(${(0.5 - p) * 5}%)`;
+      break;
+    case "wipe":
+      clipPath = `inset(0 ${(1 - ease(frame, 0, fade)) * 100}% 0 0)`;
+      opacity = 1 - ease(frame, duration - fade, duration);
+      break;
+    case "fade_black":
+      opacity = o * o;
+      break;
+    case "cut":
+      opacity = 1;
+      break;
+  }
+  return (
+    <AbsoluteFill style={{ opacity, clipPath, overflow: "hidden" }}>
+      <Img src={src} style={{ width: "100%", height: "100%", objectFit: "cover", transform }} />
+    </AbsoluteFill>
+  );
+};
+
+const GlobalImageSlideshow: React.FC<{ images: string[]; total: number; effect: TransitionEffect }> = ({ images, total, effect }) => {
+  const n = images.length;
+  if (!n || total <= 0) return null;
+  const fast = effect === "fast";
+  const per = fast ? SLIDESHOW_FAST_FRAMES : Math.max(12, Math.floor(total / n));
+  const count = fast ? Math.max(1, Math.ceil(total / per)) : n;
+  const fade = fast ? 5 : 16;
+  const slides: React.ReactNode[] = [];
+  for (let i = 0; i < count; i++) {
+    const start = fast ? i * per : Math.round((i * total) / n);
+    const end = fast ? Math.min(total, (i + 1) * per) : Math.round(((i + 1) * total) / n);
+    const base = Math.max(1, end - start);
+    const dur = i < count - 1 ? base + fade : base;
+    const src = images[i % n];
+    const eff = resolveMix(fast ? "crossfade" : effect, `${src}#${i}`);
+    slides.push(
+      <Sequence key={`slide-${i}`} from={start} durationInFrames={dur}>
+        <SlideshowSlide src={src} duration={dur} effect={eff} fade={fade} />
+      </Sequence>,
+    );
+  }
+  return (
+    <AbsoluteFill style={{ overflow: "hidden" }}>
+      {slides}
+      <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.34) 0%,rgba(14,11,8,0.56) 100%)" }} />
+    </AbsoluteFill>
+  );
+};
+
+
+
 const removeDecorativeTaglineWords = (value: string): string =>
   value
     .replace(/\bterracotta(?:é|e|s)?\b/gi, "")
