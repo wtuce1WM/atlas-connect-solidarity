@@ -36,6 +36,7 @@ const SECTIONS = [
   { id: "cout-tokens-ia-runtime", label: "Coût tokens IA runtime", icon: Coins, content: coutTokensIaRuntimeMd },
   { id: "methode-prompts-economie-credits", label: "Méthode prompts & crédits", icon: Wallet, content: methodePromptsMd },
   { id: "contexte-et-historique", label: "Contexte & historique", icon: History, content: contexteHistoriqueMd },
+  { id: "lovable-skills", label: "Skills Lovable", icon: Bot, content: lovableSkillsMd },
 ];
 
 
