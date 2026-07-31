@@ -148,8 +148,10 @@ export type ShowcaseProps = {
   showBlogArticles?: boolean;
   blogMode?: "scroll" | "hero_map";
   blogArticles?: Array<{ id: string; slug: string; mode?: "scroll" | "hero_map"; title: string; excerpt?: string | null; heroUrl?: string | null; url?: string | null; scrollShotUrl?: string | null }>;
-  scenePois?: Record<string, Array<{ id: string; name: string; hook?: string | null; image_url?: string | null; latitude?: number | null; longitude?: number | null }>>;
-  sceneDestinations?: Record<string, Array<{ id: string; name: string; hook?: string | null; image_url?: string | null; latitude?: number | null; longitude?: number | null }>>;
+  scenePois?: Record<string, PlaceItem[]>;
+  sceneDestinations?: Record<string, PlaceItem[]>;
+  /** Média des lieux liés : vidéo 1 (défaut) ou image 1. */
+  placesMediaMode?: "videos" | "images";
   durationSec?: number;
   useFullHookScene?: boolean;
   lang?: VideoLang;
@@ -1017,6 +1019,105 @@ const SceneMap: React.FC<{ lat: number; lng: number; name: string; address?: str
           {address}
         </div>
       )}
+    </AbsoluteFill>
+  );
+};
+
+export type PlaceItem = {
+  id: string;
+  name: string;
+  hook?: string | null;
+  image_url?: string | null;
+  media_url?: string | null;
+  media_kind?: "image" | "video" | null;
+  latitude?: number | null;
+  longitude?: number | null;
+};
+
+/**
+ * Montage des lieux liés à une étape : un plan par lieu (vidéo 1 ou image 1),
+ * avec libellé animé (nom + accroche). Sert de fond de la scène.
+ */
+const LinkedPlacesMontage: React.FC<{ places: PlaceItem[]; duration: number; mode: "videos" | "images" }> = ({
+  places,
+  duration,
+  mode,
+}) => {
+  const withMedia = (places ?? []).filter((p) => {
+    const url = mode === "images" ? (p.image_url || p.media_url) : (p.media_url || p.image_url);
+    return !!url;
+  });
+  if (withMedia.length === 0) return null;
+  const per = Math.max(24, Math.floor(duration / withMedia.length));
+  return (
+    <AbsoluteFill>
+      {withMedia.map((pl, i) => {
+        const url = (mode === "images" ? (pl.image_url || pl.media_url) : (pl.media_url || pl.image_url)) as string;
+        const isVid = isVideoSrc(url) && !(mode === "images" && pl.image_url);
+        const from = i * per;
+        const dur = i === withMedia.length - 1 ? Math.max(per, duration - from) : per;
+        return (
+          <Sequence key={`${pl.id}-${i}`} from={from} durationInFrames={dur}>
+            <PlaceShot url={url} isVideo={isVid} duration={dur} name={pl.name} hook={pl.hook ?? null} />
+          </Sequence>
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
+
+const PlaceShot: React.FC<{ url: string; isVideo: boolean; duration: number; name: string; hook?: string | null }> = ({
+  url,
+  isVideo,
+  duration,
+  name,
+  hook,
+}) => {
+  const frame = useCurrentFrame();
+  const o = ease(frame, 0, 14);
+  const p = duration > 0 ? Math.max(0, Math.min(1, frame / duration)) : 0;
+  const scale = 1.04 + p * 0.08;
+  return (
+    <AbsoluteFill style={{ overflow: "hidden", opacity: o }}>
+      {isVideo ? (
+        <OffthreadVideo src={url} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      ) : (
+        <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover", transform: `scale(${scale})` }} />
+      )}
+      <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.30) 0%,rgba(14,11,8,0.78) 100%)" }} />
+      <AbsoluteFill style={{ justifyContent: "flex-end", alignItems: "center", padding: 70, pointerEvents: "none" }}>
+        <div style={{ textAlign: "center", maxWidth: 900 }}>
+          <div
+            style={{
+              display: "inline-block",
+              fontFamily: body,
+              fontSize: 22,
+              color: COLORS.gold,
+              border: `1px solid ${COLORS.gold}`,
+              borderRadius: 999,
+              padding: "6px 16px",
+              marginBottom: 14,
+              opacity: ease(frame, 6, 22),
+            }}
+          >
+            📍 {name}
+          </div>
+          {hook && (
+            <div
+              style={{
+                fontFamily: display,
+                fontWeight: 700,
+                fontSize: 40,
+                lineHeight: 1.2,
+                color: COLORS.cream,
+                opacity: ease(frame, 14, 32),
+              }}
+            >
+              {hook}
+            </div>
+          )}
+        </div>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };
@@ -1914,6 +2015,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   blogArticles,
   scenePois,
   sceneDestinations,
+  placesMediaMode = "videos",
   durationSec,
   useFullHookScene,
   scene_media,
@@ -2515,15 +2617,31 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           )}
           {plan.map((s) => (
             <Sequence key={`${s.kind}-${s.from}`} from={s.from} durationInFrames={s.duration}>
-              <SceneTransition effect={transitionFor(s.kind)} duration={s.duration}>
-                {renderScene(s)}
-                <LinkedPlacesOverlay
-                  places={[
-                    ...((scenePois ?? {})[s.kind === "custom" && s.customId ? `custom:${s.customId}` : s.kind] ?? []),
-                    ...((sceneDestinations ?? {})[s.kind === "custom" && s.customId ? `custom:${s.customId}` : s.kind] ?? []),
-                  ]}
-                />
-              </SceneTransition>
+              {(() => {
+                const pk = s.kind === "custom" && s.customId ? `custom:${s.customId}` : s.kind;
+                const linked = [
+                  ...((scenePois ?? {})[pk] ?? []),
+                  ...((sceneDestinations ?? {})[pk] ?? []),
+                ];
+                const hasPlaceMedia = linked.some((pl) =>
+                  placesMediaMode === "images" ? !!(pl.image_url || pl.media_url) : !!(pl.media_url || pl.image_url),
+                );
+                return (
+                  <SceneTransition effect={transitionFor(s.kind)} duration={s.duration}>
+                    {hasPlaceMedia ? (
+                      <>
+                        <LinkedPlacesMontage places={linked} duration={s.duration} mode={placesMediaMode} />
+                        <SuppressBgContext.Provider value={true}>{renderScene(s)}</SuppressBgContext.Provider>
+                      </>
+                    ) : (
+                      <>
+                        {renderScene(s)}
+                        <LinkedPlacesOverlay places={linked} />
+                      </>
+                    )}
+                  </SceneTransition>
+                );
+              })()}
             </Sequence>
           ))}
 
