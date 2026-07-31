@@ -16,6 +16,7 @@ import SearchAnalytics from "@/pages/SearchAnalytics";
 import TestSuitePanel from "@/components/staff/TestSuitePanel";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement";
+import ApiKnowledgeIndex from "@/components/staff/ApiKnowledgeIndex";
 import EasterEggManagement from "@/components/staff/EasterEggManagement";
 import MasterDashboard from "@/components/staff/MasterDashboard";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
@@ -173,6 +174,7 @@ const StaffMaster = () => {
           </TabsContent>
 
           <TabsContent value="knowledge" className="space-y-6">
+            <ApiKnowledgeIndex />
             <KnowledgeBaseManagement
               categories={["AI", "API", "search-engine", "voice-search", "opening-hours", "UI", "architecture", "business-rules", "bug-fix", "tech", "technique"]}
               newEntryLabel="Nouvelle note technique"
