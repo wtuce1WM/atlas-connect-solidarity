@@ -354,6 +354,9 @@ export type ScenarioEdits = {
   scenePois?: Record<string, string[]>;
   /** Destinations liées à une scène personnalisée. Clé = `custom:<id>`. */
   sceneDestinations?: Record<string, string[]>;
+  /** Média utilisé pour le montage des lieux liés (vidéo 1 ou image 1). Défaut : vidéos. */
+  placesMediaMode?: "videos" | "images";
+
 };
 
 export function StudioVideoScenarioPanel({
