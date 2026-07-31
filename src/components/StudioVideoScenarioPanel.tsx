@@ -1031,14 +1031,14 @@ function CustomSceneDialog({
               </button>
               <button
                 type="button"
-                onClick={() => { setMode("overlay"); if (!mediaUrl && available[0]) setMediaUrl(available[0].url); }}
+                onClick={() => setMode("overlay")}
                 className={cn(
                   "rounded-md border p-3 text-left text-xs transition-colors",
                   mode === "overlay" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
                 )}
               >
                 <div className="font-bold mb-0.5">Overlay sur média</div>
-                <div className="text-muted-foreground">Texte superposé à une image ou vidéo.</div>
+                <div className="text-muted-foreground">Texte superposé à une image ou vidéo (média optionnel).</div>
               </button>
             </div>
           </div>
