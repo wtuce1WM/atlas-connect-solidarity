@@ -69,6 +69,7 @@ type Row = {
   followups: Followup[];
   business_ids: string[];
   destination_ids: string[];
+  blog_post_ids: string[];
   subcategory_ids: string[];
   badge_ids: string[];
   city: string | null;
@@ -81,6 +82,7 @@ type Row = {
 };
 
 type BusinessOption = { id: string; name: string; slug: string | null };
+type BlogOption = { id: string; title: string; slug: string | null };
 type DestinationOption = { id: string; name_fr: string; name_en: string | null; name_ar: string | null };
 type SubcategoryOption = { id: string; name_fr: string };
 type BadgeOption = { id: string; name_fr: string };
@@ -89,6 +91,7 @@ type GlobalFollowup = { id: string; label_fr: string; is_active: boolean; sort_o
 const EmbedAiSuggestionsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
   const [businesses, setBusinesses] = useState<BusinessOption[]>([]);
+  const [blogPosts, setBlogPosts] = useState<BlogOption[]>([]);
   const [destinations, setDestinations] = useState<DestinationOption[]>([]);
   const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
   const [badges, setBadges] = useState<BadgeOption[]>([]);
@@ -127,10 +130,10 @@ const EmbedAiSuggestionsManagement = () => {
       }
       return all;
     };
-    const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }] = await Promise.all([
+    const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }, { data: posts }] = await Promise.all([
       supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,subcategory_ids,badge_ids,city,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,badge_ids,city,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids")
         .order("sort_order", { ascending: true }),
       fetchAllBusinesses(),
       supabase
@@ -149,6 +152,10 @@ const EmbedAiSuggestionsManagement = () => {
         .from("embed_ai_followups")
         .select("id,label_fr,is_active,sort_order")
         .order("sort_order", { ascending: true }),
+      supabase
+        .from("blog_posts")
+        .select("id,title_fr,title_en,slug")
+        .order("title_fr", { ascending: true }),
     ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows(
@@ -157,6 +164,7 @@ const EmbedAiSuggestionsManagement = () => {
         followups: Array.isArray(r.followups) ? r.followups : [],
         business_ids: Array.isArray(r.business_ids) ? r.business_ids : [],
         destination_ids: Array.isArray(r.destination_ids) ? r.destination_ids : [],
+        blog_post_ids: Array.isArray(r.blog_post_ids) ? r.blog_post_ids : [],
         subcategory_ids: Array.isArray(r.subcategory_ids) ? r.subcategory_ids : [],
         badge_ids: Array.isArray(r.badge_ids) ? r.badge_ids : [],
         disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
@@ -171,6 +179,11 @@ const EmbedAiSuggestionsManagement = () => {
     setSubcategories(((subs as any[]) || []).map((s) => ({ id: s.id, name_fr: s.name_fr || "(sans nom)" })));
     setBadges(((bdgs as any[]) || []).map((b) => ({ id: b.id, name_fr: b.name_fr || "(sans nom)" })));
     setGlobalFollowups(((fups as any[]) || []).map((f) => ({ id: f.id, label_fr: f.label_fr || "", is_active: !!f.is_active, sort_order: f.sort_order || 0 })));
+    setBlogPosts(
+      ((posts as any[]) || [])
+        .map((p) => ({ id: p.id, slug: p.slug, title: (p.title_fr || p.title_en || p.slug || "(sans titre)").trim() }))
+        .sort((a, b) => a.title.localeCompare(b.title, "fr", { sensitivity: "base" }))
+    );
 
     setDirty(new Set());
     setLoading(false);
@@ -232,7 +245,7 @@ const EmbedAiSuggestionsManagement = () => {
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], subcategory_ids: [], badge_ids: [], city: null, disabled_followup_ids: [], mode: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [] } as Row]);
+    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], blog_post_ids: [], subcategory_ids: [], badge_ids: [], city: null, disabled_followup_ids: [], mode: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [] } as Row]);
   };
 
 
@@ -257,6 +270,7 @@ const EmbedAiSuggestionsManagement = () => {
           followups: r.followups.filter((f) => (f.label_fr || "").trim()),
           business_ids: r.business_ids || [],
           destination_ids: r.destination_ids || [],
+          blog_post_ids: r.blog_post_ids || [],
           subcategory_ids: r.subcategory_ids || [],
           badge_ids: r.badge_ids || [],
           city: r.city || null,
@@ -528,6 +542,46 @@ const EmbedAiSuggestionsManagement = () => {
                       </div>
                     )}
                   </div>
+                </div>
+
+
+                <div className="space-y-2">
+                  <label className="text-xs text-muted-foreground">
+                    Articles de blog liés {r.blog_post_ids.length === 0 ? "(aucun — détection auto par l'IA)" : `(${r.blog_post_ids.length} — lien explicite prioritaire)`}
+                  </label>
+                  {r.blog_post_ids.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {r.blog_post_ids.map((pid) => {
+                        const p = blogPosts.find((x) => x.id === pid);
+                        return (
+                          <span key={pid} className="inline-flex items-center gap-1 rounded-md bg-primary/10 text-primary text-xs px-2 py-1">
+                            {p?.title || pid}
+                            <button
+                              type="button"
+                              onClick={() => update(r.id, { blog_post_ids: r.blog_post_ids.filter((x) => x !== pid) })}
+                              className="hover:text-destructive"
+                              title="Retirer"
+                            >×</button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <select
+                    value=""
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (!v) return;
+                      if (!r.blog_post_ids.includes(v)) update(r.id, { blog_post_ids: [...r.blog_post_ids, v] });
+                    }}
+                    className="h-9 rounded-md border border-input bg-background px-2 text-sm w-full max-w-md"
+                    title="Ajouter un article de blog"
+                  >
+                    <option value="">— Ajouter un article —</option>
+                    {blogPosts.filter((p) => !r.blog_post_ids.includes(p.id)).map((p) => (
+                      <option key={p.id} value={p.id}>{p.title}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="space-y-2">

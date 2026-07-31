@@ -2606,6 +2606,9 @@ Deno.serve(async (req) => {
         let suggestionMode: string | null = null;
         let suggestionLabel: string | null = null;
         let suggestionDestinationIds: string[] = [];
+        // Staff-pinned blog articles for this suggestion (explicit link wins over
+        // semantic detection — same rule as the Club assistant).
+        let suggestionBlogIds: string[] = [];
         // Curated two-entity proximity: staff-picked subcats/badges for A and B.
         // When both sides have at least one mapping, the two-entity route runs
         // with these exact mappings and bypasses free-text term resolution.
@@ -2617,7 +2620,7 @@ Deno.serve(async (req) => {
           try {
             const { data: sugg } = await admin
               .from("embed_ai_suggestions")
-              .select("subcategory_ids, badge_ids, business_ids, destination_ids, mode, label_fr, label_en, label_ar, proximity_a_subcategory_ids, proximity_a_badge_ids, proximity_b_subcategory_ids, proximity_b_badge_ids")
+              .select("subcategory_ids, badge_ids, business_ids, destination_ids, blog_post_ids, mode, label_fr, label_en, label_ar, proximity_a_subcategory_ids, proximity_a_badge_ids, proximity_b_subcategory_ids, proximity_b_badge_ids")
               .eq("id", suggestionId)
               .maybeSingle();
             const subIds: string[] = Array.isArray(sugg?.subcategory_ids) ? sugg!.subcategory_ids : [];
@@ -2639,6 +2642,8 @@ Deno.serve(async (req) => {
             suggestionLabel = (sugg?.label_fr as string | null) || (sugg?.label_en as string | null) || (sugg?.label_ar as string | null) || null;
             const dIds: string[] = Array.isArray(sugg?.destination_ids) ? sugg!.destination_ids : [];
             if (dIds.length) suggestionDestinationIds = dIds;
+            const blogIds: string[] = Array.isArray(sugg?.blog_post_ids) ? sugg!.blog_post_ids.filter(Boolean) : [];
+            if (blogIds.length && !followupId) suggestionBlogIds = blogIds;
 
             // Load curated proximity mappings if both A and B are populated
             const paSub: string[] = Array.isArray(sugg?.proximity_a_subcategory_ids) ? sugg!.proximity_a_subcategory_ids : [];
@@ -2683,6 +2688,7 @@ Deno.serve(async (req) => {
             suggestionPinnedIds = [];
             suggestionMode = null;
             suggestionDestinationIds = [];
+            suggestionBlogIds = [];
           }
 
           // Explicit user scope overrides the heuristic for the deterministic
@@ -3392,7 +3398,24 @@ Deno.serve(async (req) => {
             const lastUserText = lastUserMsg?.role === "user" ? extractTextFromUIMessage(lastUserMsg) : "";
             if (lastUserText && lastUserText.trim().length >= 6) {
               const posts = await fetchBlogPostsCached(admin);
-              const match = matchBlogArticle(lastUserText, language, posts, host.id, host.name);
+              // Explicit staff link first (suggestion → blog_post_ids), semantic
+              // detection only as a fallback for free-text follow-ups.
+              const pinnedPosts = suggestionBlogIds
+                .map((id) => posts.find((p) => p.id === id))
+                .filter(Boolean) as BlogRow[];
+              const match = pinnedPosts[0] || matchBlogArticle(lastUserText, language, posts, host.id, host.name);
+              const extraPinned = pinnedPosts.slice(1);
+              const emitExtraArticleCards = () => {
+                for (const p of extraPinned) {
+                  const t =
+                    (language === "en" && p.title_en) ||
+                    (language === "ar" && p.title_ar) ||
+                    p.title_fr || p.title_en || p.title_ar || "";
+                  const img = p.custom_hero_image_url || p.cover_image_url || null;
+                  const payload = { id: p.id, slug: p.slug, title: t, image: img, hero: img, tldr: null, hook: null, intro: null, inline: false, isOwner: p.anchor_business_id === host.id };
+                  emitDelta(`\n\n<!--ARTICLE_CARD:${JSON.stringify(payload)}-->\n\n`);
+                }
+              };
               if (match) {
                 const title =
                   (language === "en" && match.title_en) ||
@@ -3604,6 +3627,7 @@ Deno.serve(async (req) => {
 
                 if (!blogRouteHandled) {
                   emitDelta(`\n\n<!--ARTICLE_CARD:${JSON.stringify(articlePayload)}-->\n\n`);
+                  emitExtraArticleCards();
                 }
               }
             }
