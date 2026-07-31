@@ -993,8 +993,7 @@ function CustomSceneDialog({
     setMediaUrl(initial?.media?.url ?? null);
   }, [open, initial]);
 
-  const canSubmit = title.trim().length > 0 && duration >= 1 && duration <= 60 &&
-    (mode !== "overlay" || (!!mediaUrl && !!available.find((m) => m.url === mediaUrl)));
+  const canSubmit = title.trim().length > 0 && duration >= 1 && duration <= 60;
 
   const submit = () => {
     if (!canSubmit) return;
