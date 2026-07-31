@@ -27,6 +27,15 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json();
     const { prompt, business_id, duration_sec = 30, tone = "immersif", parent_job_id, options, preview_only = false } = body;
+    // Langue du montage vidéo — indépendante de la langue du header front.
+    const videoLang: "fr" | "en" = options?.lang === "en" ? "en" : "fr";
+    // Choisit la variante linguistique avec repli FR systématique (jamais de trou).
+    const pickLang = (...vals: unknown[]): string | null => {
+      for (const v of vals) {
+        if (typeof v === "string" && v.trim()) return v;
+      }
+      return null;
+    };
 
     if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0 || prompt.length > 8000) {
       return json({ error: "prompt invalide" }, 400);
