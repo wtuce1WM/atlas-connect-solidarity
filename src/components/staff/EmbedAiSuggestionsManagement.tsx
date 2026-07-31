@@ -164,6 +164,7 @@ const EmbedAiSuggestionsManagement = () => {
         followups: Array.isArray(r.followups) ? r.followups : [],
         business_ids: Array.isArray(r.business_ids) ? r.business_ids : [],
         destination_ids: Array.isArray(r.destination_ids) ? r.destination_ids : [],
+        blog_post_ids: Array.isArray(r.blog_post_ids) ? r.blog_post_ids : [],
         subcategory_ids: Array.isArray(r.subcategory_ids) ? r.subcategory_ids : [],
         badge_ids: Array.isArray(r.badge_ids) ? r.badge_ids : [],
         disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
