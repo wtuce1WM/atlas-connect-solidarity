@@ -209,7 +209,7 @@ const splitHookInTwo = (h: string): [string, string] => {
 
 type SceneKind = "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "whatsapp" | "cta" | "outro";
 
-const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "popup", "hook", "name", "media", "highlight", "offer", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta"];
+const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "hook", "name", "offer", "popup", "media", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta"];
 
 function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
   switch (kind) {
@@ -1891,13 +1891,29 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
       if (!c) return null;
       const backdrop = c.media;
       const align = textPositionStyle(textPosition);
+      // Aucun média assigné → même comportement que les autres étapes :
+      // repli sur les médias de l'établissement avec effet de mouvement.
+      const cIdx = Math.max(0, (custom_scenes ?? []).findIndex((x) => x.id === c.id));
+      const fallbackUrl = bgFallback(cIdx);
       return (
         <AbsoluteFill>
           {backdrop
             ? (backdrop.kind === "video"
                 ? <VideoCover src={backdrop.url} from={0} duration={duration} />
                 : <VideoBackdrop image={backdrop.url} />)
-            : <AbsoluteFill style={{ backgroundColor: sceneBaseBg }} />}
+            : (
+              <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
+                {fallbackUrl && (
+                  <MotionBackdrop
+                    src={/\.(mp4|webm|mov)(\?|$)/i.test(fallbackUrl) ? fallbackUrl : undefined}
+                    image={/\.(mp4|webm|mov)(\?|$)/i.test(fallbackUrl) ? undefined : fallbackUrl}
+                    duration={duration}
+                    effect={trImageEffect}
+                  />
+                )}
+              </AbsoluteFill>
+            )}
+
           {c.mode === "overlay" && (
             <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.7) 100%)" }} />
           )}

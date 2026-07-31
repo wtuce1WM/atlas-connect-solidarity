@@ -235,15 +235,7 @@ export function scenarioFromTemplateProps(
   push("name", Math.max(2, Math.round(durationSec * 0.12)), hook || tagline || name);
   // Étape "media" (montage) : ajoutée manuellement par l'utilisateur via "Ajouter une étape".
 
-  // Popup (une scène dédiée si l'option est cochée et qu'une image popup existe)
-  if (props?.showPopup && props?.popupImageUrl) {
-    push("popup", Math.max(2, Math.round(durationSec * 0.08)), [
-      typeof props?.popupTitle === "string" ? props.popupTitle.trim() : "",
-      typeof props?.popupDescription === "string" ? props.popupDescription.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : "",
-    ].filter(Boolean).join("\n") || "Image d'accueil (popup) en plein écran.");
-  }
-
-  // Une scène par offre sélectionnée — texte exact repris dans la vidéo
+  // Une scène par offre sélectionnée — position 4 par défaut (juste après Nom / étape texte)
   const offersList: any[] = Array.isArray(props?.offers) ? props.offers : (offer ? [offer] : []);
   if (offersList.length > 0) {
     const perOffer = Math.max(3, Math.round((durationSec * 0.22) / offersList.length));
@@ -256,6 +248,15 @@ export function scenarioFromTemplateProps(
       push("offer", perOffer, desc, title ? `Offre — ${title.slice(0, 40)}` : undefined);
     }
   }
+
+  // Popup (une scène dédiée si l'option est cochée et qu'une image popup existe)
+  if (props?.showPopup && props?.popupImageUrl) {
+    push("popup", Math.max(2, Math.round(durationSec * 0.08)), [
+      typeof props?.popupTitle === "string" ? props.popupTitle.trim() : "",
+      typeof props?.popupDescription === "string" ? props.popupDescription.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : "",
+    ].filter(Boolean).join("\n") || "Image d'accueil (popup) en plein écran.");
+  }
+
 
   // Une scène par bloc highlight sélectionné — titre + texte exacts repris dans la vidéo
   const highlightsList: any[] = Array.isArray(props?.highlights) ? props.highlights : [];
@@ -532,13 +533,17 @@ export function StudioVideoScenarioPanel({
       if (exists) return prev.map((c) => (c.id === draft.id ? draft : c));
       return [...prev, draft];
     });
-    // Append to order if not already present
+    // Nouvelle étape texte : insérée en position 3 du scénario (après Ouverture + Nom).
     setOrderOverride((prev) => {
       const base = prev ?? editedScenes.map((s) => s.id);
       const tok = tokenForCustom(draft.id);
       if (base.includes(tok)) return base;
-      return [...base, tok];
+      const insertAt = Math.min(2, base.length);
+      const next = base.slice();
+      next.splice(insertAt, 0, tok);
+      return next;
     });
+
   };
 
   const removeCustomScene = (cid: string) => {
