@@ -3114,6 +3114,8 @@ export default function StudioVideo() {
                   beforeTimeline={soundtrackBlock}
                   availablePois={poiOptions}
                   availableDestinations={destOptions}
+                  pendingCustomScene={pendingCustomScene}
+                  onPendingCustomSceneConsumed={() => setPendingCustomScene(null)}
                 />
               </div>
             ) : scenario ? (
@@ -3128,6 +3130,8 @@ export default function StudioVideo() {
                 beforeTimeline={soundtrackBlock}
                 availablePois={poiOptions}
                 availableDestinations={destOptions}
+                pendingCustomScene={pendingCustomScene}
+                onPendingCustomSceneConsumed={() => setPendingCustomScene(null)}
               />
             ) : null
           )}
