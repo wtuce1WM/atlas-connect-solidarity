@@ -152,6 +152,10 @@ const EmbedAiSuggestionsManagement = () => {
         .from("embed_ai_followups")
         .select("id,label_fr,is_active,sort_order")
         .order("sort_order", { ascending: true }),
+      supabase
+        .from("blog_posts")
+        .select("id,title_fr,title_en,slug")
+        .order("title_fr", { ascending: true }),
     ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows(
