@@ -29,7 +29,16 @@ const textPositionStyle = (position: TextPosition = "middle"): React.CSSProperti
 };
 
 // ===== Transitions entre les plans =====
-export type TransitionEffect = "crossfade" | "fade_black" | "wipe" | "zoom" | "kenburns" | "slide" | "cut";
+export type TransitionEffect = "crossfade" | "fade_black" | "wipe" | "zoom" | "kenburns" | "slide" | "cut" | "fast" | "mix";
+// Effets réellement utilisables quand "Mix" est choisi (tout sauf fast / mix)
+const MIX_POOL: TransitionEffect[] = ["kenburns", "crossfade", "slide", "fade_black", "wipe", "zoom"];
+const hashString = (s: string): number => {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
+};
+const resolveMix = (effect: TransitionEffect, seed: string): TransitionEffect =>
+  effect === "mix" ? MIX_POOL[hashString(seed) % MIX_POOL.length] : effect;
 export type TransitionStyle = "auto" | "doux" | "dynamique" | "minimal";
 export type TransitionsConfig = {
   style?: TransitionStyle;
