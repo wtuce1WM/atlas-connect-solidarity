@@ -949,6 +949,47 @@ export default function StudioVideo() {
     }
   };
 
+  // Insère une étape personnalisée de la durée estimée, avec la vidéo sélectionnée
+  // en fond et le texte découpé en blocs de `wordsPerBlock` mots.
+  const insertEstimatedStep = () => {
+    if (!estimateResult) return;
+    const raw = estimateText.trim();
+    if (!raw) {
+      toast.error("Collez un texte à afficher.");
+      return;
+    }
+    const src = fromVideoUrl ?? Array.from(selectedVideos)[0] ?? bizVideos[0]?.url ?? null;
+    const meta = src ? bizVideos.find((v) => v.url === src) : undefined;
+    const media = src
+      ? {
+          kind: (meta?.kind === "youtube" || !!youtubeIdFromUrl(src) ? "youtube" : "video") as "youtube" | "video",
+          url: src,
+          title: meta?.title ?? "Vidéo",
+          thumbnail: meta?.thumbnail ?? null,
+        }
+      : undefined;
+
+    const lines = raw.split("\n").map((l) => l.trim()).filter(Boolean);
+    const title = (synthTitle || lines[0] || "Texte").slice(0, 80);
+    const body = (synthText || lines.slice(synthTitle ? 0 : 1).join(" ") || raw).trim();
+    const words = (body || raw).split(/\s+/).filter(Boolean).length;
+    const splitCount = Math.max(1, Math.ceil(words / wordsPerBlock));
+
+    setPendingCustomScene({
+      mode: media ? "overlay" : "fullscreen",
+      title,
+      subtitle: body || undefined,
+      duration: Math.max(3, Math.min(60, estimateResult.seconds)),
+      media,
+      mediaList: media ? [media] : undefined,
+      splitCount,
+    });
+    setEstimateOpen(false);
+    toast.success(`Étape de ${estimateResult.seconds}s insérée (${splitCount} bloc(s) de ~${wordsPerBlock} mots).`);
+  };
+
+
+
   const mediaMatches = useMemo(() => {
     const matches = new Map<string, string[]>();
     const add = (key: string, text: string) => {
