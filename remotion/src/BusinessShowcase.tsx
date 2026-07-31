@@ -166,6 +166,7 @@ export type ShowcaseProps = {
     duration: number; // seconds
     media?: { url: string; kind: "image" | "video" };
     mediaList?: Array<{ url: string; kind: "image" | "video" }>;
+    priceBadge?: string;
   }>;
   textPosition?: TextPosition;
   tone?: Tone;
