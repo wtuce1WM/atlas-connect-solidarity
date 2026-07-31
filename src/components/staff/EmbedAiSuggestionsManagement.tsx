@@ -544,6 +544,47 @@ const EmbedAiSuggestionsManagement = () => {
                   </div>
                 </div>
 
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs text-muted-foreground">
+                    Articles de blog liés {r.blog_post_ids.length === 0 ? "(aucun — détection auto par l'IA)" : `(${r.blog_post_ids.length} — lien explicite prioritaire)`}
+                  </label>
+                  {r.blog_post_ids.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {r.blog_post_ids.map((pid) => {
+                        const p = blogPosts.find((x) => x.id === pid);
+                        return (
+                          <span key={pid} className="inline-flex items-center gap-1 rounded-md bg-primary/10 text-primary text-xs px-2 py-1">
+                            {p?.title || pid}
+                            <button
+                              type="button"
+                              onClick={() => update(r.id, { blog_post_ids: r.blog_post_ids.filter((x) => x !== pid) })}
+                              className="hover:text-destructive"
+                              title="Retirer"
+                            >×</button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <select
+                    value=""
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (!v) return;
+                      if (!r.blog_post_ids.includes(v)) update(r.id, { blog_post_ids: [...r.blog_post_ids, v] });
+                    }}
+                    className="h-9 rounded-md border border-input bg-background px-2 text-sm w-full max-w-md"
+                    title="Ajouter un article de blog"
+                  >
+                    <option value="">— Ajouter un article —</option>
+                    {blogPosts.filter((p) => !r.blog_post_ids.includes(p.id)).map((p) => (
+                      <option key={p.id} value={p.id}>{p.title}</option>
+                    ))}
+                  </select>
+                </div>
+
                 <div className="space-y-2">
                   <label className="text-xs text-muted-foreground">
                     Sous-catégories ciblées {r.subcategory_ids.length === 0 ? "(aucune — recherche libre par l'IA)" : `(${r.subcategory_ids.length} — route déterministe)`}
