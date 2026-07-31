@@ -3282,8 +3282,8 @@ export default function StudioVideo() {
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {SHOWCASE_BUSINESS.map((s) => (
-                <div key={s.title} className="rounded-lg border border-border bg-background p-3 space-y-2">
-                  <div className="text-sm font-medium">{s.title}</div>
+                <div key={s.title} className="rounded-lg border border-border bg-white p-3 space-y-2 text-neutral-900">
+                  <div className="text-sm font-medium text-neutral-900">{s.title}</div>
                   <VideoWithMeta src={s.src} extra={<PromptDialog prompt={s.prompt} />} />
                 </div>
               ))}
@@ -3299,8 +3299,8 @@ export default function StudioVideo() {
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {SHOWCASE_FEATURES.map((s) => (
-                <div key={s.title} className="rounded-lg border border-border bg-background p-3 space-y-2">
-                  <div className="text-sm font-medium">{s.title}</div>
+                <div key={s.title} className="rounded-lg border border-border bg-white p-3 space-y-2 text-neutral-900">
+                  <div className="text-sm font-medium text-neutral-900">{s.title}</div>
                   <VideoWithMeta src={s.src} extra={<PromptDialog prompt={s.prompt} />} />
                 </div>
               ))}
@@ -3516,7 +3516,7 @@ function JobCard({
   };
 
   return (
-    <div className="rounded-lg border border-border bg-background p-3 space-y-2">
+    <div className="rounded-lg border border-border bg-white p-3 space-y-2 text-neutral-900">
       {businessName && <div className="text-sm font-medium">{businessName}</div>}
 
       {job.status === "done" && job.output_url ? (
