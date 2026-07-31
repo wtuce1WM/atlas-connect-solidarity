@@ -1236,6 +1236,31 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
         </CardContent>
       </Card>
 
+      <Dialog open={!!welcomeAffiliate} onOpenChange={(o) => !o && setWelcomeAffiliate(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Email de bienvenue</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Un email de bienvenue va être envoyé à{" "}
+              <span className="font-medium text-foreground">{welcomeAffiliate?.contact_email}</span>{" "}
+              avec un lien sécurisé pour créer son mot de passe et accéder à son espace partenaire.
+              {!welcomeAffiliate?.user_id && " Le compte sera créé automatiquement."}
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setWelcomeAffiliate(null)} disabled={welcomeSending}>
+                Annuler
+              </Button>
+              <Button onClick={sendWelcomeEmail} disabled={welcomeSending}>
+                {welcomeSending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Mail className="h-4 w-4 mr-2" />}
+                Envoyer
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={!!analyticsAffiliate} onOpenChange={(o) => !o && setAnalyticsAffiliate(null)}>
         <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
