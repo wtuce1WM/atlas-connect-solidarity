@@ -298,6 +298,8 @@ export default function StudioVideo() {
   const [estimateText, setEstimateText] = useState("");
   const [estimateResult, setEstimateResult] = useState<{ seconds: number; words: number; chars: number } | null>(null);
   const [estimateLoading, setEstimateLoading] = useState(false);
+  const [wordsPerBlock, setWordsPerBlock] = useState(12);
+  const [pendingCustomScene, setPendingCustomScene] = useState<any | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [previewing, setPreviewing] = useState(false);
   const [scenarioPreviewed, setScenarioPreviewed] = useState(false);
