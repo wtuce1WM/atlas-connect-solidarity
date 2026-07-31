@@ -95,6 +95,7 @@ const VanityResolver = lazy(() => import("./pages/VanityResolver"));
 const DestinationResolver = lazy(() => import("./pages/DestinationResolver"));
 const YouTubeChannelResolver = lazy(() => import("./pages/YouTubeChannelResolver"));
 const PublicClubProfile = lazy(() => import("./pages/PublicClubProfile"));
+const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 const PublicBusinessProfile = lazy(() => import("./pages/PublicBusinessProfile"));
 const Card = lazy(() => import("./pages/Card"));
 const ShowcaseSite = lazy(() => import("./pages/ShowcaseSite"));
@@ -203,6 +204,7 @@ const LocalizedRoutes = () => {
               <Route path="/subcategory/:subcategoryName" element={renderLazyRoute(<SubcategoryPage />)} />
               <Route path="/hotels" element={renderLazyRoute(<HotelSearch />)} />
               <Route path="/club" element={renderLazyRoute(<Club />)} />
+              <Route path="/.lovable/oauth/consent" element={renderLazyRoute(<OAuthConsent />)} />
               <Route path="/en/club" element={renderLazyRoute(<Club />)} />
               <Route path="/ar/club" element={renderLazyRoute(<Club />)} />
               <Route path="/staff/demo-effects" element={<StaffRouteGuard>{renderLazyRoute(<LogoEffectsDemo />)}</StaffRouteGuard>} />
