@@ -3,7 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bot, Building2, BookMarked, CheckCircle2, Palette, Mic, Pin, Users, Globe, Search, Share2, Video, Coins, Wallet, History } from "lucide-react";
+import { Bot, Building2, BookMarked, CheckCircle2, Palette, Mic, Pin, Users, Globe, Search, Share2, Video, Coins, Wallet, History, Plug } from "lucide-react";
 
 import architectureMd from "@/content/kb/architecture.md?raw";
 import glossaireMd from "@/content/kb/glossaire.md?raw";
@@ -20,6 +20,7 @@ import coutTokensIaRuntimeMd from "@/content/kb/cout-tokens-ia-runtime.md?raw";
 import methodePromptsMd from "@/content/kb/methode-prompts-economie-credits.md?raw";
 import contexteHistoriqueMd from "@/content/kb/contexte-et-historique.md?raw";
 import lovableSkillsMd from "@/content/kb/lovable-skills.md?raw";
+import connecteurMcpClaudeMd from "@/content/kb/connecteur-mcp-claude.md?raw";
 
 const SECTIONS = [
   { id: "architecture", label: "Règles d'architecture", icon: Building2, content: architectureMd },
@@ -37,6 +38,7 @@ const SECTIONS = [
   { id: "methode-prompts-economie-credits", label: "Méthode prompts & crédits", icon: Wallet, content: methodePromptsMd },
   { id: "contexte-et-historique", label: "Contexte & historique", icon: History, content: contexteHistoriqueMd },
   { id: "lovable-skills", label: "Skills Lovable", icon: Bot, content: lovableSkillsMd },
+  { id: "connecteur-mcp-claude", label: "Connecteur MCP / Claude", icon: Plug, content: connecteurMcpClaudeMd },
 ];
 
 
