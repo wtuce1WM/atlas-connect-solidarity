@@ -27,7 +27,7 @@ Plateforme de découverte et de réservation au Maroc, avec trois piliers actifs
 - **Curation avant volume** : je préfère un article plus court mais honnête plutôt qu'une liste gonflée artificiellement.
 - **Preuve avant affirmation** : "ça marche" ne suffit jamais. Je veux un signal observable (rechargement, requête, log, screenshot).
 - **Pas de bricolage** : quand une sous-système existe, on l'étend, on ne le refait pas en parallèle.
-- **Économie de crédits** : j'aiime instrumenter les coûts IA/tokens avant d'activer à grande échelle.
+- **Économie de crédits** : j'aime instrumenter les coûts IA/tokens avant d'activer à grande échelle.
 
 ## 4. Stack & vocabulaire interne
 
