@@ -2926,13 +2926,49 @@ export type Database = {
           },
         ]
       }
+      club_ai_followups: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          label_ar: string | null
+          label_en: string | null
+          label_fr: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label_ar?: string | null
+          label_en?: string | null
+          label_fr: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label_ar?: string | null
+          label_en?: string | null
+          label_fr?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       club_ai_suggestions: {
         Row: {
+          badge_ids: string[]
           blog_post_id: string | null
           blog_post_ids: string[]
           category: string | null
           city: string | null
           created_at: string
+          destination_ids: string[]
+          disabled_followup_ids: string[]
           fixed_response_ar: string | null
           fixed_response_en: string | null
           fixed_response_fr: string | null
@@ -2944,18 +2980,23 @@ export type Database = {
           label_embedding: string | null
           label_en: string | null
           label_fr: string
+          mode: string | null
           prompt_ar: string | null
           prompt_en: string | null
           prompt_fr: string | null
           sort_order: number
+          subcategory_ids: string[]
           updated_at: string
         }
         Insert: {
+          badge_ids?: string[]
           blog_post_id?: string | null
           blog_post_ids?: string[]
           category?: string | null
           city?: string | null
           created_at?: string
+          destination_ids?: string[]
+          disabled_followup_ids?: string[]
           fixed_response_ar?: string | null
           fixed_response_en?: string | null
           fixed_response_fr?: string | null
@@ -2967,18 +3008,23 @@ export type Database = {
           label_embedding?: string | null
           label_en?: string | null
           label_fr: string
+          mode?: string | null
           prompt_ar?: string | null
           prompt_en?: string | null
           prompt_fr?: string | null
           sort_order?: number
+          subcategory_ids?: string[]
           updated_at?: string
         }
         Update: {
+          badge_ids?: string[]
           blog_post_id?: string | null
           blog_post_ids?: string[]
           category?: string | null
           city?: string | null
           created_at?: string
+          destination_ids?: string[]
+          disabled_followup_ids?: string[]
           fixed_response_ar?: string | null
           fixed_response_en?: string | null
           fixed_response_fr?: string | null
@@ -2990,10 +3036,12 @@ export type Database = {
           label_embedding?: string | null
           label_en?: string | null
           label_fr?: string
+          mode?: string | null
           prompt_ar?: string | null
           prompt_en?: string | null
           prompt_fr?: string | null
           sort_order?: number
+          subcategory_ids?: string[]
           updated_at?: string
         }
         Relationships: [
