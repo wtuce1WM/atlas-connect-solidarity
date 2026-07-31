@@ -1054,6 +1054,10 @@ export default function StudioVideo() {
 
   const buildDirectivesPrompt = () => {
     const directives: string[] = [];
+    if (fromVideoOn && (synthTitle || synthText)) {
+      if (synthTitle) directives.push(`Utiliser ce titre comme hook (étape 2 du scénario), à la place du hook de l'établissement : « ${synthTitle} ».`);
+      if (synthText) directives.push(`Utiliser ce texte comme texte de la vidéo : « ${synthText} ».`);
+    }
     const logoAvailable = !!logoInfo.url && logoInfo.bg === "transparent";
     if (logoAvailable && optOpenWithLogo) directives.push(`Ouvrir la vidéo par une séquence courte (env. 20 frames) affichant le logo de l'établissement (fond transparent) centré sur un fond de marque, avec un fondu d'entrée doux, avant d'enchaîner sur le hook. URL du logo : ${logoInfo.url}`);
     if (optReviews) directives.push("Faire figurer le compteur d'avis client et le badge des avis client (note/20 + nombre d'avis).");
