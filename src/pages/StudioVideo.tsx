@@ -284,6 +284,8 @@ export default function StudioVideo() {
   const [optBlogArticles, setOptBlogArticles] = useState(false);
   const [selectedBlogIds, setSelectedBlogIds] = useState<Set<string>>(new Set());
   const [blogMode, setBlogMode] = useState<"scroll" | "hero_map">("hero_map");
+  /** Effet visuel par article de blog (surclasse le mode global). */
+  const [blogModes, setBlogModes] = useState<Record<string, "scroll" | "hero_map">>({});
   const [prompt, setPrompt] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [previewing, setPreviewing] = useState(false);
