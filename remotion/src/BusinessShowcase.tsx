@@ -1020,6 +1020,38 @@ const SceneMap: React.FC<{ lat: number; lng: number; name: string; address?: str
   );
 };
 
+const LinkedPlacesOverlay: React.FC<{ places: Array<{ id: string; name: string }> }> = ({ places }) => {
+  const frame = useCurrentFrame();
+  if (!places || places.length === 0) return null;
+  return (
+    <AbsoluteFill style={{ justifyContent: "flex-end", alignItems: "center", padding: 60, pointerEvents: "none" }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center", maxWidth: 900 }}>
+        {places.slice(0, 8).map((pl, i) => {
+          const o = ease(frame, 8 + i * 5, 24 + i * 5);
+          return (
+            <div
+              key={pl.id}
+              style={{
+                opacity: o,
+                transform: `translateY(${interpolate(o, [0, 1], [14, 0])}px)`,
+                fontFamily: body,
+                fontSize: 24,
+                color: COLORS.cream,
+                background: "rgba(14,11,8,0.6)",
+                border: `1px solid ${COLORS.gold}`,
+                borderRadius: 999,
+                padding: "8px 18px",
+              }}
+            >
+              📍 {pl.name}
+            </div>
+          );
+        })}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 const SceneBlogArticle: React.FC<{
   article: { title: string; excerpt?: string | null; heroUrl?: string | null; scrollShotUrl?: string | null };
   mode: "scroll" | "hero_map";
@@ -2474,6 +2506,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             <Sequence key={`${s.kind}-${s.from}`} from={s.from} durationInFrames={s.duration}>
               <SceneTransition effect={transitionFor(s.kind)} duration={s.duration}>
                 {renderScene(s)}
+                <LinkedPlacesOverlay
+                  places={[
+                    ...((scenePois ?? {})[s.kind === "custom" && s.customId ? `custom:${s.customId}` : s.kind] ?? []),
+                    ...((sceneDestinations ?? {})[s.kind === "custom" && s.customId ? `custom:${s.customId}` : s.kind] ?? []),
+                  ]}
+                />
               </SceneTransition>
             </Sequence>
           ))}
