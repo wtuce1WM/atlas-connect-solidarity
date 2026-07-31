@@ -849,16 +849,28 @@ export function StudioVideoScenarioPanel({
                   onChange={(next) => setForKind(kind, next)}
                 />
               )}
-              {editable && scene.icon === "custom" && isCustomToken(scene.id) && (
-                <CustomSceneMediaSlot
-                  available={availableMedia!}
-                  current={customById.get(customIdFromToken(scene.id))?.media ?? null}
-                  onChange={(media) => {
-                    const cid = customIdFromToken(scene.id);
-                    setCustomScenes((prev) => prev.map((c) => (c.id === cid ? { ...c, media: media ?? undefined } : c)));
-                  }}
-                />
-              )}
+              {editable && scene.icon === "custom" && isCustomToken(scene.id) && (() => {
+                const c = customById.get(customIdFromToken(scene.id));
+                const list = c?.mediaList ?? (c?.media ? [c.media] : []);
+                return (
+                  <SceneMediaSlot
+                    kind={"media" as SceneMediaKind}
+                    label="Médias de fond"
+                    items={list}
+                    available={availableMedia!}
+                    onChange={(next) => {
+                      const cid = customIdFromToken(scene.id);
+                      setCustomScenes((prev) =>
+                        prev.map((x) =>
+                          x.id === cid
+                            ? { ...x, mediaList: next.length ? next : undefined, media: next[0] ?? undefined }
+                            : x,
+                        ),
+                      );
+                    }}
+                  />
+                );
+              })()}
             </div>
           );
         })}
