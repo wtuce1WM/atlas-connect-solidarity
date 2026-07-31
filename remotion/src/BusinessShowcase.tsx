@@ -2698,7 +2698,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   // Fondu audio : léger à l'entrée (~0.8s), plus prononcé à la sortie (~2.5s)
   const AUDIO_FADE_IN = 24;
   const AUDIO_FADE_OUT = 75;
-  const { durationInFrames: totalFrames } = useVideoConfig();
+  const { durationInFrames: totalFrames, fps } = useVideoConfig();
+  const globalFrame = useCurrentFrame();
 
   const audioFadeVolume = (f: number) => {
     const inV = interpolate(f, [0, AUDIO_FADE_IN], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
@@ -2739,9 +2740,16 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                 // Vidéo plus courte que le scénario : on répète le média (image + son)
                 // via <Loop> pour couvrir toute la durée, au lieu de figer la fin.
                 if (loopFrames && loopFrames < totalFrames) {
+                  // Dans une boucle, le frame local repart à 0 : on fige le volume
+                  // sur le fondu global pour éviter un fade-out à chaque répétition.
                   return (
                     <Loop durationInFrames={loopFrames} layout="none">
-                      {video}
+                      <OffthreadVideo
+                        src={continuousBgVideoUrl as string}
+                        muted={!bgSoundOn}
+                        volume={bgSoundOn ? audioFadeVolume(globalFrame) : 0}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
                     </Loop>
                   );
                 }
