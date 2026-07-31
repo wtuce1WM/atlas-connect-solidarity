@@ -658,6 +658,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       const blogIds = (Array.isArray(options?.blog_article_ids) ? options.blog_article_ids : []).filter(isUuid).slice(0, 6) as string[];
       if (wantsBlog && blogIds.length) {
         const blogMode: "scroll" | "hero_map" = options?.blog_mode === "scroll" ? "scroll" : "hero_map";
+        const perArticleModes: Record<string, string> = (options?.blog_modes && typeof options.blog_modes === "object") ? options.blog_modes : {};
         const { data: postRows } = await supa
           .from("blog_posts")
           .select("id,slug,title_fr,title_en,excerpt_fr,excerpt_en,cover_image_url,custom_hero_image_url")
@@ -675,7 +676,9 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
               heroUrl: post.custom_hero_image_url || post.cover_image_url || null,
               url: `https://oneworldmorocco.com/blog/${post.slug}`,
             };
-            if (blogMode === "scroll" && fcKey) {
+            const itemMode: "scroll" | "hero_map" = perArticleModes[post.id] === "scroll" ? "scroll" : perArticleModes[post.id] === "hero_map" ? "hero_map" : blogMode;
+            item.mode = itemMode;
+            if (itemMode === "scroll" && fcKey) {
               try {
                 const fcRes = await fetch("https://api.firecrawl.dev/v2/scrape", {
                   method: "POST",
