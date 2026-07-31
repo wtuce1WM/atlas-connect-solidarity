@@ -2381,6 +2381,60 @@ export default function StudioVideo() {
               </div>
             </div>
 
+            <Dialog open={estimateOpen} onOpenChange={setEstimateOpen}>
+              <DialogContent className="max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>Estimer la durée du clip</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-3">
+                  {fromVideoOn && (synthTitle || synthText) && (
+                    <div className="rounded-md border border-border bg-muted/30 p-3 text-xs space-y-1">
+                      <div><span className="text-muted-foreground">Titre : </span><span className="font-semibold">{synthTitle || "—"}</span></div>
+                      <div><span className="text-muted-foreground">Txt : </span>{synthText || "—"}</div>
+                      {fromVideoUrl && youtubeIdFromUrl(fromVideoUrl) && (
+                        <div className="text-muted-foreground">ID vidéo : <span className="font-mono">{youtubeIdFromUrl(fromVideoUrl)}</span></div>
+                      )}
+                    </div>
+                  )}
+                  <Textarea
+                    rows={6}
+                    placeholder="Collez ici le texte à afficher dans le clip…"
+                    value={estimateText}
+                    onChange={(e) => { setEstimateText(e.target.value); setEstimateResult(null); }}
+                    className="text-sm"
+                  />
+                  <div className="flex gap-2">
+                    <Button type="button" size="sm" onClick={runEstimate} disabled={estimateLoading}>
+                      {estimateLoading
+                        ? <><Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> Estimation…</>
+                        : <>Estimer</>}
+                    </Button>
+                    {estimateResult && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const d = [15, 30, 45, 60].find((x) => x >= estimateResult.seconds) ?? 60;
+                          setDurationAuto(false);
+                          setDuration(d as 15 | 30 | 45 | 60);
+                          setEstimateOpen(false);
+                          toast.success(`Durée réglée sur ${d}s.`);
+                        }}
+                      >
+                        Appliquer à la durée
+                      </Button>
+                    )}
+                  </div>
+                  {estimateResult && (
+                    <p className="text-sm">
+                      Durée estimée : <span className="font-semibold">{estimateResult.seconds}s</span>{" "}
+                      <span className="text-muted-foreground text-xs">({estimateResult.words} mots · {estimateResult.chars} caractères)</span>
+                    </p>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
 
 
             <div className="space-y-2">
