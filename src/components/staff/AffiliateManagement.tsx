@@ -74,6 +74,7 @@ interface AffiliateManagementProps {
 const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementProps) => {
   const { toast } = useToast();
   const [affiliates, setAffiliates] = useState<Affiliate[]>([]);
+  const [businessesByAffiliate, setBusinessesByAffiliate] = useState<Record<string, AffiliateBusiness[]>>({});
   const [categories, setCategories] = useState<{ id: string; name_fr: string }[]>([]);
   const [countries, setCountries] = useState<{ id: string; name_fr: string }[]>([]);
   const [loading, setLoading] = useState(true);
