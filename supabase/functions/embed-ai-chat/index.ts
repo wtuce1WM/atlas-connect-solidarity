@@ -3627,6 +3627,7 @@ Deno.serve(async (req) => {
 
                 if (!blogRouteHandled) {
                   emitDelta(`\n\n<!--ARTICLE_CARD:${JSON.stringify(articlePayload)}-->\n\n`);
+                  emitExtraArticleCards();
                 }
               }
             }
