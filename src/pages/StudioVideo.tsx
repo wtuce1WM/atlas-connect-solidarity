@@ -2464,6 +2464,36 @@ export default function StudioVideo() {
                       </span>
                     )}
                   </div>
+                  {estimateResult && estimateBlocks.length > 0 && (
+                    <div className="rounded-md border border-neutral-200 bg-neutral-50 p-3 space-y-2">
+                      <div className="flex items-center justify-between text-[11px] text-neutral-500">
+                        <span className="font-semibold uppercase tracking-wider">Aperçu du découpage</span>
+                        <span>{estimateBlocks.length} bloc(s) · {estimateResult.seconds}s</span>
+                      </div>
+                      <div className="flex h-2 w-full overflow-hidden rounded-full bg-neutral-200">
+                        {estimateBlocks.map((b, i) => (
+                          <div
+                            key={i}
+                            style={{ width: `${((b.end - b.start) / estimateResult.seconds) * 100}%` }}
+                            className={i % 2 === 0 ? "bg-primary" : "bg-primary/50"}
+                          />
+                        ))}
+                      </div>
+                      <div className="max-h-40 overflow-y-auto space-y-1.5">
+                        {estimateBlocks.map((b, i) => (
+                          <div key={i} className="flex gap-2 text-xs">
+                            <span className="font-mono text-[11px] text-neutral-500 whitespace-nowrap pt-0.5">
+                              {b.start.toFixed(1)}s → {b.end.toFixed(1)}s
+                            </span>
+                            <span className="text-black">{b.text}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-[11px] text-neutral-500">
+                        Le dernier bloc se termine exactement à la fin de la durée estimée.
+                      </p>
+                    </div>
+                  )}
                   <div className="flex gap-2 flex-wrap">
                     <Button type="button" size="sm" onClick={runEstimate} disabled={estimateLoading}>
                       {estimateLoading
