@@ -166,7 +166,7 @@ export function buildScenario(
     push("logo", Math.max(2, Math.round(durationSec * 0.06)), "Ouverture sur le logo de l'établissement (fond transparent).");
   }
   push("hook", nameDuration, businessName ? `${businessName}` : "Nom de l'établissement");
-  push("name", hookDuration, businessName ? `Accroche sur ${businessName} et son ambiance.` : "Accroche immersive pour capter l'attention.");
+  push("name", hookDuration, options.hookText?.trim() || (businessName ? `Accroche sur ${businessName} et son ambiance.` : "Accroche immersive pour capter l'attention."));
 
   if (keywords.includes("offre") || keywords.includes("promotion") || keywords.includes("menu") || keywords.includes("pass") || keywords.includes("déjeuner") || keywords.includes("diner") || keywords.includes("spa")) {
     push("offer", Math.max(4, Math.round(durationSec * 0.22)), "Mise en avant de l'offre ou du produit phare du prompt.");
