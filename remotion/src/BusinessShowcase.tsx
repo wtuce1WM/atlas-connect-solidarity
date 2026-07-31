@@ -391,8 +391,14 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
         requested.push({ kind: raw as SceneKind });
       }
     }
-    for (const k of active) {
-      if (!requested.some((t) => t.kind === k)) requested.push({ kind: k });
+    // L'ordre explicite envoyé par l'aperçu est autoritaire : une étape retirée
+    // par l'utilisateur ne doit PAS être réinjectée automatiquement.
+    // Seule garantie : une scène de clôture (cta/outro) si aucune n'est présente.
+    if (
+      !requested.some((t) => t.kind === "cta" || t.kind === "outro") &&
+      (active as string[]).includes("cta")
+    ) {
+      requested.push({ kind: "cta" });
     }
     // cta and outro are two names for the same closing scene: keep only one.
     const hasOutro = requested.some((t) => t.kind === "outro");
@@ -587,7 +593,7 @@ const KenBurns: React.FC<{ src: string; from: number; duration: number }> = ({ s
         />
       )}
       <AbsoluteFill
-        style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.05) 40%,rgba(14,11,8,0.85) 100%)" }}
+        style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.02) 40%,rgba(14,11,8,0.55) 100%)" }}
       />
     </AbsoluteFill>
   );
@@ -1509,7 +1515,7 @@ const VideoCover: React.FC<{ src: string; from: number; duration: number }> = ({
         <Img src={src} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       )}
       <AbsoluteFill
-        style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.05) 40%,rgba(14,11,8,0.85) 100%)" }}
+        style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.02) 40%,rgba(14,11,8,0.55) 100%)" }}
       />
     </AbsoluteFill>
   );
@@ -1528,7 +1534,7 @@ const VideoBackdrop: React.FC<{ src?: string; image?: string }> = ({ src, image 
       ) : (
         <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       )}
-      <AbsoluteFill style={{ background: "rgba(14,11,8,0.72)" }} />
+      <AbsoluteFill style={{ background: "rgba(14,11,8,0.46)" }} />
     </AbsoluteFill>
   );
 };
@@ -1542,7 +1548,7 @@ const MotionBackdrop: React.FC<{
   duration: number;
   effect: TransitionEffect;
   veil?: string;
-}> = ({ src, image, duration, effect, veil = "rgba(14,11,8,0.72)" }) => {
+}> = ({ src, image, duration, effect, veil = "rgba(14,11,8,0.46)" }) => {
   const frame = useCurrentFrame();
   const tone = useTone();
   const suppressBg = useSuppressBg();
@@ -2115,6 +2121,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   showWhatsapp,
   whatsappNumber,
   textOverrides,
+  textSplits,
+  splitCount,
   continuousBgVideoUrl,
   continuousBgSound,
   soundtrackUrl,
@@ -2288,30 +2296,65 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
 
           {c.mode === "overlay" && (
-            <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.7) 100%)" }} />
+            <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0.18) 50%, rgba(0,0,0,0.45) 100%)" }} />
           )}
-          <AbsoluteFill style={{ display: "flex", flexDirection: "column", padding: "80px 60px", ...align }}>
-            <div style={{
-              color: "#fff",
-              fontFamily: display,
-              fontSize: 68,
-              fontWeight: 800,
-              lineHeight: 1.1,
-              textAlign: "center",
-              textShadow: "0 4px 24px rgba(0,0,0,0.55)",
-            }}>{c.title}</div>
-            {c.subtitle && (
+          {(() => {
+            const rawSplit = Number(
+              (textSplits ?? {})[`custom:${c.id}`] ?? (c as any).splitCount ?? splitCount ?? 1,
+            );
+            const nSplit = Number.isFinite(rawSplit) ? Math.max(1, Math.min(10, Math.round(rawSplit))) : 1;
+            const words = (c.subtitle ?? "").trim().split(/\s+/).filter(Boolean);
+            const chunks: string[] = [];
+            if (nSplit > 1 && words.length > 1) {
+              const per = Math.ceil(words.length / nSplit);
+              for (let i = 0; i < words.length; i += per) chunks.push(words.slice(i, i + per).join(" "));
+            }
+            const titleBlock = (
               <div style={{
-                marginTop: 20,
-                color: "rgba(255,255,255,0.92)",
-                fontFamily: body,
-                fontSize: 34,
-                lineHeight: 1.3,
+                color: "#fff",
+                fontFamily: display,
+                fontSize: 68,
+                fontWeight: 800,
+                lineHeight: 1.1,
                 textAlign: "center",
-                textShadow: "0 2px 12px rgba(0,0,0,0.5)",
-              }}>{c.subtitle}</div>
-            )}
-          </AbsoluteFill>
+                textShadow: "0 4px 24px rgba(0,0,0,0.55)",
+              }}>{c.title}</div>
+            );
+            const textStyle: React.CSSProperties = {
+              marginTop: 20,
+              color: "rgba(255,255,255,0.92)",
+              fontFamily: body,
+              fontSize: 34,
+              lineHeight: 1.3,
+              textAlign: "center",
+              textShadow: "0 2px 12px rgba(0,0,0,0.5)",
+            };
+            if (chunks.length > 1) {
+              const segFrames = Math.max(1, Math.round((duration * 30) / chunks.length));
+              return (
+                <>
+                  <AbsoluteFill style={{ display: "flex", flexDirection: "column", padding: "80px 60px", ...align }}>
+                    {titleBlock}
+                  </AbsoluteFill>
+                  {chunks.map((txt, i) => (
+                    <Sequence key={`split-${i}`} from={i * segFrames} durationInFrames={segFrames}>
+                      <AbsoluteFill style={{ display: "flex", flexDirection: "column", padding: "80px 60px", ...align }}>
+                        <div style={{ opacity: 0, fontSize: 68, lineHeight: 1.1 }}>{c.title}</div>
+                        <div style={textStyle}>{txt}</div>
+                      </AbsoluteFill>
+                    </Sequence>
+                  ))}
+                </>
+              );
+            }
+            return (
+              <AbsoluteFill style={{ display: "flex", flexDirection: "column", padding: "80px 60px", ...align }}>
+                {titleBlock}
+                {c.subtitle && <div style={textStyle}>{c.subtitle}</div>}
+              </AbsoluteFill>
+            );
+          })()}
+
           {c.priceBadge && <PriceBadge label={c.priceBadge} duration={duration} />}
         </AbsoluteFill>
       );
@@ -2681,7 +2724,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
 
-              <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.45) 0%,rgba(14,11,8,0.62) 100%)" }} />
+              <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.22) 0%,rgba(14,11,8,0.38) 100%)" }} />
             </AbsoluteFill>
           ) : slideshowMode ? (
             <GlobalImageSlideshow images={safeImages} total={totalFrames} effect={trImageEffect} />
