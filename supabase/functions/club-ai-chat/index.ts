@@ -1515,11 +1515,17 @@ serve(async (req) => {
     cancel() { controllerRef = null; },
   });
   const turnId = crypto.randomUUID();
+  // Curated follow-ups (Backoffice / IA / Relances Club). When a suggestion is
+  // matched and staff curated a list, it overrides the generated follow-ups on
+  // EVERY terminal `done` event, whatever route was taken.
+  let curatedFollowups: string[] | null = null;
   const emit: EmitFn = (obj: any) => {
     if (!controllerRef) return;
     // Auto-inject turnId in every terminal `done` event so the client can
     // attach 👍/👎 feedback to the exact row inserted into ai_conversation_turns.
-    const payload = obj && obj.type === "done" ? { ...obj, turnId } : obj;
+    const payload = obj && obj.type === "done"
+      ? { ...obj, turnId, ...(curatedFollowups && curatedFollowups.length ? { followups: curatedFollowups } : {}) }
+      : obj;
     try { controllerRef.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)); } catch {/* client aborted */}
   };
   const closeStream = () => { try { controllerRef?.close(); } catch {} controllerRef = null; };
