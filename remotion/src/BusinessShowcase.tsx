@@ -391,8 +391,14 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
         requested.push({ kind: raw as SceneKind });
       }
     }
-    for (const k of active) {
-      if (!requested.some((t) => t.kind === k)) requested.push({ kind: k });
+    // L'ordre explicite envoyé par l'aperçu est autoritaire : une étape retirée
+    // par l'utilisateur ne doit PAS être réinjectée automatiquement.
+    // Seule garantie : une scène de clôture (cta/outro) si aucune n'est présente.
+    if (
+      !requested.some((t) => t.kind === "cta" || t.kind === "outro") &&
+      (active as string[]).includes("cta")
+    ) {
+      requested.push({ kind: "cta" });
     }
     // cta and outro are two names for the same closing scene: keep only one.
     const hasOutro = requested.some((t) => t.kind === "outro");
@@ -587,7 +593,7 @@ const KenBurns: React.FC<{ src: string; from: number; duration: number }> = ({ s
         />
       )}
       <AbsoluteFill
-        style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.05) 40%,rgba(14,11,8,0.85) 100%)" }}
+        style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.02) 40%,rgba(14,11,8,0.55) 100%)" }}
       />
     </AbsoluteFill>
   );
@@ -1509,7 +1515,7 @@ const VideoCover: React.FC<{ src: string; from: number; duration: number }> = ({
         <Img src={src} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       )}
       <AbsoluteFill
-        style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.05) 40%,rgba(14,11,8,0.85) 100%)" }}
+        style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.02) 40%,rgba(14,11,8,0.55) 100%)" }}
       />
     </AbsoluteFill>
   );
@@ -1528,7 +1534,7 @@ const VideoBackdrop: React.FC<{ src?: string; image?: string }> = ({ src, image 
       ) : (
         <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       )}
-      <AbsoluteFill style={{ background: "rgba(14,11,8,0.72)" }} />
+      <AbsoluteFill style={{ background: "rgba(14,11,8,0.46)" }} />
     </AbsoluteFill>
   );
 };
@@ -1542,7 +1548,7 @@ const MotionBackdrop: React.FC<{
   duration: number;
   effect: TransitionEffect;
   veil?: string;
-}> = ({ src, image, duration, effect, veil = "rgba(14,11,8,0.72)" }) => {
+}> = ({ src, image, duration, effect, veil = "rgba(14,11,8,0.46)" }) => {
   const frame = useCurrentFrame();
   const tone = useTone();
   const suppressBg = useSuppressBg();
@@ -2115,6 +2121,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   showWhatsapp,
   whatsappNumber,
   textOverrides,
+  textSplits,
+  splitCount,
   continuousBgVideoUrl,
   continuousBgSound,
   soundtrackUrl,
@@ -2288,7 +2296,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
 
           {c.mode === "overlay" && (
-            <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.7) 100%)" }} />
+            <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0.18) 50%, rgba(0,0,0,0.45) 100%)" }} />
           )}
           <AbsoluteFill style={{ display: "flex", flexDirection: "column", padding: "80px 60px", ...align }}>
             <div style={{
@@ -2681,7 +2689,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
 
-              <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.45) 0%,rgba(14,11,8,0.62) 100%)" }} />
+              <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.22) 0%,rgba(14,11,8,0.38) 100%)" }} />
             </AbsoluteFill>
           ) : slideshowMode ? (
             <GlobalImageSlideshow images={safeImages} total={totalFrames} effect={trImageEffect} />
