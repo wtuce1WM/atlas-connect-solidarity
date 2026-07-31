@@ -1134,55 +1134,62 @@ function CustomSceneDialog({
             />
           </div>
 
-          {mode === "overlay" && (
-            <div>
-              <div className="flex items-center justify-between">
-                <Label className="text-xs uppercase tracking-wider">Média de fond (optionnel)</Label>
-                {mediaUrl && (
-                  <Button size="sm" variant="ghost" className="h-6 text-[11px]" onClick={() => setMediaUrl(null)}>
-                    Retirer
-                  </Button>
-                )}
-              </div>
-              {available.length === 0 ? (
-                <p className="text-xs text-muted-foreground mt-2">Aucun média disponible pour l'établissement sélectionné.</p>
-              ) : (
-                <div className="grid grid-cols-4 gap-2 mt-2 max-h-52 overflow-y-auto">
-                  {available.map((m) => {
-                    const selected = mediaUrl === m.url;
-                    return (
-                      <button
-                        key={m.url}
-                        type="button"
-                        onClick={() => setMediaUrl(selected ? null : m.url)}
-                        className={cn(
-                          "relative aspect-square rounded overflow-hidden border-2 transition-colors",
-                          selected ? "border-primary" : "border-transparent hover:border-primary/40"
-                        )}
-                      >
-                        {m.kind === "video" ? (
-                          <video
-                            src={m.url}
-                            className="w-full h-full object-cover"
-                            muted
-                            playsInline
-                            preload="metadata"
-                          />
-                        ) : (
-                          <img src={m.url} alt="" className="w-full h-full object-cover" />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-              {!mediaUrl && (
-                <p className="text-[11px] text-neutral-600 italic mt-2">
-                  Aucun média assigné — le rendu utilisera la sélection globale ou l'auto-choix IA.
-                </p>
+          <div>
+            <div className="flex items-center justify-between">
+              <Label className="text-xs uppercase tracking-wider">
+                Médias de fond (optionnel) · {mediaUrls.length}
+              </Label>
+              {mediaUrls.length > 0 && (
+                <Button size="sm" variant="ghost" className="h-6 text-[11px]" onClick={() => setMediaUrls([])}>
+                  Tout retirer
+                </Button>
               )}
             </div>
-          )}
+            {available.length === 0 ? (
+              <p className="text-xs text-muted-foreground mt-2">Aucun média disponible pour l'établissement sélectionné.</p>
+            ) : (
+              <div className="grid grid-cols-4 gap-2 mt-2 max-h-52 overflow-y-auto">
+                {available.map((m) => {
+                  const idx = mediaUrls.indexOf(m.url);
+                  const selected = idx >= 0;
+                  return (
+                    <button
+                      key={m.url}
+                      type="button"
+                      onClick={() => toggleUrl(m.url)}
+                      className={cn(
+                        "relative aspect-square rounded overflow-hidden border-2 transition-colors",
+                        selected ? "border-primary" : "border-transparent hover:border-primary/40"
+                      )}
+                    >
+                      {m.kind === "video" ? (
+                        <video
+                          src={m.url}
+                          className="w-full h-full object-cover"
+                          muted
+                          playsInline
+                          preload="metadata"
+                        />
+                      ) : (
+                        <img src={m.url} alt="" className="w-full h-full object-cover" />
+                      )}
+                      {selected && (
+                        <span className="absolute top-1 right-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold w-5 h-5 flex items-center justify-center">
+                          {idx + 1}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {mediaUrls.length === 0 && (
+              <p className="text-[11px] text-neutral-600 italic mt-2">
+                Aucun média assigné — le rendu utilisera la sélection globale ou l'auto-choix IA.
+              </p>
+            )}
+          </div>
+
         </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Annuler</Button>
