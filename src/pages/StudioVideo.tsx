@@ -843,6 +843,7 @@ export default function StudioVideo() {
           notify_email_to: notifyEmail ? (notifyEmailTo || null) : null,
 
           options: {
+            lang: videoLang,
             reviews: optReviews,
             hours: optHours,
             map_marker: optMapMarker,
@@ -1021,6 +1022,7 @@ export default function StudioVideo() {
           parent_job_id: refineFrom?.id ?? null,
           preview_only: true,
           options: {
+            lang: videoLang,
             reviews: optReviews,
             hours: optHours,
             map_marker: optMapMarker,
