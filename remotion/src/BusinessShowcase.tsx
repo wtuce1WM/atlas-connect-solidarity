@@ -74,6 +74,49 @@ const SuppressBgContext = React.createContext<boolean>(false);
 const useSuppressBg = (): boolean => React.useContext(SuppressBgContext);
 const useTone = (): ToneConfig => TONE_CONFIG[React.useContext(ToneContext)] ?? TONE_CONFIG.immersif;
 
+// ===== Langue du montage (indépendante de la langue du front) =====
+export type VideoLang = "fr" | "en";
+const LABELS = {
+  fr: {
+    offer: "Offre",
+    reviews: "Avis clients",
+    reviewsWord: "avis",
+    reviewsOf: (platform: string) => `Avis ${platform}`,
+    hours: "Horaires",
+    discover: (name: string) => `Découvrez ${name}`,
+    onPlatform: "sur One World Morocco",
+    installApp: "Installer l'app",
+    viewFullPage: "Voir la fiche complète",
+    scanToDiscover: "Scannez pour découvrir",
+    whatsappDirect: "WhatsApp direct",
+    numberLocale: "fr-FR",
+    defaultName: "Établissement",
+    defaultHook: "Une adresse à découvrir.",
+    defaultTagline: "L'art de vivre marocain.",
+  },
+  en: {
+    offer: "Offer",
+    reviews: "Customer reviews",
+    reviewsWord: "reviews",
+    reviewsOf: (platform: string) => `${platform} reviews`,
+    hours: "Opening hours",
+    discover: (name: string) => `Discover ${name}`,
+    onPlatform: "on One World Morocco",
+    installApp: "Get the app",
+    viewFullPage: "View full listing",
+    scanToDiscover: "Scan to discover",
+    whatsappDirect: "Direct WhatsApp",
+    numberLocale: "en-GB",
+    defaultName: "Venue",
+    defaultHook: "An address worth discovering.",
+    defaultTagline: "The Moroccan art of living.",
+  },
+} as const;
+const LangContext = React.createContext<VideoLang>("fr");
+const useL = () => LABELS[React.useContext(LangContext)] ?? LABELS.fr;
+
+
+
 export type ShowcaseProps = {
   name?: string;
   hook?: string;
@@ -104,6 +147,7 @@ export type ShowcaseProps = {
   ficheScreenshotUrl?: string | null;
   durationSec?: number;
   useFullHookScene?: boolean;
+  lang?: VideoLang;
   scene_media?: Partial<Record<"logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "whatsapp" | "cta" | "outro", Array<{ url: string; kind: "image" | "video" }>>>;
   scene_order?: Array<string>; // built-in kinds or `custom:<id>`
   scene_durations?: Partial<Record<string, number>>;
@@ -623,6 +667,7 @@ const SceneOffer: React.FC<{
   durationFrames?: number;
   textPosition?: TextPosition;
 }> = ({ offer, city, durationFrames = 120, textPosition = "middle" }) => {
+  const L = useL();
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
   const titleO = ease(frame, 14, 36);
@@ -643,7 +688,7 @@ const SceneOffer: React.FC<{
           textTransform: "uppercase",
         }}
       >
-        {city ? `Offre · ${city}` : "Offre"}
+        {city ? `${L.offer} · ${city}` : L.offer}
       </div>
       <div
         style={{
@@ -658,7 +703,7 @@ const SceneOffer: React.FC<{
           padding: "0 20px",
         }}
       >
-        {offer.title || lines[0] || "Offre"}
+        {offer.title || lines[0] || L.offer}
       </div>
       {hasPrice && (
         <div
@@ -713,6 +758,7 @@ const SceneOffer: React.FC<{
 };
 
 const SceneCta: React.FC<{ name: string; textPosition?: TextPosition }> = ({ name, textPosition = "middle" }) => {
+  const L = useL();
   const frame = useCurrentFrame();
   const iconS = spring({ frame, fps: 30, config: { damping: 14 } });
   const lineO = ease(frame, 18, 36);
@@ -736,8 +782,8 @@ const SceneCta: React.FC<{ name: string; textPosition?: TextPosition }> = ({ nam
           lineHeight: 1.15,
         }}
       >
-        Découvrez {name}
-        <br />sur One World Morocco
+        {L.discover(name)}
+        <br />{L.onPlatform}
       </div>
       <div
         style={{
@@ -756,6 +802,7 @@ const SceneCta: React.FC<{ name: string; textPosition?: TextPosition }> = ({ nam
 };
 
 const SceneInstallCta: React.FC<{ name: string; textPosition?: TextPosition }> = ({ name, textPosition = "middle" }) => {
+  const L = useL();
   const frame = useCurrentFrame();
   const iconS = spring({ frame, fps: 30, config: { damping: 14 } });
   const titleO = ease(frame, 12, 30);
@@ -801,7 +848,7 @@ const SceneInstallCta: React.FC<{ name: string; textPosition?: TextPosition }> =
           boxShadow: "0 18px 54px rgba(192,79,23,0.35)",
         }}
       >
-        Installer l'app
+        {L.installApp}
       </div>
       <div style={{ opacity: badgeO, marginTop: 24, fontFamily: body, color: COLORS.gold, fontSize: 24 }}>
         One World Morocco
@@ -811,6 +858,7 @@ const SceneInstallCta: React.FC<{ name: string; textPosition?: TextPosition }> =
 };
 
 const SceneReviews: React.FC<{ rating?: number | null; count?: number | null; textPosition?: TextPosition }> = ({ rating, count, textPosition = "middle" }) => {
+  const L = useL();
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
   const noteTarget = rating ? (rating > 5 ? rating : rating * 4) : null;
@@ -823,7 +871,7 @@ const SceneReviews: React.FC<{ rating?: number | null; count?: number | null; te
   return (
     <AbsoluteFill style={{ alignItems: "center", padding: 60, ...textPositionStyle(textPosition) }}>
       <div style={{ opacity: labelO, fontFamily: body, color: COLORS.gold, fontSize: 22, letterSpacing: 6, textTransform: "uppercase" }}>
-        Avis clients
+        {L.reviews}
       </div>
       {animatedNote && (
         <div
@@ -845,8 +893,8 @@ const SceneReviews: React.FC<{ rating?: number | null; count?: number | null; te
       )}
       {count != null && count > 0 && (
         <div style={{ marginTop: 30, fontFamily: display, fontWeight: 700, color: COLORS.cream, fontSize: 56, textShadow: "0 2px 12px rgba(0,0,0,0.7)" }}>
-          {animatedCount.toLocaleString("fr-FR")}
-          <span style={{ fontSize: 26, color: COLORS.gold, marginLeft: 14, letterSpacing: 3, textTransform: "uppercase" }}>avis</span>
+          {animatedCount.toLocaleString(L.numberLocale)}
+          <span style={{ fontSize: 26, color: COLORS.gold, marginLeft: 14, letterSpacing: 3, textTransform: "uppercase" }}>{L.reviewsWord}</span>
         </div>
       )}
     </AbsoluteFill>
@@ -854,6 +902,7 @@ const SceneReviews: React.FC<{ rating?: number | null; count?: number | null; te
 };
 
 const SceneHours: React.FC<{ openingHours: string | Record<string, string>; textPosition?: TextPosition }> = ({ openingHours, textPosition = "middle" }) => {
+  const L = useL();
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
   const entries: Array<[string, string]> = typeof openingHours === "string"
@@ -865,7 +914,7 @@ const SceneHours: React.FC<{ openingHours: string | Record<string, string>; text
   return (
     <AbsoluteFill style={{ alignItems: "center", padding: 60, ...textPositionStyle(textPosition) }}>
       <div style={{ opacity: labelO, fontFamily: body, color: COLORS.gold, fontSize: 22, letterSpacing: 6, textTransform: "uppercase" }}>
-        Horaires
+        {L.hours}
       </div>
       <div style={{ marginTop: 30, width: "85%", maxWidth: 620 }}>
         {entries.map(([day, hours], i) => {
@@ -963,6 +1012,7 @@ const SceneDigitalId: React.FC<{
   ficheScreenshotUrl?: string | null;
   textPosition?: TextPosition;
 }> = ({ name, slug, city, tagline, hook, image, logoUrl, ficheScreenshotUrl, rating, reviewsCount, textPosition = "middle" }) => {
+  const L = useL();
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
   const shareUrl = `https://oneworldmorocco.com/b/${encodeURIComponent(slug)}`;
@@ -1058,7 +1108,7 @@ const SceneDigitalId: React.FC<{
                   )}
                   <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
                     <div style={{ ...ctaBase, background: COLORS.terracotta }}>
-                      Voir la fiche complète
+                      {L.viewFullPage}
                       {shimmerEl}
                     </div>
                     <div style={{ ...ctaBase, background: "#1a1410", border: "1px solid rgba(212,175,55,0.4)", fontWeight: 600, fontSize: 14 }}>
@@ -1080,7 +1130,7 @@ const SceneDigitalId: React.FC<{
               <Img src={qrUrl} style={{ width: 340, height: 340, display: "block" }} />
             </div>
             <div style={{ marginTop: 20, fontFamily: body, color: COLORS.gold, fontSize: 17, letterSpacing: 4, textTransform: "uppercase" }}>
-              Scannez pour découvrir
+              {L.scanToDiscover}
             </div>
           </div>
         </AbsoluteFill>
@@ -1409,6 +1459,7 @@ const BrandBleedLogo: React.FC<{ src: string; color: string; durationFrames: num
 };
 
 const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "restaurant_guru"; rating: number | null; count: number | null; durationFrames: number; textPosition?: TextPosition }> = ({ kind, rating, count, durationFrames, textPosition = "middle" }) => {
+  const L = useL();
   const meta = PLATFORM_META[kind];
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
@@ -1442,7 +1493,7 @@ const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "r
         </div>
         <div style={{ marginTop: 24, alignSelf: "center", transform: `scale(${interpolate(badgeS, [0, 1], [0.85, 1])})`, padding: "48px 46px 30px", background: "rgba(14,11,8,0.72)", border: `2px solid ${meta.brand}`, borderRadius: 26, textAlign: "center", boxShadow: `0 12px 60px ${meta.brand}55` }}>
           <div style={{ fontFamily: body, color: meta.brand, fontSize: 20, letterSpacing: 6, textTransform: "uppercase" }}>
-            Avis {meta.label}
+            {L.reviewsOf(meta.label)}
           </div>
           {rating != null && (
             <div style={{ marginTop: 10, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 100, lineHeight: 1 }}>
@@ -1454,7 +1505,7 @@ const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "r
           </div>
           {count != null && (
             <div style={{ marginTop: 12, fontFamily: body, color: COLORS.cream, fontSize: 26 }}>
-              {count.toLocaleString("fr-FR")} avis
+              {count.toLocaleString(L.numberLocale)} {L.reviewsWord}
             </div>
           )}
         </div>
@@ -1605,6 +1656,7 @@ const SceneCustomerReview: React.FC<{
 
 
 const SceneWhatsapp: React.FC<{ number: string; durationFrames: number; textPosition?: TextPosition }> = ({ number, durationFrames, textPosition = "middle" }) => {
+  const L = useL();
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
@@ -1645,7 +1697,7 @@ const SceneWhatsapp: React.FC<{ number: string; durationFrames: number; textPosi
           {number}
         </div>
         <div style={{ marginTop: 14, fontFamily: body, color: "#25D366", fontSize: 26, letterSpacing: 4, textTransform: "uppercase" }}>
-          WhatsApp direct
+          {L.whatsappDirect}
         </div>
       </AbsoluteFill>
     </AbsoluteFill>
@@ -1654,9 +1706,10 @@ const SceneWhatsapp: React.FC<{ number: string; durationFrames: number; textPosi
 
 
 export const BusinessShowcase: React.FC<ShowcaseProps> = ({
-  name = "Établissement",
-  hook = "Une adresse à découvrir.",
-  tagline = "L'art de vivre marocain.",
+  lang = "fr",
+  name: nameProp,
+  hook: hookProp,
+  tagline: taglineProp,
   city,
   neighborhood,
   images = [],
@@ -1714,7 +1767,13 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
 
 }) => {
+  const _lang: VideoLang = lang === "en" ? "en" : "fr";
+  const _L = LABELS[_lang];
+  const name = nameProp || _L.defaultName;
+  const hook = hookProp || _L.defaultHook;
+  const tagline = taglineProp || _L.defaultTagline;
   const continuousMode = typeof continuousBgVideoUrl === "string" && /^https?:\/\//i.test(continuousBgVideoUrl);
+
   // Bande son sélectionnée dans l'aperçu du scénario : prioritaire sur le son de la vidéo de fond continue
   const soundtrack = typeof soundtrackUrl === "string" && /^https?:\/\//i.test(soundtrackUrl) ? soundtrackUrl : null;
   const bgSoundOn = !soundtrack && !!continuousBgSound;
@@ -2194,6 +2253,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
 
   return (
+    <LangContext.Provider value={_lang}>
     <ToneContext.Provider value={tone}>
       <SuppressBgContext.Provider value={continuousMode || slideshowMode}>
         <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
@@ -2228,6 +2288,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         </AbsoluteFill>
       </SuppressBgContext.Provider>
     </ToneContext.Provider>
+    </LangContext.Provider>
   );
 };
 

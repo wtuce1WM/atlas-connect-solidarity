@@ -272,6 +272,8 @@ export default function StudioVideo() {
   const [duration, setDuration] = useState<15 | 30 | 45 | 60>(30);
   const [durationAuto, setDurationAuto] = useState(true);
   const [tone, setTone] = useState("immersif");
+  // Langue du montage vidéo — indépendante de la langue du header du front.
+  const [videoLang, setVideoLang] = useState<"fr" | "en">("fr");
   const [prompt, setPrompt] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [previewing, setPreviewing] = useState(false);
@@ -843,6 +845,7 @@ export default function StudioVideo() {
           notify_email_to: notifyEmail ? (notifyEmailTo || null) : null,
 
           options: {
+            lang: videoLang,
             reviews: optReviews,
             hours: optHours,
             map_marker: optMapMarker,
@@ -1021,6 +1024,7 @@ export default function StudioVideo() {
           parent_job_id: refineFrom?.id ?? null,
           preview_only: true,
           options: {
+            lang: videoLang,
             reviews: optReviews,
             hours: optHours,
             map_marker: optMapMarker,
@@ -2080,6 +2084,27 @@ export default function StudioVideo() {
                     </Button>
                   ))}
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Langue de la vidéo</Label>
+                <div className="flex gap-2 flex-wrap">
+                  {([
+                    { value: "fr" as const, label: "Français" },
+                    { value: "en" as const, label: "English" },
+                  ]).map((l) => (
+                    <Button
+                      key={l.value}
+                      type="button"
+                      variant={videoLang === l.value ? "default" : "outline"}
+                      onClick={() => setVideoLang(l.value)}
+                    >
+                      {l.label}
+                    </Button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Indépendante de la langue du site. Repli automatique sur le français si une traduction manque.
+                </p>
               </div>
               <div className="space-y-2">
                 <Label>Ton</Label>
