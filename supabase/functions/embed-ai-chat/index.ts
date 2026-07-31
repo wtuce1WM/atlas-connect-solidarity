@@ -3398,7 +3398,24 @@ Deno.serve(async (req) => {
             const lastUserText = lastUserMsg?.role === "user" ? extractTextFromUIMessage(lastUserMsg) : "";
             if (lastUserText && lastUserText.trim().length >= 6) {
               const posts = await fetchBlogPostsCached(admin);
-              const match = matchBlogArticle(lastUserText, language, posts, host.id, host.name);
+              // Explicit staff link first (suggestion → blog_post_ids), semantic
+              // detection only as a fallback for free-text follow-ups.
+              const pinnedPosts = suggestionBlogIds
+                .map((id) => posts.find((p) => p.id === id))
+                .filter(Boolean) as BlogRow[];
+              const match = pinnedPosts[0] || matchBlogArticle(lastUserText, language, posts, host.id, host.name);
+              const extraPinned = pinnedPosts.slice(1);
+              const emitExtraArticleCards = () => {
+                for (const p of extraPinned) {
+                  const t =
+                    (language === "en" && p.title_en) ||
+                    (language === "ar" && p.title_ar) ||
+                    p.title_fr || p.title_en || p.title_ar || "";
+                  const img = p.custom_hero_image_url || p.cover_image_url || null;
+                  const payload = { id: p.id, slug: p.slug, title: t, image: img, hero: img, tldr: null, hook: null, intro: null, inline: false, isOwner: p.anchor_business_id === host.id };
+                  emitDelta(`\n\n<!--ARTICLE_CARD:${JSON.stringify(payload)}-->\n\n`);
+                }
+              };
               if (match) {
                 const title =
                   (language === "en" && match.title_en) ||
