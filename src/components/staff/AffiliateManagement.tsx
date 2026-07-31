@@ -1140,12 +1140,27 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                           <Building2 className="h-4 w-4 text-primary" />
                         </Button>
                       </TableCell>
-                      <TableCell className="font-medium">
-                        {affiliate.name}
+                      <TableCell className="font-medium align-top">
+                        <div>{affiliate.name}</div>
                         {affiliate.ice && (
                           <span className="block text-xs text-muted-foreground">
                             ICE: {affiliate.ice}
                           </span>
+                        )}
+                        {(businessesByAffiliate[affiliate.id] || []).length > 0 && (
+                          <div className="mt-1.5 flex flex-wrap gap-1">
+                            {(businessesByAffiliate[affiliate.id] || []).map((b) => (
+                              <button
+                                key={b.id}
+                                onClick={() => setEditingBusinessesAffiliate(affiliate)}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-terracotta/10 text-terracotta text-xs hover:bg-terracotta/20 transition-colors"
+                                title="Voir les établissements de cet affilié"
+                              >
+                                <Building2 className="h-3 w-3" />
+                                {b.name}
+                              </button>
+                            ))}
+                          </div>
                         )}
                       </TableCell>
                        <TableCell className="text-center">
