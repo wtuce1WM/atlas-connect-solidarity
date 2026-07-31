@@ -179,6 +179,11 @@ const EmbedAiSuggestionsManagement = () => {
     setSubcategories(((subs as any[]) || []).map((s) => ({ id: s.id, name_fr: s.name_fr || "(sans nom)" })));
     setBadges(((bdgs as any[]) || []).map((b) => ({ id: b.id, name_fr: b.name_fr || "(sans nom)" })));
     setGlobalFollowups(((fups as any[]) || []).map((f) => ({ id: f.id, label_fr: f.label_fr || "", is_active: !!f.is_active, sort_order: f.sort_order || 0 })));
+    setBlogPosts(
+      ((posts as any[]) || [])
+        .map((p) => ({ id: p.id, slug: p.slug, title: (p.title_fr || p.title_en || p.slug || "(sans titre)").trim() }))
+        .sort((a, b) => a.title.localeCompare(b.title, "fr", { sensitivity: "base" }))
+    );
 
     setDirty(new Set());
     setLoading(false);
