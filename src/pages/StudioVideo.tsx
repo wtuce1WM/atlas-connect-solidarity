@@ -3465,9 +3465,9 @@ function VideoWithMeta({ src, createdAt, extra }: { src: string; createdAt?: str
         className="rounded-md aspect-[9/16] bg-black max-w-[200px] w-full"
       />
       {createdLabel && (
-        <div className="text-[11px] text-muted-foreground">Créée le {createdLabel}</div>
+        <div className="text-[11px] text-neutral-600">Créée le {createdLabel}</div>
       )}
-      <div className="text-[11px] text-muted-foreground">
+      <div className="text-[11px] text-neutral-600">
         {dim ? `${dim.w}×${dim.h}` : "…"}
         {duration != null ? ` · ${duration.toFixed(1)}s` : ""}
         {size != null ? ` · ${fmtSize(size)}` : ""}
@@ -3563,13 +3563,13 @@ function JobCard({
                   }}
                   className="group inline-flex items-center gap-1.5 text-left text-sm font-medium"
                 >
-                  <span className={job.title ? "" : "italic text-muted-foreground"}>
+                  <span className={job.title ? "" : "italic text-neutral-600"}>
                     {job.title || "Sans titre"}
                   </span>
                   <Pencil className="h-3 w-3 opacity-50 group-hover:opacity-100" />
                 </button>
               )}
-              <div className="text-[11px] text-muted-foreground">Fichier : {fileName}</div>
+              <div className="text-[11px] text-neutral-600">Fichier : {fileName}</div>
             </div>
           )}
           <VideoWithMeta
@@ -3605,11 +3605,11 @@ function JobCard({
       ) : (
         <div className="space-y-2">
           <PromptDialog prompt={job.prompt} />
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="flex items-center justify-between text-xs text-neutral-600">
             <span>{job.duration_sec}s · {job.tone}</span>
             <span className="uppercase tracking-wide">{job.status}</span>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-neutral-600">
             En file d'attente — le worker prendra le job dans quelques secondes.
           </p>
         </div>
