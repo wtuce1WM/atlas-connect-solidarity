@@ -2228,6 +2228,19 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     e.preventDefault();
     console.log("[BusinessForm] handleSubmit called");
 
+    // Safety: block saving while medias/documents are still loading, otherwise
+    // the save would send empty lists and erase videos/images associations.
+    if (business?.id && !mediaLoaded) {
+      toast({
+        variant: "destructive",
+        title: "Chargement en cours",
+        description: "Les médias (images, vidéos, documents) ne sont pas encore chargés. Patientez quelques secondes avant d'enregistrer.",
+      });
+      return;
+    }
+
+
+
     // Auto-clear orphan default_service before saving
     const cleanDefaultService = formData.default_service && !formData.services.includes(formData.default_service)
       ? "" : formData.default_service;
