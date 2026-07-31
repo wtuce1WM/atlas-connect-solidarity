@@ -1515,11 +1515,17 @@ serve(async (req) => {
     cancel() { controllerRef = null; },
   });
   const turnId = crypto.randomUUID();
+  // Curated follow-ups (Backoffice / IA / Relances Club). When a suggestion is
+  // matched and staff curated a list, it overrides the generated follow-ups on
+  // EVERY terminal `done` event, whatever route was taken.
+  let curatedFollowups: string[] | null = null;
   const emit: EmitFn = (obj: any) => {
     if (!controllerRef) return;
     // Auto-inject turnId in every terminal `done` event so the client can
     // attach 👍/👎 feedback to the exact row inserted into ai_conversation_turns.
-    const payload = obj && obj.type === "done" ? { ...obj, turnId } : obj;
+    const payload = obj && obj.type === "done"
+      ? { ...obj, turnId, ...(curatedFollowups && curatedFollowups.length ? { followups: curatedFollowups } : {}) }
+      : obj;
     try { controllerRef.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)); } catch {/* client aborted */}
   };
   const closeStream = () => { try { controllerRef?.close(); } catch {} controllerRef = null; };
@@ -1605,6 +1611,76 @@ serve(async (req) => {
     turnLog.city_active = clientContext?.activeCity ? String(clientContext.activeCity).slice(0, 100) : null;
     turnLog.message_index = Array.isArray(messages) ? messages.length : null;
     turnLog.user_message = String([...messages].reverse().find((m: any) => m.role === "user")?.content || "").slice(0, 500);
+
+    // ============= Staff-curated suggestion targeting (Backoffice / IA) =============
+    // If the last user message is EXACTLY a club_ai_suggestions label, apply the
+    // staff targeting configured in the back-office:
+    //   • mode                → forces a deterministic route (events / weather / map / structure_front)
+    //   • subcategory_ids     → injects the subcategory names into the search query
+    //   • badge_ids           → injects the badge names into the search query
+    //   • destination_ids     → injects the destination name (geo scope)
+    //   • disabled_followup_ids → filters the curated follow-up list
+    // The rewritten user message feeds the SAME engine as /search — no fork.
+    try {
+      const normLbl = (s: unknown) => String(s ?? "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const lastIdx = (() => { for (let i = messages.length - 1; i >= 0; i--) if ((messages[i] as any)?.role === "user") return i; return -1; })();
+      const lastUserLabel = lastIdx >= 0 ? String((messages[lastIdx] as any).content || "") : "";
+      const key = normLbl(lastUserLabel);
+      if (key) {
+        const { data: sugRows } = await admin
+          .from("club_ai_suggestions")
+          .select("id,label_fr,label_en,label_ar,mode,destination_ids,subcategory_ids,badge_ids,disabled_followup_ids,city")
+          .eq("is_active", true);
+        const sug: any = (sugRows || []).find((r: any) =>
+          normLbl(r.label_fr) === key || normLbl(r.label_en) === key || normLbl(r.label_ar) === key
+        );
+        if (sug) {
+          const subIds: string[] = Array.isArray(sug.subcategory_ids) ? sug.subcategory_ids : [];
+          const badgeIds: string[] = Array.isArray(sug.badge_ids) ? sug.badge_ids : [];
+          const destIds: string[] = Array.isArray(sug.destination_ids) ? sug.destination_ids : [];
+          const [{ data: subs }, { data: bdgs }, { data: dests }] = await Promise.all([
+            subIds.length ? admin.from("subcategories").select("name_fr").in("id", subIds) : Promise.resolve({ data: [] as any[] }),
+            badgeIds.length ? admin.from("badges").select("name_fr").in("id", badgeIds) : Promise.resolve({ data: [] as any[] }),
+            destIds.length ? admin.from("destinations").select("name_fr").in("id", destIds) : Promise.resolve({ data: [] as any[] }),
+          ]);
+          const terms: string[] = [
+            ...((subs as any[]) || []).map((s) => s.name_fr).filter(Boolean),
+            ...((bdgs as any[]) || []).map((b) => b.name_fr).filter(Boolean),
+            ...((dests as any[]) || []).map((d) => d.name_fr).filter(Boolean),
+          ];
+          const cityHint = sug.city || clientContext?.activeCity || "";
+          const mode = String(sug.mode || "").trim();
+          const modeHint =
+            mode === "events" ? (lang === "en" ? "events agenda" : "événements agenda")
+            : mode === "weather" ? (lang === "en" ? "weather" : "météo")
+            : mode === "map" ? (lang === "en" ? "show on a map" : "montre-les sur une carte")
+            : "";
+          if (terms.length || modeHint) {
+            const rewritten = [lastUserLabel, modeHint, ...terms, cityHint].filter(Boolean).join(" ").trim();
+            (messages[lastIdx] as any) = { ...(messages[lastIdx] as any), content: rewritten };
+            turnLog.intent_classified = `suggestion:${mode || (terms.length ? "structure_front" : "auto")}`;
+            console.log("club-ai-chat → suggestion targeting", JSON.stringify({ id: sug.id, mode, terms, cityHint }));
+          }
+
+          // Curated follow-ups for this suggestion
+          try {
+            const disabled = new Set<string>(Array.isArray(sug.disabled_followup_ids) ? sug.disabled_followup_ids : []);
+            const { data: fups } = await admin
+              .from("club_ai_followups")
+              .select("id,label_fr,label_en,label_ar,is_active,sort_order")
+              .eq("is_active", true)
+              .order("sort_order", { ascending: true });
+            const list = ((fups as any[]) || [])
+              .filter((f) => !disabled.has(f.id))
+              .map((f) => String((lang === "en" ? f.label_en : lang === "ar" ? f.label_ar : f.label_fr) || f.label_fr || "").trim())
+              .filter(Boolean)
+              .slice(0, 4);
+            if (list.length) curatedFollowups = list;
+          } catch (e) { console.error("curated followups error", e); }
+        }
+      }
+    } catch (e) { console.error("suggestion targeting error", e); }
+
 
     const languageInstruction = lang === "en"
       ? "IMPORTANT: Always reply in English, regardless of the language of tool results or the system prompt language. Keep the same warm, concise tone."
