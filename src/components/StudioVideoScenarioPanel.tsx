@@ -1028,7 +1028,8 @@ function CustomSceneDialog({
   const [title, setTitle] = useState(initial?.title ?? "");
   const [subtitle, setSubtitle] = useState(initial?.subtitle ?? "");
   const [duration, setDuration] = useState(initial?.duration ?? 4);
-  const [mediaUrl, setMediaUrl] = useState<string | null>(initial?.media?.url ?? null);
+  const initialUrls = (initial?.mediaList ?? (initial?.media ? [initial.media] : [])).map((m) => m.url);
+  const [mediaUrls, setMediaUrls] = useState<string[]>(initialUrls);
 
   useEffect(() => {
     if (!open) return;
@@ -1036,23 +1037,30 @@ function CustomSceneDialog({
     setTitle(initial?.title ?? "");
     setSubtitle(initial?.subtitle ?? "");
     setDuration(initial?.duration ?? 4);
-    setMediaUrl(initial?.media?.url ?? null);
+    setMediaUrls((initial?.mediaList ?? (initial?.media ? [initial.media] : [])).map((m) => m.url));
   }, [open, initial]);
+
+  const toggleUrl = (url: string) =>
+    setMediaUrls((prev) => (prev.includes(url) ? prev.filter((u) => u !== url) : [...prev, url]));
 
   const canSubmit = title.trim().length > 0 && duration >= 1 && duration <= 60;
 
   const submit = () => {
     if (!canSubmit) return;
-    const media = mediaUrl ? available.find((m) => m.url === mediaUrl) ?? undefined : undefined;
+    const list = mediaUrls
+      .map((u) => available.find((m) => m.url === u))
+      .filter(Boolean) as SceneMediaItem[];
     onSubmit({
       id: initial?.id ?? newCustomId(),
       mode,
       title: title.trim(),
       subtitle: subtitle.trim() || undefined,
       duration,
-      media,
+      media: list[0],
+      mediaList: list.length ? list : undefined,
     });
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
