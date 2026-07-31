@@ -38,6 +38,10 @@ export default defineTool({
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
+    // `categories` and `keywords` are text[] in Postgres — ilike is invalid on them.
+    // Sanitize the term for PostgREST's `or=(...)` grammar.
+    const term = query.replace(/[,()*]/g, " ").trim();
+
     let q = supabase
       .from("businesses")
       .select(
@@ -45,10 +49,11 @@ export default defineTool({
       )
       .eq("is_active", true)
       .or(
-        `name.ilike.%${query}%,description.ilike.%${query}%,keywords.ilike.%${query}%,categories.ilike.%${query}%`,
+        `name.ilike.%${term}%,description.ilike.%${term}%,main_category.ilike.%${term}%,neighborhood.ilike.%${term}%,categories.cs.{"${term}"},keywords.cs.{"${term}"}`,
       )
       .order("priority_score", { ascending: false, nullsFirst: false })
       .limit(Math.min(limit ?? 10, 20));
+
 
     if (city) q = q.ilike("city", `%${city}%`);
     if (category) q = q.ilike("main_category", `%${category}%`);

@@ -26,10 +26,11 @@ var search_businesses_default = defineTool({
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: { persistSession: false, autoRefreshToken: false }
     });
+    const term = query.replace(/[,()*]/g, " ").trim();
     let q = supabase.from("businesses").select(
       "id, name, slug, main_category, city, neighborhood, hook_fr, hook_en, computed_rating, total_review_count, min_price, manual_price_range, priority_score"
     ).eq("is_active", true).or(
-      `name.ilike.%${query}%,description.ilike.%${query}%,keywords.ilike.%${query}%,categories.ilike.%${query}%`
+      `name.ilike.%${term}%,description.ilike.%${term}%,main_category.ilike.%${term}%,neighborhood.ilike.%${term}%,categories.cs.{"${term}"},keywords.cs.{"${term}"}`
     ).order("priority_score", { ascending: false, nullsFirst: false }).limit(Math.min(limit ?? 10, 20));
     if (city) q = q.ilike("city", `%${city}%`);
     if (category) q = q.ilike("main_category", `%${category}%`);
