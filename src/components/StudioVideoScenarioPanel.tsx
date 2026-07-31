@@ -384,6 +384,8 @@ export function StudioVideoScenarioPanel({
   availableDestinations,
   pendingCustomScene,
   onPendingCustomSceneConsumed,
+  onRegenerate,
+  regenerating,
 }: {
   scenario: Scenario;
   className?: string;
@@ -402,6 +404,9 @@ export function StudioVideoScenarioPanel({
   /** Étape personnalisée injectée depuis l'extérieur (ex. « Estimer la durée »). */
   pendingCustomScene?: (Omit<CustomScene, "id"> & { id?: string }) | null;
   onPendingCustomSceneConsumed?: () => void;
+  /** Relance la génération du scénario IA (proposée après suppression d'étapes). */
+  onRegenerate?: () => void;
+  regenerating?: boolean;
 }) {
   // Local edits: per-scene duration overrides + order override (by token) + custom scenes + text splits
   const [durationOverrides, setDurationOverrides] = useState<Record<string, number>>({});
@@ -418,6 +423,7 @@ export function StudioVideoScenarioPanel({
   const [dragId, setDragId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const [editingCustomId, setEditingCustomId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; label: string; duration: number } | null>(null);
 
   const isAddOpenControlled = openAddDialog !== undefined && onOpenAddDialogChange !== undefined;
   const addOpen = isAddOpenControlled ? openAddDialog : addOpenInternal;
