@@ -137,8 +137,34 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
         description: "Impossible de charger les affiliés.",
       });
       setAffiliates([]);
+      setBusinessesByAffiliate({});
     } else {
-      setAffiliates(data || []);
+      const affiliateList = data || [];
+      setAffiliates(affiliateList);
+
+      if (affiliateList.length > 0) {
+        const ids = affiliateList.map(a => a.id);
+        const { data: bizData, error: bizError } = await supabase
+          .from('businesses')
+          .select('id, name, affiliate_id')
+          .in('affiliate_id', ids)
+          .order('name');
+
+        if (!bizError && bizData) {
+          const map: Record<string, AffiliateBusiness[]> = {};
+          affiliateList.forEach(a => { map[a.id] = []; });
+          bizData.forEach((b: any) => {
+            if (b.affiliate_id && map[b.affiliate_id] !== undefined) {
+              map[b.affiliate_id].push({ id: b.id, name: b.name });
+            }
+          });
+          setBusinessesByAffiliate(map);
+        } else {
+          setBusinessesByAffiliate({});
+        }
+      } else {
+        setBusinessesByAffiliate({});
+      }
     }
     setLoading(false);
   };
