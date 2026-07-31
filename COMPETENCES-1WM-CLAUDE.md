@@ -1,3 +1,8 @@
+---
+name: one-world-morocco-competences
+description: Compétences et contexte de travail pour accompagner Julien (WTUCE) sur One World Morocco.
+---
+
 # One World Morocco — Compétences & Contexte (Claude)
 
 ## 1. Qui je suis
