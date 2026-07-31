@@ -1561,10 +1561,13 @@ const SceneCustomerReview: React.FC<{
 
   const displayText = hasExcerpt ? full : full || excerpt;
   const baseSize = reviewFontSize(displayText.length);
-  const size = interpolate(focus, [0, 1], [baseSize, hasExcerpt ? reviewFontSize(mid.length) : baseSize]);
+  // Pas de redimensionnement du texte ni de la carte pendant la phase de focus :
+  // seuls les côtés s'estompent, ce qui évite le saut visuel de re-cadrage.
+  const size = baseSize;
   const sideOpacity = interpolate(focus, [0, 1], [1, 0]);
   const sideBlur = interpolate(focus, [0, 1], [0, 6]);
-  const cardScale = interpolate(focus, [0, 1], [1, 1.04]);
+  const cardScale = 1;
+
 
   const platform = platformKeyFromSource(source);
   const meta = platform ? PLATFORM_META[platform] : null;
