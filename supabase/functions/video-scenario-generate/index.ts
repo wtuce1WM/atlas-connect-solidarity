@@ -88,7 +88,7 @@ Deno.serve(async (req) => {
     if (resolved_business_id) {
       const { data: biz } = await supa
         .from("businesses")
-        .select("id,name,slug,hook_fr,destination_hook,poi_hook,description,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,google_review_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url,images,popup_image_url")
+        .select("id,name,name_en,slug,hook_fr,hook_en,destination_hook,poi_hook,description,description_en,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,google_review_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url,images,popup_image_url")
         .eq("id", resolved_business_id)
         .maybeSingle();
 
@@ -419,7 +419,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     if (resolved_business_id) {
       const { data: freshBiz } = await supa
         .from("businesses")
-        .select("id,name,slug,hook_fr,destination_hook,poi_hook,description,city,neighborhood,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,google_review_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url,logo_url,images,popup_image_url,whatsapp,instagram_url")
+        .select("id,name,name_en,slug,hook_fr,hook_en,destination_hook,poi_hook,description,description_en,city,neighborhood,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,google_review_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url,logo_url,images,popup_image_url,whatsapp,instagram_url")
         .eq("id", resolved_business_id)
         .maybeSingle();
       if (freshBiz) businessDetails = { ...(businessContext ?? {}), ...freshBiz };
@@ -730,7 +730,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         try {
           const { data: revRow } = await supa
             .from("reviews")
-            .select("id,author_name,rating,text,text_fr,source,published_at")
+            .select("id,author_name,rating,text,text_fr,text_en,source,published_at")
             .eq("id", customerReviewId)
             .maybeSingle();
           if (revRow) {
@@ -832,7 +832,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       if (offerIds.length > 0) {
         const { data: offerRows } = await supa
           .from("affiliate_business_promotions")
-          .select("id,title,title_fr,promotion_type,promotion_value,promotion_currency,promotion_message,promotion_message_fr,savings_amount,sort_order")
+          .select("id,title,title_fr,title_en,promotion_type,promotion_value,promotion_currency,promotion_message,promotion_message_fr,promotion_message_en,savings_amount,sort_order")
           .eq("business_id", resolved_business_id)
           .in("id", offerIds)
           .order("sort_order", { ascending: true });
@@ -904,7 +904,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         // Titre & texte de l'image popup (business_image_titles) — affichés dans la scène.
         const { data: popupMeta } = await supa
           .from("business_image_titles")
-          .select("title,description,title_fr,description_fr")
+          .select("title,description,title_fr,description_fr,title_en,description_en")
           .eq("business_id", resolved_business_id)
           .eq("image_url", businessDetails.popup_image_url)
           .maybeSingle();
@@ -932,7 +932,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       if (highlightIds.length > 0) {
         const { data: hlRows } = await supa
           .from("front_highlights")
-          .select("id,icon,image_url,title,description,title_fr,description_fr,metric_title,metric_value,metric_title_fr,metric_value_fr,sort_order")
+          .select("id,icon,image_url,title,description,title_fr,description_fr,title_en,description_en,metric_title,metric_value,metric_title_fr,metric_value_fr,metric_title_en,metric_value_en,sort_order")
           .eq("business_id", resolved_business_id)
           .in("id", highlightIds)
           .order("sort_order", { ascending: true });
