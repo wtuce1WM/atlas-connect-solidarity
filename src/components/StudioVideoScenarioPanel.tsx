@@ -371,6 +371,8 @@ export function StudioVideoScenarioPanel({
   beforeTimeline,
   availablePois,
   availableDestinations,
+  pendingCustomScene,
+  onPendingCustomSceneConsumed,
 }: {
   scenario: Scenario;
   className?: string;
@@ -386,6 +388,9 @@ export function StudioVideoScenarioPanel({
   availablePois?: PlaceOption[];
   /** Destinations sélectionnables (étapes personnalisées). */
   availableDestinations?: PlaceOption[];
+  /** Étape personnalisée injectée depuis l'extérieur (ex. « Estimer la durée »). */
+  pendingCustomScene?: (Omit<CustomScene, "id"> & { id?: string }) | null;
+  onPendingCustomSceneConsumed?: () => void;
 }) {
   // Local edits: per-scene duration overrides + order override (by token) + custom scenes + text splits
   const [durationOverrides, setDurationOverrides] = useState<Record<string, number>>({});
