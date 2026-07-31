@@ -3602,6 +3602,7 @@ export type Database = {
       embed_ai_suggestions: {
         Row: {
           badge_ids: string[]
+          blog_post_ids: string[]
           business_ids: string[]
           city: string | null
           created_at: string
@@ -3624,6 +3625,7 @@ export type Database = {
         }
         Insert: {
           badge_ids?: string[]
+          blog_post_ids?: string[]
           business_ids?: string[]
           city?: string | null
           created_at?: string
@@ -3646,6 +3648,7 @@ export type Database = {
         }
         Update: {
           badge_ids?: string[]
+          blog_post_ids?: string[]
           business_ids?: string[]
           city?: string | null
           created_at?: string
