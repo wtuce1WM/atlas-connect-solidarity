@@ -287,6 +287,17 @@ export default function StudioVideo() {
   /** Effet visuel par article de blog (surclasse le mode global). */
   const [blogModes, setBlogModes] = useState<Record<string, "scroll" | "hero_map">>({});
   const [prompt, setPrompt] = useState("");
+  // --- Synthèse « À partir de la vidéo » (Titre + Texte) ---
+  const [fromVideoOn, setFromVideoOn] = useState(false);
+  const [fromVideoUrl, setFromVideoUrl] = useState<string | null>(null);
+  const [fromVideoLoading, setFromVideoLoading] = useState(false);
+  const [synthTitle, setSynthTitle] = useState("");
+  const [synthText, setSynthText] = useState("");
+  // --- Estimation de durée ---
+  const [estimateOpen, setEstimateOpen] = useState(false);
+  const [estimateText, setEstimateText] = useState("");
+  const [estimateResult, setEstimateResult] = useState<{ seconds: number; words: number; chars: number } | null>(null);
+  const [estimateLoading, setEstimateLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [previewing, setPreviewing] = useState(false);
   const [scenarioPreviewed, setScenarioPreviewed] = useState(false);
