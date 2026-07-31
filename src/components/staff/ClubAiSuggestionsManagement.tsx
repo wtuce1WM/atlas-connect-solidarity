@@ -246,21 +246,11 @@ const ClubAiSuggestionsManagement = () => {
           <div className="space-y-3">
             {rows.map((r) => (
               <div key={r.id} className={`p-3 rounded-lg border space-y-3 ${dirty.has(r.id) ? "border-primary/50 bg-primary/5" : "border-border"}`}>
-                <div className="grid grid-cols-1 lg:grid-cols-[70px_1fr_1fr_1fr_120px_100px_60px] gap-2 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-[70px_1fr_1fr_1fr_100px_60px] gap-2 items-start">
                   <Input type="number" value={r.sort_order} onChange={(e) => update(r.id, { sort_order: parseInt(e.target.value) || 0 })} className="w-full" title="Ordre" />
                   <Textarea value={r.label_fr} onChange={(e) => update(r.id, { label_fr: e.target.value })} placeholder="Libellé FR" rows={2} />
                   <Textarea value={r.label_en || ""} onChange={(e) => update(r.id, { label_en: e.target.value })} placeholder="Libellé EN" rows={2} />
                   <Textarea value={r.label_ar || ""} onChange={(e) => update(r.id, { label_ar: e.target.value })} placeholder="Libellé AR" rows={2} dir="rtl" />
-                  <select
-                    value={r.city || ""}
-                    onChange={(e) => update(r.id, { city: e.target.value || null })}
-                    className="h-10 rounded-md border border-input bg-background px-2 text-sm"
-                    title="Ville"
-                  >
-                    <option value="">Toutes</option>
-                    <option value="Marrakech">Marrakech</option>
-                    <option value="Essaouira">Essaouira</option>
-                  </select>
                   <div className="flex items-center gap-2 pt-2">
                     <Switch checked={r.is_active} onCheckedChange={(v) => update(r.id, { is_active: v })} />
                     <span className="text-xs">{r.is_active ? "Actif" : "Off"}</span>
@@ -269,6 +259,23 @@ const ClubAiSuggestionsManagement = () => {
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 </div>
+
+                {/* VILLE CIBLÉE */}
+                <div className="max-w-xs">
+                  <label className="text-xs text-muted-foreground">Ville ciblée</label>
+                  <select
+                    value={r.city || ""}
+                    onChange={(e) => update(r.id, { city: e.target.value || null })}
+                    className="h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
+                    title="Ville"
+                  >
+                    <option value="">Toutes</option>
+                    <option value="Marrakech">Marrakech</option>
+                    <option value="Essaouira">Essaouira</option>
+                  </select>
+                  <p className="text-[11px] text-muted-foreground mt-1">Vide = affichée pour tous les membres et recherche sans contrainte de ville. Sinon la suggestion est réservée à cette ville et la recherche y est ancrée.</p>
+                </div>
+
 
                 {/* ROUTE */}
                 <div className="max-w-md">
