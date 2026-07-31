@@ -50,7 +50,8 @@ export type CustomScene = {
   title: string;
   subtitle?: string;
   duration: number;           // seconds
-  media?: SceneMediaItem;     // required in overlay mode, optional backdrop in fullscreen
+  media?: SceneMediaItem;     // premier média (compat rendu)
+  mediaList?: SceneMediaItem[]; // plusieurs images/vidéos jouées en séquence
   splitCount?: number;        // nb d'étapes pour découper le texte sur le montage vidéo
 };
 
