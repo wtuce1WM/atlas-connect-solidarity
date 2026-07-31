@@ -2606,6 +2606,9 @@ Deno.serve(async (req) => {
         let suggestionMode: string | null = null;
         let suggestionLabel: string | null = null;
         let suggestionDestinationIds: string[] = [];
+        // Staff-pinned blog articles for this suggestion (explicit link wins over
+        // semantic detection — same rule as the Club assistant).
+        let suggestionBlogIds: string[] = [];
         // Curated two-entity proximity: staff-picked subcats/badges for A and B.
         // When both sides have at least one mapping, the two-entity route runs
         // with these exact mappings and bypasses free-text term resolution.
