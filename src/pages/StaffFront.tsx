@@ -441,11 +441,20 @@ const StaffFront = () => {
               <FileText className="h-4 w-4" />
               Pages
             </TabsTrigger>
+            <TabsTrigger value="image-compression" className="gap-2">
+              <ImageDown className="h-4 w-4" />
+              Compression d'images
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="front-structure">
             <FrontStructureManagement open={true} onOpenChange={() => {}} inline />
           </TabsContent>
+
+          <TabsContent value="image-compression">
+            <ImageCompressionPanel />
+          </TabsContent>
+
 
 
           <TabsContent value="homepage">
