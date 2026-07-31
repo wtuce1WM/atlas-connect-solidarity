@@ -56,6 +56,8 @@ Deno.serve(async (req) => {
 
     let sourceTitle = body?.video_title ? String(body.video_title) : "";
     let durationSeconds: number | null = null;
+    let priceType: string | null = null;
+    let priceFree: string | null = null;
 
     if (videoId) {
       const { data } = await supabase
@@ -68,15 +70,29 @@ Deno.serve(async (req) => {
         sourceTitle = data.title || sourceTitle;
         durationSeconds = data.duration_seconds ?? null;
       }
-    } else if (videoUrl) {
+    }
+    if (videoUrl) {
       const { data } = await supabase
         .from("business_documents")
-        .select("name")
+        .select("name,price,price_type")
         .eq("url", videoUrl)
         .limit(1)
         .maybeSingle();
-      if (data?.name) sourceTitle = data.name;
+      if (data?.name && !sourceTitle) sourceTitle = data.name;
+      priceType = (data?.price_type ?? null) as string | null;
+      const raw = data?.price == null ? "" : String(data.price).trim();
+      priceFree = raw ? raw : null;
     }
+
+    const priceTypeLabel =
+      priceType === "location"
+        ? (lang === "en" ? "Rental" : "Location")
+        : priceType === "vente"
+          ? (lang === "en" ? "For sale" : "Vente")
+          : null;
+    const priceLine = [priceTypeLabel, priceFree ? `Prix: ${priceFree}` : null]
+      .filter(Boolean)
+      .join(" — ");
 
     let hook = "";
     let description = "";
@@ -117,10 +133,15 @@ Deno.serve(async (req) => {
         `Description : ${plain(description) || "—"}`,
         `Titre de la vidéo source : ${sourceTitle || "—"}`,
         durationSeconds ? `Durée de la vidéo source : ${durationSeconds}s` : "",
+        priceTypeLabel ? `Type d'offre (Location/Vente) : ${priceTypeLabel}` : "",
+        priceFree ? `Prix (champ libre) : ${priceFree}` : "",
         "",
         "Produis exactement 2 lignes, sans markdown, sans guillemets :",
         "TITRE: <un titre percutant, max 60 caractères>",
         "TEXTE: <un texte immersif de 2 à 3 phrases, max 320 caractères>",
+        priceLine
+          ? `Dans TEXTE, mentionne naturellement l'offre en terminant par : ${priceLine}`
+          : "",
       ].filter(Boolean).join("\n"),
     });
 
@@ -128,12 +149,20 @@ Deno.serve(async (req) => {
     const titleMatch = raw.match(/TITRE\s*:\s*(.+)/i) ?? raw.match(/TITLE\s*:\s*(.+)/i);
     const textMatch = raw.match(/TEXTE\s*:\s*([\s\S]+)/i) ?? raw.match(/TEXT\s*:\s*([\s\S]+)/i);
     const title = (titleMatch?.[1] ?? raw.split("\n")[0] ?? "").trim().slice(0, 60);
-    const text = (textMatch?.[1] ?? "").trim().replace(/\s+/g, " ").slice(0, 320);
+    let text = (textMatch?.[1] ?? "").trim().replace(/\s+/g, " ").slice(0, 320);
+
+    // Garantit la présence de l'offre (Location/Vente + « Prix: ... » si renseigné)
+    if (priceLine && !text.toLowerCase().includes((priceFree ?? priceTypeLabel ?? "").toLowerCase())) {
+      text = `${text} ${priceLine}`.trim().slice(0, 400);
+    }
 
     return Response.json(
       {
         title,
         text,
+        price_type: priceType,
+        price: priceFree,
+        price_line: priceLine || null,
         source_title: sourceTitle,
         source_duration_seconds: durationSeconds,
         estimated_seconds: estimateSeconds(`${title} ${text}`),
