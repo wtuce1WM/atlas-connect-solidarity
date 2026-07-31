@@ -56,6 +56,8 @@ Deno.serve(async (req) => {
 
     let sourceTitle = body?.video_title ? String(body.video_title) : "";
     let durationSeconds: number | null = null;
+    let priceType: string | null = null;
+    let priceFree: string | null = null;
 
     if (videoId) {
       const { data } = await supabase
@@ -68,15 +70,29 @@ Deno.serve(async (req) => {
         sourceTitle = data.title || sourceTitle;
         durationSeconds = data.duration_seconds ?? null;
       }
-    } else if (videoUrl) {
+    }
+    if (videoUrl) {
       const { data } = await supabase
         .from("business_documents")
-        .select("name")
+        .select("name,price,price_type")
         .eq("url", videoUrl)
         .limit(1)
         .maybeSingle();
-      if (data?.name) sourceTitle = data.name;
+      if (data?.name && !sourceTitle) sourceTitle = data.name;
+      priceType = (data?.price_type ?? null) as string | null;
+      const raw = data?.price == null ? "" : String(data.price).trim();
+      priceFree = raw ? raw : null;
     }
+
+    const priceTypeLabel =
+      priceType === "location"
+        ? (lang === "en" ? "Rental" : "Location")
+        : priceType === "vente"
+          ? (lang === "en" ? "For sale" : "Vente")
+          : null;
+    const priceLine = [priceTypeLabel, priceFree ? `Prix: ${priceFree}` : null]
+      .filter(Boolean)
+      .join(" — ");
 
     let hook = "";
     let description = "";
