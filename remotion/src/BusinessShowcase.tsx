@@ -147,6 +147,7 @@ export type ShowcaseProps = {
   ficheScreenshotUrl?: string | null;
   durationSec?: number;
   useFullHookScene?: boolean;
+  lang?: VideoLang;
   scene_media?: Partial<Record<"logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "whatsapp" | "cta" | "outro", Array<{ url: string; kind: "image" | "video" }>>>;
   scene_order?: Array<string>; // built-in kinds or `custom:<id>`
   scene_durations?: Partial<Record<string, number>>;
@@ -1705,9 +1706,10 @@ const SceneWhatsapp: React.FC<{ number: string; durationFrames: number; textPosi
 
 
 export const BusinessShowcase: React.FC<ShowcaseProps> = ({
-  name = "Établissement",
-  hook = "Une adresse à découvrir.",
-  tagline = "L'art de vivre marocain.",
+  lang = "fr",
+  name,
+  hook,
+  tagline,
   city,
   neighborhood,
   images = [],
@@ -2245,6 +2247,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
 
   return (
+    <LangContext.Provider value={lang === "en" ? "en" : "fr"}>
     <ToneContext.Provider value={tone}>
       <SuppressBgContext.Provider value={continuousMode || slideshowMode}>
         <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
@@ -2279,6 +2282,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         </AbsoluteFill>
       </SuppressBgContext.Provider>
     </ToneContext.Provider>
+    </LangContext.Provider>
   );
 };
 
