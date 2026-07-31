@@ -571,7 +571,17 @@ export function StudioVideoScenarioPanel({
   }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, textOverrides, poiOverrides, destOverrides, placesMediaMode]);
 
   const total = editedScenes.reduce((acc, s) => acc + s.duration, 0);
+  // Étapes d'origine supprimées (built-in retirées de l'ordre)
+  const removedBuiltIns = useMemo(() => {
+    const kept = new Set(editedScenes.map((s) => s.id));
+    return scenario.scenes.filter((s) => !kept.has(s.id));
+  }, [scenario.scenes, editedScenes]);
+  const targetDuration = scenario.totalDuration;
+  const suggestRegenerate =
+    removedBuiltIns.length > 0 &&
+    (total < Math.round(targetDuration * 0.85) || editedScenes.length < 3);
   if (!editedScenes.length && customScenes.length === 0) return null;
+
 
   const editable = !!onChangeSceneMedia && !!availableMedia;
   const setForKind = (kind: SceneMediaKind, items: SceneMediaItem[]) => {
