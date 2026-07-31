@@ -1,6 +1,7 @@
 import { useEffect, useState, forwardRef, useImperativeHandle, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { compressImage, formatBytes } from "@/lib/imageCompression";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -54,7 +55,10 @@ export interface AffiliateImagesEditorHandle {
 
 const MAX_DESC = 500;
 const MAX_IMAGES = 30;
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
+// Poids max accepté APRÈS optimisation (les images sont recompressées en WebP ≤1920px)
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
+// Poids max du fichier source déposé par l'affilié
+const MAX_SOURCE_SIZE = 25 * 1024 * 1024;
 
 interface ImageMeta {
   size?: number | null;
@@ -368,21 +372,34 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
         setUploading(true);
         try {
           const uploaded: string[] = [];
-          for (const file of filesToUpload) {
-            if (!file.type.startsWith("image/")) {
-              toast({ variant: "destructive", title: "Type invalide", description: `${file.name} n'est pas une image.` });
+          let savedBytes = 0;
+          for (const rawFile of filesToUpload) {
+            if (!rawFile.type.startsWith("image/")) {
+              toast({ variant: "destructive", title: "Type invalide", description: `${rawFile.name} n'est pas une image.` });
               continue;
             }
+            if (rawFile.size > MAX_SOURCE_SIZE) {
+              toast({
+                variant: "destructive",
+                title: "Trop volumineux",
+                description: `${rawFile.name} dépasse ${formatBytes(MAX_SOURCE_SIZE)}. Réduisez-la avant l'envoi.`,
+              });
+              continue;
+            }
+            const { file, originalSize, finalSize } = await compressImage(rawFile);
+            savedBytes += Math.max(0, originalSize - finalSize);
             if (file.size > MAX_FILE_SIZE) {
-              toast({ variant: "destructive", title: "Trop volumineux", description: `${file.name} dépasse 5MB.` });
+              toast({ variant: "destructive", title: "Trop volumineux", description: `${rawFile.name} reste trop lourde après optimisation.` });
               continue;
             }
-            const ext = file.name.split(".").pop();
+            const ext = (file.name.split(".").pop() || "webp").toLowerCase();
             const fileName = `${businessId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
             const filePath = `businesses/${fileName}`;
-            const { error: upErr } = await supabase.storage.from("business-images").upload(filePath, file);
+            const { error: upErr } = await supabase.storage
+              .from("business-images")
+              .upload(filePath, file, { contentType: file.type, cacheControl: "31536000" });
             if (upErr) {
-              toast({ variant: "destructive", title: "Erreur upload", description: `Erreur pour ${file.name}.` });
+              toast({ variant: "destructive", title: "Erreur upload", description: `Erreur pour ${rawFile.name}.` });
               continue;
             }
             const { data: urlData } = supabase.storage.from("business-images").getPublicUrl(filePath);
@@ -391,7 +408,10 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
           if (uploaded.length > 0) {
             setImages((prev) => [...prev, ...uploaded]);
             markDirty();
-            toast({ title: `${uploaded.length} image(s) uploadée(s) ✓` });
+            toast({
+              title: `${uploaded.length} image(s) uploadée(s) ✓`,
+              description: savedBytes > 0 ? `Optimisation : ${formatBytes(savedBytes)} économisés.` : undefined,
+            });
           }
         } finally {
           setUploading(false);
@@ -563,7 +583,7 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
                     {uploading ? "Upload en cours..." : "Cliquez ou glissez-déposez"}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {images.length}/{MAX_IMAGES} images • Max 5MB par image
+                    {images.length}/{MAX_IMAGES} images • Optimisation automatique (WebP, max 1920 px)
                   </p>
                 </div>
               </div>

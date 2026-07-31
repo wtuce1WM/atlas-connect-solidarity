@@ -1,5 +1,6 @@
 import { useState, useEffect, forwardRef, useImperativeHandle, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { compressImage } from "@/lib/imageCompression";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -137,20 +138,23 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
       markDirty();
     };
 
-    const handleImageUpload = async (index: number, file: File) => {
-      if (!file.type.startsWith("image/")) {
+    const handleImageUpload = async (index: number, rawFile: File) => {
+      if (!rawFile.type.startsWith("image/")) {
         toast({ variant: "destructive", title: "Type invalide", description: "Sélectionnez une image." });
         return;
       }
-      if (file.size > 5 * 1024 * 1024) {
-        toast({ variant: "destructive", title: "Trop volumineux", description: "Max 5MB." });
+      if (rawFile.size > 25 * 1024 * 1024) {
+        toast({ variant: "destructive", title: "Trop volumineux", description: "Max 25 Mo." });
         return;
       }
       setUploadingIndex(index);
       try {
-        const ext = file.name.split(".").pop();
+        const { file } = await compressImage(rawFile);
+        const ext = (file.name.split(".").pop() || "webp").toLowerCase();
         const fileName = `highlights/${businessId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-        const { error } = await supabase.storage.from("business-images").upload(fileName, file);
+        const { error } = await supabase.storage
+          .from("business-images")
+          .upload(fileName, file, { contentType: file.type, cacheControl: "31536000" });
         if (error) throw error;
         const { data } = supabase.storage.from("business-images").getPublicUrl(fileName);
         if (data?.publicUrl) updateField(index, "image_url", data.publicUrl);
