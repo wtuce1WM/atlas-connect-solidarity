@@ -138,6 +138,8 @@ export function buildScenario(
     logoUrl?: string | null;
     whatsapp?: boolean;
     whatsappNumber?: string | null;
+    /** Texte du hook (étape 2 « Hook ») — remplace l'accroche générée. */
+    hookText?: string | null;
   }
 ): Scenario {
   const keywords = extractKeywords(prompt);
