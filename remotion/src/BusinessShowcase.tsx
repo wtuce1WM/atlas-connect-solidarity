@@ -686,7 +686,7 @@ const SceneOffer: React.FC<{
           textTransform: "uppercase",
         }}
       >
-        {city ? `Offre · ${city}` : "Offre"}
+        {city ? `${L.offer} · ${city}` : L.offer}
       </div>
       <div
         style={{
@@ -701,7 +701,7 @@ const SceneOffer: React.FC<{
           padding: "0 20px",
         }}
       >
-        {offer.title || lines[0] || "Offre"}
+        {offer.title || lines[0] || L.offer}
       </div>
       {hasPrice && (
         <div
@@ -779,8 +779,8 @@ const SceneCta: React.FC<{ name: string; textPosition?: TextPosition }> = ({ nam
           lineHeight: 1.15,
         }}
       >
-        Découvrez {name}
-        <br />sur One World Morocco
+        {L.discover(name)}
+        <br />{L.onPlatform}
       </div>
       <div
         style={{
@@ -844,7 +844,7 @@ const SceneInstallCta: React.FC<{ name: string; textPosition?: TextPosition }> =
           boxShadow: "0 18px 54px rgba(192,79,23,0.35)",
         }}
       >
-        Installer l'app
+        {L.installApp}
       </div>
       <div style={{ opacity: badgeO, marginTop: 24, fontFamily: body, color: COLORS.gold, fontSize: 24 }}>
         One World Morocco
@@ -866,7 +866,7 @@ const SceneReviews: React.FC<{ rating?: number | null; count?: number | null; te
   return (
     <AbsoluteFill style={{ alignItems: "center", padding: 60, ...textPositionStyle(textPosition) }}>
       <div style={{ opacity: labelO, fontFamily: body, color: COLORS.gold, fontSize: 22, letterSpacing: 6, textTransform: "uppercase" }}>
-        Avis clients
+        {L.reviews}
       </div>
       {animatedNote && (
         <div
@@ -888,8 +888,8 @@ const SceneReviews: React.FC<{ rating?: number | null; count?: number | null; te
       )}
       {count != null && count > 0 && (
         <div style={{ marginTop: 30, fontFamily: display, fontWeight: 700, color: COLORS.cream, fontSize: 56, textShadow: "0 2px 12px rgba(0,0,0,0.7)" }}>
-          {animatedCount.toLocaleString("fr-FR")}
-          <span style={{ fontSize: 26, color: COLORS.gold, marginLeft: 14, letterSpacing: 3, textTransform: "uppercase" }}>avis</span>
+          {animatedCount.toLocaleString(L.numberLocale)}
+          <span style={{ fontSize: 26, color: COLORS.gold, marginLeft: 14, letterSpacing: 3, textTransform: "uppercase" }}>{L.reviewsWord}</span>
         </div>
       )}
     </AbsoluteFill>
@@ -908,7 +908,7 @@ const SceneHours: React.FC<{ openingHours: string | Record<string, string>; text
   return (
     <AbsoluteFill style={{ alignItems: "center", padding: 60, ...textPositionStyle(textPosition) }}>
       <div style={{ opacity: labelO, fontFamily: body, color: COLORS.gold, fontSize: 22, letterSpacing: 6, textTransform: "uppercase" }}>
-        Horaires
+        {L.hours}
       </div>
       <div style={{ marginTop: 30, width: "85%", maxWidth: 620 }}>
         {entries.map(([day, hours], i) => {
@@ -1101,7 +1101,7 @@ const SceneDigitalId: React.FC<{
                   )}
                   <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
                     <div style={{ ...ctaBase, background: COLORS.terracotta }}>
-                      Voir la fiche complète
+                      {L.viewFullPage}
                       {shimmerEl}
                     </div>
                     <div style={{ ...ctaBase, background: "#1a1410", border: "1px solid rgba(212,175,55,0.4)", fontWeight: 600, fontSize: 14 }}>
@@ -1123,7 +1123,7 @@ const SceneDigitalId: React.FC<{
               <Img src={qrUrl} style={{ width: 340, height: 340, display: "block" }} />
             </div>
             <div style={{ marginTop: 20, fontFamily: body, color: COLORS.gold, fontSize: 17, letterSpacing: 4, textTransform: "uppercase" }}>
-              Scannez pour découvrir
+              {L.scanToDiscover}
             </div>
           </div>
         </AbsoluteFill>
@@ -1485,7 +1485,7 @@ const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "r
         </div>
         <div style={{ marginTop: 24, alignSelf: "center", transform: `scale(${interpolate(badgeS, [0, 1], [0.85, 1])})`, padding: "48px 46px 30px", background: "rgba(14,11,8,0.72)", border: `2px solid ${meta.brand}`, borderRadius: 26, textAlign: "center", boxShadow: `0 12px 60px ${meta.brand}55` }}>
           <div style={{ fontFamily: body, color: meta.brand, fontSize: 20, letterSpacing: 6, textTransform: "uppercase" }}>
-            Avis {meta.label}
+            {L.reviewsOf(meta.label)}
           </div>
           {rating != null && (
             <div style={{ marginTop: 10, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 100, lineHeight: 1 }}>
@@ -1497,7 +1497,7 @@ const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "r
           </div>
           {count != null && (
             <div style={{ marginTop: 12, fontFamily: body, color: COLORS.cream, fontSize: 26 }}>
-              {count.toLocaleString("fr-FR")} avis
+              {count.toLocaleString(L.numberLocale)} {L.reviewsWord}
             </div>
           )}
         </div>
@@ -1688,7 +1688,7 @@ const SceneWhatsapp: React.FC<{ number: string; durationFrames: number; textPosi
           {number}
         </div>
         <div style={{ marginTop: 14, fontFamily: body, color: "#25D366", fontSize: 26, letterSpacing: 4, textTransform: "uppercase" }}>
-          WhatsApp direct
+          {L.whatsappDirect}
         </div>
       </AbsoluteFill>
     </AbsoluteFill>
