@@ -373,13 +373,14 @@ const ease = (f: number, a: number, b: number) =>
 const SceneTransition: React.FC<{ effect: TransitionEffect; duration: number; children: React.ReactNode }> = ({ effect, duration, children }) => {
   const frame = useCurrentFrame();
   if (effect === "cut") return <AbsoluteFill>{children}</AbsoluteFill>;
-  const d = Math.max(5, Math.min(18, Math.round(duration * 0.18)));
+  const d = effect === "fast" ? 4 : Math.max(5, Math.min(18, Math.round(duration * 0.18)));
   const inP = ease(frame, 0, d);
   const outP = 1 - ease(frame, duration - d, duration);
   const p = Math.min(inP, outP);
   let style: React.CSSProperties = {};
   switch (effect) {
     case "crossfade":
+    case "fast":
       style = { opacity: p };
       break;
     case "fade_black":
@@ -397,6 +398,9 @@ const SceneTransition: React.FC<{ effect: TransitionEffect; duration: number; ch
     case "wipe":
       style = { clipPath: `inset(0 ${(1 - inP) * 100}% 0 0)`, opacity: outP };
       break;
+    default:
+      style = { opacity: p };
+  }
   }
   return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
 };
