@@ -145,6 +145,11 @@ export type ShowcaseProps = {
   whatsapp?: string | null;
   instagramUrl?: string | null;
   ficheScreenshotUrl?: string | null;
+  showBlogArticles?: boolean;
+  blogMode?: "scroll" | "hero_map";
+  blogArticles?: Array<{ id: string; slug: string; title: string; excerpt?: string | null; heroUrl?: string | null; url?: string | null; scrollShotUrl?: string | null }>;
+  scenePois?: Record<string, Array<{ id: string; name: string; hook?: string | null; image_url?: string | null; latitude?: number | null; longitude?: number | null }>>;
+  sceneDestinations?: Record<string, Array<{ id: string; name: string; hook?: string | null; image_url?: string | null; latitude?: number | null; longitude?: number | null }>>;
   durationSec?: number;
   useFullHookScene?: boolean;
   lang?: VideoLang;
@@ -207,9 +212,9 @@ const splitHookInTwo = (h: string): [string, string] => {
   return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
 };
 
-type SceneKind = "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "whatsapp" | "cta" | "outro";
+type SceneKind = "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "blog" | "whatsapp" | "cta" | "outro";
 
-const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "hook", "name", "offer", "popup", "media", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta"];
+const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "hook", "name", "offer", "popup", "media", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "blog", "whatsapp", "cta"];
 
 function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
   switch (kind) {
@@ -241,6 +246,7 @@ function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
     case "hours": return !!(p.showOpeningHours && p.openingHours);
     case "map": return !!(p.showMap && p.latitude && p.longitude);
     case "digital": return !!(p.showDigitalId && p.slug);
+    case "blog": return !!(p.showBlogArticles && Array.isArray(p.blogArticles) && p.blogArticles.length > 0);
     case "whatsapp": return !!(p.showWhatsapp && p.whatsappNumber);
     case "outro": return p.showAppInstall !== false;
   }
@@ -267,6 +273,7 @@ function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
     case "customer_review": return 210;
     case "whatsapp": return 120;
     case "digital": return DIGITAL_ID_FRAMES;
+    case "blog": return 150;
     case "cta":
     case "outro": return 150;
   }
@@ -359,6 +366,22 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
     order = expanded;
   } else if (highlightsArr.length === 1) {
     for (const t of order) if (t.kind === "highlight") t.offerIndex = 0;
+  }
+
+  // Expand a single "blog" token into N tokens (one per selected article).
+  const blogArr = Array.isArray(p.blogArticles) ? p.blogArticles : [];
+  if (blogArr.length > 1) {
+    const expanded: Tok[] = [];
+    for (const t of order) {
+      if (t.kind === "blog") {
+        for (let i = 0; i < blogArr.length; i++) expanded.push({ kind: "blog", offerIndex: i });
+      } else {
+        expanded.push(t);
+      }
+    }
+    order = expanded;
+  } else if (blogArr.length === 1) {
+    for (const t of order) if (t.kind === "blog") t.offerIndex = 0;
   }
 
 
@@ -991,6 +1014,123 @@ const SceneMap: React.FC<{ lat: number; lng: number; name: string; address?: str
       {address && (
         <div style={{ opacity: mapO, marginTop: 8, fontFamily: body, color: COLORS.gold, fontSize: 22, textAlign: "center" }}>
           {address}
+        </div>
+      )}
+    </AbsoluteFill>
+  );
+};
+
+const SceneBlogArticle: React.FC<{
+  article: { title: string; excerpt?: string | null; heroUrl?: string | null; scrollShotUrl?: string | null };
+  mode: "scroll" | "hero_map";
+  duration: number;
+  lat?: number | null;
+  lng?: number | null;
+  textPosition?: TextPosition;
+}> = ({ article, mode, duration, lat, lng, textPosition = "middle" }) => {
+  const frame = useCurrentFrame();
+  const labelO = ease(frame, 0, 18);
+  const bodyO = ease(frame, 10, 30);
+
+  if (mode === "scroll" && article.scrollShotUrl) {
+    // Défilement vertical de la capture pleine page de l'article
+    const progress = interpolate(frame, [12, Math.max(24, duration - 8)], [0, 1], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    });
+    return (
+      <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 60 }}>
+        <div
+          style={{
+            opacity: bodyO,
+            width: 720,
+            height: 1180,
+            borderRadius: 28,
+            overflow: "hidden",
+            position: "relative",
+            border: `2px solid ${COLORS.gold}`,
+            boxShadow: "0 24px 70px rgba(0,0,0,0.65)",
+            background: "#fff",
+          }}
+        >
+          <Img
+            src={article.scrollShotUrl}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              transform: `translateY(${-progress * 78}%)`,
+            }}
+          />
+        </div>
+        <div style={{ opacity: labelO, marginTop: 22, fontFamily: display, fontWeight: 700, color: COLORS.cream, fontSize: 34, textAlign: "center", maxWidth: 860 }}>
+          {article.title}
+        </div>
+      </AbsoluteFill>
+    );
+  }
+
+  // hero_map : hero de l'article + zoom progressif sur la carte avec marqueur animé
+  const hasGeo = Number.isFinite(Number(lat)) && Number.isFinite(Number(lng));
+  const zoom = Math.round(interpolate(frame, [0, Math.max(30, duration - 10)], [12, 17], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  }));
+  const mapUrl = hasGeo
+    ? `https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/static-map?lat=${lat}&lng=${lng}&zoom=${zoom}&size=640x640&scale=2&maptype=roadmap`
+    : null;
+  const mapO = ease(frame, Math.round(duration * 0.35), Math.round(duration * 0.35) + 20);
+  const heroScale = interpolate(frame, [0, duration], [1.06, 1.16], { extrapolateRight: "clamp" });
+  const pinScale = spring({ frame: frame - Math.round(duration * 0.45), fps: 30, config: { damping: 10, stiffness: 180 } });
+
+  return (
+    <AbsoluteFill style={{ alignItems: "center", padding: 50, ...textPositionStyle(textPosition) }}>
+      <div style={{ opacity: labelO, marginTop: 20, fontFamily: body, color: COLORS.gold, fontSize: 20, letterSpacing: 6, textTransform: "uppercase" }}>
+        Article
+      </div>
+      <div
+        style={{
+          opacity: bodyO,
+          marginTop: 22,
+          width: 660,
+          height: 420,
+          borderRadius: 24,
+          overflow: "hidden",
+          border: `2px solid ${COLORS.gold}`,
+          boxShadow: "0 18px 60px rgba(0,0,0,0.6)",
+          position: "relative",
+          background: "#000",
+        }}
+      >
+        {article.heroUrl && (
+          <Img src={article.heroUrl} style={{ width: "100%", height: "100%", objectFit: "cover", transform: `scale(${heroScale})` }} />
+        )}
+        {mapUrl && (
+          <div style={{ position: "absolute", inset: 0, opacity: mapO }}>
+            <Img src={mapUrl} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: `translate(-50%, -100%) scale(${interpolate(pinScale, [0, 1], [0, 1])})`,
+                transformOrigin: "bottom center",
+                fontSize: 76,
+                filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.6))",
+              }}
+            >
+              📍
+            </div>
+          </div>
+        )}
+      </div>
+      <div style={{ opacity: bodyO, marginTop: 22, fontFamily: display, fontWeight: 700, color: COLORS.cream, fontSize: 36, textAlign: "center", maxWidth: 860, lineHeight: 1.2 }}>
+        {article.title}
+      </div>
+      {article.excerpt && (
+        <div style={{ opacity: bodyO, marginTop: 12, fontFamily: body, color: COLORS.gold, fontSize: 24, textAlign: "center", maxWidth: 820 }}>
+          {article.excerpt.slice(0, 140)}
         </div>
       )}
     </AbsoluteFill>
@@ -1736,6 +1876,11 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   whatsapp,
   instagramUrl,
   ficheScreenshotUrl,
+  showBlogArticles,
+  blogMode,
+  blogArticles,
+  scenePois,
+  sceneDestinations,
   durationSec,
   useFullHookScene,
   scene_media,
@@ -2211,6 +2356,29 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               rating={rating}
               reviewsCount={reviewsCount}
               ficheScreenshotUrl={ficheScreenshotUrl}
+              textPosition={textPosition}
+            />
+          </>
+        );
+      }
+      case "blog": {
+        const arts = Array.isArray(blogArticles) ? blogArticles : [];
+        const art = arts[offerIndex ?? 0] ?? arts[0];
+        if (!art) return null;
+        return (
+          <>
+            <MotionBackdrop
+              src={safeVideos[0]}
+              image={safeImages[1] ?? safeImages[0]}
+              duration={duration}
+              effect={trImageEffect}
+            />
+            <SceneBlogArticle
+              article={art}
+              mode={blogMode === "scroll" ? "scroll" : "hero_map"}
+              duration={duration}
+              lat={latitude ?? null}
+              lng={longitude ?? null}
               textPosition={textPosition}
             />
           </>
