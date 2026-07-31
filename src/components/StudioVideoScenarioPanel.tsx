@@ -1318,7 +1318,12 @@ function PlacesPickerDialog({
       if (!m.has(g)) m.set(g, []);
       m.get(g)!.push(poi);
     }
-    return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0], "fr"));
+    return [...m.entries()].sort((a, b) => {
+      const aOther = /^autres?$/i.test(a[0]);
+      const bOther = /^autres?$/i.test(b[0]);
+      if (aOther !== bOther) return aOther ? 1 : -1;
+      return a[0].localeCompare(b[0], "fr");
+    });
   }, [pois, q]);
 
   const toggle = (arr: string[], id: string) => (arr.includes(id) ? arr.filter((x) => x !== id) : [...arr, id]);
