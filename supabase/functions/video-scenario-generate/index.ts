@@ -109,7 +109,9 @@ Deno.serve(async (req) => {
 
       businessContext = {
         ...biz,
-        hook: biz?.hook_fr ?? biz?.destination_hook ?? biz?.poi_hook ?? biz?.description ?? null,
+        hook: (videoLang === "en" ? pickLang(biz?.hook_en, biz?.description_en) : null)
+          ?? biz?.hook_fr ?? biz?.destination_hook ?? biz?.poi_hook ?? biz?.description ?? null,
+        name: (videoLang === "en" ? pickLang(biz?.name_en) : null) ?? biz?.name,
         medias: mergedMedias,
       };
     }
@@ -251,6 +253,8 @@ ${wantsDigitalId ? `- Activer une courte séquence ID numérique (fiche + partag
 ${wantsInstallCta ? `- Activer l'incitation à installer l'app (One World Morocco) à la fin.` : `- Désactiver l'incitation de fin d'installation.`}
 
 Si \`businessContext\` est null, l'établissement est introuvable dans la base : choisis quand même "business-showcase", remplis name/hook/tagline depuis le prompt utilisateur, mets \`"images": []\` et \`"offer": null\`.
+
+LANGUE DE SORTIE (ABSOLUE) : ${videoLang === "en" ? "ANGLAIS" : "FRANÇAIS"}. Tous les textes que tu génères (hook de secours, tagline, titres et lignes d'offre, textes de scènes) doivent être rédigés en ${videoLang === "en" ? "anglais" : "français"}. N'ajoute AUCUNE traduction entre parenthèses. Les noms propres (établissement, ville, quartier) restent inchangés.
 
 Durée demandée : ${duration_sec}s · Ton : ${tone}.
 
@@ -403,7 +407,11 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     }
     // Forcer le hook réel de l'établissement (hook_fr en priorité) — interdire toute paraphrase IA.
     if (template_id === "business-showcase" && businessContext) {
-      const realHook = stripHtml(businessContext.hook_fr || businessContext.hook);
+      const realHook = stripHtml(
+        videoLang === "en"
+          ? pickLang(businessContext.hook_en, businessContext.description_en, businessContext.hook_fr, businessContext.hook)
+          : (businessContext.hook_fr || businessContext.hook),
+      );
       if (realHook && typeof realHook === "string" && realHook.trim()) {
         template_props.hook = realHook.trim();
         const shouldUseFullHook = !template_props.offer && !hasInjectablePopup(businessContext);
@@ -426,14 +434,19 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     }
 
     if (template_id === "business-showcase" && businessDetails) {
-      if (businessDetails.name) template_props.name = businessDetails.name;
+      const detailName = videoLang === "en" ? pickLang(businessDetails.name_en, businessDetails.name) : businessDetails.name;
+      if (detailName) template_props.name = detailName;
       if (businessDetails.city) template_props.city = businessDetails.city;
       if (businessDetails.neighborhood) template_props.neighborhood = businessDetails.neighborhood;
-      const realHook = stripHtml(businessDetails.hook_fr || businessDetails.destination_hook || businessDetails.poi_hook || businessDetails.description);
+      const realHook = stripHtml(
+        videoLang === "en"
+          ? pickLang(businessDetails.hook_en, businessDetails.description_en, businessDetails.hook_fr, businessDetails.destination_hook, businessDetails.poi_hook, businessDetails.description)
+          : (businessDetails.hook_fr || businessDetails.destination_hook || businessDetails.poi_hook || businessDetails.description),
+      );
       if (realHook) {
         template_props.hook = realHook;
         const shouldUseFullHook = !template_props.offer && !hasInjectablePopup(businessDetails);
-        template_props.tagline = deriveTaglineFromHook(realHook, businessDetails.name);
+        template_props.tagline = deriveTaglineFromHook(realHook, detailName || businessDetails.name);
         template_props.useFullHookScene = shouldUseFullHook;
       }
 
@@ -635,6 +648,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       }
 
 
+      template_props.lang = videoLang;
       template_props.durationSec = Number(duration_sec);
       // Le ton pilote le rendu Remotion (Ken Burns, fondus, finition visuelle).
       if (tone === "immersif" || tone === "dynamique" || tone === "elegant") {
@@ -734,7 +748,10 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
             .eq("id", customerReviewId)
             .maybeSingle();
           if (revRow) {
-            const fullText = (revRow.text_fr || revRow.text || "").toString();
+            const fullText = (videoLang === "en"
+              ? pickLang(revRow.text_en, revRow.text_fr, revRow.text)
+              : pickLang(revRow.text_fr, revRow.text)
+            ) ?? "";
             template_props.showCustomerReview = true;
             template_props.customerReview = {
               id: revRow.id,
@@ -844,7 +861,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         });
         const built = rows
           .map((row: any) => {
-            const title = cleanDisplayText(row.title_fr || row.title) || undefined;
+            const title = cleanDisplayText(videoLang === "en" ? pickLang(row.title_en, row.title_fr, row.title) : (row.title_fr || row.title)) || undefined;
             const priceStr = row.promotion_type === "percentage" && row.promotion_value != null
               ? `-${row.promotion_value}%`
               : row.promotion_type === "fixed" && row.promotion_value != null
@@ -853,7 +870,9 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
                   ? `-${row.savings_amount} ${row.promotion_currency || "MAD"}`
                   : undefined;
             // Préserve les retours à la ligne du texte de l'offre (HTML <br>, </p>, \n)
-            const rawSrc = (row.promotion_message_fr || row.promotion_message);
+            const rawSrc = videoLang === "en"
+              ? pickLang(row.promotion_message_en, row.promotion_message_fr, row.promotion_message)
+              : (row.promotion_message_fr || row.promotion_message);
             const rawMsg = typeof rawSrc === "string"
               ? rawSrc
                   .replace(/<br\s*\/?>/gi, "\n")
@@ -909,8 +928,8 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
           .eq("image_url", businessDetails.popup_image_url)
           .maybeSingle();
         if (popupMeta) {
-          const pTitle = cleanDisplayText(stripHtml(popupMeta.title_fr || popupMeta.title) || "");
-          const pDesc = cleanDisplayText(stripHtml(popupMeta.description_fr || popupMeta.description) || "");
+          const pTitle = cleanDisplayText(stripHtml(videoLang === "en" ? pickLang(popupMeta.title_en, popupMeta.title_fr, popupMeta.title) : (popupMeta.title_fr || popupMeta.title)) || "");
+          const pDesc = cleanDisplayText(stripHtml(videoLang === "en" ? pickLang(popupMeta.description_en, popupMeta.description_fr, popupMeta.description) : (popupMeta.description_fr || popupMeta.description)) || "");
           if (pTitle) template_props.popupTitle = pTitle;
           if (pDesc) template_props.popupDescription = pDesc;
         }
@@ -943,10 +962,10 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         });
         const builtH = rows
           .map((row: any) => {
-            const title = cleanDisplayText(row.title_fr || row.title) || "";
-            const description = stripHtml(row.description_fr || row.description) || "";
-            const metric_title = cleanDisplayText(row.metric_title_fr || row.metric_title) || "";
-            const metric_value = cleanDisplayText(row.metric_value_fr || row.metric_value) || "";
+            const title = cleanDisplayText(videoLang === "en" ? pickLang(row.title_en, row.title_fr, row.title) : (row.title_fr || row.title)) || "";
+            const description = stripHtml(videoLang === "en" ? pickLang(row.description_en, row.description_fr, row.description) : (row.description_fr || row.description)) || "";
+            const metric_title = cleanDisplayText(videoLang === "en" ? pickLang(row.metric_title_en, row.metric_title_fr, row.metric_title) : (row.metric_title_fr || row.metric_title)) || "";
+            const metric_value = cleanDisplayText(videoLang === "en" ? pickLang(row.metric_value_en, row.metric_value_fr, row.metric_value) : (row.metric_value_fr || row.metric_value)) || "";
             if (!title && !description && !row.image_url && !metric_title && !metric_value) return null;
             return {
               id: row.id,
