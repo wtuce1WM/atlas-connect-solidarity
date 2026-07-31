@@ -951,6 +951,33 @@ export default function StudioVideo() {
     }
   };
 
+  // Titre / corps / découpage dérivés du texte estimé (même logique que l'insertion).
+  const estimateParts = useMemo(() => {
+    const raw = estimateText.trim();
+    const lines = raw.split("\n").map((l) => l.trim()).filter(Boolean);
+    const title = (synthTitle || lines[0] || "Texte").slice(0, 80);
+    const body = (synthText || lines.slice(synthTitle ? 0 : 1).join(" ") || raw).trim();
+    const words = (body || raw).split(/\s+/).filter(Boolean);
+    const splitCount = Math.max(1, Math.ceil(words.length / wordsPerBlock));
+    return { raw, title, body, words, splitCount };
+  }, [estimateText, synthTitle, synthText, wordsPerBlock]);
+
+  // Aperçu : blocs de mots + leur fenêtre temporelle sur la durée estimée.
+  const estimateBlocks = useMemo(() => {
+    const seconds = estimateResult?.seconds ?? 0;
+    const { words, splitCount } = estimateParts;
+    if (!seconds || words.length === 0) return [] as { text: string; start: number; end: number }[];
+    const per = Math.ceil(words.length / splitCount);
+    const chunks: string[] = [];
+    for (let i = 0; i < words.length; i += per) chunks.push(words.slice(i, i + per).join(" "));
+    const slot = seconds / chunks.length;
+    return chunks.map((text, i) => ({
+      text,
+      start: i * slot,
+      end: i === chunks.length - 1 ? seconds : (i + 1) * slot,
+    }));
+  }, [estimateResult, estimateParts]);
+
   // Insère une étape personnalisée de la durée estimée, avec la vidéo sélectionnée
   // en fond et le texte découpé en blocs de `wordsPerBlock` mots.
   const insertEstimatedStep = () => {
@@ -971,11 +998,7 @@ export default function StudioVideo() {
         }
       : undefined;
 
-    const lines = raw.split("\n").map((l) => l.trim()).filter(Boolean);
-    const title = (synthTitle || lines[0] || "Texte").slice(0, 80);
-    const body = (synthText || lines.slice(synthTitle ? 0 : 1).join(" ") || raw).trim();
-    const words = (body || raw).split(/\s+/).filter(Boolean).length;
-    const splitCount = Math.max(1, Math.ceil(words / wordsPerBlock));
+    const { title, body, splitCount } = estimateParts;
 
     setPendingCustomScene({
       mode: media ? "overlay" : "fullscreen",
