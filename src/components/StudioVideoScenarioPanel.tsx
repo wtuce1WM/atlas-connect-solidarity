@@ -192,10 +192,8 @@ export function buildScenario(
   push("cta", Math.max(2, Math.round(durationSec * 0.12)), options.installCta ? "CTA final + incitation à installer l'app." : "CTA final vers la fiche ou le contact.");
   if (options.installCta) push("outro", Math.max(2, Math.round(durationSec * 0.08)), "Outro avec logo et appel à l'installation.");
 
-  const scale = durationSec / Math.max(1, cursor);
-  const scaled = scenes.map((s) => ({ ...s, duration: Math.max(1, Math.round(s.duration * scale)), start: Math.round(s.start * scale) }));
-  const total = scaled.reduce((acc, s) => acc + s.duration, 0);
-  return { scenes: scaled, totalDuration: total };
+  return normalize(scenes, durationSec, cursor);
+
 }
 
 export function scenarioFromTemplateProps(
@@ -332,12 +330,24 @@ export function scenarioFromTemplateProps(
   return normalize(scenes, durationSec, cursor);
 }
 
+// Durée fixe par défaut (en secondes) pour certaines étapes de clôture :
+// elles ne sont pas remises à l'échelle avec la durée cible.
+const FIXED_SCENE_DURATIONS: Partial<Record<Scene["icon"], number>> = { cta: 3, outro: 3 };
+
 function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenario {
   const scale = durationSec / Math.max(1, cursor);
-  const scaled = scenes.map((s) => ({ ...s, duration: Math.max(1, Math.round(s.duration * scale)), start: Math.round(s.start * scale) }));
+  let start = 0;
+  const scaled = scenes.map((s) => {
+    const fixed = FIXED_SCENE_DURATIONS[s.icon];
+    const duration = fixed ?? Math.max(1, Math.round(s.duration * scale));
+    const scene = { ...s, duration, start };
+    start += duration;
+    return scene;
+  });
   const total = scaled.reduce((acc, s) => acc + s.duration, 0);
   return { scenes: scaled, totalDuration: total };
 }
+
 
 function sceneKindFor(icon: Scene["icon"]): SceneMediaKind | null {
   if (icon === "custom" || icon === "popup" || icon === "highlight" || icon === "blog") return null;
