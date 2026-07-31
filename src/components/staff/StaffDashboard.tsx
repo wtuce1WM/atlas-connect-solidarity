@@ -39,7 +39,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import type { Tables } from "@/integrations/supabase/types";
 import RichTextEditor from "./RichTextEditor";
-import ImageCompressionPanel from "./ImageCompressionPanel";
 
 type Business = Tables<"businesses">;
 
@@ -194,7 +193,6 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
         <BatchTranslateReviewsButton lang="ar" label="Traduire avis AR" />
       </div>
 
-      <ImageCompressionPanel />
 
 
 
