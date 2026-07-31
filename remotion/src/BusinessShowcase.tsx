@@ -2253,7 +2253,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
 
   return (
-    <LangContext.Provider value={lang === "en" ? "en" : "fr"}>
+    <LangContext.Provider value={_lang}>
     <ToneContext.Provider value={tone}>
       <SuppressBgContext.Provider value={continuousMode || slideshowMode}>
         <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
