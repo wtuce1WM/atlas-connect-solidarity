@@ -1506,9 +1506,13 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   const [imageTitles, setImageTitles] = useState<Record<string, string>>({});
   // --- Image descriptions (per image URL, max 500) ---
   const [imageDescriptions, setImageDescriptions] = useState<Record<string, string>>({});
+  // Guard: media/documents are loaded asynchronously. Saving before they land
+  // would wipe videos/images associations (empty arrays sent to the DB).
+  const [mediaLoaded, setMediaLoaded] = useState(!business?.id);
 
   useEffect(() => {
-    if (!business?.id) return;
+    if (!business?.id) { setMediaLoaded(true); return; }
+    setMediaLoaded(false);
     const fetchDocs = async () => {
       const { data } = await supabase
         .from("business_documents" as any)
@@ -1591,10 +1595,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         setImageDescriptions(dmap);
       }
     };
-    fetchDocs();
-    fetchSummaries();
-    fetchImageBadges();
-    fetchImageTitles();
+    let cancelled = false;
+    Promise.all([fetchDocs(), fetchSummaries(), fetchImageBadges(), fetchImageTitles()])
+      .finally(() => { if (!cancelled) setMediaLoaded(true); });
+    return () => { cancelled = true; };
   }, [business?.id]);
 
   const DOC_ICON_OPTIONS = [
@@ -2223,6 +2227,19 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("[BusinessForm] handleSubmit called");
+
+    // Safety: block saving while medias/documents are still loading, otherwise
+    // the save would send empty lists and erase videos/images associations.
+    if (business?.id && !mediaLoaded) {
+      toast({
+        variant: "destructive",
+        title: "Chargement en cours",
+        description: "Les médias (images, vidéos, documents) ne sont pas encore chargés. Patientez quelques secondes avant d'enregistrer.",
+      });
+      return;
+    }
+
+
 
     // Auto-clear orphan default_service before saving
     const cleanDefaultService = formData.default_service && !formData.services.includes(formData.default_service)
@@ -3010,11 +3027,11 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               }
             }
           }}
-          disabled={loading}
+          disabled={loading || !mediaLoaded}
           className="bg-gold hover:bg-gold/90 text-gold-foreground flex-shrink-0"
         >
           <Save className="h-4 w-4 mr-2" />
-          {loading ? "Enregistrement..." : "Enregistrer"}
+          {loading ? "Enregistrement..." : !mediaLoaded ? "Chargement des médias…" : "Enregistrer"}
         </Button>
       </div>
 
@@ -6257,11 +6274,11 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </Button>
           <Button
             type="submit"
-            disabled={loading}
+            disabled={loading || !mediaLoaded}
             className="bg-gold hover:bg-gold/90 text-gold-foreground"
           >
             <Save className="h-4 w-4 mr-2" />
-            {loading ? "Enregistrement..." : "Enregistrer"}
+            {loading ? "Enregistrement..." : !mediaLoaded ? "Chargement des médias…" : "Enregistrer"}
           </Button>
         </div>
       </form>

@@ -413,6 +413,16 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
     }, []);
 
     const handleSave = async () => {
+      // Never save before the initial load finished: it would push an empty
+      // images array and wipe the medias.
+      if (loading) {
+        toast({
+          variant: "destructive",
+          title: "Chargement en cours",
+          description: "Les images ne sont pas encore chargées. Patientez avant d'enregistrer.",
+        });
+        return;
+      }
       setSaving(true);
       try {
         const { error: bizErr } = await supabase
