@@ -193,6 +193,10 @@ const StaffDashboard = ({ businesses, onNavigateTab, onNewBusiness, onEditBusine
         <BatchTranslateReviewsButton lang="ar" label="Traduire avis AR" />
       </div>
 
+      <ImageCompressionPanel />
+
+
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Quality Alerts */}
         <Card>
