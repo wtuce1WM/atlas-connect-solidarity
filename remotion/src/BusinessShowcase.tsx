@@ -401,7 +401,6 @@ const SceneTransition: React.FC<{ effect: TransitionEffect; duration: number; ch
     default:
       style = { opacity: p };
   }
-  }
   return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
 };
 
