@@ -2581,6 +2581,8 @@ export default function StudioVideo() {
               )}
               <p className="text-[11px] text-muted-foreground">
                 Le mode <strong>Auto</strong> applique un fondu enchaîné aux plans vidéo et un Ken Burns aux plans images.
+                <br /><strong>Enchaînement rapide</strong> accélère le défilement des images ; <strong>Mix</strong> alterne tous les effets images (sauf l'enchaînement rapide).
+                <br />Si <strong>aucune étape n'a de média assigné</strong> et que seules des images sont sélectionnées, toutes les images défilent à fréquence constante sur toute la durée de la vidéo.
                 {continuousBg && continuousBgUrl ? (
                   <> <br />Avec <strong>une seule vidéo en continu</strong>, le fond ne change jamais : la transition s'applique uniquement aux textes et blocs graphiques (fondu enchaîné ou slide).</>
                 ) : null}
