@@ -2241,6 +2241,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               }}>{c.subtitle}</div>
             )}
           </AbsoluteFill>
+          {c.priceBadge && <PriceBadge label={c.priceBadge} duration={duration} />}
         </AbsoluteFill>
       );
     }
