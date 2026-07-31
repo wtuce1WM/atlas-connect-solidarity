@@ -666,6 +666,7 @@ const SceneOffer: React.FC<{
   durationFrames?: number;
   textPosition?: TextPosition;
 }> = ({ offer, city, durationFrames = 120, textPosition = "middle" }) => {
+  const L = useL();
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
   const titleO = ease(frame, 14, 36);
@@ -756,6 +757,7 @@ const SceneOffer: React.FC<{
 };
 
 const SceneCta: React.FC<{ name: string; textPosition?: TextPosition }> = ({ name, textPosition = "middle" }) => {
+  const L = useL();
   const frame = useCurrentFrame();
   const iconS = spring({ frame, fps: 30, config: { damping: 14 } });
   const lineO = ease(frame, 18, 36);
@@ -799,6 +801,7 @@ const SceneCta: React.FC<{ name: string; textPosition?: TextPosition }> = ({ nam
 };
 
 const SceneInstallCta: React.FC<{ name: string; textPosition?: TextPosition }> = ({ name, textPosition = "middle" }) => {
+  const L = useL();
   const frame = useCurrentFrame();
   const iconS = spring({ frame, fps: 30, config: { damping: 14 } });
   const titleO = ease(frame, 12, 30);
@@ -854,6 +857,7 @@ const SceneInstallCta: React.FC<{ name: string; textPosition?: TextPosition }> =
 };
 
 const SceneReviews: React.FC<{ rating?: number | null; count?: number | null; textPosition?: TextPosition }> = ({ rating, count, textPosition = "middle" }) => {
+  const L = useL();
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
   const noteTarget = rating ? (rating > 5 ? rating : rating * 4) : null;
@@ -897,6 +901,7 @@ const SceneReviews: React.FC<{ rating?: number | null; count?: number | null; te
 };
 
 const SceneHours: React.FC<{ openingHours: string | Record<string, string>; textPosition?: TextPosition }> = ({ openingHours, textPosition = "middle" }) => {
+  const L = useL();
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
   const entries: Array<[string, string]> = typeof openingHours === "string"
@@ -1006,6 +1011,7 @@ const SceneDigitalId: React.FC<{
   ficheScreenshotUrl?: string | null;
   textPosition?: TextPosition;
 }> = ({ name, slug, city, tagline, hook, image, logoUrl, ficheScreenshotUrl, rating, reviewsCount, textPosition = "middle" }) => {
+  const L = useL();
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
   const shareUrl = `https://oneworldmorocco.com/b/${encodeURIComponent(slug)}`;
@@ -1452,6 +1458,7 @@ const BrandBleedLogo: React.FC<{ src: string; color: string; durationFrames: num
 };
 
 const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "restaurant_guru"; rating: number | null; count: number | null; durationFrames: number; textPosition?: TextPosition }> = ({ kind, rating, count, durationFrames, textPosition = "middle" }) => {
+  const L = useL();
   const meta = PLATFORM_META[kind];
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
@@ -1648,6 +1655,7 @@ const SceneCustomerReview: React.FC<{
 
 
 const SceneWhatsapp: React.FC<{ number: string; durationFrames: number; textPosition?: TextPosition }> = ({ number, durationFrames, textPosition = "middle" }) => {
+  const L = useL();
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
