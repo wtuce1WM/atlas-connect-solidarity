@@ -74,6 +74,49 @@ const SuppressBgContext = React.createContext<boolean>(false);
 const useSuppressBg = (): boolean => React.useContext(SuppressBgContext);
 const useTone = (): ToneConfig => TONE_CONFIG[React.useContext(ToneContext)] ?? TONE_CONFIG.immersif;
 
+// ===== Langue du montage (indépendante de la langue du front) =====
+export type VideoLang = "fr" | "en";
+const LABELS = {
+  fr: {
+    offer: "Offre",
+    reviews: "Avis clients",
+    reviewsWord: "avis",
+    reviewsOf: (platform: string) => `Avis ${platform}`,
+    hours: "Horaires",
+    discover: (name: string) => `Découvrez ${name}`,
+    onPlatform: "sur One World Morocco",
+    installApp: "Installer l'app",
+    viewFullPage: "Voir la fiche complète",
+    scanToDiscover: "Scannez pour découvrir",
+    whatsappDirect: "WhatsApp direct",
+    numberLocale: "fr-FR",
+    defaultName: "Établissement",
+    defaultHook: "Une adresse à découvrir.",
+    defaultTagline: "L'art de vivre marocain.",
+  },
+  en: {
+    offer: "Offer",
+    reviews: "Customer reviews",
+    reviewsWord: "reviews",
+    reviewsOf: (platform: string) => `${platform} reviews`,
+    hours: "Opening hours",
+    discover: (name: string) => `Discover ${name}`,
+    onPlatform: "on One World Morocco",
+    installApp: "Get the app",
+    viewFullPage: "View full listing",
+    scanToDiscover: "Scan to discover",
+    whatsappDirect: "Direct WhatsApp",
+    numberLocale: "en-GB",
+    defaultName: "Venue",
+    defaultHook: "An address worth discovering.",
+    defaultTagline: "The Moroccan art of living.",
+  },
+} as const;
+const LangContext = React.createContext<VideoLang>("fr");
+const useL = () => LABELS[React.useContext(LangContext)] ?? LABELS.fr;
+
+
+
 export type ShowcaseProps = {
   name?: string;
   hook?: string;
