@@ -602,6 +602,24 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
 
       // ---- Lieux liés aux scènes (POIs / destinations) ----
       const isUuid = (v: unknown) => typeof v === "string" && /^[0-9a-f-]{36}$/i.test(v);
+      // Média du lieu : vidéo 1 si dispo (mode "videos"), sinon image 1.
+      const placesMediaMode: "videos" | "images" = options?.places_media_mode === "images" ? "images" : "videos";
+      const firstOf = (v: unknown): string | null => {
+        if (Array.isArray(v)) {
+          const f = v.find((x) => typeof x === "string" && x.trim());
+          return f ? String(f).trim() : null;
+        }
+        return typeof v === "string" && v.trim() ? v.trim() : null;
+      };
+      const placeMedia = (r: any) => {
+        const vid = firstOf(r.videos);
+        const img = firstOf(r.images) || (typeof r.image_url === "string" ? r.image_url : null);
+        if (placesMediaMode === "videos" && vid) return { media_url: vid, media_kind: "video" as const };
+        if (img) return { media_url: img, media_kind: "image" as const };
+        if (vid) return { media_url: vid, media_kind: "video" as const };
+        return { media_url: null, media_kind: null };
+      };
+      template_props.placesMediaMode = placesMediaMode;
       const rawScenePois = (options?.scene_pois && typeof options.scene_pois === "object") ? options.scene_pois as Record<string, unknown> : null;
       const rawSceneDests = (options?.scene_destinations && typeof options.scene_destinations === "object") ? options.scene_destinations as Record<string, unknown> : null;
       if (rawScenePois) {
@@ -609,7 +627,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         if (allIds.length) {
           const { data: poiRows } = await supa
             .from("points_of_interest")
-            .select("id,name_fr,name_en,hook,image_url,latitude,longitude")
+            .select("id,name_fr,name_en,hook,image_url,images,latitude,longitude")
             .in("id", allIds.slice(0, 60));
           const byId = new Map<string, any>((poiRows ?? []).map((r: any) => [r.id, r]));
           const out: Record<string, any[]> = {};
@@ -620,6 +638,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
               name: (videoLang === "en" ? (r.name_en || r.name_fr) : r.name_fr) || r.name_fr,
               hook: r.hook || null,
               image_url: r.image_url || null,
+              ...placeMedia(r),
               latitude: Number.isFinite(Number(r.latitude)) ? Number(r.latitude) : null,
               longitude: Number.isFinite(Number(r.longitude)) ? Number(r.longitude) : null,
             }));
@@ -633,7 +652,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         if (allIds.length) {
           const { data: destRows } = await supa
             .from("destinations")
-            .select("id,name_fr,name_en,hook,image_url,latitude,longitude")
+            .select("id,name_fr,name_en,hook,image_url,images,videos,latitude,longitude")
             .in("id", allIds.slice(0, 40));
           const byId = new Map<string, any>((destRows ?? []).map((r: any) => [r.id, r]));
           const out: Record<string, any[]> = {};
@@ -644,6 +663,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
               name: (videoLang === "en" ? (r.name_en || r.name_fr) : r.name_fr) || r.name_fr,
               hook: r.hook || null,
               image_url: r.image_url || null,
+              ...placeMedia(r),
               latitude: Number.isFinite(Number(r.latitude)) ? Number(r.latitude) : null,
               longitude: Number.isFinite(Number(r.longitude)) ? Number(r.longitude) : null,
             }));
