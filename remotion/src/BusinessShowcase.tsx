@@ -1735,6 +1735,15 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const offerOverride = Array.isArray(sm.offer) ? sm.offer : [];
   const outroOverride = Array.isArray(sm.outro) ? sm.outro : [];
 
+  // Diaporama global : aucune étape n'a de média assigné + uniquement des images
+  // sélectionnées → toutes les images défilent à fréquence constante sur toute la vidéo.
+  const noSceneMediaAssigned =
+    Object.values(sm as Record<string, unknown>).every((v) => !Array.isArray(v) || v.length === 0) &&
+    !(Array.isArray(custom_scenes) && custom_scenes.some((c) => c?.media?.url));
+  const slideshowMode = !continuousMode && hasImages && !hasVideos && noSceneMediaAssigned;
+
+
+
   const defaultHero = mixedMode ? safeImages[0] : (useVideos ? safeVideos[0] : safeImages[0]);
   const defaultGallery = mixedMode
     ? safeVideos
