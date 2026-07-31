@@ -1,0 +1,1 @@
+update public.video_jobs set status='pending', updated_at=now() where id='528895d8-d7ad-4934-b769-217d23382266';
