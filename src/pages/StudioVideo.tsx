@@ -97,7 +97,7 @@ const SHOWCASE_FEATURES: ShowcaseItem[] = [
 
 
 type Business = { id: string; name: string; city: string | null };
-type TransitionEffectId = "crossfade" | "fade_black" | "wipe" | "zoom" | "kenburns" | "slide" | "cut";
+type TransitionEffectId = "crossfade" | "fade_black" | "wipe" | "zoom" | "kenburns" | "slide" | "cut" | "fast" | "mix";
 const TRANSITION_EFFECT_LABELS: Record<TransitionEffectId, string> = {
   crossfade: "Fondu enchaîné",
   fade_black: "Fondu au noir",
@@ -106,6 +106,8 @@ const TRANSITION_EFFECT_LABELS: Record<TransitionEffectId, string> = {
   kenburns: "Ken Burns (pan + zoom)",
   slide: "Glissement",
   cut: "Coupe franche",
+  fast: "Enchaînement rapide",
+  mix: "Mix (tous les effets)",
 };
 const TRANSITION_STYLE_PRESETS: Record<"auto" | "doux" | "dynamique" | "minimal", { video: TransitionEffectId; image: TransitionEffectId }> = {
   auto: { video: "crossfade", image: "kenburns" },
@@ -2570,7 +2572,7 @@ export default function StudioVideo() {
                       onChange={(e) => setTransitionImage(e.target.value as TransitionEffectId)}
                       className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     >
-                      {(["kenburns", "crossfade", "slide", "fade_black", "wipe", "cut"] as TransitionEffectId[]).map((k) => (
+                      {(["kenburns", "crossfade", "slide", "fade_black", "wipe", "cut", "fast", "mix"] as TransitionEffectId[]).map((k) => (
                         <option key={k} value={k}>{TRANSITION_EFFECT_LABELS[k]}</option>
                       ))}
                     </select>
@@ -2579,6 +2581,8 @@ export default function StudioVideo() {
               )}
               <p className="text-[11px] text-muted-foreground">
                 Le mode <strong>Auto</strong> applique un fondu enchaîné aux plans vidéo et un Ken Burns aux plans images.
+                <br /><strong>Enchaînement rapide</strong> accélère le défilement des images ; <strong>Mix</strong> alterne tous les effets images (sauf l'enchaînement rapide).
+                <br />Si <strong>aucune étape n'a de média assigné</strong> et que seules des images sont sélectionnées, toutes les images défilent à fréquence constante sur toute la durée de la vidéo.
                 {continuousBg && continuousBgUrl ? (
                   <> <br />Avec <strong>une seule vidéo en continu</strong>, le fond ne change jamais : la transition s'applique uniquement aux textes et blocs graphiques (fondu enchaîné ou slide).</>
                 ) : null}

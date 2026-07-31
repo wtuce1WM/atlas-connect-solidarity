@@ -993,8 +993,7 @@ function CustomSceneDialog({
     setMediaUrl(initial?.media?.url ?? null);
   }, [open, initial]);
 
-  const canSubmit = title.trim().length > 0 && duration >= 1 && duration <= 60 &&
-    (mode !== "overlay" || (!!mediaUrl && !!available.find((m) => m.url === mediaUrl)));
+  const canSubmit = title.trim().length > 0 && duration >= 1 && duration <= 60;
 
   const submit = () => {
     if (!canSubmit) return;
@@ -1032,14 +1031,14 @@ function CustomSceneDialog({
               </button>
               <button
                 type="button"
-                onClick={() => { setMode("overlay"); if (!mediaUrl && available[0]) setMediaUrl(available[0].url); }}
+                onClick={() => setMode("overlay")}
                 className={cn(
                   "rounded-md border p-3 text-left text-xs transition-colors",
                   mode === "overlay" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
                 )}
               >
                 <div className="font-bold mb-0.5">Overlay sur média</div>
-                <div className="text-muted-foreground">Texte superposé à une image ou vidéo.</div>
+                <div className="text-muted-foreground">Texte superposé à une image ou vidéo (média optionnel).</div>
               </button>
             </div>
           </div>
@@ -1083,7 +1082,14 @@ function CustomSceneDialog({
 
           {mode === "overlay" && (
             <div>
-              <Label className="text-xs uppercase tracking-wider">Média de fond</Label>
+              <div className="flex items-center justify-between">
+                <Label className="text-xs uppercase tracking-wider">Média de fond (optionnel)</Label>
+                {mediaUrl && (
+                  <Button size="sm" variant="ghost" className="h-6 text-[11px]" onClick={() => setMediaUrl(null)}>
+                    Retirer
+                  </Button>
+                )}
+              </div>
               {available.length === 0 ? (
                 <p className="text-xs text-muted-foreground mt-2">Aucun média disponible pour l'établissement sélectionné.</p>
               ) : (
@@ -1094,7 +1100,7 @@ function CustomSceneDialog({
                       <button
                         key={m.url}
                         type="button"
-                        onClick={() => setMediaUrl(m.url)}
+                        onClick={() => setMediaUrl(selected ? null : m.url)}
                         className={cn(
                           "relative aspect-square rounded overflow-hidden border-2 transition-colors",
                           selected ? "border-primary" : "border-transparent hover:border-primary/40"
@@ -1115,6 +1121,11 @@ function CustomSceneDialog({
                     );
                   })}
                 </div>
+              )}
+              {!mediaUrl && (
+                <p className="text-[11px] text-neutral-600 italic mt-2">
+                  Aucun média assigné — le rendu utilisera la sélection globale ou l'auto-choix IA.
+                </p>
               )}
             </div>
           )}

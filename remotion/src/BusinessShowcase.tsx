@@ -29,7 +29,16 @@ const textPositionStyle = (position: TextPosition = "middle"): React.CSSProperti
 };
 
 // ===== Transitions entre les plans =====
-export type TransitionEffect = "crossfade" | "fade_black" | "wipe" | "zoom" | "kenburns" | "slide" | "cut";
+export type TransitionEffect = "crossfade" | "fade_black" | "wipe" | "zoom" | "kenburns" | "slide" | "cut" | "fast" | "mix";
+// Effets réellement utilisables quand "Mix" est choisi (tout sauf fast / mix)
+const MIX_POOL: TransitionEffect[] = ["kenburns", "crossfade", "slide", "fade_black", "wipe", "zoom"];
+const hashString = (s: string): number => {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
+};
+const resolveMix = (effect: TransitionEffect, seed: string): TransitionEffect =>
+  effect === "mix" ? MIX_POOL[hashString(seed) % MIX_POOL.length] : effect;
 export type TransitionStyle = "auto" | "doux" | "dynamique" | "minimal";
 export type TransitionsConfig = {
   style?: TransitionStyle;
@@ -364,13 +373,14 @@ const ease = (f: number, a: number, b: number) =>
 const SceneTransition: React.FC<{ effect: TransitionEffect; duration: number; children: React.ReactNode }> = ({ effect, duration, children }) => {
   const frame = useCurrentFrame();
   if (effect === "cut") return <AbsoluteFill>{children}</AbsoluteFill>;
-  const d = Math.max(5, Math.min(18, Math.round(duration * 0.18)));
+  const d = effect === "fast" ? 4 : Math.max(5, Math.min(18, Math.round(duration * 0.18)));
   const inP = ease(frame, 0, d);
   const outP = 1 - ease(frame, duration - d, duration);
   const p = Math.min(inP, outP);
   let style: React.CSSProperties = {};
   switch (effect) {
     case "crossfade":
+    case "fast":
       style = { opacity: p };
       break;
     case "fade_black":
@@ -388,6 +398,8 @@ const SceneTransition: React.FC<{ effect: TransitionEffect; duration: number; ch
     case "wipe":
       style = { clipPath: `inset(0 ${(1 - inP) * 100}% 0 0)`, opacity: outP };
       break;
+    default:
+      style = { opacity: p };
   }
   return <AbsoluteFill style={style}>{children}</AbsoluteFill>;
 };
@@ -1173,6 +1185,79 @@ const MotionBackdrop: React.FC<{
   );
 };
 
+// ===== Diaporama global d'images =====
+// Utilisé quand AUCUNE étape du scénario n'a de média assigné et que seules des
+// images sont sélectionnées : toutes les images défilent linéairement sur toute
+// la durée de la vidéo, à fréquence constante (indépendante de la durée des étapes).
+const SLIDESHOW_FAST_FRAMES = 22;
+
+const SlideshowSlide: React.FC<{ src: string; duration: number; effect: TransitionEffect; fade: number }> = ({ src, duration, effect, fade }) => {
+  const frame = useCurrentFrame();
+  const tone = useTone();
+  const p = duration > 0 ? Math.max(0, Math.min(1, frame / duration)) : 0;
+  const o = Math.min(ease(frame, 0, fade), 1 - ease(frame, duration - fade, duration));
+  let transform = `scale(${1.03 + p * 0.03})`;
+  let clipPath: string | undefined;
+  let opacity = o;
+  switch (effect) {
+    case "kenburns":
+      transform = `scale(${1.04 + p * (tone.kenBurnsZoom || 0.1)}) translate(${(p - 0.5) * 1.6}%, ${(0.5 - p) * 1.1}%)`;
+      break;
+    case "zoom":
+      transform = `scale(${1.16 - p * 0.12})`;
+      break;
+    case "slide":
+      transform = `scale(1.12) translateX(${(0.5 - p) * 5}%)`;
+      break;
+    case "wipe":
+      clipPath = `inset(0 ${(1 - ease(frame, 0, fade)) * 100}% 0 0)`;
+      opacity = 1 - ease(frame, duration - fade, duration);
+      break;
+    case "fade_black":
+      opacity = o * o;
+      break;
+    case "cut":
+      opacity = 1;
+      break;
+  }
+  return (
+    <AbsoluteFill style={{ opacity, clipPath, overflow: "hidden" }}>
+      <Img src={src} style={{ width: "100%", height: "100%", objectFit: "cover", transform }} />
+    </AbsoluteFill>
+  );
+};
+
+const GlobalImageSlideshow: React.FC<{ images: string[]; total: number; effect: TransitionEffect }> = ({ images, total, effect }) => {
+  const n = images.length;
+  if (!n || total <= 0) return null;
+  const fast = effect === "fast";
+  const per = fast ? SLIDESHOW_FAST_FRAMES : Math.max(12, Math.floor(total / n));
+  const count = fast ? Math.max(1, Math.ceil(total / per)) : n;
+  const fade = fast ? 5 : 16;
+  const slides: React.ReactNode[] = [];
+  for (let i = 0; i < count; i++) {
+    const start = fast ? i * per : Math.round((i * total) / n);
+    const end = fast ? Math.min(total, (i + 1) * per) : Math.round(((i + 1) * total) / n);
+    const base = Math.max(1, end - start);
+    const dur = i < count - 1 ? base + fade : base;
+    const src = images[i % n];
+    const eff = resolveMix(fast ? "crossfade" : effect, `${src}#${i}`);
+    slides.push(
+      <Sequence key={`slide-${i}`} from={start} durationInFrames={dur}>
+        <SlideshowSlide src={src} duration={dur} effect={eff} fade={fade} />
+      </Sequence>,
+    );
+  }
+  return (
+    <AbsoluteFill style={{ overflow: "hidden" }}>
+      {slides}
+      <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.34) 0%,rgba(14,11,8,0.56) 100%)" }} />
+    </AbsoluteFill>
+  );
+};
+
+
+
 const removeDecorativeTaglineWords = (value: string): string =>
   value
     .replace(/\bterracotta(?:é|e|s)?\b/gi, "")
@@ -1649,6 +1734,15 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const offerOverride = Array.isArray(sm.offer) ? sm.offer : [];
   const outroOverride = Array.isArray(sm.outro) ? sm.outro : [];
 
+  // Diaporama global : aucune étape n'a de média assigné + uniquement des images
+  // sélectionnées → toutes les images défilent à fréquence constante sur toute la vidéo.
+  const noSceneMediaAssigned =
+    Object.values(sm as Record<string, unknown>).every((v) => !Array.isArray(v) || v.length === 0) &&
+    !(Array.isArray(custom_scenes) && custom_scenes.some((c) => c?.media?.url));
+  const slideshowMode = !continuousMode && hasImages && !hasVideos && noSceneMediaAssigned;
+
+
+
   const defaultHero = mixedMode ? safeImages[0] : (useVideos ? safeVideos[0] : safeImages[0]);
   const defaultGallery = mixedMode
     ? safeVideos
@@ -2063,20 +2157,20 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const trVideoEffect: TransitionEffect = trDifferentiate ? (transitions?.video ?? trPreset.video) : trPreset.video;
   const trImageEffect: TransitionEffect = trDifferentiate ? (transitions?.image ?? trPreset.image) : trPreset.video;
   const transitionFor = (kind: string): TransitionEffect => {
-    if (continuousMode) {
-      // Fond vidéo unique en continu : pas de coupe de plan à enchaîner,
-      // la transition ne s'applique qu'aux calques texte/contenu.
-      // On limite aux effets lisibles sur du texte.
-      if (trVideoEffect === "kenburns" || trVideoEffect === "zoom" || trVideoEffect === "wipe") return "crossfade";
-      if (trVideoEffect === "fade_black") return "crossfade";
-      return trVideoEffect;
+    if (continuousMode || slideshowMode) {
+      // Fond continu (vidéo unique ou diaporama global) : la transition ne
+      // s'applique qu'aux calques texte/contenu. On limite aux effets lisibles.
+      const base = slideshowMode ? trImageEffect : trVideoEffect;
+      const eff = resolveMix(base, kind);
+      if (eff === "kenburns" || eff === "zoom" || eff === "wipe" || eff === "fade_black") return "crossfade";
+      return eff;
     }
 
     const arr = (sm as Record<string, Array<{ url: string; kind: "image" | "video" }> | undefined>)[kind];
     const first = Array.isArray(arr) ? arr[0] : undefined;
-    if (first) return first.kind === "video" ? trVideoEffect : trImageEffect;
-    if (hasVideos && !hasImages) return trVideoEffect;
-    return trImageEffect;
+    if (first) return resolveMix(first.kind === "video" ? trVideoEffect : trImageEffect, kind);
+    if (hasVideos && !hasImages) return resolveMix(trVideoEffect, kind);
+    return resolveMix(trImageEffect, kind);
   };
 
   const toneOverlay = TONE_CONFIG[tone]?.overlay ?? TONE_CONFIG.immersif.overlay;
@@ -2101,7 +2195,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
   return (
     <ToneContext.Provider value={tone}>
-      <SuppressBgContext.Provider value={continuousMode}>
+      <SuppressBgContext.Provider value={continuousMode || slideshowMode}>
         <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
           {soundtrack && <Audio src={soundtrack} loop volume={audioFadeVolume} />}
           {continuousMode ? (
@@ -2116,6 +2210,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
               <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.45) 0%,rgba(14,11,8,0.62) 100%)" }} />
             </AbsoluteFill>
+          ) : slideshowMode ? (
+            <GlobalImageSlideshow images={safeImages} total={totalFrames} effect={trImageEffect} />
           ) : (
             <Background />
           )}

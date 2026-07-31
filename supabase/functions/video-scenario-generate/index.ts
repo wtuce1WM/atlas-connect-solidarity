@@ -616,7 +616,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       const rawTransitions = options?.transitions;
       if (rawTransitions && typeof rawTransitions === "object") {
         const STYLES = new Set(["auto", "doux", "dynamique", "minimal"]);
-        const EFFECTS = new Set(["crossfade", "fade_black", "wipe", "zoom", "kenburns", "slide", "cut"]);
+        const EFFECTS = new Set(["crossfade", "fade_black", "wipe", "zoom", "kenburns", "slide", "cut", "fast", "mix"]);
         const t: Record<string, unknown> = {};
         if (STYLES.has(rawTransitions.style)) t.style = rawTransitions.style;
         t.differentiate = rawTransitions.differentiate !== false;
