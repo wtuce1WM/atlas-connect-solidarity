@@ -893,8 +893,61 @@ export default function StudioVideo() {
       logoUrl: logoInfo.url,
       whatsapp: optWhatsapp,
       whatsappNumber: whatsappNumber,
+      hookText: fromVideoOn && synthTitle ? synthTitle : null,
     });
-  }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optOpenWithLogo, logoInfo, optWhatsapp, whatsappNumber]);
+  }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optOpenWithLogo, logoInfo, optWhatsapp, whatsappNumber, fromVideoOn, synthTitle]);
+
+  const youtubeIdFromUrl = (url: string): string | null => {
+    const m = url.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{6,})/);
+    return m?.[1] ?? null;
+  };
+
+  const runFromVideo = async (url: string) => {
+    setFromVideoLoading(true);
+    try {
+      const vid = youtubeIdFromUrl(url);
+      const { data, error } = await supabase.functions.invoke("studio-video-text-assist", {
+        body: {
+          action: "from_video",
+          business_id: selected?.id ?? null,
+          video_id: vid,
+          video_url: vid ? null : url,
+          video_title: bizVideos.find((v) => v.url === url)?.title ?? null,
+          lang: videoLang,
+        },
+      });
+      if (error) throw error;
+      const res = data as any;
+      setSynthTitle(res?.title ?? "");
+      setSynthText(res?.text ?? "");
+      setEstimateText(`${res?.title ?? ""}\n${res?.text ?? ""}`.trim());
+      setEstimateResult(null);
+      toast.success("Titre et texte synthétisés à partir de la vidéo.");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erreur lors de la synthèse.");
+    } finally {
+      setFromVideoLoading(false);
+    }
+  };
+
+  const runEstimate = async () => {
+    if (!estimateText.trim()) {
+      toast.error("Collez un texte à estimer.");
+      return;
+    }
+    setEstimateLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("studio-video-text-assist", {
+        body: { action: "estimate", text: estimateText },
+      });
+      if (error) throw error;
+      setEstimateResult(data as any);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erreur lors de l'estimation.");
+    } finally {
+      setEstimateLoading(false);
+    }
+  };
 
   const mediaMatches = useMemo(() => {
     const matches = new Map<string, string[]>();
