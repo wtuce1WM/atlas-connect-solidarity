@@ -1561,10 +1561,13 @@ const SceneCustomerReview: React.FC<{
 
   const displayText = hasExcerpt ? full : full || excerpt;
   const baseSize = reviewFontSize(displayText.length);
-  const size = interpolate(focus, [0, 1], [baseSize, hasExcerpt ? reviewFontSize(mid.length) : baseSize]);
+  // Pas de redimensionnement du texte ni de la carte pendant la phase de focus :
+  // seuls les côtés s'estompent, ce qui évite le saut visuel de re-cadrage.
+  const size = baseSize;
   const sideOpacity = interpolate(focus, [0, 1], [1, 0]);
   const sideBlur = interpolate(focus, [0, 1], [0, 6]);
-  const cardScale = interpolate(focus, [0, 1], [1, 1.04]);
+  const cardScale = 1;
+
 
   const platform = platformKeyFromSource(source);
   const meta = platform ? PLATFORM_META[platform] : null;
@@ -1808,11 +1811,19 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     : (useVideos ? safeVideos.slice(1) : safeImages.slice(1));
   const defaultGalleryList = defaultGallery.length ? defaultGallery : (useVideos ? safeVideos : safeImages);
   // Fond par défaut pour les scènes "info" sans média dédié (avis plateformes, WhatsApp…)
+  // Les vidéos sont prioritaires pour que le fond animé persiste sur ces étapes.
   const bgFallback = (i: number): string | undefined => {
-    if (safeImages.length) return safeImages[i % safeImages.length];
     if (safeVideos.length) return safeVideos[i % safeVideos.length];
+    if (safeImages.length) return safeImages[i % safeImages.length];
     return undefined;
   };
+  const isVideoUrl = (u?: string) => !!u && /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u);
+  /** Répartit une URL de repli sur le bon prop de MotionBackdrop (src vidéo vs image). */
+  const fallbackBackdrop = (u?: string) => ({
+    src: isVideoUrl(u) ? u : undefined,
+    image: isVideoUrl(u) ? undefined : u,
+  });
+
 
   // Scene 1 (Hook 0-120)
   const hookItem = hookOverride[0];
@@ -1997,8 +2008,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             <MotionBackdrop
-              src={bg?.kind === "video" ? bg.url : undefined}
-              image={bg?.kind === "image" ? bg.url : (bg ? undefined : bgFallback(fbIdx))}
+              src={bg?.kind === "video" ? bg.url : (bg ? undefined : fallbackBackdrop(bgFallback(fbIdx)).src)}
+              image={bg?.kind === "image" ? bg.url : (bg ? undefined : fallbackBackdrop(bgFallback(fbIdx)).image)}
               duration={duration}
               effect={trImageEffect}
             />
@@ -2016,8 +2027,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             <MotionBackdrop
-              src={bg?.kind === "video" ? bg.url : undefined}
-              image={bg?.kind === "image" ? bg.url : (bg ? undefined : (defaultGalleryList[0] ?? bgFallback(0)))}
+              src={bg?.kind === "video" ? bg.url : (bg ? undefined : fallbackBackdrop(bgFallback(0)).src)}
+              image={bg?.kind === "image" ? bg.url : (bg ? undefined : fallbackBackdrop(bgFallback(0)).image)}
               duration={duration}
               effect={trImageEffect}
             />
@@ -2033,8 +2044,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             <MotionBackdrop
-              src={bg?.kind === "video" ? bg.url : undefined}
-              image={bg?.kind === "image" ? bg.url : (bg ? undefined : bgFallback(3))}
+              src={bg?.kind === "video" ? bg.url : (bg ? undefined : fallbackBackdrop(bgFallback(3)).src)}
+              image={bg?.kind === "image" ? bg.url : (bg ? undefined : fallbackBackdrop(bgFallback(3)).image)}
               duration={duration}
               effect={trImageEffect}
             />
