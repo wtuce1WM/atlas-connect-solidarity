@@ -532,13 +532,17 @@ export function StudioVideoScenarioPanel({
       if (exists) return prev.map((c) => (c.id === draft.id ? draft : c));
       return [...prev, draft];
     });
-    // Append to order if not already present
+    // Nouvelle étape texte : insérée en position 3 du scénario (après Ouverture + Nom).
     setOrderOverride((prev) => {
       const base = prev ?? editedScenes.map((s) => s.id);
       const tok = tokenForCustom(draft.id);
       if (base.includes(tok)) return base;
-      return [...base, tok];
+      const insertAt = Math.min(2, base.length);
+      const next = base.slice();
+      next.splice(insertAt, 0, tok);
+      return next;
     });
+
   };
 
   const removeCustomScene = (cid: string) => {
