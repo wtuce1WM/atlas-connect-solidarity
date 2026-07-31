@@ -287,6 +287,17 @@ export default function StudioVideo() {
   /** Effet visuel par article de blog (surclasse le mode global). */
   const [blogModes, setBlogModes] = useState<Record<string, "scroll" | "hero_map">>({});
   const [prompt, setPrompt] = useState("");
+  // --- Synthèse « À partir de la vidéo » (Titre + Texte) ---
+  const [fromVideoOn, setFromVideoOn] = useState(false);
+  const [fromVideoUrl, setFromVideoUrl] = useState<string | null>(null);
+  const [fromVideoLoading, setFromVideoLoading] = useState(false);
+  const [synthTitle, setSynthTitle] = useState("");
+  const [synthText, setSynthText] = useState("");
+  // --- Estimation de durée ---
+  const [estimateOpen, setEstimateOpen] = useState(false);
+  const [estimateText, setEstimateText] = useState("");
+  const [estimateResult, setEstimateResult] = useState<{ seconds: number; words: number; chars: number } | null>(null);
+  const [estimateLoading, setEstimateLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [previewing, setPreviewing] = useState(false);
   const [scenarioPreviewed, setScenarioPreviewed] = useState(false);
@@ -882,8 +893,61 @@ export default function StudioVideo() {
       logoUrl: logoInfo.url,
       whatsapp: optWhatsapp,
       whatsappNumber: whatsappNumber,
+      hookText: fromVideoOn && synthTitle ? synthTitle : null,
     });
-  }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optOpenWithLogo, logoInfo, optWhatsapp, whatsappNumber]);
+  }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optOpenWithLogo, logoInfo, optWhatsapp, whatsappNumber, fromVideoOn, synthTitle]);
+
+  const youtubeIdFromUrl = (url: string): string | null => {
+    const m = url.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{6,})/);
+    return m?.[1] ?? null;
+  };
+
+  const runFromVideo = async (url: string) => {
+    setFromVideoLoading(true);
+    try {
+      const vid = youtubeIdFromUrl(url);
+      const { data, error } = await supabase.functions.invoke("studio-video-text-assist", {
+        body: {
+          action: "from_video",
+          business_id: selected?.id ?? null,
+          video_id: vid,
+          video_url: vid ? null : url,
+          video_title: bizVideos.find((v) => v.url === url)?.title ?? null,
+          lang: videoLang,
+        },
+      });
+      if (error) throw error;
+      const res = data as any;
+      setSynthTitle(res?.title ?? "");
+      setSynthText(res?.text ?? "");
+      setEstimateText(`${res?.title ?? ""}\n${res?.text ?? ""}`.trim());
+      setEstimateResult(null);
+      toast.success("Titre et texte synthétisés à partir de la vidéo.");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erreur lors de la synthèse.");
+    } finally {
+      setFromVideoLoading(false);
+    }
+  };
+
+  const runEstimate = async () => {
+    if (!estimateText.trim()) {
+      toast.error("Collez un texte à estimer.");
+      return;
+    }
+    setEstimateLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("studio-video-text-assist", {
+        body: { action: "estimate", text: estimateText },
+      });
+      if (error) throw error;
+      setEstimateResult(data as any);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erreur lors de l'estimation.");
+    } finally {
+      setEstimateLoading(false);
+    }
+  };
 
   const mediaMatches = useMemo(() => {
     const matches = new Map<string, string[]>();
@@ -939,6 +1003,8 @@ export default function StudioVideo() {
             logo_url: logoInfo.url,
             text_splits: scenarioEdits?.textSplits,
             text_overrides: scenarioEdits?.textOverrides,
+            hook_override: fromVideoOn && synthTitle ? synthTitle : null,
+            video_text: fromVideoOn && synthText ? synthText : null,
             scene_pois: scenarioEdits?.scenePois,
             scene_destinations: scenarioEdits?.sceneDestinations,
             blog_articles: optBlogArticles && selectedBlogIds.size > 0,
@@ -990,6 +1056,10 @@ export default function StudioVideo() {
 
   const buildDirectivesPrompt = () => {
     const directives: string[] = [];
+    if (fromVideoOn && (synthTitle || synthText)) {
+      if (synthTitle) directives.push(`Utiliser ce titre comme hook (étape 2 du scénario), à la place du hook de l'établissement : « ${synthTitle} ».`);
+      if (synthText) directives.push(`Utiliser ce texte comme texte de la vidéo : « ${synthText} ».`);
+    }
     const logoAvailable = !!logoInfo.url && logoInfo.bg === "transparent";
     if (logoAvailable && optOpenWithLogo) directives.push(`Ouvrir la vidéo par une séquence courte (env. 20 frames) affichant le logo de l'établissement (fond transparent) centré sur un fond de marque, avec un fondu d'entrée doux, avant d'enchaîner sur le hook. URL du logo : ${logoInfo.url}`);
     if (optReviews) directives.push("Faire figurer le compteur d'avis client et le badge des avis client (note/20 + nombre d'avis).");
@@ -1124,6 +1194,8 @@ export default function StudioVideo() {
             logo_url: logoInfo.url,
             text_splits: scenarioEdits?.textSplits,
             text_overrides: scenarioEdits?.textOverrides,
+            hook_override: fromVideoOn && synthTitle ? synthTitle : null,
+            video_text: fromVideoOn && synthText ? synthText : null,
             scene_pois: scenarioEdits?.scenePois,
             scene_destinations: scenarioEdits?.sceneDestinations,
             blog_articles: optBlogArticles && selectedBlogIds.size > 0,
@@ -2208,8 +2280,161 @@ export default function StudioVideo() {
                   ))}
                 </div>
               </div>
+              <div className="space-y-2">
+                <Label>Assistant texte</Label>
+                <div className="flex gap-2 flex-wrap">
+                  <Button
+                    type="button"
+                    variant={fromVideoOn ? "default" : "outline"}
+                    onClick={() => {
+                      const next = !fromVideoOn;
+                      setFromVideoOn(next);
+                      if (next && !fromVideoUrl && bizVideos.length > 0) setFromVideoUrl(bizVideos[0].url);
+                    }}
+                  >
+                    <Sparkles className="h-4 w-4 mr-1.5" /> À partir de la vidéo
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setEstimateOpen(true)}
+                  >
+                    <SlidersHorizontal className="h-4 w-4 mr-1.5" /> Estimer la durée
+                  </Button>
+                </div>
+                {fromVideoOn && (
+                  <div className="rounded-md border border-border bg-muted/30 p-3 space-y-3">
+                    {bizVideos.length === 0 ? (
+                      <p className="text-xs text-muted-foreground">Aucune vidéo disponible pour cet établissement.</p>
+                    ) : (
+                      <>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Vidéo source</Label>
+                          <select
+                            className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-xs"
+                            value={fromVideoUrl ?? ""}
+                            onChange={(e) => { setFromVideoUrl(e.target.value); setSynthTitle(""); setSynthText(""); }}
+                          >
+                            {bizVideos.map((v) => (
+                              <option key={v.url} value={v.url}>
+                                {v.kind === "youtube" ? "▶ " : "🎬 "}{v.title}
+                              </option>
+                            ))}
+                          </select>
+                          {fromVideoUrl && youtubeIdFromUrl(fromVideoUrl) && (
+                            <p className="text-[11px] text-muted-foreground">
+                              ID vidéo : <span className="font-mono">{youtubeIdFromUrl(fromVideoUrl)}</span>
+                            </p>
+                          )}
+                        </div>
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="w-full h-8 text-[12px]"
+                          disabled={!fromVideoUrl || fromVideoLoading}
+                          onClick={() => fromVideoUrl && runFromVideo(fromVideoUrl)}
+                        >
+                          {fromVideoLoading
+                            ? <><Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> Synthèse…</>
+                            : <><Wand2 className="h-4 w-4 mr-1.5" /> Générer Titre + Texte</>}
+                        </Button>
+                        {(synthTitle || synthText) && (
+                          <div className="space-y-2">
+                            <div className="space-y-1">
+                              <Label className="text-xs">Titre (remplace le Hook — étape 2)</Label>
+                              <Input
+                                value={synthTitle}
+                                maxLength={80}
+                                onChange={(e) => setSynthTitle(e.target.value)}
+                                className="h-8 text-xs"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Texte de la vidéo</Label>
+                              <Textarea
+                                rows={3}
+                                value={synthText}
+                                maxLength={400}
+                                onChange={(e) => setSynthText(e.target.value)}
+                                className="text-xs"
+                              />
+                            </div>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              className="h-8 text-[12px] w-full"
+                              onClick={() => {
+                                setEstimateText(`${synthTitle}\n${synthText}`.trim());
+                                setEstimateResult(null);
+                                setEstimateOpen(true);
+                              }}
+                            >
+                              Estimer la durée de ce texte
+                            </Button>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
+            <Dialog open={estimateOpen} onOpenChange={setEstimateOpen}>
+              <DialogContent className="max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>Estimer la durée du clip</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-3">
+                  {fromVideoOn && (synthTitle || synthText) && (
+                    <div className="rounded-md border border-border bg-muted/30 p-3 text-xs space-y-1">
+                      <div><span className="text-muted-foreground">Titre : </span><span className="font-semibold">{synthTitle || "—"}</span></div>
+                      <div><span className="text-muted-foreground">Txt : </span>{synthText || "—"}</div>
+                      {fromVideoUrl && youtubeIdFromUrl(fromVideoUrl) && (
+                        <div className="text-muted-foreground">ID vidéo : <span className="font-mono">{youtubeIdFromUrl(fromVideoUrl)}</span></div>
+                      )}
+                    </div>
+                  )}
+                  <Textarea
+                    rows={6}
+                    placeholder="Collez ici le texte à afficher dans le clip…"
+                    value={estimateText}
+                    onChange={(e) => { setEstimateText(e.target.value); setEstimateResult(null); }}
+                    className="text-sm"
+                  />
+                  <div className="flex gap-2">
+                    <Button type="button" size="sm" onClick={runEstimate} disabled={estimateLoading}>
+                      {estimateLoading
+                        ? <><Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> Estimation…</>
+                        : <>Estimer</>}
+                    </Button>
+                    {estimateResult && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const d = [15, 30, 45, 60].find((x) => x >= estimateResult.seconds) ?? 60;
+                          setDurationAuto(false);
+                          setDuration(d as 15 | 30 | 45 | 60);
+                          setEstimateOpen(false);
+                          toast.success(`Durée réglée sur ${d}s.`);
+                        }}
+                      >
+                        Appliquer à la durée
+                      </Button>
+                    )}
+                  </div>
+                  {estimateResult && (
+                    <p className="text-sm">
+                      Durée estimée : <span className="font-semibold">{estimateResult.seconds}s</span>{" "}
+                      <span className="text-muted-foreground text-xs">({estimateResult.words} mots · {estimateResult.chars} caractères)</span>
+                    </p>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
 
 
             <div className="space-y-2">
