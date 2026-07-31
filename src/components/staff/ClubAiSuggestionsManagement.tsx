@@ -6,7 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { Trash2, Plus, Save, MessageSquare, Sparkles, Loader2 } from "lucide-react";
+import { Trash2, Plus, Save, MessageSquare, Sparkles, Loader2, CornerDownRight } from "lucide-react";
+import { detectRoute, RouteBadge } from "./aiRouteDetect";
 
 type Row = {
   id: string;
@@ -22,18 +23,35 @@ type Row = {
   fixed_response_ar: string | null;
   blog_post_id: string | null;
   blog_post_ids: string[];
+  mode: string | null;
+  destination_ids: string[];
+  subcategory_ids: string[];
+  badge_ids: string[];
+  disabled_followup_ids: string[];
 };
 
 type BlogOption = { id: string; title: string; slug: string | null };
+type DestinationOption = { id: string; name_fr: string };
+type SubcategoryOption = { id: string; name_fr: string };
+type BadgeOption = { id: string; name_fr: string };
+type GlobalFollowup = { id: string; label_fr: string; is_active: boolean; sort_order: number };
 
-
+const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
 const ClubAiSuggestionsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
   const [blogPosts, setBlogPosts] = useState<BlogOption[]>([]);
+  const [destinations, setDestinations] = useState<DestinationOption[]>([]);
+  const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
+  const [badges, setBadges] = useState<BadgeOption[]>([]);
+  const [globalFollowups, setGlobalFollowups] = useState<GlobalFollowup[]>([]);
   const [loading, setLoading] = useState(true);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
   const [embedding, setEmbedding] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [destinationSearch, setDestinationSearch] = useState<Record<string, string>>({});
+  const [subcategorySearch, setSubcategorySearch] = useState<Record<string, string>>({});
+  const [badgeSearch, setBadgeSearch] = useState<Record<string, string>>({});
 
   const runEmbed = async (force = false) => {
     setEmbedding(true);
@@ -48,32 +66,44 @@ const ClubAiSuggestionsManagement = () => {
       setEmbedding(false);
     }
   };
-  const [saving, setSaving] = useState(false);
 
   const load = async () => {
     setLoading(true);
-    const [{ data, error }, { data: posts }] = await Promise.all([
-      supabase
+    const [{ data, error }, { data: posts }, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }] = await Promise.all([
+      (supabase as any)
         .from("club_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,category,city,sort_order,is_active,fixed_response_fr,fixed_response_en,fixed_response_ar,blog_post_id,blog_post_ids")
+        .select("id,label_fr,label_en,label_ar,category,city,sort_order,is_active,fixed_response_fr,fixed_response_en,fixed_response_ar,blog_post_id,blog_post_ids,mode,destination_ids,subcategory_ids,badge_ids,disabled_followup_ids")
         .order("sort_order", { ascending: true }),
-      supabase
-        .from("blog_posts")
-        .select("id,title_fr,title_en,slug")
-        .order("title_fr", { ascending: true }),
+      supabase.from("blog_posts").select("id,title_fr,title_en,slug").order("title_fr", { ascending: true }),
+      supabase.from("destinations").select("id,name_fr").order("name_fr", { ascending: true }),
+      supabase.from("subcategories").select("id,name_fr").order("name_fr", { ascending: true }),
+      supabase.from("badges").select("id,name_fr").order("name_fr", { ascending: true }),
+      (supabase as any).from("club_ai_followups").select("id,label_fr,is_active,sort_order").order("sort_order", { ascending: true }),
     ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows(((data as any[]) || []).map((r) => ({ ...r, blog_post_ids: r.blog_post_ids || (r.blog_post_id ? [r.blog_post_id] : []) })) as Row[]);
+    setRows(
+      ((data as any[]) || []).map((r) => ({
+        ...r,
+        blog_post_ids: r.blog_post_ids || (r.blog_post_id ? [r.blog_post_id] : []),
+        destination_ids: Array.isArray(r.destination_ids) ? r.destination_ids : [],
+        subcategory_ids: Array.isArray(r.subcategory_ids) ? r.subcategory_ids : [],
+        badge_ids: Array.isArray(r.badge_ids) ? r.badge_ids : [],
+        disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
+      })) as Row[]
+    );
     const options: BlogOption[] = ((posts as any[]) || [])
       .map((p) => ({ id: p.id, slug: p.slug, title: (p.title_fr || p.title_en || p.slug || "(sans titre)").trim() }))
       .sort((a, b) => a.title.localeCompare(b.title, "fr", { sensitivity: "base" }));
     setBlogPosts(options);
+    setDestinations(((dests as any[]) || []).map((d) => ({ id: d.id, name_fr: d.name_fr || "(sans nom)" })));
+    setSubcategories(((subs as any[]) || []).map((s) => ({ id: s.id, name_fr: s.name_fr || "(sans nom)" })));
+    setBadges(((bdgs as any[]) || []).map((b) => ({ id: b.id, name_fr: b.name_fr || "(sans nom)" })));
+    setGlobalFollowups(((fups as any[]) || []).map((f) => ({ id: f.id, label_fr: f.label_fr || "", is_active: !!f.is_active, sort_order: f.sort_order || 0 })));
     setDirty(new Set());
     setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
-
 
   const update = (id: string, patch: Partial<Row>) => {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
@@ -82,13 +112,13 @@ const ClubAiSuggestionsManagement = () => {
 
   const add = async () => {
     const nextOrder = (rows.reduce((m, r) => Math.max(m, r.sort_order), 0) || 0) + 10;
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("club_ai_suggestions")
       .insert({ label_fr: "Nouvelle suggestion", sort_order: nextOrder, is_active: true })
       .select()
       .single();
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
-    setRows((prev) => [...prev, data as Row]);
+    setRows((prev) => [...prev, { ...(data as any), blog_post_ids: [], destination_ids: [], subcategory_ids: [], badge_ids: [], disabled_followup_ids: [], mode: null } as Row]);
   };
 
   const remove = async (id: string) => {
@@ -102,18 +132,87 @@ const ClubAiSuggestionsManagement = () => {
     setSaving(true);
     const changed = rows.filter((r) => dirty.has(r.id));
     for (const r of changed) {
-      const { error } = await supabase.from("club_ai_suggestions").update({
+      const { error } = await (supabase as any).from("club_ai_suggestions").update({
         label_fr: r.label_fr, label_en: r.label_en, label_ar: r.label_ar,
         category: r.category, city: r.city, sort_order: r.sort_order, is_active: r.is_active,
         fixed_response_fr: r.fixed_response_fr, fixed_response_en: r.fixed_response_en, fixed_response_ar: r.fixed_response_ar,
         blog_post_id: r.blog_post_ids?.[0] ?? null,
         blog_post_ids: r.blog_post_ids ?? [],
+        mode: r.mode || null,
+        destination_ids: r.destination_ids ?? [],
+        subcategory_ids: r.subcategory_ids ?? [],
+        badge_ids: r.badge_ids ?? [],
+        disabled_followup_ids: r.disabled_followup_ids ?? [],
       }).eq("id", r.id);
       if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); setSaving(false); return; }
     }
     toast({ title: "Enregistré", description: `${changed.length} suggestion(s) mise(s) à jour.` });
     setDirty(new Set());
     setSaving(false);
+  };
+
+  // Generic chip multi-picker (destinations / sous-catégories / badges)
+  const Picker = ({
+    row, field, options, search, setSearch, label, placeholder, empty, chipClass, hint,
+  }: {
+    row: Row;
+    field: "destination_ids" | "subcategory_ids" | "badge_ids";
+    options: { id: string; name_fr: string }[];
+    search: Record<string, string>;
+    setSearch: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+    label: string;
+    placeholder: string;
+    empty: string;
+    chipClass: string;
+    hint?: string;
+  }) => {
+    const ids = row[field] as string[];
+    return (
+      <div className="space-y-2">
+        <label className="text-xs text-muted-foreground">{label} {ids.length === 0 ? "(aucune)" : `(${ids.length})`}</label>
+        {ids.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {ids.map((id) => {
+              const o = options.find((x) => x.id === id);
+              return (
+                <span key={id} className={`inline-flex items-center gap-1 rounded-md text-xs px-2 py-1 ${chipClass}`}>
+                  {o?.name_fr || id}
+                  <button type="button" onClick={() => update(row.id, { [field]: ids.filter((x) => x !== id) } as any)} className="hover:text-destructive" title="Retirer">×</button>
+                </span>
+              );
+            })}
+          </div>
+        )}
+        <div className="relative max-w-md">
+          <Input
+            placeholder={placeholder}
+            value={search[row.id] || ""}
+            onChange={(e) => setSearch((prev) => ({ ...prev, [row.id]: e.target.value }))}
+            onKeyDown={(e) => { if (e.key === "Escape") setSearch((prev) => ({ ...prev, [row.id]: "" })); }}
+          />
+          {search[row.id]?.trim() && (
+            <div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg max-h-60 overflow-auto">
+              {(() => {
+                const q = norm(search[row.id]);
+                const matches = options.filter((o) => !ids.includes(o.id)).filter((o) => norm(o.name_fr).includes(q));
+                if (matches.length === 0) return <div className="px-3 py-2 text-sm text-muted-foreground">{empty}</div>;
+                return matches.slice(0, 8).map((o) => (
+                  <button
+                    key={o.id}
+                    type="button"
+                    onClick={() => { update(row.id, { [field]: [...ids, o.id] } as any); setSearch((prev) => ({ ...prev, [row.id]: "" })); }}
+                    className="w-full px-3 py-2 text-left text-sm hover:bg-muted truncate"
+                  >
+                    {o.name_fr}
+                  </button>
+                ));
+              })()}
+            </div>
+          )}
+        </div>
+        {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
+      </div>
+    );
   };
 
   return (
@@ -139,7 +238,7 @@ const ClubAiSuggestionsManagement = () => {
           <br />
           <b>Ville</b> : laisser vide pour afficher partout, sinon la suggestion n'apparaîtra que pour la ville active.
           <br />
-          <b>Réponse figée</b> : si renseignée dans la langue de l'utilisateur, elle est affichée telle quelle sans appel IA (coût = 0, texte 100% maîtrisé). Vide → réponse générée par l'IA comme avant. Markdown supporté (**gras**, listes, [liens](url)).
+          <b>Réponse figée</b> : si renseignée dans la langue de l'utilisateur, elle est affichée telle quelle sans appel IA (coût = 0). Markdown supporté.
         </p>
         {loading ? (
           <div className="text-sm text-muted-foreground">Chargement…</div>
@@ -170,6 +269,90 @@ const ClubAiSuggestionsManagement = () => {
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 </div>
+
+                {/* ROUTE */}
+                <div className="max-w-md">
+                  <label className="text-xs text-muted-foreground">Route</label>
+                  {(() => {
+                    const effectiveMode = r.mode || ((r.subcategory_ids.length > 0 || r.badge_ids.length > 0) ? "structure_front" : "");
+                    const autoDetected = detectRoute(r.label_fr || "");
+                    return (
+                      <>
+                        <select
+                          value={effectiveMode}
+                          onChange={(e) => update(r.id, { mode: e.target.value || null })}
+                          className="h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
+                          title="Route"
+                        >
+                          <option value="">Auto — détectée depuis le libellé FR : {autoDetected.emoji} {autoDetected.label}</option>
+                          <option value="events">📅 Events (search_events sur la ville active)</option>
+                          <option value="structure_front">🧭 Structure du Front (search_businesses + sous-catégories/badges)</option>
+                          <option value="weather">🌤 Météo (widget)</option>
+                          <option value="map">🗺 Carte (show_on_map)</option>
+                          <option value="llm">💬 LLM direct</option>
+                        </select>
+                        <p className="text-[11px] text-muted-foreground mt-1">
+                          <b>Auto</b> : le runtime choisit la route à partir du libellé FR et du message utilisateur.
+                          Les autres valeurs forcent une route déterministe et court-circuitent le LLM.
+                        </p>
+                      </>
+                    );
+                  })()}
+                </div>
+
+                <div className="flex flex-wrap gap-2 text-[10px]">
+                  <RouteBadge label={r.label_fr || ""} />
+                  {(r.subcategory_ids.length > 0 || r.badge_ids.length > 0) && (
+                    <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium bg-primary/15 text-primary">
+                      🔍 search_businesses · {r.subcategory_ids.length > 0 ? `subcat(${r.subcategory_ids.length})` : ""}
+                      {r.subcategory_ids.length > 0 && r.badge_ids.length > 0 ? " + " : ""}
+                      {r.badge_ids.length > 0 ? `badge(${r.badge_ids.length})` : ""}
+                    </span>
+                  )}
+                </div>
+
+                {/* DESTINATIONS */}
+                <Picker
+                  row={r}
+                  field="destination_ids"
+                  options={destinations}
+                  search={destinationSearch}
+                  setSearch={setDestinationSearch}
+                  label="Destinations liées"
+                  placeholder="Rechercher une destination…"
+                  empty="Aucune destination trouvée"
+                  chipClass="bg-gold/10 text-gold"
+                />
+
+                {/* SOUS-CATÉGORIES */}
+                <Picker
+                  row={r}
+                  field="subcategory_ids"
+                  options={subcategories}
+                  search={subcategorySearch}
+                  setSearch={setSubcategorySearch}
+                  label="Sous-catégories ciblées"
+                  placeholder="Rechercher une sous-catégorie…"
+                  empty="Aucune sous-catégorie trouvée"
+                  chipClass="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                  hint="💡 Quand une ou plusieurs sous-catégories sont liées, l'IA court-circuite le LLM et affiche directement les établissements de ces sous-catégories."
+                />
+
+                {/* BADGES */}
+                <Picker
+                  row={r}
+                  field="badge_ids"
+                  options={badges}
+                  search={badgeSearch}
+                  setSearch={setBadgeSearch}
+                  label="Badges ciblés"
+                  placeholder="Rechercher un badge…"
+                  empty="Aucun badge trouvé"
+                  chipClass="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                  hint="💡 Croisé avec les sous-catégories si les deux sont renseignés."
+                />
+
+                {/* ARTICLES DE BLOG */}
                 <div className="space-y-2">
                   <label className="text-xs text-muted-foreground">Articles de blog liés :</label>
                   {(r.blog_post_ids?.length ?? 0) > 0 && (
@@ -210,6 +393,57 @@ const ClubAiSuggestionsManagement = () => {
                       ))}
                   </select>
                 </div>
+
+                {/* RELANCES */}
+                <div className="pt-2 border-t">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-semibold flex items-center gap-1.5">
+                      <CornerDownRight className="h-3.5 w-3.5" />
+                      Relances affichées après la réponse IA
+                    </label>
+                    <span className="text-[11px] text-muted-foreground">
+                      {globalFollowups.length - (r.disabled_followup_ids?.length || 0)}/{globalFollowups.length} activée(s)
+                    </span>
+                  </div>
+                  {globalFollowups.length === 0 ? (
+                    <p className="text-[11px] text-muted-foreground">Aucune relance dans l'onglet <b>Relances Club</b>.</p>
+                  ) : (
+                    <div className="grid gap-1.5 sm:grid-cols-2">
+                      {globalFollowups.map((f) => {
+                        const enabled = !(r.disabled_followup_ids || []).includes(f.id);
+                        return (
+                          <label
+                            key={f.id}
+                            className={`flex items-start gap-2 rounded-md border px-2 py-1.5 text-xs cursor-pointer transition ${
+                              enabled ? "border-primary/40 bg-primary/5" : "border-border bg-muted/30 text-muted-foreground"
+                            } ${!f.is_active ? "opacity-50" : ""}`}
+                            title={!f.is_active ? "Relance désactivée globalement" : ""}
+                          >
+                            <input
+                              type="checkbox"
+                              className="mt-0.5"
+                              checked={enabled}
+                              onChange={(e) => {
+                                const cur = new Set(r.disabled_followup_ids || []);
+                                if (e.target.checked) cur.delete(f.id); else cur.add(f.id);
+                                update(r.id, { disabled_followup_ids: Array.from(cur) });
+                              }}
+                            />
+                            <span className="flex-1 leading-tight">
+                              {f.label_fr || <em className="text-muted-foreground">(sans libellé)</em>}
+                              {!f.is_active && <span className="ml-1 text-[10px]">(off global)</span>}
+                            </span>
+                            <RouteBadge label={f.label_fr || ""} />
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <p className="text-[11px] text-muted-foreground mt-2">
+                    ☑️ Cochée = affichée après la réponse IA quand cette suggestion est active. Par défaut, toutes les relances sont activées.
+                  </p>
+                </div>
+
                 <details className="text-sm">
                   <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
                     Réponse figée (optionnel) {(r.fixed_response_fr || r.fixed_response_en || r.fixed_response_ar) && <span className="ml-2 text-primary">● configurée</span>}
