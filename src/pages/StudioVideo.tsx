@@ -298,6 +298,8 @@ export default function StudioVideo() {
   const [estimateText, setEstimateText] = useState("");
   const [estimateResult, setEstimateResult] = useState<{ seconds: number; words: number; chars: number } | null>(null);
   const [estimateLoading, setEstimateLoading] = useState(false);
+  const [wordsPerBlock, setWordsPerBlock] = useState(12);
+  const [pendingCustomScene, setPendingCustomScene] = useState<any | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [previewing, setPreviewing] = useState(false);
   const [scenarioPreviewed, setScenarioPreviewed] = useState(false);
@@ -948,6 +950,47 @@ export default function StudioVideo() {
       setEstimateLoading(false);
     }
   };
+
+  // Insère une étape personnalisée de la durée estimée, avec la vidéo sélectionnée
+  // en fond et le texte découpé en blocs de `wordsPerBlock` mots.
+  const insertEstimatedStep = () => {
+    if (!estimateResult) return;
+    const raw = estimateText.trim();
+    if (!raw) {
+      toast.error("Collez un texte à afficher.");
+      return;
+    }
+    const src = fromVideoUrl ?? Array.from(selectedVideos)[0] ?? bizVideos[0]?.url ?? null;
+    const meta = src ? bizVideos.find((v) => v.url === src) : undefined;
+    const media = src
+      ? {
+          kind: (meta?.kind === "youtube" || !!youtubeIdFromUrl(src) ? "youtube" : "video") as "youtube" | "video",
+          url: src,
+          title: meta?.title ?? "Vidéo",
+          thumbnail: meta?.thumbnail ?? null,
+        }
+      : undefined;
+
+    const lines = raw.split("\n").map((l) => l.trim()).filter(Boolean);
+    const title = (synthTitle || lines[0] || "Texte").slice(0, 80);
+    const body = (synthText || lines.slice(synthTitle ? 0 : 1).join(" ") || raw).trim();
+    const words = (body || raw).split(/\s+/).filter(Boolean).length;
+    const splitCount = Math.max(1, Math.ceil(words / wordsPerBlock));
+
+    setPendingCustomScene({
+      mode: media ? "overlay" : "fullscreen",
+      title,
+      subtitle: body || undefined,
+      duration: Math.max(3, Math.min(60, estimateResult.seconds)),
+      media,
+      mediaList: media ? [media] : undefined,
+      splitCount,
+    });
+    setEstimateOpen(false);
+    toast.success(`Étape de ${estimateResult.seconds}s insérée (${splitCount} bloc(s) de ~${wordsPerBlock} mots).`);
+  };
+
+
 
   const mediaMatches = useMemo(() => {
     const matches = new Map<string, string[]>();
@@ -2384,17 +2427,17 @@ export default function StudioVideo() {
             </div>
 
             <Dialog open={estimateOpen} onOpenChange={setEstimateOpen}>
-              <DialogContent className="max-w-lg">
+              <DialogContent className="max-w-lg bg-white text-black">
                 <DialogHeader>
-                  <DialogTitle>Estimer la durée du clip</DialogTitle>
+                  <DialogTitle className="text-black">Estimer la durée du clip</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-3">
                   {fromVideoOn && (synthTitle || synthText) && (
-                    <div className="rounded-md border border-border bg-muted/30 p-3 text-xs space-y-1">
-                      <div><span className="text-muted-foreground">Titre : </span><span className="font-semibold">{synthTitle || "—"}</span></div>
-                      <div><span className="text-muted-foreground">Txt : </span>{synthText || "—"}</div>
+                    <div className="rounded-md border border-neutral-200 bg-neutral-50 p-3 text-xs space-y-1">
+                      <div><span className="text-neutral-500">Titre : </span><span className="font-semibold">{synthTitle || "—"}</span></div>
+                      <div><span className="text-neutral-500">Txt : </span>{synthText || "—"}</div>
                       {fromVideoUrl && youtubeIdFromUrl(fromVideoUrl) && (
-                        <div className="text-muted-foreground">ID vidéo : <span className="font-mono">{youtubeIdFromUrl(fromVideoUrl)}</span></div>
+                        <div className="text-neutral-500">ID vidéo : <span className="font-mono">{youtubeIdFromUrl(fromVideoUrl)}</span></div>
                       )}
                     </div>
                   )}
@@ -2403,9 +2446,25 @@ export default function StudioVideo() {
                     placeholder="Collez ici le texte à afficher dans le clip…"
                     value={estimateText}
                     onChange={(e) => { setEstimateText(e.target.value); setEstimateResult(null); }}
-                    className="text-sm"
+                    className="text-sm bg-white text-black border-neutral-300 placeholder:text-neutral-400"
                   />
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-2">
+                    <Label className="text-xs text-neutral-600 whitespace-nowrap">Mots par bloc</Label>
+                    <Input
+                      type="number"
+                      min={3}
+                      max={40}
+                      value={wordsPerBlock}
+                      onChange={(e) => setWordsPerBlock(Math.max(3, Math.min(40, Number(e.target.value) || 12)))}
+                      className="h-8 w-20 text-xs bg-white text-black border-neutral-300"
+                    />
+                    {estimateResult && (
+                      <span className="text-[11px] text-neutral-500">
+                        → {Math.max(1, Math.ceil(estimateResult.words / wordsPerBlock))} bloc(s) sur {estimateResult.seconds}s
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
                     <Button type="button" size="sm" onClick={runEstimate} disabled={estimateLoading}>
                       {estimateLoading
                         ? <><Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> Estimation…</>
@@ -2416,6 +2475,18 @@ export default function StudioVideo() {
                         type="button"
                         size="sm"
                         variant="outline"
+                        className="border-neutral-300 text-black hover:bg-neutral-100"
+                        onClick={insertEstimatedStep}
+                      >
+                        <Plus className="h-4 w-4 mr-1.5" /> Insérer une étape ({estimateResult.seconds}s)
+                      </Button>
+                    )}
+                    {estimateResult && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="border-neutral-300 text-black hover:bg-neutral-100"
                         onClick={() => {
                           const d = [15, 30, 45, 60].find((x) => x >= estimateResult.seconds) ?? 60;
                           setDurationAuto(false);
@@ -2429,14 +2500,15 @@ export default function StudioVideo() {
                     )}
                   </div>
                   {estimateResult && (
-                    <p className="text-sm">
+                    <p className="text-sm text-black">
                       Durée estimée : <span className="font-semibold">{estimateResult.seconds}s</span>{" "}
-                      <span className="text-muted-foreground text-xs">({estimateResult.words} mots · {estimateResult.chars} caractères)</span>
+                      <span className="text-neutral-500 text-xs">({estimateResult.words} mots · {estimateResult.chars} caractères)</span>
                     </p>
                   )}
                 </div>
               </DialogContent>
             </Dialog>
+
 
 
             <div className="space-y-2">
@@ -3042,6 +3114,8 @@ export default function StudioVideo() {
                   beforeTimeline={soundtrackBlock}
                   availablePois={poiOptions}
                   availableDestinations={destOptions}
+                  pendingCustomScene={pendingCustomScene}
+                  onPendingCustomSceneConsumed={() => setPendingCustomScene(null)}
                 />
               </div>
             ) : scenario ? (
@@ -3056,6 +3130,8 @@ export default function StudioVideo() {
                 beforeTimeline={soundtrackBlock}
                 availablePois={poiOptions}
                 availableDestinations={destOptions}
+                pendingCustomScene={pendingCustomScene}
+                onPendingCustomSceneConsumed={() => setPendingCustomScene(null)}
               />
             ) : null
           )}
