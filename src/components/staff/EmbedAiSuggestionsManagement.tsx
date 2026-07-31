@@ -82,6 +82,7 @@ type Row = {
 };
 
 type BusinessOption = { id: string; name: string; slug: string | null };
+type BlogOption = { id: string; title: string; slug: string | null };
 type DestinationOption = { id: string; name_fr: string; name_en: string | null; name_ar: string | null };
 type SubcategoryOption = { id: string; name_fr: string };
 type BadgeOption = { id: string; name_fr: string };
