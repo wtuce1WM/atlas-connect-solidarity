@@ -54,7 +54,10 @@ export interface AffiliateImagesEditorHandle {
 
 const MAX_DESC = 500;
 const MAX_IMAGES = 30;
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
+// Poids max accepté APRÈS optimisation (les images sont recompressées en WebP ≤1920px)
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
+// Poids max du fichier source déposé par l'affilié
+const MAX_SOURCE_SIZE = 25 * 1024 * 1024;
 
 interface ImageMeta {
   size?: number | null;
