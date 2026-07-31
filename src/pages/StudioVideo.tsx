@@ -2280,6 +2280,105 @@ export default function StudioVideo() {
                   ))}
                 </div>
               </div>
+              <div className="space-y-2">
+                <Label>Assistant texte</Label>
+                <div className="flex gap-2 flex-wrap">
+                  <Button
+                    type="button"
+                    variant={fromVideoOn ? "default" : "outline"}
+                    onClick={() => {
+                      const next = !fromVideoOn;
+                      setFromVideoOn(next);
+                      if (next && !fromVideoUrl && bizVideos.length > 0) setFromVideoUrl(bizVideos[0].url);
+                    }}
+                  >
+                    <Sparkles className="h-4 w-4 mr-1.5" /> À partir de la vidéo
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setEstimateOpen(true)}
+                  >
+                    <SlidersHorizontal className="h-4 w-4 mr-1.5" /> Estimer la durée
+                  </Button>
+                </div>
+                {fromVideoOn && (
+                  <div className="rounded-md border border-border bg-muted/30 p-3 space-y-3">
+                    {bizVideos.length === 0 ? (
+                      <p className="text-xs text-muted-foreground">Aucune vidéo disponible pour cet établissement.</p>
+                    ) : (
+                      <>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Vidéo source</Label>
+                          <select
+                            className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-xs"
+                            value={fromVideoUrl ?? ""}
+                            onChange={(e) => { setFromVideoUrl(e.target.value); setSynthTitle(""); setSynthText(""); }}
+                          >
+                            {bizVideos.map((v) => (
+                              <option key={v.url} value={v.url}>
+                                {v.kind === "youtube" ? "▶ " : "🎬 "}{v.title}
+                              </option>
+                            ))}
+                          </select>
+                          {fromVideoUrl && youtubeIdFromUrl(fromVideoUrl) && (
+                            <p className="text-[11px] text-muted-foreground">
+                              ID vidéo : <span className="font-mono">{youtubeIdFromUrl(fromVideoUrl)}</span>
+                            </p>
+                          )}
+                        </div>
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="w-full h-8 text-[12px]"
+                          disabled={!fromVideoUrl || fromVideoLoading}
+                          onClick={() => fromVideoUrl && runFromVideo(fromVideoUrl)}
+                        >
+                          {fromVideoLoading
+                            ? <><Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> Synthèse…</>
+                            : <><Wand2 className="h-4 w-4 mr-1.5" /> Générer Titre + Texte</>}
+                        </Button>
+                        {(synthTitle || synthText) && (
+                          <div className="space-y-2">
+                            <div className="space-y-1">
+                              <Label className="text-xs">Titre (remplace le Hook — étape 2)</Label>
+                              <Input
+                                value={synthTitle}
+                                maxLength={80}
+                                onChange={(e) => setSynthTitle(e.target.value)}
+                                className="h-8 text-xs"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Texte de la vidéo</Label>
+                              <Textarea
+                                rows={3}
+                                value={synthText}
+                                maxLength={400}
+                                onChange={(e) => setSynthText(e.target.value)}
+                                className="text-xs"
+                              />
+                            </div>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              className="h-8 text-[12px] w-full"
+                              onClick={() => {
+                                setEstimateText(`${synthTitle}\n${synthText}`.trim());
+                                setEstimateResult(null);
+                                setEstimateOpen(true);
+                              }}
+                            >
+                              Estimer la durée de ce texte
+                            </Button>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
 
