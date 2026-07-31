@@ -395,6 +395,7 @@ export function StudioVideoScenarioPanel({
   const [textOverrides, setTextOverrides] = useState<Record<string, { label?: string; description?: string }>>({});
   const [poiOverrides, setPoiOverrides] = useState<Record<string, string[]>>({});
   const [destOverrides, setDestOverrides] = useState<Record<string, string[]>>({});
+  const [placesMediaMode, setPlacesMediaMode] = useState<"videos" | "images">("videos");
   const [placesSceneKey, setPlacesSceneKey] = useState<string | null>(null);
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
   const [addOpenInternal, setAddOpenInternal] = useState(false);
@@ -419,6 +420,7 @@ export function StudioVideoScenarioPanel({
     setTextOverrides({});
     setPoiOverrides({});
     setDestOverrides({});
+    setPlacesMediaMode("videos");
     onChangeScenarioEdits?.(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signature]);
@@ -516,9 +518,10 @@ export function StudioVideoScenarioPanel({
       textOverrides: hasTextOv ? (textOverrides as any) : undefined,
       scenePois: hasPois ? poiOverrides : undefined,
       sceneDestinations: hasDests ? destOverrides : undefined,
+      placesMediaMode: (hasPois || hasDests) ? placesMediaMode : undefined,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, textOverrides, poiOverrides, destOverrides]);
+  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, textOverrides, poiOverrides, destOverrides, placesMediaMode]);
 
   const total = editedScenes.reduce((acc, s) => acc + s.duration, 0);
   if (!editedScenes.length && customScenes.length === 0) return null;
