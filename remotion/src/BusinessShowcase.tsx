@@ -1811,11 +1811,19 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     : (useVideos ? safeVideos.slice(1) : safeImages.slice(1));
   const defaultGalleryList = defaultGallery.length ? defaultGallery : (useVideos ? safeVideos : safeImages);
   // Fond par défaut pour les scènes "info" sans média dédié (avis plateformes, WhatsApp…)
+  // Les vidéos sont prioritaires pour que le fond animé persiste sur ces étapes.
   const bgFallback = (i: number): string | undefined => {
-    if (safeImages.length) return safeImages[i % safeImages.length];
     if (safeVideos.length) return safeVideos[i % safeVideos.length];
+    if (safeImages.length) return safeImages[i % safeImages.length];
     return undefined;
   };
+  const isVideoUrl = (u?: string) => !!u && /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u);
+  /** Répartit une URL de repli sur le bon prop de MotionBackdrop (src vidéo vs image). */
+  const fallbackBackdrop = (u?: string) => ({
+    src: isVideoUrl(u) ? u : undefined,
+    image: isVideoUrl(u) ? undefined : u,
+  });
+
 
   // Scene 1 (Hook 0-120)
   const hookItem = hookOverride[0];
