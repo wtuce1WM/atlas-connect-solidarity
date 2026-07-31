@@ -28,6 +28,11 @@ import { Loader2, Users, TrendingUp, DollarSign, Plus, Edit, Trash2, Key, UserPl
 import BusinessAnalyticsPanel from "@/components/affiliate/BusinessAnalyticsPanel";
 
 
+interface AffiliateBusiness {
+  id: string;
+  name: string;
+}
+
 interface Affiliate {
   id: string;
   account_type: string | null;
