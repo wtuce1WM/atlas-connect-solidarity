@@ -583,7 +583,7 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
                     {uploading ? "Upload en cours..." : "Cliquez ou glissez-déposez"}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {images.length}/{MAX_IMAGES} images • Max 5MB par image
+                    {images.length}/{MAX_IMAGES} images • Optimisation automatique (WebP, max 1920 px)
                   </p>
                 </div>
               </div>
