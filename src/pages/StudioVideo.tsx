@@ -944,6 +944,7 @@ export default function StudioVideo() {
             blog_articles: optBlogArticles && selectedBlogIds.size > 0,
             blog_article_ids: Array.from(selectedBlogIds),
             blog_mode: blogMode,
+            blog_modes: Object.fromEntries(Array.from(selectedBlogIds).map((id) => [id, blogModes[id] || blogMode])),
 
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
@@ -1128,6 +1129,7 @@ export default function StudioVideo() {
             blog_articles: optBlogArticles && selectedBlogIds.size > 0,
             blog_article_ids: Array.from(selectedBlogIds),
             blog_mode: blogMode,
+            blog_modes: Object.fromEntries(Array.from(selectedBlogIds).map((id) => [id, blogModes[id] || blogMode])),
 
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
