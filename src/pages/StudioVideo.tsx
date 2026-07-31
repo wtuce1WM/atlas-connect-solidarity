@@ -2572,7 +2572,7 @@ export default function StudioVideo() {
                       onChange={(e) => setTransitionImage(e.target.value as TransitionEffectId)}
                       className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     >
-                      {(["kenburns", "crossfade", "slide", "fade_black", "wipe", "cut"] as TransitionEffectId[]).map((k) => (
+                      {(["kenburns", "crossfade", "slide", "fade_black", "wipe", "cut", "fast", "mix"] as TransitionEffectId[]).map((k) => (
                         <option key={k} value={k}>{TRANSITION_EFFECT_LABELS[k]}</option>
                       ))}
                     </select>
