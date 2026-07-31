@@ -908,71 +908,15 @@ export function StudioVideoScenarioPanel({
   );
 }
 
-function CustomSceneMediaSlot({
-  available,
-  current,
-  onChange,
-}: {
-  available: SceneMediaItem[];
-  current: SceneMediaItem | null;
-  onChange: (media: SceneMediaItem | null) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
-      <div className="flex items-center justify-between">
-        <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-600">
-          Média de fond {current ? "· 1" : "· 0"}
-        </div>
-        <div className="flex items-center gap-1">
-          {current && (
-            <Button size="sm" variant="ghost" className="h-7 text-[11px]" onClick={() => onChange(null)}>
-              Retirer
-            </Button>
-          )}
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm" variant="outline" className="h-7 gap-1 text-[11px]" disabled={available.length === 0}>
-                <Plus className="h-3 w-3" /> {current ? "Changer" : "Ajouter"}
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-white text-black">
-              <DialogHeader>
-                <DialogTitle className="text-black">Sélection média de fond</DialogTitle>
-              </DialogHeader>
-              <MediaPickerGrid
-                available={available}
-                isSelected={(m) => current?.url === m.url}
-                onSelect={(m) => { onChange(m); setOpen(false); }}
-              />
-
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
-      {current && (
-        <div className="relative aspect-video w-32 rounded-md overflow-hidden border border-border">
-          {current.kind === "video" ? (
-            <video src={current.url} className="w-full h-full object-cover" muted playsInline preload="metadata" />
-          ) : (
-            <img src={current.url} alt="" className="w-full h-full object-cover" />
-          )}
-          {current.duration != null && current.kind === "video" && (
-            <div className="absolute bottom-0.5 right-0.5 text-[8px] px-1 rounded bg-black/70 text-white font-bold">{formatDuration(current.duration)}</div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
 function SceneMediaSlot({
   kind,
+  label,
   items,
   available,
   onChange,
 }: {
   kind: SceneMediaKind;
+  label?: string;
   items: SceneMediaItem[];
   available: SceneMediaItem[];
   onChange: (next: SceneMediaItem[]) => void;
@@ -996,8 +940,9 @@ function SceneMediaSlot({
     <div className="mt-3 pt-3 border-t border-border/50 space-y-2">
       <div className="flex items-center justify-between">
         <div className="text-[10px] font-bold uppercase tracking-wider text-neutral-600">
-          Médias assignés · {items.length}
+          {label ?? "Médias assignés"} · {items.length}
         </div>
+
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button size="sm" variant="outline" className="h-7 gap-1 text-[11px]" disabled={available.length === 0}>
