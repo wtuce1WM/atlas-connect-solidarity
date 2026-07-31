@@ -1595,10 +1595,10 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
         setImageDescriptions(dmap);
       }
     };
-    fetchDocs();
-    fetchSummaries();
-    fetchImageBadges();
-    fetchImageTitles();
+    let cancelled = false;
+    Promise.all([fetchDocs(), fetchSummaries(), fetchImageBadges(), fetchImageTitles()])
+      .finally(() => { if (!cancelled) setMediaLoaded(true); });
+    return () => { cancelled = true; };
   }, [business?.id]);
 
   const DOC_ICON_OPTIONS = [
