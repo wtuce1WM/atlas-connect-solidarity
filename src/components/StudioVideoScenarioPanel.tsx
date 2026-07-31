@@ -52,6 +52,7 @@ export type CustomScene = {
   duration: number;           // seconds
   media?: SceneMediaItem;     // premier média (compat rendu)
   mediaList?: SceneMediaItem[]; // plusieurs images/vidéos jouées en séquence
+  priceBadge?: string;        // ligne d'offre animée discrètement (ex. « Vente — Prix: Sur demande »)
   splitCount?: number;        // nb d'étapes pour découper le texte sur le montage vidéo
 };
 

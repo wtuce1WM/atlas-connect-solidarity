@@ -166,6 +166,7 @@ export type ShowcaseProps = {
     duration: number; // seconds
     media?: { url: string; kind: "image" | "video" };
     mediaList?: Array<{ url: string; kind: "image" | "video" }>;
+    priceBadge?: string;
   }>;
   textPosition?: TextPosition;
   tone?: Tone;
@@ -200,6 +201,77 @@ export type ShowcaseProps = {
   transitions?: TransitionsConfig | null;
 
 
+};
+
+// Animation graphique discrète de l'offre (ex. « Vente — Prix: Sur demande ») :
+// pastille dorée qui glisse depuis le bas, respire légèrement puis s'estompe.
+const PriceBadge: React.FC<{ label: string; duration: number }> = ({ label, duration }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const total = Math.max(1, Math.round(duration * fps));
+  const inAt = Math.round(0.6 * fps);
+  const outAt = Math.max(inAt + fps, total - Math.round(0.7 * fps));
+  const appear = interpolate(frame, [inAt, inAt + Math.round(0.5 * fps)], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const disappear = interpolate(frame, [outAt, total], [1, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const opacity = Math.min(appear, disappear);
+  const slide = interpolate(appear, [0, 1], [24, 0]);
+  const breathe = 1 + 0.015 * Math.sin((frame / fps) * 1.6);
+  const shine = interpolate(frame % Math.round(3.2 * fps), [0, Math.round(1.2 * fps)], [-140, 320], {
+    extrapolateRight: "clamp",
+  });
+  return (
+    <AbsoluteFill style={{ justifyContent: "flex-end", alignItems: "center", paddingBottom: 190, pointerEvents: "none" }}>
+      <div
+        style={{
+          opacity,
+          transform: `translateY(${slide}px) scale(${breathe})`,
+          position: "relative",
+          overflow: "hidden",
+          display: "flex",
+          alignItems: "center",
+          gap: 14,
+          padding: "14px 28px",
+          borderRadius: 999,
+          border: `1px solid ${COLORS.gold}`,
+          background: "rgba(0,0,0,0.42)",
+          backdropFilter: "blur(6px)",
+          boxShadow: "0 8px 28px rgba(0,0,0,0.4)",
+        }}
+      >
+        <div style={{ width: 8, height: 8, borderRadius: 999, background: COLORS.gold, opacity: 0.85 }} />
+        <div
+          style={{
+            fontFamily: display,
+            fontSize: 30,
+            fontWeight: 700,
+            letterSpacing: 1.2,
+            textTransform: "uppercase",
+            color: "#fff",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {label}
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            left: shine,
+            width: 90,
+            background: "linear-gradient(100deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.22) 50%, rgba(255,255,255,0) 100%)",
+            transform: "skewX(-18deg)",
+          }}
+        />
+      </div>
+    </AbsoluteFill>
+  );
 };
 
 export const DIGITAL_ID_FRAMES = 90; // 3s — 2 phases (fiche, QR)
@@ -2240,6 +2312,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               }}>{c.subtitle}</div>
             )}
           </AbsoluteFill>
+          {c.priceBadge && <PriceBadge label={c.priceBadge} duration={duration} />}
         </AbsoluteFill>
       );
     }

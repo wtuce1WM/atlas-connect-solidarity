@@ -293,6 +293,8 @@ export default function StudioVideo() {
   const [fromVideoLoading, setFromVideoLoading] = useState(false);
   const [synthTitle, setSynthTitle] = useState("");
   const [synthText, setSynthText] = useState("");
+  // Ligne d'offre (ex. « Vente — Prix: Sur demande ») affichée en animation graphique discrète
+  const [synthPriceLine, setSynthPriceLine] = useState("");
   // --- Estimation de durée ---
   const [estimateOpen, setEstimateOpen] = useState(false);
   const [estimateText, setEstimateText] = useState("");
@@ -922,6 +924,7 @@ export default function StudioVideo() {
       const res = data as any;
       setSynthTitle(res?.title ?? "");
       setSynthText(res?.text ?? "");
+      setSynthPriceLine(res?.price_line ?? "");
       setEstimateText(`${res?.title ?? ""}\n${res?.text ?? ""}`.trim());
       setEstimateResult(null);
       toast.success("Titre et texte synthétisés à partir de la vidéo.");
@@ -1008,6 +1011,7 @@ export default function StudioVideo() {
       media,
       mediaList: media ? [media] : undefined,
       splitCount,
+      priceBadge: synthPriceLine.trim() || undefined,
     });
     setEstimateOpen(false);
     toast.success(`Étape de ${estimateResult.seconds}s insérée (${splitCount} bloc(s) de ~${wordsPerBlock} mots).`);
@@ -2428,6 +2432,16 @@ export default function StudioVideo() {
                             maxLength={400}
                             onChange={(e) => setSynthText(e.target.value)}
                             className="text-sm"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Offre (animation graphique discrète)</Label>
+                          <Input
+                            value={synthPriceLine}
+                            maxLength={80}
+                            placeholder="Ex. Vente — Prix: Sur demande"
+                            onChange={(e) => setSynthPriceLine(e.target.value)}
+                            className="h-9 text-sm"
                           />
                         </div>
                         <Button
