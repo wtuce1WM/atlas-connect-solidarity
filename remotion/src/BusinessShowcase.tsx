@@ -2196,7 +2196,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
   return (
     <ToneContext.Provider value={tone}>
-      <SuppressBgContext.Provider value={continuousMode}>
+      <SuppressBgContext.Provider value={continuousMode || slideshowMode}>
         <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
           {soundtrack && <Audio src={soundtrack} loop volume={audioFadeVolume} />}
           {continuousMode ? (
@@ -2211,6 +2211,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
               <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.45) 0%,rgba(14,11,8,0.62) 100%)" }} />
             </AbsoluteFill>
+          ) : slideshowMode ? (
+            <GlobalImageSlideshow images={safeImages} total={totalFrames} effect={trImageEffect} />
           ) : (
             <Background />
           )}
