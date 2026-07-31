@@ -846,25 +846,24 @@ export function StudioVideoScenarioPanel({
                     </button>
                   )}
                   {scene.icon === "custom" && isCustomToken(scene.id) && (
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={() => { setEditingCustomId(customIdFromToken(scene.id)); setAddOpen(true); }}
-                        className="p-1 rounded hover:bg-neutral-100 text-neutral-600 hover:text-black"
-                        aria-label="Modifier l'étape"
-                      >
-                        <Pencil className="h-3 w-3" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeCustomScene(customIdFromToken(scene.id))}
-                        className="p-1 rounded hover:bg-destructive/10 text-neutral-600 hover:text-destructive"
-                        aria-label="Supprimer l'étape"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setEditingCustomId(customIdFromToken(scene.id)); setAddOpen(true); }}
+                      className="p-1 rounded hover:bg-neutral-100 text-neutral-600 hover:text-black"
+                      aria-label="Modifier l'étape"
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </button>
                   )}
+                  <button
+                    type="button"
+                    onClick={() => setPendingDelete({ id: scene.id, label: scene.label, duration: scene.duration })}
+                    className="p-1 rounded hover:bg-destructive/10 text-neutral-600 hover:text-destructive"
+                    aria-label="Supprimer l'étape"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+
                 </div>
               </div>
               <p className="text-sm text-neutral-700 leading-relaxed whitespace-pre-line">{scene.description}</p>
