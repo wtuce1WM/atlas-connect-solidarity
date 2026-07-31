@@ -420,6 +420,16 @@ const AffiliateVideosEditor = forwardRef<AffiliateVideosEditorHandle, Props>(
     );
 
     const handleSave = async () => {
+      // Never save before the initial load finished: it would delete every
+      // existing video document (empty local list vs. DB rows).
+      if (loading) {
+        toast({
+          variant: "destructive",
+          title: "Chargement en cours",
+          description: "Les vidéos ne sont pas encore chargées. Patientez avant d'enregistrer.",
+        });
+        return;
+      }
       setSaving(true);
       try {
         // Delete removed
