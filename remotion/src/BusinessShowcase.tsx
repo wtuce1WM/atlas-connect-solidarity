@@ -5,6 +5,7 @@ import {
   Img,
   OffthreadVideo,
   Audio,
+  Loop,
   interpolate,
   spring,
   useCurrentFrame,
@@ -195,6 +196,9 @@ export type ShowcaseProps = {
   // Vidéo unique jouée en fond continu sur toute la durée (les fonds de scène sont neutralisés)
   continuousBgVideoUrl?: string | null;
   continuousBgSound?: boolean;
+  // Durée réelle (secondes) de la vidéo de fond continue : si elle est plus courte
+  // que le scénario, on la boucle (image + son) au lieu de figer la dernière image.
+  continuousBgVideoDurationSec?: number | null;
   // Bande son extraite d'une vidéo (prioritaire sur continuousBgSound), bouclée si trop courte
   soundtrackUrl?: string | null;
   // Transitions entre les plans (vidéos / images)
@@ -2125,6 +2129,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   splitCount,
   continuousBgVideoUrl,
   continuousBgSound,
+  continuousBgVideoDurationSec,
   soundtrackUrl,
   transitions,
 
@@ -2716,13 +2721,32 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           {soundtrack && <Audio src={soundtrack} loop volume={audioFadeVolume} />}
           {continuousMode ? (
             <AbsoluteFill style={{ overflow: "hidden" }}>
-              <OffthreadVideo
-                src={continuousBgVideoUrl as string}
-                muted={!bgSoundOn}
-                volume={bgSoundOn ? audioFadeVolume : 0}
-                loop
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
+              {(() => {
+                const rawDur = Number(continuousBgVideoDurationSec);
+                const loopFrames =
+                  Number.isFinite(rawDur) && rawDur > 0.5
+                    ? Math.max(1, Math.round(rawDur * fps) - 1)
+                    : null;
+                const video = (
+                  <OffthreadVideo
+                    src={continuousBgVideoUrl as string}
+                    muted={!bgSoundOn}
+                    volume={bgSoundOn ? audioFadeVolume : 0}
+                    loop
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                );
+                // Vidéo plus courte que le scénario : on répète le média (image + son)
+                // via <Loop> pour couvrir toute la durée, au lieu de figer la fin.
+                if (loopFrames && loopFrames < totalFrames) {
+                  return (
+                    <Loop durationInFrames={loopFrames} layout="none">
+                      {video}
+                    </Loop>
+                  );
+                }
+                return video;
+              })()}
 
               <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.22) 0%,rgba(14,11,8,0.38) 100%)" }} />
             </AbsoluteFill>
