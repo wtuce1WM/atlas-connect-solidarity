@@ -1162,7 +1162,7 @@ const PlaceShot: React.FC<{ url: string; isVideo: boolean; duration: number; nam
   return (
     <AbsoluteFill style={{ overflow: "hidden", opacity: o }}>
       {isVideo ? (
-        <OffthreadVideo src={url} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <OffthreadVideo src={url} muted loop style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       ) : (
         <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover", transform: `scale(${scale})` }} />
       )}
