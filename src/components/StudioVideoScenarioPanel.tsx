@@ -778,7 +778,46 @@ export function StudioVideoScenarioPanel({
         }}
       />
 
-      <p className="text-[11px] text-muted-foreground italic">Glissez-déposez les scènes pour les réordonner. Ajustez la durée avec les boutons +/−.</p>
+      <AlertDialog open={!!pendingDelete} onOpenChange={(o) => { if (!o) setPendingDelete(null); }}>
+        <AlertDialogContent className="max-w-sm bg-white text-black">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer cette étape ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingDelete
+                ? `« ${pendingDelete.label} » (${pendingDelete.duration}s) sera retirée du scénario. La durée totale passera à ${formatDuration(Math.max(0, total - pendingDelete.duration))}.`
+                : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (pendingDelete) removeScene(pendingDelete.id);
+                setPendingDelete(null);
+              }}
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {suggestRegenerate && (
+        <div className="rounded-lg border border-primary/40 bg-primary/5 p-3 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-[11px] text-foreground">
+            {removedBuiltIns.length} étape{removedBuiltIns.length > 1 ? "s" : ""} supprimée{removedBuiltIns.length > 1 ? "s" : ""} · durée actuelle {formatDuration(total)} pour une cible de {formatDuration(targetDuration)}. Une régénération du scénario peut mieux répartir le montage.
+          </p>
+          {onRegenerate && (
+            <Button size="sm" variant="outline" className="h-7 text-[11px] px-2" disabled={!!regenerating} onClick={onRegenerate}>
+              {regenerating ? "Régénération…" : "Régénérer le scénario"}
+            </Button>
+          )}
+        </div>
+      )}
+
+      <p className="text-[11px] text-muted-foreground italic">Glissez-déposez les scènes pour les réordonner, ajustez la durée avec +/− ou supprimez une étape via l'icône corbeille.</p>
+
 
       <div className="space-y-3">
         {editedScenes.map((scene) => {
