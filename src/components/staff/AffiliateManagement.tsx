@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Users, TrendingUp, DollarSign, Plus, Edit, Trash2, Key, UserPlus, UserX, Eye, EyeOff, Building2, BarChart3, Copy, RefreshCw, MessageCircle } from "lucide-react";
+import { Loader2, Users, TrendingUp, DollarSign, Plus, Edit, Trash2, Key, UserPlus, UserX, Eye, EyeOff, Building2, BarChart3, Copy, RefreshCw, MessageCircle, Mail } from "lucide-react";
 import BusinessAnalyticsPanel from "@/components/affiliate/BusinessAnalyticsPanel";
 
 
@@ -75,6 +75,8 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
   const [dialogOpen, setDialogOpen] = useState(false);
   const [accountDialogOpen, setAccountDialogOpen] = useState(false);
   const [accountAction, setAccountAction] = useState<"create" | "reset_password" | "delete">("create");
+  const [welcomeAffiliate, setWelcomeAffiliate] = useState<Affiliate | null>(null);
+  const [welcomeSending, setWelcomeSending] = useState(false);
   const [selectedAffiliate, setSelectedAffiliate] = useState<Affiliate | null>(null);
   const [accountEmail, setAccountEmail] = useState("");
   const [accountPassword, setAccountPassword] = useState("");
@@ -331,6 +333,32 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
         description: "Affilié supprimé.",
       });
       fetchAffiliates();
+    }
+  };
+
+  const sendWelcomeEmail = async () => {
+    if (!welcomeAffiliate) return;
+    setWelcomeSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-affiliate-welcome", {
+        body: { affiliate_id: welcomeAffiliate.id },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      toast({
+        title: "Email envoyé",
+        description: `Invitation envoyée à ${(data as any)?.email || welcomeAffiliate.contact_email}.`,
+      });
+      setWelcomeAffiliate(null);
+      fetchAffiliates();
+    } catch (e: any) {
+      toast({
+        title: "Erreur",
+        description: e?.message || "Envoi impossible.",
+        variant: "destructive",
+      });
+    } finally {
+      setWelcomeSending(false);
     }
   };
 
@@ -1162,6 +1190,15 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                               <UserPlus className="h-4 w-4 text-green-600" />
                             </Button>
                           )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setWelcomeAffiliate(affiliate)}
+                            title="Envoyer l'email de bienvenue (création de mot de passe)"
+                            disabled={!affiliate.contact_email}
+                          >
+                            <Mail className="h-4 w-4 text-primary" />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="icon"
