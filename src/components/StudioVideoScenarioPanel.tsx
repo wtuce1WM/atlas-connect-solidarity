@@ -192,10 +192,8 @@ export function buildScenario(
   push("cta", Math.max(2, Math.round(durationSec * 0.12)), options.installCta ? "CTA final + incitation à installer l'app." : "CTA final vers la fiche ou le contact.");
   if (options.installCta) push("outro", Math.max(2, Math.round(durationSec * 0.08)), "Outro avec logo et appel à l'installation.");
 
-  const scale = durationSec / Math.max(1, cursor);
-  const scaled = scenes.map((s) => ({ ...s, duration: Math.max(1, Math.round(s.duration * scale)), start: Math.round(s.start * scale) }));
-  const total = scaled.reduce((acc, s) => acc + s.duration, 0);
-  return { scenes: scaled, totalDuration: total };
+  return normalize(scenes, durationSec, cursor);
+
 }
 
 export function scenarioFromTemplateProps(
