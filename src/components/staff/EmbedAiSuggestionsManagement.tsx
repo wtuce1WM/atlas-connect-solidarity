@@ -69,6 +69,7 @@ type Row = {
   followups: Followup[];
   business_ids: string[];
   destination_ids: string[];
+  blog_post_ids: string[];
   subcategory_ids: string[];
   badge_ids: string[];
   city: string | null;
