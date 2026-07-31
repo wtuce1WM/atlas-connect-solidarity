@@ -3462,7 +3462,7 @@ function VideoWithMeta({ src, createdAt, extra }: { src: string; createdAt?: str
           setDim({ w: v.videoWidth, h: v.videoHeight });
           setDuration(v.duration);
         }}
-        className="rounded-md aspect-[9/16] bg-black max-w-[200px] w-full"
+        className="rounded-md aspect-[9/16] bg-black max-w-[200px] w-full mx-auto"
       />
       {createdLabel && (
         <div className="text-[11px] text-neutral-600">Créée le {createdLabel}</div>
