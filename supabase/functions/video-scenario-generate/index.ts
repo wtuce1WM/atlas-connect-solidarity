@@ -531,6 +531,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         duration: number;
         media?: { url: string; kind: "image" | "video" };
         priceBadge?: string;
+        splitCount?: number;
       }> = [];
       if (Array.isArray(rawCustomScenes)) {
         const allowedUrlsForCustom = new Set<string>();
@@ -554,7 +555,9 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
           }
           if (mode === "overlay" && !media) continue;
           const priceBadge = typeof c.priceBadge === "string" ? c.priceBadge.trim().slice(0, 80) : "";
-          cleanedCustomScenes.push({ id, mode, title, subtitle: subtitle || undefined, duration: Math.round(dur), media, priceBadge: priceBadge || undefined });
+          const rawSplit = Number(c.splitCount);
+          const splitCount = Number.isFinite(rawSplit) && rawSplit >= 1 && rawSplit <= 10 ? Math.round(rawSplit) : undefined;
+          cleanedCustomScenes.push({ id, mode, title, subtitle: subtitle || undefined, duration: Math.round(dur), media, priceBadge: priceBadge || undefined, splitCount });
           if (cleanedCustomScenes.length >= 8) break;
         }
         if (cleanedCustomScenes.length) template_props.custom_scenes = cleanedCustomScenes;
