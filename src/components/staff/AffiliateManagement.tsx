@@ -1149,17 +1149,26 @@ const AffiliateManagement = ({ onViewAffiliateBusinesses }: AffiliateManagementP
                         )}
                         {(businessesByAffiliate[affiliate.id] || []).length > 0 && (
                           <div className="mt-1.5 flex flex-wrap gap-1">
-                            {(businessesByAffiliate[affiliate.id] || []).map((b) => (
+                            {(businessesByAffiliate[affiliate.id] || []).slice(0, 5).map((b) => (
                               <button
                                 key={b.id}
                                 onClick={() => setEditingBusinessesAffiliate(affiliate)}
-                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-terracotta/10 text-terracotta text-xs hover:bg-terracotta/20 transition-colors"
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-terracotta/10 text-terracotta text-xs hover:bg-terracotta/20 transition-colors whitespace-nowrap"
                                 title="Voir les établissements de cet affilié"
                               >
-                                <Building2 className="h-3 w-3" />
-                                {b.name}
+                                <Building2 className="h-3 w-3 shrink-0" />
+                                <span className="truncate max-w-[140px]">{b.name}</span>
                               </button>
                             ))}
+                            {(businessesByAffiliate[affiliate.id] || []).length > 5 && (
+                              <button
+                                onClick={() => setEditingBusinessesAffiliate(affiliate)}
+                                className="inline-flex items-center px-2 py-0.5 rounded bg-muted text-muted-foreground text-xs hover:bg-muted/80 transition-colors"
+                                title="Voir tous les établissements de cet affilié"
+                              >
+                                +{(businessesByAffiliate[affiliate.id] || []).length - 5} établissements
+                              </button>
+                            )}
                           </div>
                         )}
                       </TableCell>
