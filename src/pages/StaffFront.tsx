@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, ArrowUp, ArrowDown, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, Smartphone, Play, Image, MapPinned, FlaskConical, Youtube, MessageSquare } from "lucide-react";
+import { ArrowLeft, ArrowUp, ArrowDown, LayoutGrid, Video, Search, Monitor, FileText, Settings2, Home, Smartphone, Play, Image, MapPinned, FlaskConical, Youtube, MessageSquare, ImageDown } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import VideoLightbox from "@/components/staff/VideoLightbox";
 import YouTubeBackofficePanel from "@/components/staff/YouTubeBackofficePanel";
 import VideoThumbnailLocker from "@/components/staff/VideoThumbnailLocker";
+import ImageCompressionPanel from "@/components/staff/ImageCompressionPanel";
 
 interface FrontVideo {
   id: string;
@@ -441,11 +442,20 @@ const StaffFront = () => {
               <FileText className="h-4 w-4" />
               Pages
             </TabsTrigger>
+            <TabsTrigger value="image-compression" className="gap-2">
+              <ImageDown className="h-4 w-4" />
+              Compression d'images
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="front-structure">
             <FrontStructureManagement open={true} onOpenChange={() => {}} inline />
           </TabsContent>
+
+          <TabsContent value="image-compression">
+            <ImageCompressionPanel />
+          </TabsContent>
+
 
 
           <TabsContent value="homepage">
