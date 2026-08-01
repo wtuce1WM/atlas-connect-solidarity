@@ -450,6 +450,8 @@ export default function StudioVideo() {
 
 
   const orderVideoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
+  const gridVideoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
+
 
   const [showImages, setShowImages] = useState(true);
   const [showVideos, setShowVideos] = useState(true);
