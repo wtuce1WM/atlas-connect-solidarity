@@ -1650,7 +1650,7 @@ export default function StudioVideo() {
         body: {
           prompt: finalPrompt,
           business_id: selected?.id ?? null,
-          duration_sec: scenarioDuration,
+          duration_sec: effectiveDuration,
           tone,
           parent_job_id: refineFrom?.id ?? null,
           preview_only: true,
