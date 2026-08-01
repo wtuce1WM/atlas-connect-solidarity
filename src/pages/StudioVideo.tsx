@@ -182,7 +182,32 @@ function slugifyFileName(name: string): string {
   );
 }
 
+function StudioIdentity({
+  affiliateInfo,
+  staffProfile,
+  isStaff,
+}: {
+  affiliateInfo: { name: string | null; contact_name: string | null; contact_email: string | null } | null;
+  staffProfile: { first_name: string | null; last_name: string | null; email: string | null } | null;
+  isStaff: boolean;
+}) {
+  const company = isStaff ? "One World Morocco" : (affiliateInfo?.name || null);
+  const contactName = isStaff
+    ? [staffProfile?.first_name, staffProfile?.last_name].filter(Boolean).join(" ") || null
+    : (affiliateInfo?.contact_name || null);
+  const email = isStaff ? (staffProfile?.email || null) : (affiliateInfo?.contact_email || null);
+  if (!company && !contactName && !email) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/70">
+      {company && <span className="font-semibold text-white">{company}</span>}
+      {contactName && <span>{contactName}</span>}
+      {email && <span className="text-white/60">{email}</span>}
+    </div>
+  );
+}
+
 const TONES = [
+
   { value: "immersif", label: "Immersif" },
   // Gelés pour l'instant — conservés pour les jobs existants
   { value: "dynamique", label: "Dynamique", frozen: true },
@@ -208,6 +233,10 @@ export default function StudioVideo() {
   const [hasStudioRole, setHasStudioRole] = useState(false);
   const [accessChecked, setAccessChecked] = useState(false);
   const [ownedBusinessIds, setOwnedBusinessIds] = useState<string[] | null>(null); // null = not loaded, [] = none
+  const [affiliateInfo, setAffiliateInfo] = useState<{ name: string | null; contact_name: string | null; contact_email: string | null } | null>(null);
+  const [staffProfile, setStaffProfile] = useState<{ first_name: string | null; last_name: string | null; email: string | null } | null>(null);
+
+
 
   const [notifyEmail, setNotifyEmail] = useState(false);
   const [notifyEmailTo, setNotifyEmailTo] = useState("");
@@ -234,13 +263,18 @@ export default function StudioVideo() {
       if (!session) return;
       const uid = session.user.id;
 
-      // Detect staff/admin role
-      const [{ data: staffRow }, { data: studioRow }, { data: affiliate }] = await Promise.all([
+      // Detect staff/admin role and load identity info
+      const [{ data: staffRow }, { data: studioRow }, { data: affiliate }, { data: profile }] = await Promise.all([
         supabase.rpc("is_staff", { _user_id: uid }),
         supabase.rpc("has_role", { _user_id: uid, _role: "video_studio" as any }),
         supabase
           .from("affiliates")
-          .select("id, has_dashboard, has_video_studio")
+          .select("id, name, contact_name, contact_email, has_dashboard, has_video_studio")
+          .eq("user_id", uid)
+          .maybeSingle(),
+        supabase
+          .from("profiles")
+          .select("first_name, last_name")
           .eq("user_id", uid)
           .maybeSingle(),
       ]);
@@ -250,7 +284,20 @@ export default function StudioVideo() {
       if (affiliate) {
         setHasDashboard(!!(affiliate as any).has_dashboard);
         setHasVideoStudio(!!(affiliate as any).has_video_studio);
+        setAffiliateInfo({
+          name: (affiliate as any).name || null,
+          contact_name: (affiliate as any).contact_name || null,
+          contact_email: (affiliate as any).contact_email || null,
+        });
       }
+      if (staff) {
+        setStaffProfile({
+          first_name: (profile as any)?.first_name || null,
+          last_name: (profile as any)?.last_name || null,
+          email: session.user.email || null,
+        });
+      }
+
 
       if (!staff && affiliate?.id) {
         const { data: bizList } = await supabase
@@ -1547,8 +1594,12 @@ export default function StudioVideo() {
           <div className="w-full max-w-3xl space-y-8">
             <div className="text-center space-y-2">
               <h1 className="text-3xl font-bold tracking-tight text-white">Studio Vidéo IA</h1>
+              <div className="flex justify-center">
+                <StudioIdentity affiliateInfo={affiliateInfo} staffProfile={staffProfile} isStaff={isStaff} />
+              </div>
               <p className="text-white/70 text-sm">Choisissez le type de production à lancer.</p>
             </div>
+
             <div className={`grid grid-cols-1 gap-4 ${canBusinessMode ? "sm:grid-cols-2" : ""}`}>
               {canBusinessMode && (
                 <button
@@ -1629,7 +1680,9 @@ export default function StudioVideo() {
                   </>
                 )}
               </div>
+              <StudioIdentity affiliateInfo={affiliateInfo} staffProfile={staffProfile} isStaff={isStaff} />
               <p className="text-white/70">
+
                 {isCorporate
                   ? "Générez une vidéo corporate verticale 720×1280 à partir d'un prompt, sans établissement."
                   : "Générez une vidéo verticale 720×1280 (15 à 60 s) à partir d'un prompt et d'un établissement."}
