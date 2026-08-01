@@ -3527,15 +3527,30 @@ export default function StudioVideo() {
 
           {activeJobs.length > 0 && (
             <section id="studio-active-job" className="rounded-xl border border-border bg-card p-6 space-y-3">
-              <h2 className="font-semibold">{activeJobs.length === 1 ? "Job en cours" : "Jobs en cours"}</h2>
-              <p className="text-xs text-muted-foreground">
-                Une vidéo peut prendre jusqu'à 10 minutes pour être générée.
-              </p>
-              <div className="space-y-3">
-                {activeJobs.map((j) => (
-                  <JobCard key={j.id} job={j} businessName={j.business_id ? businessNames[j.business_id] : undefined} />
-                ))}
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold">{activeJobs.length === 1 ? "Job en cours" : "Jobs en cours"}</h2>
+                <button
+                  type="button"
+                  onClick={() => setShowActiveJob((s) => !s)}
+                  className="text-muted-foreground hover:text-foreground p-1 rounded"
+                  aria-label={showActiveJob ? "Masquer les jobs" : "Afficher les jobs"}
+                  title={showActiveJob ? "Masquer" : "Afficher"}
+                >
+                  {showActiveJob ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </button>
               </div>
+              {showActiveJob && (
+                <>
+                  <p className="text-xs text-muted-foreground">
+                    Une vidéo peut prendre jusqu'à 10 minutes pour être générée.
+                  </p>
+                  <div className="space-y-3">
+                    {activeJobs.map((j) => (
+                      <JobCard key={j.id} job={j} businessName={j.business_id ? businessNames[j.business_id] : undefined} />
+                    ))}
+                  </div>
+                </>
+              )}
             </section>
           )}
 
