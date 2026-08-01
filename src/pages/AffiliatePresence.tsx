@@ -756,6 +756,7 @@ const AffiliatePresence = () => {
                     {/* Text Tab */}
                     <TabsContent value="text">
                       <AffiliateTextEditor
+                        key={currentBusiness.id}
                         nameFr={getCurrentValue(currentBusiness.id, "name", currentBusiness.name) || ""}
                         nameEn={getCurrentValue(currentBusiness.id, "name_en", currentBusiness.name_en) || ""}
                         nameAr={getCurrentValue(currentBusiness.id, "name_ar", currentBusiness.name_ar) || ""}
