@@ -427,6 +427,15 @@ export default function StudioVideo() {
   const [selectedOfferIds, setSelectedOfferIds] = useState<Set<string>>(new Set());
   const [highlightsList, setHighlightsList] = useState<Array<{ id: string; icon: string | null; title: string; description: string; image_url: string | null; metric_title: string | null; metric_value: string | null; sort_order: number }>>([]);
   const [selectedHighlightIds, setSelectedHighlightIds] = useState<Set<string>>(new Set());
+  // Résumés IA du menu (business_menu_summaries)
+  const [aiSummariesList, setAiSummariesList] = useState<Array<{ id: string; title: string; content: string }>>([]);
+  const [selectedAiSummaryIds, setSelectedAiSummaryIds] = useState<Set<string>>(new Set());
+  // Liens externes (business_documents type external_link) — libellé = description (Media, Partenaires…)
+  const [externalLinksList, setExternalLinksList] = useState<Array<{ id: string; name: string; label: string; url: string; image: string | null }>>([]);
+  const [selectedExternalLinkIds, setSelectedExternalLinkIds] = useState<Set<string>>(new Set());
+  // Menus / cartes (business_documents type menu) — libellé libre (Menu, Carte, Drinks…)
+  const [menuDocsList, setMenuDocsList] = useState<Array<{ id: string; name: string; url: string }>>([]);
+  const [selectedMenuDocIds, setSelectedMenuDocIds] = useState<Set<string>>(new Set());
   const [bizImages, setBizImages] = useState<string[]>([]);
   const [bizVideos, setBizVideos] = useState<{ url: string; thumbnail: string | null; title: string; kind: "file" | "youtube"; duration?: number }[]>([]);
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
