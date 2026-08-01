@@ -287,8 +287,9 @@ export function scenarioFromTemplateProps(
 
 
   if (props?.showReviews) {
-    const rating = props.rating ? ` (${props.rating}/5)` : "";
-    const count = props.reviewsCount ? ` · ${props.reviewsCount} avis` : "";
+    // Même logique que le front : note affichée sur /20 (rating /5 × 4), 2 décimales max
+    const rating = props.rating ? ` (${formatRating(Number(props.rating) * 4)}/20)` : "";
+    const count = props.reviewsCount ? ` · ${Number(props.reviewsCount).toLocaleString("fr-FR")} avis` : "";
     push("reviews", Math.max(2, Math.round(durationSec * 0.08)), `Badge avis clients${rating}${count}.`);
   }
   const platformScenes: Array<{ key: Scene["icon"]; enabled: boolean; label: string; data: any }> = [
