@@ -1319,10 +1319,14 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       .select()
       .single();
 
-    if (error) return json({ error: error.message }, 500);
+    if (error) {
+      console.error("video_jobs insert failed:", error.message, error.details ?? "", error.hint ?? "");
+      return json({ error: error.message }, 500);
+    }
 
     return json({ job, template_id, resolved_business_id, rationale: parsed.rationale });
   } catch (e) {
+    console.error("video-scenario-generate failed:", (e as Error)?.message, (e as Error)?.stack);
     return json({ error: (e as Error).message }, 500);
   }
 });
