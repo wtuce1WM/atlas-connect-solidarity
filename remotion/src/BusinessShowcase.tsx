@@ -1926,16 +1926,30 @@ const BrandBleedLogo: React.FC<{ src: string; color: string; durationFrames: num
   );
 };
 
-const SceneInfoText: React.FC<{ label?: string; title?: string; text?: string; durationFrames: number; textPosition?: TextPosition }> = ({ label, title, text, durationFrames, textPosition = "middle" }) => {
+const SceneInfoText: React.FC<{
+  label?: string;
+  title?: string;
+  text?: string;
+  logoUrl?: string | null;
+  durationFrames: number;
+  textPosition?: TextPosition;
+}> = ({ label, title, text, logoUrl, durationFrames, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
   const titleY = interpolate(spring({ frame: frame - 6, fps: 30, config: { damping: 18 } }), [0, 1], [30, 0]);
+  const logoS = interpolate(spring({ frame: frame - 2, fps: 30, config: { damping: 14, stiffness: 160 } }), [0, 1], [0.6, 1]);
   const clean = (v?: string) => (v || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const safeLogo = typeof logoUrl === "string" && logoUrl.trim().startsWith("http") ? logoUrl : null;
   return (
     <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
       <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.42) 0%,rgba(0,0,0,0.78) 100%)" }} />
       <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
+        {safeLogo && (
+          <div style={{ alignSelf: "center", marginBottom: 18, transform: `scale(${logoS})`, filter: "drop-shadow(0 4px 16px rgba(0,0,0,0.5))" }}>
+            <Img src={safeLogo} style={{ width: 120, height: 120, objectFit: "contain", borderRadius: 12, background: "rgba(255,255,255,0.08)" }} />
+          </div>
+        )}
         {label && (
           <div style={{ fontFamily: body, color: COLORS.gold, fontSize: 20, letterSpacing: 6, textTransform: "uppercase", textAlign: "center" }}>
             {clean(label).slice(0, 40)}
@@ -2661,7 +2675,14 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               effect={trImageEffect}
               extraStartSec={bgItem ? 0 : bgRotate(planIdx).extraStartSec}
             />
-            <SceneInfoText label={label} title={title} text={text} durationFrames={duration} textPosition={textPosition} />
+            <SceneInfoText
+              label={label}
+              title={title}
+              text={text}
+              logoUrl={kind === "external_link" ? (Array.isArray(externalLinks) ? externalLinks : [])[idx]?.image ?? null : null}
+              durationFrames={duration}
+              textPosition={textPosition}
+            />
           </AbsoluteFill>
         );
       }
