@@ -2138,6 +2138,15 @@ export default function StudioVideo() {
                                     className="w-full h-full object-cover bg-black"
                                     onLoadedMetadata={(e) => {
                                       if (start > 0) e.currentTarget.currentTime = start;
+                                      setPlayHeads((p) => ({ ...p, [url]: e.currentTarget.currentTime || start }));
+                                    }}
+                                    onTimeUpdate={(e) => {
+                                      const t = Math.round(e.currentTarget.currentTime * 10) / 10;
+                                      setPlayHeads((p) => (p[url] === t ? p : { ...p, [url]: t }));
+                                    }}
+                                    onSeeked={(e) => {
+                                      const t = Math.round(e.currentTarget.currentTime * 10) / 10;
+                                      setPlayHeads((p) => ({ ...p, [url]: t }));
                                     }}
                                   />
                                 ) : v?.thumbnail ? (
