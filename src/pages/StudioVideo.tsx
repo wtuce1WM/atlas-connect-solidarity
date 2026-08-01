@@ -2561,6 +2561,21 @@ export default function StudioVideo() {
 
           {canCompose && (
           <section className="rounded-xl border border-border bg-card p-6 space-y-5">
+            <div className="flex items-center justify-between">
+              <Label>Prompt / Éléments à inclure dans la vidéo</Label>
+              <button
+                type="button"
+                onClick={() => setShowCompose((s) => !s)}
+                className="text-muted-foreground hover:text-foreground p-1 rounded"
+                aria-label={showCompose ? "Masquer la section" : "Afficher la section"}
+                title={showCompose ? "Masquer" : "Afficher"}
+              >
+                {showCompose ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </button>
+            </div>
+            {showCompose && (
+            <>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Durée</Label>
