@@ -3116,6 +3116,32 @@ serve(async (req) => {
       }
     }
 
+    // Guardrail: a service detected only from words that already belong to the
+    // detected subcategory name is a false positive (ex. "beach club" → sous-catégorie
+    // "Beach club" + service "Plage"/Beach), and would wrongly exclude results.
+    if (detectedSubcategory && detectedServices.length > 0) {
+      const subWords = new Set(
+        normalizeMatchingText(detectedSubcategory).split(" ").filter(w => w.length > 2)
+      );
+      const svcRedundant = (svc: string) => {
+        const svcWords = normalizeMatchingText(svc).split(" ").filter(w => w.length > 2);
+        return svcWords.length > 0 && svcWords.every(w => subWords.has(w));
+      };
+      const triggeredBySubcategoryWordsOnly =
+        serviceMatchWordsForInjection.length > 0 &&
+        serviceMatchWordsForInjection.every(w => subWords.has(stripAccentsGlobal(w.toLowerCase())));
+      const before = [...detectedServices];
+      const kept = detectedServices.filter(s => !(svcRedundant(s) || triggeredBySubcategoryWordsOnly));
+      if (kept.length !== before.length) {
+        detectedServices = kept;
+        allCandidateServiceNames = allCandidateServiceNames.filter(s => kept.includes(s));
+        if (detectedService && !kept.includes(detectedService)) detectedService = kept[0] || null;
+        if (!detectedService && kept.length === 0) serviceWasDetected = false;
+        console.log(`Removed service(s) redundant with subcategory "${detectedSubcategory}": [${before.join(", ")}] → [${kept.join(", ")}]`);
+      }
+    }
+
+
     // ── Inject service forced by intent-based re-evaluation (see ~L1800) ──
     // When intent (e.g. "faire") swapped to a subcategory via a service keyword,
     // ensure that service is enforced as a required filter downstream.
