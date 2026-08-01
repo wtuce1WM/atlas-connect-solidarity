@@ -1264,6 +1264,9 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
           }))
           .filter((r: any) => r.title || r.content);
         if (built.length > 0) template_props.aiSummaries = built;
+        const AI_SUMMARY_EFFECTS = ["zoom_in", "zoom_out", "pan_left", "pan_right", "pan_down", "pan_up", "scroll_v"];
+        const rawEffect = typeof options?.ai_summary_effect === "string" ? options.ai_summary_effect : "";
+        template_props.aiSummaryEffect = AI_SUMMARY_EFFECTS.includes(rawEffect) ? rawEffect : "zoom_in";
       }
       const linkIds = uuidOnly(options?.external_link_ids).slice(0, 8);
       const menuIds = uuidOnly(options?.menu_doc_ids).slice(0, 8);
