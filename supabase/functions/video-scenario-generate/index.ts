@@ -1161,8 +1161,17 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         if (built.length > 0) {
           template_props.offers = built;
           template_props.offer = built[0]; // backward compat with single-offer template
+        } else {
+          template_props.offers = [];
+          template_props.offer = null;
         }
+      } else {
+        // Aucune offre cochée dans "Éléments à inclure dans la vidéo" :
+        // on supprime toute offre inventée par l'IA pour que l'utilisateur garde le contrôle.
+        template_props.offers = [];
+        template_props.offer = null;
       }
+
 
       // Popup (image d'accueil) — expose une scène dédiée si option cochée et image disponible.
       const wantsPopup = !!options?.popup;
