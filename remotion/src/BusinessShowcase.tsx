@@ -2385,7 +2385,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const customById = new Map<string, NonNullable<ShowcaseProps["custom_scenes"]>[number]>();
   for (const c of custom_scenes ?? []) customById.set(c.id, c);
 
-  const renderScene = (item: ScenePlanItem): React.ReactNode => {
+  const renderScene = (item: ScenePlanItem, planIdx = 0): React.ReactNode => {
     const { kind, customId, duration } = item;
     if (kind === "custom") {
       const c = customId ? customById.get(customId) : undefined;
@@ -2394,8 +2394,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
       const align = textPositionStyle(textPosition);
       // Aucun média assigné → même comportement que les autres étapes :
       // repli sur les médias de l'établissement avec effet de mouvement.
-      const cIdx = Math.max(0, (custom_scenes ?? []).findIndex((x) => x.id === c.id));
-      const fallbackUrl = bgFallback(cIdx);
+      const rot = bgRotate(planIdx);
+      const fallbackUrl = rot.src ?? rot.image;
       const seg = list.length > 0 ? duration / list.length : duration;
       return (
         <AbsoluteFill>
@@ -2415,10 +2415,11 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
                 {fallbackUrl && (
                   <MotionBackdrop
-                    src={/\.(mp4|webm|mov)(\?|$)/i.test(fallbackUrl) ? fallbackUrl : undefined}
-                    image={/\.(mp4|webm|mov)(\?|$)/i.test(fallbackUrl) ? undefined : fallbackUrl}
+                    src={rot.src}
+                    image={rot.image}
                     duration={duration}
                     effect={trImageEffect}
+                    extraStartSec={rot.extraStartSec}
                   />
                 )}
               </AbsoluteFill>
@@ -2484,14 +2485,14 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         </AbsoluteFill>
       );
     }
-    return renderBuiltinScene(kind as SceneKind, duration, item.offerIndex);
+    return renderBuiltinScene(kind as SceneKind, duration, item.offerIndex, planIdx);
   };
 
   const offersArr: NonNullable<ShowcaseProps["offers"]> = Array.isArray(offers) && offers.length > 0
     ? offers
     : (offer ? [offer] : []);
 
-  const renderBuiltinScene = (kind: SceneKind, duration: number, offerIndex?: number): React.ReactNode => {
+  const renderBuiltinScene = (kind: SceneKind, duration: number, offerIndex?: number, planIdx = 0): React.ReactNode => {
     switch (kind) {
       case "logo": {
         // Fond de la scène logo : média spécifique si défini, sinon repli sur
