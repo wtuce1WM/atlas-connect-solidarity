@@ -2148,15 +2148,22 @@ export default function StudioVideo() {
                                     playsInline
                                     className="w-full h-full object-cover bg-black"
                                     onLoadedMetadata={(e) => {
-                                      if (start > 0) e.currentTarget.currentTime = start;
-                                      setPlayHeads((p) => ({ ...p, [url]: e.currentTarget.currentTime || start }));
+                                      const el = e.currentTarget;
+                                      if (!el) return;
+                                      if (start > 0) el.currentTime = start;
+                                      const t = Number.isFinite(el.currentTime) ? el.currentTime : start;
+                                      setPlayHeads((p) => ({ ...p, [url]: t || start }));
                                     }}
                                     onTimeUpdate={(e) => {
-                                      const t = Math.round(e.currentTarget.currentTime * 10) / 10;
+                                      const el = e.currentTarget;
+                                      if (!el || !Number.isFinite(el.currentTime)) return;
+                                      const t = Math.round(el.currentTime * 10) / 10;
                                       setPlayHeads((p) => (p[url] === t ? p : { ...p, [url]: t }));
                                     }}
                                     onSeeked={(e) => {
-                                      const t = Math.round(e.currentTarget.currentTime * 10) / 10;
+                                      const el = e.currentTarget;
+                                      if (!el || !Number.isFinite(el.currentTime)) return;
+                                      const t = Math.round(el.currentTime * 10) / 10;
                                       setPlayHeads((p) => ({ ...p, [url]: t }));
                                     }}
                                   />
