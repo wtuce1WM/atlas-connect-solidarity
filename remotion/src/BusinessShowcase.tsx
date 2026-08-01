@@ -238,6 +238,9 @@ export type ShowcaseProps = {
   popupImageUrl?: string | null;
   popupTitle?: string | null;
   popupDescription?: string | null;
+  aiSummaries?: Array<{ id?: string; title?: string; content?: string }> | null;
+  externalLinks?: Array<{ id?: string; name?: string; label?: string; url?: string | null; image?: string | null }> | null;
+  menuDocs?: Array<{ id?: string; name?: string; url?: string | null }> | null;
   highlights?: Array<{ id?: string; icon?: string | null; image_url?: string | null; title?: string; description?: string; metric_title?: string; metric_value?: string }> | null;
   showGoogleReviews?: boolean;
   googleReview?: { rating: number | null; count: number | null; url: string | null } | null;
@@ -355,9 +358,9 @@ const splitHookInTwo = (h: string): [string, string] => {
   return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
 };
 
-type SceneKind = "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "blog" | "whatsapp" | "cta" | "outro";
+type SceneKind = "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "blog" | "whatsapp" | "cta" | "outro";
 
-const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "hook", "name", "offer", "popup", "media", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "blog", "whatsapp", "cta"];
+const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "hook", "name", "offer", "popup", "media", "highlight", "ai_summary", "external_link", "menu_doc", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "blog", "whatsapp", "cta"];
 
 function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
   switch (kind) {
@@ -367,6 +370,9 @@ function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
     case "media": return !!p.freeZone;
     case "popup": return !!(p.showPopup && p.popupImageUrl);
     case "highlight": return Array.isArray(p.highlights) && p.highlights.length > 0;
+    case "ai_summary": return Array.isArray(p.aiSummaries) && p.aiSummaries.length > 0;
+    case "external_link": return Array.isArray(p.externalLinks) && p.externalLinks.length > 0;
+    case "menu_doc": return Array.isArray(p.menuDocs) && p.menuDocs.length > 0;
     case "cta": return p.showAppInstall !== false;
     case "offer": return !!p.offer || (Array.isArray(p.offers) && p.offers.length > 0);
     case "reviews": return !!(p.showReviews && (p.rating || p.reviewsCount));
@@ -403,6 +409,9 @@ function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
     case "media": return 150;
     case "popup": return 120;
     case "highlight": return 140;
+    case "ai_summary":
+    case "external_link":
+    case "menu_doc": return 150;
     case "offer": {
       const lines = p.offer && Array.isArray(p.offer.lines) ? p.offer.lines.length : 0;
       return 120 + Math.min(lines, 6) * 22;
@@ -515,6 +524,27 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
     order = expanded;
   } else if (highlightsArr.length === 1) {
     for (const t of order) if (t.kind === "highlight") t.offerIndex = 0;
+  }
+
+  // Expand ai_summary / external_link / menu_doc tokens (one per selected item).
+  for (const spec of [
+    { kind: "ai_summary" as SceneKind, list: Array.isArray(p.aiSummaries) ? p.aiSummaries : [] },
+    { kind: "external_link" as SceneKind, list: Array.isArray(p.externalLinks) ? p.externalLinks : [] },
+    { kind: "menu_doc" as SceneKind, list: Array.isArray(p.menuDocs) ? p.menuDocs : [] },
+  ]) {
+    if (spec.list.length > 1) {
+      const expanded: Tok[] = [];
+      for (const t of order) {
+        if (t.kind === spec.kind) {
+          for (let i = 0; i < spec.list.length; i++) expanded.push({ kind: spec.kind, offerIndex: i });
+        } else {
+          expanded.push(t);
+        }
+      }
+      order = expanded;
+    } else if (spec.list.length === 1) {
+      for (const t of order) if (t.kind === spec.kind) t.offerIndex = 0;
+    }
   }
 
   // Expand a single "blog" token into N tokens (one per selected article).
@@ -1896,6 +1926,36 @@ const BrandBleedLogo: React.FC<{ src: string; color: string; durationFrames: num
   );
 };
 
+const SceneInfoText: React.FC<{ label?: string; title?: string; text?: string; durationFrames: number; textPosition?: TextPosition }> = ({ label, title, text, durationFrames, textPosition = "middle" }) => {
+  const frame = useCurrentFrame();
+  const inO = ease(frame, 0, 16);
+  const out = 1 - ease(frame, durationFrames - 14, durationFrames);
+  const titleY = interpolate(spring({ frame: frame - 6, fps: 30, config: { damping: 18 } }), [0, 1], [30, 0]);
+  const clean = (v?: string) => (v || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  return (
+    <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
+      <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.42) 0%,rgba(0,0,0,0.78) 100%)" }} />
+      <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
+        {label && (
+          <div style={{ fontFamily: body, color: COLORS.gold, fontSize: 20, letterSpacing: 6, textTransform: "uppercase", textAlign: "center" }}>
+            {clean(label).slice(0, 40)}
+          </div>
+        )}
+        {title && (
+          <div style={{ marginTop: 14, transform: `translateY(${titleY}px)`, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 52, lineHeight: 1.12, textAlign: "center", textShadow: "0 4px 20px rgba(0,0,0,0.7)" }}>
+            {clean(title).slice(0, 90)}
+          </div>
+        )}
+        {text && (
+          <div style={{ marginTop: 20, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.42, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 620 }}>
+            {clean(text).slice(0, 320)}
+          </div>
+        )}
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
 const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "restaurant_guru"; rating: number | null; count: number | null; durationFrames: number; textPosition?: TextPosition }> = ({ kind, rating, count, durationFrames, textPosition = "middle" }) => {
   const L = useL();
   const meta = PLATFORM_META[kind];
@@ -2221,6 +2281,9 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   popupTitle,
   popupDescription,
   highlights,
+  aiSummaries,
+  externalLinks,
+  menuDocs,
   showGoogleReviews,
   googleReview,
   showTripAdvisor,
@@ -2384,6 +2447,9 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     showPopup,
     popupImageUrl,
     highlights,
+    aiSummaries,
+    externalLinks,
+    menuDocs,
     showGoogleReviews,
     googleReview,
     showTripAdvisor,
@@ -2552,6 +2618,50 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               durationFrames={duration}
               textPosition={textPosition}
             />
+          </AbsoluteFill>
+        );
+      }
+      case "ai_summary":
+      case "external_link":
+      case "menu_doc": {
+        const idx = typeof offerIndex === "number" ? offerIndex : 0;
+        let label = "";
+        let title = "";
+        let text = "";
+        if (kind === "ai_summary") {
+          const item = (Array.isArray(aiSummaries) ? aiSummaries : [])[idx];
+          if (!item) return null;
+          label = lang === "en" ? "Menu highlights" : "La carte";
+          title = item.title || label;
+          text = item.content || "";
+        } else if (kind === "external_link") {
+          const item = (Array.isArray(externalLinks) ? externalLinks : [])[idx];
+          if (!item) return null;
+          label = item.label || (lang === "en" ? "They talk about us" : "Ils en parlent");
+          title = item.name || "";
+          text = item.url ? String(item.url).replace(/^https?:\/\//, "").split("/")[0] : "";
+        } else {
+          const item = (Array.isArray(menuDocs) ? menuDocs : [])[idx];
+          if (!item) return null;
+          label = lang === "en" ? "Menu" : "La carte";
+          title = item.name || label;
+          text = "";
+        }
+        const bgArr = Array.isArray((scene_media as any)?.[kind]) ? (scene_media as any)[kind] : [];
+        const bgItem = bgArr[idx] ?? bgArr[0];
+        const imgFallback = kind === "external_link"
+          ? ((Array.isArray(externalLinks) ? externalLinks : [])[idx]?.image ?? null)
+          : null;
+        return (
+          <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
+            <MotionBackdrop
+              src={bgItem?.kind === "video" ? bgItem.url : (bgItem ? undefined : bgRotate(planIdx).src)}
+              image={bgItem?.kind === "image" ? bgItem.url : (bgItem ? undefined : (imgFallback ?? bgRotate(planIdx).image))}
+              duration={duration}
+              effect={trImageEffect}
+              extraStartSec={bgItem ? 0 : bgRotate(planIdx).extraStartSec}
+            />
+            <SceneInfoText label={label} title={title} text={text} durationFrames={duration} textPosition={textPosition} />
           </AbsoluteFill>
         );
       }

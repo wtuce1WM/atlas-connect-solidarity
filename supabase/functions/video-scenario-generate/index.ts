@@ -535,7 +535,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         selImages.forEach((u) => allowedUrls.add(u));
         selVideos.forEach((u) => allowedUrls.add(u));
 
-        const ALLOWED_KINDS = new Set(["logo", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog"]);
+        const ALLOWED_KINDS = new Set(["logo", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog", "ai_summary", "external_link", "menu_doc"]);
         const cleaned: Record<string, Array<{ url: string; kind: "image" | "video" }>> = {};
         for (const [k, v] of Object.entries(rawSceneMedia)) {
           if (!ALLOWED_KINDS.has(k) || !Array.isArray(v)) continue;
@@ -808,7 +808,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       }
 
       // Ordre et durées personnalisés des scènes (édités par l'utilisateur dans l'aperçu)
-      const ALLOWED_SCENE_KINDS = new Set(["logo", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog"]);
+      const ALLOWED_SCENE_KINDS = new Set(["logo", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog", "ai_summary", "external_link", "menu_doc"]);
       const rawOrder = options?.scene_order;
       let orderedFromClient: string[] | null = null;
       if (Array.isArray(rawOrder)) {
@@ -1229,6 +1229,59 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         if (builtH.length > 0) {
           template_props.highlights = builtH;
         }
+      }
+
+      // Résumés IA du menu / liens externes / menus & cartes — une séquence par élément coché.
+      const uuidOnly = (arr: unknown) => (Array.isArray(arr) ? arr : []).filter((v: unknown) => typeof v === "string" && /^[0-9a-f-]{36}$/i.test(v)) as string[];
+      const sumIds = uuidOnly(options?.ai_summary_ids).slice(0, 8);
+      if (sumIds.length > 0) {
+        const { data: rows } = await supa
+          .from("business_menu_summaries")
+          .select("id,title,content,sort_order")
+          .eq("business_id", resolved_business_id)
+          .in("id", sumIds)
+          .order("sort_order", { ascending: true });
+        const built = (rows ?? [])
+          .slice()
+          .sort((a: any, b: any) => sumIds.indexOf(a.id) - sumIds.indexOf(b.id))
+          .map((r: any) => ({
+            id: r.id,
+            title: cleanDisplayText(stripHtml(r.title || "")) || "",
+            content: cleanDisplayText(stripHtml(r.content || "")) || "",
+          }))
+          .filter((r: any) => r.title || r.content);
+        if (built.length > 0) template_props.aiSummaries = built;
+      }
+      const linkIds = uuidOnly(options?.external_link_ids).slice(0, 8);
+      const menuIds = uuidOnly(options?.menu_doc_ids).slice(0, 8);
+      if (linkIds.length > 0 || menuIds.length > 0) {
+        const { data: docRows } = await supa
+          .from("business_documents")
+          .select("id,type,name,description,url,icon,thumbnail_url,sort_order")
+          .eq("business_id", resolved_business_id)
+          .in("id", [...linkIds, ...menuIds])
+          .order("sort_order", { ascending: true });
+        const rows = (docRows ?? []) as any[];
+        const links = linkIds
+          .map((id) => rows.find((r) => r.id === id && r.type === "external_link"))
+          .filter(Boolean)
+          .map((r: any) => ({
+            id: r.id,
+            name: cleanDisplayText(stripHtml(r.name || "")) || "Lien",
+            label: cleanDisplayText(stripHtml(r.description || "")) || "",
+            url: r.url || null,
+            image: typeof r.icon === "string" && r.icon.startsWith("http") ? r.icon : (r.thumbnail_url || null),
+          }));
+        if (links.length > 0) template_props.externalLinks = links;
+        const menus = menuIds
+          .map((id) => rows.find((r) => r.id === id && r.type === "menu"))
+          .filter(Boolean)
+          .map((r: any) => ({
+            id: r.id,
+            name: cleanDisplayText(stripHtml(r.name || "")) || "Menu",
+            url: r.url || null,
+          }));
+        if (menus.length > 0) template_props.menuDocs = menus;
       }
     }
 

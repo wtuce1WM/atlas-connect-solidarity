@@ -47,7 +47,7 @@ export type Scene = {
   start: number;
   description: string;
   keywords: string[];
-  icon: "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "whatsapp" | "hours" | "map" | "digital" | "blog" | "cta" | "outro" | "custom";
+  icon: "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "whatsapp" | "hours" | "map" | "digital" | "blog" | "cta" | "outro" | "custom";
 };
 
 export type Scenario = {
@@ -75,6 +75,9 @@ const ICONS: Record<Scene["icon"], React.ReactNode> = {
   popup: <ImageIcon className="h-3.5 w-3.5" />,
   offer: <MessageSquare className="h-3.5 w-3.5" />,
   highlight: <Star className="h-3.5 w-3.5" />,
+  ai_summary: <Type className="h-3.5 w-3.5" />,
+  external_link: <Type className="h-3.5 w-3.5" />,
+  menu_doc: <Type className="h-3.5 w-3.5" />,
   reviews: <MessageSquare className="h-3.5 w-3.5" />,
   google_review: <Star className="h-3.5 w-3.5" />,
   tripadvisor: <Star className="h-3.5 w-3.5" />,
@@ -100,6 +103,9 @@ const LABELS: Record<Exclude<Scene["icon"], "custom">, string> = {
   popup: "Popup",
   offer: "Offre",
   highlight: "Bloc highlight",
+  ai_summary: "Résumé IA",
+  external_link: "Lien externe",
+  menu_doc: "Menu / carte",
   reviews: "Avis clients",
   google_review: "Avis Google",
   tripadvisor: "TripAdvisor",
@@ -291,6 +297,25 @@ export function scenarioFromTemplateProps(
     }
   }
 
+  // Résumés IA du menu / liens externes / menus & cartes — 5 s par élément
+  const aiSummaries: any[] = Array.isArray(props?.aiSummaries) ? props.aiSummaries : [];
+  for (const su of aiSummaries) {
+    const t = (su?.title || "").toString().trim();
+    const c = (su?.content || "").toString().trim();
+    push("ai_summary", 5, [t, c].filter(Boolean).join("\n") || "Résumé IA du menu.", t ? `Résumé IA — ${t.slice(0, 40)}` : undefined);
+  }
+  const externalLinks: any[] = Array.isArray(props?.externalLinks) ? props.externalLinks : [];
+  for (const l of externalLinks) {
+    const nm = (l?.name || "").toString().trim();
+    const lb = (l?.label || "").toString().trim();
+    push("external_link", 5, [lb, nm, l?.url].filter(Boolean).join("\n") || "Lien externe.", nm ? `${lb || "Lien"} — ${nm.slice(0, 40)}` : undefined);
+  }
+  const menuDocs: any[] = Array.isArray(props?.menuDocs) ? props.menuDocs : [];
+  for (const m of menuDocs) {
+    const nm = (m?.name || "").toString().trim();
+    push("menu_doc", 5, [nm, m?.url].filter(Boolean).join("\n") || "Menu / carte.", nm ? `Carte — ${nm.slice(0, 40)}` : undefined);
+  }
+
 
   if (props?.showReviews) {
     // Même logique que le front : note affichée sur /20 (rating /5 × 4), 2 décimales max
@@ -357,7 +382,7 @@ function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenar
 
 
 function sceneKindFor(icon: Scene["icon"]): SceneMediaKind | null {
-  if (icon === "custom" || icon === "popup" || icon === "highlight" || icon === "blog") return null;
+  if (icon === "custom" || icon === "popup" || icon === "highlight" || icon === "blog" || icon === "ai_summary" || icon === "external_link" || icon === "menu_doc") return null;
   return icon as SceneMediaKind;
 }
 

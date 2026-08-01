@@ -427,6 +427,15 @@ export default function StudioVideo() {
   const [selectedOfferIds, setSelectedOfferIds] = useState<Set<string>>(new Set());
   const [highlightsList, setHighlightsList] = useState<Array<{ id: string; icon: string | null; title: string; description: string; image_url: string | null; metric_title: string | null; metric_value: string | null; sort_order: number }>>([]);
   const [selectedHighlightIds, setSelectedHighlightIds] = useState<Set<string>>(new Set());
+  // Résumés IA du menu (business_menu_summaries)
+  const [aiSummariesList, setAiSummariesList] = useState<Array<{ id: string; title: string; content: string }>>([]);
+  const [selectedAiSummaryIds, setSelectedAiSummaryIds] = useState<Set<string>>(new Set());
+  // Liens externes (business_documents type external_link) — libellé = description (Media, Partenaires…)
+  const [externalLinksList, setExternalLinksList] = useState<Array<{ id: string; name: string; label: string; url: string; image: string | null }>>([]);
+  const [selectedExternalLinkIds, setSelectedExternalLinkIds] = useState<Set<string>>(new Set());
+  // Menus / cartes (business_documents type menu) — libellé libre (Menu, Carte, Drinks…)
+  const [menuDocsList, setMenuDocsList] = useState<Array<{ id: string; name: string; url: string }>>([]);
+  const [selectedMenuDocIds, setSelectedMenuDocIds] = useState<Set<string>>(new Set());
   const [bizImages, setBizImages] = useState<string[]>([]);
   const [bizVideos, setBizVideos] = useState<{ url: string; thumbnail: string | null; title: string; kind: "file" | "youtube"; duration?: number }[]>([]);
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
@@ -940,6 +949,62 @@ export default function StudioVideo() {
     };
   }, [selected, videoLang]);
 
+  // Résumés IA du menu, liens externes et menus/cartes de l'établissement
+  useEffect(() => {
+    if (!selected) {
+      setAiSummariesList([]); setSelectedAiSummaryIds(new Set());
+      setExternalLinksList([]); setSelectedExternalLinkIds(new Set());
+      setMenuDocsList([]); setSelectedMenuDocIds(new Set());
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const [sums, docs] = await Promise.all([
+        supabase
+          .from("business_menu_summaries")
+          .select("id,title,content,sort_order")
+          .eq("business_id", selected.id)
+          .order("sort_order", { ascending: true }),
+        supabase
+          .from("business_documents")
+          .select("id,type,name,description,url,icon,sort_order")
+          .eq("business_id", selected.id)
+          .in("type", ["external_link", "menu"])
+          .order("sort_order", { ascending: true }),
+      ]);
+      if (cancelled) return;
+      const strip = (s: string | null) => (s || "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+      setAiSummariesList(
+        ((sums.data ?? []) as any[])
+          .map((r) => ({ id: r.id as string, title: strip(r.title), content: strip(r.content) }))
+          .filter((r) => r.title || r.content),
+      );
+      setSelectedAiSummaryIds(new Set());
+      const rows = (docs.data ?? []) as any[];
+      setExternalLinksList(
+        rows
+          .filter((d) => d.type === "external_link" && d.url)
+          .map((d) => ({
+            id: d.id as string,
+            name: strip(d.name) || "Lien",
+            label: strip(d.description),
+            url: d.url as string,
+            image: typeof d.icon === "string" && d.icon.startsWith("http") ? (d.icon as string) : null,
+          })),
+      );
+      setSelectedExternalLinkIds(new Set());
+      setMenuDocsList(
+        rows
+          .filter((d) => d.type === "menu" && d.url)
+          .map((d) => ({ id: d.id as string, name: strip(d.name) || "Menu", url: d.url as string })),
+      );
+      setSelectedMenuDocIds(new Set());
+    })();
+    return () => { cancelled = true; };
+  }, [selected]);
+
+
+
   // Seuil minimum d'avis pour proposer les scènes "avis"
   const MIN_REVIEWS_FOR_SCENE = 10;
   const platformReviewAvailable = useMemo(() => {
@@ -1148,6 +1213,9 @@ export default function StudioVideo() {
     if (offerCount > 0) s += Math.min(6, offerCount) * 5;
     const highlightCount = selectedHighlightIds.size;
     if (highlightCount > 0) s += Math.min(4, highlightCount) * 4;
+    s += Math.min(4, selectedAiSummaryIds.size) * 5;
+    s += Math.min(4, selectedExternalLinkIds.size) * 5;
+    s += Math.min(4, selectedMenuDocIds.size) * 5;
     if (optReviews) s += 3;
     if (optGoogleReviews) s += 4;
     if (optTripAdvisor) s += 4;
@@ -1160,7 +1228,7 @@ export default function StudioVideo() {
     s += 3; // cta
     if (optInstallCta) s += 3; // outro
     return Math.max(10, Math.min(90, s));
-  }, [logoInfo, optOpenWithLogo, optPopup, selectedOfferIds, selectedHighlightIds, optReviews, optGoogleReviews, optTripAdvisor, optRestaurantGuru, optCustomerReview, optHours, optMapMarker, optDigitalId, optWhatsapp, whatsappNumber, optInstallCta]);
+  }, [logoInfo, optOpenWithLogo, optPopup, selectedOfferIds, selectedHighlightIds, selectedAiSummaryIds, selectedExternalLinkIds, selectedMenuDocIds, optReviews, optGoogleReviews, optTripAdvisor, optRestaurantGuru, optCustomerReview, optHours, optMapMarker, optDigitalId, optWhatsapp, whatsappNumber, optInstallCta]);
 
   const effectiveDuration = durationAuto ? autoDuration : duration;
 
@@ -1385,6 +1453,9 @@ export default function StudioVideo() {
 
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
+            ai_summary_ids: Array.from(selectedAiSummaryIds),
+            external_link_ids: Array.from(selectedExternalLinkIds),
+            menu_doc_ids: Array.from(selectedMenuDocIds),
             selected_images: chosenImages,
             selected_videos: chosenVideos,
             video_starts: activeVideoStarts,
@@ -1492,6 +1563,18 @@ export default function StudioVideo() {
         directives.push(`Reprendre les blocs highlights suivants (dans cet ordre) comme séquences de la vidéo :\n  * ${chosenH.map(fmtH).join("\n  * ")}`);
       }
     }
+    const chosenSums = aiSummariesList.filter((s) => selectedAiSummaryIds.has(s.id));
+    if (chosenSums.length > 0) {
+      directives.push(`Ajouter une séquence par résumé IA du menu (titre + contenu exacts, 5 s par défaut) :\n  * ${chosenSums.map((s) => `« ${s.title || "Résumé"} » — ${s.content.slice(0, 400)}`).join("\n  * ")}`);
+    }
+    const chosenLinks = externalLinksList.filter((l) => selectedExternalLinkIds.has(l.id));
+    if (chosenLinks.length > 0) {
+      directives.push(`Ajouter une séquence par lien externe (libellé existant + titre du lien, 5 s par défaut) :\n  * ${chosenLinks.map((l) => `${l.label ? `[${l.label}] ` : ""}${l.name}`).join("\n  * ")}`);
+    }
+    const chosenMenus = menuDocsList.filter((m) => selectedMenuDocIds.has(m.id));
+    if (chosenMenus.length > 0) {
+      directives.push(`Ajouter une séquence par menu / carte (libellé libre existant, 5 s par défaut) :\n  * ${chosenMenus.map((m) => m.name).join("\n  * ")}`);
+    }
     const chosenImages = Array.from(selectedImages);
     const chosenVideos = orderedSelectedVideos;
     if (chosenImages.length > 0) directives.push(`Utiliser EXCLUSIVEMENT les images suivantes (dans cet ordre) pour le montage :\n  * ${chosenImages.join("\n  * ")}`);
@@ -1522,6 +1605,9 @@ export default function StudioVideo() {
       },
       offers: Array.from(selectedOfferIds).sort(),
       highlights: Array.from(selectedHighlightIds).sort(),
+      aiSummaries: Array.from(selectedAiSummaryIds).sort(),
+      externalLinks: Array.from(selectedExternalLinkIds).sort(),
+      menuDocs: Array.from(selectedMenuDocIds).sort(),
       images: Array.from(selectedImages).sort(),
       videos: orderedSelectedVideos,
       videoStarts: activeVideoStarts,
@@ -1538,7 +1624,7 @@ export default function StudioVideo() {
     optReviews, optHours, optMapMarker, optDigitalId, optInstallCta,
     optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
     optCustomerReview, optPopup, optOpenWithLogo, optClosingSequence,
-    selectedOfferIds, selectedHighlightIds, selectedImages, orderedSelectedVideos, activeVideoStarts, activeVideoEnds,
+    selectedOfferIds, selectedHighlightIds, selectedAiSummaryIds, selectedExternalLinkIds, selectedMenuDocIds, selectedImages, orderedSelectedVideos, activeVideoStarts, activeVideoEnds,
     selectedReviewId, reviewHighlight, textPosition, continuousBg, continuousBgUrl, continuousBgSound,
     soundtrackOn, soundtrackUrl,
     transitionStyle, transitionDifferentiate, transitionVideo, transitionImage,
@@ -1596,6 +1682,9 @@ export default function StudioVideo() {
 
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
+            ai_summary_ids: Array.from(selectedAiSummaryIds),
+            external_link_ids: Array.from(selectedExternalLinkIds),
+            menu_doc_ids: Array.from(selectedMenuDocIds),
             selected_images: chosenImages,
             selected_videos: chosenVideos,
             video_starts: activeVideoStarts,
@@ -3360,6 +3449,106 @@ export default function StudioVideo() {
                           </label>
                         );
                       })}
+                    </div>
+                  </div>
+                )}
+                {aiSummariesList.length > 0 && (
+                  <div className="rounded-md border border-border bg-background/40 p-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="font-medium">Ajouter résumé IA ({aiSummariesList.length})</div>
+                      <div className="flex gap-2 text-xs">
+                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedAiSummaryIds(new Set(aiSummariesList.map((s) => s.id)))}>Tout</button>
+                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedAiSummaryIds(new Set())}>Aucun</button>
+                      </div>
+                    </div>
+                    <p className="mt-1 text-[11px] text-muted-foreground">Résumés du menu (pour l'IA) : une séquence de 5 s par résumé coché (titre + contenu).</p>
+                    <div className="mt-2 flex flex-col gap-1.5">
+                      {aiSummariesList.map((s) => (
+                        <label key={s.id} className="flex items-start gap-2 cursor-pointer rounded-md border border-border/60 p-2 hover:bg-muted/40">
+                          <input
+                            type="checkbox"
+                            className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                            checked={selectedAiSummaryIds.has(s.id)}
+                            onChange={(e) => {
+                              setSelectedAiSummaryIds((prev) => {
+                                const next = new Set(prev);
+                                if (e.target.checked) next.add(s.id); else next.delete(s.id);
+                                return next;
+                              });
+                            }}
+                          />
+                          <div className="min-w-0 flex-1 text-xs">
+                            <div className="font-semibold break-words">{s.title || "Résumé"}</div>
+                            {s.content && <div className="mt-1 text-muted-foreground line-clamp-3 break-words">{s.content}</div>}
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {externalLinksList.length > 0 && (
+                  <div className="rounded-md border border-border bg-background/40 p-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="font-medium">Ajouter liens externes ({externalLinksList.length})</div>
+                      <div className="flex gap-2 text-xs">
+                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedExternalLinkIds(new Set(externalLinksList.map((l) => l.id)))}>Tout</button>
+                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedExternalLinkIds(new Set())}>Aucun</button>
+                      </div>
+                    </div>
+                    <p className="mt-1 text-[11px] text-muted-foreground">Libellés existants (Media, Partenaires…) : une séquence de 5 s par lien coché.</p>
+                    <div className="mt-2 flex flex-col gap-1.5">
+                      {externalLinksList.map((l) => (
+                        <label key={l.id} className="flex items-start gap-2 cursor-pointer rounded-md border border-border/60 p-2 hover:bg-muted/40">
+                          <input
+                            type="checkbox"
+                            className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                            checked={selectedExternalLinkIds.has(l.id)}
+                            onChange={(e) => {
+                              setSelectedExternalLinkIds((prev) => {
+                                const next = new Set(prev);
+                                if (e.target.checked) next.add(l.id); else next.delete(l.id);
+                                return next;
+                              });
+                            }}
+                          />
+                          {l.image && <img src={l.image} alt="" className="w-12 h-12 rounded object-cover shrink-0" />}
+                          <div className="min-w-0 flex-1 text-xs">
+                            {l.label && <div className="uppercase tracking-widest text-[10px] text-[#C04F17] font-bold">{l.label}</div>}
+                            <div className="font-semibold break-words">{l.name}</div>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {menuDocsList.length > 0 && (
+                  <div className="rounded-md border border-border bg-background/40 p-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="font-medium">Ajouter Menus ({menuDocsList.length})</div>
+                      <div className="flex gap-2 text-xs">
+                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedMenuDocIds(new Set(menuDocsList.map((m) => m.id)))}>Tout</button>
+                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedMenuDocIds(new Set())}>Aucun</button>
+                      </div>
+                    </div>
+                    <p className="mt-1 text-[11px] text-muted-foreground">Libellé libre existant (Menu, Carte, Drinks…) : une séquence de 5 s par menu coché.</p>
+                    <div className="mt-2 flex flex-col gap-1.5">
+                      {menuDocsList.map((m) => (
+                        <label key={m.id} className="flex items-start gap-2 cursor-pointer rounded-md border border-border/60 p-2 hover:bg-muted/40">
+                          <input
+                            type="checkbox"
+                            className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                            checked={selectedMenuDocIds.has(m.id)}
+                            onChange={(e) => {
+                              setSelectedMenuDocIds((prev) => {
+                                const next = new Set(prev);
+                                if (e.target.checked) next.add(m.id); else next.delete(m.id);
+                                return next;
+                              });
+                            }}
+                          />
+                          <div className="min-w-0 flex-1 text-xs font-semibold break-words">{m.name}</div>
+                        </label>
+                      ))}
                     </div>
                   </div>
                 )}
