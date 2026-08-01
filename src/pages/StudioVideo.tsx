@@ -1419,7 +1419,7 @@ export default function StudioVideo() {
         body: {
           prompt: finalPrompt,
           business_id: selected?.id ?? null,
-          duration_sec: effectiveDuration,
+          duration_sec: scenarioDuration,
           tone,
           parent_job_id: refineFrom?.id ?? null,
           notify_email: notifyEmail,
@@ -1650,7 +1650,7 @@ export default function StudioVideo() {
         body: {
           prompt: finalPrompt,
           business_id: selected?.id ?? null,
-          duration_sec: effectiveDuration,
+          duration_sec: scenarioDuration,
           tone,
           parent_job_id: refineFrom?.id ?? null,
           preview_only: true,
