@@ -989,6 +989,13 @@ export default function StudioVideo() {
 
   const effectiveDuration = durationAuto ? autoDuration : duration;
 
+  // Durée réelle du scénario : tient compte des durées d'étapes modifiées dans l'aperçu
+  // (ajout / suppression / réglage d'une étape), sinon la durée cible.
+  const scenarioDuration = useMemo(() => {
+    const t = scenarioEdits?.totalDuration;
+    return Number.isFinite(t) && (t as number) > 0 ? Math.round(t as number) : effectiveDuration;
+  }, [scenarioEdits?.totalDuration, effectiveDuration]);
+
   // Séquence de fin déterministe : offre(s) → WhatsApp → récap/CTA final.
   // Si l'utilisateur a réordonné manuellement les étapes dans l'aperçu du scénario,
   // son ordre est prioritaire et n'est plus réécrit.
