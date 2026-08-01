@@ -124,6 +124,7 @@ type Job = {
   id: string;
   business_id: string | null;
   prompt: string;
+  user_id?: string | null;
   duration_sec: number;
   tone: string;
   status: "pending" | "rendering" | "done" | "error";
@@ -218,6 +219,7 @@ const VISIBLE_TONES = TONES.filter((t) => !t.frozen);
 export default function StudioVideo() {
   const navigate = useNavigate();
   const [authState, setAuthState] = useState<"loading" | "in" | "out">("loading");
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [hasDashboard, setHasDashboard] = useState(false);
   const [hasVideoStudio, setHasVideoStudio] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
@@ -246,10 +248,12 @@ export default function StudioVideo() {
     supabase.auth.getUser().then(({ data }) => {
       if (cancelled) return;
       setAuthState(data.user ? "in" : "out");
+      setCurrentUserId(data.user?.id ?? null);
       if (data.user?.email) setNotifyEmailTo((prev) => prev || data.user!.email!);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       setAuthState(session?.user ? "in" : "out");
+      setCurrentUserId(session?.user?.id ?? null);
       if (session?.user?.email) setNotifyEmailTo((prev) => prev || session.user!.email!);
     });
     return () => { cancelled = true; sub.subscription.unsubscribe(); };
@@ -1119,9 +1123,16 @@ export default function StudioVideo() {
     }
   }, [currentJob]);
 
+  // Verrou de rendu : uniquement les jobs de l'utilisateur courant.
+  // Un staff/admin voit les jobs des autres (RLS) mais n'est plus bloqué par eux.
   const activeJobs = useMemo(
-    () => jobs.filter((j) => j.status === "pending" || j.status === "rendering"),
-    [jobs]
+    () =>
+      jobs.filter(
+        (j) =>
+          (j.status === "pending" || j.status === "rendering") &&
+          (!currentUserId || j.user_id === currentUserId)
+      ),
+    [jobs, currentUserId]
   );
   const hasActiveJob = activeJobs.length > 0;
 
