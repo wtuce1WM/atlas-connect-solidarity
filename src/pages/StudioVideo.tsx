@@ -22,6 +22,7 @@ import narComplexeAsset from "@/assets/nar-complexe.mp4.asset.json";
 import farashaAsset from "@/assets/farasha-farmhouse.mp4.asset.json";
 import boZinAsset from "@/assets/bo-zin.mp4.asset.json";
 import { haversineKm } from "@/lib/haversine";
+import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount, formatRating } from "@/lib/ratingUtils";
 import type { PlaceOption } from "@/components/StudioVideoScenarioPanel";
 
 const maisonBrummellVideo = maisonBrummellAsset.url;
@@ -357,6 +358,7 @@ export default function StudioVideo() {
     tripadvisor: { rating: null, count: null, url: null },
     restaurant_guru: { rating: null, count: null, url: null },
   });
+  const [reviewsAggregate, setReviewsAggregate] = useState<{ avgOn20: number | null; total: number }>({ avgOn20: null, total: 0 });
   const [reviewsList, setReviewsList] = useState<Array<{ id: string; author: string | null; rating: number | null; text: string; source: string | null; published_at: string | null }>>([]);
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
   const [reviewHighlight, setReviewHighlight] = useState<string>("");
@@ -514,6 +516,7 @@ export default function StudioVideo() {
         tripadvisor: { rating: null, count: null, url: null },
         restaurant_guru: { rating: null, count: null, url: null },
       });
+      setReviewsAggregate({ avgOn20: null, total: 0 });
       return;
     }
     let cancelled = false;
@@ -526,7 +529,7 @@ export default function StudioVideo() {
       const [biz, docs, yt, promos, hls, revs] = await Promise.all([
         supabase
           .from("businesses")
-          .select("hook_fr,hook_en,description,description_en,images,popup_image_url,opening_hours,show_opening_hours,is_active,logo_url,logo_bg,whatsapp,google_rating,google_review_count,google_review_url,google_reviews_url,google_maps_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,tripadvisor_review_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url")
+          .select("hook_fr,hook_en,description,description_en,images,popup_image_url,opening_hours,show_opening_hours,is_active,logo_url,logo_bg,whatsapp,google_rating,google_review_count,google_review_url,google_reviews_url,google_maps_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,tripadvisor_review_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url,getyourguide_rating,getyourguide_review_count,viator_rating,viator_review_count,avis_verifies_rating,avis_verifies_review_count,trustpilot_rating,trustpilot_review_count,kayak_rating,kayak_review_count,tourradar_rating,tourradar_review_count")
           .eq("id", selected.id)
           .maybeSingle(),
         supabase
@@ -649,6 +652,11 @@ export default function StudioVideo() {
           url: (b.restaurant_guru_url || null) as string | null,
         },
       });
+      // Agrégat pondéré sur les 9 sources d'avis (même méthode que le site)
+      setReviewsAggregate({
+        avgOn20: computeWeightedRatingOn20(collectRatingSources(b as any)),
+        total: getTotalReviewCount(b as any),
+      });
       // Avis clients
       const revsRaw = (revs.data ?? []) as any[];
       const mappedRevs = revsRaw
@@ -691,13 +699,7 @@ export default function StudioVideo() {
       restaurant_guru: !selected || ok(platformData.restaurant_guru.count),
     };
   }, [selected, platformData]);
-  const totalReviewCount = useMemo(() => {
-    const sum =
-      (platformData.google.count ?? 0) +
-      (platformData.tripadvisor.count ?? 0) +
-      (platformData.restaurant_guru.count ?? 0);
-    return Math.max(sum, reviewsList.length);
-  }, [platformData, reviewsList]);
+  const totalReviewCount = reviewsAggregate.total;
   const reviewsCounterAvailable = !selected || totalReviewCount >= MIN_REVIEWS_FOR_SCENE;
 
   // Désactive automatiquement les options avis non éligibles (impacte le scénario généré)
@@ -2941,7 +2943,11 @@ export default function StudioVideo() {
                       <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optReviews} onChange={(e) => setOptReviews(e.target.checked)} />
                       <span className="font-medium">Compteur d'avis client + badge avis (note/20)</span>
                     </label>
-                    <p className="mt-1 pl-6 text-[11px] text-muted-foreground">Scène dédiée avec la note /20 agrégée et le nombre total d'avis.</p>
+                    <p className="mt-1 pl-6 text-[11px] text-muted-foreground">
+                      {reviewsAggregate.avgOn20 != null
+                        ? `Note agrégée ${formatRating(reviewsAggregate.avgOn20)}/20 · ${totalReviewCount.toLocaleString("fr-FR")} avis (9 plateformes, moyenne pondérée).`
+                        : "Scène dédiée avec la note /20 agrégée et le nombre total d'avis."}
+                    </p>
                   </div>
                 )}
                 {/* Plateformes d'avis externes — masquées si moins de 10 avis */}

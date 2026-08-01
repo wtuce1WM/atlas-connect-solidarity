@@ -972,7 +972,7 @@ const SceneReviews: React.FC<{ rating?: number | null; count?: number | null; te
   const noteTarget = rating ? (rating > 5 ? rating : rating * 4) : null;
   // Défilement visuel de la note /20 (comme le compteur d'avis)
   const noteProgress = ease(frame, 8, 50);
-  const animatedNote = noteTarget != null ? (noteTarget * noteProgress).toFixed(1) : null;
+  const animatedNote = noteTarget != null ? (noteTarget * noteProgress).toFixed(2) : null;
   const noteScale = interpolate(ease(frame, 8, 30), [0, 1], [0.7, 1]);
   const countProgress = ease(frame, 14, 50);
   const animatedCount = count ? Math.round(count * countProgress) : 0;
