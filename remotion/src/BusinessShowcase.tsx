@@ -86,26 +86,33 @@ const useVideoStartFrames = (src?: string | null): number | undefined => {
   return Math.max(1, Math.round((sec as number) * fps));
 };
 
-/** Vidéo de fond qui respecte le Time Start défini dans le Studio. */
+/** Vidéo de fond qui respecte le Time Start défini dans le Studio.
+ *  `extraStartSec` décale le point d'entrée quand la même vidéo est relue
+ *  plus loin dans le montage (évite de revoir exactement le même passage). */
 const StartVideo: React.FC<{
   src: string;
   muted?: boolean;
   volume?: number | ((f: number) => number);
   loop?: boolean;
   style?: React.CSSProperties;
-}> = ({ src, muted = true, volume, loop = true, style }) => {
-  const startFrom = useVideoStartFrames(src);
+  extraStartSec?: number;
+}> = ({ src, muted = true, volume, loop = true, style, extraStartSec = 0 }) => {
+  const base = useVideoStartFrames(src) ?? 0;
+  const { fps } = useVideoConfig();
+  const extra = Number.isFinite(extraStartSec) && extraStartSec > 0 ? Math.round(extraStartSec * fps) : 0;
+  const startFrom = base + extra;
   return (
     <OffthreadVideo
       src={src}
       muted={muted}
       volume={volume as never}
       loop={loop}
-      startFrom={startFrom}
+      startFrom={startFrom > 0 ? startFrom : undefined}
       style={style ?? { width: "100%", height: "100%", objectFit: "cover" }}
     />
   );
 };
+
 const useTone = (): ToneConfig => TONE_CONFIG[React.useContext(ToneContext)] ?? TONE_CONFIG.immersif;
 
 // ===== Langue du montage (indépendante de la langue du front) =====
@@ -1607,7 +1614,8 @@ const MotionBackdrop: React.FC<{
   duration: number;
   effect: TransitionEffect;
   veil?: string;
-}> = ({ src, image, duration, effect, veil = "rgba(14,11,8,0.46)" }) => {
+  extraStartSec?: number;
+}> = ({ src, image, duration, effect, veil = "rgba(14,11,8,0.46)", extraStartSec = 0 }) => {
   const frame = useCurrentFrame();
   const tone = useTone();
   const suppressBg = useSuppressBg();
@@ -1637,7 +1645,8 @@ const MotionBackdrop: React.FC<{
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
       {isVid ? (
-        <StartVideo src={url} />
+        <StartVideo src={url} extraStartSec={extraStartSec} />
+
       ) : (
         <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover", transform }} />
       )}
@@ -2274,17 +2283,31 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const defaultGalleryList = defaultGallery.length ? defaultGallery : (useVideos ? safeVideos : safeImages);
   // Fond par défaut pour les scènes "info" sans média dédié (avis plateformes, WhatsApp…)
   // Les vidéos sont prioritaires pour que le fond animé persiste sur ces étapes.
-  const bgFallback = (i: number): string | undefined => {
-    if (safeVideos.length) return safeVideos[i % safeVideos.length];
-    if (safeImages.length) return safeImages[i % safeImages.length];
-    return undefined;
-  };
   const isVideoUrl = (u?: string) => !!u && /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u);
   /** Répartit une URL de repli sur le bon prop de MotionBackdrop (src vidéo vs image). */
   const fallbackBackdrop = (u?: string) => ({
     src: isVideoUrl(u) ? u : undefined,
     image: isVideoUrl(u) ? undefined : u,
   });
+
+  /**
+   * Rotation équitable des médias de repli sur l'ensemble des étapes :
+   * chaque étape prend la vidéo suivante dans l'ordre de tri (round-robin sur
+   * l'index de l'étape dans le plan), au lieu de retomber systématiquement sur
+   * la vidéo n°1. Quand une même vidéo est relue (2e tour, 3e tour…), on décale
+   * son point d'entrée pour ne pas revoir le même passage.
+   */
+  const REPLAY_OFFSET_SEC = 6;
+  const bgRotate = (planIdx: number) => {
+    const list = safeVideos.length ? safeVideos : safeImages;
+    if (!list.length) return { src: undefined, image: undefined, extraStartSec: 0 };
+    const i = Math.max(0, planIdx);
+    const url = list[i % list.length];
+    const pass = Math.floor(i / list.length);
+    const extraStartSec = safeVideos.length ? pass * REPLAY_OFFSET_SEC : 0;
+    return { ...fallbackBackdrop(url), extraStartSec };
+  };
+
 
 
   // Scene 1 (Hook 0-120)
@@ -2357,7 +2380,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const customById = new Map<string, NonNullable<ShowcaseProps["custom_scenes"]>[number]>();
   for (const c of custom_scenes ?? []) customById.set(c.id, c);
 
-  const renderScene = (item: ScenePlanItem): React.ReactNode => {
+  const renderScene = (item: ScenePlanItem, planIdx = 0): React.ReactNode => {
     const { kind, customId, duration } = item;
     if (kind === "custom") {
       const c = customId ? customById.get(customId) : undefined;
@@ -2366,8 +2389,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
       const align = textPositionStyle(textPosition);
       // Aucun média assigné → même comportement que les autres étapes :
       // repli sur les médias de l'établissement avec effet de mouvement.
-      const cIdx = Math.max(0, (custom_scenes ?? []).findIndex((x) => x.id === c.id));
-      const fallbackUrl = bgFallback(cIdx);
+      const rot = bgRotate(planIdx);
+      const fallbackUrl = rot.src ?? rot.image;
       const seg = list.length > 0 ? duration / list.length : duration;
       return (
         <AbsoluteFill>
@@ -2387,10 +2410,11 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
                 {fallbackUrl && (
                   <MotionBackdrop
-                    src={/\.(mp4|webm|mov)(\?|$)/i.test(fallbackUrl) ? fallbackUrl : undefined}
-                    image={/\.(mp4|webm|mov)(\?|$)/i.test(fallbackUrl) ? undefined : fallbackUrl}
+                    src={rot.src}
+                    image={rot.image}
                     duration={duration}
                     effect={trImageEffect}
+                    extraStartSec={rot.extraStartSec}
                   />
                 )}
               </AbsoluteFill>
@@ -2456,14 +2480,14 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         </AbsoluteFill>
       );
     }
-    return renderBuiltinScene(kind as SceneKind, duration, item.offerIndex);
+    return renderBuiltinScene(kind as SceneKind, duration, item.offerIndex, planIdx);
   };
 
   const offersArr: NonNullable<ShowcaseProps["offers"]> = Array.isArray(offers) && offers.length > 0
     ? offers
     : (offer ? [offer] : []);
 
-  const renderBuiltinScene = (kind: SceneKind, duration: number, offerIndex?: number): React.ReactNode => {
+  const renderBuiltinScene = (kind: SceneKind, duration: number, offerIndex?: number, planIdx = 0): React.ReactNode => {
     switch (kind) {
       case "logo": {
         // Fond de la scène logo : média spécifique si défini, sinon repli sur
@@ -2471,8 +2495,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         const logoBgExplicit = Array.isArray((scene_media as any)?.logo) ? (scene_media as any).logo[0] : null;
         const logoBg =
           logoBgExplicit ??
-          (safeVideos[0] ? { url: safeVideos[0], kind: "video" as const } : null) ??
-          (safeImages[0] ? { url: safeImages[0], kind: "image" as const } : null);
+          (bgRotate(planIdx).src ? { url: bgRotate(planIdx).src as string, kind: "video" as const } : null) ??
+          (bgRotate(planIdx).image ? { url: bgRotate(planIdx).image as string, kind: "image" as const } : null);
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             <SceneLogo logoUrl={logoUrl!} durationFrames={duration} background={logoBg} />
@@ -2513,14 +2537,14 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         if (!data) return null;
         const bgArr = Array.isArray((scene_media as any)?.[kind]) ? (scene_media as any)[kind] : [];
         const bg = bgArr[0];
-        const fbIdx = kind === "google_review" ? 0 : kind === "tripadvisor" ? 1 : 2;
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             <MotionBackdrop
-              src={bg?.kind === "video" ? bg.url : (bg ? undefined : fallbackBackdrop(bgFallback(fbIdx)).src)}
-              image={bg?.kind === "image" ? bg.url : (bg ? undefined : fallbackBackdrop(bgFallback(fbIdx)).image)}
+              src={bg?.kind === "video" ? bg.url : (bg ? undefined : bgRotate(planIdx).src)}
+              image={bg?.kind === "image" ? bg.url : (bg ? undefined : bgRotate(planIdx).image)}
               duration={duration}
               effect={trImageEffect}
+              extraStartSec={bg ? 0 : bgRotate(planIdx).extraStartSec}
             />
             <ScenePlatformReview kind={kind} rating={data.rating ?? null} count={data.count ?? null} durationFrames={duration} textPosition={textPosition} />
           </AbsoluteFill>
@@ -2536,10 +2560,11 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             <MotionBackdrop
-              src={bg?.kind === "video" ? bg.url : (bg ? undefined : fallbackBackdrop(bgFallback(0)).src)}
-              image={bg?.kind === "image" ? bg.url : (bg ? undefined : fallbackBackdrop(bgFallback(0)).image)}
+              src={bg?.kind === "video" ? bg.url : (bg ? undefined : bgRotate(planIdx).src)}
+              image={bg?.kind === "image" ? bg.url : (bg ? undefined : bgRotate(planIdx).image)}
               duration={duration}
               effect={trImageEffect}
+              extraStartSec={bg ? 0 : bgRotate(planIdx).extraStartSec}
             />
             <SceneCustomerReview author={customerReview.author} rating={customerReview.rating ?? null} highlight={excerpt} fullText={fullText} source={customerReview.source ?? null} durationFrames={duration} textPosition={textPosition} />
 
@@ -2553,10 +2578,11 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             <MotionBackdrop
-              src={bg?.kind === "video" ? bg.url : (bg ? undefined : fallbackBackdrop(bgFallback(3)).src)}
-              image={bg?.kind === "image" ? bg.url : (bg ? undefined : fallbackBackdrop(bgFallback(3)).image)}
+              src={bg?.kind === "video" ? bg.url : (bg ? undefined : bgRotate(planIdx).src)}
+              image={bg?.kind === "image" ? bg.url : (bg ? undefined : bgRotate(planIdx).image)}
               duration={duration}
               effect={trImageEffect}
+              extraStartSec={bg ? 0 : bgRotate(planIdx).extraStartSec}
             />
             <SceneWhatsapp
               number={whatsappNumber}
@@ -2666,14 +2692,15 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               const bgImage = offerBgItem?.kind === "image" ? offerBgItem.url : currentOffer.background_image_url;
               // Fallback to the global media selection (or AI-picked list) so the offer scene
               // is never left with just the dark default background.
-              const fallbackVideo = !bgVideo && !bgImage ? safeVideos[idx % Math.max(1, safeVideos.length)] : undefined;
-              const fallbackImage = !bgVideo && !bgImage && !fallbackVideo ? safeImages[idx % Math.max(1, safeImages.length)] : undefined;
+              const offerRot = bgRotate(planIdx);
+              const fallbackVideo = !bgVideo && !bgImage ? offerRot.src : undefined;
+              const fallbackImage = !bgVideo && !bgImage && !fallbackVideo ? offerRot.image : undefined;
               const finalVideo = bgVideo || fallbackVideo;
               const finalImage = bgImage || fallbackImage;
               if (finalVideo || finalImage) {
                 return (
                   <>
-                    <MotionBackdrop src={finalVideo} image={finalImage} duration={duration} effect={trImageEffect} veil="rgba(14,11,8,0.35)" />
+                    <MotionBackdrop src={finalVideo} image={finalImage} duration={duration} effect={trImageEffect} veil="rgba(14,11,8,0.35)" extraStartSec={fallbackVideo ? offerRot.extraStartSec : 0} />
                     <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.22) 0%,rgba(14,11,8,0.48) 100%)" }} />
                   </>
                 );
@@ -2689,10 +2716,11 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         return (
           <>
             <MotionBackdrop
-              src={it ? (it.kind === "video" ? it.url : undefined) : safeVideos[0]}
-              image={it ? (it.kind === "image" ? it.url : undefined) : safeImages[0]}
+              src={it ? (it.kind === "video" ? it.url : undefined) : bgRotate(planIdx).src}
+              image={it ? (it.kind === "image" ? it.url : undefined) : bgRotate(planIdx).image}
               duration={duration}
               effect={trImageEffect}
+              extraStartSec={it ? 0 : bgRotate(planIdx).extraStartSec}
             />
             <SceneReviews rating={rating} count={reviewsCount} textPosition={textPosition} />
           </>
@@ -2703,10 +2731,11 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         return (
           <>
             <MotionBackdrop
-              src={it ? (it.kind === "video" ? it.url : undefined) : (safeVideos[1] ?? safeVideos[0])}
-              image={it ? (it.kind === "image" ? it.url : undefined) : (safeImages[1] ?? safeImages[0])}
+              src={it ? (it.kind === "video" ? it.url : undefined) : bgRotate(planIdx).src}
+              image={it ? (it.kind === "image" ? it.url : undefined) : bgRotate(planIdx).image}
               duration={duration}
               effect={trImageEffect}
+              extraStartSec={it ? 0 : bgRotate(planIdx).extraStartSec}
             />
             <SceneHours openingHours={openingHours!} textPosition={textPosition} />
           </>
@@ -2717,10 +2746,11 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         return (
           <>
             <MotionBackdrop
-              src={it ? (it.kind === "video" ? it.url : undefined) : (safeVideos[2] ?? safeVideos[0])}
-              image={it ? (it.kind === "image" ? it.url : undefined) : (safeImages[2] ?? safeImages[0])}
+              src={it ? (it.kind === "video" ? it.url : undefined) : bgRotate(planIdx).src}
+              image={it ? (it.kind === "image" ? it.url : undefined) : bgRotate(planIdx).image}
               duration={duration}
               effect={trImageEffect}
+              extraStartSec={it ? 0 : bgRotate(planIdx).extraStartSec}
             />
             <SceneMap lat={latitude!} lng={longitude!} name={name} address={address} textPosition={textPosition} />
           </>
@@ -2731,10 +2761,11 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         return (
           <>
             <MotionBackdrop
-              src={it ? (it.kind === "video" ? it.url : undefined) : (safeVideos[3] ?? safeVideos[0])}
-              image={it ? (it.kind === "image" ? it.url : undefined) : (safeImages[3] ?? safeImages[0])}
+              src={it ? (it.kind === "video" ? it.url : undefined) : bgRotate(planIdx).src}
+              image={it ? (it.kind === "image" ? it.url : undefined) : bgRotate(planIdx).image}
               duration={duration}
               effect={trImageEffect}
+              extraStartSec={it ? 0 : bgRotate(planIdx).extraStartSec}
             />
             <SceneDigitalId
               name={name}
@@ -2761,10 +2792,11 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         return (
           <>
             <MotionBackdrop
-              src={safeVideos[0]}
-              image={safeImages[1] ?? safeImages[0]}
+              src={bgRotate(planIdx).src}
+              image={bgRotate(planIdx).image}
               duration={duration}
               effect={trImageEffect}
+              extraStartSec={bgRotate(planIdx).extraStartSec}
             />
             <SceneBlogArticle
               article={art}
@@ -2783,10 +2815,11 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         return (
           <>
             <MotionBackdrop
-              src={it ? (it.kind === "video" ? it.url : undefined) : safeVideos[0]}
-              image={it ? (it.kind === "image" ? it.url : undefined) : safeImages[0]}
+              src={it ? (it.kind === "video" ? it.url : undefined) : bgRotate(planIdx).src}
+              image={it ? (it.kind === "image" ? it.url : undefined) : bgRotate(planIdx).image}
               duration={duration}
               effect={trImageEffect}
+              extraStartSec={it ? 0 : bgRotate(planIdx).extraStartSec}
             />
             {showAppInstall
               ? <SceneInstallCta name={name} textPosition={textPosition} />
@@ -2889,7 +2922,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           ) : (
             <Background />
           )}
-          {plan.map((s) => (
+          {plan.map((s, planIdx) => (
             <Sequence key={`${s.kind}-${s.from}`} from={s.from} durationInFrames={s.duration}>
               {(() => {
                 const pk = s.kind === "custom" && s.customId ? `custom:${s.customId}` : s.kind;
@@ -2905,11 +2938,11 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                     {hasPlaceMedia ? (
                       <>
                         <LinkedPlacesMontage places={linked} duration={s.duration} mode={placesMediaMode} />
-                        <SuppressBgContext.Provider value={true}>{renderScene(s)}</SuppressBgContext.Provider>
+                        <SuppressBgContext.Provider value={true}>{renderScene(s, planIdx)}</SuppressBgContext.Provider>
                       </>
                     ) : (
                       <>
-                        {renderScene(s)}
+                        {renderScene(s, planIdx)}
                         <LinkedPlacesOverlay places={linked} />
                       </>
                     )}
