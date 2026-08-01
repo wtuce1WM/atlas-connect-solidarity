@@ -267,6 +267,11 @@ const AffiliatePresence = () => {
         payload[k] = v;
       }
     });
+    // La description FR canonique est `description_fr` (utilisée par le front public,
+    // l'IA et les traductions). On garde `description` synchronisée pour compatibilité.
+    if ("description" in payload) {
+      payload.description_fr = payload.description;
+    }
 
     setSavingId(businessId);
     const { error } = await supabase
