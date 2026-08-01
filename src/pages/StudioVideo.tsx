@@ -3433,6 +3433,20 @@ export default function StudioVideo() {
           )}
 
           {canCompose && scenarioPreviewed && (
+            <section className="rounded-xl border border-border bg-card p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <Label>Scénario</Label>
+                <button
+                  type="button"
+                  onClick={() => setShowScenario((s) => !s)}
+                  className="text-muted-foreground hover:text-foreground p-1 rounded"
+                  aria-label={showScenario ? "Masquer le scénario" : "Afficher le scénario"}
+                  title={showScenario ? "Masquer" : "Afficher"}
+                >
+                  {showScenario ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </button>
+              </div>
+              {showScenario && (
             aiScenario ? (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
