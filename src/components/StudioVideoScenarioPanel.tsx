@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Clock, MapPin, MessageSquare, Star, Download, QrCode, Calendar, Plus, X, ChevronLeft, ChevronRight, Film, Image as ImageIcon, GripVertical, Minus, Type, Trash2, Pencil } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
+import { formatRating } from "@/lib/ratingUtils";
 import { twMerge } from "tailwind-merge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
@@ -287,8 +288,9 @@ export function scenarioFromTemplateProps(
 
 
   if (props?.showReviews) {
-    const rating = props.rating ? ` (${props.rating}/5)` : "";
-    const count = props.reviewsCount ? ` · ${props.reviewsCount} avis` : "";
+    // Même logique que le front : note affichée sur /20 (rating /5 × 4), 2 décimales max
+    const rating = props.rating ? ` (${formatRating(Number(props.rating) * 4)}/20)` : "";
+    const count = props.reviewsCount ? ` · ${Number(props.reviewsCount).toLocaleString("fr-FR")} avis` : "";
     push("reviews", Math.max(2, Math.round(durationSec * 0.08)), `Badge avis clients${rating}${count}.`);
   }
   const platformScenes: Array<{ key: Scene["icon"]; enabled: boolean; label: string; data: any }> = [
