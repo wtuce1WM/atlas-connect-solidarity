@@ -2631,19 +2631,19 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         if (kind === "ai_summary") {
           const item = (Array.isArray(aiSummaries) ? aiSummaries : [])[idx];
           if (!item) return null;
-          label = lang === "en" ? "Menu highlights" : lang === "ar" ? "أبرز القائمة" : "La carte";
+          label = lang === "en" ? "Menu highlights" : "La carte";
           title = item.title || label;
           text = item.content || "";
         } else if (kind === "external_link") {
           const item = (Array.isArray(externalLinks) ? externalLinks : [])[idx];
           if (!item) return null;
-          label = item.label || (lang === "en" ? "They talk about us" : lang === "ar" ? "يتحدثون عنا" : "Ils en parlent");
+          label = item.label || (lang === "en" ? "They talk about us" : "Ils en parlent");
           title = item.name || "";
           text = item.url ? String(item.url).replace(/^https?:\/\//, "").split("/")[0] : "";
         } else {
           const item = (Array.isArray(menuDocs) ? menuDocs : [])[idx];
           if (!item) return null;
-          label = lang === "en" ? "Menu" : lang === "ar" ? "القائمة" : "La carte";
+          label = lang === "en" ? "Menu" : "La carte";
           title = item.name || label;
           text = "";
         }
