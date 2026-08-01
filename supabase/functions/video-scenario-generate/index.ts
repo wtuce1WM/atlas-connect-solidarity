@@ -505,6 +505,23 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         if (Object.keys(starts).length) template_props.videoStarts = starts;
       }
 
+      // Time End par vidéo (secondes, 0,1 s) : point de fin du média dans le montage.
+      const rawEnds = options?.video_ends;
+      if (rawEnds && typeof rawEnds === "object") {
+        const ends: Record<string, number> = {};
+        for (const [u, t] of Object.entries(rawEnds as Record<string, unknown>)) {
+          if (typeof u !== "string" || !/^https?:\/\//i.test(u)) continue;
+          const n = Number(t);
+          if (!Number.isFinite(n) || n <= 0 || n > 3600) continue;
+          const end = Math.round(n * 10) / 10;
+          const st = (template_props.videoStarts as Record<string, number> | undefined)?.[u] ?? 0;
+          if (end <= st) continue;
+          ends[u] = end;
+        }
+        if (Object.keys(ends).length) template_props.videoEnds = ends;
+      }
+
+
       // Sélection média par scène (facultatif). Whitelist stricte : chaque URL doit
       // appartenir aux médias autorisés de l'établissement (images ou vidéos internes).
       const rawSceneMedia = options?.scene_media;
