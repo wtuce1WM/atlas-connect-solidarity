@@ -560,6 +560,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         subtitle?: string;
         duration: number;
         media?: { url: string; kind: "image" | "video" };
+        mediaList?: Array<{ url: string; kind: "image" | "video" }>;
         priceBadge?: string;
         splitCount?: number;
       }> = [];
@@ -571,27 +572,52 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         }
         selImages.forEach((u) => allowedUrlsForCustom.add(u));
         selVideos.forEach((u) => allowedUrlsForCustom.add(u));
+        // Un média personnalisé est retenu si l'URL est autorisée et pointe vers un
+        // fichier lisible par Remotion (les liens YouTube ne sont pas rendables).
+        const normalizeCustomMedia = (m: any): { url: string; kind: "image" | "video" } | null => {
+          if (!m || typeof m.url !== "string" || !allowedUrlsForCustom.has(m.url)) return null;
+          if (m.kind === "image") return { url: m.url, kind: "image" };
+          const isFile = /\.(mp4|mov|webm|m4v)(\?|#|$)/i.test(m.url);
+          if ((m.kind === "video" || m.kind === "youtube") && isFile) return { url: m.url, kind: "video" };
+          if (m.kind === "video") return { url: m.url, kind: "video" };
+          return null;
+        };
         for (const c of rawCustomScenes as any[]) {
           if (!c || typeof c !== "object") continue;
           const id = typeof c.id === "string" && /^[a-zA-Z0-9_-]{3,40}$/.test(c.id) ? c.id : null;
-          const mode = c.mode === "overlay" ? "overlay" : "fullscreen";
           const title = typeof c.title === "string" ? c.title.trim().slice(0, 120) : "";
-          const subtitle = typeof c.subtitle === "string" ? c.subtitle.trim().slice(0, 240) : "";
+          const subtitle = typeof c.subtitle === "string" ? c.subtitle.trim().slice(0, 1200) : "";
           const dur = Number(c.duration);
           if (!id || !title || !Number.isFinite(dur) || dur < 1 || dur > 60) continue;
-          let media: { url: string; kind: "image" | "video" } | undefined;
-          if (c.media && typeof c.media.url === "string" && (c.media.kind === "image" || c.media.kind === "video") && allowedUrlsForCustom.has(c.media.url)) {
-            media = { url: c.media.url, kind: c.media.kind };
-          }
-          if (mode === "overlay" && !media) continue;
+          const media = normalizeCustomMedia(c.media) ?? undefined;
+          const listRaw = Array.isArray(c.mediaList) ? c.mediaList : [];
+          const mediaList = listRaw
+            .map((m: any) => normalizeCustomMedia(m))
+            .filter((m: any): m is { url: string; kind: "image" | "video" } => !!m)
+            .slice(0, 8);
+          const firstMedia = media ?? mediaList[0];
+          // Pas de média exploitable → on ne jette plus l'étape : elle passe en
+          // carton plein cadre (Remotion applique alors un fond de repli animé).
+          const mode: "fullscreen" | "overlay" = c.mode === "overlay" && firstMedia ? "overlay" : "fullscreen";
           const priceBadge = typeof c.priceBadge === "string" ? c.priceBadge.trim().slice(0, 80) : "";
           const rawSplit = Number(c.splitCount);
           const splitCount = Number.isFinite(rawSplit) && rawSplit >= 1 && rawSplit <= 10 ? Math.round(rawSplit) : undefined;
-          cleanedCustomScenes.push({ id, mode, title, subtitle: subtitle || undefined, duration: Math.round(dur), media, priceBadge: priceBadge || undefined, splitCount });
+          cleanedCustomScenes.push({
+            id,
+            mode,
+            title,
+            subtitle: subtitle || undefined,
+            duration: Math.round(dur),
+            media: firstMedia,
+            mediaList: mediaList.length ? mediaList : undefined,
+            priceBadge: priceBadge || undefined,
+            splitCount,
+          });
           if (cleanedCustomScenes.length >= 8) break;
         }
         if (cleanedCustomScenes.length) template_props.custom_scenes = cleanedCustomScenes;
       }
+
       const allowedCustomIds = new Set(cleanedCustomScenes.map((c) => `custom:${c.id}`));
 
       // "Ouvrir avec le logo" — active la scène logo d'intro dans Remotion.
