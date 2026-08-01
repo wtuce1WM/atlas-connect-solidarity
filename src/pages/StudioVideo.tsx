@@ -525,6 +525,58 @@ export default function StudioVideo() {
     return { sum, unknown };
   }, [orderedSelectedVideos, bizVideos, activeVideoStarts, activeVideoEnds]);
 
+  /** Champs Time Start / Time End partagés par la grille des vidéos et l'ordre de montage. */
+  const renderTimeRangeInputs = (url: string, duration?: number | null) => {
+    const start = videoStarts[url] ?? 0;
+    const end = videoEnds[url] ?? 0;
+    const maxTime = duration != null ? Math.round(duration * 10) / 10 : 3600;
+    return (
+      <div className="grid grid-cols-2 gap-1">
+        <Input
+          type="number"
+          step="0.1"
+          min="0"
+          max={maxTime}
+          value={start ? String(start) : ""}
+          placeholder="Start (s)"
+          title="Point de départ de la vidéo en secondes (ex : 2.3)"
+          className="h-8 text-xs"
+          onChange={(e) => {
+            const raw = e.target.value.trim();
+            const n = parseFloat(raw);
+            setVideoStarts((prev) => {
+              const next = { ...prev };
+              if (raw === "" || !Number.isFinite(n) || n <= 0) delete next[url];
+              else next[url] = Math.min(maxTime, Math.round(n * 10) / 10);
+              return next;
+            });
+          }}
+        />
+        <Input
+          type="number"
+          step="0.1"
+          min="0"
+          max={maxTime}
+          value={end ? String(end) : ""}
+          placeholder="End (s)"
+          title="Point de fin de la vidéo en secondes (ex : 8.5)"
+          className="h-8 text-xs"
+          onChange={(e) => {
+            const raw = e.target.value.trim();
+            const n = parseFloat(raw);
+            setVideoEnds((prev) => {
+              const next = { ...prev };
+              if (raw === "" || !Number.isFinite(n) || n <= 0) delete next[url];
+              else next[url] = Math.min(maxTime, Math.round(n * 10) / 10);
+              return next;
+            });
+          }}
+        />
+      </div>
+    );
+  };
+
+
 
 
 
