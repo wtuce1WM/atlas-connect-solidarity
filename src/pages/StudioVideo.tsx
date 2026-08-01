@@ -1123,9 +1123,16 @@ export default function StudioVideo() {
     }
   }, [currentJob]);
 
+  // Verrou de rendu : uniquement les jobs de l'utilisateur courant.
+  // Un staff/admin voit les jobs des autres (RLS) mais n'est plus bloqué par eux.
   const activeJobs = useMemo(
-    () => jobs.filter((j) => j.status === "pending" || j.status === "rendering"),
-    [jobs]
+    () =>
+      jobs.filter(
+        (j) =>
+          (j.status === "pending" || j.status === "rendering") &&
+          (!currentUserId || !j.user_id || j.user_id === currentUserId)
+      ),
+    [jobs, currentUserId]
   );
   const hasActiveJob = activeJobs.length > 0;
 
