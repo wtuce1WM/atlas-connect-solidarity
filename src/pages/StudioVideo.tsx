@@ -3491,6 +3491,8 @@ export default function StudioVideo() {
                 regenerating={previewing}
               />
             ) : null
+              )}
+            </section>
           )}
 
           {canCompose && scenarioPreviewed && (
