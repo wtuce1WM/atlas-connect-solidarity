@@ -360,6 +360,39 @@ const isCustomToken = (t: string) => t.startsWith("custom:");
 const customIdFromToken = (t: string) => t.slice("custom:".length);
 const tokenForCustom = (id: string) => `custom:${id}`;
 
+/** Découpe un texte selon des offsets de caractères (points de coupe croissants). */
+export function segmentsFromPoints(text: string, points: number[]): string[] {
+  const t = text ?? "";
+  if (!t) return [];
+  const pts = Array.from(new Set(points.filter((p) => p > 0 && p < t.length))).sort((a, b) => a - b);
+  const out: string[] = [];
+  let prev = 0;
+  for (const p of pts) {
+    out.push(t.slice(prev, p).trim());
+    prev = p;
+  }
+  out.push(t.slice(prev).trim());
+  return out.filter((s) => s.length > 0);
+}
+
+/** Points de coupe répartis équitablement, calés sur les frontières de mots. */
+export function evenSplitPoints(text: string, n: number): number[] {
+  const t = (text ?? "").trim();
+  if (!t || n <= 1) return [];
+  const pts: number[] = [];
+  for (let i = 1; i < n; i++) {
+    const target = Math.round((t.length * i) / n);
+    // cale sur l'espace le plus proche
+    let best = target;
+    for (let d = 0; d < t.length; d++) {
+      if (t[target + d] === " ") { best = target + d + 1; break; }
+      if (t[target - d] === " ") { best = target - d + 1; break; }
+    }
+    if (best > 0 && best < t.length && !pts.includes(best)) pts.push(best);
+  }
+  return pts.sort((a, b) => a - b);
+}
+
 const newCustomId = () =>
   `c_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
