@@ -949,6 +949,62 @@ export default function StudioVideo() {
     };
   }, [selected, videoLang]);
 
+  // Résumés IA du menu, liens externes et menus/cartes de l'établissement
+  useEffect(() => {
+    if (!selected) {
+      setAiSummariesList([]); setSelectedAiSummaryIds(new Set());
+      setExternalLinksList([]); setSelectedExternalLinkIds(new Set());
+      setMenuDocsList([]); setSelectedMenuDocIds(new Set());
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const [sums, docs] = await Promise.all([
+        supabase
+          .from("business_menu_summaries")
+          .select("id,title,content,sort_order")
+          .eq("business_id", selected.id)
+          .order("sort_order", { ascending: true }),
+        supabase
+          .from("business_documents")
+          .select("id,type,name,description,url,icon,sort_order")
+          .eq("business_id", selected.id)
+          .in("type", ["external_link", "menu"])
+          .order("sort_order", { ascending: true }),
+      ]);
+      if (cancelled) return;
+      const strip = (s: string | null) => (s || "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+      setAiSummariesList(
+        ((sums.data ?? []) as any[])
+          .map((r) => ({ id: r.id as string, title: strip(r.title), content: strip(r.content) }))
+          .filter((r) => r.title || r.content),
+      );
+      setSelectedAiSummaryIds(new Set());
+      const rows = (docs.data ?? []) as any[];
+      setExternalLinksList(
+        rows
+          .filter((d) => d.type === "external_link" && d.url)
+          .map((d) => ({
+            id: d.id as string,
+            name: strip(d.name) || "Lien",
+            label: strip(d.description),
+            url: d.url as string,
+            image: typeof d.icon === "string" && d.icon.startsWith("http") ? (d.icon as string) : null,
+          })),
+      );
+      setSelectedExternalLinkIds(new Set());
+      setMenuDocsList(
+        rows
+          .filter((d) => d.type === "menu" && d.url)
+          .map((d) => ({ id: d.id as string, name: strip(d.name) || "Menu", url: d.url as string })),
+      );
+      setSelectedMenuDocIds(new Set());
+    })();
+    return () => { cancelled = true; };
+  }, [selected]);
+
+
+
   // Seuil minimum d'avis pour proposer les scènes "avis"
   const MIN_REVIEWS_FOR_SCENE = 10;
   const platformReviewAvailable = useMemo(() => {
