@@ -1016,6 +1016,47 @@ export function StudioVideoScenarioPanel({
               </div>
               <p className="text-sm text-neutral-700 leading-relaxed whitespace-pre-line">{scene.description}</p>
 
+              {scene.icon === "whatsapp" && (() => {
+                const offerScene = editedScenes.find((s) => s.icon === "offer");
+                if (!offerScene) return null;
+                const offerText = (offerScene.description ?? "").trim();
+                return (
+                  <div className="mt-3 space-y-2 rounded-md border border-neutral-200 bg-neutral-50 px-2.5 py-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <MessageSquare className="h-3.5 w-3.5 text-neutral-500" />
+                      <span className="text-[11px] text-neutral-700">
+                        Contenu affiché avec le numéro — carte « {offerScene.label} »
+                      </span>
+                      <div className="ml-auto inline-flex rounded-md border border-neutral-300 overflow-hidden">
+                        {([
+                          { v: "number", l: "Numéro seul" },
+                          { v: "with_offer", l: "+ contenu de la carte" },
+                        ] as const).map((o) => (
+                          <button
+                            key={o.v}
+                            type="button"
+                            onClick={() => setWhatsappOfferMode(o.v)}
+                            className={cn(
+                              "px-2 py-1 text-[10px] font-semibold transition-colors",
+                              whatsappOfferMode === o.v
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-white text-neutral-600 hover:bg-neutral-100",
+                            )}
+                          >
+                            {o.l}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {whatsappOfferMode === "with_offer" && offerText && (
+                      <p className="text-[11px] text-neutral-600 whitespace-pre-line italic">{offerText}</p>
+                    )}
+                  </div>
+                );
+              })()}
+
+
+
 
               {(scene.icon === "name" || scene.icon === "custom") && (() => {
                 const splitText = (
