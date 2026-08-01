@@ -1,0 +1,1 @@
+UPDATE public.businesses SET description_fr = description WHERE slug = 'riad-dar-najat' AND description IS NOT NULL;
