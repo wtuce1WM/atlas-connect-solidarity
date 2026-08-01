@@ -2641,7 +2641,8 @@ serve(async (req) => {
           const scored = (bizRows || [])
             .filter((b: any) => Number.isFinite(b.latitude) && Number.isFinite(b.longitude))
             .map((b: any) => ({ ...b, _km: haversineKm(anchor, { lat: Number(b.latitude), lng: Number(b.longitude) }) }))
-            .sort((a: any, b: any) => a._km - b._km);
+            .sort((a: any, b: any) => a._km - b._km)
+            .filter((b: any) => followupRadiusKm == null || b._km <= followupRadiusKm);
           if (scored.length >= 1) {
             const shown = scored.slice(0, 5);
             const header = lang === "en" ? `Nearest to ${anchorLabel}` : lang === "ar" ? `الأقرب إلى ${anchorLabel}` : `Les plus proches de ${anchorLabel}`;
