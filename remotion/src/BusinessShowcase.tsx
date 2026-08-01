@@ -85,6 +85,27 @@ const useVideoStartFrames = (src?: string | null): number | undefined => {
   if (!Number.isFinite(sec) || (sec as number) <= 0) return undefined;
   return Math.max(1, Math.round((sec as number) * fps));
 };
+
+/** Vidéo de fond qui respecte le Time Start défini dans le Studio. */
+const StartVideo: React.FC<{
+  src: string;
+  muted?: boolean;
+  volume?: number | ((f: number) => number);
+  loop?: boolean;
+  style?: React.CSSProperties;
+}> = ({ src, muted = true, volume, loop = true, style }) => {
+  const startFrom = useVideoStartFrames(src);
+  return (
+    <OffthreadVideo
+      src={src}
+      muted={muted}
+      volume={volume as never}
+      loop={loop}
+      startFrom={startFrom}
+      style={style ?? { width: "100%", height: "100%", objectFit: "cover" }}
+    />
+  );
+};
 const useTone = (): ToneConfig => TONE_CONFIG[React.useContext(ToneContext)] ?? TONE_CONFIG.immersif;
 
 // ===== Langue du montage (indépendante de la langue du front) =====
@@ -598,7 +619,7 @@ const KenBurns: React.FC<{ src: string; from: number; duration: number }> = ({ s
   return (
     <AbsoluteFill style={{ opacity: o, overflow: "hidden" }}>
       {isVideoSrc(src) ? (
-        <OffthreadVideo src={src} muted loop style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <StartVideo src={src} />
       ) : (
         <Img
           src={src}
@@ -1176,7 +1197,7 @@ const PlaceShot: React.FC<{ url: string; isVideo: boolean; duration: number; nam
   return (
     <AbsoluteFill style={{ overflow: "hidden", opacity: o }}>
       {isVideo ? (
-        <OffthreadVideo src={url} muted loop style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <StartVideo src={url} />
       ) : (
         <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover", transform: `scale(${scale})` }} />
       )}
@@ -1528,7 +1549,7 @@ const VideoCover: React.FC<{ src: string; from: number; duration: number }> = ({
   return (
     <AbsoluteFill style={{ opacity: o, overflow: "hidden" }}>
       {isVideoSrc(src) ? (
-        <OffthreadVideo src={src} muted loop style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <StartVideo src={src} />
       ) : (
         <Img src={src} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       )}
@@ -1548,7 +1569,7 @@ const VideoBackdrop: React.FC<{ src?: string; image?: string }> = ({ src, image 
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
       {isVideoSrc(url) ? (
-        <OffthreadVideo src={url} muted loop style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <StartVideo src={url} />
       ) : (
         <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       )}
@@ -1596,7 +1617,7 @@ const MotionBackdrop: React.FC<{
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
       {isVid ? (
-        <OffthreadVideo src={url} muted loop style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <StartVideo src={url} />
       ) : (
         <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover", transform }} />
       )}
@@ -2743,12 +2764,10 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                     ? Math.max(1, Math.round(rawDur * fps) - 1)
                     : null;
                 const video = (
-                  <OffthreadVideo
+                  <StartVideo
                     src={continuousBgVideoUrl as string}
                     muted={!bgSoundOn}
                     volume={bgSoundOn ? audioFadeVolume : 0}
-                    loop
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
                 );
                 // Vidéo plus courte que le scénario : on répète le média (image + son)
@@ -2758,11 +2777,11 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                   // sur le fondu global pour éviter un fade-out à chaque répétition.
                   return (
                     <Loop durationInFrames={loopFrames} layout="none">
-                      <OffthreadVideo
+                      <StartVideo
                         src={continuousBgVideoUrl as string}
                         muted={!bgSoundOn}
                         volume={bgSoundOn ? audioFadeVolume(globalFrame) : 0}
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        loop={false}
                       />
                     </Loop>
                   );
