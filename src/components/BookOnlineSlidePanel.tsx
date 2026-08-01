@@ -400,6 +400,14 @@ const BookOnlineSlidePanelInner = ({
   const [poiCategoryBusinesses, setPoiCategoryBusinesses] = useState<PoiBusiness[]>([]);
   const [poiCategoryBusinessCatId, setPoiCategoryBusinessCatId] = useState<string | null>(null);
   const poiOpenedFromMapRef = useRef(false);
+  // Embed: auto-open the "À proximité" overlay once the business is resolved.
+  const autoPoiOpenedRef = useRef(false);
+  useEffect(() => {
+    if (initialOverlay !== "poi" || autoPoiOpenedRef.current || !business?.id) return;
+    autoPoiOpenedRef.current = true;
+    setShowPoiMapOverlay(true);
+  }, [initialOverlay, business?.id]);
+
   const geo = useGeolocation();
   const { coords: userCoords } = geo;
   // LocationPicker is mounted globally on SearchPage; no local instance here to avoid double-open.
