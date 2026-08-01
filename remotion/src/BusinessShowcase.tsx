@@ -2283,11 +2283,6 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const defaultGalleryList = defaultGallery.length ? defaultGallery : (useVideos ? safeVideos : safeImages);
   // Fond par défaut pour les scènes "info" sans média dédié (avis plateformes, WhatsApp…)
   // Les vidéos sont prioritaires pour que le fond animé persiste sur ces étapes.
-  const bgFallback = (i: number): string | undefined => {
-    if (safeVideos.length) return safeVideos[i % safeVideos.length];
-    if (safeImages.length) return safeImages[i % safeImages.length];
-    return undefined;
-  };
   const isVideoUrl = (u?: string) => !!u && /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u);
   /** Répartit une URL de repli sur le bon prop de MotionBackdrop (src vidéo vs image). */
   const fallbackBackdrop = (u?: string) => ({
@@ -2542,7 +2537,6 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         if (!data) return null;
         const bgArr = Array.isArray((scene_media as any)?.[kind]) ? (scene_media as any)[kind] : [];
         const bg = bgArr[0];
-        const fbIdx = kind === "google_review" ? 0 : kind === "tripadvisor" ? 1 : 2;
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             <MotionBackdrop
