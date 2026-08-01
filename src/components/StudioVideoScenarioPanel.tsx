@@ -1679,3 +1679,85 @@ function PlacesPickerDialog({
   );
 }
 
+
+/** Éditeur visuel de découpe du texte : cliquer entre deux caractères pose/retire un point de coupe. */
+function TextSplitEditorDialog({
+  open,
+  onOpenChange,
+  text,
+  duration,
+  points,
+  onSubmit,
+}: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  text: string;
+  duration: number;
+  points: number[];
+  onSubmit: (points: number[]) => void;
+}) {
+  const [pts, setPts] = useState<number[]>(points);
+  useEffect(() => { if (open) setPts(points); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [open, text]);
+
+  const segs = segmentsFromPoints(text, pts);
+  const perSeg = segs.length > 0 && duration > 0 ? duration / segs.length : 0;
+
+  const toggle = (idx: number) => {
+    setPts((prev) => {
+      const has = prev.includes(idx);
+      const next = has ? prev.filter((p) => p !== idx) : [...prev, idx];
+      return next.sort((a, b) => a - b).slice(0, 9);
+    });
+  };
+
+  const colors = ["#0ea5e9", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316", "#6366f1", "#84cc16"];
+  const segIndexAt = (i: number) => pts.filter((p) => p <= i).length;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="bg-white text-black sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Caler les étapes de découpe au caractère</DialogTitle>
+        </DialogHeader>
+        <p className="text-[11px] text-neutral-600">
+          Cliquez sur un caractère pour poser (ou retirer) un point de coupe juste avant lui. Chaque couleur = une étape affichée à l'écran.
+        </p>
+        <div className="max-h-64 overflow-y-auto rounded-md border border-neutral-200 bg-neutral-50 p-3 leading-loose text-[15px]">
+          {text.split("").map((ch, i) => {
+            const isCut = pts.includes(i);
+            const color = colors[segIndexAt(i) % colors.length];
+            return (
+              <span
+                key={i}
+                role="button"
+                tabIndex={-1}
+                onClick={() => i > 0 && toggle(i)}
+                className={cn("cursor-pointer", isCut && "border-l-2 pl-0.5")}
+                style={{ color, borderColor: isCut ? color : undefined }}
+              >
+                {ch === " " ? "\u00A0" : ch}
+              </span>
+            );
+          })}
+        </div>
+        <div className="space-y-1">
+          {segs.map((t, i) => (
+            <div key={i} className="flex gap-2 text-[11px]">
+              <span className="shrink-0 font-bold tabular-nums" style={{ color: colors[i % colors.length] }}>
+                Étape {i + 1} · {perSeg.toFixed(1)}s
+              </span>
+              <span className="text-neutral-700">{t}</span>
+            </div>
+          ))}
+        </div>
+        <DialogFooter className="gap-2">
+          <Button variant="ghost" size="sm" onClick={() => setPts([])}>Tout effacer</Button>
+          <Button variant="outline" size="sm" onClick={() => setPts(evenSplitPoints(text, Math.max(2, segs.length)))}>
+            Répartir équitablement
+          </Button>
+          <Button size="sm" onClick={() => onSubmit(pts)}>Appliquer</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
