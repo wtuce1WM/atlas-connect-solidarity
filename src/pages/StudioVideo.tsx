@@ -2169,13 +2169,44 @@ export default function StudioVideo() {
                         >
 
                           {v.kind === "file" ? (
+                            <>
                             <video
+                              ref={(el) => { gridVideoRefs.current[v.url] = el; }}
                               src={v.url}
                               controls
                               preload="metadata"
                               playsInline
                               className="w-full h-full object-cover bg-black"
+                              onLoadedMetadata={(e) => {
+                                const el = e.currentTarget;
+                                if (!el) return;
+                                const s = videoStarts[v.url] ?? 0;
+                                if (s > 0) el.currentTime = s;
+                                const t = Number.isFinite(el.currentTime) ? el.currentTime : s;
+                                setPlayHeads((p) => ({ ...p, [`grid:${v.url}`]: Math.round((t || s) * 10) / 10 }));
+                              }}
+                              onTimeUpdate={(e) => {
+                                const el = e.currentTarget;
+                                if (!el || !Number.isFinite(el.currentTime)) return;
+                                const t = Math.round(el.currentTime * 10) / 10;
+                                setPlayHeads((p) => (p[`grid:${v.url}`] === t ? p : { ...p, [`grid:${v.url}`]: t }));
+                              }}
+                              onSeeked={(e) => {
+                                const el = e.currentTarget;
+                                if (!el || !Number.isFinite(el.currentTime)) return;
+                                setPlayHeads((p) => ({ ...p, [`grid:${v.url}`]: Math.round(el.currentTime * 10) / 10 }));
+                              }}
                             />
+                            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1">
+                              <span className="bg-[#D4AF37] text-black text-[10px] font-bold px-1.5 py-0.5 rounded tabular-nums shadow">
+                                ⏱ {(playHeads[`grid:${v.url}`] ?? videoStarts[v.url] ?? 0).toFixed(1)}s
+                              </span>
+                              <span className="bg-black/75 text-white text-[10px] font-bold px-1.5 py-0.5 rounded tabular-nums shadow">
+                                Start {(videoStarts[v.url] ?? 0).toFixed(1)}s · End {(videoEnds[v.url] ?? 0) > 0 ? `${videoEnds[v.url].toFixed(1)}s` : v.duration != null ? formatVideoDuration(v.duration) : "fin"}
+                              </span>
+                            </div>
+                            </>
+
                           ) : v.thumbnail ? (
                             <button
                               type="button"
