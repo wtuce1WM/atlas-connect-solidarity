@@ -2943,7 +2943,11 @@ export default function StudioVideo() {
                       <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optReviews} onChange={(e) => setOptReviews(e.target.checked)} />
                       <span className="font-medium">Compteur d'avis client + badge avis (note/20)</span>
                     </label>
-                    <p className="mt-1 pl-6 text-[11px] text-muted-foreground">Scène dédiée avec la note /20 agrégée et le nombre total d'avis.</p>
+                    <p className="mt-1 pl-6 text-[11px] text-muted-foreground">
+                      {reviewsAggregate.avgOn20 != null
+                        ? `Note agrégée ${formatRating(reviewsAggregate.avgOn20)}/20 · ${totalReviewCount.toLocaleString("fr-FR")} avis (9 plateformes, moyenne pondérée).`
+                        : "Scène dédiée avec la note /20 agrégée et le nombre total d'avis."}
+                    </p>
                   </div>
                 )}
                 {/* Plateformes d'avis externes — masquées si moins de 10 avis */}
