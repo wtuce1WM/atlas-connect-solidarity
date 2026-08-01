@@ -844,6 +844,21 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         }
         if (Object.keys(cleanedSplits).length) template_props.textSplits = cleanedSplits;
       }
+      // Segments explicites (découpe au caractère près) — prioritaires sur textSplits
+      const rawTextSegments = options?.text_segments;
+      if (rawTextSegments && typeof rawTextSegments === "object" && !Array.isArray(rawTextSegments)) {
+        const cleanedSegs: Record<string, string[]> = {};
+        for (const [k, v] of Object.entries(rawTextSegments as Record<string, any>)) {
+          if (typeof k !== "string" || !Array.isArray(v)) continue;
+          const segs = v
+            .filter((x) => typeof x === "string")
+            .map((x) => (x as string).trim().slice(0, 400))
+            .filter(Boolean)
+            .slice(0, 10);
+          if (segs.length > 1) cleanedSegs[k] = segs;
+        }
+        if (Object.keys(cleanedSegs).length) template_props.textSegments = cleanedSegs;
+      }
       // Overrides manuels du texte des scènes (titre + texte), saisis dans l'aperçu du scénario.
       const rawTextOverrides = options?.text_overrides;
       if (rawTextOverrides && typeof rawTextOverrides === "object" && !Array.isArray(rawTextOverrides)) {
