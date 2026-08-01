@@ -1130,7 +1130,7 @@ export default function StudioVideo() {
       jobs.filter(
         (j) =>
           (j.status === "pending" || j.status === "rendering") &&
-          (!currentUserId || !j.user_id || j.user_id === currentUserId)
+          (!currentUserId || j.user_id === currentUserId)
       ),
     [jobs, currentUserId]
   );
