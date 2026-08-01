@@ -451,6 +451,9 @@ export default function StudioVideo() {
   const [showImages, setShowImages] = useState(true);
   const [showVideos, setShowVideos] = useState(true);
   const [showEstablishment, setShowEstablishment] = useState(true);
+  const [showCompose, setShowCompose] = useState(true);
+  const [showScenario, setShowScenario] = useState(true);
+  const [showActiveJob, setShowActiveJob] = useState(true);
   const [popupImageUrl, setPopupImageUrl] = useState<string | null>(null);
   const [popupMeta, setPopupMeta] = useState<{ title: string | null; description: string | null }>({ title: null, description: null });
   const [popupPreviewOpen, setPopupPreviewOpen] = useState(false);
@@ -2558,6 +2561,21 @@ export default function StudioVideo() {
 
           {canCompose && (
           <section className="rounded-xl border border-border bg-card p-6 space-y-5">
+            <div className="flex items-center justify-between">
+              <Label>Prompt / Éléments à inclure dans la vidéo</Label>
+              <button
+                type="button"
+                onClick={() => setShowCompose((s) => !s)}
+                className="text-muted-foreground hover:text-foreground p-1 rounded"
+                aria-label={showCompose ? "Masquer la section" : "Afficher la section"}
+                title={showCompose ? "Masquer" : "Afficher"}
+              >
+                {showCompose ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </button>
+            </div>
+            {showCompose && (
+            <>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Durée</Label>
@@ -3429,10 +3447,26 @@ export default function StudioVideo() {
                 {aiScenario ? (scenarioStale ? "Régénérer le scénario (paramètres modifiés)" : "Régénérer le scénario (IA)") : "Prévisualiser le scénario (IA)"}
               </Button>
             </div>
+            </>
+            )}
           </section>
           )}
 
           {canCompose && scenarioPreviewed && (
+            <section className="rounded-xl border border-border bg-card p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <Label>Scénario</Label>
+                <button
+                  type="button"
+                  onClick={() => setShowScenario((s) => !s)}
+                  className="text-muted-foreground hover:text-foreground p-1 rounded"
+                  aria-label={showScenario ? "Masquer le scénario" : "Afficher le scénario"}
+                  title={showScenario ? "Masquer" : "Afficher"}
+                >
+                  {showScenario ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </button>
+              </div>
+              {showScenario && (
             aiScenario ? (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -3477,6 +3511,8 @@ export default function StudioVideo() {
                 regenerating={previewing}
               />
             ) : null
+              )}
+            </section>
           )}
 
           {canCompose && scenarioPreviewed && (
@@ -3508,15 +3544,30 @@ export default function StudioVideo() {
 
           {activeJobs.length > 0 && (
             <section id="studio-active-job" className="rounded-xl border border-border bg-card p-6 space-y-3">
-              <h2 className="font-semibold">{activeJobs.length === 1 ? "Job en cours" : "Jobs en cours"}</h2>
-              <p className="text-xs text-muted-foreground">
-                Une vidéo peut prendre jusqu'à 10 minutes pour être générée.
-              </p>
-              <div className="space-y-3">
-                {activeJobs.map((j) => (
-                  <JobCard key={j.id} job={j} businessName={j.business_id ? businessNames[j.business_id] : undefined} />
-                ))}
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold">{activeJobs.length === 1 ? "Job en cours" : "Jobs en cours"}</h2>
+                <button
+                  type="button"
+                  onClick={() => setShowActiveJob((s) => !s)}
+                  className="text-muted-foreground hover:text-foreground p-1 rounded"
+                  aria-label={showActiveJob ? "Masquer les jobs" : "Afficher les jobs"}
+                  title={showActiveJob ? "Masquer" : "Afficher"}
+                >
+                  {showActiveJob ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </button>
               </div>
+              {showActiveJob && (
+                <>
+                  <p className="text-xs text-muted-foreground">
+                    Une vidéo peut prendre jusqu'à 10 minutes pour être générée.
+                  </p>
+                  <div className="space-y-3">
+                    {activeJobs.map((j) => (
+                      <JobCard key={j.id} job={j} businessName={j.business_id ? businessNames[j.business_id] : undefined} />
+                    ))}
+                  </div>
+                </>
+              )}
             </section>
           )}
 
