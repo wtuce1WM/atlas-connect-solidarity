@@ -2410,6 +2410,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
       // repli sur les médias de l'établissement avec effet de mouvement.
       const rot = bgRotate(planIdx);
       const fallbackUrl = rot.src ?? rot.image;
+      // `duration` est exprimée en FRAMES (durée de l'étape dans le plan).
       const seg = list.length > 0 ? duration / list.length : duration;
       return (
         <AbsoluteFill>
@@ -2417,11 +2418,11 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             ? list.map((m, i) => (
                 <Sequence
                   key={`${m.url}-${i}`}
-                  from={Math.round(i * seg * 30)}
-                  durationInFrames={Math.max(1, Math.round(seg * 30))}
+                  from={Math.round(i * seg)}
+                  durationInFrames={Math.max(1, Math.round(seg))}
                 >
                   {m.kind === "video"
-                    ? <VideoCover src={m.url} from={0} duration={seg} />
+                    ? <VideoCover src={m.url} from={0} duration={Math.max(1, Math.round(seg))} />
                     : <VideoBackdrop image={m.url} />}
                 </Sequence>
               ))
@@ -2470,14 +2471,18 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               textShadow: "0 2px 12px rgba(0,0,0,0.5)",
             };
             if (chunks.length > 1) {
-              const segFrames = Math.max(1, Math.round((duration * 30) / chunks.length));
+              const segFrames = Math.max(1, Math.floor(duration / chunks.length));
               return (
                 <>
                   <AbsoluteFill style={{ display: "flex", flexDirection: "column", padding: "80px 60px", ...align }}>
                     {titleBlock}
                   </AbsoluteFill>
                   {chunks.map((txt, i) => (
-                    <Sequence key={`split-${i}`} from={i * segFrames} durationInFrames={segFrames}>
+                    <Sequence
+                      key={`split-${i}`}
+                      from={i * segFrames}
+                      durationInFrames={i === chunks.length - 1 ? Math.max(1, duration - i * segFrames) : segFrames}
+                    >
                       <AbsoluteFill style={{ display: "flex", flexDirection: "column", padding: "80px 60px", ...align }}>
                         <div style={{ opacity: 0, fontSize: 68, lineHeight: 1.1 }}>{c.title}</div>
                         <div style={textStyle}>{txt}</div>
@@ -2487,6 +2492,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                 </>
               );
             }
+
             return (
               <AbsoluteFill style={{ display: "flex", flexDirection: "column", padding: "80px 60px", ...align }}>
                 {titleBlock}
@@ -2638,22 +2644,27 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                 (textSplits ?? {}).name ?? splitCount,
               );
               if (chunks.length > 1) {
-                const segFrames = Math.max(1, Math.round((duration * 30) / chunks.length));
+                // `duration` est en FRAMES : on découpe la durée de l'étape en N tranches.
+                const segFrames = Math.max(1, Math.floor(duration / chunks.length));
                 return (
                   <>
-                    {chunks.map((txt, i) => (
-                      <Sequence key={`name-split-${i}`} from={i * segFrames} durationInFrames={segFrames}>
-                        <HookOverlay
-                          title={i === 0 ? nameSceneTitle : undefined}
-                          text={txt}
-                          duration={segFrames / 30}
-                          textPosition={textPosition}
-                        />
-                      </Sequence>
-                    ))}
+                    {chunks.map((txt, i) => {
+                      const len = i === chunks.length - 1 ? Math.max(1, duration - i * segFrames) : segFrames;
+                      return (
+                        <Sequence key={`name-split-${i}`} from={i * segFrames} durationInFrames={len}>
+                          <HookOverlay
+                            title={i === 0 ? nameSceneTitle : undefined}
+                            text={txt}
+                            duration={len}
+                            textPosition={textPosition}
+                          />
+                        </Sequence>
+                      );
+                    })}
                   </>
                 );
               }
+
               return <HookOverlay title={nameSceneTitle} text={hookFull} duration={duration} textPosition={textPosition} />;
             })()}
           </AbsoluteFill>
