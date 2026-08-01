@@ -2009,6 +2009,10 @@ export default function StudioVideo() {
                   </button>
                 </div>
               </div>
+              <p className="rounded-lg border-2 border-destructive/40 bg-destructive/10 px-4 py-3 text-base sm:text-lg font-bold text-destructive">
+                Attention ! Evitez les vidéos avec sur-impressions (logo/texte…) et choisissez des vidéos verticales
+              </p>
+
               {showVideos && (
                 <>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
