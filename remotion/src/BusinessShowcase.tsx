@@ -73,6 +73,18 @@ const ToneContext = React.createContext<Tone>("immersif");
 // Mode "vidéo unique en fond continu" : neutralise tous les fonds de scène
 const SuppressBgContext = React.createContext<boolean>(false);
 const useSuppressBg = (): boolean => React.useContext(SuppressBgContext);
+
+// Time Start : point de départ (secondes) par URL de vidéo, défini dans le Studio.
+const VideoStartsContext = React.createContext<Record<string, number>>({});
+/** Frames à sauter au début d'une vidéo (Time Start). */
+const useVideoStartFrames = (src?: string | null): number | undefined => {
+  const starts = React.useContext(VideoStartsContext);
+  const { fps } = useVideoConfig();
+  if (!src) return undefined;
+  const sec = starts?.[src];
+  if (!Number.isFinite(sec) || (sec as number) <= 0) return undefined;
+  return Math.max(1, Math.round((sec as number) * fps));
+};
 const useTone = (): ToneConfig => TONE_CONFIG[React.useContext(ToneContext)] ?? TONE_CONFIG.immersif;
 
 // ===== Langue du montage (indépendante de la langue du front) =====
@@ -127,6 +139,8 @@ export type ShowcaseProps = {
   category?: string;
   images?: string[];
   videos?: string[];
+  /** Point de départ (secondes) par URL de vidéo — défini dans le Studio (Time Start). */
+  videoStarts?: Record<string, number>;
   offer?: { title?: string; price?: string; lines?: string[]; background_video_url?: string; background_image_url?: string } | null;
   offers?: Array<{ title?: string; price?: string; lines?: string[]; background_video_url?: string; background_image_url?: string }> | null;
   rating?: number | null;
