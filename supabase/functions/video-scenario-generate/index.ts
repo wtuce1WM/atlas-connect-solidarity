@@ -1300,6 +1300,37 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       });
     }
 
+    // Les textes issus de l'IA et de certains documents peuvent contenir des
+    // caractères NUL / substituts Unicode isolés refusés par PostgreSQL jsonb.
+    // On normalise également NaN/Infinity avant l'envoi à PostgREST.
+    const sanitizeJson = (value: unknown): unknown => {
+      if (value === null || typeof value === "boolean") return value;
+      if (typeof value === "string") {
+        return value
+          .replace(/\u0000/g, "")
+          .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])/g, "�")
+          .replace(/(^|[^\uD800-\uDBFF])[\uDC00-\uDFFF]/g, "$1�");
+      }
+      if (typeof value === "number") return Number.isFinite(value) ? value : null;
+      if (Array.isArray(value)) return value.map(sanitizeJson);
+      if (typeof value === "object") {
+        const clean: Record<string, unknown> = {};
+        for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+          if (child !== undefined && typeof child !== "function" && typeof child !== "symbol") {
+            clean[key] = sanitizeJson(child);
+          }
+        }
+        return clean;
+      }
+      return null;
+    };
+
+    const cleanTemplateProps = sanitizeJson(template_props) as Record<string, unknown>;
+    const cleanScenario = sanitizeJson({
+      ...parsed,
+      studio_options: { ...(options ?? {}), lang: videoLang },
+    }) as Record<string, unknown>;
+
     const { data: job, error } = await supa
       .from("video_jobs")
       .insert({
@@ -1309,8 +1340,8 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         duration_sec,
         tone,
         template_id,
-        template_props,
-        scenario_json: { ...parsed, studio_options: { ...(options ?? {}), lang: videoLang } },
+        template_props: cleanTemplateProps,
+        scenario_json: cleanScenario,
         status: "pending",
         parent_job_id: parentJob?.id ?? null,
         notify_email: !!body?.notify_email,
