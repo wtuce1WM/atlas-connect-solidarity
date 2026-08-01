@@ -480,6 +480,30 @@ export default function StudioVideo() {
     [videoOrder, selectedVideos],
   );
 
+  // Time Start actifs, bornés à la sélection courante (sécurité + payload propre)
+  const activeVideoStarts = useMemo(() => {
+    const out: Record<string, number> = {};
+    for (const u of orderedSelectedVideos) {
+      const s = videoStarts[u];
+      if (Number.isFinite(s) && (s as number) > 0) out[u] = Math.round((s as number) * 10) / 10;
+    }
+    return out;
+  }, [orderedSelectedVideos, videoStarts]);
+
+  // Durée totale utile des vidéos du montage (durée - Time Start)
+  const orderedVideosTotalDuration = useMemo(() => {
+    let sum = 0;
+    let unknown = 0;
+    for (const u of orderedSelectedVideos) {
+      const v = bizVideos.find((x) => x.url === u);
+      if (v?.duration == null) { unknown += 1; continue; }
+      sum += Math.max(0, v.duration - (activeVideoStarts[u] ?? 0));
+    }
+    return { sum, unknown };
+  }, [orderedSelectedVideos, bizVideos, activeVideoStarts]);
+
+
+
   const moveVideo = (from: string, to: string) => {
     if (from === to) return;
     setVideoOrder((prev) => {
