@@ -1519,6 +1519,8 @@ serve(async (req) => {
   // matched and staff curated a list, it overrides the generated follow-ups on
   // EVERY terminal `done` event, whatever route was taken.
   let curatedFollowups: string[] | null = null;
+  // Rayon (km) forcé par une relance staff (club_ai_followups.radius_km)
+  let followupRadiusKm: number | null = null;
   const emit: EmitFn = (obj: any) => {
     if (!controllerRef) return;
     // Auto-inject turnId in every terminal `done` event so the client can
@@ -1680,6 +1682,50 @@ serve(async (req) => {
         }
       }
     } catch (e) { console.error("suggestion targeting error", e); }
+
+    // ============= Staff-curated FOLLOW-UP targeting (Backoffice / IA → Relances Club) =============
+    // Même taxonomie que les relances embed : si le dernier message utilisateur est
+    // EXACTEMENT un libellé de club_ai_followups, on applique `mode` (route forcée)
+    // et `radius_km` (borne de proximité). Ancre proximité = géoloc utilisateur,
+    // sinon ville détectée. On réécrit le message pour alimenter le MÊME routeur.
+    try {
+      const normLbl2 = (s: unknown) => String(s ?? "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const lastIdx2 = (() => { for (let i = messages.length - 1; i >= 0; i--) if ((messages[i] as any)?.role === "user") return i; return -1; })();
+      const lastLabel2 = lastIdx2 >= 0 ? String((messages[lastIdx2] as any).content || "") : "";
+      const key2 = normLbl2(lastLabel2);
+      if (key2) {
+        const { data: fupRows } = await admin
+          .from("club_ai_followups")
+          .select("id,label_fr,label_en,label_ar,mode,radius_km")
+          .eq("is_active", true);
+        const fup: any = (fupRows || []).find((r: any) =>
+          normLbl2(r.label_fr) === key2 || normLbl2(r.label_en) === key2 || normLbl2(r.label_ar) === key2
+        );
+        if (fup && (fup.mode || fup.radius_km != null)) {
+          const m = String(fup.mode || "").trim();
+          const modeHint2 =
+            m === "map_replay" ? (lang === "en" ? "show them on a map" : "montre-les sur une carte")
+            : m === "booking" ? (lang === "en" ? "can we book online" : "peut-on réserver en ligne")
+            : m === "opening_hours" ? (lang === "en" ? "opening hours" : "horaires d'ouverture")
+            : m === "nearby" ? (lang === "en" ? "nearby" : "à proximité")
+            : m === "poi_nearby" ? (lang === "en" ? "nearby points of interest" : "points d'intérêt à proximité")
+            : m === "weather" ? (lang === "en" ? "weather" : "météo")
+            : m === "events" ? (lang === "en" ? "events agenda" : "événements agenda")
+            : "";
+          const rKm = Number(fup.radius_km);
+          const radiusHint = Number.isFinite(rKm) && rKm > 0
+            ? (lang === "en" ? `within ${rKm} km` : `à moins de ${rKm} km`)
+            : "";
+          if (Number.isFinite(rKm) && rKm > 0) followupRadiusKm = rKm;
+          if (modeHint2 || radiusHint) {
+            const rewritten2 = [lastLabel2, modeHint2, radiusHint].filter(Boolean).join(" ").trim();
+            (messages[lastIdx2] as any) = { ...(messages[lastIdx2] as any), content: rewritten2 };
+            turnLog.intent_classified = `followup:${m || "radius"}`;
+            console.log("club-ai-chat → followup targeting", JSON.stringify({ id: fup.id, mode: m, radius_km: fup.radius_km }));
+          }
+        }
+      }
+    } catch (e) { console.error("followup targeting error", e); }
 
 
     const languageInstruction = lang === "en"
@@ -2595,7 +2641,8 @@ serve(async (req) => {
           const scored = (bizRows || [])
             .filter((b: any) => Number.isFinite(b.latitude) && Number.isFinite(b.longitude))
             .map((b: any) => ({ ...b, _km: haversineKm(anchor, { lat: Number(b.latitude), lng: Number(b.longitude) }) }))
-            .sort((a: any, b: any) => a._km - b._km);
+            .sort((a: any, b: any) => a._km - b._km)
+            .filter((b: any) => followupRadiusKm == null || b._km <= followupRadiusKm);
           if (scored.length >= 1) {
             const shown = scored.slice(0, 5);
             const header = lang === "en" ? `Nearest to ${anchorLabel}` : lang === "ar" ? `الأقرب إلى ${anchorLabel}` : `Les plus proches de ${anchorLabel}`;
