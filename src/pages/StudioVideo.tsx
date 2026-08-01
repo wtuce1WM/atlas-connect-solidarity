@@ -578,6 +578,48 @@ export default function StudioVideo() {
     );
   };
 
+  /** Champs Time Start / End + boutons de capture de la position de lecture. */
+  const renderTimeRangeControls = (
+    url: string,
+    duration: number | null | undefined,
+    refMap: React.MutableRefObject<Record<string, HTMLVideoElement | null>>,
+  ) => {
+    const capture = (which: "start" | "end") => {
+      const el = refMap.current[url];
+      if (!el || !Number.isFinite(el.currentTime)) return;
+      const n = Math.round(el.currentTime * 10) / 10;
+      const setter = which === "start" ? setVideoStarts : setVideoEnds;
+      setter((prev) => {
+        if (n > 0) return { ...prev, [url]: n };
+        const c = { ...prev };
+        delete c[url];
+        return c;
+      });
+    };
+    return (
+      <div className="space-y-1">
+        {renderTimeRangeInputs(url, duration)}
+        <div className="grid grid-cols-1 gap-1">
+          <button
+            type="button"
+            onClick={() => capture("start")}
+            className="h-7 rounded-md border border-border text-[10px] font-semibold hover:bg-muted px-1 text-left"
+          >
+            ⌖ Utiliser la position actuelle comme Time Start
+          </button>
+          <button
+            type="button"
+            onClick={() => capture("end")}
+            className="h-7 rounded-md border border-border text-[10px] font-semibold hover:bg-muted px-1 text-left"
+          >
+            ⌗ Utiliser la position actuelle comme Time End
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+
 
 
 
