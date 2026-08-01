@@ -1262,6 +1262,16 @@ const HomeMindtrip = () => {
                   </div>
                 </Link>
               ))}
+              <Link
+                to={withLangPrefix("/blog", language)}
+                className="group relative aspect-[4/5] h-[55vh] max-h-[520px] shrink-0 overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/80 to-gold/60 flex flex-col items-center justify-center text-center p-6 transition hover:scale-105"
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm mb-4 transition group-hover:bg-white/30">
+                  <ArrowRight className="h-7 w-7 text-white" />
+                </div>
+                <span className="font-josefin text-2xl leading-tight text-white font-bold">{L.seeAllArticles}</span>
+                <span className="mt-2 font-roboto text-sm text-white/80">{L.seeAllArticlesSubtitle}</span>
+              </Link>
             </div>
           </div>
         </div>
