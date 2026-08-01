@@ -1213,6 +1213,9 @@ export default function StudioVideo() {
     if (offerCount > 0) s += Math.min(6, offerCount) * 5;
     const highlightCount = selectedHighlightIds.size;
     if (highlightCount > 0) s += Math.min(4, highlightCount) * 4;
+    s += Math.min(4, selectedAiSummaryIds.size) * 5;
+    s += Math.min(4, selectedExternalLinkIds.size) * 5;
+    s += Math.min(4, selectedMenuDocIds.size) * 5;
     if (optReviews) s += 3;
     if (optGoogleReviews) s += 4;
     if (optTripAdvisor) s += 4;
