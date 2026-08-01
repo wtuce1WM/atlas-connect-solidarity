@@ -247,10 +247,12 @@ export default function StudioVideo() {
     supabase.auth.getUser().then(({ data }) => {
       if (cancelled) return;
       setAuthState(data.user ? "in" : "out");
+      setCurrentUserId(data.user?.id ?? null);
       if (data.user?.email) setNotifyEmailTo((prev) => prev || data.user!.email!);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       setAuthState(session?.user ? "in" : "out");
+      setCurrentUserId(session?.user?.id ?? null);
       if (session?.user?.email) setNotifyEmailTo((prev) => prev || session.user!.email!);
     });
     return () => { cancelled = true; sub.subscription.unsubscribe(); };
