@@ -276,6 +276,8 @@ const HOME_LABELS = {
     howItWorks: "How does the App work?",
     inspireYourself: "Get inspired",
     inspireSubtitle: "Our latest guides to explore Morocco differently.",
+    seeAllArticles: "All articles",
+    seeAllArticlesSubtitle: "Explore our guides",
     hotelDestination: "Destination",
     hotelArrival: "Check-in",
     hotelDeparture: "Check-out",
