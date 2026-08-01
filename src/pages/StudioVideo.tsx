@@ -358,6 +358,7 @@ export default function StudioVideo() {
     tripadvisor: { rating: null, count: null, url: null },
     restaurant_guru: { rating: null, count: null, url: null },
   });
+  const [reviewsAggregate, setReviewsAggregate] = useState<{ avgOn20: number | null; total: number }>({ avgOn20: null, total: 0 });
   const [reviewsList, setReviewsList] = useState<Array<{ id: string; author: string | null; rating: number | null; text: string; source: string | null; published_at: string | null }>>([]);
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
   const [reviewHighlight, setReviewHighlight] = useState<string>("");
