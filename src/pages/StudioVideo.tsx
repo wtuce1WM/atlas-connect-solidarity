@@ -2368,35 +2368,8 @@ export default function StudioVideo() {
                                   <GripVertical className="h-3.5 w-3.5" />
                                 </span>
                               </div>
-                              <div className="flex items-center gap-1">
-                                <div className="flex-1">{renderTimeRangeInputs(url, v?.duration)}</div>
-                                <button
-                                  type="button"
-                                  title="Utiliser la position de lecture actuelle comme Time Start"
-                                  className="h-8 px-2 rounded-md border border-border text-[10px] font-semibold hover:bg-muted"
-                                  onClick={() => {
-                                    const el = orderVideoRefs.current[url];
-                                    if (!el || !Number.isFinite(el.currentTime)) return;
-                                    const n = Math.round(el.currentTime * 10) / 10;
-                                    setVideoStarts((prev) => (n > 0 ? { ...prev, [url]: n } : (() => { const c = { ...prev }; delete c[url]; return c; })()));
-                                  }}
-                                >
-                                  ⌖
-                                </button>
-                                <button
-                                  type="button"
-                                  title="Utiliser la position de lecture actuelle comme Time End"
-                                  className="h-8 px-2 rounded-md border border-border text-[10px] font-semibold hover:bg-muted"
-                                  onClick={() => {
-                                    const el = orderVideoRefs.current[url];
-                                    if (!el || !Number.isFinite(el.currentTime)) return;
-                                    const n = Math.round(el.currentTime * 10) / 10;
-                                    setVideoEnds((prev) => (n > 0 ? { ...prev, [url]: n } : (() => { const c = { ...prev }; delete c[url]; return c; })()));
-                                  }}
-                                >
-                                  ⌗
-                                </button>
-                              </div>
+                              {renderTimeRangeControls(url, v?.duration, orderVideoRefs)}
+
                             </div>
                           );
                         })}
