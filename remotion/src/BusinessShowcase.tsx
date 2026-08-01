@@ -225,6 +225,8 @@ export type ShowcaseProps = {
   showWhatsapp?: boolean;
   whatsappNumber?: string | null;
   textSplits?: Record<string, number>;
+  /** Segments de texte explicites (découpe au caractère près). Clé = kind ou `custom:<id>`. */
+  textSegments?: Record<string, string[]>;
   // Overrides manuels du texte des scènes (clé = kind de scène, ex. "hook" | "name")
   textOverrides?: Record<string, { label?: string; description?: string }>;
   splitCount?: number;
@@ -637,6 +639,22 @@ const KenBurns: React.FC<{ src: string; from: number; duration: number }> = ({ s
     </AbsoluteFill>
   );
 };
+
+/** Découpe un texte : segments explicites prioritaires, sinon découpe par mots en n blocs. */
+function resolveTextChunks(text: string, explicit?: string[], n?: number): string[] {
+  const t = (text || "").trim();
+  if (Array.isArray(explicit) && explicit.length > 1) {
+    const segs = explicit.map((x) => (x || "").trim()).filter(Boolean);
+    if (segs.length > 1) return segs;
+  }
+  const count = Number.isFinite(Number(n)) ? Math.max(1, Math.min(10, Math.round(Number(n)))) : 1;
+  const words = t.split(/\s+/).filter(Boolean);
+  if (count <= 1 || words.length <= 1) return [];
+  const per = Math.ceil(words.length / count);
+  const out: string[] = [];
+  for (let i = 0; i < words.length; i += per) out.push(words.slice(i, i + per).join(" "));
+  return out;
+}
 
 const SceneHook: React.FC<{ name: string; location: string; img?: string; textPosition?: TextPosition }> = ({ name, location, img, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
@@ -2162,6 +2180,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   whatsappNumber,
   textOverrides,
   textSplits,
+  textSegments,
   splitCount,
   continuousBgVideoUrl,
   continuousBgSound,
@@ -2340,16 +2359,11 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0.18) 50%, rgba(0,0,0,0.45) 100%)" }} />
           )}
           {(() => {
-            const rawSplit = Number(
-              (textSplits ?? {})[`custom:${c.id}`] ?? (c as any).splitCount ?? splitCount ?? 1,
+            const chunks = resolveTextChunks(
+              c.subtitle ?? "",
+              (textSegments ?? {})[`custom:${c.id}`],
+              (textSplits ?? {})[`custom:${c.id}`] ?? (c as any).splitCount ?? splitCount,
             );
-            const nSplit = Number.isFinite(rawSplit) ? Math.max(1, Math.min(10, Math.round(rawSplit))) : 1;
-            const words = (c.subtitle ?? "").trim().split(/\s+/).filter(Boolean);
-            const chunks: string[] = [];
-            if (nSplit > 1 && words.length > 1) {
-              const per = Math.ceil(words.length / nSplit);
-              for (let i = 0; i < words.length; i += per) chunks.push(words.slice(i, i + per).join(" "));
-            }
             const titleBlock = (
               <div style={{
                 color: "#fff",
@@ -2525,7 +2539,31 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                 <KenBurns src={nameMediaUrl} from={0} duration={duration} />
               )
             ) : null}
-            <HookOverlay title={nameSceneTitle} text={hookFull} duration={duration} textPosition={textPosition} />
+            {(() => {
+              const chunks = resolveTextChunks(
+                hookFull,
+                (textSegments ?? {}).name,
+                (textSplits ?? {}).name ?? splitCount,
+              );
+              if (chunks.length > 1) {
+                const segFrames = Math.max(1, Math.round((duration * 30) / chunks.length));
+                return (
+                  <>
+                    {chunks.map((txt, i) => (
+                      <Sequence key={`name-split-${i}`} from={i * segFrames} durationInFrames={segFrames}>
+                        <HookOverlay
+                          title={i === 0 ? nameSceneTitle : undefined}
+                          text={txt}
+                          duration={segFrames / 30}
+                          textPosition={textPosition}
+                        />
+                      </Sequence>
+                    ))}
+                  </>
+                );
+              }
+              return <HookOverlay title={nameSceneTitle} text={hookFull} duration={duration} textPosition={textPosition} />;
+            })()}
           </AbsoluteFill>
         );
 

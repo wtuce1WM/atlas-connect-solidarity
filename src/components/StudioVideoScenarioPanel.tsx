@@ -360,6 +360,39 @@ const isCustomToken = (t: string) => t.startsWith("custom:");
 const customIdFromToken = (t: string) => t.slice("custom:".length);
 const tokenForCustom = (id: string) => `custom:${id}`;
 
+/** Découpe un texte selon des offsets de caractères (points de coupe croissants). */
+export function segmentsFromPoints(text: string, points: number[]): string[] {
+  const t = text ?? "";
+  if (!t) return [];
+  const pts = Array.from(new Set(points.filter((p) => p > 0 && p < t.length))).sort((a, b) => a - b);
+  const out: string[] = [];
+  let prev = 0;
+  for (const p of pts) {
+    out.push(t.slice(prev, p).trim());
+    prev = p;
+  }
+  out.push(t.slice(prev).trim());
+  return out.filter((s) => s.length > 0);
+}
+
+/** Points de coupe répartis équitablement, calés sur les frontières de mots. */
+export function evenSplitPoints(text: string, n: number): number[] {
+  const t = (text ?? "").trim();
+  if (!t || n <= 1) return [];
+  const pts: number[] = [];
+  for (let i = 1; i < n; i++) {
+    const target = Math.round((t.length * i) / n);
+    // cale sur l'espace le plus proche
+    let best = target;
+    for (let d = 0; d < t.length; d++) {
+      if (t[target + d] === " ") { best = target + d + 1; break; }
+      if (t[target - d] === " ") { best = target - d + 1; break; }
+    }
+    if (best > 0 && best < t.length && !pts.includes(best)) pts.push(best);
+  }
+  return pts.sort((a, b) => a - b);
+}
+
 const newCustomId = () =>
   `c_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
@@ -371,6 +404,8 @@ export type ScenarioEdits = {
   customScenes?: CustomScene[];
   // Nb d'étapes pour découper le texte dans le montage (clé = "hook" | "name" | `custom:<id>`)
   textSplits?: Record<string, number>;
+  /** Segments de texte explicites (découpe au caractère près). Clé = kind ou `custom:<id>`. */
+  textSegments?: Record<string, string[]>;
   // Overrides libres du texte des scènes (titre + description). Clé = SceneMediaKind pour built-in.
   textOverrides?: Partial<Record<SceneMediaKind, { label?: string; description?: string }>>;
   /** POIs liés à une scène. Clé = SceneMediaKind ("hook" | "map") ou `custom:<id>`. */
@@ -426,6 +461,9 @@ export function StudioVideoScenarioPanel({
   const [orderOverride, setOrderOverride] = useState<string[] | null>(null);
   const [customScenes, setCustomScenes] = useState<CustomScene[]>([]);
   const [splitOverrides, setSplitOverrides] = useState<Record<string, number>>({});
+  // Points de coupe (offsets caractères) par étape. Clé = scene.id ou token custom.
+  const [segmentOverrides, setSegmentOverrides] = useState<Record<string, number[]>>({});
+  const [splitEditorId, setSplitEditorId] = useState<string | null>(null);
   const [textOverrides, setTextOverrides] = useState<Record<string, { label?: string; description?: string }>>({});
   const [poiOverrides, setPoiOverrides] = useState<Record<string, string[]>>({});
   const [destOverrides, setDestOverrides] = useState<Record<string, string[]>>({});
@@ -452,6 +490,7 @@ export function StudioVideoScenarioPanel({
     setOrderOverride(null);
     setCustomScenes([]);
     setSplitOverrides({});
+    setSegmentOverrides({});
     setTextOverrides({});
     setPoiOverrides({});
     setDestOverrides({});
@@ -538,10 +577,11 @@ export function StudioVideoScenarioPanel({
     const hasDurations = Object.keys(durationOverrides).length > 0;
     const hasCustom = customScenes.length > 0;
     const hasSplits = Object.keys(splitOverrides).length > 0;
+    const hasSegments = Object.values(segmentOverrides).some((a) => a.length > 0);
     const hasTextOv = Object.keys(textOverrides).length > 0;
     const hasPois = Object.values(poiOverrides).some((a) => a.length > 0);
     const hasDests = Object.values(destOverrides).some((a) => a.length > 0);
-    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits && !hasTextOv && !hasPois && !hasDests) {
+    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits && !hasSegments && !hasTextOv && !hasPois && !hasDests) {
       onChangeScenarioEdits(null);
       return;
     }
@@ -570,11 +610,27 @@ export function StudioVideoScenarioPanel({
         if (s) textSplits[s.icon] = n;
       }
     }
+    // Segments explicites (découpe au caractère près) — prioritaires sur textSplits
+    const textSegments: Record<string, string[]> = {};
+    for (const [id, pts] of Object.entries(segmentOverrides)) {
+      if (!pts.length) continue;
+      const key = isCustomToken(id) ? id : (byId.get(id)?.icon as string | undefined);
+      if (!key) continue;
+      const src = isCustomToken(id)
+        ? (customById.get(customIdFromToken(id))?.subtitle ?? "")
+        : (textOverrides[key]?.description ?? byId.get(id)?.description ?? "");
+      const segs = segmentsFromPoints((src ?? "").trim(), pts);
+      if (segs.length > 1) {
+        textSegments[key] = segs;
+        textSplits[key] = segs.length;
+      }
+    }
     onChangeScenarioEdits({
       order: orderTokens,
       durations,
       customScenes: hasCustom ? customScenes : undefined,
-      textSplits: hasSplits ? textSplits : undefined,
+      textSplits: Object.keys(textSplits).length ? textSplits : undefined,
+      textSegments: Object.keys(textSegments).length ? textSegments : undefined,
       textOverrides: hasTextOv ? (textOverrides as any) : undefined,
       scenePois: hasPois ? poiOverrides : undefined,
       sceneDestinations: hasDests ? destOverrides : undefined,
@@ -582,7 +638,7 @@ export function StudioVideoScenarioPanel({
       totalDuration: editedScenes.reduce((acc, s) => acc + s.duration, 0),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, textOverrides, poiOverrides, destOverrides, placesMediaMode]);
+  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, segmentOverrides, textOverrides, poiOverrides, destOverrides, placesMediaMode]);
 
   const total = editedScenes.reduce((acc, s) => acc + s.duration, 0);
   // Étapes d'origine supprimées (built-in retirées de l'ordre)
@@ -768,6 +824,29 @@ export function StudioVideoScenarioPanel({
         }}
       />
 
+      <TextSplitEditorDialog
+        open={!!splitEditorId}
+        onOpenChange={(o) => { if (!o) setSplitEditorId(null); }}
+        text={(() => {
+          if (!splitEditorId) return "";
+          if (isCustomToken(splitEditorId)) return (customById.get(customIdFromToken(splitEditorId))?.subtitle ?? "").trim();
+          const s = editedScenes.find((x) => x.id === splitEditorId);
+          return (s?.description ?? "").trim();
+        })()}
+        duration={editedScenes.find((x) => x.id === splitEditorId)?.duration ?? 0}
+        points={splitEditorId ? (segmentOverrides[splitEditorId] ?? []) : []}
+        onSubmit={(pts) => {
+          if (!splitEditorId) return;
+          setSegmentOverrides((prev) => {
+            const next = { ...prev };
+            if (!pts.length) delete next[splitEditorId];
+            else next[splitEditorId] = pts;
+            return next;
+          });
+          setSplitEditorId(null);
+        }}
+      />
+
       <PlacesPickerDialog
         open={!!placesSceneKey}
         onOpenChange={(o) => { if (!o) setPlacesSceneKey(null); }}
@@ -922,35 +1001,64 @@ export function StudioVideoScenarioPanel({
               <p className="text-sm text-neutral-700 leading-relaxed whitespace-pre-line">{scene.description}</p>
 
 
-              {(scene.icon === "hook" || scene.icon === "name" || scene.icon === "custom") && (
-                <div className="mt-3 flex items-center gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2.5 py-1.5">
-                  <Type className="h-3.5 w-3.5 text-neutral-500" />
-                  <span className="text-[11px] text-neutral-700">
-                    Découper le texte sur le montage en
-                  </span>
-                  <input
-                    type="number"
-                    min={1}
-                    max={10}
-                    step={1}
-                    value={splitOverrides[scene.id] ?? 1}
-                    onChange={(e) => {
-                      const raw = parseInt(e.target.value, 10);
-                      const n = Number.isFinite(raw) ? Math.max(1, Math.min(10, raw)) : 1;
-                      setSplitOverrides((prev) => {
-                        const next = { ...prev };
-                        if (n <= 1) delete next[scene.id];
-                        else next[scene.id] = n;
-                        return next;
-                      });
-                    }}
-                    className="w-14 h-7 rounded border border-neutral-300 bg-white px-1.5 text-center text-[12px] tabular-nums text-black focus:outline-none focus:border-primary"
-                    aria-label="Nombre d'étapes de découpe du texte"
-                  />
-                  <span className="text-[11px] text-neutral-700">étape{(splitOverrides[scene.id] ?? 1) > 1 ? "s" : ""}</span>
-                  <span className="ml-auto text-[10px] text-neutral-500 italic">1 = pas de découpe</span>
-                </div>
-              )}
+              {(scene.icon === "name" || scene.icon === "custom") && (() => {
+                const splitText = (
+                  scene.icon === "custom"
+                    ? (customById.get(customIdFromToken(scene.id))?.subtitle ?? "")
+                    : (scene.description ?? "")
+                ).trim();
+                const pts = segmentOverrides[scene.id] ?? [];
+                const segs = segmentsFromPoints(splitText, pts);
+                return (
+                  <div className="mt-3 space-y-1.5 rounded-md border border-neutral-200 bg-neutral-50 px-2.5 py-2">
+                    <div className="flex items-center gap-2">
+                      <Type className="h-3.5 w-3.5 text-neutral-500" />
+                      <span className="text-[11px] text-neutral-700">Découper le texte sur le montage en</span>
+                      <input
+                        type="number"
+                        min={1}
+                        max={10}
+                        step={1}
+                        value={segs.length}
+                        onChange={(e) => {
+                          const raw = parseInt(e.target.value, 10);
+                          const n = Number.isFinite(raw) ? Math.max(1, Math.min(10, raw)) : 1;
+                          setSegmentOverrides((prev) => {
+                            const next = { ...prev };
+                            if (n <= 1) delete next[scene.id];
+                            else next[scene.id] = evenSplitPoints(splitText, n);
+                            return next;
+                          });
+                        }}
+                        className="w-14 h-7 rounded border border-neutral-300 bg-white px-1.5 text-center text-[12px] tabular-nums text-black focus:outline-none focus:border-primary"
+                        aria-label="Nombre d'étapes de découpe du texte"
+                      />
+                      <span className="text-[11px] text-neutral-700">étape{segs.length > 1 ? "s" : ""}</span>
+                      <button
+                        type="button"
+                        disabled={!splitText}
+                        onClick={() => setSplitEditorId(scene.id)}
+                        className="ml-auto text-[11px] underline text-neutral-700 hover:text-black disabled:opacity-40"
+                      >
+                        Caler au caractère
+                      </button>
+                    </div>
+                    {segs.length > 1 && (
+                      <div className="space-y-1">
+                        {segs.map((t, i) => (
+                          <div key={i} className="flex gap-1.5 text-[10px] text-neutral-600">
+                            <span className="shrink-0 font-bold tabular-nums">
+                              {i + 1}. {(scene.duration / segs.length).toFixed(1)}s
+                            </span>
+                            <span className="truncate">{t}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
 
 
               {(scene.icon === "hook" || scene.icon === "map" || scene.icon === "custom") &&
@@ -1571,3 +1679,85 @@ function PlacesPickerDialog({
   );
 }
 
+
+/** Éditeur visuel de découpe du texte : cliquer entre deux caractères pose/retire un point de coupe. */
+function TextSplitEditorDialog({
+  open,
+  onOpenChange,
+  text,
+  duration,
+  points,
+  onSubmit,
+}: {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  text: string;
+  duration: number;
+  points: number[];
+  onSubmit: (points: number[]) => void;
+}) {
+  const [pts, setPts] = useState<number[]>(points);
+  useEffect(() => { if (open) setPts(points); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [open, text]);
+
+  const segs = segmentsFromPoints(text, pts);
+  const perSeg = segs.length > 0 && duration > 0 ? duration / segs.length : 0;
+
+  const toggle = (idx: number) => {
+    setPts((prev) => {
+      const has = prev.includes(idx);
+      const next = has ? prev.filter((p) => p !== idx) : [...prev, idx];
+      return next.sort((a, b) => a - b).slice(0, 9);
+    });
+  };
+
+  const colors = ["#0ea5e9", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316", "#6366f1", "#84cc16"];
+  const segIndexAt = (i: number) => pts.filter((p) => p <= i).length;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="bg-white text-black sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Caler les étapes de découpe au caractère</DialogTitle>
+        </DialogHeader>
+        <p className="text-[11px] text-neutral-600">
+          Cliquez sur un caractère pour poser (ou retirer) un point de coupe juste avant lui. Chaque couleur = une étape affichée à l'écran.
+        </p>
+        <div className="max-h-64 overflow-y-auto rounded-md border border-neutral-200 bg-neutral-50 p-3 leading-loose text-[15px]">
+          {text.split("").map((ch, i) => {
+            const isCut = pts.includes(i);
+            const color = colors[segIndexAt(i) % colors.length];
+            return (
+              <span
+                key={i}
+                role="button"
+                tabIndex={-1}
+                onClick={() => i > 0 && toggle(i)}
+                className={cn("cursor-pointer", isCut && "border-l-2 pl-0.5")}
+                style={{ color, borderColor: isCut ? color : undefined }}
+              >
+                {ch === " " ? "\u00A0" : ch}
+              </span>
+            );
+          })}
+        </div>
+        <div className="space-y-1">
+          {segs.map((t, i) => (
+            <div key={i} className="flex gap-2 text-[11px]">
+              <span className="shrink-0 font-bold tabular-nums" style={{ color: colors[i % colors.length] }}>
+                Étape {i + 1} · {perSeg.toFixed(1)}s
+              </span>
+              <span className="text-neutral-700">{t}</span>
+            </div>
+          ))}
+        </div>
+        <DialogFooter className="gap-2">
+          <Button variant="ghost" size="sm" onClick={() => setPts([])}>Tout effacer</Button>
+          <Button variant="outline" size="sm" onClick={() => setPts(evenSplitPoints(text, Math.max(2, segs.length)))}>
+            Répartir équitablement
+          </Button>
+          <Button size="sm" onClick={() => onSubmit(pts)}>Appliquer</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
