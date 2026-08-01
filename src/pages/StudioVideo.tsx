@@ -3576,7 +3576,7 @@ export default function StudioVideo() {
             <div className="flex flex-wrap gap-2">
               <Button onClick={previewScenario} disabled={previewing || submitting} variant={scenarioStale ? "default" : "secondary"} className="gap-2">
                 {previewing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                {aiScenario ? (scenarioStale ? "Régénérer le scénario (paramètres modifiés)" : "Régénérer le scénario (IA)") : "Prévisualiser le scénario (IA)"}
+                {aiScenario ? (scenarioStale ? "Régénérer le scénario (paramètres modifiés)" : "Régénérer le scénario (IA)") : "PRÉVISUALISER LE SCÉNARIO"}
               </Button>
             </div>
             </>
