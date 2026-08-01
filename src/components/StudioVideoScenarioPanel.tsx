@@ -1717,13 +1717,17 @@ function PlacesPickerDialog({
               </div>
             );
           })}
-          {destinations.length > 0 && (
+          {sortedDestinations.length > 0 && (
             <div>
-              <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Destinations</p>
+              <div className="mb-1.5 flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-primary shrink-0" />
+                <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">Destinations</h3>
+                <span className="text-[10px] font-normal text-muted-foreground">({sortedDestinations.length})</span>
+              </div>
               <div className="flex flex-wrap gap-2">
-                {destinations
-                  .filter((x) => !q.trim() || x.name.toLowerCase().includes(q.trim().toLowerCase()))
+                {sortedDestinations
                   .map((x) => {
+
                     const isSelected = d.includes(x.id);
                     return (
                       <button
