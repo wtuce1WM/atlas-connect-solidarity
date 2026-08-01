@@ -86,26 +86,33 @@ const useVideoStartFrames = (src?: string | null): number | undefined => {
   return Math.max(1, Math.round((sec as number) * fps));
 };
 
-/** Vidéo de fond qui respecte le Time Start défini dans le Studio. */
+/** Vidéo de fond qui respecte le Time Start défini dans le Studio.
+ *  `extraStartSec` décale le point d'entrée quand la même vidéo est relue
+ *  plus loin dans le montage (évite de revoir exactement le même passage). */
 const StartVideo: React.FC<{
   src: string;
   muted?: boolean;
   volume?: number | ((f: number) => number);
   loop?: boolean;
   style?: React.CSSProperties;
-}> = ({ src, muted = true, volume, loop = true, style }) => {
-  const startFrom = useVideoStartFrames(src);
+  extraStartSec?: number;
+}> = ({ src, muted = true, volume, loop = true, style, extraStartSec = 0 }) => {
+  const base = useVideoStartFrames(src) ?? 0;
+  const { fps } = useVideoConfig();
+  const extra = Number.isFinite(extraStartSec) && extraStartSec > 0 ? Math.round(extraStartSec * fps) : 0;
+  const startFrom = base + extra;
   return (
     <OffthreadVideo
       src={src}
       muted={muted}
       volume={volume as never}
       loop={loop}
-      startFrom={startFrom}
+      startFrom={startFrom > 0 ? startFrom : undefined}
       style={style ?? { width: "100%", height: "100%", objectFit: "cover" }}
     />
   );
 };
+
 const useTone = (): ToneConfig => TONE_CONFIG[React.useContext(ToneContext)] ?? TONE_CONFIG.immersif;
 
 // ===== Langue du montage (indépendante de la langue du front) =====
