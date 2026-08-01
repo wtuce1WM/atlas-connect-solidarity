@@ -218,6 +218,7 @@ const VISIBLE_TONES = TONES.filter((t) => !t.frozen);
 export default function StudioVideo() {
   const navigate = useNavigate();
   const [authState, setAuthState] = useState<"loading" | "in" | "out">("loading");
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [hasDashboard, setHasDashboard] = useState(false);
   const [hasVideoStudio, setHasVideoStudio] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
