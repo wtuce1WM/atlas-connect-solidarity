@@ -1614,7 +1614,8 @@ const MotionBackdrop: React.FC<{
   duration: number;
   effect: TransitionEffect;
   veil?: string;
-}> = ({ src, image, duration, effect, veil = "rgba(14,11,8,0.46)" }) => {
+  extraStartSec?: number;
+}> = ({ src, image, duration, effect, veil = "rgba(14,11,8,0.46)", extraStartSec = 0 }) => {
   const frame = useCurrentFrame();
   const tone = useTone();
   const suppressBg = useSuppressBg();
