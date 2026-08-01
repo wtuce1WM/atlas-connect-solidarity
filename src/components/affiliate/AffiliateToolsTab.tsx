@@ -36,6 +36,58 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
     [embedUrl, embedHeight, businessName]
   );
 
+  const floatingSnippet = useMemo(
+    () => `<!-- Assistant IA One World Morocco — ${businessName} -->
+<style>
+  #owm-embed-tab {
+    position: fixed; top: 50%; right: max(16px, env(safe-area-inset-right));
+    transform: translateY(-50%) rotate(-90deg); transform-origin: right center;
+    background: #C04F17; color: #fff; padding: 14px 22px; border: none;
+    border-radius: 8px 8px 0 0; font-family: Montserrat, sans-serif;
+    font-weight: 600; font-size: 13px; letter-spacing: 0.05em; white-space: nowrap;
+    cursor: pointer; z-index: 999998; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  #owm-embed-panel {
+    position: fixed; top: 0; right: -100%; width: 50vw; height: 100vh;
+    background: #fff; z-index: 999999; transition: right .35s ease;
+    box-shadow: -8px 0 40px rgba(0,0,0,.25); display: flex; flex-direction: column;
+  }
+  #owm-embed-panel.open { right: 0; }
+  #owm-embed-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 20px; background: #0F172A; color: #fff;
+    font-family: Montserrat, sans-serif; font-weight: 600; font-size: 14px;
+  }
+  #owm-embed-close { background: transparent; border: none; color: #fff; font-size: 22px; cursor: pointer; padding: 0 8px; }
+  #owm-embed-iframe { flex: 1; width: 100%; border: none; }
+  @media (max-width: 768px) { #owm-embed-panel { width: 100vw; } }
+</style>
+
+<button id="owm-embed-tab" aria-label="Ouvrir l&#39;assistant IA">Assistant 1WM</button>
+<div id="owm-embed-panel" role="dialog" aria-hidden="true">
+  <div id="owm-embed-header">
+    <span>Assistant — ${businessName}</span>
+    <button id="owm-embed-close" aria-label="Fermer">&#10005;</button>
+  </div>
+  <iframe id="owm-embed-iframe" src="${embedUrl}" title="Assistant IA — ${businessName}" allow="clipboard-write; geolocation" loading="lazy"></iframe>
+</div>
+
+<script>
+  (function () {
+    var tab = document.getElementById('owm-embed-tab');
+    var panel = document.getElementById('owm-embed-panel');
+    var close = document.getElementById('owm-embed-close');
+    function open() { panel.classList.add('open'); panel.setAttribute('aria-hidden', 'false'); }
+    function shut() { panel.classList.remove('open'); panel.setAttribute('aria-hidden', 'true'); }
+    tab.addEventListener('click', open);
+    close.addEventListener('click', shut);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') shut(); });
+  })();
+</script>`,
+    [embedUrl, businessName]
+  );
+
+
   const copy = async (value: string, key: string) => {
     try {
       await navigator.clipboard.writeText(value);
@@ -240,7 +292,66 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
             </div>
           </div>
         </div>
+
+        <div className="rounded-lg border border-white/20 bg-white/5 p-4 space-y-3">
+          <h4 className="text-white font-semibold text-sm flex items-center gap-2">
+            <Bot className="h-4 w-4" /> Variante « panneau flottant » (onglet latéral + volet plein écran)
+          </h4>
+          <p className="text-sm text-white/70">
+            Cette version ajoute un onglet vertical fixe sur le bord droit de votre site. Au clic, un
+            volet s'ouvre par-dessus la page : 50 % de la largeur sur ordinateur, 100 % sur mobile.
+            Contrairement au code iframe simple, il ne doit <strong>pas</strong> être collé dans un
+            bloc « HTML / Embed » de la page (ces blocs sont eux-mêmes des iframes : le volet resterait
+            prisonnier de la zone dessinée). Il doit être injecté dans le HTML global du site.
+          </p>
+          <div className="text-sm text-white/70 space-y-1.5">
+            <p className="text-white/90 font-medium">Où le coller selon votre plateforme :</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>
+                <strong>Wix / Wix Studio</strong> : Paramètres → <span className="font-mono">Custom Code</span> →
+                « + Ajouter du code personnalisé » → position <span className="font-mono">Body – end</span>,
+                appliquer à <span className="font-mono">Toutes les pages</span> (nécessite un forfait Premium).
+              </li>
+              <li>
+                <strong>Site en HTML</strong> : juste avant la balise de fermeture{" "}
+                <span className="font-mono">&lt;/body&gt;</span> du fichier{" "}
+                <span className="font-mono">index.html</span> (ou du template/footer partagé).
+              </li>
+              <li>
+                <strong>WordPress</strong> : Apparence → Éditeur de thème →{" "}
+                <span className="font-mono">footer.php</span>, avant{" "}
+                <span className="font-mono">&lt;/body&gt;</span> (ou un plugin type « Insert Headers and Footers »,
+                section <em>Footer</em>).
+              </li>
+              <li>
+                <strong>Squarespace</strong> : Paramètres → Avancé → Injection de code → champ{" "}
+                <span className="font-mono">Footer</span>.
+              </li>
+              <li>
+                <strong>Webflow</strong> : Paramètres du projet → Custom Code → champ{" "}
+                <span className="font-mono">Footer Code</span> (avant <span className="font-mono">&lt;/body&gt;</span>).
+              </li>
+            </ul>
+            <p className="text-white/60 text-xs">
+              Le bloc contient déjà ses propres balises <span className="font-mono">&lt;style&gt;</span>,{" "}
+              <span className="font-mono">&lt;button&gt;</span>, <span className="font-mono">&lt;iframe&gt;</span> et{" "}
+              <span className="font-mono">&lt;script&gt;</span> : collez-le tel quel, sans rien ajouter autour.
+            </p>
+          </div>
+          <textarea
+            readOnly
+            value={floatingSnippet}
+            onFocus={(e) => e.currentTarget.select()}
+            rows={8}
+            className="w-full rounded-md bg-white/10 border border-white/20 text-white text-xs px-3 py-2 font-mono resize-none"
+          />
+          <Button type="button" size="sm" onClick={() => copy(floatingSnippet, "floating")}>
+            {copied === "floating" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+            Copier le code panneau flottant (Wix / Custom Code)
+          </Button>
+        </div>
       </div>
+
 
       <div className="space-y-3">
         <h3 className="text-white font-semibold flex items-center gap-2">
