@@ -922,35 +922,64 @@ export function StudioVideoScenarioPanel({
               <p className="text-sm text-neutral-700 leading-relaxed whitespace-pre-line">{scene.description}</p>
 
 
-              {(scene.icon === "hook" || scene.icon === "name" || scene.icon === "custom") && (
-                <div className="mt-3 flex items-center gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2.5 py-1.5">
-                  <Type className="h-3.5 w-3.5 text-neutral-500" />
-                  <span className="text-[11px] text-neutral-700">
-                    Découper le texte sur le montage en
-                  </span>
-                  <input
-                    type="number"
-                    min={1}
-                    max={10}
-                    step={1}
-                    value={splitOverrides[scene.id] ?? 1}
-                    onChange={(e) => {
-                      const raw = parseInt(e.target.value, 10);
-                      const n = Number.isFinite(raw) ? Math.max(1, Math.min(10, raw)) : 1;
-                      setSplitOverrides((prev) => {
-                        const next = { ...prev };
-                        if (n <= 1) delete next[scene.id];
-                        else next[scene.id] = n;
-                        return next;
-                      });
-                    }}
-                    className="w-14 h-7 rounded border border-neutral-300 bg-white px-1.5 text-center text-[12px] tabular-nums text-black focus:outline-none focus:border-primary"
-                    aria-label="Nombre d'étapes de découpe du texte"
-                  />
-                  <span className="text-[11px] text-neutral-700">étape{(splitOverrides[scene.id] ?? 1) > 1 ? "s" : ""}</span>
-                  <span className="ml-auto text-[10px] text-neutral-500 italic">1 = pas de découpe</span>
-                </div>
-              )}
+              {(scene.icon === "name" || scene.icon === "custom") && (() => {
+                const splitText = (
+                  scene.icon === "custom"
+                    ? (customById.get(customIdFromToken(scene.id))?.subtitle ?? "")
+                    : (scene.description ?? "")
+                ).trim();
+                const pts = segmentOverrides[scene.id] ?? [];
+                const segs = segmentsFromPoints(splitText, pts);
+                return (
+                  <div className="mt-3 space-y-1.5 rounded-md border border-neutral-200 bg-neutral-50 px-2.5 py-2">
+                    <div className="flex items-center gap-2">
+                      <Type className="h-3.5 w-3.5 text-neutral-500" />
+                      <span className="text-[11px] text-neutral-700">Découper le texte sur le montage en</span>
+                      <input
+                        type="number"
+                        min={1}
+                        max={10}
+                        step={1}
+                        value={segs.length}
+                        onChange={(e) => {
+                          const raw = parseInt(e.target.value, 10);
+                          const n = Number.isFinite(raw) ? Math.max(1, Math.min(10, raw)) : 1;
+                          setSegmentOverrides((prev) => {
+                            const next = { ...prev };
+                            if (n <= 1) delete next[scene.id];
+                            else next[scene.id] = evenSplitPoints(splitText, n);
+                            return next;
+                          });
+                        }}
+                        className="w-14 h-7 rounded border border-neutral-300 bg-white px-1.5 text-center text-[12px] tabular-nums text-black focus:outline-none focus:border-primary"
+                        aria-label="Nombre d'étapes de découpe du texte"
+                      />
+                      <span className="text-[11px] text-neutral-700">étape{segs.length > 1 ? "s" : ""}</span>
+                      <button
+                        type="button"
+                        disabled={!splitText}
+                        onClick={() => setSplitEditorId(scene.id)}
+                        className="ml-auto text-[11px] underline text-neutral-700 hover:text-black disabled:opacity-40"
+                      >
+                        Caler au caractère
+                      </button>
+                    </div>
+                    {segs.length > 1 && (
+                      <div className="space-y-1">
+                        {segs.map((t, i) => (
+                          <div key={i} className="flex gap-1.5 text-[10px] text-neutral-600">
+                            <span className="shrink-0 font-bold tabular-nums">
+                              {i + 1}. {(scene.duration / segs.length).toFixed(1)}s
+                            </span>
+                            <span className="truncate">{t}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
 
 
               {(scene.icon === "hook" || scene.icon === "map" || scene.icon === "custom") &&
