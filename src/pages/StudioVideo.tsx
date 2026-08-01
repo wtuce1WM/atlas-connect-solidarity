@@ -182,7 +182,32 @@ function slugifyFileName(name: string): string {
   );
 }
 
+function StudioIdentity({
+  affiliateInfo,
+  staffProfile,
+  isStaff,
+}: {
+  affiliateInfo: { name: string | null; contact_name: string | null; contact_email: string | null } | null;
+  staffProfile: { first_name: string | null; last_name: string | null; email: string | null } | null;
+  isStaff: boolean;
+}) {
+  const company = isStaff ? "One World Morocco" : (affiliateInfo?.name || null);
+  const contactName = isStaff
+    ? [staffProfile?.first_name, staffProfile?.last_name].filter(Boolean).join(" ") || null
+    : (affiliateInfo?.contact_name || null);
+  const email = isStaff ? (staffProfile?.email || null) : (affiliateInfo?.contact_email || null);
+  if (!company && !contactName && !email) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/70">
+      {company && <span className="font-semibold text-white">{company}</span>}
+      {contactName && <span>{contactName}</span>}
+      {email && <span className="text-white/60">{email}</span>}
+    </div>
+  );
+}
+
 const TONES = [
+
   { value: "immersif", label: "Immersif" },
   // Gelés pour l'instant — conservés pour les jobs existants
   { value: "dynamique", label: "Dynamique", frozen: true },
