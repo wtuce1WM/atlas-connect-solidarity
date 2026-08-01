@@ -447,6 +447,9 @@ export default function StudioVideo() {
   const [videoEnds, setVideoEnds] = useState<Record<string, number>>({});
   // Position de lecture courante des vignettes de montage (aide au réglage du Time Start)
   const [playHeads, setPlayHeads] = useState<Record<string, number>>({});
+  // Mémorisation locale des Time Start / Time End par établissement
+  const trimLoadedFor = useRef<string | null>(null);
+
 
 
   const orderVideoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
@@ -475,6 +478,46 @@ export default function StudioVideo() {
     setTransitionImage(preset.image);
   }, [transitionStyle]);
 
+  // Restaure les Time Start / Time End mémorisés pour l'établissement sélectionné
+  useEffect(() => {
+    const bizId = selected?.id ?? null;
+    if (!bizId) {
+      trimLoadedFor.current = null;
+      return;
+    }
+    if (trimLoadedFor.current === bizId) return;
+    trimLoadedFor.current = bizId;
+    let starts: Record<string, number> = {};
+    let ends: Record<string, number> = {};
+    try {
+      const raw = localStorage.getItem(`studio-video:trim:${bizId}`);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") {
+          starts = parsed.starts && typeof parsed.starts === "object" ? parsed.starts : {};
+          ends = parsed.ends && typeof parsed.ends === "object" ? parsed.ends : {};
+        }
+      }
+    } catch {
+      /* stockage indisponible : on repart à zéro */
+    }
+    setVideoStarts(starts);
+    setVideoEnds(ends);
+  }, [selected?.id]);
+
+  // Mémorise les Time Start / Time End à chaque modification
+  useEffect(() => {
+    const bizId = selected?.id ?? null;
+    if (!bizId || trimLoadedFor.current !== bizId) return;
+    try {
+      localStorage.setItem(
+        `studio-video:trim:${bizId}`,
+        JSON.stringify({ starts: videoStarts, ends: videoEnds }),
+      );
+    } catch {
+      /* quota / mode privé : on ignore */
+    }
+  }, [selected?.id, videoStarts, videoEnds]);
 
 
   // Garde l'ordre de montage synchronisé avec la sélection de vidéos.
