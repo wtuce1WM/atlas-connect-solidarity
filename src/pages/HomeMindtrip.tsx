@@ -343,55 +343,25 @@ const HomeMindtrip = () => {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const [postsRes, feedsRes] = await Promise.all([
-        supabase
-          .from("blog_posts")
-          .select("slug, title_fr, title_en, title_ar, cover_image_url, published_at, created_at")
-          .eq("is_published", true)
-          .order("published_at", { ascending: false, nullsFirst: false })
-          .order("created_at", { ascending: false }),
-        (supabase as any)
-          .from("video_feed_pages")
-          .select("slug, hero_title_bottom_fr, hero_title_bottom_en, hero_title_bottom_ar, cover_image_url, custom_hero_image_url, published_at, created_at")
-          .eq("is_published", true)
-          .order("published_at", { ascending: false, nullsFirst: false })
-          .order("created_at", { ascending: false }),
-      ]);
+      const { data } = await supabase
+        .from("blog_posts")
+        .select("slug, title_fr, title_en, title_ar, cover_image_url, published_at, created_at")
+        .eq("is_published", true)
+        .order("published_at", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false })
+        .limit(5);
 
-      const posts = (postsRes.data || []).map((p: any) => ({
+      const posts = (data || []).map((p: any) => ({
         slug: `/blog/${p.slug}`,
         title:
           (language === "ar" && p.title_ar) ||
           (language === "en" && p.title_en) ||
           p.title_fr,
         image: p.cover_image_url || undefined,
-        date: p.published_at || p.created_at,
       }));
-
-      const feeds = ((feedsRes as any).data || []).map((f: any) => ({
-        slug: `/videos/${f.slug}`,
-        title:
-          (language === "ar" && f.hero_title_bottom_ar) ||
-          (language === "en" && f.hero_title_bottom_en) ||
-          f.hero_title_bottom_fr ||
-          f.slug,
-        image: f.cover_image_url || f.custom_hero_image_url || undefined,
-        date: f.published_at || f.created_at,
-      }));
-
-      const merged = [...posts, ...feeds]
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        .map(({ slug, title, image }) => ({ slug, title, image }));
-
-      // Page custom (pas un article éditorial) — toujours en dernière position, comme dans /blog
-      merged.push({
-        slug: "/blog/etablissements-notes",
-        title: "Établissements notés",
-        image: undefined,
-      });
 
       if (cancelled) return;
-      setLatestPosts(merged);
+      setLatestPosts(posts);
     })();
     return () => { cancelled = true; };
   }, [language]);
