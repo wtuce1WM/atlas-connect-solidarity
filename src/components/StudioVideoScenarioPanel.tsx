@@ -500,16 +500,31 @@ export function StudioVideoScenarioPanel({
   const signature = scenario.scenes.map((s) => s.id).join("|") + "@" + scenario.totalDuration;
   useEffect(() => {
     setDurationOverrides({});
-    setOrderOverride(null);
-    setCustomScenes([]);
-    setSplitOverrides({});
-    setSegmentOverrides({});
-    setTextOverrides({});
     setPoiOverrides({});
     setDestOverrides({});
     setPlacesMediaMode("videos");
     setWhatsappOfferMode("number");
-    onChangeScenarioEdits?.(null);
+    // Les étapes ajoutées manuellement et les découpages de texte sont conservés
+    // lors d'une régénération du scénario : on les réinjecte dans le nouvel ordre
+    // (avant la séquence de clôture) au lieu de les perdre silencieusement.
+    setCustomScenes((prevCustoms) => {
+      const base = scenario.scenes.map((s) => s.id);
+      if (!prevCustoms.length) {
+        setOrderOverride(null);
+        return prevCustoms;
+      }
+      const closingIdx = base.findIndex((tok) => {
+        const s = scenario.scenes.find((x) => x.id === tok);
+        return s?.icon === "cta" || s?.icon === "outro";
+      });
+      const tokens = prevCustoms.map((c) => tokenForCustom(c.id));
+      setOrderOverride(
+        closingIdx === -1
+          ? [...base, ...tokens]
+          : [...base.slice(0, closingIdx), ...tokens, ...base.slice(closingIdx)],
+      );
+      return prevCustoms;
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signature]);
 
