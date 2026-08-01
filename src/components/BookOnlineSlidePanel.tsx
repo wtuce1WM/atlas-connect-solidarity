@@ -182,6 +182,10 @@ interface BookOnlineSlidePanelProps {
   manualCardLabel?: string | null;
   /** Price value for the price badge */
   price?: string | null;
+  /** Auto-opens an overlay as soon as the data is ready (embed usage) */
+  initialOverlay?: "poi";
+  /** Embed mode: hides the internal close/Club affordances of the auto-opened overlay */
+  embedMode?: boolean;
 }
 
 const BookOnlineSlidePanelInner = ({
