@@ -2076,49 +2076,125 @@ export default function StudioVideo() {
                   </div>
                   <p className="text-[11px] text-muted-foreground">Si aucune n'est cochée, l'IA choisit librement parmi toutes les vidéos.</p>
 
-                  {orderedSelectedVideos.length > 1 && (
-                    <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2">
+                  {orderedSelectedVideos.length > 0 && (
+                    <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
                       <Label className="text-sm">
                         Ordre des vidéos dans le montage
                         <span className="block text-[11px] text-muted-foreground font-normal">
-                          Glissez / déposez les vignettes pour changer l'ordre.
+                          Glissez / déposez les vignettes (poignée) pour changer l'ordre. Le <b>Time Start</b> (en secondes, précision 0,1 s)
+                          définit le point de départ de la vidéo dans le montage.
                         </span>
                       </Label>
-                      <div className="flex flex-wrap gap-2">
+                      <p className="text-[11px] text-muted-foreground">
+                        Durée totale utile : <b className="tabular-nums">{formatVideoDuration(orderedVideosTotalDuration.sum)}</b>
+                        {" "}· {orderedSelectedVideos.length} vidéo{orderedSelectedVideos.length > 1 ? "s" : ""}
+                        {orderedVideosTotalDuration.unknown > 0 && ` (${orderedVideosTotalDuration.unknown} sans durée connue)`}
+                        {" "}· scénario {scenarioDuration}s
+                      </p>
+                      <div className="flex flex-wrap gap-3">
                         {orderedSelectedVideos.map((url, i) => {
                           const v = bizVideos.find((x) => x.url === url);
+                          const start = videoStarts[url] ?? 0;
+                          const maxStart = v?.duration != null ? Math.max(0, Math.round((v.duration - 1) * 10) / 10) : undefined;
                           return (
                             <div
                               key={url}
-                              draggable
-                              onDragStart={() => setDragUrl(url)}
-                              onDragEnd={() => setDragUrl(null)}
                               onDragOver={(e) => e.preventDefault()}
                               onDrop={(e) => {
                                 e.preventDefault();
                                 if (dragUrl) moveVideo(dragUrl, url);
                                 setDragUrl(null);
                               }}
-                              className={`relative w-20 aspect-[9/16] rounded-md overflow-hidden border-2 bg-black cursor-grab active:cursor-grabbing ${
-                                dragUrl === url ? "border-[#C04F17] opacity-60" : "border-border"
-                              }`}
-                              title={v?.title || url}
+                              className={`w-36 space-y-1 ${dragUrl === url ? "opacity-60" : ""}`}
                             >
-                              {v?.kind === "file" ? (
-                                <video src={url} preload="metadata" muted playsInline className="w-full h-full object-cover pointer-events-none" />
-                              ) : v?.thumbnail ? (
-                                <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover pointer-events-none" loading="lazy" />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center text-white/60"><Video className="h-5 w-5" /></div>
-                              )}
-                              <span className="absolute top-1 left-1 bg-[#C04F17] text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{i + 1}</span>
-                              <span className="absolute bottom-1 right-1 text-white/80"><GripVertical className="h-3.5 w-3.5" /></span>
+                              <div
+                                className={`relative w-36 aspect-[9/16] rounded-md overflow-hidden border-2 bg-black ${
+                                  dragUrl === url ? "border-[#C04F17]" : "border-border"
+                                }`}
+                                title={v?.title || url}
+                              >
+                                {v?.kind === "file" ? (
+                                  <video
+                                    ref={(el) => { orderVideoRefs.current[url] = el; }}
+                                    src={url}
+                                    controls
+                                    preload="metadata"
+                                    playsInline
+                                    className="w-full h-full object-cover bg-black"
+                                    onLoadedMetadata={(e) => {
+                                      if (start > 0) e.currentTarget.currentTime = start;
+                                    }}
+                                  />
+                                ) : v?.thumbnail ? (
+                                  <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover" loading="lazy" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center text-white/60"><Video className="h-5 w-5" /></div>
+                                )}
+                                <span className="pointer-events-none absolute top-1 left-1 bg-[#C04F17] text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{i + 1}</span>
+                                {v?.duration != null && (
+                                  <span className="pointer-events-none absolute top-1 left-7 bg-black/70 text-white text-[9px] font-bold px-1 rounded">{formatVideoDuration(v.duration)}</span>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => setLightboxIndex(bizImages.length + bizVideos.findIndex((x) => x.url === url))}
+                                  aria-label="Plein écran"
+                                  title="Plein écran"
+                                  className="absolute top-1 right-8 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center border border-white/40 hover:bg-black/80"
+                                >
+                                  <Maximize2 className="h-3 w-3" />
+                                </button>
+                                <span
+                                  draggable
+                                  onDragStart={() => setDragUrl(url)}
+                                  onDragEnd={() => setDragUrl(null)}
+                                  title="Déplacer"
+                                  className="absolute top-1 right-1 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center border border-white/40 cursor-grab active:cursor-grabbing"
+                                >
+                                  <GripVertical className="h-3.5 w-3.5" />
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Input
+                                  type="number"
+                                  step="0.1"
+                                  min="0"
+                                  max={maxStart}
+                                  value={start ? String(start) : ""}
+                                  placeholder="Time Start (s)"
+                                  title="Point de départ de la vidéo en secondes (ex : 2.3)"
+                                  className="h-8 text-xs"
+                                  onChange={(e) => {
+                                    const raw = e.target.value.trim();
+                                    setVideoStarts((prev) => {
+                                      const next = { ...prev };
+                                      const n = parseFloat(raw);
+                                      if (raw === "" || !Number.isFinite(n) || n <= 0) delete next[url];
+                                      else next[url] = Math.min(maxStart ?? 3600, Math.round(n * 10) / 10);
+                                      return next;
+                                    });
+                                  }}
+                                />
+                                <button
+                                  type="button"
+                                  title="Utiliser la position de lecture actuelle"
+                                  className="h-8 px-2 rounded-md border border-border text-[10px] font-semibold hover:bg-muted"
+                                  onClick={() => {
+                                    const el = orderVideoRefs.current[url];
+                                    if (!el || !Number.isFinite(el.currentTime)) return;
+                                    const n = Math.round(el.currentTime * 10) / 10;
+                                    setVideoStarts((prev) => (n > 0 ? { ...prev, [url]: n } : (() => { const c = { ...prev }; delete c[url]; return c; })()));
+                                  }}
+                                >
+                                  ⌖
+                                </button>
+                              </div>
                             </div>
                           );
                         })}
                       </div>
                     </div>
                   )}
+
 
 
 
