@@ -443,6 +443,7 @@ export default function StudioVideo() {
   const [dragUrl, setDragUrl] = useState<string | null>(null);
   // Point de départ (secondes, précision 0,1 s) par vidéo sélectionnée
   const [videoStarts, setVideoStarts] = useState<Record<string, number>>({});
+  const orderVideoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
 
   const [showImages, setShowImages] = useState(true);
   const [showVideos, setShowVideos] = useState(true);
