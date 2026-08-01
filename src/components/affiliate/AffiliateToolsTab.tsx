@@ -417,6 +417,17 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
         </div>
       </div>
 
+      {/* ---------- Export d'article de blog ---------- */}
+      <div className="space-y-3">
+        <h3 className="text-white font-semibold flex items-center gap-2">
+          <Newspaper className="h-4 w-4" /> Vos articles de blog (code à copier)
+        </h3>
+        <p className="text-sm text-white/70">
+          Reprenez sur votre propre site un article de blog rattaché à {businessName}. Le code HTML est
+          autonome et les photos restent servies par One World Morocco.
+        </p>
+        <AffiliateArticleExport businessId={businessId} businessName={businessName} />
+      </div>
 
 
       {/* ---------- Widget « À proximité » (overlay POI) ---------- */}
