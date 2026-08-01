@@ -2194,8 +2194,9 @@ export default function StudioVideo() {
                       <Label className="text-sm">
                         Ordre des vidéos dans le montage
                         <span className="block text-[11px] text-muted-foreground font-normal">
-                          Glissez / déposez les vignettes (poignée) pour changer l'ordre. Le <b>Time Start</b> (en secondes, précision 0,1 s)
-                          définit le point de départ de la vidéo dans le montage.
+                          Glissez / déposez les vignettes (poignée) pour changer l'ordre. Le <b>Time Start</b> et le <b>Time End</b>
+                          (secondes, précision 0,1 s) définissent le point de départ et de fin de la vidéo dans le montage.
+                          Ils reprennent par défaut les valeurs saisies sur les vignettes ci-dessus.
                         </span>
                       </Label>
                       <p className="text-[11px] text-muted-foreground">
@@ -2204,11 +2205,11 @@ export default function StudioVideo() {
                         {orderedVideosTotalDuration.unknown > 0 && ` (${orderedVideosTotalDuration.unknown} sans durée connue)`}
                         {" "}· scénario {scenarioDuration}s
                       </p>
-                      <div className="flex flex-wrap gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                         {orderedSelectedVideos.map((url, i) => {
                           const v = bizVideos.find((x) => x.url === url);
                           const start = videoStarts[url] ?? 0;
-                          const maxStart = v?.duration != null ? Math.max(0, Math.round((v.duration - 1) * 10) / 10) : undefined;
+                          const end = videoEnds[url] ?? 0;
                           return (
                             <div
                               key={url}
@@ -2218,10 +2219,10 @@ export default function StudioVideo() {
                                 if (dragUrl) moveVideo(dragUrl, url);
                                 setDragUrl(null);
                               }}
-                              className={`w-36 space-y-1 ${dragUrl === url ? "opacity-60" : ""}`}
+                              className={`w-full space-y-1 ${dragUrl === url ? "opacity-60" : ""}`}
                             >
                               <div
-                                className={`relative w-36 aspect-[9/16] rounded-md overflow-hidden border-2 bg-black ${
+                                className={`relative w-full aspect-[9/16] rounded-md overflow-hidden border-2 bg-black ${
                                   dragUrl === url ? "border-[#C04F17]" : "border-border"
                                 }`}
                                 title={v?.title || url}
@@ -2263,9 +2264,15 @@ export default function StudioVideo() {
                                 {v?.duration != null && (
                                   <span className="pointer-events-none absolute top-1 left-7 bg-black/70 text-white text-[9px] font-bold px-1 rounded">{formatVideoDuration(v.duration)}</span>
                                 )}
-                                <span className="pointer-events-none absolute bottom-8 left-1 bg-[#D4AF37] text-black text-[10px] font-bold px-1.5 py-0.5 rounded tabular-nums">
-                                  ⏱ {(playHeads[url] ?? start ?? 0).toFixed(1)}s
-                                </span>
+                                {/* Badges Time Start / Time End centrés au milieu de la vignette */}
+                                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1">
+                                  <span className="bg-[#D4AF37] text-black text-[10px] font-bold px-1.5 py-0.5 rounded tabular-nums shadow">
+                                    ⏱ {(playHeads[url] ?? start ?? 0).toFixed(1)}s
+                                  </span>
+                                  <span className="bg-black/75 text-white text-[10px] font-bold px-1.5 py-0.5 rounded tabular-nums shadow">
+                                    Start {start.toFixed(1)}s · End {end > 0 ? `${end.toFixed(1)}s` : v?.duration != null ? formatVideoDuration(v.duration) : "fin"}
+                                  </span>
+                                </div>
 
                                 <button
                                   type="button"
@@ -2287,29 +2294,10 @@ export default function StudioVideo() {
                                 </span>
                               </div>
                               <div className="flex items-center gap-1">
-                                <Input
-                                  type="number"
-                                  step="0.1"
-                                  min="0"
-                                  max={maxStart}
-                                  value={start ? String(start) : ""}
-                                  placeholder="Time Start (s)"
-                                  title="Point de départ de la vidéo en secondes (ex : 2.3)"
-                                  className="h-8 text-xs"
-                                  onChange={(e) => {
-                                    const raw = e.target.value.trim();
-                                    setVideoStarts((prev) => {
-                                      const next = { ...prev };
-                                      const n = parseFloat(raw);
-                                      if (raw === "" || !Number.isFinite(n) || n <= 0) delete next[url];
-                                      else next[url] = Math.min(maxStart ?? 3600, Math.round(n * 10) / 10);
-                                      return next;
-                                    });
-                                  }}
-                                />
+                                <div className="flex-1">{renderTimeRangeInputs(url, v?.duration)}</div>
                                 <button
                                   type="button"
-                                  title="Utiliser la position de lecture actuelle"
+                                  title="Utiliser la position de lecture actuelle comme Time Start"
                                   className="h-8 px-2 rounded-md border border-border text-[10px] font-semibold hover:bg-muted"
                                   onClick={() => {
                                     const el = orderVideoRefs.current[url];
@@ -2320,10 +2308,24 @@ export default function StudioVideo() {
                                 >
                                   ⌖
                                 </button>
+                                <button
+                                  type="button"
+                                  title="Utiliser la position de lecture actuelle comme Time End"
+                                  className="h-8 px-2 rounded-md border border-border text-[10px] font-semibold hover:bg-muted"
+                                  onClick={() => {
+                                    const el = orderVideoRefs.current[url];
+                                    if (!el || !Number.isFinite(el.currentTime)) return;
+                                    const n = Math.round(el.currentTime * 10) / 10;
+                                    setVideoEnds((prev) => (n > 0 ? { ...prev, [url]: n } : (() => { const c = { ...prev }; delete c[url]; return c; })()));
+                                  }}
+                                >
+                                  ⌗
+                                </button>
                               </div>
                             </div>
                           );
                         })}
+
                       </div>
                     </div>
                   )}
