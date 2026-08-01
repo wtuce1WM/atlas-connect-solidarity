@@ -239,6 +239,8 @@ export type ShowcaseProps = {
   popupTitle?: string | null;
   popupDescription?: string | null;
   aiSummaries?: Array<{ id?: string; title?: string; content?: string }> | null;
+  /** Effet appliqué au média de fond des séquences Résumé IA */
+  aiSummaryEffect?: "zoom_in" | "zoom_out" | "pan_left" | "pan_right" | "pan_down" | "pan_up" | "scroll_v" | null;
   externalLinks?: Array<{ id?: string; name?: string; label?: string; url?: string | null; image?: string | null }> | null;
   menuDocs?: Array<{ id?: string; name?: string; url?: string | null }> | null;
   highlights?: Array<{ id?: string; icon?: string | null; image_url?: string | null; title?: string; description?: string; metric_title?: string; metric_value?: string }> | null;
@@ -1653,6 +1655,34 @@ const VideoBackdrop: React.FC<{ src?: string; image?: string }> = ({ src, image 
   );
 };
 
+// Effets de mouvement explicites (menu déroulant « Effet » du Studio).
+export type MotionEffect = "zoom_in" | "zoom_out" | "pan_left" | "pan_right" | "pan_down" | "pan_up" | "scroll_v";
+
+const motionTransform = (m: MotionEffect, p: number): { transform: string; style?: React.CSSProperties } => {
+  switch (m) {
+    case "zoom_in":
+      return { transform: `scale(${1.04 + p * 0.16})` };
+    case "zoom_out":
+      return { transform: `scale(${1.22 - p * 0.16})` };
+    case "pan_left":
+      return { transform: `scale(1.16) translateX(${(0.5 - p) * 8}%)` };
+    case "pan_right":
+      return { transform: `scale(1.16) translateX(${(p - 0.5) * 8}%)` };
+    case "pan_down":
+      return { transform: `scale(1.16) translateY(${(p - 0.5) * 8}%)` };
+    case "pan_up":
+      return { transform: `scale(1.16) translateY(${(0.5 - p) * 8}%)` };
+    case "scroll_v":
+      // défilé vertical : l'image entière défile du haut vers le bas du cadre
+      return {
+        transform: `translateY(${-p * 50}%)`,
+        style: { height: "auto", minHeight: "200%", objectFit: "cover", objectPosition: "top" },
+      };
+    default:
+      return { transform: "scale(1.04)" };
+  }
+};
+
 // Fond animé — applique l'effet sélectionné (Ken Burns, zoom, slide…) sur les images fixes.
 // Les vidéos gardent leur lecture en boucle. Utilisé par toutes les scènes "info"
 // (avis, plateformes, horaires, carte, ID numérique, offres, WhatsApp, outro).
@@ -1663,7 +1693,9 @@ const MotionBackdrop: React.FC<{
   effect: TransitionEffect;
   veil?: string;
   extraStartSec?: number;
-}> = ({ src, image, duration, effect, veil = "rgba(14,11,8,0.46)", extraStartSec = 0 }) => {
+  /** Effet de mouvement explicite (prioritaire sur `effect`) pour les images fixes */
+  motion?: MotionEffect | null;
+}> = ({ src, image, duration, effect, veil = "rgba(14,11,8,0.46)", extraStartSec = 0, motion = null }) => {
   const frame = useCurrentFrame();
   const tone = useTone();
   const suppressBg = useSuppressBg();
@@ -1672,7 +1704,12 @@ const MotionBackdrop: React.FC<{
   const isVid = isVideoSrc(url);
   const p = duration > 0 ? Math.max(0, Math.min(1, frame / duration)) : 0;
   let transform = "scale(1.02)";
-  if (!isVid) {
+  let imgStyle: React.CSSProperties = {};
+  if (!isVid && motion) {
+    const m = motionTransform(motion, p);
+    transform = m.transform;
+    imgStyle = m.style ?? {};
+  } else if (!isVid) {
     switch (effect) {
       case "kenburns":
         transform = `scale(${1.04 + p * (tone.kenBurnsZoom || 0.1)}) translate(${(p - 0.5) * 1.6}%, ${(0.5 - p) * 1.1}%)`;
@@ -1696,7 +1733,7 @@ const MotionBackdrop: React.FC<{
         <StartVideo src={url} extraStartSec={extraStartSec} />
 
       ) : (
-        <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover", transform }} />
+        <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover", transform, ...imgStyle }} />
       )}
       <AbsoluteFill style={{ background: veil }} />
     </AbsoluteFill>
@@ -2296,6 +2333,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   popupDescription,
   highlights,
   aiSummaries,
+  aiSummaryEffect,
   externalLinks,
   menuDocs,
   showGoogleReviews,
@@ -2462,6 +2500,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     popupImageUrl,
     highlights,
     aiSummaries,
+    aiSummaryEffect,
     externalLinks,
     menuDocs,
     showGoogleReviews,
