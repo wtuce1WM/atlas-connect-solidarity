@@ -40,7 +40,7 @@ const ClubAiFollowupsManagement = () => {
     setLoading(true);
     const { data, error } = await (supabase as any)
       .from("club_ai_followups")
-      .select("id,label_fr,label_en,label_ar,sort_order,is_active")
+      .select("id,label_fr,label_en,label_ar,sort_order,is_active,mode,radius_km")
       .order("sort_order", { ascending: true });
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows((data as Row[]) || []);
