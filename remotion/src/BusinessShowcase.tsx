@@ -2410,6 +2410,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
       // repli sur les médias de l'établissement avec effet de mouvement.
       const rot = bgRotate(planIdx);
       const fallbackUrl = rot.src ?? rot.image;
+      // `duration` est exprimée en FRAMES (durée de l'étape dans le plan).
       const seg = list.length > 0 ? duration / list.length : duration;
       return (
         <AbsoluteFill>
@@ -2417,11 +2418,11 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             ? list.map((m, i) => (
                 <Sequence
                   key={`${m.url}-${i}`}
-                  from={Math.round(i * seg * 30)}
-                  durationInFrames={Math.max(1, Math.round(seg * 30))}
+                  from={Math.round(i * seg)}
+                  durationInFrames={Math.max(1, Math.round(seg))}
                 >
                   {m.kind === "video"
-                    ? <VideoCover src={m.url} from={0} duration={seg} />
+                    ? <VideoCover src={m.url} from={0} duration={Math.max(1, Math.round(seg))} />
                     : <VideoBackdrop image={m.url} />}
                 </Sequence>
               ))
