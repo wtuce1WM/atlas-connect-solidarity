@@ -1065,7 +1065,16 @@ serve(async (req) => {
     if (detectedNeighborhood) {
       console.log(`Auto-detected neighborhood "${detectedNeighborhood}" from query "${effectiveQuery}"`);
       const neighborhoodCity = getNeighborhoodCity(detectedNeighborhood, await loadNeighborhoods(supabase));
-      if (neighborhoodCity) {
+      // If the query itself names a city (e.g. "beach club à Marrakech") and the detected
+      // neighborhood belongs to another city (alias "Beach" → quartier "Plage" à Essaouira),
+      // the neighborhood detection is a false positive → drop it, keep the explicit city.
+      if (
+        neighborhoodCity && detectedCity &&
+        stripAccentsGlobal(detectedCity.toLowerCase()) !== stripAccentsGlobal(neighborhoodCity.toLowerCase())
+      ) {
+        console.log(`Dropping neighborhood "${detectedNeighborhood}" (${neighborhoodCity}) — query explicitly names city "${detectedCity}"`);
+        detectedNeighborhood = null;
+      } else if (neighborhoodCity) {
         if (!effectiveCity) {
           effectiveCity = neighborhoodCity;
           console.log(`Derived city "${effectiveCity}" from neighborhood "${detectedNeighborhood}"`);
@@ -1076,6 +1085,7 @@ serve(async (req) => {
         }
       }
     }
+
 
     // Resolve city name → UUID for zone_city_ids filtering (after neighborhood override)
     if (effectiveCity) {
@@ -3105,6 +3115,32 @@ serve(async (req) => {
         console.log(`Removed inferred service "Vue sur mer" because user did not explicitly ask for sea view: [${beforeServices.join(", ")}] → [${detectedServices.join(", ")}]`);
       }
     }
+
+    // Guardrail: a service detected only from words that already belong to the
+    // detected subcategory name is a false positive (ex. "beach club" → sous-catégorie
+    // "Beach club" + service "Plage"/Beach), and would wrongly exclude results.
+    if (detectedSubcategory && detectedServices.length > 0) {
+      const subWords = new Set(
+        normalizeMatchingText(detectedSubcategory).split(" ").filter(w => w.length > 2)
+      );
+      const svcRedundant = (svc: string) => {
+        const svcWords = normalizeMatchingText(svc).split(" ").filter(w => w.length > 2);
+        return svcWords.length > 0 && svcWords.every(w => subWords.has(w));
+      };
+      const triggeredBySubcategoryWordsOnly =
+        serviceMatchWordsForInjection.length > 0 &&
+        serviceMatchWordsForInjection.every(w => subWords.has(stripAccentsGlobal(w.toLowerCase())));
+      const before = [...detectedServices];
+      const kept = detectedServices.filter(s => !(svcRedundant(s) || triggeredBySubcategoryWordsOnly));
+      if (kept.length !== before.length) {
+        detectedServices = kept;
+        allCandidateServiceNames = allCandidateServiceNames.filter(s => kept.includes(s));
+        if (detectedService && !kept.includes(detectedService)) detectedService = kept[0] || null;
+        if (!detectedService && kept.length === 0) serviceWasDetected = false;
+        console.log(`Removed service(s) redundant with subcategory "${detectedSubcategory}": [${before.join(", ")}] → [${kept.join(", ")}]`);
+      }
+    }
+
 
     // ── Inject service forced by intent-based re-evaluation (see ~L1800) ──
     // When intent (e.g. "faire") swapped to a subcategory via a service keyword,
