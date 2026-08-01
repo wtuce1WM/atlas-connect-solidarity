@@ -445,6 +445,8 @@ export default function StudioVideo() {
   // Résumés IA du menu (business_menu_summaries)
   const [aiSummariesList, setAiSummariesList] = useState<Array<{ id: string; title: string; content: string }>>([]);
   const [selectedAiSummaryIds, setSelectedAiSummaryIds] = useState<Set<string>>(new Set());
+  // Effet visuel appliqué au média de fond des séquences « Résumé IA »
+  const [aiSummaryEffect, setAiSummaryEffect] = useState<string>("zoom_in");
   // Liens externes (business_documents type external_link) — libellé = description (Media, Partenaires…)
   const [externalLinksList, setExternalLinksList] = useState<Array<{ id: string; name: string; label: string; url: string; image: string | null }>>([]);
   const [selectedExternalLinkIds, setSelectedExternalLinkIds] = useState<Set<string>>(new Set());
@@ -1460,6 +1462,7 @@ export default function StudioVideo() {
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
             ai_summary_ids: Array.from(selectedAiSummaryIds),
+            ai_summary_effect: aiSummaryEffect,
             external_link_ids: Array.from(selectedExternalLinkIds),
             menu_doc_ids: Array.from(selectedMenuDocIds),
             selected_images: chosenImages,
@@ -1612,6 +1615,7 @@ export default function StudioVideo() {
       offers: Array.from(selectedOfferIds).sort(),
       highlights: Array.from(selectedHighlightIds).sort(),
       aiSummaries: Array.from(selectedAiSummaryIds).sort(),
+      aiSummaryEffect,
       externalLinks: Array.from(selectedExternalLinkIds).sort(),
       menuDocs: Array.from(selectedMenuDocIds).sort(),
       images: Array.from(selectedImages).sort(),
@@ -1630,7 +1634,7 @@ export default function StudioVideo() {
     optReviews, optHours, optMapMarker, optDigitalId, optInstallCta,
     optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
     optCustomerReview, optPopup, optOpenWithLogo, optClosingSequence,
-    selectedOfferIds, selectedHighlightIds, selectedAiSummaryIds, selectedExternalLinkIds, selectedMenuDocIds, selectedImages, orderedSelectedVideos, activeVideoStarts, activeVideoEnds,
+    selectedOfferIds, selectedHighlightIds, selectedAiSummaryIds, aiSummaryEffect, selectedExternalLinkIds, selectedMenuDocIds, selectedImages, orderedSelectedVideos, activeVideoStarts, activeVideoEnds,
     selectedReviewId, reviewHighlight, textPosition, continuousBg, continuousBgUrl, continuousBgSound,
     soundtrackOn, soundtrackUrl,
     transitionStyle, transitionDifferentiate, transitionVideo, transitionImage,
@@ -1689,6 +1693,7 @@ export default function StudioVideo() {
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
             ai_summary_ids: Array.from(selectedAiSummaryIds),
+            ai_summary_effect: aiSummaryEffect,
             external_link_ids: Array.from(selectedExternalLinkIds),
             menu_doc_ids: Array.from(selectedMenuDocIds),
             selected_images: chosenImages,
@@ -3468,6 +3473,22 @@ export default function StudioVideo() {
                       </div>
                     </div>
                     <p className="mt-1 text-[11px] text-muted-foreground">Résumés du menu (pour l'IA) : une séquence de 5 s par résumé coché (titre + contenu).</p>
+                    <div className="mt-2 flex items-center gap-2 text-xs">
+                      <span className="text-muted-foreground shrink-0">Effet</span>
+                      <select
+                        value={aiSummaryEffect}
+                        onChange={(e) => setAiSummaryEffect(e.target.value)}
+                        className="flex-1 rounded-md border border-border bg-white px-2 py-1.5 text-xs text-foreground"
+                      >
+                        <option value="zoom_in">Zoom in</option>
+                        <option value="zoom_out">Zoom out</option>
+                        <option value="pan_left">Panoramique gauche</option>
+                        <option value="pan_right">Panoramique droite</option>
+                        <option value="pan_down">Panoramique bas</option>
+                        <option value="pan_up">Panoramique haut</option>
+                        <option value="scroll_v">Défilé vertical</option>
+                      </select>
+                    </div>
                     <div className="mt-2 flex flex-col gap-1.5">
                       {aiSummariesList.map((s) => (
                         <label key={s.id} className="flex items-start gap-2 cursor-pointer rounded-md border border-border/60 p-2 hover:bg-muted/40">

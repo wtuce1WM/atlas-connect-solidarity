@@ -239,6 +239,8 @@ export type ShowcaseProps = {
   popupTitle?: string | null;
   popupDescription?: string | null;
   aiSummaries?: Array<{ id?: string; title?: string; content?: string }> | null;
+  /** Effet appliqué au média de fond des séquences Résumé IA */
+  aiSummaryEffect?: "zoom_in" | "zoom_out" | "pan_left" | "pan_right" | "pan_down" | "pan_up" | "scroll_v" | null;
   externalLinks?: Array<{ id?: string; name?: string; label?: string; url?: string | null; image?: string | null }> | null;
   menuDocs?: Array<{ id?: string; name?: string; url?: string | null }> | null;
   highlights?: Array<{ id?: string; icon?: string | null; image_url?: string | null; title?: string; description?: string; metric_title?: string; metric_value?: string }> | null;
@@ -1653,6 +1655,34 @@ const VideoBackdrop: React.FC<{ src?: string; image?: string }> = ({ src, image 
   );
 };
 
+// Effets de mouvement explicites (menu déroulant « Effet » du Studio).
+export type MotionEffect = "zoom_in" | "zoom_out" | "pan_left" | "pan_right" | "pan_down" | "pan_up" | "scroll_v";
+
+const motionTransform = (m: MotionEffect, p: number): { transform: string; style?: React.CSSProperties } => {
+  switch (m) {
+    case "zoom_in":
+      return { transform: `scale(${1.04 + p * 0.16})` };
+    case "zoom_out":
+      return { transform: `scale(${1.22 - p * 0.16})` };
+    case "pan_left":
+      return { transform: `scale(1.16) translateX(${(0.5 - p) * 8}%)` };
+    case "pan_right":
+      return { transform: `scale(1.16) translateX(${(p - 0.5) * 8}%)` };
+    case "pan_down":
+      return { transform: `scale(1.16) translateY(${(p - 0.5) * 8}%)` };
+    case "pan_up":
+      return { transform: `scale(1.16) translateY(${(0.5 - p) * 8}%)` };
+    case "scroll_v":
+      // défilé vertical : l'image entière défile du haut vers le bas du cadre
+      return {
+        transform: `translateY(${-p * 50}%)`,
+        style: { height: "auto", minHeight: "200%", objectFit: "cover", objectPosition: "top" },
+      };
+    default:
+      return { transform: "scale(1.04)" };
+  }
+};
+
 // Fond animé — applique l'effet sélectionné (Ken Burns, zoom, slide…) sur les images fixes.
 // Les vidéos gardent leur lecture en boucle. Utilisé par toutes les scènes "info"
 // (avis, plateformes, horaires, carte, ID numérique, offres, WhatsApp, outro).
@@ -1663,7 +1693,9 @@ const MotionBackdrop: React.FC<{
   effect: TransitionEffect;
   veil?: string;
   extraStartSec?: number;
-}> = ({ src, image, duration, effect, veil = "rgba(14,11,8,0.46)", extraStartSec = 0 }) => {
+  /** Effet de mouvement explicite (prioritaire sur `effect`) pour les images fixes */
+  motion?: MotionEffect | null;
+}> = ({ src, image, duration, effect, veil = "rgba(14,11,8,0.46)", extraStartSec = 0, motion = null }) => {
   const frame = useCurrentFrame();
   const tone = useTone();
   const suppressBg = useSuppressBg();
@@ -1672,7 +1704,12 @@ const MotionBackdrop: React.FC<{
   const isVid = isVideoSrc(url);
   const p = duration > 0 ? Math.max(0, Math.min(1, frame / duration)) : 0;
   let transform = "scale(1.02)";
-  if (!isVid) {
+  let imgStyle: React.CSSProperties = {};
+  if (!isVid && motion) {
+    const m = motionTransform(motion, p);
+    transform = m.transform;
+    imgStyle = m.style ?? {};
+  } else if (!isVid) {
     switch (effect) {
       case "kenburns":
         transform = `scale(${1.04 + p * (tone.kenBurnsZoom || 0.1)}) translate(${(p - 0.5) * 1.6}%, ${(0.5 - p) * 1.1}%)`;
@@ -1696,7 +1733,7 @@ const MotionBackdrop: React.FC<{
         <StartVideo src={url} extraStartSec={extraStartSec} />
 
       ) : (
-        <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover", transform }} />
+        <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover", transform, ...imgStyle }} />
       )}
       <AbsoluteFill style={{ background: veil }} />
     </AbsoluteFill>
@@ -1933,7 +1970,9 @@ const SceneInfoText: React.FC<{
   logoUrl?: string | null;
   durationFrames: number;
   textPosition?: TextPosition;
-}> = ({ label, title, text, logoUrl, durationFrames, textPosition = "middle" }) => {
+  /** Habillage décoratif animé (cartes « Menus » sans contenu texte) */
+  ornament?: boolean;
+}> = ({ label, title, text, logoUrl, durationFrames, textPosition = "middle", ornament = false }) => {
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
@@ -1963,6 +2002,30 @@ const SceneInfoText: React.FC<{
         {text && (
           <div style={{ marginTop: 20, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.42, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 620 }}>
             {clean(text).slice(0, 320)}
+          </div>
+        )}
+        {ornament && (
+          <div style={{ marginTop: 26, alignSelf: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+            {/* filet doré qui se déploie */}
+            <div style={{ width: interpolate(ease(frame, 8, 34), [0, 1], [0, 300]), height: 2, background: `linear-gradient(90deg,transparent,${COLORS.gold},transparent)` }} />
+            {/* trois pastilles qui pulsent en décalé */}
+            <div style={{ display: "flex", gap: 14 }}>
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: 5,
+                    background: COLORS.gold,
+                    opacity: 0.35 + 0.65 * Math.abs(Math.sin((frame - i * 7) / 14)),
+                  }}
+                />
+              ))}
+            </div>
+            <div style={{ fontFamily: body, color: "rgba(255,255,255,0.82)", fontSize: 22, letterSpacing: 2, textTransform: "uppercase", textAlign: "center" }}>
+              À découvrir sur place
+            </div>
           </div>
         )}
       </AbsoluteFill>
@@ -2296,6 +2359,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   popupDescription,
   highlights,
   aiSummaries,
+  aiSummaryEffect,
   externalLinks,
   menuDocs,
   showGoogleReviews,
@@ -2462,6 +2526,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     popupImageUrl,
     highlights,
     aiSummaries,
+    aiSummaryEffect,
     externalLinks,
     menuDocs,
     showGoogleReviews,
@@ -2657,8 +2722,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         } else {
           const item = (Array.isArray(menuDocs) ? menuDocs : [])[idx];
           if (!item) return null;
-          label = lang === "en" ? "Menu" : "La carte";
-          title = item.name || label;
+          const generic = lang === "en" ? "Menu" : "La carte";
+          title = item.name || generic;
+          // évite le doublon « La carte » / « La carte »
+          label = title.trim().toLowerCase() === generic.toLowerCase()
+            ? (lang === "en" ? "Our selection" : "Notre sélection")
+            : generic;
           text = "";
         }
         const bgArr = Array.isArray((scene_media as any)?.[kind]) ? (scene_media as any)[kind] : [];
@@ -2673,6 +2742,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               image={bgItem?.kind === "image" ? bgItem.url : (bgItem ? undefined : (imgFallback ?? bgRotate(planIdx).image))}
               duration={duration}
               effect={trImageEffect}
+              motion={kind === "ai_summary" ? ((aiSummaryEffect as any) || "zoom_in") : null}
               extraStartSec={bgItem ? 0 : bgRotate(planIdx).extraStartSec}
             />
             <SceneInfoText
@@ -2682,6 +2752,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               logoUrl={kind === "external_link" ? (Array.isArray(externalLinks) ? externalLinks : [])[idx]?.image ?? null : null}
               durationFrames={duration}
               textPosition={textPosition}
+              ornament={kind === "menu_doc"}
             />
           </AbsoluteFill>
         );
