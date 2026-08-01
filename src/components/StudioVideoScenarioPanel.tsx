@@ -379,7 +379,8 @@ export type ScenarioEdits = {
   sceneDestinations?: Record<string, string[]>;
   /** Média utilisé pour le montage des lieux liés (vidéo 1 ou image 1). Défaut : vidéos. */
   placesMediaMode?: "videos" | "images";
-
+  /** Durée totale réelle du scénario après édition (secondes). */
+  totalDuration?: number;
 };
 
 export function StudioVideoScenarioPanel({
@@ -578,6 +579,7 @@ export function StudioVideoScenarioPanel({
       scenePois: hasPois ? poiOverrides : undefined,
       sceneDestinations: hasDests ? destOverrides : undefined,
       placesMediaMode: (hasPois || hasDests) ? placesMediaMode : undefined,
+      totalDuration: editedScenes.reduce((acc, s) => acc + s.duration, 0),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, textOverrides, poiOverrides, destOverrides, placesMediaMode]);
