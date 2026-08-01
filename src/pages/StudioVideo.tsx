@@ -1594,8 +1594,12 @@ export default function StudioVideo() {
           <div className="w-full max-w-3xl space-y-8">
             <div className="text-center space-y-2">
               <h1 className="text-3xl font-bold tracking-tight text-white">Studio Vidéo IA</h1>
+              <div className="flex justify-center">
+                <StudioIdentity affiliateInfo={affiliateInfo} staffProfile={staffProfile} isStaff={isStaff} />
+              </div>
               <p className="text-white/70 text-sm">Choisissez le type de production à lancer.</p>
             </div>
+
             <div className={`grid grid-cols-1 gap-4 ${canBusinessMode ? "sm:grid-cols-2" : ""}`}>
               {canBusinessMode && (
                 <button
