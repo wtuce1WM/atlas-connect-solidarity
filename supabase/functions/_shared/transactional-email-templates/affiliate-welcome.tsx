@@ -33,7 +33,7 @@ const AffiliateWelcomeEmail = ({
         </Text>
 
         <Text style={text}>
-          Votre espace partenaire{affiliateName ? ` pour ${affiliateName}` : ''} est ouvert.
+          Votre espace partenaire pour {SITE_NAME} est ouvert.
           Il vous permet de gérer votre présence, vos offres, vos avis clients et de suivre
           vos statistiques.
         </Text>
