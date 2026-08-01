@@ -207,8 +207,10 @@ export default function StudioVideo() {
   };
   const [hasStudioRole, setHasStudioRole] = useState(false);
   const [accessChecked, setAccessChecked] = useState(false);
+  const [ownedBusinessIds, setOwnedBusinessIds] = useState<string[] | null>(null); // null = not loaded, [] = none
   const [affiliateInfo, setAffiliateInfo] = useState<{ name: string | null; contact_name: string | null; contact_email: string | null } | null>(null);
   const [staffProfile, setStaffProfile] = useState<{ first_name: string | null; last_name: string | null; email: string | null } | null>(null);
+
 
 
   const [notifyEmail, setNotifyEmail] = useState(false);
