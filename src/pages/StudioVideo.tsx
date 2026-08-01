@@ -1236,6 +1236,7 @@ export default function StudioVideo() {
             selected_images: chosenImages,
             selected_videos: chosenVideos,
             video_starts: activeVideoStarts,
+            video_ends: activeVideoEnds,
             scene_media: sceneMedia,
             scene_order: applyClosingSequence(scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon), !!scenarioEdits?.order),
             scene_durations: scenarioEdits?.durations ?? (() => {
@@ -1348,6 +1349,10 @@ export default function StudioVideo() {
     if (startsList.length > 0) {
       directives.push(`Ces vidéos démarrent à un point précis (Time Start) : leur durée utile est réduite d'autant :\n  * ${startsList.map(([u, t]) => `${u} → départ à ${t}s`).join("\n  * ")}`);
     }
+    const endsList = Object.entries(activeVideoEnds);
+    if (endsList.length > 0) {
+      directives.push(`Ces vidéos s'arrêtent à un point précis (Time End) :\n  * ${endsList.map(([u, t]) => `${u} → fin à ${t}s`).join("\n  * ")}`);
+    }
     const finalPrompt = directives.length ? `${prompt.trim()}\n\nContraintes supplémentaires :\n- ${directives.join("\n- ")}` : prompt.trim();
     return { finalPrompt, chosenImages, chosenVideos };
   };
@@ -1368,6 +1373,7 @@ export default function StudioVideo() {
       images: Array.from(selectedImages).sort(),
       videos: orderedSelectedVideos,
       videoStarts: activeVideoStarts,
+      videoEnds: activeVideoEnds,
       reviewId: selectedReviewId,
       reviewHighlight: reviewHighlight || null,
       textPosition,
@@ -1380,7 +1386,7 @@ export default function StudioVideo() {
     optReviews, optHours, optMapMarker, optDigitalId, optInstallCta,
     optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
     optCustomerReview, optPopup, optOpenWithLogo, optClosingSequence,
-    selectedOfferIds, selectedHighlightIds, selectedImages, orderedSelectedVideos, activeVideoStarts,
+    selectedOfferIds, selectedHighlightIds, selectedImages, orderedSelectedVideos, activeVideoStarts, activeVideoEnds,
     selectedReviewId, reviewHighlight, textPosition, continuousBg, continuousBgUrl, continuousBgSound,
     soundtrackOn, soundtrackUrl,
     transitionStyle, transitionDifferentiate, transitionVideo, transitionImage,
@@ -1441,6 +1447,7 @@ export default function StudioVideo() {
             selected_images: chosenImages,
             selected_videos: chosenVideos,
             video_starts: activeVideoStarts,
+            video_ends: activeVideoEnds,
             scene_media: sceneMedia,
             scene_order: applyClosingSequence(scenarioEdits?.order, !!scenarioEdits?.order),
             scene_durations: scenarioEdits?.durations,
