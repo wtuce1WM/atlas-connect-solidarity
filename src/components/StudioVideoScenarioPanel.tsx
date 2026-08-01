@@ -508,6 +508,7 @@ export function StudioVideoScenarioPanel({
     setPoiOverrides({});
     setDestOverrides({});
     setPlacesMediaMode("videos");
+    setWhatsappOfferMode("number");
     onChangeScenarioEdits?.(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signature]);
