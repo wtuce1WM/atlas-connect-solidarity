@@ -750,7 +750,7 @@ const AffiliatePresence = () => {
 
                     {/* Tools Tab */}
                     <TabsContent value="tools">
-                      <AffiliateToolsTab slug={currentBusiness.slug} businessName={currentBusiness.name} />
+                      <AffiliateToolsTab slug={currentBusiness.slug} businessName={currentBusiness.name} businessId={currentBusiness.id} />
                     </TabsContent>
 
                     {/* Text Tab */}
