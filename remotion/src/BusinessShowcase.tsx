@@ -1645,7 +1645,8 @@ const MotionBackdrop: React.FC<{
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
       {isVid ? (
-        <StartVideo src={url} />
+        <StartVideo src={url} extraStartSec={extraStartSec} />
+
       ) : (
         <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover", transform }} />
       )}
