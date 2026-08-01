@@ -1,18 +1,20 @@
 import { useRef, useState, useMemo } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { Copy, Check, Download, ExternalLink, QrCode, Globe2, Mail, Bot, MapPin } from "lucide-react";
+import { Copy, Check, Download, ExternalLink, QrCode, Globe2, Mail, Bot, MapPin, Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
+import AffiliateArticleExport from "@/components/affiliate/AffiliateArticleExport";
 
 interface Props {
   slug: string | null;
   businessName: string;
+  businessId?: string | null;
 }
 
 const SITE = "https://oneworldmorocco.com";
 
-const AffiliateToolsTab = ({ slug, businessName }: Props) => {
+const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => {
   const qrRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [embedTheme, setEmbedTheme] = useState<"dark" | "light">("dark");
@@ -417,6 +419,17 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
         </div>
       </div>
 
+      {/* ---------- Export d'article de blog ---------- */}
+      <div className="space-y-3">
+        <h3 className="text-white font-semibold flex items-center gap-2">
+          <Newspaper className="h-4 w-4" /> Vos articles de blog (code à copier)
+        </h3>
+        <p className="text-sm text-white/70">
+          Reprenez sur votre propre site un article de blog rattaché à {businessName}. Le code HTML est
+          autonome et les photos restent servies par One World Morocco.
+        </p>
+        <AffiliateArticleExport businessId={businessId} businessName={businessName} />
+      </div>
 
 
       {/* ---------- Widget « À proximité » (overlay POI) ---------- */}
