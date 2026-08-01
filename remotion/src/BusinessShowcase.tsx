@@ -224,6 +224,8 @@ export type ShowcaseProps = {
   customerReview?: { id?: string; author?: string | null; rating?: number | null; text?: string; highlight?: string; source?: string | null } | null;
   showWhatsapp?: boolean;
   whatsappNumber?: string | null;
+  /** Affiche le contenu de la carte Offre dans la scène WhatsApp. */
+  whatsappShowOffer?: boolean;
   textSplits?: Record<string, number>;
   /** Segments de texte explicites (découpe au caractère près). Clé = kind ou `custom:<id>`. */
   textSegments?: Record<string, string[]>;
@@ -2067,7 +2069,7 @@ const SceneCustomerReview: React.FC<{
 };
 
 
-const SceneWhatsapp: React.FC<{ number: string; durationFrames: number; textPosition?: TextPosition }> = ({ number, durationFrames, textPosition = "middle" }) => {
+const SceneWhatsapp: React.FC<{ number: string; durationFrames: number; textPosition?: TextPosition; lines?: string[] }> = ({ number, durationFrames, textPosition = "middle", lines }) => {
   const L = useL();
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
@@ -2111,6 +2113,29 @@ const SceneWhatsapp: React.FC<{ number: string; durationFrames: number; textPosi
         <div style={{ marginTop: 14, fontFamily: body, color: "#25D366", fontSize: 26, letterSpacing: 4, textTransform: "uppercase" }}>
           {L.whatsappDirect}
         </div>
+        {Array.isArray(lines) && lines.length > 0 && (
+          <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 8, alignItems: "center", maxWidth: 820 }}>
+            {lines.slice(0, 6).map((t, i) => {
+              const a = ease(frame, 10 + i * 5, 26 + i * 5);
+              return (
+                <div
+                  key={`wa-line-${i}`}
+                  style={{
+                    fontFamily: body,
+                    color: COLORS.cream,
+                    fontSize: 30,
+                    textAlign: "center",
+                    opacity: a,
+                    transform: `translateY(${interpolate(a, [0, 1], [14, 0])}px)`,
+                    textShadow: "0 3px 14px rgba(0,0,0,0.6)",
+                  }}
+                >
+                  {t}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </AbsoluteFill>
     </AbsoluteFill>
   );
@@ -2178,6 +2203,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   customerReview,
   showWhatsapp,
   whatsappNumber,
+  whatsappShowOffer,
   textOverrides,
   textSplits,
   textSegments,
@@ -2516,7 +2542,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               duration={duration}
               effect={trImageEffect}
             />
-            <SceneWhatsapp number={whatsappNumber} durationFrames={duration} textPosition={textPosition} />
+            <SceneWhatsapp
+              number={whatsappNumber}
+              durationFrames={duration}
+              textPosition={textPosition}
+              lines={whatsappShowOffer ? whatsappOfferLines : undefined}
+            />
           </AbsoluteFill>
         );
       }
