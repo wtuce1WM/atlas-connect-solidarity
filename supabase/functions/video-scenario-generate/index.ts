@@ -1331,27 +1331,44 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       studio_options: { ...(options ?? {}), lang: videoLang },
     }) as Record<string, unknown>;
 
+    // PostgREST décode toute la requête comme un unique document JSON avant
+    // d'écrire les colonnes. Un caractère invalide dans un simple champ texte
+    // (prompt, tone, e-mail…) suffit donc à faire échouer aussi les jsonb.
+    const insertPayload = sanitizeJson({
+      business_id: resolved_business_id,
+      user_id: callerUserId,
+      prompt,
+      duration_sec: durationNum,
+      tone,
+      template_id,
+      template_props: cleanTemplateProps,
+      scenario_json: cleanScenario,
+      status: "pending",
+      parent_job_id: parentJob?.id ?? null,
+      notify_email: Boolean(body?.notify_email),
+      notify_email_to: body?.notify_email ? (body?.notify_email_to ?? null) : null,
+    }) as Record<string, unknown>;
+
+    // Valide explicitement le document exact qui sera transmis. Le round-trip
+    // élimine aussi les prototypes/valeurs exotiques qui auraient échappé au
+    // nettoyage récursif.
+    const serializedPayload = JSON.stringify(insertPayload);
+    const validatedPayload = JSON.parse(serializedPayload) as Record<string, unknown>;
+
     const { data: job, error } = await supa
       .from("video_jobs")
-      .insert({
-        business_id: resolved_business_id,
-        user_id: callerUserId,
-        prompt,
-        duration_sec,
-        tone,
-        template_id,
-        template_props: cleanTemplateProps,
-        scenario_json: cleanScenario,
-        status: "pending",
-        parent_job_id: parentJob?.id ?? null,
-        notify_email: !!body?.notify_email,
-        notify_email_to: body?.notify_email ? (body?.notify_email_to ?? null) : null,
-      })
+      .insert(validatedPayload)
       .select()
       .single();
 
     if (error) {
-      console.error("video_jobs insert failed:", error.message, error.details ?? "", error.hint ?? "");
+      console.error(
+        "video_jobs insert failed:",
+        error.message,
+        error.details ?? "",
+        error.hint ?? "",
+        `payload_bytes=${new TextEncoder().encode(serializedPayload).length}`,
+      );
       return json({ error: error.message }, 500);
     }
 
