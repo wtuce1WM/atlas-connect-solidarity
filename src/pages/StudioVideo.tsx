@@ -649,6 +649,11 @@ export default function StudioVideo() {
           url: (b.restaurant_guru_url || null) as string | null,
         },
       });
+      // Agrégat pondéré sur les 9 sources d'avis (même méthode que le site)
+      setReviewsAggregate({
+        avgOn20: computeWeightedRatingOn20(collectRatingSources(b as any)),
+        total: getTotalReviewCount(b as any),
+      });
       // Avis clients
       const revsRaw = (revs.data ?? []) as any[];
       const mappedRevs = revsRaw
