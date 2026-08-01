@@ -2129,7 +2129,10 @@ export default function StudioVideo() {
                             {checked ? "✓" : "+"}
                           </button>
                         </div>
+                        {v.kind === "file" && renderTimeRangeInputs(v.url, v.duration)}
+                        </div>
                       );
+
                     })}
                   </div>
                   <p className="text-[11px] text-muted-foreground">Si aucune n'est cochée, l'IA choisit librement parmi toutes les vidéos.</p>
