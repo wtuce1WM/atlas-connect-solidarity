@@ -443,8 +443,11 @@ export default function StudioVideo() {
   const [dragUrl, setDragUrl] = useState<string | null>(null);
   // Point de départ (secondes, précision 0,1 s) par vidéo sélectionnée
   const [videoStarts, setVideoStarts] = useState<Record<string, number>>({});
+  // Point de fin (secondes, précision 0,1 s) par vidéo
+  const [videoEnds, setVideoEnds] = useState<Record<string, number>>({});
   // Position de lecture courante des vignettes de montage (aide au réglage du Time Start)
   const [playHeads, setPlayHeads] = useState<Record<string, number>>({});
+
 
   const orderVideoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
 
