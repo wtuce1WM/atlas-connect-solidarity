@@ -447,6 +447,9 @@ export default function StudioVideo() {
   const [videoEnds, setVideoEnds] = useState<Record<string, number>>({});
   // Position de lecture courante des vignettes de montage (aide au réglage du Time Start)
   const [playHeads, setPlayHeads] = useState<Record<string, number>>({});
+  // Mémorisation locale des Time Start / Time End par établissement
+  const trimLoadedFor = useRef<string | null>(null);
+
 
 
   const orderVideoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
