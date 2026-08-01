@@ -691,23 +691,27 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       if (rawScenePois) {
         const allIds = [...new Set(Object.values(rawScenePois).flatMap((v) => Array.isArray(v) ? v : []).filter(isUuid))] as string[];
         if (allIds.length) {
+          // Points d'intérêt = fiches établissements marquées is_poi
           const { data: poiRows } = await supa
-            .from("points_of_interest")
-            .select("id,name_fr,name_en,hook,image_url,images,latitude,longitude")
+            .from("businesses")
+            .select("id,name,hook_fr,hook_en,images,video_1_url,latitude,longitude")
             .in("id", allIds.slice(0, 60));
           const byId = new Map<string, any>((poiRows ?? []).map((r: any) => [r.id, r]));
           const out: Record<string, any[]> = {};
           for (const [key, v] of Object.entries(rawScenePois)) {
             const ids = (Array.isArray(v) ? v : []).filter(isUuid) as string[];
-            const items = ids.map((id) => byId.get(id)).filter(Boolean).map((r: any) => ({
-              id: r.id,
-              name: (videoLang === "en" ? (r.name_en || r.name_fr) : r.name_fr) || r.name_fr,
-              hook: r.hook || null,
-              image_url: r.image_url || null,
-              ...placeMedia(r),
-              latitude: Number.isFinite(Number(r.latitude)) ? Number(r.latitude) : null,
-              longitude: Number.isFinite(Number(r.longitude)) ? Number(r.longitude) : null,
-            }));
+            const items = ids.map((id) => byId.get(id)).filter(Boolean).map((r: any) => {
+              const row = { ...r, videos: r.video_1_url ? [r.video_1_url] : null, image_url: firstOf(r.images) };
+              return {
+                id: r.id,
+                name: r.name,
+                hook: (videoLang === "en" ? (r.hook_en || r.hook_fr) : r.hook_fr) || null,
+                image_url: firstOf(r.images) || null,
+                ...placeMedia(row),
+                latitude: Number.isFinite(Number(r.latitude)) ? Number(r.latitude) : null,
+                longitude: Number.isFinite(Number(r.longitude)) ? Number(r.longitude) : null,
+              };
+            });
             if (items.length) out[key] = items;
           }
           if (Object.keys(out).length) template_props.scenePois = out;

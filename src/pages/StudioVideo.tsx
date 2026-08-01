@@ -21,7 +21,7 @@ import riadDarNajatAsset from "@/assets/riad-dar-najat.mp4.asset.json";
 import narComplexeAsset from "@/assets/nar-complexe.mp4.asset.json";
 import farashaAsset from "@/assets/farasha-farmhouse.mp4.asset.json";
 import boZinAsset from "@/assets/bo-zin.mp4.asset.json";
-import { haversineKm } from "@/lib/haversine";
+
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount, formatRating } from "@/lib/ratingUtils";
 import type { PlaceOption } from "@/components/StudioVideoScenarioPanel";
 
@@ -1062,31 +1062,22 @@ export default function StudioVideo() {
 
       const cityName = (bizRow.data as any)?.city as string | undefined;
       if (!cityName) { setPoiOptions([]); return; }
-      const { data: cityRow } = await supabase.from("cities").select("id").eq("name_fr", cityName).maybeSingle();
-      const cityId = (cityRow as any)?.id as string | undefined;
-      if (cancelled || !cityId) { setPoiOptions([]); return; }
-      const [poisRes, hoodsRes] = await Promise.all([
-        supabase.from("points_of_interest").select("id, name_fr, name_en, latitude, longitude").eq("city_id", cityId).order("sort_order", { ascending: true }),
-        supabase.from("neighborhoods").select("id, name, name_en, latitude, longitude").eq("city_id", cityId),
-      ]);
+      // Points d'intérêt (établissements) : fiches is_poi de la même ville, groupées par quartier
+      const { data: poiBiz } = await supabase
+        .from("businesses")
+        .select("id, name, neighborhood")
+        .eq("city", cityName)
+        .eq("is_poi", true)
+        .eq("is_active", true)
+        .order("name");
       if (cancelled) return;
-      const hoods = ((hoodsRes.data ?? []) as any[]).filter((h) => Number.isFinite(Number(h.latitude)) && Number.isFinite(Number(h.longitude)));
-      setPoiOptions(((poisRes.data ?? []) as any[]).map((poi) => {
-        const lat = Number(poi.latitude), lng = Number(poi.longitude);
-        let group: string | null = null;
-        if (Number.isFinite(lat) && Number.isFinite(lng) && hoods.length > 0) {
-          let best = Infinity;
-          for (const h of hoods) {
-            const d = haversineKm(lat, lng, Number(h.latitude), Number(h.longitude));
-            if (d < best) { best = d; group = (isEn ? (h.name_en || h.name) : h.name) as string; }
-          }
-        }
-        return {
-          id: poi.id as string,
-          name: ((isEn ? (poi.name_en || poi.name_fr) : poi.name_fr) || "") as string,
-          group,
-        };
-      }).filter((p) => p.name));
+      setPoiOptions(((poiBiz ?? []) as any[])
+        .filter((b) => b.id !== selected.id && b.name)
+        .map((b) => ({
+          id: b.id as string,
+          name: b.name as string,
+          group: (b.neighborhood as string | null) || (isEn ? "Others" : "Autres"),
+        })));
     })();
     return () => { cancelled = true; };
   }, [selected, videoLang]);
