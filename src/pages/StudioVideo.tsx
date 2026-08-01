@@ -699,13 +699,7 @@ export default function StudioVideo() {
       restaurant_guru: !selected || ok(platformData.restaurant_guru.count),
     };
   }, [selected, platformData]);
-  const totalReviewCount = useMemo(() => {
-    const sum =
-      (platformData.google.count ?? 0) +
-      (platformData.tripadvisor.count ?? 0) +
-      (platformData.restaurant_guru.count ?? 0);
-    return Math.max(sum, reviewsList.length);
-  }, [platformData, reviewsList]);
+  const totalReviewCount = reviewsAggregate.total;
   const reviewsCounterAvailable = !selected || totalReviewCount >= MIN_REVIEWS_FOR_SCENE;
 
   // Désactive automatiquement les options avis non éligibles (impacte le scénario généré)
