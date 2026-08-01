@@ -2295,6 +2295,25 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     image: isVideoUrl(u) ? undefined : u,
   });
 
+  /**
+   * Rotation équitable des médias de repli sur l'ensemble des étapes :
+   * chaque étape prend la vidéo suivante dans l'ordre de tri (round-robin sur
+   * l'index de l'étape dans le plan), au lieu de retomber systématiquement sur
+   * la vidéo n°1. Quand une même vidéo est relue (2e tour, 3e tour…), on décale
+   * son point d'entrée pour ne pas revoir le même passage.
+   */
+  const REPLAY_OFFSET_SEC = 6;
+  const bgRotate = (planIdx: number) => {
+    const list = safeVideos.length ? safeVideos : safeImages;
+    if (!list.length) return { src: undefined, image: undefined, extraStartSec: 0 };
+    const i = Math.max(0, planIdx);
+    const url = list[i % list.length];
+    const pass = Math.floor(i / list.length);
+    const extraStartSec = safeVideos.length ? pass * REPLAY_OFFSET_SEC : 0;
+    return { ...fallbackBackdrop(url), extraStartSec };
+  };
+
+
 
   // Scene 1 (Hook 0-120)
   const hookItem = hookOverride[0];
