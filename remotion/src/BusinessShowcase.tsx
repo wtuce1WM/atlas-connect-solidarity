@@ -238,6 +238,9 @@ export type ShowcaseProps = {
   popupImageUrl?: string | null;
   popupTitle?: string | null;
   popupDescription?: string | null;
+  aiSummaries?: Array<{ id?: string; title?: string; content?: string }> | null;
+  externalLinks?: Array<{ id?: string; name?: string; label?: string; url?: string | null; image?: string | null }> | null;
+  menuDocs?: Array<{ id?: string; name?: string; url?: string | null }> | null;
   highlights?: Array<{ id?: string; icon?: string | null; image_url?: string | null; title?: string; description?: string; metric_title?: string; metric_value?: string }> | null;
   showGoogleReviews?: boolean;
   googleReview?: { rating: number | null; count: number | null; url: string | null } | null;
@@ -355,9 +358,9 @@ const splitHookInTwo = (h: string): [string, string] => {
   return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
 };
 
-type SceneKind = "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "blog" | "whatsapp" | "cta" | "outro";
+type SceneKind = "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "blog" | "whatsapp" | "cta" | "outro";
 
-const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "hook", "name", "offer", "popup", "media", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "blog", "whatsapp", "cta"];
+const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "hook", "name", "offer", "popup", "media", "highlight", "ai_summary", "external_link", "menu_doc", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "blog", "whatsapp", "cta"];
 
 function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
   switch (kind) {
@@ -367,6 +370,9 @@ function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
     case "media": return !!p.freeZone;
     case "popup": return !!(p.showPopup && p.popupImageUrl);
     case "highlight": return Array.isArray(p.highlights) && p.highlights.length > 0;
+    case "ai_summary": return Array.isArray(p.aiSummaries) && p.aiSummaries.length > 0;
+    case "external_link": return Array.isArray(p.externalLinks) && p.externalLinks.length > 0;
+    case "menu_doc": return Array.isArray(p.menuDocs) && p.menuDocs.length > 0;
     case "cta": return p.showAppInstall !== false;
     case "offer": return !!p.offer || (Array.isArray(p.offers) && p.offers.length > 0);
     case "reviews": return !!(p.showReviews && (p.rating || p.reviewsCount));
@@ -403,6 +409,9 @@ function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
     case "media": return 150;
     case "popup": return 120;
     case "highlight": return 140;
+    case "ai_summary":
+    case "external_link":
+    case "menu_doc": return 150;
     case "offer": {
       const lines = p.offer && Array.isArray(p.offer.lines) ? p.offer.lines.length : 0;
       return 120 + Math.min(lines, 6) * 22;
@@ -515,6 +524,27 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
     order = expanded;
   } else if (highlightsArr.length === 1) {
     for (const t of order) if (t.kind === "highlight") t.offerIndex = 0;
+  }
+
+  // Expand ai_summary / external_link / menu_doc tokens (one per selected item).
+  for (const spec of [
+    { kind: "ai_summary" as SceneKind, list: Array.isArray(p.aiSummaries) ? p.aiSummaries : [] },
+    { kind: "external_link" as SceneKind, list: Array.isArray(p.externalLinks) ? p.externalLinks : [] },
+    { kind: "menu_doc" as SceneKind, list: Array.isArray(p.menuDocs) ? p.menuDocs : [] },
+  ]) {
+    if (spec.list.length > 1) {
+      const expanded: Tok[] = [];
+      for (const t of order) {
+        if (t.kind === spec.kind) {
+          for (let i = 0; i < spec.list.length; i++) expanded.push({ kind: spec.kind, offerIndex: i });
+        } else {
+          expanded.push(t);
+        }
+      }
+      order = expanded;
+    } else if (spec.list.length === 1) {
+      for (const t of order) if (t.kind === spec.kind) t.offerIndex = 0;
+    }
   }
 
   // Expand a single "blog" token into N tokens (one per selected article).
