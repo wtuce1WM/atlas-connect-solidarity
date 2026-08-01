@@ -2644,22 +2644,27 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                 (textSplits ?? {}).name ?? splitCount,
               );
               if (chunks.length > 1) {
-                const segFrames = Math.max(1, Math.round((duration * 30) / chunks.length));
+                // `duration` est en FRAMES : on découpe la durée de l'étape en N tranches.
+                const segFrames = Math.max(1, Math.floor(duration / chunks.length));
                 return (
                   <>
-                    {chunks.map((txt, i) => (
-                      <Sequence key={`name-split-${i}`} from={i * segFrames} durationInFrames={segFrames}>
-                        <HookOverlay
-                          title={i === 0 ? nameSceneTitle : undefined}
-                          text={txt}
-                          duration={segFrames / 30}
-                          textPosition={textPosition}
-                        />
-                      </Sequence>
-                    ))}
+                    {chunks.map((txt, i) => {
+                      const len = i === chunks.length - 1 ? Math.max(1, duration - i * segFrames) : segFrames;
+                      return (
+                        <Sequence key={`name-split-${i}`} from={i * segFrames} durationInFrames={len}>
+                          <HookOverlay
+                            title={i === 0 ? nameSceneTitle : undefined}
+                            text={txt}
+                            duration={len}
+                            textPosition={textPosition}
+                          />
+                        </Sequence>
+                      );
+                    })}
                   </>
                 );
               }
+
               return <HookOverlay title={nameSceneTitle} text={hookFull} duration={duration} textPosition={textPosition} />;
             })()}
           </AbsoluteFill>
