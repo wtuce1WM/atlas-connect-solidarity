@@ -346,6 +346,7 @@ const BookOnlineSlidePanelInner = ({
     // Defensive: only trigger the popup if the URL is still part of the business images
     // (avoids broken popups on stale references after an image was removed).
     const stillValid = !!url && Array.isArray((business as any)?.images) && (business as any).images.includes(url);
+    if (embedMode) return; // widget embarqué : pas de popup d'accueil par-dessus l'overlay
     if (business?.id && stillValid && welcomePopupShownRef.current !== business.id) {
       welcomePopupShownRef.current = business.id;
       setShowWelcomePopup(true);
