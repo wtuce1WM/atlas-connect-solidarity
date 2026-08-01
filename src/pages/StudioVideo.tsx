@@ -1210,6 +1210,7 @@ export default function StudioVideo() {
             highlight_ids: Array.from(selectedHighlightIds),
             selected_images: chosenImages,
             selected_videos: chosenVideos,
+            video_starts: activeVideoStarts,
             scene_media: sceneMedia,
             scene_order: applyClosingSequence(scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon), !!scenarioEdits?.order),
             scene_durations: scenarioEdits?.durations ?? (() => {
@@ -1318,6 +1319,10 @@ export default function StudioVideo() {
     if (chosenImages.length > 0) directives.push(`Utiliser EXCLUSIVEMENT les images suivantes (dans cet ordre) pour le montage :\n  * ${chosenImages.join("\n  * ")}`);
     if (continuousBg && continuousBgUrl) directives.push(`Une seule vidéo est jouée EN FOND CONTINU sur toute la durée (${continuousBgUrl}) : ne pas prévoir de montage de fonds différents par scène, seuls les textes et éléments graphiques changent.`);
     if (chosenVideos.length > 0) directives.push(`Utiliser EXCLUSIVEMENT les vidéos suivantes (dans cet ordre) pour le montage :\n  * ${chosenVideos.join("\n  * ")}`);
+    const startsList = Object.entries(activeVideoStarts);
+    if (startsList.length > 0) {
+      directives.push(`Ces vidéos démarrent à un point précis (Time Start) : leur durée utile est réduite d'autant :\n  * ${startsList.map(([u, t]) => `${u} → départ à ${t}s`).join("\n  * ")}`);
+    }
     const finalPrompt = directives.length ? `${prompt.trim()}\n\nContraintes supplémentaires :\n- ${directives.join("\n- ")}` : prompt.trim();
     return { finalPrompt, chosenImages, chosenVideos };
   };
@@ -1337,6 +1342,7 @@ export default function StudioVideo() {
       highlights: Array.from(selectedHighlightIds).sort(),
       images: Array.from(selectedImages).sort(),
       videos: orderedSelectedVideos,
+      videoStarts: activeVideoStarts,
       reviewId: selectedReviewId,
       reviewHighlight: reviewHighlight || null,
       textPosition,
@@ -1349,7 +1355,7 @@ export default function StudioVideo() {
     optReviews, optHours, optMapMarker, optDigitalId, optInstallCta,
     optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
     optCustomerReview, optPopup, optOpenWithLogo, optClosingSequence,
-    selectedOfferIds, selectedHighlightIds, selectedImages, orderedSelectedVideos,
+    selectedOfferIds, selectedHighlightIds, selectedImages, orderedSelectedVideos, activeVideoStarts,
     selectedReviewId, reviewHighlight, textPosition, continuousBg, continuousBgUrl, continuousBgSound,
     soundtrackOn, soundtrackUrl,
     transitionStyle, transitionDifferentiate, transitionVideo, transitionImage,
@@ -1407,6 +1413,7 @@ export default function StudioVideo() {
             highlight_ids: Array.from(selectedHighlightIds),
             selected_images: chosenImages,
             selected_videos: chosenVideos,
+            video_starts: activeVideoStarts,
             scene_media: sceneMedia,
             scene_order: applyClosingSequence(scenarioEdits?.order, !!scenarioEdits?.order),
             scene_durations: scenarioEdits?.durations,
@@ -1565,10 +1572,10 @@ export default function StudioVideo() {
           {(() => {
             const v = bizVideos.find((x) => x.url === soundtrackUrl);
             if (!v || v.duration == null) return null;
-            const ok = v.duration >= effectiveDuration;
+            const ok = v.duration >= scenarioDuration;
             return (
               <p className={`text-[11px] ${ok ? "text-emerald-600" : "text-amber-600"}`}>
-                Son {formatVideoDuration(v.duration)} · scénario {effectiveDuration}s — {ok ? "durée suffisante." : "plus court : la bande son bouclera."}
+                Son {formatVideoDuration(v.duration)} · scénario {scenarioDuration}s — {ok ? "durée suffisante." : "plus court : la bande son bouclera."}
               </p>
             );
           })()}
@@ -2300,10 +2307,10 @@ export default function StudioVideo() {
                         {(() => {
                           const v = bizVideos.find((x) => x.url === continuousBgUrl);
                           if (!v || v.duration == null) return null;
-                          const ok = v.duration >= effectiveDuration;
+                          const ok = v.duration >= scenarioDuration;
                           return (
                             <p className={`text-[11px] ${ok ? "text-emerald-500" : "text-red-500"}`}>
-                              Vidéo {formatVideoDuration(v.duration)} · scénario {effectiveDuration}s — {ok ? "durée suffisante." : "trop courte : elle bouclera."}
+                              Vidéo {formatVideoDuration(v.duration)} · scénario {scenarioDuration}s — {ok ? "durée suffisante." : "trop courte : elle bouclera."}
                             </p>
                           );
                         })()}
