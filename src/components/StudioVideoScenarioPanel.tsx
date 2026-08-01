@@ -595,7 +595,8 @@ export function StudioVideoScenarioPanel({
     const hasTextOv = Object.keys(textOverrides).length > 0;
     const hasPois = Object.values(poiOverrides).some((a) => a.length > 0);
     const hasDests = Object.values(destOverrides).some((a) => a.length > 0);
-    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits && !hasSegments && !hasTextOv && !hasPois && !hasDests) {
+    const hasWaOffer = whatsappOfferMode !== "number";
+    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits && !hasSegments && !hasTextOv && !hasPois && !hasDests && !hasWaOffer) {
       onChangeScenarioEdits(null);
       return;
     }
