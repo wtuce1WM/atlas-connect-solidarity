@@ -148,7 +148,7 @@ const AffiliatePresence = () => {
     const selectFields = ["id", "name", "slug", "name_en", "name_ar", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
       "address", "neighborhood", "latitude", "longitude", "opening_hours",
       "show_opening_hours", "closure_message", "vacation_dates",
-      "hook_fr", "hook_en", "hook_ar", "description", "description_en", "description_ar",
+      "hook_fr", "hook_en", "hook_ar", "description", "description_fr", "description_en", "description_ar",
       "is_active",
       ...PLATFORMS.map(p => p.key),
       ...CTA_EXTRA_FIELDS,
@@ -195,7 +195,7 @@ const AffiliatePresence = () => {
         hook_fr: b.hook_fr ?? null,
         hook_en: b.hook_en ?? null,
         hook_ar: b.hook_ar ?? null,
-        description: b.description ?? null,
+        description: b.description_fr ?? b.description ?? null,
         description_en: b.description_en ?? null,
         description_ar: b.description_ar ?? null,
         name_en: b.name_en ?? null,
@@ -267,6 +267,11 @@ const AffiliatePresence = () => {
         payload[k] = v;
       }
     });
+    // La description FR canonique est `description_fr` (utilisée par le front public,
+    // l'IA et les traductions). On garde `description` synchronisée pour compatibilité.
+    if ("description" in payload) {
+      payload.description_fr = payload.description;
+    }
 
     setSavingId(businessId);
     const { error } = await supabase
