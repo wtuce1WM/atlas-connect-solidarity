@@ -22,6 +22,7 @@ import narComplexeAsset from "@/assets/nar-complexe.mp4.asset.json";
 import farashaAsset from "@/assets/farasha-farmhouse.mp4.asset.json";
 import boZinAsset from "@/assets/bo-zin.mp4.asset.json";
 import { haversineKm } from "@/lib/haversine";
+import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount, formatRating } from "@/lib/ratingUtils";
 import type { PlaceOption } from "@/components/StudioVideoScenarioPanel";
 
 const maisonBrummellVideo = maisonBrummellAsset.url;
