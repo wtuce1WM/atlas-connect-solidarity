@@ -260,7 +260,12 @@ export function scenarioFromTemplateProps(
       const lines: string[] = Array.isArray(off?.lines) ? off.lines.map((l: any) => String(l).trim()).filter(Boolean) : [];
       const head = [title, price].filter(Boolean).join(" · ");
       const desc = [head, ...lines].filter(Boolean).join("\n") || "Offre mise en avant.";
-      push("offer", perOffer, desc, title ? `Offre — ${title.slice(0, 40)}` : undefined);
+      // Le suffixe du libellé n'est utile que si le titre apporte une information :
+      // un titre égal au nom de l'établissement ou à la ville est du bruit.
+      const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+      const noise = new Set([norm(name), norm(city), norm(neighborhood)].filter(Boolean));
+      const usefulTitle = title && !noise.has(norm(title));
+      push("offer", perOffer, desc, usefulTitle ? `Offre — ${title.slice(0, 40)}` : undefined);
     }
   }
 
