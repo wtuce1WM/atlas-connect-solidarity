@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
-import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Play, Pause, Volume2, VolumeX, Percent, User } from "lucide-react";
+import { ArrowDown, ArrowRight, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Play, Pause, Volume2, VolumeX, Percent, User } from "lucide-react";
 
 import Footer from "@/components/Footer";
 import HomeBottomBar from "@/components/HomeBottomBar";
