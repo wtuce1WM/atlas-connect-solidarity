@@ -2223,6 +2223,16 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const tagline = taglineProp || _L.defaultTagline;
   const continuousMode = typeof continuousBgVideoUrl === "string" && /^https?:\/\//i.test(continuousBgVideoUrl);
 
+  // Contenu de la carte Offre repris dans la scène WhatsApp (option « + contenu de la carte »).
+  const whatsappOfferLines = React.useMemo(() => {
+    const list: any[] = Array.isArray(offers) && offers.length > 0 ? offers : offer ? [offer] : [];
+    const first = list[0];
+    if (!first) return [] as string[];
+    const head = [first?.title, first?.price].filter(Boolean).map((x: any) => String(x).trim()).join(" · ");
+    const body = Array.isArray(first?.lines) ? first.lines.map((l: any) => String(l).trim()).filter(Boolean) : [];
+    return [head, ...body].filter(Boolean) as string[];
+  }, [offers, offer]);
+
   // Bande son sélectionnée dans l'aperçu du scénario : prioritaire sur le son de la vidéo de fond continue
   const soundtrack = typeof soundtrackUrl === "string" && /^https?:\/\//i.test(soundtrackUrl) ? soundtrackUrl : null;
   const bgSoundOn = !soundtrack && !!continuousBgSound;
