@@ -1563,6 +1563,18 @@ export default function StudioVideo() {
         directives.push(`Reprendre les blocs highlights suivants (dans cet ordre) comme séquences de la vidéo :\n  * ${chosenH.map(fmtH).join("\n  * ")}`);
       }
     }
+    const chosenSums = aiSummariesList.filter((s) => selectedAiSummaryIds.has(s.id));
+    if (chosenSums.length > 0) {
+      directives.push(`Ajouter une séquence par résumé IA du menu (titre + contenu exacts, 5 s par défaut) :\n  * ${chosenSums.map((s) => `« ${s.title || "Résumé"} » — ${s.content.slice(0, 400)}`).join("\n  * ")}`);
+    }
+    const chosenLinks = externalLinksList.filter((l) => selectedExternalLinkIds.has(l.id));
+    if (chosenLinks.length > 0) {
+      directives.push(`Ajouter une séquence par lien externe (libellé existant + titre du lien, 5 s par défaut) :\n  * ${chosenLinks.map((l) => `${l.label ? `[${l.label}] ` : ""}${l.name}`).join("\n  * ")}`);
+    }
+    const chosenMenus = menuDocsList.filter((m) => selectedMenuDocIds.has(m.id));
+    if (chosenMenus.length > 0) {
+      directives.push(`Ajouter une séquence par menu / carte (libellé libre existant, 5 s par défaut) :\n  * ${chosenMenus.map((m) => m.name).join("\n  * ")}`);
+    }
     const chosenImages = Array.from(selectedImages);
     const chosenVideos = orderedSelectedVideos;
     if (chosenImages.length > 0) directives.push(`Utiliser EXCLUSIVEMENT les images suivantes (dans cet ordre) pour le montage :\n  * ${chosenImages.join("\n  * ")}`);
