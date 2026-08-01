@@ -404,6 +404,8 @@ export type ScenarioEdits = {
   customScenes?: CustomScene[];
   // Nb d'étapes pour découper le texte dans le montage (clé = "hook" | "name" | `custom:<id>`)
   textSplits?: Record<string, number>;
+  /** Segments de texte explicites (découpe au caractère près). Clé = kind ou `custom:<id>`. */
+  textSegments?: Record<string, string[]>;
   // Overrides libres du texte des scènes (titre + description). Clé = SceneMediaKind pour built-in.
   textOverrides?: Partial<Record<SceneMediaKind, { label?: string; description?: string }>>;
   /** POIs liés à une scène. Clé = SceneMediaKind ("hook" | "map") ou `custom:<id>`. */
@@ -459,6 +461,9 @@ export function StudioVideoScenarioPanel({
   const [orderOverride, setOrderOverride] = useState<string[] | null>(null);
   const [customScenes, setCustomScenes] = useState<CustomScene[]>([]);
   const [splitOverrides, setSplitOverrides] = useState<Record<string, number>>({});
+  // Points de coupe (offsets caractères) par étape. Clé = scene.id ou token custom.
+  const [segmentOverrides, setSegmentOverrides] = useState<Record<string, number[]>>({});
+  const [splitEditorId, setSplitEditorId] = useState<string | null>(null);
   const [textOverrides, setTextOverrides] = useState<Record<string, { label?: string; description?: string }>>({});
   const [poiOverrides, setPoiOverrides] = useState<Record<string, string[]>>({});
   const [destOverrides, setDestOverrides] = useState<Record<string, string[]>>({});
@@ -485,6 +490,7 @@ export function StudioVideoScenarioPanel({
     setOrderOverride(null);
     setCustomScenes([]);
     setSplitOverrides({});
+    setSegmentOverrides({});
     setTextOverrides({});
     setPoiOverrides({});
     setDestOverrides({});
@@ -571,10 +577,11 @@ export function StudioVideoScenarioPanel({
     const hasDurations = Object.keys(durationOverrides).length > 0;
     const hasCustom = customScenes.length > 0;
     const hasSplits = Object.keys(splitOverrides).length > 0;
+    const hasSegments = Object.values(segmentOverrides).some((a) => a.length > 0);
     const hasTextOv = Object.keys(textOverrides).length > 0;
     const hasPois = Object.values(poiOverrides).some((a) => a.length > 0);
     const hasDests = Object.values(destOverrides).some((a) => a.length > 0);
-    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits && !hasTextOv && !hasPois && !hasDests) {
+    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits && !hasSegments && !hasTextOv && !hasPois && !hasDests) {
       onChangeScenarioEdits(null);
       return;
     }
@@ -603,11 +610,27 @@ export function StudioVideoScenarioPanel({
         if (s) textSplits[s.icon] = n;
       }
     }
+    // Segments explicites (découpe au caractère près) — prioritaires sur textSplits
+    const textSegments: Record<string, string[]> = {};
+    for (const [id, pts] of Object.entries(segmentOverrides)) {
+      if (!pts.length) continue;
+      const key = isCustomToken(id) ? id : (byId.get(id)?.icon as string | undefined);
+      if (!key) continue;
+      const src = isCustomToken(id)
+        ? (customById.get(customIdFromToken(id))?.subtitle ?? "")
+        : (textOverrides[key]?.description ?? byId.get(id)?.description ?? "");
+      const segs = segmentsFromPoints((src ?? "").trim(), pts);
+      if (segs.length > 1) {
+        textSegments[key] = segs;
+        textSplits[key] = segs.length;
+      }
+    }
     onChangeScenarioEdits({
       order: orderTokens,
       durations,
       customScenes: hasCustom ? customScenes : undefined,
-      textSplits: hasSplits ? textSplits : undefined,
+      textSplits: Object.keys(textSplits).length ? textSplits : undefined,
+      textSegments: Object.keys(textSegments).length ? textSegments : undefined,
       textOverrides: hasTextOv ? (textOverrides as any) : undefined,
       scenePois: hasPois ? poiOverrides : undefined,
       sceneDestinations: hasDests ? destOverrides : undefined,
@@ -615,7 +638,7 @@ export function StudioVideoScenarioPanel({
       totalDuration: editedScenes.reduce((acc, s) => acc + s.duration, 0),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, textOverrides, poiOverrides, destOverrides, placesMediaMode]);
+  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, segmentOverrides, textOverrides, poiOverrides, destOverrides, placesMediaMode]);
 
   const total = editedScenes.reduce((acc, s) => acc + s.duration, 0);
   // Étapes d'origine supprimées (built-in retirées de l'ordre)
@@ -798,6 +821,29 @@ export function StudioVideoScenarioPanel({
             return next;
           });
           setEditingTextId(null);
+        }}
+      />
+
+      <TextSplitEditorDialog
+        open={!!splitEditorId}
+        onOpenChange={(o) => { if (!o) setSplitEditorId(null); }}
+        text={(() => {
+          if (!splitEditorId) return "";
+          if (isCustomToken(splitEditorId)) return (customById.get(customIdFromToken(splitEditorId))?.subtitle ?? "").trim();
+          const s = editedScenes.find((x) => x.id === splitEditorId);
+          return (s?.description ?? "").trim();
+        })()}
+        duration={editedScenes.find((x) => x.id === splitEditorId)?.duration ?? 0}
+        points={splitEditorId ? (segmentOverrides[splitEditorId] ?? []) : []}
+        onSubmit={(pts) => {
+          if (!splitEditorId) return;
+          setSegmentOverrides((prev) => {
+            const next = { ...prev };
+            if (!pts.length) delete next[splitEditorId];
+            else next[splitEditorId] = pts;
+            return next;
+          });
+          setSplitEditorId(null);
         }}
       />
 
