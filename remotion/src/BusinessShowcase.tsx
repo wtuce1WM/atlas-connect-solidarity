@@ -1970,7 +1970,9 @@ const SceneInfoText: React.FC<{
   logoUrl?: string | null;
   durationFrames: number;
   textPosition?: TextPosition;
-}> = ({ label, title, text, logoUrl, durationFrames, textPosition = "middle" }) => {
+  /** Habillage décoratif animé (cartes « Menus » sans contenu texte) */
+  ornament?: boolean;
+}> = ({ label, title, text, logoUrl, durationFrames, textPosition = "middle", ornament = false }) => {
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
@@ -2000,6 +2002,30 @@ const SceneInfoText: React.FC<{
         {text && (
           <div style={{ marginTop: 20, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.42, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 620 }}>
             {clean(text).slice(0, 320)}
+          </div>
+        )}
+        {ornament && (
+          <div style={{ marginTop: 26, alignSelf: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+            {/* filet doré qui se déploie */}
+            <div style={{ width: interpolate(ease(frame, 8, 34), [0, 1], [0, 300]), height: 2, background: `linear-gradient(90deg,transparent,${COLORS.gold},transparent)` }} />
+            {/* trois pastilles qui pulsent en décalé */}
+            <div style={{ display: "flex", gap: 14 }}>
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: 5,
+                    background: COLORS.gold,
+                    opacity: 0.35 + 0.65 * Math.abs(Math.sin((frame - i * 7) / 14)),
+                  }}
+                />
+              ))}
+            </div>
+            <div style={{ fontFamily: body, color: "rgba(255,255,255,0.82)", fontSize: 22, letterSpacing: 2, textTransform: "uppercase", textAlign: "center" }}>
+              À découvrir sur place
+            </div>
           </div>
         )}
       </AbsoluteFill>
@@ -2696,8 +2722,12 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         } else {
           const item = (Array.isArray(menuDocs) ? menuDocs : [])[idx];
           if (!item) return null;
-          label = lang === "en" ? "Menu" : "La carte";
-          title = item.name || label;
+          const generic = lang === "en" ? "Menu" : "La carte";
+          title = item.name || generic;
+          // évite le doublon « La carte » / « La carte »
+          label = title.trim().toLowerCase() === generic.toLowerCase()
+            ? (lang === "en" ? "Our selection" : "Notre sélection")
+            : generic;
           text = "";
         }
         const bgArr = Array.isArray((scene_media as any)?.[kind]) ? (scene_media as any)[kind] : [];
@@ -2712,6 +2742,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               image={bgItem?.kind === "image" ? bgItem.url : (bgItem ? undefined : (imgFallback ?? bgRotate(planIdx).image))}
               duration={duration}
               effect={trImageEffect}
+              motion={kind === "ai_summary" ? ((aiSummaryEffect as any) || "zoom_in") : null}
               extraStartSec={bgItem ? 0 : bgRotate(planIdx).extraStartSec}
             />
             <SceneInfoText
@@ -2721,6 +2752,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               logoUrl={kind === "external_link" ? (Array.isArray(externalLinks) ? externalLinks : [])[idx]?.image ?? null : null}
               durationFrames={duration}
               textPosition={textPosition}
+              ornament={kind === "menu_doc"}
             />
           </AbsoluteFill>
         );
