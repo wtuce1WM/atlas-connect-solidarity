@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut, Maximize2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Plus, GripVertical, Share2, Pencil, SlidersHorizontal, FileText } from "lucide-react";
+import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut, Maximize2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Plus, GripVertical, Share2, Pencil, SlidersHorizontal, FileText, Crosshair, Target } from "lucide-react";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { StudioVideoScenarioPanel, buildScenario, extractKeywords, scenarioFromTemplateProps, type Scenario, type SceneMediaMap, type SceneMediaItem, type ScenarioEdits } from "@/components/StudioVideoScenarioPanel";
@@ -599,20 +599,22 @@ export default function StudioVideo() {
     return (
       <div className="space-y-1">
         {renderTimeRangeInputs(url, duration)}
-        <div className="grid grid-cols-1 gap-1">
+        <div className="flex gap-1">
           <button
             type="button"
             onClick={() => capture("start")}
-            className="h-7 rounded-md border border-border text-[10px] font-semibold hover:bg-muted px-1 text-left"
+            title="Utiliser la position actuelle comme Time Start"
+            className="flex-1 h-8 rounded-md border border-border hover:bg-muted flex items-center justify-center"
           >
-            ⌖ Utiliser la position actuelle comme Time Start
+            <Crosshair className="h-4 w-4" />
           </button>
           <button
             type="button"
             onClick={() => capture("end")}
-            className="h-7 rounded-md border border-border text-[10px] font-semibold hover:bg-muted px-1 text-left"
+            title="Utiliser la position actuelle comme Time End"
+            className="flex-1 h-8 rounded-md border border-border hover:bg-muted flex items-center justify-center"
           >
-            ⌗ Utiliser la position actuelle comme Time End
+            <Target className="h-4 w-4" />
           </button>
         </div>
       </div>
