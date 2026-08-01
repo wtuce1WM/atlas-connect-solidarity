@@ -1540,17 +1540,19 @@ export default function StudioVideo() {
               <h1 className="text-3xl font-bold tracking-tight text-white">Studio Vidéo IA</h1>
               <p className="text-white/70 text-sm">Choisissez le type de production à lancer.</p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={() => setStudioMode("business")}
-                className="text-left rounded-xl border border-white/20 bg-white/5 hover:bg-white/10 hover:border-[#C04F17] transition p-6 space-y-2"
-              >
-                <div className="text-lg font-semibold text-white">Mode établissement</div>
-                <p className="text-sm text-white/70">
-                  Vidéo verticale à partir d'un établissement réel : images, vidéos, avis, horaires, offres, ID numérique.
-                </p>
-              </button>
+            <div className={`grid grid-cols-1 gap-4 ${canBusinessMode ? "sm:grid-cols-2" : ""}`}>
+              {canBusinessMode && (
+                <button
+                  type="button"
+                  onClick={() => setStudioMode("business")}
+                  className="text-left rounded-xl border border-white/20 bg-white/5 hover:bg-white/10 hover:border-[#C04F17] transition p-6 space-y-2"
+                >
+                  <div className="text-lg font-semibold text-white">Mode établissement</div>
+                  <p className="text-sm text-white/70">
+                    Vidéo verticale à partir d'un établissement réel : images, vidéos, avis, horaires, offres, ID numérique.
+                  </p>
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => setStudioMode("corporate")}
@@ -1562,11 +1564,17 @@ export default function StudioVideo() {
                 </p>
               </button>
             </div>
+            {!canBusinessMode && (
+              <p className="text-center text-xs text-white/50">
+                Le mode établissement est réservé aux comptes disposant de l'accès Studio Vidéo.
+              </p>
+            )}
           </div>
         </div>
       </>
     );
   }
+
 
   const isCorporate = studioMode === "corporate";
   const canCompose = isCorporate || !!selected;
