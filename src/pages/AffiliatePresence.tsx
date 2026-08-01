@@ -148,7 +148,7 @@ const AffiliatePresence = () => {
     const selectFields = ["id", "name", "slug", "name_en", "name_ar", "city", "main_category", "logo_url", "phone", "whatsapp", "email",
       "address", "neighborhood", "latitude", "longitude", "opening_hours",
       "show_opening_hours", "closure_message", "vacation_dates",
-      "hook_fr", "hook_en", "hook_ar", "description", "description_en", "description_ar",
+      "hook_fr", "hook_en", "hook_ar", "description", "description_fr", "description_en", "description_ar",
       "is_active",
       ...PLATFORMS.map(p => p.key),
       ...CTA_EXTRA_FIELDS,
