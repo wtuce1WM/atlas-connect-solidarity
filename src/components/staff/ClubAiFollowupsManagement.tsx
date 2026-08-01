@@ -111,6 +111,10 @@ const ClubAiFollowupsManagement = () => {
           Liste des relances proposables après une réponse de l'assistant du Club (<code>/club</code>).
           Chaque suggestion (onglet <b>Suggestions Club</b>) peut ensuite cocher/décocher celles qu'elle affiche.
           Le libellé <b>FR</b> est obligatoire ; EN et AR sont utilisés selon la langue de l'utilisateur.
+          <br />
+          <b>Mode</b> : force une route déterministe (même taxonomie que les relances embed). <code>Auto</code> = détection par le libellé.
+          <br />
+          <b>Rayon (km)</b> : borne les routes de proximité (500 m = 0,5). Ancre = géoloc utilisateur si autorisée, sinon ville détectée.
         </p>
         {loading ? (
           <div className="text-sm text-muted-foreground">Chargement…</div>
@@ -118,12 +122,34 @@ const ClubAiFollowupsManagement = () => {
           <div className="space-y-2">
             {rows.map((r) => (
               <div key={r.id} className={`p-3 rounded-lg border ${dirty.has(r.id) ? "border-primary/50 bg-primary/5" : "border-border"}`}>
-                <div className="grid grid-cols-1 lg:grid-cols-[70px_1fr_1fr_1fr_140px_100px_40px] gap-2 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-[70px_1fr_1fr_1fr_140px_90px_170px_100px_40px] gap-2 items-center">
                   <Input type="number" value={r.sort_order} onChange={(e) => update(r.id, { sort_order: parseInt(e.target.value) || 0 })} title="Ordre" />
                   <Input value={r.label_fr} onChange={(e) => update(r.id, { label_fr: e.target.value })} placeholder="Relance FR" />
                   <Input value={r.label_en || ""} onChange={(e) => update(r.id, { label_en: e.target.value })} placeholder="EN" />
                   <Input value={r.label_ar || ""} onChange={(e) => update(r.id, { label_ar: e.target.value })} placeholder="AR" dir="rtl" />
                   <div className="flex justify-start"><RouteBadge label={r.label_fr || ""} /></div>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    value={r.radius_km ?? ""}
+                    placeholder="Rayon km"
+                    title="Rayon en km (ex: 0.5, 1, 2, 5). Vide = pas de contrainte."
+                    onChange={(e) => {
+                      const v = e.target.value.trim();
+                      update(r.id, { radius_km: v === "" ? null : parseFloat(v) });
+                    }}
+                  />
+                  <select
+                    className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+                    value={r.mode ?? ""}
+                    title="Route forcée"
+                    onChange={(e) => update(r.id, { mode: e.target.value || null })}
+                  >
+                    {CLUB_MODES.map((m) => (
+                      <option key={m.value} value={m.value}>{m.label}</option>
+                    ))}
+                  </select>
                   <div className="flex items-center gap-2">
                     <Switch checked={r.is_active} onCheckedChange={(v) => update(r.id, { is_active: v })} />
                     <span className="text-xs">{r.is_active ? "Actif" : "Off"}</span>
