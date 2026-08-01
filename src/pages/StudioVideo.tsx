@@ -216,6 +216,21 @@ const TONES = [
 ];
 const VISIBLE_TONES = TONES.filter((t) => !t.frozen);
 
+const edgeErrorMessage = async (e: any, fallback: string) => {
+  try {
+    const ctx = e?.context;
+    if (ctx && typeof ctx.json === "function") {
+      const body = await ctx.clone().json();
+      if (body?.error) return String(body.error);
+    }
+    if (ctx && typeof ctx.text === "function") {
+      const t = await ctx.clone().text();
+      if (t) return t.slice(0, 300);
+    }
+  } catch { /* ignore */ }
+  return e?.message ?? fallback;
+};
+
 export default function StudioVideo() {
   const navigate = useNavigate();
   const [authState, setAuthState] = useState<"loading" | "in" | "out">("loading");
@@ -1488,7 +1503,7 @@ export default function StudioVideo() {
         toast.success("Scénario généré. Rendu en attente du worker.");
       }
     } catch (e: any) {
-      toast.error(e.message ?? "Erreur lors de la génération.");
+      toast.error(await edgeErrorMessage(e, "Erreur lors de la génération."));
     } finally {
       setSubmitting(false);
     }
@@ -1716,7 +1731,7 @@ export default function StudioVideo() {
       setScenarioPreviewed(true);
       toast.success("Scénario IA généré.");
     } catch (e: any) {
-      toast.error(e.message ?? "Erreur lors de la prévisualisation.");
+      toast.error(await edgeErrorMessage(e, "Erreur lors de la prévisualisation."));
     } finally {
       setPreviewing(false);
     }
