@@ -298,6 +298,8 @@ const HOME_LABELS = {
     howItWorks: "كيف يعمل التطبيق؟",
     inspireYourself: "استلهم",
     inspireSubtitle: "آخر أدلتنا لاستكشاف المغرب بطريقة مختلفة.",
+    seeAllArticles: "جميع المقالات",
+    seeAllArticlesSubtitle: "استكشف أدلتنا",
     hotelDestination: "الوجهة",
     hotelArrival: "الوصول",
     hotelDeparture: "المغادرة",
