@@ -1462,6 +1462,7 @@ export default function StudioVideo() {
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
             ai_summary_ids: Array.from(selectedAiSummaryIds),
+            ai_summary_effect: aiSummaryEffect,
             external_link_ids: Array.from(selectedExternalLinkIds),
             menu_doc_ids: Array.from(selectedMenuDocIds),
             selected_images: chosenImages,
