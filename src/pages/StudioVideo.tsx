@@ -3447,6 +3447,8 @@ export default function StudioVideo() {
                 {aiScenario ? (scenarioStale ? "Régénérer le scénario (paramètres modifiés)" : "Régénérer le scénario (IA)") : "Prévisualiser le scénario (IA)"}
               </Button>
             </div>
+            </>
+            )}
           </section>
           )}
 
