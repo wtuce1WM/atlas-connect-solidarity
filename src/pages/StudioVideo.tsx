@@ -124,6 +124,7 @@ type Job = {
   id: string;
   business_id: string | null;
   prompt: string;
+  user_id?: string | null;
   duration_sec: number;
   tone: string;
   status: "pending" | "rendering" | "done" | "error";
