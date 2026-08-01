@@ -450,6 +450,8 @@ export default function StudioVideo() {
 
 
   const orderVideoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
+  const gridVideoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
+
 
   const [showImages, setShowImages] = useState(true);
   const [showVideos, setShowVideos] = useState(true);
@@ -575,6 +577,48 @@ export default function StudioVideo() {
       </div>
     );
   };
+
+  /** Champs Time Start / End + boutons de capture de la position de lecture. */
+  const renderTimeRangeControls = (
+    url: string,
+    duration: number | null | undefined,
+    refMap: React.MutableRefObject<Record<string, HTMLVideoElement | null>>,
+  ) => {
+    const capture = (which: "start" | "end") => {
+      const el = refMap.current[url];
+      if (!el || !Number.isFinite(el.currentTime)) return;
+      const n = Math.round(el.currentTime * 10) / 10;
+      const setter = which === "start" ? setVideoStarts : setVideoEnds;
+      setter((prev) => {
+        if (n > 0) return { ...prev, [url]: n };
+        const c = { ...prev };
+        delete c[url];
+        return c;
+      });
+    };
+    return (
+      <div className="space-y-1">
+        {renderTimeRangeInputs(url, duration)}
+        <div className="grid grid-cols-1 gap-1">
+          <button
+            type="button"
+            onClick={() => capture("start")}
+            className="h-7 rounded-md border border-border text-[10px] font-semibold hover:bg-muted px-1 text-left"
+          >
+            ⌖ Utiliser la position actuelle comme Time Start
+          </button>
+          <button
+            type="button"
+            onClick={() => capture("end")}
+            className="h-7 rounded-md border border-border text-[10px] font-semibold hover:bg-muted px-1 text-left"
+          >
+            ⌗ Utiliser la position actuelle comme Time End
+          </button>
+        </div>
+      </div>
+    );
+  };
+
 
 
 
@@ -2125,13 +2169,44 @@ export default function StudioVideo() {
                         >
 
                           {v.kind === "file" ? (
+                            <>
                             <video
+                              ref={(el) => { gridVideoRefs.current[v.url] = el; }}
                               src={v.url}
                               controls
                               preload="metadata"
                               playsInline
                               className="w-full h-full object-cover bg-black"
+                              onLoadedMetadata={(e) => {
+                                const el = e.currentTarget;
+                                if (!el) return;
+                                const s = videoStarts[v.url] ?? 0;
+                                if (s > 0) el.currentTime = s;
+                                const t = Number.isFinite(el.currentTime) ? el.currentTime : s;
+                                setPlayHeads((p) => ({ ...p, [`grid:${v.url}`]: Math.round((t || s) * 10) / 10 }));
+                              }}
+                              onTimeUpdate={(e) => {
+                                const el = e.currentTarget;
+                                if (!el || !Number.isFinite(el.currentTime)) return;
+                                const t = Math.round(el.currentTime * 10) / 10;
+                                setPlayHeads((p) => (p[`grid:${v.url}`] === t ? p : { ...p, [`grid:${v.url}`]: t }));
+                              }}
+                              onSeeked={(e) => {
+                                const el = e.currentTarget;
+                                if (!el || !Number.isFinite(el.currentTime)) return;
+                                setPlayHeads((p) => ({ ...p, [`grid:${v.url}`]: Math.round(el.currentTime * 10) / 10 }));
+                              }}
                             />
+                            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1">
+                              <span className="bg-[#D4AF37] text-black text-[10px] font-bold px-1.5 py-0.5 rounded tabular-nums shadow">
+                                ⏱ {(playHeads[`grid:${v.url}`] ?? videoStarts[v.url] ?? 0).toFixed(1)}s
+                              </span>
+                              <span className="bg-black/75 text-white text-[10px] font-bold px-1.5 py-0.5 rounded tabular-nums shadow">
+                                Start {(videoStarts[v.url] ?? 0).toFixed(1)}s · End {(videoEnds[v.url] ?? 0) > 0 ? `${videoEnds[v.url].toFixed(1)}s` : v.duration != null ? formatVideoDuration(v.duration) : "fin"}
+                              </span>
+                            </div>
+                            </>
+
                           ) : v.thumbnail ? (
                             <button
                               type="button"
@@ -2181,7 +2256,7 @@ export default function StudioVideo() {
                             {checked ? "✓" : "+"}
                           </button>
                         </div>
-                        {v.kind === "file" && renderTimeRangeInputs(v.url, v.duration)}
+                        {v.kind === "file" && renderTimeRangeControls(v.url, v.duration, gridVideoRefs)}
                         </div>
                       );
 
@@ -2293,35 +2368,8 @@ export default function StudioVideo() {
                                   <GripVertical className="h-3.5 w-3.5" />
                                 </span>
                               </div>
-                              <div className="flex items-center gap-1">
-                                <div className="flex-1">{renderTimeRangeInputs(url, v?.duration)}</div>
-                                <button
-                                  type="button"
-                                  title="Utiliser la position de lecture actuelle comme Time Start"
-                                  className="h-8 px-2 rounded-md border border-border text-[10px] font-semibold hover:bg-muted"
-                                  onClick={() => {
-                                    const el = orderVideoRefs.current[url];
-                                    if (!el || !Number.isFinite(el.currentTime)) return;
-                                    const n = Math.round(el.currentTime * 10) / 10;
-                                    setVideoStarts((prev) => (n > 0 ? { ...prev, [url]: n } : (() => { const c = { ...prev }; delete c[url]; return c; })()));
-                                  }}
-                                >
-                                  ⌖
-                                </button>
-                                <button
-                                  type="button"
-                                  title="Utiliser la position de lecture actuelle comme Time End"
-                                  className="h-8 px-2 rounded-md border border-border text-[10px] font-semibold hover:bg-muted"
-                                  onClick={() => {
-                                    const el = orderVideoRefs.current[url];
-                                    if (!el || !Number.isFinite(el.currentTime)) return;
-                                    const n = Math.round(el.currentTime * 10) / 10;
-                                    setVideoEnds((prev) => (n > 0 ? { ...prev, [url]: n } : (() => { const c = { ...prev }; delete c[url]; return c; })()));
-                                  }}
-                                >
-                                  ⌗
-                                </button>
-                              </div>
+                              {renderTimeRangeControls(url, v?.duration, orderVideoRefs)}
+
                             </div>
                           );
                         })}
