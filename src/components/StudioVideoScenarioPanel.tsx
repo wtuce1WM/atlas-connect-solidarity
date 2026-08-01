@@ -479,6 +479,8 @@ export function StudioVideoScenarioPanel({
   const [poiOverrides, setPoiOverrides] = useState<Record<string, string[]>>({});
   const [destOverrides, setDestOverrides] = useState<Record<string, string[]>>({});
   const [placesMediaMode, setPlacesMediaMode] = useState<"videos" | "images">("videos");
+  // Relation étape WhatsApp ↔ carte Offre : afficher ou non le contenu de l'offre dans la scène WhatsApp.
+  const [whatsappOfferMode, setWhatsappOfferMode] = useState<"number" | "with_offer">("number");
   const [placesSceneKey, setPlacesSceneKey] = useState<string | null>(null);
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
   const [addOpenInternal, setAddOpenInternal] = useState(false);
