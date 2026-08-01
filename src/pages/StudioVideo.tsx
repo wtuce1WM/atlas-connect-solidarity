@@ -1858,7 +1858,7 @@ export default function StudioVideo() {
 
                 {isCorporate
                   ? "Générez une vidéo corporate verticale 720×1280 à partir d'un prompt, sans établissement."
-                  : "Générez une vidéo verticale 720×1280 (15 à 60 s) à partir d'un prompt et d'un établissement."}
+                  : "Générez une vidéo verticale 720×1280 à partir d'un prompt et d'un établissement."}
               </p>
               {!isCorporate && (
               <div className="text-xs text-white/70 mt-1 space-y-1 bg-white/10 p-3 rounded-lg border border-white/20">
