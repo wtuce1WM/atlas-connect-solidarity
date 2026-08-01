@@ -599,20 +599,22 @@ export default function StudioVideo() {
     return (
       <div className="space-y-1">
         {renderTimeRangeInputs(url, duration)}
-        <div className="grid grid-cols-1 gap-1">
+        <div className="flex gap-1">
           <button
             type="button"
             onClick={() => capture("start")}
-            className="h-7 rounded-md border border-border text-[10px] font-semibold hover:bg-muted px-1 text-left"
+            title="Utiliser la position actuelle comme Time Start"
+            className="flex-1 h-8 rounded-md border border-border hover:bg-muted flex items-center justify-center"
           >
-            ⌖ Utiliser la position actuelle comme Time Start
+            <Crosshair className="h-4 w-4" />
           </button>
           <button
             type="button"
             onClick={() => capture("end")}
-            className="h-7 rounded-md border border-border text-[10px] font-semibold hover:bg-muted px-1 text-left"
+            title="Utiliser la position actuelle comme Time End"
+            className="flex-1 h-8 rounded-md border border-border hover:bg-muted flex items-center justify-center"
           >
-            ⌗ Utiliser la position actuelle comme Time End
+            <Target className="h-4 w-4" />
           </button>
         </div>
       </div>
