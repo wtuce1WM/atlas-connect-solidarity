@@ -14,7 +14,7 @@ interface Props {
 
 const SITE = "https://oneworldmorocco.com";
 
-const AffiliateToolsTab = ({ slug, businessName }: Props) => {
+const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => {
   const qrRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [embedTheme, setEmbedTheme] = useState<"dark" | "light">("dark");
