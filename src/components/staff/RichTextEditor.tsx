@@ -99,10 +99,17 @@ const RichTextEditor = ({ content, onChange, placeholder, maxHeight, bgClass }: 
   });
 
   useEffect(() => {
-    if (editor && !isInternalChange.current && content !== editor.getHTML()) {
-      editor.commands.setContent(content);
+    if (!editor) return;
+    const incoming = content || "";
+    // Si la frappe vient de l'éditeur lui-même, on ignore l'écho.
+    if (isInternalChange.current && incoming === editor.getHTML()) {
+      isInternalChange.current = false;
+      return;
     }
     isInternalChange.current = false;
+    if (incoming !== editor.getHTML()) {
+      editor.commands.setContent(incoming, { emitUpdate: false });
+    }
   }, [content, editor]);
 
   if (!editor) return null;
