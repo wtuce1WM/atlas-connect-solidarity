@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
-import { ArrowDown, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Play, Pause, Volume2, VolumeX, Percent, User } from "lucide-react";
+import { ArrowDown, ArrowRight, PlayCircle, Sparkles, MapPin, Compass, CalendarCheck, Play, Pause, Volume2, VolumeX, Percent, User } from "lucide-react";
 
 import Footer from "@/components/Footer";
 import HomeBottomBar from "@/components/HomeBottomBar";
@@ -254,6 +254,8 @@ const HOME_LABELS = {
     howItWorks: "Comment fonctionne l'App ?",
     inspireYourself: "Inspirez-vous",
     inspireSubtitle: "Nos derniers guides pour explorer le Maroc autrement.",
+    seeAllArticles: "Tous les articles",
+    seeAllArticlesSubtitle: "Explorer nos guides",
     hotelDestination: "Destination",
     hotelArrival: "Arrivée",
     hotelDeparture: "Départ",
@@ -274,6 +276,8 @@ const HOME_LABELS = {
     howItWorks: "How does the App work?",
     inspireYourself: "Get inspired",
     inspireSubtitle: "Our latest guides to explore Morocco differently.",
+    seeAllArticles: "All articles",
+    seeAllArticlesSubtitle: "Explore our guides",
     hotelDestination: "Destination",
     hotelArrival: "Check-in",
     hotelDeparture: "Check-out",
@@ -294,6 +298,8 @@ const HOME_LABELS = {
     howItWorks: "كيف يعمل التطبيق؟",
     inspireYourself: "استلهم",
     inspireSubtitle: "آخر أدلتنا لاستكشاف المغرب بطريقة مختلفة.",
+    seeAllArticles: "جميع المقالات",
+    seeAllArticlesSubtitle: "استكشف أدلتنا",
     hotelDestination: "الوجهة",
     hotelArrival: "الوصول",
     hotelDeparture: "المغادرة",
@@ -337,55 +343,25 @@ const HomeMindtrip = () => {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const [postsRes, feedsRes] = await Promise.all([
-        supabase
-          .from("blog_posts")
-          .select("slug, title_fr, title_en, title_ar, cover_image_url, published_at, created_at")
-          .eq("is_published", true)
-          .order("published_at", { ascending: false, nullsFirst: false })
-          .order("created_at", { ascending: false }),
-        (supabase as any)
-          .from("video_feed_pages")
-          .select("slug, hero_title_bottom_fr, hero_title_bottom_en, hero_title_bottom_ar, cover_image_url, custom_hero_image_url, published_at, created_at")
-          .eq("is_published", true)
-          .order("published_at", { ascending: false, nullsFirst: false })
-          .order("created_at", { ascending: false }),
-      ]);
+      const { data } = await supabase
+        .from("blog_posts")
+        .select("slug, title_fr, title_en, title_ar, cover_image_url, published_at, created_at")
+        .eq("is_published", true)
+        .order("published_at", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false })
+        .limit(5);
 
-      const posts = (postsRes.data || []).map((p: any) => ({
+      const posts = (data || []).map((p: any) => ({
         slug: `/blog/${p.slug}`,
         title:
           (language === "ar" && p.title_ar) ||
           (language === "en" && p.title_en) ||
           p.title_fr,
         image: p.cover_image_url || undefined,
-        date: p.published_at || p.created_at,
       }));
-
-      const feeds = ((feedsRes as any).data || []).map((f: any) => ({
-        slug: `/videos/${f.slug}`,
-        title:
-          (language === "ar" && f.hero_title_bottom_ar) ||
-          (language === "en" && f.hero_title_bottom_en) ||
-          f.hero_title_bottom_fr ||
-          f.slug,
-        image: f.cover_image_url || f.custom_hero_image_url || undefined,
-        date: f.published_at || f.created_at,
-      }));
-
-      const merged = [...posts, ...feeds]
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        .map(({ slug, title, image }) => ({ slug, title, image }));
-
-      // Page custom (pas un article éditorial) — toujours en dernière position, comme dans /blog
-      merged.push({
-        slug: "/blog/etablissements-notes",
-        title: "Établissements notés",
-        image: undefined,
-      });
 
       if (cancelled) return;
-      setLatestPosts(merged);
+      setLatestPosts(posts);
     })();
     return () => { cancelled = true; };
   }, [language]);
@@ -1286,6 +1262,16 @@ const HomeMindtrip = () => {
                   </div>
                 </Link>
               ))}
+              <Link
+                to={withLangPrefix("/blog", language)}
+                className="group relative aspect-[4/5] h-[55vh] max-h-[520px] shrink-0 overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/80 to-gold/60 flex flex-col items-center justify-center text-center p-6 transition hover:scale-105"
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm mb-4 transition group-hover:bg-white/30">
+                  <ArrowRight className="h-7 w-7 text-white" />
+                </div>
+                <span className="font-josefin text-2xl leading-tight text-white font-bold">{L.seeAllArticles}</span>
+                <span className="mt-2 font-roboto text-sm text-white/80">{L.seeAllArticlesSubtitle}</span>
+              </Link>
             </div>
           </div>
         </div>
