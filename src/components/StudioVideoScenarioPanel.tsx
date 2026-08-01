@@ -1619,6 +1619,9 @@ function PlacesPickerDialog({
       if (!m.has(g)) m.set(g, []);
       m.get(g)!.push(poi);
     }
+    for (const items of m.values()) {
+      items.sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base" }));
+    }
     return [...m.entries()].sort((a, b) => {
       const aOther = /^autres?$/i.test(a[0]);
       const bOther = /^autres?$/i.test(b[0]);
@@ -1626,6 +1629,15 @@ function PlacesPickerDialog({
       return a[0].localeCompare(b[0], "fr");
     });
   }, [pois, q]);
+
+  const sortedDestinations = useMemo(() => {
+    const norm = q.trim().toLowerCase();
+    return destinations
+      .filter((x) => !norm || x.name.toLowerCase().includes(norm))
+      .slice()
+      .sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base" }));
+  }, [destinations, q]);
+
 
   const toggle = (arr: string[], id: string) => (arr.includes(id) ? arr.filter((x) => x !== id) : [...arr, id]);
 
@@ -1646,7 +1658,16 @@ function PlacesPickerDialog({
         </DialogHeader>
         <Input placeholder="Rechercher un lieu…" value={q} onChange={(e) => setQ(e.target.value)} />
         <div className="max-h-[55vh] overflow-y-auto space-y-4 pr-1">
+          {groups.length > 0 && (
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-primary shrink-0" />
+              <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">
+                Points d'intérêt (établissements)
+              </h3>
+            </div>
+          )}
           {groups.map(([group, items]) => {
+
             const ids = items.map((i) => i.id);
             const allSelected = ids.every((id) => p.includes(id));
             return (
@@ -1696,13 +1717,17 @@ function PlacesPickerDialog({
               </div>
             );
           })}
-          {destinations.length > 0 && (
+          {sortedDestinations.length > 0 && (
             <div>
-              <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Destinations</p>
+              <div className="mb-1.5 flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-primary shrink-0" />
+                <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">Destinations</h3>
+                <span className="text-[10px] font-normal text-muted-foreground">({sortedDestinations.length})</span>
+              </div>
               <div className="flex flex-wrap gap-2">
-                {destinations
-                  .filter((x) => !q.trim() || x.name.toLowerCase().includes(q.trim().toLowerCase()))
+                {sortedDestinations
                   .map((x) => {
+
                     const isSelected = d.includes(x.id);
                     return (
                       <button
