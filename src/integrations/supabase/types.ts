@@ -2934,6 +2934,8 @@ export type Database = {
           label_ar: string | null
           label_en: string | null
           label_fr: string
+          mode: string | null
+          radius_km: number | null
           sort_order: number
           updated_at: string
         }
@@ -2944,6 +2946,8 @@ export type Database = {
           label_ar?: string | null
           label_en?: string | null
           label_fr: string
+          mode?: string | null
+          radius_km?: number | null
           sort_order?: number
           updated_at?: string
         }
@@ -2954,6 +2958,8 @@ export type Database = {
           label_ar?: string | null
           label_en?: string | null
           label_fr?: string
+          mode?: string | null
+          radius_km?: number | null
           sort_order?: number
           updated_at?: string
         }
