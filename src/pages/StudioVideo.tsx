@@ -2149,6 +2149,10 @@ export default function StudioVideo() {
                                 {v?.duration != null && (
                                   <span className="pointer-events-none absolute top-1 left-7 bg-black/70 text-white text-[9px] font-bold px-1 rounded">{formatVideoDuration(v.duration)}</span>
                                 )}
+                                <span className="pointer-events-none absolute bottom-8 left-1 bg-[#D4AF37] text-black text-[10px] font-bold px-1.5 py-0.5 rounded tabular-nums">
+                                  ⏱ {(playHeads[url] ?? start ?? 0).toFixed(1)}s
+                                </span>
+
                                 <button
                                   type="button"
                                   onClick={() => setLightboxIndex(bizImages.length + bizVideos.findIndex((x) => x.url === url))}
