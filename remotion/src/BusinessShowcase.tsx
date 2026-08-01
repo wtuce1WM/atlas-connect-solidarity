@@ -2675,7 +2675,14 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               effect={trImageEffect}
               extraStartSec={bgItem ? 0 : bgRotate(planIdx).extraStartSec}
             />
-            <SceneInfoText label={label} title={title} text={text} durationFrames={duration} textPosition={textPosition} />
+            <SceneInfoText
+              label={label}
+              title={title}
+              text={text}
+              logoUrl={kind === "external_link" ? (Array.isArray(externalLinks) ? externalLinks : [])[idx]?.image ?? null : null}
+              durationFrames={duration}
+              textPosition={textPosition}
+            />
           </AbsoluteFill>
         );
       }
