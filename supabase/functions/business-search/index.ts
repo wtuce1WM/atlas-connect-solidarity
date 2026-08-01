@@ -1065,7 +1065,16 @@ serve(async (req) => {
     if (detectedNeighborhood) {
       console.log(`Auto-detected neighborhood "${detectedNeighborhood}" from query "${effectiveQuery}"`);
       const neighborhoodCity = getNeighborhoodCity(detectedNeighborhood, await loadNeighborhoods(supabase));
-      if (neighborhoodCity) {
+      // If the query itself names a city (e.g. "beach club à Marrakech") and the detected
+      // neighborhood belongs to another city (alias "Beach" → quartier "Plage" à Essaouira),
+      // the neighborhood detection is a false positive → drop it, keep the explicit city.
+      if (
+        neighborhoodCity && detectedCity &&
+        stripAccentsGlobal(detectedCity.toLowerCase()) !== stripAccentsGlobal(neighborhoodCity.toLowerCase())
+      ) {
+        console.log(`Dropping neighborhood "${detectedNeighborhood}" (${neighborhoodCity}) — query explicitly names city "${detectedCity}"`);
+        detectedNeighborhood = null;
+      } else if (neighborhoodCity) {
         if (!effectiveCity) {
           effectiveCity = neighborhoodCity;
           console.log(`Derived city "${effectiveCity}" from neighborhood "${detectedNeighborhood}"`);
@@ -1076,6 +1085,7 @@ serve(async (req) => {
         }
       }
     }
+
 
     // Resolve city name → UUID for zone_city_ids filtering (after neighborhood override)
     if (effectiveCity) {
