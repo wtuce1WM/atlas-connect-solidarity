@@ -1003,7 +1003,7 @@ export default function StudioVideo() {
   useEffect(() => {
     if (refineFrom) return;
     const businessText = selected ? ` « ${selected.name} »` : "";
-    const newDefaultPrompt = `Présentation immersive mettant en avant le hook et la signature de l'établissement${businessText}, ajoutes options cochées ci-dessous.`;
+    const newDefaultPrompt = `Générez une vidéo verticale 720×1280 à partir d'un prompt et d'un établissement.`;
     
     if (!prompt || prompt.startsWith("Présentation immersive mettant en avant le hook et la signature de l'établissement")) {
       setPrompt(newDefaultPrompt);
@@ -1858,7 +1858,7 @@ export default function StudioVideo() {
 
                 {isCorporate
                   ? "Générez une vidéo corporate verticale 720×1280 à partir d'un prompt, sans établissement."
-                  : "Générez une vidéo verticale 720×1280 (15 à 60 s) à partir d'un prompt et d'un établissement."}
+                  : "Générez une vidéo verticale 720×1280 à partir d'un prompt et d'un établissement."}
               </p>
               {!isCorporate && (
               <div className="text-xs text-white/70 mt-1 space-y-1 bg-white/10 p-3 rounded-lg border border-white/20">
@@ -3576,7 +3576,7 @@ export default function StudioVideo() {
             <div className="flex flex-wrap gap-2">
               <Button onClick={previewScenario} disabled={previewing || submitting} variant={scenarioStale ? "default" : "secondary"} className="gap-2">
                 {previewing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                {aiScenario ? (scenarioStale ? "Régénérer le scénario (paramètres modifiés)" : "Régénérer le scénario (IA)") : "Prévisualiser le scénario (IA)"}
+                {aiScenario ? (scenarioStale ? "Régénérer le scénario (paramètres modifiés)" : "Régénérer le scénario (IA)") : "PRÉVISUALISER LE SCÉNARIO"}
               </Button>
             </div>
             </>
