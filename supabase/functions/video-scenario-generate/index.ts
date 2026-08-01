@@ -838,7 +838,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       if (rawDurations && typeof rawDurations === "object") {
         const cleanedDur: Record<string, number> = {};
         for (const [k, v] of Object.entries(rawDurations)) {
-          if (!ALLOWED_SCENE_KINDS.has(k)) continue;
+          if (!ALLOWED_SCENE_KINDS.has(k) && !allowedCustomIds.has(k)) continue;
           const n = Number(v);
           if (Number.isFinite(n) && n >= 1 && n <= 60) cleanedDur[k] = Math.round(n);
         }
