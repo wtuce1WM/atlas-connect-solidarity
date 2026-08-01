@@ -1658,7 +1658,16 @@ function PlacesPickerDialog({
         </DialogHeader>
         <Input placeholder="Rechercher un lieu…" value={q} onChange={(e) => setQ(e.target.value)} />
         <div className="max-h-[55vh] overflow-y-auto space-y-4 pr-1">
+          {groups.length > 0 && (
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-primary shrink-0" />
+              <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">
+                Points d'intérêt (établissements)
+              </h3>
+            </div>
+          )}
           {groups.map(([group, items]) => {
+
             const ids = items.map((i) => i.id);
             const allSelected = ids.every((id) => p.includes(id));
             return (
