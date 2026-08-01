@@ -1519,6 +1519,8 @@ serve(async (req) => {
   // matched and staff curated a list, it overrides the generated follow-ups on
   // EVERY terminal `done` event, whatever route was taken.
   let curatedFollowups: string[] | null = null;
+  // Rayon (km) forcé par une relance staff (club_ai_followups.radius_km)
+  let followupRadiusKm: number | null = null;
   const emit: EmitFn = (obj: any) => {
     if (!controllerRef) return;
     // Auto-inject turnId in every terminal `done` event so the client can
