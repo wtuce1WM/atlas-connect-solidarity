@@ -492,6 +492,19 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         }
       }
 
+      // Time Start par vidéo (secondes, 0,1 s) : point de départ du média dans le montage.
+      const rawStarts = options?.video_starts;
+      if (rawStarts && typeof rawStarts === "object") {
+        const starts: Record<string, number> = {};
+        for (const [u, t] of Object.entries(rawStarts as Record<string, unknown>)) {
+          if (typeof u !== "string" || !/^https?:\/\//i.test(u)) continue;
+          const n = Number(t);
+          if (!Number.isFinite(n) || n <= 0 || n > 3600) continue;
+          starts[u] = Math.round(n * 10) / 10;
+        }
+        if (Object.keys(starts).length) template_props.videoStarts = starts;
+      }
+
       // Sélection média par scène (facultatif). Whitelist stricte : chaque URL doit
       // appartenir aux médias autorisés de l'établissement (images ou vidéos internes).
       const rawSceneMedia = options?.scene_media;

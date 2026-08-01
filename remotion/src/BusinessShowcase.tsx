@@ -73,6 +73,39 @@ const ToneContext = React.createContext<Tone>("immersif");
 // Mode "vidéo unique en fond continu" : neutralise tous les fonds de scène
 const SuppressBgContext = React.createContext<boolean>(false);
 const useSuppressBg = (): boolean => React.useContext(SuppressBgContext);
+
+// Time Start : point de départ (secondes) par URL de vidéo, défini dans le Studio.
+const VideoStartsContext = React.createContext<Record<string, number>>({});
+/** Frames à sauter au début d'une vidéo (Time Start). */
+const useVideoStartFrames = (src?: string | null): number | undefined => {
+  const starts = React.useContext(VideoStartsContext);
+  const { fps } = useVideoConfig();
+  if (!src) return undefined;
+  const sec = starts?.[src];
+  if (!Number.isFinite(sec) || (sec as number) <= 0) return undefined;
+  return Math.max(1, Math.round((sec as number) * fps));
+};
+
+/** Vidéo de fond qui respecte le Time Start défini dans le Studio. */
+const StartVideo: React.FC<{
+  src: string;
+  muted?: boolean;
+  volume?: number | ((f: number) => number);
+  loop?: boolean;
+  style?: React.CSSProperties;
+}> = ({ src, muted = true, volume, loop = true, style }) => {
+  const startFrom = useVideoStartFrames(src);
+  return (
+    <OffthreadVideo
+      src={src}
+      muted={muted}
+      volume={volume as never}
+      loop={loop}
+      startFrom={startFrom}
+      style={style ?? { width: "100%", height: "100%", objectFit: "cover" }}
+    />
+  );
+};
 const useTone = (): ToneConfig => TONE_CONFIG[React.useContext(ToneContext)] ?? TONE_CONFIG.immersif;
 
 // ===== Langue du montage (indépendante de la langue du front) =====
@@ -127,6 +160,8 @@ export type ShowcaseProps = {
   category?: string;
   images?: string[];
   videos?: string[];
+  /** Point de départ (secondes) par URL de vidéo — défini dans le Studio (Time Start). */
+  videoStarts?: Record<string, number>;
   offer?: { title?: string; price?: string; lines?: string[]; background_video_url?: string; background_image_url?: string } | null;
   offers?: Array<{ title?: string; price?: string; lines?: string[]; background_video_url?: string; background_image_url?: string }> | null;
   rating?: number | null;
@@ -584,7 +619,7 @@ const KenBurns: React.FC<{ src: string; from: number; duration: number }> = ({ s
   return (
     <AbsoluteFill style={{ opacity: o, overflow: "hidden" }}>
       {isVideoSrc(src) ? (
-        <OffthreadVideo src={src} muted loop style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <StartVideo src={src} />
       ) : (
         <Img
           src={src}
@@ -1162,7 +1197,7 @@ const PlaceShot: React.FC<{ url: string; isVideo: boolean; duration: number; nam
   return (
     <AbsoluteFill style={{ overflow: "hidden", opacity: o }}>
       {isVideo ? (
-        <OffthreadVideo src={url} muted loop style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <StartVideo src={url} />
       ) : (
         <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover", transform: `scale(${scale})` }} />
       )}
@@ -1514,7 +1549,7 @@ const VideoCover: React.FC<{ src: string; from: number; duration: number }> = ({
   return (
     <AbsoluteFill style={{ opacity: o, overflow: "hidden" }}>
       {isVideoSrc(src) ? (
-        <OffthreadVideo src={src} muted loop style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <StartVideo src={src} />
       ) : (
         <Img src={src} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       )}
@@ -1534,7 +1569,7 @@ const VideoBackdrop: React.FC<{ src?: string; image?: string }> = ({ src, image 
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
       {isVideoSrc(url) ? (
-        <OffthreadVideo src={url} muted loop style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <StartVideo src={url} />
       ) : (
         <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       )}
@@ -1582,7 +1617,7 @@ const MotionBackdrop: React.FC<{
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
       {isVid ? (
-        <OffthreadVideo src={url} muted loop style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <StartVideo src={url} />
       ) : (
         <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover", transform }} />
       )}
@@ -2073,6 +2108,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   neighborhood,
   images = [],
   videos = [],
+  videoStarts,
   offer = null,
   offers = null,
   rating,
@@ -2374,7 +2410,13 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const renderBuiltinScene = (kind: SceneKind, duration: number, offerIndex?: number): React.ReactNode => {
     switch (kind) {
       case "logo": {
-        const logoBg = Array.isArray((scene_media as any)?.logo) ? (scene_media as any).logo[0] : null;
+        // Fond de la scène logo : média spécifique si défini, sinon repli sur
+        // la 1ère vidéo du montage, puis la 1ère image de l'établissement.
+        const logoBgExplicit = Array.isArray((scene_media as any)?.logo) ? (scene_media as any).logo[0] : null;
+        const logoBg =
+          logoBgExplicit ??
+          (safeVideos[0] ? { url: safeVideos[0], kind: "video" as const } : null) ??
+          (safeImages[0] ? { url: safeImages[0], kind: "image" as const } : null);
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             <SceneLogo logoUrl={logoUrl!} durationFrames={duration} background={logoBg} />
@@ -2716,6 +2758,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
   return (
     <LangContext.Provider value={_lang}>
+    <VideoStartsContext.Provider value={videoStarts ?? {}}>
     <ToneContext.Provider value={tone}>
       <SuppressBgContext.Provider value={continuousMode || slideshowMode}>
         <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
@@ -2729,12 +2772,10 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                     ? Math.max(1, Math.round(rawDur * fps) - 1)
                     : null;
                 const video = (
-                  <OffthreadVideo
+                  <StartVideo
                     src={continuousBgVideoUrl as string}
                     muted={!bgSoundOn}
                     volume={bgSoundOn ? audioFadeVolume : 0}
-                    loop
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
                 );
                 // Vidéo plus courte que le scénario : on répète le média (image + son)
@@ -2744,11 +2785,11 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                   // sur le fondu global pour éviter un fade-out à chaque répétition.
                   return (
                     <Loop durationInFrames={loopFrames} layout="none">
-                      <OffthreadVideo
+                      <StartVideo
                         src={continuousBgVideoUrl as string}
                         muted={!bgSoundOn}
                         volume={bgSoundOn ? audioFadeVolume(globalFrame) : 0}
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        loop={false}
                       />
                     </Loop>
                   );
@@ -2798,6 +2839,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         </AbsoluteFill>
       </SuppressBgContext.Provider>
     </ToneContext.Provider>
+    </VideoStartsContext.Provider>
     </LangContext.Provider>
   );
 };
