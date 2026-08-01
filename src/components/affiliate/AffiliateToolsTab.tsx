@@ -89,6 +89,69 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
     [embedUrl, businessName]
   );
 
+  const nearbyUrl = `${SITE}/embed/nearby/${slug}?lang=${nearbyLang}`;
+  const nearbySnippet = useMemo(
+    () =>
+      `<iframe src="${nearbyUrl}" style="width:100%;height:${nearbyHeight}px;border:0;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.15)" title="À proximité — ${businessName}" loading="lazy" allow="geolocation"></iframe>`,
+    [nearbyUrl, nearbyHeight, businessName]
+  );
+
+  const nearbyFloatingSnippet = useMemo(
+    () => `<!-- À proximité One World Morocco — ${businessName} -->
+<style>
+  #owm-nearby-tab {
+    position: fixed; top: 50%; left: max(16px, env(safe-area-inset-left));
+    transform: translateY(-50%) rotate(90deg); transform-origin: left center;
+    background: #0F172A; color: #fff; padding: 14px 22px; border: none;
+    border-radius: 8px 8px 0 0; font-family: Montserrat, sans-serif;
+    font-weight: 600; font-size: 13px; letter-spacing: 0.05em; white-space: nowrap;
+    cursor: pointer; z-index: 999996; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  #owm-nearby-panel {
+    position: fixed; top: 0; left: -100%; width: 60vw; height: 100vh;
+    background: #fff; z-index: 999997; transition: left .35s ease;
+    box-shadow: 8px 0 40px rgba(0,0,0,.25); display: flex; flex-direction: column;
+  }
+  #owm-nearby-panel.open { left: 0; }
+  #owm-nearby-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 20px; background: #0F172A; color: #fff;
+    font-family: Montserrat, sans-serif; font-weight: 600; font-size: 14px;
+  }
+  #owm-nearby-close { background: transparent; border: none; color: #fff; font-size: 22px; cursor: pointer; padding: 0 8px; }
+  #owm-nearby-iframe { flex: 1; width: 100%; border: none; }
+  @media (max-width: 768px) { #owm-nearby-panel { width: 100vw; } }
+</style>
+
+<button id="owm-nearby-tab" aria-label="Voir les lieux à proximité">À proximité</button>
+<div id="owm-nearby-panel" role="dialog" aria-hidden="true">
+  <div id="owm-nearby-header">
+    <span>À proximité — ${businessName}</span>
+    <button id="owm-nearby-close" aria-label="Fermer">&#10005;</button>
+  </div>
+  <iframe id="owm-nearby-iframe" data-src="${nearbyUrl}" title="À proximité — ${businessName}" allow="geolocation" loading="lazy"></iframe>
+</div>
+
+<script>
+  (function () {
+    var tab = document.getElementById('owm-nearby-tab');
+    var panel = document.getElementById('owm-nearby-panel');
+    var frame = document.getElementById('owm-nearby-iframe');
+    var close = document.getElementById('owm-nearby-close');
+    function open() {
+      if (!frame.getAttribute('src')) frame.setAttribute('src', frame.getAttribute('data-src'));
+      panel.classList.add('open'); panel.setAttribute('aria-hidden', 'false');
+    }
+    function shut() { panel.classList.remove('open'); panel.setAttribute('aria-hidden', 'true'); }
+    tab.addEventListener('click', open);
+    close.addEventListener('click', shut);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') shut(); });
+  })();
+</script>`,
+    [nearbyUrl, businessName]
+  );
+
+
 
   const copy = async (value: string, key: string) => {
     try {
