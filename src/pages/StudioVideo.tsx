@@ -1680,7 +1680,9 @@ export default function StudioVideo() {
                   </>
                 )}
               </div>
+              <StudioIdentity affiliateInfo={affiliateInfo} staffProfile={staffProfile} isStaff={isStaff} />
               <p className="text-white/70">
+
                 {isCorporate
                   ? "Générez une vidéo corporate verticale 720×1280 à partir d'un prompt, sans établissement."
                   : "Générez une vidéo verticale 720×1280 (15 à 60 s) à partir d'un prompt et d'un établissement."}
