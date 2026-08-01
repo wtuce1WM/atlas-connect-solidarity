@@ -2230,8 +2230,14 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     if (!first) return [] as string[];
     const head = [first?.title, first?.price].filter(Boolean).map((x: any) => String(x).trim()).join(" · ");
     const body = Array.isArray(first?.lines) ? first.lines.map((l: any) => String(l).trim()).filter(Boolean) : [];
-    return [head, ...body].filter(Boolean) as string[];
-  }, [offers, offer]);
+    const digits = (t: string) => t.replace(/\D/g, "");
+    const num = digits(String(whatsappNumber ?? ""));
+    // Évite de répéter le numéro déjà affiché en grand dans la scène.
+    return [head, ...body]
+      .filter(Boolean)
+      .map((t: string) => (num && digits(t).includes(num) ? t.replace(/[+\d][\d\s().-]{6,}/g, "").replace(/[·|-]\s*$/, "").trim() : t))
+      .filter(Boolean) as string[];
+  }, [offers, offer, whatsappNumber]);
 
   // Bande son sélectionnée dans l'aperçu du scénario : prioritaire sur le son de la vidéo de fond continue
   const soundtrack = typeof soundtrackUrl === "string" && /^https?:\/\//i.test(soundtrackUrl) ? soundtrackUrl : null;
