@@ -18,6 +18,8 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
   const [embedTheme, setEmbedTheme] = useState<"dark" | "light">("dark");
   const [embedLang, setEmbedLang] = useState<"fr" | "en" | "ar">("fr");
   const [embedHeight, setEmbedHeight] = useState<number>(640);
+  const [nearbyLang, setNearbyLang] = useState<"fr" | "en" | "ar">("fr");
+  const [nearbyHeight, setNearbyHeight] = useState<number>(720);
 
   if (!slug) {
     return (
