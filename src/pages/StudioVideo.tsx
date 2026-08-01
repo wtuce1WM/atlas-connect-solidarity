@@ -2064,13 +2064,14 @@ export default function StudioVideo() {
                         });
                       };
                       return (
+                        <div key={v.url} className="space-y-1">
                         <div
-                          key={v.url}
                           className={`relative aspect-[9/16] rounded-md overflow-hidden border-2 transition bg-black ${
                             checked ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : matches.length ? "border-secondary ring-2 ring-secondary/30" : "border-border hover:border-muted-foreground"
                           }`}
                           title={v.title}
                         >
+
                           {v.kind === "file" ? (
                             <video
                               src={v.url}
