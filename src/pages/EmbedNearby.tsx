@@ -1,0 +1,85 @@
+// Standalone embeddable "À proximité" overlay: /embed/nearby/:slug?lang=fr
+// Réutilise l'overlay POI de BookOnlineSlidePanel (aucun fork de logique).
+import { Suspense, lazy, useEffect, useState } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
+
+const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
+
+const MESSAGES = {
+  fr: { loading: "Chargement…", notFound: "Établissement introuvable." },
+  en: { loading: "Loading…", notFound: "Business not found." },
+  ar: { loading: "جار التحميل…", notFound: "لم يتم العثور على المؤسسة." },
+};
+
+type Lang = keyof typeof MESSAGES;
+
+const EmbedNearby = () => {
+  const { slug } = useParams<{ slug: string }>();
+  const [params] = useSearchParams();
+  const { setLanguage } = useLanguage();
+
+  const langParam = (params.get("lang") || "fr").toLowerCase();
+  const lang: Lang = langParam === "en" || langParam === "ar" ? (langParam as Lang) : "fr";
+  const L = MESSAGES[lang];
+
+  const [businessId, setBusinessId] = useState<string | null>(null);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    setLanguage(lang);
+    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+    document.title = "À proximité — One World Morocco";
+  }, [lang, setLanguage]);
+
+  useEffect(() => {
+    if (!slug) return;
+    let cancelled = false;
+    (async () => {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+      const query = supabase.from("businesses").select("id").eq("is_active", true);
+      const { data } = await (isUuid ? query.eq("id", slug) : query.eq("slug", slug)).maybeSingle();
+      if (cancelled) return;
+      if (data?.id) setBusinessId(data.id);
+      else setNotFound(true);
+    })();
+    return () => { cancelled = true; };
+  }, [slug]);
+
+  if (notFound) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center bg-background text-sm text-muted-foreground">
+        {L.notFound}
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative h-screen w-full overflow-hidden bg-background">
+      {!businessId ? (
+        <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground animate-pulse">
+          {L.loading}
+        </div>
+      ) : (
+        <Suspense
+          fallback={
+            <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground animate-pulse">
+              {L.loading}
+            </div>
+          }
+        >
+          <BookOnlineSlidePanel
+            businessId={businessId}
+            initialOverlay="poi"
+            embedMode
+            hideDirections
+            onClose={() => { /* embed: pas de fermeture, l'overlay reste affiché */ }}
+          />
+        </Suspense>
+      )}
+    </div>
+  );
+};
+
+export default EmbedNearby;
