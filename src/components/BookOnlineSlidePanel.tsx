@@ -195,7 +195,7 @@ const BookOnlineSlidePanelInner = ({
   onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl,
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
   onPrev, onNext, hasPrev, hasNext,
-  hideDirections, hideSecondaryCtas,
+  hideDirections, hideSecondaryCtas, initialOverlay, embedMode,
 }: BookOnlineSlidePanelProps) => {
   // Aliases: callers from SlidePanelHome migration use onPrev/onNext naming.
   const effectiveOnPrev = onPrevBusiness ?? onPrev;
