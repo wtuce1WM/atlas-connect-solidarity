@@ -15,7 +15,20 @@ type Row = {
   label_ar: string | null;
   sort_order: number;
   is_active: boolean;
+  mode: string | null;
+  radius_km: number | null;
 };
+
+const CLUB_MODES: { value: string; label: string }[] = [
+  { value: "", label: "Auto" },
+  { value: "map_replay", label: "Carte (résultats précédents)" },
+  { value: "booking", label: "Réserver en ligne" },
+  { value: "opening_hours", label: "Horaires" },
+  { value: "nearby", label: "À proximité (1WM)" },
+  { value: "poi_nearby", label: "POI seulement" },
+  { value: "weather", label: "Météo (widget)" },
+  { value: "events", label: "Agenda / événements" },
+];
 
 const ClubAiFollowupsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
