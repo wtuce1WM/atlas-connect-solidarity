@@ -3452,6 +3452,106 @@ export default function StudioVideo() {
                     </div>
                   </div>
                 )}
+                {aiSummariesList.length > 0 && (
+                  <div className="rounded-md border border-border bg-background/40 p-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="font-medium">Ajouter résumé IA ({aiSummariesList.length})</div>
+                      <div className="flex gap-2 text-xs">
+                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedAiSummaryIds(new Set(aiSummariesList.map((s) => s.id)))}>Tout</button>
+                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedAiSummaryIds(new Set())}>Aucun</button>
+                      </div>
+                    </div>
+                    <p className="mt-1 text-[11px] text-muted-foreground">Résumés du menu (pour l'IA) : une séquence de 5 s par résumé coché (titre + contenu).</p>
+                    <div className="mt-2 flex flex-col gap-1.5">
+                      {aiSummariesList.map((s) => (
+                        <label key={s.id} className="flex items-start gap-2 cursor-pointer rounded-md border border-border/60 p-2 hover:bg-muted/40">
+                          <input
+                            type="checkbox"
+                            className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                            checked={selectedAiSummaryIds.has(s.id)}
+                            onChange={(e) => {
+                              setSelectedAiSummaryIds((prev) => {
+                                const next = new Set(prev);
+                                if (e.target.checked) next.add(s.id); else next.delete(s.id);
+                                return next;
+                              });
+                            }}
+                          />
+                          <div className="min-w-0 flex-1 text-xs">
+                            <div className="font-semibold break-words">{s.title || "Résumé"}</div>
+                            {s.content && <div className="mt-1 text-muted-foreground line-clamp-3 break-words">{s.content}</div>}
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {externalLinksList.length > 0 && (
+                  <div className="rounded-md border border-border bg-background/40 p-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="font-medium">Ajouter liens externes ({externalLinksList.length})</div>
+                      <div className="flex gap-2 text-xs">
+                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedExternalLinkIds(new Set(externalLinksList.map((l) => l.id)))}>Tout</button>
+                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedExternalLinkIds(new Set())}>Aucun</button>
+                      </div>
+                    </div>
+                    <p className="mt-1 text-[11px] text-muted-foreground">Libellés existants (Media, Partenaires…) : une séquence de 5 s par lien coché.</p>
+                    <div className="mt-2 flex flex-col gap-1.5">
+                      {externalLinksList.map((l) => (
+                        <label key={l.id} className="flex items-start gap-2 cursor-pointer rounded-md border border-border/60 p-2 hover:bg-muted/40">
+                          <input
+                            type="checkbox"
+                            className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                            checked={selectedExternalLinkIds.has(l.id)}
+                            onChange={(e) => {
+                              setSelectedExternalLinkIds((prev) => {
+                                const next = new Set(prev);
+                                if (e.target.checked) next.add(l.id); else next.delete(l.id);
+                                return next;
+                              });
+                            }}
+                          />
+                          {l.image && <img src={l.image} alt="" className="w-12 h-12 rounded object-cover shrink-0" />}
+                          <div className="min-w-0 flex-1 text-xs">
+                            {l.label && <div className="uppercase tracking-widest text-[10px] text-[#C04F17] font-bold">{l.label}</div>}
+                            <div className="font-semibold break-words">{l.name}</div>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {menuDocsList.length > 0 && (
+                  <div className="rounded-md border border-border bg-background/40 p-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="font-medium">Ajouter Menus ({menuDocsList.length})</div>
+                      <div className="flex gap-2 text-xs">
+                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedMenuDocIds(new Set(menuDocsList.map((m) => m.id)))}>Tout</button>
+                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedMenuDocIds(new Set())}>Aucun</button>
+                      </div>
+                    </div>
+                    <p className="mt-1 text-[11px] text-muted-foreground">Libellé libre existant (Menu, Carte, Drinks…) : une séquence de 5 s par menu coché.</p>
+                    <div className="mt-2 flex flex-col gap-1.5">
+                      {menuDocsList.map((m) => (
+                        <label key={m.id} className="flex items-start gap-2 cursor-pointer rounded-md border border-border/60 p-2 hover:bg-muted/40">
+                          <input
+                            type="checkbox"
+                            className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                            checked={selectedMenuDocIds.has(m.id)}
+                            onChange={(e) => {
+                              setSelectedMenuDocIds((prev) => {
+                                const next = new Set(prev);
+                                if (e.target.checked) next.add(m.id); else next.delete(m.id);
+                                return next;
+                              });
+                            }}
+                          />
+                          <div className="min-w-0 flex-1 text-xs font-semibold break-words">{m.name}</div>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {reviewsCounterAvailable && (
                   <div className="rounded-md border border-border bg-background/40 p-2">
                     <label className="flex items-start gap-2 cursor-pointer">
