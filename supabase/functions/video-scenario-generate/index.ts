@@ -88,7 +88,7 @@ Deno.serve(async (req) => {
     if (resolved_business_id) {
       const { data: biz } = await supa
         .from("businesses")
-        .select("id,name,name_en,slug,hook_fr,hook_en,destination_hook,poi_hook,description,description_en,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,google_review_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url,images,popup_image_url")
+        .select("id,name,name_en,slug,hook_fr,hook_en,destination_hook,poi_hook,description,description_en,city,neighborhood,main_category,categories,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,google_review_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url,images,popup_image_url,getyourguide_rating,getyourguide_review_count,viator_rating,viator_review_count,avis_verifies_rating,avis_verifies_review_count,trustpilot_rating,trustpilot_review_count,kayak_rating,kayak_review_count,tourradar_rating,tourradar_review_count")
         .eq("id", resolved_business_id)
         .maybeSingle();
 
@@ -437,7 +437,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     if (resolved_business_id) {
       const { data: freshBiz } = await supa
         .from("businesses")
-        .select("id,name,name_en,slug,hook_fr,hook_en,destination_hook,poi_hook,description,description_en,city,neighborhood,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,google_review_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url,logo_url,images,popup_image_url,whatsapp,instagram_url")
+        .select("id,name,name_en,slug,hook_fr,hook_en,destination_hook,poi_hook,description,description_en,city,neighborhood,opening_hours,latitude,longitude,address,computed_rating,google_rating,total_review_count,google_review_count,google_review_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url,logo_url,images,popup_image_url,getyourguide_rating,getyourguide_review_count,viator_rating,viator_review_count,avis_verifies_rating,avis_verifies_review_count,trustpilot_rating,trustpilot_review_count,kayak_rating,kayak_review_count,tourradar_rating,tourradar_review_count,whatsapp,instagram_url")
         .eq("id", resolved_business_id)
         .maybeSingle();
       if (freshBiz) businessDetails = { ...(businessContext ?? {}), ...freshBiz };
@@ -845,15 +845,28 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         if (Object.keys(cleanedOv).length) template_props.textOverrides = cleanedOv;
       }
 
-      const googleRating = Number(businessDetails.google_rating);
+      // Moyenne pondérée sur les 9 plateformes d'avis (même methode que le site)
+      const REVIEW_SOURCES = [
+        "google", "tripadvisor", "restaurant_guru", "getyourguide", "viator",
+        "avis_verifies", "trustpilot", "kayak", "tourradar",
+      ] as const;
+      let weightedSum = 0;
+      let countSum = 0;
+      for (const src of REVIEW_SOURCES) {
+        const r = Number((businessDetails as any)[`${src}_rating`]);
+        const c = Number((businessDetails as any)[`${src}_review_count`]);
+        if (Number.isFinite(r) && r > 0 && Number.isFinite(c) && c > 0) {
+          weightedSum += r * c;
+          countSum += c;
+        }
+      }
       const computedRating = Number(businessDetails.computed_rating);
-      const googleReviews = Number(businessDetails.google_review_count);
       const totalReviews = Number(businessDetails.total_review_count);
-      const rating = Number.isFinite(googleRating) && googleRating > 0
-        ? googleRating
+      const rating = countSum > 0
+        ? Math.round((weightedSum / countSum) * 1000) / 1000
         : (Number.isFinite(computedRating) && computedRating > 0 ? computedRating : null);
-      const reviewsCount = Number.isFinite(googleReviews) && googleReviews > 0
-        ? googleReviews
+      const reviewsCount = countSum > 0
+        ? countSum
         : (Number.isFinite(totalReviews) && totalReviews > 0 ? totalReviews : null);
 
       if (wantsReviews) {
