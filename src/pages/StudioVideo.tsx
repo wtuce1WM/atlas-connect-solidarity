@@ -441,6 +441,8 @@ export default function StudioVideo() {
   // Ordre de montage des vidéos sélectionnées (glisser / déposer)
   const [videoOrder, setVideoOrder] = useState<string[]>([]);
   const [dragUrl, setDragUrl] = useState<string | null>(null);
+  // Point de départ (secondes, précision 0,1 s) par vidéo sélectionnée
+  const [videoStarts, setVideoStarts] = useState<Record<string, number>>({});
 
   const [showImages, setShowImages] = useState(true);
   const [showVideos, setShowVideos] = useState(true);
