@@ -104,22 +104,121 @@ var get_business_default = defineTool2({
   }
 });
 
-// src/lib/mcp/tools/get-business-relations.ts
+// src/lib/mcp/tools/get-business-media.ts
 import { defineTool as defineTool3 } from "npm:@lovable.dev/mcp-js@0.22.0";
 import { createClient as createClient3 } from "npm:@supabase/supabase-js@^2.94.1";
 import { z as z3 } from "npm:zod@^4.3.6";
 var SUPABASE_URL3 = "https://plnphgdrawpsnumnejzc.supabase.co";
 var SUPABASE_ANON_KEY3 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsbnBoZ2RyYXdwc251bW5lanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjA5ODcsImV4cCI6MjA4NTgzNjk4N30.RwHKmL6E0Gd2LTVvDkfYx5RkZ-k7LKKp4iUoCS34pW4";
-var get_business_relations_default = defineTool3({
+var get_business_media_default = defineTool3({
+  name: "get_business_media",
+  title: "Get One World Morocco business media",
+  description: "Fetch every public media asset of a One World Morocco business by slug (e.g. 'riad-dar-najat'): photo URLs with their titles and descriptions, logo, YouTube videos (id, title, thumbnail, duration, short or long), external video links, virtual tour, PDF/flipbook documents, menus and AI menu summaries. Useful to build visual mockups, moodboards or design work from real assets.",
+  inputSchema: {
+    slug: z3.string().min(1).describe("Business slug from the oneworldmorocco.com URL, e.g. 'riad-dar-najat'."),
+    max_images: z3.number().int().min(1).max(60).optional().describe("Maximum number of photo URLs to return (default 30).")
+  },
+  annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
+  handler: async ({ slug, max_images }) => {
+    const supabase = createClient3(SUPABASE_URL3, SUPABASE_ANON_KEY3, {
+      auth: { persistSession: false, autoRefreshToken: false }
+    });
+    const { data: business, error } = await supabase.from("businesses").select(
+      "id, name, slug, main_category, city, neighborhood, logo_url, logo_2_url, images, popup_image_url, video_1_url, youtube_url, vimeo_url, matterport_url, flipbook_url, pdf_url, pdf_2_url, pdf_3_url, menu_url"
+    ).eq("slug", slug).eq("is_active", true).maybeSingle();
+    if (error) {
+      return { content: [{ type: "text", text: `Error: ${error.message}` }], isError: true };
+    }
+    if (!business) {
+      return {
+        content: [{ type: "text", text: `No active business found with slug '${slug}'.` }],
+        isError: true
+      };
+    }
+    const limit = max_images ?? 30;
+    const [titlesRes, videosRes, docsRes, summariesRes] = await Promise.all([
+      supabase.from("business_image_titles").select("image_url, title, description, title_en, description_en").eq("business_id", business.id),
+      supabase.from("business_youtube_videos").select("video_id, title, thumbnail, custom_thumbnail_url, duration_seconds, is_short, published_at, sort_order").eq("business_id", business.id).eq("is_visible", true).order("sort_order", { ascending: true }),
+      supabase.from("business_documents").select("type, name, url, language, description, thumbnail_url, price, price_type, sort_order").eq("business_id", business.id).order("sort_order", { ascending: true }),
+      supabase.from("business_menu_summaries").select("title, content, avg_price_range, price_details, sort_order").eq("business_id", business.id).order("sort_order", { ascending: true })
+    ]);
+    const titleByUrl = /* @__PURE__ */ new Map();
+    for (const row of titlesRes.data ?? []) {
+      titleByUrl.set(row.image_url, {
+        title: row.title ?? row.title_en ?? null,
+        description: row.description ?? row.description_en ?? null
+      });
+    }
+    const images = (Array.isArray(business.images) ? business.images : []).filter((u) => typeof u === "string" && u.length > 0).slice(0, limit).map((url, index) => ({
+      position: index + 1,
+      url,
+      title: titleByUrl.get(url)?.title ?? null,
+      description: titleByUrl.get(url)?.description ?? null
+    }));
+    const youtubeVideos = (videosRes.data ?? []).map((v) => ({
+      video_id: v.video_id,
+      title: v.title,
+      thumbnail: v.custom_thumbnail_url ?? v.thumbnail ?? null,
+      duration_seconds: v.duration_seconds,
+      is_short: v.is_short,
+      published_at: v.published_at,
+      watch_url: `https://www.youtube.com/watch?v=${v.video_id}`
+    }));
+    const payload = {
+      business: {
+        name: business.name,
+        slug: business.slug,
+        main_category: business.main_category,
+        city: business.city,
+        neighborhood: business.neighborhood,
+        url: `https://oneworldmorocco.com/${business.slug}`
+      },
+      logo: { primary: business.logo_url ?? null, secondary: business.logo_2_url ?? null },
+      popup_image_url: business.popup_image_url ?? null,
+      images_count: Array.isArray(business.images) ? business.images.length : 0,
+      images,
+      youtube_channel_url: business.youtube_url ?? null,
+      youtube_videos: youtubeVideos,
+      external_videos: [business.video_1_url, business.vimeo_url].filter(Boolean),
+      virtual_tour_url: business.matterport_url ?? null,
+      documents: (docsRes.data ?? []).map((d) => ({
+        type: d.type,
+        name: d.name,
+        url: d.url,
+        language: d.language,
+        description: d.description,
+        thumbnail_url: d.thumbnail_url,
+        price: d.price,
+        price_type: d.price_type
+      })),
+      flipbook_url: business.flipbook_url ?? null,
+      pdfs: [business.pdf_url, business.pdf_2_url, business.pdf_3_url].filter(Boolean),
+      menu_url: business.menu_url ?? null,
+      menu_summaries: summariesRes.data ?? []
+    };
+    return {
+      content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
+      structuredContent: payload
+    };
+  }
+});
+
+// src/lib/mcp/tools/get-business-relations.ts
+import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.22.0";
+import { createClient as createClient4 } from "npm:@supabase/supabase-js@^2.94.1";
+import { z as z4 } from "npm:zod@^4.3.6";
+var SUPABASE_URL4 = "https://plnphgdrawpsnumnejzc.supabase.co";
+var SUPABASE_ANON_KEY4 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsbnBoZ2RyYXdwc251bW5lanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjA5ODcsImV4cCI6MjA4NTgzNjk4N30.RwHKmL6E0Gd2LTVvDkfYx5RkZ-k7LKKp4iUoCS34pW4";
+var get_business_relations_default = defineTool4({
   name: "get_business_relations",
   title: "Get related POIs, destinations and events for a business",
   description: "For a One World Morocco business (by slug), return the linked points of interest (nearby attractions), destinations (tourist zones), and events. Use to answer 'what's around', 'what's happening at', 'which zone' questions.",
   inputSchema: {
-    slug: z3.string().min(1).describe("Business slug from the oneworldmorocco.com URL, e.g. 'dar-fragrance'.")
+    slug: z4.string().min(1).describe("Business slug from the oneworldmorocco.com URL, e.g. 'dar-fragrance'.")
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ slug }) => {
-    const supabase = createClient3(SUPABASE_URL3, SUPABASE_ANON_KEY3, {
+    const supabase = createClient4(SUPABASE_URL4, SUPABASE_ANON_KEY4, {
       auth: { persistSession: false, autoRefreshToken: false }
     });
     const { data: biz, error: bizErr } = await supabase.from("businesses").select("id, name, slug, city, neighborhood").eq("slug", slug).eq("is_active", true).maybeSingle();
@@ -182,22 +281,22 @@ var get_business_relations_default = defineTool3({
 });
 
 // src/lib/mcp/tools/list-businesses-near-poi.ts
-import { defineTool as defineTool4 } from "npm:@lovable.dev/mcp-js@0.22.0";
-import { createClient as createClient4 } from "npm:@supabase/supabase-js@^2.94.1";
-import { z as z4 } from "npm:zod@^4.3.6";
-var SUPABASE_URL4 = "https://plnphgdrawpsnumnejzc.supabase.co";
-var SUPABASE_ANON_KEY4 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsbnBoZ2RyYXdwc251bW5lanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjA5ODcsImV4cCI6MjA4NTgzNjk4N30.RwHKmL6E0Gd2LTVvDkfYx5RkZ-k7LKKp4iUoCS34pW4";
-var list_businesses_near_poi_default = defineTool4({
+import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.22.0";
+import { createClient as createClient5 } from "npm:@supabase/supabase-js@^2.94.1";
+import { z as z5 } from "npm:zod@^4.3.6";
+var SUPABASE_URL5 = "https://plnphgdrawpsnumnejzc.supabase.co";
+var SUPABASE_ANON_KEY5 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsbnBoZ2RyYXdwc251bW5lanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjA5ODcsImV4cCI6MjA4NTgzNjk4N30.RwHKmL6E0Gd2LTVvDkfYx5RkZ-k7LKKp4iUoCS34pW4";
+var list_businesses_near_poi_default = defineTool5({
   name: "list_businesses_near_poi",
   title: "List One World Morocco businesses linked to a POI",
   description: "For a given point of interest name (e.g. 'Jemaa el-Fna', 'Jardin Majorelle', 'Skala de la Kasbah'), return the curated businesses explicitly linked to that POI (walking distance / cluster). Use for 'near / around / next to <landmark>' questions.",
   inputSchema: {
-    poi: z4.string().min(1).describe("POI name (French). Fuzzy match on `points_of_interest.name_fr`."),
-    limit: z4.number().int().min(1).max(30).optional().describe("Max businesses (1-30, default 15).")
+    poi: z5.string().min(1).describe("POI name (French). Fuzzy match on `points_of_interest.name_fr`."),
+    limit: z5.number().int().min(1).max(30).optional().describe("Max businesses (1-30, default 15).")
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ poi, limit }) => {
-    const supabase = createClient4(SUPABASE_URL4, SUPABASE_ANON_KEY4, {
+    const supabase = createClient5(SUPABASE_URL5, SUPABASE_ANON_KEY5, {
       auth: { persistSession: false, autoRefreshToken: false }
     });
     const { data: pois, error: poiErr } = await supabase.from("points_of_interest").select("id, name_fr, city_id, latitude, longitude, wikipedia_fr").ilike("name_fr", `%${poi}%`).limit(3);
@@ -236,22 +335,22 @@ var list_businesses_near_poi_default = defineTool4({
 });
 
 // src/lib/mcp/tools/list-blog-articles.ts
-import { defineTool as defineTool5 } from "npm:@lovable.dev/mcp-js@0.22.0";
-import { createClient as createClient5 } from "npm:@supabase/supabase-js@^2.94.1";
-import { z as z5 } from "npm:zod@^4.3.6";
-var SUPABASE_URL5 = "https://plnphgdrawpsnumnejzc.supabase.co";
-var SUPABASE_ANON_KEY5 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsbnBoZ2RyYXdwc251bW5lanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjA5ODcsImV4cCI6MjA4NTgzNjk4N30.RwHKmL6E0Gd2LTVvDkfYx5RkZ-k7LKKp4iUoCS34pW4";
-var list_blog_articles_default = defineTool5({
+import { defineTool as defineTool6 } from "npm:@lovable.dev/mcp-js@0.22.0";
+import { createClient as createClient6 } from "npm:@supabase/supabase-js@^2.94.1";
+import { z as z6 } from "npm:zod@^4.3.6";
+var SUPABASE_URL6 = "https://plnphgdrawpsnumnejzc.supabase.co";
+var SUPABASE_ANON_KEY6 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsbnBoZ2RyYXdwc251bW5lanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjA5ODcsImV4cCI6MjA4NTgzNjk4N30.RwHKmL6E0Gd2LTVvDkfYx5RkZ-k7LKKp4iUoCS34pW4";
+var list_blog_articles_default = defineTool6({
   name: "list_blog_articles",
   title: "List One World Morocco blog articles",
   description: "List the published One World Morocco editorial articles (slug, title, excerpt, URL). Optionally filter by free-text on the title. Use it to find the slug to pass to `get_blog_article`.",
   inputSchema: {
-    query: z5.string().optional().describe("Optional free-text filter on the title or slug."),
-    limit: z5.number().int().min(1).max(50).optional().describe("Max articles to return (1-50, default 25).")
+    query: z6.string().optional().describe("Optional free-text filter on the title or slug."),
+    limit: z6.number().int().min(1).max(50).optional().describe("Max articles to return (1-50, default 25).")
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ query, limit }) => {
-    const supabase = createClient5(SUPABASE_URL5, SUPABASE_ANON_KEY5, {
+    const supabase = createClient6(SUPABASE_URL6, SUPABASE_ANON_KEY6, {
       auth: { persistSession: false, autoRefreshToken: false }
     });
     let q = supabase.from("blog_posts").select("slug, title_fr, title_en, excerpt_fr, published_at, updated_at").eq("is_published", true).order("published_at", { ascending: false, nullsFirst: false }).limit(Math.min(limit ?? 25, 50));
@@ -283,19 +382,19 @@ var list_blog_articles_default = defineTool5({
 });
 
 // src/lib/mcp/tools/get-blog-article.ts
-import { defineTool as defineTool6 } from "npm:@lovable.dev/mcp-js@0.22.0";
-import { createClient as createClient6 } from "npm:@supabase/supabase-js@^2.94.1";
-import { z as z6 } from "npm:zod@^4.3.6";
-var SUPABASE_URL6 = "https://plnphgdrawpsnumnejzc.supabase.co";
-var SUPABASE_ANON_KEY6 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsbnBoZ2RyYXdwc251bW5lanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjA5ODcsImV4cCI6MjA4NTgzNjk4N30.RwHKmL6E0Gd2LTVvDkfYx5RkZ-k7LKKp4iUoCS34pW4";
-var get_blog_article_default = defineTool6({
+import { defineTool as defineTool7 } from "npm:@lovable.dev/mcp-js@0.22.0";
+import { createClient as createClient7 } from "npm:@supabase/supabase-js@^2.94.1";
+import { z as z7 } from "npm:zod@^4.3.6";
+var SUPABASE_URL7 = "https://plnphgdrawpsnumnejzc.supabase.co";
+var SUPABASE_ANON_KEY7 = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBsbnBoZ2RyYXdwc251bW5lanpjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjA5ODcsImV4cCI6MjA4NTgzNjk4N30.RwHKmL6E0Gd2LTVvDkfYx5RkZ-k7LKKp4iUoCS34pW4";
+var get_blog_article_default = defineTool7({
   name: "get_blog_article",
   title: "Read a One World Morocco blog article",
   description: "Read the full public content of a One World Morocco editorial article (blog) by slug, or by free-text title search. Returns title, TL;DR, intro, every ranked entry (pretitle, title, paragraphs, opening hours), FAQ and the public URL. Example slug: 'idee-cadeau-marrakech' for the article 'Trouver une bonne id\xE9e cadeau \xE0 Marrakech'.",
   inputSchema: {
-    slug: z6.string().optional().describe("Article slug from the URL, e.g. 'idee-cadeau-marrakech'."),
-    query: z6.string().optional().describe("Free-text search on the article title if the slug is unknown, e.g. 'id\xE9e cadeau'."),
-    lang: z6.enum(["fr", "en", "ar"]).optional().describe("Language of the content to return (default 'fr').")
+    slug: z7.string().optional().describe("Article slug from the URL, e.g. 'idee-cadeau-marrakech'."),
+    query: z7.string().optional().describe("Free-text search on the article title if the slug is unknown, e.g. 'id\xE9e cadeau'."),
+    lang: z7.enum(["fr", "en", "ar"]).optional().describe("Language of the content to return (default 'fr').")
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ slug, query, lang }) => {
@@ -306,7 +405,7 @@ var get_blog_article_default = defineTool6({
       };
     }
     const l = lang ?? "fr";
-    const supabase = createClient6(SUPABASE_URL6, SUPABASE_ANON_KEY6, {
+    const supabase = createClient7(SUPABASE_URL7, SUPABASE_ANON_KEY7, {
       auth: { persistSession: false, autoRefreshToken: false }
     });
     let q = supabase.from("blog_posts").select(
@@ -366,11 +465,12 @@ var get_blog_article_default = defineTool6({
 var mcp_default = defineMcp({
   name: "one-world-morocco",
   title: "One World Morocco",
-  version: "0.3.0",
-  instructions: "Public read-only access to the One World Morocco catalog and editorial blog: curated restaurants, hotels, riads, activities and boutiques in Marrakech, Essaouira and across Morocco. Tools: `search_businesses` (free-text search), `get_business` (full details by slug), `get_business_relations` (linked POIs, destinations, events for a business), `list_businesses_near_poi` (businesses tied to a landmark like Jemaa el-Fna or Jardin Majorelle), `list_blog_articles` (published editorial articles) and `get_blog_article` (full article content by slug, e.g. 'idee-cadeau-marrakech'). All data is public \u2014 no personal or member data is exposed.",
+  version: "0.4.0",
+  instructions: "Public read-only access to the One World Morocco catalog and editorial blog: curated restaurants, hotels, riads, activities and boutiques in Marrakech, Essaouira and across Morocco. Tools: `search_businesses` (free-text search), `get_business` (full details by slug), `get_business_media` (all photos with titles, logo, YouTube videos, virtual tour, menus and documents by slug), `get_business_relations` (linked POIs, destinations, events for a business), `list_businesses_near_poi` (businesses tied to a landmark like Jemaa el-Fna or Jardin Majorelle), `list_blog_articles` (published editorial articles) and `get_blog_article` (full article content by slug, e.g. 'idee-cadeau-marrakech'). All data is public \u2014 no personal or member data is exposed.",
   tools: [
     search_businesses_default,
     get_business_default,
+    get_business_media_default,
     get_business_relations_default,
     list_businesses_near_poi_default,
     list_blog_articles_default,

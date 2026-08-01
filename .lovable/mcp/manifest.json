@@ -8,7 +8,7 @@
   "mcp": {
     "server": {
       "name": "one-world-morocco",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "title": "One World Morocco"
     },
     "tools": [
@@ -68,6 +68,37 @@
               "type": "string",
               "minLength": 1,
               "description": "Business slug from the oneworldmorocco.com URL, e.g. 'dar-fragrance'."
+            }
+          },
+          "required": [
+            "slug"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_business_media",
+        "title": "Get One World Morocco business media",
+        "description": "Fetch every public media asset of a One World Morocco business by slug (e.g. 'riad-dar-najat'): photo URLs with their titles and descriptions, logo, YouTube videos (id, title, thumbnail, duration, short or long), external video links, virtual tour, PDF/flipbook documents, menus and AI menu summaries. Useful to build visual mockups, moodboards or design work from real assets.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "slug": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Business slug from the oneworldmorocco.com URL, e.g. 'riad-dar-najat'."
+            },
+            "max_images": {
+              "description": "Maximum number of photo URLs to return (default 30).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 60
             }
           },
           "required": [
