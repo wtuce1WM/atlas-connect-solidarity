@@ -238,13 +238,18 @@ export default function StudioVideo() {
       if (!session) return;
       const uid = session.user.id;
 
-      // Detect staff/admin role
-      const [{ data: staffRow }, { data: studioRow }, { data: affiliate }] = await Promise.all([
+      // Detect staff/admin role and load identity info
+      const [{ data: staffRow }, { data: studioRow }, { data: affiliate }, { data: profile }] = await Promise.all([
         supabase.rpc("is_staff", { _user_id: uid }),
         supabase.rpc("has_role", { _user_id: uid, _role: "video_studio" as any }),
         supabase
           .from("affiliates")
-          .select("id, has_dashboard, has_video_studio")
+          .select("id, name, contact_name, contact_email, has_dashboard, has_video_studio")
+          .eq("user_id", uid)
+          .maybeSingle(),
+        supabase
+          .from("profiles")
+          .select("first_name, last_name")
           .eq("user_id", uid)
           .maybeSingle(),
       ]);
@@ -254,7 +259,20 @@ export default function StudioVideo() {
       if (affiliate) {
         setHasDashboard(!!(affiliate as any).has_dashboard);
         setHasVideoStudio(!!(affiliate as any).has_video_studio);
+        setAffiliateInfo({
+          name: (affiliate as any).name || null,
+          contact_name: (affiliate as any).contact_name || null,
+          contact_email: (affiliate as any).contact_email || null,
+        });
       }
+      if (staff) {
+        setStaffProfile({
+          first_name: (profile as any)?.first_name || null,
+          last_name: (profile as any)?.last_name || null,
+          email: session.user.email || null,
+        });
+      }
+
 
       if (!staff && affiliate?.id) {
         const { data: bizList } = await supabase
