@@ -1003,7 +1003,7 @@ export default function StudioVideo() {
   useEffect(() => {
     if (refineFrom) return;
     const businessText = selected ? ` « ${selected.name} »` : "";
-    const newDefaultPrompt = `Présentation immersive mettant en avant le hook et la signature de l'établissement${businessText}, ajoutes options cochées ci-dessous.`;
+    const newDefaultPrompt = `Générez une vidéo verticale 720×1280 à partir d'un prompt et d'un établissement.`;
     
     if (!prompt || prompt.startsWith("Présentation immersive mettant en avant le hook et la signature de l'établissement")) {
       setPrompt(newDefaultPrompt);
