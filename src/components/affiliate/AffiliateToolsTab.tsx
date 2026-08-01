@@ -36,6 +36,58 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
     [embedUrl, embedHeight, businessName]
   );
 
+  const floatingSnippet = useMemo(
+    () => `<!-- Assistant IA One World Morocco — ${businessName} -->
+<style>
+  #owm-embed-tab {
+    position: fixed; top: 50%; right: max(16px, env(safe-area-inset-right));
+    transform: translateY(-50%) rotate(-90deg); transform-origin: right center;
+    background: #C04F17; color: #fff; padding: 14px 22px; border: none;
+    border-radius: 8px 8px 0 0; font-family: Montserrat, sans-serif;
+    font-weight: 600; font-size: 13px; letter-spacing: 0.05em; white-space: nowrap;
+    cursor: pointer; z-index: 999998; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  #owm-embed-panel {
+    position: fixed; top: 0; right: -100%; width: 50vw; height: 100vh;
+    background: #fff; z-index: 999999; transition: right .35s ease;
+    box-shadow: -8px 0 40px rgba(0,0,0,.25); display: flex; flex-direction: column;
+  }
+  #owm-embed-panel.open { right: 0; }
+  #owm-embed-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 20px; background: #0F172A; color: #fff;
+    font-family: Montserrat, sans-serif; font-weight: 600; font-size: 14px;
+  }
+  #owm-embed-close { background: transparent; border: none; color: #fff; font-size: 22px; cursor: pointer; padding: 0 8px; }
+  #owm-embed-iframe { flex: 1; width: 100%; border: none; }
+  @media (max-width: 768px) { #owm-embed-panel { width: 100vw; } }
+</style>
+
+<button id="owm-embed-tab" aria-label="Ouvrir l&#39;assistant IA">Assistant 1WM</button>
+<div id="owm-embed-panel" role="dialog" aria-hidden="true">
+  <div id="owm-embed-header">
+    <span>Assistant — ${businessName}</span>
+    <button id="owm-embed-close" aria-label="Fermer">&#10005;</button>
+  </div>
+  <iframe id="owm-embed-iframe" src="${embedUrl}" title="Assistant IA — ${businessName}" allow="clipboard-write; geolocation" loading="lazy"></iframe>
+</div>
+
+<script>
+  (function () {
+    var tab = document.getElementById('owm-embed-tab');
+    var panel = document.getElementById('owm-embed-panel');
+    var close = document.getElementById('owm-embed-close');
+    function open() { panel.classList.add('open'); panel.setAttribute('aria-hidden', 'false'); }
+    function shut() { panel.classList.remove('open'); panel.setAttribute('aria-hidden', 'true'); }
+    tab.addEventListener('click', open);
+    close.addEventListener('click', shut);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') shut(); });
+  })();
+</script>`,
+    [embedUrl, businessName]
+  );
+
+
   const copy = async (value: string, key: string) => {
     try {
       await navigator.clipboard.writeText(value);
