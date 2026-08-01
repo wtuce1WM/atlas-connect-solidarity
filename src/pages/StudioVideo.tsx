@@ -443,6 +443,9 @@ export default function StudioVideo() {
   const [dragUrl, setDragUrl] = useState<string | null>(null);
   // Point de départ (secondes, précision 0,1 s) par vidéo sélectionnée
   const [videoStarts, setVideoStarts] = useState<Record<string, number>>({});
+  // Position de lecture courante des vignettes de montage (aide au réglage du Time Start)
+  const [playHeads, setPlayHeads] = useState<Record<string, number>>({});
+
   const orderVideoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
 
   const [showImages, setShowImages] = useState(true);
@@ -1904,6 +1907,10 @@ export default function StudioVideo() {
                   </button>
                 </div>
               </div>
+              <p className="rounded-lg border-2 border-destructive/40 bg-destructive/10 px-4 py-3 text-base sm:text-lg font-bold text-destructive">
+                Attention ! Evitez les images avec sur-impressions (logo/texte…)
+              </p>
+
               {showImages && (
                 <>
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
@@ -2006,6 +2013,10 @@ export default function StudioVideo() {
                   </button>
                 </div>
               </div>
+              <p className="rounded-lg border-2 border-destructive/40 bg-destructive/10 px-4 py-3 text-base sm:text-lg font-bold text-destructive">
+                Attention ! Evitez les vidéos avec sur-impressions (logo/texte…) et choisissez des vidéos verticales
+              </p>
+
               {showVideos && (
                 <>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
@@ -2138,6 +2149,15 @@ export default function StudioVideo() {
                                     className="w-full h-full object-cover bg-black"
                                     onLoadedMetadata={(e) => {
                                       if (start > 0) e.currentTarget.currentTime = start;
+                                      setPlayHeads((p) => ({ ...p, [url]: e.currentTarget.currentTime || start }));
+                                    }}
+                                    onTimeUpdate={(e) => {
+                                      const t = Math.round(e.currentTarget.currentTime * 10) / 10;
+                                      setPlayHeads((p) => (p[url] === t ? p : { ...p, [url]: t }));
+                                    }}
+                                    onSeeked={(e) => {
+                                      const t = Math.round(e.currentTarget.currentTime * 10) / 10;
+                                      setPlayHeads((p) => ({ ...p, [url]: t }));
                                     }}
                                   />
                                 ) : v?.thumbnail ? (
@@ -2149,6 +2169,10 @@ export default function StudioVideo() {
                                 {v?.duration != null && (
                                   <span className="pointer-events-none absolute top-1 left-7 bg-black/70 text-white text-[9px] font-bold px-1 rounded">{formatVideoDuration(v.duration)}</span>
                                 )}
+                                <span className="pointer-events-none absolute bottom-8 left-1 bg-[#D4AF37] text-black text-[10px] font-bold px-1.5 py-0.5 rounded tabular-nums">
+                                  ⏱ {(playHeads[url] ?? start ?? 0).toFixed(1)}s
+                                </span>
+
                                 <button
                                   type="button"
                                   onClick={() => setLightboxIndex(bizImages.length + bizVideos.findIndex((x) => x.url === url))}
