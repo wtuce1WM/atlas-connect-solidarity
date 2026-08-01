@@ -516,6 +516,7 @@ export default function StudioVideo() {
         tripadvisor: { rating: null, count: null, url: null },
         restaurant_guru: { rating: null, count: null, url: null },
       });
+      setReviewsAggregate({ avgOn20: null, total: 0 });
       return;
     }
     let cancelled = false;
