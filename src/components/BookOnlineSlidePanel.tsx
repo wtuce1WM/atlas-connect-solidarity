@@ -376,7 +376,7 @@ const BookOnlineSlidePanelInner = ({
   // Auto-open the promotions popup when a business has offers but no welcome popup image.
   // Mirrors the welcome popup behavior: shown once per business, mutes background video.
   useEffect(() => {
-    if (!business?.id) return;
+    if (!business?.id || embedMode) return;
     const hasWelcomePopup = !!(business as any)?.popup_image_url
       && Array.isArray((business as any)?.images)
       && (business as any).images.includes((business as any).popup_image_url);
