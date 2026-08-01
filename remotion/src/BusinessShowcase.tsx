@@ -2471,14 +2471,18 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               textShadow: "0 2px 12px rgba(0,0,0,0.5)",
             };
             if (chunks.length > 1) {
-              const segFrames = Math.max(1, Math.round((duration * 30) / chunks.length));
+              const segFrames = Math.max(1, Math.floor(duration / chunks.length));
               return (
                 <>
                   <AbsoluteFill style={{ display: "flex", flexDirection: "column", padding: "80px 60px", ...align }}>
                     {titleBlock}
                   </AbsoluteFill>
                   {chunks.map((txt, i) => (
-                    <Sequence key={`split-${i}`} from={i * segFrames} durationInFrames={segFrames}>
+                    <Sequence
+                      key={`split-${i}`}
+                      from={i * segFrames}
+                      durationInFrames={i === chunks.length - 1 ? Math.max(1, duration - i * segFrames) : segFrames}
+                    >
                       <AbsoluteFill style={{ display: "flex", flexDirection: "column", padding: "80px 60px", ...align }}>
                         <div style={{ opacity: 0, fontSize: 68, lineHeight: 1.1 }}>{c.title}</div>
                         <div style={textStyle}>{txt}</div>
@@ -2488,6 +2492,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                 </>
               );
             }
+
             return (
               <AbsoluteFill style={{ display: "flex", flexDirection: "column", padding: "80px 60px", ...align }}>
                 {titleBlock}
