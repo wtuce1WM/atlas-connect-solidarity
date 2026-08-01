@@ -1228,7 +1228,7 @@ export default function StudioVideo() {
     s += 3; // cta
     if (optInstallCta) s += 3; // outro
     return Math.max(10, Math.min(90, s));
-  }, [logoInfo, optOpenWithLogo, optPopup, selectedOfferIds, selectedHighlightIds, optReviews, optGoogleReviews, optTripAdvisor, optRestaurantGuru, optCustomerReview, optHours, optMapMarker, optDigitalId, optWhatsapp, whatsappNumber, optInstallCta]);
+  }, [logoInfo, optOpenWithLogo, optPopup, selectedOfferIds, selectedHighlightIds, selectedAiSummaryIds, selectedExternalLinkIds, selectedMenuDocIds, optReviews, optGoogleReviews, optTripAdvisor, optRestaurantGuru, optCustomerReview, optHours, optMapMarker, optDigitalId, optWhatsapp, whatsappNumber, optInstallCta]);
 
   const effectiveDuration = durationAuto ? autoDuration : duration;
 
