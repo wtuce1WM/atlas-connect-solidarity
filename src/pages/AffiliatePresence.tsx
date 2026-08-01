@@ -195,7 +195,7 @@ const AffiliatePresence = () => {
         hook_fr: b.hook_fr ?? null,
         hook_en: b.hook_en ?? null,
         hook_ar: b.hook_ar ?? null,
-        description: b.description_fr ?? b.description ?? null,
+        description: b.description ?? b.description_fr ?? null,
         description_en: b.description_en ?? null,
         description_ar: b.description_ar ?? null,
         name_en: b.name_en ?? null,
@@ -267,8 +267,9 @@ const AffiliatePresence = () => {
         payload[k] = v;
       }
     });
-    // La description FR canonique est `description_fr` (utilisée par le front public,
-    // l'IA et les traductions). On garde `description` synchronisée pour compatibilité.
+    // Pour les établissements, la description FR canonique (front public, IA) est
+    // `description` — celle éditée en back-office. On synchronise `description_fr`
+    // pour compatibilité avec les anciens usages.
     if ("description" in payload) {
       payload.description_fr = payload.description;
     }
