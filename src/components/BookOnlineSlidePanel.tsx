@@ -182,6 +182,10 @@ interface BookOnlineSlidePanelProps {
   manualCardLabel?: string | null;
   /** Price value for the price badge */
   price?: string | null;
+  /** Auto-opens an overlay as soon as the data is ready (embed usage) */
+  initialOverlay?: "poi";
+  /** Embed mode: hides the internal close/Club affordances of the auto-opened overlay */
+  embedMode?: boolean;
 }
 
 const BookOnlineSlidePanelInner = ({
@@ -191,7 +195,7 @@ const BookOnlineSlidePanelInner = ({
   onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl,
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
   onPrev, onNext, hasPrev, hasNext,
-  hideDirections, hideSecondaryCtas,
+  hideDirections, hideSecondaryCtas, initialOverlay, embedMode,
 }: BookOnlineSlidePanelProps) => {
   // Aliases: callers from SlidePanelHome migration use onPrev/onNext naming.
   const effectiveOnPrev = onPrevBusiness ?? onPrev;
@@ -342,6 +346,7 @@ const BookOnlineSlidePanelInner = ({
     // Defensive: only trigger the popup if the URL is still part of the business images
     // (avoids broken popups on stale references after an image was removed).
     const stillValid = !!url && Array.isArray((business as any)?.images) && (business as any).images.includes(url);
+    if (embedMode) return; // widget embarqué : pas de popup d'accueil par-dessus l'overlay
     if (business?.id && stillValid && welcomePopupShownRef.current !== business.id) {
       welcomePopupShownRef.current = business.id;
       setShowWelcomePopup(true);
@@ -371,7 +376,7 @@ const BookOnlineSlidePanelInner = ({
   // Auto-open the promotions popup when a business has offers but no welcome popup image.
   // Mirrors the welcome popup behavior: shown once per business, mutes background video.
   useEffect(() => {
-    if (!business?.id) return;
+    if (!business?.id || embedMode) return;
     const hasWelcomePopup = !!(business as any)?.popup_image_url
       && Array.isArray((business as any)?.images)
       && (business as any).images.includes((business as any).popup_image_url);
@@ -396,6 +401,14 @@ const BookOnlineSlidePanelInner = ({
   const [poiCategoryBusinesses, setPoiCategoryBusinesses] = useState<PoiBusiness[]>([]);
   const [poiCategoryBusinessCatId, setPoiCategoryBusinessCatId] = useState<string | null>(null);
   const poiOpenedFromMapRef = useRef(false);
+  // Embed: auto-open the "À proximité" overlay once the business is resolved.
+  const autoPoiOpenedRef = useRef(false);
+  useEffect(() => {
+    if (initialOverlay !== "poi" || autoPoiOpenedRef.current || !business?.id) return;
+    autoPoiOpenedRef.current = true;
+    setShowPoiMapOverlay(true);
+  }, [initialOverlay, business?.id]);
+
   const geo = useGeolocation();
   const { coords: userCoords } = geo;
   // LocationPicker is mounted globally on SearchPage; no local instance here to avoid double-open.
@@ -2786,22 +2799,27 @@ const BookOnlineSlidePanelInner = ({
         return (
         <OverlayShell zClass="z-[80]" desktopOnly={false} animClass="animate-slide-up-from-bottom">
           <div dir="ltr" className="absolute inset-0">
-            <button
-              onClick={() => { setShowPoiMapOverlay(false); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
-              className="absolute top-[calc(3.3rem+0.75rem)] left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-black text-white shadow-lg hover:bg-black/90 transition-opacity"
-              aria-label="Fermer"
-            >
-              <X className="h-4 w-4" />
-            </button>
-            <div className="absolute top-[calc(3.3rem+0.75rem)] right-3 z-[15] flex items-center gap-2">
+            {!embedMode && (
               <button
-                type="button"
-                onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
-                className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
-                aria-label="Le Club OWM"
+                onClick={() => { setShowPoiMapOverlay(false); infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" }); }}
+                className="absolute top-[calc(3.3rem+0.75rem)] left-3 z-[15] h-9 w-9 flex items-center justify-center rounded-full bg-black text-white shadow-lg hover:bg-black/90 transition-opacity"
+                aria-label="Fermer"
               >
-                <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+                <X className="h-4 w-4" />
               </button>
+            )}
+            <div className="absolute top-[calc(3.3rem+0.75rem)] right-3 z-[15] flex items-center gap-2">
+              {!embedMode && (
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new CustomEvent("open-generic-club-popup"))}
+                  className="h-9 w-9 flex items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors shadow-lg"
+                  aria-label="Le Club OWM"
+                >
+                  <Heart className="h-4 w-4 text-[#6050DC]" strokeWidth={2.5} />
+                </button>
+              )}
+
               {(() => {
                 let shareUrl: string | undefined;
                 try {

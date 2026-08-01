@@ -1,6 +1,6 @@
 import { useRef, useState, useMemo } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { Copy, Check, Download, ExternalLink, QrCode, Globe2, Mail, Bot } from "lucide-react";
+import { Copy, Check, Download, ExternalLink, QrCode, Globe2, Mail, Bot, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
@@ -18,6 +18,8 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
   const [embedTheme, setEmbedTheme] = useState<"dark" | "light">("dark");
   const [embedLang, setEmbedLang] = useState<"fr" | "en" | "ar">("fr");
   const [embedHeight, setEmbedHeight] = useState<number>(640);
+  const [nearbyLang, setNearbyLang] = useState<"fr" | "en" | "ar">("fr");
+  const [nearbyHeight, setNearbyHeight] = useState<number>(720);
 
   if (!slug) {
     return (
@@ -86,6 +88,69 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
 </script>`,
     [embedUrl, businessName]
   );
+
+  const nearbyUrl = `${SITE}/embed/nearby/${slug}?lang=${nearbyLang}`;
+  const nearbySnippet = useMemo(
+    () =>
+      `<iframe src="${nearbyUrl}" style="width:100%;height:${nearbyHeight}px;border:0;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.15)" title="À proximité — ${businessName}" loading="lazy" allow="geolocation"></iframe>`,
+    [nearbyUrl, nearbyHeight, businessName]
+  );
+
+  const nearbyFloatingSnippet = useMemo(
+    () => `<!-- À proximité One World Morocco — ${businessName} -->
+<style>
+  #owm-nearby-tab {
+    position: fixed; top: 50%; left: max(16px, env(safe-area-inset-left));
+    transform: translateY(-50%) rotate(90deg); transform-origin: left center;
+    background: #0F172A; color: #fff; padding: 14px 22px; border: none;
+    border-radius: 8px 8px 0 0; font-family: Montserrat, sans-serif;
+    font-weight: 600; font-size: 13px; letter-spacing: 0.05em; white-space: nowrap;
+    cursor: pointer; z-index: 999996; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  #owm-nearby-panel {
+    position: fixed; top: 0; left: -100%; width: 60vw; height: 100vh;
+    background: #fff; z-index: 999997; transition: left .35s ease;
+    box-shadow: 8px 0 40px rgba(0,0,0,.25); display: flex; flex-direction: column;
+  }
+  #owm-nearby-panel.open { left: 0; }
+  #owm-nearby-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 20px; background: #0F172A; color: #fff;
+    font-family: Montserrat, sans-serif; font-weight: 600; font-size: 14px;
+  }
+  #owm-nearby-close { background: transparent; border: none; color: #fff; font-size: 22px; cursor: pointer; padding: 0 8px; }
+  #owm-nearby-iframe { flex: 1; width: 100%; border: none; }
+  @media (max-width: 768px) { #owm-nearby-panel { width: 100vw; } }
+</style>
+
+<button id="owm-nearby-tab" aria-label="Voir les lieux à proximité">À proximité</button>
+<div id="owm-nearby-panel" role="dialog" aria-hidden="true">
+  <div id="owm-nearby-header">
+    <span>À proximité — ${businessName}</span>
+    <button id="owm-nearby-close" aria-label="Fermer">&#10005;</button>
+  </div>
+  <iframe id="owm-nearby-iframe" data-src="${nearbyUrl}" title="À proximité — ${businessName}" allow="geolocation" loading="lazy"></iframe>
+</div>
+
+<script>
+  (function () {
+    var tab = document.getElementById('owm-nearby-tab');
+    var panel = document.getElementById('owm-nearby-panel');
+    var frame = document.getElementById('owm-nearby-iframe');
+    var close = document.getElementById('owm-nearby-close');
+    function open() {
+      if (!frame.getAttribute('src')) frame.setAttribute('src', frame.getAttribute('data-src'));
+      panel.classList.add('open'); panel.setAttribute('aria-hidden', 'false');
+    }
+    function shut() { panel.classList.remove('open'); panel.setAttribute('aria-hidden', 'true'); }
+    tab.addEventListener('click', open);
+    close.addEventListener('click', shut);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') shut(); });
+  })();
+</script>`,
+    [nearbyUrl, businessName]
+  );
+
 
 
   const copy = async (value: string, key: string) => {
@@ -351,6 +416,150 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
           </Button>
         </div>
       </div>
+
+
+
+      {/* ---------- Widget « À proximité » (overlay POI) ---------- */}
+      <div className="space-y-3">
+        <h3 className="text-white font-semibold flex items-center gap-2">
+          <MapPin className="h-4 w-4" /> Widget « À proximité » (carte + établissements autour de vous)
+        </h3>
+        <p className="text-sm text-white/70">
+          Ce widget reprend exactement l'overlay « À proximité » de votre fiche 1WM : la liste des
+          établissements et lieux d'intérêt autour de {businessName}, les filtres par catégorie,
+          sous-catégorie et distance, la carte Google avec marqueurs, et l'ouverture d'une fiche au clic
+          (sans quitter le widget).
+        </p>
+
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="space-y-1">
+            <Label className="text-white/80 text-xs">Langue</Label>
+            <div className="flex gap-1">
+              {(["fr", "en", "ar"] as const).map((l) => (
+                <Button
+                  key={l}
+                  type="button"
+                  size="sm"
+                  variant={nearbyLang === l ? "default" : "outline"}
+                  onClick={() => setNearbyLang(l)}
+                  className={nearbyLang === l ? "" : "text-white border-white/20 hover:bg-white/10 hover:text-white"}
+                >
+                  {l.toUpperCase()}
+                </Button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-white/80 text-xs">Hauteur (px)</Label>
+            <input
+              type="number"
+              min={480}
+              max={1200}
+              step={20}
+              value={nearbyHeight}
+              onChange={(e) => setNearbyHeight(Number(e.target.value) || 720)}
+              className="w-28 rounded-md bg-white/10 border border-white/20 text-white text-sm px-3 py-2"
+            />
+          </div>
+          <a
+            href={nearbyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-primary hover:underline pb-2"
+          >
+            <ExternalLink className="h-3 w-3" /> Ouvrir en plein écran
+          </a>
+        </div>
+
+        <div className="rounded-md bg-white/5 border border-white/10 p-3 text-xs text-white/70 space-y-1.5">
+          <p className="font-semibold text-white/90">Ce qu'il faut savoir avant de l'installer :</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>
+              <strong>Hauteur fixe obligatoire</strong> : l'affichage est plein cadre, il ne s'adapte pas
+              tout seul à son contenu. Comptez au minimum <span className="font-mono">640px</span> ;{" "}
+              <span className="font-mono">720px</span> est le réglage recommandé sur ordinateur.
+            </li>
+            <li>
+              <strong>Géolocalisation</strong> : l'attribut <span className="font-mono">allow="geolocation"</span>{" "}
+              est indispensable pour que les filtres « Moins de 500 m / 1 km / 5 km » apparaissent. Sans lui
+              (ou si le visiteur refuse la localisation), le widget fonctionne mais sans filtre de distance.
+              La page hôte doit être en <span className="font-mono">https</span>.
+            </li>
+            <li>
+              <strong>Contenu automatique</strong> : les établissements affichés proviennent de la base 1WM
+              (mêmes règles que la fiche). Rien à saisir de votre côté, la liste se met à jour toute seule.
+            </li>
+            <li>
+              <strong>Mobile</strong> : passez la largeur à 100 % et la hauteur à environ{" "}
+              <span className="font-mono">560px</span> ; la carte reste tactile (zoom / déplacement).
+            </li>
+            <li>
+              <strong>Vitesse</strong> : gardez <span className="font-mono">loading="lazy"</span> pour ne pas
+              ralentir le chargement de votre page.
+            </li>
+          </ul>
+        </div>
+
+        <div className="rounded-lg border border-white/20 bg-white/5 p-4 space-y-3">
+          <h4 className="text-white font-semibold text-sm">1. Version iframe inline (dans une zone de page)</h4>
+          <p className="text-sm text-white/70">
+            À coller dans un bloc « HTML / Embed / Code personnalisé » de la page où vous voulez l'afficher
+            (Wix : élément <span className="font-mono">Embed HTML</span> ; WordPress : bloc{" "}
+            <span className="font-mono">HTML personnalisé</span> ; Squarespace : bloc{" "}
+            <span className="font-mono">Code</span> ; Webflow : composant{" "}
+            <span className="font-mono">Embed</span>).
+          </p>
+          <textarea
+            readOnly
+            value={nearbySnippet}
+            onFocus={(e) => e.currentTarget.select()}
+            rows={4}
+            className="w-full rounded-md bg-white/10 border border-white/20 text-white text-xs px-3 py-2 font-mono resize-none"
+          />
+          <Button type="button" size="sm" onClick={() => copy(nearbySnippet, "nearby-inline")}>
+            {copied === "nearby-inline" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+            Copier le code iframe « À proximité »
+          </Button>
+          <div className="space-y-2">
+            <Label className="text-white/80 text-xs">Aperçu en direct</Label>
+            <div className="rounded-md overflow-hidden border border-white/20 bg-black/30">
+              <iframe
+                key={nearbyUrl + nearbyHeight}
+                src={nearbyUrl}
+                style={{ width: "100%", height: nearbyHeight, border: 0 }}
+                title="Aperçu À proximité"
+                loading="lazy"
+                allow="geolocation"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-white/20 bg-white/5 p-4 space-y-3">
+          <h4 className="text-white font-semibold text-sm">2. Version panneau flottant (onglet latéral)</h4>
+          <p className="text-sm text-white/70">
+            Onglet vertical fixe sur le bord droit du site ; au clic, un volet plein écran s'ouvre avec la
+            carte et les établissements à proximité. Comme pour l'assistant IA, ce bloc doit être injecté
+            dans le HTML global du site (<span className="font-mono">Body – end</span> /{" "}
+            <span className="font-mono">Footer</span>), <strong>pas</strong> dans un bloc Embed de page —
+            sinon le volet reste prisonnier de la zone dessinée. Emplacements exacts : voir la liste par
+            plateforme ci-dessus.
+          </p>
+          <textarea
+            readOnly
+            value={nearbyFloatingSnippet}
+            onFocus={(e) => e.currentTarget.select()}
+            rows={8}
+            className="w-full rounded-md bg-white/10 border border-white/20 text-white text-xs px-3 py-2 font-mono resize-none"
+          />
+          <Button type="button" size="sm" onClick={() => copy(nearbyFloatingSnippet, "nearby-floating")}>
+            {copied === "nearby-floating" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+            Copier le code panneau flottant « À proximité »
+          </Button>
+        </div>
+      </div>
+
+
 
 
       <div className="space-y-3">
