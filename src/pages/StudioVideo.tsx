@@ -2256,7 +2256,7 @@ export default function StudioVideo() {
                             {checked ? "✓" : "+"}
                           </button>
                         </div>
-                        {v.kind === "file" && renderTimeRangeInputs(v.url, v.duration)}
+                        {v.kind === "file" && renderTimeRangeControls(v.url, v.duration, gridVideoRefs)}
                         </div>
                       );
 
