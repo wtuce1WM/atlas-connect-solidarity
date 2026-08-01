@@ -76,6 +76,17 @@ const useSuppressBg = (): boolean => React.useContext(SuppressBgContext);
 
 // Time Start : point de départ (secondes) par URL de vidéo, défini dans le Studio.
 const VideoStartsContext = React.createContext<Record<string, number>>({});
+// Time End : point de fin (secondes) par URL de vidéo, défini dans le Studio.
+const VideoEndsContext = React.createContext<Record<string, number>>({});
+/** Frame de fin d'une vidéo (Time End) — undefined si non défini. */
+const useVideoEndFrames = (src?: string | null): number | undefined => {
+  const ends = React.useContext(VideoEndsContext);
+  const { fps } = useVideoConfig();
+  if (!src) return undefined;
+  const sec = ends?.[src];
+  if (!Number.isFinite(sec) || (sec as number) <= 0) return undefined;
+  return Math.max(1, Math.round((sec as number) * fps));
+};
 /** Frames à sauter au début d'une vidéo (Time Start). */
 const useVideoStartFrames = (src?: string | null): number | undefined => {
   const starts = React.useContext(VideoStartsContext);
@@ -98,9 +109,13 @@ const StartVideo: React.FC<{
   extraStartSec?: number;
 }> = ({ src, muted = true, volume, loop = true, style, extraStartSec = 0 }) => {
   const base = useVideoStartFrames(src) ?? 0;
+  const endAtBase = useVideoEndFrames(src);
   const { fps } = useVideoConfig();
   const extra = Number.isFinite(extraStartSec) && extraStartSec > 0 ? Math.round(extraStartSec * fps) : 0;
-  const startFrom = base + extra;
+  // Le décalage de relecture reste borné à l'intervalle [Time Start, Time End].
+  const span = endAtBase != null ? Math.max(1, endAtBase - base) : undefined;
+  const startFrom = span != null ? base + (extra % span) : base + extra;
+  const endAt = endAtBase != null && endAtBase > startFrom + 1 ? endAtBase : undefined;
   return (
     <OffthreadVideo
       src={src}
@@ -108,6 +123,7 @@ const StartVideo: React.FC<{
       volume={volume as never}
       loop={loop}
       startFrom={startFrom > 0 ? startFrom : undefined}
+      endAt={endAt}
       style={style ?? { width: "100%", height: "100%", objectFit: "cover" }}
     />
   );
@@ -169,6 +185,8 @@ export type ShowcaseProps = {
   videos?: string[];
   /** Point de départ (secondes) par URL de vidéo — défini dans le Studio (Time Start). */
   videoStarts?: Record<string, number>;
+  /** Point de fin (secondes) par URL de vidéo — défini dans le Studio (Time End). */
+  videoEnds?: Record<string, number>;
   offer?: { title?: string; price?: string; lines?: string[]; background_video_url?: string; background_image_url?: string } | null;
   offers?: Array<{ title?: string; price?: string; lines?: string[]; background_video_url?: string; background_image_url?: string }> | null;
   rating?: number | null;
@@ -2161,6 +2179,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   images = [],
   videos = [],
   videoStarts,
+  videoEnds,
   offer = null,
   offers = null,
   rating,
@@ -2877,6 +2896,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   return (
     <LangContext.Provider value={_lang}>
     <VideoStartsContext.Provider value={videoStarts ?? {}}>
+    <VideoEndsContext.Provider value={videoEnds ?? {}}>
     <ToneContext.Provider value={tone}>
       <SuppressBgContext.Provider value={continuousMode || slideshowMode}>
         <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
@@ -2957,6 +2977,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         </AbsoluteFill>
       </SuppressBgContext.Provider>
     </ToneContext.Provider>
+    </VideoEndsContext.Provider>
     </VideoStartsContext.Provider>
     </LangContext.Provider>
   );
