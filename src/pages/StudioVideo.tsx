@@ -1614,6 +1614,7 @@ export default function StudioVideo() {
       offers: Array.from(selectedOfferIds).sort(),
       highlights: Array.from(selectedHighlightIds).sort(),
       aiSummaries: Array.from(selectedAiSummaryIds).sort(),
+      aiSummaryEffect,
       externalLinks: Array.from(selectedExternalLinkIds).sort(),
       menuDocs: Array.from(selectedMenuDocIds).sort(),
       images: Array.from(selectedImages).sort(),
