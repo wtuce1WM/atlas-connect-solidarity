@@ -2410,7 +2410,13 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   const renderBuiltinScene = (kind: SceneKind, duration: number, offerIndex?: number): React.ReactNode => {
     switch (kind) {
       case "logo": {
-        const logoBg = Array.isArray((scene_media as any)?.logo) ? (scene_media as any).logo[0] : null;
+        // Fond de la scène logo : média spécifique si défini, sinon repli sur
+        // la 1ère vidéo du montage, puis la 1ère image de l'établissement.
+        const logoBgExplicit = Array.isArray((scene_media as any)?.logo) ? (scene_media as any).logo[0] : null;
+        const logoBg =
+          logoBgExplicit ??
+          (safeVideos[0] ? { url: safeVideos[0], kind: "video" as const } : null) ??
+          (safeImages[0] ? { url: safeImages[0], kind: "image" as const } : null);
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             <SceneLogo logoUrl={logoUrl!} durationFrames={duration} background={logoBg} />
