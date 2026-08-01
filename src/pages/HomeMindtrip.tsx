@@ -254,6 +254,8 @@ const HOME_LABELS = {
     howItWorks: "Comment fonctionne l'App ?",
     inspireYourself: "Inspirez-vous",
     inspireSubtitle: "Nos derniers guides pour explorer le Maroc autrement.",
+    seeAllArticles: "Tous les articles",
+    seeAllArticlesSubtitle: "Explorer nos guides",
     hotelDestination: "Destination",
     hotelArrival: "Arrivée",
     hotelDeparture: "Départ",
