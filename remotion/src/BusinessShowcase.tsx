@@ -2108,6 +2108,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   neighborhood,
   images = [],
   videos = [],
+  videoStarts,
   offer = null,
   offers = null,
   rating,
@@ -2751,6 +2752,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
   return (
     <LangContext.Provider value={_lang}>
+    <VideoStartsContext.Provider value={videoStarts ?? {}}>
     <ToneContext.Provider value={tone}>
       <SuppressBgContext.Provider value={continuousMode || slideshowMode}>
         <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
@@ -2831,6 +2833,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         </AbsoluteFill>
       </SuppressBgContext.Provider>
     </ToneContext.Provider>
+    </VideoStartsContext.Provider>
     </LangContext.Provider>
   );
 };
