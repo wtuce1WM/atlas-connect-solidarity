@@ -1145,6 +1145,9 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       if (wantsWhatsapp && waNumber) {
         template_props.showWhatsapp = true;
         template_props.whatsappNumber = waNumber;
+        // Relation étape WhatsApp ↔ carte Offre (choisie dans l'aperçu du scénario) :
+        // "with_offer" = le contenu de l'offre est affiché dans la scène WhatsApp.
+        if (options?.whatsapp_offer_mode === "with_offer") template_props.whatsappShowOffer = true;
       }
 
       // Blocs highlights sélectionnés — une entrée par bloc dans le scénario.
