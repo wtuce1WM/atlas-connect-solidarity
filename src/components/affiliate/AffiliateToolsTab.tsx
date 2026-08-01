@@ -350,6 +350,9 @@ const AffiliateToolsTab = ({ slug, businessName }: Props) => {
             Copier le code panneau flottant (Wix / Custom Code)
           </Button>
         </div>
+      </div>
+
+
 
       {/* ---------- Widget « À proximité » (overlay POI) ---------- */}
       <div className="space-y-3">
