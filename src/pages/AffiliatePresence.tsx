@@ -195,7 +195,7 @@ const AffiliatePresence = () => {
         hook_fr: b.hook_fr ?? null,
         hook_en: b.hook_en ?? null,
         hook_ar: b.hook_ar ?? null,
-        description: b.description ?? null,
+        description: b.description_fr ?? b.description ?? null,
         description_en: b.description_en ?? null,
         description_ar: b.description_ar ?? null,
         name_en: b.name_en ?? null,
