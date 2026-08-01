@@ -1619,6 +1619,9 @@ function PlacesPickerDialog({
       if (!m.has(g)) m.set(g, []);
       m.get(g)!.push(poi);
     }
+    for (const items of m.values()) {
+      items.sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base" }));
+    }
     return [...m.entries()].sort((a, b) => {
       const aOther = /^autres?$/i.test(a[0]);
       const bOther = /^autres?$/i.test(b[0]);
@@ -1626,6 +1629,15 @@ function PlacesPickerDialog({
       return a[0].localeCompare(b[0], "fr");
     });
   }, [pois, q]);
+
+  const sortedDestinations = useMemo(() => {
+    const norm = q.trim().toLowerCase();
+    return destinations
+      .filter((x) => !norm || x.name.toLowerCase().includes(norm))
+      .slice()
+      .sort((a, b) => a.name.localeCompare(b.name, "fr", { sensitivity: "base" }));
+  }, [destinations, q]);
+
 
   const toggle = (arr: string[], id: string) => (arr.includes(id) ? arr.filter((x) => x !== id) : [...arr, id]);
 
