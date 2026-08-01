@@ -500,17 +500,31 @@ export default function StudioVideo() {
     return out;
   }, [orderedSelectedVideos, videoStarts]);
 
-  // Durée totale utile des vidéos du montage (durée - Time Start)
+  // Time End actifs (doit rester > Time Start)
+  const activeVideoEnds = useMemo(() => {
+    const out: Record<string, number> = {};
+    for (const u of orderedSelectedVideos) {
+      const e = videoEnds[u];
+      if (!Number.isFinite(e) || (e as number) <= 0) continue;
+      const end = Math.round((e as number) * 10) / 10;
+      if (end > (activeVideoStarts[u] ?? 0)) out[u] = end;
+    }
+    return out;
+  }, [orderedSelectedVideos, videoEnds, activeVideoStarts]);
+
+  // Durée totale utile des vidéos du montage (Time End − Time Start)
   const orderedVideosTotalDuration = useMemo(() => {
     let sum = 0;
     let unknown = 0;
     for (const u of orderedSelectedVideos) {
       const v = bizVideos.find((x) => x.url === u);
-      if (v?.duration == null) { unknown += 1; continue; }
-      sum += Math.max(0, v.duration - (activeVideoStarts[u] ?? 0));
+      const end = activeVideoEnds[u] ?? v?.duration ?? null;
+      if (end == null) { unknown += 1; continue; }
+      sum += Math.max(0, end - (activeVideoStarts[u] ?? 0));
     }
     return { sum, unknown };
-  }, [orderedSelectedVideos, bizVideos, activeVideoStarts]);
+  }, [orderedSelectedVideos, bizVideos, activeVideoStarts, activeVideoEnds]);
+
 
 
 
