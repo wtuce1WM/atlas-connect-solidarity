@@ -414,6 +414,12 @@ export type ScenarioEdits = {
   sceneDestinations?: Record<string, string[]>;
   /** Média utilisé pour le montage des lieux liés (vidéo 1 ou image 1). Défaut : vidéos. */
   placesMediaMode?: "videos" | "images";
+  /**
+   * Relation entre l'étape WhatsApp et la carte Offre :
+   * - "number" (défaut) : la scène WhatsApp n'affiche que le logo + le numéro
+   * - "with_offer" : le contenu de la carte Offre est affiché dans la scène WhatsApp
+   */
+  whatsappOfferMode?: "number" | "with_offer";
   /** Durée totale réelle du scénario après édition (secondes). */
   totalDuration?: number;
 };
