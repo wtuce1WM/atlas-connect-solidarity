@@ -83,6 +83,8 @@ const ClubAiFollowupsManagement = () => {
         label_ar: r.label_ar,
         sort_order: r.sort_order,
         is_active: r.is_active,
+        mode: r.mode,
+        radius_km: r.radius_km,
       }).eq("id", r.id);
       if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); setSaving(false); return; }
     }
