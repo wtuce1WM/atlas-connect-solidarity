@@ -272,6 +272,15 @@ export default function StudioVideo() {
     })();
   }, [authState]);
 
+  /** Le mode établissement est réservé aux comptes ayant l'accès Studio Vidéo. */
+  const canBusinessMode = hasStudioRole || hasVideoStudio;
+
+  useEffect(() => {
+    if (!accessChecked) return;
+    if (studioMode === "business" && !canBusinessMode) setStudioMode("corporate");
+  }, [accessChecked, studioMode, canBusinessMode]);
+
+
   const [query, setQuery] = useState("");
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [selected, setSelected] = useState<Business | null>(null);
