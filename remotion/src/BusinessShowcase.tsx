@@ -2900,7 +2900,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     <ToneContext.Provider value={tone}>
       <SuppressBgContext.Provider value={continuousMode || slideshowMode}>
         <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
-          {soundtrack && <Audio src={soundtrack} loop volume={audioFadeVolume} />}
+          {soundtrack && <Audio src={soundtrack} loop volume={audioFadeVolume(globalFrame)} />}
           {continuousMode ? (
             <AbsoluteFill style={{ overflow: "hidden" }}>
               {(() => {
@@ -2913,7 +2913,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                   <StartVideo
                     src={continuousBgVideoUrl as string}
                     muted={!bgSoundOn}
-                    volume={bgSoundOn ? audioFadeVolume : 0}
+                    volume={bgSoundOn ? audioFadeVolume(globalFrame) : 0}
                   />
                 );
                 // Vidéo plus courte que le scénario : on répète le média (image + son)
