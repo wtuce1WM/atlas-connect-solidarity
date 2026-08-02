@@ -201,6 +201,43 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
     [rateUrl, rateW, rateH, businessName]
   );
 
+  // Version email-friendly (signature) : HTML statique en tableau, sans JS ni iframe
+  const rateEmailUrl = `${SITE}/embed/avis/${slug}?platform=${ratePlatform}&lang=${rateLang}&variant=card&src=email`;
+  const rateEmailSnippet = useMemo(() => {
+    const t = {
+      fr: {
+        title: "Votre avis compte pour nous",
+        sub: "Un mot sur votre expérience aide énormément notre équipe.",
+        cta: "Laisser un avis ★★★★★",
+      },
+      en: {
+        title: "Your review matters to us",
+        sub: "A few words about your stay help our team enormously.",
+        cta: "Leave a review ★★★★★",
+      },
+      ar: {
+        title: "رأيك يهمنا",
+        sub: "كلمة عن تجربتك تساعد فريقنا كثيرًا.",
+        cta: "اترك تقييمًا ★★★★★",
+      },
+    }[rateLang];
+    const dir = rateLang === "ar" ? ' dir="rtl"' : "";
+    return `<table role="presentation" cellpadding="0" cellspacing="0" border="0"${dir} style="border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;max-width:460px">
+  <tr>
+    <td style="padding:14px 16px;background:#111111;border-radius:12px;color:#ffffff">
+      <div style="font-size:15px;font-weight:bold;color:#ffffff">${businessName}</div>
+      <div style="font-size:14px;color:#ffffff;padding-top:4px">${t.title}</div>
+      <div style="font-size:12px;color:#cccccc;padding-top:2px">${t.sub}</div>
+      <div style="padding-top:10px">
+        <a href="${rateEmailUrl}" style="display:inline-block;background:#25D366;color:#ffffff;text-decoration:none;font-size:13px;font-weight:bold;padding:9px 16px;border-radius:8px">${t.cta}</a>
+      </div>
+      <div style="font-size:10px;color:#888888;padding-top:8px">oneworldmorocco.com</div>
+    </td>
+  </tr>
+</table>`;
+  }, [rateEmailUrl, rateLang, businessName]);
+
+
 
   const weatherUrl = `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}`;
   const weatherSnippet = useMemo(
@@ -834,6 +871,56 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
           </div>
         </div>
       </div>
+
+      {/* ── Signature email (HTML statique) ───────────────────── */}
+      <div className="space-y-3">
+
+        <h3 className="text-white font-semibold flex items-center gap-2">
+          <Mail className="h-4 w-4" /> Signature email « Laisser un avis » (HTML statique)
+        </h3>
+        <p className="text-sm text-white/70">
+          Version compatible Gmail, Outlook, Apple Mail : pas d'iframe ni de JavaScript. Le bouton
+          ouvre votre page d'avis (plateformes et langue selon les réglages ci-dessus). À coller dans
+          la signature, le pied d'email de confirmation ou une relance après séjour.
+        </p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label className="text-white/80 text-xs">Code HTML à coller</Label>
+            <textarea
+              readOnly
+              value={rateEmailSnippet}
+              onFocus={(e) => e.currentTarget.select()}
+              rows={10}
+              className="w-full rounded-md bg-white/10 border border-white/20 text-white text-xs px-3 py-2 font-mono resize-none"
+            />
+            <div className="flex gap-2 flex-wrap">
+              <Button type="button" size="sm" onClick={() => copy(rateEmailSnippet, "rate-email")}>
+                {copied === "rate-email" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                Copier le HTML signature
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => copy(rateEmailUrl, "rate-email-url")}
+                className="text-white border-white/20 hover:bg-white/10 hover:text-white"
+              >
+                {copied === "rate-email-url" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                Copier le lien seul
+              </Button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-white/80 text-xs">Aperçu</Label>
+            <div
+              className="rounded-md border border-white/20 bg-white p-4"
+              dangerouslySetInnerHTML={{ __html: rateEmailSnippet }}
+            />
+          </div>
+        </div>
+      </div>
+
+
 
 
 
