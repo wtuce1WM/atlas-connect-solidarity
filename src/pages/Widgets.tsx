@@ -11,6 +11,11 @@ import { toast } from "@/hooks/use-toast";
 const SITE = "https://oneworldmorocco.com";
 const DEMO_SLUG = "riad-dar-najat";
 
+/** Les codes à copier pointent vers le domaine public ; les aperçus in-page
+ *  utilisent l'origine courante (preview/prod) pour rester toujours valides. */
+const PREVIEW_ORIGIN = typeof window !== "undefined" ? window.location.origin : SITE;
+const toPreview = (url: string) => url.replace(SITE, PREVIEW_ORIGIN);
+
 const CopyBlock = ({ code, id }: { code: string; id: string }) => {
   const [copied, setCopied] = useState(false);
   const doCopy = async () => {
@@ -284,14 +289,14 @@ const TidesWidgetSection = ({ index }: { index: number }) => {
           </h3>
           <iframe
             key={url}
-            src={url}
+            src={toPreview(url)}
             title="Widget Marées"
             loading="lazy"
             style={{ width: "100%", maxWidth: 520, height, border: 0, borderRadius: 20 }}
             className="bg-card shadow-lg"
           />
           <a
-            href={url}
+            href={toPreview(url)}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
@@ -489,14 +494,14 @@ const ReviewsWidgetSection = ({ index }: { index: number }) => {
           </h3>
           <iframe
             key={url}
-            src={url}
+            src={toPreview(url)}
             title="Avis clients"
             loading="lazy"
             style={{ width: "100%", maxWidth: preset.w, height: preset.h, border: 0, borderRadius: 20 }}
             className="bg-card shadow-lg"
           />
           <a
-            href={url}
+            href={toPreview(url)}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
@@ -604,7 +609,7 @@ const Widgets = () => {
                 { name: "city", value: "Marrakech, Essaouira…" },
                 { name: "lang", value: "fr | en | ar" },
               ]}
-              previewUrl={weatherUrl}
+              previewUrl={toPreview(weatherUrl)}
               previewHeight={320}
               previewMaxWidth={420}
               snippet={`<iframe src="${weatherUrl}" style="width:100%;max-width:420px;height:320px;border:0;border-radius:20px" title="Météo Marrakech" loading="lazy"></iframe>`}
@@ -625,7 +630,7 @@ const Widgets = () => {
                 { name: "theme", value: "light | dark" },
                 { name: "lang", value: "fr | en | ar" },
               ]}
-              previewUrl={askUrl}
+              previewUrl={toPreview(askUrl)}
               previewHeight={620}
               previewMaxWidth={520}
               snippet={`<iframe src="${askUrl}" style="width:100%;max-width:520px;height:620px;border:0;border-radius:20px" title="Assistant One World Morocco" loading="lazy"></iframe>`}
@@ -655,7 +660,7 @@ const Widgets = () => {
                 { name: "slug", value: "établissement de référence" },
                 { name: "lang", value: "fr | en | ar" },
               ]}
-              previewUrl={nearbyUrl}
+              previewUrl={toPreview(nearbyUrl)}
               previewHeight={620}
               previewMaxWidth={520}
               snippet={`<iframe src="${nearbyUrl}" style="width:100%;max-width:520px;height:620px;border:0;border-radius:20px" title="Adresses à proximité" loading="lazy"></iframe>`}
