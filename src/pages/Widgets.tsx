@@ -481,24 +481,7 @@ const Widgets = () => {
               snippet={`<iframe src="${nearbyUrl}" style="width:100%;max-width:520px;height:620px;border:0;border-radius:20px" title="Adresses à proximité" loading="lazy"></iframe>`}
             />
 
-            <WidgetSection
-              index={4}
-              icon={<Star className="h-5 w-5" />}
-              title="Widget Avis clients"
-              tagline="Google, TripAdvisor, Restaurant Guru — réunis et notés sur 20."
-              price="Gratuit"
-              description="Note sur 5, nombre d'avis et étoiles par plateforme, avis mis en avant en premier puis navigation dans l'intégralité des avis avec l'auteur. Le texte d'un avis long est entièrement lisible grâce au défilement interne. Le mode Synthèse ajoute le badge global noté sur 20. Cinq gabarits sont disponibles (vertical S/L, horizontal S/L, carré) et le widget s'adapte automatiquement à la largeur de son cadre."
-              params={[
-                { name: "platform", value: "synthese | google | tripadvisor | restaurantguru" },
-                { name: "ratio", value: "auto | vertical | horizontal | square" },
-                { name: "size", value: "auto | sm | lg" },
-                { name: "lang", value: "fr | en | ar" },
-              ]}
-              previewUrl={reviewsUrl}
-              previewHeight={560}
-              previewMaxWidth={460}
-              snippet={`<iframe src="${reviewsUrl}" style="width:100%;max-width:460px;height:560px;border:0;border-radius:20px" title="Avis clients" loading="lazy"></iframe>`}
-            />
+            <ReviewsWidgetSection index={4} />
 
             <WidgetSection
               index={5}
