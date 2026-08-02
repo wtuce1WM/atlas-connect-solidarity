@@ -673,9 +673,6 @@ const BlogArticleTemplate = ({
                     }}
                   />
                 );
-
-                  />
-                );
               })()}
               
               <button
