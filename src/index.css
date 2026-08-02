@@ -108,6 +108,9 @@ All colors MUST be HSL.
     --gold: 43 75% 60%;
     --gold-foreground: 0 0% 5%;
 
+    --whatsapp: 142 70% 49%;
+    --whatsapp-foreground: 0 0% 100%;
+
     --map-surface: 0 0% 98%;
     --map-surface-foreground: 0 0% 20%;
     --searchbar-surface: 0 0% 100%;
