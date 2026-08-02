@@ -2769,12 +2769,15 @@ const BookOnlineSlidePanelInner = ({
         const afterCat = activeFrontTab
           ? activePoiCategoryBusinesses
           : poiBusinesses;
+        // Pill POI : uniquement la sous-catégorie par défaut de chaque POI,
+        // calculée sur l'ensemble des résultats (pas seulement le Top 20).
+        const defaultSubcatOf = (p: typeof poiBusinesses[number]) =>
+          (p.default_service || "").trim() || null;
         const poiSubcatCounts = new Map<string, number>();
         for (const p of afterCat) {
-          for (const sc of (p.categories || [])) {
-            if (!sc) continue;
-            poiSubcatCounts.set(sc, (poiSubcatCounts.get(sc) || 0) + 1);
-          }
+          const sc = defaultSubcatOf(p);
+          if (!sc) continue;
+          poiSubcatCounts.set(sc, (poiSubcatCounts.get(sc) || 0) + 1);
         }
         const poiSubcatList = Array.from(poiSubcatCounts.entries())
           .sort((a, b) => a[0].localeCompare(b[0]));
@@ -2783,7 +2786,7 @@ const BookOnlineSlidePanelInner = ({
             ? haversineKm(userCoords.lat, userCoords.lng, p.latitude, p.longitude)
             : null;
         const afterSubcat = poiSubcatFilter
-          ? afterCat.filter((p) => (p.categories || []).includes(poiSubcatFilter))
+          ? afterCat.filter((p) => defaultSubcatOf(p) === poiSubcatFilter)
           : afterCat;
         const afterProx = poiProximityKm != null
           ? afterSubcat.filter((p) => { const d = distOf(p); return d != null && d <= poiProximityKm; })
