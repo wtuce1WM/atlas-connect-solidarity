@@ -515,7 +515,7 @@ const AffiliateVideosEditor = forwardRef<AffiliateVideosEditorHandle, Props>(
         {videos.length > 0 && (
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={items} strategy={rectSortingStrategy}>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {videos.map((v, i) => (
                   <SortableVideo
                     key={v._uid}
