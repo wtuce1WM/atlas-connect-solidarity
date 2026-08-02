@@ -220,7 +220,7 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
     const blocks = entries
       .map((e) => {
         const b = bizMap[e.id];
-        const img = abs(b?.images?.[0]);
+        const gallery = (b?.images || []).filter(Boolean).map((u) => abs(u)).slice(0, 12);
         const link = b?.slug ? `${SITE}/${b.slug}` : canonical;
         // Mode lecture identique au panneau de droite des articles /blog
         const panelUrl = b?.slug
@@ -229,7 +229,7 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
         const title = e.title || b?.name || "";
         const idx = panelItems.length;
         panelItems.push({ slug: b?.slug || "", url: panelUrl, page: link, title });
-        const dataAttrs = `data-owm-panel="${idx}"`;
+        const dataAttrs = `data-owm-panel="${idx}" onclick="return window.owmOpenPanel?window.owmOpenPanel(${idx}):true"`;
 
         const place = [b?.neighborhood, b?.city].filter(Boolean).join(" · ");
         const rankBadge =
@@ -242,7 +242,7 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
         const reviewCount = b?.total_review_count && b.total_review_count > 0 ? b.total_review_count : null;
         const reviewsBadge =
           rating20 || reviewCount
-            ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:13px;font-weight:700;background:#fdf6e3;border:1px solid #e6cf8a;color:#8A6A1A">★ ${
+            ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:13px;font-weight:700;background:rgba(253,246,227,.92);border:1px solid #e6cf8a;color:#8A6A1A">★ ${
                 rating20 ? `${rating20}<span style="font-weight:600;color:#a1874a">/20</span>` : "—"
               }${reviewCount ? `<span style="font-weight:500;color:#6b7280">· ${reviewCount.toLocaleString("fr-FR")} avis</span>` : ""}</span>`
             : "";
@@ -254,16 +254,47 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
             : null;
         const distanceBadge =
           dKm != null
-            ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;background:#f1f5f9;border:1px solid #e2e8f0;color:#0f172a">📍 ${formatDistance(
+            ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;background:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.5);color:#0f172a">📍 ${formatDistance(
                 dKm,
               )} de ${esc(owner!.name)}</span>`
             : "";
         const metaRow =
           reviewsBadge || distanceBadge
-            ? `<p style="margin:0 0 12px;display:flex;flex-wrap:wrap;gap:8px">${reviewsBadge}${distanceBadge}</p>`
+            ? `<p style="margin:0 0 10px;display:flex;flex-wrap:wrap;gap:8px">${reviewsBadge}${distanceBadge}</p>`
             : "";
 
-        // Avis client mis en avant (« Par défaut », sinon le mieux noté)
+        // Sur-impression affichée uniquement sur la 1ère image
+        const overlay = `<div data-owm-overlay style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:20px;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.45) 45%,rgba(0,0,0,.05) 100%);transition:opacity .25s;pointer-events:none">
+        <div style="pointer-events:auto;text-shadow:0 1px 3px rgba(0,0,0,.6)">
+          ${e.pretitle ? `<p style="margin:0 0 6px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#F4CF7A">${esc(e.pretitle)}</p>` : ""}
+          ${place ? `<p style="margin:0 0 4px;font-size:13px;color:rgba(255,255,255,.85)">${esc(place)}</p>` : ""}
+          <h2 style="margin:0 0 10px;font-size:26px;line-height:1.25;font-family:Montserrat,Helvetica,Arial,sans-serif;color:#fff">${rankBadge}<a href="${link}" ${dataAttrs} rel="noopener" style="color:#fff;text-decoration:none">${esc(title)}</a></h2>
+          ${metaRow}
+          ${e.hook ? `<p style="margin:0;font-style:italic;font-size:16px;line-height:1.5;color:#fff">« ${esc(e.hook)} »</p>` : ""}
+        </div>
+      </div>`;
+
+        const slides = gallery
+          .map(
+            (u, k) =>
+              `<div style="position:relative;flex:0 0 100%;width:100%;height:100%"><img src="${u}" alt="${esc(title)}" loading="${k === 0 ? "eager" : "lazy"}" style="width:100%;height:100%;object-fit:cover;display:block" />${k === 0 ? overlay : ""}</div>`,
+          )
+          .join("");
+
+        const arrows =
+          gallery.length > 1
+            ? `<button type="button" data-owm-dir="-1" aria-label="Image précédente" style="position:absolute;top:50%;left:10px;transform:translateY(-50%);width:38px;height:38px;border:0;border-radius:999px;background:rgba(255,255,255,.92);color:#0f172a;font-size:18px;line-height:1;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.25)">‹</button>
+        <button type="button" data-owm-dir="1" aria-label="Image suivante" style="position:absolute;top:50%;right:10px;transform:translateY(-50%);width:38px;height:38px;border:0;border-radius:999px;background:rgba(255,255,255,.92);color:#0f172a;font-size:18px;line-height:1;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.25)">›</button>
+        <div data-owm-count style="position:absolute;top:10px;right:12px;padding:3px 10px;border-radius:999px;background:rgba(0,0,0,.5);color:#fff;font-size:12px">1/${gallery.length}</div>`
+            : "";
+
+        const carousel = gallery.length
+          ? `<div data-owm-carousel style="position:relative;width:100%;height:420px;max-height:70vh;overflow:hidden;border-radius:16px;margin:0 0 18px;background:#0f172a">
+        <div data-owm-track style="display:flex;width:100%;height:100%;transition:transform .35s ease">${slides}</div>
+        ${arrows}
+      </div>`
+          : "";
+
         const rv = reviewMap[e.id];
         const rvText = rv
           ? (lang === "ar"
@@ -296,21 +327,18 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
           .map((p) => `<p style="margin:0 0 14px;line-height:1.7;color:#1f2937">${esc(p)}</p>`)
           .join("\n        ");
         return `    <article style="margin:0 0 44px;padding:0 0 32px;border-bottom:1px solid #e5e7eb">
-      ${img ? `<img src="${img}" alt="${esc(title)}" loading="lazy" style="width:100%;height:auto;max-height:460px;object-fit:cover;border-radius:16px;margin:0 0 18px" />` : ""}
-      ${e.pretitle ? `<p style="margin:0 0 6px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#b45309">${esc(e.pretitle)}</p>` : ""}
-      <h2 style="margin:0 0 10px;font-size:26px;line-height:1.25;font-family:Montserrat,Helvetica,Arial,sans-serif;color:#0f172a">${rankBadge}<a href="${link}" ${dataAttrs} target="_blank" rel="noopener" style="color:inherit;text-decoration:none">${esc(title)}</a></h2>
-      ${place ? `<p style="margin:0 0 8px;font-size:14px;color:#6b7280">${esc(place)}</p>` : ""}
-      ${metaRow}
-      ${e.hook ? `<p style="margin:0 0 10px;font-style:italic;font-size:17px;color:#b45309">« ${esc(e.hook)} »</p>` : ""}
+      ${carousel}
+      ${!gallery.length ? `<h2 style="margin:0 0 10px;font-size:26px;line-height:1.25;font-family:Montserrat,Helvetica,Arial,sans-serif;color:#0f172a">${rankBadge}<a href="${link}" ${dataAttrs} rel="noopener" style="color:inherit;text-decoration:none">${esc(title)}</a></h2>${place ? `<p style="margin:0 0 8px;font-size:14px;color:#6b7280">${esc(place)}</p>` : ""}${e.hook ? `<p style="margin:0 0 10px;font-style:italic;font-size:17px;color:#b45309">« ${esc(e.hook)} »</p>` : ""}` : ""}
       ${e.hours ? `<p style="margin:0 0 10px;font-size:14px;color:#6b7280">${esc(e.hours)}</p>` : ""}
       ${price}
       ${paras}
       ${reviewBlock}
 
-      <p style="margin:16px 0 0"><a href="${link}" ${dataAttrs} target="_blank" rel="noopener" style="display:inline-block;padding:10px 18px;border-radius:999px;background:#0f172a;color:#fff;font-size:14px;text-decoration:none">Voir la fiche sur One World Morocco</a></p>
+      <p style="margin:16px 0 0"><a href="${link}" ${dataAttrs} rel="noopener" style="display:inline-block;padding:10px 18px;border-radius:999px;background:#0f172a;color:#fff;font-size:14px;text-decoration:none">Voir la fiche sur One World Morocco</a></p>
     </article>`;
       })
       .join("\n");
+
 
     const panelScript = `<!-- One World Morocco — panneau latéral (swipe vertical + horizontal) -->
 <div id="owm-panel" aria-hidden="true" style="position:fixed;inset:0;z-index:2147483000;display:none">
@@ -386,6 +414,39 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
   },{passive:true});
   swipe.addEventListener('touchend',function(){x=null;y=null;});
   swipe.addEventListener('wheel',function(e){if(Math.abs(e.deltaY)<30)return;e.preventDefault();go(e.deltaY>0?1:-1);},{passive:false});
+})();
+(function(){
+  // Carrousels d'images (chevrons ‹ ›) — sur-impression visible seulement sur la 1ère image
+  var list=document.querySelectorAll('[data-owm-carousel]');
+  for(var n=0;n<list.length;n++){(function(box){
+    var track=box.querySelector('[data-owm-track]');
+    if(!track)return;
+    var slides=track.children.length, i=0;
+    var counter=box.querySelector('[data-owm-count]');
+    var overlay=box.querySelector('[data-owm-overlay]');
+    function render(){
+      track.style.transform='translateX(-'+(i*100)+'%)';
+      if(counter)counter.textContent=(i+1)+'/'+slides;
+      if(overlay)overlay.style.opacity=(i===0?'1':'0');
+    }
+    var btns=box.querySelectorAll('[data-owm-dir]');
+    for(var k=0;k<btns.length;k++){(function(btn){
+      btn.addEventListener('click',function(ev){
+        ev.preventDefault();ev.stopPropagation();
+        var d=parseInt(btn.getAttribute('data-owm-dir'),10)||1;
+        i=(i+d+slides)%slides;render();
+      });
+    })(btns[k]);}
+    var sx=null,sy=null,hd=false;
+    box.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY;hd=false;},{passive:true});
+    box.addEventListener('touchmove',function(e){
+      if(sx===null||hd)return;
+      var dx=e.touches[0].clientX-sx, dy=e.touches[0].clientY-sy;
+      if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)){hd=true;i=(i+(dx<0?1:-1)+slides)%slides;render();}
+    },{passive:true});
+    box.addEventListener('touchend',function(){sx=null;sy=null;});
+    render();
+  })(list[n]);}
 })();
 </script>`;
 
