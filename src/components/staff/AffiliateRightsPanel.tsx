@@ -53,7 +53,7 @@ const AffiliateRightsPanel = () => {
       if (error) {
         toast({ title: "Erreur de chargement", description: error.message, variant: "destructive" });
       } else {
-        setRows((data as AffiliateRow[]) || []);
+        setRows((data as unknown as AffiliateRow[]) || []);
       }
       setLoading(false);
     };
