@@ -206,8 +206,9 @@ const BlogManagement = ({
       ) : (
         <div className="space-y-3">
           {posts.map((post) => {
-            const missingEn = !post.title_en || !post.content_en;
-            const missingAr = !post.title_ar || !post.content_ar;
+            const missingEn = !hasTranslation(post.title_en, post.content_en, post.intro_en, post.entries_en);
+            const missingAr = !hasTranslation(post.title_ar, post.content_ar, post.intro_ar, post.entries_ar);
+
             const busy = translating[post.id];
             const isUpdating = !!updating[post.id];
             return (
