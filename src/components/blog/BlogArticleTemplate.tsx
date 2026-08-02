@@ -18,6 +18,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
 import { withLangPrefix } from "@/lib/localizedPath";
 import { mapLabel } from "@/lib/mapLabels";
+import BlogEditorialSections, { type BlogEditorialSection } from "@/components/blog/BlogEditorialSections";
+
+export type { BlogEditorialSection };
+
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
@@ -146,7 +150,11 @@ const BlogArticleTemplate = ({
   faq,
   anchorPoi,
   embedBackSlug,
+  customHeroImageMobile,
+  poiMapMode,
+  editorialSections,
 }: BlogArticleTemplateProps) => {
+
   const navigate = useNavigate();
   const { language } = useLanguage();
   const { translateSubcategory } = useTaxonomyTranslations();
