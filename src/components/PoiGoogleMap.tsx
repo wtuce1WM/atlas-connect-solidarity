@@ -336,7 +336,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     }
   };
 
-const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls }: PoiGoogleMapProps) => {
+const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls, baseColor }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -427,7 +427,11 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       (opts as any).colorScheme = mapTheme === "default-dark" ? "DARK" : "LIGHT";
       opts.styles = [];
     } else {
-      opts.styles = mapTheme === "dark" ? DARK_MAP_STYLES : LIGHT_MAP_STYLES;
+      opts.styles = mapTheme === "dark"
+        ? DARK_MAP_STYLES
+        : baseColor
+          ? buildLightStylesWithBase(baseColor)
+          : LIGHT_MAP_STYLES;
     }
     mapRef.current = new gmaps.Map(containerRef.current, opts);
     infoWindowRef.current = new gmaps.InfoWindow();
@@ -448,8 +452,14 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   useEffect(() => {
     const map = mapRef.current;
     if (!map || isNativeTheme) return;
-    map.setOptions({ styles: mapTheme === "dark" ? DARK_MAP_STYLES : LIGHT_MAP_STYLES });
-  }, [mapTheme, ready, isNativeTheme]);
+    map.setOptions({
+      styles: mapTheme === "dark"
+        ? DARK_MAP_STYLES
+        : baseColor
+          ? buildLightStylesWithBase(baseColor)
+          : LIGHT_MAP_STYLES,
+    });
+  }, [mapTheme, ready, isNativeTheme, baseColor]);
 
   // Traffic / Transit layer toggles
   useEffect(() => {
