@@ -1,6 +1,6 @@
 // Standalone embeddable weather page: /embed/weather?city=Marrakech&lang=fr
 // Designed to be loaded in an <iframe> from any external site (Claude Design, etc.).
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
@@ -56,10 +56,13 @@ export default function EmbedWeather() {
     };
   }, [city]);
 
+  const rootRef = useRef<HTMLDivElement | null>(null);
+
   // Report our height to the host page so it can auto-resize the iframe.
   useEffect(() => {
     const post = () => {
-      const h = document.documentElement.scrollHeight;
+      const h = rootRef.current?.getBoundingClientRect().height || 0;
+      if (h < 40) return;
       window.parent?.postMessage({ type: "owm-weather-height", height: h }, "*");
     };
     post();
@@ -72,7 +75,7 @@ export default function EmbedWeather() {
   }, [data, loading, error]);
 
   return (
-    <div className="w-full min-h-0 p-2 flex items-start justify-center bg-transparent">
+    <div ref={rootRef} className="w-full min-h-0 p-2 flex items-start justify-center bg-transparent">
       {loading && (
         <div className="w-full rounded-3xl bg-muted/40 animate-pulse h-[260px] flex items-center justify-center text-sm text-muted-foreground">
           {L.loading}
