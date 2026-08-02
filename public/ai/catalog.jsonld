@@ -5133,7 +5133,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 289,
+          "reviewCount": 325,
           "bestRating": 5
         }
       }
@@ -18811,7 +18811,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 636,
+          "reviewCount": 642,
           "bestRating": 5
         }
       }
