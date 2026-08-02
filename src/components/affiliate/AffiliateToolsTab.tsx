@@ -165,6 +165,19 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
     [nearbyUrl, businessName]
   );
 
+  const reviewsUrl = `${SITE}/embed/reviews/${slug}?platform=${reviewsPlatform}&lang=${reviewsLang}`;
+  const reviewsSnippet = useMemo(
+    () =>
+      `<iframe src="${reviewsUrl}" style="width:100%;max-width:480px;height:560px;border:0;border-radius:20px" title="Avis clients — ${businessName}" loading="lazy"></iframe>`,
+    [reviewsUrl, businessName]
+  );
+
+  const weatherUrl = `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}`;
+  const weatherSnippet = useMemo(
+    () =>
+      `<iframe src="${weatherUrl}" style="width:100%;max-width:420px;height:320px;border:0;border-radius:20px" title="Météo — ${weatherCity}" loading="lazy"></iframe>`,
+    [weatherUrl, weatherCity]
+  );
 
 
   const copy = async (value: string, key: string) => {
