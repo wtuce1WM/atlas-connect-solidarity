@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Waves, Clock3, Copy, Check, Sparkles } from "lucide-react";
 
 /**
@@ -21,6 +21,10 @@ export interface BlogEditorialSection {
 
 const SITE = "https://oneworldmorocco.com";
 
+/**
+ * Auto-resizing tides iframe: the embed posts its measured height
+ * ("owm-tides-height"), so the frame never needs an inner scrollbar.
+ */
 const TidesFrame = ({
   city,
   picker = false,
@@ -31,15 +35,34 @@ const TidesFrame = ({
   picker?: boolean;
   height?: number;
   title: string;
-}) => (
-  <iframe
-    src={`/embed/tides?city=${encodeURIComponent(city)}&lang=fr${picker ? "&picker=1" : ""}`}
-    title={title}
-    loading="lazy"
-    className="w-full rounded-xl border border-border/40 bg-background"
-    style={{ height }}
-  />
-);
+}) => {
+  const frameRef = useRef<HTMLIFrameElement | null>(null);
+  const [autoHeight, setAutoHeight] = useState<number | null>(null);
+
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      const data = event.data as { type?: string; height?: number } | null;
+      if (!data || data.type !== "owm-tides-height" || typeof data.height !== "number") return;
+      if (frameRef.current && event.source !== frameRef.current.contentWindow) return;
+      setAutoHeight(Math.max(240, Math.ceil(data.height) + 8));
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
+
+  return (
+    <iframe
+      ref={frameRef}
+      src={`/embed/tides?city=${encodeURIComponent(city)}&lang=fr${picker ? "&picker=1" : ""}`}
+      title={title}
+      loading="lazy"
+      scrolling="no"
+      className="w-full rounded-xl border border-border/40 bg-background overflow-hidden"
+      style={{ height: autoHeight ?? height }}
+    />
+  );
+};
+
 
 /** 1. Live band — right after the introduction. */
 const TidesLive = ({ city }: { city: string }) => (
