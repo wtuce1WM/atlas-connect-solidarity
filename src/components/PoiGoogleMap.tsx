@@ -42,6 +42,8 @@ interface PoiGoogleMapProps {
   mapTheme?: "light" | "dark" | "default-light" | "default-dark";
   /** When true, shows native map type control (Plan/Satellite/Relief) + Traffic/Transit toggle buttons. */
   showLayerControls?: boolean;
+  /** Optional hex color (e.g. "#EFE6D8") overriding the light theme base/landscape color (widgets only). */
+  baseColor?: string | null;
 }
 
 const LIGHT_MAP_STYLES: google.maps.MapTypeStyle[] = [
