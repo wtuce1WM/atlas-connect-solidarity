@@ -135,17 +135,22 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
     const hero = abs(post.custom_hero_image_url || post.cover_image_url);
     const medal = (r?: number | null) => (r === 1 ? "🥇" : r === 2 ? "🥈" : r === 3 ? "🥉" : "");
 
-    const panelItems: { url: string; title: string }[] = [];
+    const panelItems: { url: string; page: string; title: string }[] = [];
 
     const blocks = entries
       .map((e) => {
         const b = bizMap[e.id];
         const img = abs(b?.images?.[0]);
         const link = b?.slug ? `${SITE}/${b.slug}` : canonical;
+        // Mode lecture identique au panneau de droite des articles /blog
+        const panelUrl = b?.slug
+          ? `${SITE}/embed/fiche/${b.slug}?lang=${lang}`
+          : canonical;
         const title = e.title || b?.name || "";
         const idx = panelItems.length;
-        panelItems.push({ url: link, title });
+        panelItems.push({ url: panelUrl, page: link, title });
         const dataAttrs = `data-owm-panel="${idx}"`;
+
         const place = [b?.neighborhood, b?.city].filter(Boolean).join(" · ");
         const rankBadge = e.rank
           ? `<span style="display:inline-block;padding:4px 12px;margin-right:10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(135deg,#F4CF7A,#D4AF37 55%,#8A6A1A);color:#111">${medal(e.rank)} N°${e.rank}</span>`
