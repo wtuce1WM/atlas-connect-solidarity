@@ -4,7 +4,7 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Copy, CloudSun, MessageSquare, MapPin, Star, Newspaper, Waves, ExternalLink, ThumbsUp } from "lucide-react";
+import { Check, Copy, CloudSun, MessageSquare, MapPin, Star, Newspaper, Waves, ExternalLink, ThumbsUp, Mail } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { toast } from "@/hooks/use-toast";
 
@@ -698,6 +698,135 @@ const RateUsWidgetSection = ({ index }: { index: number }) => {
 };
 
 
+const EmailSignatureWidgetSection = ({ index }: { index: number }) => {
+  const [platform, setPlatform] = useState<string>("all");
+  const [lang, setLang] = useState<"fr" | "en" | "ar">("fr");
+
+  const businessName = "Riad Dar Najat";
+  const rateEmailUrl = `${SITE}/embed/avis/${DEMO_SLUG}?platform=${platform}&lang=${lang}&variant=card&src=email`;
+
+  const t = {
+    fr: {
+      title: "Votre avis compte pour nous",
+      sub: "Un mot sur votre expérience aide énormément notre équipe.",
+      cta: "Laisser un avis ★★★★★",
+    },
+    en: {
+      title: "Your review matters to us",
+      sub: "A few words about your stay help our team enormously.",
+      cta: "Leave a review ★★★★★",
+    },
+    ar: {
+      title: "رأيك يهمنا",
+      sub: "كلمة عن تجربتك تساعد فريقنا كثيرًا.",
+      cta: "اترك تقييمًا ★★★★★",
+    },
+  }[lang];
+
+  const dir = lang === "ar" ? ' dir="rtl"' : "";
+  const snippet = `<table role="presentation" cellpadding="0" cellspacing="0" border="0"${dir} style="border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;max-width:460px">
+  <tr>
+    <td style="padding:14px 16px;background:#111111;border-radius:12px;color:#ffffff">
+      <div style="font-size:15px;font-weight:bold;color:#ffffff">${businessName}</div>
+      <div style="font-size:14px;color:#ffffff;padding-top:4px">${t.title}</div>
+      <div style="font-size:12px;color:#cccccc;padding-top:2px">${t.sub}</div>
+      <div style="padding-top:10px">
+        <a href="${rateEmailUrl}" style="display:inline-block;background:#25D366;color:#ffffff;text-decoration:none;font-size:13px;font-weight:bold;padding:9px 16px;border-radius:8px">${t.cta}</a>
+      </div>
+      <div style="font-size:10px;color:#888888;padding-top:8px">oneworldmorocco.com</div>
+    </td>
+  </tr>
+</table>`;
+
+  return (
+    <section className="scroll-mt-32 border-t border-border pt-16">
+      <div className="flex items-center gap-3 mb-4">
+        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <Mail className="h-5 w-5" />
+        </span>
+        <span className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+          Widget {String(index).padStart(2, "0")}
+        </span>
+      </div>
+
+      <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3 flex flex-wrap items-center gap-3">
+        <span>Signature email « Laisser un avis »</span>
+      </h2>
+      <p className="text-lg text-primary font-medium mb-4">
+        Version email statique, sans iframe ni JavaScript.
+      </p>
+      <p className="text-base text-muted-foreground max-w-3xl mb-8">
+        Un bandeau HTML compatible Gmail, Outlook et Apple Mail qui invite le client à laisser un avis
+        Google ou TripAdvisor. Il se colle dans la signature d'email, le pied de confirmation de
+        réservation, ou la relance après séjour. Le bouton vert ouvre la page d'avis correspondant à la
+        plateforme et à la langue choisies.
+      </p>
+      <Badge className="mb-5">Prix : inclus dans l'abonnement</Badge>
+
+      <div className="grid gap-5 sm:grid-cols-3 mb-10">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+            Plateformes
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {RATE_PLATFORMS.map((p) => (
+              <button key={p.key} type="button" onClick={() => setPlatform(p.key)} className={chip(platform === p.key)}>
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Langue</p>
+          <div className="flex gap-2">
+            {(["fr", "en", "ar"] as const).map((l) => (
+              <button key={l} type="button" onClick={() => setLang(l)} className={`${chip(lang === l)} uppercase`}>
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-10 lg:grid-cols-2 items-start">
+        <div>
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
+            Aperçu en direct
+          </h3>
+          <div
+            className="rounded-xl border border-border bg-white p-6 shadow-lg inline-block"
+            dangerouslySetInnerHTML={{ __html: snippet }}
+          />
+          <a
+            href={rateEmailUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+          >
+            Ouvrir la page d'avis <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
+            Code HTML à copier
+          </h3>
+          <CopyBlock code={snippet} id="email-signature" />
+          <div className="mt-6 rounded-xl border border-border bg-muted/30 p-4">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+              Où le coller
+            </p>
+            <ul className="text-sm text-muted-foreground space-y-1 list-disc pl-5">
+              <li>Signature email du propriétaire / GM / conciergerie.</li>
+              <li>Pied d'email de confirmation après réservation.</li>
+              <li>Relance post-séjour (72 h après le départ).</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const Widgets = () => {
   useSEO({
     title: "Widgets & iframes One World Morocco à intégrer",
@@ -850,8 +979,10 @@ const Widgets = () => {
 
             <RateUsWidgetSection index={6} />
 
+            <EmailSignatureWidgetSection index={7} />
+
             <WidgetSection
-              index={7}
+              index={8}
               icon={<Newspaper className="h-5 w-5" />}
               title="Export d'article de blog"
               tagline="Votre article éditorial, republié sur votre propre domaine."
