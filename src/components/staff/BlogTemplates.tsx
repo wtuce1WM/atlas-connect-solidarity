@@ -185,9 +185,9 @@ const BlogTemplates = () => {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Badge variant="secondary" className="text-xs">Éditorial libre</Badge>
-            <Badge variant="secondary" className="text-xs">Storytelling</Badge>
-            <Badge variant="secondary" className="text-xs">Institutionnel</Badge>
+            <Badge variant="outline" className="text-xs border-primary/30 text-primary bg-primary/5">Éditorial libre</Badge>
+            <Badge variant="outline" className="text-xs border-primary/30 text-primary bg-primary/5">Storytelling</Badge>
+            <Badge variant="outline" className="text-xs border-primary/30 text-primary bg-primary/5">Institutionnel</Badge>
           </div>
         </CardContent>
       </Card>
