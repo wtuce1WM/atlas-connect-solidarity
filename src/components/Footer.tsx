@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import logoGold from "@/assets/logoGOLDsimpleSML.webp";
 
 interface FooterProps {
-  variant?: "default" | "morocco" | "verified";
+  variant?: "default" | "morocco" | "verified" | "affiliate";
   className?: string;
 }
 
@@ -93,19 +93,38 @@ const Footer = ({ variant = "default", className }: FooterProps) => {
   }, []);
 
   const isVerified = variant === "verified";
+  const isAffiliate = variant === "affiliate";
 
-  const footerBg = className 
-    ? className 
-    : variant === "morocco" 
-    ? "bg-transparent text-white" 
-    : isVerified
-    ? "bg-background text-foreground"
+  const footerBg = className
+    ? className
+    : variant === "morocco"
+    ? "bg-transparent text-white"
+    : isAffiliate
+    ? "bg-transparent text-white"
     : "bg-background text-foreground";
 
-  const textSecondary = isVerified || variant !== "morocco" ? "text-foreground/80" : "text-white/90";
-  const textTertiary = isVerified || variant !== "morocco" ? "text-foreground/70" : "text-white/70";
-  const textQuaternary = isVerified || variant !== "morocco" ? "text-foreground/60" : "text-white/60";
-  const borderColor = isVerified || variant !== "morocco" ? "border-foreground/20" : "border-white/20";
+  const textSecondary = isAffiliate
+    ? "text-white/90"
+    : isVerified || variant !== "morocco"
+    ? "text-foreground/80"
+    : "text-white/90";
+  const textTertiary = isAffiliate
+    ? "text-white/80"
+    : isVerified || variant !== "morocco"
+    ? "text-foreground/70"
+    : "text-white/70";
+  const textQuaternary = isAffiliate
+    ? "text-white/70"
+    : isVerified || variant !== "morocco"
+    ? "text-foreground/60"
+    : "text-white/60";
+  const borderColor = isAffiliate
+    ? "border-white/20"
+    : isVerified || variant !== "morocco"
+    ? "border-foreground/20"
+    : "border-white/20";
+  const headingColor = isAffiliate ? "text-white" : "text-[#3B3B3B]";
+  const brandColor = isAffiliate ? "text-white" : "text-black";
 
   return (
     <footer className={footerBg}>
@@ -115,7 +134,7 @@ const Footer = ({ variant = "default", className }: FooterProps) => {
           <div className="md:col-span-2 text-center md:text-left flex flex-col items-center md:items-start">
             <div className="mb-4 flex items-center gap-2">
             <span className="text-lg font-bold tracking-tight" style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.12em", textTransform: "uppercase" }}>
-               <span className="text-black">ONE WORLD</span> <span className="text-black">MOROCCO</span>
+               <span className={brandColor}>ONE WORLD</span> <span className={brandColor}>MOROCCO</span>
              </span>
             </div>
             <p className={`mb-6 text-sm leading-relaxed ${textSecondary}`}>
@@ -149,7 +168,7 @@ const Footer = ({ variant = "default", className }: FooterProps) => {
 
           {/* Company */}
           <div>
-            <h4 className="mb-4 font-semibold" style={{ color: "#3B3B3B" }}>{language === "en" ? "Links" : language === "ar" ? "روابط" : "Liens"}</h4>
+            <h4 className={`mb-4 font-semibold ${headingColor}`}>{language === "en" ? "Links" : language === "ar" ? "روابط" : "Liens"}</h4>
             <ul className={`space-y-2 ${textSecondary}`}>
               <li><Link to="/conditions-generales" className="transition-colors hover:text-gold">{language === "en" ? "General Terms of Operation" : language === "ar" ? "الشروط العامة للتشغيل" : "Conditions Générales de Fonctionnement"}</Link></li>
               <li><Link to="/mission" className="transition-colors hover:text-gold">{t("footer.ourMission")}</Link></li>
@@ -164,18 +183,18 @@ const Footer = ({ variant = "default", className }: FooterProps) => {
 
           {/* Contact */}
           <div>
-            <h4 className="mb-4 font-semibold" style={{ color: "#3B3B3B" }}>Contact</h4>
+            <h4 className={`mb-4 font-semibold ${headingColor}`}>Contact</h4>
             <ul className={`space-y-3 ${textSecondary}`}>
               <li className="flex items-center gap-2">
-                <MapPin className="h-4 w-4" style={{ color: "#3B3B3B" }} />
+                <MapPin className={`h-4 w-4 ${headingColor}`} />
                 {t("footer.location")}
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4" style={{ color: "#3B3B3B" }} />
+                <Phone className={`h-4 w-4 ${headingColor}`} />
                 <a href="tel:+212661439221" className="hover:text-gold transition-colors">+212 661-439221</a>
               </li>
               <li className="flex items-center gap-2">
-                <Mail className="h-4 w-4" style={{ color: "#3B3B3B" }} />
+                <Mail className={`h-4 w-4 ${headingColor}`} />
                 info@wtuce.org
               </li>
             </ul>

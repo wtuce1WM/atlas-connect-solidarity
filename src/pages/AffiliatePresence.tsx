@@ -896,7 +896,7 @@ const AffiliatePresence = () => {
           </div>
         )}
       </main>
-      <Footer />
+      <Footer variant="affiliate" />
     </div>
   );
 };

@@ -269,7 +269,7 @@ const AffiliatesLogin = () => {
         </div>
       </main>
 
-      <Footer />
+      <Footer variant="affiliate" />
     </div>
   );
 };
