@@ -919,6 +919,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       </div>
 
       {/* ── Signature email (HTML statique) ───────────────────── */}
+      {rights.emailSignature && (
       <div className="space-y-3">
 
         <h3 className="text-white font-semibold flex items-center gap-2">
