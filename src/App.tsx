@@ -190,6 +190,9 @@ const LocalizedRoutes = () => {
               <Route path="/cookies" element={renderLazyRoute(<CookiesPage />)} />
               <Route path="/contact" element={renderLazyRoute(<Contact />)} />
               <Route path="/blog" element={renderLazyRoute(<Blog />)} />
+              <Route path="/widgets" element={renderLazyRoute(<Widgets />)} />
+              <Route path="/en/widgets" element={renderLazyRoute(<Widgets />)} />
+              <Route path="/ar/widgets" element={renderLazyRoute(<Widgets />)} />
               
               {/* Custom-layout blog articles (kept as React components — fetch dynamic data) */}
               <Route path="/blog/5-jours-marrakech-artisanat" element={renderLazyRoute(<MarrakechArtisanat5Jours />)} />
