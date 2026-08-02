@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -82,9 +83,16 @@ const WidgetSection = ({
       </span>
     </div>
 
-    <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">{title}</h2>
+    <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3 flex flex-wrap items-center gap-3">
+      <span>{title}</span>
+      {price === "Gratuit" && (
+        <span className="rounded-xl bg-whatsapp px-3 py-0.5 text-whatsapp-foreground leading-tight">
+          Gratuit
+        </span>
+      )}
+    </h2>
     <p className="text-lg text-primary font-medium mb-4">{tagline}</p>
-    <Badge className="mb-5">{price}</Badge>
+    {price !== "Gratuit" && <Badge className="mb-5">{price}</Badge>}
     <p className="text-base text-muted-foreground max-w-3xl mb-8">{description}</p>
 
     {params && (
@@ -173,6 +181,162 @@ const INCOMPATIBLE = [
   ["Sites en CSP stricte sans frame-src", "L'administrateur doit autoriser oneworldmorocco.com"],
 ];
 
+const REVIEW_PRESETS: Record<string, { label: string; ratio: string; size: string; w: number; h: number }> = {
+  "v-sm": { label: "Vertical S", ratio: "vertical", size: "sm", w: 460, h: 560 },
+  "v-lg": { label: "Vertical L", ratio: "vertical", size: "lg", w: 460, h: 1000 },
+  "h-sm": { label: "Horizontal S", ratio: "horizontal", size: "sm", w: 760, h: 340 },
+  "h-lg": { label: "Horizontal L", ratio: "horizontal", size: "lg", w: 900, h: 460 },
+  square: { label: "Carré", ratio: "square", size: "sm", w: 480, h: 480 },
+};
+
+const ALL_REVIEW_PLATFORMS = [
+  { key: "all", label: "Synthèse", field: "computed_rating" },
+  { key: "google", label: "Google", field: "google_rating" },
+  { key: "tripadvisor", label: "TripAdvisor", field: "tripadvisor_rating" },
+  { key: "restaurant-guru", label: "Restaurant Guru", field: "restaurant_guru_rating" },
+] as const;
+
+const chip = (active: boolean) =>
+  `text-xs py-1.5 px-3 rounded-md border transition-colors ${
+    active
+      ? "bg-primary text-primary-foreground border-primary"
+      : "border-border text-muted-foreground hover:bg-muted"
+  }`;
+
+const ReviewsWidgetSection = ({ index }: { index: number }) => {
+  const [available, setAvailable] = useState<string[]>(["all"]);
+  const [platform, setPlatform] = useState<string>("all");
+  const [lang, setLang] = useState<"fr" | "en" | "ar">("fr");
+  const [presetKey, setPresetKey] = useState<string>("v-sm");
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("computed_rating,google_rating,tripadvisor_rating,restaurant_guru_rating")
+        .eq("slug", DEMO_SLUG)
+        .maybeSingle();
+      if (!alive || !data) return;
+      const keys = ALL_REVIEW_PLATFORMS.filter(
+        (p) => Number((data as Record<string, number | null>)[p.field] ?? 0) > 0,
+      ).map((p) => p.key as string);
+      setAvailable(keys.length ? keys : ["all"]);
+      if (!keys.includes(platform)) setPlatform(keys[0] || "all");
+    })();
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const preset = REVIEW_PRESETS[presetKey];
+  const url = `${SITE}/embed/reviews/${DEMO_SLUG}?platform=${platform}&lang=${lang}&ratio=${preset.ratio}&size=${preset.size}`;
+  const snippet = `<iframe src="${url}" style="width:100%;max-width:${preset.w}px;height:${preset.h}px;border:0;border-radius:20px" title="Avis clients" loading="lazy"></iframe>`;
+
+  return (
+    <section className="scroll-mt-32 border-t border-border pt-16">
+      <div className="flex items-center gap-3 mb-4">
+        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <Star className="h-5 w-5" />
+        </span>
+        <span className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+          Widget {String(index).padStart(2, "0")}
+        </span>
+      </div>
+
+      <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3 flex flex-wrap items-center gap-3">
+        <span>Widget Avis clients</span>
+        <span className="rounded-xl bg-whatsapp px-3 py-0.5 text-whatsapp-foreground leading-tight">
+          Gratuit
+        </span>
+      </h2>
+      <p className="text-lg text-primary font-medium mb-4">
+        Google, TripAdvisor, Restaurant Guru — réunis et notés sur 20.
+      </p>
+      <p className="text-base text-muted-foreground max-w-3xl mb-8">
+        Note sur 5, nombre d'avis et étoiles par plateforme, avis mis en avant en premier puis navigation
+        dans l'intégralité des avis avec l'auteur. Les plateformes sans avis rédigés (TripAdvisor,
+        Restaurant Guru) s'affichent sous forme de bloc note certifiée avec leur logo et un lien vers la
+        plateforme. Le mode Synthèse ajoute le badge global noté sur 20. Cinq gabarits sont disponibles et
+        le widget s'adapte automatiquement à la largeur de son cadre.
+      </p>
+
+      <div className="grid gap-5 sm:grid-cols-3 mb-8">
+        <div className="sm:col-span-2">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+            Plateforme
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {ALL_REVIEW_PLATFORMS.filter((p) => available.includes(p.key)).map((p) => (
+              <button key={p.key} type="button" onClick={() => setPlatform(p.key)} className={chip(platform === p.key)}>
+                {p.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-2">
+            Seules les plateformes réellement renseignées pour l'établissement sont proposées.
+          </p>
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Langue</p>
+          <div className="flex gap-2">
+            {(["fr", "en", "ar"] as const).map((l) => (
+              <button key={l} type="button" onClick={() => setLang(l)} className={`${chip(lang === l)} uppercase`}>
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-10">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+          Format d'affichage
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(REVIEW_PRESETS).map(([key, p]) => (
+            <button key={key} type="button" onClick={() => setPresetKey(key)} className={chip(presetKey === key)}>
+              {p.label} · {p.w}×{p.h}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid gap-10 lg:grid-cols-2 items-start">
+        <div>
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
+            Aperçu en direct
+          </h3>
+          <iframe
+            key={url}
+            src={url}
+            title="Avis clients"
+            loading="lazy"
+            style={{ width: "100%", maxWidth: preset.w, height: preset.h, border: 0, borderRadius: 20 }}
+            className="bg-card shadow-lg"
+          />
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+          >
+            Ouvrir en plein écran <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
+            Code d'intégration
+          </h3>
+          <CopyBlock code={snippet} id="reviews" />
+        </div>
+      </div>
+    </section>
+  );
+};
+
+
 const Widgets = () => {
   useSEO({
     title: "Widgets & iframes One World Morocco à intégrer",
@@ -184,7 +348,6 @@ const Widgets = () => {
   const weatherUrl = `${SITE}/embed/weather?city=Marrakech&lang=fr`;
   const askUrl = `${SITE}/embed/ask/${DEMO_SLUG}?theme=light&lang=fr`;
   const nearbyUrl = `${SITE}/embed/nearby/${DEMO_SLUG}?lang=fr`;
-  const reviewsUrl = `${SITE}/embed/reviews/${DEMO_SLUG}?platform=synthese&lang=fr&ratio=vertical&size=sm`;
 
   const floatingSnippet = useMemo(
     () => `<!-- Panneau flottant One World Morocco -->
@@ -317,24 +480,7 @@ const Widgets = () => {
               snippet={`<iframe src="${nearbyUrl}" style="width:100%;max-width:520px;height:620px;border:0;border-radius:20px" title="Adresses à proximité" loading="lazy"></iframe>`}
             />
 
-            <WidgetSection
-              index={4}
-              icon={<Star className="h-5 w-5" />}
-              title="Widget Avis clients"
-              tagline="Google, TripAdvisor, Restaurant Guru — réunis et notés sur 20."
-              price="Gratuit"
-              description="Note sur 5, nombre d'avis et étoiles par plateforme, avis mis en avant en premier puis navigation dans l'intégralité des avis avec l'auteur. Le texte d'un avis long est entièrement lisible grâce au défilement interne. Le mode Synthèse ajoute le badge global noté sur 20. Cinq gabarits sont disponibles (vertical S/L, horizontal S/L, carré) et le widget s'adapte automatiquement à la largeur de son cadre."
-              params={[
-                { name: "platform", value: "synthese | google | tripadvisor | restaurantguru" },
-                { name: "ratio", value: "auto | vertical | horizontal | square" },
-                { name: "size", value: "auto | sm | lg" },
-                { name: "lang", value: "fr | en | ar" },
-              ]}
-              previewUrl={reviewsUrl}
-              previewHeight={560}
-              previewMaxWidth={460}
-              snippet={`<iframe src="${reviewsUrl}" style="width:100%;max-width:460px;height:560px;border:0;border-radius:20px" title="Avis clients" loading="lazy"></iframe>`}
-            />
+            <ReviewsWidgetSection index={4} />
 
             <WidgetSection
               index={5}

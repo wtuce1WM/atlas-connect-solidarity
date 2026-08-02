@@ -78,6 +78,10 @@ export default {
           DEFAULT: "hsl(var(--gold))",
           foreground: "hsl(var(--gold-foreground))",
         },
+        whatsapp: {
+          DEFAULT: "hsl(var(--whatsapp))",
+          foreground: "hsl(var(--whatsapp-foreground))",
+        },
         "map-surface": {
           DEFAULT: "hsl(var(--map-surface))",
           foreground: "hsl(var(--map-surface-foreground))",

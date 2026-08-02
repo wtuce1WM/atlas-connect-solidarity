@@ -353,6 +353,69 @@ export default function EmbedReviewsWidget({
     </div>
   );
 
+  // TripAdvisor / Restaurant Guru: no full-text reviews stored → dedicated visual treatment
+  const singlePlatform = platform !== "all" ? PLATFORMS[platform] : null;
+  const singleRow = singlePlatform ? platformRows[0] : null;
+  const showcaseCopy = {
+    fr: { note: "Note vérifiée", cta: "Lire les avis sur" },
+    en: { note: "Verified rating", cta: "Read reviews on" },
+    ar: { note: "تقييم موثّق", cta: "اقرأ الآراء على" },
+  }[lang];
+
+  const platformShowcase =
+    singlePlatform && singleRow ? (
+      <div
+        className={`relative overflow-hidden rounded-2xl border border-gold/25 ${large ? "p-5" : "p-4"} flex ${
+          shape === "horizontal" ? "h-full" : ""
+        } flex-col items-center justify-center text-center gap-2.5`}
+        style={{
+          minHeight: large ? 220 : shape === "square" ? 130 : 160,
+          background:
+            "radial-gradient(120% 120% at 50% 0%, rgba(212,175,55,0.18) 0%, rgba(255,255,255,0.04) 45%, rgba(0,0,0,0.35) 100%)",
+        }}
+      >
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -top-10 -right-8 h-32 w-32 rounded-full blur-2xl"
+          style={{ background: "rgba(212,175,55,0.22)" }}
+        />
+        <img
+          src={singlePlatform.logo}
+          alt={singlePlatform.name}
+          className={`${large ? "h-14" : "h-11"} w-auto object-contain drop-shadow-[0_6px_18px_rgba(0,0,0,0.55)]`}
+          onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")}
+        />
+        <p className="text-[10px] uppercase tracking-[0.22em] text-white/50">{showcaseCopy.note}</p>
+        <div dir="ltr" className="flex items-baseline gap-1.5">
+          <span className={`${large ? "text-5xl" : "text-4xl"} font-black text-gold leading-none`}>
+            {singleRow.rating.toFixed(1)}
+          </span>
+          <span className="text-sm font-semibold text-white/60">/5</span>
+        </div>
+        <Stars rating={singleRow.rating} size={large ? 18 : 15} />
+        {singleRow.count ? (
+          <p className="text-xs text-white/65">
+            {singleRow.count.toLocaleString("fr-FR")} {L.reviews}
+          </p>
+        ) : null}
+        {singleRow.url ? (
+          <a
+            href={singleRow.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1 inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-gold/10 px-3.5 py-1.5 text-[11px] font-semibold text-gold hover:bg-gold/20 transition-colors"
+          >
+            {showcaseCopy.cta} {singlePlatform.name}
+            <ExternalLink className="h-3 w-3" />
+          </a>
+        ) : null}
+      </div>
+    ) : null;
+
+  const mainCard = list.length === 0 && platformShowcase ? platformShowcase : reviewCard;
+
+
+
   const signature = (
     <div className="pt-1 text-center">
       <a
@@ -383,7 +446,7 @@ export default function EmbedReviewsWidget({
               {badge}
               {rows}
             </div>
-            <div className="min-w-0 h-full">{reviewCard}</div>
+            <div className="min-w-0 h-full">{mainCard}</div>
           </div>
           {signature}
         </>
@@ -392,7 +455,7 @@ export default function EmbedReviewsWidget({
           {header}
           {badge}
           {rows}
-          {reviewCard}
+          {mainCard}
           {signature}
         </div>
       )}
