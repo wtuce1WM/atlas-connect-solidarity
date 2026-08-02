@@ -16,12 +16,25 @@ interface AiText {
   source_mode: string;
   position: number;
   is_active: boolean;
+  extra_instructions: string | null;
+  length_mode: string | null;
 }
+
+const SELECT_COLS = "id,title,hook,content,source_mode,position,is_active,extra_instructions,length_mode";
 
 const MAX_TEXTS = 5;
 const MAX_CONTENT = 2000;
 const MAX_TITLE = 70;
 const MAX_HOOK = 120;
+
+const LENGTHS: Array<{ value: string; label: string }> = [
+  { value: "very_short", label: "Très courte (~400)" },
+  { value: "short", label: "Courte (~800)" },
+  { value: "medium", label: "Moyenne (~1300)" },
+  { value: "long", label: "Longue (~2000)" },
+];
+
+const lengthLabel = (v: string | null) => LENGTHS.find((l) => l.value === v)?.label ?? null;
 
 const MODES: Array<{ value: string; label: string; help: string }> = [
   {
@@ -52,6 +65,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
   const [texts, setTexts] = useState<AiText[]>([]);
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState(MODES[0].value);
+  const [length, setLength] = useState("short");
   const [extra, setExtra] = useState("");
   const [generating, setGenerating] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -60,7 +74,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
     setLoading(true);
     const { data, error } = await supabase
       .from("business_ai_texts")
-      .select("id,title,hook,content,source_mode,position,is_active")
+      .select(SELECT_COLS)
       .eq("business_id", businessId)
       .order("position", { ascending: true });
     if (error) toast.error("Chargement impossible : " + error.message);
@@ -78,7 +92,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-business-ai-text", {
-        body: { business_id: businessId, mode, extra_instructions: extra },
+        body: { business_id: businessId, mode, length, extra_instructions: extra },
       });
       if (error) throw error;
       if ((data as any)?.error) {
@@ -93,8 +107,10 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
           title, hook, content,
           source_mode: mode,
           position: texts.length,
+          length_mode: length,
+          extra_instructions: extra.trim() || null,
         })
-        .select("id,title,hook,content,source_mode,position,is_active")
+        .select(SELECT_COLS)
         .single();
       if (insErr) throw insErr;
       setTexts((prev) => [...prev, inserted as AiText]);
@@ -114,7 +130,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
     const { data, error } = await supabase
       .from("business_ai_texts")
       .insert({ business_id: businessId, source_mode: mode, position: texts.length })
-      .select("id,title,hook,content,source_mode,position,is_active")
+      .select(SELECT_COLS)
       .single();
     if (error) return toast.error(error.message);
     setTexts((prev) => [...prev, data as AiText]);
@@ -188,6 +204,24 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
         </div>
 
         <div className="space-y-2">
+          <Label className="text-white">Longueur du texte</Label>
+          <div className="flex flex-wrap gap-2">
+            {LENGTHS.map((l) => (
+              <button
+                key={l.value}
+                type="button"
+                onClick={() => setLength(l.value)}
+                className={`rounded-md border px-3 py-2 text-xs font-medium transition-colors ${
+                  length === l.value ? "border-primary bg-primary/10 text-primary" : "border-white/10 text-white/70 hover:bg-white/5"
+                }`}
+              >
+                {l.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="ai-extra" className="text-white">Consigne complémentaire (optionnel)</Label>
           <Input
             id="ai-extra"
@@ -222,9 +256,12 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
             return (
               <div key={t.id} className="rounded-lg border border-white/10 bg-white/5 p-4 space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="rounded bg-primary/20 px-2 py-0.5 text-xs font-semibold text-primary">Texte {i + 1}</span>
                     <span className="text-xs text-white/50">{modeLabel(t.source_mode)}</span>
+                    {lengthLabel(t.length_mode) && (
+                      <span className="rounded bg-white/10 px-2 py-0.5 text-xs text-white/70">{lengthLabel(t.length_mode)}</span>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-2 mr-2">
@@ -242,6 +279,13 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
                     </Button>
                   </div>
                 </div>
+
+                {t.extra_instructions && (
+                  <p className="rounded-md border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/60">
+                    <span className="font-medium text-white/80">Consigne complémentaire :</span> {t.extra_instructions}
+                  </p>
+                )}
+
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">

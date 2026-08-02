@@ -29,6 +29,13 @@ const PLATFORM_URL_KEYS = [
   ["kayak_url", "Kayak"],
 ] as const;
 
+const LENGTH_SPECS: Record<string, { min: number; max: number; label: string; paragraphs: string }> = {
+  very_short: { min: 320, max: 480, label: "très courte", paragraphs: "1 à 2 paragraphes" },
+  short: { min: 700, max: 900, label: "courte", paragraphs: "2 à 3 paragraphes" },
+  medium: { min: 1200, max: 1400, label: "moyenne", paragraphs: "3 à 4 paragraphes" },
+  long: { min: 1750, max: 2000, label: "longue", paragraphs: "4 à 6 paragraphes" },
+};
+
 const MODE_BRIEFS: Record<string, string> = {
   reviews_suggestions:
     "Objectif : mettre en avant ce que les clients suggèrent, recommandent ou conseillent de faire/goûter/réserver sur place, uniquement d'après les avis fournis.",
@@ -74,6 +81,8 @@ Deno.serve(async (req) => {
     const businessId = body?.business_id ? String(body.business_id) : "";
     const mode = String(body?.mode ?? "");
     const extra = String(body?.extra_instructions ?? "").slice(0, 500);
+    const lengthKey = LENGTH_SPECS[String(body?.length ?? "")] ? String(body.length) : "short";
+    const len = LENGTH_SPECS[lengthKey];
 
     if (!businessId || !MODE_BRIEFS[mode]) {
       return new Response(JSON.stringify({ error: "business_id et mode valides requis" }), {
@@ -185,7 +194,8 @@ Règles absolues :
 - Ne mentionne jamais de prix, tarif, budget ou "moins cher".
 - Français naturel et immersif, pas de markdown, pas de listes à puces, pas de guillemets superflus.
 - Réponds STRICTEMENT en JSON : {"title": string, "hook": string, "content": string}
-- title ≤ 70 caractères, hook ≤ 120 caractères, content ≤ ${MAX_CONTENT} caractères (2 à 4 paragraphes séparés par un saut de ligne).`;
+- title ≤ 70 caractères, hook ≤ 120 caractères.
+- LONGUEUR IMPÉRATIVE du champ content : version ${len.label}, entre ${len.min} et ${len.max} caractères (${len.paragraphs} séparés par un saut de ligne). Ne descends jamais sous ${len.min} caractères et ne dépasse jamais ${Math.min(len.max, MAX_CONTENT)} caractères. Compte les caractères avant de répondre.`;
 
     const userPrompt = [
       `Établissement : ${biz.name}`,
@@ -225,7 +235,7 @@ Règles absolues :
         businessId,
         context: "affiliate_ai_text",
         model: MODEL,
-        metadata: { mode },
+        metadata: { mode, length: lengthKey },
       },
     );
 
@@ -263,6 +273,7 @@ Règles absolues :
         content: clean(parsed.content, MAX_CONTENT),
         mode,
         source_label: sourceLabel,
+        length: lengthKey,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
