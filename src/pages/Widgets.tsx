@@ -66,13 +66,18 @@ const AutoHeightIframe = ({
   maxWidth?: number;
 }) => {
   const [height, setHeight] = useState(minHeight);
+  const frameRef = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => {
     setHeight(minHeight);
     const onMsg = (e: MessageEvent) => {
+      // Ne réagir qu'aux messages émis par CE widget (évite le mélange entre aperçus).
+      if (!frameRef.current || e.source !== frameRef.current.contentWindow) return;
       const d = e.data as { type?: string; height?: number } | null;
       if (!d || typeof d.type !== "string" || !d.type.endsWith("-height")) return;
-      if (typeof d.height === "number" && d.height > 80) setHeight(Math.ceil(d.height) + 8);
+      if (typeof d.height === "number" && d.height > 80 && d.height < 2400) {
+        setHeight(Math.ceil(d.height) + 8);
+      }
     };
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
@@ -81,6 +86,7 @@ const AutoHeightIframe = ({
   return (
     <iframe
       key={src}
+      ref={frameRef}
       src={src}
       title={title}
       loading="lazy"
@@ -88,6 +94,7 @@ const AutoHeightIframe = ({
       style={{ width: "100%", maxWidth, height, border: 0, borderRadius: 20, overflow: "hidden" }}
       className="bg-card shadow-lg"
     />
+
   );
 };
 
