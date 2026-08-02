@@ -256,9 +256,12 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
             return (
               <div key={t.id} className="rounded-lg border border-white/10 bg-white/5 p-4 space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="rounded bg-primary/20 px-2 py-0.5 text-xs font-semibold text-primary">Texte {i + 1}</span>
                     <span className="text-xs text-white/50">{modeLabel(t.source_mode)}</span>
+                    {lengthLabel(t.length_mode) && (
+                      <span className="rounded bg-white/10 px-2 py-0.5 text-xs text-white/70">{lengthLabel(t.length_mode)}</span>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-2 mr-2">
