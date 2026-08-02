@@ -165,7 +165,7 @@ const WidgetSection = ({
       </div>
     )}
 
-    <div className="grid gap-10 lg:grid-cols-2 items-start">
+    <div className={fullWidthPreview ? "space-y-10" : "grid gap-10 lg:grid-cols-2 items-start"}>
       <div>
         <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
           Aperçu en direct
@@ -174,19 +174,28 @@ const WidgetSection = ({
           previewNode
         ) : (
           <>
-            <iframe
-              src={previewUrl}
-              title={title}
-              loading="lazy"
-              style={{
-                width: "100%",
-                maxWidth: previewMaxWidth,
-                height: previewHeight,
-                border: 0,
-                borderRadius: 20,
-              }}
-              className="bg-card shadow-lg"
-            />
+            {autoHeight ? (
+              <AutoHeightIframe
+                src={previewUrl!}
+                title={title}
+                minHeight={previewHeight || 320}
+                maxWidth={fullWidthPreview ? undefined : previewMaxWidth}
+              />
+            ) : (
+              <iframe
+                src={previewUrl}
+                title={title}
+                loading="lazy"
+                style={{
+                  width: "100%",
+                  maxWidth: fullWidthPreview ? undefined : previewMaxWidth,
+                  height: previewHeight,
+                  border: 0,
+                  borderRadius: 20,
+                }}
+                className="bg-card shadow-lg"
+              />
+            )}
             <a
               href={previewUrl}
               target="_blank"
@@ -203,10 +212,11 @@ const WidgetSection = ({
         <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
           Code d'intégration
         </h3>
-        <CopyBlock code={snippet} id={title} />
+        <CopyBlock code={snippet} id={title} previewLines={snippetPreviewLines} />
         {extra}
       </div>
     </div>
+
   </section>
 );
 
