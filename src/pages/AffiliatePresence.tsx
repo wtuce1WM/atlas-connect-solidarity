@@ -24,6 +24,7 @@ import AffiliateContactEditor, { type CityOption, type NeighborhoodOption, type 
 import AffiliatePlatformHelp from "@/components/affiliate/AffiliatePlatformHelp";
 import AffiliateReviewsEditor, { type ReviewsData } from "@/components/affiliate/AffiliateReviewsEditor";
 import AffiliateTextEditor from "@/components/affiliate/AffiliateTextEditor";
+import AffiliateAiTextsEditor from "@/components/affiliate/AffiliateAiTextsEditor";
 import AffiliateHighlightsEditor from "@/components/affiliate/AffiliateHighlightsEditor";
 import AffiliatePromotionsEditor from "@/components/affiliate/AffiliatePromotionsEditor";
 import AffiliateServicesEditor from "@/components/affiliate/AffiliateServicesEditor";
@@ -568,6 +569,9 @@ const AffiliatePresence = () => {
                       <TabsTrigger value="text" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
                         <FileText className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Texte</span>
                       </TabsTrigger>
+                      <TabsTrigger value="aitexts" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <Sparkles className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">IA</span>
+                      </TabsTrigger>
                       <TabsTrigger value="links" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
                         <Globe className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Liens</span>
                       </TabsTrigger>
@@ -823,6 +827,11 @@ const AffiliatePresence = () => {
                         onHookChange={(lang, v) => handleFieldChange(currentBusiness.id, `hook_${lang}`, v)}
                         onDescriptionChange={(lang, v) => handleFieldChange(currentBusiness.id, lang === "fr" ? "description" : `description_${lang}`, v)}
                       />
+                    </TabsContent>
+
+                    {/* AI Texts Tab */}
+                    <TabsContent value="aitexts">
+                      <AffiliateAiTextsEditor key={currentBusiness.id} businessId={currentBusiness.id} />
                     </TabsContent>
 
                     {/* Blocks Tab */}
