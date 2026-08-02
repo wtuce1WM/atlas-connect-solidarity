@@ -99,7 +99,15 @@ export default function BusinessAnalyticsPanel({ fixedBusinessId, affiliateId, s
   });
 
   const activeBusinessId = fixedBusinessId ?? selectedId ?? businesses?.[0]?.id ?? null;
+
+  // Auto-sélection : dès que la liste est chargée, on fixe la valeur (1 seul établissement inclus)
+  useEffect(() => {
+    if (fixedBusinessId || selectedId) return;
+    if (businesses?.length) setSelectedId(businesses[0].id);
+  }, [businesses, fixedBusinessId, selectedId]);
+
   const { data, isLoading, error } = useBusinessAnalytics(activeBusinessId, range);
+
 
   const chartData = useMemo(() => (data?.timeseries ?? []).map((d) => ({
     day: new Date(d.day).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" }),
@@ -148,11 +156,12 @@ export default function BusinessAnalyticsPanel({ fixedBusinessId, affiliateId, s
               <SelectTrigger className="w-full sm:w-[280px] bg-card border-border">
                 <SelectValue placeholder={loadingBiz ? "Chargement…" : "Choisir un établissement"} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper" className="z-[200] max-h-[320px]">
                 {businesses?.map((b) => (
                   <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
                 ))}
               </SelectContent>
+
             </Select>
           )}
         </div>
