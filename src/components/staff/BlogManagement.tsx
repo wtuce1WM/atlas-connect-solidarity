@@ -34,10 +34,11 @@ interface BlogPost {
   updated_at: string;
   is_published: boolean;
   is_pinned: boolean;
+  anchor_kind?: string | null;
 }
 
 const SELECT_COLS =
-  "id, title_fr, title_en, title_ar, slug, template, excerpt_fr, excerpt_en, excerpt_ar, content_en, content_ar, intro_en, intro_ar, entries_en, entries_ar, cover_image_url, published_at, created_at, updated_at, is_published, is_pinned";
+  "id, title_fr, title_en, title_ar, slug, template, excerpt_fr, excerpt_en, excerpt_ar, content_en, content_ar, intro_en, intro_ar, entries_en, entries_ar, cover_image_url, published_at, created_at, updated_at, is_published, is_pinned, anchor_kind";
 
 /** Un article est traduit si le titre existe ET qu'il y a du contenu dans la langue,
  *  quel que soit le support : entries (template article), intro, ou content (legacy HTML). */
@@ -60,6 +61,12 @@ interface BlogManagementProps {
   mode?: "standard" | "owner";
   /** Filtrer sur un établissement précis (mode owner). */
   anchorBusinessId?: string;
+  /** Filtrer sur le type de rattachement (mode owner). */
+  anchorKind?: "owner" | "generic";
+  /** Permet de basculer un article entre propriétaire et générique. */
+  allowKindSwitch?: boolean;
+  /** Callback après changement de type. */
+  onKindChange?: () => void;
   /** Titre/description personnalisés. */
   title?: string;
   subtitle?: string;
@@ -69,6 +76,9 @@ interface BlogManagementProps {
 const BlogManagement = ({
   mode = "standard",
   anchorBusinessId,
+  anchorKind,
+  allowKindSwitch = false,
+  onKindChange,
   title,
   subtitle,
   showInternalLinks = true,
@@ -88,6 +98,7 @@ const BlogManagement = ({
         .order("created_at", { ascending: false });
       if (anchorBusinessId) {
         q = q.eq("anchor_business_id", anchorBusinessId);
+        if (anchorKind) q = q.eq("anchor_kind", anchorKind);
       } else if (mode === "owner") {
         q = q.not("anchor_business_id", "is", null);
       } else {
@@ -98,7 +109,7 @@ const BlogManagement = ({
       setIsLoading(false);
     };
     fetchPosts();
-  }, [mode, anchorBusinessId]);
+  }, [mode, anchorBusinessId, anchorKind]);
 
   const handleTranslate = async (post: BlogPost, target: "en" | "ar") => {
     setTranslating((s) => ({ ...s, [post.id]: target }));
@@ -123,7 +134,7 @@ const BlogManagement = ({
     }
   };
 
-  const updatePost = async (post: BlogPost, patch: Partial<Pick<BlogPost, "is_published" | "is_pinned">>) => {
+  const updatePost = async (post: BlogPost, patch: Partial<Pick<BlogPost, "is_published" | "is_pinned" | "anchor_kind">>) => {
     setUpdating((s) => ({ ...s, [post.id]: true }));
     // Optimistic
     setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, ...patch } : p)));
@@ -147,6 +158,13 @@ const BlogManagement = ({
       }
       if (patch.is_pinned !== undefined) {
         toast.success(patch.is_pinned ? "Article épinglé" : "Épingle retirée", { description: post.title_fr });
+      }
+      if (patch.anchor_kind !== undefined) {
+        toast.success(
+          patch.anchor_kind === "owner" ? "Marqué article propriétaire" : "Marqué article générique",
+          { description: post.title_fr },
+        );
+        onKindChange?.();
       }
     } catch (e: any) {
       // Revert
@@ -261,6 +279,21 @@ const BlogManagement = ({
                             <Pin className="h-3 w-3" /> Pin
                           </Label>
                         </div>
+                        {allowKindSwitch && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 text-[11px]"
+                            disabled={isUpdating}
+                            onClick={() =>
+                              updatePost(post, {
+                                anchor_kind: post.anchor_kind === "owner" ? "generic" : "owner",
+                              })
+                            }
+                          >
+                            {post.anchor_kind === "owner" ? "→ Générique" : "→ Propriétaire"}
+                          </Button>
+                        )}
                         <a href={`/blog/${post.slug}`} target="_blank" rel="noopener noreferrer">
                           <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
                             <ExternalLink className="h-3.5 w-3.5" />
