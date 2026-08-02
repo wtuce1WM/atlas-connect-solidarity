@@ -4,7 +4,7 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Copy, CloudSun, MessageSquare, MapPin, Star, Newspaper, ExternalLink } from "lucide-react";
+import { Check, Copy, CloudSun, MessageSquare, MapPin, Star, Newspaper, Waves, ExternalLink } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { toast } from "@/hooks/use-toast";
 
@@ -313,10 +313,9 @@ const TidesWidgetSection = ({ index }: { index: number }) => {
               Pour un affichage entièrement sur-mesure, l'API renvoie le niveau courant, les extrema, la
               courbe 24 h et les conditions de mer.
             </p>
-            <CopyBlock
-              code={`fetch("https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/tides?city=${city}")\n  .then(r => r.json())\n  .then(console.log);`}
-              id="tides-json"
-            />
+            <p className="text-sm text-muted-foreground">
+              Écrivez-nous pour obtenir l'URL du point d'accès JSON.
+            </p>
           </div>
           <p className="mt-4 text-xs text-muted-foreground">
             Niveau de la mer modélisé, référencé au niveau moyen (source Open-Meteo Marine). Précision
