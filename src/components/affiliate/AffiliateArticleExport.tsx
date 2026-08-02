@@ -209,6 +209,8 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
     ? (lang === "en" ? post.intro_en : lang === "ar" ? post.intro_ar : post.intro_fr) || ""
     : "";
 
+  const mapBgValid = /^#[0-9a-fA-F]{6}$/.test(mapBg);
+
   const html = useMemo(() => {
     if (!post) return "";
     const dir = lang === "ar" ? ' dir="rtl"' : "";
