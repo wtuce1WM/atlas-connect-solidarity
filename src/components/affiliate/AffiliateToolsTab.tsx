@@ -201,6 +201,43 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
     [rateUrl, rateW, rateH, businessName]
   );
 
+  // Version email-friendly (signature) : HTML statique en tableau, sans JS ni iframe
+  const rateEmailUrl = `${SITE}/embed/avis/${slug}?platform=${ratePlatform}&lang=${rateLang}&variant=card&src=email`;
+  const rateEmailSnippet = useMemo(() => {
+    const t = {
+      fr: {
+        title: "Votre avis compte pour nous",
+        sub: "Un mot sur votre expérience aide énormément notre équipe.",
+        cta: "Laisser un avis ★★★★★",
+      },
+      en: {
+        title: "Your review matters to us",
+        sub: "A few words about your stay help our team enormously.",
+        cta: "Leave a review ★★★★★",
+      },
+      ar: {
+        title: "رأيك يهمنا",
+        sub: "كلمة عن تجربتك تساعد فريقنا كثيرًا.",
+        cta: "اترك تقييمًا ★★★★★",
+      },
+    }[rateLang];
+    const dir = rateLang === "ar" ? ' dir="rtl"' : "";
+    return `<table role="presentation" cellpadding="0" cellspacing="0" border="0"${dir} style="border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;max-width:460px">
+  <tr>
+    <td style="padding:14px 16px;background:#111111;border-radius:12px;color:#ffffff">
+      <div style="font-size:15px;font-weight:bold;color:#ffffff">${businessName}</div>
+      <div style="font-size:14px;color:#ffffff;padding-top:4px">${t.title}</div>
+      <div style="font-size:12px;color:#cccccc;padding-top:2px">${t.sub}</div>
+      <div style="padding-top:10px">
+        <a href="${rateEmailUrl}" style="display:inline-block;background:#25D366;color:#ffffff;text-decoration:none;font-size:13px;font-weight:bold;padding:9px 16px;border-radius:8px">${t.cta}</a>
+      </div>
+      <div style="font-size:10px;color:#888888;padding-top:8px">oneworldmorocco.com</div>
+    </td>
+  </tr>
+</table>`;
+  }, [rateEmailUrl, rateLang, businessName]);
+
+
 
   const weatherUrl = `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}`;
   const weatherSnippet = useMemo(
