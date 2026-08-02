@@ -847,8 +847,10 @@ const Widgets = () => {
 
             <ReviewsWidgetSection index={5} />
 
+            <RateUsWidgetSection index={6} />
+
             <WidgetSection
-              index={6}
+              index={7}
               icon={<Newspaper className="h-5 w-5" />}
               title="Export d'article de blog"
               tagline="Votre article éditorial, republié sur votre propre domaine."
