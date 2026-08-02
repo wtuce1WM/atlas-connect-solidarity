@@ -205,6 +205,8 @@ const StaffLogin = () => {
           </a>
         </div>
       </div>
+      </main>
+      <Footer />
     </div>
   );
 };
