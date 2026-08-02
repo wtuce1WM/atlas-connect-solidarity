@@ -796,7 +796,7 @@ const EmailSignatureWidgetSection = ({ index }: { index: number }) => {
           <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
             Code HTML à copier
           </h3>
-          <CopyBlock code={snippet} id="email-signature" previewLines={4} disableCopy />
+          <CopyBlock code={snippet} id="email-signature" previewLines={2} disableCopy />
           <div className="mt-6 rounded-xl border border-border bg-muted/30 p-4">
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">
               Où le coller
