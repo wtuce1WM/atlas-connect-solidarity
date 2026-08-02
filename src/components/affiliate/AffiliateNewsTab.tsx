@@ -184,7 +184,7 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
           <thead>
             <tr className="border-b border-white/10 bg-white/5">
               <th className="text-left font-medium text-white/60 px-3 py-2">Service</th>
-              <th className="text-left font-medium text-white/60 px-3 py-2 whitespace-nowrap">Portée</th>
+              <th className="text-left font-medium text-white/60 px-3 py-2 whitespace-nowrap">Liaison</th>
               <th className="text-left font-medium text-white/60 px-3 py-2 whitespace-nowrap">Tarif</th>
               <th className="text-left font-medium text-white/60 px-3 py-2 whitespace-nowrap">Statut</th>
             </tr>
