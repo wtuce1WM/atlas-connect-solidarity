@@ -671,6 +671,7 @@ export type Database = {
       blog_posts: {
         Row: {
           anchor_business_id: string | null
+          anchor_kind: string
           anchor_poi: Json | null
           author_name: string | null
           bookmark_slug: string | null
@@ -720,6 +721,7 @@ export type Database = {
         }
         Insert: {
           anchor_business_id?: string | null
+          anchor_kind?: string
           anchor_poi?: Json | null
           author_name?: string | null
           bookmark_slug?: string | null
@@ -769,6 +771,7 @@ export type Database = {
         }
         Update: {
           anchor_business_id?: string | null
+          anchor_kind?: string
           anchor_poi?: Json | null
           author_name?: string | null
           bookmark_slug?: string | null
