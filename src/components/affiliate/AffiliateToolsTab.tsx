@@ -37,7 +37,7 @@ const RATE_PLATFORMS = [
 ];
 type RatePlatformKey = (typeof RATE_PLATFORMS)[number]["key"];
 
-const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => {
+const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { aiAssistant: true, blogExport: true, nearbyWidget: true, emailSignature: true } }: Props) => {
   const qrRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [embedTheme, setEmbedTheme] = useState<"dark" | "light">("dark");
