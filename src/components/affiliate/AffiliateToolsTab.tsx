@@ -22,6 +22,13 @@ const REVIEW_PLATFORMS = [
 ];
 type ReviewPlatformKey = (typeof REVIEW_PLATFORMS)[number]["key"];
 
+const RATE_PLATFORMS = [
+  { key: "all" as const, label: "Google + TripAdvisor" },
+  { key: "google" as const, label: "Google" },
+  { key: "tripadvisor" as const, label: "TripAdvisor" },
+];
+type RatePlatformKey = (typeof RATE_PLATFORMS)[number]["key"];
+
 const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => {
   const qrRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState<string | null>(null);
