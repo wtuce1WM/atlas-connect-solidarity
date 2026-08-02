@@ -351,14 +351,13 @@ const TidesWidgetSection = ({ index }: { index: number }) => {
           <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
             Aperçu en direct
           </h3>
-          <iframe
-            key={url}
+          <AutoHeightIframe
             src={toPreview(url)}
             title="Widget Marées"
-            loading="lazy"
-            style={{ width: "100%", maxWidth: 520, height, border: 0, borderRadius: 20 }}
-            className="bg-card shadow-lg"
+            minHeight={height}
+            maxWidth={520}
           />
+
           <a
             href={toPreview(url)}
             target="_blank"
