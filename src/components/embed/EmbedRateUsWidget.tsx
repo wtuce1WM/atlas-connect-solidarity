@@ -90,7 +90,7 @@ export default function EmbedRateUsWidget({
   };
 
   const buttons = (
-    <div className="flex flex-col sm:flex-row gap-2.5 w-full">
+    <div className="flex flex-col gap-2.5 w-full">
       {targets.map((t) => (
         <a
           key={t.key}
