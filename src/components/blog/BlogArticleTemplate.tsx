@@ -476,7 +476,7 @@ const BlogArticleTemplate = ({
 
   // Article map showing every active POI of the database (editorial guides).
   useEffect(() => {
-    if (poiMapMode !== "all_poi") {
+    if (poiMapMode !== "all_poi" && poiMapMode !== "near_10km") {
       setPoiPool([]);
       return;
     }
@@ -505,6 +505,31 @@ const BlogArticleTemplate = ({
     })();
     return () => { cancelled = true; };
   }, [poiMapMode]);
+
+  // POIs actually plotted: in "near_10km" mode, keep only those within 10 km
+  // of one of the article's establishments (or of the anchor POI).
+  const visiblePoiPool = useMemo(() => {
+    if (poiMapMode !== "near_10km") return poiPool;
+    const centers: Array<{ lat: number; lng: number }> = Object.values(businesses)
+      .filter((b: any) => b.latitude != null && b.longitude != null)
+      .map((b: any) => ({ lat: Number(b.latitude), lng: Number(b.longitude) }));
+    if (anchorPoi?.latitude != null && anchorPoi?.longitude != null) {
+      centers.push({ lat: Number(anchorPoi.latitude), lng: Number(anchorPoi.longitude) });
+    }
+    if (centers.length === 0) return [];
+    const distKm = (aLat: number, aLng: number, bLat: number, bLng: number) => {
+      const R = 6371;
+      const dLat = ((bLat - aLat) * Math.PI) / 180;
+      const dLng = ((bLng - aLng) * Math.PI) / 180;
+      const s =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos((aLat * Math.PI) / 180) * Math.cos((bLat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(s));
+    };
+    return poiPool.filter((p) =>
+      centers.some((c) => distKm(c.lat, c.lng, p.latitude, p.longitude) <= 10)
+    );
+  }, [poiMapMode, poiPool, businesses, anchorPoi]);
 
 
 
