@@ -23,6 +23,7 @@ interface BlogPost {
   excerpt_en: string | null;
   excerpt_ar: string | null;
   cover_image_url: string | null;
+  custom_hero_image_url: string | null;
   author_name: string | null;
   published_at: string | null;
   created_at: string;
