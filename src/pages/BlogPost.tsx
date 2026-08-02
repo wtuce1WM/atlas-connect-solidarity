@@ -249,7 +249,13 @@ const BlogPost = () => {
         faq={faq}
         anchorPoi={anchorFromBusiness ?? post.anchor_poi ?? undefined}
         embedBackSlug={embedSlug ?? undefined}
+        customHeroImageMobile={post.custom_hero_image_mobile_url ?? undefined}
+        poiMapMode={post.poi_map_mode === "all_poi" ? "all_poi" : undefined}
+        editorialSections={
+          pickLang(post.editorial_sections_fr, post.editorial_sections_en, post.editorial_sections_ar) ?? undefined
+        }
       />
+
     );
   }
 
