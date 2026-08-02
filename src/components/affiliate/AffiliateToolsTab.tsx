@@ -965,6 +965,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
           </div>
         </div>
       </div>
+      )}
 
 
 
