@@ -68,6 +68,11 @@ interface BlogPostData {
   faq_ar: BlogArticleFaqItem[] | null;
   anchor_poi: { name: string; latitude: number; longitude: number } | null;
   anchor_business_id: string | null;
+  custom_hero_image_mobile_url: string | null;
+  poi_map_mode: string | null;
+  editorial_sections_fr: BlogEditorialSection[] | null;
+  editorial_sections_en: BlogEditorialSection[] | null;
+  editorial_sections_ar: BlogEditorialSection[] | null;
 }
 
 const BlogPost = () => {
