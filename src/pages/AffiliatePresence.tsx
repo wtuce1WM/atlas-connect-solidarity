@@ -15,7 +15,7 @@ import Footer from "@/components/Footer";
 import HScroll from "@/components/HScroll";
 import {
   Loader2, Globe, CheckCircle2, AlertCircle, ExternalLink,
-  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench, Wand2, BarChart3, LogOut, Globe2
+  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench, Wand2, BarChart3, LogOut, Globe2, Newspaper
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
 import { type OpeningHours } from "@/components/staff/OpeningHoursEditor";
@@ -30,6 +30,7 @@ import AffiliateServicesEditor from "@/components/affiliate/AffiliateServicesEdi
 import AffiliateImagesEditor from "@/components/affiliate/AffiliateImagesEditor";
 import AffiliateVideosEditor from "@/components/affiliate/AffiliateVideosEditor";
 import AffiliateToolsTab from "@/components/affiliate/AffiliateToolsTab";
+import AffiliateNewsTab from "@/components/affiliate/AffiliateNewsTab";
 import AffiliateShowcaseSiteEditor from "@/components/affiliate/AffiliateShowcaseSiteEditor";
 import VacationDatesEditor, { type VacationPeriod } from "@/components/staff/VacationDatesEditor";
 import { Label } from "@/components/ui/label";
@@ -125,6 +126,10 @@ const AffiliatePresence = () => {
   const [hasDashboard, setHasDashboard] = useState(false);
   const [hasVideoStudio, setHasVideoStudio] = useState(false);
   const [hasShowcaseSite, setHasShowcaseSite] = useState(false);
+  const [hasCustomDomain, setHasCustomDomain] = useState(false);
+  const [hasEmailSignature, setHasEmailSignature] = useState(true);
+  const [featureRights, setFeatureRights] = useState<Record<string, { has_ai_assistant: boolean; has_blog_export: boolean; has_nearby_widget: boolean }>>({});
+  const [activeTab, setActiveTab] = useState("news");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newBusinessName, setNewBusinessName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
@@ -218,7 +223,7 @@ const AffiliatePresence = () => {
 
       const { data: affiliate } = await supabase
         .from("affiliates")
-        .select("id, max_businesses, has_dashboard, has_video_studio, has_showcase_site")
+        .select("id, max_businesses, has_dashboard, has_video_studio, has_showcase_site, has_custom_domain, has_email_signature")
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -233,6 +238,22 @@ const AffiliatePresence = () => {
       setHasDashboard(!!(affiliate as any).has_dashboard);
       setHasVideoStudio(!!(affiliate as any).has_video_studio);
       setHasShowcaseSite(!!(affiliate as any).has_showcase_site);
+      setHasCustomDomain(!!(affiliate as any).has_custom_domain);
+      setHasEmailSignature((affiliate as any).has_email_signature !== false);
+
+      const { data: rightsRows } = await supabase
+        .from("business_feature_rights")
+        .select("business_id, has_ai_assistant, has_blog_export, has_nearby_widget");
+      const map: Record<string, { has_ai_assistant: boolean; has_blog_export: boolean; has_nearby_widget: boolean }> = {};
+      ((rightsRows as any[]) || []).forEach((r) => {
+        map[r.business_id] = {
+          has_ai_assistant: !!r.has_ai_assistant,
+          has_blog_export: !!r.has_blog_export,
+          has_nearby_widget: !!r.has_nearby_widget,
+        };
+      });
+      setFeatureRights(map);
+
       await loadBusinesses(affiliate.id);
     };
     init();
@@ -536,8 +557,11 @@ const AffiliatePresence = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <Tabs defaultValue="text" className="w-full">
+                  <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <TabsList className="mb-6 w-full flex items-center overflow-x-auto whitespace-nowrap justify-start gap-1 border-b border-white/10 bg-transparent p-0 h-auto scrollbar-hide">
+                      <TabsTrigger value="news" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <Newspaper className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">News</span>
+                      </TabsTrigger>
                       <TabsTrigger value="tools" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
                         <Wand2 className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Tools</span>
                       </TabsTrigger>
@@ -748,9 +772,38 @@ const AffiliatePresence = () => {
                       />
                     </TabsContent>
 
+                    {/* News Tab */}
+                    <TabsContent value="news">
+                      <AffiliateNewsTab
+                        businessName={currentBusiness.name}
+                        slug={currentBusiness.slug}
+                        onGoToTools={() => setActiveTab("tools")}
+                        rights={{
+                          aiAssistant: !!featureRights[currentBusiness.id]?.has_ai_assistant,
+                          blogExport: !!featureRights[currentBusiness.id]?.has_blog_export,
+                          nearbyWidget: !!featureRights[currentBusiness.id]?.has_nearby_widget,
+                          emailSignature: hasEmailSignature,
+                          dashboard: hasDashboard,
+                          videoStudio: hasVideoStudio,
+                          showcaseSite: hasShowcaseSite,
+                          customDomain: hasCustomDomain,
+                        }}
+                      />
+                    </TabsContent>
+
                     {/* Tools Tab */}
                     <TabsContent value="tools">
-                      <AffiliateToolsTab slug={currentBusiness.slug} businessName={currentBusiness.name} businessId={currentBusiness.id} />
+                      <AffiliateToolsTab
+                        slug={currentBusiness.slug}
+                        businessName={currentBusiness.name}
+                        businessId={currentBusiness.id}
+                        rights={{
+                          aiAssistant: !!featureRights[currentBusiness.id]?.has_ai_assistant,
+                          blogExport: !!featureRights[currentBusiness.id]?.has_blog_export,
+                          nearbyWidget: !!featureRights[currentBusiness.id]?.has_nearby_widget,
+                          emailSignature: hasEmailSignature,
+                        }}
+                      />
                     </TabsContent>
 
                     {/* Text Tab */}

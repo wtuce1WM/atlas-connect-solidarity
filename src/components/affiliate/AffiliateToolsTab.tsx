@@ -6,10 +6,18 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import AffiliateArticleExport from "@/components/affiliate/AffiliateArticleExport";
 
+export type ToolsRights = {
+  aiAssistant: boolean;
+  blogExport: boolean;
+  nearbyWidget: boolean;
+  emailSignature: boolean;
+};
+
 interface Props {
   slug: string | null;
   businessName: string;
   businessId?: string | null;
+  rights?: ToolsRights;
 }
 
 const SITE = "https://oneworldmorocco.com";
@@ -29,7 +37,7 @@ const RATE_PLATFORMS = [
 ];
 type RatePlatformKey = (typeof RATE_PLATFORMS)[number]["key"];
 
-const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => {
+const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { aiAssistant: true, blogExport: true, nearbyWidget: true, emailSignature: true } }: Props) => {
   const qrRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [embedTheme, setEmbedTheme] = useState<"dark" | "light">("dark");
@@ -358,6 +366,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
           </div>
         </div>
       </div>
+      {rights.aiAssistant && (
       <div className="space-y-3">
         <h3 className="text-white font-semibold flex items-center gap-2">
           <Bot className="h-4 w-4" /> Assistant IA embarqué (iframe)
@@ -512,8 +521,10 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
           </Button>
         </div>
       </div>
+      )}
 
       {/* ---------- Export d'article de blog ---------- */}
+      {rights.blogExport && (
       <div className="space-y-3">
         <h3 className="text-white font-semibold flex items-center gap-2">
           <Newspaper className="h-4 w-4" /> Vos articles de blog (code à copier)
@@ -524,9 +535,11 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
         </p>
         <AffiliateArticleExport businessId={businessId} businessName={businessName} />
       </div>
+      )}
 
 
       {/* ---------- Widget « À proximité » (overlay POI) ---------- */}
+      {rights.nearbyWidget && (
       <div className="space-y-3">
         <h3 className="text-white font-semibold flex items-center gap-2">
           <MapPin className="h-4 w-4" /> Widget « À proximité » (carte + établissements autour de vous)
@@ -695,6 +708,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
           </Button>
         </div>
       </div>
+      )}
 
       {/* ── Widget Avis clients ───────────────────────────────── */}
       <div className="space-y-3">
@@ -905,6 +919,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
       </div>
 
       {/* ── Signature email (HTML statique) ───────────────────── */}
+      {rights.emailSignature && (
       <div className="space-y-3">
 
         <h3 className="text-white font-semibold flex items-center gap-2">
@@ -951,6 +966,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
           </div>
         </div>
       </div>
+      )}
 
 
 
