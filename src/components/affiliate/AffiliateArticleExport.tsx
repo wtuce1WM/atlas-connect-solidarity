@@ -104,7 +104,21 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
   const [selectedId, setSelectedId] = useState<string>("");
   const [lang, setLang] = useState<Lang>("fr");
   const [bizMap, setBizMap] = useState<Record<string, Biz>>({});
+  const [reviewMap, setReviewMap] = useState<Record<string, DefaultReview>>({});
+  const [owner, setOwner] = useState<Biz | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Établissement propriétaire (référence pour les distances)
+  useEffect(() => {
+    if (!businessId) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.from("businesses").select(BIZ_FIELDS).eq("id", businessId).maybeSingle();
+      if (!cancelled && data) setOwner(data as unknown as Biz);
+    })();
+    return () => { cancelled = true; };
+  }, [businessId]);
+
 
   useEffect(() => {
     if (!businessId) { setLoading(false); return; }
