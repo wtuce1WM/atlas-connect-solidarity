@@ -345,7 +345,7 @@ const HomeMindtrip = () => {
     (async () => {
       const { data } = await supabase
         .from("blog_posts")
-        .select("slug, title_fr, title_en, title_ar, cover_image_url, published_at, created_at")
+        .select("slug, title_fr, title_en, title_ar, cover_image_url, custom_hero_image_url, published_at, created_at")
         .eq("is_published", true)
         .order("published_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false })
@@ -357,7 +357,8 @@ const HomeMindtrip = () => {
           (language === "ar" && p.title_ar) ||
           (language === "en" && p.title_en) ||
           p.title_fr,
-        image: p.cover_image_url || undefined,
+        image: p.custom_hero_image_url || p.cover_image_url || undefined,
+
       }));
 
       if (cancelled) return;
