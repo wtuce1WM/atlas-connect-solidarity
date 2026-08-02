@@ -175,9 +175,6 @@ const WidgetSection = ({
 
     <div className={fullWidthPreview ? "space-y-10" : "grid gap-10 lg:grid-cols-2 items-start"}>
       <div>
-        <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
-          Aperçu en direct
-        </h3>
         {previewNode ? (
           previewNode
         ) : (
@@ -220,7 +217,7 @@ const WidgetSection = ({
         <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
           Code d'intégration
         </h3>
-        <CopyBlock code={snippet} id={title} previewLines={snippetPreviewLines} />
+        <CopyBlock code={snippet} id={title} previewLines={snippetPreviewLines} disableCopy={price !== "Gratuit"} />
         {extra}
       </div>
     </div>
@@ -356,9 +353,6 @@ const TidesWidgetSection = ({ index }: { index: number }) => {
 
       <div className="grid gap-10 lg:grid-cols-2 items-start">
         <div>
-          <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
-            Aperçu en direct
-          </h3>
           <AutoHeightIframe
             src={toPreview(url)}
             title="Widget Marées"
@@ -560,9 +554,6 @@ const ReviewsWidgetSection = ({ index }: { index: number }) => {
 
       <div className="space-y-10">
         <div>
-          <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
-            Aperçu en direct
-          </h3>
           <iframe
             key={url}
             src={toPreview(url)}
@@ -674,9 +665,6 @@ const RateUsWidgetSection = ({ index }: { index: number }) => {
 
       <div className="grid gap-10 lg:grid-cols-2 items-start">
         <div>
-          <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
-            Aperçu en direct
-          </h3>
           <AutoHeightIframe key={url} src={toPreview(url)} title="Laisser un avis" minHeight={h} maxWidth={w} />
           <a
             href={toPreview(url)}
@@ -791,9 +779,6 @@ const EmailSignatureWidgetSection = ({ index }: { index: number }) => {
 
       <div className="grid gap-10 lg:grid-cols-2 items-start">
         <div>
-          <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
-            Aperçu en direct
-          </h3>
           <div
             className="rounded-xl border border-border bg-white p-6 shadow-lg inline-block"
             dangerouslySetInnerHTML={{ __html: snippet }}
@@ -953,7 +938,7 @@ const Widgets = () => {
                     occuper d'espace dans votre mise en page. À coller avant la balise de fermeture
                     <code className="mx-1 rounded bg-muted px-1.5 py-0.5">body</code> (Wix : Custom Code).
                   </p>
-                  <CopyBlock code={floatingSnippet} id="floating" previewLines={4} />
+                  <CopyBlock code={floatingSnippet} id="floating" previewLines={4} disableCopy />
                 </div>
               }
             />
