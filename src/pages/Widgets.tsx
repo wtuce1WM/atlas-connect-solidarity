@@ -938,7 +938,7 @@ const Widgets = () => {
                     occuper d'espace dans votre mise en page. À coller avant la balise de fermeture
                     <code className="mx-1 rounded bg-muted px-1.5 py-0.5">body</code> (Wix : Custom Code).
                   </p>
-                  <CopyBlock code={floatingSnippet} id="floating" previewLines={4} />
+                  <CopyBlock code={floatingSnippet} id="floating" previewLines={4} disableCopy />
                 </div>
               }
             />
