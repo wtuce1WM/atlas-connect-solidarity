@@ -92,6 +92,7 @@ const HomeMindtrip = HomeMindtripEager;
 const Install = lazy(() => import("./pages/Install"));
 const EmbedAsk = lazy(() => import("./pages/EmbedAsk"));
 const EmbedWeather = lazy(() => import("./pages/EmbedWeather"));
+const EmbedTides = lazy(() => import("./pages/EmbedTides"));
 const EmbedNearby = lazy(() => import("./pages/EmbedNearby"));
 const EmbedReviews = lazy(() => import("./pages/EmbedReviews"));
 const VanityResolver = lazy(() => import("./pages/VanityResolver"));
