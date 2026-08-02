@@ -55,6 +55,13 @@ const PLATFORMS = [
 
 type PlatformKey = typeof PLATFORMS[number]["key"];
 
+// Affichage uniquement : masque les lignes "Reviews" et place "Site web" en tête.
+const HIDDEN_PLATFORM_KEYS: string[] = ["google_reviews_url", "tripadvisor_review_url"];
+const VISIBLE_PLATFORMS = [
+  ...PLATFORMS.filter(p => p.key === "website"),
+  ...PLATFORMS.filter(p => p.key !== "website" && !HIDDEN_PLATFORM_KEYS.includes(p.key)),
+];
+
 const CTA_URL_DEFS: Array<{ urlField: string; ctaField: string; externalField: string; label: string; defaultCta?: string }> = [
   { urlField: "website",         ctaField: "website_cta",       externalField: "website_force_external",       label: "URL 1 · Site web", defaultCta: "Site web" },
   { urlField: "reserve_now_url", ctaField: "reserve_now_cta",   externalField: "reserve_now_force_external",   label: "URL 2 · Réserver", defaultCta: "Réservez" },
