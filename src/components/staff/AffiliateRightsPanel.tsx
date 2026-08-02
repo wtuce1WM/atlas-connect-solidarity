@@ -8,14 +8,12 @@ import { Loader2 } from "lucide-react";
 
 type AffiliateRightKey =
   | "has_dashboard"
-  | "has_email_signature"
   | "has_video_studio"
   | "has_showcase_site"
   | "has_custom_domain";
 
 const AFFILIATE_RIGHTS: { key: AffiliateRightKey; label: string; locked?: boolean }[] = [
   { key: "has_dashboard", label: "Dashboard" },
-  { key: "has_email_signature", label: "Signature email « Laisser un avis »" },
   { key: "has_video_studio", label: "Studio" },
   { key: "has_showcase_site", label: "Site vitrine 1WM", locked: true },
   { key: "has_custom_domain", label: "Domaine personnalisé", locked: true },
@@ -24,12 +22,14 @@ const AFFILIATE_RIGHTS: { key: AffiliateRightKey; label: string; locked?: boolea
 type BusinessRightKey =
   | "has_ai_assistant"
   | "has_blog_export"
-  | "has_nearby_widget";
+  | "has_nearby_widget"
+  | "has_email_signature";
 
 const BUSINESS_RIGHTS: { key: BusinessRightKey; label: string }[] = [
   { key: "has_ai_assistant", label: "Assistant IA" },
   { key: "has_blog_export", label: "Export d'article de blog" },
   { key: "has_nearby_widget", label: "Adresses à proximité" },
+  { key: "has_email_signature", label: "Signature email « Laisser un avis »" },
 ];
 
 interface AffiliateRow {
@@ -51,6 +51,7 @@ const emptyRights = (): Record<BusinessRightKey, boolean> => ({
   has_ai_assistant: false,
   has_blog_export: false,
   has_nearby_widget: false,
+  has_email_signature: true,
 });
 
 const AffiliateRightsPanel = () => {
@@ -91,6 +92,7 @@ const AffiliateRightsPanel = () => {
             has_ai_assistant: !!r.has_ai_assistant,
             has_blog_export: !!r.has_blog_export,
             has_nearby_widget: !!r.has_nearby_widget,
+            has_email_signature: r.has_email_signature !== false,
           };
         });
         setBizRights(map);

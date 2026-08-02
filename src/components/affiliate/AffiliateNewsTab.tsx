@@ -77,7 +77,7 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
       key: "signature",
       label: "Signature email « Laisser un avis »",
       icon: Mail,
-      scope: "Compte affilié",
+      scope: "Établissement",
       price: "Inclus dans l'abonnement",
       enabled: rights.emailSignature,
       desc: "Bloc HTML statique (Gmail, Outlook, Apple Mail) qui invite vos clients à laisser un avis Google / TripAdvisor depuis chaque email envoyé.",
