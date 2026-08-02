@@ -29,6 +29,13 @@ const PLATFORM_URL_KEYS = [
   ["kayak_url", "Kayak"],
 ] as const;
 
+const LENGTH_SPECS: Record<string, { min: number; max: number; label: string; paragraphs: string }> = {
+  very_short: { min: 320, max: 480, label: "très courte", paragraphs: "1 à 2 paragraphes" },
+  short: { min: 700, max: 900, label: "courte", paragraphs: "2 à 3 paragraphes" },
+  medium: { min: 1200, max: 1400, label: "moyenne", paragraphs: "3 à 4 paragraphes" },
+  long: { min: 1750, max: 2000, label: "longue", paragraphs: "4 à 6 paragraphes" },
+};
+
 const MODE_BRIEFS: Record<string, string> = {
   reviews_suggestions:
     "Objectif : mettre en avant ce que les clients suggèrent, recommandent ou conseillent de faire/goûter/réserver sur place, uniquement d'après les avis fournis.",
