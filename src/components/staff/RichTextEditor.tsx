@@ -23,6 +23,8 @@ interface RichTextEditorProps {
   placeholder?: string;
   maxHeight?: string;
   bgClass?: string;
+  /** Masque couleur, surlignage, lien, image et vidéo dans la barre d'outils. */
+  simple?: boolean;
 }
 
 const stripInlineColors = (html: string): string => {
@@ -43,7 +45,7 @@ const stripInlineColors = (html: string): string => {
   }
 };
 
-const RichTextEditor = ({ content, onChange, placeholder, maxHeight, bgClass }: RichTextEditorProps) => {
+const RichTextEditor = ({ content, onChange, placeholder, maxHeight, bgClass, simple }: RichTextEditorProps) => {
   const isInternalChange = useRef(false);
 
 
@@ -123,7 +125,7 @@ const RichTextEditor = ({ content, onChange, placeholder, maxHeight, bgClass }: 
       style={maxHeight ? { maxHeight } : undefined}
     >
       <div className={`sticky top-0 z-10 rounded-t-md border-b ${isCustomBg ? (isLightText ? "bg-black/30 border-white/10" : "bg-[#BED1FF] border-black/10") : "bg-[#BED1FF] border-black/10"}`}>
-        <RichTextToolbar editor={editor} />
+        <RichTextToolbar editor={editor} simple={simple} />
       </div>
       <EditorContent editor={editor} className={`${isCustomBg ? (isLightText ? "[&_.prose]:text-white [&_.prose_*]:!text-white" : "[&_.prose]:text-black") : "[&_.prose]:!text-black [&_.prose_*]:!text-black"}`} />
     </div>
