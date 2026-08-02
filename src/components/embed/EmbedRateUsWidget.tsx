@@ -64,7 +64,7 @@ function StarPicker({ onPick, size = 30 }: { onPick: () => void; size?: number }
         >
           <Star
             style={{ width: size, height: size }}
-            className={i <= hover ? "text-gold fill-gold" : "text-gold/35"}
+            className={hover === 0 || i <= hover ? "text-gold fill-gold" : "text-gold/35"}
           />
         </button>
       ))}
@@ -174,7 +174,7 @@ export default function EmbedRateUsWidget({
               .map((t) => (
                 <span key={t.key} className="text-[11px] text-white/55">
                   {t.name} {t.rating?.toFixed(1)}/5
-                  {t.count ? ` · ${t.count.toLocaleString("fr-FR")} ${L.reviews}` : ""}
+                  {t.count ? ` · ${t.count} ${L.reviews}` : ""}
                 </span>
               ))}
           </div>
