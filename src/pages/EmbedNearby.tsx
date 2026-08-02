@@ -28,6 +28,9 @@ const EmbedNearby = () => {
   const mapBaseColor = /^#?[0-9a-fA-F]{6}$/.test(bgParam)
     ? (bgParam.startsWith("#") ? bgParam : `#${bgParam}`)
     : null;
+  // Default widget map uses native Google Maps colors; custom color overrides the light theme.
+  const mapTheme: import("@/components/PoiGoogleMap").PoiGoogleMapProps["mapTheme"] = mapBaseColor ? "light" : "default-light";
+
 
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
