@@ -223,7 +223,7 @@ const AffiliatePresence = () => {
 
       const { data: affiliate } = await supabase
         .from("affiliates")
-        .select("id, max_businesses, has_dashboard, has_video_studio, has_showcase_site")
+        .select("id, max_businesses, has_dashboard, has_video_studio, has_showcase_site, has_custom_domain, has_email_signature")
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -238,6 +238,22 @@ const AffiliatePresence = () => {
       setHasDashboard(!!(affiliate as any).has_dashboard);
       setHasVideoStudio(!!(affiliate as any).has_video_studio);
       setHasShowcaseSite(!!(affiliate as any).has_showcase_site);
+      setHasCustomDomain(!!(affiliate as any).has_custom_domain);
+      setHasEmailSignature((affiliate as any).has_email_signature !== false);
+
+      const { data: rightsRows } = await supabase
+        .from("business_feature_rights")
+        .select("business_id, has_ai_assistant, has_blog_export, has_nearby_widget");
+      const map: Record<string, { has_ai_assistant: boolean; has_blog_export: boolean; has_nearby_widget: boolean }> = {};
+      ((rightsRows as any[]) || []).forEach((r) => {
+        map[r.business_id] = {
+          has_ai_assistant: !!r.has_ai_assistant,
+          has_blog_export: !!r.has_blog_export,
+          has_nearby_widget: !!r.has_nearby_widget,
+        };
+      });
+      setFeatureRights(map);
+
       await loadBusinesses(affiliate.id);
     };
     init();
