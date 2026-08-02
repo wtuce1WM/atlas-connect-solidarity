@@ -18,6 +18,10 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTaxonomyTranslations } from "@/hooks/useTaxonomyTranslations";
 import { withLangPrefix } from "@/lib/localizedPath";
 import { mapLabel } from "@/lib/mapLabels";
+import BlogEditorialSections, { type BlogEditorialSection } from "@/components/blog/BlogEditorialSections";
+
+export type { BlogEditorialSection };
+
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
@@ -114,7 +118,14 @@ export interface BlogArticleTemplateProps {
   anchorPoi?: { name: string; latitude: number; longitude: number } | null;
   /** When set, render in embed mode (no site header/footer/bottom bar) and back-button returns to /embed/ask/{embedBackSlug}. */
   embedBackSlug?: string | null;
+  /** Optional portrait hero used on mobile (<768px) via <picture>. */
+  customHeroImageMobile?: string;
+  /** "all_poi" = display every active POI of the database on the article map. */
+  poiMapMode?: "all_poi" | null;
+  /** Long-form editorial sections (prose + embedded widgets). When provided, they drive the page layout. */
+  editorialSections?: BlogEditorialSection[];
 }
+
 
 const DEFAULT_SITE_URL = "https://oneworldmorocco.com";
 
@@ -139,11 +150,17 @@ const BlogArticleTemplate = ({
   faq,
   anchorPoi,
   embedBackSlug,
+  customHeroImageMobile,
+  poiMapMode,
+  editorialSections,
 }: BlogArticleTemplateProps) => {
+
   const navigate = useNavigate();
   const { language } = useLanguage();
   const { translateSubcategory } = useTaxonomyTranslations();
   const [businesses, setBusinesses] = useState<Record<string, BlogArticleBusiness>>({});
+  const [poiPool, setPoiPool] = useState<Array<{ id: string; name: string; latitude: number; longitude: number; images: string[] | null; city: string | null; neighborhood: string | null; rating: number | null }>>([]);
+
   const [defaultReviews, setDefaultReviews] = useState<Record<string, { author_name: string | null; source: string | null; rating: number | null; text: string | null; text_fr: string | null; text_en: string | null; text_ar: string | null; }>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
@@ -457,6 +474,39 @@ const BlogArticleTemplate = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Article map showing every active POI of the database (editorial guides).
+  useEffect(() => {
+    if (poiMapMode !== "all_poi") {
+      setPoiPool([]);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, latitude, longitude, images, city, neighborhood, rating")
+        .eq("is_poi", true)
+        .eq("is_active", true)
+        .not("latitude", "is", null)
+        .not("longitude", "is", null);
+      if (cancelled || !data) return;
+      setPoiPool(
+        data.map((b: any) => ({
+          id: b.id,
+          name: b.name,
+          latitude: Number(b.latitude),
+          longitude: Number(b.longitude),
+          images: b.images,
+          city: b.city,
+          neighborhood: b.neighborhood,
+          rating: b.rating,
+        }))
+      );
+    })();
+    return () => { cancelled = true; };
+  }, [poiMapMode]);
+
+
 
   useEffect(() => {
     if (isLoading) return;
@@ -483,12 +533,18 @@ const BlogArticleTemplate = ({
       {/* Hero */}
       <div className="relative h-[60vh] min-h-[420px] overflow-hidden">
         {(customHeroImage || heroImageBusiness) && (
-          <img
-            src={customHeroImage || heroImageBusiness}
-            alt={heroAlt}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+          <picture>
+            {customHeroImageMobile && (
+              <source media="(max-width: 767px)" srcSet={customHeroImageMobile} />
+            )}
+            <img
+              src={customHeroImage || heroImageBusiness}
+              alt={heroAlt}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          </picture>
         )}
+
 
         <div className="absolute inset-0 bg-gradient-to-t from-[#3B3B3B] via-[#3B3B3B]/50 to-[#3B3B3B]/30" />
         <div className="absolute inset-0 flex flex-col justify-end pb-4 sm:pb-12">
@@ -583,6 +639,19 @@ const BlogArticleTemplate = ({
                     neighborhood: b.neighborhood,
                     rating: b.rating,
                   }));
+                poiPool.forEach((p) => {
+                  if (businesses[p.id]) return;
+                  pois.push({
+                    id: p.id,
+                    name: p.name,
+                    latitude: p.latitude,
+                    longitude: p.longitude,
+                    images: p.images,
+                    city: p.city,
+                    neighborhood: p.neighborhood,
+                    rating: p.rating,
+                  });
+                });
                 if (anchorPoi && anchorPoi.latitude != null && anchorPoi.longitude != null) {
                   pois.push({
                     id: "__anchor__",
@@ -600,7 +669,7 @@ const BlogArticleTemplate = ({
                     userLocation={userLocation}
                     userMarkerLabel={mapLabel("youAreHere", language)}
                     onPoiClick={(id) => {
-                      if (businesses[id]) openBusiness(id);
+                      if (id !== "__anchor__") openBusiness(id);
                     }}
                   />
                 );
@@ -623,7 +692,11 @@ const BlogArticleTemplate = ({
             </div>
           </section>
 
+          {(() => {
+          const entriesBlock = (
+          <>
           {[...entries]
+
             .filter((e) => businesses[e.id])
             .sort((a, b) => {
               const fa = businesses[a.id]?.is_featured ? 1 : 0;
@@ -892,6 +965,15 @@ const BlogArticleTemplate = ({
               </section>
             );
           })}
+          </>
+          );
+          return editorialSections && editorialSections.length > 0 ? (
+            <BlogEditorialSections sections={editorialSections} entriesBlock={entriesBlock} />
+          ) : (
+            entriesBlock
+          );
+          })()}
+
 
           {/* FAQ — rendered as expandable Q/A, emitted as FAQPage JSON-LD above */}
           {faq && faq.length > 0 && (

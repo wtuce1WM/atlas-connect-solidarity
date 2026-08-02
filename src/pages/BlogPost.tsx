@@ -18,6 +18,7 @@ import BlogArticleTemplate, {
   type BlogArticleEntry,
   type BlogArticleVideo,
   type BlogArticleFaqItem,
+  type BlogEditorialSection,
 } from "@/components/blog/BlogArticleTemplate";
 import {
   fetchBlogVideoSection,
@@ -68,6 +69,11 @@ interface BlogPostData {
   faq_ar: BlogArticleFaqItem[] | null;
   anchor_poi: { name: string; latitude: number; longitude: number } | null;
   anchor_business_id: string | null;
+  custom_hero_image_mobile_url: string | null;
+  poi_map_mode: string | null;
+  editorial_sections_fr: BlogEditorialSection[] | null;
+  editorial_sections_en: BlogEditorialSection[] | null;
+  editorial_sections_ar: BlogEditorialSection[] | null;
 }
 
 const BlogPost = () => {
@@ -243,7 +249,13 @@ const BlogPost = () => {
         faq={faq}
         anchorPoi={anchorFromBusiness ?? post.anchor_poi ?? undefined}
         embedBackSlug={embedSlug ?? undefined}
+        customHeroImageMobile={post.custom_hero_image_mobile_url ?? undefined}
+        poiMapMode={post.poi_map_mode === "all_poi" ? "all_poi" : undefined}
+        editorialSections={
+          pickLang(post.editorial_sections_fr, post.editorial_sections_en, post.editorial_sections_ar) ?? undefined
+        }
       />
+
     );
   }
 

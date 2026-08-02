@@ -724,7 +724,11 @@ export type Database = {
           content_fr: string | null
           cover_image_url: string | null
           created_at: string
+          custom_hero_image_mobile_url: string | null
           custom_hero_image_url: string | null
+          editorial_sections_ar: Json | null
+          editorial_sections_en: Json | null
+          editorial_sections_fr: Json | null
           entries_ar: Json | null
           entries_en: Json | null
           entries_fr: Json | null
@@ -750,6 +754,7 @@ export type Database = {
           intro_fr: string | null
           is_pinned: boolean
           is_published: boolean
+          poi_map_mode: string | null
           published_at: string | null
           slug: string
           sort_order: number
@@ -774,7 +779,11 @@ export type Database = {
           content_fr?: string | null
           cover_image_url?: string | null
           created_at?: string
+          custom_hero_image_mobile_url?: string | null
           custom_hero_image_url?: string | null
+          editorial_sections_ar?: Json | null
+          editorial_sections_en?: Json | null
+          editorial_sections_fr?: Json | null
           entries_ar?: Json | null
           entries_en?: Json | null
           entries_fr?: Json | null
@@ -800,6 +809,7 @@ export type Database = {
           intro_fr?: string | null
           is_pinned?: boolean
           is_published?: boolean
+          poi_map_mode?: string | null
           published_at?: string | null
           slug: string
           sort_order?: number
@@ -824,7 +834,11 @@ export type Database = {
           content_fr?: string | null
           cover_image_url?: string | null
           created_at?: string
+          custom_hero_image_mobile_url?: string | null
           custom_hero_image_url?: string | null
+          editorial_sections_ar?: Json | null
+          editorial_sections_en?: Json | null
+          editorial_sections_fr?: Json | null
           entries_ar?: Json | null
           entries_en?: Json | null
           entries_fr?: Json | null
@@ -850,6 +864,7 @@ export type Database = {
           intro_fr?: string | null
           is_pinned?: boolean
           is_published?: boolean
+          poi_map_mode?: string | null
           published_at?: string | null
           slug?: string
           sort_order?: number
