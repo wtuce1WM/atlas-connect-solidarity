@@ -16,7 +16,7 @@ const DEMO_SLUG = "riad-dar-najat";
 const PREVIEW_ORIGIN = typeof window !== "undefined" ? window.location.origin : SITE;
 const toPreview = (url: string) => url.replace(SITE, PREVIEW_ORIGIN);
 
-const CopyBlock = ({ code, id, previewLines }: { code: string; id: string; previewLines?: number }) => {
+const CopyBlock = ({ code, id, previewLines, disableCopy }: { code: string; id: string; previewLines?: number; disableCopy?: boolean }) => {
   const [copied, setCopied] = useState(false);
   const shown =
     previewLines && previewLines > 0
@@ -42,7 +42,8 @@ const CopyBlock = ({ code, id, previewLines }: { code: string; id: string; previ
         size="sm"
         variant="secondary"
         onClick={doCopy}
-        className="mt-3"
+        disabled={disableCopy}
+        className="mt-3 disabled:opacity-50 disabled:cursor-not-allowed"
         aria-label={`Copier le code ${id}`}
       >
         {copied ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
@@ -810,7 +811,7 @@ const EmailSignatureWidgetSection = ({ index }: { index: number }) => {
           <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
             Code HTML à copier
           </h3>
-          <CopyBlock code={snippet} id="email-signature" />
+          <CopyBlock code={snippet} id="email-signature" previewLines={4} disableCopy />
           <div className="mt-6 rounded-xl border border-border bg-muted/30 p-4">
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">
               Où le coller
