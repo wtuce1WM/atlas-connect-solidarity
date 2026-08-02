@@ -93,6 +93,7 @@ const Install = lazy(() => import("./pages/Install"));
 const EmbedAsk = lazy(() => import("./pages/EmbedAsk"));
 const EmbedWeather = lazy(() => import("./pages/EmbedWeather"));
 const EmbedNearby = lazy(() => import("./pages/EmbedNearby"));
+const EmbedReviews = lazy(() => import("./pages/EmbedReviews"));
 const VanityResolver = lazy(() => import("./pages/VanityResolver"));
 const DestinationResolver = lazy(() => import("./pages/DestinationResolver"));
 const YouTubeChannelResolver = lazy(() => import("./pages/YouTubeChannelResolver"));
@@ -247,6 +248,7 @@ const LocalizedRoutes = () => {
               <Route path="/site/:slug" element={renderLazyRoute(<ShowcaseSite />)} />
               <Route path="/embed/weather" element={renderLazyRoute(<EmbedWeather />)} />
               <Route path="/embed/nearby/:slug" element={renderLazyRoute(<EmbedNearby />)} />
+              <Route path="/embed/reviews/:slug" element={renderLazyRoute(<EmbedReviews />)} />
               <Route path="/embed/ask/:slug" element={renderLazyRoute(<EmbedAsk />)} />
               <Route path="/embed/ask/:embedSlug/article/:slug" element={renderLazyRoute(<BlogPost />)} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -1,6 +1,6 @@
 import { useRef, useState, useMemo } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { Copy, Check, Download, ExternalLink, QrCode, Globe2, Mail, Bot, MapPin, Newspaper } from "lucide-react";
+import { Copy, Check, Download, ExternalLink, QrCode, Globe2, Mail, Bot, MapPin, Newspaper, Star, CloudSun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
@@ -14,6 +14,14 @@ interface Props {
 
 const SITE = "https://oneworldmorocco.com";
 
+const REVIEW_PLATFORMS = [
+  { key: "all" as const, label: "Synthèse" },
+  { key: "google" as const, label: "Google" },
+  { key: "tripadvisor" as const, label: "TripAdvisor" },
+  { key: "restaurant-guru" as const, label: "Restaurant Guru" },
+];
+type ReviewPlatformKey = (typeof REVIEW_PLATFORMS)[number]["key"];
+
 const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => {
   const qrRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState<string | null>(null);
@@ -22,6 +30,10 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
   const [embedHeight, setEmbedHeight] = useState<number>(640);
   const [nearbyLang, setNearbyLang] = useState<"fr" | "en" | "ar">("fr");
   const [nearbyHeight, setNearbyHeight] = useState<number>(720);
+  const [reviewsPlatform, setReviewsPlatform] = useState<ReviewPlatformKey>("all");
+  const [reviewsLang, setReviewsLang] = useState<"fr" | "en" | "ar">("fr");
+  const [weatherCity, setWeatherCity] = useState<string>("Marrakech");
+  const [weatherLang, setWeatherLang] = useState<"fr" | "en" | "ar">("fr");
 
   if (!slug) {
     return (
@@ -153,6 +165,19 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
     [nearbyUrl, businessName]
   );
 
+  const reviewsUrl = `${SITE}/embed/reviews/${slug}?platform=${reviewsPlatform}&lang=${reviewsLang}`;
+  const reviewsSnippet = useMemo(
+    () =>
+      `<iframe src="${reviewsUrl}" style="width:100%;max-width:480px;height:560px;border:0;border-radius:20px" title="Avis clients — ${businessName}" loading="lazy"></iframe>`,
+    [reviewsUrl, businessName]
+  );
+
+  const weatherUrl = `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}`;
+  const weatherSnippet = useMemo(
+    () =>
+      `<iframe src="${weatherUrl}" style="width:100%;max-width:420px;height:320px;border:0;border-radius:20px" title="Météo — ${weatherCity}" loading="lazy"></iframe>`,
+    [weatherUrl, weatherCity]
+  );
 
 
   const copy = async (value: string, key: string) => {
@@ -572,7 +597,165 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
         </div>
       </div>
 
+      {/* ── Widget Avis clients ───────────────────────────────── */}
+      <div className="space-y-3">
+        <h3 className="text-white font-semibold flex items-center gap-2">
+          <Star className="h-4 w-4" /> Widget Avis clients (iframe)
+        </h3>
+        <p className="text-sm text-white/70">
+          Affichez vos avis Google, TripAdvisor et Restaurant Guru sur votre propre site : note /5,
+          nombre d'avis, étoiles, avis détaillés (l'avis « par défaut » en premier, navigation au clic).
+          La vue « Synthèse » ajoute le badge global /20 identique à celui de votre fiche 1WM.
+        </p>
 
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label className="text-white/80 text-xs">Plateforme</Label>
+            <div className="flex gap-1 flex-wrap">
+              {REVIEW_PLATFORMS.map((p) => (
+                <button
+                  key={p.key}
+                  type="button"
+                  onClick={() => setReviewsPlatform(p.key)}
+                  className={`flex-1 min-w-[92px] text-xs py-1.5 px-2 rounded-md border ${reviewsPlatform === p.key ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-white/80 text-xs">Langue</Label>
+            <div className="flex gap-1">
+              {(["fr", "en", "ar"] as const).map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => setReviewsLang(l)}
+                  className={`flex-1 text-xs py-1.5 rounded-md border uppercase ${reviewsLang === l ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label className="text-white/80 text-xs">Code à copier (inline)</Label>
+            <textarea
+              readOnly
+              value={reviewsSnippet}
+              onFocus={(e) => e.currentTarget.select()}
+              rows={5}
+              className="w-full rounded-md bg-white/10 border border-white/20 text-white text-xs px-3 py-2 font-mono resize-none"
+            />
+            <div className="flex gap-2 flex-wrap">
+              <Button type="button" size="sm" onClick={() => copy(reviewsSnippet, "reviews")}>
+                {copied === "reviews" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                Copier le code iframe
+              </Button>
+              <Button type="button" size="sm" variant="outline" onClick={() => copy(reviewsUrl, "reviews-url")} className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                {copied === "reviews-url" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                Copier l'URL seule
+              </Button>
+              <Button type="button" size="sm" variant="outline" asChild className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                <a href={reviewsUrl} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="h-4 w-4 mr-1" /> Ouvrir
+                </a>
+              </Button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-white/80 text-xs">Aperçu en direct</Label>
+            <div className="rounded-md overflow-hidden border border-white/20 bg-black/30 flex justify-center">
+              <iframe
+                key={reviewsUrl}
+                src={reviewsUrl}
+                style={{ width: "100%", maxWidth: 480, height: 560, border: 0 }}
+                title="Aperçu avis clients"
+                loading="lazy"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Widget Météo ──────────────────────────────────────── */}
+      <div className="space-y-3">
+        <h3 className="text-white font-semibold flex items-center gap-2">
+          <CloudSun className="h-4 w-4" /> Widget Météo (iframe)
+        </h3>
+        <p className="text-sm text-white/70">
+          Météo du jour et prévisions pour votre ville, à intégrer sur votre site. Signature
+          « oneworldmorocco.com » incluse.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label className="text-white/80 text-xs">Ville</Label>
+            <input
+              value={weatherCity}
+              onChange={(e) => setWeatherCity(e.target.value)}
+              className="w-full rounded-md bg-white/10 border border-white/20 text-white text-sm px-3 py-1.5"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-white/80 text-xs">Langue</Label>
+            <div className="flex gap-1">
+              {(["fr", "en", "ar"] as const).map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => setWeatherLang(l)}
+                  className={`flex-1 text-xs py-1.5 rounded-md border uppercase ${weatherLang === l ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label className="text-white/80 text-xs">Code à copier (inline)</Label>
+            <textarea
+              readOnly
+              value={weatherSnippet}
+              onFocus={(e) => e.currentTarget.select()}
+              rows={4}
+              className="w-full rounded-md bg-white/10 border border-white/20 text-white text-xs px-3 py-2 font-mono resize-none"
+            />
+            <div className="flex gap-2 flex-wrap">
+              <Button type="button" size="sm" onClick={() => copy(weatherSnippet, "weather")}>
+                {copied === "weather" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                Copier le code iframe
+              </Button>
+              <Button type="button" size="sm" variant="outline" onClick={() => copy(weatherUrl, "weather-url")} className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                {copied === "weather-url" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                Copier l'URL seule
+              </Button>
+              <Button type="button" size="sm" variant="outline" asChild className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                <a href={weatherUrl} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="h-4 w-4 mr-1" /> Ouvrir
+                </a>
+              </Button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-white/80 text-xs">Aperçu en direct</Label>
+            <div className="rounded-md overflow-hidden border border-white/20 bg-black/30 flex justify-center">
+              <iframe
+                key={weatherUrl}
+                src={weatherUrl}
+                style={{ width: "100%", maxWidth: 420, height: 320, border: 0 }}
+                title="Aperçu météo"
+                loading="lazy"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
 
 
       <div className="space-y-3">
