@@ -772,9 +772,38 @@ const AffiliatePresence = () => {
                       />
                     </TabsContent>
 
+                    {/* News Tab */}
+                    <TabsContent value="news">
+                      <AffiliateNewsTab
+                        businessName={currentBusiness.name}
+                        slug={currentBusiness.slug}
+                        onGoToTools={() => setActiveTab("tools")}
+                        rights={{
+                          aiAssistant: !!featureRights[currentBusiness.id]?.has_ai_assistant,
+                          blogExport: !!featureRights[currentBusiness.id]?.has_blog_export,
+                          nearbyWidget: !!featureRights[currentBusiness.id]?.has_nearby_widget,
+                          emailSignature: hasEmailSignature,
+                          dashboard: hasDashboard,
+                          videoStudio: hasVideoStudio,
+                          showcaseSite: hasShowcaseSite,
+                          customDomain: hasCustomDomain,
+                        }}
+                      />
+                    </TabsContent>
+
                     {/* Tools Tab */}
                     <TabsContent value="tools">
-                      <AffiliateToolsTab slug={currentBusiness.slug} businessName={currentBusiness.name} businessId={currentBusiness.id} />
+                      <AffiliateToolsTab
+                        slug={currentBusiness.slug}
+                        businessName={currentBusiness.name}
+                        businessId={currentBusiness.id}
+                        rights={{
+                          aiAssistant: !!featureRights[currentBusiness.id]?.has_ai_assistant,
+                          blogExport: !!featureRights[currentBusiness.id]?.has_blog_export,
+                          nearbyWidget: !!featureRights[currentBusiness.id]?.has_nearby_widget,
+                          emailSignature: hasEmailSignature,
+                        }}
+                      />
                     </TabsContent>
 
                     {/* Text Tab */}
