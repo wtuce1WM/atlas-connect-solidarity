@@ -1,4 +1,4 @@
-import { CheckCircle2, XCircle, Bot, MapPin, Newspaper, Mail, Star, CloudSun, Waves, ThumbsUp, BarChart3, Video, Globe2, Link2, ExternalLink } from "lucide-react";
+import { CheckCircle2, XCircle, Bot, MapPin, Newspaper, Mail, Star, CloudSun, Waves, ThumbsUp, BarChart3, Video, Globe2, ExternalLink } from "lucide-react";
 
 export type NewsRights = {
   aiAssistant: boolean;
@@ -109,16 +109,6 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
       enabled: rights.showcaseSite,
       locked: true,
       desc: "Page de présentation dédiée hébergée par One World Morocco (photos, offres, avis, contact). Bientôt disponible.",
-    },
-    {
-      key: "domain",
-      label: "Domaine personnalisé",
-      icon: Link2,
-      scope: "Compte affilié",
-      price: "Sur devis",
-      enabled: rights.customDomain,
-      locked: true,
-      desc: "Votre nom de domaine propriétaire pointant vers votre vitrine 1WM. Bientôt disponible.",
     },
   ];
 
