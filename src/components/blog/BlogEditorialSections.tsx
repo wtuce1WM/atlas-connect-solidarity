@@ -101,7 +101,7 @@ const TidesPlan = ({ city }: { city: string }) => (
 /** 3. Install block — end of article, with copyable iframe code. */
 const TidesInstall = ({ city }: { city: string }) => {
   const [copied, setCopied] = useState(false);
-  const code = `<iframe src="${SITE}/n?city=${encodeURIComponent(city)}&lang=fr&picker=1" title="Marées Maroc — One World Morocco" width="100%" height="520" style="border:0;border-radius:16px" loading="lazy"></iframe>`;
+  const code = `<iframe src="${SITE}/embed/tides?city=${encodeURIComponent(city)}&lang=fr&picker=1" title="Marées Maroc — One World Morocco" width="100%" height="520" style="border:0;border-radius:16px" loading="lazy"></iframe>`;
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(code);
