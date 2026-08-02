@@ -3050,6 +3050,7 @@ const BookOnlineSlidePanelInner = ({
               }}
               fitToMarkers={!embedMode}
               baseColor={mapBaseColor || undefined}
+              mapTheme={mapTheme}
               userLocation={userCoords ? { lat: userCoords.lat, lng: userCoords.lng } : null}
             />
 
