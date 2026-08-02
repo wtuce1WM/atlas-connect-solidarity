@@ -26,7 +26,6 @@ const LANGS: Array<{ code: "fr" | "en" | "ar"; label: string; dir?: "rtl" | "ltr
 ];
 
 const MAX_HOOK = 120;
-const MAX_DESC = 3000;
 
 const stripHtml = (html: string): string => {
   if (!html) return "";
@@ -52,13 +51,8 @@ const AffiliateTextEditor = ({
   });
 
   const handleDescriptionChange = (lang: "fr" | "en" | "ar", html: string) => {
-    const textLength = stripHtml(html).length;
-    if (textLength <= MAX_DESC) {
-      lastValidDesc.current[lang] = html;
-      onDescriptionChange(lang, html);
-    } else {
-      onDescriptionChange(lang, lastValidDesc.current[lang]);
-    }
+    lastValidDesc.current[lang] = html;
+    onDescriptionChange(lang, html);
   };
 
   return (
@@ -73,7 +67,6 @@ const AffiliateTextEditor = ({
         const hookValue = hooks[l.code] || "";
         const descValue = descriptions[l.code] || "";
         const descTextLength = stripHtml(descValue).length;
-        const descOver = descTextLength > MAX_DESC;
         const nameValue = names[l.code] || "";
         const isRequired = l.code === "fr";
         return (
@@ -121,15 +114,14 @@ const AffiliateTextEditor = ({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-white">Description ({l.label})</Label>
-                <span className={`text-xs ${descOver ? "text-destructive font-medium" : "text-white/60"}`}>
-                  {descTextLength}/{MAX_DESC}
-                </span>
+                <span className="text-xs text-white/60">{descTextLength} caractères</span>
               </div>
               <RichTextEditor
                 content={descValue}
                 onChange={(html) => handleDescriptionChange(l.code, html)}
                 maxHeight="500px"
                 bgClass="bg-zinc-900 text-white border border-white/10"
+                simple
               />
             </div>
           </TabsContent>

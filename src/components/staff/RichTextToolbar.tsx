@@ -15,6 +15,7 @@ import {
 
 interface RichTextToolbarProps {
   editor: Editor;
+  simple?: boolean;
 }
 
 const COLORS = [
@@ -221,7 +222,7 @@ const TableGridPicker = ({ onSelect }: { onSelect: (rows: number, cols: number) 
   );
 };
 
-const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
+const RichTextToolbar = ({ editor, simple }: RichTextToolbarProps) => {
   const setLink = useCallback(() => {
     const previousUrl = editor.getAttributes("link").href;
     const url = window.prompt("URL du lien:", previousUrl);
@@ -258,9 +259,11 @@ const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
       <ToolbarButton active={editor.isActive("strike")} onClick={() => editor.chain().focus().toggleStrike().run()} title="Barré">
         <Strikethrough className="h-4 w-4" />
       </ToolbarButton>
-      <ToolbarButton active={editor.isActive("highlight")} onClick={() => editor.chain().focus().toggleHighlight().run()} title="Surligner">
-        <Highlighter className="h-4 w-4" />
-      </ToolbarButton>
+      {!simple && (
+        <ToolbarButton active={editor.isActive("highlight")} onClick={() => editor.chain().focus().toggleHighlight().run()} title="Surligner">
+          <Highlighter className="h-4 w-4" />
+        </ToolbarButton>
+      )}
       <ToolbarButton active={editor.isActive("superscript")} onClick={() => editor.chain().focus().toggleSuperscript().run()} title="Exposant">
         <Superscript className="h-4 w-4" />
       </ToolbarButton>
@@ -269,6 +272,7 @@ const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
       </ToolbarButton>
 
       {/* Color picker */}
+      {!simple && (
       <Popover>
         <PopoverTrigger asChild>
           <Button type="button" variant="ghost" size="sm" className="h-8 w-8 p-0" title="Couleur du texte">
@@ -296,6 +300,7 @@ const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
           </button>
         </PopoverContent>
       </Popover>
+      )}
 
       <Sep />
 
@@ -338,19 +343,25 @@ const RichTextToolbar = ({ editor }: RichTextToolbarProps) => {
       <ToolbarButton active={editor.isActive("orderedList")} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Liste numérotée">
         <ListOrdered className="h-4 w-4" />
       </ToolbarButton>
-      <ToolbarButton active={editor.isActive("link")} onClick={setLink} title="Lien">
-        <LinkIcon className="h-4 w-4" />
-      </ToolbarButton>
+      {!simple && (
+        <ToolbarButton active={editor.isActive("link")} onClick={setLink} title="Lien">
+          <LinkIcon className="h-4 w-4" />
+        </ToolbarButton>
+      )}
 
       <Sep />
 
       {/* Media & table */}
-      <ToolbarButton onClick={addImage} title="Insérer image">
-        <ImagePlus className="h-4 w-4" />
-      </ToolbarButton>
-      <ToolbarButton onClick={addYoutube} title="Insérer vidéo YouTube">
-        <Youtube className="h-4 w-4" />
-      </ToolbarButton>
+      {!simple && (
+        <>
+          <ToolbarButton onClick={addImage} title="Insérer image">
+            <ImagePlus className="h-4 w-4" />
+          </ToolbarButton>
+          <ToolbarButton onClick={addYoutube} title="Insérer vidéo YouTube">
+            <Youtube className="h-4 w-4" />
+          </ToolbarButton>
+        </>
+      )}
 
       {/* Emoji picker */}
       <Popover>

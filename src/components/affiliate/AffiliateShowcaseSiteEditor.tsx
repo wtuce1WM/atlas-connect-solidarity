@@ -254,15 +254,15 @@ const AffiliateShowcaseSiteEditor = ({ businessId, businessSlug }: Props) => {
         <div className="space-y-3">
           <div>
             <Label className="text-white/80">FR</Label>
-            <RichTextEditor content={storyFr} onChange={setStoryFr} placeholder="Racontez votre histoire…" maxHeight="300px" />
+            <RichTextEditor content={storyFr} onChange={setStoryFr} placeholder="Racontez votre histoire…" maxHeight="300px" simple />
           </div>
           <div>
             <Label className="text-white/80">EN</Label>
-            <RichTextEditor content={storyEn} onChange={setStoryEn} placeholder="Tell your story…" maxHeight="300px" />
+            <RichTextEditor content={storyEn} onChange={setStoryEn} placeholder="Tell your story…" maxHeight="300px" simple />
           </div>
           <div>
             <Label className="text-white/80">AR</Label>
-            <RichTextEditor content={storyAr} onChange={setStoryAr} placeholder="…" maxHeight="300px" />
+            <RichTextEditor content={storyAr} onChange={setStoryAr} placeholder="…" maxHeight="300px" simple />
           </div>
         </div>
       </div>

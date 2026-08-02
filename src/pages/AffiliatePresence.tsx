@@ -55,6 +55,13 @@ const PLATFORMS = [
 
 type PlatformKey = typeof PLATFORMS[number]["key"];
 
+// Affichage uniquement : masque les lignes "Reviews" et place "Site web" en tête.
+const HIDDEN_PLATFORM_KEYS: string[] = ["google_reviews_url", "tripadvisor_review_url"];
+const VISIBLE_PLATFORMS = [
+  ...PLATFORMS.filter(p => p.key === "website"),
+  ...PLATFORMS.filter(p => p.key !== "website" && !HIDDEN_PLATFORM_KEYS.includes(p.key)),
+];
+
 const CTA_URL_DEFS: Array<{ urlField: string; ctaField: string; externalField: string; label: string; defaultCta?: string }> = [
   { urlField: "website",         ctaField: "website_cta",       externalField: "website_force_external",       label: "URL 1 · Site web", defaultCta: "Site web" },
   { urlField: "reserve_now_url", ctaField: "reserve_now_cta",   externalField: "reserve_now_force_external",   label: "URL 2 · Réserver", defaultCta: "Réservez" },
@@ -261,8 +268,8 @@ const AffiliatePresence = () => {
   }, [navigate, toast]);
 
   const getBusinessCompleteness = (b: BusinessPresence) => {
-    const filled = PLATFORMS.filter(p => b.links[p.key]).length;
-    return { filled, total: PLATFORMS.length, percent: Math.round((filled / PLATFORMS.length) * 100) };
+    const filled = VISIBLE_PLATFORMS.filter(p => b.links[p.key]).length;
+    return { filled, total: VISIBLE_PLATFORMS.length, percent: Math.round((filled / VISIBLE_PLATFORMS.length) * 100) };
   };
 
   const handleFieldChange = (businessId: string, key: string, value: any) => {
@@ -538,7 +545,7 @@ const AffiliatePresence = () => {
                     <div>
                       <CardTitle className="text-lg">{currentBusiness.name}</CardTitle>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {getBusinessCompleteness(currentBusiness).filled}/{PLATFORMS.length} plateformes configurées
+                        {getBusinessCompleteness(currentBusiness).filled}/{VISIBLE_PLATFORMS.length} plateformes configurées
                       </p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -611,7 +618,7 @@ const AffiliatePresence = () => {
 
                     {/* Links Tab */}
                     <TabsContent value="links" className="space-y-3">
-                      {PLATFORMS.map(platform => {
+                      {VISIBLE_PLATFORMS.map(platform => {
                         const currentValue = getCurrentValue(currentBusiness.id, platform.key, currentBusiness.links[platform.key]);
                         const isFilled = !!currentValue;
                         const isEdited = editedFields[currentBusiness.id]?.[platform.key] !== undefined;
