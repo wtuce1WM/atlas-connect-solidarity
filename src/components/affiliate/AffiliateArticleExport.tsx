@@ -107,6 +107,7 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
   const [reviewMap, setReviewMap] = useState<Record<string, DefaultReview>>({});
   const [owner, setOwner] = useState<Biz | null>(null);
   const [copied, setCopied] = useState(false);
+  const [mapBg, setMapBg] = useState("");
 
   // Établissement propriétaire (référence pour les distances)
   useEffect(() => {
