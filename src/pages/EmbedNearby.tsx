@@ -28,6 +28,10 @@ const EmbedNearby = () => {
   const mapBaseColor = /^#?[0-9a-fA-F]{6}$/.test(bgParam)
     ? (bgParam.startsWith("#") ? bgParam : `#${bgParam}`)
     : null;
+  // Default widget map uses native Google Maps colors; custom color overrides the light theme.
+  const mapTheme: "light" | "dark" | "default-light" | "default-dark" = mapBaseColor ? "light" : "default-light";
+
+
 
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
@@ -79,6 +83,7 @@ const EmbedNearby = () => {
             initialOverlay="poi"
             embedMode
             mapBaseColor={mapBaseColor}
+            mapTheme={mapTheme}
             hideDirections
             onClose={() => { /* embed: pas de fermeture, l'overlay reste affiché */ }}
           />
