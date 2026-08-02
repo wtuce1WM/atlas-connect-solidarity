@@ -415,6 +415,39 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
   swipe.addEventListener('touchend',function(){x=null;y=null;});
   swipe.addEventListener('wheel',function(e){if(Math.abs(e.deltaY)<30)return;e.preventDefault();go(e.deltaY>0?1:-1);},{passive:false});
 })();
+(function(){
+  // Carrousels d'images (chevrons ‹ ›) — sur-impression visible seulement sur la 1ère image
+  var list=document.querySelectorAll('[data-owm-carousel]');
+  for(var n=0;n<list.length;n++){(function(box){
+    var track=box.querySelector('[data-owm-track]');
+    if(!track)return;
+    var slides=track.children.length, i=0;
+    var counter=box.querySelector('[data-owm-count]');
+    var overlay=box.querySelector('[data-owm-overlay]');
+    function render(){
+      track.style.transform='translateX(-'+(i*100)+'%)';
+      if(counter)counter.textContent=(i+1)+'/'+slides;
+      if(overlay)overlay.style.opacity=(i===0?'1':'0');
+    }
+    var btns=box.querySelectorAll('[data-owm-dir]');
+    for(var k=0;k<btns.length;k++){(function(btn){
+      btn.addEventListener('click',function(ev){
+        ev.preventDefault();ev.stopPropagation();
+        var d=parseInt(btn.getAttribute('data-owm-dir'),10)||1;
+        i=(i+d+slides)%slides;render();
+      });
+    })(btns[k]);}
+    var sx=null,sy=null,hd=false;
+    box.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY;hd=false;},{passive:true});
+    box.addEventListener('touchmove',function(e){
+      if(sx===null||hd)return;
+      var dx=e.touches[0].clientX-sx, dy=e.touches[0].clientY-sy;
+      if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)){hd=true;i=(i+(dx<0?1:-1)+slides)%slides;render();}
+    },{passive:true});
+    box.addEventListener('touchend',function(){sx=null;sy=null;});
+    render();
+  })(list[n]);}
+})();
 </script>`;
 
     return `<!-- Article One World Morocco — ${esc(articleTitle)} -->
