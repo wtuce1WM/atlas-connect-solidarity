@@ -156,11 +156,12 @@ export default function BusinessAnalyticsPanel({ fixedBusinessId, affiliateId, s
               <SelectTrigger className="w-full sm:w-[280px] bg-card border-border">
                 <SelectValue placeholder={loadingBiz ? "Chargement…" : "Choisir un établissement"} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper" className="z-[200] max-h-[320px]">
                 {businesses?.map((b) => (
                   <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
                 ))}
               </SelectContent>
+
             </Select>
           )}
         </div>
