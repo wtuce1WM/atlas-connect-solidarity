@@ -73,6 +73,43 @@ const LIGHT_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: "administrative.neighborhood", elementType: "labels.text.fill", stylers: [{ color: "#1c1510" }] },
 ];
 
+/** Shifts a hex color's lightness by `amount` (-255..255) — used to derive roads/landmass tints. */
+const shadeHex = (hex: string, amount: number): string => {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return hex;
+  const n = parseInt(m[1], 16);
+  const clamp = (v: number) => Math.max(0, Math.min(255, Math.round(v)));
+  const r = clamp(((n >> 16) & 255) + amount);
+  const g = clamp(((n >> 8) & 255) + amount);
+  const b = clamp((n & 255) + amount);
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`;
+};
+
+/** Light theme with a custom base color (widget embeds). */
+const buildLightStylesWithBase = (base: string): google.maps.MapTypeStyle[] => {
+  const manMade = shadeHex(base, -12);
+  const road = shadeHex(base, 18);
+  const roadStroke = shadeHex(base, -22);
+  const roadLocal = shadeHex(base, 8);
+  return LIGHT_MAP_STYLES.map((s) => {
+    const key = `${s.featureType || ""}|${s.elementType || ""}`;
+    const override: Record<string, string> = {
+      "|geometry": base,
+      "|labels.text.stroke": base,
+      "landscape|geometry": base,
+      "landscape.man_made|geometry": manMade,
+      "road|geometry": road,
+      "road|geometry.stroke": roadStroke,
+      "road.highway|geometry": road,
+      "road.highway|geometry.stroke": roadStroke,
+      "road.arterial|geometry": road,
+      "road.local|geometry": roadLocal,
+    };
+    const color = override[key];
+    return color ? { ...s, stylers: [{ color }] } : s;
+  });
+};
+
 // Dark 1WM palette — deep neutral base with warm terracotta/gold accents for roads & labels
 const DARK_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: "poi", elementType: "labels.text", stylers: [{ visibility: "off" }] },
