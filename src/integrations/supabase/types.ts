@@ -137,9 +137,13 @@ export type Database = {
           contact_url: string | null
           country_id: string
           created_at: string
+          has_ai_assistant: boolean
+          has_blog_export: boolean
           has_custom_domain: boolean
           has_dashboard: boolean | null
+          has_email_signature: boolean
           has_guide: boolean
+          has_nearby_widget: boolean
           has_showcase_site: boolean
           has_video_studio: boolean | null
           ice: string | null
@@ -162,9 +166,13 @@ export type Database = {
           contact_url?: string | null
           country_id: string
           created_at?: string
+          has_ai_assistant?: boolean
+          has_blog_export?: boolean
           has_custom_domain?: boolean
           has_dashboard?: boolean | null
+          has_email_signature?: boolean
           has_guide?: boolean
+          has_nearby_widget?: boolean
           has_showcase_site?: boolean
           has_video_studio?: boolean | null
           ice?: string | null
@@ -187,9 +195,13 @@ export type Database = {
           contact_url?: string | null
           country_id?: string
           created_at?: string
+          has_ai_assistant?: boolean
+          has_blog_export?: boolean
           has_custom_domain?: boolean
           has_dashboard?: boolean | null
+          has_email_signature?: boolean
           has_guide?: boolean
+          has_nearby_widget?: boolean
           has_showcase_site?: boolean
           has_video_studio?: boolean | null
           ice?: string | null
