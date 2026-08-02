@@ -376,6 +376,7 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
                           <div>
                             <label className="text-xs font-medium text-muted-foreground mb-1 block">Texte</label>
                             <RichTextEditor
+                              simple
                               content={descVal}
                               onChange={(html) => updateField(i, descField, html)}
                               placeholder={`Description (max ${MAX_RICH} caractères)`}
