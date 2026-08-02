@@ -273,6 +273,7 @@ Règles absolues :
         content: clean(parsed.content, MAX_CONTENT),
         mode,
         source_label: sourceLabel,
+        length: lengthKey,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
