@@ -83,6 +83,7 @@ const EmbedNearby = () => {
             initialOverlay="poi"
             embedMode
             mapBaseColor={mapBaseColor}
+            mapTheme={mapTheme}
             hideDirections
             onClose={() => { /* embed: pas de fermeture, l'overlay reste affiché */ }}
           />
