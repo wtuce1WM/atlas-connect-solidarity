@@ -10,6 +10,8 @@ interface OwnerGroup {
   business_id: string;
   business_name: string;
   count: number;
+  ownerCount: number;
+  genericCount: number;
 }
 
 const OwnerArticlesManagement = () => {
@@ -23,14 +25,21 @@ const OwnerArticlesManagement = () => {
     const load = async () => {
       const { data: posts } = await supabase
         .from("blog_posts")
-        .select("anchor_business_id")
+        .select("anchor_business_id, anchor_kind")
         .not("anchor_business_id", "is", null);
       if (!posts) { setIsLoading(false); return; }
 
       const counts = new Map<string, number>();
+      const ownerCounts = new Map<string, number>();
+      const genericCounts = new Map<string, number>();
       for (const p of posts as any[]) {
         const id = p.anchor_business_id as string;
         counts.set(id, (counts.get(id) ?? 0) + 1);
+        if (p.anchor_kind === "owner") {
+          ownerCounts.set(id, (ownerCounts.get(id) ?? 0) + 1);
+        } else {
+          genericCounts.set(id, (genericCounts.get(id) ?? 0) + 1);
+        }
       }
       const ids = Array.from(counts.keys());
       if (ids.length === 0) { setGroups([]); setIsLoading(false); return; }
@@ -47,6 +56,8 @@ const OwnerArticlesManagement = () => {
           business_id: id,
           business_name: nameMap.get(id) ?? "(établissement inconnu)",
           count: counts.get(id) ?? 0,
+          ownerCount: ownerCounts.get(id) ?? 0,
+          genericCount: genericCounts.get(id) ?? 0,
         }))
         .sort((a, b) => b.count - a.count || a.business_name.localeCompare(b.business_name));
 
@@ -67,13 +78,15 @@ const OwnerArticlesManagement = () => {
   }
 
   const totalPosts = groups.reduce((s, g) => s + g.count, 0);
+  const totalOwner = groups.reduce((s, g) => s + g.ownerCount, 0);
+  const totalGeneric = groups.reduce((s, g) => s + g.genericCount, 0);
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold">Articles propriétaires</h2>
         <p className="text-sm text-muted-foreground">
-          {totalPosts} article{totalPosts > 1 ? "s" : ""} rattaché{totalPosts > 1 ? "s" : ""} à {groups.length} établissement{groups.length > 1 ? "s" : ""}
+          {totalPosts} article{totalPosts > 1 ? "s" : ""} rattaché{totalPosts > 1 ? "s" : ""} à {groups.length} établissement{groups.length > 1 ? "s" : ""} — {totalOwner} propriétaire{totalOwner > 1 ? "s" : ""}, {totalGeneric} générique{totalGeneric > 1 ? "s" : ""}
         </p>
       </div>
 
@@ -105,8 +118,11 @@ const OwnerArticlesManagement = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-sm text-muted-foreground">
-                      {g.count} article{g.count > 1 ? "s" : ""}
+                    <span className="text-xs px-2 py-1 rounded bg-primary/15 text-primary font-medium">
+                      {g.ownerCount} propriétaire{g.ownerCount > 1 ? "s" : ""}
+                    </span>
+                    <span className="text-xs px-2 py-1 rounded bg-muted text-muted-foreground font-medium">
+                      {g.genericCount} générique{g.genericCount > 1 ? "s" : ""}
                     </span>
                     <Button
                       size="sm"
@@ -119,13 +135,35 @@ const OwnerArticlesManagement = () => {
                   </div>
                 </div>
                 {open && (
-                  <div className="border-t p-4 bg-muted/20">
-                    <BlogManagement
-                      anchorBusinessId={g.business_id}
-                      title=""
-                      subtitle={`${g.count} article${g.count > 1 ? "s" : ""} — épinglés en tête, puis même ordre que /blog`}
-                      showInternalLinks={false}
-                    />
+                  <div className="border-t p-4 bg-muted/20 space-y-8">
+                    <div>
+                      <h3 className="text-sm font-bold uppercase tracking-wide text-primary mb-3">
+                        Articles propriétaires ({g.ownerCount})
+                      </h3>
+                      <BlogManagement
+                        anchorBusinessId={g.business_id}
+                        anchorKind="owner"
+                        allowKindSwitch
+                        onKindChange={() => setReloadKey((k) => k + 1)}
+                        title=""
+                        subtitle="Articles dédiés à cet établissement (titre/contenu centré sur lui)"
+                        showInternalLinks={false}
+                      />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-3">
+                        Articles génériques rattachés ({g.genericCount})
+                      </h3>
+                      <BlogManagement
+                        anchorBusinessId={g.business_id}
+                        anchorKind="generic"
+                        allowKindSwitch
+                        onKindChange={() => setReloadKey((k) => k + 1)}
+                        title=""
+                        subtitle="Articles thématiques mutualisés, exploités par l'assistant IA embed"
+                        showInternalLinks={false}
+                      />
+                    </div>
                   </div>
                 )}
               </Card>
