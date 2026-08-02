@@ -2905,39 +2905,23 @@ const BookOnlineSlidePanelInner = ({
                     <DropdownMenuTrigger asChild>
                       <button
                         type="button"
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilter ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${!poiCatFilter ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
                       >
                         <MapPin className="h-3.5 w-3.5" />
-                        {poiSubcatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Subcategories" : language === "ar" ? "الفئات الفرعية" : "Sous-catégories")}
+                        {poiSubcatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="z-[260] max-h-80 overflow-y-auto">
-                      <DropdownMenuItem
-                        className={!poiSubcatFilter ? "font-semibold" : ""}
-                        onSelect={() => setPoiSubcatFilter(null)}
-                      >
-                        <span className="flex items-center gap-2 flex-1">
-                          {!poiSubcatFilter ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4 opacity-40" />}
-                          {language === "en" ? "All subcategories" : language === "ar" ? "جميع الفئات الفرعية" : "Toutes les sous-catégories"}
-                        </span>
-                        <span className="ml-2 opacity-60">{afterCat.length}</span>
-                      </DropdownMenuItem>
-                      {poiSubcatList.map(([name, count]) => {
-                        const active = poiSubcatFilter === name;
-                        return (
-                          <DropdownMenuItem
-                            key={name}
-                            className={active ? "font-semibold" : ""}
-                            onSelect={() => setPoiSubcatFilter(active ? null : name)}
-                          >
-                            <span className="flex items-center gap-2 flex-1">
-                              {active ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4 opacity-40" />}
-                              {translateSubcategory(name, language)}
-                            </span>
-                            <span className="ml-2 opacity-60">{count}</span>
-                          </DropdownMenuItem>
-                        );
-                      })}
+                      {poiSubcatFilter && (
+                        <DropdownMenuItem onSelect={() => setPoiSubcatFilter(null)}>
+                          {language === "en" ? "All points of interest" : language === "ar" ? "جميع نقاط الاهتمام" : "Tous les points d'intérêt"}
+                        </DropdownMenuItem>
+                      )}
+                      {poiSubcatList.map(([name, count]) => (
+                        <DropdownMenuItem key={name} onSelect={() => setPoiSubcatFilter(name)}>
+                          {translateSubcategory(name, language)} <span className="ml-1 opacity-60">({count})</span>
+                        </DropdownMenuItem>
+                      ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
