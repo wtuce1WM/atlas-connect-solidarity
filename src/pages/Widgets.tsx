@@ -964,7 +964,7 @@ const Widgets = () => {
               title="Widget Adresses à proximité"
               tagline="Les meilleures adresses autour d'un point, sur carte ou en liste."
               price="Prix : sur devis"
-              description="Reprend l'expérience de découverte de la plateforme : établissements actifs situés à moins d'un kilomètre, classés par catégorie, avec carte Google Maps, fiches détaillées et contact direct. La carte s'affiche immédiatement, sans média d'introduction."
+              description="Reprend l'expérience de découverte de la plateforme : établissements actifs situés à moins d'un kilomètre, classés par catégorie, avec carte Google Maps, fiches détaillées et contact direct. La carte s'affiche immédiatement, sans média d'introduction. S'adapte à la couleur de fond de votre choix."
               params={[
                 { name: "slug", value: "établissement de référence" },
                 { name: "lang", value: "fr | en | ar" },
