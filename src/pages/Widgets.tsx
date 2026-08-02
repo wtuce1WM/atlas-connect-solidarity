@@ -47,10 +47,12 @@ interface WidgetSectionProps {
   title: string;
   tagline: string;
   description: string;
+  price: string;
   params?: { name: string; value: string }[];
-  previewUrl: string;
-  previewHeight: number;
-  previewMaxWidth: number;
+  previewUrl?: string;
+  previewNode?: React.ReactNode;
+  previewHeight?: number;
+  previewMaxWidth?: number;
   snippet: string;
   extra?: React.ReactNode;
 }
@@ -61,8 +63,10 @@ const WidgetSection = ({
   title,
   tagline,
   description,
+  price,
   params,
   previewUrl,
+  previewNode,
   previewHeight,
   previewMaxWidth,
   snippet,
@@ -80,6 +84,7 @@ const WidgetSection = ({
 
     <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">{title}</h2>
     <p className="text-lg text-primary font-medium mb-4">{tagline}</p>
+    <Badge className="mb-5">{price}</Badge>
     <p className="text-base text-muted-foreground max-w-3xl mb-8">{description}</p>
 
     {params && (
@@ -98,27 +103,33 @@ const WidgetSection = ({
         <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
           Aperçu en direct
         </h3>
-        <iframe
-          src={previewUrl}
-          title={title}
-          loading="lazy"
-          style={{
-            width: "100%",
-            maxWidth: previewMaxWidth,
-            height: previewHeight,
-            border: 0,
-            borderRadius: 20,
-          }}
-          className="bg-card shadow-lg"
-        />
-        <a
-          href={previewUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
-        >
-          Ouvrir en plein écran <ExternalLink className="h-3.5 w-3.5" />
-        </a>
+        {previewNode ? (
+          previewNode
+        ) : (
+          <>
+            <iframe
+              src={previewUrl}
+              title={title}
+              loading="lazy"
+              style={{
+                width: "100%",
+                maxWidth: previewMaxWidth,
+                height: previewHeight,
+                border: 0,
+                borderRadius: 20,
+              }}
+              className="bg-card shadow-lg"
+            />
+            <a
+              href={previewUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+            >
+              Ouvrir en plein écran <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          </>
+        )}
       </div>
 
       <div>
@@ -131,6 +142,7 @@ const WidgetSection = ({
     </div>
   </section>
 );
+
 
 const COMPATIBLE = [
   ["WordPress", "Bloc « HTML personnalisé » ou plugin iframe"],
