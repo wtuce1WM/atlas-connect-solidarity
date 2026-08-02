@@ -126,10 +126,10 @@ const BlogTemplates = () => {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Badge variant="secondary" className="text-xs">Top 20</Badge>
-            <Badge variant="secondary" className="text-xs">Proximité</Badge>
-            <Badge variant="secondary" className="text-xs">Comparatif</Badge>
-            <Badge variant="secondary" className="text-xs">Guide quartier</Badge>
+            <Badge variant="outline" className="text-xs border-primary/30 text-primary bg-primary/5">Top 20</Badge>
+            <Badge variant="outline" className="text-xs border-primary/30 text-primary bg-primary/5">Proximité</Badge>
+            <Badge variant="outline" className="text-xs border-primary/30 text-primary bg-primary/5">Comparatif</Badge>
+            <Badge variant="outline" className="text-xs border-primary/30 text-primary bg-primary/5">Guide quartier</Badge>
           </div>
         </CardContent>
       </Card>
