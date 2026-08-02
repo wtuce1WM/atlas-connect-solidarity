@@ -441,7 +441,7 @@ const BookOnlineSlidePanelInner = ({
     (async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, main_category, priority_score")
+        .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, priority_score")
         .eq("is_active", true)
         .ilike("city", business.city)
         .order("priority_score", { ascending: false, nullsFirst: false })
@@ -466,6 +466,7 @@ const BookOnlineSlidePanelInner = ({
           city: p.city,
           neighborhood: p.neighborhood,
           categories: p.categories,
+          default_service: p.default_service ?? null,
         }));
 
       setPoiCategoryBusinesses(rows as PoiBusiness[]);
