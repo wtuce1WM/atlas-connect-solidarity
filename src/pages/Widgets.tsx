@@ -16,8 +16,13 @@ const DEMO_SLUG = "riad-dar-najat";
 const PREVIEW_ORIGIN = typeof window !== "undefined" ? window.location.origin : SITE;
 const toPreview = (url: string) => url.replace(SITE, PREVIEW_ORIGIN);
 
-const CopyBlock = ({ code, id }: { code: string; id: string }) => {
+const CopyBlock = ({ code, id, previewLines }: { code: string; id: string; previewLines?: number }) => {
   const [copied, setCopied] = useState(false);
+  const shown =
+    previewLines && previewLines > 0
+      ? code.split("\n").slice(0, previewLines).join("\n") +
+        (code.split("\n").length > previewLines ? "\n…" : "")
+      : code;
   const doCopy = async () => {
     try {
       await navigator.clipboard.writeText(code);
@@ -31,7 +36,7 @@ const CopyBlock = ({ code, id }: { code: string; id: string }) => {
   return (
     <div className="relative rounded-xl border border-border bg-muted/40 p-4">
       <pre className="overflow-x-auto text-xs leading-relaxed text-muted-foreground whitespace-pre-wrap break-all">
-        <code>{code}</code>
+        <code>{shown}</code>
       </pre>
       <Button
         size="sm"
@@ -46,6 +51,46 @@ const CopyBlock = ({ code, id }: { code: string; id: string }) => {
     </div>
   );
 };
+
+/** Aperçu sans scroll vertical : la hauteur suit la hauteur réelle du widget
+ *  (les pages /embed/* publient leur hauteur via postMessage). */
+const AutoHeightIframe = ({
+  src,
+  title,
+  minHeight,
+  maxWidth,
+}: {
+  src: string;
+  title: string;
+  minHeight: number;
+  maxWidth?: number;
+}) => {
+  const [height, setHeight] = useState(minHeight);
+
+  useEffect(() => {
+    setHeight(minHeight);
+    const onMsg = (e: MessageEvent) => {
+      const d = e.data as { type?: string; height?: number } | null;
+      if (!d || typeof d.type !== "string" || !d.type.endsWith("-height")) return;
+      if (typeof d.height === "number" && d.height > 80) setHeight(Math.ceil(d.height) + 8);
+    };
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, [src, minHeight]);
+
+  return (
+    <iframe
+      key={src}
+      src={src}
+      title={title}
+      loading="lazy"
+      scrolling="no"
+      style={{ width: "100%", maxWidth, height, border: 0, borderRadius: 20, overflow: "hidden" }}
+      className="bg-card shadow-lg"
+    />
+  );
+};
+
 
 interface WidgetSectionProps {
   index: number;
