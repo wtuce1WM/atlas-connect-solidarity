@@ -132,6 +132,7 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
           "id, slug, title_fr, title_en, title_ar, intro_fr, intro_en, intro_ar, entries_fr, entries_en, entries_ar, cover_image_url, custom_hero_image_url, is_published"
         )
         .eq("anchor_business_id", businessId)
+        .eq("is_published", true)
         .order("sort_order", { ascending: true });
       if (cancelled) return;
       const list = (data ?? []) as unknown as Post[];
