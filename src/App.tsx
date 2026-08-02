@@ -92,6 +92,7 @@ const HomeMindtrip = HomeMindtripEager;
 const Install = lazy(() => import("./pages/Install"));
 const EmbedAsk = lazy(() => import("./pages/EmbedAsk"));
 const EmbedWeather = lazy(() => import("./pages/EmbedWeather"));
+const EmbedTides = lazy(() => import("./pages/EmbedTides"));
 const EmbedNearby = lazy(() => import("./pages/EmbedNearby"));
 const EmbedReviews = lazy(() => import("./pages/EmbedReviews"));
 const VanityResolver = lazy(() => import("./pages/VanityResolver"));
@@ -251,6 +252,7 @@ const LocalizedRoutes = () => {
               <Route path="/b/:slug" element={renderLazyRoute(<PublicBusinessProfile />)} />
               <Route path="/site/:slug" element={renderLazyRoute(<ShowcaseSite />)} />
               <Route path="/embed/weather" element={renderLazyRoute(<EmbedWeather />)} />
+              <Route path="/embed/tides" element={renderLazyRoute(<EmbedTides />)} />
               <Route path="/embed/nearby/:slug" element={renderLazyRoute(<EmbedNearby />)} />
               <Route path="/embed/reviews/:slug" element={renderLazyRoute(<EmbedReviews />)} />
               <Route path="/embed/ask/:slug" element={renderLazyRoute(<EmbedAsk />)} />
