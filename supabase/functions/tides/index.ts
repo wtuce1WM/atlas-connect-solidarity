@@ -71,7 +71,7 @@ function resolveCoast(input: string): Coast | null {
 type Extreme = { time: string; type: "high" | "low"; height: number };
 
 /** Local extrema of the hourly sea-level curve, refined by parabolic interpolation. */
-function findExtremes(times: string[], heights: (number | null)[]): Extreme[] {
+function findExtremes(stamps: number[], heights: (number | null)[]): Extreme[] {
   const out: Extreme[] = [];
   for (let i = 1; i < heights.length - 1; i++) {
     const a = heights[i - 1];
@@ -88,8 +88,7 @@ function findExtremes(times: string[], heights: (number | null)[]): Extreme[] {
     if (!Number.isFinite(offset) || Math.abs(offset) > 1) offset = 0;
     const peak = b - 0.25 * (a - c) * offset;
 
-    const base = new Date(times[i] + ":00");
-    const refined = new Date(base.getTime() + offset * 3600 * 1000);
+    const refined = new Date(stamps[i] + offset * 3600 * 1000);
 
     out.push({
       time: refined.toISOString(),
@@ -100,10 +99,10 @@ function findExtremes(times: string[], heights: (number | null)[]): Extreme[] {
   return out;
 }
 
-function interpolateAt(times: string[], heights: (number | null)[], target: number): number | null {
-  for (let i = 0; i < times.length - 1; i++) {
-    const t0 = new Date(times[i] + ":00").getTime();
-    const t1 = new Date(times[i + 1] + ":00").getTime();
+function interpolateAt(stamps: number[], heights: (number | null)[], target: number): number | null {
+  for (let i = 0; i < stamps.length - 1; i++) {
+    const t0 = stamps[i];
+    const t1 = stamps[i + 1];
     if (target >= t0 && target <= t1) {
       const h0 = heights[i];
       const h1 = heights[i + 1];
@@ -178,12 +177,14 @@ Deno.serve(async (req) => {
     }
 
     const offsetSeconds = Number(raw?.utc_offset_seconds || 0);
-    const allExtremes = findExtremes(times, levels);
+    // Open-Meteo returns LOCAL naive timestamps; convert to real UTC epoch ms.
+    const stamps = times.map((t) => Date.parse(t + ":00Z") - offsetSeconds * 1000);
+    const allExtremes = findExtremes(stamps, levels);
     const nowMs = Date.now();
 
     // Present level + trend
-    const currentLevel = interpolateAt(times, levels, nowMs);
-    const level30 = interpolateAt(times, levels, nowMs + 30 * 60 * 1000);
+    const currentLevel = interpolateAt(stamps, levels, nowMs);
+    const level30 = interpolateAt(stamps, levels, nowMs + 30 * 60 * 1000);
     const trend: "rising" | "falling" | "slack" =
       currentLevel != null && level30 != null
         ? level30 - currentLevel > 0.03
@@ -210,8 +211,8 @@ Deno.serve(async (req) => {
 
     // Curve for the next 24h (host renders an SVG from this)
     const curve: { time: string; height: number }[] = [];
-    for (let i = 0; i < times.length; i++) {
-      const t = new Date(times[i] + ":00").getTime();
+    for (let i = 0; i < stamps.length; i++) {
+      const t = stamps[i];
       if (t < nowMs - 3 * 3600 * 1000 || t > nowMs + 24 * 3600 * 1000) continue;
       const v = levels[i];
       if (v == null) continue;
@@ -219,9 +220,9 @@ Deno.serve(async (req) => {
     }
 
     // Water conditions now
-    const waveNow = interpolateAt(times, h?.wave_height || [], nowMs);
-    const periodNow = interpolateAt(times, h?.wave_period || [], nowMs);
-    const seaTempNow = interpolateAt(times, h?.sea_surface_temperature || [], nowMs);
+    const waveNow = interpolateAt(stamps, h?.wave_height || [], nowMs);
+    const periodNow = interpolateAt(stamps, h?.wave_period || [], nowMs);
+    const seaTempNow = interpolateAt(stamps, h?.sea_surface_temperature || [], nowMs);
 
     return new Response(
       JSON.stringify({
