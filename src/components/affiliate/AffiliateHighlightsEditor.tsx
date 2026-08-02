@@ -250,6 +250,7 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
                   <div className="space-y-2">
                     <label className="text-xs font-medium text-muted-foreground">Texte d'introduction</label>
                     <RichTextEditor
+                      simple
                       content={sectionIntro[lang]}
                       onChange={(html) => {
                         setSectionIntro((s) => ({ ...s, [lang]: html }));
