@@ -716,6 +716,108 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
         </div>
       </div>
 
+      {/* ── Widget Laisser un avis ────────────────────────────── */}
+      <div className="space-y-3">
+        <h3 className="text-white font-semibold flex items-center gap-2">
+          <ThumbsUp className="h-4 w-4" /> Widget Laisser un avis (iframe)
+        </h3>
+        <p className="text-sm text-white/70">
+          Incitez vos clients satisfaits à publier un avis : les 5 étoiles cliquables ouvrent directement
+          le formulaire « Rédiger un avis » de Google et la page d'avis TripAdvisor. Seules les
+          plateformes dont le lien est renseigné sur votre fiche s'affichent.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="space-y-1.5">
+            <Label className="text-white/80 text-xs">Plateformes</Label>
+            <div className="flex gap-1 flex-wrap">
+              {RATE_PLATFORMS.map((p) => (
+                <button
+                  key={p.key}
+                  type="button"
+                  onClick={() => setRatePlatform(p.key)}
+                  className={`text-xs py-1.5 px-2 rounded-md border ${ratePlatform === p.key ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-white/80 text-xs">Format</Label>
+            <div className="flex gap-1">
+              {(["card", "bar"] as const).map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setRateVariant(v)}
+                  className={`flex-1 text-xs py-1.5 rounded-md border ${rateVariant === v ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+                >
+                  {v === "card" ? "Carte" : "Barre"}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-white/80 text-xs">Langue</Label>
+            <div className="flex gap-1">
+              {(["fr", "en", "ar"] as const).map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => setRateLang(l)}
+                  className={`flex-1 text-xs py-1.5 rounded-md border uppercase ${rateLang === l ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label className="text-white/80 text-xs">Code à copier (inline)</Label>
+            <textarea
+              readOnly
+              value={rateSnippet}
+              onFocus={(e) => e.currentTarget.select()}
+              rows={5}
+              className="w-full rounded-md bg-white/10 border border-white/20 text-white text-xs px-3 py-2 font-mono resize-none"
+            />
+            <div className="flex gap-2 flex-wrap">
+              <Button type="button" size="sm" onClick={() => copy(rateSnippet, "rate")}>
+                {copied === "rate" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                Copier le code iframe
+              </Button>
+              <Button type="button" size="sm" variant="outline" onClick={() => copy(rateUrl, "rate-url")} className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                {copied === "rate-url" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                Copier l'URL seule
+              </Button>
+              <Button type="button" size="sm" variant="outline" asChild className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                <a href={rateUrl} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="h-4 w-4 mr-1" /> Ouvrir
+                </a>
+              </Button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-white/80 text-xs">Aperçu en direct</Label>
+            <div className="rounded-md overflow-hidden border border-white/20 bg-black/30 flex justify-center">
+              <iframe
+                key={rateUrl}
+                src={rateUrl}
+                style={{ width: "100%", maxWidth: rateW, height: rateH, border: 0 }}
+                title="Aperçu laisser un avis"
+                loading="lazy"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
       {/* ── Widget Météo ──────────────────────────────────────── */}
       <div className="space-y-3">
         <h3 className="text-white font-semibold flex items-center gap-2">
