@@ -305,6 +305,7 @@ const Widgets = () => {
               icon={<MapPin className="h-5 w-5" />}
               title="Widget Adresses à proximité"
               tagline="Les meilleures adresses autour d'un point, sur carte ou en liste."
+              price="Prix : sur devis"
               description="Reprend l'expérience de découverte de la plateforme : établissements actifs situés à moins d'un kilomètre, classés par catégorie, avec carte Google Maps, fiches détaillées et contact direct. La carte s'affiche immédiatement, sans média d'introduction."
               params={[
                 { name: "slug", value: "établissement de référence" },
@@ -321,7 +322,8 @@ const Widgets = () => {
               icon={<Star className="h-5 w-5" />}
               title="Widget Avis clients"
               tagline="Google, TripAdvisor, Restaurant Guru — réunis et notés sur 20."
-              description="Note sur 5, nombre d'avis et étoiles par plateforme, avis mis en avant en premier puis navigation dans l'intégralité des avis avec l'auteur. Le mode Synthèse ajoute le badge global noté sur 20. Cinq gabarits sont disponibles (vertical S/L, horizontal S/L, carré) et le widget s'adapte automatiquement à la largeur de son cadre."
+              price="Gratuit"
+              description="Note sur 5, nombre d'avis et étoiles par plateforme, avis mis en avant en premier puis navigation dans l'intégralité des avis avec l'auteur. Le texte d'un avis long est entièrement lisible grâce au défilement interne. Le mode Synthèse ajoute le badge global noté sur 20. Cinq gabarits sont disponibles (vertical S/L, horizontal S/L, carré) et le widget s'adapte automatiquement à la largeur de son cadre."
               params={[
                 { name: "platform", value: "synthese | google | tripadvisor | restaurantguru" },
                 { name: "ratio", value: "auto | vertical | horizontal | square" },
@@ -339,13 +341,41 @@ const Widgets = () => {
               icon={<Newspaper className="h-5 w-5" />}
               title="Export d'article de blog"
               tagline="Votre article éditorial, republié sur votre propre domaine."
-              description="Depuis l'espace affilié, chaque article dont vous êtes propriétaire s'exporte en page HTML autonome : mise en page complète, médias servis depuis oneworldmorocco.com, et panneau latéral intégré qui ouvre les fiches des établissements cités avec navigation par balayage vertical. Aucun rendu dynamique à maintenir de votre côté."
-              previewUrl={`${SITE}/embed/ask/${DEMO_SLUG}?theme=light&lang=fr`}
-              previewHeight={420}
-              previewMaxWidth={520}
-              snippet={`<!-- Fichier HTML téléchargé depuis /affiliates/presence > onglet Outils > Vos articles de blog -->
-<!-- À déposer tel quel sur votre hébergement, ou à coller dans une page de votre CMS -->`}
+              price="Prix : sur devis"
+              description="Ce n'est pas un iframe : depuis l'espace affilié (onglet Outils > « Vos articles de blog »), vous choisissez l'article et la langue, puis vous copiez le code HTML complet ou téléchargez le fichier. Mise en page complète, médias servis depuis oneworldmorocco.com, et panneau latéral autonome (CSS + JS inclus) qui ouvre les fiches des établissements cités avec navigation par balayage vertical. Rien à maintenir de votre côté."
+              previewNode={
+                <div className="rounded-2xl border border-border bg-card p-6 shadow-lg">
+                  <p className="text-sm font-semibold text-foreground mb-4">
+                    Comment récupérer le code
+                  </p>
+                  <ol className="space-y-3 text-sm text-muted-foreground list-decimal pl-5">
+                    <li>Espace affilié &gt; <strong className="text-foreground">Présence</strong> &gt; onglet <strong className="text-foreground">Outils</strong>.</li>
+                    <li>Section <strong className="text-foreground">« Vos articles de blog (code à copier) »</strong>.</li>
+                    <li>Sélectionnez l'article rattaché à votre établissement et la langue (FR / EN / AR).</li>
+                    <li><strong className="text-foreground">Copier le code de l'article</strong> ou <strong className="text-foreground">Télécharger le fichier HTML</strong>.</li>
+                    <li>Collez-le dans une page de votre CMS, ou déposez le fichier sur votre hébergement.</li>
+                  </ol>
+                  <a
+                    href="/affiliates/presence"
+                    className="mt-5 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+                  >
+                    Ouvrir l'espace affilié <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                </div>
+              }
+              snippet={`<!-- Structure du fichier généré (extrait) -->
+<article class="owm-article">
+  <h1>…titre de l'article…</h1>
+  <img src="https://oneworldmorocco.com/…/photo.webp" alt="…">
+  <a class="owm-open" data-owm-slug="riad-dar-najat">Riad Dar Najat</a>
+</article>
+
+<!-- Panneau latéral embarqué (CSS + JS autonomes, déjà inclus dans l'export) -->
+<div id="owm-side-panel"><iframe title="Fiche One World Morocco"></iframe></div>
+
+<!-- Code complet : /affiliates/presence > Outils > Vos articles de blog -->`}
             />
+
           </div>
 
           {/* Compatibilité */}
