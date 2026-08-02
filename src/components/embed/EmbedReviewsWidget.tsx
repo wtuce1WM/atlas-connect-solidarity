@@ -1,8 +1,10 @@
 // Embeddable customer-reviews widget (Google / TripAdvisor / Restaurant Guru / synthèse).
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Star, ExternalLink } from "lucide-react";
 
 export type ReviewPlatformKey = "google" | "tripadvisor" | "restaurant-guru" | "all";
+export type ReviewsRatio = "auto" | "vertical" | "horizontal" | "square";
+export type ReviewsSize = "auto" | "sm" | "lg";
 type Lang = "fr" | "en" | "ar";
 
 export interface EmbedReviewItem {
@@ -112,6 +114,7 @@ function PlatformRow({
   count,
   url,
   lang,
+  compact,
 }: {
   logo: string;
   name: string;
@@ -119,6 +122,7 @@ function PlatformRow({
   count: number | null;
   url: string | null;
   lang: Lang;
+  compact?: boolean;
 }) {
   const L = LABELS[lang];
   const inner = (
@@ -126,13 +130,15 @@ function PlatformRow({
       <img
         src={logo}
         alt={name}
-        className="h-7 w-7 rounded object-contain shrink-0"
+        className={`${compact ? "h-6 w-6" : "h-7 w-7"} rounded object-contain shrink-0`}
         onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")}
       />
       <span className="min-w-0 flex-1">
-        <span className="block text-sm font-semibold text-white truncate">{name}</span>
+        <span className={`block ${compact ? "text-[12px]" : "text-sm"} font-semibold text-white truncate`}>
+          {name}
+        </span>
         <span className="flex items-center gap-1.5 flex-wrap">
-          <Stars rating={rating} />
+          <Stars rating={rating} size={compact ? 12 : 14} />
           <span dir="ltr" className="text-xs font-semibold text-gold">
             {rating.toFixed(1)}/5
           </span>
@@ -146,8 +152,9 @@ function PlatformRow({
       {url ? <ExternalLink className="h-3.5 w-3.5 text-white/40 shrink-0" /> : null}
     </>
   );
-  const cls =
-    "flex items-center gap-3 rounded-xl border border-white/15 bg-white/5 px-3 py-2.5 transition-colors";
+  const cls = `flex items-center gap-3 rounded-xl border border-white/15 bg-white/5 ${
+    compact ? "px-2.5 py-2" : "px-3 py-2.5"
+  } transition-colors`;
   return url ? (
     <a href={url} target="_blank" rel="noopener noreferrer" className={`${cls} hover:bg-white/10`}>
       {inner}
@@ -157,18 +164,52 @@ function PlatformRow({
   );
 }
 
+/** Auto-detect frame shape/size from the viewport (iframe) dimensions. */
+function useResolvedFrame(ratio: ReviewsRatio, size: ReviewsSize) {
+  const read = () => {
+    const w = typeof window !== "undefined" ? window.innerWidth : 420;
+    const h = typeof window !== "undefined" ? window.innerHeight : 560;
+    const r: Exclude<ReviewsRatio, "auto"> =
+      ratio !== "auto"
+        ? ratio
+        : w >= 600 && w / Math.max(h, 1) >= 1.25
+          ? "horizontal"
+          : w >= 420 && Math.abs(w / Math.max(h, 1) - 1) <= 0.28
+            ? "square"
+            : "vertical";
+    const s: Exclude<ReviewsSize, "auto"> =
+      size !== "auto" ? size : h >= 620 || w >= 820 ? "lg" : "sm";
+    return { r, s };
+  };
+  const [frame, setFrame] = useState(read);
+  useEffect(() => {
+    const on = () => setFrame(read());
+    on();
+    window.addEventListener("resize", on);
+    return () => window.removeEventListener("resize", on);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ratio, size]);
+  return frame;
+}
+
 export default function EmbedReviewsWidget({
   business,
   reviews,
   platform,
   lang = "fr",
+  ratio = "auto",
+  size = "auto",
 }: {
   business: EmbedReviewsBusiness;
   reviews: EmbedReviewItem[];
   platform: ReviewPlatformKey;
   lang?: Lang;
+  ratio?: ReviewsRatio;
+  size?: ReviewsSize;
 }) {
   const L = LABELS[lang];
+  const { r: shape, s: density } = useResolvedFrame(ratio, size);
+  const large = density === "lg";
 
   const platformRows = useMemo(() => {
     const rows: { key: string; logo: string; name: string; rating: number; count: number | null; url: string | null }[] = [];
@@ -217,93 +258,144 @@ export default function EmbedReviewsWidget({
   const showSynthesis = platform === "all";
   const avgOn20 = business.computed_rating;
   const totalCount = business.total_review_count || 0;
+  const compactRows = shape === "square" || (!large && shape === "horizontal");
+
+  const header = (
+    <div className="space-y-1">
+      <p className="text-[11px] uppercase tracking-[0.15em] text-white/50">{L.customerReviews}</p>
+      <h2 className={`${large ? "text-lg" : "text-base"} font-bold leading-tight`}>{business.name}</h2>
+    </div>
+  );
+
+  const badge =
+    showSynthesis && avgOn20 != null && avgOn20 > 0 ? (
+      <div
+        dir="ltr"
+        className={`relative flex items-center justify-center gap-2.5 ${
+          large ? "py-2 px-5" : "py-1.5 px-4"
+        } rounded-full border border-white/30 backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_8px_32px_rgba(0,0,0,0.3)] flex-wrap`}
+      >
+        <span aria-hidden className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
+        <Star className={`${large ? "h-7 w-7" : "h-6 w-6"} text-gold fill-gold`} />
+        <span className={`${large ? "text-4xl" : "text-3xl"} font-black text-gold whitespace-nowrap`}>
+          {avgOn20}
+          <span className="text-base font-semibold text-white/60">/20</span>
+        </span>
+        {totalCount > 0 && (
+          <span className="text-xs text-white/60 font-medium whitespace-nowrap">
+            · {totalCount.toLocaleString("fr-FR")} {L.reviews}
+          </span>
+        )}
+      </div>
+    ) : null;
+
+  const rows =
+    platformRows.length > 0 ? (
+      <div className={shape === "square" ? "grid grid-cols-1 gap-1.5" : "space-y-2"}>
+        {platformRows.map((p) => (
+          <PlatformRow key={p.key} {...p} lang={lang} compact={compactRows} />
+        ))}
+      </div>
+    ) : null;
+
+  const reviewCard = (
+    <div
+      className={`rounded-2xl border border-white/10 bg-white/5 ${large ? "p-4" : "p-3.5"} flex flex-col ${
+        shape === "horizontal" ? "h-full" : ""
+      }`}
+      style={{ minHeight: large ? 200 : shape === "square" ? 104 : 132 }}
+    >
+      {current ? (
+        <>
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold truncate">{current.author_name || L.anonymous}</p>
+              {current.rating ? <Stars rating={current.rating} size={13} /> : null}
+            </div>
+            <span className="text-[11px] text-white/40 shrink-0">
+              {Math.min(index + 1, list.length)}/{list.length}
+            </span>
+          </div>
+          <blockquote
+            className={`${large ? "text-[15px]" : "text-sm"} leading-relaxed text-white/85 flex-1 overflow-hidden`}
+            style={{
+              display: "-webkit-box",
+              WebkitBoxOrient: "vertical",
+              WebkitLineClamp: large ? 10 : shape === "square" ? 4 : 6,
+            }}
+          >
+            {text}
+          </blockquote>
+          {list.length > 1 && (
+            <div className="flex items-center justify-end gap-2 pt-3">
+              <button
+                type="button"
+                aria-label={L.prev}
+                onClick={() => setIndex((i) => (i - 1 + list.length) % list.length)}
+                className="h-8 w-8 inline-flex items-center justify-center rounded-full border border-white/20 hover:bg-white/10"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                aria-label={L.next}
+                onClick={() => setIndex((i) => (i + 1) % list.length)}
+                className="h-8 w-8 inline-flex items-center justify-center rounded-full border border-white/20 hover:bg-white/10"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+        </>
+      ) : (
+        <p className="text-sm text-white/50 m-auto text-center">{L.noReview}</p>
+      )}
+    </div>
+  );
+
+  const signature = (
+    <div className="pt-1 text-center">
+      <a
+        href="https://oneworldmorocco.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-[11px] text-white/45 hover:text-white/80 transition-colors"
+      >
+        oneworldmorocco.com
+      </a>
+    </div>
+  );
+
+  const maxW = shape === "horizontal" ? 900 : shape === "square" ? 520 : 460;
 
   return (
     <div
-      className="w-full max-w-[460px] mx-auto rounded-3xl border border-white/15 bg-neutral-900/95 p-4 sm:p-5 space-y-4 text-white shadow-[0_10px_40px_rgba(0,0,0,0.35)]"
-      style={{ fontFamily: "'Montserrat', sans-serif" }}
+      className={`w-full mx-auto rounded-3xl border border-white/15 bg-neutral-900/95 ${
+        large ? "p-5 sm:p-6" : "p-4 sm:p-5"
+      } text-white shadow-[0_10px_40px_rgba(0,0,0,0.35)] flex flex-col`}
+      style={{ fontFamily: "'Montserrat', sans-serif", maxWidth: maxW }}
     >
-      <div className="space-y-1">
-        <p className="text-[11px] uppercase tracking-[0.15em] text-white/50">{L.customerReviews}</p>
-        <h2 className="text-base font-bold leading-tight">{business.name}</h2>
-      </div>
-
-      {showSynthesis && avgOn20 != null && avgOn20 > 0 && (
-        <div
-          dir="ltr"
-          className="relative flex items-center justify-center gap-2.5 py-1.5 px-4 rounded-full border border-white/30 backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_8px_32px_rgba(0,0,0,0.3)] flex-wrap"
-        >
-          <span aria-hidden className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
-          <Star className="h-6 w-6 text-gold fill-gold" />
-          <span className="text-3xl font-black text-gold whitespace-nowrap">
-            {avgOn20}
-            <span className="text-base font-semibold text-white/60">/20</span>
-          </span>
-          {totalCount > 0 && (
-            <span className="text-xs text-white/60 font-medium whitespace-nowrap">
-              · {totalCount.toLocaleString("fr-FR")} {L.reviews}
-            </span>
-          )}
-        </div>
-      )}
-
-      {platformRows.length > 0 && (
-        <div className="space-y-2">
-          {platformRows.map((p) => (
-            <PlatformRow key={p.key} {...p} lang={lang} />
-          ))}
-        </div>
-      )}
-
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-3.5 min-h-[132px] flex flex-col">
-        {current ? (
-          <>
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <div className="min-w-0">
-                <p className="text-sm font-semibold truncate">{current.author_name || L.anonymous}</p>
-                {current.rating ? <Stars rating={current.rating} size={13} /> : null}
-              </div>
-              <span className="text-[11px] text-white/40 shrink-0">
-                {Math.min(index + 1, list.length)}/{list.length}
-              </span>
+      {shape === "horizontal" ? (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start flex-1">
+            <div className="space-y-3 min-w-0">
+              {header}
+              {badge}
+              {rows}
             </div>
-            <blockquote className="text-sm leading-relaxed text-white/85 flex-1">{text}</blockquote>
-            {list.length > 1 && (
-              <div className="flex items-center justify-end gap-2 pt-3">
-                <button
-                  type="button"
-                  aria-label={L.prev}
-                  onClick={() => setIndex((i) => (i - 1 + list.length) % list.length)}
-                  className="h-8 w-8 inline-flex items-center justify-center rounded-full border border-white/20 hover:bg-white/10"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  aria-label={L.next}
-                  onClick={() => setIndex((i) => (i + 1) % list.length)}
-                  className="h-8 w-8 inline-flex items-center justify-center rounded-full border border-white/20 hover:bg-white/10"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-            )}
-          </>
-        ) : (
-          <p className="text-sm text-white/50 m-auto text-center">{L.noReview}</p>
-        )}
-      </div>
-
-      <div className="pt-1 text-center">
-        <a
-          href="https://oneworldmorocco.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[11px] text-white/45 hover:text-white/80 transition-colors"
-        >
-          oneworldmorocco.com
-        </a>
-      </div>
+            <div className="min-w-0 h-full">{reviewCard}</div>
+          </div>
+          {signature}
+        </>
+      ) : (
+        <div className="space-y-3 flex-1 flex flex-col">
+          {header}
+          {badge}
+          {rows}
+          {reviewCard}
+          {signature}
+        </div>
+      )}
     </div>
   );
 }

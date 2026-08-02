@@ -6,6 +6,8 @@ import EmbedReviewsWidget, {
   type EmbedReviewItem,
   type EmbedReviewsBusiness,
   type ReviewPlatformKey,
+  type ReviewsRatio,
+  type ReviewsSize,
 } from "@/components/embed/EmbedReviewsWidget";
 
 type Lang = "fr" | "en" | "ar";
@@ -26,9 +28,16 @@ export default function EmbedReviews() {
   const platform: ReviewPlatformKey = ["google", "tripadvisor", "restaurant-guru"].includes(platformParam)
     ? (platformParam as ReviewPlatformKey)
     : "all";
+  const ratioParam = (params.get("ratio") || "auto").toLowerCase();
+  const ratio: ReviewsRatio = ["vertical", "horizontal", "square"].includes(ratioParam)
+    ? (ratioParam as ReviewsRatio)
+    : "auto";
+  const sizeParam = (params.get("size") || "auto").toLowerCase();
+  const size: ReviewsSize = sizeParam === "sm" || sizeParam === "lg" ? (sizeParam as ReviewsSize) : "auto";
   const langParam = (params.get("lang") || "fr").toLowerCase();
   const lang: Lang = langParam === "en" || langParam === "ar" ? (langParam as Lang) : "fr";
   const L = MESSAGES[lang];
+
 
   const [business, setBusiness] = useState<(EmbedReviewsBusiness & { id: string }) | null>(null);
   const [reviews, setReviews] = useState<EmbedReviewItem[]>([]);
@@ -105,7 +114,7 @@ export default function EmbedReviews() {
         </div>
       )}
       {!loading && !error && business && (
-        <EmbedReviewsWidget business={business} reviews={reviews} platform={platform} lang={lang} />
+        <EmbedReviewsWidget business={business} reviews={reviews} platform={platform} lang={lang} ratio={ratio} size={size} />
       )}
     </div>
   );

@@ -32,6 +32,8 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
   const [nearbyHeight, setNearbyHeight] = useState<number>(720);
   const [reviewsPlatform, setReviewsPlatform] = useState<ReviewPlatformKey>("all");
   const [reviewsLang, setReviewsLang] = useState<"fr" | "en" | "ar">("fr");
+  const [reviewsPreset, setReviewsPreset] = useState<string>("v-sm");
+
   const [weatherCity, setWeatherCity] = useState<string>("Marrakech");
   const [weatherLang, setWeatherLang] = useState<"fr" | "en" | "ar">("fr");
 
@@ -165,12 +167,21 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
     [nearbyUrl, businessName]
   );
 
-  const reviewsUrl = `${SITE}/embed/reviews/${slug}?platform=${reviewsPlatform}&lang=${reviewsLang}`;
+  const REVIEW_PRESETS: Record<string, { label: string; ratio: string; size: string; w: number; h: number }> = {
+    "v-sm": { label: "Vertical S", ratio: "vertical", size: "sm", w: 460, h: 560 },
+    "v-lg": { label: "Vertical L", ratio: "vertical", size: "lg", w: 460, h: 1000 },
+    "h-sm": { label: "Horizontal S", ratio: "horizontal", size: "sm", w: 760, h: 340 },
+    "h-lg": { label: "Horizontal L", ratio: "horizontal", size: "lg", w: 900, h: 460 },
+    "square": { label: "Carré", ratio: "square", size: "sm", w: 480, h: 480 },
+  };
+  const preset = REVIEW_PRESETS[reviewsPreset] || REVIEW_PRESETS["v-sm"];
+  const reviewsUrl = `${SITE}/embed/reviews/${slug}?platform=${reviewsPlatform}&lang=${reviewsLang}&ratio=${preset.ratio}&size=${preset.size}`;
   const reviewsSnippet = useMemo(
     () =>
-      `<iframe src="${reviewsUrl}" style="width:100%;max-width:480px;height:560px;border:0;border-radius:20px" title="Avis clients — ${businessName}" loading="lazy"></iframe>`,
-    [reviewsUrl, businessName]
+      `<iframe src="${reviewsUrl}" style="width:100%;max-width:${preset.w}px;height:${preset.h}px;border:0;border-radius:20px" title="Avis clients — ${businessName}" loading="lazy"></iframe>`,
+    [reviewsUrl, businessName, preset.w, preset.h]
   );
+
 
   const weatherUrl = `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}`;
   const weatherSnippet = useMemo(
@@ -641,6 +652,28 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
           </div>
         </div>
 
+        <div className="space-y-1.5">
+          <Label className="text-white/80 text-xs">Format d'affichage</Label>
+          <div className="flex gap-1 flex-wrap">
+            {Object.entries(REVIEW_PRESETS).map(([key, p]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setReviewsPreset(key)}
+                className={`text-xs py-1.5 px-3 rounded-md border ${reviewsPreset === key ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+              >
+                {p.label} · {p.w}×{p.h}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-white/50">
+            Le widget s'adapte aussi automatiquement à la taille de l'iframe : ces presets fixent simplement
+            width/height et le format recommandé.
+          </p>
+        </div>
+
+
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <div className="space-y-2">
             <Label className="text-white/80 text-xs">Code à copier (inline)</Label>
@@ -673,10 +706,11 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
               <iframe
                 key={reviewsUrl}
                 src={reviewsUrl}
-                style={{ width: "100%", maxWidth: 480, height: 560, border: 0 }}
+                style={{ width: "100%", maxWidth: preset.w, height: preset.h, border: 0 }}
                 title="Aperçu avis clients"
                 loading="lazy"
               />
+
             </div>
           </div>
         </div>
