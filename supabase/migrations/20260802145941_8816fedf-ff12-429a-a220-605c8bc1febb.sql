@@ -1,0 +1,1 @@
+UPDATE public.blog_posts SET poi_map_mode = 'near_10km' WHERE slug = 'surf-essaouira-sidi-kaouki-marees-saisons';
