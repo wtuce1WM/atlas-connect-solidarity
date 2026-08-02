@@ -391,7 +391,7 @@ const BookOnlineSlidePanelInner = ({
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
   const [selectedKpBusinessId, setSelectedKpBusinessId] = useState<string | null>(null);
-  const [showPoiMapOverlay, setShowPoiMapOverlay] = useState(false);
+  const [showPoiMapOverlay, setShowPoiMapOverlay] = useState(initialOverlay === "poi");
   const [poiMapMode, setPoiMapMode] = useState<"poi" | "destinations">("poi");
   const [poiSubcatFilter, setPoiSubcatFilter] = useState<string | null>(null);
   const [poiSubcatOpen, setPoiSubcatOpen] = useState(false);
@@ -1480,25 +1480,30 @@ const BookOnlineSlidePanelInner = ({
 
       {/* ClubLoginPopup is mounted globally (SearchPage). Avoid duplicate instance here. */}
 
-      {/* Full-bleed background — extracted component */}
-      <div className={externalVideoBackgroundClass}>
-        <MediaBackground
-          effectiveMedia={effectiveMedia || null}
-          businessName={business.name}
-          videoInfo={videoInfo}
-          isVerticalVideo={isVerticalVideo}
-          isSquareVideo={isSquareVideo}
-          cardsHidden={cardsHidden}
-          externalVideoInteractiveMode={externalVideoInteractiveMode}
-          videoRef={videoRef as React.RefObject<HTMLVideoElement>}
-          iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>}
-          onLoadedMetadata={handleVideoLoadedMetadata}
-          anyOverlayOpen={anyOverlayOpen}
-        />
-        {effectiveMedia?.kind !== "video" && effectiveMedia?.kind !== "matterport" && (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
-        )}
-      </div>
+      {/* Full-bleed background — extracted component.
+          Widget embarqué "carte" : pas de média de fond (évite l'écran noir + vidéo avant la carte). */}
+      {embedMode && initialOverlay === "poi" ? (
+        <div className="absolute inset-0 bg-background" />
+      ) : (
+        <div className={externalVideoBackgroundClass}>
+          <MediaBackground
+            effectiveMedia={effectiveMedia || null}
+            businessName={business.name}
+            videoInfo={videoInfo}
+            isVerticalVideo={isVerticalVideo}
+            isSquareVideo={isSquareVideo}
+            cardsHidden={cardsHidden}
+            externalVideoInteractiveMode={externalVideoInteractiveMode}
+            videoRef={videoRef as React.RefObject<HTMLVideoElement>}
+            iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>}
+            onLoadedMetadata={handleVideoLoadedMetadata}
+            anyOverlayOpen={anyOverlayOpen}
+          />
+          {effectiveMedia?.kind !== "video" && effectiveMedia?.kind !== "matterport" && (
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
+          )}
+        </div>
+      )}
 
 
 
