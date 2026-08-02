@@ -23,6 +23,7 @@ interface BlogPost {
   excerpt_en: string | null;
   excerpt_ar: string | null;
   cover_image_url: string | null;
+  custom_hero_image_url: string | null;
   author_name: string | null;
   published_at: string | null;
   created_at: string;
@@ -60,7 +61,7 @@ const Blog = () => {
       const [postsRes, feedsRes] = await Promise.all([
         supabase
           .from("blog_posts")
-          .select("id, title_fr, title_en, title_ar, slug, excerpt_fr, excerpt_en, excerpt_ar, cover_image_url, author_name, published_at, created_at, is_pinned")
+          .select("id, title_fr, title_en, title_ar, slug, excerpt_fr, excerpt_en, excerpt_ar, cover_image_url, custom_hero_image_url, author_name, published_at, created_at, is_pinned")
           .eq("is_published", true)
           .order("is_pinned", { ascending: false })
           .order("published_at", { ascending: false, nullsFirst: false })
@@ -128,10 +129,10 @@ const Blog = () => {
                   return (
                     <Link key={`post-${post.id}`} to={withLangPrefix(`/blog/${post.slug}`, language)}>
                       <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full relative">
-                        {post.cover_image_url && (
+                        {(post.custom_hero_image_url || post.cover_image_url) && (
                           <div className="aspect-video overflow-hidden">
                             <img
-                              src={post.cover_image_url}
+                              src={post.custom_hero_image_url || post.cover_image_url || undefined}
                               alt={getTitle(post)}
                               className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                               loading="lazy"
