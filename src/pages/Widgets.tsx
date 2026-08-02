@@ -104,7 +104,12 @@ interface WidgetSectionProps {
   previewNode?: React.ReactNode;
   previewHeight?: number;
   previewMaxWidth?: number;
+  /** Hauteur pilotée par le widget (postMessage) → aucun scroll vertical interne. */
+  autoHeight?: boolean;
+  /** Aperçu sur toute la largeur, code d'intégration en dessous. */
+  fullWidthPreview?: boolean;
   snippet: string;
+  snippetPreviewLines?: number;
   extra?: React.ReactNode;
 }
 
@@ -120,9 +125,13 @@ const WidgetSection = ({
   previewNode,
   previewHeight,
   previewMaxWidth,
+  autoHeight,
+  fullWidthPreview,
   snippet,
+  snippetPreviewLines,
   extra,
 }: WidgetSectionProps) => (
+
   <section className="scroll-mt-32 border-t border-border pt-16">
     <div className="flex items-center gap-3 mb-4">
       <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
