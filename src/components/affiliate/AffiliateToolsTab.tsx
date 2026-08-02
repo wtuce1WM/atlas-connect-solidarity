@@ -192,6 +192,15 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
     [reviewsUrl, businessName, preset.w, preset.h]
   );
 
+  const rateW = rateVariant === "bar" ? 780 : 460;
+  const rateH = rateVariant === "bar" ? 120 : 430;
+  const rateUrl = `${SITE}/embed/avis/${slug}?platform=${ratePlatform}&lang=${rateLang}&variant=${rateVariant}`;
+  const rateSnippet = useMemo(
+    () =>
+      `<iframe src="${rateUrl}" style="width:100%;max-width:${rateW}px;height:${rateH}px;border:0;border-radius:20px" title="Laisser un avis — ${businessName}" loading="lazy"></iframe>`,
+    [rateUrl, rateW, rateH, businessName]
+  );
+
 
   const weatherUrl = `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}`;
   const weatherSnippet = useMemo(
