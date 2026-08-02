@@ -2912,9 +2912,9 @@ const BookOnlineSlidePanelInner = ({
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="z-[260] max-h-80 overflow-y-auto">
-                      {poiSubcatFilter && (
+                      {poiCatFilter && (
                         <DropdownMenuItem onSelect={() => setPoiSubcatFilter(null)}>
-                          {language === "en" ? "All points of interest" : language === "ar" ? "جميع نقاط الاهتمام" : "Tous les points d'intérêt"}
+                          {language === "en" ? "All categories" : language === "ar" ? "جميع الفئات" : "Toutes les catégories"}
                         </DropdownMenuItem>
                       )}
                       {poiSubcatList.map(([name, count]) => (
