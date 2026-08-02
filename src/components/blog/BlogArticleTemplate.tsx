@@ -664,7 +664,7 @@ const BlogArticleTemplate = ({
                     neighborhood: b.neighborhood,
                     rating: b.rating,
                   }));
-                poiPool.forEach((p) => {
+                visiblePoiPool.forEach((p) => {
                   if (businesses[p.id]) return;
                   pois.push({
                     id: p.id,
