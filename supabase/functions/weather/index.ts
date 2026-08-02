@@ -1,6 +1,6 @@
 // Public JSON weather endpoint (GET /functions/v1/weather?city=Marrakech)
 // Ouvert à tous les domaines : conçu pour être appelé en fetch() depuis un site tiers.
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { resolveCityCoords } from "../_shared/resolve-city-coords.ts";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 const jsonHeaders = { ...corsHeaders, "Content-Type": "application/json", "Cache-Control": "public, max-age=600" };
@@ -37,20 +37,13 @@ Deno.serve(async (req) => {
     let response = await fetch(weatherUrl);
     let data = await response.json();
 
-    if (!response.ok && String(data?.cod) === "404") {
-      const supabase = createClient(
-        Deno.env.get("SUPABASE_URL")!,
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-      );
-      const { data: cityData } = await supabase
-        .from("cities")
-        .select("latitude, longitude")
-        .eq("name_fr", city)
-        .maybeSingle();
-      if (cityData?.latitude && cityData?.longitude) {
-        weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${cityData.latitude}&lon=${cityData.longitude}&appid=${apiKey}&units=metric&lang=${lang}`;
+    if (!response.ok) {
+      const resolved = await resolveCityCoords(city);
+      if (resolved) {
+        weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${resolved.lat}&lon=${resolved.lon}&appid=${apiKey}&units=metric&lang=${lang}`;
         response = await fetch(weatherUrl);
         data = await response.json();
+        if (response.ok) data.name = resolved.name;
       }
     }
 

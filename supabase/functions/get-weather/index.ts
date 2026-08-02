@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "npm:@supabase/supabase-js@2";
 import { assertAllowedOrigin } from "../_shared/auth-helpers.ts";
+import { resolveCityCoords } from "../_shared/resolve-city-coords.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -32,16 +32,13 @@ serve(async (req) => {
     let response = await fetch(weatherUrl);
     let data = await response.json();
 
-    if (!response.ok && data.cod === "404") {
-      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-      const supabase = createClient(supabaseUrl, supabaseKey);
-      const { data: cityData } = await supabase
-        .from('cities').select('latitude, longitude').eq('name_fr', city).single();
-      if (cityData?.latitude && cityData?.longitude) {
-        weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${cityData.latitude}&lon=${cityData.longitude}&appid=${apiKey}&units=metric&lang=fr`;
+    if (!response.ok) {
+      const resolved = await resolveCityCoords(city);
+      if (resolved) {
+        weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${resolved.lat}&lon=${resolved.lon}&appid=${apiKey}&units=metric&lang=fr`;
         response = await fetch(weatherUrl);
         data = await response.json();
+        if (response.ok) data.name = resolved.name;
       }
     }
 
