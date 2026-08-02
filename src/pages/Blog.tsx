@@ -61,7 +61,7 @@ const Blog = () => {
       const [postsRes, feedsRes] = await Promise.all([
         supabase
           .from("blog_posts")
-          .select("id, title_fr, title_en, title_ar, slug, excerpt_fr, excerpt_en, excerpt_ar, cover_image_url, author_name, published_at, created_at, is_pinned")
+          .select("id, title_fr, title_en, title_ar, slug, excerpt_fr, excerpt_en, excerpt_ar, cover_image_url, custom_hero_image_url, author_name, published_at, created_at, is_pinned")
           .eq("is_published", true)
           .order("is_pinned", { ascending: false })
           .order("published_at", { ascending: false, nullsFirst: false })
