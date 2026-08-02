@@ -706,10 +706,11 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
               <iframe
                 key={reviewsUrl}
                 src={reviewsUrl}
-                style={{ width: "100%", maxWidth: 480, height: 560, border: 0 }}
+                style={{ width: "100%", maxWidth: preset.w, height: preset.h, border: 0 }}
                 title="Aperçu avis clients"
                 loading="lazy"
               />
+
             </div>
           </div>
         </div>
