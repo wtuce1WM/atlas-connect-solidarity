@@ -446,7 +446,7 @@ export default function EmbedReviewsWidget({
               {badge}
               {rows}
             </div>
-            <div className="min-w-0 h-full">{reviewCard}</div>
+            <div className="min-w-0 h-full">{mainCard}</div>
           </div>
           {signature}
         </>
@@ -455,7 +455,7 @@ export default function EmbedReviewsWidget({
           {header}
           {badge}
           {rows}
-          {reviewCard}
+          {mainCard}
           {signature}
         </div>
       )}
