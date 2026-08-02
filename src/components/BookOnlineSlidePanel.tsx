@@ -3043,7 +3043,7 @@ const BookOnlineSlidePanelInner = ({
                   setSelectedKpBusinessId(poiId);
                 }
               }}
-              fitToMarkers
+              fitToMarkers={!embedMode}
               userLocation={userCoords ? { lat: userCoords.lat, lng: userCoords.lng } : null}
             />
 

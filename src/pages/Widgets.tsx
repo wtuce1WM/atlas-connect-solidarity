@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
@@ -16,8 +16,13 @@ const DEMO_SLUG = "riad-dar-najat";
 const PREVIEW_ORIGIN = typeof window !== "undefined" ? window.location.origin : SITE;
 const toPreview = (url: string) => url.replace(SITE, PREVIEW_ORIGIN);
 
-const CopyBlock = ({ code, id }: { code: string; id: string }) => {
+const CopyBlock = ({ code, id, previewLines }: { code: string; id: string; previewLines?: number }) => {
   const [copied, setCopied] = useState(false);
+  const shown =
+    previewLines && previewLines > 0
+      ? code.split("\n").slice(0, previewLines).join("\n") +
+        (code.split("\n").length > previewLines ? "\n…" : "")
+      : code;
   const doCopy = async () => {
     try {
       await navigator.clipboard.writeText(code);
@@ -31,7 +36,7 @@ const CopyBlock = ({ code, id }: { code: string; id: string }) => {
   return (
     <div className="relative rounded-xl border border-border bg-muted/40 p-4">
       <pre className="overflow-x-auto text-xs leading-relaxed text-muted-foreground whitespace-pre-wrap break-all">
-        <code>{code}</code>
+        <code>{shown}</code>
       </pre>
       <Button
         size="sm"
@@ -47,6 +52,53 @@ const CopyBlock = ({ code, id }: { code: string; id: string }) => {
   );
 };
 
+/** Aperçu sans scroll vertical : la hauteur suit la hauteur réelle du widget
+ *  (les pages /embed/* publient leur hauteur via postMessage). */
+const AutoHeightIframe = ({
+  src,
+  title,
+  minHeight,
+  maxWidth,
+}: {
+  src: string;
+  title: string;
+  minHeight: number;
+  maxWidth?: number;
+}) => {
+  const [height, setHeight] = useState(minHeight);
+  const frameRef = useRef<HTMLIFrameElement | null>(null);
+
+  useEffect(() => {
+    setHeight(minHeight);
+    const onMsg = (e: MessageEvent) => {
+      // Ne réagir qu'aux messages émis par CE widget (évite le mélange entre aperçus).
+      if (!frameRef.current || e.source !== frameRef.current.contentWindow) return;
+      const d = e.data as { type?: string; height?: number } | null;
+      if (!d || typeof d.type !== "string" || !d.type.endsWith("-height")) return;
+      if (typeof d.height === "number" && d.height > 80 && d.height < 2400) {
+        setHeight(Math.ceil(d.height) + 8);
+      }
+    };
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, [src, minHeight]);
+
+  return (
+    <iframe
+      key={src}
+      ref={frameRef}
+      src={src}
+      title={title}
+      loading="lazy"
+      scrolling="no"
+      style={{ width: "100%", maxWidth, height, border: 0, borderRadius: 20, overflow: "hidden" }}
+      className="bg-card shadow-lg"
+    />
+
+  );
+};
+
+
 interface WidgetSectionProps {
   index: number;
   icon: React.ReactNode;
@@ -59,7 +111,12 @@ interface WidgetSectionProps {
   previewNode?: React.ReactNode;
   previewHeight?: number;
   previewMaxWidth?: number;
+  /** Hauteur pilotée par le widget (postMessage) → aucun scroll vertical interne. */
+  autoHeight?: boolean;
+  /** Aperçu sur toute la largeur, code d'intégration en dessous. */
+  fullWidthPreview?: boolean;
   snippet: string;
+  snippetPreviewLines?: number;
   extra?: React.ReactNode;
 }
 
@@ -75,9 +132,13 @@ const WidgetSection = ({
   previewNode,
   previewHeight,
   previewMaxWidth,
+  autoHeight,
+  fullWidthPreview,
   snippet,
+  snippetPreviewLines,
   extra,
 }: WidgetSectionProps) => (
+
   <section className="scroll-mt-32 border-t border-border pt-16">
     <div className="flex items-center gap-3 mb-4">
       <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
@@ -111,7 +172,7 @@ const WidgetSection = ({
       </div>
     )}
 
-    <div className="grid gap-10 lg:grid-cols-2 items-start">
+    <div className={fullWidthPreview ? "space-y-10" : "grid gap-10 lg:grid-cols-2 items-start"}>
       <div>
         <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
           Aperçu en direct
@@ -120,19 +181,28 @@ const WidgetSection = ({
           previewNode
         ) : (
           <>
-            <iframe
-              src={previewUrl}
-              title={title}
-              loading="lazy"
-              style={{
-                width: "100%",
-                maxWidth: previewMaxWidth,
-                height: previewHeight,
-                border: 0,
-                borderRadius: 20,
-              }}
-              className="bg-card shadow-lg"
-            />
+            {autoHeight ? (
+              <AutoHeightIframe
+                src={previewUrl!}
+                title={title}
+                minHeight={previewHeight || 320}
+                maxWidth={fullWidthPreview ? undefined : previewMaxWidth}
+              />
+            ) : (
+              <iframe
+                src={previewUrl}
+                title={title}
+                loading="lazy"
+                style={{
+                  width: "100%",
+                  maxWidth: fullWidthPreview ? undefined : previewMaxWidth,
+                  height: previewHeight,
+                  border: 0,
+                  borderRadius: 20,
+                }}
+                className="bg-card shadow-lg"
+              />
+            )}
             <a
               href={previewUrl}
               target="_blank"
@@ -149,10 +219,11 @@ const WidgetSection = ({
         <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
           Code d'intégration
         </h3>
-        <CopyBlock code={snippet} id={title} />
+        <CopyBlock code={snippet} id={title} previewLines={snippetPreviewLines} />
         {extra}
       </div>
     </div>
+
   </section>
 );
 
@@ -287,14 +358,13 @@ const TidesWidgetSection = ({ index }: { index: number }) => {
           <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
             Aperçu en direct
           </h3>
-          <iframe
-            key={url}
+          <AutoHeightIframe
             src={toPreview(url)}
             title="Widget Marées"
-            loading="lazy"
-            style={{ width: "100%", maxWidth: 520, height, border: 0, borderRadius: 20 }}
-            className="bg-card shadow-lg"
+            minHeight={height}
+            maxWidth={520}
           />
+
           <a
             href={toPreview(url)}
             target="_blank"
@@ -610,8 +680,10 @@ const Widgets = () => {
                 { name: "lang", value: "fr | en | ar" },
               ]}
               previewUrl={toPreview(weatherUrl)}
+              autoHeight
               previewHeight={320}
               previewMaxWidth={420}
+
               snippet={`<iframe src="${weatherUrl}" style="width:100%;max-width:420px;height:320px;border:0;border-radius:20px" title="Météo Marrakech" loading="lazy"></iframe>`}
             />
 
@@ -644,7 +716,7 @@ const Widgets = () => {
                     occuper d'espace dans votre mise en page. À coller avant la balise de fermeture
                     <code className="mx-1 rounded bg-muted px-1.5 py-0.5">body</code> (Wix : Custom Code).
                   </p>
-                  <CopyBlock code={floatingSnippet} id="floating" />
+                  <CopyBlock code={floatingSnippet} id="floating" previewLines={4} />
                 </div>
               }
             />
@@ -662,8 +734,9 @@ const Widgets = () => {
               ]}
               previewUrl={toPreview(nearbyUrl)}
               previewHeight={620}
-              previewMaxWidth={520}
-              snippet={`<iframe src="${nearbyUrl}" style="width:100%;max-width:520px;height:620px;border:0;border-radius:20px" title="Adresses à proximité" loading="lazy"></iframe>`}
+              fullWidthPreview
+
+              snippet={`<iframe src="${nearbyUrl}" style="width:100%;height:620px;border:0;border-radius:20px" title="Adresses à proximité" loading="lazy"></iframe>`}
             />
 
             <ReviewsWidgetSection index={5} />
