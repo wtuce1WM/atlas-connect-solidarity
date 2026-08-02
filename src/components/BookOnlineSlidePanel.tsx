@@ -391,7 +391,7 @@ const BookOnlineSlidePanelInner = ({
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
   const [selectedKpBusinessId, setSelectedKpBusinessId] = useState<string | null>(null);
-  const [showPoiMapOverlay, setShowPoiMapOverlay] = useState(false);
+  const [showPoiMapOverlay, setShowPoiMapOverlay] = useState(initialOverlay === "poi");
   const [poiMapMode, setPoiMapMode] = useState<"poi" | "destinations">("poi");
   const [poiSubcatFilter, setPoiSubcatFilter] = useState<string | null>(null);
   const [poiSubcatOpen, setPoiSubcatOpen] = useState(false);
