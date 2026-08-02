@@ -1508,7 +1508,7 @@ const BookOnlineSlidePanelInner = ({
 
 
       {/* Left sidebar CTAs — mirrors the Full Description overlay sidebar */}
-      {!cardsHidden && (
+      {!cardsHidden && !(embedMode && initialOverlay === "poi") && (
         <div dir="ltr" className="absolute left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1.5 items-start pointer-events-auto">
           {(() => {
             const LANG_OPTIONS = [
@@ -2802,7 +2802,7 @@ const BookOnlineSlidePanelInner = ({
         }
         const activeProx = proxOpts.find((o) => o.km === poiProximityKm) || null;
         return (
-        <OverlayShell zClass="z-[80]" desktopOnly={false} animClass="animate-slide-up-from-bottom">
+        <OverlayShell zClass="z-[80]" desktopOnly={false} animClass={embedMode && initialOverlay === "poi" ? "" : "animate-slide-up-from-bottom"}>
           <div dir="ltr" className="absolute inset-0">
             {!embedMode && (
               <button
