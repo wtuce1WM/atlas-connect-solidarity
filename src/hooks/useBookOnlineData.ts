@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { haversineKm } from "@/lib/haversine";
 import { useBrokenLinks } from "@/hooks/useBrokenLinks";
 import type { ReviewText } from "@/lib/reviewHtmlBuilder";
 import type { ExternalLinkItem } from "@/components/cards/ExternalLinksFlipCard";
@@ -506,26 +507,38 @@ export function useBookOnlineData(businessId: string) {
       };
 
       const fetchPoiBusinesses = async () => {
-        const { data: poiLinks } = await supabase
-          .from("business_poi_businesses")
-          .select("poi_business_id")
-          .eq("business_id", businessId);
+        const lat = biz?.latitude != null ? Number(biz.latitude) : null;
+        const lng = biz?.longitude != null ? Number(biz.longitude) : null;
 
-        const poiIds = ((poiLinks || []) as { poi_business_id: string }[]).map((p) => p.poi_business_id);
-
-        if (poiIds.length === 0) {
+        if (lat == null || lng == null || Number.isNaN(lat) || Number.isNaN(lng)) {
           if (!isCancelled) setPoiBusinesses([]);
           return;
         }
 
+        const RADIUS_KM = 10;
+        const latDelta = RADIUS_KM / 111;
+        const lngDelta = RADIUS_KM / (111 * Math.cos((lat * Math.PI) / 180) || 1);
+
         const { data: poiData } = await supabase
           .from("businesses")
           .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service")
-          .in("id", poiIds)
-          .eq("is_active", true);
+          .eq("is_active", true)
+          .eq("is_poi", true)
+          .neq("id", businessId)
+          .gte("latitude", lat - latDelta)
+          .lte("latitude", lat + latDelta)
+          .gte("longitude", lng - lngDelta)
+          .lte("longitude", lng + lngDelta)
+          .limit(1000);
 
-        if (!isCancelled) setPoiBusinesses((poiData || []) as PoiBusiness[]);
+        const nearby = ((poiData || []) as PoiBusiness[]).filter((p) => {
+          if (p.latitude == null || p.longitude == null) return false;
+          return haversineKm(lat, lng, Number(p.latitude), Number(p.longitude)) <= RADIUS_KM;
+        });
+
+        if (!isCancelled) setPoiBusinesses(nearby);
       };
+
 
       const fetchKpRelated = async () => {
         const kp1Val = biz?.kp_regroupement?.trim() || "";
