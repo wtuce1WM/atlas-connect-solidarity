@@ -1,16 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+
 
 interface Props {
   businessId: string;
@@ -153,21 +147,6 @@ const AffiliateServicesEditor = ({ businessId }: Props) => {
     };
   }, [businessId]);
 
-  const availableSubcategories = useMemo(() => {
-    const cat = dbCategories.find((c) => c.name_fr === mainCategory);
-    if (!cat) return [];
-    return dbSubcategories
-      .filter((s) => s.category_id === cat.id)
-      .map((s) => s.name_fr)
-      .sort((a, b) => a.localeCompare(b, "fr"));
-  }, [dbCategories, dbSubcategories, mainCategory]);
-
-  const toggleSubcategory = (sub: string) => {
-    setCategories((prev) =>
-      prev.includes(sub) ? prev.filter((c) => c !== sub) : [...prev, sub]
-    );
-  };
-
   const toggleCommodite = (com: string) => {
     const val = `Logistique:${com}`;
     setEngagements((prev) =>
@@ -176,9 +155,6 @@ const AffiliateServicesEditor = ({ businessId }: Props) => {
   };
 
   const isDirty =
-    mainCategory !== initial.main ||
-    categories.length !== initial.cats.length ||
-    categories.some((c) => !initial.cats.includes(c)) ||
     engagements.length !== initial.engs.length ||
     engagements.some((e) => !initial.engs.includes(e));
 
@@ -186,11 +162,7 @@ const AffiliateServicesEditor = ({ businessId }: Props) => {
     setSaving(true);
     const { error } = await supabase
       .from("businesses")
-      .update({
-        main_category: mainCategory || null,
-        categories,
-        engagements,
-      } as any)
+      .update({ engagements } as any)
       .eq("id", businessId);
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
@@ -200,6 +172,7 @@ const AffiliateServicesEditor = ({ businessId }: Props) => {
     }
     setSaving(false);
   };
+
 
   if (loading) {
     return (
@@ -211,125 +184,38 @@ const AffiliateServicesEditor = ({ businessId }: Props) => {
 
   return (
     <div className="space-y-6">
-      {/* Catégorie & sous-catégories */}
+      {/* Catégorie & sous-catégories (lecture seule) */}
       <div className="space-y-4 p-4 border rounded-lg bg-white/5">
-        <div className="space-y-2 max-w-md">
+        <div className="space-y-2">
           <Label>Catégorie principale</Label>
-          <Select
-            value={mainCategory || "__none__"}
-            onValueChange={(v) => {
-              const value = v === "__none__" ? "" : v;
-              setMainCategory(value);
-              // Drop selected subcategories that no longer belong to the new category
-              if (!value) {
-                setCategories([]);
-              } else {
-                const cat = dbCategories.find((c) => c.name_fr === value);
-                const validNames = new Set(
-                  dbSubcategories
-                    .filter((s) => s.category_id === cat?.id)
-                    .map((s) => s.name_fr)
-                );
-                setCategories((prev) => prev.filter((c) => validNames.has(c)));
-              }
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Sélectionner..." />
-            </SelectTrigger>
-            <SelectContent className="bg-background z-50">
-              <SelectItem value="__none__">— Aucune —</SelectItem>
-              {dbCategories
-                .slice()
-                .sort((a, b) => a.name_fr.localeCompare(b.name_fr, "fr"))
-                .map((cat) => (
-                  <SelectItem key={cat.id} value={cat.name_fr}>
-                    {cat.name_fr}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
+          <p className="text-sm">
+            {mainCategory || <span className="text-muted-foreground italic">Non renseignée</span>}
+          </p>
         </div>
 
         <div className="space-y-2">
-          <Label>Sous-catégories (choix multiple)</Label>
-          {mainCategory ? (
-            availableSubcategories.length > 0 ? (
-              <div className="columns-2 md:columns-3 lg:columns-4 gap-3 p-3 border rounded-md bg-background/40">
-                {availableSubcategories.map((subcat) => (
-                  <label
-                    key={subcat}
-                    className="flex items-center gap-2 cursor-pointer hover:bg-white/5 p-1.5 rounded-md transition-colors break-inside-avoid"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={categories.includes(subcat)}
-                      onChange={() => toggleSubcategory(subcat)}
-                      className="h-4 w-4 rounded border-input"
-                    />
-                    <span className="text-sm">{subcat}</span>
-                  </label>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground italic">
-                Aucune sous-catégorie disponible pour cette catégorie.
-              </p>
-            )
-          ) : (
-            <p className="text-sm text-muted-foreground italic">
-              Sélectionnez d'abord une catégorie principale.
-            </p>
-          )}
-
-          {categories.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2">
+          <Label>Sous-catégories</Label>
+          {categories.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
               {categories.map((cat) => (
                 <span
                   key={cat}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-gold/10 text-gold rounded-md text-xs"
+                  className="inline-flex items-center px-2 py-1 bg-gold/10 text-gold rounded-md text-xs"
                 >
                   {cat}
-                  <button
-                    type="button"
-                    onClick={() => toggleSubcategory(cat)}
-                    className="hover:text-destructive"
-                    aria-label={`Retirer ${cat}`}
-                  >
-                    ×
-                  </button>
                 </span>
               ))}
             </div>
-          )}
-
-          {categories.length > 1 && (
-            <div className="mt-3 max-w-md space-y-2">
-              <Label>Sous-catégorie par défaut</Label>
-              <Select
-                value={categories[0] || ""}
-                onValueChange={(value) => {
-                  setCategories([value, ...categories.filter((c) => c !== value)]);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choisir la sous-catégorie par défaut..." />
-                </SelectTrigger>
-                <SelectContent className="bg-background z-50">
-                  {categories.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                La sous-catégorie par défaut sera affichée en premier sur la fiche.
-              </p>
-            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground italic">Aucune sous-catégorie.</p>
           )}
         </div>
+
+        <p className="text-xs text-muted-foreground">
+          La catégorie et les sous-catégories sont gérées par l'équipe One World Morocco. Contactez-nous pour toute modification.
+        </p>
       </div>
+
 
 
       {/* Commodités / Logistique */}
