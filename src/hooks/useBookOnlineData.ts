@@ -152,6 +152,7 @@ export interface PoiBusiness {
   city: string | null;
   neighborhood: string | null;
   categories: string[] | null;
+  default_service?: string | null;
 }
 
 export interface VideoDoc {
@@ -519,7 +520,7 @@ export function useBookOnlineData(businessId: string) {
 
         const { data: poiData } = await supabase
           .from("businesses")
-          .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories")
+          .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service")
           .in("id", poiIds)
           .eq("is_active", true);
 
