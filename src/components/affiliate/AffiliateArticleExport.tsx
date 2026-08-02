@@ -332,10 +332,18 @@ ${panelScript}`;
           « HTML personnalisé ». Squarespace : bloc « Code ». Webflow : composant « Embed ».
         </p>
         <p>
-          Le code est autonome (styles en ligne, aucun script). Les images et vidéos restent hébergées
-          par One World Morocco : elles se mettent à jour automatiquement et ne consomment pas votre
-          stockage. Les liens pointent vers les fiches sur oneworldmorocco.com.
+          Le code est autonome (styles en ligne + un petit script inclus). Les liens des
+          établissements ouvrent un <strong>panneau latéral à droite</strong> avec navigation par
+          swipe vertical (ou flèches ↑/↓) entre les établissements de l'article — comme sur
+          oneworldmorocco.com. Rien à installer en plus : le script est déjà dans le code copié.
+          Sur les plateformes qui bloquent les scripts dans un bloc HTML (certains éditeurs), colle
+          le bloc <code>&lt;script&gt;</code> final dans le « Custom Code / Body - end » du site.
         </p>
+        <p>
+          Les images et vidéos restent hébergées par One World Morocco : elles se mettent à jour
+          automatiquement et ne consomment pas votre stockage.
+        </p>
+
       </div>
     </div>
   );
