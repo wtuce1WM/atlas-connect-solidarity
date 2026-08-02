@@ -122,8 +122,9 @@ const StaffLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-foreground flex flex-col items-center justify-center px-4 pt-24">
+    <div className="min-h-screen bg-foreground flex flex-col">
       <HomeMindtripHeader />
+      <main className="flex-1 flex flex-col items-center justify-center px-4 pt-24 pb-16">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <a href="/" className="inline-flex items-center gap-2 mb-6">
