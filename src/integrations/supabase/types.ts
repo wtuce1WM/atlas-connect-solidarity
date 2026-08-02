@@ -908,6 +908,63 @@ export type Database = {
         }
         Relationships: []
       }
+      business_ai_texts: {
+        Row: {
+          business_id: string
+          content: string
+          created_at: string
+          hook: string
+          id: string
+          is_active: boolean
+          model: string | null
+          position: number
+          source_mode: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          content?: string
+          created_at?: string
+          hook?: string
+          id?: string
+          is_active?: boolean
+          model?: string | null
+          position?: number
+          source_mode?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          content?: string
+          created_at?: string
+          hook?: string
+          id?: string
+          is_active?: boolean
+          model?: string | null
+          position?: number
+          source_mode?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_ai_texts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_ai_texts_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_badges: {
         Row: {
           badge_id: string
