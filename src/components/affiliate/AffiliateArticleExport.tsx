@@ -474,7 +474,7 @@ ${blocks}
   </footer>
 </section>
 ${panelScript}`;
-  }, [post, entries, bizMap, reviewMap, owner, lang, articleTitle, intro, businessName]);
+  }, [post, entries, bizMap, reviewMap, owner, lang, articleTitle, intro, businessName, mapBg, mapBgValid]);
 
 
   const copy = async () => {
