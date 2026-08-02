@@ -24,6 +24,7 @@ import AffiliateContactEditor, { type CityOption, type NeighborhoodOption, type 
 import AffiliatePlatformHelp from "@/components/affiliate/AffiliatePlatformHelp";
 import AffiliateReviewsEditor, { type ReviewsData } from "@/components/affiliate/AffiliateReviewsEditor";
 import AffiliateTextEditor from "@/components/affiliate/AffiliateTextEditor";
+import AffiliateAiTextsEditor from "@/components/affiliate/AffiliateAiTextsEditor";
 import AffiliateHighlightsEditor from "@/components/affiliate/AffiliateHighlightsEditor";
 import AffiliatePromotionsEditor from "@/components/affiliate/AffiliatePromotionsEditor";
 import AffiliateServicesEditor from "@/components/affiliate/AffiliateServicesEditor";
