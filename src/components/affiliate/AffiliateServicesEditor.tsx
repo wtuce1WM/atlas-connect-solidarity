@@ -153,21 +153,6 @@ const AffiliateServicesEditor = ({ businessId }: Props) => {
     };
   }, [businessId]);
 
-  const availableSubcategories = useMemo(() => {
-    const cat = dbCategories.find((c) => c.name_fr === mainCategory);
-    if (!cat) return [];
-    return dbSubcategories
-      .filter((s) => s.category_id === cat.id)
-      .map((s) => s.name_fr)
-      .sort((a, b) => a.localeCompare(b, "fr"));
-  }, [dbCategories, dbSubcategories, mainCategory]);
-
-  const toggleSubcategory = (sub: string) => {
-    setCategories((prev) =>
-      prev.includes(sub) ? prev.filter((c) => c !== sub) : [...prev, sub]
-    );
-  };
-
   const toggleCommodite = (com: string) => {
     const val = `Logistique:${com}`;
     setEngagements((prev) =>
@@ -176,9 +161,6 @@ const AffiliateServicesEditor = ({ businessId }: Props) => {
   };
 
   const isDirty =
-    mainCategory !== initial.main ||
-    categories.length !== initial.cats.length ||
-    categories.some((c) => !initial.cats.includes(c)) ||
     engagements.length !== initial.engs.length ||
     engagements.some((e) => !initial.engs.includes(e));
 
@@ -186,11 +168,7 @@ const AffiliateServicesEditor = ({ businessId }: Props) => {
     setSaving(true);
     const { error } = await supabase
       .from("businesses")
-      .update({
-        main_category: mainCategory || null,
-        categories,
-        engagements,
-      } as any)
+      .update({ engagements } as any)
       .eq("id", businessId);
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
@@ -200,6 +178,7 @@ const AffiliateServicesEditor = ({ businessId }: Props) => {
     }
     setSaving(false);
   };
+
 
   if (loading) {
     return (
