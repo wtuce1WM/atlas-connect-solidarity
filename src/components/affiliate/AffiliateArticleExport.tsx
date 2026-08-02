@@ -464,6 +464,7 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
     ${hero ? `<img src="${hero}" alt="${esc(articleTitle)}" style="width:100%;height:auto;max-height:520px;object-fit:cover;border-radius:20px;margin:0 0 20px" />` : ""}
     <h1 style="margin:0 0 14px;font-size:34px;line-height:1.2;font-family:Montserrat,Helvetica,Arial,sans-serif;color:#0f172a">${esc(articleTitle)}</h1>
     ${intro ? `<p style="margin:0;font-size:18px;line-height:1.7">${esc(intro)}</p>` : ""}
+    <iframe src="${SITE}/embed/article-map/${post.slug}${mapBgValid ? `?bg=${mapBg.replace(/^#/, "")}` : ""}" title="Carte de l'article" loading="lazy" style="width:100%;height:480px;border:0;border-radius:20px;margin:24px 0 0;display:block" allow="geolocation"></iframe>
   </header>
 ${blocks}
   <footer style="margin:8px 0 0;font-size:14px;color:#6b7280">
