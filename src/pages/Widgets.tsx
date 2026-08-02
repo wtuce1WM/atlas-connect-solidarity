@@ -82,9 +82,16 @@ const WidgetSection = ({
       </span>
     </div>
 
-    <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">{title}</h2>
+    <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3 flex flex-wrap items-center gap-3">
+      <span>{title}</span>
+      {price === "Gratuit" && (
+        <span className="rounded-xl bg-whatsapp px-3 py-0.5 text-whatsapp-foreground leading-tight">
+          Gratuit
+        </span>
+      )}
+    </h2>
     <p className="text-lg text-primary font-medium mb-4">{tagline}</p>
-    <Badge className="mb-5">{price}</Badge>
+    {price !== "Gratuit" && <Badge className="mb-5">{price}</Badge>}
     <p className="text-base text-muted-foreground max-w-3xl mb-8">{description}</p>
 
     {params && (
