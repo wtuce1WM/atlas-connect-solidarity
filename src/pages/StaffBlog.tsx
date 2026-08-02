@@ -122,8 +122,13 @@ const StaffBlog = () => {
             <OwnerArticlesManagement />
           </TabsContent>
 
+          <TabsContent value="generator">
+            <BlogGenerator />
+          </TabsContent>
+
           <TabsContent value="templates">
             <BlogTemplates />
+
           </TabsContent>
         </Tabs>
       </main>
