@@ -232,8 +232,58 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
         const dataAttrs = `data-owm-panel="${idx}"`;
 
         const place = [b?.neighborhood, b?.city].filter(Boolean).join(" · ");
-        const rankBadge = e.rank
-          ? `<span style="display:inline-block;padding:4px 12px;margin-right:10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(135deg,#F4CF7A,#D4AF37 55%,#8A6A1A);color:#111">${medal(e.rank)} N°${e.rank}</span>`
+        const rankBadge =
+          e.rank && e.rank >= 1 && e.rank <= 3
+            ? `<span style="display:inline-block;padding:4px 12px;margin-right:10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(135deg,#F4CF7A,#D4AF37 55%,#8A6A1A);color:#111">${medal(e.rank)} N°${e.rank}</span>`
+            : "";
+
+        // Badge avis clients : note /20 + nombre d'avis
+        const rating20 = b?.computed_rating && b.computed_rating > 0 ? b.computed_rating : null;
+        const reviewCount = b?.total_review_count && b.total_review_count > 0 ? b.total_review_count : null;
+        const reviewsBadge =
+          rating20 || reviewCount
+            ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:13px;font-weight:700;background:#fdf6e3;border:1px solid #e6cf8a;color:#8A6A1A">★ ${
+                rating20 ? `${rating20}<span style="font-weight:600;color:#a1874a">/20</span>` : "—"
+              }${reviewCount ? `<span style="font-weight:500;color:#6b7280">· ${reviewCount.toLocaleString("fr-FR")} avis</span>` : ""}</span>`
+            : "";
+
+        // Distance par rapport à l'établissement propriétaire
+        const dKm =
+          owner && b && owner.id !== b.id
+            ? distanceKm(owner.latitude, owner.longitude, b.latitude, b.longitude)
+            : null;
+        const distanceBadge =
+          dKm != null
+            ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;background:#f1f5f9;border:1px solid #e2e8f0;color:#0f172a">📍 ${formatDistance(
+                dKm,
+              )} de ${esc(owner!.name)}</span>`
+            : "";
+        const metaRow =
+          reviewsBadge || distanceBadge
+            ? `<p style="margin:0 0 12px;display:flex;flex-wrap:wrap;gap:8px">${reviewsBadge}${distanceBadge}</p>`
+            : "";
+
+        // Avis client mis en avant (« Par défaut », sinon le mieux noté)
+        const rv = reviewMap[e.id];
+        const rvText = rv
+          ? (lang === "ar"
+              ? rv.text_ar || rv.text_fr || rv.text_en || rv.text
+              : lang === "en"
+                ? rv.text_en || rv.text_fr || rv.text
+                : rv.text_fr || rv.text) || ""
+          : "";
+        const sourceLabel = (rv?.source || "")
+          .replace(/_/g, " ")
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+        const reviewBlock = rvText.trim()
+          ? `<blockquote style="margin:0 0 14px;padding:14px 16px;border-left:3px solid #D4AF37;background:#fbfaf7;border-radius:0 12px 12px 0">
+        <p style="margin:0 0 8px;font-size:15px;line-height:1.65;color:#374151">« ${esc(
+          rvText.length > 600 ? `${rvText.slice(0, 600)}…` : rvText,
+        )} »</p>
+        <p style="margin:0;font-size:13px;color:#6b7280">${esc(rv.author_name || "Client")}${
+          rv.rating ? ` · ${rv.rating}/5` : ""
+        }${sourceLabel ? ` · ${esc(sourceLabel)}` : ""}</p>
+      </blockquote>`
           : "";
         const price =
           b?.min_price && b.min_price > 0
@@ -241,6 +291,7 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
             : b?.manual_price_range
               ? `<p style="margin:0 0 10px;font-size:14px;color:#6b7280">${esc(b.manual_price_range)}</p>`
               : "";
+
         const paras = (e.paragraphs ?? [])
           .map((p) => `<p style="margin:0 0 14px;line-height:1.7;color:#1f2937">${esc(p)}</p>`)
           .join("\n        ");
