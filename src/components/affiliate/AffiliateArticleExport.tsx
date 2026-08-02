@@ -544,7 +544,31 @@ ${panelScript}`;
             <option value="ar" className="text-black">العربية</option>
           </select>
         </div>
+        <div className="space-y-1.5 sm:col-span-2">
+          <Label className="text-white/80">Fond de la carte (facultatif)</Label>
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              value={mapBgValid ? mapBg : "#EFE6D8"}
+              onChange={(e) => setMapBg(e.target.value)}
+              className="h-9 w-12 cursor-pointer rounded border border-white/20 bg-transparent"
+              aria-label="Couleur de fond de la carte"
+            />
+            <input
+              value={mapBg}
+              onChange={(e) => setMapBg(e.target.value)}
+              placeholder="#EFE6D8 (vide = couleurs Google Maps)"
+              className="flex-1 rounded-md border border-white/20 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40"
+            />
+            {mapBg && (
+              <Button variant="outline" size="sm" className="text-white" onClick={() => setMapBg("")}>
+                Réinitialiser
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
+
 
       <div className="rounded-lg border border-white/15 bg-black/30 p-3">
         <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-all text-[11px] leading-relaxed text-white/70">
