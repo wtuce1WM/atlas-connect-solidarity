@@ -796,7 +796,7 @@ const AffiliatePresence = () => {
                           aiAssistant: !!featureRights[currentBusiness.id]?.has_ai_assistant,
                           blogExport: !!featureRights[currentBusiness.id]?.has_blog_export,
                           nearbyWidget: !!featureRights[currentBusiness.id]?.has_nearby_widget,
-                          emailSignature: hasEmailSignature,
+                          emailSignature: featureRights[currentBusiness.id]?.has_email_signature !== false,
                           dashboard: hasDashboard,
                           videoStudio: hasVideoStudio,
                           showcaseSite: hasShowcaseSite,
@@ -815,7 +815,7 @@ const AffiliatePresence = () => {
                           aiAssistant: !!featureRights[currentBusiness.id]?.has_ai_assistant,
                           blogExport: !!featureRights[currentBusiness.id]?.has_blog_export,
                           nearbyWidget: !!featureRights[currentBusiness.id]?.has_nearby_widget,
-                          emailSignature: hasEmailSignature,
+                          emailSignature: featureRights[currentBusiness.id]?.has_email_signature !== false,
                         }}
                       />
                     </TabsContent>
