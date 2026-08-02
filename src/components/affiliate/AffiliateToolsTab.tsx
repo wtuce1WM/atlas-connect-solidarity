@@ -521,6 +521,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
           </Button>
         </div>
       </div>
+      )}
 
       {/* ---------- Export d'article de blog ---------- */}
       <div className="space-y-3">
