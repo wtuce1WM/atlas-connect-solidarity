@@ -273,7 +273,9 @@ const Widgets = () => {
               icon={<MessageSquare className="h-5 w-5" />}
               title="Widget Assistant IA"
               tagline="Un conseiller local intelligent, greffé à votre page."
+              price="Prix : sur devis"
               description="L'assistant répond aux questions des visiteurs sur un établissement et son environnement : que faire à proximité, rooftops, horaires, réservation en ligne, articles de blog liés. Les suggestions de départ et les relances sont pilotées depuis notre back-office."
+
               params={[
                 { name: "slug", value: "identifiant de l'établissement" },
                 { name: "theme", value: "light | dark" },
