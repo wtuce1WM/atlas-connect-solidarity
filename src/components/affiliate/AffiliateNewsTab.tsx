@@ -229,7 +229,7 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
                     </div>
                   </div>
                 </td>
-                <td className="px-3 py-2.5 text-white/60 whitespace-nowrap">Établissement</td>
+                <td className="px-3 py-2.5 whitespace-nowrap"><LinkCell scope="Établissement" /></td>
                 <td className="px-3 py-2.5 whitespace-nowrap">
                   <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-whatsapp/15 text-whatsapp">
                     Gratuit
