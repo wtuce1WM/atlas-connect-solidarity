@@ -387,6 +387,12 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
   function close(){isOpen=false;bd.style.opacity='0';sheet.style.transform='translateX(100%)';document.documentElement.style.overflow='';setTimeout(function(){root.style.display='none';root.setAttribute('aria-hidden','true');frame.src='about:blank';},300);}
   function go(d){var n=i+d;if(n<0||n>=items.length)return;i=n;render();}
   window.owmOpenPanel=function(n){open(parseInt(n,10)||0);return false;};
+  // Clic sur un marqueur de la carte de l'article (iframe) → ouverture du panneau
+  window.addEventListener('message',function(ev){
+    var d=ev.data;
+    if(!d||d.type!=='owm-open-fiche'||!d.slug)return;
+    open(indexForSlug(String(d.slug)));
+  });
   // Interception en phase de capture : fonctionne même si le CMS retire les attributs data-*.
   document.addEventListener('click',function(ev){
     var t=ev.target;
