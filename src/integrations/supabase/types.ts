@@ -1384,6 +1384,7 @@ export type Database = {
           has_ai_assistant: boolean
           has_blog_export: boolean
           has_dashboard: boolean
+          has_email_signature: boolean
           has_nearby_widget: boolean
           id: string
           updated_at: string
@@ -1394,6 +1395,7 @@ export type Database = {
           has_ai_assistant?: boolean
           has_blog_export?: boolean
           has_dashboard?: boolean
+          has_email_signature?: boolean
           has_nearby_widget?: boolean
           id?: string
           updated_at?: string
@@ -1404,6 +1406,7 @@ export type Database = {
           has_ai_assistant?: boolean
           has_blog_export?: boolean
           has_dashboard?: boolean
+          has_email_signature?: boolean
           has_nearby_widget?: boolean
           id?: string
           updated_at?: string
