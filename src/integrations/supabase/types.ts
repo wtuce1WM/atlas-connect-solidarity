@@ -632,6 +632,42 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_post_views: {
+        Row: {
+          country: string | null
+          created_at: string
+          device: string | null
+          id: string
+          language: string | null
+          referrer_domain: string | null
+          session_id: string | null
+          slug: string
+          source: string | null
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          id?: string
+          language?: string | null
+          referrer_domain?: string | null
+          session_id?: string | null
+          slug: string
+          source?: string | null
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          id?: string
+          language?: string | null
+          referrer_domain?: string | null
+          session_id?: string | null
+          slug?: string
+          source?: string | null
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           anchor_business_id: string | null
@@ -7564,6 +7600,7 @@ export type Database = {
       }
       generate_slug: { Args: { input_text: string }; Returns: string }
       get_blocked_domains_list: { Args: never; Returns: string[] }
+      get_blog_analytics: { Args: { p_days?: number }; Returns: Json }
       get_broken_urls_list: { Args: never; Returns: string[] }
       get_business_analytics: {
         Args: { p_business_id: string; p_range?: string }

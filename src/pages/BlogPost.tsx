@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { logBlogView } from "@/lib/blogAnalytics";
+
 import { useSEO } from "@/hooks/useSEO";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
@@ -94,6 +96,13 @@ const BlogPost = () => {
     };
     fetchPost();
   }, [slug]);
+
+  // Internal blog traffic tracking (one view per slug per session)
+  useEffect(() => {
+    if (!slug || !post) return;
+    logBlogView(slug, language, embedSlug ? "embed" : "site");
+  }, [slug, post, language, embedSlug]);
+
 
   // Embed-mode scroll: when opened from /embed/ask, the browser sometimes lands
   // at the bottom of the page (chat history position). Force the article to open
