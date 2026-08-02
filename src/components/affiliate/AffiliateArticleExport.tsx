@@ -160,7 +160,7 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
     (async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("id, name, slug, city, neighborhood, images, min_price, manual_price_range")
+        .select(BIZ_FIELDS)
         .in("id", missing);
       if (cancelled || !data) return;
       setBizMap((prev) => {
@@ -171,6 +171,35 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
     })();
     return () => { cancelled = true; };
   }, [entries, bizMap]);
+
+  // Avis « Par défaut » (sinon le mieux noté) de chaque établissement de l'article
+  useEffect(() => {
+    const ids = entries.map((e) => e.id).filter(Boolean);
+    const missing = ids.filter((id) => !(id in reviewMap));
+    if (missing.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("reviews")
+        .select("business_id, author_name, rating, source, text, text_fr, text_en, text_ar, is_default")
+        .in("business_id", missing)
+        .eq("is_hidden", false)
+        .order("is_default", { ascending: false })
+        .order("rating", { ascending: false, nullsFirst: false })
+        .limit(500);
+      if (cancelled) return;
+      setReviewMap((prev) => {
+        const next = { ...prev };
+        missing.forEach((id) => { next[id] = next[id] ?? (null as unknown as DefaultReview); });
+        ((data as any[]) || []).forEach((r) => {
+          if (!next[r.business_id]) next[r.business_id] = r as DefaultReview;
+        });
+        return next;
+      });
+    })();
+    return () => { cancelled = true; };
+  }, [entries, reviewMap]);
+
 
   const articleTitle = post
     ? (lang === "en" ? post.title_en : lang === "ar" ? post.title_ar : post.title_fr) || post.title_fr
