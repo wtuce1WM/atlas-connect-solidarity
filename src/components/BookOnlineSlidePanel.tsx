@@ -2887,14 +2887,14 @@ const BookOnlineSlidePanelInner = ({
                     <button
                       type="button"
                       onClick={() => setPoiShowAll(false)}
-                      className={`px-3 py-1 rounded-full transition-colors ${!poiShowAll ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                      className={`px-3 py-1 rounded-full transition-colors ${!poiShowAll ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                     >
                       {language === "en" ? "Top 20" : language === "ar" ? "أفضل 20" : "Top 20"}
                     </button>
                     <button
                       type="button"
                       onClick={() => setPoiShowAll(true)}
-                      className={`px-3 py-1 rounded-full transition-colors ${poiShowAll ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                      className={`px-3 py-1 rounded-full transition-colors ${poiShowAll ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                     >
                       {language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"} <span className="ml-0.5 opacity-70">{total}</span>
                     </button>
@@ -2905,7 +2905,7 @@ const BookOnlineSlidePanelInner = ({
                     <DropdownMenuTrigger asChild>
                       <button
                         type="button"
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${!poiCatFilter ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${!poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                       >
                         <MapPin className="h-3.5 w-3.5" />
                         {poiSubcatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
@@ -2931,7 +2931,7 @@ const BookOnlineSlidePanelInner = ({
                       <DropdownMenuTrigger asChild>
                         <button
                           type="button"
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiCatFilter ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                         >
                           <SlidersHorizontal className="h-3.5 w-3.5" />
                           {(activeFrontTab && translateFrontStructure(activeFrontTab.name, language)) || (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories")}
@@ -2975,7 +2975,7 @@ const BookOnlineSlidePanelInner = ({
                       <DropdownMenuTrigger asChild>
                         <button
                           type="button"
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiProximityKm != null ? "bg-[#D4AF37] text-black" : "text-white/80 hover:text-white"}`}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiProximityKm != null ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                         >
                           <Navigation className="h-3.5 w-3.5" />
                           {activeProx ? activeProx.label : (language === "en" ? "Nearby" : language === "ar" ? "بالقرب" : "À proximité")}
