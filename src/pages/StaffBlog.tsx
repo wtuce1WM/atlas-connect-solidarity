@@ -101,10 +101,9 @@ const StaffBlog = () => {
           </TabsList>
 
           <TabsContent value="dashboard">
-            <div className="text-sm text-muted-foreground py-10 text-center">
-              Dashboard blog — à venir.
-            </div>
+            <BlogDashboard />
           </TabsContent>
+
 
           <TabsContent value="articles">
             <BlogManagement />
