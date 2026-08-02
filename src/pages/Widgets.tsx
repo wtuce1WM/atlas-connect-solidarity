@@ -11,6 +11,11 @@ import { toast } from "@/hooks/use-toast";
 const SITE = "https://oneworldmorocco.com";
 const DEMO_SLUG = "riad-dar-najat";
 
+/** Les codes à copier pointent vers le domaine public ; les aperçus in-page
+ *  utilisent l'origine courante (preview/prod) pour rester toujours valides. */
+const PREVIEW_ORIGIN = typeof window !== "undefined" ? window.location.origin : SITE;
+const toPreview = (url: string) => url.replace(SITE, PREVIEW_ORIGIN);
+
 const CopyBlock = ({ code, id }: { code: string; id: string }) => {
   const [copied, setCopied] = useState(false);
   const doCopy = async () => {
