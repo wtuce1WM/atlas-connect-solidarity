@@ -590,6 +590,112 @@ const ReviewsWidgetSection = ({ index }: { index: number }) => {
   );
 };
 
+const RATE_PLATFORMS = [
+  { key: "all", label: "Google + TripAdvisor" },
+  { key: "google", label: "Google" },
+  { key: "tripadvisor", label: "TripAdvisor" },
+] as const;
+
+const RateUsWidgetSection = ({ index }: { index: number }) => {
+  const [platform, setPlatform] = useState<string>("all");
+  const [lang, setLang] = useState<"fr" | "en" | "ar">("fr");
+  const [variant, setVariant] = useState<"card" | "bar">("card");
+
+  const url = `${SITE}/embed/avis/${DEMO_SLUG}?platform=${platform}&lang=${lang}&variant=${variant}`;
+  const w = variant === "bar" ? 780 : 460;
+  const h = variant === "bar" ? 120 : 430;
+  const snippet = `<iframe src="${url}" style="width:100%;max-width:${w}px;height:${h}px;border:0;border-radius:20px" title="Laisser un avis" loading="lazy"></iframe>`;
+
+  return (
+    <section className="scroll-mt-32 border-t border-border pt-16">
+      <div className="flex items-center gap-3 mb-4">
+        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <ThumbsUp className="h-5 w-5" />
+        </span>
+        <span className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+          Widget {String(index).padStart(2, "0")}
+        </span>
+      </div>
+
+      <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3 flex flex-wrap items-center gap-3">
+        <span>Widget Laisser un avis</span>
+        <span className="rounded-xl bg-whatsapp px-3 py-0.5 text-whatsapp-foreground leading-tight">
+          Gratuit
+        </span>
+      </h2>
+      <p className="text-lg text-primary font-medium mb-4">
+        Transformez vos clients satisfaits en avis Google et TripAdvisor.
+      </p>
+      <p className="text-base text-muted-foreground max-w-3xl mb-8">
+        Cinq étoiles cliquables ouvrent directement le formulaire d'avis de la plateforme : lien
+        « Rédiger un avis » Google (généré depuis l'identifiant de fiche Google) et page d'avis
+        TripAdvisor. Seules les plateformes pour lesquelles le lien existe réellement s'affichent. Deux
+        formats : carte verticale (page contact, fin de séjour, e-mail de remerciement) ou barre
+        horizontale discrète à placer en pied de page.
+      </p>
+
+      <div className="grid gap-5 sm:grid-cols-3 mb-10">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+            Plateformes
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {RATE_PLATFORMS.map((p) => (
+              <button key={p.key} type="button" onClick={() => setPlatform(p.key)} className={chip(platform === p.key)}>
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Format</p>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => setVariant("card")} className={chip(variant === "card")}>
+              Carte
+            </button>
+            <button type="button" onClick={() => setVariant("bar")} className={chip(variant === "bar")}>
+              Barre
+            </button>
+          </div>
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Langue</p>
+          <div className="flex gap-2">
+            {(["fr", "en", "ar"] as const).map((l) => (
+              <button key={l} type="button" onClick={() => setLang(l)} className={`${chip(lang === l)} uppercase`}>
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-10 lg:grid-cols-2 items-start">
+        <div>
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
+            Aperçu en direct
+          </h3>
+          <AutoHeightIframe key={url} src={toPreview(url)} title="Laisser un avis" minHeight={h} maxWidth={w} />
+          <a
+            href={toPreview(url)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+          >
+            Ouvrir en plein écran <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
+            Code d'intégration
+          </h3>
+          <CopyBlock code={snippet} id="rate-us" />
+        </div>
+      </div>
+    </section>
+  );
+};
+
 
 const Widgets = () => {
   useSEO({
