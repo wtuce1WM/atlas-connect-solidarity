@@ -148,21 +148,23 @@ export default function BusinessAnalyticsPanel({ fixedBusinessId, affiliateId, s
             />
           )}
           {mode !== "fixed" && (
-            <Select
+            <select
               value={activeBusinessId ?? ""}
-              onValueChange={(v) => { trackEvent("affiliate_drilldown_business_change", { mode, business_id: v, range }); setSelectedId(v); }}
+              onChange={(e) => {
+                const v = e.target.value;
+                trackEvent("affiliate_drilldown_business_change", { mode, business_id: v, range });
+                setSelectedId(v);
+              }}
               disabled={loadingBiz || !businesses?.length}
+              className="w-full sm:w-[280px] h-10 rounded-md border border-border bg-card px-3 text-sm text-foreground disabled:opacity-50"
             >
-              <SelectTrigger className="w-full sm:w-[280px] bg-card border-border">
-                <SelectValue placeholder={loadingBiz ? "Chargement…" : "Choisir un établissement"} />
-              </SelectTrigger>
-              <SelectContent position="popper" className="z-[200] max-h-[320px]">
-                {businesses?.map((b) => (
-                  <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
-                ))}
-              </SelectContent>
-
-            </Select>
+              <option value="" disabled>
+                {loadingBiz ? "Chargement…" : "Choisir un établissement"}
+              </option>
+              {businesses?.map((b) => (
+                <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
+            </select>
           )}
         </div>
         <div className="flex gap-1 bg-card border border-border rounded-md p-1">
