@@ -729,7 +729,7 @@ const Widgets = () => {
               previewHeight={620}
               fullWidthPreview
 
-              snippet={`<iframe src="${nearbyUrl}" style="width:100%;max-width:520px;height:620px;border:0;border-radius:20px" title="Adresses à proximité" loading="lazy"></iframe>`}
+              snippet={`<iframe src="${nearbyUrl}" style="width:100%;height:620px;border:0;border-radius:20px" title="Adresses à proximité" loading="lazy"></iframe>`}
             />
 
             <ReviewsWidgetSection index={5} />
