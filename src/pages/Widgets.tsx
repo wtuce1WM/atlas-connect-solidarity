@@ -557,7 +557,7 @@ const ReviewsWidgetSection = ({ index }: { index: number }) => {
         </div>
       </div>
 
-      <div className="grid gap-10 lg:grid-cols-2 items-start">
+      <div className="space-y-10">
         <div>
           <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
             Aperçu en direct
@@ -586,6 +586,7 @@ const ReviewsWidgetSection = ({ index }: { index: number }) => {
           <CopyBlock code={snippet} id="reviews" />
         </div>
       </div>
+
     </section>
   );
 };
