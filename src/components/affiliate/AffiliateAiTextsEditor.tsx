@@ -280,6 +280,13 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
                   </div>
                 </div>
 
+                {t.extra_instructions && (
+                  <p className="rounded-md border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/60">
+                    <span className="font-medium text-white/80">Consigne complémentaire :</span> {t.extra_instructions}
+                  </p>
+                )}
+
+
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-white">Titre</Label>
