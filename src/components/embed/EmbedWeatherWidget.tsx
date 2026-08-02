@@ -230,6 +230,18 @@ export default function EmbedWeatherWidget({ data, lang = "fr" }: { data: Weathe
           </div>
         </div>
       )}
+
+      {/* Signature */}
+      <div className="bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800 px-4 py-2 flex items-center justify-center">
+        <a
+          href="https://oneworldmorocco.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[11px] tracking-wide text-neutral-500 dark:text-neutral-400 hover:text-primary transition-colors"
+        >
+          oneworldmorocco.com
+        </a>
+      </div>
     </div>
   );
 }
