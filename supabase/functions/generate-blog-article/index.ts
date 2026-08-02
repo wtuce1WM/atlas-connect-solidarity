@@ -154,7 +154,7 @@ Deno.serve(async (req) => {
       city: b.city,
       neighborhood: b.neighborhood,
       categories: b.categories,
-      note_sur_20: b.rating,
+      note_sur_20: b.rating ?? b.computed_rating,
       avis: b.total_review_count,
       google: [b.google_rating, b.google_review_count],
       tripadvisor: [b.tripadvisor_rating, b.tripadvisor_review_count],
