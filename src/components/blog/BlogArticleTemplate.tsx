@@ -159,6 +159,8 @@ const BlogArticleTemplate = ({
   const { language } = useLanguage();
   const { translateSubcategory } = useTaxonomyTranslations();
   const [businesses, setBusinesses] = useState<Record<string, BlogArticleBusiness>>({});
+  const [poiPool, setPoiPool] = useState<Array<{ id: string; name: string; latitude: number; longitude: number; images: string[] | null; city: string | null; neighborhood: string | null; rating: number | null }>>([]);
+
   const [defaultReviews, setDefaultReviews] = useState<Record<string, { author_name: string | null; source: string | null; rating: number | null; text: string | null; text_fr: string | null; text_en: string | null; text_ar: string | null; }>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
