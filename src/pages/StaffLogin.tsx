@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Lock, Mail, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
+import Footer from "@/components/Footer";
 
 const hasBackofficeAccess = (roles: Array<{ role: string }> | null | undefined) =>
   !!roles?.some((r) => r.role === "admin" || r.role === "staff");
