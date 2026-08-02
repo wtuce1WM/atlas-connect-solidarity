@@ -194,7 +194,8 @@ Règles absolues :
 - Ne mentionne jamais de prix, tarif, budget ou "moins cher".
 - Français naturel et immersif, pas de markdown, pas de listes à puces, pas de guillemets superflus.
 - Réponds STRICTEMENT en JSON : {"title": string, "hook": string, "content": string}
-- title ≤ 70 caractères, hook ≤ 120 caractères, content ≤ ${MAX_CONTENT} caractères (2 à 4 paragraphes séparés par un saut de ligne).`;
+- title ≤ 70 caractères, hook ≤ 120 caractères.
+- LONGUEUR IMPÉRATIVE du champ content : version ${len.label}, entre ${len.min} et ${len.max} caractères (${len.paragraphs} séparés par un saut de ligne). Ne descends jamais sous ${len.min} caractères et ne dépasse jamais ${Math.min(len.max, MAX_CONTENT)} caractères. Compte les caractères avant de répondre.`;
 
     const userPrompt = [
       `Établissement : ${biz.name}`,
