@@ -45,7 +45,43 @@ interface Biz {
   images: string[] | null;
   min_price: number | null;
   manual_price_range: string | null;
+  computed_rating: number | null;
+  total_review_count: number | null;
+  latitude: number | null;
+  longitude: number | null;
 }
+
+interface DefaultReview {
+  author_name: string | null;
+  rating: number | null;
+  source: string | null;
+  text: string | null;
+  text_fr: string | null;
+  text_en: string | null;
+  text_ar: string | null;
+}
+
+const BIZ_FIELDS =
+  "id, name, slug, city, neighborhood, images, min_price, manual_price_range, computed_rating, total_review_count, latitude, longitude";
+
+const distanceKm = (
+  aLat?: number | null,
+  aLng?: number | null,
+  bLat?: number | null,
+  bLng?: number | null,
+) => {
+  if (aLat == null || aLng == null || bLat == null || bLng == null) return null;
+  const R = 6371;
+  const dLat = ((bLat - aLat) * Math.PI) / 180;
+  const dLng = ((bLng - aLng) * Math.PI) / 180;
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((aLat * Math.PI) / 180) * Math.cos((bLat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+};
+
+const formatDistance = (km: number) =>
+  km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(km < 10 ? 1 : 0)} km`;
 
 const abs = (url?: string | null) => {
   if (!url) return "";
@@ -55,6 +91,7 @@ const abs = (url?: string | null) => {
 
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
 
 interface Props {
   businessId: string | null;
