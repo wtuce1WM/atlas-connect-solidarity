@@ -101,7 +101,24 @@ const StaffB2B = () => {
           </TabsList>
 
           <TabsContent value="affiliates">
-            <AffiliateManagement />
+            <Tabs defaultValue="management">
+              <TabsList className="mb-4">
+                <TabsTrigger value="management" className="gap-2">
+                  <UserCheck className="h-4 w-4" />
+                  Gestion des Affiliés
+                </TabsTrigger>
+                <TabsTrigger value="rights" className="gap-2">
+                  <ShieldCheck className="h-4 w-4" />
+                  Droits
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="management">
+                <AffiliateManagement />
+              </TabsContent>
+              <TabsContent value="rights">
+                <AffiliateRightsPanel />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
           <TabsContent value="sponsors">
