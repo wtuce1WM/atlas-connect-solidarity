@@ -2791,9 +2791,10 @@ const BookOnlineSlidePanelInner = ({
         const afterProx = poiProximityKm != null
           ? afterSubcat.filter((p) => { const d = distOf(p); return d != null && d <= poiProximityKm; })
           : afterSubcat;
-        const displayedPoi = poiShowAll ? afterProx : afterProx.slice(0, TOP_LIMIT);
         const total = afterProx.length;
-        const showAllToggle = poiMapMode === "poi" && (total > TOP_LIMIT || poiShowAll);
+        const displayedPoi = (poiShowAll || total <= TOP_LIMIT) ? afterProx : afterProx.slice(0, TOP_LIMIT);
+        // Le toggle reste visible dès que le vivier POI dépasse 20, indépendamment des filtres actifs
+        const showAllToggle = poiMapMode === "poi" && (poiBusinesses.length > TOP_LIMIT || poiShowAll);
         const showCatPill = poiMapMode === "poi" && frontTabs.length >= 2;
         const showSubcatPill = poiMapMode === "poi" && poiSubcatList.length >= 2;
         const showProxPill = poiMapMode === "poi" && !!userCoords && poiBusinesses.some((p) => p.latitude != null && p.longitude != null);
