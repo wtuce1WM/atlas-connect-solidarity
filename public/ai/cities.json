@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/cities.json",
-    "generated_at": "2026-07-30T12:23:35.422Z",
+    "generated_at": "2026-08-02T06:20:00.315Z",
     "count": 32
   },
   "cities": [
@@ -454,7 +454,7 @@
       "description": null,
       "url": "https://oneworldmorocco.com/destination/mirleft",
       "neighborhoods": [],
-      "businesses_count": 3
+      "businesses_count": 4
     },
     {
       "id": "55e75ea6-f94e-4469-bc6d-bc0fdc45769c",

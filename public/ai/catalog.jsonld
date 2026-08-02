@@ -3,7 +3,7 @@
   "@type": "ItemList",
   "name": "Catalogue ONE WORLD MOROCCO",
   "url": "https://oneworldmorocco.com/ai/catalog.jsonld",
-  "numberOfItems": 1840,
+  "numberOfItems": 1843,
   "itemListElement": [
     {
       "@type": "ListItem",
@@ -3071,8 +3071,8 @@
         "telephone": "+212 658-025028",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.8,
-          "reviewCount": 46,
+          "ratingValue": 4.7,
+          "reviewCount": 66,
           "bestRating": 5
         }
       }
@@ -4647,8 +4647,8 @@
         "telephone": "+212.(0).524.429.645",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.8,
-          "reviewCount": 1170,
+          "ratingValue": 4.9,
+          "reviewCount": 1657,
           "bestRating": 5
         }
       }
@@ -8772,7 +8772,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 29,
+          "reviewCount": 35,
           "bestRating": 5
         }
       }
@@ -16320,13 +16320,7 @@
           "latitude": 31.6215239,
           "longitude": -7.997488
         },
-        "telephone": "+212 524 388 600",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": 4.5,
-          "reviewCount": 8947,
-          "bestRating": 5
-        }
+        "telephone": "+212 524 388 600"
       }
     },
     {
@@ -16420,7 +16414,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 385,
+          "reviewCount": 406,
           "bestRating": 5
         }
       }
@@ -19024,6 +19018,7 @@
         "name": "Le Love By Caravane",
         "url": "https://oneworldmorocco.com/le-love-by-caravane",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1dede9fe-53b4-4b88-bdd8-38280e609f40-1779830138864-p012fn.jpg",
+        "description": "Découvrez Le Love by Caravane , l'une des adresses les plus tendance d'Essaouira, où gastronomie, design bohème et ambiance festive se rencontrent dans un cadre élégant à quelques pas de la plage et de la médina classée au patrimoine mondial de l'UNESCO. Imaginé dans l'esprit libre et créatif de Caravane Café , ce restaurant séduit autant les voyageurs que les habitants grâce à son décor éclectique mêlant mobilier vintage, œuvres d'art, artisanat marocain et influences contemporaines. Entre déje",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "5 Rue Qadi Ayad",
@@ -19039,7 +19034,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 537,
+          "reviewCount": 568,
           "bestRating": 5
         }
       }
@@ -19892,7 +19887,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.4,
-          "reviewCount": 40,
+          "reviewCount": 49,
           "bestRating": 5
         }
       }
@@ -24635,6 +24630,7 @@
         "name": "Mega Loft Resto Bar & More",
         "url": "https://oneworldmorocco.com/mega-loft-resto-bar-more",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/d61a9a49-9277-46c7-9aad-9ba964241824-1781090000787-s325x.jpg",
+        "description": "Découvrez Mega Loft by Othman Chic , l'une des adresses les plus emblématiques d'Essaouira où gastronomie, design, musique et art de vivre se rencontrent dans une atmosphère incomparable. Situé sur l'avenue de l'Istiqlal, à quelques minutes de la médina et des remparts historiques, ce restaurant, bar et rooftop est devenu un lieu incontournable pour les voyageurs, les artistes et les habitants à la recherche d'une expérience différente. Derrière ce concept original se trouve Othman Chic , entrep",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "35 Av. de l'Istiqlal",
@@ -24651,7 +24647,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.1,
-          "reviewCount": 1474,
+          "reviewCount": 1499,
           "bestRating": 5
         }
       }
@@ -32853,8 +32849,8 @@
         "@id": "https://oneworldmorocco.com/riad-dar-najat#business",
         "name": "Riad Dar Najat",
         "url": "https://oneworldmorocco.com/riad-dar-najat",
-        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/96ce97b9-17ff-4345-93f1-be78d880ed06-1770436079359-armcss.jpg",
-        "description": "Riad Dar Najat de Marrakech est une Maison D'Hôtes au cœur de la Medina a 5 mn à pied de la célèbre Place aux mille couleurs Jemaa El Fna. Le Riad est composé de 7 chambres autour d'un patio enchanteur et bénéficie d'une piscine chauffante sur une des deux terrasses avec une vue panoramique sur la médina de Marrakech et l'Atlas. Accès voitures & parking sécurisé à 50 mètres du Riad & Equipe de la Maison d'hôtes trilingue anglais & français & espagnol particulièrement attentive et charmante qui f",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/96ce97b9-17ff-4345-93f1-be78d880ed06-1785405421981-lyyplx.jpg",
+        "description": "Situé au cœur de la médina de Marrakech, à quelques minutes de la place Jemaa el-Fna et du Palais Bahia, Riad Dar Najat est une adresse confidentielle où authenticité, confort et hospitalité marocaine se conjuguent à merveille. Véritable havre de paix, ce riad séduit les voyageurs par son ambiance intimiste, sa décoration traditionnelle, sa cuisine maison et surtout par son magnifique rooftop avec piscine chauffée , un équipement rare dans la médina qui permet de se détendre tout au long de l'an",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "N°18 Derb Lalla Chacha",
@@ -38296,7 +38292,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 64,
+          "reviewCount": 65,
           "bestRating": 5
         }
       }
@@ -47185,7 +47181,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.3,
-          "reviewCount": 657,
+          "reviewCount": 665,
           "bestRating": 5
         }
       }
@@ -47898,6 +47894,7 @@
         "name": "Alma & Co",
         "url": "https://oneworldmorocco.com/alma-co",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/508f6f40-67ec-40cb-95e9-15c381153ce4-1781080512876-gt7p0c.jpg",
+        "description": "Au cœur de la médina d'Essaouira, Alma & Co s'est imposé comme l'une des adresses les plus branchées de la ville pour vivre les nuits souiries. Plus qu'un restaurant, Alma & Co est un véritable restaurant lounge, bar festif et lieu de rencontres , où habitants, voyageurs, artistes et amateurs de musique se retrouvent dans une ambiance élégante qui évolue au fil de la soirée. Si vous cherchez où sortir à Essaouira , boire un cocktail, écouter un DJ ou prolonger la soirée jusqu'au bout de la nuit,",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Complexe Bin Al Aswar, Bab el-Sebâa",
@@ -47913,7 +47910,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.4,
-          "reviewCount": 447,
+          "reviewCount": 549,
           "bestRating": 5
         }
       }
@@ -52733,6 +52730,18 @@
     {
       "@type": "ListItem",
       "position": 1838,
+      "url": "https://oneworldmorocco.com/un-the-au-bout-du-monde-mirleft",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/un-the-au-bout-du-monde-mirleft#business",
+        "name": "Un The Au Bout du Monde Mirleft",
+        "url": "https://oneworldmorocco.com/un-the-au-bout-du-monde-mirleft",
+        "telephone": "+212 661 975 74"
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1839,
       "url": "https://oneworldmorocco.com/makassar-marrakech-restaurant",
       "item": {
         "@type": "LocalBusiness",
@@ -52758,7 +52767,19 @@
     },
     {
       "@type": "ListItem",
-      "position": 1839,
+      "position": 1840,
+      "url": "https://oneworldmorocco.com/nona-s-table",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/nona-s-table#business",
+        "name": "Nona's Table",
+        "url": "https://oneworldmorocco.com/nona-s-table",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/2852ac6b-6d6c-4189-9c5d-b281fa8b9974-1785443192040-98jvrl.jpeg"
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1841,
       "url": "https://oneworldmorocco.com/pikala",
       "item": {
         "@type": "LocalBusiness",
@@ -52784,7 +52805,18 @@
     },
     {
       "@type": "ListItem",
-      "position": 1840,
+      "position": 1842,
+      "url": "https://oneworldmorocco.com/villa-jmajorelle",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/villa-jmajorelle#business",
+        "name": "Villa JMajorelle",
+        "url": "https://oneworldmorocco.com/villa-jmajorelle"
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1843,
       "url": "https://oneworldmorocco.com/elevate-cycle",
       "item": {
         "@type": "LocalBusiness",
