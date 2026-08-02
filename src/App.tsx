@@ -97,6 +97,7 @@ const EmbedNearby = lazy(() => import("./pages/EmbedNearby"));
 const EmbedFiche = lazy(() => import("./pages/EmbedFiche"));
 
 const EmbedReviews = lazy(() => import("./pages/EmbedReviews"));
+const EmbedRateUs = lazy(() => import("./pages/EmbedRateUs"));
 const VanityResolver = lazy(() => import("./pages/VanityResolver"));
 const DestinationResolver = lazy(() => import("./pages/DestinationResolver"));
 const YouTubeChannelResolver = lazy(() => import("./pages/YouTubeChannelResolver"));
