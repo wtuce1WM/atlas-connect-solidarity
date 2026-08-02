@@ -32,6 +32,8 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
   const [nearbyHeight, setNearbyHeight] = useState<number>(720);
   const [reviewsPlatform, setReviewsPlatform] = useState<ReviewPlatformKey>("all");
   const [reviewsLang, setReviewsLang] = useState<"fr" | "en" | "ar">("fr");
+  const [reviewsPreset, setReviewsPreset] = useState<string>("v-sm");
+
   const [weatherCity, setWeatherCity] = useState<string>("Marrakech");
   const [weatherLang, setWeatherLang] = useState<"fr" | "en" | "ar">("fr");
 
