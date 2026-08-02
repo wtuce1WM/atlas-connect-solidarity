@@ -201,7 +201,7 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
                     </div>
                   </div>
                 </td>
-                <td className="px-3 py-2.5 text-white/60 whitespace-nowrap">{i.scope}</td>
+                <td className="px-3 py-2.5 whitespace-nowrap"><LinkCell scope={i.scope} /></td>
                 <td className="px-3 py-2.5 text-white/60 whitespace-nowrap">{i.price}</td>
                 <td className="px-3 py-2.5 whitespace-nowrap">
                   {i.locked ? (
