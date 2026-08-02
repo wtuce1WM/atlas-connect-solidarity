@@ -256,6 +256,14 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     [weatherUrl, weatherCity]
   );
 
+  const tidesUrl = `${SITE}/embed/tides?city=${encodeURIComponent(tidesCity || "Essaouira")}&lang=${tidesLang}`;
+  const tidesSnippet = useMemo(
+    () =>
+      `<iframe src="${tidesUrl}" style="width:100%;max-width:520px;height:360px;border:0;border-radius:20px" title="Marées — ${tidesCity}" loading="lazy"></iframe>`,
+    [tidesUrl, tidesCity]
+  );
+
+
 
   const copy = async (value: string, key: string) => {
     try {
