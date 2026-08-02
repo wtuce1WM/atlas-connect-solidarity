@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import logoGold from "@/assets/logoGOLDsimpleSML.webp";
 
 interface FooterProps {
-  variant?: "default" | "morocco" | "verified";
+  variant?: "default" | "morocco" | "verified" | "affiliate";
   className?: string;
 }
 
