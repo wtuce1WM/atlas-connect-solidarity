@@ -102,7 +102,7 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
     },
     {
       key: "showcase",
-      label: "Site vitrine 1WM",
+      label: "Votre site web avec les données 1WM",
       icon: Globe2,
       scope: "Compte affilié",
       price: "Sur devis",
