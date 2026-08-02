@@ -135,11 +135,17 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
     const hero = abs(post.custom_hero_image_url || post.cover_image_url);
     const medal = (r?: number | null) => (r === 1 ? "🥇" : r === 2 ? "🥈" : r === 3 ? "🥉" : "");
 
+    const panelItems: { url: string; title: string }[] = [];
+
     const blocks = entries
       .map((e) => {
         const b = bizMap[e.id];
         const img = abs(b?.images?.[0]);
         const link = b?.slug ? `${SITE}/${b.slug}` : canonical;
+        const title = e.title || b?.name || "";
+        const idx = panelItems.length;
+        panelItems.push({ url: link, title });
+        const dataAttrs = `data-owm-panel="${idx}"`;
         const place = [b?.neighborhood, b?.city].filter(Boolean).join(" · ");
         const rankBadge = e.rank
           ? `<span style="display:inline-block;padding:4px 12px;margin-right:10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(135deg,#F4CF7A,#D4AF37 55%,#8A6A1A);color:#111">${medal(e.rank)} N°${e.rank}</span>`
@@ -154,18 +160,59 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
           .map((p) => `<p style="margin:0 0 14px;line-height:1.7;color:#1f2937">${esc(p)}</p>`)
           .join("\n        ");
         return `    <article style="margin:0 0 44px;padding:0 0 32px;border-bottom:1px solid #e5e7eb">
-      ${img ? `<img src="${img}" alt="${esc(e.title || b?.name || "")}" loading="lazy" style="width:100%;height:auto;max-height:460px;object-fit:cover;border-radius:16px;margin:0 0 18px" />` : ""}
+      ${img ? `<img src="${img}" alt="${esc(title)}" loading="lazy" style="width:100%;height:auto;max-height:460px;object-fit:cover;border-radius:16px;margin:0 0 18px" />` : ""}
       ${e.pretitle ? `<p style="margin:0 0 6px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#b45309">${esc(e.pretitle)}</p>` : ""}
-      <h2 style="margin:0 0 10px;font-size:26px;line-height:1.25;font-family:Montserrat,Helvetica,Arial,sans-serif;color:#0f172a">${rankBadge}<a href="${link}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">${esc(e.title || b?.name || "")}</a></h2>
+      <h2 style="margin:0 0 10px;font-size:26px;line-height:1.25;font-family:Montserrat,Helvetica,Arial,sans-serif;color:#0f172a">${rankBadge}<a href="${link}" ${dataAttrs} target="_blank" rel="noopener" style="color:inherit;text-decoration:none">${esc(title)}</a></h2>
       ${place ? `<p style="margin:0 0 8px;font-size:14px;color:#6b7280">${esc(place)}</p>` : ""}
       ${e.hook ? `<p style="margin:0 0 10px;font-style:italic;font-size:17px;color:#b45309">« ${esc(e.hook)} »</p>` : ""}
       ${e.hours ? `<p style="margin:0 0 10px;font-size:14px;color:#6b7280">${esc(e.hours)}</p>` : ""}
       ${price}
       ${paras}
-      <p style="margin:16px 0 0"><a href="${link}" target="_blank" rel="noopener" style="display:inline-block;padding:10px 18px;border-radius:999px;background:#0f172a;color:#fff;font-size:14px;text-decoration:none">Voir la fiche sur One World Morocco</a></p>
+      <p style="margin:16px 0 0"><a href="${link}" ${dataAttrs} target="_blank" rel="noopener" style="display:inline-block;padding:10px 18px;border-radius:999px;background:#0f172a;color:#fff;font-size:14px;text-decoration:none">Voir la fiche sur One World Morocco</a></p>
     </article>`;
       })
       .join("\n");
+
+    const panelScript = `<!-- One World Morocco — panneau latéral (swipe vertical) -->
+<div id="owm-panel" aria-hidden="true" style="position:fixed;inset:0;z-index:99999;display:none">
+  <div id="owm-panel-backdrop" style="position:absolute;inset:0;background:rgba(0,0,0,.55);opacity:0;transition:opacity .25s"></div>
+  <div id="owm-panel-sheet" style="position:absolute;top:0;right:0;bottom:0;width:100%;max-width:560px;background:#0f172a;box-shadow:-12px 0 40px rgba(0,0,0,.35);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s ease">
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(0,0,0,.5);color:#fff;font-family:Avenir,'Nunito Sans',Helvetica,Arial,sans-serif">
+      <button id="owm-panel-prev" aria-label="Précédent" style="width:34px;height:34px;border:0;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;font-size:15px;cursor:pointer">▲</button>
+      <button id="owm-panel-next" aria-label="Suivant" style="width:34px;height:34px;border:0;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;font-size:15px;cursor:pointer">▼</button>
+      <div id="owm-panel-title" style="flex:1;min-width:0;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+      <a id="owm-panel-open" href="#" target="_blank" rel="noopener" style="font-size:12px;color:#D4AF37;text-decoration:none">Nouvel onglet</a>
+      <button id="owm-panel-close" aria-label="Fermer" style="width:34px;height:34px;border:0;border-radius:999px;background:rgba(255,255,255,.12);color:#fff;font-size:16px;cursor:pointer">✕</button>
+    </div>
+    <div id="owm-panel-body" style="position:relative;flex:1;background:#0f172a">
+      <iframe id="owm-panel-frame" title="One World Morocco" style="width:100%;height:100%;border:0;display:block" allow="geolocation"></iframe>
+      <div id="owm-panel-swipe" style="position:absolute;top:0;left:0;bottom:0;width:56px;touch-action:none;cursor:ns-resize"></div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var items = ${JSON.stringify(panelItems)};
+  if(!items.length) return;
+  var root=document.getElementById('owm-panel'),sheet=document.getElementById('owm-panel-sheet'),bd=document.getElementById('owm-panel-backdrop'),frame=document.getElementById('owm-panel-frame'),ttl=document.getElementById('owm-panel-title'),openLink=document.getElementById('owm-panel-open'),swipe=document.getElementById('owm-panel-swipe');
+  var i=0,isOpen=false;
+  function render(){var it=items[i];if(!it)return;frame.src=it.url;ttl.textContent=(i+1)+'/'+items.length+' · '+it.title;openLink.href=it.url;}
+  function open(n){i=n;isOpen=true;root.style.display='block';root.setAttribute('aria-hidden','false');render();requestAnimationFrame(function(){bd.style.opacity='1';sheet.style.transform='translateX(0)';});document.documentElement.style.overflow='hidden';}
+  function close(){isOpen=false;bd.style.opacity='0';sheet.style.transform='translateX(100%)';document.documentElement.style.overflow='';setTimeout(function(){root.style.display='none';root.setAttribute('aria-hidden','true');frame.src='about:blank';},300);}
+  function go(d){var n=i+d;if(n<0||n>=items.length)return;i=n;render();}
+  document.addEventListener('click',function(ev){var a=ev.target&&ev.target.closest?ev.target.closest('[data-owm-panel]'):null;if(!a)return;ev.preventDefault();open(parseInt(a.getAttribute('data-owm-panel'),10)||0);});
+  document.getElementById('owm-panel-close').addEventListener('click',close);
+  bd.addEventListener('click',close);
+  document.getElementById('owm-panel-prev').addEventListener('click',function(){go(-1);});
+  document.getElementById('owm-panel-next').addEventListener('click',function(){go(1);});
+  document.addEventListener('keydown',function(e){if(!isOpen)return;if(e.key==='Escape')close();else if(e.key==='ArrowDown'){e.preventDefault();go(1);}else if(e.key==='ArrowUp'){e.preventDefault();go(-1);}});
+  var y=null,done=false;
+  swipe.addEventListener('touchstart',function(e){y=e.touches[0].clientY;done=false;},{passive:true});
+  swipe.addEventListener('touchmove',function(e){if(y===null||done)return;var dy=e.touches[0].clientY-y;if(Math.abs(dy)>70){done=true;go(dy<0?1:-1);y=null;}},{passive:true});
+  swipe.addEventListener('touchend',function(){y=null;});
+  swipe.addEventListener('wheel',function(e){if(Math.abs(e.deltaY)<30)return;e.preventDefault();go(e.deltaY>0?1:-1);},{passive:false});
+})();
+</script>`;
 
     return `<!-- Article One World Morocco — ${esc(articleTitle)} -->
 <!-- Source : ${canonical} — médias hébergés par One World Morocco -->
@@ -179,8 +226,10 @@ ${blocks}
   <footer style="margin:8px 0 0;font-size:14px;color:#6b7280">
     Article publié par <a href="${canonical}" target="_blank" rel="noopener" style="color:#b45309">One World Morocco</a> — ${esc(businessName)}.
   </footer>
-</section>`;
+</section>
+${panelScript}`;
   }, [post, entries, bizMap, lang, articleTitle, intro, businessName]);
+
 
   const copy = async () => {
     try {
@@ -283,10 +332,18 @@ ${blocks}
           « HTML personnalisé ». Squarespace : bloc « Code ». Webflow : composant « Embed ».
         </p>
         <p>
-          Le code est autonome (styles en ligne, aucun script). Les images et vidéos restent hébergées
-          par One World Morocco : elles se mettent à jour automatiquement et ne consomment pas votre
-          stockage. Les liens pointent vers les fiches sur oneworldmorocco.com.
+          Le code est autonome (styles en ligne + un petit script inclus). Les liens des
+          établissements ouvrent un <strong>panneau latéral à droite</strong> avec navigation par
+          swipe vertical (ou flèches ↑/↓) entre les établissements de l'article — comme sur
+          oneworldmorocco.com. Rien à installer en plus : le script est déjà dans le code copié.
+          Sur les plateformes qui bloquent les scripts dans un bloc HTML (certains éditeurs), colle
+          le bloc <code>&lt;script&gt;</code> final dans le « Custom Code / Body - end » du site.
         </p>
+        <p>
+          Les images et vidéos restent hébergées par One World Morocco : elles se mettent à jour
+          automatiquement et ne consomment pas votre stockage.
+        </p>
+
       </div>
     </div>
   );
