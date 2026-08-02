@@ -93,19 +93,38 @@ const Footer = ({ variant = "default", className }: FooterProps) => {
   }, []);
 
   const isVerified = variant === "verified";
+  const isAffiliate = variant === "affiliate";
 
-  const footerBg = className 
-    ? className 
-    : variant === "morocco" 
-    ? "bg-transparent text-white" 
-    : isVerified
-    ? "bg-background text-foreground"
+  const footerBg = className
+    ? className
+    : variant === "morocco"
+    ? "bg-transparent text-white"
+    : isAffiliate
+    ? "bg-transparent text-white"
     : "bg-background text-foreground";
 
-  const textSecondary = isVerified || variant !== "morocco" ? "text-foreground/80" : "text-white/90";
-  const textTertiary = isVerified || variant !== "morocco" ? "text-foreground/70" : "text-white/70";
-  const textQuaternary = isVerified || variant !== "morocco" ? "text-foreground/60" : "text-white/60";
-  const borderColor = isVerified || variant !== "morocco" ? "border-foreground/20" : "border-white/20";
+  const textSecondary = isAffiliate
+    ? "text-white/90"
+    : isVerified || variant !== "morocco"
+    ? "text-foreground/80"
+    : "text-white/90";
+  const textTertiary = isAffiliate
+    ? "text-white/80"
+    : isVerified || variant !== "morocco"
+    ? "text-foreground/70"
+    : "text-white/70";
+  const textQuaternary = isAffiliate
+    ? "text-white/70"
+    : isVerified || variant !== "morocco"
+    ? "text-foreground/60"
+    : "text-white/60";
+  const borderColor = isAffiliate
+    ? "border-white/20"
+    : isVerified || variant !== "morocco"
+    ? "border-foreground/20"
+    : "border-white/20";
+  const headingColor = isAffiliate ? "text-white" : "text-[#3B3B3B]";
+  const brandColor = isAffiliate ? "text-white" : "text-black";
 
   return (
     <footer className={footerBg}>
