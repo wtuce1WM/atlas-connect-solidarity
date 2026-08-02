@@ -128,6 +128,47 @@ export type Database = {
           },
         ]
       }
+      affiliate_legal_documents: {
+        Row: {
+          affiliate_id: string
+          created_at: string
+          file_path: string
+          id: string
+          mime_type: string | null
+          name: string
+          size_bytes: number | null
+          updated_at: string
+        }
+        Insert: {
+          affiliate_id: string
+          created_at?: string
+          file_path: string
+          id?: string
+          mime_type?: string | null
+          name: string
+          size_bytes?: number | null
+          updated_at?: string
+        }
+        Update: {
+          affiliate_id?: string
+          created_at?: string
+          file_path?: string
+          id?: string
+          mime_type?: string | null
+          name?: string
+          size_bytes?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_legal_documents_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       affiliates: {
         Row: {
           account_type: string | null
@@ -156,6 +197,7 @@ export type Database = {
           phone: string | null
           updated_at: string
           user_id: string | null
+          vat: string | null
           whatsapp: string | null
         }
         Insert: {
@@ -185,6 +227,7 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id?: string | null
+          vat?: string | null
           whatsapp?: string | null
         }
         Update: {
@@ -214,6 +257,7 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id?: string | null
+          vat?: string | null
           whatsapp?: string | null
         }
         Relationships: [
