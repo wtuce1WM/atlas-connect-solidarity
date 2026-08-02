@@ -16,12 +16,25 @@ interface AiText {
   source_mode: string;
   position: number;
   is_active: boolean;
+  extra_instructions: string | null;
+  length_mode: string | null;
 }
+
+const SELECT_COLS = "id,title,hook,content,source_mode,position,is_active,extra_instructions,length_mode";
 
 const MAX_TEXTS = 5;
 const MAX_CONTENT = 2000;
 const MAX_TITLE = 70;
 const MAX_HOOK = 120;
+
+const LENGTHS: Array<{ value: string; label: string }> = [
+  { value: "very_short", label: "Très courte (~400)" },
+  { value: "short", label: "Courte (~800)" },
+  { value: "medium", label: "Moyenne (~1300)" },
+  { value: "long", label: "Longue (~2000)" },
+];
+
+const lengthLabel = (v: string | null) => LENGTHS.find((l) => l.value === v)?.label ?? null;
 
 const MODES: Array<{ value: string; label: string; help: string }> = [
   {
