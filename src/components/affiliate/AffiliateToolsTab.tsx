@@ -920,8 +920,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
         </div>
       </div>
 
-        </div>
-      </div>
+
 
 
 
