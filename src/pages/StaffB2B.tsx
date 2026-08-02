@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, ArrowLeft, UserCheck, Star, BarChart3 } from "lucide-react";
+import { LogOut, ArrowLeft, UserCheck, Star, BarChart3, ShieldCheck } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import AffiliateManagement from "@/components/staff/AffiliateManagement";
+import AffiliateRightsPanel from "@/components/staff/AffiliateRightsPanel";
 import SponsorManagement from "@/components/staff/SponsorManagement";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import BusinessAnalyticsPanel from "@/components/affiliate/BusinessAnalyticsPanel";
@@ -101,7 +102,24 @@ const StaffB2B = () => {
           </TabsList>
 
           <TabsContent value="affiliates">
-            <AffiliateManagement />
+            <Tabs defaultValue="management">
+              <TabsList className="mb-4">
+                <TabsTrigger value="management" className="gap-2">
+                  <UserCheck className="h-4 w-4" />
+                  Gestion des Affiliés
+                </TabsTrigger>
+                <TabsTrigger value="rights" className="gap-2">
+                  <ShieldCheck className="h-4 w-4" />
+                  Droits
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="management">
+                <AffiliateManagement />
+              </TabsContent>
+              <TabsContent value="rights">
+                <AffiliateRightsPanel />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
           <TabsContent value="sponsors">
