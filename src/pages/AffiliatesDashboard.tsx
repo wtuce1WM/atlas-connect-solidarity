@@ -196,7 +196,7 @@ const AffiliatesDashboard = () => {
         </div>
       </main>
 
-      <Footer />
+      <Footer variant="affiliate" />
     </div>
   );
 };

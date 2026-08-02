@@ -174,7 +174,7 @@ const AffiliatesResetPassword = () => {
             </Card>
           </div>
         </main>
-        <Footer />
+        <Footer variant="affiliate" />
       </div>
     );
   }
@@ -252,7 +252,7 @@ const AffiliatesResetPassword = () => {
           </Card>
         </div>
       </main>
-      <Footer />
+      <Footer variant="affiliate" />
     </div>
   );
 };
