@@ -1,4 +1,4 @@
-import { useEffect, useState, forwardRef, useImperativeHandle, useCallback, useMemo } from "react";
+import { useEffect, useState, forwardRef, useImperativeHandle, useCallback, useMemo, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -419,7 +419,7 @@ const AffiliateVideosEditor = forwardRef<AffiliateVideosEditorHandle, Props>(
       [handleFilesDrop]
     );
 
-    const handleSave = async () => {
+    const handleSave = async (silent = false) => {
       // Never save before the initial load finished: it would delete every
       // existing video document (empty local list vs. DB rows).
       if (loading) {
@@ -475,7 +475,7 @@ const AffiliateVideosEditor = forwardRef<AffiliateVideosEditorHandle, Props>(
 
         setInitialIds(videos.map((v) => v.id!).filter(Boolean));
         setDirty(false);
-        toast({ title: "Vidéos enregistrées ✓" });
+        if (!silent) toast({ title: "Vidéos enregistrées ✓" });
       } catch (e: any) {
         toast({ variant: "destructive", title: "Erreur", description: e.message });
       } finally {
@@ -483,7 +483,16 @@ const AffiliateVideosEditor = forwardRef<AffiliateVideosEditorHandle, Props>(
       }
     };
 
-    useImperativeHandle(ref, () => ({ save: handleSave }), [handleSave]);
+    // Auto-save: dès qu'un changement est détecté (ordre, titre, description, popup)
+    const saveRef = useRef(handleSave);
+    saveRef.current = handleSave;
+    useEffect(() => {
+      if (loading || !dirty || saving) return;
+      const t = setTimeout(() => saveRef.current(true), 1200);
+      return () => clearTimeout(t);
+    }, [dirty, loading, saving, videos]);
+
+    useImperativeHandle(ref, () => ({ save: () => handleSave() }), [handleSave]);
 
     const items = useMemo(() => videos.map((v) => v._uid), [videos]);
 
@@ -505,10 +514,15 @@ const AffiliateVideosEditor = forwardRef<AffiliateVideosEditorHandle, Props>(
             <Button size="sm" variant="outline" onClick={addVideo} disabled={videos.length >= MAX_VIDEOS}>
               <Plus className="h-4 w-4 mr-1" /> Ajouter
             </Button>
-            <Button size="sm" disabled={!dirty || saving} onClick={handleSave}>
-              {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
-              Enregistrer les vidéos
-            </Button>
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              {saving ? (
+                <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Enregistrement…</>
+              ) : dirty ? (
+                <><Save className="h-3.5 w-3.5" /> Modifications en attente…</>
+              ) : (
+                <>Enregistré automatiquement ✓</>
+              )}
+            </span>
           </div>
         </div>
 

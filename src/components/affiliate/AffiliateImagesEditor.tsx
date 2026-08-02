@@ -1,4 +1,4 @@
-import { useEffect, useState, forwardRef, useImperativeHandle, useCallback } from "react";
+import { useEffect, useState, forwardRef, useImperativeHandle, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { compressImage, formatBytes } from "@/lib/imageCompression";
@@ -432,7 +432,7 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
       e.preventDefault();
     }, []);
 
-    const handleSave = async () => {
+    const handleSave = async (silent = false) => {
       // Never save before the initial load finished: it would push an empty
       // images array and wipe the medias.
       if (loading) {
@@ -477,7 +477,7 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
         }
 
         setDirty(false);
-        toast({ title: "Images enregistrées ✓" });
+        if (!silent) toast({ title: "Images enregistrées ✓" });
       } catch (e: any) {
         toast({ variant: "destructive", title: "Erreur", description: e.message });
       } finally {
@@ -485,7 +485,16 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
       }
     };
 
-    useImperativeHandle(ref, () => ({ save: handleSave }), [handleSave]);
+    // Auto-save: dès qu'un changement est détecté (ordre, titre, description, popup)
+    const saveRef = useRef(handleSave);
+    saveRef.current = handleSave;
+    useEffect(() => {
+      if (loading || !dirty || saving) return;
+      const t = setTimeout(() => saveRef.current(true), 1200);
+      return () => clearTimeout(t);
+    }, [dirty, loading, saving, images, popupUrl, titles, descriptions]);
+
+    useImperativeHandle(ref, () => ({ save: () => handleSave() }), [handleSave]);
 
     if (loading) {
       return (
@@ -505,10 +514,15 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
           <p className="text-sm text-muted-foreground">
             {images.length} image{images.length > 1 ? "s" : ""} · Glissez pour réordonner, cliquez pour ouvrir en plein écran.
           </p>
-          <Button size="sm" disabled={!dirty || saving} onClick={handleSave}>
-            {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
-            Enregistrer les images
-          </Button>
+          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            {saving ? (
+              <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Enregistrement…</>
+            ) : dirty ? (
+              <><Save className="h-3.5 w-3.5" /> Modifications en attente…</>
+            ) : (
+              <>Enregistré automatiquement ✓</>
+            )}
+          </span>
         </div>
 
         {images.length > 0 && (
