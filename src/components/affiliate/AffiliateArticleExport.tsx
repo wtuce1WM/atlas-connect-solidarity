@@ -215,7 +215,7 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
     const hero = abs(post.custom_hero_image_url || post.cover_image_url);
     const medal = (r?: number | null) => (r === 1 ? "🥇" : r === 2 ? "🥈" : r === 3 ? "🥉" : "");
 
-    const panelItems: { url: string; page: string; title: string }[] = [];
+    const panelItems: { slug: string; url: string; page: string; title: string }[] = [];
 
     const blocks = entries
       .map((e) => {
@@ -228,7 +228,7 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
           : canonical;
         const title = e.title || b?.name || "";
         const idx = panelItems.length;
-        panelItems.push({ url: panelUrl, page: link, title });
+        panelItems.push({ slug: b?.slug || "", url: panelUrl, page: link, title });
         const dataAttrs = `data-owm-panel="${idx}"`;
 
         const place = [b?.neighborhood, b?.city].filter(Boolean).join(" · ");
@@ -312,8 +312,8 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
       })
       .join("\n");
 
-    const panelScript = `<!-- One World Morocco — panneau latéral (swipe vertical) -->
-<div id="owm-panel" aria-hidden="true" style="position:fixed;inset:0;z-index:99999;display:none">
+    const panelScript = `<!-- One World Morocco — panneau latéral (swipe vertical + horizontal) -->
+<div id="owm-panel" aria-hidden="true" style="position:fixed;inset:0;z-index:2147483000;display:none">
   <div id="owm-panel-backdrop" style="position:absolute;inset:0;background:rgba(0,0,0,.55);opacity:0;transition:opacity .25s"></div>
   <div id="owm-panel-sheet" style="position:absolute;top:0;right:0;bottom:0;width:100%;max-width:560px;background:#0f172a;box-shadow:-12px 0 40px rgba(0,0,0,.35);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s ease">
     <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(0,0,0,.5);color:#fff;font-family:Avenir,'Nunito Sans',Helvetica,Arial,sans-serif">
@@ -325,30 +325,66 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
     </div>
     <div id="owm-panel-body" style="position:relative;flex:1;background:#0f172a">
       <iframe id="owm-panel-frame" title="One World Morocco" style="width:100%;height:100%;border:0;display:block" allow="geolocation"></iframe>
-      <div id="owm-panel-swipe" style="position:absolute;top:0;left:0;bottom:0;width:56px;touch-action:none;cursor:ns-resize"></div>
+      <div id="owm-panel-swipe" style="position:absolute;top:56px;left:0;bottom:0;width:44px;touch-action:none;cursor:ns-resize"></div>
     </div>
   </div>
 </div>
 <script>
 (function(){
-  var items = ${JSON.stringify(panelItems)};
-  if(!items.length) return;
-  var root=document.getElementById('owm-panel'),sheet=document.getElementById('owm-panel-sheet'),bd=document.getElementById('owm-panel-backdrop'),frame=document.getElementById('owm-panel-frame'),ttl=document.getElementById('owm-panel-title'),openLink=document.getElementById('owm-panel-open'),swipe=document.getElementById('owm-panel-swipe');
+  var SITE=${JSON.stringify(SITE)};
+  var LANG=${JSON.stringify(lang)};
+  var items=${JSON.stringify(panelItems)};
+  var root=document.getElementById('owm-panel');
+  if(!root) return;
+  var sheet=document.getElementById('owm-panel-sheet'),bd=document.getElementById('owm-panel-backdrop'),frame=document.getElementById('owm-panel-frame'),ttl=document.getElementById('owm-panel-title'),openLink=document.getElementById('owm-panel-open'),swipe=document.getElementById('owm-panel-swipe');
   var i=0,isOpen=false;
+  function slugFromHref(href){
+    try{
+      var u=new URL(href, location.href);
+      if(u.hostname.indexOf('oneworldmorocco')===-1) return null;
+      var parts=u.pathname.split('/').filter(Boolean);
+      if(!parts.length) return null;
+      if(parts[0]==='embed'||parts[0]==='blog') return null;
+      return parts[parts.length-1];
+    }catch(e){return null;}
+  }
+  function indexForSlug(slug){
+    for(var k=0;k<items.length;k++){ if(items[k].slug===slug) return k; }
+    items.push({slug:slug,url:SITE+'/embed/fiche/'+slug+'?lang='+LANG,page:SITE+'/'+slug,title:slug});
+    return items.length-1;
+  }
   function render(){var it=items[i];if(!it)return;frame.src=it.url;ttl.textContent=(i+1)+'/'+items.length+' · '+it.title;openLink.href=it.page||it.url;}
   function open(n){i=n;isOpen=true;root.style.display='block';root.setAttribute('aria-hidden','false');render();requestAnimationFrame(function(){bd.style.opacity='1';sheet.style.transform='translateX(0)';});document.documentElement.style.overflow='hidden';}
   function close(){isOpen=false;bd.style.opacity='0';sheet.style.transform='translateX(100%)';document.documentElement.style.overflow='';setTimeout(function(){root.style.display='none';root.setAttribute('aria-hidden','true');frame.src='about:blank';},300);}
   function go(d){var n=i+d;if(n<0||n>=items.length)return;i=n;render();}
-  document.addEventListener('click',function(ev){var a=ev.target&&ev.target.closest?ev.target.closest('[data-owm-panel]'):null;if(!a)return;ev.preventDefault();open(parseInt(a.getAttribute('data-owm-panel'),10)||0);});
+  window.owmOpenPanel=function(n){open(parseInt(n,10)||0);return false;};
+  // Interception en phase de capture : fonctionne même si le CMS retire les attributs data-*.
+  document.addEventListener('click',function(ev){
+    var t=ev.target;
+    var a=t&&t.closest?t.closest('a'):null;
+    if(!a||root.contains(a))return;
+    var idxAttr=a.getAttribute('data-owm-panel');
+    var n=null;
+    if(idxAttr!==null&&idxAttr!==''){ n=parseInt(idxAttr,10)||0; }
+    else { var slug=slugFromHref(a.getAttribute('href')||''); if(slug) n=indexForSlug(slug); }
+    if(n===null)return;
+    ev.preventDefault();ev.stopPropagation();
+    open(n);
+  },true);
   document.getElementById('owm-panel-close').addEventListener('click',close);
   bd.addEventListener('click',close);
   document.getElementById('owm-panel-prev').addEventListener('click',function(){go(-1);});
   document.getElementById('owm-panel-next').addEventListener('click',function(){go(1);});
   document.addEventListener('keydown',function(e){if(!isOpen)return;if(e.key==='Escape')close();else if(e.key==='ArrowDown'){e.preventDefault();go(1);}else if(e.key==='ArrowUp'){e.preventDefault();go(-1);}});
-  var y=null,done=false;
-  swipe.addEventListener('touchstart',function(e){y=e.touches[0].clientY;done=false;},{passive:true});
-  swipe.addEventListener('touchmove',function(e){if(y===null||done)return;var dy=e.touches[0].clientY-y;if(Math.abs(dy)>70){done=true;go(dy<0?1:-1);y=null;}},{passive:true});
-  swipe.addEventListener('touchend',function(){y=null;});
+  var x=null,y=null,done=false;
+  swipe.addEventListener('touchstart',function(e){x=e.touches[0].clientX;y=e.touches[0].clientY;done=false;},{passive:true});
+  swipe.addEventListener('touchmove',function(e){
+    if(y===null||done)return;
+    var dy=e.touches[0].clientY-y, dx=e.touches[0].clientX-x;
+    if(Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>60){done=true;go(dy<0?1:-1);}
+    else if(Math.abs(dx)>70){done=true;if(dx>0)close();}
+  },{passive:true});
+  swipe.addEventListener('touchend',function(){x=null;y=null;});
   swipe.addEventListener('wheel',function(e){if(Math.abs(e.deltaY)<30)return;e.preventDefault();go(e.deltaY>0?1:-1);},{passive:false});
 })();
 </script>`;
