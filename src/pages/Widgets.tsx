@@ -348,7 +348,6 @@ const Widgets = () => {
   const weatherUrl = `${SITE}/embed/weather?city=Marrakech&lang=fr`;
   const askUrl = `${SITE}/embed/ask/${DEMO_SLUG}?theme=light&lang=fr`;
   const nearbyUrl = `${SITE}/embed/nearby/${DEMO_SLUG}?lang=fr`;
-  const reviewsUrl = `${SITE}/embed/reviews/${DEMO_SLUG}?platform=synthese&lang=fr&ratio=vertical&size=sm`;
 
   const floatingSnippet = useMemo(
     () => `<!-- Panneau flottant One World Morocco -->
