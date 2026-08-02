@@ -1,6 +1,6 @@
 // Standalone embeddable tides page: /embed/tides?city=Essaouira&lang=fr&picker=1
 // Designed to be loaded in an <iframe> from any external site.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import EmbedTidesWidget, { type TidesPayload } from "@/components/embed/EmbedTidesWidget";
 
