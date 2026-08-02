@@ -524,6 +524,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       )}
 
       {/* ---------- Export d'article de blog ---------- */}
+      {rights.blogExport && (
       <div className="space-y-3">
         <h3 className="text-white font-semibold flex items-center gap-2">
           <Newspaper className="h-4 w-4" /> Vos articles de blog (code à copier)
@@ -534,6 +535,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         </p>
         <AffiliateArticleExport businessId={businessId} businessName={businessName} />
       </div>
+      )}
 
 
       {/* ---------- Widget « À proximité » (overlay POI) ---------- */}
