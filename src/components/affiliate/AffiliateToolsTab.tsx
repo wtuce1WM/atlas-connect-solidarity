@@ -868,7 +868,55 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
                 loading="lazy"
               />
             </div>
+      </div>
+
+      {/* ── Signature email (HTML statique) ───────────────────── */}
+      <div className="space-y-3">
+        <h3 className="text-white font-semibold flex items-center gap-2">
+          <Mail className="h-4 w-4" /> Signature email « Laisser un avis » (HTML statique)
+        </h3>
+        <p className="text-sm text-white/70">
+          Version compatible Gmail, Outlook, Apple Mail : pas d'iframe ni de JavaScript. Le bouton
+          ouvre votre page d'avis (plateformes et langue selon les réglages ci-dessus). À coller dans
+          la signature, le pied d'email de confirmation ou une relance après séjour.
+        </p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label className="text-white/80 text-xs">Code HTML à coller</Label>
+            <textarea
+              readOnly
+              value={rateEmailSnippet}
+              onFocus={(e) => e.currentTarget.select()}
+              rows={10}
+              className="w-full rounded-md bg-white/10 border border-white/20 text-white text-xs px-3 py-2 font-mono resize-none"
+            />
+            <div className="flex gap-2 flex-wrap">
+              <Button type="button" size="sm" onClick={() => copy(rateEmailSnippet, "rate-email")}>
+                {copied === "rate-email" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                Copier le HTML signature
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => copy(rateEmailUrl, "rate-email-url")}
+                className="text-white border-white/20 hover:bg-white/10 hover:text-white"
+              >
+                {copied === "rate-email-url" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                Copier le lien seul
+              </Button>
+            </div>
           </div>
+          <div className="space-y-2">
+            <Label className="text-white/80 text-xs">Aperçu</Label>
+            <div
+              className="rounded-md border border-white/20 bg-white p-4"
+              dangerouslySetInnerHTML={{ __html: rateEmailSnippet }}
+            />
+          </div>
+        </div>
+      </div>
+
         </div>
       </div>
 
