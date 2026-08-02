@@ -130,6 +130,7 @@ const AffiliatePresence = () => {
   const [cities, setCities] = useState<CityOption[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<NeighborhoodOption[]>([]);
   const [affiliateId, setAffiliateId] = useState<string | null>(null);
+  const [affiliateName, setAffiliateName] = useState<string>("");
   const [maxBusinesses, setMaxBusinesses] = useState<number | null>(null);
   const [hasDashboard, setHasDashboard] = useState(false);
   const [hasVideoStudio, setHasVideoStudio] = useState(false);
@@ -231,7 +232,7 @@ const AffiliatePresence = () => {
 
       const { data: affiliate } = await supabase
         .from("affiliates")
-        .select("id, max_businesses, has_dashboard, has_video_studio, has_showcase_site, has_custom_domain, has_email_signature")
+        .select("id, name, max_businesses, has_dashboard, has_video_studio, has_showcase_site, has_custom_domain, has_email_signature")
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -242,12 +243,14 @@ const AffiliatePresence = () => {
       }
 
       setAffiliateId(affiliate.id);
+      setAffiliateName((affiliate as any).name ?? "");
       setMaxBusinesses((affiliate as any).max_businesses ?? null);
       setHasDashboard(!!(affiliate as any).has_dashboard);
       setHasVideoStudio(!!(affiliate as any).has_video_studio);
       setHasShowcaseSite(!!(affiliate as any).has_showcase_site);
       setHasCustomDomain(!!(affiliate as any).has_custom_domain);
       setHasEmailSignature((affiliate as any).has_email_signature !== false);
+
 
       const { data: rightsRows } = await supabase
         .from("business_feature_rights")
@@ -787,6 +790,7 @@ const AffiliatePresence = () => {
                     <TabsContent value="news">
                       <AffiliateNewsTab
                         businessName={currentBusiness.name}
+                        affiliateName={affiliateName}
                         slug={currentBusiness.slug}
                         onGoToTools={() => setActiveTab("tools")}
                         rights={{

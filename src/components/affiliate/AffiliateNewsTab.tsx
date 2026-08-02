@@ -13,6 +13,7 @@ export type NewsRights = {
 
 interface Props {
   businessName: string;
+  affiliateName?: string;
   slug: string | null;
   rights: NewsRights;
   onGoToTools?: () => void;
@@ -32,7 +33,18 @@ type Item = {
 
 const SITE = "https://oneworldmorocco.com";
 
-const AffiliateNewsTab = ({ businessName, slug, rights, onGoToTools }: Props) => {
+const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToTools }: Props) => {
+  const accountLabel = affiliateName?.trim() || "Compte affilié";
+
+  const LinkCell = ({ scope }: { scope: "Établissement" | "Compte affilié" }) => (
+    <div className="leading-tight">
+      <p className="text-white/80">{scope === "Établissement" ? businessName : accountLabel}</p>
+      <p className="text-[11px] text-white/40">
+        {scope === "Établissement" ? "Liaison établissement" : "Liaison compte affilié"}
+      </p>
+    </div>
+  );
+
   const items: Item[] = [
     {
       key: "ai",
@@ -172,7 +184,7 @@ const AffiliateNewsTab = ({ businessName, slug, rights, onGoToTools }: Props) =>
           <thead>
             <tr className="border-b border-white/10 bg-white/5">
               <th className="text-left font-medium text-white/60 px-3 py-2">Service</th>
-              <th className="text-left font-medium text-white/60 px-3 py-2 whitespace-nowrap">Portée</th>
+              <th className="text-left font-medium text-white/60 px-3 py-2 whitespace-nowrap">Liaison</th>
               <th className="text-left font-medium text-white/60 px-3 py-2 whitespace-nowrap">Tarif</th>
               <th className="text-left font-medium text-white/60 px-3 py-2 whitespace-nowrap">Statut</th>
             </tr>
@@ -189,7 +201,7 @@ const AffiliateNewsTab = ({ businessName, slug, rights, onGoToTools }: Props) =>
                     </div>
                   </div>
                 </td>
-                <td className="px-3 py-2.5 text-white/60 whitespace-nowrap">{i.scope}</td>
+                <td className="px-3 py-2.5 whitespace-nowrap"><LinkCell scope={i.scope} /></td>
                 <td className="px-3 py-2.5 text-white/60 whitespace-nowrap">{i.price}</td>
                 <td className="px-3 py-2.5 whitespace-nowrap">
                   {i.locked ? (
@@ -217,7 +229,7 @@ const AffiliateNewsTab = ({ businessName, slug, rights, onGoToTools }: Props) =>
                     </div>
                   </div>
                 </td>
-                <td className="px-3 py-2.5 text-white/60 whitespace-nowrap">Établissement</td>
+                <td className="px-3 py-2.5 whitespace-nowrap"><LinkCell scope="Établissement" /></td>
                 <td className="px-3 py-2.5 whitespace-nowrap">
                   <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-whatsapp/15 text-whatsapp">
                     Gratuit
