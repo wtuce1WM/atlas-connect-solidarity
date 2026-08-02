@@ -114,7 +114,7 @@ export default function EmbedReviews() {
         </div>
       )}
       {!loading && !error && business && (
-        <EmbedReviewsWidget business={business} reviews={reviews} platform={platform} lang={lang} />
+        <EmbedReviewsWidget business={business} reviews={reviews} platform={platform} lang={lang} ratio={ratio} size={size} />
       )}
     </div>
   );
