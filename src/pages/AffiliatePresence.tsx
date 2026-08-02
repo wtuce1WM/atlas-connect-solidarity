@@ -790,6 +790,7 @@ const AffiliatePresence = () => {
                     <TabsContent value="news">
                       <AffiliateNewsTab
                         businessName={currentBusiness.name}
+                        affiliateName={affiliateName}
                         slug={currentBusiness.slug}
                         onGoToTools={() => setActiveTab("tools")}
                         rights={{
