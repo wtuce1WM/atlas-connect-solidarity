@@ -103,31 +103,47 @@ Deno.serve(async (req) => {
     let q = supabase
       .from('businesses')
       .select(
-        'id, name, slug, city, neighborhood, categories, main_category, rating, total_review_count, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, hook_fr, description_fr, min_price, manual_price_range, ai_review_summary',
+        'id, name, slug, city, neighborhood, categories, main_category, rating, computed_rating, total_review_count, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, hook_fr, description_fr, min_price, manual_price_range, ai_review_summary',
       )
       .eq('is_active', true)
-      .order('rating', { ascending: false, nullsFirst: false })
-      .limit(count * 3);
+      .order('total_review_count', { ascending: false, nullsFirst: false })
+      .limit(count * 6);
 
     if (criteria.subcategory) q = q.contains('categories', [criteria.subcategory]);
     if (criteria.city) q = q.ilike('city', `%${criteria.city}%`);
     if (criteria.min_total_reviews) q = q.gte('total_review_count', criteria.min_total_reviews);
-    if (criteria.min_rating) q = q.gte('rating', criteria.min_rating);
 
     const { data: rows, error: qErr } = await q;
     if (qErr) throw qErr;
 
-    let candidates = (rows ?? []).filter((b) => {
-      if (!criteria.subcategory) return true;
-      // sous-catégorie par défaut = première de la liste
-      return (b.categories ?? [])[0] === criteria.subcategory;
-    });
-    if (candidates.length < count) candidates = rows ?? [];
-    candidates = candidates.slice(0, count);
+    // note /20 effective : note manuelle sinon note calculée depuis les plateformes
+    const score = (b: { rating: number | null; computed_rating: number | null }) =>
+      Number(b.rating ?? b.computed_rating ?? 0);
+
+    let pool = (rows ?? []).filter((b) =>
+      criteria.min_rating ? score(b) >= Number(criteria.min_rating) : true,
+    );
+
+    // sous-catégorie par défaut = première de la liste
+    let candidates = pool.filter((b) =>
+      criteria.subcategory ? (b.categories ?? [])[0] === criteria.subcategory : true,
+    );
+    if (candidates.length < count) candidates = pool;
+    candidates = candidates.sort((a, b) => score(b) - score(a)).slice(0, count);
 
     if (dry_run) {
-      return json({ criteria, candidates: candidates.map((c) => ({ id: c.id, name: c.name, city: c.city, rating: c.rating, reviews: c.total_review_count })) });
+      return json({
+        criteria,
+        candidates: candidates.map((c) => ({
+          id: c.id,
+          name: c.name,
+          city: c.city,
+          rating: score(c) || null,
+          reviews: c.total_review_count,
+        })),
+      });
     }
+
     if (candidates.length === 0) return json({ error: 'Aucun établissement ne correspond aux critères', criteria }, 422);
 
     // ---------- 3. Rédaction ----------
