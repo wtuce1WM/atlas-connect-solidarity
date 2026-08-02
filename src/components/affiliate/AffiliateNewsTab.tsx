@@ -1,4 +1,4 @@
-import { CheckCircle2, XCircle, Bot, MapPin, Newspaper, Mail, Star, CloudSun, Waves, ThumbsUp, BarChart3, Video, Globe2, Link2, ExternalLink } from "lucide-react";
+import { CheckCircle2, XCircle, Bot, MapPin, Newspaper, Mail, Star, CloudSun, Waves, ThumbsUp, BarChart3, Video, Globe2, ExternalLink } from "lucide-react";
 
 export type NewsRights = {
   aiAssistant: boolean;
