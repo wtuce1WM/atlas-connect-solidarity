@@ -652,6 +652,28 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
           </div>
         </div>
 
+        <div className="space-y-1.5">
+          <Label className="text-white/80 text-xs">Format d'affichage</Label>
+          <div className="flex gap-1 flex-wrap">
+            {Object.entries(REVIEW_PRESETS).map(([key, p]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setReviewsPreset(key)}
+                className={`text-xs py-1.5 px-3 rounded-md border ${reviewsPreset === key ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+              >
+                {p.label} · {p.w}×{p.h}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-white/50">
+            Le widget s'adapte aussi automatiquement à la taille de l'iframe : ces presets fixent simplement
+            width/height et le format recommandé.
+          </p>
+        </div>
+
+
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <div className="space-y-2">
             <Label className="text-white/80 text-xs">Code à copier (inline)</Label>
