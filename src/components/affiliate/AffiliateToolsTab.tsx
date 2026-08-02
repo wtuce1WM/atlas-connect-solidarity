@@ -707,6 +707,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
           </Button>
         </div>
       </div>
+      )}
 
       {/* ── Widget Avis clients ───────────────────────────────── */}
       <div className="space-y-3">
