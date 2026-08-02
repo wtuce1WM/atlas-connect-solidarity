@@ -13,6 +13,7 @@ export type NewsRights = {
 
 interface Props {
   businessName: string;
+  affiliateName?: string;
   slug: string | null;
   rights: NewsRights;
   onGoToTools?: () => void;
@@ -32,7 +33,18 @@ type Item = {
 
 const SITE = "https://oneworldmorocco.com";
 
-const AffiliateNewsTab = ({ businessName, slug, rights, onGoToTools }: Props) => {
+const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToTools }: Props) => {
+  const accountLabel = affiliateName?.trim() || "Compte affilié";
+
+  const LinkCell = ({ scope }: { scope: "Établissement" | "Compte affilié" }) => (
+    <div className="leading-tight">
+      <p className="text-white/80">{scope === "Établissement" ? businessName : accountLabel}</p>
+      <p className="text-[11px] text-white/40">
+        {scope === "Établissement" ? "Liaison établissement" : "Liaison compte affilié"}
+      </p>
+    </div>
+  );
+
   const items: Item[] = [
     {
       key: "ai",
