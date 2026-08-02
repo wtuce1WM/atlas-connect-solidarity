@@ -300,10 +300,13 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
       ${e.pretitle ? `<p style="margin:0 0 6px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#b45309">${esc(e.pretitle)}</p>` : ""}
       <h2 style="margin:0 0 10px;font-size:26px;line-height:1.25;font-family:Montserrat,Helvetica,Arial,sans-serif;color:#0f172a">${rankBadge}<a href="${link}" ${dataAttrs} target="_blank" rel="noopener" style="color:inherit;text-decoration:none">${esc(title)}</a></h2>
       ${place ? `<p style="margin:0 0 8px;font-size:14px;color:#6b7280">${esc(place)}</p>` : ""}
+      ${metaRow}
       ${e.hook ? `<p style="margin:0 0 10px;font-style:italic;font-size:17px;color:#b45309">« ${esc(e.hook)} »</p>` : ""}
       ${e.hours ? `<p style="margin:0 0 10px;font-size:14px;color:#6b7280">${esc(e.hours)}</p>` : ""}
       ${price}
       ${paras}
+      ${reviewBlock}
+
       <p style="margin:16px 0 0"><a href="${link}" ${dataAttrs} target="_blank" rel="noopener" style="display:inline-block;padding:10px 18px;border-radius:999px;background:#0f172a;color:#fff;font-size:14px;text-decoration:none">Voir la fiche sur One World Morocco</a></p>
     </article>`;
       })
