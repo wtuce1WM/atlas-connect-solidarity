@@ -639,6 +639,19 @@ const BlogArticleTemplate = ({
                     neighborhood: b.neighborhood,
                     rating: b.rating,
                   }));
+                poiPool.forEach((p) => {
+                  if (businesses[p.id]) return;
+                  pois.push({
+                    id: p.id,
+                    name: p.name,
+                    latitude: p.latitude,
+                    longitude: p.longitude,
+                    images: p.images,
+                    city: p.city,
+                    neighborhood: p.neighborhood,
+                    rating: p.rating,
+                  });
+                });
                 if (anchorPoi && anchorPoi.latitude != null && anchorPoi.longitude != null) {
                   pois.push({
                     id: "__anchor__",
@@ -656,8 +669,11 @@ const BlogArticleTemplate = ({
                     userLocation={userLocation}
                     userMarkerLabel={mapLabel("youAreHere", language)}
                     onPoiClick={(id) => {
-                      if (businesses[id]) openBusiness(id);
+                      if (id !== "__anchor__") openBusiness(id);
                     }}
+                  />
+                );
+
                   />
                 );
               })()}
