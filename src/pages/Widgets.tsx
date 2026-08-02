@@ -673,8 +673,10 @@ const Widgets = () => {
                 { name: "lang", value: "fr | en | ar" },
               ]}
               previewUrl={toPreview(weatherUrl)}
+              autoHeight
               previewHeight={320}
               previewMaxWidth={420}
+
               snippet={`<iframe src="${weatherUrl}" style="width:100%;max-width:420px;height:320px;border:0;border-radius:20px" title="Météo Marrakech" loading="lazy"></iframe>`}
             />
 
