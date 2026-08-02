@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { logBlogView } from "@/lib/blogAnalytics";
+
 import { useSEO } from "@/hooks/useSEO";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLocalizedNavigate } from "@/hooks/useLocalizedNavigate";
