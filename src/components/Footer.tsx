@@ -186,15 +186,15 @@ const Footer = ({ variant = "default", className }: FooterProps) => {
             <h4 className={`mb-4 font-semibold ${headingColor}`}>Contact</h4>
             <ul className={`space-y-3 ${textSecondary}`}>
               <li className="flex items-center gap-2">
-                <MapPin className="h-4 w-4" style={{ color: "#3B3B3B" }} />
+                <MapPin className={`h-4 w-4 ${headingColor}`} />
                 {t("footer.location")}
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4" style={{ color: "#3B3B3B" }} />
+                <Phone className={`h-4 w-4 ${headingColor}`} />
                 <a href="tel:+212661439221" className="hover:text-gold transition-colors">+212 661-439221</a>
               </li>
               <li className="flex items-center gap-2">
-                <Mail className="h-4 w-4" style={{ color: "#3B3B3B" }} />
+                <Mail className={`h-4 w-4 ${headingColor}`} />
                 info@wtuce.org
               </li>
             </ul>
