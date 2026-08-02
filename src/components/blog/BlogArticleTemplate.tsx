@@ -692,7 +692,11 @@ const BlogArticleTemplate = ({
             </div>
           </section>
 
+          {(() => {
+          const entriesBlock = (
+          <>
           {[...entries]
+
             .filter((e) => businesses[e.id])
             .sort((a, b) => {
               const fa = businesses[a.id]?.is_featured ? 1 : 0;
