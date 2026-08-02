@@ -268,8 +268,8 @@ const AffiliatePresence = () => {
   }, [navigate, toast]);
 
   const getBusinessCompleteness = (b: BusinessPresence) => {
-    const filled = PLATFORMS.filter(p => b.links[p.key]).length;
-    return { filled, total: PLATFORMS.length, percent: Math.round((filled / PLATFORMS.length) * 100) };
+    const filled = VISIBLE_PLATFORMS.filter(p => b.links[p.key]).length;
+    return { filled, total: VISIBLE_PLATFORMS.length, percent: Math.round((filled / VISIBLE_PLATFORMS.length) * 100) };
   };
 
   const handleFieldChange = (businessId: string, key: string, value: any) => {
@@ -545,7 +545,7 @@ const AffiliatePresence = () => {
                     <div>
                       <CardTitle className="text-lg">{currentBusiness.name}</CardTitle>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {getBusinessCompleteness(currentBusiness).filled}/{PLATFORMS.length} plateformes configurées
+                        {getBusinessCompleteness(currentBusiness).filled}/{VISIBLE_PLATFORMS.length} plateformes configurées
                       </p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -618,7 +618,7 @@ const AffiliatePresence = () => {
 
                     {/* Links Tab */}
                     <TabsContent value="links" className="space-y-3">
-                      {PLATFORMS.map(platform => {
+                      {VISIBLE_PLATFORMS.map(platform => {
                         const currentValue = getCurrentValue(currentBusiness.id, platform.key, currentBusiness.links[platform.key]);
                         const isFilled = !!currentValue;
                         const isEdited = editedFields[currentBusiness.id]?.[platform.key] !== undefined;
