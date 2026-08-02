@@ -520,7 +520,7 @@ const Widgets = () => {
   useSEO({
     title: "Widgets & iframes One World Morocco à intégrer",
     description:
-      "Météo, assistant IA, adresses à proximité, avis clients, articles : intégrez les widgets One World Morocco sur votre site ou celui de vos partenaires.",
+      "Météo, marées, assistant IA, adresses à proximité, avis clients, articles : intégrez les widgets One World Morocco sur votre site ou celui de vos partenaires.",
     canonical: "/widgets",
   });
 
@@ -573,7 +573,7 @@ const Widgets = () => {
               Les widgets One World Morocco
             </h1>
             <p className="text-xl text-muted-foreground leading-relaxed mb-6">
-              Météo locale, assistant IA conversationnel, adresses à proximité, avis clients vérifiés,
+              Météo locale, marées des villes côtières, assistant IA conversationnel, adresses à proximité, avis clients vérifiés,
               articles éditoriaux : chaque brique de la plateforme est disponible sous forme de widget
               accessible depuis une URL publique.
             </p>
@@ -610,8 +610,10 @@ const Widgets = () => {
               snippet={`<iframe src="${weatherUrl}" style="width:100%;max-width:420px;height:320px;border:0;border-radius:20px" title="Météo Marrakech" loading="lazy"></iframe>`}
             />
 
+            <TidesWidgetSection index={2} />
+
             <WidgetSection
-              index={2}
+              index={3}
               icon={<MessageSquare className="h-5 w-5" />}
               title="Widget Assistant IA"
               tagline="Un conseiller local intelligent, greffé à votre page."
@@ -643,7 +645,7 @@ const Widgets = () => {
             />
 
             <WidgetSection
-              index={3}
+              index={4}
               icon={<MapPin className="h-5 w-5" />}
               title="Widget Adresses à proximité"
               tagline="Les meilleures adresses autour d'un point, sur carte ou en liste."
@@ -659,10 +661,10 @@ const Widgets = () => {
               snippet={`<iframe src="${nearbyUrl}" style="width:100%;max-width:520px;height:620px;border:0;border-radius:20px" title="Adresses à proximité" loading="lazy"></iframe>`}
             />
 
-            <ReviewsWidgetSection index={4} />
+            <ReviewsWidgetSection index={5} />
 
             <WidgetSection
-              index={5}
+              index={6}
               icon={<Newspaper className="h-5 w-5" />}
               title="Export d'article de blog"
               tagline="Votre article éditorial, republié sur votre propre domaine."
