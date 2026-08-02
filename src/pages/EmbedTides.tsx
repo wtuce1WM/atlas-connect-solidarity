@@ -1,6 +1,6 @@
 // Standalone embeddable tides page: /embed/tides?city=Essaouira&lang=fr&picker=1
 // Designed to be loaded in an <iframe> from any external site.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import EmbedTidesWidget, { type TidesPayload } from "@/components/embed/EmbedTidesWidget";
 
@@ -74,24 +74,30 @@ export default function EmbedTides() {
   }, [city, lang]);
 
   // Report height so the host page can auto-resize the iframe.
+  // On mesure le conteneur du widget (et non documentElement) pour éviter toute
+  // boucle de croissance quand l'hôte redimensionne l'iframe.
+  const rootRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
     const post = () => {
       window.parent?.postMessage(
-        { type: "owm-tides-height", height: document.documentElement.scrollHeight },
+        { type: "owm-tides-height", height: Math.ceil(el.getBoundingClientRect().height) },
         "*",
       );
     };
     post();
-    const t = window.setTimeout(post, 300);
-    window.addEventListener("resize", post);
-    return () => {
-      window.clearTimeout(t);
-      window.removeEventListener("resize", post);
-    };
-  }, [data, loading, error]);
+    const ro = new ResizeObserver(post);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [data, loading, error, showPicker]);
 
   return (
-    <div className="w-full min-h-0 p-2 mx-auto flex flex-col items-center gap-2 bg-transparent max-w-[520px]">
+    <div
+      ref={rootRef}
+      className="w-full min-h-0 p-2 mx-auto flex flex-col items-center gap-2 bg-transparent max-w-[520px]"
+    >
+
       {showPicker && cities.length > 0 && (
         <div className="w-full max-w-[520px]">
           <label className="sr-only" htmlFor="owm-tide-city">

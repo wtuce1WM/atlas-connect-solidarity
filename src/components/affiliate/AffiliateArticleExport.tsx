@@ -45,7 +45,43 @@ interface Biz {
   images: string[] | null;
   min_price: number | null;
   manual_price_range: string | null;
+  computed_rating: number | null;
+  total_review_count: number | null;
+  latitude: number | null;
+  longitude: number | null;
 }
+
+interface DefaultReview {
+  author_name: string | null;
+  rating: number | null;
+  source: string | null;
+  text: string | null;
+  text_fr: string | null;
+  text_en: string | null;
+  text_ar: string | null;
+}
+
+const BIZ_FIELDS =
+  "id, name, slug, city, neighborhood, images, min_price, manual_price_range, computed_rating, total_review_count, latitude, longitude";
+
+const distanceKm = (
+  aLat?: number | null,
+  aLng?: number | null,
+  bLat?: number | null,
+  bLng?: number | null,
+) => {
+  if (aLat == null || aLng == null || bLat == null || bLng == null) return null;
+  const R = 6371;
+  const dLat = ((bLat - aLat) * Math.PI) / 180;
+  const dLng = ((bLng - aLng) * Math.PI) / 180;
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((aLat * Math.PI) / 180) * Math.cos((bLat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+};
+
+const formatDistance = (km: number) =>
+  km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(km < 10 ? 1 : 0)} km`;
 
 const abs = (url?: string | null) => {
   if (!url) return "";
@@ -55,6 +91,7 @@ const abs = (url?: string | null) => {
 
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
 
 interface Props {
   businessId: string | null;
@@ -67,7 +104,21 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
   const [selectedId, setSelectedId] = useState<string>("");
   const [lang, setLang] = useState<Lang>("fr");
   const [bizMap, setBizMap] = useState<Record<string, Biz>>({});
+  const [reviewMap, setReviewMap] = useState<Record<string, DefaultReview>>({});
+  const [owner, setOwner] = useState<Biz | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Établissement propriétaire (référence pour les distances)
+  useEffect(() => {
+    if (!businessId) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.from("businesses").select(BIZ_FIELDS).eq("id", businessId).maybeSingle();
+      if (!cancelled && data) setOwner(data as unknown as Biz);
+    })();
+    return () => { cancelled = true; };
+  }, [businessId]);
+
 
   useEffect(() => {
     if (!businessId) { setLoading(false); return; }
@@ -109,7 +160,7 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
     (async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("id, name, slug, city, neighborhood, images, min_price, manual_price_range")
+        .select(BIZ_FIELDS)
         .in("id", missing);
       if (cancelled || !data) return;
       setBizMap((prev) => {
@@ -120,6 +171,35 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
     })();
     return () => { cancelled = true; };
   }, [entries, bizMap]);
+
+  // Avis « Par défaut » (sinon le mieux noté) de chaque établissement de l'article
+  useEffect(() => {
+    const ids = entries.map((e) => e.id).filter(Boolean);
+    const missing = ids.filter((id) => !(id in reviewMap));
+    if (missing.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("reviews")
+        .select("business_id, author_name, rating, source, text, text_fr, text_en, text_ar, is_default")
+        .in("business_id", missing)
+        .eq("is_hidden", false)
+        .order("is_default", { ascending: false })
+        .order("rating", { ascending: false, nullsFirst: false })
+        .limit(500);
+      if (cancelled) return;
+      setReviewMap((prev) => {
+        const next = { ...prev };
+        missing.forEach((id) => { next[id] = next[id] ?? (null as unknown as DefaultReview); });
+        ((data as any[]) || []).forEach((r) => {
+          if (!next[r.business_id]) next[r.business_id] = r as DefaultReview;
+        });
+        return next;
+      });
+    })();
+    return () => { cancelled = true; };
+  }, [entries, reviewMap]);
+
 
   const articleTitle = post
     ? (lang === "en" ? post.title_en : lang === "ar" ? post.title_ar : post.title_fr) || post.title_fr
@@ -152,8 +232,58 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
         const dataAttrs = `data-owm-panel="${idx}"`;
 
         const place = [b?.neighborhood, b?.city].filter(Boolean).join(" · ");
-        const rankBadge = e.rank
-          ? `<span style="display:inline-block;padding:4px 12px;margin-right:10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(135deg,#F4CF7A,#D4AF37 55%,#8A6A1A);color:#111">${medal(e.rank)} N°${e.rank}</span>`
+        const rankBadge =
+          e.rank && e.rank >= 1 && e.rank <= 3
+            ? `<span style="display:inline-block;padding:4px 12px;margin-right:10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(135deg,#F4CF7A,#D4AF37 55%,#8A6A1A);color:#111">${medal(e.rank)} N°${e.rank}</span>`
+            : "";
+
+        // Badge avis clients : note /20 + nombre d'avis
+        const rating20 = b?.computed_rating && b.computed_rating > 0 ? b.computed_rating : null;
+        const reviewCount = b?.total_review_count && b.total_review_count > 0 ? b.total_review_count : null;
+        const reviewsBadge =
+          rating20 || reviewCount
+            ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:13px;font-weight:700;background:#fdf6e3;border:1px solid #e6cf8a;color:#8A6A1A">★ ${
+                rating20 ? `${rating20}<span style="font-weight:600;color:#a1874a">/20</span>` : "—"
+              }${reviewCount ? `<span style="font-weight:500;color:#6b7280">· ${reviewCount.toLocaleString("fr-FR")} avis</span>` : ""}</span>`
+            : "";
+
+        // Distance par rapport à l'établissement propriétaire
+        const dKm =
+          owner && b && owner.id !== b.id
+            ? distanceKm(owner.latitude, owner.longitude, b.latitude, b.longitude)
+            : null;
+        const distanceBadge =
+          dKm != null
+            ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;background:#f1f5f9;border:1px solid #e2e8f0;color:#0f172a">📍 ${formatDistance(
+                dKm,
+              )} de ${esc(owner!.name)}</span>`
+            : "";
+        const metaRow =
+          reviewsBadge || distanceBadge
+            ? `<p style="margin:0 0 12px;display:flex;flex-wrap:wrap;gap:8px">${reviewsBadge}${distanceBadge}</p>`
+            : "";
+
+        // Avis client mis en avant (« Par défaut », sinon le mieux noté)
+        const rv = reviewMap[e.id];
+        const rvText = rv
+          ? (lang === "ar"
+              ? rv.text_ar || rv.text_fr || rv.text_en || rv.text
+              : lang === "en"
+                ? rv.text_en || rv.text_fr || rv.text
+                : rv.text_fr || rv.text) || ""
+          : "";
+        const sourceLabel = (rv?.source || "")
+          .replace(/_/g, " ")
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+        const reviewBlock = rvText.trim()
+          ? `<blockquote style="margin:0 0 14px;padding:14px 16px;border-left:3px solid #D4AF37;background:#fbfaf7;border-radius:0 12px 12px 0">
+        <p style="margin:0 0 8px;font-size:15px;line-height:1.65;color:#374151">« ${esc(
+          rvText.length > 600 ? `${rvText.slice(0, 600)}…` : rvText,
+        )} »</p>
+        <p style="margin:0;font-size:13px;color:#6b7280">${esc(rv.author_name || "Client")}${
+          rv.rating ? ` · ${rv.rating}/5` : ""
+        }${sourceLabel ? ` · ${esc(sourceLabel)}` : ""}</p>
+      </blockquote>`
           : "";
         const price =
           b?.min_price && b.min_price > 0
@@ -161,6 +291,7 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
             : b?.manual_price_range
               ? `<p style="margin:0 0 10px;font-size:14px;color:#6b7280">${esc(b.manual_price_range)}</p>`
               : "";
+
         const paras = (e.paragraphs ?? [])
           .map((p) => `<p style="margin:0 0 14px;line-height:1.7;color:#1f2937">${esc(p)}</p>`)
           .join("\n        ");
@@ -169,10 +300,13 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
       ${e.pretitle ? `<p style="margin:0 0 6px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#b45309">${esc(e.pretitle)}</p>` : ""}
       <h2 style="margin:0 0 10px;font-size:26px;line-height:1.25;font-family:Montserrat,Helvetica,Arial,sans-serif;color:#0f172a">${rankBadge}<a href="${link}" ${dataAttrs} target="_blank" rel="noopener" style="color:inherit;text-decoration:none">${esc(title)}</a></h2>
       ${place ? `<p style="margin:0 0 8px;font-size:14px;color:#6b7280">${esc(place)}</p>` : ""}
+      ${metaRow}
       ${e.hook ? `<p style="margin:0 0 10px;font-style:italic;font-size:17px;color:#b45309">« ${esc(e.hook)} »</p>` : ""}
       ${e.hours ? `<p style="margin:0 0 10px;font-size:14px;color:#6b7280">${esc(e.hours)}</p>` : ""}
       ${price}
       ${paras}
+      ${reviewBlock}
+
       <p style="margin:16px 0 0"><a href="${link}" ${dataAttrs} target="_blank" rel="noopener" style="display:inline-block;padding:10px 18px;border-radius:999px;background:#0f172a;color:#fff;font-size:14px;text-decoration:none">Voir la fiche sur One World Morocco</a></p>
     </article>`;
       })
@@ -233,7 +367,7 @@ ${blocks}
   </footer>
 </section>
 ${panelScript}`;
-  }, [post, entries, bizMap, lang, articleTitle, intro, businessName]);
+  }, [post, entries, bizMap, reviewMap, owner, lang, articleTitle, intro, businessName]);
 
 
   const copy = async () => {
