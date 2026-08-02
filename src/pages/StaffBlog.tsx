@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { LogOut, ArrowLeft, LayoutDashboard, Newspaper, UserSquare2, LayoutTemplate } from "lucide-react";
 import BlogManagement from "@/components/staff/BlogManagement";
 import BlogDashboard from "@/components/staff/BlogDashboard";
-
+import BlogTemplates from "@/components/staff/BlogTemplates";
 import OwnerArticlesManagement from "@/components/staff/OwnerArticlesManagement";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -116,9 +116,7 @@ const StaffBlog = () => {
           </TabsContent>
 
           <TabsContent value="templates">
-            <div className="text-sm text-muted-foreground py-10 text-center">
-              Templates — à venir.
-            </div>
+            <BlogTemplates />
           </TabsContent>
         </Tabs>
       </main>
