@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Lock, Mail, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
+import Footer from "@/components/Footer";
 
 const hasBackofficeAccess = (roles: Array<{ role: string }> | null | undefined) =>
   !!roles?.some((r) => r.role === "admin" || r.role === "staff");
@@ -121,8 +122,9 @@ const StaffLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-foreground flex flex-col items-center justify-center px-4 pt-24">
+    <div className="min-h-screen bg-foreground flex flex-col">
       <HomeMindtripHeader />
+      <main className="flex-1 flex flex-col items-center justify-center px-4 pt-24 pb-16">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <a href="/" className="inline-flex items-center gap-2 mb-6">
@@ -203,6 +205,8 @@ const StaffLogin = () => {
           </a>
         </div>
       </div>
+      </main>
+      <Footer />
     </div>
   );
 };
