@@ -18,11 +18,16 @@ interface BlogPost {
   title_en: string | null;
   title_ar: string | null;
   slug: string;
+  template: string | null;
   excerpt_fr: string | null;
   excerpt_en: string | null;
   excerpt_ar: string | null;
   content_en: string | null;
   content_ar: string | null;
+  intro_en: string | null;
+  intro_ar: string | null;
+  entries_en: unknown[] | null;
+  entries_ar: unknown[] | null;
   cover_image_url: string | null;
   published_at: string | null;
   created_at: string;
@@ -32,7 +37,23 @@ interface BlogPost {
 }
 
 const SELECT_COLS =
-  "id, title_fr, title_en, title_ar, slug, excerpt_fr, excerpt_en, excerpt_ar, content_en, content_ar, cover_image_url, published_at, created_at, updated_at, is_published, is_pinned";
+  "id, title_fr, title_en, title_ar, slug, template, excerpt_fr, excerpt_en, excerpt_ar, content_en, content_ar, intro_en, intro_ar, entries_en, entries_ar, cover_image_url, published_at, created_at, updated_at, is_published, is_pinned";
+
+/** Un article est traduit si le titre existe ET qu'il y a du contenu dans la langue,
+ *  quel que soit le support : entries (template article), intro, ou content (legacy HTML). */
+const hasTranslation = (
+  title: string | null,
+  content: string | null,
+  intro: string | null,
+  entries: unknown[] | null,
+) => {
+  if (!title || !title.trim()) return false;
+  if (Array.isArray(entries) && entries.length > 0) return true;
+  if (intro && intro.trim()) return true;
+  if (content && content.trim()) return true;
+  return false;
+};
+
 
 interface BlogManagementProps {
   /** "standard" = articles sans anchor_business_id (par défaut). "owner" = articles avec anchor_business_id. */
