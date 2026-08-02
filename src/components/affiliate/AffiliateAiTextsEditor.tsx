@@ -65,6 +65,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
   const [texts, setTexts] = useState<AiText[]>([]);
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState(MODES[0].value);
+  const [length, setLength] = useState("short");
   const [extra, setExtra] = useState("");
   const [generating, setGenerating] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -73,7 +74,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
     setLoading(true);
     const { data, error } = await supabase
       .from("business_ai_texts")
-      .select("id,title,hook,content,source_mode,position,is_active")
+      .select(SELECT_COLS)
       .eq("business_id", businessId)
       .order("position", { ascending: true });
     if (error) toast.error("Chargement impossible : " + error.message);
@@ -91,7 +92,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-business-ai-text", {
-        body: { business_id: businessId, mode, extra_instructions: extra },
+        body: { business_id: businessId, mode, length, extra_instructions: extra },
       });
       if (error) throw error;
       if ((data as any)?.error) {
@@ -106,8 +107,10 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
           title, hook, content,
           source_mode: mode,
           position: texts.length,
+          length_mode: length,
+          extra_instructions: extra.trim() || null,
         })
-        .select("id,title,hook,content,source_mode,position,is_active")
+        .select(SELECT_COLS)
         .single();
       if (insErr) throw insErr;
       setTexts((prev) => [...prev, inserted as AiText]);
@@ -127,7 +130,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
     const { data, error } = await supabase
       .from("business_ai_texts")
       .insert({ business_id: businessId, source_mode: mode, position: texts.length })
-      .select("id,title,hook,content,source_mode,position,is_active")
+      .select(SELECT_COLS)
       .single();
     if (error) return toast.error(error.message);
     setTexts((prev) => [...prev, data as AiText]);
