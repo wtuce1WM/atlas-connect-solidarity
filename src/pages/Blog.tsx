@@ -129,10 +129,10 @@ const Blog = () => {
                   return (
                     <Link key={`post-${post.id}`} to={withLangPrefix(`/blog/${post.slug}`, language)}>
                       <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full relative">
-                        {post.cover_image_url && (
+                        {(post.custom_hero_image_url || post.cover_image_url) && (
                           <div className="aspect-video overflow-hidden">
                             <img
-                              src={post.cover_image_url}
+                              src={post.custom_hero_image_url || post.cover_image_url || undefined}
                               alt={getTitle(post)}
                               className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                               loading="lazy"
