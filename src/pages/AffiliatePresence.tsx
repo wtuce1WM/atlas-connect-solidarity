@@ -15,7 +15,7 @@ import Footer from "@/components/Footer";
 import HScroll from "@/components/HScroll";
 import {
   Loader2, Globe, CheckCircle2, AlertCircle, ExternalLink,
-  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench, Wand2, BarChart3, LogOut, Globe2, Newspaper
+  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench, Wand2, BarChart3, LogOut, Globe2, Newspaper, Scale
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
 import { type OpeningHours } from "@/components/staff/OpeningHoursEditor";
