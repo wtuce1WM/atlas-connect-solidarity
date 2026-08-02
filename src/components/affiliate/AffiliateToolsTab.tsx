@@ -539,6 +539,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
 
       {/* ---------- Widget « À proximité » (overlay POI) ---------- */}
+      {rights.nearbyWidget && (
       <div className="space-y-3">
         <h3 className="text-white font-semibold flex items-center gap-2">
           <MapPin className="h-4 w-4" /> Widget « À proximité » (carte + établissements autour de vous)
