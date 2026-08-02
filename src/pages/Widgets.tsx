@@ -289,14 +289,14 @@ const TidesWidgetSection = ({ index }: { index: number }) => {
           </h3>
           <iframe
             key={url}
-            src={url}
+            src={toPreview(url)}
             title="Widget Marées"
             loading="lazy"
             style={{ width: "100%", maxWidth: 520, height, border: 0, borderRadius: 20 }}
             className="bg-card shadow-lg"
           />
           <a
-            href={url}
+            href={toPreview(url)}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
@@ -494,14 +494,14 @@ const ReviewsWidgetSection = ({ index }: { index: number }) => {
           </h3>
           <iframe
             key={url}
-            src={url}
+            src={toPreview(url)}
             title="Avis clients"
             loading="lazy"
             style={{ width: "100%", maxWidth: preset.w, height: preset.h, border: 0, borderRadius: 20 }}
             className="bg-card shadow-lg"
           />
           <a
-            href={url}
+            href={toPreview(url)}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
