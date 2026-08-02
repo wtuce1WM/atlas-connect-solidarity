@@ -913,9 +913,11 @@ export type Database = {
           business_id: string
           content: string
           created_at: string
+          extra_instructions: string | null
           hook: string
           id: string
           is_active: boolean
+          length_mode: string | null
           model: string | null
           position: number
           source_mode: string
@@ -926,9 +928,11 @@ export type Database = {
           business_id: string
           content?: string
           created_at?: string
+          extra_instructions?: string | null
           hook?: string
           id?: string
           is_active?: boolean
+          length_mode?: string | null
           model?: string | null
           position?: number
           source_mode?: string
@@ -939,9 +943,11 @@ export type Database = {
           business_id?: string
           content?: string
           created_at?: string
+          extra_instructions?: string | null
           hook?: string
           id?: string
           is_active?: boolean
+          length_mode?: string | null
           model?: string | null
           position?: number
           source_mode?: string
