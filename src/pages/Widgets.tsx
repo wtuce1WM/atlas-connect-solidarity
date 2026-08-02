@@ -698,12 +698,6 @@ const RateUsWidgetSection = ({ index }: { index: number }) => {
 };
 
 
-const RATE_PLATFORMS = [
-  { key: "all", label: "Google + TripAdvisor" },
-  { key: "google", label: "Google" },
-  { key: "tripadvisor", label: "TripAdvisor" },
-] as const;
-
 const EmailSignatureWidgetSection = ({ index }: { index: number }) => {
   const [platform, setPlatform] = useState<string>("all");
   const [lang, setLang] = useState<"fr" | "en" | "ar">("fr");
