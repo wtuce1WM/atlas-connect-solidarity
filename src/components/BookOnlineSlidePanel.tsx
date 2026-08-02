@@ -188,7 +188,10 @@ interface BookOnlineSlidePanelProps {
   embedMode?: boolean;
   /** Widget only: custom hex base color for the Google map background */
   mapBaseColor?: string | null;
+  /** Widget only: map theme override (default-light = native Google Maps colors) */
+  mapTheme?: "light" | "dark" | "default-light" | "default-dark";
 }
+
 
 const BookOnlineSlidePanelInner = ({
   businessId: propBusinessId, onClose, externalOverlayActive, forceMuted, interceptCloseRef,
@@ -197,7 +200,7 @@ const BookOnlineSlidePanelInner = ({
   onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl,
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
   onPrev, onNext, hasPrev, hasNext,
-  hideDirections, hideSecondaryCtas, initialOverlay, embedMode, mapBaseColor,
+  hideDirections, hideSecondaryCtas, initialOverlay, embedMode, mapBaseColor, mapTheme,
 }: BookOnlineSlidePanelProps) => {
   // Aliases: callers from SlidePanelHome migration use onPrev/onNext naming.
   const effectiveOnPrev = onPrevBusiness ?? onPrev;
