@@ -250,7 +250,11 @@ const BlogPost = () => {
         anchorPoi={anchorFromBusiness ?? post.anchor_poi ?? undefined}
         embedBackSlug={embedSlug ?? undefined}
         customHeroImageMobile={post.custom_hero_image_mobile_url ?? undefined}
-        poiMapMode={post.poi_map_mode === "all_poi" ? "all_poi" : undefined}
+        poiMapMode={
+          post.poi_map_mode === "all_poi" || post.poi_map_mode === "near_10km"
+            ? (post.poi_map_mode as "all_poi" | "near_10km")
+            : undefined
+        }
         editorialSections={
           pickLang(post.editorial_sections_fr, post.editorial_sections_en, post.editorial_sections_ar) ?? undefined
         }
