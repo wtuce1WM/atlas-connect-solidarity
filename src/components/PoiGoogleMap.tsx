@@ -42,6 +42,8 @@ interface PoiGoogleMapProps {
   mapTheme?: "light" | "dark" | "default-light" | "default-dark";
   /** When true, shows native map type control (Plan/Satellite/Relief) + Traffic/Transit toggle buttons. */
   showLayerControls?: boolean;
+  /** Optional hex color (e.g. "#EFE6D8") overriding the light theme base/landscape color (widgets only). */
+  baseColor?: string | null;
 }
 
 const LIGHT_MAP_STYLES: google.maps.MapTypeStyle[] = [
@@ -70,6 +72,43 @@ const LIGHT_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
   { featureType: "administrative.neighborhood", elementType: "labels.text.fill", stylers: [{ color: "#1c1510" }] },
 ];
+
+/** Shifts a hex color's lightness by `amount` (-255..255) — used to derive roads/landmass tints. */
+const shadeHex = (hex: string, amount: number): string => {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return hex;
+  const n = parseInt(m[1], 16);
+  const clamp = (v: number) => Math.max(0, Math.min(255, Math.round(v)));
+  const r = clamp(((n >> 16) & 255) + amount);
+  const g = clamp(((n >> 8) & 255) + amount);
+  const b = clamp((n & 255) + amount);
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`;
+};
+
+/** Light theme with a custom base color (widget embeds). */
+const buildLightStylesWithBase = (base: string): google.maps.MapTypeStyle[] => {
+  const manMade = shadeHex(base, -12);
+  const road = shadeHex(base, 18);
+  const roadStroke = shadeHex(base, -22);
+  const roadLocal = shadeHex(base, 8);
+  return LIGHT_MAP_STYLES.map((s) => {
+    const key = `${s.featureType || ""}|${s.elementType || ""}`;
+    const override: Record<string, string> = {
+      "|geometry": base,
+      "|labels.text.stroke": base,
+      "landscape|geometry": base,
+      "landscape.man_made|geometry": manMade,
+      "road|geometry": road,
+      "road|geometry.stroke": roadStroke,
+      "road.highway|geometry": road,
+      "road.highway|geometry.stroke": roadStroke,
+      "road.arterial|geometry": road,
+      "road.local|geometry": roadLocal,
+    };
+    const color = override[key];
+    return color ? { ...s, stylers: [{ color }] } : s;
+  });
+};
 
 // Dark 1WM palette — deep neutral base with warm terracotta/gold accents for roads & labels
 const DARK_MAP_STYLES: google.maps.MapTypeStyle[] = [
@@ -297,7 +336,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     }
   };
 
-const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls }: PoiGoogleMapProps) => {
+const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls, baseColor }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -388,7 +427,11 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       (opts as any).colorScheme = mapTheme === "default-dark" ? "DARK" : "LIGHT";
       opts.styles = [];
     } else {
-      opts.styles = mapTheme === "dark" ? DARK_MAP_STYLES : LIGHT_MAP_STYLES;
+      opts.styles = mapTheme === "dark"
+        ? DARK_MAP_STYLES
+        : baseColor
+          ? buildLightStylesWithBase(baseColor)
+          : LIGHT_MAP_STYLES;
     }
     mapRef.current = new gmaps.Map(containerRef.current, opts);
     infoWindowRef.current = new gmaps.InfoWindow();
@@ -409,8 +452,14 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   useEffect(() => {
     const map = mapRef.current;
     if (!map || isNativeTheme) return;
-    map.setOptions({ styles: mapTheme === "dark" ? DARK_MAP_STYLES : LIGHT_MAP_STYLES });
-  }, [mapTheme, ready, isNativeTheme]);
+    map.setOptions({
+      styles: mapTheme === "dark"
+        ? DARK_MAP_STYLES
+        : baseColor
+          ? buildLightStylesWithBase(baseColor)
+          : LIGHT_MAP_STYLES,
+    });
+  }, [mapTheme, ready, isNativeTheme, baseColor]);
 
   // Traffic / Transit layer toggles
   useEffect(() => {

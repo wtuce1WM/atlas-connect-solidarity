@@ -37,6 +37,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
   const [embedHeight, setEmbedHeight] = useState<number>(640);
   const [nearbyLang, setNearbyLang] = useState<"fr" | "en" | "ar">("fr");
   const [nearbyHeight, setNearbyHeight] = useState<number>(720);
+  const [nearbyBg, setNearbyBg] = useState<string>("");
   const [reviewsPlatform, setReviewsPlatform] = useState<ReviewPlatformKey>("all");
   const [reviewsLang, setReviewsLang] = useState<"fr" | "en" | "ar">("fr");
   const [reviewsPreset, setReviewsPreset] = useState<string>("v-sm");
@@ -115,7 +116,8 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
     [embedUrl, businessName]
   );
 
-  const nearbyUrl = `${SITE}/embed/nearby/${slug}?lang=${nearbyLang}`;
+  const nearbyBgValid = /^#[0-9a-fA-F]{6}$/.test(nearbyBg);
+  const nearbyUrl = `${SITE}/embed/nearby/${slug}?lang=${nearbyLang}${nearbyBgValid ? `&bg=${nearbyBg.slice(1)}` : ""}`;
   const nearbySnippet = useMemo(
     () =>
       `<iframe src="${nearbyUrl}" style="width:100%;height:${nearbyHeight}px;border:0;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.15)" title="À proximité — ${businessName}" loading="lazy" allow="geolocation"></iframe>`,
@@ -552,6 +554,36 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
                   {l.toUpperCase()}
                 </Button>
               ))}
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-white/80 text-xs">Fond de carte</Label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={nearbyBgValid ? nearbyBg : "#EFE6D8"}
+                onChange={(e) => setNearbyBg(e.target.value.toUpperCase())}
+                className="h-9 w-10 rounded-md bg-white/10 border border-white/20 p-1 cursor-pointer"
+                aria-label="Couleur de fond de la carte"
+              />
+              <input
+                type="text"
+                placeholder="#EFE6D8"
+                value={nearbyBg}
+                onChange={(e) => setNearbyBg(e.target.value.toUpperCase())}
+                className="w-28 rounded-md bg-white/10 border border-white/20 text-white text-sm px-3 py-2 font-mono"
+              />
+              {nearbyBg && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setNearbyBg("")}
+                  className="text-white border-white/20 hover:bg-white/10 hover:text-white"
+                >
+                  Défaut
+                </Button>
+              )}
             </div>
           </div>
           <div className="space-y-1">

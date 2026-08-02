@@ -24,6 +24,11 @@ const EmbedNearby = () => {
   const lang: Lang = langParam === "en" || langParam === "ar" ? (langParam as Lang) : "fr";
   const L = MESSAGES[lang];
 
+  const bgParam = params.get("bg") || "";
+  const mapBaseColor = /^#?[0-9a-fA-F]{6}$/.test(bgParam)
+    ? (bgParam.startsWith("#") ? bgParam : `#${bgParam}`)
+    : null;
+
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
 
@@ -73,6 +78,7 @@ const EmbedNearby = () => {
             businessId={businessId}
             initialOverlay="poi"
             embedMode
+            mapBaseColor={mapBaseColor}
             hideDirections
             onClose={() => { /* embed: pas de fermeture, l'overlay reste affiché */ }}
           />
