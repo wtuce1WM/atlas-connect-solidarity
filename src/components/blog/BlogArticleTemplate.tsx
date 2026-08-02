@@ -114,7 +114,14 @@ export interface BlogArticleTemplateProps {
   anchorPoi?: { name: string; latitude: number; longitude: number } | null;
   /** When set, render in embed mode (no site header/footer/bottom bar) and back-button returns to /embed/ask/{embedBackSlug}. */
   embedBackSlug?: string | null;
+  /** Optional portrait hero used on mobile (<768px) via <picture>. */
+  customHeroImageMobile?: string;
+  /** "all_poi" = display every active POI of the database on the article map. */
+  poiMapMode?: "all_poi" | null;
+  /** Long-form editorial sections (prose + embedded widgets). When provided, they drive the page layout. */
+  editorialSections?: BlogEditorialSection[];
 }
+
 
 const DEFAULT_SITE_URL = "https://oneworldmorocco.com";
 
