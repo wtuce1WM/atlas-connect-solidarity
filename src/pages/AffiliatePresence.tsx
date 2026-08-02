@@ -130,6 +130,7 @@ const AffiliatePresence = () => {
   const [cities, setCities] = useState<CityOption[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<NeighborhoodOption[]>([]);
   const [affiliateId, setAffiliateId] = useState<string | null>(null);
+  const [affiliateName, setAffiliateName] = useState<string>("");
   const [maxBusinesses, setMaxBusinesses] = useState<number | null>(null);
   const [hasDashboard, setHasDashboard] = useState(false);
   const [hasVideoStudio, setHasVideoStudio] = useState(false);
