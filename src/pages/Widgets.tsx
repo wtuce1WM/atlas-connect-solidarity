@@ -255,7 +255,9 @@ const Widgets = () => {
               icon={<CloudSun className="h-5 w-5" />}
               title="Widget Météo"
               tagline="La météo d'une ville marocaine, en direct et sans clé API."
+              price="Gratuit"
               description="Températures actuelles, conditions et prévisions pour Marrakech, Essaouira ou toute autre ville couverte. Compact, sobre, signé oneworldmorocco.com. Une version JSON de l'API est également disponible pour un affichage entièrement sur-mesure."
+
               params={[
                 { name: "city", value: "Marrakech, Essaouira…" },
                 { name: "lang", value: "fr | en | ar" },
