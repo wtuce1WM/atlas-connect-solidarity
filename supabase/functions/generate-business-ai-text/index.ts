@@ -235,7 +235,7 @@ Règles absolues :
         businessId,
         context: "affiliate_ai_text",
         model: MODEL,
-        metadata: { mode },
+        metadata: { mode, length: lengthKey },
       },
     );
 
