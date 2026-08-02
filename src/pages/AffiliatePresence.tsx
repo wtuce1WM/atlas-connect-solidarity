@@ -829,6 +829,11 @@ const AffiliatePresence = () => {
                       />
                     </TabsContent>
 
+                    {/* AI Texts Tab */}
+                    <TabsContent value="aitexts">
+                      <AffiliateAiTextsEditor key={currentBusiness.id} businessId={currentBusiness.id} />
+                    </TabsContent>
+
                     {/* Blocks Tab */}
                     <TabsContent value="blocks">
                       <AffiliateHighlightsEditor businessId={currentBusiness.id} />
