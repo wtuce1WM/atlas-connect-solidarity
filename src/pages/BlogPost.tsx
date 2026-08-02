@@ -18,6 +18,7 @@ import BlogArticleTemplate, {
   type BlogArticleEntry,
   type BlogArticleVideo,
   type BlogArticleFaqItem,
+  type BlogEditorialSection,
 } from "@/components/blog/BlogArticleTemplate";
 import {
   fetchBlogVideoSection,
