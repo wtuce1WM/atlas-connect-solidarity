@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -15,7 +16,7 @@ import {
 } from "lucide-react";
 
 interface FieldRowProps {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   description: string;
   optional?: boolean;
