@@ -2769,10 +2769,10 @@ const BookOnlineSlidePanelInner = ({
         const afterCat = activeFrontTab
           ? activePoiCategoryBusinesses
           : poiBusinesses;
-        // Pill POI : uniquement la sous-catégorie par défaut de chaque POI,
+        // Pill POI : uniquement la 1ʳᵉ sous-catégorie (sous-catégorie par défaut) de chaque POI,
         // calculée sur l'ensemble des résultats (pas seulement le Top 20).
         const defaultSubcatOf = (p: typeof poiBusinesses[number]) =>
-          (p.default_service || "").trim() || null;
+          ((p.categories || [])[0] || "").trim() || null;
         const poiSubcatCounts = new Map<string, number>();
         for (const p of afterCat) {
           const sc = defaultSubcatOf(p);
