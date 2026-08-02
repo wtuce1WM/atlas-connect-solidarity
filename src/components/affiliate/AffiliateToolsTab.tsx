@@ -868,10 +868,13 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
                 loading="lazy"
               />
             </div>
+          </div>
+        </div>
       </div>
 
       {/* ── Signature email (HTML statique) ───────────────────── */}
       <div className="space-y-3">
+
         <h3 className="text-white font-semibold flex items-center gap-2">
           <Mail className="h-4 w-4" /> Signature email « Laisser un avis » (HTML statique)
         </h3>
