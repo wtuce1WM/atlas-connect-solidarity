@@ -1,5 +1,5 @@
 // Page embarquable « Laisser un avis » : /embed/avis/:slug?platform=all|google|tripadvisor&lang=fr&variant=card|bar
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { tripadvisorReviewUrl } from "@/lib/tripadvisorUrl";
@@ -93,24 +93,25 @@ export default function EmbedRateUs() {
     };
   }, [slug, platform]);
 
-  // Hauteur publiée pour l'auto-resize côté hôte.
+  // Hauteur publiée pour l'auto-resize côté hôte : mesurée sur le conteneur
+  // (et non documentElement.scrollHeight) pour éviter la boucle de croissance.
+  const rootRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
     const post = () =>
       window.parent?.postMessage(
-        { type: "owm-rate-height", height: document.documentElement.scrollHeight },
+        { type: "owm-rate-height", height: Math.ceil(el.getBoundingClientRect().height) },
         "*",
       );
     post();
-    const t = window.setTimeout(post, 300);
-    window.addEventListener("resize", post);
-    return () => {
-      window.clearTimeout(t);
-      window.removeEventListener("resize", post);
-    };
+    const ro = new ResizeObserver(post);
+    ro.observe(el);
+    return () => ro.disconnect();
   }, [targets, loading, error, variant]);
 
   return (
-    <div className="w-full p-2 flex items-start justify-center bg-transparent">
+    <div ref={rootRef} className="w-full min-h-0 p-2 flex items-start justify-center bg-transparent">
       {loading && (
         <div className="w-full max-w-[460px] rounded-3xl bg-muted/40 animate-pulse h-[280px] flex items-center justify-center text-sm text-muted-foreground">
           {L.loading}
