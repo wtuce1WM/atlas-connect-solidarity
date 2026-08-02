@@ -120,8 +120,8 @@ export interface BlogArticleTemplateProps {
   embedBackSlug?: string | null;
   /** Optional portrait hero used on mobile (<768px) via <picture>. */
   customHeroImageMobile?: string;
-  /** "all_poi" = display every active POI of the database on the article map. */
-  poiMapMode?: "all_poi" | null;
+  /** "all_poi" = every active POI of the database. "near_10km" = only POIs within 10 km of the article's establishments. */
+  poiMapMode?: "all_poi" | "near_10km" | null;
   /** Long-form editorial sections (prose + embedded widgets). When provided, they drive the page layout. */
   editorialSections?: BlogEditorialSection[];
 }
