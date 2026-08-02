@@ -317,15 +317,15 @@ export default function EmbedReviewsWidget({
             </span>
           </div>
           <blockquote
-            className={`${large ? "text-[15px]" : "text-sm"} leading-relaxed text-white/85 flex-1 overflow-hidden`}
+            className={`${large ? "text-[15px]" : "text-sm"} leading-relaxed text-white/85 flex-1 overflow-y-auto overscroll-contain pr-1`}
             style={{
-              display: "-webkit-box",
-              WebkitBoxOrient: "vertical",
-              WebkitLineClamp: large ? 10 : shape === "square" ? 4 : 6,
+              maxHeight: large ? 260 : shape === "square" ? 120 : 180,
+              scrollbarWidth: "thin",
             }}
           >
             {text}
           </blockquote>
+
           {list.length > 1 && (
             <div className="flex items-center justify-end gap-2 pt-3">
               <button
