@@ -91,7 +91,7 @@ export default function EmbedTides() {
   }, [data, loading, error]);
 
   return (
-    <div className="w-full min-h-0 p-2 flex flex-col items-center gap-2 bg-transparent">
+    <div className="w-full min-h-0 p-2 mx-auto flex flex-col items-center gap-2 bg-transparent max-w-[520px]">
       {showPicker && cities.length > 0 && (
         <div className="w-full max-w-[520px]">
           <label className="sr-only" htmlFor="owm-tide-city">
@@ -123,7 +123,7 @@ export default function EmbedTides() {
         </div>
       )}
       {!loading && !error && data && (
-        <div className="w-full flex justify-center [&>div]:max-w-full">
+        <div className="w-full flex justify-center">
           <EmbedTidesWidget data={data} lang={lang} compact={compact} />
         </div>
       )}
