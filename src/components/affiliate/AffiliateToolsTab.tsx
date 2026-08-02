@@ -1,6 +1,6 @@
 import { useRef, useState, useMemo } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { Copy, Check, Download, ExternalLink, QrCode, Globe2, Mail, Bot, MapPin, Newspaper, Star, CloudSun } from "lucide-react";
+import { Copy, Check, Download, ExternalLink, QrCode, Globe2, Mail, Bot, MapPin, Newspaper, Star, CloudSun, ThumbsUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
