@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { LogOut, ArrowLeft, LayoutDashboard, Newspaper, UserSquare2, LayoutTemplate } from "lucide-react";
 import BlogManagement from "@/components/staff/BlogManagement";
+import BlogDashboard from "@/components/staff/BlogDashboard";
+
 import OwnerArticlesManagement from "@/components/staff/OwnerArticlesManagement";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
