@@ -1275,6 +1275,54 @@ export type Database = {
         }
         Relationships: []
       }
+      business_feature_rights: {
+        Row: {
+          business_id: string
+          created_at: string
+          has_ai_assistant: boolean
+          has_blog_export: boolean
+          has_dashboard: boolean
+          has_nearby_widget: boolean
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          has_ai_assistant?: boolean
+          has_blog_export?: boolean
+          has_dashboard?: boolean
+          has_nearby_widget?: boolean
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          has_ai_assistant?: boolean
+          has_blog_export?: boolean
+          has_dashboard?: boolean
+          has_nearby_widget?: boolean
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_feature_rights_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_feature_rights_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_image_badges: {
         Row: {
           badge_id: string

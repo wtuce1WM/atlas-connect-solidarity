@@ -6,27 +6,30 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
-type RightKey =
-  | "has_ai_assistant"
-  | "has_blog_export"
-  | "has_nearby_widget"
+type AffiliateRightKey =
   | "has_email_signature"
   | "has_video_studio"
-  | "has_dashboard"
-  | "has_guide"
   | "has_showcase_site"
   | "has_custom_domain";
 
-const RIGHTS: { key: RightKey; label: string }[] = [
+const AFFILIATE_RIGHTS: { key: AffiliateRightKey; label: string; locked?: boolean }[] = [
+  { key: "has_email_signature", label: "Signature email « Laisser un avis »" },
+  { key: "has_video_studio", label: "Studio" },
+  { key: "has_showcase_site", label: "Site vitrine 1WM", locked: true },
+  { key: "has_custom_domain", label: "Domaine personnalisé", locked: true },
+];
+
+type BusinessRightKey =
+  | "has_ai_assistant"
+  | "has_blog_export"
+  | "has_nearby_widget"
+  | "has_dashboard";
+
+const BUSINESS_RIGHTS: { key: BusinessRightKey; label: string }[] = [
   { key: "has_ai_assistant", label: "Assistant IA" },
   { key: "has_blog_export", label: "Export d'article de blog" },
   { key: "has_nearby_widget", label: "Adresses à proximité" },
-  { key: "has_email_signature", label: "Signature email « Laisser un avis »" },
-  { key: "has_video_studio", label: "Studio" },
   { key: "has_dashboard", label: "Dashboard" },
-  { key: "has_guide", label: "Guide" },
-  { key: "has_showcase_site", label: "Site vitrine 1WM" },
-  { key: "has_custom_domain", label: "Domaine personnalisé" },
 ];
 
 interface AffiliateRow {
@@ -36,24 +39,63 @@ interface AffiliateRow {
   [key: string]: any;
 }
 
+interface BusinessRow {
+  id: string;
+  name: string;
+  affiliate_id: string | null;
+}
+
+type RightsMap = Record<string, Record<BusinessRightKey, boolean>>;
+
+const emptyRights = (): Record<BusinessRightKey, boolean> => ({
+  has_ai_assistant: false,
+  has_blog_export: false,
+  has_nearby_widget: false,
+  has_dashboard: false,
+});
+
 const AffiliateRightsPanel = () => {
   const [rows, setRows] = useState<AffiliateRow[]>([]);
+  const [businesses, setBusinesses] = useState<BusinessRow[]>([]);
+  const [bizRights, setBizRights] = useState<RightsMap>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [query, setQuery] = useState("");
 
   useEffect(() => {
     const load = async () => {
-      const { data, error } = await supabase
-        .from("affiliates")
-        .select(
-          "id, name, is_active, " + RIGHTS.map((r) => r.key).join(", ")
-        )
-        .order("name");
-      if (error) {
-        toast({ title: "Erreur de chargement", description: error.message, variant: "destructive" });
+      const [affRes, bizRes, rightsRes] = await Promise.all([
+        supabase
+          .from("affiliates")
+          .select("id, name, is_active, " + AFFILIATE_RIGHTS.map((r) => r.key).join(", "))
+          .order("name"),
+        supabase
+          .from("businesses")
+          .select("id, name, affiliate_id")
+          .not("affiliate_id", "is", null)
+          .order("name"),
+        supabase.from("business_feature_rights").select("*"),
+      ]);
+
+      if (affRes.error || bizRes.error || rightsRes.error) {
+        toast({
+          title: "Erreur de chargement",
+          description: (affRes.error || bizRes.error || rightsRes.error)?.message,
+          variant: "destructive",
+        });
       } else {
-        setRows((data as unknown as AffiliateRow[]) || []);
+        setRows((affRes.data as unknown as AffiliateRow[]) || []);
+        setBusinesses((bizRes.data as unknown as BusinessRow[]) || []);
+        const map: RightsMap = {};
+        ((rightsRes.data as any[]) || []).forEach((r) => {
+          map[r.business_id] = {
+            has_ai_assistant: !!r.has_ai_assistant,
+            has_blog_export: !!r.has_blog_export,
+            has_nearby_widget: !!r.has_nearby_widget,
+            has_dashboard: !!r.has_dashboard,
+          };
+        });
+        setBizRights(map);
       }
       setLoading(false);
     };
@@ -66,7 +108,16 @@ const AffiliateRightsPanel = () => {
     return rows.filter((r) => (r.name || "").toLowerCase().includes(q));
   }, [rows, query]);
 
-  const toggle = async (affiliate: AffiliateRow, key: RightKey, value: boolean) => {
+  const businessesByAffiliate = useMemo(() => {
+    const map: Record<string, BusinessRow[]> = {};
+    businesses.forEach((b) => {
+      if (!b.affiliate_id) return;
+      (map[b.affiliate_id] ||= []).push(b);
+    });
+    return map;
+  }, [businesses]);
+
+  const toggle = async (affiliate: AffiliateRow, key: AffiliateRightKey, value: boolean) => {
     setSaving(`${affiliate.id}:${key}`);
     setRows((prev) => prev.map((r) => (r.id === affiliate.id ? { ...r, [key]: value } : r)));
     const { error } = await supabase
@@ -76,6 +127,21 @@ const AffiliateRightsPanel = () => {
     setSaving(null);
     if (error) {
       setRows((prev) => prev.map((r) => (r.id === affiliate.id ? { ...r, [key]: !value } : r)));
+      toast({ title: "Échec de la mise à jour", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const toggleBusiness = async (businessId: string, key: BusinessRightKey, value: boolean) => {
+    const current = bizRights[businessId] || emptyRights();
+    const next = { ...current, [key]: value };
+    setSaving(`${businessId}:${key}`);
+    setBizRights((prev) => ({ ...prev, [businessId]: next }));
+    const { error } = await supabase
+      .from("business_feature_rights")
+      .upsert({ business_id: businessId, ...next } as any, { onConflict: "business_id" });
+    setSaving(null);
+    if (error) {
+      setBizRights((prev) => ({ ...prev, [businessId]: current }));
       toast({ title: "Échec de la mise à jour", description: error.message, variant: "destructive" });
     }
   };
@@ -97,55 +163,94 @@ const AffiliateRightsPanel = () => {
         className="max-w-sm"
       />
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {filtered.map((affiliate) => (
-          <Card key={affiliate.id}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center justify-between gap-2">
-                <span className="truncate">{affiliate.name}</span>
-                {affiliate.is_active === false && (
-                  <span className="text-xs font-normal text-muted-foreground">inactif</span>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {RIGHTS.map((right) => (
-                <div key={right.key} className="flex items-center justify-between gap-3">
-                  <span className="text-sm text-muted-foreground">{right.label}</span>
-                  <Switch
-                    checked={!!affiliate[right.key]}
-                    disabled={saving === `${affiliate.id}:${right.key}`}
-                    onCheckedChange={(checked) => toggle(affiliate, right.key, checked)}
-                  />
+      <div className="grid gap-4 md:grid-cols-2">
+        {filtered.map((affiliate) => {
+          const list = businessesByAffiliate[affiliate.id] || [];
+          return (
+            <Card key={affiliate.id}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center justify-between gap-2">
+                  <span className="truncate">{affiliate.name}</span>
+                  {affiliate.is_active === false && (
+                    <span className="text-xs font-normal text-muted-foreground">inactif</span>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  {AFFILIATE_RIGHTS.map((right) => (
+                    <div key={right.key} className="flex items-center justify-between gap-3">
+                      <span
+                        className={
+                          right.locked
+                            ? "text-sm text-muted-foreground/50"
+                            : "text-sm text-muted-foreground"
+                        }
+                      >
+                        {right.label}
+                        {right.locked && (
+                          <span className="ml-2 text-xs">(bientôt disponible)</span>
+                        )}
+                      </span>
+                      <Switch
+                        checked={!!affiliate[right.key]}
+                        disabled={!!right.locked || saving === `${affiliate.id}:${right.key}`}
+                        onCheckedChange={(checked) => toggle(affiliate, right.key, checked)}
+                      />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        ))}
-      {filtered.length === 0 && (
+
+                <div className="pt-3 border-t border-border/50 space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Accès par établissement
+                  </p>
+                  {list.length === 0 && (
+                    <p className="text-sm text-muted-foreground">Aucun établissement rattaché.</p>
+                  )}
+                  {list.map((biz) => {
+                    const r = bizRights[biz.id] || emptyRights();
+                    return (
+                      <div key={biz.id} className="rounded-md border border-border/50 p-3 space-y-2">
+                        <p className="text-sm font-medium text-foreground truncate">{biz.name}</p>
+                        {BUSINESS_RIGHTS.map((right) => (
+                          <div key={right.key} className="flex items-center justify-between gap-3">
+                            <span className="text-sm text-muted-foreground">{right.label}</span>
+                            <Switch
+                              checked={!!r[right.key]}
+                              disabled={saving === `${biz.id}:${right.key}`}
+                              onCheckedChange={(checked) => toggleBusiness(biz.id, right.key, checked)}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+        {filtered.length === 0 && (
           <p className="text-sm text-muted-foreground">Aucun affilié trouvé.</p>
         )}
       </div>
 
       <div className="pt-6 border-t border-border/50 space-y-4">
         <h3 className="text-sm font-semibold text-foreground">Précisions sur les options avancées</h3>
-        <div className="grid gap-3 md:grid-cols-3">
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-foreground">Guide</p>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Accès au guide privé 1WM et aux ressources exclusives destinées aux partenaires.
-            </p>
-          </div>
+        <div className="grid gap-3 md:grid-cols-2">
           <div className="space-y-1">
             <p className="text-sm font-medium text-foreground">Site vitrine 1WM</p>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Publication d’une page de présentation dédiée sur one world morocco (nom, photos, offres, avis, contact).
+              Option non activable pour l’instant.
             </p>
           </div>
           <div className="space-y-1">
             <p className="text-sm font-medium text-foreground">Domaine personnalisé</p>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Possibilité de faire pointer un nom de domaine propriétaire vers la vitrine 1WM de l’établissement.
+              Option non activable pour l’instant.
             </p>
           </div>
         </div>
