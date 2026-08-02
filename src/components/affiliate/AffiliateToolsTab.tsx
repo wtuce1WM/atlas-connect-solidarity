@@ -55,6 +55,8 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
   const [weatherCity, setWeatherCity] = useState<string>("Marrakech");
   const [weatherLang, setWeatherLang] = useState<"fr" | "en" | "ar">("fr");
+  const [tidesCity, setTidesCity] = useState<string>("Essaouira");
+  const [tidesLang, setTidesLang] = useState<"fr" | "en" | "ar">("fr");
 
   if (!slug) {
     return (
