@@ -122,9 +122,33 @@ const AffiliateRightsPanel = () => {
             </CardContent>
           </Card>
         ))}
-        {filtered.length === 0 && (
+      {filtered.length === 0 && (
           <p className="text-sm text-muted-foreground">Aucun affilié trouvé.</p>
         )}
+      </div>
+
+      <div className="pt-6 border-t border-border/50 space-y-4">
+        <h3 className="text-sm font-semibold text-foreground">Précisions sur les options avancées</h3>
+        <div className="grid gap-3 md:grid-cols-3">
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-foreground">Guide</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Accès au guide privé 1WM et aux ressources exclusives destinées aux partenaires.
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-foreground">Site vitrine 1WM</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Publication d’une page de présentation dédiée sur one world morocco (nom, photos, offres, avis, contact).
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-foreground">Domaine personnalisé</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Possibilité de faire pointer un nom de domaine propriétaire vers la vitrine 1WM de l’établissement.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
