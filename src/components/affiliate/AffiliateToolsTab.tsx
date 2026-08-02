@@ -14,6 +14,14 @@ interface Props {
 
 const SITE = "https://oneworldmorocco.com";
 
+const REVIEW_PLATFORMS = [
+  { key: "all" as const, label: "Synthèse" },
+  { key: "google" as const, label: "Google" },
+  { key: "tripadvisor" as const, label: "TripAdvisor" },
+  { key: "restaurant-guru" as const, label: "Restaurant Guru" },
+];
+type ReviewPlatformKey = (typeof REVIEW_PLATFORMS)[number]["key"];
+
 const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => {
   const qrRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState<string | null>(null);
@@ -22,6 +30,10 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null }: Props) => 
   const [embedHeight, setEmbedHeight] = useState<number>(640);
   const [nearbyLang, setNearbyLang] = useState<"fr" | "en" | "ar">("fr");
   const [nearbyHeight, setNearbyHeight] = useState<number>(720);
+  const [reviewsPlatform, setReviewsPlatform] = useState<ReviewPlatformKey>("all");
+  const [reviewsLang, setReviewsLang] = useState<"fr" | "en" | "ar">("fr");
+  const [weatherCity, setWeatherCity] = useState<string>("Marrakech");
+  const [weatherLang, setWeatherLang] = useState<"fr" | "en" | "ar">("fr");
 
   if (!slug) {
     return (
