@@ -136,8 +136,7 @@ const AffiliatePresence = () => {
   const [hasVideoStudio, setHasVideoStudio] = useState(false);
   const [hasShowcaseSite, setHasShowcaseSite] = useState(false);
   const [hasCustomDomain, setHasCustomDomain] = useState(false);
-  const [hasEmailSignature, setHasEmailSignature] = useState(true);
-  const [featureRights, setFeatureRights] = useState<Record<string, { has_ai_assistant: boolean; has_blog_export: boolean; has_nearby_widget: boolean }>>({});
+  const [featureRights, setFeatureRights] = useState<Record<string, { has_ai_assistant: boolean; has_blog_export: boolean; has_nearby_widget: boolean; has_email_signature: boolean }>>({});
   const [activeTab, setActiveTab] = useState("news");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newBusinessName, setNewBusinessName] = useState("");
@@ -232,7 +231,7 @@ const AffiliatePresence = () => {
 
       const { data: affiliate } = await supabase
         .from("affiliates")
-        .select("id, name, max_businesses, has_dashboard, has_video_studio, has_showcase_site, has_custom_domain, has_email_signature")
+        .select("id, name, max_businesses, has_dashboard, has_video_studio, has_showcase_site, has_custom_domain")
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -249,18 +248,18 @@ const AffiliatePresence = () => {
       setHasVideoStudio(!!(affiliate as any).has_video_studio);
       setHasShowcaseSite(!!(affiliate as any).has_showcase_site);
       setHasCustomDomain(!!(affiliate as any).has_custom_domain);
-      setHasEmailSignature((affiliate as any).has_email_signature !== false);
 
 
       const { data: rightsRows } = await supabase
         .from("business_feature_rights")
-        .select("business_id, has_ai_assistant, has_blog_export, has_nearby_widget");
-      const map: Record<string, { has_ai_assistant: boolean; has_blog_export: boolean; has_nearby_widget: boolean }> = {};
+        .select("business_id, has_ai_assistant, has_blog_export, has_nearby_widget, has_email_signature");
+      const map: Record<string, { has_ai_assistant: boolean; has_blog_export: boolean; has_nearby_widget: boolean; has_email_signature: boolean }> = {};
       ((rightsRows as any[]) || []).forEach((r) => {
         map[r.business_id] = {
           has_ai_assistant: !!r.has_ai_assistant,
           has_blog_export: !!r.has_blog_export,
           has_nearby_widget: !!r.has_nearby_widget,
+          has_email_signature: r.has_email_signature !== false,
         };
       });
       setFeatureRights(map);
@@ -797,7 +796,7 @@ const AffiliatePresence = () => {
                           aiAssistant: !!featureRights[currentBusiness.id]?.has_ai_assistant,
                           blogExport: !!featureRights[currentBusiness.id]?.has_blog_export,
                           nearbyWidget: !!featureRights[currentBusiness.id]?.has_nearby_widget,
-                          emailSignature: hasEmailSignature,
+                          emailSignature: featureRights[currentBusiness.id]?.has_email_signature !== false,
                           dashboard: hasDashboard,
                           videoStudio: hasVideoStudio,
                           showcaseSite: hasShowcaseSite,
@@ -816,7 +815,7 @@ const AffiliatePresence = () => {
                           aiAssistant: !!featureRights[currentBusiness.id]?.has_ai_assistant,
                           blogExport: !!featureRights[currentBusiness.id]?.has_blog_export,
                           nearbyWidget: !!featureRights[currentBusiness.id]?.has_nearby_widget,
-                          emailSignature: hasEmailSignature,
+                          emailSignature: featureRights[currentBusiness.id]?.has_email_signature !== false,
                         }}
                       />
                     </TabsContent>
