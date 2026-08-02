@@ -204,6 +204,24 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
         </div>
 
         <div className="space-y-2">
+          <Label className="text-white">Longueur du texte</Label>
+          <div className="flex flex-wrap gap-2">
+            {LENGTHS.map((l) => (
+              <button
+                key={l.value}
+                type="button"
+                onClick={() => setLength(l.value)}
+                className={`rounded-md border px-3 py-2 text-xs font-medium transition-colors ${
+                  length === l.value ? "border-primary bg-primary/10 text-primary" : "border-white/10 text-white/70 hover:bg-white/5"
+                }`}
+              >
+                {l.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="ai-extra" className="text-white">Consigne complémentaire (optionnel)</Label>
           <Input
             id="ai-extra"
