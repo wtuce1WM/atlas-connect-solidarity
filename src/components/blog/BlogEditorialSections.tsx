@@ -33,7 +33,7 @@ const TidesFrame = ({
   title: string;
 }) => (
   <iframe
-    src={`/n?city=${encodeURIComponent(city)}&lang=fr${picker ? "&picker=1" : ""}`}
+    src={`/embed/tides?city=${encodeURIComponent(city)}&lang=fr${picker ? "&picker=1" : ""}`}
     title={title}
     loading="lazy"
     className="w-full rounded-xl border border-border/40 bg-background"
