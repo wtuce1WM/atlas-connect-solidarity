@@ -15,13 +15,14 @@ import Footer from "@/components/Footer";
 import HScroll from "@/components/HScroll";
 import {
   Loader2, Globe, CheckCircle2, AlertCircle, ExternalLink,
-  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench, Wand2, BarChart3, LogOut, Globe2, Newspaper
+  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench, Wand2, BarChart3, LogOut, Globe2, Newspaper, Scale
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
 import { type OpeningHours } from "@/components/staff/OpeningHoursEditor";
 import AffiliateOpeningHoursEditor from "@/components/affiliate/AffiliateOpeningHoursEditor";
 import AffiliateContactEditor, { type CityOption, type NeighborhoodOption, type CtaUrlItem } from "@/components/affiliate/AffiliateContactEditor";
 import AffiliatePlatformHelp from "@/components/affiliate/AffiliatePlatformHelp";
+import AffiliateLegalTab from "@/components/affiliate/AffiliateLegalTab";
 import AffiliateReviewsEditor, { type ReviewsData } from "@/components/affiliate/AffiliateReviewsEditor";
 import AffiliateTextEditor from "@/components/affiliate/AffiliateTextEditor";
 import AffiliateAiTextsEditor from "@/components/affiliate/AffiliateAiTextsEditor";
@@ -611,6 +612,10 @@ const AffiliatePresence = () => {
                       <TabsTrigger value="help" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
                         <HelpCircle className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Plateformes</span>
                       </TabsTrigger>
+                      <TabsTrigger value="legal" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <Scale className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Juridique</span>
+                      </TabsTrigger>
+
                       {hasShowcaseSite && (
                         <TabsTrigger value="showcase" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
                           <Globe2 className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Site vitrine</span>
@@ -871,6 +876,12 @@ const AffiliatePresence = () => {
                     <TabsContent value="help">
                       <AffiliatePlatformHelp />
                     </TabsContent>
+
+                    {/* Legal Tab */}
+                    <TabsContent value="legal">
+                      {affiliateId && <AffiliateLegalTab affiliateId={affiliateId} />}
+                    </TabsContent>
+
 
                     {/* Showcase Site Tab */}
                     {hasShowcaseSite && (
