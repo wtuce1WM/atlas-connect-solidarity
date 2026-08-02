@@ -81,6 +81,8 @@ Deno.serve(async (req) => {
     const businessId = body?.business_id ? String(body.business_id) : "";
     const mode = String(body?.mode ?? "");
     const extra = String(body?.extra_instructions ?? "").slice(0, 500);
+    const lengthKey = LENGTH_SPECS[String(body?.length ?? "")] ? String(body.length) : "short";
+    const len = LENGTH_SPECS[lengthKey];
 
     if (!businessId || !MODE_BRIEFS[mode]) {
       return new Response(JSON.stringify({ error: "business_id et mode valides requis" }), {
