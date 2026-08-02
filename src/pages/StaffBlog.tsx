@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, ArrowLeft, LayoutDashboard, Newspaper, UserSquare2, LayoutTemplate } from "lucide-react";
+import { LogOut, ArrowLeft, LayoutDashboard, Newspaper, UserSquare2, LayoutTemplate, Sparkles } from "lucide-react";
 import BlogManagement from "@/components/staff/BlogManagement";
 import BlogDashboard from "@/components/staff/BlogDashboard";
 import BlogTemplates from "@/components/staff/BlogTemplates";
+import BlogGenerator from "@/components/staff/BlogGenerator";
 import OwnerArticlesManagement from "@/components/staff/OwnerArticlesManagement";
+
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -100,7 +102,12 @@ const StaffBlog = () => {
               <LayoutTemplate className="h-4 w-4" />
               Templates
             </TabsTrigger>
+            <TabsTrigger value="generator" className="gap-2">
+              <Sparkles className="h-4 w-4" />
+              Générateur
+            </TabsTrigger>
           </TabsList>
+
 
           <TabsContent value="dashboard">
             <BlogDashboard />
@@ -115,8 +122,13 @@ const StaffBlog = () => {
             <OwnerArticlesManagement />
           </TabsContent>
 
+          <TabsContent value="generator">
+            <BlogGenerator />
+          </TabsContent>
+
           <TabsContent value="templates">
             <BlogTemplates />
+
           </TabsContent>
         </Tabs>
       </main>
