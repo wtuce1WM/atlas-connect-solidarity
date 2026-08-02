@@ -168,7 +168,7 @@ const Footer = ({ variant = "default", className }: FooterProps) => {
 
           {/* Company */}
           <div>
-            <h4 className="mb-4 font-semibold" style={{ color: "#3B3B3B" }}>{language === "en" ? "Links" : language === "ar" ? "روابط" : "Liens"}</h4>
+            <h4 className={`mb-4 font-semibold ${headingColor}`}>{language === "en" ? "Links" : language === "ar" ? "روابط" : "Liens"}</h4>
             <ul className={`space-y-2 ${textSecondary}`}>
               <li><Link to="/conditions-generales" className="transition-colors hover:text-gold">{language === "en" ? "General Terms of Operation" : language === "ar" ? "الشروط العامة للتشغيل" : "Conditions Générales de Fonctionnement"}</Link></li>
               <li><Link to="/mission" className="transition-colors hover:text-gold">{t("footer.ourMission")}</Link></li>
@@ -183,7 +183,7 @@ const Footer = ({ variant = "default", className }: FooterProps) => {
 
           {/* Contact */}
           <div>
-            <h4 className="mb-4 font-semibold" style={{ color: "#3B3B3B" }}>Contact</h4>
+            <h4 className={`mb-4 font-semibold ${headingColor}`}>Contact</h4>
             <ul className={`space-y-3 ${textSecondary}`}>
               <li className="flex items-center gap-2">
                 <MapPin className="h-4 w-4" style={{ color: "#3B3B3B" }} />
