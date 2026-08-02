@@ -116,9 +116,7 @@ const StaffBlog = () => {
           </TabsContent>
 
           <TabsContent value="templates">
-            <div className="text-sm text-muted-foreground py-10 text-center">
-              Templates — à venir.
-            </div>
+            <BlogTemplates />
           </TabsContent>
         </Tabs>
       </main>
