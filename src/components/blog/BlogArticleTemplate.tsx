@@ -965,6 +965,15 @@ const BlogArticleTemplate = ({
               </section>
             );
           })}
+          </>
+          );
+          return editorialSections && editorialSections.length > 0 ? (
+            <BlogEditorialSections sections={editorialSections} entriesBlock={entriesBlock} />
+          ) : (
+            entriesBlock
+          );
+          })()}
+
 
           {/* FAQ — rendered as expandable Q/A, emitted as FAQPage JSON-LD above */}
           {faq && faq.length > 0 && (
