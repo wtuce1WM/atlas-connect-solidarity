@@ -107,6 +107,7 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
   const [reviewMap, setReviewMap] = useState<Record<string, DefaultReview>>({});
   const [owner, setOwner] = useState<Biz | null>(null);
   const [copied, setCopied] = useState(false);
+  const [mapBg, setMapBg] = useState("");
 
   // Établissement propriétaire (référence pour les distances)
   useEffect(() => {
@@ -207,6 +208,8 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
   const intro = post
     ? (lang === "en" ? post.intro_en : lang === "ar" ? post.intro_ar : post.intro_fr) || ""
     : "";
+
+  const mapBgValid = /^#[0-9a-fA-F]{6}$/.test(mapBg);
 
   const html = useMemo(() => {
     if (!post) return "";
@@ -386,6 +389,12 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
   function close(){isOpen=false;bd.style.opacity='0';sheet.style.transform='translateX(100%)';document.documentElement.style.overflow='';setTimeout(function(){root.style.display='none';root.setAttribute('aria-hidden','true');frame.src='about:blank';},300);}
   function go(d){var n=i+d;if(n<0||n>=items.length)return;i=n;render();}
   window.owmOpenPanel=function(n){open(parseInt(n,10)||0);return false;};
+  // Clic sur un marqueur de la carte de l'article (iframe) → ouverture du panneau
+  window.addEventListener('message',function(ev){
+    var d=ev.data;
+    if(!d||d.type!=='owm-open-fiche'||!d.slug)return;
+    open(indexForSlug(String(d.slug)));
+  });
   // Interception en phase de capture : fonctionne même si le CMS retire les attributs data-*.
   document.addEventListener('click',function(ev){
     var t=ev.target;
@@ -457,6 +466,7 @@ const AffiliateArticleExport = ({ businessId, businessName }: Props) => {
     ${hero ? `<img src="${hero}" alt="${esc(articleTitle)}" style="width:100%;height:auto;max-height:520px;object-fit:cover;border-radius:20px;margin:0 0 20px" />` : ""}
     <h1 style="margin:0 0 14px;font-size:34px;line-height:1.2;font-family:Montserrat,Helvetica,Arial,sans-serif;color:#0f172a">${esc(articleTitle)}</h1>
     ${intro ? `<p style="margin:0;font-size:18px;line-height:1.7">${esc(intro)}</p>` : ""}
+    <iframe src="${SITE}/embed/article-map/${post.slug}${mapBgValid ? `?bg=${mapBg.replace(/^#/, "")}` : ""}" title="Carte de l'article" loading="lazy" style="width:100%;height:480px;border:0;border-radius:20px;margin:24px 0 0;display:block" allow="geolocation"></iframe>
   </header>
 ${blocks}
   <footer style="margin:8px 0 0;font-size:14px;color:#6b7280">
@@ -464,7 +474,7 @@ ${blocks}
   </footer>
 </section>
 ${panelScript}`;
-  }, [post, entries, bizMap, reviewMap, owner, lang, articleTitle, intro, businessName]);
+  }, [post, entries, bizMap, reviewMap, owner, lang, articleTitle, intro, businessName, mapBg, mapBgValid]);
 
 
   const copy = async () => {
@@ -534,7 +544,31 @@ ${panelScript}`;
             <option value="ar" className="text-black">العربية</option>
           </select>
         </div>
+        <div className="space-y-1.5 sm:col-span-2">
+          <Label className="text-white/80">Fond de la carte (facultatif)</Label>
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              value={mapBgValid ? mapBg : "#EFE6D8"}
+              onChange={(e) => setMapBg(e.target.value)}
+              className="h-9 w-12 cursor-pointer rounded border border-white/20 bg-transparent"
+              aria-label="Couleur de fond de la carte"
+            />
+            <input
+              value={mapBg}
+              onChange={(e) => setMapBg(e.target.value)}
+              placeholder="#EFE6D8 (vide = couleurs Google Maps)"
+              className="flex-1 rounded-md border border-white/20 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40"
+            />
+            {mapBg && (
+              <Button variant="outline" size="sm" className="text-white" onClick={() => setMapBg("")}>
+                Réinitialiser
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
+
 
       <div className="rounded-lg border border-white/15 bg-black/30 p-3">
         <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-all text-[11px] leading-relaxed text-white/70">

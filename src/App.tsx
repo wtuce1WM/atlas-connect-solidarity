@@ -94,6 +94,7 @@ const EmbedAsk = lazy(() => import("./pages/EmbedAsk"));
 const EmbedWeather = lazy(() => import("./pages/EmbedWeather"));
 const EmbedTides = lazy(() => import("./pages/EmbedTides"));
 const EmbedNearby = lazy(() => import("./pages/EmbedNearby"));
+const EmbedArticleMap = lazy(() => import("./pages/EmbedArticleMap"));
 const EmbedFiche = lazy(() => import("./pages/EmbedFiche"));
 
 const EmbedReviews = lazy(() => import("./pages/EmbedReviews"));
@@ -257,6 +258,8 @@ const LocalizedRoutes = () => {
               <Route path="/embed/weather" element={renderLazyRoute(<EmbedWeather />)} />
               <Route path="/embed/tides" element={renderLazyRoute(<EmbedTides />)} />
               <Route path="/embed/nearby/:slug" element={renderLazyRoute(<EmbedNearby />)} />
+              <Route path="/embed/article-map/:slug" element={renderLazyRoute(<EmbedArticleMap />)} />
+
               <Route path="/embed/fiche/:slug" element={renderLazyRoute(<EmbedFiche />)} />
 
               <Route path="/embed/reviews/:slug" element={renderLazyRoute(<EmbedReviews />)} />
