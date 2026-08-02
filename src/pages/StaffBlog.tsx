@@ -102,7 +102,12 @@ const StaffBlog = () => {
               <LayoutTemplate className="h-4 w-4" />
               Templates
             </TabsTrigger>
+            <TabsTrigger value="generator" className="gap-2">
+              <Sparkles className="h-4 w-4" />
+              Générateur
+            </TabsTrigger>
           </TabsList>
+
 
           <TabsContent value="dashboard">
             <BlogDashboard />
