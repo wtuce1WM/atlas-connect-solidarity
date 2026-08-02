@@ -533,12 +533,18 @@ const BlogArticleTemplate = ({
       {/* Hero */}
       <div className="relative h-[60vh] min-h-[420px] overflow-hidden">
         {(customHeroImage || heroImageBusiness) && (
-          <img
-            src={customHeroImage || heroImageBusiness}
-            alt={heroAlt}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+          <picture>
+            {customHeroImageMobile && (
+              <source media="(max-width: 767px)" srcSet={customHeroImageMobile} />
+            )}
+            <img
+              src={customHeroImage || heroImageBusiness}
+              alt={heroAlt}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          </picture>
         )}
+
 
         <div className="absolute inset-0 bg-gradient-to-t from-[#3B3B3B] via-[#3B3B3B]/50 to-[#3B3B3B]/30" />
         <div className="absolute inset-0 flex flex-col justify-end pb-4 sm:pb-12">
