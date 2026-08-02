@@ -366,6 +366,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
           </div>
         </div>
       </div>
+      {rights.aiAssistant && (
       <div className="space-y-3">
         <h3 className="text-white font-semibold flex items-center gap-2">
           <Bot className="h-4 w-4" /> Assistant IA embarqué (iframe)
