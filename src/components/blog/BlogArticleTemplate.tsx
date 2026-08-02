@@ -474,6 +474,39 @@ const BlogArticleTemplate = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Article map showing every active POI of the database (editorial guides).
+  useEffect(() => {
+    if (poiMapMode !== "all_poi") {
+      setPoiPool([]);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, latitude, longitude, images, city, neighborhood, rating")
+        .eq("is_poi", true)
+        .eq("is_active", true)
+        .not("latitude", "is", null)
+        .not("longitude", "is", null);
+      if (cancelled || !data) return;
+      setPoiPool(
+        data.map((b: any) => ({
+          id: b.id,
+          name: b.name,
+          latitude: Number(b.latitude),
+          longitude: Number(b.longitude),
+          images: b.images,
+          city: b.city,
+          neighborhood: b.neighborhood,
+          rating: b.rating,
+        }))
+      );
+    })();
+    return () => { cancelled = true; };
+  }, [poiMapMode]);
+
+
 
   useEffect(() => {
     if (isLoading) return;
