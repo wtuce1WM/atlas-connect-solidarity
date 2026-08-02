@@ -102,6 +102,7 @@ const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 const PublicBusinessProfile = lazy(() => import("./pages/PublicBusinessProfile"));
 const Card = lazy(() => import("./pages/Card"));
 const ShowcaseSite = lazy(() => import("./pages/ShowcaseSite"));
+const Widgets = lazy(() => import("./pages/Widgets"));
 
 const queryClient = new QueryClient();
 
