@@ -6,10 +6,18 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import AffiliateArticleExport from "@/components/affiliate/AffiliateArticleExport";
 
+export type ToolsRights = {
+  aiAssistant: boolean;
+  blogExport: boolean;
+  nearbyWidget: boolean;
+  emailSignature: boolean;
+};
+
 interface Props {
   slug: string | null;
   businessName: string;
   businessId?: string | null;
+  rights?: ToolsRights;
 }
 
 const SITE = "https://oneworldmorocco.com";
