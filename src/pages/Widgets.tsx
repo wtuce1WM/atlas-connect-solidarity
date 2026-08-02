@@ -151,6 +151,186 @@ const WidgetSection = ({
   </section>
 );
 
+/* ---------------- Widget Marées (configurateur ville / langue) ---------------- */
+
+const TIDE_CITIES: { slug: string; name: string; sea: "atlantic" | "mediterranean" }[] = [
+  { slug: "essaouira", name: "Essaouira", sea: "atlantic" },
+  { slug: "agadir", name: "Agadir", sea: "atlantic" },
+  { slug: "taghazout", name: "Taghazout", sea: "atlantic" },
+  { slug: "casablanca", name: "Casablanca", sea: "atlantic" },
+  { slug: "mohammedia", name: "Mohammedia", sea: "atlantic" },
+  { slug: "rabat", name: "Rabat", sea: "atlantic" },
+  { slug: "el-jadida", name: "El Jadida", sea: "atlantic" },
+  { slug: "oualidia", name: "Oualidia", sea: "atlantic" },
+  { slug: "safi", name: "Safi", sea: "atlantic" },
+  { slug: "larache", name: "Larache", sea: "atlantic" },
+  { slug: "asilah", name: "Asilah", sea: "atlantic" },
+  { slug: "tanger", name: "Tanger", sea: "atlantic" },
+  { slug: "sidi-ifni", name: "Sidi Ifni", sea: "atlantic" },
+  { slug: "tarfaya", name: "Tarfaya", sea: "atlantic" },
+  { slug: "laayoune", name: "Laâyoune-Plage", sea: "atlantic" },
+  { slug: "dakhla", name: "Dakhla", sea: "atlantic" },
+  { slug: "martil", name: "Martil", sea: "mediterranean" },
+  { slug: "al-hoceima", name: "Al Hoceïma", sea: "mediterranean" },
+  { slug: "saidia", name: "Saïdia", sea: "mediterranean" },
+];
+
+const TidesWidgetSection = ({ index }: { index: number }) => {
+  const [city, setCity] = useState("essaouira");
+  const [lang, setLang] = useState<"fr" | "en" | "ar">("fr");
+  const [picker, setPicker] = useState(false);
+
+  const url = `${SITE}/embed/tides?city=${city}&lang=${lang}${picker ? "&picker=1" : ""}`;
+  const height = picker ? 620 : 560;
+  const snippet = `<iframe src="${url}" style="width:100%;max-width:520px;height:${height}px;border:0;border-radius:20px" title="Marées ${
+    TIDE_CITIES.find((c) => c.slug === city)?.name || ""
+  }" loading="lazy"></iframe>`;
+
+  const atlantic = TIDE_CITIES.filter((c) => c.sea === "atlantic");
+  const med = TIDE_CITIES.filter((c) => c.sea === "mediterranean");
+
+  return (
+    <section className="scroll-mt-32 border-t border-border pt-16">
+      <div className="flex items-center gap-3 mb-4">
+        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <Waves className="h-5 w-5" />
+        </span>
+        <span className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+          Widget {String(index).padStart(2, "0")}
+        </span>
+      </div>
+
+      <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3 flex flex-wrap items-center gap-3">
+        <span>Widget Marées</span>
+        <span className="rounded-xl bg-whatsapp px-3 py-0.5 text-whatsapp-foreground leading-tight">
+          Gratuit
+        </span>
+      </h2>
+      <p className="text-lg text-primary font-medium mb-4">
+        Pleines et basses mers des villes côtières marocaines, heure par heure.
+      </p>
+      <p className="text-base text-muted-foreground max-w-3xl mb-8">
+        Niveau de la mer en direct avec sens de la marée (montante / descendante), coefficient estimé,
+        marnage, courbe sur 24 heures et les quatre prochaines pleines et basses mers avec leurs horaires
+        locaux. Le bandeau eau ajoute la température de la mer, la hauteur de houle et la période — utile
+        pour la plage, le surf, la pêche ou une balade jusqu'aux îles Purpuraires. Dix-neuf villes de la
+        côte atlantique et méditerranéenne sont couvertes, sans clé API.
+      </p>
+
+      <div className="grid gap-5 sm:grid-cols-3 mb-8">
+        <div className="sm:col-span-2">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+            Ville côtière
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {atlantic.map((c) => (
+              <Button
+                key={c.slug}
+                size="sm"
+                variant={city === c.slug ? "default" : "outline"}
+                onClick={() => setCity(c.slug)}
+              >
+                {c.name}
+              </Button>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground mt-3 mb-2">Méditerranée (faible marnage)</p>
+          <div className="flex flex-wrap gap-2">
+            {med.map((c) => (
+              <Button
+                key={c.slug}
+                size="sm"
+                variant={city === c.slug ? "default" : "outline"}
+                onClick={() => setCity(c.slug)}
+              >
+                {c.name}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+            Langue
+          </p>
+          <div className="flex flex-wrap gap-2 mb-5">
+            {(["fr", "en", "ar"] as const).map((l) => (
+              <Button
+                key={l}
+                size="sm"
+                variant={lang === l ? "default" : "outline"}
+                onClick={() => setLang(l)}
+              >
+                {l.toUpperCase()}
+              </Button>
+            ))}
+          </div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+            Sélecteur de ville
+          </p>
+          <Button size="sm" variant={picker ? "default" : "outline"} onClick={() => setPicker((v) => !v)}>
+            {picker ? "Affiché" : "Masqué"}
+          </Button>
+          <p className="text-xs text-muted-foreground mt-2">
+            Laisse le visiteur changer de ville dans le widget.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-10 lg:grid-cols-2 items-start">
+        <div>
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
+            Aperçu en direct
+          </h3>
+          <iframe
+            key={url}
+            src={url}
+            title="Widget Marées"
+            loading="lazy"
+            style={{ width: "100%", maxWidth: 520, height, border: 0, borderRadius: 20 }}
+            className="bg-card shadow-lg"
+          />
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+          >
+            Ouvrir en plein écran <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        </div>
+
+        <div>
+          <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
+            Code d'intégration
+          </h3>
+          <CopyBlock code={snippet} id="tides" />
+          <div className="mt-6 rounded-xl border border-border bg-muted/30 p-4">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">
+              Données brutes (JSON)
+            </p>
+            <p className="text-sm text-muted-foreground mb-3">
+              Pour un affichage entièrement sur-mesure, l'API renvoie le niveau courant, les extrema, la
+              courbe 24 h et les conditions de mer.
+            </p>
+            <CopyBlock
+              code={`fetch("https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/tides?city=${city}")\n  .then(r => r.json())\n  .then(console.log);`}
+              id="tides-json"
+            />
+          </div>
+          <p className="mt-4 text-xs text-muted-foreground">
+            Niveau de la mer modélisé, référencé au niveau moyen (source Open-Meteo Marine). Précision
+            adaptée aux usages plage et loisirs — ne remplace pas un annuaire officiel des marées pour la
+            navigation.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+
+
 
 const COMPATIBLE = [
   ["WordPress", "Bloc « HTML personnalisé » ou plugin iframe"],
