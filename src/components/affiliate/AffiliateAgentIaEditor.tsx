@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Save, Bot, MessageSquareReply, Sparkles } from "lucide-react";
+import { Loader2, Check, Bot, MessageSquareReply, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 interface Props {
@@ -83,26 +82,33 @@ const AffiliateAgentIaEditor = ({ businessId, businessCity }: Props) => {
   const toggle = (list: string[], setList: (v: string[]) => void, id: string) =>
     setList(list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
 
-  const handleSave = async () => {
-    if (selSugg.length === 0) {
-      toast.error("Sélectionnez au moins une suggestion.");
-      return;
-    }
-    setIsSaving(true);
-    const { error } = await (supabase as any)
-      .from("business_embed_ai_prefs")
-      .upsert(
-        {
-          business_id: businessId,
-          enabled_suggestion_ids: selSugg,
-          enabled_followup_ids: selFu,
-        },
-        { onConflict: "business_id" },
-      );
-    setIsSaving(false);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Agent IA mis à jour — le widget applique la sélection immédiatement.");
-  };
+  // Auto-save (debounce 1.2s) — pas de CTA Enregistrer, comme dans l'onglet Images.
+  const dirtyRef = useRef(false);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (!dirtyRef.current) { dirtyRef.current = true; return; }
+    if (selSugg.length === 0) return;
+
+    const t = setTimeout(async () => {
+      setIsSaving(true);
+      const { error } = await (supabase as any)
+        .from("business_embed_ai_prefs")
+        .upsert(
+          {
+            business_id: businessId,
+            enabled_suggestion_ids: selSugg,
+            enabled_followup_ids: selFu,
+          },
+          { onConflict: "business_id" },
+        );
+      setIsSaving(false);
+      if (error) { toast.error(error.message); return; }
+      setSavedAt(Date.now());
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [selSugg, selFu, businessId, isLoading]);
 
   const counters = useMemo(
     () => ({ s: `${selSugg.length}/${suggestions.length}`, f: `${selFu.length}/${followups.length}` }),
@@ -126,14 +132,23 @@ const AffiliateAgentIaEditor = ({ businessId, businessCity }: Props) => {
           </h3>
           <p className="text-sm text-white/60 max-w-2xl">
             Choisissez les suggestions de départ et les relances proposées par votre Widget Assistant IA.
-            Tout décocher dans les relances revient à masquer les relances.
+            Tout décocher dans les relances revient à masquer les relances. Enregistrement automatique.
           </p>
+          {selSugg.length === 0 && (
+            <p className="text-xs text-amber-400 mt-1">
+              Sélectionnez au moins une suggestion pour enregistrer.
+            </p>
+          )}
         </div>
-        <Button onClick={handleSave} disabled={isSaving}>
-          {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-          Enregistrer
-        </Button>
+        <span className="text-xs text-white/50 inline-flex items-center gap-1.5 shrink-0">
+          {isSaving ? (
+            <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Enregistrement…</>
+          ) : savedAt ? (
+            <><Check className="h-3.5 w-3.5 text-emerald-400" /> Enregistré</>
+          ) : null}
+        </span>
       </div>
+
 
       <Card className="bg-white/5 border-white/10">
         <CardHeader className="pb-3">
