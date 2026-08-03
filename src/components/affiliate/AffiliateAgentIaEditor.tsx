@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Loader2, Check, Bot, MessageSquareReply, Sparkles, X, Newspaper, FileText } from "lucide-react";
 import { toast } from "sonner";
 
