@@ -62,15 +62,15 @@ export default function PoiFilterChoiceOverlay({
             <X className="h-4 w-4 pointer-events-none" />
           </button>
           <nav
-            className="flex-1 min-w-0 px-2 flex items-center justify-center gap-1.5 text-sm font-semibold text-white"
+            className="flex-1 min-w-0 px-2 flex items-center justify-center gap-1.5 text-sm font-bold text-black"
             style={{ fontFamily: "'Montserrat', sans-serif" }}
             aria-label="Fil d'Ariane"
           >
-            <span className={`truncate ${selectedItem ? "opacity-60" : "opacity-100"}`}>{title}</span>
+            <span className={`truncate ${selectedItem ? "opacity-70" : "opacity-100"}`}>{title}</span>
             {selectedItem && (
               <>
-                <span aria-hidden="true" className="opacity-50">/</span>
-                <span className="truncate">{selectedItem.label}</span>
+                <span aria-hidden="true" className="opacity-40">/</span>
+                <span className="truncate opacity-90">{selectedItem.label}</span>
               </>
             )}
           </nav>
