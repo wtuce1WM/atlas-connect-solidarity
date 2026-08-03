@@ -345,6 +345,36 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
   return (
     <div className="space-y-6">
+      <div className="space-y-3">
+        <h3 className="text-white font-semibold flex items-center gap-2">
+          <MapPin className="h-4 w-4" /> Rayon de proximité
+        </h3>
+        <p className="text-sm text-white/70 max-w-2xl">
+          Distance utilisée par défaut pour calculer les établissements et lieux d'intérêt autour de{" "}
+          {businessName} (overlay « À proximité », widget et carte).
+        </p>
+        <div className="flex items-center gap-2">
+          <Select
+            value={String(radiusKm)}
+            onValueChange={saveRadius}
+            disabled={radiusLoading || !businessId}
+          >
+            <SelectTrigger className="h-9 w-40 text-sm text-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="z-[100]">
+              {["0.5", "1", "5", "10", "20", "50", "100"].map((km) => (
+                <SelectItem key={km} value={km}>
+                  {km === "0.5" ? "- 500 m" : `- ${km} km`}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {radiusSaving && <Loader2 className="h-4 w-4 animate-spin text-white/60" />}
+          {!radiusSaving && radiusSaved && <Check className="h-4 w-4 text-emerald-400" />}
+        </div>
+      </div>
+
       <div className="space-y-4">
         <h3 className="text-white font-semibold flex items-center gap-2">
           <ExternalLink className="h-4 w-4" /> Liens de partage
@@ -352,6 +382,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         {renderUrlRow("URL publique (fiche)", publicUrl, "public")}
         {renderUrlRow("CARTE DE VISITE DIGITALE", shortUrl, "short")}
       </div>
+
 
       <div className="space-y-3">
         <h3 className="text-white font-semibold flex items-center gap-2">
