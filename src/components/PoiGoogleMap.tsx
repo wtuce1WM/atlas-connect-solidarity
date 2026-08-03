@@ -766,7 +766,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         hasFittedRef.current = true;
       });
     }
-  }, [pois, ready, center, iconCache, userLocation, centerAtBottomRatio, fitToMarkers]);
+  }, [pois, ready, center, iconCache, userLocation, centerAtBottomRatio, fitToMarkers, fitRadiusKm]);
 
   // Update overlay highlighting when selectedPoiId changes
   const prevSelectedRef = useRef<string | null>(null);
