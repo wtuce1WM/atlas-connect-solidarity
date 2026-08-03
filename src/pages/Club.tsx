@@ -235,6 +235,7 @@ const Club = () => {
   const t = {
     fr: {
       title: "Le Club OWM",
+      platformHeadline: "Plateforme social video inspirationnelle direct-to-local",
       subtitle: "Rejoignez le club et accédez à des avantages exclusifs",
       desc: "En tant que membre du Club One World Morocco, vous bénéficiez de réductions, d'offres spéciales et d'un accès privilégié aux meilleurs établissements du Maroc.",
       benefits: "Avantages membres",
