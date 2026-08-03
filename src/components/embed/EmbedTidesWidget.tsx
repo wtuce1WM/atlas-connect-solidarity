@@ -266,8 +266,33 @@ export default function EmbedTidesWidget({
 }) {
   const L = T[lang];
   const hasWind = !!(data.wind && data.wind.speed != null && data.wind.direction != null);
-  const [view, setView] = React.useState<"tides" | "wind">("tides");
+  const [view, setView] = React.useState<"tides" | "wind" | "weather">("tides");
   const windLabel = lang === "en" ? "Wind" : lang === "ar" ? "الريح" : "Vent";
+  const weatherLabel = lang === "en" ? "Weather" : lang === "ar" ? "الطقس" : "Météo";
+
+  // Lazy-loaded weather for the same city (reuses the Weather widget payload).
+  const [weather, setWeather] = React.useState<WeatherPayload | null>(null);
+  const [weatherError, setWeatherError] = React.useState(false);
+  React.useEffect(() => {
+    if (view !== "weather" || weather || weatherError) return;
+    let alive = true;
+    (async () => {
+      try {
+        const { data: res, error } = await supabase.functions.invoke("get-weather", {
+          body: { city: data.city_name, lang },
+        });
+        if (!alive) return;
+        if (error || !res || (res as any).error || typeof (res as any).temp !== "number") setWeatherError(true);
+        else setWeather(res as WeatherPayload);
+      } catch {
+        if (alive) setWeatherError(true);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [view, weather, weatherError, data.city_name, lang]);
+
   const tz = data.timezone;
   const trendLabel = L[data.now.trend] || L.slack;
   const trendIcon = data.now.trend === "rising" ? "▲" : data.now.trend === "falling" ? "▼" : "◆";
