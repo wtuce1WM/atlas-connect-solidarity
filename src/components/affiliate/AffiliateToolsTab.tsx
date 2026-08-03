@@ -309,6 +309,28 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     [tidesUrl, tidesCity]
   );
 
+  // Widget « Fiche complète » : /b/:slug en mode embed avec auto-resize
+  const ficheUrl = `${SITE}/b/${slug ?? ""}?embed=1${ficheShowClub ? "" : "&club=0"}`;
+  const ficheSnippet = useMemo(
+    () =>
+      `<div id="owm-fiche-wrap" style="width:100%;max-width:${ficheMaxWidth}px;margin:0 auto">
+  <iframe id="owm-fiche-frame" src="${ficheUrl}" style="width:100%;height:1200px;border:0;border-radius:24px;background:transparent" title="Fiche — ${businessName}" loading="lazy" allow="clipboard-write"></iframe>
+</div>
+<script>
+  (function () {
+    var frame = document.getElementById('owm-fiche-frame');
+    window.addEventListener('message', function (e) {
+      if (!e.data || e.data.type !== 'owm-fiche-height') return;
+      if (frame.contentWindow !== e.source) return;
+      frame.style.height = (e.data.height + 8) + 'px';
+    });
+  })();
+</script>`,
+    [ficheUrl, ficheMaxWidth, businessName]
+  );
+
+
+
 
 
   const copy = async (value: string, key: string) => {
