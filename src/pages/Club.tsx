@@ -601,6 +601,9 @@ const Club = () => {
           <div className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-24 flex flex-col items-center justify-center gap-8 min-h-[92vh]">
             {/* Member benefits heading + 6 CTA badges above auth card */}
             <div className="w-full max-w-3xl md:max-w-4xl mx-auto text-center">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-2" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                {t.platformHeadline}
+              </h1>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3" style={{ fontFamily: "Montserrat, sans-serif" }}>
                 {t.benefits}
               </h2>
