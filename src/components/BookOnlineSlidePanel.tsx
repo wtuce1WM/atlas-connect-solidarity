@@ -2985,6 +2985,63 @@ const BookOnlineSlidePanelInner = ({
               </div>
             )}
 
+            {poiPillOverlay === "poi" && (
+              <PoiFilterChoiceOverlay
+                zClass="z-[250]"
+                title={language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt"}
+                items={poiSubcatList.map(([name, count]) => ({
+                  key: name,
+                  label: translateSubcategory(name, language),
+                  count,
+                }))}
+                selectedKey={poiSubcatFilter}
+                allLabel={language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
+                onSelectAll={() => { setPoiSubcatFilter(null); setPoiPillOverlay(null); }}
+                onSelect={(key) => { setPoiSubcatFilter(key); setPoiPillOverlay(null); }}
+                onClose={() => setPoiPillOverlay(null)}
+              />
+            )}
+
+            {poiPillOverlay === "cat" && (
+              <PoiFilterChoiceOverlay
+                zClass="z-[250]"
+                title={language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
+                items={frontTabs.map((ft) => ({
+                  key: ft.id,
+                  label: translateFrontStructure(ft.name, language),
+                  count: ft.count,
+                }))}
+                selectedKey={poiCatFilter}
+                allLabel={language === "en" ? "All categories" : language === "ar" ? "جميع الفئات" : "Toutes les catégories"}
+                onSelectAll={() => {
+                  setPoiCatFilter(null); setPoiSubcatFilter(null); setPoiCategoryBusinesses([]);
+                  setPoiCategoryBusinessCatId(null); setDescGridPage(0); setDescGridSection("poi");
+                  setPoiShowAll(false); setPoiPillOverlay(null);
+                }}
+                onSelect={(key) => {
+                  const ft = frontTabs.find((t) => t.id === key);
+                  setPoiPillOverlay(null);
+                  setPoiCatFilter(key);
+                  setPoiSubcatFilter(null);
+                  setDescGridPage(0);
+                  setDescGridSection("poi");
+                  setShowDescriptionOverlay(true);
+                  setPoiShowAll(false);
+                  infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" });
+                  if (onSearch && business?.city && ft && ft.subcategoryNames.size > 0) {
+                    onSearch({
+                      subcats: Array.from(ft.subcategoryNames).join("|"),
+                      city: business.city,
+                      label: ft.name,
+                      _t: String(Date.now()),
+                    });
+                  }
+                }}
+                onClose={() => setPoiPillOverlay(null)}
+              />
+            )}
+
+
             <PoiGoogleMap
               pois={poiMapMode === "destinations"
                 ? [
