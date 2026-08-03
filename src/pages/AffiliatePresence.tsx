@@ -136,6 +136,7 @@ const AffiliatePresence = () => {
   const [editedFields, setEditedFields] = useState<Record<string, Record<string, any>>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
   const [selectedBusiness, setSelectedBusiness] = useState<string | null>(null);
+  const [pendingBusinessId, setPendingBusinessId] = useState<string | null>(null);
   const [cities, setCities] = useState<CityOption[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<NeighborhoodOption[]>([]);
   const [affiliateId, setAffiliateId] = useState<string | null>(null);
@@ -429,6 +430,31 @@ const AffiliatePresence = () => {
     });
   })();
 
+  const requestSelectBusiness = (id: string) => {
+    if (id === selectedBusiness) return;
+    if (hasEdits) {
+      setPendingBusinessId(id);
+      return;
+    }
+    setSelectedBusiness(id);
+  };
+
+  const discardAndSwitch = () => {
+    if (!pendingBusinessId) return;
+    if (selectedBusiness) {
+      setEditedFields(prev => { const n = { ...prev }; delete n[selectedBusiness]; return n; });
+    }
+    setSelectedBusiness(pendingBusinessId);
+    setPendingBusinessId(null);
+  };
+
+  const saveAndSwitch = async () => {
+    if (!pendingBusinessId || !selectedBusiness) return;
+    const target = pendingBusinessId;
+    await handleSave(selectedBusiness);
+    setSelectedBusiness(target);
+    setPendingBusinessId(null);
+  };
 
   const getCurrentValue = (bizId: string, key: string, original: any) => {
     return editedFields[bizId]?.[key] !== undefined ? editedFields[bizId][key] : (original ?? "");
@@ -458,6 +484,27 @@ const AffiliatePresence = () => {
         <div className="flex flex-col gap-4 mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Présence en ligne</h1>
         </div>
+
+        <Dialog open={!!pendingBusinessId} onOpenChange={(o) => { if (!o) setPendingBusinessId(null); }}>
+          <DialogContent className="bg-card border-border text-foreground sm:max-w-md top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <DialogHeader>
+              <DialogTitle>Modifications non enregistrées</DialogTitle>
+              <DialogDescription className="text-muted-foreground">
+                Vous avez des modifications non enregistrées sur{" "}
+                <span className="text-white font-medium">{currentBusiness?.name}</span>. Voulez-vous les
+                enregistrer avant de changer d'établissement ?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2">
+              <Button variant="ghost" onClick={() => setPendingBusinessId(null)}>Annuler</Button>
+              <Button variant="outline" onClick={discardAndSwitch}>Ne pas enregistrer</Button>
+              <Button onClick={saveAndSwitch} disabled={savingId === selectedBusiness}>
+                {savingId === selectedBusiness ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+                Enregistrer
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogContent className="bg-card border-border text-foreground">
@@ -538,7 +585,7 @@ const AffiliatePresence = () => {
                   return (
                     <button
                       key={b.id}
-                      onClick={() => setSelectedBusiness(b.id)}
+                      onClick={() => requestSelectBusiness(b.id)}
                       className={`shrink-0 text-left p-3 rounded-lg border transition-colors min-w-[200px] max-w-[260px] ${
                         isSelected
                           ? "border-primary bg-primary/10"
