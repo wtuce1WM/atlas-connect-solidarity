@@ -1,6 +1,7 @@
 // Immersive tides widget — Moroccan coastal cities (Essaouira, Agadir, Taghazout…).
 // Data comes from the public `tides` edge function (Open-Meteo Marine, MSL-referenced).
 import React from "react";
+import EmbedWindView, { type WindPayload } from "./EmbedWindView";
 
 export type TideExtreme = { time: string; type: "high" | "low"; height: number };
 export type TideCurvePoint = { time: string; height: number };
@@ -10,13 +11,17 @@ export type TidesPayload = {
   city_name: string;
   sea: "atlantic" | "mediterranean";
   timezone?: string;
+  lat?: number | null;
+  lon?: number | null;
   now: {
     height: number | null;
     trend: "rising" | "falling" | "slack";
     wave_height: number | null;
     wave_period: number | null;
     sea_temperature: number | null;
+    wave_direction?: number | null;
   };
+  wind?: WindPayload | null;
   previous_extreme: TideExtreme | null;
   extremes: TideExtreme[];
   curve: TideCurvePoint[];
