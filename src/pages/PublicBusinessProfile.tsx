@@ -575,16 +575,20 @@ const PublicBusinessProfile = () => {
             })()}
           </div>
 
-          <a
-            href={withLangPrefix("/club", language)}
-            className="b-rise-item mt-8 inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-extrabold shadow-lg transition-all text-neutral-900 border border-neutral-900/10 hover:opacity-90 active:scale-95"
-            style={{ 
-              backgroundColor: "#ECD6B8",
-              animationDelay: `${0.66 + (links.length + 3) * 0.08}s`
-            }}
-          >
-            Un compte One World Morocco ?
-          </a>
+          {!hideClubCta && (
+            <a
+              href={withLangPrefix("/club", language)}
+              target={embed ? "_blank" : undefined}
+              rel={embed ? "noopener noreferrer" : undefined}
+              className="b-rise-item mt-8 inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-extrabold shadow-lg transition-all text-neutral-900 border border-neutral-900/10 hover:opacity-90 active:scale-95"
+              style={{ 
+                backgroundColor: "#ECD6B8",
+                animationDelay: `${0.66 + (links.length + 3) * 0.08}s`
+              }}
+            >
+              Un compte One World Morocco ?
+            </a>
+          )}
 
         </div>
       </div>
