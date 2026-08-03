@@ -493,7 +493,9 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   const poisKey = useMemo(() => {
     const ids = pois.map(p => p.id).sort().join(",");
     const c = center ? `${center.lat},${center.lng}` : "";
-    const u = userLocation ? `${userLocation.lat},${userLocation.lng}` : "";
+    // Le marqueur "Vous êtes ici" ne doit pas influencer le centrage quand on force
+    // un centrage sur le marqueur master (centerAtBottomRatio).
+    const u = centerAtBottomRatio != null ? "" : (userLocation ? `${userLocation.lat},${userLocation.lng}` : "");
     const r = centerAtBottomRatio != null ? String(centerAtBottomRatio) : "";
     return `${ids}|${c}|${u}|${r}`;
   }, [pois, center, userLocation, centerAtBottomRatio]);
