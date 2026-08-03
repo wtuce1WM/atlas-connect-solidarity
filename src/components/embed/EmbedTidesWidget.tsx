@@ -259,16 +259,21 @@ export default function EmbedTidesWidget({
   data,
   lang = "fr",
   compact = false,
+  onCityChange,
 }: {
   data: TidesPayload;
   lang?: Lang;
   compact?: boolean;
+  onCityChange?: (slug: string) => void;
 }) {
   const L = T[lang];
   const hasWind = !!(data.wind && data.wind.speed != null && data.wind.direction != null);
   const [view, setView] = React.useState<"tides" | "wind" | "weather">("tides");
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
   const windLabel = lang === "en" ? "Wind" : lang === "ar" ? "الريح" : "Vent";
   const weatherLabel = lang === "en" ? "Weather" : lang === "ar" ? "الطقس" : "Météo";
+  const settingsLabel = lang === "en" ? "Settings" : lang === "ar" ? "الإعدادات" : "Paramètres";
+
 
   // Lazy-loaded weather for the same city (reuses the Weather widget payload).
   const [weather, setWeather] = React.useState<WeatherPayload | null>(null);
