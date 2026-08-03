@@ -259,9 +259,26 @@ export default function EmbedWeatherWidget({
               <span>↓ {data.temp_min}°</span>
               <span>↑ {data.temp_max}°</span>
               <span>💧 {data.humidity}%</span>
-              <span>💨 {data.wind_speed} km/h</span>
               {hasRain && <span>☔️ {L.rain}</span>}
             </div>
+
+            {/* Wind detail */}
+            <div className="mt-2 inline-flex items-center gap-2 rounded-2xl bg-white/15 backdrop-blur px-2.5 py-1.5 text-xs">
+              <span
+                className="text-base leading-none"
+                style={{ transform: `rotate(${(data.wind_direction ?? 0) + 180}deg)` }}
+                aria-hidden
+              >
+                ➤
+              </span>
+              <span className="font-semibold">{data.wind_speed} km/h</span>
+              {data.wind_direction != null && <span className="opacity-85">{compassLabel(data.wind_direction, lang)}</span>}
+              <span className="opacity-75">· {L.beaufort} {beaufort(data.wind_speed)}</span>
+              {data.wind_gust != null && data.wind_gust > data.wind_speed && (
+                <span className="opacity-75">· {L.gust} {data.wind_gust} km/h</span>
+              )}
+            </div>
+
           </div>
           <div className={`text-7xl select-none ${main.anim}`} aria-hidden>{main.emoji}</div>
         </div>
