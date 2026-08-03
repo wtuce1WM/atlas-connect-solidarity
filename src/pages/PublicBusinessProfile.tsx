@@ -121,10 +121,39 @@ const PublicBusinessProfile = () => {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const { language } = useLanguage();
   const lang = (language || "fr").toLowerCase();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const params = useMemo(
+    () => new URLSearchParams(typeof window !== "undefined" ? window.location.search : ""),
+    [],
+  );
+  const bare = params.get("bare") === "1";
+  const embed = params.get("embed") === "1";
+  const hideClubCta = embed && params.get("club") === "0";
   const pickPromo = (p: Promotion, field: "title" | "promotion_message") => {
     const val = (p as any)[`${field}_${lang}`] as string | null | undefined;
     return val || (p as any)[`${field}_fr`] || (p as any)[field] || "";
   };
+
+  // Mode widget : remonte la hauteur réelle au site hôte pour auto-resize de l'iframe
+  useEffect(() => {
+    if (!embed) return;
+    const el = rootRef.current;
+    if (!el) return;
+    const post = () =>
+      window.parent?.postMessage(
+        { type: "owm-fiche-height", height: Math.ceil(el.getBoundingClientRect().height) },
+        "*",
+      );
+    post();
+    const ro = new ResizeObserver(post);
+    ro.observe(el);
+    const timers = [300, 900, 1600, 2600].map((ms) => window.setTimeout(post, ms));
+    return () => {
+      ro.disconnect();
+      timers.forEach((t) => window.clearTimeout(t));
+    };
+  }, [embed, business, promotions, descExpanded]);
+
 
   useEffect(() => {
     let cancelled = false;
