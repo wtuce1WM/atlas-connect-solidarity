@@ -781,6 +781,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
 
   // Smooth pan + zoom to selected poi — speed & easing adapt to distance/zoom delta
   useEffect(() => {
+    // L'overlay BookOnline impose le Master comme unique critère de centrage.
+    if (centerAtBottomRatio != null) return;
     if (!mapRef.current || !selectedPoiId) return;
     const poi = pois.find((p) => p.id === selectedPoiId);
     if (!poi?.latitude || !poi?.longitude) return;
@@ -799,7 +801,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     }
 
     doAnimateToPoi(poi);
-  }, [selectedPoiId, pois]);
+  }, [selectedPoiId, pois, centerAtBottomRatio]);
 
   const animateRafRef = useRef<number | null>(null);
   const doAnimateToPoi = useRef((poi: PoiMapItem) => {
