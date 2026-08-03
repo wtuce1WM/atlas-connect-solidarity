@@ -601,10 +601,10 @@ const Club = () => {
           <div className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-24 flex flex-col items-center justify-center gap-8 min-h-[92vh]">
             {/* Member benefits heading + 6 CTA badges above auth card */}
             <div className="w-full max-w-3xl md:max-w-4xl mx-auto text-center">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-2" style={{ fontFamily: "Montserrat, sans-serif" }}>
+              <h1 style={{ lineHeight: 1.2 }} className="font-josefin text-[26px] sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-4xl mx-auto [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] mb-2">
                 {t.platformHeadline}
               </h1>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3" style={{ fontFamily: "Montserrat, sans-serif" }}>
+              <h2 style={{ lineHeight: 1.2 }} className="font-josefin text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] mb-3">
                 {t.benefits}
               </h2>
               <p className="text-sm sm:text-base text-white/90 mb-6 max-w-2xl mx-auto leading-relaxed">
