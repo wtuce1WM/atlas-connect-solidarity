@@ -283,7 +283,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
                 centerAtBottomRatio={0.4}
                 fitRadiusKm={radiusKm}
                 mapTypeId={mapTypeId}
-                mapTheme="light"
+                mapTheme={bgValid ? "light" : "default-light"}
                 baseColor={bgValid ? bg : null}
                 onPoiClick={(id) => setDefaultPoiId(id.startsWith("self-") ? "" : id)}
               />
