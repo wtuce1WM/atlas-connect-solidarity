@@ -136,7 +136,16 @@ function HourlyCurve({ hourly }: { hourly: WeatherHourly[] }) {
   );
 }
 
-export default function EmbedWeatherWidget({ data, lang = "fr" }: { data: WeatherPayload; lang?: Lang }) {
+export default function EmbedWeatherWidget({
+  data,
+  lang = "fr",
+  embedded = false,
+}: {
+  data: WeatherPayload;
+  lang?: Lang;
+  /** When true, renders flush inside a host card (no max-width, no rounding/shadow). */
+  embedded?: boolean;
+}) {
   const main = iconToEmoji(data.icon);
   const gradient = bgFor(data.icon);
   const days = (data.daily || []).slice(0, 3);
@@ -149,7 +158,8 @@ export default function EmbedWeatherWidget({ data, lang = "fr" }: { data: Weathe
   }[lang];
 
   return (
-    <div className="w-full max-w-[85%] rounded-3xl overflow-hidden shadow-xl">
+    <div className={embedded ? "w-full overflow-hidden" : "w-full max-w-[85%] rounded-3xl overflow-hidden shadow-xl"}>
+
       <style>{`
         @keyframes wxSunPulse { 0%,100% { transform: scale(1); filter: drop-shadow(0 0 24px rgba(255,220,120,0.55)); } 50% { transform: scale(1.06); filter: drop-shadow(0 0 40px rgba(255,220,120,0.85)); } }
         @keyframes wxCloudDrift { 0%,100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
