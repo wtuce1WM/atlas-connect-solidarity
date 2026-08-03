@@ -58,7 +58,9 @@ const BusinessCarousel = ({ section }: { section: BlogEditorialSection }) => {
         .select("id,name,city,neighborhood,images,computed_rating,hook_fr,categories")
         .eq("is_active", true)
         .eq("city", city)
-        .limit(200);
+        .contains("categories", [section.carouselSubcategory || "Sports nautiques"])
+        .limit(500);
+
       if (cancelled || !data) return;
       const filtered = (data as CarouselBusiness[]).filter(
         (b) => (b.categories?.[0] || "").toLowerCase() === sub,
