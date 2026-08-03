@@ -118,7 +118,7 @@ function HourlyCurve({ hourly }: { hourly: WeatherHourly[] }) {
         </linearGradient>
       </defs>
       <path d={area} fill="url(#wxArea)" />
-      <path d={path} fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+      <path d={path} fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" />
       {pts.map((p, i) => {
         const cx = xAt(i);
         const cy = yAt(p.temp);
