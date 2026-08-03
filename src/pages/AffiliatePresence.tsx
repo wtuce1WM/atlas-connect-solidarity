@@ -28,6 +28,8 @@ import AffiliateTextEditor from "@/components/affiliate/AffiliateTextEditor";
 import AffiliateAiTextsEditor from "@/components/affiliate/AffiliateAiTextsEditor";
 import AffiliateAgentIaEditor from "@/components/affiliate/AffiliateAgentIaEditor";
 import AffiliateMapEditor from "@/components/affiliate/AffiliateMapEditor";
+import AffiliateCtasEditor from "@/components/affiliate/AffiliateCtasEditor";
+
 
 import AffiliateHighlightsEditor from "@/components/affiliate/AffiliateHighlightsEditor";
 import AffiliatePromotionsEditor from "@/components/affiliate/AffiliatePromotionsEditor";
