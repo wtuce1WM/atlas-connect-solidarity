@@ -2563,6 +2563,7 @@ export type Database = {
           poi_business_style: string
           poi_description: string | null
           poi_hook: string | null
+          poi_radius_km: number
           popup_image_url: string | null
           presentation_mode: string
           prioritize_images: boolean
@@ -2745,6 +2746,7 @@ export type Database = {
           poi_business_style?: string
           poi_description?: string | null
           poi_hook?: string | null
+          poi_radius_km?: number
           popup_image_url?: string | null
           presentation_mode?: string
           prioritize_images?: boolean
@@ -2927,6 +2929,7 @@ export type Database = {
           poi_business_style?: string
           poi_description?: string | null
           poi_hook?: string | null
+          poi_radius_km?: number
           popup_image_url?: string | null
           presentation_mode?: string
           prioritize_images?: boolean
@@ -8185,6 +8188,7 @@ export type Database = {
               poi_business_style: string
               poi_description: string | null
               poi_hook: string | null
+              poi_radius_km: number
               popup_image_url: string | null
               presentation_mode: string
               prioritize_images: boolean
@@ -8383,6 +8387,7 @@ export type Database = {
               poi_business_style: string
               poi_description: string | null
               poi_hook: string | null
+              poi_radius_km: number
               popup_image_url: string | null
               presentation_mode: string
               prioritize_images: boolean
