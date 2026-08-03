@@ -44,6 +44,8 @@ interface PoiGoogleMapProps {
   showLayerControls?: boolean;
   /** Optional hex color (e.g. "#EFE6D8") overriding the light theme base/landscape color (widgets only). */
   baseColor?: string | null;
+  /** When provided, centers the map so the `center` marker sits at this ratio from the bottom of the viewport (0 = bottom, 0.5 = middle, 1 = top). Overrides fitToMarkers. */
+  centerAtBottomRatio?: number;
 }
 
 const LIGHT_MAP_STYLES: google.maps.MapTypeStyle[] = [
@@ -336,7 +338,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     }
   };
 
-const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls, baseColor }: PoiGoogleMapProps) => {
+const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls, baseColor, centerAtBottomRatio }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -492,8 +494,9 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     const ids = pois.map(p => p.id).sort().join(",");
     const c = center ? `${center.lat},${center.lng}` : "";
     const u = userLocation ? `${userLocation.lat},${userLocation.lng}` : "";
-    return `${ids}|${c}|${u}`;
-  }, [pois, center, userLocation]);
+    const r = centerAtBottomRatio != null ? String(centerAtBottomRatio) : "";
+    return `${ids}|${c}|${u}|${r}`;
+  }, [pois, center, userLocation, centerAtBottomRatio]);
 
   // Track whether we need to re-fit bounds (only when pois/center change, not iconCache)
   const needsFitRef = useRef(true);
@@ -660,6 +663,39 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       overlaysRef.current.set(poi.id, overlay);
     });
 
+    // When centerAtBottomRatio is provided, keep the master marker fixed at that ratio
+    // from the bottom of the viewport and ignore fitToMarkers.
+    const hasCenterOffset = centerAtBottomRatio != null && center != null && centerAtBottomRatio >= 0 && centerAtBottomRatio <= 1;
+
+    if (hasCenterOffset) {
+      if (needsFitRef.current) {
+        needsFitRef.current = false;
+        gmaps.event.trigger(map, "resize");
+        const applyCenterOffset = () => {
+          const projection = map.getProjection();
+          if (!projection) return;
+          const zoom = map.getZoom() || 0;
+          const scale = Math.pow(2, zoom);
+          const height = map.getDiv().clientHeight;
+          // ratio=0.4 means the marker is 40% from the bottom → 10% below the center.
+          // Move the map center up by that amount so the marker ends up at the desired ratio.
+          const offsetPixels = (0.5 - centerAtBottomRatio!) * height;
+          const offsetWorld = offsetPixels / scale;
+          const centerPoint = projection.fromLatLngToPoint(new gmaps.LatLng(center!.lat, center!.lng));
+          const newCenterPoint = new gmaps.Point(centerPoint.x, centerPoint.y - offsetWorld);
+          const newCenter = projection.fromPointToLatLng(newCenterPoint);
+          if (newCenter) map.setCenter(newCenter);
+          hasFittedRef.current = true;
+        };
+        if (map.getProjection()) {
+          applyCenterOffset();
+        } else {
+          gmaps.event.addListenerOnce(map, "projection_changed", applyCenterOffset);
+        }
+      }
+      return;
+    }
+
     // In fitToMarkers mode, fit strictly to result markers so all are visible.
     // Otherwise also include center/userLocation in the bounds.
     if (!(fitToMarkers && hasPoints)) {
@@ -685,7 +721,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         hasFittedRef.current = true;
       });
     }
-  }, [pois, ready, center, iconCache, userLocation]);
+  }, [pois, ready, center, iconCache, userLocation, centerAtBottomRatio, fitToMarkers]);
 
   // Update overlay highlighting when selectedPoiId changes
   const prevSelectedRef = useRef<string | null>(null);
