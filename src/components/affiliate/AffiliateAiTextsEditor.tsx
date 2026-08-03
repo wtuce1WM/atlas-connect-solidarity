@@ -379,7 +379,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
                 </div>
 
                 <div className="flex justify-end">
-                  <Button onClick={() => save(t)} disabled={savingId === t.id}>
+                  <Button onClick={() => save(t)} disabled={savingId === t.id || !isDirty(t)}>
                     {savingId === t.id && <Loader2 className="h-4 w-4 animate-spin" />} Enregistrer
                   </Button>
                 </div>
