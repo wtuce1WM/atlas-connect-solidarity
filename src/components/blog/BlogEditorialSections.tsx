@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import { Waves, Clock3, Copy, Check, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Waves, Clock3, Copy, Check, Sparkles, Wind, Bell, ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Editorial (long-form) sections for the blog article template.
@@ -8,8 +9,8 @@ import { Waves, Clock3, Copy, Check, Sparkles } from "lucide-react";
  * ONE WORLD MOROCCO widgets at chosen points of the reading flow.
  */
 export interface BlogEditorialSection {
-  /** "text" (default) = prose block, "widget" = embedded widget, "entries" = insert the establishment list here. */
-  kind?: "text" | "widget" | "entries";
+  /** "text" (default) = prose block, "widget" = embedded widget, "entries" = insert the establishment list here, "carousel" = horizontal establishment carousel. */
+  kind?: "text" | "widget" | "entries" | "carousel";
   pretitle?: string;
   title?: string;
   paragraphs?: string[];
@@ -17,9 +18,164 @@ export interface BlogEditorialSection {
   /** Which widget presentation to render when kind === "widget". */
   widget?: "tides_live" | "tides_plan" | "tides_install";
   widgetCity?: string;
+  /** Carousel filters (kind === "carousel"). */
+  carouselCity?: string;
+  /** Default subcategory (first entry of businesses.categories). */
+  carouselSubcategory?: string;
+  /** Business names pinned first, in order. */
+  carouselFirst?: string[];
 }
 
 const SITE = "https://oneworldmorocco.com";
+
+type CarouselBusiness = {
+  id: string;
+  name: string;
+  city: string | null;
+  neighborhood: string | null;
+  images: string[] | null;
+  computed_rating: number | null;
+  hook_fr: string | null;
+  categories: string[] | null;
+};
+
+/** Horizontal carousel of establishments filtered by city + default subcategory. */
+const BusinessCarousel = ({ section }: { section: BlogEditorialSection }) => {
+  const [items, setItems] = useState<CarouselBusiness[]>([]);
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const city = section.carouselCity || "Essaouira";
+  const sub = (section.carouselSubcategory || "Sports nautiques").toLowerCase();
+  const pinned = useMemo(
+    () => (section.carouselFirst || []).map((n) => n.toLowerCase()),
+    [section.carouselFirst],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id,name,city,neighborhood,images,computed_rating,hook_fr,categories")
+        .eq("is_active", true)
+        .eq("city", city)
+        .limit(200);
+      if (cancelled || !data) return;
+      const filtered = (data as CarouselBusiness[]).filter(
+        (b) => (b.categories?.[0] || "").toLowerCase() === sub,
+      );
+      filtered.sort((a, b) => {
+        const pa = pinned.indexOf(a.name.toLowerCase());
+        const pb = pinned.indexOf(b.name.toLowerCase());
+        if (pa !== -1 || pb !== -1) {
+          if (pa === -1) return 1;
+          if (pb === -1) return -1;
+          return pa - pb;
+        }
+        return (b.computed_rating ?? 0) - (a.computed_rating ?? 0);
+      });
+      setItems(filtered);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [city, sub, pinned]);
+
+  const scrollBy = (dir: -1 | 1) => {
+    scrollerRef.current?.scrollBy({ left: dir * 320, behavior: "smooth" });
+  };
+
+  if (items.length === 0) return null;
+
+  return (
+    <section className="py-14 bg-background">
+      <div className="container mx-auto px-4 max-w-6xl">
+        <div className="flex items-end justify-between gap-4 mb-6">
+          <div>
+            {section.pretitle && (
+              <p className="text-sm uppercase tracking-wider mb-2 text-primary">{section.pretitle}</p>
+            )}
+            {section.title && (
+              <h2 className="text-2xl md:text-4xl font-bold font-['Playfair_Display'] italic leading-tight text-foreground">
+                {section.title}
+              </h2>
+            )}
+          </div>
+          <div className="hidden md:flex gap-2 shrink-0">
+            <button
+              type="button"
+              aria-label="Précédent"
+              onClick={() => scrollBy(-1)}
+              className="h-10 w-10 rounded-full border border-border bg-muted/40 text-foreground grid place-items-center transition hover:bg-muted"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              aria-label="Suivant"
+              onClick={() => scrollBy(1)}
+              className="h-10 w-10 rounded-full border border-border bg-muted/40 text-foreground grid place-items-center transition hover:bg-muted"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
+        {section.paragraphs && section.paragraphs.length > 0 && (
+          <div className="space-y-4 mb-6 text-foreground/85">
+            {section.paragraphs.map((p, i) => (
+              <p key={i} className="text-base md:text-lg leading-relaxed">
+                {p}
+              </p>
+            ))}
+          </div>
+        )}
+
+        <div
+          ref={scrollerRef}
+          className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-hide"
+        >
+          {items.map((b) => (
+            <a
+              key={b.id}
+              href={`/search?openBusiness=${b.id}`}
+              className="group relative shrink-0 snap-start w-[260px] md:w-[300px] overflow-hidden rounded-2xl border border-border bg-muted/20"
+            >
+              <div className="relative aspect-[4/3] overflow-hidden">
+                {b.images?.[0] ? (
+                  <img
+                    src={b.images[0]}
+                    alt={b.name}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-muted" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+                {typeof b.computed_rating === "number" && (
+                  <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-black/70 px-2.5 py-1 text-[11px] font-bold text-gold">
+                    <Star className="h-3 w-3 fill-gold" />
+                    {Number(b.computed_rating).toFixed(1)}/20
+                  </span>
+                )}
+                <div className="absolute bottom-0 left-0 right-0 p-3">
+                  {b.neighborhood && (
+                    <p className="text-[11px] uppercase tracking-wider text-white/70">{b.neighborhood}</p>
+                  )}
+                  <p className="text-base font-bold text-white leading-snug">{b.name}</p>
+                </div>
+              </div>
+              {b.hook_fr && (
+                <p className="p-3 text-sm leading-relaxed text-foreground/75 line-clamp-3">{b.hook_fr}</p>
+              )}
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 
 /**
  * Auto-resizing tides iframe: the embed posts its measured height
