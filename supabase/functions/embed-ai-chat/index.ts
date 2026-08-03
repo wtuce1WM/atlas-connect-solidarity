@@ -3101,8 +3101,18 @@ Deno.serve(async (req) => {
 
         // Build conversation
         const system = buildSystemPrompt(host, language);
+        const ownerTextSystem = ownerAiTexts.length
+          ? [
+              "SOURCE PROPRIÉTAIRE (textes rédigés/validés par l'établissement, liés à cette suggestion/relance).",
+              "Appuie ta réponse sur ces textes en priorité, sans les recopier mot pour mot, et sans jamais citer de prix.",
+              ...ownerAiTexts.map((t, i) =>
+                `--- Texte ${i + 1}${t.title ? ` — ${t.title}` : ""}\n${t.hook ? `${t.hook}\n` : ""}${t.content.slice(0, 2000)}`,
+              ),
+            ].join("\n\n")
+          : null;
         const convo: Msg[] = [
           { role: "system", content: system },
+          ...(ownerTextSystem ? [{ role: "system" as const, content: ownerTextSystem }] : []),
           // Assistant turns are long (recommandations markdown) — 1200 chars suffisent au rappel contextuel.
           ...inMessages.map((m) => ({ role: m.role, content: String(m.content).slice(0, m.role === "user" ? 800 : 1200) })),
         ];
