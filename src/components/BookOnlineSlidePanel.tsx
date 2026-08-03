@@ -2983,7 +2983,7 @@ const BookOnlineSlidePanelInner = ({
 
 
                 {showAllToggle && (
-                  <div className="inline-flex rounded-full bg-white/90 backdrop-blur-sm shadow-lg ring-1 ring-black/10 p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                  <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                     <button
                       type="button"
                       onClick={() => setPoiShowAll(false)}
@@ -3000,7 +3000,7 @@ const BookOnlineSlidePanelInner = ({
                     </button>
                   </div>
                 )}
-                <div className="inline-flex rounded-full bg-white/90 backdrop-blur-sm shadow-lg ring-1 ring-black/10 p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                   {embedMode ? (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -3037,7 +3037,7 @@ const BookOnlineSlidePanelInner = ({
                   )}
                 </div>
                 {showCatPill && (
-                  <div className="inline-flex rounded-full bg-white/90 backdrop-blur-sm shadow-lg ring-1 ring-black/10 p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                  <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                     {embedMode ? (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
