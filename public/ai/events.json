@@ -2,28 +2,10 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/events.json",
-    "generated_at": "2026-08-02T13:57:06.345Z",
-    "count": 37
+    "generated_at": "2026-08-03T11:53:09.894Z",
+    "count": 36
   },
   "events": [
-    {
-      "id": "35d5cedd-ca46-4a62-9f5b-b17a113000d6",
-      "name": "David Seidner – Yves Saint Laurent",
-      "hook": null,
-      "description": "Cette exposition, dédiée à la collaboration entre David Seidner (1957–1999) et la Maison Yves Saint Laurent, de 1983 à 1995, témoigne de la confiance et de la liberté accordées au jeune artiste par le couturier. Découvert par Pierre Bergé à Paris au début des années 1980, il se verra confier rapidement l’image du parfum Paris, et il enchaînera par la suite de multiples campagnes, tout en poursuiva",
-      "start_date": "2025-09-15",
-      "end_date": "2026-08-02",
-      "start_time": null,
-      "end_time": null,
-      "recurrence": null,
-      "days_of_week": [],
-      "type": "Exposition temporaire",
-      "city": null,
-      "latitude": null,
-      "longitude": null,
-      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1775907594389-ygokpd.jpg",
-      "url": "https://www.museeyslmarrakech.com/fr/expositions/temporaires/expositions-en-cours/"
-    },
     {
       "id": "d39ad845-de4e-473e-83e4-78c3a11aca9a",
       "name": "Yves Saint Laurent en scène",
