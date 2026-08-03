@@ -46,7 +46,12 @@ interface PoiGoogleMapProps {
   baseColor?: string | null;
   /** When provided, centers the map so the `center` marker sits at this ratio from the bottom of the viewport (0 = bottom, 0.5 = middle, 1 = top). Overrides fitToMarkers. */
   centerAtBottomRatio?: number;
+  /** Base map type: "roadmap" (default) or "terrain" (relief). */
+  mapTypeId?: "roadmap" | "terrain";
+  /** When provided together with centerAtBottomRatio, the zoom adjusts so this radius (km) around `center` fits the viewport. */
+  fitRadiusKm?: number | null;
 }
+
 
 const LIGHT_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: "poi", elementType: "labels.text", stylers: [{ visibility: "off" }] },
