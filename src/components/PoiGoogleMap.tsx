@@ -404,6 +404,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     });
   }, [pois, subcategoryIconMap]);
 
+  const userMovedRef = useRef(false);
+
   const isNativeTheme = mapTheme === "default-light" || mapTheme === "default-dark";
 
   // Convertit la position verticale voulue du marqueur en latitude de centre.
@@ -469,6 +471,12 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     }
     mapRef.current = new gmaps.Map(containerRef.current, opts);
     infoWindowRef.current = new gmaps.InfoWindow();
+    // Dès que l'utilisateur navigue (drag, zoom, double-clic), on abandonne
+    // définitivement la contrainte de centrage du marqueur Master.
+    const markUserMoved = () => { userMovedRef.current = true; };
+    mapRef.current.addListener("dragstart", markUserMoved);
+    mapRef.current.addListener("dblclick", markUserMoved);
+    containerRef.current.addEventListener("wheel", markUserMoved, { passive: true });
     mapRef.current.addListener("click", () => {
       openInfoPoiIdRef.current = null;
       infoWindowRef.current?.close();
@@ -480,6 +488,12 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     if (!map) return;
     map.setOptions({ fullscreenControl: false });
   }, [ready]);
+
+  // Un changement de rayon (pill « À proximité ») est une intention explicite :
+  // on réautorise un recentrage/zoom sur le Master.
+  useEffect(() => {
+    userMovedRef.current = false;
+  }, [fitRadiusKm]);
 
   // Bascule du type de carte (plan / satellite / relief) sans reconstruire la carte.
   useEffect(() => {
@@ -716,7 +730,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     // de construction de la carte. Aucun fitBounds/setCenter/pan ne doit le remplacer.
     const hasCenterOffset = centerAtBottomRatio != null && center != null && centerAtBottomRatio >= 0 && centerAtBottomRatio <= 1;
 
-    if (hasCenterOffset) {
+    if (hasCenterOffset && !userMovedRef.current) {
       needsFitRef.current = false;
       hasFittedRef.current = true;
       // Position unique et invariante : le Master reste à `centerAtBottomRatio`
