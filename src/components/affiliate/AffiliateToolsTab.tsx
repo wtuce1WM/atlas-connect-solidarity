@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import AffiliateArticleExport from "@/components/affiliate/AffiliateArticleExport";
+import WidgetTester from "@/components/affiliate/WidgetTester";
 
 export type ToolsRights = {
   aiAssistant: boolean;
@@ -381,6 +382,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         <h3 className="text-white font-semibold flex items-center gap-2">
           <Bot className="h-4 w-4" /> Assistant IA embarqué (iframe)
         </h3>
+        <WidgetTester url={embedUrl} label="Assistant IA embarqué" />
         <p className="text-sm text-white/70">
           Copiez le code ci-dessous et collez-le dans le HTML de votre site (ou dans un bloc « Code »
           de votre CMS : WordPress, Squarespace, Wix, Webflow…). Vos visiteurs pourront poser des
@@ -604,6 +606,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         <h3 className="text-white font-semibold flex items-center gap-2">
           <MapPin className="h-4 w-4" /> Widget « À proximité » (carte + établissements autour de vous)
         </h3>
+        <WidgetTester url={nearbyUrl} label="Widget À proximité" />
         <p className="text-sm text-white/70">
           Ce widget reprend exactement l'overlay « À proximité » de votre fiche 1WM : la liste des
           établissements et lieux d'intérêt autour de {businessName}, les filtres par catégorie,
@@ -775,6 +778,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         <h3 className="text-white font-semibold flex items-center gap-2">
           <Star className="h-4 w-4" /> Widget Avis clients (iframe)
         </h3>
+        <WidgetTester url={reviewsUrl} label="Widget Avis clients" />
         <p className="text-sm text-white/70">
           Affichez vos avis Google, TripAdvisor et Restaurant Guru sur votre propre site : note /5,
           nombre d'avis, étoiles, avis détaillés (l'avis « par défaut » en premier, navigation au clic).
@@ -883,6 +887,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         <h3 className="text-white font-semibold flex items-center gap-2">
           <ThumbsUp className="h-4 w-4" /> Widget Laisser un avis (iframe)
         </h3>
+        <WidgetTester url={rateUrl} label="Widget Laisser un avis" />
         <p className="text-sm text-white/70">
           Incitez vos clients satisfaits à publier un avis : les 5 étoiles cliquables ouvrent directement
           le formulaire « Rédiger un avis » de Google et la page d'avis TripAdvisor. Seules les
@@ -1037,6 +1042,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         <h3 className="text-white font-semibold flex items-center gap-2">
           <CloudSun className="h-4 w-4" /> Widget Météo (iframe)
         </h3>
+        <WidgetTester url={weatherUrl} label="Widget Météo" />
         <p className="text-sm text-white/70">
           Météo du jour et prévisions pour votre ville, à intégrer sur votre site. Signature
           « oneworldmorocco.com » incluse.
@@ -1112,6 +1118,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         <h3 className="text-white font-semibold flex items-center gap-2">
           <Waves className="h-4 w-4" /> Widget Marées (iframe)
         </h3>
+        <WidgetTester url={tidesUrl} label="Widget Marées, Vents & Météo" />
         <p className="text-sm text-white/70">
           Horaires des marées pour les villes côtières marocaines (Essaouira, Agadir, Sidi Kaouki…).
           Signature « oneworldmorocco.com » incluse.
