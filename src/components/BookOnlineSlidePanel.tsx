@@ -44,6 +44,7 @@ import { useDragToHide } from "@/hooks/useDragToHide";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
+import PoiFilterChoiceOverlay from "@/components/PoiFilterChoiceOverlay";
 
 import { useBookOnlineData } from "@/hooks/useBookOnlineData";
 import type { Destination, PoiBusiness } from "@/hooks/useBookOnlineData";
@@ -399,6 +400,7 @@ const BookOnlineSlidePanelInner = ({
   const [showPoiMapOverlay, setShowPoiMapOverlay] = useState(initialOverlay === "poi");
   const [poiMapMode, setPoiMapMode] = useState<"poi" | "destinations">("poi");
   const [poiSubcatFilter, setPoiSubcatFilter] = useState<string | null>(null);
+  const [poiPillOverlay, setPoiPillOverlay] = useState<"poi" | "cat" | null>(null);
   const [poiSubcatOpen, setPoiSubcatOpen] = useState(false);
   const [poiShowAll, setPoiShowAll] = useState(false);
   const [poiProximityKm, setPoiProximityKm] = useState<number | null>(null);
@@ -2921,72 +2923,25 @@ const BookOnlineSlidePanelInner = ({
                   </div>
                 )}
                 <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        type="button"
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${!poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
-                      >
-                        <MapPin className="h-3.5 w-3.5" />
-                        {poiSubcatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="z-[260] max-h-80 overflow-y-auto">
-                      {poiSubcatFilter && (
-                        <DropdownMenuItem onSelect={() => setPoiSubcatFilter(null)}>
-                          {language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
-                        </DropdownMenuItem>
-                      )}
-                      {poiSubcatList.map(([name, count]) => (
-                        <DropdownMenuItem key={name} onSelect={() => setPoiSubcatFilter(name)}>
-                          {translateSubcategory(name, language)} <span className="ml-1 opacity-60">({count})</span>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <button
+                    type="button"
+                    onClick={() => setPoiPillOverlay("poi")}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${!poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                  >
+                    <MapPin className="h-3.5 w-3.5" />
+                    {poiSubcatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
+                  </button>
                 </div>
                 {showCatPill && (
                   <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          type="button"
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
-                        >
-                          <SlidersHorizontal className="h-3.5 w-3.5" />
-                          {(activeFrontTab && translateFrontStructure(activeFrontTab.name, language)) || (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories")}
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="z-[260] max-h-80 overflow-y-auto">
-                        {poiCatFilter && (
-                          <DropdownMenuItem onSelect={() => { setPoiCatFilter(null); setPoiSubcatFilter(null); setPoiCategoryBusinesses([]); setPoiCategoryBusinessCatId(null); setDescGridPage(0); setDescGridSection("poi"); setPoiShowAll(false); }}>
-                            {language === "en" ? "All categories" : language === "ar" ? "جميع الفئات" : "Toutes les catégories"}
-                          </DropdownMenuItem>
-                        )}
-                        {frontTabs.map((ft) => (
-                          <DropdownMenuItem key={ft.id} onSelect={() => {
-                            setPoiCatFilter(ft.id);
-                            setPoiSubcatFilter(null);
-                            setDescGridPage(0);
-                            setDescGridSection("poi");
-                            setShowDescriptionOverlay(true);
-                            setPoiShowAll(false);
-                            infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" });
-                            if (onSearch && business?.city && ft.subcategoryNames.size > 0) {
-                              onSearch({
-                                subcats: Array.from(ft.subcategoryNames).join("|"),
-                                city: business.city,
-                                label: ft.name,
-                                _t: String(Date.now()),
-                              });
-                            }
-                          }}>
-
-                            {translateFrontStructure(ft.name, language)} <span className="ml-1 opacity-60">({ft.count})</span>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <button
+                      type="button"
+                      onClick={() => setPoiPillOverlay("cat")}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                    >
+                      <SlidersHorizontal className="h-3.5 w-3.5" />
+                      {(activeFrontTab && translateFrontStructure(activeFrontTab.name, language)) || (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories")}
+                    </button>
                   </div>
                 )}
                 {showProxPill && (
@@ -3030,6 +2985,63 @@ const BookOnlineSlidePanelInner = ({
                 )}
               </div>
             )}
+
+            {poiPillOverlay === "poi" && (
+              <PoiFilterChoiceOverlay
+                zClass="z-[250]"
+                title={language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt"}
+                items={poiSubcatList.map(([name, count]) => ({
+                  key: name,
+                  label: translateSubcategory(name, language),
+                  count,
+                }))}
+                selectedKey={poiSubcatFilter}
+                allLabel={language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
+                onSelectAll={() => { setPoiSubcatFilter(null); setPoiPillOverlay(null); }}
+                onSelect={(key) => { setPoiSubcatFilter(key); setPoiPillOverlay(null); }}
+                onClose={() => setPoiPillOverlay(null)}
+              />
+            )}
+
+            {poiPillOverlay === "cat" && (
+              <PoiFilterChoiceOverlay
+                zClass="z-[250]"
+                title={language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
+                items={frontTabs.map((ft) => ({
+                  key: ft.id,
+                  label: translateFrontStructure(ft.name, language),
+                  count: ft.count,
+                }))}
+                selectedKey={poiCatFilter}
+                allLabel={language === "en" ? "All categories" : language === "ar" ? "جميع الفئات" : "Toutes les catégories"}
+                onSelectAll={() => {
+                  setPoiCatFilter(null); setPoiSubcatFilter(null); setPoiCategoryBusinesses([]);
+                  setPoiCategoryBusinessCatId(null); setDescGridPage(0); setDescGridSection("poi");
+                  setPoiShowAll(false); setPoiPillOverlay(null);
+                }}
+                onSelect={(key) => {
+                  const ft = frontTabs.find((t) => t.id === key);
+                  setPoiPillOverlay(null);
+                  setPoiCatFilter(key);
+                  setPoiSubcatFilter(null);
+                  setDescGridPage(0);
+                  setDescGridSection("poi");
+                  setShowDescriptionOverlay(true);
+                  setPoiShowAll(false);
+                  infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" });
+                  if (onSearch && business?.city && ft && ft.subcategoryNames.size > 0) {
+                    onSearch({
+                      subcats: Array.from(ft.subcategoryNames).join("|"),
+                      city: business.city,
+                      label: ft.name,
+                      _t: String(Date.now()),
+                    });
+                  }
+                }}
+                onClose={() => setPoiPillOverlay(null)}
+              />
+            )}
+
 
             <PoiGoogleMap
               pois={poiMapMode === "destinations"
