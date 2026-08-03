@@ -127,8 +127,28 @@ Deno.serve(async (req) => {
     const plain = (s: string | null | undefined) =>
       String(s ?? "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 
+    // Contexte factuel de la fiche : sans ça, une consigne complémentaire du type
+    // « mets en avant les horaires » ne pouvait pas être suivie, la règle
+    // « n'invente rien » interdisant au modèle de parler d'une donnée absente.
+    const factsBlock = (() => {
+      const lines: string[] = [];
+      const oh = (biz as any).opening_hours;
+      if ((biz as any).is_open_24h) lines.push("Ouvert 24h/24.");
+      if (oh) {
+        const txt = typeof oh === "string" ? oh : JSON.stringify(oh);
+        if (txt && txt !== "{}" && txt !== "[]") lines.push(`Horaires d'ouverture : ${txt.slice(0, 900)}`);
+      }
+      const vac = (biz as any).vacation_dates;
+      if (vac) {
+        const txt = typeof vac === "string" ? vac : JSON.stringify(vac);
+        if (txt && txt !== "{}" && txt !== "[]") lines.push(`Périodes de fermeture : ${txt.slice(0, 400)}`);
+      }
+      return lines.join("\n");
+    })();
+
     let sourceBlock = "";
     let sourceLabel = "";
+
 
     if (mode === "reviews_suggestions" || mode === "reviews_pros_cons") {
       const { data: reviews } = await supabase
