@@ -136,6 +136,7 @@ const AffiliatePresence = () => {
   const [editedFields, setEditedFields] = useState<Record<string, Record<string, any>>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
   const [selectedBusiness, setSelectedBusiness] = useState<string | null>(null);
+  const [pendingBusinessId, setPendingBusinessId] = useState<string | null>(null);
   const [cities, setCities] = useState<CityOption[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<NeighborhoodOption[]>([]);
   const [affiliateId, setAffiliateId] = useState<string | null>(null);
