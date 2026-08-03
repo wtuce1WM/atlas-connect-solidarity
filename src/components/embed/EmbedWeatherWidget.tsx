@@ -108,6 +108,39 @@ function formatDayLabel(dateStr: string, lang: Lang): string {
   }
 }
 
+// Wind direction (meteorological degrees = where wind comes FROM) → compass label
+function compassLabel(deg: number, lang: Lang): string {
+  const fr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSO", "SO", "OSO", "O", "ONO", "NO", "NNO"];
+  const en = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+  const idx = Math.round(((deg % 360) + 360) % 360 / 22.5) % 16;
+  return (lang === "fr" ? fr : en)[idx];
+}
+
+// Beaufort scale from km/h
+function beaufort(kmh: number): number {
+  const bounds = [1, 5, 11, 19, 28, 38, 49, 61, 74, 88, 102, 117];
+  let b = 0;
+  for (const v of bounds) if (kmh >= v) b++;
+  return b;
+}
+
+// Open-Meteo WMO weather code → emoji
+function codeToEmoji(code: number | null | undefined): string {
+  if (code == null) return "☀️";
+  if (code === 0) return "☀️";
+  if (code <= 2) return "🌤️";
+  if (code === 3) return "☁️";
+  if (code === 45 || code === 48) return "🌫️";
+  if (code >= 51 && code <= 57) return "🌦️";
+  if (code >= 61 && code <= 67) return "🌧️";
+  if (code >= 71 && code <= 77) return "🌨️";
+  if (code >= 80 && code <= 82) return "🌧️";
+  if (code >= 85 && code <= 86) return "🌨️";
+  if (code >= 95) return "⛈️";
+  return "🌤️";
+}
+
+
 // SVG hourly curve
 function HourlyCurve({ hourly }: { hourly: WeatherHourly[] }) {
   const pts = hourly.slice(0, 8);
