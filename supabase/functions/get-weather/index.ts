@@ -96,19 +96,52 @@ serve(async (req) => {
       }
     }
 
+    // 7-day outlook + wind detail from Open-Meteo (free, no API key).
+    let daily7: any[] = [];
+    if (lat != null && lon != null) {
+      try {
+        const omUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+          `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant` +
+          `&forecast_days=7&timezone=Africa%2FCasablanca`;
+        const omRes = await fetch(omUrl);
+        if (omRes.ok) {
+          const om = await omRes.json();
+          const d = om.daily || {};
+          const times: string[] = d.time || [];
+          daily7 = times.map((date, i) => ({
+            date,
+            weather_code: d.weather_code?.[i] ?? null,
+            temp_min: Math.round(d.temperature_2m_min?.[i] ?? 0),
+            temp_max: Math.round(d.temperature_2m_max?.[i] ?? 0),
+            pop_max: Math.round(d.precipitation_probability_max?.[i] ?? 0),
+            wind_speed: Math.round(d.wind_speed_10m_max?.[i] ?? 0),
+            wind_gust: Math.round(d.wind_gusts_10m_max?.[i] ?? 0),
+            wind_direction: Math.round(d.wind_direction_10m_dominant?.[i] ?? 0),
+          }));
+        }
+      } catch (e) {
+        console.error('Open-Meteo 7-day fetch failed:', e);
+      }
+    }
+
     const weatherInfo = {
       temp: Math.round(data.main.temp),
       feels_like: Math.round(data.main.feels_like),
       temp_min: Math.round(data.main.temp_min),
       temp_max: Math.round(data.main.temp_max),
       humidity: data.main.humidity,
+      pressure: data.main.pressure ?? null,
       description: data.weather[0]?.description || '',
       icon: data.weather[0]?.icon || '',
       wind_speed: Math.round(data.wind.speed * 3.6),
+      wind_direction: data.wind?.deg != null ? Math.round(data.wind.deg) : null,
+      wind_gust: data.wind?.gust != null ? Math.round(data.wind.gust * 3.6) : null,
       city_name: data.name,
       hourly,
       daily,
+      daily7,
     };
+
 
     return new Response(JSON.stringify(weatherInfo), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

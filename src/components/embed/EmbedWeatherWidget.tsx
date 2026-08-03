@@ -9,6 +9,7 @@ export type WeatherHourly = {
   description?: string;
   icon?: string;
   pop?: number;
+  wind_speed?: number;
 };
 export type WeatherDaily = {
   date: string;
@@ -18,6 +19,16 @@ export type WeatherDaily = {
   icon?: string;
   pop_max?: number;
 };
+export type WeatherDaily7 = {
+  date: string;
+  weather_code?: number | null;
+  temp_min: number;
+  temp_max: number;
+  pop_max?: number;
+  wind_speed?: number;
+  wind_gust?: number;
+  wind_direction?: number;
+};
 export type WeatherPayload = {
   city_name: string;
   temp: number;
@@ -25,12 +36,17 @@ export type WeatherPayload = {
   temp_min: number;
   temp_max: number;
   humidity: number;
+  pressure?: number | null;
   wind_speed: number;
+  wind_direction?: number | null;
+  wind_gust?: number | null;
   description: string;
   icon?: string;
   hourly: WeatherHourly[];
   daily: WeatherDaily[];
+  daily7?: WeatherDaily7[];
 };
+
 
 type Lang = "fr" | "en" | "ar";
 
@@ -92,6 +108,39 @@ function formatDayLabel(dateStr: string, lang: Lang): string {
   }
 }
 
+// Wind direction (meteorological degrees = where wind comes FROM) → compass label
+function compassLabel(deg: number, lang: Lang): string {
+  const fr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSO", "SO", "OSO", "O", "ONO", "NO", "NNO"];
+  const en = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+  const idx = Math.round(((deg % 360) + 360) % 360 / 22.5) % 16;
+  return (lang === "fr" ? fr : en)[idx];
+}
+
+// Beaufort scale from km/h
+function beaufort(kmh: number): number {
+  const bounds = [1, 5, 11, 19, 28, 38, 49, 61, 74, 88, 102, 117];
+  let b = 0;
+  for (const v of bounds) if (kmh >= v) b++;
+  return b;
+}
+
+// Open-Meteo WMO weather code → emoji
+function codeToEmoji(code: number | null | undefined): string {
+  if (code == null) return "☀️";
+  if (code === 0) return "☀️";
+  if (code <= 2) return "🌤️";
+  if (code === 3) return "☁️";
+  if (code === 45 || code === 48) return "🌫️";
+  if (code >= 51 && code <= 57) return "🌦️";
+  if (code >= 61 && code <= 67) return "🌧️";
+  if (code >= 71 && code <= 77) return "🌨️";
+  if (code >= 80 && code <= 82) return "🌧️";
+  if (code >= 85 && code <= 86) return "🌨️";
+  if (code >= 95) return "⛈️";
+  return "🌤️";
+}
+
+
 // SVG hourly curve
 function HourlyCurve({ hourly }: { hourly: WeatherHourly[] }) {
   const pts = hourly.slice(0, 8);
@@ -148,14 +197,18 @@ export default function EmbedWeatherWidget({
 }) {
   const main = iconToEmoji(data.icon);
   const gradient = bgFor(data.icon);
+  const seven = data.daily7 || [];
+  const [range, setRange] = React.useState<3 | 7>(3);
+  const hasSeven = seven.length > 3;
   const days = (data.daily || []).slice(0, 3);
   const hasRain = /01d|01n|02/.test((data.icon || "").slice(0, 3)) === false && ((data.hourly || []).some((h) => (h.pop || 0) >= 20));
 
   const L = {
-    fr: { feels: "ressenti", humidity: "Humidité", wind: "Vent", rain: "Pluie", next: "Prochaines heures", days: "3 prochains jours" },
-    en: { feels: "feels like", humidity: "Humidity", wind: "Wind", rain: "Rain", next: "Next hours", days: "Next 3 days" },
-    ar: { feels: "محسوسة", humidity: "الرطوبة", wind: "الرياح", rain: "المطر", next: "الساعات القادمة", days: "الأيام الثلاثة القادمة" },
+    fr: { feels: "ressenti", humidity: "Humidité", wind: "Vent", gust: "rafales", rain: "Pluie", next: "Prochaines heures", days: "3 prochains jours", days7: "7 prochains jours", d3: "3 jours", d7: "7 jours", beaufort: "Force" },
+    en: { feels: "feels like", humidity: "Humidity", wind: "Wind", gust: "gusts", rain: "Rain", next: "Next hours", days: "Next 3 days", days7: "Next 7 days", d3: "3 days", d7: "7 days", beaufort: "Force" },
+    ar: { feels: "محسوسة", humidity: "الرطوبة", wind: "الرياح", gust: "هبات", rain: "المطر", next: "الساعات القادمة", days: "الأيام الثلاثة القادمة", days7: "الأيام السبعة القادمة", d3: "3 أيام", d7: "7 أيام", beaufort: "القوة" },
   }[lang];
+
 
   return (
     <div className={embedded ? "w-full overflow-hidden" : "w-full max-w-[85%] rounded-3xl overflow-hidden shadow-xl"}>
@@ -206,9 +259,26 @@ export default function EmbedWeatherWidget({
               <span>↓ {data.temp_min}°</span>
               <span>↑ {data.temp_max}°</span>
               <span>💧 {data.humidity}%</span>
-              <span>💨 {data.wind_speed} km/h</span>
               {hasRain && <span>☔️ {L.rain}</span>}
             </div>
+
+            {/* Wind detail */}
+            <div className="mt-2 inline-flex items-center gap-2 rounded-2xl bg-white/15 backdrop-blur px-2.5 py-1.5 text-xs">
+              <span
+                className="text-base leading-none"
+                style={{ transform: `rotate(${(data.wind_direction ?? 0) + 180}deg)` }}
+                aria-hidden
+              >
+                ➤
+              </span>
+              <span className="font-semibold">{data.wind_speed} km/h</span>
+              {data.wind_direction != null && <span className="opacity-85">{compassLabel(data.wind_direction, lang)}</span>}
+              <span className="opacity-75">· {L.beaufort} {beaufort(data.wind_speed)}</span>
+              {data.wind_gust != null && data.wind_gust > data.wind_speed && (
+                <span className="opacity-75">· {L.gust} {data.wind_gust} km/h</span>
+              )}
+            </div>
+
           </div>
           <div className={`text-7xl select-none ${main.anim}`} aria-hidden>{main.emoji}</div>
         </div>
@@ -222,27 +292,85 @@ export default function EmbedWeatherWidget({
         )}
       </div>
 
-      {/* 3-day strip */}
-      {days.length > 0 && (
+      {/* Forecast — 3 days (compact strip) or 7 days (rows with wind) */}
+      {(days.length > 0 || hasSeven) && (
         <div className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 px-4 py-3">
-          <div className="text-[11px] uppercase tracking-wider opacity-60 mb-2">{L.days}</div>
-          <div className="grid grid-cols-3 gap-2">
-            {days.map((d, i) => {
-              const em = iconToEmoji(d.icon);
-              return (
-                <div key={i} className="flex flex-col items-center justify-center rounded-2xl bg-neutral-100 dark:bg-neutral-800 px-2 py-3">
-                  <div className="text-[11px] font-medium opacity-80">{formatDayLabel(d.date, lang)}</div>
-                  <div className={`text-3xl mt-1 ${em.anim}`} aria-hidden>{em.emoji}</div>
-                  <div className="mt-1 text-sm font-semibold">{d.temp_max}° <span className="opacity-50 font-normal">/ {d.temp_min}°</span></div>
-                  {(d.pop_max ?? 0) >= 20 && (
-                    <div className="mt-0.5 text-[10px] opacity-70">💧 {d.pop_max}%</div>
-                  )}
-                </div>
-              );
-            })}
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <div className="text-[11px] uppercase tracking-wider opacity-60">{range === 7 ? L.days7 : L.days}</div>
+            {hasSeven && (
+              <div className="flex items-center gap-1 rounded-full bg-neutral-100 dark:bg-neutral-800 p-0.5">
+                {([3, 7] as const).map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setRange(r)}
+                    aria-pressed={range === r}
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                      range === r
+                        ? "bg-white dark:bg-neutral-900 shadow text-neutral-900 dark:text-white"
+                        : "text-neutral-500 dark:text-neutral-400"
+                    }`}
+                  >
+                    {r === 3 ? L.d3 : L.d7}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
+
+          {range === 7 ? (
+            <div className="flex flex-col gap-1.5">
+              {seven.slice(0, 7).map((d, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-2 rounded-2xl bg-neutral-100 dark:bg-neutral-800 px-3 py-2"
+                >
+                  <div className="w-[72px] shrink-0 text-[11px] font-medium opacity-80 truncate">
+                    {formatDayLabel(d.date, lang)}
+                  </div>
+                  <div className="text-xl leading-none" aria-hidden>{codeToEmoji(d.weather_code)}</div>
+                  <div className="text-sm font-semibold whitespace-nowrap">
+                    {d.temp_max}° <span className="opacity-50 font-normal">/ {d.temp_min}°</span>
+                  </div>
+                  <div className="ms-auto flex items-center gap-2.5 text-[11px] opacity-75 whitespace-nowrap">
+                    {(d.pop_max ?? 0) >= 20 && <span>💧 {d.pop_max}%</span>}
+                    {d.wind_speed != null && (
+                      <span className="flex items-center gap-1">
+                        <span
+                          className="inline-block leading-none"
+                          style={{ transform: `rotate(${(d.wind_direction ?? 0) + 180}deg)` }}
+                          aria-hidden
+                        >
+                          ➤
+                        </span>
+                        {d.wind_speed} km/h
+                        {d.wind_direction != null && <span className="opacity-70">{compassLabel(d.wind_direction, lang)}</span>}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-2">
+              {days.map((d, i) => {
+                const em = iconToEmoji(d.icon);
+                return (
+                  <div key={i} className="flex flex-col items-center justify-center rounded-2xl bg-neutral-100 dark:bg-neutral-800 px-2 py-3">
+                    <div className="text-[11px] font-medium opacity-80">{formatDayLabel(d.date, lang)}</div>
+                    <div className={`text-3xl mt-1 ${em.anim}`} aria-hidden>{em.emoji}</div>
+                    <div className="mt-1 text-sm font-semibold">{d.temp_max}° <span className="opacity-50 font-normal">/ {d.temp_min}°</span></div>
+                    {(d.pop_max ?? 0) >= 20 && (
+                      <div className="mt-0.5 text-[10px] opacity-70">💧 {d.pop_max}%</div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
+
 
       {/* Signature (hidden when nested inside a host widget that already has one) */}
       {!embedded && (
