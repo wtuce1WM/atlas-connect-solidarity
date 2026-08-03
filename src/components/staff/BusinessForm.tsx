@@ -4221,7 +4221,26 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   GPS
                 </Button>
               )}
+              <div className="space-y-2" style={{ width: '120px', minWidth: '120px' }}>
+                <Label htmlFor="poi_radius_km_top" className="text-xs">Rayon</Label>
+                <Select
+                  value={String((formData as any).poi_radius_km ?? 10)}
+                  onValueChange={(v) => handleChange("poi_radius_km" as any, v)}
+                >
+                  <SelectTrigger id="poi_radius_km_top" className="text-xs h-8">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="z-[100]">
+                    {["0.5", "1", "5", "10", "20", "50", "100"].map((km) => (
+                      <SelectItem key={km} value={km}>
+                        {km === "0.5" ? "- 500 m" : `- ${km} km`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
+
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
