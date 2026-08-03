@@ -418,6 +418,9 @@ const BookOnlineSlidePanelInner = ({
 
   const [poiCategoryBusinesses, setPoiCategoryBusinesses] = useState<PoiBusiness[]>([]);
   const [poiCategoryBusinessCatId, setPoiCategoryBusinessCatId] = useState<string | null>(null);
+  // Vivier ville complet (toutes catégories) : sert au calcul des compteurs
+  // catégories / sous-catégories dans le rayon du Pill "À proximité".
+  const [poiCityBusinesses, setPoiCityBusinesses] = useState<PoiBusiness[]>([]);
   const poiOpenedFromMapRef = useRef(false);
   // Embed: auto-open the "À proximité" overlay once the business is resolved.
   const autoPoiOpenedRef = useRef(false);
@@ -488,7 +491,41 @@ const BookOnlineSlidePanelInner = ({
 
     return () => { cancelled = true; };
   }, [poiCatFilter, business?.city, businessId, frontTabs]);
-  
+
+  // Vivier ville (toutes catégories) chargé quand l'overlay POI/Map est ouvert
+  useEffect(() => {
+    if (!showPoiMapOverlay || !business?.city) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, priority_score")
+        .eq("is_active", true)
+        .ilike("city", business.city)
+        .order("priority_score", { ascending: false, nullsFirst: false })
+        .limit(1000);
+      if (cancelled) return;
+      const rows = ((data || []) as any[])
+        .filter((p) => p.id !== businessId)
+        .map((p) => ({
+          id: p.id,
+          name: p.name,
+          images: p.images,
+          logo_url: p.logo_url,
+          latitude: p.latitude,
+          longitude: p.longitude,
+          city: p.city,
+          neighborhood: p.neighborhood,
+          categories: p.categories,
+          main_category: p.main_category,
+          default_service: p.default_service ?? null,
+        }));
+      setPoiCityBusinesses(rows as PoiBusiness[]);
+    })();
+    return () => { cancelled = true; };
+  }, [showPoiMapOverlay, business?.city, businessId]);
+
+
   
   const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
   const [descOverlayDirect, setDescOverlayDirect] = useState(false);
@@ -2790,41 +2827,65 @@ const BookOnlineSlidePanelInner = ({
       {showPoiMapOverlay && (() => {
         const TOP_LIMIT = 20;
         const activeFrontTab = poiCatFilter ? frontTabs.find(t => t.id === poiCatFilter) || null : null;
-        const afterCat = activeFrontTab
-          ? activePoiCategoryBusinesses
-          : poiBusinesses;
-        // Pill POI : uniquement la 1ʳᵉ sous-catégorie (sous-catégorie par défaut) de chaque POI,
-        // calculée sur l'ensemble des résultats (pas seulement le Top 20).
-        const defaultSubcatOf = (p: typeof poiBusinesses[number]) =>
-          ((p.categories || [])[0] || "").trim() || null;
-        const poiSubcatCounts = new Map<string, number>();
-        for (const p of afterCat) {
-          const sc = defaultSubcatOf(p);
-          if (!sc) continue;
-          poiSubcatCounts.set(sc, (poiSubcatCounts.get(sc) || 0) + 1);
-        }
-        const poiSubcatList = Array.from(poiSubcatCounts.entries())
-          .sort((a, b) => a[0].localeCompare(b[0]));
-        // Origine des distances : position utilisateur si disponible, sinon l'établissement master
-        const proxOrigin = userCoords
-          ?? (business?.latitude != null && business?.longitude != null
-            ? { lat: business.latitude, lng: business.longitude }
-            : null);
-        const distOf = (p: typeof poiBusinesses[number]) =>
+        // Origine unique des distances : l'établissement Master (fallback géoloc)
+        const proxOrigin = (business?.latitude != null && business?.longitude != null
+          ? { lat: business.latitude, lng: business.longitude }
+          : userCoords) ?? null;
+        const distOf = (p: { latitude: number | null; longitude: number | null }) =>
           proxOrigin && p.latitude != null && p.longitude != null
             ? haversineKm(proxOrigin.lat, proxOrigin.lng, p.latitude, p.longitude)
             : null;
+        const inRadius = (p: { latitude: number | null; longitude: number | null }) => {
+          if (poiProximityKm == null) return true;
+          const d = distOf(p);
+          return d != null && d <= poiProximityKm;
+        };
+        const matchesNames = (p: any, names: Set<string>) => {
+          if (p.main_category && names.has(p.main_category)) return true;
+          return Array.isArray(p.categories) && p.categories.some((c: string) => names.has(c));
+        };
+        // Vivier ville restreint au rayon actif → base des compteurs catégories
+        const cityInRadius = (poiCityBusinesses as any[]).filter(inRadius);
+        const catCounts = new Map<string, number>();
+        for (const ft of frontTabs) {
+          catCounts.set(ft.id, cityInRadius.filter((p) => matchesNames(p, ft.subcategoryNames)).length);
+        }
+
+        const afterCat = activeFrontTab
+          ? cityInRadius.filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
+          : (poiBusinesses as any[]);
+
+        // Pill POI / sous-catégories
+        const defaultSubcatOf = (p: any) => ((p.categories || [])[0] || "").trim() || null;
+        let poiSubcatList: [string, number][];
+        if (activeFrontTab) {
+          poiSubcatList = activeFrontTab.subcategories
+            .map((sd) => [sd.name, afterCat.filter((p) => matchesNames(p, sd.names)).length] as [string, number])
+            .filter(([, c]) => c > 0)
+            .sort((a, b) => a[0].localeCompare(b[0]));
+        } else {
+          const counts = new Map<string, number>();
+          for (const p of afterCat) {
+            const sc = defaultSubcatOf(p);
+            if (!sc) continue;
+            counts.set(sc, (counts.get(sc) || 0) + 1);
+          }
+          poiSubcatList = Array.from(counts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+        }
 
         const afterSubcat = poiSubcatFilter
-          ? afterCat.filter((p) => defaultSubcatOf(p) === poiSubcatFilter)
+          ? (activeFrontTab
+              ? afterCat.filter((p) => {
+                  const sd = activeFrontTab.subcategories.find((s) => s.name === poiSubcatFilter);
+                  return sd ? matchesNames(p, sd.names) : true;
+                })
+              : afterCat.filter((p) => defaultSubcatOf(p) === poiSubcatFilter))
           : afterCat;
-        const afterProx = poiProximityKm != null
-          ? afterSubcat.filter((p) => { const d = distOf(p); return d != null && d <= poiProximityKm; })
-          : afterSubcat;
+        const afterProx = afterSubcat.filter(inRadius);
         const total = afterProx.length;
         const displayedPoi = (poiShowAll || total <= TOP_LIMIT) ? afterProx : afterProx.slice(0, TOP_LIMIT);
-        // Le toggle reste visible dès que le vivier POI dépasse 20, indépendamment des filtres actifs
-        const showAllToggle = poiMapMode === "poi" && (poiBusinesses.length > TOP_LIMIT || poiShowAll);
+        // Le toggle reste visible dès que le vivier dépasse 20, indépendamment des filtres actifs
+        const showAllToggle = poiMapMode === "poi" && (afterSubcat.length > TOP_LIMIT || poiShowAll);
         const showCatPill = poiMapMode === "poi" && frontTabs.length >= 2;
         const showSubcatPill = poiMapMode === "poi" && poiSubcatList.length >= 2;
         const showProxPill = poiMapMode === "poi";
@@ -2840,8 +2901,11 @@ const BookOnlineSlidePanelInner = ({
 
         const proxCountsByKm: Record<number, number> = {};
         if (showProxPill) {
+          const proxBase = activeFrontTab
+            ? (poiCityBusinesses as any[]).filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
+            : afterSubcat;
           for (const o of proxOpts) {
-            proxCountsByKm[o.km] = afterSubcat.filter((p) => { const d = distOf(p); return d != null && d <= o.km; }).length;
+            proxCountsByKm[o.km] = proxBase.filter((p) => { const d = distOf(p); return d != null && d <= o.km; }).length;
           }
         }
         const activeProx = proxOpts.find((o) => o.km === poiProximityKm) || null;
@@ -3002,7 +3066,9 @@ const BookOnlineSlidePanelInner = ({
             {poiPillOverlay === "poi" && (
               <PoiFilterChoiceOverlay
                 zClass="z-[250]"
-                title={language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt"}
+                title={activeFrontTab
+                  ? translateFrontStructure(activeFrontTab.name, language)
+                  : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
                 items={poiSubcatList.map(([name, count]) => ({
                   key: name,
                   label: translateSubcategory(name, language),
@@ -3010,6 +3076,8 @@ const BookOnlineSlidePanelInner = ({
                 }))}
                 selectedKey={poiSubcatFilter}
                 allLabel={language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
+                backLabel={activeFrontTab ? (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories") : undefined}
+                onBack={activeFrontTab ? () => setPoiPillOverlay("cat") : undefined}
                 onSelectAll={() => { setPoiSubcatFilter(null); setPoiPillOverlay(null); }}
                 onSelect={(key) => { setPoiSubcatFilter(key); setPoiPillOverlay(null); }}
                 onClose={() => setPoiPillOverlay(null)}
@@ -3023,37 +3091,26 @@ const BookOnlineSlidePanelInner = ({
                 items={frontTabs.map((ft) => ({
                   key: ft.id,
                   label: translateFrontStructure(ft.name, language),
-                  count: ft.count,
+                  count: catCounts.get(ft.id) ?? 0,
+                  disabled: (catCounts.get(ft.id) ?? 0) === 0,
                 }))}
                 selectedKey={poiCatFilter}
                 allLabel={language === "en" ? "All categories" : language === "ar" ? "جميع الفئات" : "Toutes les catégories"}
                 onSelectAll={() => {
-                  setPoiCatFilter(null); setPoiSubcatFilter(null); setPoiCategoryBusinesses([]);
-                  setPoiCategoryBusinessCatId(null); setDescGridPage(0); setDescGridSection("poi");
+                  setPoiCatFilter(null); setPoiSubcatFilter(null);
                   setPoiShowAll(false); setPoiPillOverlay(null);
                 }}
                 onSelect={(key) => {
-                  const ft = frontTabs.find((t) => t.id === key);
-                  setPoiPillOverlay(null);
+                  // Reste dans l'overlay POI/Map du Master : on ne relance aucune recherche.
                   setPoiCatFilter(key);
                   setPoiSubcatFilter(null);
-                  setDescGridPage(0);
-                  setDescGridSection("poi");
-                  setShowDescriptionOverlay(true);
                   setPoiShowAll(false);
-                  infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" });
-                  if (onSearch && business?.city && ft && ft.subcategoryNames.size > 0) {
-                    onSearch({
-                      subcats: Array.from(ft.subcategoryNames).join("|"),
-                      city: business.city,
-                      label: ft.name,
-                      _t: String(Date.now()),
-                    });
-                  }
+                  setPoiPillOverlay("poi");
                 }}
                 onClose={() => setPoiPillOverlay(null)}
               />
             )}
+
 
 
             <PoiGoogleMap
