@@ -3,6 +3,8 @@
 import React from "react";
 import EmbedWindView, { type WindPayload } from "./EmbedWindView";
 import EmbedWeatherWidget, { type WeatherPayload } from "./EmbedWeatherWidget";
+import EmbedWidgetSettings from "./EmbedWidgetSettings";
+
 import { smoothPath } from "@/lib/smoothPath";
 import { supabase } from "@/integrations/supabase/client";
 
