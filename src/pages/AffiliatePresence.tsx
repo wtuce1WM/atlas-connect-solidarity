@@ -876,6 +876,12 @@ const AffiliatePresence = () => {
                       </TabsContent>
                     )}
 
+                    <TabsContent value="map">
+                      <AffiliateMapEditor key={currentBusiness.id} businessId={currentBusiness.id} />
+                    </TabsContent>
+
+
+
 
                     {/* Blocks Tab */}
                     <TabsContent value="blocks">
