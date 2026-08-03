@@ -17,7 +17,8 @@ const CookieBanner = () => {
   const isEmbed =
     typeof window !== "undefined" &&
     (window.location.pathname.startsWith("/embed/") ||
-      new URLSearchParams(window.location.search).get("bare") === "1");
+      new URLSearchParams(window.location.search).get("bare") === "1" ||
+      new URLSearchParams(window.location.search).get("embed") === "1");
 
   useEffect(() => {
     if (isEmbed) return;
