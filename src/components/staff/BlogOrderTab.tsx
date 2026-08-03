@@ -6,6 +6,8 @@ import { Loader2, Pin, GripVertical, ArrowUp, ArrowDown, Save, ExternalLink } fr
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
+import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
+
 import {
   DndContext,
   closestCenter,
@@ -62,10 +64,15 @@ const SortableRow = ({
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`flex items-center gap-3 p-2 rounded-lg border bg-card ${
+      className={`relative flex items-center gap-3 p-2 rounded-lg border bg-card ${
         isDragging ? "shadow-lg opacity-90" : ""
-      } ${post.is_pinned ? "ring-1 ring-primary/40" : ""}`}
+      } ${post.is_pinned ? "ring-2 ring-destructive/60" : ""}`}
     >
+      {post.is_pinned && (
+        <span className="absolute -top-2 -left-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-md">
+          <Pin className="h-3.5 w-3.5 fill-current" />
+        </span>
+      )}
       <button
         type="button"
         className="cursor-grab active:cursor-grabbing text-muted-foreground p-1 shrink-0"
@@ -88,9 +95,10 @@ const SortableRow = ({
 
       <div className="min-w-0 flex-1">
         <div className="text-sm font-medium truncate flex items-center gap-1.5">
-          {post.is_pinned && <Pin className="h-3 w-3 text-primary shrink-0" />}
+          {post.is_pinned && <Pin className="h-3 w-3 text-destructive fill-current shrink-0" />}
           {post.title_fr}
         </div>
+
         <div className="text-[11px] text-muted-foreground">
           Créé {format(new Date(post.created_at), "d MMM yyyy", { locale: fr })} · Modifié{" "}
           {format(new Date(post.updated_at || post.created_at), "d MMM yyyy", { locale: fr })}
@@ -126,8 +134,18 @@ const SortableRow = ({
   );
 };
 
+interface ExtraCard {
+  id: string;
+  title: string;
+  href: string;
+  image: string | null;
+  date: string | null;
+  note: string;
+}
+
 const BlogOrderTab = () => {
   const [posts, setPosts] = useState<OrderPost[]>([]);
+  const [extras, setExtras] = useState<ExtraCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -139,7 +157,15 @@ const BlogOrderTab = () => {
 
   useEffect(() => {
     const load = async () => {
-      const { data } = await supabase.from("blog_posts").select(SELECT_COLS).eq("is_published", true);
+      const [postsRes, feedsRes] = await Promise.all([
+        supabase.from("blog_posts").select(SELECT_COLS).eq("is_published", true),
+        supabase
+          .from("video_feed_pages")
+          .select("id, slug, hero_title_bottom_fr, cover_image_url, custom_hero_image_url, published_at, created_at")
+          .eq("is_published", true)
+          .order("published_at", { ascending: false, nullsFirst: false }),
+      ]);
+      const data = postsRes.data;
       if (data) {
         const list = (data as OrderPost[]).slice().sort((a, b) =>
           compareBlogOrder(
@@ -149,10 +175,31 @@ const BlogOrderTab = () => {
         );
         setPosts(list);
       }
+      const feedCards: ExtraCard[] = ((feedsRes.data as any[]) ?? []).map((f) => ({
+        id: `feed-${f.id}`,
+        title: f.hero_title_bottom_fr || f.slug,
+        href: `/videos/${f.slug}`,
+        image: f.cover_image_url || f.custom_hero_image_url || null,
+        date: f.published_at || f.created_at || null,
+        note: "Page vidéo",
+      }));
+      setExtras([
+        ...feedCards,
+        {
+          id: "static-etablissements-notes",
+          title: "Établissements notés au Maroc",
+          href: "/blog/etablissements-notes",
+          image: ratedHeroAsset.url,
+          date: null,
+          note: "Page dynamique",
+        },
+      ]);
       setIsLoading(false);
     };
     load();
   }, []);
+
+
 
   const move = (from: number, to: number) => {
     setPosts((prev) => arrayMove(prev, from, to));
@@ -229,7 +276,40 @@ const BlogOrderTab = () => {
           </SortableContext>
         </DndContext>
       )}
+
+      {extras.length > 0 && (
+        <div className="space-y-2 pt-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            Autres pages affichées en bas de /blog
+          </h3>
+          {extras.map((e, i) => (
+            <div key={e.id} className="flex items-center gap-3 p-2 rounded-lg border border-dashed bg-muted/30">
+              <span className="w-6 text-center text-xs font-mono text-muted-foreground shrink-0">
+                {posts.length + i + 1}
+              </span>
+              {e.image ? (
+                <img src={e.image} alt={e.title} className="w-16 h-12 rounded object-cover shrink-0" loading="lazy" />
+              ) : (
+                <div className="w-16 h-12 rounded bg-muted shrink-0" />
+              )}
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-medium truncate">{e.title}</div>
+                <div className="text-[11px] text-muted-foreground">
+                  {e.note}
+                  {e.date ? ` · ${format(new Date(e.date), "d MMM yyyy", { locale: fr })}` : " · ordre non modifiable"}
+                </div>
+              </div>
+              <a href={e.href} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </Button>
+              </a>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
+
   );
 };
 
