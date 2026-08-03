@@ -275,23 +275,59 @@ const TidesWidgetSection = ({ index }: { index: number }) => {
       </div>
 
       <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3 flex flex-wrap items-center gap-3">
-        <span>Widget Marées & Vents</span>
+        <span>Widget Marées, Vents & Météo</span>
         <span className="rounded-xl bg-whatsapp px-3 py-0.5 text-whatsapp-foreground leading-tight">
           Gratuit
         </span>
       </h2>
       <p className="text-lg text-primary font-medium mb-4">
-        Pleines et basses mers des villes côtières marocaines, heure par heure.
+        Marées, vents, météo et alertes personnalisées pour les 19 villes côtières du Maroc — en un seul widget.
       </p>
-      <p className="text-base text-muted-foreground max-w-3xl mb-8">
-        Niveau de la mer en direct avec sens de la marée (montante / descendante), coefficient estimé,
-        marnage, courbe sur 24 heures et les quatre prochaines pleines et basses mers avec leurs horaires
-        locaux. Le bandeau eau ajoute la température de la mer, la hauteur de houle et la période — utile
-        pour la plage, le surf, la pêche ou une balade jusqu'aux îles Purpuraires. Contrairement à un simple
-        tableau des marées, il couvre 19 villes du littoral atlantique et méditerranéen marocain, sans
-        nécessiter de clé API. Session de surf à Essaouira, journée à Oualidia, sortie paddle, partie de
-        pêche ou balade jusqu'aux îles Purpuraires : il devient rapidement un outil indispensable.
-      </p>
+      <div className="text-base text-muted-foreground max-w-3xl mb-8 space-y-4">
+        <p>
+          Un outil complet et gratuit pour les amateurs de mer, de surf, de kitesurf, de wingfoil, de pêche ou
+          simplement de plage. Il réunit en un seul endroit les prévisions de marées, la direction et la force du
+          vent, la météo locale et un système d'alertes automatiques qui vous prévient dès que les conditions sont
+          réunies pour votre activité.
+        </p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li>
+            <strong>Marées en temps réel :</strong> niveau de la mer, sens de la marée (montante / descendante),
+            coefficient estimé, marnage et courbe lissée sur 24 heures, plus les quatre prochaines pleines et basses
+            mers avec horaires locaux.
+          </li>
+          <li>
+            <strong>Vent et rose des vents :</strong> direction, force moyenne et rafales, échelle de Beaufort, et
+            carte satellite centrée sur la ville avec surimpression de la rose des vents.
+          </li>
+          <li>
+            <strong>Météo sur 7 jours :</strong> température, ensoleillement, précipitations, humidité et vent à
+            J+7, avec courbes lissées pour lire d'un coup d'œil l'évolution de la semaine.
+          </li>
+          <li>
+            <strong>Alertes automatiques par email :</strong> grande marée, conditions surf, kitesurf, wingfoil ou
+            pêche — configurez votre ville, votre email et votre pseudonyme, et recevez une alerte le jour précédent
+            quand les conditions se confirment.
+          </li>
+          <li>
+            <strong>19 villes couvertes :</strong> tout le littoral atlantique et méditerranéen marocain, du Nord au
+            Sud (Essaouira, Agadir, Taghazout, Casablanca, Mohammedia, Rabat, El Jadida, Oualidia, Safi, Larache,
+            Asilah, Tanger, Sidi Ifni, Tarfaya, Laâyoune-Plage, Dakhla, Martil, Al Hoceïma, Saïdia).
+          </li>
+          <li>
+            <strong>Personnalisation facile :</strong> ville par défaut, langue (FR / EN / AR), sélecteur de ville
+            affiché ou masqué, et upload d'un avatar pour les alertes.
+          </li>
+          <li>
+            <strong>Zéro clé API, zéro frais :</strong> le widget s'intègre comme une iframe classique, sans
+            inscription technique, sans publicité, sans limitation d'affichage.
+          </li>
+        </ul>
+        <p>
+          Session de surf à Essaouira, journée à Oualidia, sortie paddle, partie de pêche ou balade jusqu'aux îles
+          Purpuraires : ce widget devient rapidement indispensable pour anticiper la mer et le vent au Maroc.
+        </p>
+      </div>
 
       <div className="grid gap-5 sm:grid-cols-3 mb-8">
         <div className="sm:col-span-2">
