@@ -406,6 +406,7 @@ const BookOnlineSlidePanelInner = ({
   const [poiProximityKm, setPoiProximityKm] = useState<number | null>(null);
   const poiProximityInitRef = useRef<string | null>(null);
   const [poiCatFilter, setPoiCatFilter] = useState<string | null>(null);
+  const [poiMapTypeId, setPoiMapTypeId] = useState<"roadmap" | "terrain">("roadmap");
   // Rayon par défaut du Pill "À proximité" = champ Rayon de l'établissement (10 km par défaut)
   useEffect(() => {
     const bid = (business as any)?.id;
