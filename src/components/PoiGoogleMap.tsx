@@ -698,8 +698,20 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     if (hasCenterOffset) {
       needsFitRef.current = false;
       hasFittedRef.current = true;
+      // Position unique et invariante : le Master reste à `centerAtBottomRatio`
+      // du bas, quels que soient les filtres (POI / catégories / rayon).
+      const height = containerRef.current?.clientHeight || 0;
+      const z = map.getZoom() ?? 13;
+      if (height > 0 && center) {
+        const markerOffsetFromCenterPx = (0.5 - centerAtBottomRatio!) * height;
+        map.setCenter({
+          lat: centerLatForMarkerPosition(center.lat, z, markerOffsetFromCenterPx),
+          lng: center.lng,
+        });
+      }
       return;
     }
+
 
     // In fitToMarkers mode, fit strictly to result markers so all are visible.
     // Otherwise also include center/userLocation in the bounds.
