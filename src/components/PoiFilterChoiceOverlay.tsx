@@ -17,6 +17,9 @@ interface Props {
   allLabel?: string;
   onSelect: (key: string) => void;
   onSelectAll?: () => void;
+  /** Retour vers le niveau parent (ex: sous-catégories → catégories) */
+  backLabel?: string;
+  onBack?: () => void;
   onClose: () => void;
   zClass?: string;
 }
@@ -32,6 +35,8 @@ export default function PoiFilterChoiceOverlay({
   allLabel,
   onSelect,
   onSelectAll,
+  backLabel,
+  onBack,
   onClose,
   zClass = "z-[250]",
 }: Props) {
@@ -79,6 +84,16 @@ export default function PoiFilterChoiceOverlay({
 
         <div className="relative z-10 flex-1 overflow-y-auto px-4 pb-10 pt-2">
           <div className="flex flex-col items-center gap-4">
+            {backLabel && onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                className={`${badgeBase} ${badgeIdle}`}
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
+              >
+                <span>{"\u2039 " + backLabel}</span>
+              </button>
+            )}
             {selectedKey && allLabel && onSelectAll && (
               <button
                 type="button"
