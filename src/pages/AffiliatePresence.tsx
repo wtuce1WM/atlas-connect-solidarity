@@ -28,6 +28,8 @@ import AffiliateTextEditor from "@/components/affiliate/AffiliateTextEditor";
 import AffiliateAiTextsEditor from "@/components/affiliate/AffiliateAiTextsEditor";
 import AffiliateAgentIaEditor from "@/components/affiliate/AffiliateAgentIaEditor";
 import AffiliateMapEditor from "@/components/affiliate/AffiliateMapEditor";
+import AffiliateCtasEditor from "@/components/affiliate/AffiliateCtasEditor";
+
 
 import AffiliateHighlightsEditor from "@/components/affiliate/AffiliateHighlightsEditor";
 import AffiliatePromotionsEditor from "@/components/affiliate/AffiliatePromotionsEditor";
@@ -118,8 +120,11 @@ interface BusinessPresence {
   description_ar: string | null;
   name_en: string | null;
   name_ar: string | null;
+  carousel_badge: string | null;
+  poi_business_style: string | null;
   is_active: boolean;
 }
+
 
 const AffiliatePresence = () => {
   const navigate = useNavigate();
@@ -166,7 +171,7 @@ const AffiliatePresence = () => {
       "address", "neighborhood", "latitude", "longitude", "opening_hours",
       "show_opening_hours", "closure_message", "vacation_dates",
       "hook_fr", "hook_en", "hook_ar", "description", "description_fr", "description_en", "description_ar",
-      "is_active",
+      "is_active", "carousel_badge", "poi_business_style",
       ...PLATFORMS.map(p => p.key),
       ...CTA_EXTRA_FIELDS,
       ...REVIEW_FIELDS].join(",");
@@ -217,7 +222,10 @@ const AffiliatePresence = () => {
         description_ar: b.description_ar ?? null,
         name_en: b.name_en ?? null,
         name_ar: b.name_ar ?? null,
+        carousel_badge: b.carousel_badge ?? null,
+        poi_business_style: b.poi_business_style ?? null,
         is_active: b.is_active ?? true,
+
       };
     });
 
@@ -602,6 +610,10 @@ const AffiliatePresence = () => {
                       <TabsTrigger value="links" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
                         <Globe className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Liens</span>
                       </TabsTrigger>
+                      <TabsTrigger value="ctas" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <Tag className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">CTAs</span>
+                      </TabsTrigger>
+
                       <TabsTrigger value="contact" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
                         <Phone className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Contact</span>
                       </TabsTrigger>
@@ -685,20 +697,12 @@ const AffiliatePresence = () => {
                       })}
                     </TabsContent>
 
-                    {/* Contact Tab */}
-                    <TabsContent value="contact">
-                      <AffiliateContactEditor
-                        phone={getCurrentValue(currentBusiness.id, "phone", currentBusiness.phone)}
-                        whatsapp={getCurrentValue(currentBusiness.id, "whatsapp", currentBusiness.whatsapp)}
-                        email={getCurrentValue(currentBusiness.id, "email", currentBusiness.email)}
-                        address={getCurrentValue(currentBusiness.id, "address", currentBusiness.address)}
-                        neighborhood={getCurrentValue(currentBusiness.id, "neighborhood", currentBusiness.neighborhood)}
-                        city={getCurrentValue(currentBusiness.id, "city", currentBusiness.city)}
-                        googleMapsUrl={getCurrentValue(currentBusiness.id, "google_maps_url", currentBusiness.links.google_maps_url)}
-                        latitude={getCurrentValue(currentBusiness.id, "latitude", currentBusiness.latitude)}
-                        longitude={getCurrentValue(currentBusiness.id, "longitude", currentBusiness.longitude)}
-                        cities={cities}
-                        neighborhoods={neighborhoods}
+                    {/* CTAs Tab */}
+                    <TabsContent value="ctas">
+                      <AffiliateCtasEditor
+                        businessName={currentBusiness.name}
+                        carouselBadge={getCurrentValue(currentBusiness.id, "carousel_badge", currentBusiness.carousel_badge) ?? ""}
+                        poiBusinessStyle={getCurrentValue(currentBusiness.id, "poi_business_style", currentBusiness.poi_business_style) ?? ""}
                         ctaUrls={CTA_URL_DEFS.map<CtaUrlItem>((d) => {
                           // website URL lives in the links map, others live at top-level
                           const originalUrl = d.urlField === "website"
@@ -714,6 +718,25 @@ const AffiliatePresence = () => {
                             forceExternal: !!getCurrentValue(currentBusiness.id, d.externalField, currentBusiness.cta[d.externalField]),
                           };
                         })}
+                        onFieldChange={(field, value) => handleFieldChange(currentBusiness.id, field, value)}
+                      />
+                    </TabsContent>
+
+                    {/* Contact Tab */}
+                    <TabsContent value="contact">
+                      <AffiliateContactEditor
+                        phone={getCurrentValue(currentBusiness.id, "phone", currentBusiness.phone)}
+                        whatsapp={getCurrentValue(currentBusiness.id, "whatsapp", currentBusiness.whatsapp)}
+                        email={getCurrentValue(currentBusiness.id, "email", currentBusiness.email)}
+                        address={getCurrentValue(currentBusiness.id, "address", currentBusiness.address)}
+                        neighborhood={getCurrentValue(currentBusiness.id, "neighborhood", currentBusiness.neighborhood)}
+                        city={getCurrentValue(currentBusiness.id, "city", currentBusiness.city)}
+                        googleMapsUrl={getCurrentValue(currentBusiness.id, "google_maps_url", currentBusiness.links.google_maps_url)}
+                        latitude={getCurrentValue(currentBusiness.id, "latitude", currentBusiness.latitude)}
+                        longitude={getCurrentValue(currentBusiness.id, "longitude", currentBusiness.longitude)}
+                        cities={cities}
+                        neighborhoods={neighborhoods}
+                        ctaUrls={[]}
                         onPhoneChange={(v) => handleFieldChange(currentBusiness.id, "phone", v)}
                         onWhatsappChange={(v) => handleFieldChange(currentBusiness.id, "whatsapp", v)}
                         onEmailChange={(v) => handleFieldChange(currentBusiness.id, "email", v)}
@@ -726,6 +749,7 @@ const AffiliatePresence = () => {
                         onCtaFieldChange={(field, value) => handleFieldChange(currentBusiness.id, field, value)}
                       />
                     </TabsContent>
+
 
                     {/* Reviews Tab */}
                     <TabsContent value="reviews">
