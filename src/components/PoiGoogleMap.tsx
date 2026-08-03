@@ -46,7 +46,12 @@ interface PoiGoogleMapProps {
   baseColor?: string | null;
   /** When provided, centers the map so the `center` marker sits at this ratio from the bottom of the viewport (0 = bottom, 0.5 = middle, 1 = top). Overrides fitToMarkers. */
   centerAtBottomRatio?: number;
+  /** Base map type: "roadmap" (default) or "terrain" (relief). */
+  mapTypeId?: "roadmap" | "terrain";
+  /** When provided together with centerAtBottomRatio, the zoom adjusts so this radius (km) around `center` fits the viewport. */
+  fitRadiusKm?: number | null;
 }
+
 
 const LIGHT_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: "poi", elementType: "labels.text", stylers: [{ visibility: "off" }] },
@@ -338,7 +343,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     }
   };
 
-const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls, baseColor, centerAtBottomRatio }: PoiGoogleMapProps) => {
+const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls, baseColor, centerAtBottomRatio, mapTypeId, fitRadiusKm }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -475,6 +480,14 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     map.setOptions({ fullscreenControl: false });
   }, [ready]);
 
+  // Bascule du type de carte (plan / relief) sans reconstruire la carte.
+  useEffect(() => {
+    const gmaps = window.google?.maps;
+    const map = mapRef.current;
+    if (!gmaps || !map) return;
+    map.setMapTypeId(mapTypeId === "terrain" ? gmaps.MapTypeId.TERRAIN : gmaps.MapTypeId.ROADMAP);
+  }, [mapTypeId, ready]);
+
   // Swap tile styles live when theme changes (only for 1WM styled themes;
   // native colorScheme is fixed at construction — parent must remount via key prop).
   useEffect(() => {
@@ -488,6 +501,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
           : LIGHT_MAP_STYLES,
     });
   }, [mapTheme, ready, isNativeTheme, baseColor]);
+
 
   // Traffic / Transit layer toggles
   useEffect(() => {
@@ -701,7 +715,20 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       // Position unique et invariante : le Master reste à `centerAtBottomRatio`
       // du bas, quels que soient les filtres (POI / catégories / rayon).
       const height = containerRef.current?.clientHeight || 0;
-      const z = map.getZoom() ?? 13;
+      const width = containerRef.current?.clientWidth || 0;
+      let z = map.getZoom() ?? 13;
+      // Le rayon du pill « À proximité » pilote le zoom : le cercle doit tenir
+      // dans le viewport, au-dessus et autour du marqueur Master.
+      if (fitRadiusKm && fitRadiusKm > 0 && height > 0 && width > 0 && center) {
+        const availablePx = Math.max(
+          40,
+          Math.min(width / 2, height * Math.max(centerAtBottomRatio!, 0.15)) - 24,
+        );
+        const metersPerPixelAtZ0 = 156543.03392 * Math.cos((center.lat * Math.PI) / 180);
+        const target = Math.log2((metersPerPixelAtZ0 * availablePx) / (fitRadiusKm * 1000));
+        z = Math.max(4, Math.min(18, Math.round(target * 2) / 2));
+        map.setZoom(z);
+      }
       if (height > 0 && center) {
         const markerOffsetFromCenterPx = (0.5 - centerAtBottomRatio!) * height;
         map.setCenter({
@@ -710,6 +737,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         });
       }
       return;
+
     }
 
 
@@ -738,7 +766,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         hasFittedRef.current = true;
       });
     }
-  }, [pois, ready, center, iconCache, userLocation, centerAtBottomRatio, fitToMarkers]);
+  }, [pois, ready, center, iconCache, userLocation, centerAtBottomRatio, fitToMarkers, fitRadiusKm]);
 
   // Update overlay highlighting when selectedPoiId changes
   const prevSelectedRef = useRef<string | null>(null);
