@@ -549,6 +549,68 @@ export default function StudioVideo() {
     }
   }, [selected?.id, videoStarts, videoEnds]);
 
+  // --- Persistance du Prompt & des Paramètres de la vidéo (par établissement) ---
+  const PARAMS_KEY = `studio-video:params:${selected?.id ?? "corporate"}`;
+  const paramsLoadedFor = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (paramsLoadedFor.current === PARAMS_KEY) return;
+    paramsLoadedFor.current = PARAMS_KEY;
+    try {
+      const raw = localStorage.getItem(PARAMS_KEY);
+      if (!raw) return;
+      const p = JSON.parse(raw);
+      if (!p || typeof p !== "object") return;
+      if (typeof p.prompt === "string" && p.prompt.trim()) setPrompt(p.prompt);
+      if (typeof p.tone === "string") setTone(p.tone);
+      if ([15, 30, 45, 60].includes(p.duration)) setDuration(p.duration);
+      if (typeof p.durationAuto === "boolean") setDurationAuto(p.durationAuto);
+      if (p.videoLang === "fr" || p.videoLang === "en") setVideoLang(p.videoLang);
+      const b = (v: unknown, set: (x: boolean) => void) => { if (typeof v === "boolean") set(v); };
+      b(p.optReviews, setOptReviews);
+      b(p.optGoogleReviews, setOptGoogleReviews);
+      b(p.optTripAdvisor, setOptTripAdvisor);
+      b(p.optRestaurantGuru, setOptRestaurantGuru);
+      b(p.optCustomerReview, setOptCustomerReview);
+      b(p.optHours, setOptHours);
+      b(p.optInstallCta, setOptInstallCta);
+      b(p.optClosingSequence, setOptClosingSequence);
+      b(p.optMapMarker, setOptMapMarker);
+      b(p.optDigitalId, setOptDigitalId);
+      b(p.optPopup, setOptPopup);
+      b(p.optOpenWithLogo, setOptOpenWithLogo);
+      b(p.optWhatsapp, setOptWhatsapp);
+      if (p.textPosition === "top" || p.textPosition === "middle" || p.textPosition === "bottom") setTextPosition(p.textPosition);
+      if (typeof p.transitionStyle === "string") setTransitionStyle(p.transitionStyle);
+      if (typeof p.aiSummaryEffect === "string") setAiSummaryEffect(p.aiSummaryEffect);
+      if (p.blogMode === "scroll" || p.blogMode === "hero_map") setBlogMode(p.blogMode);
+    } catch {
+      /* stockage indisponible */
+    }
+  }, [PARAMS_KEY]);
+
+  useEffect(() => {
+    if (paramsLoadedFor.current !== PARAMS_KEY) return;
+    try {
+      localStorage.setItem(PARAMS_KEY, JSON.stringify({
+        prompt, tone, duration, durationAuto, videoLang,
+        optReviews, optGoogleReviews, optTripAdvisor, optRestaurantGuru, optCustomerReview,
+        optHours, optInstallCta, optClosingSequence, optMapMarker, optDigitalId,
+        optPopup, optOpenWithLogo, optWhatsapp,
+        textPosition, transitionStyle, aiSummaryEffect, blogMode,
+      }));
+    } catch {
+      /* quota / mode privé */
+    }
+  }, [
+    PARAMS_KEY, prompt, tone, duration, durationAuto, videoLang,
+    optReviews, optGoogleReviews, optTripAdvisor, optRestaurantGuru, optCustomerReview,
+    optHours, optInstallCta, optClosingSequence, optMapMarker, optDigitalId,
+    optPopup, optOpenWithLogo, optWhatsapp,
+    textPosition, transitionStyle, aiSummaryEffect, blogMode,
+  ]);
+
+
 
   // Garde l'ordre de montage synchronisé avec la sélection de vidéos.
   useEffect(() => {
@@ -1240,12 +1302,9 @@ export default function StudioVideo() {
 
   const effectiveDuration = durationAuto ? autoDuration : duration;
 
-  // Durée réelle du scénario : tient compte des durées d'étapes modifiées dans l'aperçu
-  // (ajout / suppression / réglage d'une étape), sinon la durée cible.
-  const scenarioDuration = useMemo(() => {
-    const t = scenarioEdits?.totalDuration;
-    return Number.isFinite(t) && (t as number) > 0 ? Math.round(t as number) : effectiveDuration;
-  }, [scenarioEdits?.totalDuration, effectiveDuration]);
+
+
+
 
   // Séquence de fin déterministe : offre(s) → WhatsApp → récap/CTA final.
   // Si l'utilisateur a réordonné manuellement les étapes dans l'aperçu du scénario,
@@ -1274,6 +1333,20 @@ export default function StudioVideo() {
       hookText: fromVideoOn && synthTitle ? synthTitle : null,
     });
   }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optOpenWithLogo, logoInfo, optWhatsapp, whatsappNumber, fromVideoOn, synthTitle]);
+
+  // Durée réelle du scénario : priorité aux durées d'étapes réglées dans l'aperçu,
+  // sinon la somme des étapes du scénario prévisualisé, sinon la durée cible.
+  const scenarioDuration = useMemo(() => {
+    const t = scenarioEdits?.totalDuration;
+    if (Number.isFinite(t) && (t as number) > 0) return Math.round(t as number);
+    const scenes = (aiScenario?.scenario ?? scenario)?.scenes;
+    if (Array.isArray(scenes) && scenes.length) {
+      const sum = scenes.reduce((acc: number, s: any) => acc + (Number(s.duration) || 0), 0);
+      if (sum > 0) return Math.round(sum);
+    }
+    return effectiveDuration;
+  }, [scenarioEdits?.totalDuration, aiScenario, scenario, effectiveDuration]);
+
 
   const youtubeIdFromUrl = (url: string): string | null => {
     const m = url.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{6,})/);
