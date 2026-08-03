@@ -1391,6 +1391,45 @@ export type Database = {
           },
         ]
       }
+      business_embed_ai_prefs: {
+        Row: {
+          business_id: string
+          created_at: string
+          enabled_followup_ids: string[]
+          enabled_suggestion_ids: string[]
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          enabled_followup_ids?: string[]
+          enabled_suggestion_ids?: string[]
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          enabled_followup_ids?: string[]
+          enabled_suggestion_ids?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_embed_ai_prefs_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_embed_ai_prefs_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_events: {
         Row: {
           business_id: string
