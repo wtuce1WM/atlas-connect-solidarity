@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Loader2, Sparkles, Trash2, Plus, ArrowUp, ArrowDown } from "lucide-react";
+import { Loader2, Sparkles, Trash2, Plus, ArrowUp, ArrowDown, Lock } from "lucide-react";
 
 interface AiText {
   id: string;
@@ -22,7 +22,7 @@ interface AiText {
 
 const SELECT_COLS = "id,title,hook,content,source_mode,position,is_active,extra_instructions,length_mode";
 
-const MAX_TEXTS = 5;
+const MAX_TEXTS = 10;
 const MAX_CONTENT = 2000;
 const MAX_TITLE = 70;
 const MAX_HOOK = 120;
@@ -69,16 +69,28 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
   const [extra, setExtra] = useState("");
   const [generating, setGenerating] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [lockedIds, setLockedIds] = useState<string[]>([]);
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("business_ai_texts")
-      .select(SELECT_COLS)
-      .eq("business_id", businessId)
-      .order("position", { ascending: true });
+    const [{ data, error }, linkRes] = await Promise.all([
+      supabase
+        .from("business_ai_texts")
+        .select(SELECT_COLS)
+        .eq("business_id", businessId)
+        .order("position", { ascending: true }),
+      (supabase as any)
+        .from("business_embed_ai_item_links")
+        .select("ai_text_ids")
+        .eq("business_id", businessId),
+    ]);
     if (error) toast.error("Chargement impossible : " + error.message);
     setTexts((data as AiText[]) ?? []);
+    const locked = new Set<string>();
+    for (const row of ((linkRes as any)?.data as any[]) ?? []) {
+      for (const id of (Array.isArray(row.ai_text_ids) ? row.ai_text_ids : [])) locked.add(String(id));
+    }
+    setLockedIds([...locked]);
     setLoading(false);
   };
 
@@ -150,6 +162,10 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
   };
 
   const remove = async (id: string) => {
+    if (lockedIds.includes(id)) {
+      toast.error("Ce texte est lié à une suggestion/relance dans l'onglet Agent IA — retirez la liaison d'abord.");
+      return;
+    }
     const { error } = await supabase.from("business_ai_texts").delete().eq("id", id);
     if (error) return toast.error(error.message);
     setTexts((prev) => prev.filter((t) => t.id !== id));
@@ -253,6 +269,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
         <div className="space-y-4">
           {texts.map((t, i) => {
             const over = t.content.length > MAX_CONTENT;
+            const locked = lockedIds.includes(t.id);
             return (
               <div key={t.id} className="rounded-lg border border-white/10 bg-white/5 p-4 space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
@@ -262,10 +279,19 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
                     {lengthLabel(t.length_mode) && (
                       <span className="rounded bg-white/10 px-2 py-0.5 text-xs text-white/70">{lengthLabel(t.length_mode)}</span>
                     )}
+                    {locked && (
+                      <span className="inline-flex items-center gap-1 rounded bg-amber-500/15 px-2 py-0.5 text-xs text-amber-300">
+                        <Lock className="h-3 w-3" /> Utilisé par l'Agent IA
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-2 mr-2">
-                      <Switch checked={t.is_active} onCheckedChange={(v) => patch(t.id, "is_active", v)} />
+                      <Switch
+                        checked={t.is_active}
+                        disabled={locked}
+                        onCheckedChange={(v) => patch(t.id, "is_active", v)}
+                      />
                       <span className="text-xs text-white/60">{t.is_active ? "Actif" : "Masqué"}</span>
                     </div>
                     <Button size="icon" variant="ghost" onClick={() => move(i, -1)} disabled={i === 0}>
@@ -274,7 +300,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
                     <Button size="icon" variant="ghost" onClick={() => move(i, 1)} disabled={i === texts.length - 1}>
                       <ArrowDown className="h-4 w-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" onClick={() => remove(t.id)}>
+                    <Button size="icon" variant="ghost" onClick={() => remove(t.id)} disabled={locked}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>

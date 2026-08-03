@@ -1391,6 +1391,54 @@ export type Database = {
           },
         ]
       }
+      business_embed_ai_item_links: {
+        Row: {
+          ai_text_ids: string[]
+          blog_post_ids: string[]
+          business_id: string
+          created_at: string
+          id: string
+          item_id: string
+          item_kind: string
+          updated_at: string
+        }
+        Insert: {
+          ai_text_ids?: string[]
+          blog_post_ids?: string[]
+          business_id: string
+          created_at?: string
+          id?: string
+          item_id: string
+          item_kind: string
+          updated_at?: string
+        }
+        Update: {
+          ai_text_ids?: string[]
+          blog_post_ids?: string[]
+          business_id?: string
+          created_at?: string
+          id?: string
+          item_id?: string
+          item_kind?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_embed_ai_item_links_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_embed_ai_item_links_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_embed_ai_prefs: {
         Row: {
           business_id: string

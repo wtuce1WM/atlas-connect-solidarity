@@ -2669,6 +2669,50 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Per-business links (affiliate tab "Agent IA"): a suggestion or a
+        // followup can be tied to blog articles and to AI texts generated in the
+        // "TXT IA" tab. These links win over generic staff mappings because the
+        // owner curated them for this exact widget.
+        let ownerAiTexts: Array<{ title: string; hook: string; content: string }> = [];
+        {
+          const linkKind: "suggestion" | "followup" | null = followupId ? "followup" : (suggestionId ? "suggestion" : null);
+          const linkItemId = followupId || suggestionId;
+          if (linkKind && linkItemId) {
+            try {
+              const { data: link } = await admin
+                .from("business_embed_ai_item_links")
+                .select("blog_post_ids, ai_text_ids")
+                .eq("business_id", host.id)
+                .eq("item_kind", linkKind)
+                .eq("item_id", linkItemId)
+                .maybeSingle();
+              const linkedBlogIds: string[] = Array.isArray(link?.blog_post_ids) ? link!.blog_post_ids.filter(Boolean) : [];
+              if (linkedBlogIds.length) {
+                suggestionBlogIds = [...new Set([...linkedBlogIds, ...suggestionBlogIds])];
+              }
+              const linkedTextIds: string[] = Array.isArray(link?.ai_text_ids) ? link!.ai_text_ids.filter(Boolean) : [];
+              if (linkedTextIds.length) {
+                const { data: txts } = await admin
+                  .from("business_ai_texts")
+                  .select("title, hook, content, position")
+                  .in("id", linkedTextIds)
+                  .order("position", { ascending: true });
+                ownerAiTexts = (txts || [])
+                  .map((t: any) => ({
+                    title: String(t?.title || "").trim(),
+                    hook: String(t?.hook || "").trim(),
+                    content: String(t?.content || "").trim(),
+                  }))
+                  .filter((t) => t.content);
+              }
+            } catch (e) {
+              console.error("[embed-ai-chat] item_links_lookup_error", e);
+            }
+          }
+        }
+
+
+
         // If the user typed a fresh free-text message (no followup click) that
         // doesn't look like a refinement of the current suggestion thread, drop
         // the deterministic suggestion force so the previous badges/subcats
@@ -3057,8 +3101,18 @@ Deno.serve(async (req) => {
 
         // Build conversation
         const system = buildSystemPrompt(host, language);
+        const ownerTextSystem = ownerAiTexts.length
+          ? [
+              "SOURCE PROPRIÉTAIRE (textes rédigés/validés par l'établissement, liés à cette suggestion/relance).",
+              "Appuie ta réponse sur ces textes en priorité, sans les recopier mot pour mot, et sans jamais citer de prix.",
+              ...ownerAiTexts.map((t, i) =>
+                `--- Texte ${i + 1}${t.title ? ` — ${t.title}` : ""}\n${t.hook ? `${t.hook}\n` : ""}${t.content.slice(0, 2000)}`,
+              ),
+            ].join("\n\n")
+          : null;
         const convo: Msg[] = [
           { role: "system", content: system },
+          ...(ownerTextSystem ? [{ role: "system" as const, content: ownerTextSystem }] : []),
           // Assistant turns are long (recommandations markdown) — 1200 chars suffisent au rappel contextuel.
           ...inMessages.map((m) => ({ role: m.role, content: String(m.content).slice(0, m.role === "user" ? 800 : 1200) })),
         ];
