@@ -2783,10 +2783,16 @@ const BookOnlineSlidePanelInner = ({
         }
         const poiSubcatList = Array.from(poiSubcatCounts.entries())
           .sort((a, b) => a[0].localeCompare(b[0]));
+        // Origine des distances : position utilisateur si disponible, sinon l'établissement master
+        const proxOrigin = userCoords
+          ?? (business?.latitude != null && business?.longitude != null
+            ? { lat: business.latitude, lng: business.longitude }
+            : null);
         const distOf = (p: typeof poiBusinesses[number]) =>
-          userCoords && p.latitude != null && p.longitude != null
-            ? haversineKm(userCoords.lat, userCoords.lng, p.latitude, p.longitude)
+          proxOrigin && p.latitude != null && p.longitude != null
+            ? haversineKm(proxOrigin.lat, proxOrigin.lng, p.latitude, p.longitude)
             : null;
+
         const afterSubcat = poiSubcatFilter
           ? afterCat.filter((p) => defaultSubcatOf(p) === poiSubcatFilter)
           : afterCat;
