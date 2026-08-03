@@ -278,6 +278,7 @@ const Club = () => {
     },
     en: {
       title: "The OWM Club",
+      platformHeadline: "Social video inspiration platform, direct-to-local",
       subtitle: "Join the club and access exclusive benefits",
       desc: "As a One World Morocco Club member, enjoy discounts, special offers, and privileged access to the best establishments in Morocco.",
       benefits: "Member benefits",
@@ -320,6 +321,7 @@ const Club = () => {
     },
     ar: {
       title: "نادي OWM",
+      platformHeadline: "منصة فيديو اجتماعي للإلهام، مباشرة إلى المحلي",
       subtitle: "انضم إلى النادي واحصل على مزايا حصرية",
       desc: "بصفتك عضواً في نادي One World Morocco، استمتع بتخفيضات وعروض خاصة ووصول مميز لأفضل المؤسسات في المغرب.",
       benefits: "مزايا الأعضاء",
