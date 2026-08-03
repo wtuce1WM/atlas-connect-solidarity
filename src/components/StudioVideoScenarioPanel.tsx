@@ -651,11 +651,15 @@ export function StudioVideoScenarioPanel({
         if (s) orderTokens.push(s.icon as SceneMediaKind);
       }
     }
+    // Durées : on émet la durée de CHAQUE étape intégrée telle qu'affichée dans l'aperçu
+    // (pas seulement celles modifiées) pour que le rendu Remotion respecte exactement le scénario.
     const durations: Partial<Record<SceneMediaKind, number>> = {};
-    for (const [id, d] of Object.entries(durationOverrides)) {
-      const s = byId.get(id);
-      if (s) durations[s.icon as SceneMediaKind] = d;
+    for (const s of editedScenes) {
+      if (isCustomToken(s.id)) continue;
+      const k = s.icon as SceneMediaKind;
+      if (k && k !== ("custom" as SceneMediaKind)) durations[k] = s.duration;
     }
+
     // Normalize splitOverrides keys: built-in scene.id → its icon (kind), custom token stays as-is
     const textSplits: Record<string, number> = {};
     for (const [id, n] of Object.entries(splitOverrides)) {
