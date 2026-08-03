@@ -108,6 +108,7 @@ const PublicBusinessProfile = lazy(() => import("./pages/PublicBusinessProfile")
 const Card = lazy(() => import("./pages/Card"));
 const ShowcaseSite = lazy(() => import("./pages/ShowcaseSite"));
 const Widgets = lazy(() => import("./pages/Widgets"));
+const PreviewDiagnostic = lazy(() => import("./pages/PreviewDiagnostic"));
 
 const queryClient = new QueryClient();
 
