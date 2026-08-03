@@ -187,6 +187,16 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
 
   return (
     <div className="space-y-6">
+      <div className="rounded-lg border border-primary/20 bg-primary/5 p-5 space-y-3">
+        <p className="text-lg md:text-xl font-semibold leading-snug text-white">
+          Vous avez la possibilité d'éditer des Titres, accroches et texte de différentes tailles à partir de différentes sources pour enrichir vos publications :
+        </p>
+        <ul className="list-disc space-y-1 pl-5 text-sm md:text-base text-white/75">
+          <li>Sites web, réseaux sociaux…</li>
+          <li>Trouver des idées et les exploiter dans notre Studio Vidéo IA qui transforme automatiquement une vidéo brute en vidéo intelligente.</li>
+        </ul>
+      </div>
+
       <div className="rounded-lg border border-white/10 bg-white/5 p-4 space-y-4">
         <div className="flex items-center justify-between gap-4">
           <h3 className="text-white font-semibold">Générer un texte IA</h3>
