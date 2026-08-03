@@ -2,6 +2,10 @@
 // Data comes from the public `tides` edge function (Open-Meteo Marine, MSL-referenced).
 import React from "react";
 import EmbedWindView, { type WindPayload } from "./EmbedWindView";
+import EmbedWeatherWidget, { type WeatherPayload } from "./EmbedWeatherWidget";
+import { smoothPath } from "@/lib/smoothPath";
+import { supabase } from "@/integrations/supabase/client";
+
 
 export type TideExtreme = { time: string; type: "high" | "low"; height: number };
 export type TideCurvePoint = { time: string; height: number };
