@@ -2921,72 +2921,25 @@ const BookOnlineSlidePanelInner = ({
                   </div>
                 )}
                 <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        type="button"
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${!poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
-                      >
-                        <MapPin className="h-3.5 w-3.5" />
-                        {poiSubcatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="z-[260] max-h-80 overflow-y-auto">
-                      {poiSubcatFilter && (
-                        <DropdownMenuItem onSelect={() => setPoiSubcatFilter(null)}>
-                          {language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
-                        </DropdownMenuItem>
-                      )}
-                      {poiSubcatList.map(([name, count]) => (
-                        <DropdownMenuItem key={name} onSelect={() => setPoiSubcatFilter(name)}>
-                          {translateSubcategory(name, language)} <span className="ml-1 opacity-60">({count})</span>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <button
+                    type="button"
+                    onClick={() => setPoiPillOverlay("poi")}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${!poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                  >
+                    <MapPin className="h-3.5 w-3.5" />
+                    {poiSubcatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
+                  </button>
                 </div>
                 {showCatPill && (
                   <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          type="button"
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
-                        >
-                          <SlidersHorizontal className="h-3.5 w-3.5" />
-                          {(activeFrontTab && translateFrontStructure(activeFrontTab.name, language)) || (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories")}
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="z-[260] max-h-80 overflow-y-auto">
-                        {poiCatFilter && (
-                          <DropdownMenuItem onSelect={() => { setPoiCatFilter(null); setPoiSubcatFilter(null); setPoiCategoryBusinesses([]); setPoiCategoryBusinessCatId(null); setDescGridPage(0); setDescGridSection("poi"); setPoiShowAll(false); }}>
-                            {language === "en" ? "All categories" : language === "ar" ? "جميع الفئات" : "Toutes les catégories"}
-                          </DropdownMenuItem>
-                        )}
-                        {frontTabs.map((ft) => (
-                          <DropdownMenuItem key={ft.id} onSelect={() => {
-                            setPoiCatFilter(ft.id);
-                            setPoiSubcatFilter(null);
-                            setDescGridPage(0);
-                            setDescGridSection("poi");
-                            setShowDescriptionOverlay(true);
-                            setPoiShowAll(false);
-                            infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" });
-                            if (onSearch && business?.city && ft.subcategoryNames.size > 0) {
-                              onSearch({
-                                subcats: Array.from(ft.subcategoryNames).join("|"),
-                                city: business.city,
-                                label: ft.name,
-                                _t: String(Date.now()),
-                              });
-                            }
-                          }}>
-
-                            {translateFrontStructure(ft.name, language)} <span className="ml-1 opacity-60">({ft.count})</span>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <button
+                      type="button"
+                      onClick={() => setPoiPillOverlay("cat")}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                    >
+                      <SlidersHorizontal className="h-3.5 w-3.5" />
+                      {(activeFrontTab && translateFrontStructure(activeFrontTab.name, language)) || (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories")}
+                    </button>
                   </div>
                 )}
                 {showProxPill && (
