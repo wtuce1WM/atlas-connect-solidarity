@@ -160,82 +160,94 @@ const AffiliateReviewsEditor = ({ businessId, data, onFieldChange, onDataRefresh
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-border bg-muted/30">
-        <div className="flex items-center gap-2">
-          {avg !== null ? (
-            <span className="flex items-center gap-1.5 text-amber-500 font-semibold text-sm">
-              <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
-              Note calculée : {avg}/20 <span className="text-muted-foreground font-normal">({total} avis)</span>
-            </span>
-          ) : (
-            <span className="text-sm text-muted-foreground">Aucune note calculée</span>
-          )}
+    <Tabs defaultValue="details" className="space-y-4">
+      <TabsList>
+        <TabsTrigger value="details" className="gap-1.5">
+          <MessageSquare className="h-3.5 w-3.5" /> Détails
+        </TabsTrigger>
+        <TabsTrigger value="urls" className="gap-1.5">
+          <Globe className="h-3.5 w-3.5" /> Urls
+        </TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="details" className="mt-0">
+        <div className="p-4 bg-muted/30 border border-border rounded-lg space-y-3">
+          <Label className="text-base font-semibold flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            Détail des avis clients
+          </Label>
+          <ReviewsEditor businessId={businessId} />
         </div>
-        <Button type="button" size="sm" onClick={handleFetch} disabled={loading}>
-          {loading ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Save className="h-3.5 w-3.5 mr-1" />}
-          Récupérer les avis & sauvegarder
-        </Button>
-      </div>
+      </TabsContent>
 
-      <div className="grid grid-cols-1 gap-3">
-        {PLATFORMS.map(({ urlKey, ratingKey, countKey, label }) => {
-          const url = (data as any)[urlKey] ?? "";
-          const rating = (data as any)[ratingKey] ?? "";
-          const count = (data as any)[countKey] ?? "";
-          return (
-            <div key={urlKey} className="p-3 rounded-lg border border-border bg-card space-y-2">
-              <Label className="flex items-center gap-2 text-sm font-medium">
-                {label === "Google" ? <MapPin className="h-3.5 w-3.5 text-blue-500" /> : <Globe className="h-3.5 w-3.5 text-muted-foreground" />}
-                {label}
-              </Label>
-              <div className="flex gap-1">
-                <Input
-                  value={url}
-                  onChange={(e) => onFieldChange(urlKey as string, e.target.value)}
-                  placeholder="URL avis"
-                  className="text-xs flex-1"
-                />
-                {url && (
-                  <>
-                    <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:text-primary shrink-0">
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </a>
-                    <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
-                      onClick={() => {
-                        onFieldChange(urlKey as string, "");
-                        onFieldChange(ratingKey as string, "");
-                        onFieldChange(countKey as string, "");
-                      }}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <Input type="number" step="0.1" min="0" max="5"
-                  value={rating}
-                  onChange={(e) => onFieldChange(ratingKey as string, e.target.value)}
-                  placeholder="Note /5" className="w-20 text-xs" />
-                <Input type="number" min="0"
-                  value={count}
-                  onChange={(e) => onFieldChange(countKey as string, e.target.value)}
-                  placeholder="Nb avis" className="w-24 text-xs" />
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <TabsContent value="urls" className="mt-0 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-border bg-muted/30">
+          <div className="flex items-center gap-2">
+            {avg !== null ? (
+              <span className="flex items-center gap-1.5 text-amber-500 font-semibold text-sm">
+                <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+                Note calculée : {avg}/20 <span className="text-muted-foreground font-normal">({total} avis)</span>
+              </span>
+            ) : (
+              <span className="text-sm text-muted-foreground">Aucune note calculée</span>
+            )}
+          </div>
+          <Button type="button" size="sm" onClick={handleFetch} disabled={loading}>
+            {loading ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Save className="h-3.5 w-3.5 mr-1" />}
+            Récupérer les avis & sauvegarder
+          </Button>
+        </div>
 
-      {/* Détail des avis clients (par plateforme) */}
-      <div className="p-4 bg-muted/30 border border-border rounded-lg space-y-3">
-        <Label className="text-base font-semibold flex items-center gap-2">
-          <MessageSquare className="h-4 w-4" />
-          Détail des avis clients
-        </Label>
-        <ReviewsEditor businessId={businessId} />
-      </div>
-    </div>
+        <div className="grid grid-cols-1 gap-3">
+          {PLATFORMS.map(({ urlKey, ratingKey, countKey, label }) => {
+            const url = (data as any)[urlKey] ?? "";
+            const rating = (data as any)[ratingKey] ?? "";
+            const count = (data as any)[countKey] ?? "";
+            return (
+              <div key={urlKey} className="p-3 rounded-lg border border-border bg-card space-y-2">
+                <Label className="flex items-center gap-2 text-sm font-medium">
+                  {label === "Google" ? <MapPin className="h-3.5 w-3.5 text-blue-500" /> : <Globe className="h-3.5 w-3.5 text-muted-foreground" />}
+                  {label}
+                </Label>
+                <div className="flex gap-1">
+                  <Input
+                    value={url}
+                    onChange={(e) => onFieldChange(urlKey as string, e.target.value)}
+                    placeholder="URL avis"
+                    className="text-xs flex-1"
+                  />
+                  {url && (
+                    <>
+                      <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:text-primary shrink-0">
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                      <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                        onClick={() => {
+                          onFieldChange(urlKey as string, "");
+                          onFieldChange(ratingKey as string, "");
+                          onFieldChange(countKey as string, "");
+                        }}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Input type="number" step="0.1" min="0" max="5"
+                    value={rating}
+                    onChange={(e) => onFieldChange(ratingKey as string, e.target.value)}
+                    placeholder="Note /5" className="w-20 text-xs" />
+                  <Input type="number" min="0"
+                    value={count}
+                    onChange={(e) => onFieldChange(countKey as string, e.target.value)}
+                    placeholder="Nb avis" className="w-24 text-xs" />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </TabsContent>
+    </Tabs>
   );
 };
 
