@@ -2983,7 +2983,7 @@ const BookOnlineSlidePanelInner = ({
 
 
                 {showAllToggle && (
-                  <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                  <div className="inline-flex rounded-full bg-white/90 backdrop-blur-sm shadow-lg ring-1 ring-black/10 p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                     <button
                       type="button"
                       onClick={() => setPoiShowAll(false)}
@@ -3000,7 +3000,7 @@ const BookOnlineSlidePanelInner = ({
                     </button>
                   </div>
                 )}
-                <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                <div className="inline-flex rounded-full bg-white/90 backdrop-blur-sm shadow-lg ring-1 ring-black/10 p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                   {embedMode ? (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -3037,7 +3037,7 @@ const BookOnlineSlidePanelInner = ({
                   )}
                 </div>
                 {showCatPill && (
-                  <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                  <div className="inline-flex rounded-full bg-white/90 backdrop-blur-sm shadow-lg ring-1 ring-black/10 p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                     {embedMode ? (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -3190,14 +3190,14 @@ const BookOnlineSlidePanelInner = ({
               mapTheme={mapTheme}
               userLocation={userCoords ? { lat: userCoords.lat, lng: userCoords.lng } : null}
             />
-            <div className="absolute bottom-4 left-3 right-3 z-[10] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
+            <div className="absolute bottom-16 left-3 right-3 z-[10] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
               {showProxPill && (
-                <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                <div className="inline-flex rounded-full bg-white/90 backdrop-blur-sm shadow-lg ring-1 ring-black/10 p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button
                         type="button"
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiProximityKm != null ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiProximityKm != null ? "bg-black text-white" : "text-black/60 hover:text-black"}`}
                       >
                         <Navigation className="h-3.5 w-3.5" />
                         {activeProx ? activeProx.label : (language === "en" ? "Nearby" : language === "ar" ? "بالقرب" : "À proximité")}
@@ -3230,25 +3230,25 @@ const BookOnlineSlidePanelInner = ({
                   </DropdownMenu>
                 </div>
               )}
-              <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+              <div className="inline-flex rounded-full bg-white/90 backdrop-blur-sm shadow-lg ring-1 ring-black/10 p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                 <button
                   type="button"
                   onClick={() => setPoiMapTypeId("roadmap")}
-                  className={`px-3 py-1 rounded-full transition-colors ${poiMapTypeId === "roadmap" ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                  className={`px-3 py-1 rounded-full transition-colors ${poiMapTypeId === "roadmap" ? "bg-black text-white" : "text-black/60 hover:text-black"}`}
                 >
                   {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Plan"}
                 </button>
                 <button
                   type="button"
                   onClick={() => setPoiMapTypeId("terrain")}
-                  className={`px-3 py-1 rounded-full transition-colors ${poiMapTypeId === "terrain" ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                  className={`px-3 py-1 rounded-full transition-colors ${poiMapTypeId === "terrain" ? "bg-black text-white" : "text-black/60 hover:text-black"}`}
                 >
                   {language === "en" ? "Terrain" : language === "ar" ? "تضاريس" : "Relief"}
                 </button>
                 <button
                   type="button"
                   onClick={() => setPoiMapTypeId("satellite")}
-                  className={`px-3 py-1 rounded-full transition-colors ${poiMapTypeId === "satellite" ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                  className={`px-3 py-1 rounded-full transition-colors ${poiMapTypeId === "satellite" ? "bg-black text-white" : "text-black/60 hover:text-black"}`}
                 >
                   {language === "en" ? "Satellite" : language === "ar" ? "قمر صناعي" : "Satellite"}
                 </button>
