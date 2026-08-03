@@ -2473,6 +2473,7 @@ export type Database = {
           created_at: string
           default_destination_id: string | null
           default_destination_style: string
+          default_poi_business_id: string | null
           default_service: string | null
           default_sound_on: boolean
           description: string | null
@@ -2534,6 +2535,7 @@ export type Database = {
           longitude: number | null
           main_category: string | null
           manual_price_range: string | null
+          map_bg_color: string | null
           matterport_url: string | null
           menu_language: string | null
           menu_name: string | null
@@ -2656,6 +2658,7 @@ export type Database = {
           created_at?: string
           default_destination_id?: string | null
           default_destination_style?: string
+          default_poi_business_id?: string | null
           default_service?: string | null
           default_sound_on?: boolean
           description?: string | null
@@ -2717,6 +2720,7 @@ export type Database = {
           longitude?: number | null
           main_category?: string | null
           manual_price_range?: string | null
+          map_bg_color?: string | null
           matterport_url?: string | null
           menu_language?: string | null
           menu_name?: string | null
@@ -2839,6 +2843,7 @@ export type Database = {
           created_at?: string
           default_destination_id?: string | null
           default_destination_style?: string
+          default_poi_business_id?: string | null
           default_service?: string | null
           default_sound_on?: boolean
           description?: string | null
@@ -2900,6 +2905,7 @@ export type Database = {
           longitude?: number | null
           main_category?: string | null
           manual_price_range?: string | null
+          map_bg_color?: string | null
           matterport_url?: string | null
           menu_language?: string | null
           menu_name?: string | null
@@ -3020,6 +3026,20 @@ export type Database = {
             columns: ["default_destination_id"]
             isOneToOne: false
             referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "businesses_default_poi_business_id_fkey"
+            columns: ["default_poi_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "businesses_default_poi_business_id_fkey"
+            columns: ["default_poi_business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
             referencedColumns: ["id"]
           },
           {
@@ -8098,6 +8118,7 @@ export type Database = {
               created_at: string
               default_destination_id: string | null
               default_destination_style: string
+              default_poi_business_id: string | null
               default_service: string | null
               default_sound_on: boolean
               description: string | null
@@ -8159,6 +8180,7 @@ export type Database = {
               longitude: number | null
               main_category: string | null
               manual_price_range: string | null
+              map_bg_color: string | null
               matterport_url: string | null
               menu_language: string | null
               menu_name: string | null
@@ -8297,6 +8319,7 @@ export type Database = {
               created_at: string
               default_destination_id: string | null
               default_destination_style: string
+              default_poi_business_id: string | null
               default_service: string | null
               default_sound_on: boolean
               description: string | null
@@ -8358,6 +8381,7 @@ export type Database = {
               longitude: number | null
               main_category: string | null
               manual_price_range: string | null
+              map_bg_color: string | null
               matterport_url: string | null
               menu_language: string | null
               menu_name: string | null

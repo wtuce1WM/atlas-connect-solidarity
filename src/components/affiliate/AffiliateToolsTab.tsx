@@ -1,11 +1,14 @@
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { Copy, Check, Download, ExternalLink, QrCode, Globe2, Mail, Bot, MapPin, Newspaper, Star, CloudSun, ThumbsUp, Waves } from "lucide-react";
+import { Copy, Check, Download, ExternalLink, QrCode, Globe2, Mail, Bot, MapPin, Newspaper, Star, CloudSun, ThumbsUp, Waves, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import AffiliateArticleExport from "@/components/affiliate/AffiliateArticleExport";
 import WidgetTester from "@/components/affiliate/WidgetTester";
+
 
 export type ToolsRights = {
   aiAssistant: boolean;
@@ -58,6 +61,46 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const [weatherLang, setWeatherLang] = useState<"fr" | "en" | "ar">("fr");
   const [tidesCity, setTidesCity] = useState<string>("Essaouira");
   const [tidesLang, setTidesLang] = useState<"fr" | "en" | "ar">("fr");
+
+  // Rayon de proximité (businesses.poi_radius_km)
+  const [radiusKm, setRadiusKm] = useState<number>(10);
+  const [radiusLoading, setRadiusLoading] = useState<boolean>(true);
+  const [radiusSaving, setRadiusSaving] = useState<boolean>(false);
+  const [radiusSaved, setRadiusSaved] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!businessId) { setRadiusLoading(false); return; }
+    let cancelled = false;
+    (async () => {
+      setRadiusLoading(true);
+      const { data } = await (supabase as any)
+        .from("businesses")
+        .select("poi_radius_km")
+        .eq("id", businessId)
+        .maybeSingle();
+      if (cancelled) return;
+      const v = Number((data as any)?.poi_radius_km);
+      setRadiusKm(v > 0 ? v : 10);
+      setRadiusLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [businessId]);
+
+  const saveRadius = async (v: string) => {
+    const num = parseFloat(v);
+    setRadiusKm(num);
+    if (!businessId) return;
+    setRadiusSaving(true);
+    const { error } = await (supabase as any)
+      .from("businesses")
+      .update({ poi_radius_km: num })
+      .eq("id", businessId);
+    setRadiusSaving(false);
+    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    setRadiusSaved(true);
+  };
+
+
 
   if (!slug) {
     return (
@@ -345,6 +388,36 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
   return (
     <div className="space-y-6">
+      <div className="space-y-3">
+        <h3 className="text-white font-semibold flex items-center gap-2">
+          <MapPin className="h-4 w-4" /> Rayon de proximité
+        </h3>
+        <p className="text-sm text-white/70 max-w-2xl">
+          Distance utilisée par défaut pour calculer les établissements et lieux d'intérêt autour de{" "}
+          {businessName} (overlay « À proximité », widget et carte).
+        </p>
+        <div className="flex items-center gap-2">
+          <Select
+            value={String(radiusKm)}
+            onValueChange={saveRadius}
+            disabled={radiusLoading || !businessId}
+          >
+            <SelectTrigger className="h-9 w-40 text-sm text-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="z-[100]">
+              {["0.5", "1", "5", "10", "20", "50", "100"].map((km) => (
+                <SelectItem key={km} value={km}>
+                  {km === "0.5" ? "- 500 m" : `- ${km} km`}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {radiusSaving && <Loader2 className="h-4 w-4 animate-spin text-white/60" />}
+          {!radiusSaving && radiusSaved && <Check className="h-4 w-4 text-emerald-400" />}
+        </div>
+      </div>
+
       <div className="space-y-4">
         <h3 className="text-white font-semibold flex items-center gap-2">
           <ExternalLink className="h-4 w-4" /> Liens de partage
@@ -352,6 +425,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         {renderUrlRow("URL publique (fiche)", publicUrl, "public")}
         {renderUrlRow("CARTE DE VISITE DIGITALE", shortUrl, "short")}
       </div>
+
 
       <div className="space-y-3">
         <h3 className="text-white font-semibold flex items-center gap-2">
