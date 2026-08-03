@@ -313,7 +313,7 @@ const PublicBusinessProfile = () => {
           z-index: 10;
         }
       `}</style>
-      <div className={`relative w-full ${bare ? "max-w-none rounded-none min-h-screen" : "max-w-[420px] rounded-[2.5rem] min-h-[85vh] shadow-2xl ring-1 ring-white/10"} bg-gradient-to-b from-neutral-900 via-neutral-900 to-black text-neutral-100 overflow-hidden`}>
+      <div className={`relative w-full ${embed ? "max-w-none rounded-[1.5rem] ring-1 ring-white/10" : bare ? "max-w-none rounded-none min-h-screen" : "max-w-[420px] rounded-[2.5rem] min-h-[85vh] shadow-2xl ring-1 ring-white/10"} bg-gradient-to-b from-neutral-900 via-neutral-900 to-black text-neutral-100 overflow-hidden`}>
         <div className="absolute top-4 right-4 z-10">
           <ShareButton
             variant="dark"
