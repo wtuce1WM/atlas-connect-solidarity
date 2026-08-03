@@ -480,6 +480,14 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     map.setOptions({ fullscreenControl: false });
   }, [ready]);
 
+  // Bascule du type de carte (plan / relief) sans reconstruire la carte.
+  useEffect(() => {
+    const gmaps = window.google?.maps;
+    const map = mapRef.current;
+    if (!gmaps || !map) return;
+    map.setMapTypeId(mapTypeId === "terrain" ? gmaps.MapTypeId.TERRAIN : gmaps.MapTypeId.ROADMAP);
+  }, [mapTypeId, ready]);
+
   // Swap tile styles live when theme changes (only for 1WM styled themes;
   // native colorScheme is fixed at construction — parent must remount via key prop).
   useEffect(() => {
@@ -493,6 +501,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
           : LIGHT_MAP_STYLES,
     });
   }, [mapTheme, ready, isNativeTheme, baseColor]);
+
 
   // Traffic / Transit layer toggles
   useEffect(() => {
