@@ -118,7 +118,7 @@ Deno.serve(async (req) => {
     let q = supabase
       .from('businesses')
       .select(
-        'id, name, slug, city, neighborhood, categories, main_category, rating, computed_rating, total_review_count, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, hook_fr, description_fr, min_price, manual_price_range, ai_review_summary',
+        'id, name, slug, city, neighborhood, categories, main_category, rating, computed_rating, total_review_count, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, hook_fr, description_fr, min_price, manual_price_range, ai_review_summary, images',
       )
       .eq('is_active', true)
       .order('total_review_count', { ascending: false, nullsFirst: false })
