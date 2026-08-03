@@ -46,11 +46,12 @@ interface PoiGoogleMapProps {
   baseColor?: string | null;
   /** When provided, centers the map so the `center` marker sits at this ratio from the bottom of the viewport (0 = bottom, 0.5 = middle, 1 = top). Overrides fitToMarkers. */
   centerAtBottomRatio?: number;
-  /** Base map type: "roadmap" (default) or "terrain" (relief). */
-  mapTypeId?: "roadmap" | "terrain";
+  /** Base map type: "roadmap" (plan, default), "satellite" or "terrain" (relief). */
+  mapTypeId?: "roadmap" | "satellite" | "terrain";
   /** When provided together with centerAtBottomRatio, the zoom adjusts so this radius (km) around `center` fits the viewport. */
   fitRadiusKm?: number | null;
 }
+
 
 
 const LIGHT_MAP_STYLES: google.maps.MapTypeStyle[] = [
@@ -480,13 +481,19 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     map.setOptions({ fullscreenControl: false });
   }, [ready]);
 
-  // Bascule du type de carte (plan / relief) sans reconstruire la carte.
+  // Bascule du type de carte (plan / satellite / relief) sans reconstruire la carte.
   useEffect(() => {
     const gmaps = window.google?.maps;
     const map = mapRef.current;
     if (!gmaps || !map) return;
-    map.setMapTypeId(mapTypeId === "terrain" ? gmaps.MapTypeId.TERRAIN : gmaps.MapTypeId.ROADMAP);
+    const mapTypeIds = {
+      roadmap: gmaps.MapTypeId.ROADMAP,
+      satellite: gmaps.MapTypeId.SATELLITE,
+      terrain: gmaps.MapTypeId.TERRAIN,
+    };
+    map.setMapTypeId(mapTypeIds[mapTypeId] || gmaps.MapTypeId.ROADMAP);
   }, [mapTypeId, ready]);
+
 
   // Swap tile styles live when theme changes (only for 1WM styled themes;
   // native colorScheme is fixed at construction — parent must remount via key prop).
