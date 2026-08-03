@@ -515,7 +515,7 @@ export function useBookOnlineData(businessId: string) {
           return;
         }
 
-        const RADIUS_KM = 10;
+        const RADIUS_KM = 100;
         const latDelta = RADIUS_KM / 111;
         const lngDelta = RADIUS_KM / (111 * Math.cos((lat * Math.PI) / 180) || 1);
 
