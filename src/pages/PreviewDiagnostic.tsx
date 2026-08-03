@@ -144,7 +144,7 @@ export default function PreviewDiagnostic() {
     });
     await timed("ctx-storage", "Contexte preview", "Persistence de route (sessionStorage)", async () => {
       try {
-        const key = "owm:lastPreviewRoute";
+        const key = "__owm_preview_route__";
         const saved = sessionStorage.getItem(key);
         sessionStorage.setItem("owm:diagPing", "1");
         sessionStorage.removeItem("owm:diagPing");
