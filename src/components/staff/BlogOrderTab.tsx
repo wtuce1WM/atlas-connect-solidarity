@@ -6,6 +6,8 @@ import { Loader2, Pin, GripVertical, ArrowUp, ArrowDown, Save, ExternalLink } fr
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
+import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
+
 import {
   DndContext,
   closestCenter,
