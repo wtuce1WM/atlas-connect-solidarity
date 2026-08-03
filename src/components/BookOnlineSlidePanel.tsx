@@ -1906,7 +1906,8 @@ const BookOnlineSlidePanelInner = ({
           </div>
         )}
 
-        {/* CTA Bar */}
+        {/* CTA Bar — hidden when the POI/Map overlay is open to keep the map immersive */}
+        {!showPoiMapOverlay && (
         <CtaBar
           business={business}
           language={language}
@@ -1951,6 +1952,7 @@ const BookOnlineSlidePanelInner = ({
           hideDirections={hideDirections}
           hideSecondaryCtas={hideSecondaryCtas}
         />
+        )}
 
       </div>
 
