@@ -274,12 +274,26 @@ const TidesPlan = ({ city }: { city: string }) => (
               <span>Croisez houle et période : une longue période transforme une petite houle en belle vague.</span>
             </li>
             <li className="flex gap-3">
+              <Wind className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+              <span>
+                Onglet <strong>Vent</strong> : rose des vents sur carte satellite, direction, force
+                Beaufort, rafales et prévision heure par heure — décisif pour le kite et le wing.
+              </span>
+            </li>
+            <li className="flex gap-3">
+              <Bell className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+              <span>
+                Bouton ⚙️ : abonnez-vous aux alertes email (grande marée, surf, kitesurf, wingfoil,
+                pêche) — reçues la veille quand les conditions sont réunies.
+              </span>
+            </li>
+            <li className="flex gap-3">
               <Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" />
               <span>Changez de ville dans le widget pour comparer 19 spots du littoral marocain.</span>
             </li>
           </ul>
         </div>
-        <TidesFrame city={city} picker height={540} title="Marées — choix de la ville" />
+        <TidesFrame city={city} picker height={560} title="Marées, vents & météo — choix de la ville" />
       </div>
     </div>
   </section>
@@ -288,7 +302,7 @@ const TidesPlan = ({ city }: { city: string }) => (
 /** 3. Install block — end of article, with copyable iframe code. */
 const TidesInstall = ({ city }: { city: string }) => {
   const [copied, setCopied] = useState(false);
-  const code = `<iframe src="${SITE}/embed/tides?city=${encodeURIComponent(city)}&lang=fr&picker=1" title="Marées Maroc — One World Morocco" width="100%" height="520" style="border:0;border-radius:16px" loading="lazy"></iframe>`;
+  const code = `<iframe src="${SITE}/embed/tides?city=${encodeURIComponent(city)}&lang=fr&picker=1" title="Marées, Vents & Météo Maroc — One World Morocco" width="100%" height="560" style="border:0;border-radius:16px" loading="lazy"></iframe>`;
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(code);
@@ -303,12 +317,14 @@ const TidesInstall = ({ city }: { city: string }) => {
       <div className="container mx-auto px-4 max-w-3xl text-center">
         <p className="text-sm uppercase tracking-wider mb-2 text-gold/80">Widget gratuit</p>
         <h2 className="text-2xl md:text-4xl font-bold mb-4 font-['Playfair_Display'] italic leading-tight text-white">
-          Installez le Widget Marées sur votre site
+          Installez le Widget Marées, Vents & Météo sur votre site
         </h2>
         <p className="text-white/75 leading-relaxed mb-8">
           École de surf, riad, maison d'hôtes, agence ou blog : copiez une ligne de code,
-          sans clé API, sans compte. 19 villes du littoral atlantique et méditerranéen marocain.
+          sans clé API, sans compte. 19 villes du littoral atlantique et méditerranéen marocain,
+          trois vues (marées, vent, météo 7 jours) et alertes email intégrées pour vos visiteurs.
         </p>
+
         <div className="text-left rounded-xl border border-white/15 bg-black/50 p-4 md:p-5">
           <pre className="overflow-x-auto text-[11px] md:text-xs leading-relaxed text-white/85 whitespace-pre-wrap break-all font-mono">
             {code}
