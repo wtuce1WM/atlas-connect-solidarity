@@ -227,21 +227,29 @@ const TidesLive = ({ city }: { city: string }) => (
       <div className="flex flex-wrap items-center gap-3 mb-5">
         <span className="inline-flex items-center gap-2 rounded-full bg-gold/15 border border-gold/40 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-gold">
           <Waves className="h-3.5 w-3.5" />
-          Marées en direct
+          Marées, vents & météo
+        </span>
+        <span className="inline-flex items-center gap-2 rounded-full bg-primary/15 border border-primary/40 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
+          <Bell className="h-3.5 w-3.5" />
+          Alertes email
         </span>
         <span className="inline-flex items-center rounded-full bg-[#25D366]/15 border border-[#25D366]/40 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#25D366]">
           Gratuit
         </span>
       </div>
       <h2 className="text-2xl md:text-4xl font-bold mb-3 font-['Playfair_Display'] italic leading-tight text-white">
-        L'état de la mer à {city}, maintenant
+        L'état de la mer, du vent et du ciel à {city}, maintenant
       </h2>
       <p className="text-white/75 leading-relaxed mb-7 max-w-2xl">
-        Niveau de la mer en direct, sens de la marée, prochaines pleines et basses mers,
-        marnage, température de l'eau, houle et période des vagues — tout ce qu'il faut
-        vérifier avant de charger la planche.
+        Trois vues dans un seul widget : <strong className="text-white">Marées</strong> (niveau
+        en direct, sens de la marée, pleines et basses mers, marnage, coefficient, houle,
+        période, température de l'eau), <strong className="text-white">Vent</strong> (rose des
+        vents sur carte satellite, force Beaufort, rafales, prévision horaire) et{" "}
+        <strong className="text-white">Météo</strong> (3 ou 7 jours). Le bouton ⚙️ en haut à
+        droite permet de changer de ville et de s'abonner aux alertes email.
       </p>
-      <TidesFrame city={city} height={500} title={`Marées ${city}`} />
+      <TidesFrame city={city} height={520} title={`Marées, vents et météo ${city}`} />
+
     </div>
   </section>
 );
