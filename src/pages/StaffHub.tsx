@@ -197,7 +197,9 @@ const StaffHub = () => {
       color: "from-rose-500/20 to-orange-500/10",
       iconColor: "text-rose-600",
       adminOnly: true,
+    },
     {
+
       title: "Widgets",
       description: "Widgets embarquables (Météo, Marées & Vents, Avis, IA, Carte) et diagnostic du preview.",
       icon: Blocks,
