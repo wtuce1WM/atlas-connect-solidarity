@@ -6003,7 +6003,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4,
-          "reviewCount": 2093,
+          "reviewCount": 2171,
           "bestRating": 5
         }
       }
@@ -13097,14 +13097,7 @@
         "name": "Hypermarché Carrefour Targa",
         "url": "https://oneworldmorocco.com/hypermarche-carrefour-targa",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1aea5bbb-ce78-4666-b11c-a97362ebcab0-1771828220160-kz82z5ge.jpg",
-        "description": "Hypermarché Carrefour situé au croisement de la route de Targa et du Boulevard Laâyoune à Marrakech. Enseigne du groupe Label'Vie. Grand espace avec un très large choix de produits alimentaires et non-alimentaires. Programme de fidélité Club Carrefour.",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "Croisement Route de Targa et Boulevard Laâyoune",
-          "addressLocality": "Targa",
-          "addressRegion": "Marrakech",
-          "addressCountry": "MA"
-        },
+        "description": "Situé au cœur du quartier Targa , l'un des secteurs résidentiels les plus dynamiques de Marrakech, Carrefour Hypermarché Targa est une adresse incontournable pour faire ses courses dans un environnement moderne, pratique et facilement accessible. Idéalement implanté à proximité des résidences, villas, écoles internationales, hôtels, maisons d'hôtes et axes reliant Guéliz, Sidi Ghanem et la route d'Amizmiz, cet hypermarché répond aussi bien aux besoins des habitants qu'à ceux des voyageurs séjour",
         "geo": {
           "@type": "GeoCoordinates",
           "latitude": 31.650799,
@@ -13538,10 +13531,10 @@
         "name": "Hypermarché Carrefour Al Mazar",
         "url": "https://oneworldmorocco.com/hypermarche-carrefour-al-mazar",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/710d9e31-0c20-4192-8497-848f0c260b4a-1771828435630-jhjq2.webp",
-        "description": "Hypermarché Carrefour situé dans le centre commercial Al Mazar sur la route de l'Ourika à Marrakech. Enseigne du groupe Label'Vie, offrant un très large choix de produits alimentaires et non-alimentaires. Programme de fidélité Club Carrefour.",
+        "description": "Situé au cœur du Centre Commercial Al Mazar , sur la Route de l'Ourika à Marrakech, Carrefour Hypermarché Al Mazar est bien plus qu'un simple supermarché : c'est l'un des principaux pôles de shopping et de services du sud de Marrakech. Facilement accessible depuis l'avenue Mohammed VI, l'aéroport Marrakech-Menara, les resorts, les golfs et les hôtels de la Palmeraie Sud, il constitue une étape incontournable aussi bien pour les habitants que pour les voyageurs souhaitant combiner courses, shoppi",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Centre Commercial Al Mazar, Route de l'Ourika",
+          "streetAddress": "Centre Commercial Al Mazar",
           "addressLocality": "Route de l’Ourika",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -14380,7 +14373,7 @@
         "name": "Hypermarché Marjane Menara",
         "url": "https://oneworldmorocco.com/hypermarche-marjane-menara",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/f4ae7cb1-c58a-4b5c-9517-c8160c27ccbd-1771097986954-jbmonr.jpg",
-        "description": "Marjane Menara est un hypermarché situé sur le boulevard Abdelkrim Khattabi (route de Casablanca). Faisant partie du groupe Marjane, leader de la grande distribution au Maroc, ce magasin propose une large gamme de produits alimentaires, d'hygiène, d'électroménager, de textile, de multimédia et d'équipement maison. Fondé en 1999, l'enseigne offre également des services de livraison à domicile et un programme de fidélité avec la carte Al Faiz.",
+        "description": "Marjane Menara Marrakech est l'un des plus grands hypermarchés de Marrakech et une adresse incontournable pour faire ses courses dans les meilleures conditions. Idéalement situé sur l'avenue Guemassa, à proximité de l'aéroport Marrakech-Menara, de l'avenue Mohammed VI, des quartiers de l'Hivernage, de Guéliz et de nombreux hôtels, cet hypermarché accueille aussi bien les habitants que les voyageurs à la recherche d'un vaste choix de produits, de services et d'horaires particulièrement pratiques.",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Bd Abdelkrim Khattabi",
@@ -14397,7 +14390,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.3,
-          "reviewCount": 3321,
+          "reviewCount": 3493,
           "bestRating": 5
         }
       }
@@ -22309,7 +22302,7 @@
         "name": "Marjane Market Marrakech",
         "url": "https://oneworldmorocco.com/marjane-market-marrakech",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/3917d748-ac7c-46ec-9a6c-3afeaea516a8-1771098450299-ko5yhl.webp",
-        "description": "Marjane Market Marrakech est un supermarché de proximité du groupe Marjane, leader de la grande distribution au Maroc. Situé dans le quartier Massira à Marrakech, ce magasin propose une gamme variée de produits alimentaires, d'hygiène, de produits frais et d'articles du quotidien à des prix compétitifs. Marjane Market se distingue par son format de proximité, offrant une expérience de courses rapide et pratique avec un programme de fidélité via la carte Al Faiz.",
+        "description": "Situé sur le Boulevard Abdelkrim Al Khattabi , au cœur de Guéliz, Marjane Market Marrakech est l'un des supermarchés les plus pratiques de la ville pour effectuer ses courses du quotidien. Grâce à son emplacement stratégique, à proximité des quartiers résidentiels, des hôtels, des appartements touristiques et des principaux axes routiers de Marrakech, il accueille chaque jour habitants, expatriés et voyageurs à la recherche d'un magasin moderne, bien approvisionné et facilement accessible. L'un ",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Bd Abdelkrim Al Khattabi",
@@ -22326,7 +22319,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 3.8,
-          "reviewCount": 1271,
+          "reviewCount": 1296,
           "bestRating": 5
         }
       }
