@@ -27,7 +27,10 @@ interface BlogPost {
   author_name: string | null;
   published_at: string | null;
   created_at: string;
+  is_pinned?: boolean | null;
+  sort_order?: number | null;
 }
+
 
 interface VideoFeedCard {
   id: string;
