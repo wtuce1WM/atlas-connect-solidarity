@@ -102,6 +102,8 @@ const BlogManagement = ({
         .from("blog_posts")
         .select(SELECT_COLS)
         .order("is_pinned", { ascending: false })
+        .order("sort_order", { ascending: false, nullsFirst: false })
+
         .order("published_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false });
       if (anchorBusinessId) {
