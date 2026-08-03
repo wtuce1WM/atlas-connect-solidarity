@@ -400,12 +400,13 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
 
   const isNativeTheme = mapTheme === "default-light" || mapTheme === "default-dark";
 
-  // Décalage vertical (en pixels) → latitude, via Mercator, pour appliquer le
-  // centrage décalé dès la construction de la carte (évite tout saut au chargement).
-  const offsetLatFor = (lat: number, zoom: number, offsetPixels: number) => {
+  // Convertit la position verticale voulue du marqueur en latitude de centre.
+  // Le calcul est fait avant `new Map` : aucune correction/pan après le premier rendu.
+  const centerLatForMarkerPosition = (lat: number, zoom: number, markerOffsetFromCenterPx: number) => {
     const siny = Math.min(Math.max(Math.sin((lat * Math.PI) / 180), -0.9999), 0.9999);
     const worldY = 128 - 0.5 * Math.log((1 + siny) / (1 - siny)) * (128 / Math.PI);
-    const newWorldY = worldY + offsetPixels / Math.pow(2, zoom);
+    // screenY(marker) = worldY(marker) - worldY(center) + viewportCenter.
+    const newWorldY = worldY - markerOffsetFromCenterPx / Math.pow(2, zoom);
     const n = Math.PI - (2 * Math.PI * newWorldY) / 256;
     return (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
   };
@@ -414,13 +415,19 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   useEffect(() => {
     const gmaps = window.google?.maps;
     if (!ready || !gmaps || !containerRef.current || mapRef.current) return;
+    // En mode décalé, ne jamais construire la carte sur un centre de secours :
+    // attendre les coordonnées du Master garantit la bonne position dès la 1re frame.
+    if (centerAtBottomRatio != null && !center) return;
     const initZoom = 13;
     let initCenter = center || { lat: 31.63, lng: -7.98 };
     if (center && centerAtBottomRatio != null && centerAtBottomRatio >= 0 && centerAtBottomRatio <= 1) {
       const height = containerRef.current.clientHeight || 0;
       if (height > 0) {
-        const offsetPixels = (0.5 - centerAtBottomRatio) * height;
-        initCenter = { lat: offsetLatFor(center.lat, initZoom, offsetPixels), lng: center.lng };
+        const markerOffsetFromCenterPx = (0.5 - centerAtBottomRatio) * height;
+        initCenter = {
+          lat: centerLatForMarkerPosition(center.lat, initZoom, markerOffsetFromCenterPx),
+          lng: center.lng,
+        };
       }
     }
     const opts: google.maps.MapOptions = {
@@ -460,7 +467,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       openInfoPoiIdRef.current = null;
       infoWindowRef.current?.close();
     });
-  }, [ready, center]);
+  }, [ready, center, centerAtBottomRatio]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -684,36 +691,13 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       overlaysRef.current.set(poi.id, overlay);
     });
 
-    // When centerAtBottomRatio is provided, keep the master marker fixed at that ratio
-    // from the bottom of the viewport and ignore fitToMarkers.
+    // En mode Master décalé, le seul centrage a déjà été calculé dans les options
+    // de construction de la carte. Aucun fitBounds/setCenter/pan ne doit le remplacer.
     const hasCenterOffset = centerAtBottomRatio != null && center != null && centerAtBottomRatio >= 0 && centerAtBottomRatio <= 1;
 
     if (hasCenterOffset) {
-      if (needsFitRef.current) {
-        needsFitRef.current = false;
-        gmaps.event.trigger(map, "resize");
-        const applyCenterOffset = () => {
-          const projection = map.getProjection();
-          if (!projection) return;
-          const zoom = map.getZoom() || 0;
-          const scale = Math.pow(2, zoom);
-          const height = map.getDiv().clientHeight;
-          // ratio=0.4 means the marker is 40% from the bottom → 10% below the center.
-          // Move the map center up by that amount so the marker ends up at the desired ratio.
-          const offsetPixels = (0.5 - centerAtBottomRatio!) * height;
-          const offsetWorld = offsetPixels / scale;
-          const centerPoint = projection.fromLatLngToPoint(new gmaps.LatLng(center!.lat, center!.lng));
-          const newCenterPoint = new gmaps.Point(centerPoint.x, centerPoint.y + offsetWorld);
-          const newCenter = projection.fromPointToLatLng(newCenterPoint);
-          if (newCenter) map.setCenter(newCenter);
-          hasFittedRef.current = true;
-        };
-        if (map.getProjection()) {
-          applyCenterOffset();
-        } else {
-          gmaps.event.addListenerOnce(map, "projection_changed", applyCenterOffset);
-        }
-      }
+      needsFitRef.current = false;
+      hasFittedRef.current = true;
       return;
     }
 
@@ -797,6 +781,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
 
   // Smooth pan + zoom to selected poi — speed & easing adapt to distance/zoom delta
   useEffect(() => {
+    // L'overlay BookOnline impose le Master comme unique critère de centrage.
+    if (centerAtBottomRatio != null) return;
     if (!mapRef.current || !selectedPoiId) return;
     const poi = pois.find((p) => p.id === selectedPoiId);
     if (!poi?.latitude || !poi?.longitude) return;
@@ -815,7 +801,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     }
 
     doAnimateToPoi(poi);
-  }, [selectedPoiId, pois]);
+  }, [selectedPoiId, pois, centerAtBottomRatio]);
 
   const animateRafRef = useRef<number | null>(null);
   const doAnimateToPoi = useRef((poi: PoiMapItem) => {
