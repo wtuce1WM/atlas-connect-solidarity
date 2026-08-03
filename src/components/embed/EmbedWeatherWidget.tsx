@@ -292,27 +292,85 @@ export default function EmbedWeatherWidget({
         )}
       </div>
 
-      {/* 3-day strip */}
-      {days.length > 0 && (
+      {/* Forecast — 3 days (compact strip) or 7 days (rows with wind) */}
+      {(days.length > 0 || hasSeven) && (
         <div className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 px-4 py-3">
-          <div className="text-[11px] uppercase tracking-wider opacity-60 mb-2">{L.days}</div>
-          <div className="grid grid-cols-3 gap-2">
-            {days.map((d, i) => {
-              const em = iconToEmoji(d.icon);
-              return (
-                <div key={i} className="flex flex-col items-center justify-center rounded-2xl bg-neutral-100 dark:bg-neutral-800 px-2 py-3">
-                  <div className="text-[11px] font-medium opacity-80">{formatDayLabel(d.date, lang)}</div>
-                  <div className={`text-3xl mt-1 ${em.anim}`} aria-hidden>{em.emoji}</div>
-                  <div className="mt-1 text-sm font-semibold">{d.temp_max}° <span className="opacity-50 font-normal">/ {d.temp_min}°</span></div>
-                  {(d.pop_max ?? 0) >= 20 && (
-                    <div className="mt-0.5 text-[10px] opacity-70">💧 {d.pop_max}%</div>
-                  )}
-                </div>
-              );
-            })}
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <div className="text-[11px] uppercase tracking-wider opacity-60">{range === 7 ? L.days7 : L.days}</div>
+            {hasSeven && (
+              <div className="flex items-center gap-1 rounded-full bg-neutral-100 dark:bg-neutral-800 p-0.5">
+                {([3, 7] as const).map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setRange(r)}
+                    aria-pressed={range === r}
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                      range === r
+                        ? "bg-white dark:bg-neutral-900 shadow text-neutral-900 dark:text-white"
+                        : "text-neutral-500 dark:text-neutral-400"
+                    }`}
+                  >
+                    {r === 3 ? L.d3 : L.d7}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
+
+          {range === 7 ? (
+            <div className="flex flex-col gap-1.5">
+              {seven.slice(0, 7).map((d, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-2 rounded-2xl bg-neutral-100 dark:bg-neutral-800 px-3 py-2"
+                >
+                  <div className="w-[72px] shrink-0 text-[11px] font-medium opacity-80 truncate">
+                    {formatDayLabel(d.date, lang)}
+                  </div>
+                  <div className="text-xl leading-none" aria-hidden>{codeToEmoji(d.weather_code)}</div>
+                  <div className="text-sm font-semibold whitespace-nowrap">
+                    {d.temp_max}° <span className="opacity-50 font-normal">/ {d.temp_min}°</span>
+                  </div>
+                  <div className="ms-auto flex items-center gap-2.5 text-[11px] opacity-75 whitespace-nowrap">
+                    {(d.pop_max ?? 0) >= 20 && <span>💧 {d.pop_max}%</span>}
+                    {d.wind_speed != null && (
+                      <span className="flex items-center gap-1">
+                        <span
+                          className="inline-block leading-none"
+                          style={{ transform: `rotate(${(d.wind_direction ?? 0) + 180}deg)` }}
+                          aria-hidden
+                        >
+                          ➤
+                        </span>
+                        {d.wind_speed} km/h
+                        {d.wind_direction != null && <span className="opacity-70">{compassLabel(d.wind_direction, lang)}</span>}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-2">
+              {days.map((d, i) => {
+                const em = iconToEmoji(d.icon);
+                return (
+                  <div key={i} className="flex flex-col items-center justify-center rounded-2xl bg-neutral-100 dark:bg-neutral-800 px-2 py-3">
+                    <div className="text-[11px] font-medium opacity-80">{formatDayLabel(d.date, lang)}</div>
+                    <div className={`text-3xl mt-1 ${em.anim}`} aria-hidden>{em.emoji}</div>
+                    <div className="mt-1 text-sm font-semibold">{d.temp_max}° <span className="opacity-50 font-normal">/ {d.temp_min}°</span></div>
+                    {(d.pop_max ?? 0) >= 20 && (
+                      <div className="mt-0.5 text-[10px] opacity-70">💧 {d.pop_max}%</div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
+
 
       {/* Signature (hidden when nested inside a host widget that already has one) */}
       {!embedded && (
