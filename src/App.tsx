@@ -108,6 +108,7 @@ const PublicBusinessProfile = lazy(() => import("./pages/PublicBusinessProfile")
 const Card = lazy(() => import("./pages/Card"));
 const ShowcaseSite = lazy(() => import("./pages/ShowcaseSite"));
 const Widgets = lazy(() => import("./pages/Widgets"));
+const PreviewDiagnostic = lazy(() => import("./pages/PreviewDiagnostic"));
 
 const queryClient = new QueryClient();
 
@@ -196,6 +197,7 @@ const LocalizedRoutes = () => {
               <Route path="/contact" element={renderLazyRoute(<Contact />)} />
               <Route path="/blog" element={renderLazyRoute(<Blog />)} />
               <Route path="/widgets" element={renderLazyRoute(<Widgets />)} />
+              <Route path="/diagnostic" element={renderLazyRoute(<PreviewDiagnostic />)} />
               <Route path="/en/widgets" element={renderLazyRoute(<Widgets />)} />
               <Route path="/ar/widgets" element={renderLazyRoute(<Widgets />)} />
               
