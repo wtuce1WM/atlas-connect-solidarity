@@ -315,28 +315,44 @@ export default function EmbedTidesWidget({
         .td-pulse { animation: tdPulse 2.6s ease-in-out infinite }
       `}</style>
 
-      {/* TOGGLE Marées / Vent */}
-      {hasWind && (
-        <div className="flex items-center gap-1 p-1.5 bg-neutral-100 dark:bg-neutral-800">
-          {(["tides", "wind"] as const).map((v) => (
-            <button
-              key={v}
-              type="button"
-              onClick={() => setView(v)}
-              aria-pressed={view === v}
-              className={`flex-1 rounded-2xl px-3 py-1.5 text-xs font-semibold transition-colors ${
-                view === v
-                  ? "bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white shadow"
-                  : "text-neutral-500 dark:text-neutral-400"
-              }`}
-            >
-              {v === "tides" ? `🌊 ${L.tides}` : `🧭 ${windLabel}`}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* TOGGLE Marées / Vent / Météo */}
+      <div className="flex items-center gap-1 p-1.5 bg-neutral-100 dark:bg-neutral-800">
+        {((hasWind ? ["tides", "wind", "weather"] : ["tides", "weather"]) as const as ("tides" | "wind" | "weather")[]).map((v) => (
+          <button
+            key={v}
+            type="button"
+            onClick={() => setView(v)}
+            aria-pressed={view === v}
+            className={`flex-1 rounded-2xl px-3 py-1.5 text-xs font-semibold transition-colors ${
+              view === v
+                ? "bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white shadow"
+                : "text-neutral-500 dark:text-neutral-400"
+            }`}
+          >
+            {v === "tides" ? `🌊 ${L.tides}` : v === "wind" ? `🧭 ${windLabel}` : `☀️ ${weatherLabel}`}
+          </button>
+        ))}
+      </div>
 
-      {view === "wind" && hasWind ? (
+      {view === "weather" ? (
+        weather ? (
+          <EmbedWeatherWidget data={weather} lang={lang} embedded />
+        ) : (
+          <div className="px-4 py-10 text-center text-xs text-neutral-500 dark:text-neutral-400">
+            {weatherError
+              ? lang === "en"
+                ? "Weather unavailable"
+                : lang === "ar"
+                  ? "الطقس غير متاح"
+                  : "Météo indisponible"
+              : lang === "en"
+                ? "Loading weather…"
+                : lang === "ar"
+                  ? "جار التحميل…"
+                  : "Chargement de la météo…"}
+          </div>
+        )
+      ) : view === "wind" && hasWind ? (
         <EmbedWindView
           wind={data.wind!}
           lat={data.lat}
@@ -346,6 +362,7 @@ export default function EmbedTidesWidget({
           compact={compact}
         />
       ) : (
+
       <>
       {/* HERO */}
       <div className={`relative bg-gradient-to-br ${gradient} px-6 pt-6 pb-4 text-white overflow-hidden`}>
