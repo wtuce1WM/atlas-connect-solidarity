@@ -134,6 +134,19 @@ const PublicBusinessProfile = () => {
     return val || (p as any)[`${field}_fr`] || (p as any)[field] || "";
   };
 
+  // Mode widget : fond transparent pour épouser le site hôte
+  useEffect(() => {
+    if (!embed) return;
+    const prevHtml = document.documentElement.style.background;
+    const prevBody = document.body.style.background;
+    document.documentElement.style.background = "transparent";
+    document.body.style.background = "transparent";
+    return () => {
+      document.documentElement.style.background = prevHtml;
+      document.body.style.background = prevBody;
+    };
+  }, [embed]);
+
   // Mode widget : remonte la hauteur réelle au site hôte pour auto-resize de l'iframe
   useEffect(() => {
     if (!embed) return;
