@@ -1272,6 +1272,20 @@ export default function StudioVideo() {
     });
   }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optOpenWithLogo, logoInfo, optWhatsapp, whatsappNumber, fromVideoOn, synthTitle]);
 
+  // Durée réelle du scénario : priorité aux durées d'étapes réglées dans l'aperçu,
+  // sinon la somme des étapes du scénario prévisualisé, sinon la durée cible.
+  const scenarioDuration = useMemo(() => {
+    const t = scenarioEdits?.totalDuration;
+    if (Number.isFinite(t) && (t as number) > 0) return Math.round(t as number);
+    const scenes = (aiScenario?.scenario ?? scenario)?.scenes;
+    if (Array.isArray(scenes) && scenes.length) {
+      const sum = scenes.reduce((acc: number, s: any) => acc + (Number(s.duration) || 0), 0);
+      if (sum > 0) return Math.round(sum);
+    }
+    return effectiveDuration;
+  }, [scenarioEdits?.totalDuration, aiScenario, scenario, effectiveDuration]);
+
+
   const youtubeIdFromUrl = (url: string): string | null => {
     const m = url.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{6,})/);
     return m?.[1] ?? null;
