@@ -317,7 +317,7 @@ export default function EmbedTidesWidget({
 
       {/* TOGGLE Marées / Vent / Météo */}
       <div className="flex items-center gap-1 p-1.5 bg-neutral-100 dark:bg-neutral-800">
-        {((hasWind ? ["tides", "wind", "weather"] : ["tides", "weather"]) as const as ("tides" | "wind" | "weather")[]).map((v) => (
+        {(hasWind ? (["tides", "wind", "weather"] as const) : (["tides", "weather"] as const)).map((v) => (
           <button
             key={v}
             type="button"
