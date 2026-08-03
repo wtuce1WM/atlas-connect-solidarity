@@ -468,8 +468,12 @@ const EmbedAsk = () => {
 
   const streaming = status === "submitted" || status === "streaming";
 
-  const suggestions: SuggestionRow[] = dbSuggestions && dbSuggestions.length > 0
-    ? dbSuggestions
+  const suggAllowed = agentPrefs.sugg;
+  const filteredDbSuggestions = dbSuggestions && suggAllowed
+    ? dbSuggestions.filter((s) => suggAllowed.includes(s.id))
+    : dbSuggestions;
+  const suggestions: SuggestionRow[] = filteredDbSuggestions && filteredDbSuggestions.length > 0
+    ? filteredDbSuggestions
     : L.suggestions.map((s, i) => ({ id: `default-${i}`, label: s }));
   const pickFollowupLabel = (f: FollowupRow): string => {
     const raw = (lang === "en" ? f.label_en : lang === "ar" ? f.label_ar : f.label_fr) || f.label_fr || "";
@@ -477,10 +481,13 @@ const EmbedAsk = () => {
   };
   const activeSuggestion = activeSuggestionId ? suggestions.find((s) => s.id === activeSuggestionId) : null;
   const disabledIds = new Set(activeSuggestion?.disabled_followup_ids || []);
+  const fuAllowed = agentPrefs.fu;
   const activeFollowups: Array<{ id: string; label: string }> = globalFollowups
     .filter((f) => !disabledIds.has(f.id))
+    .filter((f) => !fuAllowed || fuAllowed.includes(f.id))
     .map((f) => ({ id: f.id, label: pickFollowupLabel(f) }))
     .filter((f) => f.label);
+
 
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
   const [openEvents, setOpenEvents] = useState<{ list: EventPanelItem[]; index: number } | null>(null);
