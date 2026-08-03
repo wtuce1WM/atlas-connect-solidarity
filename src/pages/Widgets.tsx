@@ -908,7 +908,7 @@ const Widgets = () => {
               previewHeight={420}
               previewMaxWidth={420}
 
-              snippet={`<iframe src="${weatherUrl}" style="width:100%;max-width:420px;height:420px;border:0;border-radius:20px" title="Météo Marrakech" loading="lazy"></iframe>`}
+              snippet={`<iframe src="${weatherUrl}" style="width:100%;max-width:420px;height:560px;border:0;border-radius:20px" title="Météo Marrakech" loading="lazy"></iframe>`}
 
             />
 
