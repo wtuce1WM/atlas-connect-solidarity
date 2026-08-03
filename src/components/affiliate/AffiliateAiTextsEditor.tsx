@@ -89,7 +89,9 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
         .eq("business_id", businessId),
     ]);
     if (error) toast.error("Chargement impossible : " + error.message);
-    setTexts((data as AiText[]) ?? []);
+    const list = (data as AiText[]) ?? [];
+    setTexts(list);
+    setPristine(Object.fromEntries(list.map((t) => [t.id, snapshot(t)])));
     const locked = new Set<string>();
     for (const row of ((linkRes as any)?.data as any[]) ?? []) {
       for (const id of (Array.isArray(row.ai_text_ids) ? row.ai_text_ids : [])) locked.add(String(id));
