@@ -89,9 +89,15 @@ export default function PreviewDiagnostic() {
   );
 
   const pingFunction = useCallback(
-    async (path: string) => {
+    async (path: string, body?: Record<string, unknown>) => {
       const res = await fetch(`${FUNCTIONS_BASE}/${path}`, {
-        headers: { apikey: ANON_KEY, Authorization: `Bearer ${ANON_KEY}` },
+        method: body ? "POST" : "GET",
+        headers: {
+          apikey: ANON_KEY,
+          Authorization: `Bearer ${ANON_KEY}`,
+          ...(body ? { "Content-Type": "application/json" } : {}),
+        },
+        body: body ? JSON.stringify(body) : undefined,
       });
       const text = await res.text();
       if (!res.ok) return { status: "fail" as Status, detail: `HTTP ${res.status} — ${text.slice(0, 140)}` };
