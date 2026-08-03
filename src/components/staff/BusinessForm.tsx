@@ -2315,6 +2315,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
       keywords: formData.keywords ? formData.keywords.split(",").map((k) => k.trim()) : [],
       latitude: formData.latitude ? parseFloat(formData.latitude) : null,
       longitude: formData.longitude ? parseFloat(formData.longitude) : null,
+      poi_radius_km: (formData as any).poi_radius_km ? parseFloat((formData as any).poi_radius_km) : 10,
+
       wtuce_status: formData.wtuce_status as "verified" | "pending",
       is_featured: formData.is_featured,
       is_active: formData.is_active,
