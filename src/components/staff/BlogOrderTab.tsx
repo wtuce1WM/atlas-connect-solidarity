@@ -62,10 +62,15 @@ const SortableRow = ({
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`flex items-center gap-3 p-2 rounded-lg border bg-card ${
+      className={`relative flex items-center gap-3 p-2 rounded-lg border bg-card ${
         isDragging ? "shadow-lg opacity-90" : ""
-      } ${post.is_pinned ? "ring-1 ring-primary/40" : ""}`}
+      } ${post.is_pinned ? "ring-2 ring-destructive/60" : ""}`}
     >
+      {post.is_pinned && (
+        <span className="absolute -top-2 -left-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-md">
+          <Pin className="h-3.5 w-3.5 fill-current" />
+        </span>
+      )}
       <button
         type="button"
         className="cursor-grab active:cursor-grabbing text-muted-foreground p-1 shrink-0"
@@ -88,9 +93,10 @@ const SortableRow = ({
 
       <div className="min-w-0 flex-1">
         <div className="text-sm font-medium truncate flex items-center gap-1.5">
-          {post.is_pinned && <Pin className="h-3 w-3 text-primary shrink-0" />}
+          {post.is_pinned && <Pin className="h-3 w-3 text-destructive fill-current shrink-0" />}
           {post.title_fr}
         </div>
+
         <div className="text-[11px] text-muted-foreground">
           Créé {format(new Date(post.created_at), "d MMM yyyy", { locale: fr })} · Modifié{" "}
           {format(new Date(post.updated_at || post.created_at), "d MMM yyyy", { locale: fr })}
