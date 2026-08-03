@@ -142,7 +142,7 @@ const BlogManagement = ({
     }
   };
 
-  const updatePost = async (post: BlogPost, patch: Partial<Pick<BlogPost, "is_published" | "is_pinned" | "anchor_kind">>) => {
+  const updatePost = async (post: BlogPost, patch: Partial<Pick<BlogPost, "is_published" | "is_pinned" | "anchor_kind" | "city_scope">>) => {
     setUpdating((s) => ({ ...s, [post.id]: true }));
     // Optimistic
     setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, ...patch } : p)));
