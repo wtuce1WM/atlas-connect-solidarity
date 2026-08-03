@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import { Waves, Clock3, Copy, Check, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Waves, Clock3, Copy, Check, Sparkles, Wind, Bell, ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Editorial (long-form) sections for the blog article template.
@@ -8,8 +9,8 @@ import { Waves, Clock3, Copy, Check, Sparkles } from "lucide-react";
  * ONE WORLD MOROCCO widgets at chosen points of the reading flow.
  */
 export interface BlogEditorialSection {
-  /** "text" (default) = prose block, "widget" = embedded widget, "entries" = insert the establishment list here. */
-  kind?: "text" | "widget" | "entries";
+  /** "text" (default) = prose block, "widget" = embedded widget, "entries" = insert the establishment list here, "carousel" = horizontal establishment carousel. */
+  kind?: "text" | "widget" | "entries" | "carousel";
   pretitle?: string;
   title?: string;
   paragraphs?: string[];
@@ -17,9 +18,166 @@ export interface BlogEditorialSection {
   /** Which widget presentation to render when kind === "widget". */
   widget?: "tides_live" | "tides_plan" | "tides_install";
   widgetCity?: string;
+  /** Carousel filters (kind === "carousel"). */
+  carouselCity?: string;
+  /** Default subcategory (first entry of businesses.categories). */
+  carouselSubcategory?: string;
+  /** Business names pinned first, in order. */
+  carouselFirst?: string[];
 }
 
 const SITE = "https://oneworldmorocco.com";
+
+type CarouselBusiness = {
+  id: string;
+  name: string;
+  city: string | null;
+  neighborhood: string | null;
+  images: string[] | null;
+  computed_rating: number | null;
+  hook_fr: string | null;
+  categories: string[] | null;
+};
+
+/** Horizontal carousel of establishments filtered by city + default subcategory. */
+const BusinessCarousel = ({ section }: { section: BlogEditorialSection }) => {
+  const [items, setItems] = useState<CarouselBusiness[]>([]);
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const city = section.carouselCity || "Essaouira";
+  const sub = (section.carouselSubcategory || "Sports nautiques").toLowerCase();
+  const pinned = useMemo(
+    () => (section.carouselFirst || []).map((n) => n.toLowerCase()),
+    [section.carouselFirst],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id,name,city,neighborhood,images,computed_rating,hook_fr,categories")
+        .eq("is_active", true)
+        .eq("city", city)
+        .contains("categories", [section.carouselSubcategory || "Sports nautiques"])
+        .limit(500);
+
+      if (cancelled || !data) return;
+      const filtered = (data as CarouselBusiness[]).filter(
+        (b) => (b.categories?.[0] || "").toLowerCase() === sub,
+      );
+      filtered.sort((a, b) => {
+        const pa = pinned.indexOf(a.name.toLowerCase());
+        const pb = pinned.indexOf(b.name.toLowerCase());
+        if (pa !== -1 || pb !== -1) {
+          if (pa === -1) return 1;
+          if (pb === -1) return -1;
+          return pa - pb;
+        }
+        return (b.computed_rating ?? 0) - (a.computed_rating ?? 0);
+      });
+      setItems(filtered);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [city, sub, pinned]);
+
+  const scrollBy = (dir: -1 | 1) => {
+    scrollerRef.current?.scrollBy({ left: dir * 320, behavior: "smooth" });
+  };
+
+  if (items.length === 0) return null;
+
+  return (
+    <section className="py-14 bg-background">
+      <div className="container mx-auto px-4 max-w-6xl">
+        <div className="flex items-end justify-between gap-4 mb-6">
+          <div>
+            {section.pretitle && (
+              <p className="text-sm uppercase tracking-wider mb-2 text-primary">{section.pretitle}</p>
+            )}
+            {section.title && (
+              <h2 className="text-2xl md:text-4xl font-bold font-['Playfair_Display'] italic leading-tight text-foreground">
+                {section.title}
+              </h2>
+            )}
+          </div>
+          <div className="hidden md:flex gap-2 shrink-0">
+            <button
+              type="button"
+              aria-label="Précédent"
+              onClick={() => scrollBy(-1)}
+              className="h-10 w-10 rounded-full border border-border bg-muted/40 text-foreground grid place-items-center transition hover:bg-muted"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              aria-label="Suivant"
+              onClick={() => scrollBy(1)}
+              className="h-10 w-10 rounded-full border border-border bg-muted/40 text-foreground grid place-items-center transition hover:bg-muted"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
+        {section.paragraphs && section.paragraphs.length > 0 && (
+          <div className="space-y-4 mb-6 text-foreground/85">
+            {section.paragraphs.map((p, i) => (
+              <p key={i} className="text-base md:text-lg leading-relaxed">
+                {p}
+              </p>
+            ))}
+          </div>
+        )}
+
+        <div
+          ref={scrollerRef}
+          className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-hide"
+        >
+          {items.map((b) => (
+            <a
+              key={b.id}
+              href={`/search?openBusiness=${b.id}`}
+              className="group relative shrink-0 snap-start w-[260px] md:w-[300px] overflow-hidden rounded-2xl border border-border bg-muted/20"
+            >
+              <div className="relative aspect-[4/3] overflow-hidden">
+                {b.images?.[0] ? (
+                  <img
+                    src={b.images[0]}
+                    alt={b.name}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-muted" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+                {typeof b.computed_rating === "number" && (
+                  <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-black/70 px-2.5 py-1 text-[11px] font-bold text-gold">
+                    <Star className="h-3 w-3 fill-gold" />
+                    {Number(b.computed_rating).toFixed(1)}/20
+                  </span>
+                )}
+                <div className="absolute bottom-0 left-0 right-0 p-3">
+                  {b.neighborhood && (
+                    <p className="text-[11px] uppercase tracking-wider text-white/70">{b.neighborhood}</p>
+                  )}
+                  <p className="text-base font-bold text-white leading-snug">{b.name}</p>
+                </div>
+              </div>
+              {b.hook_fr && (
+                <p className="p-3 text-sm leading-relaxed text-foreground/75 line-clamp-3">{b.hook_fr}</p>
+              )}
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 
 /**
  * Auto-resizing tides iframe: the embed posts its measured height
@@ -71,21 +229,29 @@ const TidesLive = ({ city }: { city: string }) => (
       <div className="flex flex-wrap items-center gap-3 mb-5">
         <span className="inline-flex items-center gap-2 rounded-full bg-gold/15 border border-gold/40 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-gold">
           <Waves className="h-3.5 w-3.5" />
-          Marées en direct
+          Marées, vents & météo
+        </span>
+        <span className="inline-flex items-center gap-2 rounded-full bg-primary/15 border border-primary/40 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
+          <Bell className="h-3.5 w-3.5" />
+          Alertes email
         </span>
         <span className="inline-flex items-center rounded-full bg-[#25D366]/15 border border-[#25D366]/40 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-[#25D366]">
           Gratuit
         </span>
       </div>
       <h2 className="text-2xl md:text-4xl font-bold mb-3 font-['Playfair_Display'] italic leading-tight text-white">
-        L'état de la mer à {city}, maintenant
+        L'état de la mer, du vent et du ciel à {city}, maintenant
       </h2>
       <p className="text-white/75 leading-relaxed mb-7 max-w-2xl">
-        Niveau de la mer en direct, sens de la marée, prochaines pleines et basses mers,
-        marnage, température de l'eau, houle et période des vagues — tout ce qu'il faut
-        vérifier avant de charger la planche.
+        Trois vues dans un seul widget : <strong className="text-white">Marées</strong> (niveau
+        en direct, sens de la marée, pleines et basses mers, marnage, coefficient, houle,
+        période, température de l'eau), <strong className="text-white">Vent</strong> (rose des
+        vents sur carte satellite, force Beaufort, rafales, prévision horaire) et{" "}
+        <strong className="text-white">Météo</strong> (3 ou 7 jours). Le bouton ⚙️ en haut à
+        droite permet de changer de ville et de s'abonner aux alertes email.
       </p>
-      <TidesFrame city={city} height={500} title={`Marées ${city}`} />
+      <TidesFrame city={city} height={520} title={`Marées, vents et météo ${city}`} />
+
     </div>
   </section>
 );
@@ -110,12 +276,26 @@ const TidesPlan = ({ city }: { city: string }) => (
               <span>Croisez houle et période : une longue période transforme une petite houle en belle vague.</span>
             </li>
             <li className="flex gap-3">
+              <Wind className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+              <span>
+                Onglet <strong>Vent</strong> : rose des vents sur carte satellite, direction, force
+                Beaufort, rafales et prévision heure par heure — décisif pour le kite et le wing.
+              </span>
+            </li>
+            <li className="flex gap-3">
+              <Bell className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+              <span>
+                Bouton ⚙️ : abonnez-vous aux alertes email (grande marée, surf, kitesurf, wingfoil,
+                pêche) — reçues la veille quand les conditions sont réunies.
+              </span>
+            </li>
+            <li className="flex gap-3">
               <Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" />
               <span>Changez de ville dans le widget pour comparer 19 spots du littoral marocain.</span>
             </li>
           </ul>
         </div>
-        <TidesFrame city={city} picker height={540} title="Marées — choix de la ville" />
+        <TidesFrame city={city} picker height={560} title="Marées, vents & météo — choix de la ville" />
       </div>
     </div>
   </section>
@@ -124,7 +304,7 @@ const TidesPlan = ({ city }: { city: string }) => (
 /** 3. Install block — end of article, with copyable iframe code. */
 const TidesInstall = ({ city }: { city: string }) => {
   const [copied, setCopied] = useState(false);
-  const code = `<iframe src="${SITE}/embed/tides?city=${encodeURIComponent(city)}&lang=fr&picker=1" title="Marées Maroc — One World Morocco" width="100%" height="520" style="border:0;border-radius:16px" loading="lazy"></iframe>`;
+  const code = `<iframe src="${SITE}/embed/tides?city=${encodeURIComponent(city)}&lang=fr&picker=1" title="Marées, Vents & Météo Maroc — One World Morocco" width="100%" height="560" style="border:0;border-radius:16px" loading="lazy"></iframe>`;
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(code);
@@ -139,12 +319,14 @@ const TidesInstall = ({ city }: { city: string }) => {
       <div className="container mx-auto px-4 max-w-3xl text-center">
         <p className="text-sm uppercase tracking-wider mb-2 text-gold/80">Widget gratuit</p>
         <h2 className="text-2xl md:text-4xl font-bold mb-4 font-['Playfair_Display'] italic leading-tight text-white">
-          Installez le Widget Marées sur votre site
+          Installez le Widget Marées, Vents & Météo sur votre site
         </h2>
         <p className="text-white/75 leading-relaxed mb-8">
           École de surf, riad, maison d'hôtes, agence ou blog : copiez une ligne de code,
-          sans clé API, sans compte. 19 villes du littoral atlantique et méditerranéen marocain.
+          sans clé API, sans compte. 19 villes du littoral atlantique et méditerranéen marocain,
+          trois vues (marées, vent, météo 7 jours) et alertes email intégrées pour vos visiteurs.
         </p>
+
         <div className="text-left rounded-xl border border-white/15 bg-black/50 p-4 md:p-5">
           <pre className="overflow-x-auto text-[11px] md:text-xs leading-relaxed text-white/85 whitespace-pre-wrap break-all font-mono">
             {code}
@@ -219,6 +401,8 @@ const BlogEditorialSections = ({
     <>
       {sections.map((section, i) => {
         if (section.kind === "entries") return <div key={i}>{entriesBlock}</div>;
+        if (section.kind === "carousel") return <BusinessCarousel key={i} section={section} />;
+
         if (section.kind === "widget") {
           const city = section.widgetCity || "Essaouira";
           if (section.widget === "tides_plan") return <TidesPlan key={i} city={city} />;
