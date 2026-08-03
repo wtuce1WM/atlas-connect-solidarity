@@ -11,6 +11,7 @@ export function normalizeCtaMode(value: string | null | undefined): string | nul
     .toLowerCase()
     .replace(/['']/g, "")
     .replace(/&/g, " ")
+    .replace(/\+/g, " plus ")
     .replace(/[\s/-]+/g, "_")
     .replace(/[^a-z0-9_]/g, "")
     .replace(/_+/g, "_")
