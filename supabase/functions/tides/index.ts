@@ -269,6 +269,7 @@ Deno.serve(async (req) => {
     const waveNow = interpolateAt(stamps, h?.wave_height || [], nowMs);
     const periodNow = interpolateAt(stamps, h?.wave_period || [], nowMs);
     const seaTempNow = interpolateAt(stamps, h?.sea_surface_temperature || [], nowMs);
+    const waveDirNow = interpolateAt(stamps, h?.wave_direction || [], nowMs);
 
     return new Response(
       JSON.stringify({
@@ -286,7 +287,9 @@ Deno.serve(async (req) => {
           wave_height: waveNow,
           wave_period: periodNow,
           sea_temperature: seaTempNow,
+          wave_direction: waveDirNow != null ? Math.round(waveDirNow) : null,
         },
+        wind,
         previous_extreme: previous,
         extremes: upcoming,
         curve,
