@@ -549,6 +549,68 @@ export default function StudioVideo() {
     }
   }, [selected?.id, videoStarts, videoEnds]);
 
+  // --- Persistance du Prompt & des Paramètres de la vidéo (par établissement) ---
+  const PARAMS_KEY = `studio-video:params:${selected?.id ?? "corporate"}`;
+  const paramsLoadedFor = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (paramsLoadedFor.current === PARAMS_KEY) return;
+    paramsLoadedFor.current = PARAMS_KEY;
+    try {
+      const raw = localStorage.getItem(PARAMS_KEY);
+      if (!raw) return;
+      const p = JSON.parse(raw);
+      if (!p || typeof p !== "object") return;
+      if (typeof p.prompt === "string" && p.prompt.trim()) setPrompt(p.prompt);
+      if (typeof p.tone === "string") setTone(p.tone);
+      if ([15, 30, 45, 60].includes(p.duration)) setDuration(p.duration);
+      if (typeof p.durationAuto === "boolean") setDurationAuto(p.durationAuto);
+      if (p.videoLang === "fr" || p.videoLang === "en") setVideoLang(p.videoLang);
+      const b = (v: unknown, set: (x: boolean) => void) => { if (typeof v === "boolean") set(v); };
+      b(p.optReviews, setOptReviews);
+      b(p.optGoogleReviews, setOptGoogleReviews);
+      b(p.optTripAdvisor, setOptTripAdvisor);
+      b(p.optRestaurantGuru, setOptRestaurantGuru);
+      b(p.optCustomerReview, setOptCustomerReview);
+      b(p.optHours, setOptHours);
+      b(p.optInstallCta, setOptInstallCta);
+      b(p.optClosingSequence, setOptClosingSequence);
+      b(p.optMapMarker, setOptMapMarker);
+      b(p.optDigitalId, setOptDigitalId);
+      b(p.optPopup, setOptPopup);
+      b(p.optOpenWithLogo, setOptOpenWithLogo);
+      b(p.optWhatsapp, setOptWhatsapp);
+      if (p.textPosition === "top" || p.textPosition === "middle" || p.textPosition === "bottom") setTextPosition(p.textPosition);
+      if (typeof p.transitionStyle === "string") setTransitionStyle(p.transitionStyle);
+      if (typeof p.aiSummaryEffect === "string") setAiSummaryEffect(p.aiSummaryEffect);
+      if (p.blogMode === "scroll" || p.blogMode === "hero_map") setBlogMode(p.blogMode);
+    } catch {
+      /* stockage indisponible */
+    }
+  }, [PARAMS_KEY]);
+
+  useEffect(() => {
+    if (paramsLoadedFor.current !== PARAMS_KEY) return;
+    try {
+      localStorage.setItem(PARAMS_KEY, JSON.stringify({
+        prompt, tone, duration, durationAuto, videoLang,
+        optReviews, optGoogleReviews, optTripAdvisor, optRestaurantGuru, optCustomerReview,
+        optHours, optInstallCta, optClosingSequence, optMapMarker, optDigitalId,
+        optPopup, optOpenWithLogo, optWhatsapp,
+        textPosition, transitionStyle, aiSummaryEffect, blogMode,
+      }));
+    } catch {
+      /* quota / mode privé */
+    }
+  }, [
+    PARAMS_KEY, prompt, tone, duration, durationAuto, videoLang,
+    optReviews, optGoogleReviews, optTripAdvisor, optRestaurantGuru, optCustomerReview,
+    optHours, optInstallCta, optClosingSequence, optMapMarker, optDigitalId,
+    optPopup, optOpenWithLogo, optWhatsapp,
+    textPosition, transitionStyle, aiSummaryEffect, blogMode,
+  ]);
+
+
 
   // Garde l'ordre de montage synchronisé avec la sélection de vidéos.
   useEffect(() => {
