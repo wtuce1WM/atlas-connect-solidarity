@@ -12,6 +12,8 @@ import { format } from "date-fns";
 import { fr, enUS, ar } from "date-fns/locale";
 import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
 import { withLangPrefix } from "@/lib/localizedPath";
+import { compareBlogOrder } from "@/lib/blogOrder";
+
 
 interface BlogPost {
   id: string;
