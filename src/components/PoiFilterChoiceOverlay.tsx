@@ -99,7 +99,11 @@ export default function PoiFilterChoiceOverlay({
                 style={{ fontFamily: "'Montserrat', sans-serif" }}
               >
                 <span>{item.label}</span>
-                {item.count != null && <span className="text-xs font-normal opacity-70">({item.count})</span>}
+                {item.count != null && (
+                  <span className="inline-flex items-center justify-center min-w-[1.5rem] px-1.5 py-0.5 rounded-full bg-black/10 text-[10px] md:text-xs font-bold">
+                    {item.count}
+                  </span>
+                )}
               </button>
             ))}
           </div>
