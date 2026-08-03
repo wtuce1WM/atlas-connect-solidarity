@@ -1,6 +1,5 @@
 import { X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import koutoubiaVerticalBgAsset from "@/assets/hero-bg-koutoubia-zellige-vertical-tinted-v3-1080x1920.webp.asset.json";
 
 export interface PoiFilterChoiceItem {
   key: string;
@@ -49,11 +48,10 @@ export default function PoiFilterChoiceOverlay({
   return (
     <div
       dir="ltr"
-      className={`fixed inset-0 ${zClass} shadow-2xl flex flex-col bg-background bg-no-repeat bg-cover bg-center animate-slide-up-from-bottom lg:left-1/2`}
-      style={{ backgroundImage: `url('${koutoubiaVerticalBgAsset.url}')` }}
+      className={`fixed inset-0 ${zClass} flex flex-col bg-black/10 backdrop-blur-sm animate-slide-up-from-bottom lg:left-1/2`}
     >
       <div className="h-full flex flex-col">
-        <div className="relative z-10 shrink-0 flex items-center px-4 py-3">
+        <div className="relative z-20 shrink-0 flex items-center px-4 py-3">
           <button
             type="button"
             onClick={onClose}
@@ -79,7 +77,7 @@ export default function PoiFilterChoiceOverlay({
           <span className="w-9 h-9 shrink-0" aria-hidden="true" />
         </div>
 
-        <div className="relative z-10 flex-1 overflow-y-auto p-4">
+        <div className="relative z-10 flex-1 overflow-y-auto px-4 pb-10 pt-2">
           <div className="flex flex-col items-center gap-4">
             {selectedKey && allLabel && onSelectAll && (
               <button
