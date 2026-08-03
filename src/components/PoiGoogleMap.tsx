@@ -715,7 +715,20 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       // Position unique et invariante : le Master reste à `centerAtBottomRatio`
       // du bas, quels que soient les filtres (POI / catégories / rayon).
       const height = containerRef.current?.clientHeight || 0;
-      const z = map.getZoom() ?? 13;
+      const width = containerRef.current?.clientWidth || 0;
+      let z = map.getZoom() ?? 13;
+      // Le rayon du pill « À proximité » pilote le zoom : le cercle doit tenir
+      // dans le viewport, au-dessus et autour du marqueur Master.
+      if (fitRadiusKm && fitRadiusKm > 0 && height > 0 && width > 0 && center) {
+        const availablePx = Math.max(
+          40,
+          Math.min(width / 2, height * Math.max(centerAtBottomRatio!, 0.15)) - 24,
+        );
+        const metersPerPixelAtZ0 = 156543.03392 * Math.cos((center.lat * Math.PI) / 180);
+        const target = Math.log2((metersPerPixelAtZ0 * availablePx) / (fitRadiusKm * 1000));
+        z = Math.max(4, Math.min(18, Math.round(target * 2) / 2));
+        map.setZoom(z);
+      }
       if (height > 0 && center) {
         const markerOffsetFromCenterPx = (0.5 - centerAtBottomRatio!) * height;
         map.setCenter({
@@ -724,6 +737,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         });
       }
       return;
+
     }
 
 
