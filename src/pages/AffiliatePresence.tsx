@@ -413,7 +413,22 @@ const AffiliatePresence = () => {
   };
 
   const currentBusiness = businesses.find(b => b.id === selectedBusiness);
-  const hasEdits = selectedBusiness ? Object.keys(editedFields[selectedBusiness] || {}).length > 0 : false;
+
+  const normalizeForCompare = (v: any) => {
+    if (v === null || v === undefined || v === "") return "";
+    if (typeof v === "object") return JSON.stringify(v);
+    return String(v);
+  };
+
+  const hasEdits = (() => {
+    if (!selectedBusiness || !currentBusiness) return false;
+    const edits = editedFields[selectedBusiness] || {};
+    return Object.entries(edits).some(([key, value]) => {
+      const original = (currentBusiness as any)[key] ?? (currentBusiness as any).links?.[key];
+      return normalizeForCompare(value) !== normalizeForCompare(original);
+    });
+  })();
+
 
   const getCurrentValue = (bizId: string, key: string, original: any) => {
     return editedFields[bizId]?.[key] !== undefined ? editedFields[bizId][key] : (original ?? "");
