@@ -132,6 +132,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
         .single();
       if (insErr) throw insErr;
       setTexts((prev) => [...prev, inserted as AiText]);
+      setPristine((p) => ({ ...p, [(inserted as AiText).id]: snapshot(inserted as AiText) }));
       toast.success("Texte IA généré");
     } catch (e: any) {
       toast.error(e?.message ?? "Erreur de génération");
