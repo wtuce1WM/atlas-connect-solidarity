@@ -2827,41 +2827,65 @@ const BookOnlineSlidePanelInner = ({
       {showPoiMapOverlay && (() => {
         const TOP_LIMIT = 20;
         const activeFrontTab = poiCatFilter ? frontTabs.find(t => t.id === poiCatFilter) || null : null;
-        const afterCat = activeFrontTab
-          ? activePoiCategoryBusinesses
-          : poiBusinesses;
-        // Pill POI : uniquement la 1ʳᵉ sous-catégorie (sous-catégorie par défaut) de chaque POI,
-        // calculée sur l'ensemble des résultats (pas seulement le Top 20).
-        const defaultSubcatOf = (p: typeof poiBusinesses[number]) =>
-          ((p.categories || [])[0] || "").trim() || null;
-        const poiSubcatCounts = new Map<string, number>();
-        for (const p of afterCat) {
-          const sc = defaultSubcatOf(p);
-          if (!sc) continue;
-          poiSubcatCounts.set(sc, (poiSubcatCounts.get(sc) || 0) + 1);
-        }
-        const poiSubcatList = Array.from(poiSubcatCounts.entries())
-          .sort((a, b) => a[0].localeCompare(b[0]));
-        // Origine des distances : position utilisateur si disponible, sinon l'établissement master
-        const proxOrigin = userCoords
-          ?? (business?.latitude != null && business?.longitude != null
-            ? { lat: business.latitude, lng: business.longitude }
-            : null);
-        const distOf = (p: typeof poiBusinesses[number]) =>
+        // Origine unique des distances : l'établissement Master (fallback géoloc)
+        const proxOrigin = (business?.latitude != null && business?.longitude != null
+          ? { lat: business.latitude, lng: business.longitude }
+          : userCoords) ?? null;
+        const distOf = (p: { latitude: number | null; longitude: number | null }) =>
           proxOrigin && p.latitude != null && p.longitude != null
             ? haversineKm(proxOrigin.lat, proxOrigin.lng, p.latitude, p.longitude)
             : null;
+        const inRadius = (p: { latitude: number | null; longitude: number | null }) => {
+          if (poiProximityKm == null) return true;
+          const d = distOf(p);
+          return d != null && d <= poiProximityKm;
+        };
+        const matchesNames = (p: any, names: Set<string>) => {
+          if (p.main_category && names.has(p.main_category)) return true;
+          return Array.isArray(p.categories) && p.categories.some((c: string) => names.has(c));
+        };
+        // Vivier ville restreint au rayon actif → base des compteurs catégories
+        const cityInRadius = (poiCityBusinesses as any[]).filter(inRadius);
+        const catCounts = new Map<string, number>();
+        for (const ft of frontTabs) {
+          catCounts.set(ft.id, cityInRadius.filter((p) => matchesNames(p, ft.subcategoryNames)).length);
+        }
+
+        const afterCat = activeFrontTab
+          ? cityInRadius.filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
+          : (poiBusinesses as any[]);
+
+        // Pill POI / sous-catégories
+        const defaultSubcatOf = (p: any) => ((p.categories || [])[0] || "").trim() || null;
+        let poiSubcatList: [string, number][];
+        if (activeFrontTab) {
+          poiSubcatList = activeFrontTab.subcategories
+            .map((sd) => [sd.name, afterCat.filter((p) => matchesNames(p, sd.names)).length] as [string, number])
+            .filter(([, c]) => c > 0)
+            .sort((a, b) => a[0].localeCompare(b[0]));
+        } else {
+          const counts = new Map<string, number>();
+          for (const p of afterCat) {
+            const sc = defaultSubcatOf(p);
+            if (!sc) continue;
+            counts.set(sc, (counts.get(sc) || 0) + 1);
+          }
+          poiSubcatList = Array.from(counts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+        }
 
         const afterSubcat = poiSubcatFilter
-          ? afterCat.filter((p) => defaultSubcatOf(p) === poiSubcatFilter)
+          ? (activeFrontTab
+              ? afterCat.filter((p) => {
+                  const sd = activeFrontTab.subcategories.find((s) => s.name === poiSubcatFilter);
+                  return sd ? matchesNames(p, sd.names) : true;
+                })
+              : afterCat.filter((p) => defaultSubcatOf(p) === poiSubcatFilter))
           : afterCat;
-        const afterProx = poiProximityKm != null
-          ? afterSubcat.filter((p) => { const d = distOf(p); return d != null && d <= poiProximityKm; })
-          : afterSubcat;
+        const afterProx = afterSubcat.filter(inRadius);
         const total = afterProx.length;
         const displayedPoi = (poiShowAll || total <= TOP_LIMIT) ? afterProx : afterProx.slice(0, TOP_LIMIT);
-        // Le toggle reste visible dès que le vivier POI dépasse 20, indépendamment des filtres actifs
-        const showAllToggle = poiMapMode === "poi" && (poiBusinesses.length > TOP_LIMIT || poiShowAll);
+        // Le toggle reste visible dès que le vivier dépasse 20, indépendamment des filtres actifs
+        const showAllToggle = poiMapMode === "poi" && (afterSubcat.length > TOP_LIMIT || poiShowAll);
         const showCatPill = poiMapMode === "poi" && frontTabs.length >= 2;
         const showSubcatPill = poiMapMode === "poi" && poiSubcatList.length >= 2;
         const showProxPill = poiMapMode === "poi";
@@ -2877,8 +2901,11 @@ const BookOnlineSlidePanelInner = ({
 
         const proxCountsByKm: Record<number, number> = {};
         if (showProxPill) {
+          const proxBase = activeFrontTab
+            ? (poiCityBusinesses as any[]).filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
+            : afterSubcat;
           for (const o of proxOpts) {
-            proxCountsByKm[o.km] = afterSubcat.filter((p) => { const d = distOf(p); return d != null && d <= o.km; }).length;
+            proxCountsByKm[o.km] = proxBase.filter((p) => { const d = distOf(p); return d != null && d <= o.km; }).length;
           }
         }
         const activeProx = proxOpts.find((o) => o.km === poiProximityKm) || null;
