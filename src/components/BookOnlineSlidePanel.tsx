@@ -406,6 +406,16 @@ const BookOnlineSlidePanelInner = ({
   const [poiProximityKm, setPoiProximityKm] = useState<number | null>(null);
   const poiProximityInitRef = useRef<string | null>(null);
   const [poiCatFilter, setPoiCatFilter] = useState<string | null>(null);
+  // Rayon par défaut du Pill "À proximité" = champ Rayon de l'établissement (10 km par défaut)
+  useEffect(() => {
+    const bid = (business as any)?.id;
+    if (!bid || poiProximityInitRef.current === bid) return;
+    poiProximityInitRef.current = bid;
+    const raw = Number((business as any)?.poi_radius_km);
+    const allowed = [0.5, 1, 5, 10, 20, 50, 100];
+    setPoiProximityKm(allowed.includes(raw) ? raw : 10);
+  }, [business]);
+
   const [poiCategoryBusinesses, setPoiCategoryBusinesses] = useState<PoiBusiness[]>([]);
   const [poiCategoryBusinessCatId, setPoiCategoryBusinessCatId] = useState<string | null>(null);
   const poiOpenedFromMapRef = useRef(false);
