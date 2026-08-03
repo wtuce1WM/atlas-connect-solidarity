@@ -15,7 +15,7 @@ import Footer from "@/components/Footer";
 import HScroll from "@/components/HScroll";
 import {
   Loader2, Globe, CheckCircle2, AlertCircle, ExternalLink,
-  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench, Wand2, BarChart3, LogOut, Globe2, Newspaper, Scale
+  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench, Wand2, BarChart3, LogOut, Globe2, Newspaper, Scale, Bot
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
 import { type OpeningHours } from "@/components/staff/OpeningHoursEditor";
@@ -26,6 +26,7 @@ import AffiliateLegalTab from "@/components/affiliate/AffiliateLegalTab";
 import AffiliateReviewsEditor, { type ReviewsData } from "@/components/affiliate/AffiliateReviewsEditor";
 import AffiliateTextEditor from "@/components/affiliate/AffiliateTextEditor";
 import AffiliateAiTextsEditor from "@/components/affiliate/AffiliateAiTextsEditor";
+import AffiliateAgentIaEditor from "@/components/affiliate/AffiliateAgentIaEditor";
 import AffiliateHighlightsEditor from "@/components/affiliate/AffiliateHighlightsEditor";
 import AffiliatePromotionsEditor from "@/components/affiliate/AffiliatePromotionsEditor";
 import AffiliateServicesEditor from "@/components/affiliate/AffiliateServicesEditor";
@@ -582,6 +583,10 @@ const AffiliatePresence = () => {
                       <TabsTrigger value="aitexts" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
                         <Sparkles className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">IA</span>
                       </TabsTrigger>
+                      <TabsTrigger value="agentia" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <Bot className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Agent IA</span>
+                      </TabsTrigger>
+
                       <TabsTrigger value="links" className="group gap-2 shrink-0 px-4 py-3.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
                         <Globe className="h-4 w-4 shrink-0 text-white/40 group-data-[state=active]:text-primary" /> <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Liens</span>
                       </TabsTrigger>
@@ -848,6 +853,15 @@ const AffiliatePresence = () => {
                     <TabsContent value="aitexts">
                       <AffiliateAiTextsEditor key={currentBusiness.id} businessId={currentBusiness.id} />
                     </TabsContent>
+
+                    <TabsContent value="agentia">
+                      <AffiliateAgentIaEditor
+                        key={currentBusiness.id}
+                        businessId={currentBusiness.id}
+                        businessCity={(currentBusiness as any).city}
+                      />
+                    </TabsContent>
+
 
                     {/* Blocks Tab */}
                     <TabsContent value="blocks">

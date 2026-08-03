@@ -390,6 +390,9 @@ const EmbedAsk = () => {
   type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[] };
   const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(null);
   const [globalFollowups, setGlobalFollowups] = useState<FollowupRow[]>([]);
+  // Sélection de l'affilié (onglet Agent IA de /affiliates/presence). null = tout activé.
+  const [agentPrefs, setAgentPrefs] = useState<{ sugg: string[] | null; fu: string[] | null }>({ sugg: null, fu: null });
+
   const [activeSuggestionId, setActiveSuggestionId] = useState<string | null>(null);
   const [scope, setScope] = useState<"filter" | "broaden" | null>("filter");
 
@@ -465,8 +468,12 @@ const EmbedAsk = () => {
 
   const streaming = status === "submitted" || status === "streaming";
 
-  const suggestions: SuggestionRow[] = dbSuggestions && dbSuggestions.length > 0
-    ? dbSuggestions
+  const suggAllowed = agentPrefs.sugg;
+  const filteredDbSuggestions = dbSuggestions && suggAllowed
+    ? dbSuggestions.filter((s) => suggAllowed.includes(s.id))
+    : dbSuggestions;
+  const suggestions: SuggestionRow[] = filteredDbSuggestions && filteredDbSuggestions.length > 0
+    ? filteredDbSuggestions
     : L.suggestions.map((s, i) => ({ id: `default-${i}`, label: s }));
   const pickFollowupLabel = (f: FollowupRow): string => {
     const raw = (lang === "en" ? f.label_en : lang === "ar" ? f.label_ar : f.label_fr) || f.label_fr || "";
@@ -474,10 +481,13 @@ const EmbedAsk = () => {
   };
   const activeSuggestion = activeSuggestionId ? suggestions.find((s) => s.id === activeSuggestionId) : null;
   const disabledIds = new Set(activeSuggestion?.disabled_followup_ids || []);
+  const fuAllowed = agentPrefs.fu;
   const activeFollowups: Array<{ id: string; label: string }> = globalFollowups
     .filter((f) => !disabledIds.has(f.id))
+    .filter((f) => !fuAllowed || fuAllowed.includes(f.id))
     .map((f) => ({ id: f.id, label: pickFollowupLabel(f) }))
     .filter((f) => f.label);
+
 
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
   const [openEvents, setOpenEvents] = useState<{ list: EventPanelItem[]; index: number } | null>(null);
@@ -596,6 +606,29 @@ const EmbedAsk = () => {
     })();
     return () => { cancelled = true; };
   }, []);
+
+  // Préférences Agent IA de l'établissement (onglet Agent IA côté affilié).
+  useEffect(() => {
+    if (!businessId) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("business_embed_ai_prefs")
+        .select("enabled_suggestion_ids,enabled_followup_ids")
+        .eq("business_id", businessId)
+        .maybeSingle();
+      if (cancelled || !data) return;
+      setAgentPrefs({
+        sugg: Array.isArray(data.enabled_suggestion_ids) && data.enabled_suggestion_ids.length > 0
+          ? data.enabled_suggestion_ids
+          : null,
+        fu: Array.isArray(data.enabled_followup_ids) ? data.enabled_followup_ids : null,
+      });
+    })();
+    return () => { cancelled = true; };
+  }, [businessId]);
+
+
 
   // Load blog articles: owner articles first (anchor = this business), then unassigned, both newest first.
   useEffect(() => {
