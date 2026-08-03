@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Loader2, ExternalLink, Eye, EyeOff, Layout, Languages, Check, AlertTriangle, Pin } from "lucide-react";
+import { Loader2, ExternalLink, Eye, EyeOff, Layout, Languages, Check, AlertTriangle, Pin, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
