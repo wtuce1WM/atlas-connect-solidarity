@@ -167,6 +167,10 @@ const BlogManagement = ({
       if (patch.is_pinned !== undefined) {
         toast.success(patch.is_pinned ? "Article épinglé" : "Épingle retirée", { description: post.title_fr });
       }
+      if (patch.city_scope !== undefined) {
+        toast.success(`Ville : ${patch.city_scope ?? "tout le Maroc"}`, { description: post.title_fr });
+      }
+
       if (patch.anchor_kind !== undefined) {
         toast.success(
           patch.anchor_kind === "owner" ? "Marqué article propriétaire" : "Marqué article générique",
