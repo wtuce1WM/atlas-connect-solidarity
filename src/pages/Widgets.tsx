@@ -419,10 +419,16 @@ const TidesWidgetSection = ({ index }: { index: number }) => {
             </p>
             <p className="text-sm text-muted-foreground mb-3">
               Pour un affichage entièrement sur-mesure, l'API renvoie le niveau courant, les extrema, la
-              courbe 24 h et les conditions de mer.
+              courbe 24 h, la houle, le vent et les conditions de mer.
             </p>
-            <p className="text-sm text-muted-foreground">
-              Écrivez-nous pour obtenir l'URL du point d'accès JSON.
+            <code className="block break-all rounded-lg bg-muted px-3 py-2 text-xs text-foreground mb-3">
+              {import.meta.env.VITE_SUPABASE_URL}/functions/v1/tides?city=Essaouira&days=3&lang=fr
+            </code>
+            <p className="text-xs text-muted-foreground">
+              Endpoint public avec CORS. Remplacez <code className="text-foreground">city</code>,{" "}
+              <code className="text-foreground">days</code> et <code className="text-foreground">lang</code>
+              (fr, en, ar). <code className="text-foreground">GET ?list=1</code> retourne la liste des 19 villes
+              côtières.
             </p>
           </div>
           <p className="mt-4 text-xs text-muted-foreground">
