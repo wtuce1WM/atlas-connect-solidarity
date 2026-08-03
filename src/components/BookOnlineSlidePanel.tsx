@@ -2823,6 +2823,8 @@ const BookOnlineSlidePanelInner = ({
           { km: 5, label: language === "en" ? "Less than 5 km" : language === "ar" ? "أقل من 5 كم" : "Moins de 5 km" },
           { km: 10, label: language === "en" ? "Less than 10 km" : language === "ar" ? "أقل من 10 كم" : "Moins de 10 km" },
           { km: 20, label: language === "en" ? "Less than 20 km" : language === "ar" ? "أقل من 20 كم" : "Moins de 20 km" },
+          { km: 50, label: language === "en" ? "Less than 50 km" : language === "ar" ? "أقل من 50 كم" : "Moins de 50 km" },
+          { km: 100, label: language === "en" ? "Less than 100 km" : language === "ar" ? "أقل من 100 كم" : "Moins de 100 km" },
         ];
 
         const proxCountsByKm: Record<number, number> = {};
