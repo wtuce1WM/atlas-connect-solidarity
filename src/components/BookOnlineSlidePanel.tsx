@@ -3239,6 +3239,8 @@ const BookOnlineSlidePanelInner = ({
               }}
               fitToMarkers={false}
               centerAtBottomRatio={0.4}
+              mapTypeId={poiMapTypeId}
+              fitRadiusKm={poiMapMode === "destinations" ? null : poiProximityKm}
               baseColor={mapBaseColor || undefined}
               mapTheme={mapTheme}
               userLocation={userCoords ? { lat: userCoords.lat, lng: userCoords.lng } : null}
