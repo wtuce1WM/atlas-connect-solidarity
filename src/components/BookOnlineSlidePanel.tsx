@@ -3055,7 +3055,8 @@ const BookOnlineSlidePanelInner = ({
                   setSelectedKpBusinessId(poiId);
                 }
               }}
-              fitToMarkers={!embedMode}
+              fitToMarkers={false}
+              centerAtBottomRatio={0.4}
               baseColor={mapBaseColor || undefined}
               mapTheme={mapTheme}
               userLocation={userCoords ? { lat: userCoords.lat, lng: userCoords.lng } : null}
