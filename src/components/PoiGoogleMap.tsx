@@ -739,11 +739,13 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     }
   }, [selectedPoiId, hoveredPoiId]);
 
-  // Keep city centered when a city center is provided (skip in fitToMarkers mode)
+  // Keep city centered when a city center is provided (skip in fitToMarkers mode,
+  // et surtout quand centerAtBottomRatio impose l'unique critère de centrage).
   useEffect(() => {
     if (!mapRef.current || !center || fitToMarkers) return;
+    if (centerAtBottomRatio != null) return;
     mapRef.current.setCenter(center);
-  }, [center, fitToMarkers]);
+  }, [center, fitToMarkers, centerAtBottomRatio]);
 
   // User geolocation marker — same label style as POI markers, terracotta color
   useEffect(() => {
