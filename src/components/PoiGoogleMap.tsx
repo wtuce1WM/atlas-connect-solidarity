@@ -684,7 +684,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
           const offsetPixels = (0.5 - centerAtBottomRatio!) * height;
           const offsetWorld = offsetPixels / scale;
           const centerPoint = projection.fromLatLngToPoint(new gmaps.LatLng(center!.lat, center!.lng));
-          const newCenterPoint = new gmaps.Point(centerPoint.x, centerPoint.y - offsetWorld);
+          const newCenterPoint = new gmaps.Point(centerPoint.x, centerPoint.y + offsetWorld);
           const newCenter = projection.fromPointToLatLng(newCenterPoint);
           if (newCenter) map.setCenter(newCenter);
           hasFittedRef.current = true;
