@@ -197,8 +197,26 @@ const StaffHub = () => {
       color: "from-rose-500/20 to-orange-500/10",
       iconColor: "text-rose-600",
       adminOnly: true,
+    {
+      title: "Widgets",
+      description: "Widgets embarquables (Météo, Marées & Vents, Avis, IA, Carte) et diagnostic du preview.",
+      icon: Blocks,
+      href: "/widgets",
+      color: "from-sky-500/20 to-indigo-500/10",
+      iconColor: "text-sky-600",
+      adminOnly: true,
+    },
+    {
+      title: "Diagnostic preview",
+      description: "Contrôle technique : contexte iframe, edge functions, lectures base, perf et erreurs runtime.",
+      icon: Stethoscope,
+      href: "/diagnostic",
+      color: "from-slate-500/20 to-zinc-500/10",
+      iconColor: "text-slate-600",
+      adminOnly: true,
     },
   ];
+
 
   const sections = allSections.filter((s) => !s.adminOnly || isAdmin);
 
