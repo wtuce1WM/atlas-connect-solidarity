@@ -32,7 +32,10 @@ if (typeof window !== "undefined") {
   if (isInIframe || isPreviewHost) {
     const saveRoute = () => {
       try {
-        sessionStorage.setItem(PREVIEW_ROUTE_KEY, window.location.pathname + window.location.search);
+        sessionStorage.setItem(
+          PREVIEW_ROUTE_KEY,
+          JSON.stringify({ route: window.location.pathname + window.location.search, at: Date.now() }),
+        );
       } catch {
         /* sessionStorage indisponible */
       }
@@ -42,15 +45,24 @@ if (typeof window !== "undefined") {
     window.addEventListener("pagehide", saveRoute);
 
     try {
-      const savedRoute = sessionStorage.getItem(PREVIEW_ROUTE_KEY);
-      if (savedRoute && savedRoute !== window.location.pathname + window.location.search) {
-        sessionStorage.removeItem(PREVIEW_ROUTE_KEY);
-        // Use replaceState to avoid adding an extra history entry; React Router will pick it up.
-        window.history.replaceState(null, "", savedRoute);
+      const raw = sessionStorage.getItem(PREVIEW_ROUTE_KEY);
+      sessionStorage.removeItem(PREVIEW_ROUTE_KEY);
+      const currentPath = window.location.pathname + window.location.search;
+      // Restore ONLY when the shell reloaded the iframe on the root URL right after
+      // an edit. Any explicit navigation (deep link) must always win.
+      const isRootReload = window.location.pathname === "/" && !window.location.search;
+      if (raw && isRootReload) {
+        const parsed = JSON.parse(raw) as { route?: string; at?: number };
+        const fresh = typeof parsed.at === "number" && Date.now() - parsed.at < 15000;
+        if (fresh && parsed.route && parsed.route !== currentPath) {
+          // Use replaceState to avoid adding an extra history entry; React Router will pick it up.
+          window.history.replaceState(null, "", parsed.route);
+        }
       }
     } catch {
       /* sessionStorage indisponible */
     }
+
   }
 
   window.addEventListener("beforeinstallprompt", (event) => {
