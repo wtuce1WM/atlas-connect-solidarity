@@ -2783,10 +2783,16 @@ const BookOnlineSlidePanelInner = ({
         }
         const poiSubcatList = Array.from(poiSubcatCounts.entries())
           .sort((a, b) => a[0].localeCompare(b[0]));
+        // Origine des distances : position utilisateur si disponible, sinon l'établissement master
+        const proxOrigin = userCoords
+          ?? (business?.latitude != null && business?.longitude != null
+            ? { lat: business.latitude, lng: business.longitude }
+            : null);
         const distOf = (p: typeof poiBusinesses[number]) =>
-          userCoords && p.latitude != null && p.longitude != null
-            ? haversineKm(userCoords.lat, userCoords.lng, p.latitude, p.longitude)
+          proxOrigin && p.latitude != null && p.longitude != null
+            ? haversineKm(proxOrigin.lat, proxOrigin.lng, p.latitude, p.longitude)
             : null;
+
         const afterSubcat = poiSubcatFilter
           ? afterCat.filter((p) => defaultSubcatOf(p) === poiSubcatFilter)
           : afterCat;
@@ -2799,13 +2805,15 @@ const BookOnlineSlidePanelInner = ({
         const showAllToggle = poiMapMode === "poi" && (poiBusinesses.length > TOP_LIMIT || poiShowAll);
         const showCatPill = poiMapMode === "poi" && frontTabs.length >= 2;
         const showSubcatPill = poiMapMode === "poi" && poiSubcatList.length >= 2;
-        const showProxPill = poiMapMode === "poi" && !!userCoords && poiBusinesses.some((p) => p.latitude != null && p.longitude != null);
+        const showProxPill = poiMapMode === "poi";
         const proxOpts: { km: number; label: string }[] = [
           { km: 0.5, label: language === "en" ? "Less than 500 m" : language === "ar" ? "أقل من 500 م" : "Moins de 500 m" },
           { km: 1, label: language === "en" ? "Less than 1 km" : language === "ar" ? "أقل من 1 كم" : "Moins de 1 km" },
           { km: 5, label: language === "en" ? "Less than 5 km" : language === "ar" ? "أقل من 5 كم" : "Moins de 5 km" },
           { km: 10, label: language === "en" ? "Less than 10 km" : language === "ar" ? "أقل من 10 كم" : "Moins de 10 km" },
+          { km: 20, label: language === "en" ? "Less than 20 km" : language === "ar" ? "أقل من 20 كم" : "Moins de 20 km" },
         ];
+
         const proxCountsByKm: Record<number, number> = {};
         if (showProxPill) {
           for (const o of proxOpts) {
