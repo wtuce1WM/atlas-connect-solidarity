@@ -14,11 +14,7 @@ type WindowWithInstallPrompt = typeof window & {
 };
 
 if (typeof window !== "undefined") {
-  window.addEventListener("beforeinstallprompt", (event) => {
-    event.preventDefault();
-    (window as WindowWithInstallPrompt).__owmInstallPromptEvent = event as BeforeInstallPromptEvent;
-    window.dispatchEvent(new Event("owm-installprompt-ready"));
-  });
+  const PREVIEW_ROUTE_KEY = "__owm_preview_route__";
 
   const isInIframe = (() => {
     try {
@@ -30,6 +26,38 @@ if (typeof window !== "undefined") {
 
   const hostname = window.location.hostname;
   const isPreviewHost = hostname.startsWith("id-preview--") || hostname.includes("lovableproject.com");
+
+  // Persist the current preview route before the HMR gate reloads the iframe,
+  // then restore it on the next load so the user stays on the page being tested.
+  if (isInIframe || isPreviewHost) {
+    const saveRoute = () => {
+      try {
+        sessionStorage.setItem(PREVIEW_ROUTE_KEY, window.location.pathname + window.location.search);
+      } catch {
+        /* sessionStorage indisponible */
+      }
+    };
+
+    window.addEventListener("beforeunload", saveRoute);
+    window.addEventListener("pagehide", saveRoute);
+
+    try {
+      const savedRoute = sessionStorage.getItem(PREVIEW_ROUTE_KEY);
+      if (savedRoute && savedRoute !== window.location.pathname + window.location.search) {
+        sessionStorage.removeItem(PREVIEW_ROUTE_KEY);
+        // Use replaceState to avoid adding an extra history entry; React Router will pick it up.
+        window.history.replaceState(null, "", savedRoute);
+      }
+    } catch {
+      /* sessionStorage indisponible */
+    }
+  }
+
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    (window as WindowWithInstallPrompt).__owmInstallPromptEvent = event as BeforeInstallPromptEvent;
+    window.dispatchEvent(new Event("owm-installprompt-ready"));
+  });
 
   if ("serviceWorker" in navigator && !isInIframe && !isPreviewHost && window.location.protocol === "https:") {
     window.addEventListener("load", () => {
