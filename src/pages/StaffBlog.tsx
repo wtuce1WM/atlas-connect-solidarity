@@ -100,6 +100,11 @@ const StaffBlog = () => {
               <UserSquare2 className="h-4 w-4" />
               Articles propriétaires
             </TabsTrigger>
+            <TabsTrigger value="order" className="gap-2">
+              <ListOrdered className="h-4 w-4" />
+              Ordre
+            </TabsTrigger>
+
             <TabsTrigger value="templates" className="gap-2">
               <LayoutTemplate className="h-4 w-4" />
               Templates
