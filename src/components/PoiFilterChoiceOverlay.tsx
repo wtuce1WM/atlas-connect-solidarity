@@ -88,7 +88,7 @@ export default function PoiFilterChoiceOverlay({
               <button
                 type="button"
                 onClick={onBack}
-                className={`${badgeBase} ${badgeIdle}`}
+                className={`${badgeBase} bg-primary text-primary-foreground hover:bg-primary/90`}
                 style={{ fontFamily: "'Montserrat', sans-serif" }}
               >
                 <span>{"\u2039 " + backLabel}</span>
