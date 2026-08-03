@@ -730,7 +730,15 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     // de construction de la carte. Aucun fitBounds/setCenter/pan ne doit le remplacer.
     const hasCenterOffset = centerAtBottomRatio != null && center != null && centerAtBottomRatio >= 0 && centerAtBottomRatio <= 1;
 
-    if (hasCenterOffset && !userMovedRef.current) {
+    // L'utilisateur a navigué : on laisse la vue telle qu'il l'a laissée.
+    if (hasCenterOffset && userMovedRef.current) {
+      needsFitRef.current = false;
+      hasFittedRef.current = true;
+      return;
+    }
+
+    if (hasCenterOffset) {
+
       needsFitRef.current = false;
       hasFittedRef.current = true;
       // Position unique et invariante : le Master reste à `centerAtBottomRatio`
