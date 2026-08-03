@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Loader2, Check, Bot, MessageSquareReply, Sparkles, X, Newspaper, FileText } from "lucide-react";
 import { toast } from "sonner";
@@ -319,61 +320,78 @@ const AffiliateAgentIaEditor = ({ businessId, businessCity }: Props) => {
       </div>
 
 
-      <Card className="bg-white/5 border-white/10">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base text-white flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            Suggestions Embed IA
-            <span className="text-xs font-normal text-white/50">{counters.s}</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-2 sm:grid-cols-2">
-          {suggestions.length === 0 && (
-            <p className="text-sm text-white/50">Aucune suggestion disponible.</p>
-          )}
-          {suggestions.map((s) => (
-            <div key={s.id} className="rounded-lg border border-white/10 bg-white/5 p-3">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <Checkbox
-                  checked={selSugg.includes(s.id)}
-                  onCheckedChange={() => toggle(selSugg, setSelSugg, s.id)}
-                  className="mt-0.5"
-                />
-                <span className="text-sm text-white/80">{s.label}</span>
-              </label>
-              {selSugg.includes(s.id) && <LinkEditor kind="suggestion" itemId={s.id} />}
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="suggestions">
+        <TabsList className="bg-white/5">
+          <TabsTrigger value="suggestions" className="gap-1.5">
+            <Sparkles className="h-3.5 w-3.5" /> Suggestions
+            <span className="text-xs font-normal opacity-60">{counters.s}</span>
+          </TabsTrigger>
+          <TabsTrigger value="followups" className="gap-1.5">
+            <MessageSquareReply className="h-3.5 w-3.5" /> Relances
+            <span className="text-xs font-normal opacity-60">{counters.f}</span>
+          </TabsTrigger>
+        </TabsList>
 
-      <Card className="bg-white/5 border-white/10">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base text-white flex items-center gap-2">
-            <MessageSquareReply className="h-4 w-4 text-primary" />
-            Relances après la réponse IA
-            <span className="text-xs font-normal text-white/50">{counters.f}</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-2 sm:grid-cols-2">
-          {followups.length === 0 && (
-            <p className="text-sm text-white/50">Aucune relance disponible.</p>
-          )}
-          {followups.map((f) => (
-            <div key={f.id} className="rounded-lg border border-white/10 bg-white/5 p-3">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <Checkbox
-                  checked={selFu.includes(f.id)}
-                  onCheckedChange={() => toggle(selFu, setSelFu, f.id)}
-                  className="mt-0.5"
-                />
-                <span className="text-sm text-white/80">{f.label}</span>
-              </label>
-              {selFu.includes(f.id) && <LinkEditor kind="followup" itemId={f.id} />}
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+        <TabsContent value="suggestions" className="mt-4">
+          <Card className="bg-white/5 border-white/10">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base text-white flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                Suggestions Embed IA
+                <span className="text-xs font-normal text-white/50">{counters.s}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-2 sm:grid-cols-2">
+              {suggestions.length === 0 && (
+                <p className="text-sm text-white/50">Aucune suggestion disponible.</p>
+              )}
+              {suggestions.map((s) => (
+                <div key={s.id} className="rounded-lg border border-white/10 bg-white/5 p-3">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <Checkbox
+                      checked={selSugg.includes(s.id)}
+                      onCheckedChange={() => toggle(selSugg, setSelSugg, s.id)}
+                      className="mt-0.5"
+                    />
+                    <span className="text-sm text-white/80">{s.label}</span>
+                  </label>
+                  {selSugg.includes(s.id) && <LinkEditor kind="suggestion" itemId={s.id} />}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="followups" className="mt-4">
+          <Card className="bg-white/5 border-white/10">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base text-white flex items-center gap-2">
+                <MessageSquareReply className="h-4 w-4 text-primary" />
+                Relances après la réponse IA
+                <span className="text-xs font-normal text-white/50">{counters.f}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-2 sm:grid-cols-2">
+              {followups.length === 0 && (
+                <p className="text-sm text-white/50">Aucune relance disponible.</p>
+              )}
+              {followups.map((f) => (
+                <div key={f.id} className="rounded-lg border border-white/10 bg-white/5 p-3">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <Checkbox
+                      checked={selFu.includes(f.id)}
+                      onCheckedChange={() => toggle(selFu, setSelFu, f.id)}
+                      className="mt-0.5"
+                    />
+                    <span className="text-sm text-white/80">{f.label}</span>
+                  </label>
+                  {selFu.includes(f.id) && <LinkEditor kind="followup" itemId={f.id} />}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

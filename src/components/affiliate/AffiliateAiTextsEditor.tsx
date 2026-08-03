@@ -70,6 +70,10 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
   const [generating, setGenerating] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [lockedIds, setLockedIds] = useState<string[]>([]);
+  const [pristine, setPristine] = useState<Record<string, string>>({});
+
+  const snapshot = (t: AiText) => JSON.stringify([t.title, t.hook, t.content, t.is_active]);
+  const isDirty = (t: AiText) => pristine[t.id] !== undefined && pristine[t.id] !== snapshot(t);
 
   const load = async () => {
     setLoading(true);
@@ -85,7 +89,9 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
         .eq("business_id", businessId),
     ]);
     if (error) toast.error("Chargement impossible : " + error.message);
-    setTexts((data as AiText[]) ?? []);
+    const list = (data as AiText[]) ?? [];
+    setTexts(list);
+    setPristine(Object.fromEntries(list.map((t) => [t.id, snapshot(t)])));
     const locked = new Set<string>();
     for (const row of ((linkRes as any)?.data as any[]) ?? []) {
       for (const id of (Array.isArray(row.ai_text_ids) ? row.ai_text_ids : [])) locked.add(String(id));
@@ -126,6 +132,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
         .single();
       if (insErr) throw insErr;
       setTexts((prev) => [...prev, inserted as AiText]);
+      setPristine((p) => ({ ...p, [(inserted as AiText).id]: snapshot(inserted as AiText) }));
       toast.success("Texte IA généré");
     } catch (e: any) {
       toast.error(e?.message ?? "Erreur de génération");
@@ -146,6 +153,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
       .single();
     if (error) return toast.error(error.message);
     setTexts((prev) => [...prev, data as AiText]);
+    setPristine((p) => ({ ...p, [(data as AiText).id]: snapshot(data as AiText) }));
   };
 
   const patch = (id: string, field: keyof AiText, value: any) =>
@@ -158,7 +166,9 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
       .update({ title: t.title, hook: t.hook, content: t.content, is_active: t.is_active })
       .eq("id", t.id);
     setSavingId(null);
-    error ? toast.error(error.message) : toast.success("Enregistré");
+    if (error) return toast.error(error.message);
+    setPristine((p) => ({ ...p, [t.id]: snapshot(t) }));
+    toast.success("Enregistré");
   };
 
   const remove = async (id: string) => {
@@ -369,7 +379,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
                 </div>
 
                 <div className="flex justify-end">
-                  <Button onClick={() => save(t)} disabled={savingId === t.id}>
+                  <Button onClick={() => save(t)} disabled={savingId === t.id || !isDirty(t)}>
                     {savingId === t.id && <Loader2 className="h-4 w-4 animate-spin" />} Enregistrer
                   </Button>
                 </div>
