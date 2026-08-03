@@ -399,6 +399,8 @@ const BlogEditorialSections = ({
     <>
       {sections.map((section, i) => {
         if (section.kind === "entries") return <div key={i}>{entriesBlock}</div>;
+        if (section.kind === "carousel") return <BusinessCarousel key={i} section={section} />;
+
         if (section.kind === "widget") {
           const city = section.widgetCity || "Essaouira";
           if (section.widget === "tides_plan") return <TidesPlan key={i} city={city} />;
