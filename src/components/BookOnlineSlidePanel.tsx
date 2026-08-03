@@ -489,9 +489,40 @@ const BookOnlineSlidePanelInner = ({
       setPoiCategoryBusinessCatId(poiCatFilter);
     })();
 
+  // Vivier ville (toutes catégories) chargé quand l'overlay POI/Map est ouvert
+  useEffect(() => {
+    if (!showPoiMapOverlay || !business?.city) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, priority_score")
+        .eq("is_active", true)
+        .ilike("city", business.city)
+        .order("priority_score", { ascending: false, nullsFirst: false })
+        .limit(1000);
+      if (cancelled) return;
+      const rows = ((data || []) as any[])
+        .filter((p) => p.id !== businessId)
+        .map((p) => ({
+          id: p.id,
+          name: p.name,
+          images: p.images,
+          logo_url: p.logo_url,
+          latitude: p.latitude,
+          longitude: p.longitude,
+          city: p.city,
+          neighborhood: p.neighborhood,
+          categories: p.categories,
+          main_category: p.main_category,
+          default_service: p.default_service ?? null,
+        }));
+      setPoiCityBusinesses(rows as PoiBusiness[]);
+    })();
     return () => { cancelled = true; };
-  }, [poiCatFilter, business?.city, businessId, frontTabs]);
-  
+  }, [showPoiMapOverlay, business?.city, businessId]);
+
+
   
   const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
   const [descOverlayDirect, setDescOverlayDirect] = useState(false);
