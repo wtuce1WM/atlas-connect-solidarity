@@ -286,10 +286,6 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
 
                           <div className="grid grid-cols-2 gap-2">
                             <div>
-                              <label className="text-xs font-medium text-muted-foreground mb-1 block">Icône</label>
-                              <IconPicker value={h.icon} onChange={(v) => updateField(i, "icon", v)} />
-                            </div>
-                            <div>
                               <label className="text-xs font-medium text-muted-foreground mb-1 block">Image</label>
                               <input
                                 ref={(el) => (fileInputRefs.current[i] = el)}
@@ -303,12 +299,12 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
                                 }}
                               />
                               {h.image_url ? (
-                                <div className="relative h-9 rounded border overflow-hidden bg-muted">
+                                <div className="relative w-full aspect-square rounded border overflow-hidden bg-muted">
                                   <img src={h.image_url} alt="" className="w-full h-full object-cover" />
                                   <button
                                     type="button"
                                     onClick={() => updateField(i, "image_url", null)}
-                                    className="absolute top-0.5 right-0.5 bg-destructive text-destructive-foreground rounded-full p-0.5"
+                                    className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1"
                                     aria-label="Supprimer l'image"
                                   >
                                     <X className="h-3 w-3" />
@@ -331,7 +327,12 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
                                 </Button>
                               )}
                             </div>
+                            <div>
+                              <label className="text-xs font-medium text-muted-foreground mb-1 block">Icône</label>
+                              <IconPicker value={h.icon} onChange={(v) => updateField(i, "icon", v)} />
+                            </div>
                           </div>
+
 
                           <div>
                             <label className="text-xs font-medium text-muted-foreground mb-1 block">Titre</label>
