@@ -1326,6 +1326,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     keywords: business?.keywords?.join(", ") || "",
     latitude: business?.latitude?.toString() || "",
     longitude: business?.longitude?.toString() || "",
+    poi_radius_km: ((business as any)?.poi_radius_km ?? 10).toString(),
+
     wtuce_status: business?.wtuce_status || "pending",
     is_featured: business?.is_featured || false,
     is_active: business ? ((business as any)?.is_active ?? true) : false,
