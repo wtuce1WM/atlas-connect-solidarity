@@ -230,8 +230,9 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
                           }}
                         />
                         {h.image_url ? (
-                          <div className="relative w-full aspect-square rounded border overflow-hidden bg-muted">
-                            <img src={h.image_url} alt="" className="w-full h-full object-cover" />
+                          <div className="relative w-full rounded border overflow-hidden bg-muted" style={{ aspectRatio: "1 / 1", height: "auto" }}>
+                            <img src={h.image_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
+
                             <button
                               type="button"
                               onClick={() => updateField(i, "image_url", null)}
