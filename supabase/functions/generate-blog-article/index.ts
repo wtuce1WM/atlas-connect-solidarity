@@ -49,6 +49,21 @@ function slugify(input: string) {
     .slice(0, 90);
 }
 
+/**
+ * Convertit une image de storage en URL de rendu optimisée : webp, qualité 60%, 1600px.
+ * Utilisée pour Hero, miniature et OG des articles générés.
+ */
+function toOptimizedWebp(url: string | null | undefined): string | null {
+  if (!url || typeof url !== 'string') return null;
+  if (url.includes('/storage/v1/render/image/public/')) return url;
+  if (url.includes('/storage/v1/object/public/')) {
+    const base = url.split('?')[0].replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
+    return `${base}?width=1600&quality=60&format=origin`;
+  }
+  return url;
+}
+
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -103,7 +118,7 @@ Deno.serve(async (req) => {
     let q = supabase
       .from('businesses')
       .select(
-        'id, name, slug, city, neighborhood, categories, main_category, rating, computed_rating, total_review_count, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, hook_fr, description_fr, min_price, manual_price_range, ai_review_summary',
+        'id, name, slug, city, neighborhood, categories, main_category, rating, computed_rating, total_review_count, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, hook_fr, description_fr, min_price, manual_price_range, ai_review_summary, images',
       )
       .eq('is_active', true)
       .order('total_review_count', { ascending: false, nullsFirst: false })
@@ -206,6 +221,15 @@ Deno.serve(async (req) => {
       slug = `${baseSlug}-${i}`;
     }
 
+    // Hero / miniature / OG : 1ʳᵉ image de la 1ʳᵉ fiche, servie en webp qualité 60%
+    const firstEntryId = entries[0]?.id as string | undefined;
+    const firstBiz = candidates.find((c) => c.id === firstEntryId) ?? candidates[0];
+    const rawImages = (firstBiz as { images?: unknown })?.images;
+    const firstImage = Array.isArray(rawImages)
+      ? (rawImages.find((v) => typeof v === 'string' && v) as string | undefined)
+      : null;
+    const heroUrl = toOptimizedWebp(firstImage);
+
     const { data: inserted, error: insErr } = await supabase
       .from('blog_posts')
       .insert({
@@ -215,6 +239,10 @@ Deno.serve(async (req) => {
         template,
         anchor_kind: business_id ? anchor_kind : 'generic',
         anchor_business_id: business_id,
+        cover_image_url: heroUrl,
+        custom_hero_image_url: heroUrl,
+        city_scope: criteria.city ?? null,
+
         hero_title_top_fr: article.hero_title_top ?? null,
         hero_title_bottom_fr: article.hero_title_bottom ?? null,
         hero_subtitle_fr: article.hero_subtitle ?? null,

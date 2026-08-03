@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Loader2, ExternalLink, Eye, EyeOff, Layout, Languages, Check, AlertTriangle, Pin } from "lucide-react";
+import { Loader2, ExternalLink, Eye, EyeOff, Layout, Languages, Check, AlertTriangle, Pin, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -34,11 +34,19 @@ interface BlogPost {
   updated_at: string;
   is_published: boolean;
   is_pinned: boolean;
+  city_scope?: string | null;
   anchor_kind?: string | null;
 }
 
+const CITY_OPTIONS: { label: string; value: string | null }[] = [
+  { label: "Tout le Maroc", value: null },
+  { label: "Marrakech", value: "Marrakech" },
+  { label: "Essaouira", value: "Essaouira" },
+];
+
 const SELECT_COLS =
-  "id, title_fr, title_en, title_ar, slug, template, excerpt_fr, excerpt_en, excerpt_ar, content_en, content_ar, intro_en, intro_ar, entries_en, entries_ar, cover_image_url, published_at, created_at, updated_at, is_published, is_pinned, anchor_kind";
+  "id, title_fr, title_en, title_ar, slug, template, excerpt_fr, excerpt_en, excerpt_ar, content_en, content_ar, intro_en, intro_ar, entries_en, entries_ar, cover_image_url, published_at, created_at, updated_at, is_published, is_pinned, city_scope, anchor_kind";
+
 
 /** Un article est traduit si le titre existe ET qu'il y a du contenu dans la langue,
  *  quel que soit le support : entries (template article), intro, ou content (legacy HTML). */
@@ -94,6 +102,8 @@ const BlogManagement = ({
         .from("blog_posts")
         .select(SELECT_COLS)
         .order("is_pinned", { ascending: false })
+        .order("sort_order", { ascending: false, nullsFirst: false })
+
         .order("published_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false });
       if (anchorBusinessId) {
@@ -134,7 +144,7 @@ const BlogManagement = ({
     }
   };
 
-  const updatePost = async (post: BlogPost, patch: Partial<Pick<BlogPost, "is_published" | "is_pinned" | "anchor_kind">>) => {
+  const updatePost = async (post: BlogPost, patch: Partial<Pick<BlogPost, "is_published" | "is_pinned" | "anchor_kind" | "city_scope">>) => {
     setUpdating((s) => ({ ...s, [post.id]: true }));
     // Optimistic
     setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, ...patch } : p)));
@@ -159,6 +169,10 @@ const BlogManagement = ({
       if (patch.is_pinned !== undefined) {
         toast.success(patch.is_pinned ? "Article épinglé" : "Épingle retirée", { description: post.title_fr });
       }
+      if (patch.city_scope !== undefined) {
+        toast.success(`Ville : ${patch.city_scope ?? "tout le Maroc"}`, { description: post.title_fr });
+      }
+
       if (patch.anchor_kind !== undefined) {
         toast.success(
           patch.anchor_kind === "owner" ? "Marqué article propriétaire" : "Marqué article générique",
@@ -325,6 +339,27 @@ const BlogManagement = ({
                         </span>
                       )}
                     </div>
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                      <span className="text-xs text-muted-foreground mr-1">Ville :</span>
+                      {CITY_OPTIONS.map((opt) => {
+                        const active = (post.city_scope ?? null) === opt.value;
+                        return (
+                          <Button
+                            key={opt.label}
+                            type="button"
+                            size="sm"
+                            variant={active ? "default" : "outline"}
+                            className="h-7 text-[11px]"
+                            disabled={isUpdating}
+                            onClick={() => updatePost(post, { city_scope: opt.value })}
+                          >
+                            <MapPin className="h-3 w-3 mr-1" />
+                            {opt.label}
+                          </Button>
+                        );
+                      })}
+                    </div>
+
 
                     <div className="flex flex-wrap items-center gap-2 pt-1">
                       <Badge

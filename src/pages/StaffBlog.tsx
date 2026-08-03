@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, ArrowLeft, LayoutDashboard, Newspaper, UserSquare2, LayoutTemplate, Sparkles } from "lucide-react";
+import { LogOut, ArrowLeft, LayoutDashboard, Newspaper, UserSquare2, LayoutTemplate, Sparkles, ListOrdered } from "lucide-react";
 import BlogManagement from "@/components/staff/BlogManagement";
 import BlogDashboard from "@/components/staff/BlogDashboard";
 import BlogTemplates from "@/components/staff/BlogTemplates";
 import BlogGenerator from "@/components/staff/BlogGenerator";
 import OwnerArticlesManagement from "@/components/staff/OwnerArticlesManagement";
+import BlogOrderTab from "@/components/staff/BlogOrderTab";
+
 
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -98,6 +100,11 @@ const StaffBlog = () => {
               <UserSquare2 className="h-4 w-4" />
               Articles propriétaires
             </TabsTrigger>
+            <TabsTrigger value="order" className="gap-2">
+              <ListOrdered className="h-4 w-4" />
+              Ordre
+            </TabsTrigger>
+
             <TabsTrigger value="templates" className="gap-2">
               <LayoutTemplate className="h-4 w-4" />
               Templates
@@ -121,6 +128,11 @@ const StaffBlog = () => {
           <TabsContent value="owner-articles">
             <OwnerArticlesManagement />
           </TabsContent>
+
+          <TabsContent value="order">
+            <BlogOrderTab />
+          </TabsContent>
+
 
           <TabsContent value="generator">
             <BlogGenerator />

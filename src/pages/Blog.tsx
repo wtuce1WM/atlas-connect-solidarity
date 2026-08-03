@@ -12,6 +12,8 @@ import { format } from "date-fns";
 import { fr, enUS, ar } from "date-fns/locale";
 import ratedHeroAsset from "@/assets/rated-businesses-hero.webp.asset.json";
 import { withLangPrefix } from "@/lib/localizedPath";
+import { compareBlogOrder } from "@/lib/blogOrder";
+
 
 interface BlogPost {
   id: string;
@@ -27,7 +29,10 @@ interface BlogPost {
   author_name: string | null;
   published_at: string | null;
   created_at: string;
+  is_pinned?: boolean | null;
+  sort_order?: number | null;
 }
+
 
 interface VideoFeedCard {
   id: string;
@@ -61,11 +66,13 @@ const Blog = () => {
       const [postsRes, feedsRes] = await Promise.all([
         supabase
           .from("blog_posts")
-          .select("id, title_fr, title_en, title_ar, slug, excerpt_fr, excerpt_en, excerpt_ar, cover_image_url, custom_hero_image_url, author_name, published_at, created_at, is_pinned")
+          .select("id, title_fr, title_en, title_ar, slug, excerpt_fr, excerpt_en, excerpt_ar, cover_image_url, custom_hero_image_url, author_name, published_at, created_at, is_pinned, sort_order")
           .eq("is_published", true)
           .order("is_pinned", { ascending: false })
+          .order("sort_order", { ascending: false, nullsFirst: false })
           .order("published_at", { ascending: false, nullsFirst: false })
           .order("created_at", { ascending: false }),
+
         supabase
           .from("video_feed_pages")
           .select("id, slug, hero_title_bottom_fr, hero_title_bottom_en, hero_title_bottom_ar, hero_subtitle_fr, hero_subtitle_en, hero_subtitle_ar, cover_image_url, custom_hero_image_url, published_at, created_at")
@@ -119,10 +126,23 @@ const Blog = () => {
         ) : (
           <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {[
-              ...posts.map((p) => ({ kind: "post" as const, item: p, date: p.published_at || p.created_at })),
-              ...videoFeeds.map((f) => ({ kind: "feed" as const, item: f, date: f.published_at || f.created_at })),
+              ...posts.map((p) => ({
+                kind: "post" as const,
+                item: p,
+                date: p.published_at || p.created_at,
+                is_pinned: p.is_pinned ?? false,
+                sort_order: p.sort_order ?? 0,
+              })),
+              ...videoFeeds.map((f) => ({
+                kind: "feed" as const,
+                item: f,
+                date: f.published_at || f.created_at,
+                is_pinned: false,
+                sort_order: 0,
+              })),
             ]
-              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+              .sort(compareBlogOrder)
+
               .map((entry) => {
                 if (entry.kind === "post") {
                   const post = entry.item;
