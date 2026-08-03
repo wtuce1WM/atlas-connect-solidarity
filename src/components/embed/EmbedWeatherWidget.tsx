@@ -104,8 +104,9 @@ function HourlyCurve({ hourly }: { hourly: WeatherHourly[] }) {
   const span = Math.max(1, max - min);
   const xAt = (i: number) => padX + (i * (W - padX * 2)) / (pts.length - 1);
   const yAt = (t: number) => padY + (1 - (t - min) / span) * (H - padY * 2);
-  const path = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${xAt(i).toFixed(1)} ${yAt(p.temp).toFixed(1)}`).join(" ");
+  const path = smoothPath(pts.map((p, i) => ({ x: xAt(i), y: yAt(p.temp) })));
   const area = `${path} L ${xAt(pts.length - 1).toFixed(1)} ${H - 4} L ${xAt(0).toFixed(1)} ${H - 4} Z`;
+
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-[130px]" preserveAspectRatio="none">
       <defs>
