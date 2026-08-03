@@ -221,6 +221,15 @@ Deno.serve(async (req) => {
       slug = `${baseSlug}-${i}`;
     }
 
+    // Hero / miniature / OG : 1ʳᵉ image de la 1ʳᵉ fiche, servie en webp qualité 60%
+    const firstEntryId = entries[0]?.id as string | undefined;
+    const firstBiz = candidates.find((c) => c.id === firstEntryId) ?? candidates[0];
+    const rawImages = (firstBiz as { images?: unknown })?.images;
+    const firstImage = Array.isArray(rawImages)
+      ? (rawImages.find((v) => typeof v === 'string' && v) as string | undefined)
+      : null;
+    const heroUrl = toOptimizedWebp(firstImage);
+
     const { data: inserted, error: insErr } = await supabase
       .from('blog_posts')
       .insert({
@@ -230,6 +239,10 @@ Deno.serve(async (req) => {
         template,
         anchor_kind: business_id ? anchor_kind : 'generic',
         anchor_business_id: business_id,
+        cover_image_url: heroUrl,
+        custom_hero_image_url: heroUrl,
+        city_scope: criteria.city ?? null,
+
         hero_title_top_fr: article.hero_title_top ?? null,
         hero_title_bottom_fr: article.hero_title_bottom ?? null,
         hero_subtitle_fr: article.hero_subtitle ?? null,
