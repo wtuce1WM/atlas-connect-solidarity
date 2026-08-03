@@ -276,7 +276,40 @@ const BlogOrderTab = () => {
           </SortableContext>
         </DndContext>
       )}
+
+      {extras.length > 0 && (
+        <div className="space-y-2 pt-4">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            Autres pages affichées en bas de /blog
+          </h3>
+          {extras.map((e, i) => (
+            <div key={e.id} className="flex items-center gap-3 p-2 rounded-lg border border-dashed bg-muted/30">
+              <span className="w-6 text-center text-xs font-mono text-muted-foreground shrink-0">
+                {posts.length + i + 1}
+              </span>
+              {e.image ? (
+                <img src={e.image} alt={e.title} className="w-16 h-12 rounded object-cover shrink-0" loading="lazy" />
+              ) : (
+                <div className="w-16 h-12 rounded bg-muted shrink-0" />
+              )}
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-medium truncate">{e.title}</div>
+                <div className="text-[11px] text-muted-foreground">
+                  {e.note}
+                  {e.date ? ` · ${format(new Date(e.date), "d MMM yyyy", { locale: fr })}` : " · ordre non modifiable"}
+                </div>
+              </div>
+              <a href={e.href} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </Button>
+              </a>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
+
   );
 };
 
