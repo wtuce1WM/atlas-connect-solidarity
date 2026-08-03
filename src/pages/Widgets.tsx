@@ -4,7 +4,7 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Copy, CloudSun, MessageSquare, MapPin, Star, Newspaper, Waves, ExternalLink, ThumbsUp, Mail } from "lucide-react";
+import { Check, Copy, CloudSun, MessageSquare, MapPin, Star, Newspaper, Waves, LayoutPanelTop, ExternalLink, ThumbsUp, Mail } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { toast } from "@/hooks/use-toast";
 
@@ -868,6 +868,7 @@ const Widgets = () => {
   const weatherUrl = `${SITE}/embed/weather?city=Marrakech&lang=fr`;
   const askUrl = `${SITE}/embed/ask/${DEMO_SLUG}?theme=light&lang=fr`;
   const nearbyUrl = `${SITE}/embed/nearby/${DEMO_SLUG}?lang=fr`;
+  const ficheUrl = `${SITE}/b/${DEMO_SLUG}?embed=1&lang=fr`;
 
   const floatingSnippet = useMemo(
     () => `<!-- Panneau flottant One World Morocco -->
