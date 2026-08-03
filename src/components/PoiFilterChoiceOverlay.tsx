@@ -39,9 +39,9 @@ export default function PoiFilterChoiceOverlay({
   const closeLabel = language === "en" ? "Close filters" : language === "ar" ? "إغلاق الفلاتر" : "Fermer les filtres";
 
   const badgeBase =
-    "relative inline-flex items-center gap-2 rounded-full border-2 border-black px-4 py-2 text-sm md:px-6 md:py-3 md:text-lg font-semibold transition-all overflow-hidden backdrop-blur-xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6),inset_0_-1px_2px_0_rgba(255,255,255,0.25),0_4px_16px_-4px_rgba(0,0,0,0.3)] before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-br before:from-white/50 before:via-white/10 before:to-white/30 before:pointer-events-none [&>*]:relative [&>*]:z-10";
-  const badgeIdle = "bg-white/20 text-black hover:bg-white/30";
-  const badgeSelected = "bg-black/70 text-white hover:bg-black/80";
+    "relative inline-flex items-center gap-2 rounded-full border-2 border-black px-3 py-1.5 text-xs md:px-5 md:py-2.5 md:text-base font-semibold transition-all overflow-hidden backdrop-blur-xl shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6),inset_0_-1px_2px_0_rgba(255,255,255,0.25),0_4px_16px_-4px_rgba(0,0,0,0.3)] before:absolute before:inset-0 before:rounded-full before:bg-gradient-to-br before:from-white/50 before:via-white/10 before:to-white/30 before:pointer-events-none [&>*]:relative [&>*]:z-10";
+  const badgeIdle = "bg-white/40 text-black hover:bg-white/50";
+  const badgeSelected = "bg-black/80 text-white hover:bg-black/90";
 
   const selectedItem = selectedKey ? items.find((i) => i.key === selectedKey) || null : null;
 
