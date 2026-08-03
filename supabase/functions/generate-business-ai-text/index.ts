@@ -296,11 +296,23 @@ Structure le texte autour de cette consigne : elle doit être traitée explicite
     const clean = (s: unknown, max: number) =>
       String(s ?? "").replace(/^["'\s]+|["'\s]+$/g, "").slice(0, max);
 
+    // Coupe uniquement sur une fin de phrase : évite les textes tronqués en
+    // plein mot quand le modèle dépasse la limite de caractères.
+    const cleanSentences = (s: unknown, max: number) => {
+      const txt = String(s ?? "").replace(/^["'\s]+|["'\s]+$/g, "");
+      if (txt.length <= max) return txt;
+      const cut = txt.slice(0, max);
+      const lastEnd = Math.max(cut.lastIndexOf("."), cut.lastIndexOf("!"), cut.lastIndexOf("?"), cut.lastIndexOf("…"));
+      if (lastEnd > max * 0.55) return cut.slice(0, lastEnd + 1).trim();
+      const lastSpace = cut.lastIndexOf(" ");
+      return (lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trim() + ".";
+    };
+
     return new Response(
       JSON.stringify({
         title: clean(parsed.title, 70),
         hook: clean(parsed.hook, 120),
-        content: clean(parsed.content, MAX_CONTENT),
+        content: cleanSentences(parsed.content, MAX_CONTENT),
         mode,
         source_label: sourceLabel,
         length: lengthKey,
