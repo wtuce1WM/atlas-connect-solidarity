@@ -1287,6 +1287,94 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         </div>
       </div>
 
+      {/* ── Widget Fiche complète ─────────────────────────────── */}
+      {slug && (
+        <div className="space-y-3">
+          <h3 className="text-white font-semibold flex items-center gap-2">
+            <Globe2 className="h-4 w-4" /> Widget Fiche complète (iframe)
+          </h3>
+          <WidgetTester url={ficheUrl} label={`Fiche complète — ${businessName}`} />
+          <p className="text-sm text-white/70">
+            Votre fiche publique <span className="font-mono">/b/{slug}</span> intégrée sur un site externe :
+            logo, avis, hook, offres, réseaux sociaux et CTAs. Le code inclut un auto-resize
+            (l'iframe s'ajuste automatiquement à la hauteur réelle du contenu).
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-white/80 text-xs">Largeur max (px)</Label>
+              <input
+                type="number"
+                min={320}
+                max={900}
+                value={ficheMaxWidth}
+                onChange={(e) => setFicheMaxWidth(Number(e.target.value) || 480)}
+                className="w-full rounded-md bg-white/10 border border-white/20 text-white text-sm px-3 py-1.5"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-white/80 text-xs">Bandeau « Compte One World Morocco »</Label>
+              <div className="flex gap-1">
+                {[
+                  { v: true, l: "Afficher" },
+                  { v: false, l: "Masquer" },
+                ].map((o) => (
+                  <button
+                    key={String(o.v)}
+                    type="button"
+                    onClick={() => setFicheShowClub(o.v)}
+                    className={`flex-1 text-xs py-1.5 rounded-md border ${ficheShowClub === o.v ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+                  >
+                    {o.l}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label className="text-white/80 text-xs">Code à copier (iframe + auto-resize)</Label>
+              <textarea
+                readOnly
+                value={ficheSnippet}
+                onFocus={(e) => e.currentTarget.select()}
+                rows={8}
+                className="w-full rounded-md bg-white/10 border border-white/20 text-white text-xs px-3 py-2 font-mono resize-none"
+              />
+              <div className="flex gap-2 flex-wrap">
+                <Button type="button" size="sm" onClick={() => copy(ficheSnippet, "fiche")}>
+                  {copied === "fiche" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                  Copier le code iframe
+                </Button>
+                <Button type="button" size="sm" variant="outline" onClick={() => copy(ficheUrl, "fiche-url")} className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                  {copied === "fiche-url" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                  Copier l'URL seule
+                </Button>
+                <Button type="button" size="sm" variant="outline" asChild className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                  <a href={ficheUrl} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="h-4 w-4 mr-1" /> Ouvrir
+                  </a>
+                </Button>
+              </div>
+              <p className="text-xs text-white/50">
+                Si votre éditeur n'autorise pas le JavaScript, collez uniquement la balise{" "}
+                <span className="font-mono">&lt;iframe&gt;</span> et fixez une hauteur manuelle (1200px).
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white/80 text-xs">Aperçu en direct</Label>
+              <div className="rounded-md overflow-hidden border border-white/20 bg-black/30 flex justify-center">
+                <iframe
+                  key={ficheUrl}
+                  src={ficheUrl}
+                  style={{ width: "100%", maxWidth: ficheMaxWidth, height: 720, border: 0 }}
+                  title="Aperçu fiche"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
 
     </div>
