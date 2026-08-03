@@ -494,8 +494,9 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     const ids = pois.map(p => p.id).sort().join(",");
     const c = center ? `${center.lat},${center.lng}` : "";
     const u = userLocation ? `${userLocation.lat},${userLocation.lng}` : "";
-    return `${ids}|${c}|${u}`;
-  }, [pois, center, userLocation]);
+    const r = centerAtBottomRatio != null ? String(centerAtBottomRatio) : "";
+    return `${ids}|${c}|${u}|${r}`;
+  }, [pois, center, userLocation, centerAtBottomRatio]);
 
   // Track whether we need to re-fit bounds (only when pois/center change, not iconCache)
   const needsFitRef = useRef(true);
