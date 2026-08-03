@@ -70,6 +70,10 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
   const [generating, setGenerating] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [lockedIds, setLockedIds] = useState<string[]>([]);
+  const [pristine, setPristine] = useState<Record<string, string>>({});
+
+  const snapshot = (t: AiText) => JSON.stringify([t.title, t.hook, t.content, t.is_active]);
+  const isDirty = (t: AiText) => pristine[t.id] !== undefined && pristine[t.id] !== snapshot(t);
 
   const load = async () => {
     setLoading(true);
