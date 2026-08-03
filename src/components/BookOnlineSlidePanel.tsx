@@ -1435,6 +1435,15 @@ const BookOnlineSlidePanelInner = ({
   // Overlay state for ripple suppression
   const anyOverlay = showDirections || showBookingOverlay || !!docOverlay || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || showPoiMapOverlay || !!activeVideoOverlay || isLightboxOpen || showMosaic || showYoutubeOverlay || showExternalVideosOverlay || !!availabilityOverlayCtx || !!serpApiOverlayCtx || showFallbackOverlay || !!externalOverlayActive;
 
+  // Aucune barre liquid-glass du bas quand un overlay Google Map est ouvert (POI / Itinéraire / Carte)
+  const mapOverlayOpen = showPoiMapOverlay || showDirections || !!showGoogleMap;
+  useEffect(() => {
+    if (!mapOverlayOpen) return;
+    document.body.dataset.mapOverlay = "1";
+    return () => { delete document.body.dataset.mapOverlay; };
+  }, [mapOverlayOpen]);
+
+
   const handleVideoLoadedMetadata = useCallback((e: React.SyntheticEvent<HTMLVideoElement>) => {
     const v = e.currentTarget;
     const ratio = v.videoWidth > 0 ? v.videoHeight / v.videoWidth : 1;
