@@ -213,18 +213,31 @@ const AffiliateAgentIaEditor = ({ businessId, businessCity }: Props) => {
               );
             })}
           </div>
+          <Input
+            value={blogSearch[keyOf(kind, itemId)] ?? ""}
+            onChange={(e) => setBlogSearch((p) => ({ ...p, [keyOf(kind, itemId)]: e.target.value }))}
+            placeholder="Rechercher dans le titre des articles…"
+            className="h-9 text-xs text-white placeholder:text-white/40"
+          />
           <Select value="" onValueChange={(v) => add("blog", v)}>
             <SelectTrigger className="h-9 text-xs text-white">
               <SelectValue placeholder="Ajouter un article…" />
             </SelectTrigger>
             <SelectContent className="z-[90] max-h-72">
-              {posts
-                .filter((p) => !current.blog.includes(p.id))
-                .map((p) => (
+              {(() => {
+                const q = normCity(blogSearch[keyOf(kind, itemId)] ?? "");
+                const list = posts.filter(
+                  (p) => !current.blog.includes(p.id) && (!q || normCity(p.title).includes(q)),
+                );
+                if (!list.length) {
+                  return <div className="px-2 py-3 text-xs text-muted-foreground">Aucun article trouvé</div>;
+                }
+                return list.map((p) => (
                   <SelectItem key={p.id} value={p.id} className="text-xs">
                     {p.isOwner ? "★ " : ""}{p.title}
                   </SelectItem>
-                ))}
+                ));
+              })()}
             </SelectContent>
           </Select>
         </div>
