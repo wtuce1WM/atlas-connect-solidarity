@@ -126,22 +126,26 @@ const Blog = () => {
         ) : (
           <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {[
-              ...posts.map((p) => ({
-                kind: "post" as const,
-                item: p,
-                date: p.published_at || p.created_at,
-                is_pinned: p.is_pinned ?? false,
-                sort_order: p.sort_order ?? 0,
-              })),
+              // 1) Articles publiés : ordre identique à Backoffice / Blog / Ordre des articles
+              ...posts
+                .slice()
+                .sort((a, b) =>
+                  compareBlogOrder(
+                    { is_pinned: a.is_pinned, sort_order: a.sort_order, date: a.published_at || a.created_at },
+                    { is_pinned: b.is_pinned, sort_order: b.sort_order, date: b.published_at || b.created_at },
+                  ),
+                )
+                .map((p) => ({
+                  kind: "post" as const,
+                  item: p,
+                })),
+              // 2) Pages vidéo ensuite (ordre non modifiable, par date de publication)
               ...videoFeeds.map((f) => ({
                 kind: "feed" as const,
                 item: f,
-                date: f.published_at || f.created_at,
-                is_pinned: false,
-                sort_order: 0,
               })),
             ]
-              .sort(compareBlogOrder)
+
 
               .map((entry) => {
                 if (entry.kind === "post") {
