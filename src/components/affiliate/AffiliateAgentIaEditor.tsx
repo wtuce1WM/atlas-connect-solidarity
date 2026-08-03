@@ -24,6 +24,7 @@ const keyOf = (kind: Kind, id: string) => `${kind}:${id}`;
 
 const AffiliateAgentIaEditor = ({ businessId, businessCity }: Props) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [blogSearch, setBlogSearch] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [suggestions, setSuggestions] = useState<Row[]>([]);
   const [followups, setFollowups] = useState<Row[]>([]);
