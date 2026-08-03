@@ -429,6 +429,31 @@ const AffiliatePresence = () => {
     });
   })();
 
+  const requestSelectBusiness = (id: string) => {
+    if (id === selectedBusiness) return;
+    if (hasEdits) {
+      setPendingBusinessId(id);
+      return;
+    }
+    setSelectedBusiness(id);
+  };
+
+  const discardAndSwitch = () => {
+    if (!pendingBusinessId) return;
+    if (selectedBusiness) {
+      setEditedFields(prev => { const n = { ...prev }; delete n[selectedBusiness]; return n; });
+    }
+    setSelectedBusiness(pendingBusinessId);
+    setPendingBusinessId(null);
+  };
+
+  const saveAndSwitch = async () => {
+    if (!pendingBusinessId || !selectedBusiness) return;
+    const target = pendingBusinessId;
+    await handleSave(selectedBusiness);
+    setSelectedBusiness(target);
+    setPendingBusinessId(null);
+  };
 
   const getCurrentValue = (bizId: string, key: string, original: any) => {
     return editedFields[bizId]?.[key] !== undefined ? editedFields[bizId][key] : (original ?? "");
