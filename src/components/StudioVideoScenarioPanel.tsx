@@ -698,7 +698,7 @@ export function StudioVideoScenarioPanel({
       totalDuration: editedScenes.reduce((acc, s) => acc + s.duration, 0),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, segmentOverrides, textOverrides, poiOverrides, destOverrides, placesMediaMode, whatsappOfferMode]);
+  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, segmentOverrides, textOverrides, poiOverrides, destOverrides, placesMediaMode, whatsappOfferMode, editedScenes]);
 
   const total = editedScenes.reduce((acc, s) => acc + s.duration, 0);
   // Étapes d'origine supprimées (built-in retirées de l'ordre)
