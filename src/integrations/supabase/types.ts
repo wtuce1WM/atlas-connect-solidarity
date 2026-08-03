@@ -719,6 +719,7 @@ export type Database = {
           anchor_poi: Json | null
           author_name: string | null
           bookmark_slug: string | null
+          city_scope: string | null
           content_ar: string | null
           content_en: string | null
           content_fr: string | null
@@ -774,6 +775,7 @@ export type Database = {
           anchor_poi?: Json | null
           author_name?: string | null
           bookmark_slug?: string | null
+          city_scope?: string | null
           content_ar?: string | null
           content_en?: string | null
           content_fr?: string | null
@@ -829,6 +831,7 @@ export type Database = {
           anchor_poi?: Json | null
           author_name?: string | null
           bookmark_slug?: string | null
+          city_scope?: string | null
           content_ar?: string | null
           content_en?: string | null
           content_fr?: string | null
