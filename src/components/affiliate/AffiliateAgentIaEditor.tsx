@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Save, Bot, MessageSquareReply, Sparkles } from "lucide-react";
+import { Loader2, Check, Bot, MessageSquareReply, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 interface Props {
