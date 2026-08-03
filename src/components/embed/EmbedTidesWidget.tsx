@@ -420,6 +420,8 @@ export default function EmbedTidesWidget({
           <p className="mt-2 text-[10px] leading-snug text-neutral-500 dark:text-neutral-400">{L.note}</p>
         </div>
       )}
+      </>
+      )}
 
       {/* SIGNATURE */}
       <div className="border-t border-neutral-200 dark:border-neutral-800 px-4 py-2 flex items-center justify-center">
