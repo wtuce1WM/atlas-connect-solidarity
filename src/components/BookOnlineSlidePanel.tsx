@@ -3066,7 +3066,9 @@ const BookOnlineSlidePanelInner = ({
             {poiPillOverlay === "poi" && (
               <PoiFilterChoiceOverlay
                 zClass="z-[250]"
-                title={language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt"}
+                title={activeFrontTab
+                  ? translateFrontStructure(activeFrontTab.name, language)
+                  : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
                 items={poiSubcatList.map(([name, count]) => ({
                   key: name,
                   label: translateSubcategory(name, language),
@@ -3074,6 +3076,8 @@ const BookOnlineSlidePanelInner = ({
                 }))}
                 selectedKey={poiSubcatFilter}
                 allLabel={language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
+                backLabel={activeFrontTab ? (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories") : undefined}
+                onBack={activeFrontTab ? () => setPoiPillOverlay("cat") : undefined}
                 onSelectAll={() => { setPoiSubcatFilter(null); setPoiPillOverlay(null); }}
                 onSelect={(key) => { setPoiSubcatFilter(key); setPoiPillOverlay(null); }}
                 onClose={() => setPoiPillOverlay(null)}
@@ -3087,37 +3091,26 @@ const BookOnlineSlidePanelInner = ({
                 items={frontTabs.map((ft) => ({
                   key: ft.id,
                   label: translateFrontStructure(ft.name, language),
-                  count: ft.count,
+                  count: catCounts.get(ft.id) ?? 0,
+                  disabled: (catCounts.get(ft.id) ?? 0) === 0,
                 }))}
                 selectedKey={poiCatFilter}
                 allLabel={language === "en" ? "All categories" : language === "ar" ? "جميع الفئات" : "Toutes les catégories"}
                 onSelectAll={() => {
-                  setPoiCatFilter(null); setPoiSubcatFilter(null); setPoiCategoryBusinesses([]);
-                  setPoiCategoryBusinessCatId(null); setDescGridPage(0); setDescGridSection("poi");
+                  setPoiCatFilter(null); setPoiSubcatFilter(null);
                   setPoiShowAll(false); setPoiPillOverlay(null);
                 }}
                 onSelect={(key) => {
-                  const ft = frontTabs.find((t) => t.id === key);
-                  setPoiPillOverlay(null);
+                  // Reste dans l'overlay POI/Map du Master : on ne relance aucune recherche.
                   setPoiCatFilter(key);
                   setPoiSubcatFilter(null);
-                  setDescGridPage(0);
-                  setDescGridSection("poi");
-                  setShowDescriptionOverlay(true);
                   setPoiShowAll(false);
-                  infoCarouselRef.current?.scrollTo({ left: 0, behavior: "smooth" });
-                  if (onSearch && business?.city && ft && ft.subcategoryNames.size > 0) {
-                    onSearch({
-                      subcats: Array.from(ft.subcategoryNames).join("|"),
-                      city: business.city,
-                      label: ft.name,
-                      _t: String(Date.now()),
-                    });
-                  }
+                  setPoiPillOverlay("poi");
                 }}
                 onClose={() => setPoiPillOverlay(null)}
               />
             )}
+
 
 
             <PoiGoogleMap
