@@ -38,18 +38,22 @@ export function resolveCtaLabel(
   defaultKey: keyof typeof CTA_MODE_LABELS,
   language: string,
 ): string {
-  // Try to translate whichever value is provided by normalizing it against the
-  // known CTA vocabulary. Freeform values that don't match fall back to the
-  // raw preferredValue (kept in the source language authored by the partner).
-  const candidates: (string | null | undefined)[] = [preferredValue, fallbackValue];
-  for (const v of candidates) {
-    if (!v) continue;
-    const match =
-      CTA_MODE_LABELS[v] ||
-      CTA_MODE_LABELS[normalizeCtaMode(v) || ""];
-    if (match) return pickLangLabel(match, language);
+  // The current CTA field (preferredValue) is authoritative. If it is set, we
+  // only try to translate it — never fall back to the legacy presentation_mode,
+  // which would otherwise override a freeform label like "En savoir +".
+  const translate = (v: string | null | undefined) => {
+    if (!v) return null;
+    return CTA_MODE_LABELS[v] || CTA_MODE_LABELS[normalizeCtaMode(v) || ""] || null;
+  };
+
+  if (preferredValue) {
+    const match = translate(preferredValue);
+    return match ? pickLangLabel(match, language) : preferredValue;
   }
-  if (preferredValue) return preferredValue;
+
+  const fallbackMatch = translate(fallbackValue);
+  if (fallbackMatch) return pickLangLabel(fallbackMatch, language);
+  if (fallbackValue) return fallbackValue;
   const pair = CTA_MODE_LABELS[defaultKey];
   return pickLangLabel(pair, language);
 }
