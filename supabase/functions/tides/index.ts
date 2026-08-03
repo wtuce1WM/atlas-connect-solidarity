@@ -153,10 +153,19 @@ Deno.serve(async (req) => {
 
     const apiUrl =
       `https://marine-api.open-meteo.com/v1/marine?latitude=${coast.lat}&longitude=${coast.lon}` +
-      `&hourly=sea_level_height_msl,wave_height,wave_period,sea_surface_temperature` +
+      `&hourly=sea_level_height_msl,wave_height,wave_period,sea_surface_temperature,wave_direction` +
       `&timezone=Africa%2FCasablanca&forecast_days=${days}&past_days=1`;
 
-    const res = await fetch(apiUrl);
+    const windUrl =
+      `https://api.open-meteo.com/v1/forecast?latitude=${coast.lat}&longitude=${coast.lon}` +
+      `&current=wind_speed_10m,wind_direction_10m,wind_gusts_10m,temperature_2m` +
+      `&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m` +
+      `&timezone=Africa%2FCasablanca&forecast_days=2`;
+
+    const [res, windRes] = await Promise.all([
+      fetch(apiUrl),
+      fetch(windUrl).catch(() => null),
+    ]);
     if (!res.ok) {
       const text = await res.text();
       console.error("Open-Meteo marine error:", res.status, text.slice(0, 300));
@@ -166,6 +175,43 @@ Deno.serve(async (req) => {
       });
     }
     const raw = await res.json();
+
+    // ---- Vent (API Forecast, gratuite sans clé) ----
+    let wind: unknown = null;
+    try {
+      if (windRes && windRes.ok) {
+        const wraw = await windRes.json();
+        const cur = wraw?.current || {};
+        const wh = wraw?.hourly || {};
+        const wTimes: string[] = wh?.time || [];
+        const wOffset = Number(wraw?.utc_offset_seconds || 0);
+        const nowMs2 = Date.now();
+        const hourly: { time: string; speed: number; direction: number; gusts: number | null }[] = [];
+        for (let i = 0; i < wTimes.length; i++) {
+          const t = Date.parse(wTimes[i] + ":00Z") - wOffset * 1000;
+          if (t < nowMs2 - 3600 * 1000 || t > nowMs2 + 24 * 3600 * 1000) continue;
+          const sp = wh.wind_speed_10m?.[i];
+          const dir = wh.wind_direction_10m?.[i];
+          if (sp == null || dir == null) continue;
+          hourly.push({
+            time: new Date(t).toISOString(),
+            speed: Math.round(Number(sp) * 10) / 10,
+            direction: Math.round(Number(dir)),
+            gusts: wh.wind_gusts_10m?.[i] != null ? Math.round(Number(wh.wind_gusts_10m[i]) * 10) / 10 : null,
+          });
+        }
+        wind = {
+          speed: cur.wind_speed_10m != null ? Math.round(Number(cur.wind_speed_10m) * 10) / 10 : null,
+          gusts: cur.wind_gusts_10m != null ? Math.round(Number(cur.wind_gusts_10m) * 10) / 10 : null,
+          direction: cur.wind_direction_10m != null ? Math.round(Number(cur.wind_direction_10m)) : null,
+          air_temperature: cur.temperature_2m != null ? Math.round(Number(cur.temperature_2m)) : null,
+          unit: "km/h",
+          hourly,
+        };
+      }
+    } catch (e) {
+      console.error("wind fetch error", e);
+    }
     const h = raw?.hourly;
     const times: string[] = h?.time || [];
     const levels: (number | null)[] = h?.sea_level_height_msl || [];
@@ -223,6 +269,7 @@ Deno.serve(async (req) => {
     const waveNow = interpolateAt(stamps, h?.wave_height || [], nowMs);
     const periodNow = interpolateAt(stamps, h?.wave_period || [], nowMs);
     const seaTempNow = interpolateAt(stamps, h?.sea_surface_temperature || [], nowMs);
+    const waveDirNow = interpolateAt(stamps, h?.wave_direction || [], nowMs);
 
     return new Response(
       JSON.stringify({
@@ -240,7 +287,9 @@ Deno.serve(async (req) => {
           wave_height: waveNow,
           wave_period: periodNow,
           sea_temperature: seaTempNow,
+          wave_direction: waveDirNow != null ? Math.round(waveDirNow) : null,
         },
+        wind,
         previous_extreme: previous,
         extremes: upcoming,
         curve,
