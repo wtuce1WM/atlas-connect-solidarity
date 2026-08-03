@@ -153,6 +153,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
       .single();
     if (error) return toast.error(error.message);
     setTexts((prev) => [...prev, data as AiText]);
+    setPristine((p) => ({ ...p, [(data as AiText).id]: snapshot(data as AiText) }));
   };
 
   const patch = (id: string, field: keyof AiText, value: any) =>
@@ -165,7 +166,9 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
       .update({ title: t.title, hook: t.hook, content: t.content, is_active: t.is_active })
       .eq("id", t.id);
     setSavingId(null);
-    error ? toast.error(error.message) : toast.success("Enregistré");
+    if (error) return toast.error(error.message);
+    setPristine((p) => ({ ...p, [t.id]: snapshot(t) }));
+    toast.success("Enregistré");
   };
 
   const remove = async (id: string) => {
