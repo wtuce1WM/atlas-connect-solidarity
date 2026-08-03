@@ -1429,7 +1429,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 352,
+          "reviewCount": 365,
           "bestRating": 5
         }
       }
@@ -6445,10 +6445,10 @@
         "name": "Carrefour Market Menara Mall",
         "url": "https://oneworldmorocco.com/carrefour-market-menara-mall",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/78b31198-e996-4221-a9a0-14e1846e8c46-1771823208895-dyi0n.jpg",
-        "description": "Supermarché Carrefour Market situé dans le centre commercial Menara Mall sur le Boulevard Mohamed VI à Marrakech. Enseigne du groupe Label'Vie. Large choix de produits alimentaires frais et d'épicerie. Programme de fidélité Club Carrefour.",
+        "description": "Situé à l'intérieur du Menara Mall Marrakech , sur la prestigieuse Avenue Mohammed VI , Carrefour Market Menara Mall est l'une des adresses les plus pratiques de Marrakech pour effectuer des courses rapides tout en profitant de l'un des centres commerciaux les plus fréquentés de la ville. À quelques minutes seulement de l'aéroport Marrakech-Menara, de l'Hivernage, des grands hôtels, du Palais des Congrès et de nombreux sites touristiques, ce supermarché accueille aussi bien les habitants que les",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Centre Menara Mall, Bd Mohamed VI",
+          "streetAddress": "Menara Mall, Bd Mohamed VI",
           "addressLocality": "Hivernage",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -6462,7 +6462,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.1,
-          "reviewCount": 3608,
+          "reviewCount": 3744,
           "bestRating": 5
         }
       }
@@ -11143,7 +11143,7 @@
         "description": "Le Fairmont Royal Palm Marrakech est un hôtel d’exception qui vous accueille avec vos proches pour vous retrouver, vous détendre et prendre soin de vous. Entre cuisine raffinée, spa, salle de gym et piscine, les propriétaires d’une villa Fairmont tomberont sous le charme d’un accueil d’exception et profiteront de tous les services proposés. Chambres, suites et villas Votre hôtel 5 étoiles propose une large sélection de chambres et suites élégantes, chacune offrant une magnifique terrasse surplom",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Km 12 Route d'Amizmiz",
+          "streetAddress": "Km 12",
           "addressLocality": "Route d'Amizmiz",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -11157,7 +11157,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 1546,
+          "reviewCount": 1590,
           "bestRating": 5
         }
       }
@@ -22011,7 +22011,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 182,
+          "reviewCount": 191,
           "bestRating": 5
         }
       }
@@ -29775,13 +29775,7 @@
           "latitude": 31.5222756,
           "longitude": -8.0573194
         },
-        "telephone": "+212 5 24 48 79 03",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": 4.2,
-          "reviewCount": 78,
-          "bestRating": 5
-        }
+        "telephone": "+212 5 24 48 79 03"
       }
     },
     {
@@ -33702,7 +33696,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 2375,
+          "reviewCount": 2382,
           "bestRating": 5
         }
       }
@@ -33908,7 +33902,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 7,
+          "reviewCount": 9,
           "bestRating": 5
         }
       }
@@ -41183,6 +41177,7 @@
         "name": "Elmris Market Charaf",
         "url": "https://oneworldmorocco.com/elmris-market-charaf",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/87bbea7c-a73f-41d3-9d36-4ef43e8456af-1780654850960-t783bg.webp",
+        "description": "Situé dans le quartier Charaf , à proximité de Guéliz , Elmris Market Charaf Marrakech est un supermarché de proximité apprécié aussi bien par les habitants que par les voyageurs séjournant dans les hôtels, appartements et résidences des environs. Grâce à son emplacement central, il permet d'effectuer rapidement ses courses du quotidien sans avoir à se rendre dans un grand hypermarché, tout en profitant d'un large choix de produits et d'un service de proximité. L'un de ses principaux atouts est ",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "RDC N 334 al MANAR",
@@ -41197,8 +41192,8 @@
         },
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.3,
-          "reviewCount": 86,
+          "ratingValue": 4.4,
+          "reviewCount": 89,
           "bestRating": 5
         }
       }
