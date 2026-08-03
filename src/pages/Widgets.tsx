@@ -275,7 +275,7 @@ const TidesWidgetSection = ({ index }: { index: number }) => {
       </div>
 
       <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3 flex flex-wrap items-center gap-3">
-        <span>Widget Marées</span>
+        <span>Widget Marées & Vents</span>
         <span className="rounded-xl bg-whatsapp px-3 py-0.5 text-whatsapp-foreground leading-tight">
           Gratuit
         </span>
