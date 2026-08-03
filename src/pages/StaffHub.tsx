@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, BookOpen, Users, Shield, Star, Sparkles, Briefcase, Building2, BadgeCheck, MapPin, LayoutGrid, Save, StickyNote, Presentation, Newspaper } from "lucide-react";
+import { LogOut, BookOpen, Users, Shield, Star, Sparkles, Briefcase, Building2, BadgeCheck, MapPin, LayoutGrid, Save, StickyNote, Presentation, Newspaper, Blocks, Stethoscope } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import RichTextEditor from "@/components/staff/RichTextEditor";
 import { toast } from "sonner";
