@@ -287,8 +287,10 @@ const TidesWidgetSection = ({ index }: { index: number }) => {
         Niveau de la mer en direct avec sens de la marée (montante / descendante), coefficient estimé,
         marnage, courbe sur 24 heures et les quatre prochaines pleines et basses mers avec leurs horaires
         locaux. Le bandeau eau ajoute la température de la mer, la hauteur de houle et la période — utile
-        pour la plage, le surf, la pêche ou une balade jusqu'aux îles Purpuraires. Dix-neuf villes de la
-        côte atlantique et méditerranéenne sont couvertes, sans clé API.
+        pour la plage, le surf, la pêche ou une balade jusqu'aux îles Purpuraires. Contrairement à un simple
+        tableau des marées, il couvre 19 villes du littoral atlantique et méditerranéen marocain, sans
+        nécessiter de clé API. Session de surf à Essaouira, journée à Oualidia, sortie paddle, partie de
+        pêche ou balade jusqu'aux îles Purpuraires : il devient rapidement un outil indispensable.
       </p>
 
       <div className="grid gap-5 sm:grid-cols-3 mb-8">
