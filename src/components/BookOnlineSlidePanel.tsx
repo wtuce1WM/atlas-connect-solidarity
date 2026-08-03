@@ -489,6 +489,9 @@ const BookOnlineSlidePanelInner = ({
       setPoiCategoryBusinessCatId(poiCatFilter);
     })();
 
+    return () => { cancelled = true; };
+  }, [poiCatFilter, business?.city, businessId, frontTabs]);
+
   // Vivier ville (toutes catégories) chargé quand l'overlay POI/Map est ouvert
   useEffect(() => {
     if (!showPoiMapOverlay || !business?.city) return;
