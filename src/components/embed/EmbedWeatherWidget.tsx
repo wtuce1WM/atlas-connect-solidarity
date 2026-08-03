@@ -197,14 +197,18 @@ export default function EmbedWeatherWidget({
 }) {
   const main = iconToEmoji(data.icon);
   const gradient = bgFor(data.icon);
+  const seven = data.daily7 || [];
+  const [range, setRange] = React.useState<3 | 7>(3);
+  const hasSeven = seven.length > 3;
   const days = (data.daily || []).slice(0, 3);
   const hasRain = /01d|01n|02/.test((data.icon || "").slice(0, 3)) === false && ((data.hourly || []).some((h) => (h.pop || 0) >= 20));
 
   const L = {
-    fr: { feels: "ressenti", humidity: "Humidité", wind: "Vent", rain: "Pluie", next: "Prochaines heures", days: "3 prochains jours" },
-    en: { feels: "feels like", humidity: "Humidity", wind: "Wind", rain: "Rain", next: "Next hours", days: "Next 3 days" },
-    ar: { feels: "محسوسة", humidity: "الرطوبة", wind: "الرياح", rain: "المطر", next: "الساعات القادمة", days: "الأيام الثلاثة القادمة" },
+    fr: { feels: "ressenti", humidity: "Humidité", wind: "Vent", gust: "rafales", rain: "Pluie", next: "Prochaines heures", days: "3 prochains jours", days7: "7 prochains jours", d3: "3 jours", d7: "7 jours", beaufort: "Force" },
+    en: { feels: "feels like", humidity: "Humidity", wind: "Wind", gust: "gusts", rain: "Rain", next: "Next hours", days: "Next 3 days", days7: "Next 7 days", d3: "3 days", d7: "7 days", beaufort: "Force" },
+    ar: { feels: "محسوسة", humidity: "الرطوبة", wind: "الرياح", gust: "هبات", rain: "المطر", next: "الساعات القادمة", days: "الأيام الثلاثة القادمة", days7: "الأيام السبعة القادمة", d3: "3 أيام", d7: "7 أيام", beaufort: "القوة" },
   }[lang];
+
 
   return (
     <div className={embedded ? "w-full overflow-hidden" : "w-full max-w-[85%] rounded-3xl overflow-hidden shadow-xl"}>
