@@ -273,6 +273,38 @@ export default function EmbedTidesWidget({
         .td-pulse { animation: tdPulse 2.6s ease-in-out infinite }
       `}</style>
 
+      {/* TOGGLE Marées / Vent */}
+      {hasWind && (
+        <div className="flex items-center gap-1 p-1.5 bg-neutral-100 dark:bg-neutral-800">
+          {(["tides", "wind"] as const).map((v) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => setView(v)}
+              aria-pressed={view === v}
+              className={`flex-1 rounded-2xl px-3 py-1.5 text-xs font-semibold transition-colors ${
+                view === v
+                  ? "bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white shadow"
+                  : "text-neutral-500 dark:text-neutral-400"
+              }`}
+            >
+              {v === "tides" ? `🌊 ${L.tides}` : `🧭 ${windLabel}`}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {view === "wind" && hasWind ? (
+        <EmbedWindView
+          wind={data.wind!}
+          lat={data.lat}
+          lon={data.lon}
+          cityName={data.city_name}
+          lang={lang}
+          compact={compact}
+        />
+      ) : (
+      <>
       {/* HERO */}
       <div className={`relative bg-gradient-to-br ${gradient} px-6 pt-6 pb-4 text-white overflow-hidden`}>
         <div className="absolute inset-x-0 bottom-0 h-24 opacity-20 pointer-events-none td-wave" aria-hidden>
