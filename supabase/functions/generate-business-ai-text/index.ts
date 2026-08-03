@@ -30,10 +30,12 @@ const PLATFORM_URL_KEYS = [
 ] as const;
 
 const LENGTH_SPECS: Record<string, { min: number; max: number; label: string; paragraphs: string }> = {
-  very_short: { min: 320, max: 480, label: "très courte", paragraphs: "1 à 2 paragraphes" },
-  short: { min: 700, max: 900, label: "courte", paragraphs: "2 à 3 paragraphes" },
-  medium: { min: 1200, max: 1400, label: "moyenne", paragraphs: "3 à 4 paragraphes" },
-  long: { min: 1750, max: 2000, label: "longue", paragraphs: "4 à 6 paragraphes" },
+  very_short: { min: 320, max: 460, label: "très courte", paragraphs: "1 à 2 paragraphes" },
+  short: { min: 700, max: 880, label: "courte", paragraphs: "2 à 3 paragraphes" },
+  medium: { min: 1200, max: 1380, label: "moyenne", paragraphs: "3 à 4 paragraphes" },
+  // max volontairement < MAX_CONTENT (2000) pour laisser une marge : sans ça,
+  // le modèle vise pile la limite et la coupe dure tronquait la dernière phrase.
+  long: { min: 1600, max: 1850, label: "longue", paragraphs: "4 à 6 paragraphes" },
 };
 
 const MODE_BRIEFS: Record<string, string> = {
