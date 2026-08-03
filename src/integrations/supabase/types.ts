@@ -7307,6 +7307,47 @@ export type Database = {
         }
         Relationships: []
       }
+      widget_alert_sends: {
+        Row: {
+          alert_type: string
+          city_slug: string
+          created_at: string
+          details: Json | null
+          email: string
+          id: string
+          subscriber_id: string | null
+          target_date: string
+        }
+        Insert: {
+          alert_type: string
+          city_slug: string
+          created_at?: string
+          details?: Json | null
+          email: string
+          id?: string
+          subscriber_id?: string | null
+          target_date: string
+        }
+        Update: {
+          alert_type?: string
+          city_slug?: string
+          created_at?: string
+          details?: Json | null
+          email?: string
+          id?: string
+          subscriber_id?: string | null
+          target_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "widget_alert_sends_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "widget_alert_subscribers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       widget_alert_subscribers: {
         Row: {
           alert_fishing: boolean
@@ -7322,6 +7363,7 @@ export type Database = {
           id: string
           lang: string
           nickname: string | null
+          unsubscribe_token: string
           updated_at: string
         }
         Insert: {
@@ -7338,6 +7380,7 @@ export type Database = {
           id?: string
           lang?: string
           nickname?: string | null
+          unsubscribe_token?: string
           updated_at?: string
         }
         Update: {
@@ -7354,6 +7397,7 @@ export type Database = {
           id?: string
           lang?: string
           nickname?: string | null
+          unsubscribe_token?: string
           updated_at?: string
         }
         Relationships: []

@@ -37,6 +37,8 @@ project_id = "plnphgdrawpsnumnejzc"
     verify_jwt = false
   [functions.handle-email-suppression]
     verify_jwt = false
+  [functions.evaluate-widget-alerts]
+    verify_jwt = false
   [functions.handle-email-unsubscribe]
     verify_jwt = false
   [functions.home-bootstrap]
@@ -76,4 +78,6 @@ project_id = "plnphgdrawpsnumnejzc"
   [functions.yext-sync]
     verify_jwt = false
   [functions.youtube-player-page]
+    verify_jwt = false
+  [functions.widget-alerts-unsubscribe]
     verify_jwt = false
