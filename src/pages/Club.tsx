@@ -604,7 +604,7 @@ const Club = () => {
               <h1 style={{ lineHeight: 1.2 }} className="font-josefin text-[26px] sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white max-w-4xl mx-auto [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] mb-2">
                 {t.platformHeadline}
               </h1>
-              <h2 style={{ lineHeight: 1.2 }} className="font-josefin text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white max-w-3xl mx-auto [text-shadow:0_2px_4px_rgba(0,0,0,0.6)] mb-3">
+              <h2 style={{ lineHeight: 1.2 }} className="font-josefin text-lg sm:text-xl md:text-2xl font-light tracking-tight text-white/85 max-w-3xl mx-auto [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] mb-3">
                 {t.benefits}
               </h2>
               <p className="text-sm sm:text-base text-white/90 mb-6 max-w-2xl mx-auto leading-relaxed">
