@@ -164,7 +164,33 @@ function coefLabel(coef: number, lang: Lang): string {
   return "Morte-eau";
 }
 
-/** Sea-level SVG curve with high/low markers and a "now" cursor. */
+/** Smooth sea-level SVG curve using Catmull-Rom → cubic Bézier. */
+function smoothPath(points: { x: number; y: number }[]) {
+  if (points.length < 2) return "";
+  if (points.length === 2) {
+    return `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)} L ${points[1].x.toFixed(1)} ${points[1].y.toFixed(1)}`;
+  }
+
+  const first = points[0];
+  const last = points[points.length - 1];
+  // Duplicate endpoints for natural start/end tangents.
+  const P = [first, ...points, last];
+
+  const toCubic = (i: number) => {
+    const p0 = P[i - 1];
+    const p1 = P[i];
+    const p2 = P[i + 1];
+    const p3 = P[i + 2];
+    const cp1x = p1.x + (p2.x - p0.x) / 6;
+    const cp1y = p1.y + (p2.y - p0.y) / 6;
+    const cp2x = p2.x - (p3.x - p1.x) / 6;
+    const cp2y = p2.y - (p3.y - p1.y) / 6;
+    return `C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+  };
+
+  return `M ${first.x.toFixed(1)} ${first.y.toFixed(1)} ` + points.slice(0, -1).map((_, i) => toCubic(i + 1)).join(" ");
+}
+
 function TideCurve({ curve, extremes, lang, tz }: { curve: TideCurvePoint[]; extremes: TideExtreme[]; lang: Lang; tz?: string }) {
   if (!curve || curve.length < 3) return null;
   const W = 720;
@@ -184,10 +210,9 @@ function TideCurve({ curve, extremes, lang, tz }: { curve: TideCurvePoint[]; ext
   const xAt = (iso: string) => padX + ((new Date(iso).getTime() - t0) / span) * (W - padX * 2);
   const yAt = (v: number) => padTop + (1 - (v - min) / vSpan) * (H - padTop - padBottom);
 
-  const path = curve
-    .map((c, i) => `${i === 0 ? "M" : "L"} ${xAt(c.time).toFixed(1)} ${yAt(c.height).toFixed(1)}`)
-    .join(" ");
-  const area = `${path} L ${xAt(curve[curve.length - 1].time).toFixed(1)} ${H} L ${xAt(curve[0].time).toFixed(1)} ${H} Z`;
+  const pts = curve.map((c) => ({ x: xAt(c.time), y: yAt(c.height) }));
+  const path = smoothPath(pts);
+  const area = `${path} L ${pts[pts.length - 1].x.toFixed(1)} ${H} L ${pts[0].x.toFixed(1)} ${H} Z`;
 
   const nowMs = Date.now();
   const nowX = nowMs >= t0 && nowMs <= t1 ? padX + ((nowMs - t0) / span) * (W - padX * 2) : null;
@@ -206,12 +231,24 @@ function TideCurve({ curve, extremes, lang, tz }: { curve: TideCurvePoint[]; ext
         </linearGradient>
       </defs>
       <path d={area} fill="url(#tdArea)" />
-      <path d={path} fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d={path}
+        fill="none"
+        stroke="rgba(255,255,255,0.95)"
+        strokeWidth={3}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
 
       {nowX != null && (
         <g>
           <line x1={nowX} y1={10} x2={nowX} y2={H} stroke="rgba(255,255,255,0.55)" strokeWidth={1.5} strokeDasharray="4 4" />
-          <circle cx={nowX} cy={yAt(curve.reduce((acc, c) => (Math.abs(new Date(c.time).getTime() - nowMs) < Math.abs(new Date(acc.time).getTime() - nowMs) ? c : acc), curve[0]).height)} r={5} fill="#fff" />
+          <circle
+            cx={nowX}
+            cy={yAt(curve.reduce((acc, c) => (Math.abs(new Date(c.time).getTime() - nowMs) < Math.abs(new Date(acc.time).getTime() - nowMs) ? c : acc), curve[0]).height)}
+            r={5}
+            fill="#fff"
+          />
         </g>
       )}
 
