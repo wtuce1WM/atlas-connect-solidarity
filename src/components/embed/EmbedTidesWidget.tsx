@@ -337,9 +337,34 @@ export default function EmbedTidesWidget({
             {v === "tides" ? `🌊 ${L.tides}` : v === "wind" ? `🧭 ${windLabel}` : `☀️ ${weatherLabel}`}
           </button>
         ))}
+        <button
+          type="button"
+          onClick={() => setSettingsOpen((s) => !s)}
+          aria-pressed={settingsOpen}
+          aria-label={settingsLabel}
+          title={settingsLabel}
+          className={`shrink-0 rounded-2xl px-2.5 py-1.5 text-xs font-semibold transition-colors ${
+            settingsOpen
+              ? "bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white shadow"
+              : "text-neutral-500 dark:text-neutral-400"
+          }`}
+        >
+          ⚙️
+        </button>
       </div>
 
+      {settingsOpen && (
+        <EmbedWidgetSettings
+          lang={lang}
+          citySlug={data.city_slug}
+          cityName={data.city_name}
+          onCityChange={onCityChange}
+          onClose={() => setSettingsOpen(false)}
+        />
+      )}
+
       {view === "weather" ? (
+
         weather ? (
           <EmbedWeatherWidget data={weather} lang={lang} embedded />
         ) : (
