@@ -34,11 +34,19 @@ interface BlogPost {
   updated_at: string;
   is_published: boolean;
   is_pinned: boolean;
+  city_scope?: string | null;
   anchor_kind?: string | null;
 }
 
+const CITY_OPTIONS: { label: string; value: string | null }[] = [
+  { label: "Tout le Maroc", value: null },
+  { label: "Marrakech", value: "Marrakech" },
+  { label: "Essaouira", value: "Essaouira" },
+];
+
 const SELECT_COLS =
-  "id, title_fr, title_en, title_ar, slug, template, excerpt_fr, excerpt_en, excerpt_ar, content_en, content_ar, intro_en, intro_ar, entries_en, entries_ar, cover_image_url, published_at, created_at, updated_at, is_published, is_pinned, anchor_kind";
+  "id, title_fr, title_en, title_ar, slug, template, excerpt_fr, excerpt_en, excerpt_ar, content_en, content_ar, intro_en, intro_ar, entries_en, entries_ar, cover_image_url, published_at, created_at, updated_at, is_published, is_pinned, city_scope, anchor_kind";
+
 
 /** Un article est traduit si le titre existe ET qu'il y a du contenu dans la langue,
  *  quel que soit le support : entries (template article), intro, ou content (legacy HTML). */
