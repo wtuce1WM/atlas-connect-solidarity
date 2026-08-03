@@ -1,0 +1,2 @@
+ALTER TABLE public.video_jobs DROP CONSTRAINT video_jobs_duration_sec_check;
+ALTER TABLE public.video_jobs ADD CONSTRAINT video_jobs_duration_sec_check CHECK (duration_sec >= 5 AND duration_sec <= 300);
