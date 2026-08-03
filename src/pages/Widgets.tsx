@@ -4,7 +4,7 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Copy, CloudSun, MessageSquare, MapPin, Star, Newspaper, Waves, ExternalLink, ThumbsUp, Mail } from "lucide-react";
+import { Check, Copy, CloudSun, MessageSquare, MapPin, Star, Newspaper, Waves, LayoutPanelTop, ExternalLink, ThumbsUp, Mail } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { toast } from "@/hooks/use-toast";
 
@@ -868,6 +868,7 @@ const Widgets = () => {
   const weatherUrl = `${SITE}/embed/weather?city=Marrakech&lang=fr`;
   const askUrl = `${SITE}/embed/ask/${DEMO_SLUG}?theme=light&lang=fr`;
   const nearbyUrl = `${SITE}/embed/nearby/${DEMO_SLUG}?lang=fr`;
+  const ficheUrl = `${SITE}/b/${DEMO_SLUG}?embed=1&lang=fr`;
 
   const floatingSnippet = useMemo(
     () => `<!-- Panneau flottant One World Morocco -->
@@ -1010,12 +1011,41 @@ const Widgets = () => {
 
             <ReviewsWidgetSection index={5} />
 
-            <RateUsWidgetSection index={6} />
+            <WidgetSection
+              index={6}
+              icon={<LayoutPanelTop className="h-5 w-5" />}
+              title="Widget Fiche complète"
+              tagline="Toute la fiche établissement, intégrée dans votre page."
+              price="Prix : sur devis"
+              description="La fiche publique complète : galerie photo, badge d'avis, présentation, horaires, blocs à la une, boutons de contact et de réservation, adresses à proximité. Fond transparent, coins arrondis, et hauteur automatique — le widget communique sa hauteur réelle à votre page, sans barre de défilement interne."
+              params={[
+                { name: "slug", value: "identifiant de l'établissement" },
+                { name: "embed", value: "1 (mode widget)" },
+                { name: "club", value: "0 pour masquer le bandeau Club" },
+              ]}
+              previewUrl={toPreview(ficheUrl)}
+              autoHeight
+              previewHeight={720}
+              fullWidthPreview
+              snippet={`<!-- Fiche complète One World Morocco -->
+<iframe id="owm-fiche" src="${ficheUrl}"
+  style="width:100%;max-width:900px;height:900px;border:0;border-radius:24px"
+  title="Fiche One World Morocco" loading="lazy"></iframe>
+<script>
+window.addEventListener('message', function (e) {
+  if (!e.data || e.data.type !== 'owm-fiche-height') return;
+  var f = document.getElementById('owm-fiche');
+  if (f) f.style.height = e.data.height + 'px';
+});
+</script>`}
+            />
 
-            <EmailSignatureWidgetSection index={7} />
+            <RateUsWidgetSection index={7} />
+
+            <EmailSignatureWidgetSection index={8} />
 
             <WidgetSection
-              index={8}
+              index={9}
               icon={<Newspaper className="h-5 w-5" />}
               title="Export d'article de blog"
               tagline="Votre article éditorial, republié sur votre propre domaine."
