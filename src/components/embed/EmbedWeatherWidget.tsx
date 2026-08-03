@@ -9,6 +9,7 @@ export type WeatherHourly = {
   description?: string;
   icon?: string;
   pop?: number;
+  wind_speed?: number;
 };
 export type WeatherDaily = {
   date: string;
@@ -18,6 +19,16 @@ export type WeatherDaily = {
   icon?: string;
   pop_max?: number;
 };
+export type WeatherDaily7 = {
+  date: string;
+  weather_code?: number | null;
+  temp_min: number;
+  temp_max: number;
+  pop_max?: number;
+  wind_speed?: number;
+  wind_gust?: number;
+  wind_direction?: number;
+};
 export type WeatherPayload = {
   city_name: string;
   temp: number;
@@ -25,12 +36,17 @@ export type WeatherPayload = {
   temp_min: number;
   temp_max: number;
   humidity: number;
+  pressure?: number | null;
   wind_speed: number;
+  wind_direction?: number | null;
+  wind_gust?: number | null;
   description: string;
   icon?: string;
   hourly: WeatherHourly[];
   daily: WeatherDaily[];
+  daily7?: WeatherDaily7[];
 };
+
 
 type Lang = "fr" | "en" | "ar";
 
