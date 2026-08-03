@@ -69,8 +69,9 @@ const AffiliateAgentIaEditor = ({ businessId, businessCity }: Props) => {
           ? prefs.enabled_suggestion_ids
           : sList.map((r) => r.id),
       );
+      // Pour les relances, une liste vide enregistrée signifie "aucune relance".
       setSelFu(
-        prefs && Array.isArray(prefs.enabled_followup_ids) && prefs.enabled_followup_ids.length > 0
+        prefs && Array.isArray(prefs.enabled_followup_ids)
           ? prefs.enabled_followup_ids
           : fList.map((r) => r.id),
       );
