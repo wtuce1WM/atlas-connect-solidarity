@@ -856,13 +856,15 @@ const AffiliatePresence = () => {
                       <AffiliateAiTextsEditor key={currentBusiness.id} businessId={currentBusiness.id} />
                     </TabsContent>
 
-                    <TabsContent value="agentia">
-                      <AffiliateAgentIaEditor
-                        key={currentBusiness.id}
-                        businessId={currentBusiness.id}
-                        businessCity={(currentBusiness as any).city}
-                      />
-                    </TabsContent>
+                    {!!featureRights[currentBusiness.id]?.has_ai_assistant && (
+                      <TabsContent value="agentia">
+                        <AffiliateAgentIaEditor
+                          key={currentBusiness.id}
+                          businessId={currentBusiness.id}
+                          businessCity={(currentBusiness as any).city}
+                        />
+                      </TabsContent>
+                    )}
 
 
                     {/* Blocks Tab */}
