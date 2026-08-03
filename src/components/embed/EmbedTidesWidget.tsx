@@ -248,6 +248,9 @@ export default function EmbedTidesWidget({
   compact?: boolean;
 }) {
   const L = T[lang];
+  const hasWind = !!(data.wind && data.wind.speed != null && data.wind.direction != null);
+  const [view, setView] = React.useState<"tides" | "wind">("tides");
+  const windLabel = lang === "en" ? "Wind" : lang === "ar" ? "الريح" : "Vent";
   const tz = data.timezone;
   const trendLabel = L[data.now.trend] || L.slack;
   const trendIcon = data.now.trend === "rising" ? "▲" : data.now.trend === "falling" ? "▼" : "◆";
