@@ -124,10 +124,23 @@ const Blog = () => {
         ) : (
           <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {[
-              ...posts.map((p) => ({ kind: "post" as const, item: p, date: p.published_at || p.created_at })),
-              ...videoFeeds.map((f) => ({ kind: "feed" as const, item: f, date: f.published_at || f.created_at })),
+              ...posts.map((p) => ({
+                kind: "post" as const,
+                item: p,
+                date: p.published_at || p.created_at,
+                is_pinned: p.is_pinned ?? false,
+                sort_order: p.sort_order ?? 0,
+              })),
+              ...videoFeeds.map((f) => ({
+                kind: "feed" as const,
+                item: f,
+                date: f.published_at || f.created_at,
+                is_pinned: false,
+                sort_order: 0,
+              })),
             ]
-              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+              .sort(compareBlogOrder)
+
               .map((entry) => {
                 if (entry.kind === "post") {
                   const post = entry.item;
