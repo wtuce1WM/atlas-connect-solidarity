@@ -235,6 +235,7 @@ const Club = () => {
   const t = {
     fr: {
       title: "Le Club OWM",
+      platformHeadline: "Plateforme social video inspirationnelle direct-to-local",
       subtitle: "Rejoignez le club et accédez à des avantages exclusifs",
       desc: "En tant que membre du Club One World Morocco, vous bénéficiez de réductions, d'offres spéciales et d'un accès privilégié aux meilleurs établissements du Maroc.",
       benefits: "Avantages membres",
@@ -277,6 +278,7 @@ const Club = () => {
     },
     en: {
       title: "The OWM Club",
+      platformHeadline: "Social video inspiration platform, direct-to-local",
       subtitle: "Join the club and access exclusive benefits",
       desc: "As a One World Morocco Club member, enjoy discounts, special offers, and privileged access to the best establishments in Morocco.",
       benefits: "Member benefits",
@@ -319,6 +321,7 @@ const Club = () => {
     },
     ar: {
       title: "نادي OWM",
+      platformHeadline: "منصة فيديو اجتماعي للإلهام، مباشرة إلى المحلي",
       subtitle: "انضم إلى النادي واحصل على مزايا حصرية",
       desc: "بصفتك عضواً في نادي One World Morocco، استمتع بتخفيضات وعروض خاصة ووصول مميز لأفضل المؤسسات في المغرب.",
       benefits: "مزايا الأعضاء",
@@ -361,6 +364,7 @@ const Club = () => {
     },
   }[language] || {
     title: "Le Club OWM",
+    platformHeadline: "Plateforme social video inspirationnelle direct-to-local",
     subtitle: "Rejoignez le club et accédez à des avantages exclusifs",
     desc: "En tant que membre du Club One World Morocco, vous bénéficiez de réductions, d'offres spéciales et d'un accès privilégié aux meilleurs établissements du Maroc.",
     benefits: "Avantages membres",
@@ -597,6 +601,9 @@ const Club = () => {
           <div className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-24 flex flex-col items-center justify-center gap-8 min-h-[92vh]">
             {/* Member benefits heading + 6 CTA badges above auth card */}
             <div className="w-full max-w-3xl md:max-w-4xl mx-auto text-center">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-2" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                {t.platformHeadline}
+              </h1>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3" style={{ fontFamily: "Montserrat, sans-serif" }}>
                 {t.benefits}
               </h2>
