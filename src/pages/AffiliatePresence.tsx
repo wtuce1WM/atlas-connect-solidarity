@@ -564,7 +564,7 @@ const AffiliatePresence = () => {
                   return (
                     <button
                       key={b.id}
-                      onClick={() => setSelectedBusiness(b.id)}
+                      onClick={() => requestSelectBusiness(b.id)}
                       className={`shrink-0 text-left p-3 rounded-lg border transition-colors min-w-[200px] max-w-[260px] ${
                         isSelected
                           ? "border-primary bg-primary/10"
