@@ -390,6 +390,9 @@ const EmbedAsk = () => {
   type SuggestionRow = { id: string; label: string; disabled_followup_ids?: string[] };
   const [dbSuggestions, setDbSuggestions] = useState<SuggestionRow[] | null>(null);
   const [globalFollowups, setGlobalFollowups] = useState<FollowupRow[]>([]);
+  // Sélection de l'affilié (onglet Agent IA de /affiliates/presence). null = tout activé.
+  const [agentPrefs, setAgentPrefs] = useState<{ sugg: string[] | null; fu: string[] | null }>({ sugg: null, fu: null });
+
   const [activeSuggestionId, setActiveSuggestionId] = useState<string | null>(null);
   const [scope, setScope] = useState<"filter" | "broaden" | null>("filter");
 
