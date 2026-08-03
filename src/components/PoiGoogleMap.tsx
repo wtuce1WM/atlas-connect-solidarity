@@ -400,13 +400,32 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
 
   const isNativeTheme = mapTheme === "default-light" || mapTheme === "default-dark";
 
+  // Décalage vertical (en pixels) → latitude, via Mercator, pour appliquer le
+  // centrage décalé dès la construction de la carte (évite tout saut au chargement).
+  const offsetLatFor = (lat: number, zoom: number, offsetPixels: number) => {
+    const siny = Math.min(Math.max(Math.sin((lat * Math.PI) / 180), -0.9999), 0.9999);
+    const worldY = 128 - 0.5 * Math.log((1 + siny) / (1 - siny)) * (128 / Math.PI);
+    const newWorldY = worldY + offsetPixels / Math.pow(2, zoom);
+    const n = Math.PI - (2 * Math.PI * newWorldY) / 256;
+    return (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+  };
+
   // Init map
   useEffect(() => {
     const gmaps = window.google?.maps;
     if (!ready || !gmaps || !containerRef.current || mapRef.current) return;
+    const initZoom = 13;
+    let initCenter = center || { lat: 31.63, lng: -7.98 };
+    if (center && centerAtBottomRatio != null && centerAtBottomRatio >= 0 && centerAtBottomRatio <= 1) {
+      const height = containerRef.current.clientHeight || 0;
+      if (height > 0) {
+        const offsetPixels = (0.5 - centerAtBottomRatio) * height;
+        initCenter = { lat: offsetLatFor(center.lat, initZoom, offsetPixels), lng: center.lng };
+      }
+    }
     const opts: google.maps.MapOptions = {
-      center: center || { lat: 31.63, lng: -7.98 },
-      zoom: 13,
+      center: initCenter,
+      zoom: initZoom,
       mapTypeControl: !!showLayerControls,
       mapTypeControlOptions: showLayerControls
         ? {
