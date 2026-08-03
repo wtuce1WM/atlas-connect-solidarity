@@ -1,5 +1,7 @@
 // Immersive weather widget for /embed/ask — iOS-style hero card + 24h curve + 3-day strip.
 import React from "react";
+import { smoothPath } from "@/lib/smoothPath";
+
 
 export type WeatherHourly = {
   hour: string;
@@ -104,8 +106,9 @@ function HourlyCurve({ hourly }: { hourly: WeatherHourly[] }) {
   const span = Math.max(1, max - min);
   const xAt = (i: number) => padX + (i * (W - padX * 2)) / (pts.length - 1);
   const yAt = (t: number) => padY + (1 - (t - min) / span) * (H - padY * 2);
-  const path = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${xAt(i).toFixed(1)} ${yAt(p.temp).toFixed(1)}`).join(" ");
+  const path = smoothPath(pts.map((p, i) => ({ x: xAt(i), y: yAt(p.temp) })));
   const area = `${path} L ${xAt(pts.length - 1).toFixed(1)} ${H - 4} L ${xAt(0).toFixed(1)} ${H - 4} Z`;
+
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-[130px]" preserveAspectRatio="none">
       <defs>
@@ -115,7 +118,7 @@ function HourlyCurve({ hourly }: { hourly: WeatherHourly[] }) {
         </linearGradient>
       </defs>
       <path d={area} fill="url(#wxArea)" />
-      <path d={path} fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+      <path d={path} fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" />
       {pts.map((p, i) => {
         const cx = xAt(i);
         const cy = yAt(p.temp);
@@ -133,7 +136,16 @@ function HourlyCurve({ hourly }: { hourly: WeatherHourly[] }) {
   );
 }
 
-export default function EmbedWeatherWidget({ data, lang = "fr" }: { data: WeatherPayload; lang?: Lang }) {
+export default function EmbedWeatherWidget({
+  data,
+  lang = "fr",
+  embedded = false,
+}: {
+  data: WeatherPayload;
+  lang?: Lang;
+  /** When true, renders flush inside a host card (no max-width, no rounding/shadow). */
+  embedded?: boolean;
+}) {
   const main = iconToEmoji(data.icon);
   const gradient = bgFor(data.icon);
   const days = (data.daily || []).slice(0, 3);
@@ -146,7 +158,8 @@ export default function EmbedWeatherWidget({ data, lang = "fr" }: { data: Weathe
   }[lang];
 
   return (
-    <div className="w-full max-w-[85%] rounded-3xl overflow-hidden shadow-xl">
+    <div className={embedded ? "w-full overflow-hidden" : "w-full max-w-[85%] rounded-3xl overflow-hidden shadow-xl"}>
+
       <style>{`
         @keyframes wxSunPulse { 0%,100% { transform: scale(1); filter: drop-shadow(0 0 24px rgba(255,220,120,0.55)); } 50% { transform: scale(1.06); filter: drop-shadow(0 0 40px rgba(255,220,120,0.85)); } }
         @keyframes wxCloudDrift { 0%,100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
@@ -231,17 +244,20 @@ export default function EmbedWeatherWidget({ data, lang = "fr" }: { data: Weathe
         </div>
       )}
 
-      {/* Signature */}
-      <div className="bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800 px-4 py-2 flex items-center justify-center">
-        <a
-          href="https://oneworldmorocco.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[11px] tracking-wide text-neutral-500 dark:text-neutral-400 hover:text-primary transition-colors"
-        >
-          oneworldmorocco.com
-        </a>
-      </div>
+      {/* Signature (hidden when nested inside a host widget that already has one) */}
+      {!embedded && (
+        <div className="bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800 px-4 py-2 flex items-center justify-center">
+          <a
+            href="https://oneworldmorocco.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[11px] tracking-wide text-neutral-500 dark:text-neutral-400 hover:text-primary transition-colors"
+          >
+            oneworldmorocco.com
+          </a>
+        </div>
+      )}
+
     </div>
   );
 }

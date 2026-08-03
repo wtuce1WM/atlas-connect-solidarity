@@ -2,6 +2,10 @@
 // Data comes from the public `tides` edge function (Open-Meteo Marine, MSL-referenced).
 import React from "react";
 import EmbedWindView, { type WindPayload } from "./EmbedWindView";
+import EmbedWeatherWidget, { type WeatherPayload } from "./EmbedWeatherWidget";
+import { smoothPath } from "@/lib/smoothPath";
+import { supabase } from "@/integrations/supabase/client";
+
 
 export type TideExtreme = { time: string; type: "high" | "low"; height: number };
 export type TideCurvePoint = { time: string; height: number };
@@ -164,32 +168,8 @@ function coefLabel(coef: number, lang: Lang): string {
   return "Morte-eau";
 }
 
-/** Smooth sea-level SVG curve using Catmull-Rom → cubic Bézier. */
-function smoothPath(points: { x: number; y: number }[]) {
-  if (points.length < 2) return "";
-  if (points.length === 2) {
-    return `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)} L ${points[1].x.toFixed(1)} ${points[1].y.toFixed(1)}`;
-  }
+/** Smooth sea-level SVG curve — shared Catmull-Rom → cubic Bézier helper. */
 
-  const first = points[0];
-  const last = points[points.length - 1];
-  // Duplicate endpoints for natural start/end tangents.
-  const P = [first, ...points, last];
-
-  const toCubic = (i: number) => {
-    const p0 = P[i - 1];
-    const p1 = P[i];
-    const p2 = P[i + 1];
-    const p3 = P[i + 2];
-    const cp1x = p1.x + (p2.x - p0.x) / 6;
-    const cp1y = p1.y + (p2.y - p0.y) / 6;
-    const cp2x = p2.x - (p3.x - p1.x) / 6;
-    const cp2y = p2.y - (p3.y - p1.y) / 6;
-    return `C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
-  };
-
-  return `M ${first.x.toFixed(1)} ${first.y.toFixed(1)} ` + points.slice(0, -1).map((_, i) => toCubic(i + 1)).join(" ");
-}
 
 function TideCurve({ curve, extremes, lang, tz }: { curve: TideCurvePoint[]; extremes: TideExtreme[]; lang: Lang; tz?: string }) {
   if (!curve || curve.length < 3) return null;
@@ -286,8 +266,33 @@ export default function EmbedTidesWidget({
 }) {
   const L = T[lang];
   const hasWind = !!(data.wind && data.wind.speed != null && data.wind.direction != null);
-  const [view, setView] = React.useState<"tides" | "wind">("tides");
+  const [view, setView] = React.useState<"tides" | "wind" | "weather">("tides");
   const windLabel = lang === "en" ? "Wind" : lang === "ar" ? "الريح" : "Vent";
+  const weatherLabel = lang === "en" ? "Weather" : lang === "ar" ? "الطقس" : "Météo";
+
+  // Lazy-loaded weather for the same city (reuses the Weather widget payload).
+  const [weather, setWeather] = React.useState<WeatherPayload | null>(null);
+  const [weatherError, setWeatherError] = React.useState(false);
+  React.useEffect(() => {
+    if (view !== "weather" || weather || weatherError) return;
+    let alive = true;
+    (async () => {
+      try {
+        const { data: res, error } = await supabase.functions.invoke("get-weather", {
+          body: { city: data.city_name, lang },
+        });
+        if (!alive) return;
+        if (error || !res || (res as any).error || typeof (res as any).temp !== "number") setWeatherError(true);
+        else setWeather(res as WeatherPayload);
+      } catch {
+        if (alive) setWeatherError(true);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [view, weather, weatherError, data.city_name, lang]);
+
   const tz = data.timezone;
   const trendLabel = L[data.now.trend] || L.slack;
   const trendIcon = data.now.trend === "rising" ? "▲" : data.now.trend === "falling" ? "▼" : "◆";
@@ -310,28 +315,44 @@ export default function EmbedTidesWidget({
         .td-pulse { animation: tdPulse 2.6s ease-in-out infinite }
       `}</style>
 
-      {/* TOGGLE Marées / Vent */}
-      {hasWind && (
-        <div className="flex items-center gap-1 p-1.5 bg-neutral-100 dark:bg-neutral-800">
-          {(["tides", "wind"] as const).map((v) => (
-            <button
-              key={v}
-              type="button"
-              onClick={() => setView(v)}
-              aria-pressed={view === v}
-              className={`flex-1 rounded-2xl px-3 py-1.5 text-xs font-semibold transition-colors ${
-                view === v
-                  ? "bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white shadow"
-                  : "text-neutral-500 dark:text-neutral-400"
-              }`}
-            >
-              {v === "tides" ? `🌊 ${L.tides}` : `🧭 ${windLabel}`}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* TOGGLE Marées / Vent / Météo */}
+      <div className="flex items-center gap-1 p-1.5 bg-neutral-100 dark:bg-neutral-800">
+        {(hasWind ? (["tides", "wind", "weather"] as const) : (["tides", "weather"] as const)).map((v) => (
+          <button
+            key={v}
+            type="button"
+            onClick={() => setView(v)}
+            aria-pressed={view === v}
+            className={`flex-1 rounded-2xl px-3 py-1.5 text-xs font-semibold transition-colors ${
+              view === v
+                ? "bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white shadow"
+                : "text-neutral-500 dark:text-neutral-400"
+            }`}
+          >
+            {v === "tides" ? `🌊 ${L.tides}` : v === "wind" ? `🧭 ${windLabel}` : `☀️ ${weatherLabel}`}
+          </button>
+        ))}
+      </div>
 
-      {view === "wind" && hasWind ? (
+      {view === "weather" ? (
+        weather ? (
+          <EmbedWeatherWidget data={weather} lang={lang} embedded />
+        ) : (
+          <div className="px-4 py-10 text-center text-xs text-neutral-500 dark:text-neutral-400">
+            {weatherError
+              ? lang === "en"
+                ? "Weather unavailable"
+                : lang === "ar"
+                  ? "الطقس غير متاح"
+                  : "Météo indisponible"
+              : lang === "en"
+                ? "Loading weather…"
+                : lang === "ar"
+                  ? "جار التحميل…"
+                  : "Chargement de la météo…"}
+          </div>
+        )
+      ) : view === "wind" && hasWind ? (
         <EmbedWindView
           wind={data.wind!}
           lat={data.lat}
@@ -341,6 +362,7 @@ export default function EmbedTidesWidget({
           compact={compact}
         />
       ) : (
+
       <>
       {/* HERO */}
       <div className={`relative bg-gradient-to-br ${gradient} px-6 pt-6 pb-4 text-white overflow-hidden`}>
