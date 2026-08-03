@@ -689,20 +689,12 @@ const AffiliatePresence = () => {
                       })}
                     </TabsContent>
 
-                    {/* Contact Tab */}
-                    <TabsContent value="contact">
-                      <AffiliateContactEditor
-                        phone={getCurrentValue(currentBusiness.id, "phone", currentBusiness.phone)}
-                        whatsapp={getCurrentValue(currentBusiness.id, "whatsapp", currentBusiness.whatsapp)}
-                        email={getCurrentValue(currentBusiness.id, "email", currentBusiness.email)}
-                        address={getCurrentValue(currentBusiness.id, "address", currentBusiness.address)}
-                        neighborhood={getCurrentValue(currentBusiness.id, "neighborhood", currentBusiness.neighborhood)}
-                        city={getCurrentValue(currentBusiness.id, "city", currentBusiness.city)}
-                        googleMapsUrl={getCurrentValue(currentBusiness.id, "google_maps_url", currentBusiness.links.google_maps_url)}
-                        latitude={getCurrentValue(currentBusiness.id, "latitude", currentBusiness.latitude)}
-                        longitude={getCurrentValue(currentBusiness.id, "longitude", currentBusiness.longitude)}
-                        cities={cities}
-                        neighborhoods={neighborhoods}
+                    {/* CTAs Tab */}
+                    <TabsContent value="ctas">
+                      <AffiliateCtasEditor
+                        businessName={currentBusiness.name}
+                        carouselBadge={getCurrentValue(currentBusiness.id, "carousel_badge", currentBusiness.carousel_badge) ?? ""}
+                        poiBusinessStyle={getCurrentValue(currentBusiness.id, "poi_business_style", currentBusiness.poi_business_style) ?? ""}
                         ctaUrls={CTA_URL_DEFS.map<CtaUrlItem>((d) => {
                           // website URL lives in the links map, others live at top-level
                           const originalUrl = d.urlField === "website"
@@ -718,6 +710,25 @@ const AffiliatePresence = () => {
                             forceExternal: !!getCurrentValue(currentBusiness.id, d.externalField, currentBusiness.cta[d.externalField]),
                           };
                         })}
+                        onFieldChange={(field, value) => handleFieldChange(currentBusiness.id, field, value)}
+                      />
+                    </TabsContent>
+
+                    {/* Contact Tab */}
+                    <TabsContent value="contact">
+                      <AffiliateContactEditor
+                        phone={getCurrentValue(currentBusiness.id, "phone", currentBusiness.phone)}
+                        whatsapp={getCurrentValue(currentBusiness.id, "whatsapp", currentBusiness.whatsapp)}
+                        email={getCurrentValue(currentBusiness.id, "email", currentBusiness.email)}
+                        address={getCurrentValue(currentBusiness.id, "address", currentBusiness.address)}
+                        neighborhood={getCurrentValue(currentBusiness.id, "neighborhood", currentBusiness.neighborhood)}
+                        city={getCurrentValue(currentBusiness.id, "city", currentBusiness.city)}
+                        googleMapsUrl={getCurrentValue(currentBusiness.id, "google_maps_url", currentBusiness.links.google_maps_url)}
+                        latitude={getCurrentValue(currentBusiness.id, "latitude", currentBusiness.latitude)}
+                        longitude={getCurrentValue(currentBusiness.id, "longitude", currentBusiness.longitude)}
+                        cities={cities}
+                        neighborhoods={neighborhoods}
+                        ctaUrls={[]}
                         onPhoneChange={(v) => handleFieldChange(currentBusiness.id, "phone", v)}
                         onWhatsappChange={(v) => handleFieldChange(currentBusiness.id, "whatsapp", v)}
                         onEmailChange={(v) => handleFieldChange(currentBusiness.id, "email", v)}
@@ -730,6 +741,7 @@ const AffiliatePresence = () => {
                         onCtaFieldChange={(field, value) => handleFieldChange(currentBusiness.id, field, value)}
                       />
                     </TabsContent>
+
 
                     {/* Reviews Tab */}
                     <TabsContent value="reviews">
