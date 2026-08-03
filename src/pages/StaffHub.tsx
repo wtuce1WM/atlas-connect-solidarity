@@ -212,7 +212,7 @@ const StaffHub = () => {
       title: "Diagnostic preview",
       description: "Contrôle technique : contexte iframe, edge functions, lectures base, perf et erreurs runtime.",
       icon: Stethoscope,
-      href: "/diagnostic",
+      href: "/staff/backoffice/diagnostic",
       color: "from-slate-500/20 to-zinc-500/10",
       iconColor: "text-slate-600",
       adminOnly: true,

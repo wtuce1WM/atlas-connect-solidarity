@@ -197,7 +197,7 @@ const LocalizedRoutes = () => {
               <Route path="/contact" element={renderLazyRoute(<Contact />)} />
               <Route path="/blog" element={renderLazyRoute(<Blog />)} />
               <Route path="/widgets" element={renderLazyRoute(<Widgets />)} />
-              <Route path="/diagnostic" element={renderLazyRoute(<PreviewDiagnostic />)} />
+              <Route path="/staff/backoffice/diagnostic" element={<Suspense fallback={null}><StaffRouteGuard>{renderLazyRoute(<PreviewDiagnostic />)}</StaffRouteGuard></Suspense>} />
               <Route path="/en/widgets" element={renderLazyRoute(<Widgets />)} />
               <Route path="/ar/widgets" element={renderLazyRoute(<Widgets />)} />
               
