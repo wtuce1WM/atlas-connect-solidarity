@@ -130,7 +130,7 @@ export default function EmbedTides() {
       )}
       {!loading && !error && data && (
         <div className="w-full flex justify-center">
-          <EmbedTidesWidget data={data} lang={lang} compact={compact} />
+          <EmbedTidesWidget data={data} lang={lang} compact={compact} onCityChange={setCity} />
         </div>
       )}
     </div>

@@ -7307,6 +7307,57 @@ export type Database = {
         }
         Relationships: []
       }
+      widget_alert_subscribers: {
+        Row: {
+          alert_fishing: boolean
+          alert_kitesurf: boolean
+          alert_spring_tide: boolean
+          alert_surf: boolean
+          alert_wingfoil: boolean
+          avatar_url: string | null
+          city_name: string | null
+          city_slug: string
+          created_at: string
+          email: string
+          id: string
+          lang: string
+          nickname: string | null
+          updated_at: string
+        }
+        Insert: {
+          alert_fishing?: boolean
+          alert_kitesurf?: boolean
+          alert_spring_tide?: boolean
+          alert_surf?: boolean
+          alert_wingfoil?: boolean
+          avatar_url?: string | null
+          city_name?: string | null
+          city_slug: string
+          created_at?: string
+          email: string
+          id?: string
+          lang?: string
+          nickname?: string | null
+          updated_at?: string
+        }
+        Update: {
+          alert_fishing?: boolean
+          alert_kitesurf?: boolean
+          alert_spring_tide?: boolean
+          alert_surf?: boolean
+          alert_wingfoil?: boolean
+          avatar_url?: string | null
+          city_name?: string | null
+          city_slug?: string
+          created_at?: string
+          email?: string
+          id?: string
+          lang?: string
+          nickname?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       youtube_themes: {
         Row: {
           created_at: string

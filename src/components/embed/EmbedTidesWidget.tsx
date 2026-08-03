@@ -3,6 +3,8 @@
 import React from "react";
 import EmbedWindView, { type WindPayload } from "./EmbedWindView";
 import EmbedWeatherWidget, { type WeatherPayload } from "./EmbedWeatherWidget";
+import EmbedWidgetSettings from "./EmbedWidgetSettings";
+
 import { smoothPath } from "@/lib/smoothPath";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -259,16 +261,21 @@ export default function EmbedTidesWidget({
   data,
   lang = "fr",
   compact = false,
+  onCityChange,
 }: {
   data: TidesPayload;
   lang?: Lang;
   compact?: boolean;
+  onCityChange?: (slug: string) => void;
 }) {
   const L = T[lang];
   const hasWind = !!(data.wind && data.wind.speed != null && data.wind.direction != null);
   const [view, setView] = React.useState<"tides" | "wind" | "weather">("tides");
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
   const windLabel = lang === "en" ? "Wind" : lang === "ar" ? "الريح" : "Vent";
   const weatherLabel = lang === "en" ? "Weather" : lang === "ar" ? "الطقس" : "Météo";
+  const settingsLabel = lang === "en" ? "Settings" : lang === "ar" ? "الإعدادات" : "Paramètres";
+
 
   // Lazy-loaded weather for the same city (reuses the Weather widget payload).
   const [weather, setWeather] = React.useState<WeatherPayload | null>(null);
@@ -332,9 +339,34 @@ export default function EmbedTidesWidget({
             {v === "tides" ? `🌊 ${L.tides}` : v === "wind" ? `🧭 ${windLabel}` : `☀️ ${weatherLabel}`}
           </button>
         ))}
+        <button
+          type="button"
+          onClick={() => setSettingsOpen((s) => !s)}
+          aria-pressed={settingsOpen}
+          aria-label={settingsLabel}
+          title={settingsLabel}
+          className={`shrink-0 rounded-2xl px-2.5 py-1.5 text-xs font-semibold transition-colors ${
+            settingsOpen
+              ? "bg-white dark:bg-neutral-900 text-neutral-900 dark:text-white shadow"
+              : "text-neutral-500 dark:text-neutral-400"
+          }`}
+        >
+          ⚙️
+        </button>
       </div>
 
+      {settingsOpen && (
+        <EmbedWidgetSettings
+          lang={lang}
+          citySlug={data.city_slug}
+          cityName={data.city_name}
+          onCityChange={onCityChange}
+          onClose={() => setSettingsOpen(false)}
+        />
+      )}
+
       {view === "weather" ? (
+
         weather ? (
           <EmbedWeatherWidget data={weather} lang={lang} embedded />
         ) : (
