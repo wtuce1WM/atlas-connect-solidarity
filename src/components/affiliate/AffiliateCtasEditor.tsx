@@ -89,7 +89,7 @@ const AffiliateCtasEditor = ({ businessName, ctaUrls, carouselBadge, poiBusiness
       <div className="border-t border-border pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label className="text-sm font-medium flex items-center gap-2">
-            <Tag className="h-4 w-4 text-primary" /> Badge Carrousel
+            <Tag className="h-4 w-4 text-primary" /> BIENVENUE
           </Label>
           <Select
             value={carouselBadge || "__none__"}
@@ -113,7 +113,7 @@ const AffiliateCtasEditor = ({ businessName, ctaUrls, carouselBadge, poiBusiness
 
         <div className="space-y-2">
           <Label className="text-sm font-medium flex items-center gap-2">
-            <LayoutTemplate className="h-4 w-4 text-primary" /> Style d'affichage
+            <LayoutTemplate className="h-4 w-4 text-primary" /> PROPOSITION
           </Label>
           <Select
             value={poiBusinessStyle || "aucun"}
