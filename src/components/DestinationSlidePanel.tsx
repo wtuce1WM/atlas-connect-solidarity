@@ -550,6 +550,15 @@ const DestinationSlidePanel = ({ destinationId, onClose, slideFrom = "right", in
     if (overlayOpen) pauseAndMute();
   }, [showDirections, showLocationMap, showYoutubeOverlay, fullscreenVideo, activeBusinessId]);
 
+  // Aucune barre liquid-glass du bas quand un overlay Google Map est ouvert
+  const mapOverlayOpen = showDirections || showLocationMap;
+  useEffect(() => {
+    if (!mapOverlayOpen) return;
+    document.body.dataset.mapOverlay = "1";
+    return () => { delete document.body.dataset.mapOverlay; };
+  }, [mapOverlayOpen]);
+
+
   if (isLoading) {
     return (
       <OverlayShell zClass="z-[80]" animClass={slideAnim} bg="bg-black" className="flex items-center justify-center" coverToolbar={false}>

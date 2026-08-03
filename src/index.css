@@ -1048,3 +1048,8 @@ html[dir="rtl"] body {
   margin-right: 0 !important;
   transform: none;
 }
+
+/* Aucune barre liquid-glass du bas quand un overlay Google Map est ouvert (POI, Itinéraire, Carte, Destinations) */
+body[data-map-overlay="1"] .owm-panel-searchbar {
+  display: none !important;
+}
