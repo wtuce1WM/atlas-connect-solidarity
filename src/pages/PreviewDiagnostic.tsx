@@ -168,8 +168,8 @@ export default function PreviewDiagnostic() {
     await timed("fn-weather", "Edge functions", "weather (Marrakech)", () =>
       pingFunction("weather?city=Marrakech&lang=fr"),
     );
-    await timed("fn-get-weather", "Edge functions", "get-weather (7 jours)", () =>
-      pingFunction("get-weather?city=Essaouira&days=7&lang=fr"),
+    await timed("fn-get-weather", "Edge functions", "get-weather (POST Essaouira)", () =>
+      pingFunction("get-weather", { city: "Essaouira" }),
     );
 
     // 3. Base de données (lecture anon)
