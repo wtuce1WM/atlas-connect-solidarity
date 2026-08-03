@@ -1,5 +1,7 @@
 // Immersive weather widget for /embed/ask — iOS-style hero card + 24h curve + 3-day strip.
 import React from "react";
+import { smoothPath } from "@/lib/smoothPath";
+
 
 export type WeatherHourly = {
   hour: string;
