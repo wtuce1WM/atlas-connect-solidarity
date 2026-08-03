@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Globe, MapPin, PenSquare, Star } from "lucide-react";
@@ -121,10 +121,52 @@ const PublicBusinessProfile = () => {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const { language } = useLanguage();
   const lang = (language || "fr").toLowerCase();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const params = useMemo(
+    () => new URLSearchParams(typeof window !== "undefined" ? window.location.search : ""),
+    [],
+  );
+  const bare = params.get("bare") === "1";
+  const embed = params.get("embed") === "1";
+  const hideClubCta = embed && params.get("club") === "0";
   const pickPromo = (p: Promotion, field: "title" | "promotion_message") => {
     const val = (p as any)[`${field}_${lang}`] as string | null | undefined;
     return val || (p as any)[`${field}_fr`] || (p as any)[field] || "";
   };
+
+  // Mode widget : fond transparent pour épouser le site hôte
+  useEffect(() => {
+    if (!embed) return;
+    const prevHtml = document.documentElement.style.background;
+    const prevBody = document.body.style.background;
+    document.documentElement.style.background = "transparent";
+    document.body.style.background = "transparent";
+    return () => {
+      document.documentElement.style.background = prevHtml;
+      document.body.style.background = prevBody;
+    };
+  }, [embed]);
+
+  // Mode widget : remonte la hauteur réelle au site hôte pour auto-resize de l'iframe
+  useEffect(() => {
+    if (!embed) return;
+    const el = rootRef.current;
+    if (!el) return;
+    const post = () =>
+      window.parent?.postMessage(
+        { type: "owm-fiche-height", height: Math.ceil(el.getBoundingClientRect().height) },
+        "*",
+      );
+    post();
+    const ro = new ResizeObserver(post);
+    ro.observe(el);
+    const timers = [300, 900, 1600, 2600].map((ms) => window.setTimeout(post, ms));
+    return () => {
+      ro.disconnect();
+      timers.forEach((t) => window.clearTimeout(t));
+    };
+  }, [embed, business, promotions, descExpanded]);
+
 
   useEffect(() => {
     let cancelled = false;
@@ -167,7 +209,12 @@ const PublicBusinessProfile = () => {
   });
 
   if (loading) {
-    return <div className="min-h-screen" style={{ backgroundColor: "#ECD6B8" }} />;
+    return (
+      <div
+        className={embed ? "w-full" : "min-h-screen"}
+        style={{ backgroundColor: embed ? "transparent" : "#ECD6B8", minHeight: embed ? 320 : undefined }}
+      />
+    );
   }
   if (!business) return <NotFound />;
 
@@ -192,13 +239,19 @@ const PublicBusinessProfile = () => {
     });
   }
 
-  const bare = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("bare") === "1";
-
   return (
     <div
-      className={bare ? "min-h-screen w-full flex items-stretch justify-center" : "min-h-screen w-full flex items-center justify-center py-6 px-3 sm:py-10"}
-      style={{ backgroundColor: bare ? "#000000" : "#ECD6B8" }}
+      ref={rootRef}
+      className={
+        embed
+          ? "w-full flex items-start justify-center"
+          : bare
+            ? "min-h-screen w-full flex items-stretch justify-center"
+            : "min-h-screen w-full flex items-center justify-center py-6 px-3 sm:py-10"
+      }
+      style={{ backgroundColor: embed ? "transparent" : bare ? "#000000" : "#ECD6B8" }}
     >
+
       <style>{`
         @keyframes b-rise {
           from { opacity: 0; transform: translateY(34px); }
@@ -273,7 +326,7 @@ const PublicBusinessProfile = () => {
           z-index: 10;
         }
       `}</style>
-      <div className={`relative w-full ${bare ? "max-w-none rounded-none min-h-screen" : "max-w-[420px] rounded-[2.5rem] min-h-[85vh] shadow-2xl ring-1 ring-white/10"} bg-gradient-to-b from-neutral-900 via-neutral-900 to-black text-neutral-100 overflow-hidden`}>
+      <div className={`relative w-full ${embed ? "max-w-none rounded-[1.5rem] ring-1 ring-white/10" : bare ? "max-w-none rounded-none min-h-screen" : "max-w-[420px] rounded-[2.5rem] min-h-[85vh] shadow-2xl ring-1 ring-white/10"} bg-gradient-to-b from-neutral-900 via-neutral-900 to-black text-neutral-100 overflow-hidden`}>
         <div className="absolute top-4 right-4 z-10">
           <ShareButton
             variant="dark"
@@ -535,16 +588,20 @@ const PublicBusinessProfile = () => {
             })()}
           </div>
 
-          <a
-            href={withLangPrefix("/club", language)}
-            className="b-rise-item mt-8 inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-extrabold shadow-lg transition-all text-neutral-900 border border-neutral-900/10 hover:opacity-90 active:scale-95"
-            style={{ 
-              backgroundColor: "#ECD6B8",
-              animationDelay: `${0.66 + (links.length + 3) * 0.08}s`
-            }}
-          >
-            Un compte One World Morocco ?
-          </a>
+          {!hideClubCta && (
+            <a
+              href={withLangPrefix("/club", language)}
+              target={embed ? "_blank" : undefined}
+              rel={embed ? "noopener noreferrer" : undefined}
+              className="b-rise-item mt-8 inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-full text-xs font-extrabold shadow-lg transition-all text-neutral-900 border border-neutral-900/10 hover:opacity-90 active:scale-95"
+              style={{ 
+                backgroundColor: "#ECD6B8",
+                animationDelay: `${0.66 + (links.length + 3) * 0.08}s`
+              }}
+            >
+              Un compte One World Morocco ?
+            </a>
+          )}
 
         </div>
       </div>
