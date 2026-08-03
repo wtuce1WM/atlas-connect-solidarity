@@ -607,6 +607,29 @@ const EmbedAsk = () => {
     return () => { cancelled = true; };
   }, []);
 
+  // Préférences Agent IA de l'établissement (onglet Agent IA côté affilié).
+  useEffect(() => {
+    if (!businessId) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("business_embed_ai_prefs")
+        .select("enabled_suggestion_ids,enabled_followup_ids")
+        .eq("business_id", businessId)
+        .maybeSingle();
+      if (cancelled || !data) return;
+      setAgentPrefs({
+        sugg: Array.isArray(data.enabled_suggestion_ids) && data.enabled_suggestion_ids.length > 0
+          ? data.enabled_suggestion_ids
+          : null,
+        fu: Array.isArray(data.enabled_followup_ids) ? data.enabled_followup_ids : null,
+      });
+    })();
+    return () => { cancelled = true; };
+  }, [businessId]);
+
+
+
   // Load blog articles: owner articles first (anchor = this business), then unassigned, both newest first.
   useEffect(() => {
     if (!businessId) return;
