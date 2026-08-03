@@ -64,11 +64,13 @@ const Blog = () => {
       const [postsRes, feedsRes] = await Promise.all([
         supabase
           .from("blog_posts")
-          .select("id, title_fr, title_en, title_ar, slug, excerpt_fr, excerpt_en, excerpt_ar, cover_image_url, custom_hero_image_url, author_name, published_at, created_at, is_pinned")
+          .select("id, title_fr, title_en, title_ar, slug, excerpt_fr, excerpt_en, excerpt_ar, cover_image_url, custom_hero_image_url, author_name, published_at, created_at, is_pinned, sort_order")
           .eq("is_published", true)
           .order("is_pinned", { ascending: false })
+          .order("sort_order", { ascending: false, nullsFirst: false })
           .order("published_at", { ascending: false, nullsFirst: false })
           .order("created_at", { ascending: false }),
+
         supabase
           .from("video_feed_pages")
           .select("id, slug, hero_title_bottom_fr, hero_title_bottom_en, hero_title_bottom_ar, hero_subtitle_fr, hero_subtitle_en, hero_subtitle_ar, cover_image_url, custom_hero_image_url, published_at, created_at")
