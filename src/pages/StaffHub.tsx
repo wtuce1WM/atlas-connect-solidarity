@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, BookOpen, Users, Shield, Star, Sparkles, Briefcase, Building2, BadgeCheck, MapPin, LayoutGrid, Save, StickyNote, Presentation, Newspaper } from "lucide-react";
+import { LogOut, BookOpen, Users, Shield, Star, Sparkles, Briefcase, Building2, BadgeCheck, MapPin, LayoutGrid, Save, StickyNote, Presentation, Newspaper, Blocks, Stethoscope } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import RichTextEditor from "@/components/staff/RichTextEditor";
 import { toast } from "sonner";
@@ -198,7 +198,27 @@ const StaffHub = () => {
       iconColor: "text-rose-600",
       adminOnly: true,
     },
+    {
+
+      title: "Widgets",
+      description: "Widgets embarquables (Météo, Marées & Vents, Avis, IA, Carte) et diagnostic du preview.",
+      icon: Blocks,
+      href: "/widgets",
+      color: "from-sky-500/20 to-indigo-500/10",
+      iconColor: "text-sky-600",
+      adminOnly: true,
+    },
+    {
+      title: "Diagnostic preview",
+      description: "Contrôle technique : contexte iframe, edge functions, lectures base, perf et erreurs runtime.",
+      icon: Stethoscope,
+      href: "/diagnostic",
+      color: "from-slate-500/20 to-zinc-500/10",
+      iconColor: "text-slate-600",
+      adminOnly: true,
+    },
   ];
+
 
   const sections = allSections.filter((s) => !s.adminOnly || isAdmin);
 
