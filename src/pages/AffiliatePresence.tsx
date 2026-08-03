@@ -171,7 +171,7 @@ const AffiliatePresence = () => {
       "address", "neighborhood", "latitude", "longitude", "opening_hours",
       "show_opening_hours", "closure_message", "vacation_dates",
       "hook_fr", "hook_en", "hook_ar", "description", "description_fr", "description_en", "description_ar",
-      "is_active",
+      "is_active", "carousel_badge", "poi_business_style",
       ...PLATFORMS.map(p => p.key),
       ...CTA_EXTRA_FIELDS,
       ...REVIEW_FIELDS].join(",");
