@@ -62,6 +62,46 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const [tidesCity, setTidesCity] = useState<string>("Essaouira");
   const [tidesLang, setTidesLang] = useState<"fr" | "en" | "ar">("fr");
 
+  // Rayon de proximité (businesses.poi_radius_km)
+  const [radiusKm, setRadiusKm] = useState<number>(10);
+  const [radiusLoading, setRadiusLoading] = useState<boolean>(true);
+  const [radiusSaving, setRadiusSaving] = useState<boolean>(false);
+  const [radiusSaved, setRadiusSaved] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!businessId) { setRadiusLoading(false); return; }
+    let cancelled = false;
+    (async () => {
+      setRadiusLoading(true);
+      const { data } = await (supabase as any)
+        .from("businesses")
+        .select("poi_radius_km")
+        .eq("id", businessId)
+        .maybeSingle();
+      if (cancelled) return;
+      const v = Number((data as any)?.poi_radius_km);
+      setRadiusKm(v > 0 ? v : 10);
+      setRadiusLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [businessId]);
+
+  const saveRadius = async (v: string) => {
+    const num = parseFloat(v);
+    setRadiusKm(num);
+    if (!businessId) return;
+    setRadiusSaving(true);
+    const { error } = await (supabase as any)
+      .from("businesses")
+      .update({ poi_radius_km: num })
+      .eq("id", businessId);
+    setRadiusSaving(false);
+    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    setRadiusSaved(true);
+  };
+
+
+
   if (!slug) {
     return (
       <div className="text-sm text-white/70">
