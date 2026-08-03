@@ -49,6 +49,21 @@ function slugify(input: string) {
     .slice(0, 90);
 }
 
+/**
+ * Convertit une image de storage en URL de rendu optimisée : webp, qualité 60%, 1600px.
+ * Utilisée pour Hero, miniature et OG des articles générés.
+ */
+function toOptimizedWebp(url: string | null | undefined): string | null {
+  if (!url || typeof url !== 'string') return null;
+  if (url.includes('/storage/v1/render/image/public/')) return url;
+  if (url.includes('/storage/v1/object/public/')) {
+    const base = url.split('?')[0].replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
+    return `${base}?width=1600&quality=60&format=origin`;
+  }
+  return url;
+}
+
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
