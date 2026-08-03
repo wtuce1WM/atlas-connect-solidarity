@@ -905,10 +905,11 @@ const Widgets = () => {
               ]}
               previewUrl={toPreview(weatherUrl)}
               autoHeight
-              previewHeight={320}
+              previewHeight={420}
               previewMaxWidth={420}
 
-              snippet={`<iframe src="${weatherUrl}" style="width:100%;max-width:420px;height:320px;border:0;border-radius:20px" title="Météo Marrakech" loading="lazy"></iframe>`}
+              snippet={`<iframe src="${weatherUrl}" style="width:100%;max-width:420px;height:420px;border:0;border-radius:20px" title="Météo Marrakech" loading="lazy"></iframe>`}
+
             />
 
             <TidesWidgetSection index={2} />
