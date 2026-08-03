@@ -337,6 +337,27 @@ const BlogManagement = ({
                         </span>
                       )}
                     </div>
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                      <span className="text-xs text-muted-foreground mr-1">Ville :</span>
+                      {CITY_OPTIONS.map((opt) => {
+                        const active = (post.city_scope ?? null) === opt.value;
+                        return (
+                          <Button
+                            key={opt.label}
+                            type="button"
+                            size="sm"
+                            variant={active ? "default" : "outline"}
+                            className="h-7 text-[11px]"
+                            disabled={isUpdating}
+                            onClick={() => updatePost(post, { city_scope: opt.value })}
+                          >
+                            <MapPin className="h-3 w-3 mr-1" />
+                            {opt.label}
+                          </Button>
+                        );
+                      })}
+                    </div>
+
 
                     <div className="flex flex-wrap items-center gap-2 pt-1">
                       <Badge
