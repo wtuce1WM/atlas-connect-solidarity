@@ -486,16 +486,16 @@ const AffiliatePresence = () => {
         </div>
 
         <Dialog open={!!pendingBusinessId} onOpenChange={(o) => { if (!o) setPendingBusinessId(null); }}>
-          <DialogContent className="bg-card border-border text-foreground sm:max-w-xl">
+          <DialogContent className="bg-card border-border text-foreground sm:max-w-2xl">
             <DialogHeader>
               <DialogTitle>Modifications non enregistrées</DialogTitle>
               <DialogDescription className="text-muted-foreground">
                 Vous avez des modifications non enregistrées sur{" "}
-                <span className="text-white font-medium">{currentBusiness?.name}</span>. Voulez-vous les
-                enregistrer avant de changer d'établissement ?
+                <span className="text-foreground font-medium">{currentBusiness?.name}</span>. Voulez-vous
+                les enregistrer avant de changer d'établissement ?
               </DialogDescription>
             </DialogHeader>
-            <DialogFooter className="gap-2 flex-wrap">
+            <DialogFooter className="flex-wrap">
               <Button variant="ghost" onClick={() => setPendingBusinessId(null)}>Annuler</Button>
               <Button variant="outline" onClick={discardAndSwitch}>Ne pas enregistrer</Button>
               <Button onClick={saveAndSwitch} disabled={savingId === selectedBusiness}>
