@@ -486,7 +486,7 @@ const AffiliatePresence = () => {
         </div>
 
         <Dialog open={!!pendingBusinessId} onOpenChange={(o) => { if (!o) setPendingBusinessId(null); }}>
-          <DialogContent className="bg-card border-border text-foreground sm:max-w-lg">
+          <DialogContent className="bg-card border-border text-foreground sm:max-w-xl">
             <DialogHeader>
               <DialogTitle>Modifications non enregistrées</DialogTitle>
               <DialogDescription className="text-muted-foreground">
