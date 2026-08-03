@@ -212,19 +212,27 @@ Deno.serve(async (req) => {
     const systemPrompt = `Tu rédiges des contenus éditoriaux pour One World Morocco, plateforme de découverte du Maroc.
 ${MODE_BRIEFS[mode]}
 Règles absolues :
-- N'invente RIEN : uniquement ce qui est présent dans les sources fournies.
+- N'invente RIEN : uniquement ce qui est présent dans les sources et les données de la fiche fournies.
 - Ne mentionne jamais de prix, tarif, budget ou "moins cher".
 - Français naturel et immersif, pas de markdown, pas de listes à puces, pas de guillemets superflus.
 - Réponds STRICTEMENT en JSON : {"title": string, "hook": string, "content": string}
 - title ≤ 70 caractères, hook ≤ 120 caractères.
-- LONGUEUR IMPÉRATIVE du champ content : version ${len.label}, entre ${len.min} et ${len.max} caractères (${len.paragraphs} séparés par un saut de ligne). Ne descends jamais sous ${len.min} caractères et ne dépasse jamais ${Math.min(len.max, MAX_CONTENT)} caractères. Compte les caractères avant de répondre.`;
+- LONGUEUR IMPÉRATIVE du champ content : version ${len.label}, entre ${len.min} et ${len.max} caractères (${len.paragraphs} séparés par un saut de ligne). Ne descends jamais sous ${len.min} caractères et ne dépasse jamais ${Math.min(len.max, MAX_CONTENT - 100)} caractères.
+- Le texte doit IMPÉRATIVEMENT se terminer par une phrase complète et ponctuée. Si tu approches la limite, conclus la phrase en cours au lieu de la couper.${
+      extra
+        ? `
+CONSIGNE PRIORITAIRE DE L'ÉTABLISSEMENT (à respecter avant tout choix éditorial) : « ${extra} ».
+Structure le texte autour de cette consigne : elle doit être traitée explicitement et occuper une place visible (dès le titre/l'accroche si pertinent), en t'appuyant sur les DONNÉES DE LA FICHE et les SOURCES. Si l'information demandée est absente des données fournies, dis-le sobrement dans le texte plutôt que de l'inventer, et traite l'angle le plus proche disponible.`
+        : ""
+    }`;
 
     const userPrompt = [
       `Établissement : ${biz.name}`,
       `Ville / quartier : ${[biz.city, biz.neighborhood].filter(Boolean).join(" — ") || "—"}`,
       `Accroche actuelle : ${plain(biz.hook_fr) || "—"}`,
       `Description actuelle : ${plain(biz.description).slice(0, 800) || "—"}`,
-      extra ? `Consigne complémentaire de l'établissement : ${extra}` : "",
+      extra ? `Consigne complémentaire de l'établissement (PRIORITAIRE) : ${extra}` : "",
+      factsBlock ? `\nDONNÉES DE LA FICHE :\n${factsBlock}` : "",
       "",
       `SOURCES (${sourceLabel}) :`,
       sourceBlock,
