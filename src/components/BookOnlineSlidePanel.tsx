@@ -406,7 +406,7 @@ const BookOnlineSlidePanelInner = ({
   const [poiProximityKm, setPoiProximityKm] = useState<number | null>(null);
   const poiProximityInitRef = useRef<string | null>(null);
   const [poiCatFilter, setPoiCatFilter] = useState<string | null>(null);
-  const [poiMapTypeId, setPoiMapTypeId] = useState<"roadmap" | "satellite" | "terrain">("roadmap");
+  const [poiMapTypeId, setPoiMapTypeId] = useState<"roadmap" | "satellite" | "terrain">("terrain");
   // Rayon par défaut du Pill "À proximité" = champ Rayon de l'établissement (10 km par défaut)
   useEffect(() => {
     const bid = (business as any)?.id;
@@ -3136,19 +3136,17 @@ const BookOnlineSlidePanelInner = ({
                   </button>
                   <button
                     type="button"
+                    onClick={() => setPoiMapTypeId("terrain")}
+                    className={`px-3 py-1 rounded-full transition-colors ${poiMapTypeId === "terrain" ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                  >
+                    {language === "en" ? "Terrain" : language === "ar" ? "تضاريس" : "Relief"}
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setPoiMapTypeId("satellite")}
                     className={`px-3 py-1 rounded-full transition-colors ${poiMapTypeId === "satellite" ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                   >
                     {language === "en" ? "Satellite" : language === "ar" ? "قمر صناعي" : "Satellite"}
-                  </button>
-                </div>
-                <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                  <button
-                    type="button"
-                    onClick={() => setPoiMapTypeId(poiMapTypeId === "terrain" ? "roadmap" : "terrain")}
-                    className={`px-3 py-1 rounded-full transition-colors ${poiMapTypeId === "terrain" ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
-                  >
-                    {language === "en" ? "Terrain" : language === "ar" ? "تضاريس" : "Relief"}
                   </button>
                 </div>
 
