@@ -68,11 +68,16 @@ export default function EmbedWeather() {
     post();
     const t = window.setTimeout(post, 300);
     window.addEventListener("resize", post);
+    const el = rootRef.current;
+    const ro = el ? new ResizeObserver(post) : null;
+    if (el && ro) ro.observe(el);
     return () => {
       window.clearTimeout(t);
       window.removeEventListener("resize", post);
+      ro?.disconnect();
     };
   }, [data, loading, error]);
+
 
   return (
     <div ref={rootRef} className="w-full min-h-0 p-2 flex items-start justify-center bg-transparent">
