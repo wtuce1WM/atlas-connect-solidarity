@@ -418,6 +418,9 @@ const BookOnlineSlidePanelInner = ({
 
   const [poiCategoryBusinesses, setPoiCategoryBusinesses] = useState<PoiBusiness[]>([]);
   const [poiCategoryBusinessCatId, setPoiCategoryBusinessCatId] = useState<string | null>(null);
+  // Vivier ville complet (toutes catégories) : sert au calcul des compteurs
+  // catégories / sous-catégories dans le rayon du Pill "À proximité".
+  const [poiCityBusinesses, setPoiCityBusinesses] = useState<PoiBusiness[]>([]);
   const poiOpenedFromMapRef = useRef(false);
   // Embed: auto-open the "À proximité" overlay once the business is resolved.
   const autoPoiOpenedRef = useRef(false);
