@@ -3190,7 +3190,70 @@ const BookOnlineSlidePanelInner = ({
               mapTheme={mapTheme}
               userLocation={userCoords ? { lat: userCoords.lat, lng: userCoords.lng } : null}
             />
-
+            <div className="absolute bottom-4 left-3 right-3 z-[10] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
+              {showProxPill && (
+                <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        type="button"
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiProximityKm != null ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                      >
+                        <Navigation className="h-3.5 w-3.5" />
+                        {activeProx ? activeProx.label : (language === "en" ? "Nearby" : language === "ar" ? "بالقرب" : "À proximité")}
+                        {poiProximityKm != null && (
+                          <span className="ml-0.5 opacity-70">{afterProx.length}</span>
+                        )}
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="z-[260]">
+                      {poiProximityKm != null && (
+                        <DropdownMenuItem onSelect={() => setPoiProximityKm(null)}>
+                          {language === "en" ? "All distances" : language === "ar" ? "جميع المسافات" : "Toutes distances"}
+                        </DropdownMenuItem>
+                      )}
+                      {proxOpts.map((o) => {
+                        const count = proxCountsByKm[o.km] ?? 0;
+                        const disabled = count === 0;
+                        return (
+                          <DropdownMenuItem
+                            key={o.km}
+                            disabled={disabled}
+                            onSelect={(e) => { if (disabled) { e.preventDefault(); return; } setPoiProximityKm(o.km); }}
+                            className={disabled ? "opacity-40 pointer-events-none" : ""}
+                          >
+                            {o.label} <span className="ml-1 opacity-60">({count})</span>
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              )}
+              <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                <button
+                  type="button"
+                  onClick={() => setPoiMapTypeId("roadmap")}
+                  className={`px-3 py-1 rounded-full transition-colors ${poiMapTypeId === "roadmap" ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                >
+                  {language === "en" ? "Map" : language === "ar" ? "خريطة" : "Plan"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPoiMapTypeId("terrain")}
+                  className={`px-3 py-1 rounded-full transition-colors ${poiMapTypeId === "terrain" ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                >
+                  {language === "en" ? "Terrain" : language === "ar" ? "تضاريس" : "Relief"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPoiMapTypeId("satellite")}
+                  className={`px-3 py-1 rounded-full transition-colors ${poiMapTypeId === "satellite" ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                >
+                  {language === "en" ? "Satellite" : language === "ar" ? "قمر صناعي" : "Satellite"}
+                </button>
+              </div>
+            </div>
           </div>
         </OverlayShell>
         );
