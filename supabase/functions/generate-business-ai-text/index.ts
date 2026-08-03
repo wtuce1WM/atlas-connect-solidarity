@@ -30,10 +30,12 @@ const PLATFORM_URL_KEYS = [
 ] as const;
 
 const LENGTH_SPECS: Record<string, { min: number; max: number; label: string; paragraphs: string }> = {
-  very_short: { min: 320, max: 480, label: "très courte", paragraphs: "1 à 2 paragraphes" },
-  short: { min: 700, max: 900, label: "courte", paragraphs: "2 à 3 paragraphes" },
-  medium: { min: 1200, max: 1400, label: "moyenne", paragraphs: "3 à 4 paragraphes" },
-  long: { min: 1750, max: 2000, label: "longue", paragraphs: "4 à 6 paragraphes" },
+  very_short: { min: 320, max: 460, label: "très courte", paragraphs: "1 à 2 paragraphes" },
+  short: { min: 700, max: 880, label: "courte", paragraphs: "2 à 3 paragraphes" },
+  medium: { min: 1200, max: 1380, label: "moyenne", paragraphs: "3 à 4 paragraphes" },
+  // max volontairement < MAX_CONTENT (2000) pour laisser une marge : sans ça,
+  // le modèle vise pile la limite et la coupe dure tronquait la dernière phrase.
+  long: { min: 1600, max: 1850, label: "longue", paragraphs: "4 à 6 paragraphes" },
 };
 
 const MODE_BRIEFS: Record<string, string> = {
@@ -110,7 +112,7 @@ Deno.serve(async (req) => {
     const { data: biz } = await supabase
       .from("businesses")
       .select(
-        `name, city, neighborhood, hook_fr, description, website, ${PLATFORM_URL_KEYS.map(([k]) => k).join(", ")}`,
+        `name, city, neighborhood, hook_fr, description, website, opening_hours, show_opening_hours, is_open_24h, vacation_dates, ${PLATFORM_URL_KEYS.map(([k]) => k).join(", ")}`,
       )
       .eq("id", businessId)
       .maybeSingle();
@@ -125,8 +127,28 @@ Deno.serve(async (req) => {
     const plain = (s: string | null | undefined) =>
       String(s ?? "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 
+    // Contexte factuel de la fiche : sans ça, une consigne complémentaire du type
+    // « mets en avant les horaires » ne pouvait pas être suivie, la règle
+    // « n'invente rien » interdisant au modèle de parler d'une donnée absente.
+    const factsBlock = (() => {
+      const lines: string[] = [];
+      const oh = (biz as any).opening_hours;
+      if ((biz as any).is_open_24h) lines.push("Ouvert 24h/24.");
+      if (oh) {
+        const txt = typeof oh === "string" ? oh : JSON.stringify(oh);
+        if (txt && txt !== "{}" && txt !== "[]") lines.push(`Horaires d'ouverture : ${txt.slice(0, 900)}`);
+      }
+      const vac = (biz as any).vacation_dates;
+      if (vac) {
+        const txt = typeof vac === "string" ? vac : JSON.stringify(vac);
+        if (txt && txt !== "{}" && txt !== "[]") lines.push(`Périodes de fermeture : ${txt.slice(0, 400)}`);
+      }
+      return lines.join("\n");
+    })();
+
     let sourceBlock = "";
     let sourceLabel = "";
+
 
     if (mode === "reviews_suggestions" || mode === "reviews_pros_cons") {
       const { data: reviews } = await supabase
@@ -190,19 +212,27 @@ Deno.serve(async (req) => {
     const systemPrompt = `Tu rédiges des contenus éditoriaux pour One World Morocco, plateforme de découverte du Maroc.
 ${MODE_BRIEFS[mode]}
 Règles absolues :
-- N'invente RIEN : uniquement ce qui est présent dans les sources fournies.
+- N'invente RIEN : uniquement ce qui est présent dans les sources et les données de la fiche fournies.
 - Ne mentionne jamais de prix, tarif, budget ou "moins cher".
 - Français naturel et immersif, pas de markdown, pas de listes à puces, pas de guillemets superflus.
 - Réponds STRICTEMENT en JSON : {"title": string, "hook": string, "content": string}
 - title ≤ 70 caractères, hook ≤ 120 caractères.
-- LONGUEUR IMPÉRATIVE du champ content : version ${len.label}, entre ${len.min} et ${len.max} caractères (${len.paragraphs} séparés par un saut de ligne). Ne descends jamais sous ${len.min} caractères et ne dépasse jamais ${Math.min(len.max, MAX_CONTENT)} caractères. Compte les caractères avant de répondre.`;
+- LONGUEUR IMPÉRATIVE du champ content : version ${len.label}, entre ${len.min} et ${len.max} caractères (${len.paragraphs} séparés par un saut de ligne). Ne descends jamais sous ${len.min} caractères et ne dépasse jamais ${Math.min(len.max, MAX_CONTENT - 100)} caractères.
+- Le texte doit IMPÉRATIVEMENT se terminer par une phrase complète et ponctuée. Si tu approches la limite, conclus la phrase en cours au lieu de la couper.${
+      extra
+        ? `
+CONSIGNE PRIORITAIRE DE L'ÉTABLISSEMENT (à respecter avant tout choix éditorial) : « ${extra} ».
+Structure le texte autour de cette consigne : elle doit être traitée explicitement et occuper une place visible (dès le titre/l'accroche si pertinent), en t'appuyant sur les DONNÉES DE LA FICHE et les SOURCES. Si l'information demandée est absente des données fournies, dis-le sobrement dans le texte plutôt que de l'inventer, et traite l'angle le plus proche disponible.`
+        : ""
+    }`;
 
     const userPrompt = [
       `Établissement : ${biz.name}`,
       `Ville / quartier : ${[biz.city, biz.neighborhood].filter(Boolean).join(" — ") || "—"}`,
       `Accroche actuelle : ${plain(biz.hook_fr) || "—"}`,
       `Description actuelle : ${plain(biz.description).slice(0, 800) || "—"}`,
-      extra ? `Consigne complémentaire de l'établissement : ${extra}` : "",
+      extra ? `Consigne complémentaire de l'établissement (PRIORITAIRE) : ${extra}` : "",
+      factsBlock ? `\nDONNÉES DE LA FICHE :\n${factsBlock}` : "",
       "",
       `SOURCES (${sourceLabel}) :`,
       sourceBlock,
@@ -266,11 +296,23 @@ Règles absolues :
     const clean = (s: unknown, max: number) =>
       String(s ?? "").replace(/^["'\s]+|["'\s]+$/g, "").slice(0, max);
 
+    // Coupe uniquement sur une fin de phrase : évite les textes tronqués en
+    // plein mot quand le modèle dépasse la limite de caractères.
+    const cleanSentences = (s: unknown, max: number) => {
+      const txt = String(s ?? "").replace(/^["'\s]+|["'\s]+$/g, "");
+      if (txt.length <= max) return txt;
+      const cut = txt.slice(0, max);
+      const lastEnd = Math.max(cut.lastIndexOf("."), cut.lastIndexOf("!"), cut.lastIndexOf("?"), cut.lastIndexOf("…"));
+      if (lastEnd > max * 0.55) return cut.slice(0, lastEnd + 1).trim();
+      const lastSpace = cut.lastIndexOf(" ");
+      return (lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trim() + ".";
+    };
+
     return new Response(
       JSON.stringify({
         title: clean(parsed.title, 70),
         hook: clean(parsed.hook, 120),
-        content: clean(parsed.content, MAX_CONTENT),
+        content: cleanSentences(parsed.content, MAX_CONTENT),
         mode,
         source_label: sourceLabel,
         length: lengthKey,
