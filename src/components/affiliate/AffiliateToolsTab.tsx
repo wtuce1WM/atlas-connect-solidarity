@@ -60,6 +60,8 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const [weatherCity, setWeatherCity] = useState<string>("Marrakech");
   const [weatherLang, setWeatherLang] = useState<"fr" | "en" | "ar">("fr");
   const [tidesCity, setTidesCity] = useState<string>("Essaouira");
+  const [ficheMaxWidth, setFicheMaxWidth] = useState<number>(480);
+  const [ficheShowClub, setFicheShowClub] = useState<boolean>(true);
   const [tidesLang, setTidesLang] = useState<"fr" | "en" | "ar">("fr");
 
   // Rayon de proximité (businesses.poi_radius_km)
