@@ -23,6 +23,8 @@ export default function EmbedWeather() {
   const lang: Lang = langParam === "en" || langParam === "ar" ? (langParam as Lang) : "fr";
   const L = MESSAGES[lang];
   const { fullWidth, fullHeight } = fitFlags(parseFit(params.get("fit")));
+  const zoom = sizeZoom(parseSize(params.get("size")));
+
 
   const [data, setData] = useState<WeatherPayload | null>(null);
   const [error, setError] = useState(false);
