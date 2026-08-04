@@ -383,6 +383,15 @@ export default function StudioVideo() {
   const [tone, setTone] = useState("immersif");
   // Langue du montage vidéo — indépendante de la langue du header du front.
   const [videoLang, setVideoLang] = useState<"fr" | "en">("fr");
+  // Format de sortie de la vidéo (canvas Remotion). 720×1280 par défaut.
+  const VIDEO_FORMATS = [
+    { value: "portrait" as const, label: "Vertical 720×1280", w: 720, h: 1280 },
+    { value: "landscape" as const, label: "Horizontal 1920×1080", w: 1920, h: 1080 },
+    { value: "square" as const, label: "Carré 1080×1080", w: 1080, h: 1080 },
+  ];
+  const [videoFormat, setVideoFormat] = useState<"portrait" | "landscape" | "square">("portrait");
+  const videoCanvas = VIDEO_FORMATS.find((f) => f.value === videoFormat) ?? VIDEO_FORMATS[0];
+
   const [poiOptions, setPoiOptions] = useState<PlaceOption[]>([]);
   const [destOptions, setDestOptions] = useState<PlaceOption[]>([]);
   const [blogPosts, setBlogPosts] = useState<{ id: string; slug: string; title: string; cover: string | null }[]>([]);
