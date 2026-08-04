@@ -61,7 +61,6 @@ type KpGroup = {
   members: KpMember[];
 };
 
-const DEFAULT_BG = "#EFE6D8";
 const MAP_TYPES = [
   { id: "roadmap" as const, label: "Plan" },
   { id: "terrain" as const, label: "Relief" },
