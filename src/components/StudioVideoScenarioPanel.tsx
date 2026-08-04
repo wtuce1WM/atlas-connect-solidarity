@@ -26,7 +26,7 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export type SceneMediaKind = "logo" | "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro" | "ai_summary" | "external_link" | "menu_doc";
+export type SceneMediaKind = "logo" | "welcome" | "proposition" | "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro" | "ai_summary" | "external_link" | "menu_doc";
 
 export type SceneMediaItem = {
   url: string;
@@ -38,7 +38,7 @@ export type SceneMediaItem = {
 
 export type SceneMediaMap = Partial<Record<SceneMediaKind, SceneMediaItem[]>>;
 
-export const SCENE_KINDS_WITH_MEDIA: SceneMediaKind[] = ["logo", "hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro", "ai_summary", "external_link", "menu_doc"];
+export const SCENE_KINDS_WITH_MEDIA: SceneMediaKind[] = ["logo", "welcome", "proposition", "hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro", "ai_summary", "external_link", "menu_doc"];
 
 
 export type Scene = {
@@ -420,7 +420,7 @@ function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenar
 
 
 function sceneKindFor(icon: Scene["icon"]): SceneMediaKind | null {
-  if (icon === "custom" || icon === "popup" || icon === "highlight" || icon === "blog" || icon === "welcome" || icon === "proposition") return null;
+  if (icon === "custom" || icon === "popup" || icon === "highlight" || icon === "blog") return null;
   return icon as SceneMediaKind;
 }
 
