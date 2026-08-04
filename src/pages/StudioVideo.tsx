@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
+import { WEATHER_CITY_OPTIONS, TIDES_CITY_OPTIONS } from "@/lib/videoWidgetCities";
 import { isInternalVideoUrl } from "@/lib/videoSourceFilter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -476,6 +477,14 @@ export default function StudioVideo() {
   // Effet de mouvement propre à chaque bloc highlight / résumé IA (clé = id)
   const [highlightEffects, setHighlightEffects] = useState<Record<string, string>>({});
   const [aiSummaryEffects, setAiSummaryEffects] = useState<Record<string, string>>({});
+
+  // Widgets embarqués dans la vidéo (Météo / Marées, Vents & Météo)
+  const [optWeatherWidget, setOptWeatherWidget] = useState(false);
+  const [weatherRange, setWeatherRange] = useState<1 | 3 | 7>(1);
+  const [weatherCity, setWeatherCity] = useState<string>("marrakech");
+  const [optTidesWidget, setOptTidesWidget] = useState(false);
+  const [tidesMode, setTidesMode] = useState<"all" | "tides" | "wind" | "weather">("all");
+  const [tidesCity, setTidesCity] = useState<string>("essaouira");
 
   // Liens externes (business_documents type external_link) — libellé = description (Media, Partenaires…)
   const [externalLinksList, setExternalLinksList] = useState<Array<{ id: string; name: string; label: string; url: string; image: string | null }>>([]);
@@ -1569,6 +1578,13 @@ export default function StudioVideo() {
             ai_summary_effect: aiSummaryEffect,
             ai_summary_effects: Object.fromEntries(Array.from(selectedAiSummaryIds).map((id) => [id, aiSummaryEffects[id] || aiSummaryEffect])),
 
+            weather_widget: optWeatherWidget,
+            weather_range: weatherRange,
+            weather_city: (scenarioEdits as any)?.weatherCity || weatherCity,
+            tides_widget: optTidesWidget,
+            tides_mode: tidesMode,
+            tides_city: (scenarioEdits as any)?.tidesCity || tidesCity,
+
             external_link_ids: Array.from(selectedExternalLinkIds),
             menu_doc_ids: Array.from(selectedMenuDocIds),
             selected_images: chosenImages,
@@ -1724,6 +1740,8 @@ export default function StudioVideo() {
       aiSummaryEffect,
       highlightEffects: Array.from(selectedHighlightIds).sort().map((id) => `${id}:${highlightEffects[id] || "-"}`).join(","),
       aiSummaryEffects: Array.from(selectedAiSummaryIds).sort().map((id) => `${id}:${aiSummaryEffects[id] || aiSummaryEffect}`).join(","),
+      weather: optWeatherWidget ? `${weatherRange}|${(scenarioEdits as any)?.weatherCity || weatherCity}` : null,
+      tides: optTidesWidget ? `${tidesMode}|${(scenarioEdits as any)?.tidesCity || tidesCity}` : null,
 
       externalLinks: Array.from(selectedExternalLinkIds).sort(),
       menuDocs: Array.from(selectedMenuDocIds).sort(),
@@ -1743,7 +1761,9 @@ export default function StudioVideo() {
     optReviews, optHours, optMapMarker, optDigitalId, optInstallCta,
     optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
     optCustomerReview, optPopup, optOpenWithLogo, optClosingSequence,
-    selectedOfferIds, selectedHighlightIds, selectedAiSummaryIds, aiSummaryEffect, highlightEffects, aiSummaryEffects, selectedExternalLinkIds, selectedMenuDocIds, selectedImages, orderedSelectedVideos, activeVideoStarts, activeVideoEnds,
+    selectedOfferIds, selectedHighlightIds, selectedAiSummaryIds, aiSummaryEffect, highlightEffects, aiSummaryEffects,
+    optWeatherWidget, weatherRange, weatherCity, optTidesWidget, tidesMode, tidesCity,
+    (scenarioEdits as any)?.weatherCity, (scenarioEdits as any)?.tidesCity, selectedExternalLinkIds, selectedMenuDocIds, selectedImages, orderedSelectedVideos, activeVideoStarts, activeVideoEnds,
     selectedReviewId, reviewHighlight, textPosition, continuousBg, continuousBgUrl, continuousBgSound,
     soundtrackOn, soundtrackUrl,
     transitionStyle, transitionDifferentiate, transitionVideo, transitionImage,
@@ -1805,6 +1825,13 @@ export default function StudioVideo() {
             ai_summary_ids: Array.from(selectedAiSummaryIds),
             ai_summary_effect: aiSummaryEffect,
             ai_summary_effects: Object.fromEntries(Array.from(selectedAiSummaryIds).map((id) => [id, aiSummaryEffects[id] || aiSummaryEffect])),
+
+            weather_widget: optWeatherWidget,
+            weather_range: weatherRange,
+            weather_city: (scenarioEdits as any)?.weatherCity || weatherCity,
+            tides_widget: optTidesWidget,
+            tides_mode: tidesMode,
+            tides_city: (scenarioEdits as any)?.tidesCity || tidesCity,
 
             external_link_ids: Array.from(selectedExternalLinkIds),
             menu_doc_ids: Array.from(selectedMenuDocIds),
@@ -3655,6 +3682,99 @@ export default function StudioVideo() {
                     </div>
                   </div>
                 )}
+                <div className="rounded-md border border-border bg-background/40 p-2">
+                  <label className="flex items-start gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                      checked={optWeatherWidget}
+                      onChange={(e) => setOptWeatherWidget(e.target.checked)}
+                    />
+                    <span className="font-medium">Widget Météo</span>
+                  </label>
+                  {optWeatherWidget && (
+                    <div className="mt-2 space-y-2 text-xs">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-muted-foreground">Période :</span>
+                        {([1, 3, 7] as const).map((r) => (
+                          <button
+                            key={r}
+                            type="button"
+                            onClick={() => setWeatherRange(r)}
+                            className={`rounded-full border px-2.5 py-1 ${weatherRange === r ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
+                          >
+                            {r === 1 ? "1 jour" : `${r} jours`}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground shrink-0">Ville</span>
+                        <select
+                          value={weatherCity}
+                          onChange={(e) => setWeatherCity(e.target.value)}
+                          className="flex-1 rounded-md border border-border bg-white px-2 py-1 text-[11px] text-foreground"
+                        >
+                          {WEATHER_CITY_OPTIONS.map((c) => (
+                            <option key={c.slug} value={c.slug}>{c.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">
+                        Étape de 3 s par défaut. 1 jour = défilement des 24 h ; 3 / 7 jours = défilement jour par jour. La ville reste modifiable dans la carte de l'étape du scénario.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="rounded-md border border-border bg-background/40 p-2">
+                  <label className="flex items-start gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                      checked={optTidesWidget}
+                      onChange={(e) => setOptTidesWidget(e.target.checked)}
+                    />
+                    <span className="font-medium">Widget Marées, Vents &amp; Météo</span>
+                  </label>
+                  {optTidesWidget && (
+                    <div className="mt-2 space-y-2 text-xs">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-muted-foreground">Montage :</span>
+                        {([
+                          { v: "all", l: "Tous" },
+                          { v: "tides", l: "Marées" },
+                          { v: "wind", l: "Vents" },
+                          { v: "weather", l: "Météo" },
+                        ] as const).map((m) => (
+                          <button
+                            key={m.v}
+                            type="button"
+                            onClick={() => setTidesMode(m.v)}
+                            className={`rounded-full border px-2.5 py-1 ${tidesMode === m.v ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"}`}
+                          >
+                            {m.l}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground shrink-0">Ville</span>
+                        <select
+                          value={tidesCity}
+                          onChange={(e) => setTidesCity(e.target.value)}
+                          className="flex-1 rounded-md border border-border bg-white px-2 py-1 text-[11px] text-foreground"
+                        >
+                          {TIDES_CITY_OPTIONS.map((c) => (
+                            <option key={c.slug} value={c.slug}>{c.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">
+                        Étape de 3 s par défaut : défilement de la prévision sur 24 h. « Tous » monte les marées, les vents puis la météo. La ville reste modifiable dans la carte de l'étape du scénario.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
                 {externalLinksList.length > 0 && (
                   <div className="rounded-md border border-border bg-background/40 p-2">
                     <div className="flex items-center justify-between gap-2">
