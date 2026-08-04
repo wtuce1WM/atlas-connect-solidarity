@@ -387,16 +387,14 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     () =>
       fitOf("weather") === ""
         ? // Proportions conservées : la hauteur suit exactement le contenu (aucun scroll interne)
-          `<div style="width:100%;max-width:${weatherMaxW}px;margin:0 auto">
-  <iframe id="owm-weather" src="${weatherUrl}" style="width:100%;display:block;height:560px;border:0;border-radius:20px;background:transparent" title="Météo — ${weatherCity}" loading="lazy"></iframe>
-</div>
-<script>
-  window.addEventListener("message", function (e) {
-    if (!e.data || e.data.type !== "owm-weather-height") return;
-    var f = document.getElementById("owm-weather");
-    if (f) f.style.height = Math.ceil(e.data.height) + "px";
-  });
-</script>`
+          autoHeightSnippet({
+            id: "owm-weather",
+            msgType: "owm-weather-height",
+            url: weatherUrl,
+            title: `Météo — ${weatherCity}`,
+            maxWidth: weatherMaxW,
+            height: 560,
+          })
         : `<iframe src="${weatherUrl}" style="${fitIframeStyle(fitOf("weather"), { maxWidth: weatherMaxW, height: 560, radius: 20 })}" title="Météo — ${weatherCity}" loading="lazy"></iframe>`,
     [weatherUrl, weatherCity, weatherMaxW, fits]
   );
@@ -405,7 +403,16 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const tidesUrl = `${SITE}/embed/tides?city=${encodeURIComponent(tidesCity || "Essaouira")}&lang=${tidesLang}${fitParam(fitOf("tides"))}${wbg}`;
   const tidesSnippet = useMemo(
     () =>
-      `<iframe src="${tidesUrl}" style="${fitIframeStyle(fitOf("tides"), { maxWidth: 520, height: 360, radius: 20 })}" title="Marées — ${tidesCity}" loading="lazy"></iframe>`,
+      fitOf("tides") === ""
+        ? autoHeightSnippet({
+            id: "owm-tides",
+            msgType: "owm-tides-height",
+            url: tidesUrl,
+            title: `Marées — ${tidesCity}`,
+            maxWidth: 520,
+            height: 360,
+          })
+        : `<iframe src="${tidesUrl}" style="${fitIframeStyle(fitOf("tides"), { maxWidth: 520, height: 360, radius: 20 })}" title="Marées — ${tidesCity}" loading="lazy"></iframe>`,
     [tidesUrl, tidesCity, fits]
   );
 
