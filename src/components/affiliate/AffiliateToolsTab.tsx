@@ -363,12 +363,26 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
 
 
-  const weatherUrl = `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}${fitParam(fitOf("weather"))}${wbg}`;
+  const weatherUrl = `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}&size=${weatherSize}${fitParam(fitOf("weather"))}${wbg}`;
+  const weatherMaxW = sizeMaxWidth(weatherSize);
   const weatherSnippet = useMemo(
     () =>
-      `<iframe src="${weatherUrl}" style="${fitIframeStyle(fitOf("weather"), { maxWidth: 420, height: 320, radius: 20 })}" title="Météo — ${weatherCity}" loading="lazy"></iframe>`,
-    [weatherUrl, weatherCity, fits]
+      fitOf("weather") === ""
+        ? // Proportions conservées : la hauteur suit exactement le contenu (aucun scroll interne)
+          `<div style="width:100%;max-width:${weatherMaxW}px;margin:0 auto">
+  <iframe id="owm-weather" src="${weatherUrl}" style="width:100%;display:block;height:560px;border:0;border-radius:20px;background:transparent" title="Météo — ${weatherCity}" loading="lazy"></iframe>
+</div>
+<script>
+  window.addEventListener("message", function (e) {
+    if (!e.data || e.data.type !== "owm-weather-height") return;
+    var f = document.getElementById("owm-weather");
+    if (f) f.style.height = Math.ceil(e.data.height) + "px";
+  });
+</script>`
+        : `<iframe src="${weatherUrl}" style="${fitIframeStyle(fitOf("weather"), { maxWidth: weatherMaxW, height: 560, radius: 20 })}" title="Météo — ${weatherCity}" loading="lazy"></iframe>`,
+    [weatherUrl, weatherCity, weatherMaxW, fits]
   );
+
 
   const tidesUrl = `${SITE}/embed/tides?city=${encodeURIComponent(tidesCity || "Essaouira")}&lang=${tidesLang}${fitParam(fitOf("tides"))}${wbg}`;
   const tidesSnippet = useMemo(
