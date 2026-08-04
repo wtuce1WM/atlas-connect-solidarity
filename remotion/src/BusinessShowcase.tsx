@@ -2626,7 +2626,7 @@ const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "r
               {rating.toFixed(1)}<span style={{ fontSize: 40, color: meta.accent }}>/5</span>
             </div>
           )}
-          <div style={{ marginTop: 6, fontFamily: body, fontSize: 32, color: meta.accent }}>
+          <div style={{ marginTop: 6, fontFamily: body, fontSize: 32, color: FLASH_YELLOW, textShadow: `0 0 16px ${FLASH_YELLOW}88` }}>
             {"★★★★★".slice(0, Math.round(rating ?? 0))}<span style={{ opacity: 0.3 }}>{"★★★★★".slice(Math.round(rating ?? 0))}</span>
           </div>
           {count != null && (
