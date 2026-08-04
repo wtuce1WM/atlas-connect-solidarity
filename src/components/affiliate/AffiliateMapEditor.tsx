@@ -457,9 +457,11 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
           <CardTitle className="text-base text-white flex items-center gap-2">
             <MapIcon className="h-4 w-4 text-primary" /> Aperçu de la carte
             <span className="text-xs font-normal text-white/50">
-              {kpView
-                ? `${kpMembers.length + 1} établissement${kpMembers.length ? "s" : ""} du regroupement KP${kpView}`
-                : `${nearbyPois.length} lieu${nearbyPois.length > 1 ? "x" : ""} dans ${radiusKm} km`}
+              {poiView && defaultPoi
+                ? `${defaultPoi.name}${poiDistanceKm !== null ? ` — ${fmtDist(poiDistanceKm)}` : ""}`
+                : kpView
+                  ? `${kpMembers.length + 1} établissement${kpMembers.length ? "s" : ""} du regroupement KP${kpView}`
+                  : `${nearbyPois.length} lieu${nearbyPois.length > 1 ? "x" : ""} dans ${radiusKm} km`}
             </span>
           </CardTitle>
         </CardHeader>
