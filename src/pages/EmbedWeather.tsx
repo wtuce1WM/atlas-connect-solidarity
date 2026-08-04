@@ -58,38 +58,10 @@ export default function EmbedWeather() {
   }, [city]);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
-  const innerRef = useRef<HTMLDivElement | null>(null);
-  const [scale, setScale] = useState(1);
+  // fit=h / fit=wh : aucun scroll interne — le contenu est mis à l'échelle
+  // pour tenir exactement dans la hauteur de l'iframe hôte.
+  const { innerRef, style: fitStyle } = useEmbedFitScale(fullHeight, [data, loading, error]);
 
-  // fit=h / fit=wh : aucun scroll interne — on met à l'échelle le contenu
-  // pour qu'il tienne exactement dans la hauteur de l'iframe hôte.
-  useEffect(() => {
-    if (!fullHeight) return;
-    const prevHtml = document.documentElement.style.overflow;
-    const prevBody = document.body.style.overflow;
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-    const compute = () => {
-      const el = innerRef.current;
-      if (!el) return;
-      const natural = el.scrollHeight;
-      const avail = window.innerHeight - 8;
-      if (natural < 40 || avail < 40) return;
-      setScale(Math.min(1, avail / natural));
-    };
-    compute();
-    const t = window.setTimeout(compute, 300);
-    window.addEventListener("resize", compute);
-    const ro = innerRef.current ? new ResizeObserver(compute) : null;
-    if (innerRef.current && ro) ro.observe(innerRef.current);
-    return () => {
-      window.clearTimeout(t);
-      window.removeEventListener("resize", compute);
-      ro?.disconnect();
-      document.documentElement.style.overflow = prevHtml;
-      document.body.style.overflow = prevBody;
-    };
-  }, [fullHeight, data, loading, error]);
 
   // Report our height to the host page so it can auto-resize the iframe.
   useEffect(() => {
