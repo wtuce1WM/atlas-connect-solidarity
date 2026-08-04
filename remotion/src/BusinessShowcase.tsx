@@ -238,12 +238,13 @@ export type ShowcaseProps = {
   popupImageUrl?: string | null;
   popupTitle?: string | null;
   popupDescription?: string | null;
-  aiSummaries?: Array<{ id?: string; title?: string; content?: string }> | null;
-  /** Effet appliqué au média de fond des séquences Résumé IA */
+  aiSummaries?: Array<{ id?: string; title?: string; content?: string; effect?: string | null }> | null;
+  /** Effet appliqué au média de fond des séquences Résumé IA (défaut global) */
   aiSummaryEffect?: "zoom_in" | "zoom_out" | "pan_left" | "pan_right" | "pan_down" | "pan_up" | "scroll_v" | null;
   externalLinks?: Array<{ id?: string; name?: string; label?: string; url?: string | null; image?: string | null }> | null;
   menuDocs?: Array<{ id?: string; name?: string; url?: string | null }> | null;
-  highlights?: Array<{ id?: string; icon?: string | null; image_url?: string | null; title?: string; description?: string; metric_title?: string; metric_value?: string }> | null;
+  highlights?: Array<{ id?: string; icon?: string | null; image_url?: string | null; title?: string; description?: string; description_html?: string | null; effect?: string | null; metric_title?: string; metric_value?: string }> | null;
+
   showGoogleReviews?: boolean;
   googleReview?: { rating: number | null; count: number | null; url: string | null } | null;
   showTripAdvisor?: boolean;
@@ -1885,17 +1886,73 @@ const ScenePopup: React.FC<{ imageUrl: string; title?: string | null; descriptio
   );
 };
 
-const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[number]; background?: string | null; backgroundIsVideo?: boolean; durationFrames: number; textPosition?: TextPosition }> = ({ data, background, backgroundIsVideo, durationFrames, textPosition = "middle" }) => {
+/** Décode les entités HTML (&amp;, &#39;, &eacute;…) sans DOM (rendu Remotion headless). */
+const decodeEntities = (input: string): string => {
+  const named: Record<string, string> = {
+    amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", laquo: "«", raquo: "»",
+    eacute: "é", egrave: "è", ecirc: "ê", agrave: "à", acirc: "â", ccedil: "ç",
+    ugrave: "ù", ucirc: "û", icirc: "î", iuml: "ï", ocirc: "ô", euml: "ë", uuml: "ü",
+    hellip: "…", rsquo: "’", lsquo: "‘", ldquo: "“", rdquo: "”", ndash: "–", mdash: "—",
+    deg: "°", euro: "€", middot: "·", times: "×", copy: "©", reg: "®", trade: "™",
+  };
+  return input
+    .replace(/&#x([0-9a-f]+);/gi, (_m, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_m, d) => String.fromCodePoint(Number(d)))
+    .replace(/&([a-z]+);/gi, (m, n) => named[String(n).toLowerCase()] ?? m);
+};
+
+const ALLOWED_RICH_TAGS = ["b", "strong", "i", "em", "u", "br", "p", "ul", "ol", "li", "span"];
+
+/** Conserve la mise en forme rich text (gras, italique, listes) et retire tout le reste. */
+const sanitizeRich = (html: string): string =>
+  decodeEntities(
+    (html || "")
+      .replace(/<\s*(script|style)[\s\S]*?<\s*\/\s*\1\s*>/gi, "")
+      .replace(/<\s*\/?\s*([a-z0-9]+)[^>]*>/gi, (m, tag) =>
+        ALLOWED_RICH_TAGS.includes(String(tag).toLowerCase()) ? m.replace(/\s+[^<>]*?(?=>)/, "") : " ",
+      ),
+  )
+    .replace(/[ \t]{2,}/g, " ")
+    .trim();
+
+/** Rend un contenu rich text (gras/italique/puces) dans une scène vidéo. */
+const RichBlock: React.FC<{ html: string; style?: React.CSSProperties; align?: "left" | "center" }> = ({ html, style, align = "center" }) => (
+  <div
+    style={{ ...style, textAlign: align }}
+    className="rich-video-block"
+    dangerouslySetInnerHTML={{ __html: html }}
+  />
+);
+
+const RICH_CSS = `
+.rich-video-block p { margin: 0 0 0.5em; }
+.rich-video-block p:last-child { margin-bottom: 0; }
+.rich-video-block strong, .rich-video-block b { font-weight: 800; }
+.rich-video-block em, .rich-video-block i { font-style: italic; }
+.rich-video-block ul, .rich-video-block ol { margin: 0.2em 0 0; padding-left: 1.1em; text-align: left; display: inline-block; }
+.rich-video-block li { margin: 0.18em 0; }
+.rich-video-block ul { list-style: none; padding-left: 0; }
+.rich-video-block ul > li::before { content: "◆ "; color: ${COLORS.gold}; }
+`;
+
+const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[number]; background?: string | null; backgroundIsVideo?: boolean; durationFrames: number; textPosition?: TextPosition; effect?: TransitionEffect; motion?: MotionEffect | null }> = ({ data, background, backgroundIsVideo, durationFrames, textPosition = "middle", effect = "kenburns", motion = null }) => {
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
   const titleY = interpolate(spring({ frame: frame - 6, fps: 30, config: { damping: 18 } }), [0, 1], [30, 0]);
   const heroImg = data.image_url || background || undefined;
+  const isVideoHero = !!(backgroundIsVideo && background === heroImg);
+  const richDesc = sanitizeRich(data.description_html || data.description || "");
+  const plainDesc = decodeEntities((data.description || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br)\b/i.test(richDesc);
   return (
     <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
-      {heroImg && (backgroundIsVideo && background === heroImg
+      <style>{RICH_CSS}</style>
+      {heroImg && (isVideoHero
         ? <VideoCover src={heroImg} from={0} duration={durationFrames} />
-        : <KenBurns src={heroImg} from={0} duration={durationFrames} />)}
+        : (motion
+            ? <MotionBackdrop image={heroImg} duration={durationFrames} effect={effect} motion={motion} veil="rgba(0,0,0,0)" />
+            : <KenBurns src={heroImg} from={0} duration={durationFrames} />))}
       <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.4) 0%,rgba(0,0,0,0.75) 100%)" }} />
       <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
         {!data.title && (
@@ -1905,23 +1962,31 @@ const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[
         )}
         {data.title && (
           <div style={{ marginTop: 14, transform: `translateY(${titleY}px)`, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 56, lineHeight: 1.1, textAlign: "center", textShadow: "0 4px 20px rgba(0,0,0,0.7)" }}>
-            {data.title}
+            {decodeEntities(data.title)}
           </div>
         )}
-        {data.description && (
-          <div style={{ marginTop: 20, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.4, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 620 }}>
-            {(data.description || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 280)}
-          </div>
+        {(hasRich ? richDesc : plainDesc) && (
+          hasRich ? (
+            <RichBlock
+              html={richDesc}
+              style={{ marginTop: 20, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.4, textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 640, alignSelf: "center" }}
+            />
+          ) : (
+            <div style={{ marginTop: 20, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.4, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 620 }}>
+              {plainDesc.slice(0, 280)}
+            </div>
+          )
         )}
         {(data.metric_title || data.metric_value) && (
           <div style={{ marginTop: 28, padding: "14px 26px", border: `1px solid ${COLORS.gold}`, borderRadius: 14, fontFamily: display, color: COLORS.gold, fontSize: 28, textAlign: "center", background: "rgba(212,175,55,0.08)" }}>
-            {[data.metric_value, data.metric_title].filter(Boolean).join(" · ")}
+            {[data.metric_value, data.metric_title].filter(Boolean).map((v) => decodeEntities(String(v))).join(" · ")}
           </div>
         )}
       </AbsoluteFill>
     </AbsoluteFill>
   );
 };
+
 
 const PLATFORM_META: Record<"google_review" | "tripadvisor" | "restaurant_guru", { label: string; brand: string; accent: string; logo: string }> = {
   google_review:   { label: "Google",          brand: "#4285F4", accent: "#EA4335", logo: "brands/google-logo.png" },
@@ -2046,26 +2111,28 @@ const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "r
     <AbsoluteFill>
       <BrandBleedLogo src={meta.logo} color={meta.brand} durationFrames={durationFrames} side={kind === "tripadvisor" ? "right" : "left"} />
       <AbsoluteFill style={{ opacity: Math.min(inO, out), padding: 60, ...textPositionStyle(textPosition) }}>
-        {/* Pastille logo en avant-plan, débordant du bloc note */}
+        {/* Pastille logo en avant-plan — Google : transparence intégrale conservée (pas de pastille blanche) */}
         <div
           style={{
             alignSelf: "center",
             width: 132,
             height: 132,
             borderRadius: 66,
-            background: "rgba(255,255,255,0.96)",
+            background: kind === "google_review" ? "transparent" : "rgba(255,255,255,0.96)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             transform: `scale(${interpolate(chipS, [0, 1], [0.4, 1]) * ringPulse}) rotate(${interpolate(chipS, [0, 1], [-25, 0])}deg)`,
-            boxShadow: `0 0 0 6px ${meta.brand}, 0 18px 60px ${meta.brand}66`,
+            boxShadow: kind === "google_review" ? "none" : `0 0 0 6px ${meta.brand}, 0 18px 60px ${meta.brand}66`,
+            filter: kind === "google_review" ? `drop-shadow(0 10px 34px ${meta.brand}88)` : undefined,
             marginBottom: -34,
             zIndex: 2,
-            overflow: "hidden",
+            overflow: kind === "google_review" ? "visible" : "hidden",
           }}
         >
-          <Img src={staticFile(meta.logo)} style={{ width: 132, height: 132, objectFit: "cover" }} />
+          <Img src={staticFile(meta.logo)} style={{ width: 132, height: 132, objectFit: kind === "google_review" ? "contain" : "cover" }} />
         </div>
+
         <div style={{ marginTop: 24, alignSelf: "center", transform: `scale(${interpolate(badgeS, [0, 1], [0.85, 1])})`, padding: "48px 46px 30px", background: "rgba(14,11,8,0.72)", border: `2px solid ${meta.brand}`, borderRadius: 26, textAlign: "center", boxShadow: `0 12px 60px ${meta.brand}55` }}>
           <div style={{ fontFamily: body, color: meta.brand, fontSize: 20, letterSpacing: 6, textTransform: "uppercase" }}>
             {L.reviewsOf(meta.label)}
@@ -2136,16 +2203,18 @@ const SceneCustomerReview: React.FC<{
 
   const displayText = hasExcerpt ? full : full || excerpt;
   const baseSize = reviewFontSize(displayText.length);
-  // Pas de redimensionnement du texte ni de la carte pendant la phase de focus :
-  // seuls les côtés s'estompent, ce qui évite le saut visuel de re-cadrage.
   const size = baseSize;
+  // Phase de focus : les côtés s'estompent, l'extrait grossit et la carte zoome
+  // légèrement dessus — l'extrait devient l'élément dominant du plan.
   const sideOpacity = interpolate(focus, [0, 1], [1, 0]);
-  const sideBlur = interpolate(focus, [0, 1], [0, 6]);
-  const cardScale = 1;
-
+  const sideBlur = interpolate(focus, [0, 1], [0, 8]);
+  const excerptSize = size * interpolate(focus, [0, 1], [1, 1.5]);
+  const cardScale = interpolate(focus, [0, 1], [1, 1.08]);
+  const excerptGlow = interpolate(focus, [0, 1], [0, 1]);
 
   const platform = platformKeyFromSource(source);
   const meta = platform ? PLATFORM_META[platform] : null;
+  const transparentLogo = platform === "google_review";
 
   return (
     <AbsoluteFill>
@@ -2173,17 +2242,18 @@ const SceneCustomerReview: React.FC<{
                 width: 96,
                 height: 96,
                 borderRadius: 48,
-                background: "rgba(255,255,255,0.97)",
+                background: transparentLogo ? "transparent" : "rgba(255,255,255,0.97)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                overflow: "hidden",
+                overflow: transparentLogo ? "visible" : "hidden",
                 transform: `scale(${interpolate(spring({ frame: frame - 6, fps: 30, config: { damping: 11, stiffness: 160 } }), [0, 1], [0.3, 1]) * (1 + 0.04 * Math.sin(frame / 9))}) rotate(${interpolate(spring({ frame: frame - 6, fps: 30, config: { damping: 11, stiffness: 160 } }), [0, 1], [-30, 0])}deg)`,
-                boxShadow: `0 0 0 5px ${meta.brand}, 0 14px 40px ${meta.brand}66`,
+                boxShadow: transparentLogo ? "none" : `0 0 0 5px ${meta.brand}, 0 14px 40px ${meta.brand}66`,
+                filter: transparentLogo ? `drop-shadow(0 8px 26px ${meta.brand}88)` : undefined,
                 zIndex: 3,
               }}
             >
-              <Img src={staticFile(meta.logo)} style={{ width: 96, height: 96, objectFit: "cover" }} />
+              <Img src={staticFile(meta.logo)} style={{ width: 96, height: 96, objectFit: transparentLogo ? "contain" : "cover" }} />
             </div>
           )}
           <div style={{ fontFamily: display, fontSize: 90, color: meta ? meta.brand : COLORS.gold, lineHeight: 0.7, marginBottom: 12 }}>“</div>
@@ -2196,14 +2266,18 @@ const SceneCustomerReview: React.FC<{
                 <span
                   style={{
                     position: "relative",
-                    display: "inline",
-                    padding: "2px 4px",
-                    borderRadius: 6,
+                    display: "inline-block",
+                    padding: "2px 6px",
+                    borderRadius: 8,
                     backgroundImage: `linear-gradient(90deg, ${COLORS.gold}55 0%, ${COLORS.gold}55 100%)`,
                     backgroundRepeat: "no-repeat",
                     backgroundSize: `${swipe * 100}% 100%`,
                     color: COLORS.cream,
-                    fontWeight: 600,
+                    fontWeight: 700,
+                    fontSize: excerptSize,
+                    lineHeight: 1.32,
+                    textShadow: `0 3px ${10 + 12 * excerptGlow}px rgba(0,0,0,0.75)`,
+                    transition: "none",
                   }}
                 >
                   {mid}
@@ -2216,6 +2290,7 @@ const SceneCustomerReview: React.FC<{
               displayText
             )}
           </div>
+
           {rating != null && Number.isFinite(rating) && (
             <div style={{ marginTop: 20, fontFamily: body, color: meta ? meta.accent : COLORS.gold, fontSize: 30 }}>
               {"★★★★★".slice(0, Math.round(rating))}<span style={{ opacity: 0.3 }}>{"★★★★★".slice(Math.round(rating))}</span>
@@ -2696,10 +2771,13 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               backgroundIsVideo={bgItem?.kind === "video"}
               durationFrames={duration}
               textPosition={textPosition}
+              effect={trImageEffect}
+              motion={(h.effect as any) || null}
             />
           </AbsoluteFill>
         );
       }
+
       case "ai_summary":
       case "external_link":
       case "menu_doc": {
@@ -2742,7 +2820,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               image={bgItem?.kind === "image" ? bgItem.url : (bgItem ? undefined : (imgFallback ?? bgRotate(planIdx).image))}
               duration={duration}
               effect={trImageEffect}
-              motion={kind === "ai_summary" ? ((aiSummaryEffect as any) || "zoom_in") : null}
+              motion={kind === "ai_summary" ? (((Array.isArray(aiSummaries) ? aiSummaries : [])[idx]?.effect as any) || (aiSummaryEffect as any) || "zoom_in") : null}
               extraStartSec={bgItem ? 0 : bgRotate(planIdx).extraStartSec}
             />
             <SceneInfoText

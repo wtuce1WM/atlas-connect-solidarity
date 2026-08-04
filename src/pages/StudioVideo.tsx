@@ -231,6 +231,32 @@ const edgeErrorMessage = async (e: any, fallback: string) => {
   return e?.message ?? fallback;
 };
 
+/** Décode les entités HTML (&amp;, &eacute;, &#39;…) pour l'affichage vidéo. */
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", laquo: "«", raquo: "»",
+  eacute: "é", egrave: "è", ecirc: "ê", agrave: "à", acirc: "â", ccedil: "ç",
+  ugrave: "ù", ucirc: "û", icirc: "î", iuml: "ï", ocirc: "ô", euml: "ë", uuml: "ü",
+  hellip: "…", rsquo: "’", lsquo: "‘", ldquo: "“", rdquo: "”", ndash: "–", mdash: "—",
+  deg: "°", euro: "€", middot: "·", times: "×", copy: "©", reg: "®", trade: "™",
+};
+export const decodeHtmlEntities = (input: string): string =>
+  (input || "")
+    .replace(/&#x([0-9a-f]+);/gi, (_m, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_m, d) => String.fromCodePoint(Number(d)))
+    .replace(/&([a-z]+);/gi, (m, n) => NAMED_ENTITIES[String(n).toLowerCase()] ?? m);
+
+/** Options d'effet de mouvement (identiques côté Remotion). */
+const MOTION_EFFECT_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: "zoom_in", label: "Zoom in" },
+  { value: "zoom_out", label: "Zoom out" },
+  { value: "pan_left", label: "Panoramique gauche" },
+  { value: "pan_right", label: "Panoramique droite" },
+  { value: "pan_down", label: "Panoramique bas" },
+  { value: "pan_up", label: "Panoramique haut" },
+  { value: "scroll_v", label: "Défilé vertical" },
+];
+
+
 export default function StudioVideo() {
   const navigate = useNavigate();
   const [authState, setAuthState] = useState<"loading" | "in" | "out">("loading");
@@ -447,6 +473,10 @@ export default function StudioVideo() {
   const [selectedAiSummaryIds, setSelectedAiSummaryIds] = useState<Set<string>>(new Set());
   // Effet visuel appliqué au média de fond des séquences « Résumé IA »
   const [aiSummaryEffect, setAiSummaryEffect] = useState<string>("zoom_in");
+  // Effet de mouvement propre à chaque bloc highlight / résumé IA (clé = id)
+  const [highlightEffects, setHighlightEffects] = useState<Record<string, string>>({});
+  const [aiSummaryEffects, setAiSummaryEffects] = useState<Record<string, string>>({});
+
   // Liens externes (business_documents type external_link) — libellé = description (Media, Partenaires…)
   const [externalLinksList, setExternalLinksList] = useState<Array<{ id: string; name: string; label: string; url: string; image: string | null }>>([]);
   const [selectedExternalLinkIds, setSelectedExternalLinkIds] = useState<Set<string>>(new Set());
@@ -953,7 +983,7 @@ export default function StudioVideo() {
       }));
       setOffersList(mappedOffers);
       setSelectedOfferIds(new Set(mappedOffers.map((o) => o.id)));
-      const stripHtml = (s: string | null) => (s || "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+      const stripHtml = (s: string | null) => decodeHtmlEntities((s || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
       const hlRaw = (hls.data ?? []) as any[];
       const mappedHl = hlRaw
         .map((h) => ({
@@ -1052,7 +1082,7 @@ export default function StudioVideo() {
           .order("sort_order", { ascending: true }),
       ]);
       if (cancelled) return;
-      const strip = (s: string | null) => (s || "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+      const strip = (s: string | null) => decodeHtmlEntities((s || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
       setAiSummariesList(
         ((sums.data ?? []) as any[])
           .map((r) => ({ id: r.id as string, title: strip(r.title), content: strip(r.content) }))
@@ -1534,8 +1564,11 @@ export default function StudioVideo() {
 
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
+            highlight_effects: Object.fromEntries(Array.from(selectedHighlightIds).filter((id) => !!highlightEffects[id]).map((id) => [id, highlightEffects[id]])),
             ai_summary_ids: Array.from(selectedAiSummaryIds),
             ai_summary_effect: aiSummaryEffect,
+            ai_summary_effects: Object.fromEntries(Array.from(selectedAiSummaryIds).map((id) => [id, aiSummaryEffects[id] || aiSummaryEffect])),
+
             external_link_ids: Array.from(selectedExternalLinkIds),
             menu_doc_ids: Array.from(selectedMenuDocIds),
             selected_images: chosenImages,
@@ -1689,6 +1722,9 @@ export default function StudioVideo() {
       highlights: Array.from(selectedHighlightIds).sort(),
       aiSummaries: Array.from(selectedAiSummaryIds).sort(),
       aiSummaryEffect,
+      highlightEffects: Array.from(selectedHighlightIds).sort().map((id) => `${id}:${highlightEffects[id] || "-"}`).join(","),
+      aiSummaryEffects: Array.from(selectedAiSummaryIds).sort().map((id) => `${id}:${aiSummaryEffects[id] || aiSummaryEffect}`).join(","),
+
       externalLinks: Array.from(selectedExternalLinkIds).sort(),
       menuDocs: Array.from(selectedMenuDocIds).sort(),
       images: Array.from(selectedImages).sort(),
@@ -1707,7 +1743,7 @@ export default function StudioVideo() {
     optReviews, optHours, optMapMarker, optDigitalId, optInstallCta,
     optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
     optCustomerReview, optPopup, optOpenWithLogo, optClosingSequence,
-    selectedOfferIds, selectedHighlightIds, selectedAiSummaryIds, aiSummaryEffect, selectedExternalLinkIds, selectedMenuDocIds, selectedImages, orderedSelectedVideos, activeVideoStarts, activeVideoEnds,
+    selectedOfferIds, selectedHighlightIds, selectedAiSummaryIds, aiSummaryEffect, highlightEffects, aiSummaryEffects, selectedExternalLinkIds, selectedMenuDocIds, selectedImages, orderedSelectedVideos, activeVideoStarts, activeVideoEnds,
     selectedReviewId, reviewHighlight, textPosition, continuousBg, continuousBgUrl, continuousBgSound,
     soundtrackOn, soundtrackUrl,
     transitionStyle, transitionDifferentiate, transitionVideo, transitionImage,
@@ -1765,8 +1801,11 @@ export default function StudioVideo() {
 
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
+            highlight_effects: Object.fromEntries(Array.from(selectedHighlightIds).filter((id) => !!highlightEffects[id]).map((id) => [id, highlightEffects[id]])),
             ai_summary_ids: Array.from(selectedAiSummaryIds),
             ai_summary_effect: aiSummaryEffect,
+            ai_summary_effects: Object.fromEntries(Array.from(selectedAiSummaryIds).map((id) => [id, aiSummaryEffects[id] || aiSummaryEffect])),
+
             external_link_ids: Array.from(selectedExternalLinkIds),
             menu_doc_ids: Array.from(selectedMenuDocIds),
             selected_images: chosenImages,
@@ -3529,8 +3568,24 @@ export default function StudioVideo() {
                               {(h.metric_title || h.metric_value) && (
                                 <div className="mt-1 text-[#C04F17] font-semibold">{h.metric_value} {h.metric_title && <span className="text-muted-foreground font-normal">— {h.metric_title}</span>}</div>
                               )}
+                              {checked && (
+                                <div className="mt-1 flex items-center gap-2" onClick={(e) => e.preventDefault()}>
+                                  <span className="text-muted-foreground shrink-0">Effet</span>
+                                  <select
+                                    value={highlightEffects[h.id] || ""}
+                                    onChange={(e) => setHighlightEffects((prev) => ({ ...prev, [h.id]: e.target.value }))}
+                                    className="flex-1 rounded-md border border-border bg-white px-2 py-1 text-[11px] text-foreground"
+                                  >
+                                    <option value="">Ken Burns (défaut)</option>
+                                    {MOTION_EFFECT_OPTIONS.map((o) => (
+                                      <option key={o.value} value={o.value}>{o.label}</option>
+                                    ))}
+                                  </select>
+                                </div>
+                              )}
                             </div>
                           </label>
+
                         );
                       })}
                     </div>
@@ -3547,28 +3602,26 @@ export default function StudioVideo() {
                     </div>
                     <p className="mt-1 text-[11px] text-muted-foreground">Résumés du menu (pour l'IA) : une séquence de 5 s par résumé coché (titre + contenu).</p>
                     <div className="mt-2 flex items-center gap-2 text-xs">
-                      <span className="text-muted-foreground shrink-0">Effet</span>
+                      <span className="text-muted-foreground shrink-0">Effet par défaut</span>
                       <select
                         value={aiSummaryEffect}
                         onChange={(e) => setAiSummaryEffect(e.target.value)}
                         className="flex-1 rounded-md border border-border bg-white px-2 py-1.5 text-xs text-foreground"
                       >
-                        <option value="zoom_in">Zoom in</option>
-                        <option value="zoom_out">Zoom out</option>
-                        <option value="pan_left">Panoramique gauche</option>
-                        <option value="pan_right">Panoramique droite</option>
-                        <option value="pan_down">Panoramique bas</option>
-                        <option value="pan_up">Panoramique haut</option>
-                        <option value="scroll_v">Défilé vertical</option>
+                        {MOTION_EFFECT_OPTIONS.map((o) => (
+                          <option key={o.value} value={o.value}>{o.label}</option>
+                        ))}
                       </select>
                     </div>
                     <div className="mt-2 flex flex-col gap-1.5">
-                      {aiSummariesList.map((s) => (
+                      {aiSummariesList.map((s) => {
+                        const checked = selectedAiSummaryIds.has(s.id);
+                        return (
                         <label key={s.id} className="flex items-start gap-2 cursor-pointer rounded-md border border-border/60 p-2 hover:bg-muted/40">
                           <input
                             type="checkbox"
                             className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
-                            checked={selectedAiSummaryIds.has(s.id)}
+                            checked={checked}
                             onChange={(e) => {
                               setSelectedAiSummaryIds((prev) => {
                                 const next = new Set(prev);
@@ -3580,9 +3633,25 @@ export default function StudioVideo() {
                           <div className="min-w-0 flex-1 text-xs">
                             <div className="font-semibold break-words">{s.title || "Résumé"}</div>
                             {s.content && <div className="mt-1 text-muted-foreground line-clamp-3 break-words">{s.content}</div>}
+                            {checked && (
+                              <div className="mt-1 flex items-center gap-2" onClick={(e) => e.preventDefault()}>
+                                <span className="text-muted-foreground shrink-0">Effet</span>
+                                <select
+                                  value={aiSummaryEffects[s.id] || aiSummaryEffect}
+                                  onChange={(e) => setAiSummaryEffects((prev) => ({ ...prev, [s.id]: e.target.value }))}
+                                  className="flex-1 rounded-md border border-border bg-white px-2 py-1 text-[11px] text-foreground"
+                                >
+                                  {MOTION_EFFECT_OPTIONS.map((o) => (
+                                    <option key={o.value} value={o.value}>{o.label}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
                           </div>
                         </label>
-                      ))}
+                        );
+                      })}
+
                     </div>
                   </div>
                 )}
