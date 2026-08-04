@@ -1053,3 +1053,13 @@ html[dir="rtl"] body {
 body[data-map-overlay="1"] .owm-panel-searchbar {
   display: none !important;
 }
+
+/* Étiquette de distance sur la flèche rouge (aperçu carte affilié) */
+.poi-connector-label {
+  background: #ffffff;
+  border: 1px solid #e11d48;
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}

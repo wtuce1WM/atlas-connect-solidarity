@@ -78,6 +78,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
   const [kpActive, setKpActive] = useState(false);
   const [kpActive2, setKpActive2] = useState(false);
   const [kpView, setKpView] = useState<1 | 2 | null>(null);
+  const [poiView, setPoiView] = useState(false);
   const [mapTypeId, setMapTypeId] = useState<"roadmap" | "terrain" | "satellite">("terrain");
   const dirtyRef = useRef(false);
 
@@ -88,6 +89,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setIsLoading(true);
       dirtyRef.current = false;
       setKpView(null);
+      setPoiView(false);
       const { data } = await (supabase as any)
         .from("businesses")
         .select("id,name,city,neighborhood,latitude,longitude,images,poi_radius_km,map_bg_color,default_poi_business_id,kp_regroupement,kp_regroupement_2,kp_active,kp_active_2")
@@ -167,6 +169,8 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
   }, [businessId]);
 
   const bgValid = /^#[0-9A-F]{6}$/i.test(bg);
+  /** Couleur de fond appliquée à l'aperçu : celle définie, sinon la palette 1WM. */
+  const bgEffective = bgValid ? bg.toUpperCase() : DEFAULT_BG;
   const radiusKm = Number(biz?.poi_radius_km) > 0 ? Number(biz!.poi_radius_km) : 10;
 
   // Auto-save (debounce 1s)
@@ -207,6 +211,18 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
     );
   }, [kpView, kpGroups, biz?.id]);
 
+  const defaultPoi = useMemo(
+    () => pois.find((p) => p.id === defaultPoiId) || null,
+    [pois, defaultPoiId],
+  );
+
+  const poiDistanceKm = useMemo(() => {
+    if (!defaultPoi || !biz?.latitude || !biz?.longitude) return null;
+    return haversineKm(biz.latitude, biz.longitude, defaultPoi.latitude!, defaultPoi.longitude!);
+  }, [defaultPoi, biz]);
+
+  const fmtDist = (d: number) => (d < 1 ? `${Math.round(d * 1000)} m` : `${d.toFixed(1)} km`);
+
   const mapItems: PoiMapItem[] = useMemo(() => {
     if (!biz?.latitude || !biz?.longitude) return [];
     const master = {
@@ -219,6 +235,20 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
         neighborhood: biz.neighborhood,
         markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
       };
+    if (poiView && defaultPoi) {
+      return [
+        master,
+        {
+          id: defaultPoi.id,
+          name: defaultPoi.name,
+          latitude: defaultPoi.latitude,
+          longitude: defaultPoi.longitude,
+          images: defaultPoi.images,
+          city: defaultPoi.city,
+          neighborhood: defaultPoi.neighborhood,
+        },
+      ];
+    }
     if (kpView) {
       return [
         master,
@@ -245,17 +275,29 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
         neighborhood: p.neighborhood,
       })),
     ];
-  }, [biz, nearbyPois, kpView, kpMembers]);
+  }, [biz, nearbyPois, kpView, kpMembers, poiView, defaultPoi]);
 
-  // En mode regroupement, on élargit le zoom pour englober tous les membres.
+  // Flèche rouge animée Master → POI par défaut (mode POI uniquement).
+  const connector = useMemo(() => {
+    if (!poiView || !defaultPoi || !biz?.latitude || !biz?.longitude) return null;
+    return {
+      from: { lat: biz.latitude, lng: biz.longitude },
+      to: { lat: Number(defaultPoi.latitude), lng: Number(defaultPoi.longitude) },
+      label: poiDistanceKm !== null ? fmtDist(poiDistanceKm) : undefined,
+    };
+  }, [poiView, defaultPoi, biz, poiDistanceKm]);
+
+  // En mode regroupement / POI, on élargit le zoom pour englober tous les marqueurs.
   const fitKm = useMemo(() => {
-    if (!kpView || !biz?.latitude || !biz?.longitude) return radiusKm;
+    if (!biz?.latitude || !biz?.longitude) return radiusKm;
+    if (poiView && poiDistanceKm !== null) return Math.max(0.3, poiDistanceKm * 1.6);
+    if (!kpView) return radiusKm;
     const max = kpMembers.reduce(
       (acc, m) => Math.max(acc, haversineKm(biz.latitude!, biz.longitude!, m.latitude!, m.longitude!)),
       0,
     );
     return Math.max(1, max * 1.15);
-  }, [kpView, kpMembers, biz, radiusKm]);
+  }, [kpView, kpMembers, biz, radiusKm, poiView, poiDistanceKm]);
 
   if (isLoading) {
     return (
@@ -417,9 +459,11 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
           <CardTitle className="text-base text-white flex items-center gap-2">
             <MapIcon className="h-4 w-4 text-primary" /> Aperçu de la carte
             <span className="text-xs font-normal text-white/50">
-              {kpView
-                ? `${kpMembers.length + 1} établissement${kpMembers.length ? "s" : ""} du regroupement KP${kpView}`
-                : `${nearbyPois.length} lieu${nearbyPois.length > 1 ? "x" : ""} dans ${radiusKm} km`}
+              {poiView && defaultPoi
+                ? `${defaultPoi.name}${poiDistanceKm !== null ? ` — ${fmtDist(poiDistanceKm)}` : ""}`
+                : kpView
+                  ? `${kpMembers.length + 1} établissement${kpMembers.length ? "s" : ""} du regroupement KP${kpView}`
+                  : `${nearbyPois.length} lieu${nearbyPois.length > 1 ? "x" : ""} dans ${radiusKm} km`}
             </span>
           </CardTitle>
         </CardHeader>
@@ -439,13 +483,13 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
             ))}
           </div>
 
-          {kpGroups.length > 0 && (
+          {(kpGroups.length > 0 || defaultPoi) && (
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                onClick={() => setKpView(null)}
+                onClick={() => { setKpView(null); setPoiView(false); }}
                 className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                  kpView === null
+                  kpView === null && !poiView
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-white/15 text-white/70 hover:bg-white/10"
                 }`}
@@ -456,9 +500,9 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
                 <button
                   key={`cta-${g.slot}-${g.code}`}
                   type="button"
-                  onClick={() => setKpView(kpView === g.slot ? null : g.slot)}
+                  onClick={() => { setPoiView(false); setKpView(kpView === g.slot ? null : g.slot); }}
                   className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                    kpView === g.slot
+                    kpView === g.slot && !poiView
                       ? "border-primary bg-primary text-primary-foreground"
                       : "border-white/15 text-white/70 hover:bg-white/10"
                   }`}
@@ -467,8 +511,23 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
                   {g.title}
                 </button>
               ))}
+              {defaultPoi && (
+                <button
+                  type="button"
+                  onClick={() => { setKpView(null); setPoiView((v) => !v); }}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                    poiView
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-white/15 text-white/70 hover:bg-white/10"
+                  }`}
+                >
+                  <MapPin className="h-3.5 w-3.5" />
+                  {defaultPoi.name}
+                </button>
+              )}
             </div>
           )}
+
 
           {!biz?.latitude || !biz?.longitude ? (
             <p className="text-sm text-white/50">
@@ -477,7 +536,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
           ) : (
             <div
               className="relative h-[460px] w-full overflow-hidden rounded-xl border border-white/10"
-              style={bgValid ? { background: bg } : undefined}
+              style={{ background: bgEffective }}
             >
               <PoiGoogleMap
                 pois={mapItems}
@@ -486,8 +545,9 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
                 centerAtBottomRatio={0.4}
                 fitRadiusKm={fitKm}
                 mapTypeId={mapTypeId}
-                mapTheme={bgValid ? "light" : "default-light"}
-                baseColor={bgValid ? bg : null}
+                mapTheme="light"
+                baseColor={bgEffective}
+                connector={connector}
                 onPoiClick={(id) => setDefaultPoiId(id.startsWith("self-") ? "" : id)}
               />
             </div>
