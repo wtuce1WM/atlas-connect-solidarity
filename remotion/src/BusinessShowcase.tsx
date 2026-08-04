@@ -2763,6 +2763,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   slug,
   logoUrl,
   openWithLogo,
+  welcomeText,
+  propositionText,
   whatsapp,
   instagramUrl,
   ficheScreenshotUrl,
