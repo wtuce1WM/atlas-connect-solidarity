@@ -245,9 +245,33 @@ const AffiliateLegalTab = ({ affiliateId }: Props) => {
           </label>
         </div>
 
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            if (!uploading && docs.length < MAX_DOCS) setDragOver(true);
+          }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragOver(false);
+            if (uploading || docs.length >= MAX_DOCS) return;
+            upload(e.dataTransfer.files);
+          }}
+          className={`rounded-lg border-2 border-dashed px-4 py-6 text-center transition-colors ${
+            dragOver ? "border-primary bg-primary/10" : "border-white/15 bg-white/5"
+          } ${uploading || docs.length >= MAX_DOCS ? "opacity-50" : ""}`}
+        >
+          <Upload className="h-5 w-5 mx-auto text-white/50 mb-1.5" />
+          <p className="text-sm text-white/70">
+            {uploading ? "Téléversement en cours…" : "Glissez-déposez vos documents ici"}
+          </p>
+          <p className="text-[11px] text-white/40 mt-0.5">PDF, Word, Excel, CSV, images — {MAX_DOCS - docs.length} emplacement(s) restant(s)</p>
+        </div>
+
         {docs.length === 0 ? (
           <p className="text-sm text-white/50 border border-white/10 rounded-lg p-4">Aucun document pour le moment.</p>
         ) : (
+
           <div className="rounded-lg border border-white/10 divide-y divide-white/5">
             {docs.map((d) => (
               <div key={d.id} className="flex items-center gap-3 px-3 py-2.5">
