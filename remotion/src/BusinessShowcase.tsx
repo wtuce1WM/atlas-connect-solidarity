@@ -1485,6 +1485,8 @@ const SceneWeatherWidget: React.FC<{ widget: NonNullable<ShowcaseProps["weatherW
 
 const SceneTidesWidget: React.FC<{ widget: NonNullable<ShowcaseProps["tidesWidget"]>; duration: number; textPosition?: TextPosition }> = ({ widget, duration, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
+  const { orientation, gutter, px } = useLayout();
+  const portrait = orientation !== "landscape";
   const o = ease(frame, 0, 14);
   const hours = (widget.hours || []).slice(0, 24);
   const mode = widget.mode || "all";
@@ -1503,44 +1505,54 @@ const SceneTidesWidget: React.FC<{ widget: NonNullable<ShowcaseProps["tidesWidge
       ? { kicker: "Vents", values: hours.map((h) => Number(h.wind ?? 0)), unit: "Vent sur 24 h (km/h)", accent: "#63C7A6" }
       : { kicker: "Météo", values: hours.map((h) => Number(h.temp ?? 0)), unit: "Températures sur 24 h (°C)", accent: COLORS.gold };
 
+  const headStyle: React.CSSProperties = {
+    display: "flex",
+    flexDirection: portrait ? "column" : "row",
+    alignItems: portrait ? "flex-start" : "center",
+    gap: px(portrait ? 8 : 22),
+    marginBottom: px(16),
+    fontFamily: body,
+  };
+
   return (
-    <AbsoluteFill style={{ alignItems: "center", padding: 50, ...textPositionStyle(textPosition) }}>
+    <AbsoluteFill style={{ alignItems: "center", padding: gutter, ...textPositionStyle(textPosition) }}>
       <WidgetShell kicker={`Marées, Vents & Météo · ${cfg.kicker}`} title={widget.text} opacity={o}>
-        <div style={{ display: "flex", alignItems: "center", gap: 22, marginBottom: 16, fontFamily: body }}>
+        <div style={headStyle}>
           {kind === "tides" ? (
             <>
-              <div style={{ fontSize: 64 }}>🌊</div>
+              <div style={{ fontSize: px(64) }}>🌊</div>
               <div>
-                <div style={{ fontSize: 52, color: COLORS.cream, fontWeight: 700 }}>
+                <div style={{ fontSize: px(52), color: COLORS.cream, fontWeight: 700, lineHeight: 1.05 }}>
                   {active?.sea != null ? `${active.sea.toFixed(2)} m` : "--"}
                 </div>
-                <div style={{ fontSize: 20, color: COLORS.gold }}>
+                <div style={{ fontSize: px(20), color: COLORS.gold }}>
                   {(widget.extremes || []).map((e) => `${e.type === "high" ? "PM" : "BM"} ${e.hour}`).join("  ·  ") || active?.hour}
                 </div>
               </div>
             </>
           ) : kind === "wind" ? (
             <>
-              <div style={{ fontSize: 64 }}>💨</div>
+              <div style={{ fontSize: px(64) }}>💨</div>
               <div>
-                <div style={{ fontSize: 52, color: COLORS.cream, fontWeight: 700 }}>{active?.wind != null ? `${active.wind} km/h` : "--"}</div>
-                <div style={{ fontSize: 20, color: COLORS.gold }}>
+                <div style={{ fontSize: px(52), color: COLORS.cream, fontWeight: 700, lineHeight: 1.05 }}>{active?.wind != null ? `${active.wind} km/h` : "--"}</div>
+                <div style={{ fontSize: px(20), color: COLORS.gold }}>
                   {active ? `${active.hour} · rafales ${active.gust ?? "--"} km/h · ${active.dir ?? "--"}°` : ""}
                 </div>
               </div>
             </>
           ) : (
             <>
-              <div style={{ fontSize: 64 }}>{wmoIcon(active?.code)}</div>
+              <div style={{ fontSize: px(64) }}>{wmoIcon(active?.code)}</div>
               <div>
-                <div style={{ fontSize: 52, color: COLORS.cream, fontWeight: 700 }}>{active?.temp != null ? `${active.temp}°` : "--"}</div>
-                <div style={{ fontSize: 20, color: COLORS.gold }}>
+                <div style={{ fontSize: px(52), color: COLORS.cream, fontWeight: 700, lineHeight: 1.05 }}>{active?.temp != null ? `${active.temp}°` : "--"}</div>
+                <div style={{ fontSize: px(20), color: COLORS.gold }}>
                   {active ? `${active.hour} · pluie ${active.pop ?? 0}%` : ""}
                 </div>
               </div>
             </>
           )}
         </div>
+
         <HourStrip
           labels={hours.map((h) => h.hour)}
           values={cfg.values}
