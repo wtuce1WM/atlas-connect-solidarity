@@ -3127,6 +3127,16 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     menuDocs,
     showGoogleReviews,
     googleReview,
+    // Widgets Météo / Marées & blog : indispensables au plan, sinon les étapes
+    // sont retirées du montage (et laissent un trou noir en fin de vidéo).
+    showWeatherWidget,
+    weatherWidget,
+    showTidesWidget,
+    tidesWidget,
+    showBlogArticles,
+    blogArticles,
+    blogMode,
+    freeZone,
     showTripAdvisor,
     tripAdvisor,
     showRestaurantGuru,
