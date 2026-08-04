@@ -58,9 +58,42 @@ export default function EmbedWeather() {
   }, [city]);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const innerRef = useRef<HTMLDivElement | null>(null);
+  const [scale, setScale] = useState(1);
+
+  // fit=h / fit=wh : aucun scroll interne — on met à l'échelle le contenu
+  // pour qu'il tienne exactement dans la hauteur de l'iframe hôte.
+  useEffect(() => {
+    if (!fullHeight) return;
+    const prevHtml = document.documentElement.style.overflow;
+    const prevBody = document.body.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    const compute = () => {
+      const el = innerRef.current;
+      if (!el) return;
+      const natural = el.scrollHeight;
+      const avail = window.innerHeight - 8;
+      if (natural < 40 || avail < 40) return;
+      setScale(Math.min(1, avail / natural));
+    };
+    compute();
+    const t = window.setTimeout(compute, 300);
+    window.addEventListener("resize", compute);
+    const ro = innerRef.current ? new ResizeObserver(compute) : null;
+    if (innerRef.current && ro) ro.observe(innerRef.current);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener("resize", compute);
+      ro?.disconnect();
+      document.documentElement.style.overflow = prevHtml;
+      document.body.style.overflow = prevBody;
+    };
+  }, [fullHeight, data, loading, error]);
 
   // Report our height to the host page so it can auto-resize the iframe.
   useEffect(() => {
+    if (fullHeight) return;
     const post = () => {
       const h = rootRef.current?.getBoundingClientRect().height || 0;
       if (h < 40) return;
@@ -77,13 +110,15 @@ export default function EmbedWeather() {
       window.removeEventListener("resize", post);
       ro?.disconnect();
     };
-  }, [data, loading, error]);
+  }, [data, loading, error, fullHeight]);
 
 
   return (
     <div
       ref={rootRef}
-      className={`w-full p-2 flex justify-center bg-transparent ${fullHeight ? "h-screen min-h-screen items-stretch [&>div]:h-full" : "min-h-0 items-start"}`}
+      className={`w-full flex justify-center bg-transparent ${
+        fullHeight ? "h-screen min-h-screen overflow-hidden items-start p-1" : "min-h-0 items-start p-2"
+      }`}
     >
       {loading && (
         <div className="w-full rounded-3xl bg-muted/40 animate-pulse h-[260px] flex items-center justify-center text-sm text-muted-foreground">
@@ -96,10 +131,19 @@ export default function EmbedWeather() {
         </div>
       )}
       {!loading && !error && data && (
-        <div className="w-full [&>div]:max-w-full">
+        <div
+          ref={innerRef}
+          className="w-full [&>div]:max-w-full"
+          style={
+            fullHeight && scale < 1
+              ? { transform: `scale(${scale})`, transformOrigin: "top center", width: `${100 / scale}%` }
+              : undefined
+          }
+        >
           <EmbedWeatherWidget data={data} lang={lang} embedded={fullWidth} />
         </div>
       )}
     </div>
   );
 }
+
