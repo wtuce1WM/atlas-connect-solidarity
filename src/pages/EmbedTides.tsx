@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import EmbedTidesWidget, { type TidesPayload } from "@/components/embed/EmbedTidesWidget";
+import { parseFit, fitFlags } from "@/lib/embedFit";
 
 type Lang = "fr" | "en" | "ar";
 
@@ -24,6 +25,8 @@ export default function EmbedTides() {
   const showPicker = params.get("picker") === "1" || params.get("picker") === "true";
   const compact = params.get("compact") === "1";
   const L = MESSAGES[lang];
+  const { fullWidth, fullHeight } = fitFlags(parseFit(params.get("fit")));
+  const capW = fullWidth ? "" : "max-w-[520px]";
 
   const [city, setCity] = useState(initialCity);
   const [cities, setCities] = useState<CityOption[]>([]);
@@ -95,11 +98,11 @@ export default function EmbedTides() {
   return (
     <div
       ref={rootRef}
-      className="w-full min-h-0 p-2 mx-auto flex flex-col items-center gap-2 bg-transparent max-w-[520px]"
+      className={`w-full p-2 mx-auto flex flex-col items-center gap-2 bg-transparent ${capW} ${fullHeight ? "h-screen min-h-screen" : "min-h-0"}`}
     >
 
       {showPicker && cities.length > 0 && (
-        <div className="w-full max-w-[520px]">
+        <div className={`w-full ${capW}`}>
           <label className="sr-only" htmlFor="owm-tide-city">
             {L.pick}
           </label>
@@ -119,18 +122,18 @@ export default function EmbedTides() {
       )}
 
       {loading && (
-        <div className="w-full max-w-[520px] rounded-3xl bg-muted/40 animate-pulse h-[300px] flex items-center justify-center text-sm text-muted-foreground">
+        <div className={`w-full ${capW} rounded-3xl bg-muted/40 animate-pulse h-[300px] flex items-center justify-center text-sm text-muted-foreground`}>
           {L.loading}
         </div>
       )}
       {!loading && (error || !data) && (
-        <div className="w-full max-w-[520px] rounded-3xl border border-border p-6 text-center text-sm text-muted-foreground">
+        <div className={`w-full ${capW} rounded-3xl border border-border p-6 text-center text-sm text-muted-foreground`}>
           {L.error}
         </div>
       )}
       {!loading && !error && data && (
-        <div className="w-full flex justify-center">
-          <EmbedTidesWidget data={data} lang={lang} compact={compact} onCityChange={setCity} />
+        <div className={`w-full flex justify-center ${fullHeight ? "flex-1 min-h-0 [&>div]:h-full" : ""}`}>
+          <EmbedTidesWidget data={data} lang={lang} compact={compact} fullWidth={fullWidth} onCityChange={setCity} />
         </div>
       )}
     </div>

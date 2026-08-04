@@ -102,19 +102,19 @@ export default function EmbedReviews() {
   }, [business, reviews, loading, error]);
 
   return (
-    <div className="w-full p-2 flex items-start justify-center bg-transparent">
+    <div className={`w-full p-2 flex justify-center bg-transparent ${fullHeight ? "h-screen min-h-screen items-stretch [&>div]:h-full" : "items-start"}`}>
       {loading && (
-        <div className="w-full max-w-[460px] rounded-3xl bg-muted/40 animate-pulse h-[320px] flex items-center justify-center text-sm text-muted-foreground">
+        <div className="w-full rounded-3xl bg-muted/40 animate-pulse h-[320px] flex items-center justify-center text-sm text-muted-foreground">
           {L.loading}
         </div>
       )}
       {!loading && (error || !business) && (
-        <div className="w-full max-w-[460px] rounded-3xl border border-border p-6 text-center text-sm text-muted-foreground">
+        <div className="w-full rounded-3xl border border-border p-6 text-center text-sm text-muted-foreground">
           {L.error}
         </div>
       )}
       {!loading && !error && business && (
-        <EmbedReviewsWidget business={business} reviews={reviews} platform={platform} lang={lang} ratio={ratio} size={size} />
+        <EmbedReviewsWidget business={business} reviews={reviews} platform={platform} lang={lang} ratio={ratio} size={size} fullWidth={fullWidth} />
       )}
     </div>
   );
