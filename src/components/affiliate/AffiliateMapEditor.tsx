@@ -175,8 +175,8 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
   }, [businessId]);
 
   const bgValid = /^#[0-9A-F]{6}$/i.test(bg);
-  /** Couleur de fond appliquée à l'aperçu : celle définie, sinon la palette 1WM. */
-  const bgEffective = bgValid ? bg.toUpperCase() : DEFAULT_BG;
+  /** Couleur forcée, sinon null → fond transparent (le widget prend le fond du site hôte). */
+  const bgEffective = bgValid ? bg.toUpperCase() : null;
   const radiusKm = Number(biz?.poi_radius_km) > 0 ? Number(biz!.poi_radius_km) : 10;
 
   // Auto-save (debounce 1s)
