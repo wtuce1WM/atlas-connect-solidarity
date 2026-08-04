@@ -66,6 +66,9 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const [weatherLang, setWeatherLang] = useState<"fr" | "en" | "ar">("fr");
   const [weatherSize, setWeatherSize] = useState<EmbedSize>("md");
   const [weatherCard, setWeatherCard] = useState<"transparent" | "widget" | "light" | "dark">("transparent");
+  // Format d'affichage : carte verticale classique ou bandeau footer full-width (desktop).
+  const [weatherLayout, setWeatherLayout] = useState<"card" | "footer">("card");
+  const [weatherSticky, setWeatherSticky] = useState(false);
 
   const [tidesCity, setTidesCity] = useState<string>("Essaouira");
   const [ficheMaxWidth, setFicheMaxWidth] = useState<number>(480);
@@ -390,9 +393,26 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         : weatherCard === "dark"
           ? "&bg=1C1917"
           : "&bg=transparent";
-  const weatherUrl = `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}&size=${weatherSize}${fitParam(fitOf("weather"))}${weatherBgParam}`;
+  const isWeatherFooter = weatherLayout === "footer";
+  const weatherUrl = isWeatherFooter
+    ? `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}&layout=footer&days=3${weatherBgParam}`
+    : `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}&size=${weatherSize}${fitParam(fitOf("weather"))}${weatherBgParam}`;
   const weatherMaxW = sizeMaxWidth(weatherSize);
-  const weatherSnippet = useMemo(
+  const weatherFooterSnippet = useMemo(
+    () =>
+      autoHeightSnippet({
+        id: "owm-weather-footer",
+        msgType: "owm-weather-height",
+        url: weatherUrl,
+        title: `Météo — ${weatherCity}`,
+        height: 96,
+        ...(weatherSticky
+          ? { wrapperStyle: "position:fixed;left:0;right:0;bottom:0;z-index:2147483000;width:100%;" }
+          : { wrapperStyle: "width:100%;" }),
+      } as any),
+    [weatherUrl, weatherCity, weatherSticky]
+  );
+  const weatherCardSnippet = useMemo(
     () =>
       fitOf("weather") === ""
         ? // Proportions conservées : la hauteur suit exactement le contenu (aucun scroll interne)
@@ -407,6 +427,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         : `<iframe src="${weatherUrl}" style="${fitIframeStyle(fitOf("weather"), { maxWidth: weatherMaxW, height: 560, radius: 20 })}" title="Météo — ${weatherCity}" loading="lazy"></iframe>`,
     [weatherUrl, weatherCity, weatherMaxW, fits]
   );
+  const weatherSnippet = isWeatherFooter ? weatherFooterSnippet : weatherCardSnippet;
 
 
   const tidesUrl = `${SITE}/embed/tides?city=${encodeURIComponent(tidesCity || "Essaouira")}&lang=${tidesLang}${fitParam(fitOf("tides"))}${wbg}`;
