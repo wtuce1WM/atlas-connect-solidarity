@@ -44,6 +44,7 @@ type RatePlatformKey = (typeof RATE_PLATFORMS)[number]["key"];
 
 const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { aiAssistant: true, blogExport: true, nearbyWidget: true, emailSignature: true } }: Props) => {
   const qrRef = useRef<HTMLDivElement>(null);
+  const widgetBgRef = useRef<HTMLInputElement>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [embedTheme, setEmbedTheme] = useState<"dark" | "light">("dark");
   const [embedLang, setEmbedLang] = useState<"fr" | "en" | "ar">("fr");
@@ -502,21 +503,35 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
           <Globe2 className="h-4 w-4" /> Couleur de fond des widgets
         </h3>
         <p className="text-sm text-white/70 max-w-2xl">
-          Par défaut, chaque widget garde sa couleur d'origine. Si vous définissez une couleur ici, elle est
-          appliquée aux widgets de {businessName} — sauf si vous forcez une autre couleur directement dans le widget.
+          <span className="text-white font-medium">Vide = fond transparent.</span> Le widget prend alors le fond du site hôte.
+          Si vous définissez une couleur ici, elle est appliquée aux widgets de {businessName} — sauf si vous forcez une autre couleur directement dans le widget.
         </p>
         <div className="flex items-center gap-2">
           <input
+            ref={widgetBgRef}
             type="color"
-            value={widgetBgValid ? widgetBg : "#EFE6D8"}
+            value={widgetBgValid ? widgetBg : "#FFFFFF"}
             onChange={(e) => { const v = e.target.value.toUpperCase(); setWidgetBg(v); saveWidgetBg(v); }}
             disabled={radiusLoading || !businessId}
-            className="h-9 w-10 rounded-md bg-white/10 border border-white/20 p-1 cursor-pointer"
+            className="sr-only"
             aria-label="Couleur de fond des widgets"
+            id="widget-bg-color"
           />
+          <button
+            type="button"
+            onClick={() => widgetBgRef.current?.click()}
+            disabled={radiusLoading || !businessId}
+            className="h-9 w-10 rounded-md border border-white/20 p-1 overflow-hidden shrink-0 focus:outline-none focus:ring-2 focus:ring-primary"
+            aria-label="Choisir une couleur de fond"
+            style={{ background: widgetBgValid ? widgetBg : "transparent" }}
+          >
+            {!widgetBgValid && (
+              <div className="w-full h-full opacity-30" style={{ background: "repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 12px 12px" }} />
+            )}
+          </button>
           <input
             type="text"
-            placeholder="#EFE6D8"
+            placeholder="Transparent"
             value={widgetBg}
             onChange={(e) => setWidgetBg(e.target.value.toUpperCase())}
             onBlur={(e) => saveWidgetBg(e.target.value.toUpperCase())}
