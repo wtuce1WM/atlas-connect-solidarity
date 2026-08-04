@@ -1,5 +1,5 @@
 // Standalone embeddable reviews page: /embed/reviews/:slug?platform=google|tripadvisor|restaurant-guru|all&lang=fr
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { parseFit, fitFlags, applyEmbedBg, parseBg, resolveEmbedInk } from "@/lib/embedFit";
