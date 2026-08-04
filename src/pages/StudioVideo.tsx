@@ -1574,6 +1574,9 @@ export default function StudioVideo() {
 
           options: {
             lang: videoLang,
+            video_format: videoFormat,
+            canvas_width: videoCanvas.w,
+            canvas_height: videoCanvas.h,
             reviews: optReviews,
             hours: optHours,
             map_marker: optMapMarker,
@@ -1824,6 +1827,9 @@ export default function StudioVideo() {
           preview_only: true,
           options: {
             lang: videoLang,
+            video_format: videoFormat,
+            canvas_width: videoCanvas.w,
+            canvas_height: videoCanvas.h,
             reviews: optReviews,
             hours: optHours,
             map_marker: optMapMarker,
