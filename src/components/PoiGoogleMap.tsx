@@ -514,6 +514,95 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     map.setMapTypeId(mapTypeIds[mapTypeId] || gmaps.MapTypeId.ROADMAP);
   }, [mapTypeId, ready]);
 
+  // Flèche rouge animée + distance entre deux marqueurs (Master ↔ POI par défaut).
+  const connectorRef = useRef<{ line: any; label: any; timer: any } | null>(null);
+  useEffect(() => {
+    const gmaps = window.google?.maps;
+    const map = mapRef.current;
+    if (!gmaps || !map) return;
+
+    const clear = () => {
+      if (!connectorRef.current) return;
+      clearInterval(connectorRef.current.timer);
+      connectorRef.current.line?.setMap(null);
+      connectorRef.current.label?.setMap(null);
+      connectorRef.current = null;
+    };
+    clear();
+    if (!connector) return;
+
+    const path = [
+      new gmaps.LatLng(connector.from.lat, connector.from.lng),
+      new gmaps.LatLng(connector.to.lat, connector.to.lng),
+    ];
+    const line = new gmaps.Polyline({
+      map,
+      path,
+      geodesic: true,
+      strokeColor: "#E11D48",
+      strokeOpacity: 0,
+      zIndex: 60,
+      icons: [
+        {
+          icon: { path: "M 0,-1 0,1", strokeColor: "#E11D48", strokeOpacity: 1, strokeWeight: 3, scale: 3 },
+          offset: "0",
+          repeat: "16px",
+        },
+        {
+          icon: {
+            path: gmaps.SymbolPath.FORWARD_CLOSED_ARROW,
+            scale: 4,
+            strokeColor: "#E11D48",
+            fillColor: "#E11D48",
+            fillOpacity: 1,
+            strokeWeight: 1,
+          },
+          offset: "100%",
+        },
+      ],
+    });
+
+    let step = 0;
+    const timer = setInterval(() => {
+      step = (step + 2) % 200;
+      const icons = line.get("icons");
+      icons[0].offset = `${step / 2}%`;
+      line.set("icons", icons);
+    }, 60);
+
+    let label: any = null;
+    if (connector.label) {
+      const mid = new gmaps.LatLng(
+        (connector.from.lat + connector.to.lat) / 2,
+        (connector.from.lng + connector.to.lng) / 2,
+      );
+      label = new gmaps.Marker({
+        map,
+        position: mid,
+        zIndex: 61,
+        clickable: false,
+        icon: {
+          path: gmaps.SymbolPath.CIRCLE,
+          scale: 0,
+          fillOpacity: 0,
+          strokeOpacity: 0,
+        },
+        label: {
+          text: connector.label,
+          color: "#E11D48",
+          fontSize: "13px",
+          fontWeight: "700",
+          className: "poi-connector-label",
+        } as any,
+      });
+    }
+
+    connectorRef.current = { line, label, timer };
+    return clear;
+  }, [connector?.from.lat, connector?.from.lng, connector?.to.lat, connector?.to.lng, connector?.label, ready]);
+
+
+
 
   // Swap tile styles live when theme changes (only for 1WM styled themes;
   // native colorScheme is fixed at construction — parent must remount via key prop).
