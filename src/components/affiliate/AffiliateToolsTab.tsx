@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import AffiliateArticleExport from "@/components/affiliate/AffiliateArticleExport";
 import WidgetTester from "@/components/affiliate/WidgetTester";
+import { FIT_OPTIONS, fitFlags, fitIframeStyle, fitParam, type EmbedFit } from "@/lib/embedFit";
 
 
 export type ToolsRights = {
@@ -63,6 +64,10 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const [ficheMaxWidth, setFicheMaxWidth] = useState<number>(480);
   const [ficheShowClub, setFicheShowClub] = useState<boolean>(true);
   const [tidesLang, setTidesLang] = useState<"fr" | "en" | "ar">("fr");
+
+  // Ajustement de chaque widget dans son iframe (largeur / hauteur / les deux)
+  const [fits, setFits] = useState<Record<string, EmbedFit>>({});
+  const fitOf = (key: string): EmbedFit => fits[key] || "";
 
   // Rayon de proximité (businesses.poi_radius_km)
   const [radiusKm, setRadiusKm] = useState<number>(10);
@@ -127,6 +132,30 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
 
 
+  const fitRow = (key: string) => (
+    <div className="space-y-1.5">
+      <Label className="text-white/80 text-xs">Ajustement dans la page hôte</Label>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1">
+        {FIT_OPTIONS.map((o) => (
+          <button
+            key={o.value || "std"}
+            type="button"
+            onClick={() => setFits((prev) => ({ ...prev, [key]: o.value }))}
+            className={`text-[11px] leading-tight py-1.5 px-2 rounded-md border ${
+              fitOf(key) === o.value ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"
+            }`}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+      <p className="text-[11px] text-white/50">
+        « Toute la largeur / hauteur » étire le widget dans son conteneur pour éviter les scrolls
+        internes et un affichage trop étroit.
+      </p>
+    </div>
+  );
+
   if (!slug) {
     return (
       <div className="text-sm text-white/70">
@@ -137,11 +166,11 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
   const publicUrl = `${SITE}/${slug}`;
   const shortUrl = `${SITE}/b/${slug}`;
-  const embedUrl = `${SITE}/embed/ask/${slug}?theme=${embedTheme}&lang=${embedLang}`;
+  const embedUrl = `${SITE}/embed/ask/${slug}?theme=${embedTheme}&lang=${embedLang}${fitParam(fitOf("embed"))}`;
   const embedSnippet = useMemo(
     () =>
-      `<iframe src="${embedUrl}" style="width:100%;max-width:420px;height:${embedHeight}px;border:0;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.15)" title="Assistant IA — ${businessName}" loading="lazy" allow="clipboard-write"></iframe>`,
-    [embedUrl, embedHeight, businessName]
+      `<iframe src="${embedUrl}" style="${fitIframeStyle(fitOf("embed"), { maxWidth: 420, height: embedHeight, radius: 16, extra: "box-shadow:0 4px 24px rgba(0,0,0,0.15)" })}" title="Assistant IA — ${businessName}" loading="lazy" allow="clipboard-write"></iframe>`,
+    [embedUrl, embedHeight, businessName, fits]
   );
 
   const floatingSnippet = useMemo(
@@ -198,11 +227,11 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   // Couleur forcée dans ce widget, sinon couleur de fond des widgets de l'établissement
   const effectiveNearbyBg = /^#[0-9a-fA-F]{6}$/.test(nearbyBg) ? nearbyBg : (widgetBgValid ? widgetBg : "");
   const nearbyBgValid = /^#[0-9a-fA-F]{6}$/.test(effectiveNearbyBg);
-  const nearbyUrl = `${SITE}/embed/nearby/${slug}?lang=${nearbyLang}${nearbyBgValid ? `&bg=${effectiveNearbyBg.slice(1)}` : ""}`;
+  const nearbyUrl = `${SITE}/embed/nearby/${slug}?lang=${nearbyLang}${nearbyBgValid ? `&bg=${effectiveNearbyBg.slice(1)}` : ""}${fitParam(fitOf("nearby"))}`;
   const nearbySnippet = useMemo(
     () =>
-      `<iframe src="${nearbyUrl}" style="width:100%;height:${nearbyHeight}px;border:0;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.15)" title="À proximité — ${businessName}" loading="lazy" allow="geolocation"></iframe>`,
-    [nearbyUrl, nearbyHeight, businessName]
+      `<iframe src="${nearbyUrl}" style="${fitIframeStyle(fitOf("nearby"), { height: nearbyHeight, radius: 16, extra: "box-shadow:0 4px 24px rgba(0,0,0,0.15)" })}" title="À proximité — ${businessName}" loading="lazy" allow="geolocation"></iframe>`,
+    [nearbyUrl, nearbyHeight, businessName, fits]
   );
 
   const nearbyFloatingSnippet = useMemo(
@@ -268,20 +297,20 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     "square": { label: "Carré", ratio: "square", size: "sm", w: 480, h: 480 },
   };
   const preset = REVIEW_PRESETS[reviewsPreset] || REVIEW_PRESETS["v-sm"];
-  const reviewsUrl = `${SITE}/embed/reviews/${slug}?platform=${reviewsPlatform}&lang=${reviewsLang}&ratio=${preset.ratio}&size=${preset.size}`;
+  const reviewsUrl = `${SITE}/embed/reviews/${slug}?platform=${reviewsPlatform}&lang=${reviewsLang}&ratio=${preset.ratio}&size=${preset.size}${fitParam(fitOf("reviews"))}`;
   const reviewsSnippet = useMemo(
     () =>
-      `<iframe src="${reviewsUrl}" style="width:100%;max-width:${preset.w}px;height:${preset.h}px;border:0;border-radius:20px" title="Avis clients — ${businessName}" loading="lazy"></iframe>`,
-    [reviewsUrl, businessName, preset.w, preset.h]
+      `<iframe src="${reviewsUrl}" style="${fitIframeStyle(fitOf("reviews"), { maxWidth: preset.w, height: preset.h, radius: 20 })}" title="Avis clients — ${businessName}" loading="lazy"></iframe>`,
+    [reviewsUrl, businessName, preset.w, preset.h, fits]
   );
 
   const rateW = rateVariant === "bar" ? 780 : 460;
   const rateH = rateVariant === "bar" ? 120 : 430;
-  const rateUrl = `${SITE}/embed/avis/${slug}?platform=${ratePlatform}&lang=${rateLang}&variant=${rateVariant}`;
+  const rateUrl = `${SITE}/embed/avis/${slug}?platform=${ratePlatform}&lang=${rateLang}&variant=${rateVariant}${fitParam(fitOf("rate"))}`;
   const rateSnippet = useMemo(
     () =>
-      `<iframe src="${rateUrl}" style="width:100%;max-width:${rateW}px;height:${rateH}px;border:0;border-radius:20px" title="Laisser un avis — ${businessName}" loading="lazy"></iframe>`,
-    [rateUrl, rateW, rateH, businessName]
+      `<iframe src="${rateUrl}" style="${fitIframeStyle(fitOf("rate"), { maxWidth: rateW, height: rateH, radius: 20 })}" title="Laisser un avis — ${businessName}" loading="lazy"></iframe>`,
+    [rateUrl, rateW, rateH, businessName, fits]
   );
 
   // Version email-friendly (signature) : HTML statique en tableau, sans JS ni iframe
@@ -322,26 +351,26 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
 
 
-  const weatherUrl = `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}`;
+  const weatherUrl = `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}${fitParam(fitOf("weather"))}`;
   const weatherSnippet = useMemo(
     () =>
-      `<iframe src="${weatherUrl}" style="width:100%;max-width:420px;height:320px;border:0;border-radius:20px" title="Météo — ${weatherCity}" loading="lazy"></iframe>`,
-    [weatherUrl, weatherCity]
+      `<iframe src="${weatherUrl}" style="${fitIframeStyle(fitOf("weather"), { maxWidth: 420, height: 320, radius: 20 })}" title="Météo — ${weatherCity}" loading="lazy"></iframe>`,
+    [weatherUrl, weatherCity, fits]
   );
 
-  const tidesUrl = `${SITE}/embed/tides?city=${encodeURIComponent(tidesCity || "Essaouira")}&lang=${tidesLang}`;
+  const tidesUrl = `${SITE}/embed/tides?city=${encodeURIComponent(tidesCity || "Essaouira")}&lang=${tidesLang}${fitParam(fitOf("tides"))}`;
   const tidesSnippet = useMemo(
     () =>
-      `<iframe src="${tidesUrl}" style="width:100%;max-width:520px;height:360px;border:0;border-radius:20px" title="Marées — ${tidesCity}" loading="lazy"></iframe>`,
-    [tidesUrl, tidesCity]
+      `<iframe src="${tidesUrl}" style="${fitIframeStyle(fitOf("tides"), { maxWidth: 520, height: 360, radius: 20 })}" title="Marées — ${tidesCity}" loading="lazy"></iframe>`,
+    [tidesUrl, tidesCity, fits]
   );
 
   // Widget « Fiche complète » : /b/:slug en mode embed avec auto-resize
-  const ficheUrl = `${SITE}/b/${slug ?? ""}?embed=1${ficheShowClub ? "" : "&club=0"}`;
+  const ficheUrl = `${SITE}/b/${slug ?? ""}?embed=1${ficheShowClub ? "" : "&club=0"}${fitParam(fitOf("fiche"))}`;
   const ficheSnippet = useMemo(
     () =>
-      `<div id="owm-fiche-wrap" style="width:100%;max-width:${ficheMaxWidth}px;margin:0 auto">
-  <iframe id="owm-fiche-frame" src="${ficheUrl}" style="width:100%;height:1200px;border:0;border-radius:24px;background:transparent" title="Fiche — ${businessName}" loading="lazy" allow="clipboard-write"></iframe>
+      `<div id="owm-fiche-wrap" style="width:100%;${fitFlags(fitOf("fiche")).fullWidth ? "" : `max-width:${ficheMaxWidth}px;`}margin:0 auto">
+  <iframe id="owm-fiche-frame" src="${ficheUrl}" style="${fitIframeStyle(fitOf("fiche"), { height: 1200, radius: 24, extra: "background:transparent" })}" title="Fiche — ${businessName}" loading="lazy" allow="clipboard-write"></iframe>
 </div>
 <script>
   (function () {
@@ -353,7 +382,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     });
   })();
 </script>`,
-    [ficheUrl, ficheMaxWidth, businessName]
+    [ficheUrl, ficheMaxWidth, businessName, fits]
   );
 
 
@@ -634,7 +663,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               <iframe
                 key={embedUrl + embedHeight}
                 src={embedUrl}
-                style={{ width: "100%", maxWidth: 420, height: embedHeight, border: 0 }}
+                style={{ width: "100%", maxWidth: fitFlags(fitOf("embed")).fullWidth ? undefined : 420, height: embedHeight, border: 0 }}
                 title="Aperçu"
                 loading="lazy"
               />
