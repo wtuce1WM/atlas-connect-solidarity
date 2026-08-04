@@ -1,11 +1,12 @@
 // Standalone embeddable weather page: /embed/weather?city=Marrakech&lang=fr
 // Designed to be loaded in an <iframe> from any external site (Claude Design, etc.).
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
-import { parseFit, fitFlags, applyEmbedBg } from "@/lib/embedFit";
+import { parseFit, fitFlags, applyEmbedBg, parseSize, sizeZoom } from "@/lib/embedFit";
 import { useEmbedFitScale } from "@/hooks/useEmbedFitScale";
+
 
 type Lang = "fr" | "en" | "ar";
 
