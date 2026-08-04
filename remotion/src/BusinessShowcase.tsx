@@ -2111,26 +2111,28 @@ const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "r
     <AbsoluteFill>
       <BrandBleedLogo src={meta.logo} color={meta.brand} durationFrames={durationFrames} side={kind === "tripadvisor" ? "right" : "left"} />
       <AbsoluteFill style={{ opacity: Math.min(inO, out), padding: 60, ...textPositionStyle(textPosition) }}>
-        {/* Pastille logo en avant-plan, débordant du bloc note */}
+        {/* Pastille logo en avant-plan — Google : transparence intégrale conservée (pas de pastille blanche) */}
         <div
           style={{
             alignSelf: "center",
             width: 132,
             height: 132,
             borderRadius: 66,
-            background: "rgba(255,255,255,0.96)",
+            background: kind === "google_review" ? "transparent" : "rgba(255,255,255,0.96)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             transform: `scale(${interpolate(chipS, [0, 1], [0.4, 1]) * ringPulse}) rotate(${interpolate(chipS, [0, 1], [-25, 0])}deg)`,
-            boxShadow: `0 0 0 6px ${meta.brand}, 0 18px 60px ${meta.brand}66`,
+            boxShadow: kind === "google_review" ? "none" : `0 0 0 6px ${meta.brand}, 0 18px 60px ${meta.brand}66`,
+            filter: kind === "google_review" ? `drop-shadow(0 10px 34px ${meta.brand}88)` : undefined,
             marginBottom: -34,
             zIndex: 2,
-            overflow: "hidden",
+            overflow: kind === "google_review" ? "visible" : "hidden",
           }}
         >
-          <Img src={staticFile(meta.logo)} style={{ width: 132, height: 132, objectFit: "cover" }} />
+          <Img src={staticFile(meta.logo)} style={{ width: 132, height: 132, objectFit: kind === "google_review" ? "contain" : "cover" }} />
         </div>
+
         <div style={{ marginTop: 24, alignSelf: "center", transform: `scale(${interpolate(badgeS, [0, 1], [0.85, 1])})`, padding: "48px 46px 30px", background: "rgba(14,11,8,0.72)", border: `2px solid ${meta.brand}`, borderRadius: 26, textAlign: "center", boxShadow: `0 12px 60px ${meta.brand}55` }}>
           <div style={{ fontFamily: body, color: meta.brand, fontSize: 20, letterSpacing: 6, textTransform: "uppercase" }}>
             {L.reviewsOf(meta.label)}
