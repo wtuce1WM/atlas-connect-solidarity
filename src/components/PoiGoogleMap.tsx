@@ -30,6 +30,8 @@ interface PoiGoogleMapProps {
   subcategoryIconMap?: Record<string, string>;
   /** When true, fitBounds on markers instead of forcing center */
   fitToMarkers?: boolean;
+  /** Overrides the default padding used by fitToMarkers (px). */
+  fitPadding?: { top: number; right: number; bottom: number; left: number };
   /** Custom highlight color for the selected marker (default: dark) */
   highlightColor?: { bg: string; fg: string; border: string };
   /** When provided, draws a terracotta dot at the user's geolocation. */
