@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
-import { parseFit, fitFlags, applyEmbedBg, parseSize, sizeZoom } from "@/lib/embedFit";
+import { parseFit, fitFlags, applyEmbedBg, parseSize, sizeZoom, parseBg, resolveEmbedInk } from "@/lib/embedFit";
 import { useEmbedFitScale } from "@/hooks/useEmbedFitScale";
 
 
@@ -24,6 +24,10 @@ export default function EmbedWeather() {
   const L = MESSAGES[lang];
   const { fullWidth, fullHeight } = fitFlags(parseFit(params.get("fit")));
   const zoom = sizeZoom(parseSize(params.get("size")));
+  // Fond : transparent par défaut (le widget prend le fond du site hôte).
+  // ?bg=EFE6D8 force une couleur, l'encre du bloc prévisions suit sa luminance.
+  const bgColor = parseBg(params.get("bg"));
+  const ink = resolveEmbedInk(params.get("ink"), bgColor);
 
 
   const [data, setData] = useState<WeatherPayload | null>(null);
@@ -114,7 +118,7 @@ export default function EmbedWeather() {
           style={{ ...(fitStyle || {}), ...(zoom !== 1 ? ({ zoom } as CSSProperties) : {}) }}
         >
           {/* `embedded` = pas de largeur bridée : la taille est pilotée par l'iframe hôte */}
-          <EmbedWeatherWidget data={data} lang={lang} embedded />
+          <EmbedWeatherWidget data={data} lang={lang} embedded surface={bgColor} ink={ink} />
         </div>
       )}
 
