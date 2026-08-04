@@ -7,6 +7,7 @@ import {
   Audio,
   Loop,
   interpolate,
+  interpolateColors,
   spring,
   useCurrentFrame,
   useVideoConfig,
@@ -17,6 +18,8 @@ import { display, body, COLORS } from "./theme";
 // Base 22s @ 30fps — étendu dynamiquement par les options
 export const SHOWCASE_TOTAL_FRAMES = 660;
 export const OPTION_SCENE_FRAMES = 90; // 3s par scène optionnelle
+// Jaune vif « flashy » utilisé pour les extraits d'avis et les étoiles.
+export const FLASH_YELLOW = "#FFE21A";
 
 export type TextPosition = "top" | "middle" | "bottom";
 export type Tone = "immersif" | "dynamique" | "elegant";
@@ -2684,6 +2687,8 @@ const SceneCustomerReview: React.FC<{
   const excerptSize = size * interpolate(focus, [0, 1], [1, 1.5]);
   const cardScale = interpolate(focus, [0, 1], [1, 1.08]);
   const excerptGlow = interpolate(focus, [0, 1], [0, 1]);
+  // Pulsation du halo jaune (effet flashy)
+  const flashPulse = 0.7 + 0.3 * Math.sin(frame / 3.2);
 
   const platform = platformKeyFromSource(source);
   const meta = platform ? PLATFORM_META[platform] : null;
@@ -2763,7 +2768,7 @@ const SceneCustomerReview: React.FC<{
           </div>
 
           {rating != null && Number.isFinite(rating) && (
-            <div style={{ marginTop: 20, fontFamily: body, color: meta ? meta.accent : COLORS.gold, fontSize: 30 }}>
+            <div style={{ marginTop: 20, fontFamily: body, color: FLASH_YELLOW, fontSize: 30, textShadow: `0 0 ${10 + 14 * flashPulse}px ${FLASH_YELLOW}99` }}>
               {"★★★★★".slice(0, Math.round(rating))}<span style={{ opacity: 0.3 }}>{"★★★★★".slice(Math.round(rating))}</span>
             </div>
           )}
