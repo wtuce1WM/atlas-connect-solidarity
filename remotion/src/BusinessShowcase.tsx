@@ -1376,7 +1376,7 @@ const HourStrip: React.FC<{ labels: string[]; values: number[]; unit: string; pr
           return (
             <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: px(6) }}>
               <div style={{ fontFamily: body, fontSize: px(15), color: revealed ? COLORS.cream : "rgba(245,240,230,0.25)" }}>
-                {Math.round(v)}
+                {max <= 5 ? v.toFixed(1) : Math.round(v)}
               </div>
               <div
                 style={{
