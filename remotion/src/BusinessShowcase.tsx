@@ -1552,7 +1552,14 @@ export type PlaceItem = {
   media_kind?: "image" | "video" | null;
   latitude?: number | null;
   longitude?: number | null;
+  /** Distance Master → lieu, en mètres (calculée côté serveur). */
+  distance_m?: number | null;
+  /** Cap Master → lieu, en degrés (0 = nord). */
+  bearing_deg?: number | null;
+  master_latitude?: number | null;
+  master_longitude?: number | null;
 };
+
 
 /**
  * Montage des lieux liés à une étape : un plan par lieu (vidéo 1 ou image 1),
