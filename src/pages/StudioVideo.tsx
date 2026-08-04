@@ -1082,7 +1082,7 @@ export default function StudioVideo() {
           .order("sort_order", { ascending: true }),
       ]);
       if (cancelled) return;
-      const strip = (s: string | null) => (s || "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+      const strip = (s: string | null) => decodeHtmlEntities((s || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
       setAiSummariesList(
         ((sums.data ?? []) as any[])
           .map((r) => ({ id: r.id as string, title: strip(r.title), content: strip(r.content) }))
