@@ -239,8 +239,8 @@ export type ShowcaseProps = {
   videoStarts?: Record<string, number>;
   /** Point de fin (secondes) par URL de vidéo — défini dans le Studio (Time End). */
   videoEnds?: Record<string, number>;
-  offer?: { title?: string; price?: string; lines?: string[]; background_video_url?: string; background_image_url?: string } | null;
-  offers?: Array<{ title?: string; price?: string; lines?: string[]; background_video_url?: string; background_image_url?: string }> | null;
+  offer?: { title?: string; price?: string; lines?: string[]; message_html?: string | null; background_video_url?: string; background_image_url?: string } | null;
+  offers?: Array<{ title?: string; price?: string; lines?: string[]; message_html?: string | null; background_video_url?: string; background_image_url?: string }> | null;
   rating?: number | null;
   reviewsCount?: number | null;
   openingHours?: string | Record<string, string> | null;
@@ -312,7 +312,9 @@ export type ShowcaseProps = {
   popupImageUrl?: string | null;
   popupTitle?: string | null;
   popupDescription?: string | null;
-  aiSummaries?: Array<{ id?: string; title?: string; content?: string; effect?: string | null }> | null;
+  /** Version rich text (gras/italique/puces) du texte popup */
+  popupDescriptionHtml?: string | null;
+  aiSummaries?: Array<{ id?: string; title?: string; content?: string; content_html?: string | null; effect?: string | null }> | null;
   /** Effet appliqué au média de fond des séquences Résumé IA (défaut global) */
   aiSummaryEffect?: "zoom_in" | "zoom_out" | "pan_left" | "pan_right" | "pan_down" | "pan_up" | "scroll_v" | null;
   externalLinks?: Array<{ id?: string; name?: string; label?: string; url?: string | null; image?: string | null }> | null;
@@ -961,7 +963,7 @@ const SceneGallery: React.FC<{ images: string[] }> = ({ images }) => {
 };
 
 const SceneOffer: React.FC<{
-  offer: { title?: string; price?: string; lines?: string[] };
+  offer: { title?: string; price?: string; lines?: string[]; message_html?: string | null };
   city?: string;
   durationFrames?: number;
   textPosition?: TextPosition;
@@ -974,9 +976,13 @@ const SceneOffer: React.FC<{
   const outStart = Math.max(30, durationFrames - 20);
   const out = 1 - ease(frame, outStart, durationFrames);
   const lines = Array.isArray(offer.lines) ? offer.lines.filter(Boolean).slice(0, 6) : [];
+  const richMsg = sanitizeRich(offer.message_html || "");
+  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br)\b/i.test(richMsg);
   const hasPrice = !!offer.price;
+  const hasBody = hasRich || lines.length > 0;
   return (
     <AbsoluteFill style={{ alignItems: "center", padding: 60, ...textPositionStyle(textPosition), opacity: out }}>
+      <style>{RICH_CSS}</style>
       <FitColumn>
       <div
 
@@ -998,7 +1004,7 @@ const SceneOffer: React.FC<{
           fontFamily: display,
           fontWeight: 700,
           color: COLORS.cream,
-          fontSize: lines.length ? 46 : 54,
+          fontSize: hasBody ? 46 : 54,
           textAlign: "center",
           lineHeight: 1.1,
           padding: "0 20px",
@@ -1011,11 +1017,11 @@ const SceneOffer: React.FC<{
           style={{
             opacity: priceS,
             transform: `scale(${interpolate(priceS, [0, 1], [0.85, 1])})`,
-            marginTop: lines.length ? 20 : 40,
+            marginTop: hasBody ? 20 : 40,
             fontFamily: display,
             fontWeight: 700,
             color: COLORS.terracotta,
-            fontSize: lines.length ? 82 : 130,
+            fontSize: hasBody ? 82 : 130,
             lineHeight: 1,
             textAlign: "center",
           }}
@@ -1023,7 +1029,12 @@ const SceneOffer: React.FC<{
           {offer.price}
         </div>
       )}
-      {lines.length > 0 && (
+      {hasRich ? (
+        <RichBlock
+          html={richMsg}
+          style={{ marginTop: 28, fontFamily: body, color: COLORS.cream, fontSize: 24, lineHeight: 1.35, maxWidth: 640, alignSelf: "center", opacity: ease(frame, 30, 52) }}
+        />
+      ) : lines.length > 0 && (
         <div
           style={{
             marginTop: 28,
@@ -2164,26 +2175,36 @@ const SceneLogo: React.FC<{ logoUrl: string; durationFrames?: number; background
   );
 };
 
-const ScenePopup: React.FC<{ imageUrl: string; title?: string | null; description?: string | null; durationFrames: number; textPosition?: TextPosition }> = ({ imageUrl, title, description, durationFrames, textPosition = "middle" }) => {
+const ScenePopup: React.FC<{ imageUrl: string; title?: string | null; description?: string | null; descriptionHtml?: string | null; durationFrames: number; textPosition?: TextPosition }> = ({ imageUrl, title, description, descriptionHtml, durationFrames, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
-  const desc = (description || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const desc = decodeEntities((description || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+  const richDesc = sanitizeRich(descriptionHtml || "");
+  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br)\b/i.test(richDesc);
   return (
     <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
+      <style>{RICH_CSS}</style>
       <KenBurns src={imageUrl} from={0} duration={durationFrames} />
       <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.15) 0%,rgba(0,0,0,0.7) 100%)" }} />
       <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
+        <FitColumn>
         {title && (
           <div style={{ fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 54, lineHeight: 1.1, textShadow: "0 4px 20px rgba(0,0,0,0.7)", textAlign: "center" }}>
-            {title}
+            {decodeEntities(title)}
           </div>
         )}
-        {desc && (
-          <div style={{ marginTop: 18, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.35, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.6)" }}>
-            {desc.slice(0, 240)}
+        {hasRich ? (
+          <RichBlock
+            html={richDesc}
+            style={{ marginTop: 18, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.35, textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 640, alignSelf: "center" }}
+          />
+        ) : desc ? (
+          <div style={{ marginTop: 18, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.35, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 640 }}>
+            {desc}
           </div>
-        )}
+        ) : null}
+        </FitColumn>
       </AbsoluteFill>
     </AbsoluteFill>
   );
@@ -2344,21 +2365,26 @@ const SceneInfoText: React.FC<{
   label?: string;
   title?: string;
   text?: string;
+  /** Version rich text du texte (gras/italique/puces) — prioritaire si présente */
+  textHtml?: string | null;
   logoUrl?: string | null;
   durationFrames: number;
   textPosition?: TextPosition;
   /** Habillage décoratif animé (cartes « Menus » sans contenu texte) */
   ornament?: boolean;
-}> = ({ label, title, text, logoUrl, durationFrames, textPosition = "middle", ornament = false }) => {
+}> = ({ label, title, text, textHtml, logoUrl, durationFrames, textPosition = "middle", ornament = false }) => {
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
   const titleY = interpolate(spring({ frame: frame - 6, fps: 30, config: { damping: 18 } }), [0, 1], [30, 0]);
   const logoS = interpolate(spring({ frame: frame - 2, fps: 30, config: { damping: 14, stiffness: 160 } }), [0, 1], [0.6, 1]);
-  const clean = (v?: string) => (v || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const clean = (v?: string) => decodeEntities((v || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+  const richText = sanitizeRich(textHtml || "");
+  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br)\b/i.test(richText);
   const safeLogo = typeof logoUrl === "string" && logoUrl.trim().startsWith("http") ? logoUrl : null;
   return (
     <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
+      <style>{RICH_CSS}</style>
       <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.42) 0%,rgba(0,0,0,0.78) 100%)" }} />
       <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
         <FitColumn>
@@ -2375,14 +2401,19 @@ const SceneInfoText: React.FC<{
         )}
         {title && (
           <div style={{ marginTop: 14, transform: `translateY(${titleY}px)`, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 52, lineHeight: 1.12, textAlign: "center", textShadow: "0 4px 20px rgba(0,0,0,0.7)" }}>
-            {clean(title).slice(0, 90)}
+            {clean(title)}
           </div>
         )}
-        {text && (
+        {hasRich ? (
+          <RichBlock
+            html={richText}
+            style={{ marginTop: 20, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.42, textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 640, alignSelf: "center" }}
+          />
+        ) : text ? (
           <div style={{ marginTop: 20, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.42, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 620 }}>
-            {clean(text).slice(0, 320)}
+            {clean(text)}
           </div>
-        )}
+        ) : null}
         {ornament && (
           <div style={{ marginTop: 26, alignSelf: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
             {/* filet doré qui se déploie */}
@@ -2752,6 +2783,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   popupImageUrl,
   popupTitle,
   popupDescription,
+  popupDescriptionHtml,
   highlights,
   aiSummaries,
   aiSummaryEffect,
@@ -3094,7 +3126,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         if (!popupImageUrl) return null;
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
-            <ScenePopup imageUrl={popupImageUrl} title={popupTitle} description={popupDescription} durationFrames={duration} textPosition={textPosition} />
+            <ScenePopup imageUrl={popupImageUrl} title={popupTitle} description={popupDescription} descriptionHtml={popupDescriptionHtml} durationFrames={duration} textPosition={textPosition} />
           </AbsoluteFill>
         );
       }
@@ -3127,12 +3159,14 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         let label = "";
         let title = "";
         let text = "";
+        let textHtml: string | null = null;
         if (kind === "ai_summary") {
           const item = (Array.isArray(aiSummaries) ? aiSummaries : [])[idx];
           if (!item) return null;
           label = lang === "en" ? "Menu highlights" : "La carte";
           title = item.title || label;
           text = item.content || "";
+          textHtml = item.content_html || null;
         } else if (kind === "external_link") {
           const item = (Array.isArray(externalLinks) ? externalLinks : [])[idx];
           if (!item) return null;
@@ -3169,6 +3203,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               label={label}
               title={title}
               text={text}
+              textHtml={textHtml}
               logoUrl={kind === "external_link" ? (Array.isArray(externalLinks) ? externalLinks : [])[idx]?.image ?? null : null}
               durationFrames={duration}
               textPosition={textPosition}

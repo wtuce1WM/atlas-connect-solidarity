@@ -1299,7 +1299,8 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
                   .slice(0, 8)
               : [];
             if (!title && !priceStr && lines.length === 0) return null;
-            return { title, price: priceStr, lines: lines.length ? lines : undefined };
+            const message_html = typeof rawSrc === "string" ? sanitizeRich(rawSrc) : null;
+            return { title, price: priceStr, lines: lines.length ? lines : undefined, message_html: message_html || undefined };
           })
           .filter((o: any) => o !== null);
         if (built.length > 0) {
@@ -1334,6 +1335,8 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
           const pDesc = cleanDisplayText(stripHtml(videoLang === "en" ? pickLang(popupMeta.description_en, popupMeta.description_fr, popupMeta.description) : (popupMeta.description_fr || popupMeta.description)) || "");
           if (pTitle) template_props.popupTitle = pTitle;
           if (pDesc) template_props.popupDescription = pDesc;
+          const pDescHtml = sanitizeRich(videoLang === "en" ? pickLang(popupMeta.description_en, popupMeta.description_fr, popupMeta.description) : (popupMeta.description_fr || popupMeta.description));
+          if (pDescHtml) template_props.popupDescriptionHtml = pDescHtml;
         }
       }
 
@@ -1418,6 +1421,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
             id: r.id,
             title: cleanDisplayText(stripHtml(r.title || "")) || "",
             content: cleanDisplayText(stripHtml(r.content || "")) || "",
+            content_html: sanitizeRich(r.content || "") || undefined,
             effect: pickEffect(options?.ai_summary_effects, r.id, globalEffect) || globalEffect,
           }))
           .filter((r: any) => r.title || r.content);
