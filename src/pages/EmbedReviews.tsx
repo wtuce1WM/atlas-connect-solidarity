@@ -47,6 +47,7 @@ export default function EmbedReviews() {
   const [reviews, setReviews] = useState<EmbedReviewItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const { innerRef: fitInnerRef, style: fitStyle } = useEmbedFitScale(fullHeight, [business, reviews, loading, error]);
 
   useEffect(() => {
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
