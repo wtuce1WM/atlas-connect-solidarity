@@ -2820,7 +2820,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               image={bgItem?.kind === "image" ? bgItem.url : (bgItem ? undefined : (imgFallback ?? bgRotate(planIdx).image))}
               duration={duration}
               effect={trImageEffect}
-              motion={kind === "ai_summary" ? ((aiSummaryEffect as any) || "zoom_in") : null}
+              motion={kind === "ai_summary" ? (((Array.isArray(aiSummaries) ? aiSummaries : [])[idx]?.effect as any) || (aiSummaryEffect as any) || "zoom_in") : null}
               extraStartSec={bgItem ? 0 : bgRotate(planIdx).extraStartSec}
             />
             <SceneInfoText
