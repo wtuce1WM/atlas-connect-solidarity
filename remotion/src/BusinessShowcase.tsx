@@ -977,7 +977,9 @@ const SceneOffer: React.FC<{
   const hasPrice = !!offer.price;
   return (
     <AbsoluteFill style={{ alignItems: "center", padding: 60, ...textPositionStyle(textPosition), opacity: out }}>
+      <FitColumn>
       <div
+
         style={{
           opacity: labelO,
           fontFamily: body,
