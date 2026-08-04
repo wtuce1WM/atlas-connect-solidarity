@@ -41,20 +41,19 @@ const FitColumn: React.FC<{ children: React.ReactNode; align?: "center" | "flex-
   minScale = 0.62,
 }) => {
   const ref = React.useRef<HTMLDivElement>(null);
-  const [fit, setFit] = React.useState<{ scale: number; overflow: boolean }>({ scale: 1, overflow: false });
+  const [fit, setFit] = React.useState<{ scale: number; height: number | null }>({ scale: 1, height: null });
   React.useLayoutEffect(() => {
     const el = ref.current;
     const parent = el?.parentElement;
     if (!el || !parent) return;
     const avail = parent.clientHeight;
+    // scrollHeight du contenu non transformé (on mesure avant application du scale)
     const h = el.scrollHeight;
     if (!avail || !h) return;
-    if (h > avail) {
-      setFit({ scale: Math.max(minScale, avail / h), overflow: true });
-    } else {
-      setFit({ scale: 1, overflow: false });
+    if (fit.height == null && h > avail) {
+      setFit({ scale: Math.max(minScale, avail / h), height: avail });
     }
-  }, [children, minScale]);
+  }, [children, minScale, fit.height]);
   return (
     <div
       ref={ref}
@@ -63,15 +62,22 @@ const FitColumn: React.FC<{ children: React.ReactNode; align?: "center" | "flex-
         flexDirection: "column",
         alignItems: align,
         width: "100%",
-        transform: fit.scale === 1 ? undefined : `scale(${fit.scale})`,
-        transformOrigin: "top center",
-        marginTop: fit.overflow ? "auto" : undefined,
-        marginBottom: fit.overflow ? "auto" : undefined,
+        // Quand le contenu déborde : on fixe la hauteur de boîte à la zone
+        // disponible et on réduit l'échelle depuis le haut, ce qui garantit
+        // que le titre reste visible dans le viewport.
+        ...(fit.height != null
+          ? {
+              height: fit.height,
+              transform: `scale(${fit.scale})`,
+              transformOrigin: "top center",
+            }
+          : null),
       }}
     >
       {children}
     </div>
   );
+
 };
 
 
