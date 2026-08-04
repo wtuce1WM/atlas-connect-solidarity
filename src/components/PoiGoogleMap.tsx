@@ -50,6 +50,12 @@ interface PoiGoogleMapProps {
   mapTypeId?: "roadmap" | "satellite" | "terrain";
   /** When provided together with centerAtBottomRatio, the zoom adjusts so this radius (km) around `center` fits the viewport. */
   fitRadiusKm?: number | null;
+  /** Trace une flèche rouge animée entre deux points, avec l'étiquette de distance au milieu. */
+  connector?: {
+    from: { lat: number; lng: number };
+    to: { lat: number; lng: number };
+    label?: string;
+  } | null;
 }
 
 
