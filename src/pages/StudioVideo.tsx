@@ -3418,15 +3418,8 @@ export default function StudioVideo() {
                      </p>
                    </div>
                  )}
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  className="h-8 text-[12px] px-3 w-full"
-                  onClick={() => setAddStepOpen(true)}
-                >
-                  <Plus className="h-4 w-4 mr-1.5" /> Ajouter une étape
-                </Button>
+
+
 
                 {popupImageUrl && (
                   <div className="rounded-md border border-border bg-background/40 p-2">
@@ -3688,18 +3681,6 @@ export default function StudioVideo() {
                       </div>
                     </div>
                     <p className="mt-1 text-[11px] text-muted-foreground">Résumés du menu (pour l'IA) : une séquence de 5 s par résumé coché (titre + contenu).</p>
-                    <div className="mt-2 flex items-center gap-2 text-xs">
-                      <span className="text-muted-foreground shrink-0">Effet par défaut</span>
-                      <select
-                        value={aiSummaryEffect}
-                        onChange={(e) => setAiSummaryEffect(e.target.value)}
-                        className="flex-1 rounded-md border border-border bg-white px-2 py-1.5 text-xs text-foreground"
-                      >
-                        {MOTION_EFFECT_OPTIONS.map((o) => (
-                          <option key={o.value} value={o.value}>{o.label}</option>
-                        ))}
-                      </select>
-                    </div>
                     <div className="mt-2 flex flex-col gap-1.5">
                       {aiSummariesList.map((s) => {
                         const checked = selectedAiSummaryIds.has(s.id);
