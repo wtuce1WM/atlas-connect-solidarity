@@ -988,7 +988,7 @@ const SceneOffer: React.FC<{
   const out = 1 - ease(frame, outStart, durationFrames);
   const lines = Array.isArray(offer.lines) ? offer.lines.filter(Boolean).slice(0, 6) : [];
   const richMsg = sanitizeRich(offer.message_html || "");
-  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br)\b/i.test(richMsg);
+  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br|h1|h2|h3|h4)\b/i.test(richMsg);
   const hasPrice = !!offer.price;
   const hasBody = hasRich || lines.length > 0;
   return (
@@ -2280,7 +2280,7 @@ const ScenePopup: React.FC<{ imageUrl: string; title?: string | null; descriptio
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
   const desc = decodeEntities((description || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
   const richDesc = sanitizeRich(descriptionHtml || "");
-  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br)\b/i.test(richDesc);
+  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br|h1|h2|h3|h4)\b/i.test(richDesc);
   return (
     <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
       <style>{RICH_CSS}</style>
@@ -2324,7 +2324,7 @@ const decodeEntities = (input: string): string => {
     .replace(/&([a-z]+);/gi, (m, n) => named[String(n).toLowerCase()] ?? m);
 };
 
-const ALLOWED_RICH_TAGS = ["b", "strong", "i", "em", "u", "br", "p", "ul", "ol", "li", "span"];
+const ALLOWED_RICH_TAGS = ["b", "strong", "i", "em", "u", "br", "p", "ul", "ol", "li", "span", "h1", "h2", "h3", "h4"];
 
 /** Conserve la mise en forme rich text (gras, italique, listes) et retire tout le reste. */
 const sanitizeRich = (html: string): string =>
@@ -2400,7 +2400,7 @@ const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[
   const isVideoHero = !!(backgroundIsVideo && background === heroImg);
   const richDesc = sanitizeRich(data.description_html || data.description || "");
   const plainDesc = decodeEntities((data.description || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
-  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br)\b/i.test(richDesc);
+  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br|h1|h2|h3|h4)\b/i.test(richDesc);
   return (
     <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
       <style>{RICH_CSS}</style>
@@ -2506,7 +2506,7 @@ const SceneInfoText: React.FC<{
   const logoS = interpolate(spring({ frame: frame - 2, fps: 30, config: { damping: 14, stiffness: 160 } }), [0, 1], [0.6, 1]);
   const clean = (v?: string) => decodeEntities((v || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
   const richText = sanitizeRich(textHtml || "");
-  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br)\b/i.test(richText);
+  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br|h1|h2|h3|h4)\b/i.test(richText);
   const safeLogo = typeof logoUrl === "string" && logoUrl.trim().startsWith("http") ? logoUrl : null;
   return (
     <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
