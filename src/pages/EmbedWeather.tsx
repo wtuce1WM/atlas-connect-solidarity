@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
+import { parseFit, fitFlags } from "@/lib/embedFit";
 
 type Lang = "fr" | "en" | "ar";
 
@@ -19,6 +20,7 @@ export default function EmbedWeather() {
   const langParam = (params.get("lang") || "fr").toLowerCase();
   const lang: Lang = langParam === "en" || langParam === "ar" ? (langParam as Lang) : "fr";
   const L = MESSAGES[lang];
+  const { fullWidth, fullHeight } = fitFlags(parseFit(params.get("fit")));
 
   const [data, setData] = useState<WeatherPayload | null>(null);
   const [error, setError] = useState(false);
@@ -80,7 +82,10 @@ export default function EmbedWeather() {
 
 
   return (
-    <div ref={rootRef} className="w-full min-h-0 p-2 flex items-start justify-center bg-transparent">
+    <div
+      ref={rootRef}
+      className={`w-full p-2 flex justify-center bg-transparent ${fullHeight ? "h-screen min-h-screen items-stretch [&>div]:h-full" : "min-h-0 items-start"}`}
+    >
       {loading && (
         <div className="w-full rounded-3xl bg-muted/40 animate-pulse h-[260px] flex items-center justify-center text-sm text-muted-foreground">
           {L.loading}
@@ -93,7 +98,7 @@ export default function EmbedWeather() {
       )}
       {!loading && !error && data && (
         <div className="w-full [&>div]:max-w-full">
-          <EmbedWeatherWidget data={data} lang={lang} />
+          <EmbedWeatherWidget data={data} lang={lang} embedded={fullWidth} />
         </div>
       )}
     </div>

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { parseFit, fitFlags } from "@/lib/embedFit";
 import EmbedReviewsWidget, {
   type EmbedReviewItem,
   type EmbedReviewsBusiness,
@@ -34,6 +35,7 @@ export default function EmbedReviews() {
     : "auto";
   const sizeParam = (params.get("size") || "auto").toLowerCase();
   const size: ReviewsSize = sizeParam === "sm" || sizeParam === "lg" ? (sizeParam as ReviewsSize) : "auto";
+  const { fullWidth, fullHeight } = fitFlags(parseFit(params.get("fit")));
   const langParam = (params.get("lang") || "fr").toLowerCase();
   const lang: Lang = langParam === "en" || langParam === "ar" ? (langParam as Lang) : "fr";
   const L = MESSAGES[lang];
@@ -102,19 +104,19 @@ export default function EmbedReviews() {
   }, [business, reviews, loading, error]);
 
   return (
-    <div className="w-full p-2 flex items-start justify-center bg-transparent">
+    <div className={`w-full p-2 flex justify-center bg-transparent ${fullHeight ? "h-screen min-h-screen items-stretch [&>div]:h-full" : "items-start"}`}>
       {loading && (
-        <div className="w-full max-w-[460px] rounded-3xl bg-muted/40 animate-pulse h-[320px] flex items-center justify-center text-sm text-muted-foreground">
+        <div className="w-full rounded-3xl bg-muted/40 animate-pulse h-[320px] flex items-center justify-center text-sm text-muted-foreground">
           {L.loading}
         </div>
       )}
       {!loading && (error || !business) && (
-        <div className="w-full max-w-[460px] rounded-3xl border border-border p-6 text-center text-sm text-muted-foreground">
+        <div className="w-full rounded-3xl border border-border p-6 text-center text-sm text-muted-foreground">
           {L.error}
         </div>
       )}
       {!loading && !error && business && (
-        <EmbedReviewsWidget business={business} reviews={reviews} platform={platform} lang={lang} ratio={ratio} size={size} />
+        <EmbedReviewsWidget business={business} reviews={reviews} platform={platform} lang={lang} ratio={ratio} size={size} fullWidth={fullWidth} />
       )}
     </div>
   );
