@@ -1408,22 +1408,34 @@ const HourStrip: React.FC<{ labels: string[]; values: number[]; unit: string; pr
 
 const SceneWeatherWidget: React.FC<{ widget: NonNullable<ShowcaseProps["weatherWidget"]>; duration: number; textPosition?: TextPosition }> = ({ widget, duration, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
+  const { orientation, gutter, px } = useLayout();
+  const portrait = orientation !== "landscape";
   const o = ease(frame, 0, 14);
   const progress = interpolate(frame, [8, Math.max(duration - 6, 20)], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const hourly = (widget.hourly || []).slice(0, 24);
   const daily = (widget.daily || []).slice(0, widget.range === 7 ? 7 : 3);
   const oneDay = (widget.range || 1) === 1;
   const activeH = hourly[Math.min(hourly.length - 1, Math.floor(progress * hourly.length))];
+  // Portrait : au-delà de 4 jours on passe en grille pour rester lisible.
+  const cols = portrait ? Math.min(daily.length, 4) : daily.length;
   return (
-    <AbsoluteFill style={{ alignItems: "center", padding: 50, ...textPositionStyle(textPosition) }}>
+    <AbsoluteFill style={{ alignItems: "center", padding: gutter, ...textPositionStyle(textPosition) }}>
       <WidgetShell kicker="Météo" title={widget.text} opacity={o}>
         {oneDay && hourly.length > 0 ? (
           <>
-            <div style={{ display: "flex", alignItems: "center", gap: 22, marginBottom: 18 }}>
-              <div style={{ fontSize: 72, lineHeight: 1 }}>{wmoIcon(activeH?.code)}</div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: portrait ? "column" : "row",
+                alignItems: portrait ? "flex-start" : "center",
+                gap: px(portrait ? 8 : 22),
+                marginBottom: px(18),
+              }}
+            >
+              <div style={{ fontSize: px(72), lineHeight: 1 }}>{wmoIcon(activeH?.code)}</div>
               <div style={{ fontFamily: body, color: COLORS.cream }}>
-                <div style={{ fontSize: 62, fontWeight: 700 }}>{activeH ? `${activeH.temp}°` : "--"}</div>
-                <div style={{ fontSize: 22, color: COLORS.gold }}>
+                <div style={{ fontSize: px(62), fontWeight: 700, lineHeight: 1.05 }}>{activeH ? `${activeH.temp}°` : "--"}</div>
+                <div style={{ fontSize: px(22), color: COLORS.gold }}>
                   {activeH ? `${activeH.hour} · vent ${activeH.wind} km/h · pluie ${activeH.pop}%` : ""}
                 </div>
               </div>
@@ -1437,7 +1449,7 @@ const SceneWeatherWidget: React.FC<{ widget: NonNullable<ShowcaseProps["weatherW
             />
           </>
         ) : (
-          <div style={{ display: "flex", gap: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gap: px(14) }}>
             {daily.map((d, i) => {
               const reveal = ease(frame, 10 + i * 6, 26 + i * 6);
               const focus = Math.floor(progress * daily.length) === i;
@@ -1445,22 +1457,21 @@ const SceneWeatherWidget: React.FC<{ widget: NonNullable<ShowcaseProps["weatherW
                 <div
                   key={d.date}
                   style={{
-                    flex: 1,
                     opacity: reveal,
                     transform: `translateY(${interpolate(reveal, [0, 1], [22, 0])}px) scale(${focus ? 1.05 : 1})`,
-                    borderRadius: 18,
-                    padding: "18px 10px",
+                    borderRadius: px(18),
+                    padding: `${px(18)}px ${px(10)}px`,
                     textAlign: "center",
                     background: focus ? "rgba(212,175,55,0.18)" : "rgba(255,255,255,0.06)",
                     border: `1px solid ${focus ? COLORS.gold : "rgba(212,175,55,0.2)"}`,
                     fontFamily: body,
                   }}
                 >
-                  <div style={{ fontSize: 18, color: COLORS.gold }}>{dayLabelFr(d.date)}</div>
-                  <div style={{ fontSize: 42, margin: "8px 0" }}>{wmoIcon(d.code)}</div>
-                  <div style={{ fontSize: 26, color: COLORS.cream, fontWeight: 700 }}>{d.tmax}°</div>
-                  <div style={{ fontSize: 18, color: "rgba(245,240,230,0.6)" }}>{d.tmin}°</div>
-                  <div style={{ fontSize: 15, color: COLORS.gold, marginTop: 6 }}>{d.pop}%</div>
+                  <div style={{ fontSize: px(18), color: COLORS.gold }}>{dayLabelFr(d.date)}</div>
+                  <div style={{ fontSize: px(42), margin: `${px(8)}px 0` }}>{wmoIcon(d.code)}</div>
+                  <div style={{ fontSize: px(26), color: COLORS.cream, fontWeight: 700 }}>{d.tmax}°</div>
+                  <div style={{ fontSize: px(18), color: "rgba(245,240,230,0.6)" }}>{d.tmin}°</div>
+                  <div style={{ fontSize: px(15), color: COLORS.gold, marginTop: px(6) }}>{d.pop}%</div>
                 </div>
               );
             })}
@@ -1470,6 +1481,7 @@ const SceneWeatherWidget: React.FC<{ widget: NonNullable<ShowcaseProps["weatherW
     </AbsoluteFill>
   );
 };
+
 
 const SceneTidesWidget: React.FC<{ widget: NonNullable<ShowcaseProps["tidesWidget"]>; duration: number; textPosition?: TextPosition }> = ({ widget, duration, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
