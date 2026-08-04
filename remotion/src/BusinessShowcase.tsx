@@ -1886,17 +1886,73 @@ const ScenePopup: React.FC<{ imageUrl: string; title?: string | null; descriptio
   );
 };
 
-const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[number]; background?: string | null; backgroundIsVideo?: boolean; durationFrames: number; textPosition?: TextPosition }> = ({ data, background, backgroundIsVideo, durationFrames, textPosition = "middle" }) => {
+/** Décode les entités HTML (&amp;, &#39;, &eacute;…) sans DOM (rendu Remotion headless). */
+const decodeEntities = (input: string): string => {
+  const named: Record<string, string> = {
+    amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", laquo: "«", raquo: "»",
+    eacute: "é", egrave: "è", ecirc: "ê", agrave: "à", acirc: "â", ccedil: "ç",
+    ugrave: "ù", ucirc: "û", icirc: "î", iuml: "ï", ocirc: "ô", euml: "ë", uuml: "ü",
+    hellip: "…", rsquo: "’", lsquo: "‘", ldquo: "“", rdquo: "”", ndash: "–", mdash: "—",
+    deg: "°", euro: "€", middot: "·", times: "×", copy: "©", reg: "®", trade: "™",
+  };
+  return input
+    .replace(/&#x([0-9a-f]+);/gi, (_m, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_m, d) => String.fromCodePoint(Number(d)))
+    .replace(/&([a-z]+);/gi, (m, n) => named[String(n).toLowerCase()] ?? m);
+};
+
+const ALLOWED_RICH_TAGS = ["b", "strong", "i", "em", "u", "br", "p", "ul", "ol", "li", "span"];
+
+/** Conserve la mise en forme rich text (gras, italique, listes) et retire tout le reste. */
+const sanitizeRich = (html: string): string =>
+  decodeEntities(
+    (html || "")
+      .replace(/<\s*(script|style)[\s\S]*?<\s*\/\s*\1\s*>/gi, "")
+      .replace(/<\s*\/?\s*([a-z0-9]+)[^>]*>/gi, (m, tag) =>
+        ALLOWED_RICH_TAGS.includes(String(tag).toLowerCase()) ? m.replace(/\s+[^<>]*?(?=>)/, "") : " ",
+      ),
+  )
+    .replace(/[ \t]{2,}/g, " ")
+    .trim();
+
+/** Rend un contenu rich text (gras/italique/puces) dans une scène vidéo. */
+const RichBlock: React.FC<{ html: string; style?: React.CSSProperties; align?: "left" | "center" }> = ({ html, style, align = "center" }) => (
+  <div
+    style={{ ...style, textAlign: align }}
+    className="rich-video-block"
+    dangerouslySetInnerHTML={{ __html: html }}
+  />
+);
+
+const RICH_CSS = `
+.rich-video-block p { margin: 0 0 0.5em; }
+.rich-video-block p:last-child { margin-bottom: 0; }
+.rich-video-block strong, .rich-video-block b { font-weight: 800; }
+.rich-video-block em, .rich-video-block i { font-style: italic; }
+.rich-video-block ul, .rich-video-block ol { margin: 0.2em 0 0; padding-left: 1.1em; text-align: left; display: inline-block; }
+.rich-video-block li { margin: 0.18em 0; }
+.rich-video-block ul { list-style: none; padding-left: 0; }
+.rich-video-block ul > li::before { content: "◆ "; color: ${COLORS.gold}; }
+`;
+
+const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[number]; background?: string | null; backgroundIsVideo?: boolean; durationFrames: number; textPosition?: TextPosition; effect?: TransitionEffect; motion?: MotionEffect | null }> = ({ data, background, backgroundIsVideo, durationFrames, textPosition = "middle", effect = "kenburns", motion = null }) => {
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
   const titleY = interpolate(spring({ frame: frame - 6, fps: 30, config: { damping: 18 } }), [0, 1], [30, 0]);
   const heroImg = data.image_url || background || undefined;
+  const isVideoHero = !!(backgroundIsVideo && background === heroImg);
+  const richDesc = sanitizeRich(data.description_html || data.description || "");
+  const plainDesc = decodeEntities((data.description || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br)\b/i.test(richDesc);
   return (
     <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
-      {heroImg && (backgroundIsVideo && background === heroImg
+      <style>{RICH_CSS}</style>
+      {heroImg && (isVideoHero
         ? <VideoCover src={heroImg} from={0} duration={durationFrames} />
-        : <KenBurns src={heroImg} from={0} duration={durationFrames} />)}
+        : (motion
+            ? <MotionBackdrop image={heroImg} duration={durationFrames} effect={effect} motion={motion} veil="rgba(0,0,0,0)" />
+            : <KenBurns src={heroImg} from={0} duration={durationFrames} />))}
       <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.4) 0%,rgba(0,0,0,0.75) 100%)" }} />
       <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
         {!data.title && (
@@ -1906,23 +1962,31 @@ const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[
         )}
         {data.title && (
           <div style={{ marginTop: 14, transform: `translateY(${titleY}px)`, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 56, lineHeight: 1.1, textAlign: "center", textShadow: "0 4px 20px rgba(0,0,0,0.7)" }}>
-            {data.title}
+            {decodeEntities(data.title)}
           </div>
         )}
-        {data.description && (
-          <div style={{ marginTop: 20, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.4, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 620 }}>
-            {(data.description || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 280)}
-          </div>
+        {(hasRich ? richDesc : plainDesc) && (
+          hasRich ? (
+            <RichBlock
+              html={richDesc}
+              style={{ marginTop: 20, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.4, textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 640, alignSelf: "center" }}
+            />
+          ) : (
+            <div style={{ marginTop: 20, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.4, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 620 }}>
+              {plainDesc.slice(0, 280)}
+            </div>
+          )
         )}
         {(data.metric_title || data.metric_value) && (
           <div style={{ marginTop: 28, padding: "14px 26px", border: `1px solid ${COLORS.gold}`, borderRadius: 14, fontFamily: display, color: COLORS.gold, fontSize: 28, textAlign: "center", background: "rgba(212,175,55,0.08)" }}>
-            {[data.metric_value, data.metric_title].filter(Boolean).join(" · ")}
+            {[data.metric_value, data.metric_title].filter(Boolean).map((v) => decodeEntities(String(v))).join(" · ")}
           </div>
         )}
       </AbsoluteFill>
     </AbsoluteFill>
   );
 };
+
 
 const PLATFORM_META: Record<"google_review" | "tripadvisor" | "restaurant_guru", { label: string; brand: string; accent: string; logo: string }> = {
   google_review:   { label: "Google",          brand: "#4285F4", accent: "#EA4335", logo: "brands/google-logo.png" },
