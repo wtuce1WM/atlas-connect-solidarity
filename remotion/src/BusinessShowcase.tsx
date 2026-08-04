@@ -2771,10 +2771,13 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               backgroundIsVideo={bgItem?.kind === "video"}
               durationFrames={duration}
               textPosition={textPosition}
+              effect={trImageEffect}
+              motion={(h.effect as any) || null}
             />
           </AbsoluteFill>
         );
       }
+
       case "ai_summary":
       case "external_link":
       case "menu_doc": {
