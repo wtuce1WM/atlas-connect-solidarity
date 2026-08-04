@@ -699,8 +699,11 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
 export const computeShowcaseFrames = (p: ShowcaseProps): number => {
   const plan = buildScenePlan(p);
   const sum = plan.reduce((acc, s) => acc + s.duration, 0);
-  return Math.max(sum, 300);
+  // Pas de plancher à 300 : sinon un scénario raccourci laisse un écran noir
+  // à la fin (durée composition > somme des scènes).
+  return sum > 0 ? sum : 300;
 };
+
 
 
 const ease = (f: number, a: number, b: number) =>
