@@ -92,7 +92,7 @@ async function fetchWeatherWidget(citySlug: unknown, range: number, businessName
   const text = lang === "en"
     ? `${businessName} brings you the weather in ${city.name} ${periodEn}`
     : `${businessName} vous propose la météo à ${city.name} ${periodFr}`;
-  return { city: city.name, citySlug: city.slug, range: days, text, hourly, daily, durationSec: 3 };
+  return { city: city.name, citySlug: city.slug, range: days, text, hourly, daily, durationSec: 5 };
 }
 
 async function fetchTidesWidget(citySlug: unknown, mode: string, businessName: string, lang: string) {
@@ -132,7 +132,7 @@ async function fetchTidesWidget(citySlug: unknown, mode: string, businessName: s
   const text = lang === "en"
     ? `${businessName} brings you the tides, wind and weather in ${city.name} for the day`
     : `${businessName} vous donne les marées, les vents, la météo à ${city.name} sur la journée`;
-  return { city: city.name, citySlug: city.slug, mode: safeMode, text, hours, extremes: extremes.slice(0, 4), durationSec: 3 };
+  return { city: city.name, citySlug: city.slug, mode: safeMode, text, hours, extremes: extremes.slice(0, 4), durationSec: 5 };
 }
 
 Deno.serve(async (req) => {
@@ -832,6 +832,26 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       template_props.placesMediaMode = placesMediaMode;
       const rawScenePois = (options?.scene_pois && typeof options.scene_pois === "object") ? options.scene_pois as Record<string, unknown> : null;
       const rawSceneDests = (options?.scene_destinations && typeof options.scene_destinations === "object") ? options.scene_destinations as Record<string, unknown> : null;
+      // Distance Master → POI (mètres) + cap directionnel, calculés côté serveur
+      // pour un rendu déterministe dans le montage.
+      const masterLat = Number((template_props as any)?.latitude);
+      const masterLng = Number((template_props as any)?.longitude);
+      const hasMasterGeo = Number.isFinite(masterLat) && Number.isFinite(masterLng);
+      const toRad = (d: number) => (d * Math.PI) / 180;
+      const distanceMeters = (lat: number, lng: number) => {
+        const R = 6371000;
+        const dLat = toRad(lat - masterLat);
+        const dLng = toRad(lng - masterLng);
+        const a = Math.sin(dLat / 2) ** 2 +
+          Math.cos(toRad(masterLat)) * Math.cos(toRad(lat)) * Math.sin(dLng / 2) ** 2;
+        return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+      };
+      const bearingDeg = (lat: number, lng: number) => {
+        const y = Math.sin(toRad(lng - masterLng)) * Math.cos(toRad(lat));
+        const x = Math.cos(toRad(masterLat)) * Math.sin(toRad(lat)) -
+          Math.sin(toRad(masterLat)) * Math.cos(toRad(lat)) * Math.cos(toRad(lng - masterLng));
+        return Math.round(((Math.atan2(y, x) * 180) / Math.PI + 360) % 360);
+      };
       if (rawScenePois) {
         const allIds = [...new Set(Object.values(rawScenePois).flatMap((v) => Array.isArray(v) ? v : []).filter(isUuid))] as string[];
         if (allIds.length) {
@@ -840,27 +860,59 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
             .from("businesses")
             .select("id,name,hook_fr,hook_en,images,video_1_url,latitude,longitude")
             .in("id", allIds.slice(0, 60));
+          // Les POIs n'ont pas de video_1_url : leurs vidéos vivent dans business_documents.
+          const { data: poiVideoRows } = await supa
+            .from("business_documents")
+            .select("business_id,url,sort_order")
+            .eq("type", "video")
+            .in("business_id", allIds.slice(0, 60))
+            .order("sort_order", { ascending: true });
+          const isPlayableVideo = (u: unknown) =>
+            typeof u === "string" && /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u);
+          const videoByBiz = new Map<string, string>();
+          for (const row of (poiVideoRows ?? []) as any[]) {
+            if (!videoByBiz.has(row.business_id) && isPlayableVideo(row.url)) {
+              videoByBiz.set(row.business_id, row.url);
+            }
+          }
           const byId = new Map<string, any>((poiRows ?? []).map((r: any) => [r.id, r]));
           const out: Record<string, any[]> = {};
           for (const [key, v] of Object.entries(rawScenePois)) {
             const ids = (Array.isArray(v) ? v : []).filter(isUuid) as string[];
             const items = ids.map((id) => byId.get(id)).filter(Boolean).map((r: any) => {
-              const row = { ...r, videos: r.video_1_url ? [r.video_1_url] : null, image_url: firstOf(r.images) };
+              const vid = isPlayableVideo(r.video_1_url) ? r.video_1_url : (videoByBiz.get(r.id) ?? null);
+              const row = { ...r, videos: vid ? [vid] : null, image_url: firstOf(r.images) };
+              const lat = Number.isFinite(Number(r.latitude)) ? Number(r.latitude) : null;
+              const lng = Number.isFinite(Number(r.longitude)) ? Number(r.longitude) : null;
               return {
                 id: r.id,
                 name: r.name,
                 hook: (videoLang === "en" ? (r.hook_en || r.hook_fr) : r.hook_fr) || null,
                 image_url: firstOf(r.images) || null,
                 ...placeMedia(row),
-                latitude: Number.isFinite(Number(r.latitude)) ? Number(r.latitude) : null,
-                longitude: Number.isFinite(Number(r.longitude)) ? Number(r.longitude) : null,
+                latitude: lat,
+                longitude: lng,
+                distance_m: hasMasterGeo && lat != null && lng != null ? distanceMeters(lat, lng) : null,
+                bearing_deg: hasMasterGeo && lat != null && lng != null ? bearingDeg(lat, lng) : null,
+                master_latitude: hasMasterGeo ? masterLat : null,
+                master_longitude: hasMasterGeo ? masterLng : null,
               };
             });
             if (items.length) out[key] = items;
           }
-          if (Object.keys(out).length) template_props.scenePois = out;
+          if (Object.keys(out).length) {
+            template_props.scenePois = out;
+            // Durée par défaut d'une étape liée à des POIs : 6 s + 1 s par POI
+            // supplémentaire (respecte une durée déjà fixée par l'utilisateur).
+            if (!(template_props as any).scene_durations) (template_props as any).scene_durations = {};
+            const sd = (template_props as any).scene_durations as Record<string, number>;
+            for (const [key, items] of Object.entries(out)) {
+              if (sd[key] == null) sd[key] = 6 + Math.max(0, items.length - 1);
+            }
+          }
         }
       }
+
       if (rawSceneDests) {
         const allIds = [...new Set(Object.values(rawSceneDests).flatMap((v) => Array.isArray(v) ? v : []).filter(isUuid))] as string[];
         if (allIds.length) {
@@ -1462,7 +1514,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       }
     }
 
-    // Widgets Météo / Marées, Vents & Météo — 3 s par défaut, données déterministes.
+    // Widgets Météo / Marées, Vents & Météo — 5 s par défaut, données déterministes.
     // Chaque widget est tenté indépendamment : si l'un échoue, l'autre reste monté.
     const ensureSceneInOrder = (kind: "weather" | "tides") => {
       const order = (template_props as any).scene_order;
@@ -1513,7 +1565,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         template_props.showWeatherWidget = true;
         template_props.weatherWidget = w;
         if (!(template_props as any).scene_durations) (template_props as any).scene_durations = {};
-        if ((template_props as any).scene_durations.weather == null) (template_props as any).scene_durations.weather = 3;
+        if ((template_props as any).scene_durations.weather == null) (template_props as any).scene_durations.weather = 5;
         ensureSceneInOrder("weather");
       } catch (e) {
         console.warn("[widgets] weather fetch failed", (e as Error).message);
@@ -1525,7 +1577,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         template_props.showTidesWidget = true;
         template_props.tidesWidget = t;
         if (!(template_props as any).scene_durations) (template_props as any).scene_durations = {};
-        if ((template_props as any).scene_durations.tides == null) (template_props as any).scene_durations.tides = 3;
+        if ((template_props as any).scene_durations.tides == null) (template_props as any).scene_durations.tides = 5;
         ensureSceneInOrder("tides");
       } catch (e) {
         console.warn("[widgets] tides fetch failed", (e as Error).message);
