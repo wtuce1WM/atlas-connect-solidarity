@@ -169,6 +169,8 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
   }, [businessId]);
 
   const bgValid = /^#[0-9A-F]{6}$/i.test(bg);
+  /** Couleur de fond appliquée à l'aperçu : celle définie, sinon la palette 1WM. */
+  const bgEffective = bgValid ? bg.toUpperCase() : DEFAULT_BG;
   const radiusKm = Number(biz?.poi_radius_km) > 0 ? Number(biz!.poi_radius_km) : 10;
 
   // Auto-save (debounce 1s)
