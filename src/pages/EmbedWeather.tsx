@@ -94,7 +94,8 @@ export default function EmbedWeather() {
       ref={rootRef}
       className={`w-full flex justify-center bg-transparent ${
         fullHeight ? "h-screen min-h-screen overflow-hidden items-start p-1" : "min-h-0 items-start p-2"
-      }`}
+      } ${fullWidth ? "px-0" : ""}`}
+
     >
       {loading && (
         <div className="w-full rounded-3xl bg-muted/40 animate-pulse h-[260px] flex items-center justify-center text-sm text-muted-foreground">
