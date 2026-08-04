@@ -3040,6 +3040,24 @@ export default function StudioVideo() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
+                <Label>Format de la vidéo</Label>
+                <div className="flex gap-2 flex-wrap">
+                  {VIDEO_FORMATS.map((f) => (
+                    <Button
+                      key={f.value}
+                      type="button"
+                      variant={videoFormat === f.value ? "default" : "outline"}
+                      onClick={() => setVideoFormat(f.value)}
+                    >
+                      {f.label}
+                    </Button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Le montage s'adapte automatiquement au format choisi (typo, blocs, carte, widgets).
+                </p>
+              </div>
+              <div className="space-y-2">
                 <Label>Durée</Label>
                 <div className="flex gap-2 flex-wrap items-center">
                   <Button
@@ -3069,6 +3087,7 @@ export default function StudioVideo() {
                     { value: "en" as const, label: "English" },
                   ]).map((l) => (
                     <Button
+
                       key={l.value}
                       type="button"
                       variant={videoLang === l.value ? "default" : "outline"}
