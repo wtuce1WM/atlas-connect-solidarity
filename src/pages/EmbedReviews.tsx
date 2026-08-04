@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { parseFit, fitFlags, applyEmbedBg } from "@/lib/embedFit";
+import { useEmbedFitScale } from "@/hooks/useEmbedFitScale";
 import EmbedReviewsWidget, {
   type EmbedReviewItem,
   type EmbedReviewsBusiness,
