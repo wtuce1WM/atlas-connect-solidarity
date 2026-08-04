@@ -1321,7 +1321,31 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
             </div>
           </div>
         </div>
+        <div className="space-y-1.5">
+          <Label className="text-white/80 text-xs">Échelle du widget</Label>
+          <div className="flex gap-1 flex-wrap">
+            {SIZE_OPTIONS.map((o) => (
+              <button
+                key={o.value}
+                type="button"
+                onClick={() => setWeatherSize(o.value)}
+                className={`text-xs py-1.5 px-2.5 rounded-md border ${
+                  weatherSize === o.value
+                    ? "bg-white text-neutral-900 border-white"
+                    : "text-white border-white/20 hover:bg-white/10"
+                }`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-white/50">
+            Largeur conseillée : {weatherMaxW}px. Compact ≈ mobile, Large ≈ desktop. Le fond reste
+            transparent si aucune couleur n'est forcée.
+          </p>
+        </div>
         {fitRow("weather")}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <div className="space-y-2">
             <Label className="text-white/80 text-xs">Code à copier (inline)</Label>
