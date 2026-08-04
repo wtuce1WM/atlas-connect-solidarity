@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Clock, MapPin, MessageSquare, Star, Download, QrCode, Calendar, Plus, X, ChevronLeft, ChevronRight, Film, Image as ImageIcon, GripVertical, Minus, Type, Trash2, Pencil } from "lucide-react";
+import { Cloud, Waves, Clock, MapPin, MessageSquare, Star, Download, QrCode, Calendar, Plus, X, ChevronLeft, ChevronRight, Film, Image as ImageIcon, GripVertical, Minus, Type, Trash2, Pencil } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { formatRating } from "@/lib/ratingUtils";
+import { WEATHER_CITY_OPTIONS, TIDES_CITY_OPTIONS, cityNameFromSlug } from "@/lib/videoWidgetCities";
 import { twMerge } from "tailwind-merge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
@@ -47,7 +48,7 @@ export type Scene = {
   start: number;
   description: string;
   keywords: string[];
-  icon: "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "whatsapp" | "hours" | "map" | "digital" | "blog" | "cta" | "outro" | "custom";
+  icon: "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "whatsapp" | "hours" | "map" | "digital" | "blog" | "weather" | "tides" | "cta" | "outro" | "custom";
 };
 
 export type Scenario = {
@@ -88,6 +89,8 @@ const ICONS: Record<Scene["icon"], React.ReactNode> = {
   map: <MapPin className="h-3.5 w-3.5" />,
   digital: <QrCode className="h-3.5 w-3.5" />,
   blog: <Type className="h-3.5 w-3.5" />,
+  weather: <Cloud className="h-3.5 w-3.5" />,
+  tides: <Waves className="h-3.5 w-3.5" />,
   cta: <Download className="h-3.5 w-3.5" />,
   outro: <Clock className="h-3.5 w-3.5" />,
   custom: <Type className="h-3.5 w-3.5" />,
@@ -116,6 +119,8 @@ const LABELS: Record<Exclude<Scene["icon"], "custom">, string> = {
   map: "Localisation",
   digital: "ID numérique",
   blog: "Articles de blog",
+  weather: "Widget Météo",
+  tides: "Widget Marées, Vents & Météo",
   cta: "Appel à l'action",
   outro: "Outro",
 };
@@ -354,6 +359,13 @@ export function scenarioFromTemplateProps(
         : `Articles de blog (hero + zoom carte) : ${titles}`,
     );
   }
+  // Widgets Météo / Marées — 3 s par défaut, ville choisie dans la carte de l'étape
+  if (props?.showWeatherWidget && props?.weatherWidget) {
+    push("weather", Number(props.weatherWidget.durationSec) || 3, String(props.weatherWidget.text || "Widget Météo."));
+  }
+  if (props?.showTidesWidget && props?.tidesWidget) {
+    push("tides", Number(props.tidesWidget.durationSec) || 3, String(props.tidesWidget.text || "Widget Marées, Vents & Météo."));
+  }
   if (props?.showWhatsapp && props?.whatsappNumber) {
     push("whatsapp", Math.max(2, Math.round(durationSec * 0.08)), `WhatsApp ${props.whatsappNumber} — logo #25D366 + effet libre au montage.`);
   }
@@ -450,6 +462,10 @@ export type ScenarioEdits = {
    * - "with_offer" : le contenu de la carte Offre est affiché dans la scène WhatsApp
    */
   whatsappOfferMode?: "number" | "with_offer";
+  /** Ville (slug) du Widget Météo, choisie dans la carte de l'étape. */
+  weatherCity?: string;
+  /** Ville (slug) du Widget Marées, Vents & Météo, choisie dans la carte de l'étape. */
+  tidesCity?: string;
   /** Durée totale réelle du scénario après édition (secondes). */
   totalDuration?: number;
 };
@@ -506,6 +522,9 @@ export function StudioVideoScenarioPanel({
   const [placesMediaMode, setPlacesMediaMode] = useState<"videos" | "images">("videos");
   // Relation étape WhatsApp ↔ carte Offre : afficher ou non le contenu de l'offre dans la scène WhatsApp.
   const [whatsappOfferMode, setWhatsappOfferMode] = useState<"number" | "with_offer">("number");
+  // Ville des étapes widgets (Météo / Marées) — sélectionnée dans la carte de l'étape.
+  const [weatherCity, setWeatherCity] = useState<string>("");
+  const [tidesCity, setTidesCity] = useState<string>("");
   const [placesSceneKey, setPlacesSceneKey] = useState<string | null>(null);
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
   const [addOpenInternal, setAddOpenInternal] = useState(false);
@@ -529,6 +548,8 @@ export function StudioVideoScenarioPanel({
     setDestOverrides({});
     setPlacesMediaMode("videos");
     setWhatsappOfferMode("number");
+    setWeatherCity("");
+    setTidesCity("");
     // Les étapes ajoutées manuellement et les découpages de texte sont conservés
     // lors d'une régénération du scénario : on les réinjecte dans le nouvel ordre
     // (avant la séquence de clôture) au lieu de les perdre silencieusement.
@@ -636,7 +657,9 @@ export function StudioVideoScenarioPanel({
     const hasPois = Object.values(poiOverrides).some((a) => a.length > 0);
     const hasDests = Object.values(destOverrides).some((a) => a.length > 0);
     const hasWaOffer = whatsappOfferMode !== "number";
-    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits && !hasSegments && !hasTextOv && !hasPois && !hasDests && !hasWaOffer) {
+    const hasWeatherCity = !!weatherCity;
+    const hasTidesCity = !!tidesCity;
+    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits && !hasSegments && !hasTextOv && !hasPois && !hasDests && !hasWaOffer && !hasWeatherCity && !hasTidesCity) {
       onChangeScenarioEdits(null);
       return;
     }
@@ -695,10 +718,12 @@ export function StudioVideoScenarioPanel({
       sceneDestinations: hasDests ? destOverrides : undefined,
       placesMediaMode: (hasPois || hasDests) ? placesMediaMode : undefined,
       whatsappOfferMode: hasWaOffer ? whatsappOfferMode : undefined,
+      weatherCity: hasWeatherCity ? weatherCity : undefined,
+      tidesCity: hasTidesCity ? tidesCity : undefined,
       totalDuration: editedScenes.reduce((acc, s) => acc + s.duration, 0),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, segmentOverrides, textOverrides, poiOverrides, destOverrides, placesMediaMode, whatsappOfferMode, editedScenes]);
+  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, segmentOverrides, textOverrides, poiOverrides, destOverrides, placesMediaMode, whatsappOfferMode, weatherCity, tidesCity, editedScenes]);
 
   const total = editedScenes.reduce((acc, s) => acc + s.duration, 0);
   // Étapes d'origine supprimées (built-in retirées de l'ordre)
@@ -1101,6 +1126,33 @@ export function StudioVideoScenarioPanel({
 
 
 
+
+              {(scene.icon === "weather" || scene.icon === "tides") && (() => {
+                const isWeather = scene.icon === "weather";
+                const list = isWeather ? WEATHER_CITY_OPTIONS : TIDES_CITY_OPTIONS;
+                const fallback = isWeather
+                  ? String((scenario as any).weatherCityDefault || "marrakech")
+                  : String((scenario as any).tidesCityDefault || "essaouira");
+                const value = (isWeather ? weatherCity : tidesCity) || fallback;
+                return (
+                  <div className="mt-3 flex flex-wrap items-center gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2.5 py-2">
+                    {isWeather ? <Cloud className="h-3.5 w-3.5 text-neutral-500" /> : <Waves className="h-3.5 w-3.5 text-neutral-500" />}
+                    <span className="text-[11px] text-neutral-700">Ville du widget</span>
+                    <select
+                      value={value}
+                      onChange={(e) => (isWeather ? setWeatherCity(e.target.value) : setTidesCity(e.target.value))}
+                      className="ml-auto rounded-md border border-neutral-300 bg-white px-2 py-1 text-[11px] text-neutral-800"
+                    >
+                      {list.map((c) => (
+                        <option key={c.slug} value={c.slug}>{c.name}</option>
+                      ))}
+                    </select>
+                    <span className="w-full text-[11px] text-neutral-500">
+                      Texte affiché au montage avec « {cityNameFromSlug(value, list)} ».
+                    </span>
+                  </div>
+                );
+              })()}
 
               {(scene.icon === "name" || scene.icon === "custom") && (() => {
                 const splitText = (

@@ -21,7 +21,122 @@ const TEMPLATES = [
   { id: "corporate-vertical", scope: "1WM corporate", description: "Vidéo institutionnelle One World Morocco (modèle économique, villes pionnières, paliers). À utiliser UNIQUEMENT pour des contenus corporate 1WM." },
 ];
 
-Deno.serve(async (req) => {
+Deno.
+// ---------------------------------------------------------------------------
+// Widgets Météo / Marées, Vents & Météo intégrés au montage vidéo.
+// Données Open-Meteo (gratuit, sans clé) résolues à la génération du scénario
+// pour que le rendu Remotion reste déterministe.
+// ---------------------------------------------------------------------------
+const VIDEO_WIDGET_CITIES: Record<string, { name: string; lat: number; lon: number }> = {
+  marrakech: { name: "Marrakech", lat: 31.6295, lon: -7.9811 },
+  essaouira: { name: "Essaouira", lat: 31.5085, lon: -9.7595 },
+  agadir: { name: "Agadir", lat: 30.4202, lon: -9.6119 },
+  taghazout: { name: "Taghazout", lat: 30.5450, lon: -9.7100 },
+  casablanca: { name: "Casablanca", lat: 33.5731, lon: -7.5898 },
+  mohammedia: { name: "Mohammedia", lat: 33.7180, lon: -7.4100 },
+  rabat: { name: "Rabat", lat: 34.0209, lon: -6.8416 },
+  fes: { name: "Fès", lat: 34.0331, lon: -5.0003 },
+  tanger: { name: "Tanger", lat: 35.7595, lon: -5.8340 },
+  chefchaouen: { name: "Chefchaouen", lat: 35.1688, lon: -5.2636 },
+  ouarzazate: { name: "Ouarzazate", lat: 30.9335, lon: -6.9370 },
+  merzouga: { name: "Merzouga", lat: 31.0995, lon: -4.0122 },
+  dakhla: { name: "Dakhla", lat: 23.6850, lon: -15.9500 },
+  "el-jadida": { name: "El Jadida", lat: 33.2500, lon: -8.5200 },
+  oualidia: { name: "Oualidia", lat: 32.7350, lon: -9.0400 },
+  safi: { name: "Safi", lat: 32.3050, lon: -9.2600 },
+  asilah: { name: "Asilah", lat: 35.4650, lon: -6.0400 },
+  "sidi-ifni": { name: "Sidi Ifni", lat: 29.3800, lon: -10.1800 },
+  martil: { name: "Martil", lat: 35.6180, lon: -5.2740 },
+  "al-hoceima": { name: "Al Hoceïma", lat: 35.2500, lon: -3.9300 },
+  saidia: { name: "Saïdia", lat: 35.0930, lon: -2.2300 },
+};
+
+function resolveWidgetCity(slug: unknown, fallback: string) {
+  const key = typeof slug === "string" ? slug.trim().toLowerCase() : "";
+  return VIDEO_WIDGET_CITIES[key] ? { slug: key, ...VIDEO_WIDGET_CITIES[key] } : { slug: fallback, ...VIDEO_WIDGET_CITIES[fallback] };
+}
+
+const TZ = "Africa%2FCasablanca";
+
+async function fetchWeatherWidget(citySlug: unknown, range: number, businessName: string, lang: string) {
+  const city = resolveWidgetCity(citySlug, "marrakech");
+  const days = range === 7 ? 7 : range === 3 ? 3 : 1;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}`
+    + `&hourly=temperature_2m,weather_code,wind_speed_10m,precipitation_probability`
+    + `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max`
+    + `&forecast_days=${days}&timezone=${TZ}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`open-meteo ${res.status}`);
+  const j = await res.json();
+  const h = j.hourly ?? {};
+  const times: string[] = h.time ?? [];
+  const hourly = times.slice(0, 24).map((t, i) => ({
+    time: t,
+    hour: String(t).slice(11, 16),
+    temp: Math.round(Number(h.temperature_2m?.[i] ?? 0)),
+    code: Number(h.weather_code?.[i] ?? 0),
+    wind: Math.round(Number(h.wind_speed_10m?.[i] ?? 0)),
+    pop: Math.round(Number(h.precipitation_probability?.[i] ?? 0)),
+  }));
+  const d = j.daily ?? {};
+  const dTimes: string[] = d.time ?? [];
+  const daily = dTimes.slice(0, days).map((date, i) => ({
+    date,
+    code: Number(d.weather_code?.[i] ?? 0),
+    tmin: Math.round(Number(d.temperature_2m_min?.[i] ?? 0)),
+    tmax: Math.round(Number(d.temperature_2m_max?.[i] ?? 0)),
+    pop: Math.round(Number(d.precipitation_probability_max?.[i] ?? 0)),
+    wind: Math.round(Number(d.wind_speed_10m_max?.[i] ?? 0)),
+  }));
+  const periodFr = days === 1 ? "sur la journée" : days === 3 ? "sur 3 jours" : "sur la semaine";
+  const periodEn = days === 1 ? "for the day" : days === 3 ? "for 3 days" : "for the week";
+  const text = lang === "en"
+    ? `${businessName} brings you the weather in ${city.name} ${periodEn}`
+    : `${businessName} vous propose la météo à ${city.name} ${periodFr}`;
+  return { city: city.name, citySlug: city.slug, range: days, text, hourly, daily, durationSec: 3 };
+}
+
+async function fetchTidesWidget(citySlug: unknown, mode: string, businessName: string, lang: string) {
+  const city = resolveWidgetCity(citySlug, "essaouira");
+  const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${city.lat}&longitude=${city.lon}`
+    + `&hourly=sea_level_height_msl&forecast_days=2&timezone=${TZ}`;
+  const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}`
+    + `&hourly=temperature_2m,weather_code,wind_speed_10m,wind_gusts_10m,wind_direction_10m,precipitation_probability`
+    + `&forecast_days=2&timezone=${TZ}`;
+  const [mRes, wRes] = await Promise.all([fetch(marineUrl), fetch(weatherUrl)]);
+  const m = mRes.ok ? await mRes.json() : null;
+  const w = wRes.ok ? await wRes.json() : null;
+  const mh = m?.hourly ?? {};
+  const wh = w?.hourly ?? {};
+  const times: string[] = (mh.time ?? wh.time ?? []) as string[];
+  const hours = times.slice(0, 24).map((t, i) => ({
+    time: t,
+    hour: String(t).slice(11, 16),
+    sea: mh.sea_level_height_msl?.[i] != null ? Math.round(Number(mh.sea_level_height_msl[i]) * 100) / 100 : null,
+    temp: wh.temperature_2m?.[i] != null ? Math.round(Number(wh.temperature_2m[i])) : null,
+    code: wh.weather_code?.[i] != null ? Number(wh.weather_code[i]) : null,
+    wind: wh.wind_speed_10m?.[i] != null ? Math.round(Number(wh.wind_speed_10m[i])) : null,
+    gust: wh.wind_gusts_10m?.[i] != null ? Math.round(Number(wh.wind_gusts_10m[i])) : null,
+    dir: wh.wind_direction_10m?.[i] != null ? Math.round(Number(wh.wind_direction_10m[i])) : null,
+    pop: wh.precipitation_probability?.[i] != null ? Math.round(Number(wh.precipitation_probability[i])) : null,
+  }));
+  // Extrêmes de marée (pleine / basse mer) sur les 24 h
+  const extremes: Array<{ hour: string; type: "high" | "low"; height: number }> = [];
+  for (let i = 1; i < hours.length - 1; i++) {
+    const a = hours[i - 1].sea, b = hours[i].sea, c = hours[i + 1].sea;
+    if (a == null || b == null || c == null) continue;
+    if (b > a && b >= c) extremes.push({ hour: hours[i].hour, type: "high", height: b });
+    else if (b < a && b <= c) extremes.push({ hour: hours[i].hour, type: "low", height: b });
+  }
+  const allowed = new Set(["all", "tides", "wind", "weather"]);
+  const safeMode = allowed.has(mode) ? mode : "all";
+  const text = lang === "en"
+    ? `${businessName} brings you the tides, wind and weather in ${city.name} for the day`
+    : `${businessName} vous donne les marées, les vents, la météo à ${city.name} sur la journée`;
+  return { city: city.name, citySlug: city.slug, mode: safeMode, text, hours, extremes: extremes.slice(0, 4), durationSec: 3 };
+}
+
+serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
@@ -565,7 +680,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         selImages.forEach((u) => allowedUrls.add(u));
         selVideos.forEach((u) => allowedUrls.add(u));
 
-        const ALLOWED_KINDS = new Set(["logo", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog", "ai_summary", "external_link", "menu_doc"]);
+        const ALLOWED_KINDS = new Set(["logo", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog", "weather", "tides", "ai_summary", "external_link", "menu_doc"]);
         const cleaned: Record<string, Array<{ url: string; kind: "image" | "video" }>> = {};
         for (const [k, v] of Object.entries(rawSceneMedia)) {
           if (!ALLOWED_KINDS.has(k) || !Array.isArray(v)) continue;
@@ -842,7 +957,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       }
 
       // Ordre et durées personnalisés des scènes (édités par l'utilisateur dans l'aperçu)
-      const ALLOWED_SCENE_KINDS = new Set(["logo", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog", "ai_summary", "external_link", "menu_doc"]);
+      const ALLOWED_SCENE_KINDS = new Set(["logo", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog", "weather", "tides", "ai_summary", "external_link", "menu_doc"]);
       const rawOrder = options?.scene_order;
       let orderedFromClient: string[] | null = null;
       if (Array.isArray(rawOrder)) {
@@ -1342,6 +1457,27 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
           }));
         if (menus.length > 0) template_props.menuDocs = menus;
       }
+    }
+
+    // Widgets Météo / Marées, Vents & Météo — 3 s par défaut, données déterministes.
+    try {
+      const bizName = String((template_props as any)?.name || "Nous");
+      if (options?.weather_widget) {
+        const w = await fetchWeatherWidget(options?.weather_city, Number(options?.weather_range) || 1, bizName, videoLang);
+        template_props.showWeatherWidget = true;
+        template_props.weatherWidget = w;
+        if (!(template_props as any).scene_durations) (template_props as any).scene_durations = {};
+        if ((template_props as any).scene_durations.weather == null) (template_props as any).scene_durations.weather = 3;
+      }
+      if (options?.tides_widget) {
+        const t = await fetchTidesWidget(options?.tides_city, String(options?.tides_mode || "all"), bizName, videoLang);
+        template_props.showTidesWidget = true;
+        template_props.tidesWidget = t;
+        if (!(template_props as any).scene_durations) (template_props as any).scene_durations = {};
+        if ((template_props as any).scene_durations.tides == null) (template_props as any).scene_durations.tides = 3;
+      }
+    } catch (e) {
+      console.warn("[widgets] fetch failed", (e as Error).message);
     }
 
     if (preview_only) {

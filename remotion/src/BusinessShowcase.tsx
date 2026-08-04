@@ -209,6 +209,28 @@ export type ShowcaseProps = {
   showBlogArticles?: boolean;
   blogMode?: "scroll" | "hero_map";
   blogArticles?: Array<{ id: string; slug: string; mode?: "scroll" | "hero_map"; title: string; excerpt?: string | null; heroUrl?: string | null; url?: string | null; scrollShotUrl?: string | null }>;
+  /** Widget Météo intégré (données figées à la génération du scénario). */
+  showWeatherWidget?: boolean;
+  weatherWidget?: {
+    city: string;
+    citySlug?: string;
+    range: number;
+    text: string;
+    durationSec?: number;
+    hourly?: Array<{ hour: string; temp: number; code: number; wind: number; pop: number }>;
+    daily?: Array<{ date: string; code: number; tmin: number; tmax: number; pop: number; wind: number }>;
+  } | null;
+  /** Widget Marées, Vents & Météo intégré. */
+  showTidesWidget?: boolean;
+  tidesWidget?: {
+    city: string;
+    citySlug?: string;
+    mode: "all" | "tides" | "wind" | "weather";
+    text: string;
+    durationSec?: number;
+    hours?: Array<{ hour: string; sea: number | null; temp: number | null; code: number | null; wind: number | null; gust: number | null; dir: number | null; pop: number | null }>;
+    extremes?: Array<{ hour: string; type: "high" | "low"; height: number }>;
+  } | null;
   scenePois?: Record<string, PlaceItem[]>;
   sceneDestinations?: Record<string, PlaceItem[]>;
   /** Média des lieux liés : vidéo 1 (défaut) ou image 1. */
@@ -361,9 +383,9 @@ const splitHookInTwo = (h: string): [string, string] => {
   return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
 };
 
-type SceneKind = "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "blog" | "whatsapp" | "cta" | "outro";
+type SceneKind = "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "blog" | "weather" | "tides" | "whatsapp" | "cta" | "outro";
 
-const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "hook", "name", "offer", "popup", "media", "highlight", "ai_summary", "external_link", "menu_doc", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "blog", "whatsapp", "cta"];
+const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "hook", "name", "offer", "popup", "media", "highlight", "ai_summary", "external_link", "menu_doc", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "blog", "weather", "tides", "whatsapp", "cta"];
 
 function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
   switch (kind) {
@@ -399,6 +421,8 @@ function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
     case "map": return !!(p.showMap && p.latitude && p.longitude);
     case "digital": return !!(p.showDigitalId && p.slug);
     case "blog": return !!(p.showBlogArticles && Array.isArray(p.blogArticles) && p.blogArticles.length > 0);
+    case "weather": return !!(p.showWeatherWidget && p.weatherWidget);
+    case "tides": return !!(p.showTidesWidget && p.tidesWidget);
     case "whatsapp": return !!(p.showWhatsapp && p.whatsappNumber);
     case "outro": return p.showAppInstall !== false;
   }
@@ -429,6 +453,8 @@ function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
     case "whatsapp": return 120;
     case "digital": return DIGITAL_ID_FRAMES;
     case "blog": return 150;
+    case "weather": return Math.round((p.weatherWidget?.durationSec ?? 3) * 30);
+    case "tides": return Math.round((p.tidesWidget?.durationSec ?? 3) * 30);
     case "cta":
     case "outro": return 150;
   }
@@ -1161,6 +1187,227 @@ const SceneHours: React.FC<{ openingHours: string | Record<string, string>; text
           );
         })}
       </div>
+    </AbsoluteFill>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Widgets Météo & Marées : défilement visuel de la prévision dans la durée
+// de l'étape. Toutes les données sont figées côté serveur → rendu déterministe.
+// ---------------------------------------------------------------------------
+const wmoIcon = (code: number | null | undefined): string => {
+  const c = Number(code ?? 0);
+  if (c === 0) return "☀️";
+  if (c <= 2) return "🌤️";
+  if (c === 3) return "☁️";
+  if (c === 45 || c === 48) return "🌫️";
+  if (c >= 51 && c <= 57) return "🌦️";
+  if (c >= 61 && c <= 67) return "🌧️";
+  if (c >= 71 && c <= 77) return "🌨️";
+  if (c >= 80 && c <= 82) return "🌧️";
+  if (c >= 95) return "⛈️";
+  return "🌤️";
+};
+
+const dayLabelFr = (iso: string): string => {
+  const d = new Date(`${iso}T12:00:00`);
+  const days = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+  return `${days[d.getDay()]} ${String(d.getDate()).padStart(2, "0")}`;
+};
+
+const WidgetShell: React.FC<{ title: string; kicker: string; opacity: number; children: React.ReactNode }> = ({ title, kicker, opacity, children }) => (
+  <div
+    style={{
+      opacity,
+      width: 860,
+      borderRadius: 28,
+      padding: "34px 38px",
+      background: "linear-gradient(160deg, rgba(12,12,14,0.88), rgba(28,22,12,0.82))",
+      border: `2px solid ${COLORS.gold}`,
+      boxShadow: "0 24px 70px rgba(0,0,0,0.6)",
+    }}
+  >
+    <div style={{ fontFamily: body, color: COLORS.gold, fontSize: 20, letterSpacing: 5, textTransform: "uppercase" }}>{kicker}</div>
+    <div style={{ marginTop: 10, fontFamily: body, color: COLORS.cream, fontSize: 34, fontWeight: 700, lineHeight: 1.25 }}>{title}</div>
+    <div style={{ marginTop: 26 }}>{children}</div>
+  </div>
+);
+
+/** Barre de progression horaire animée. */
+const HourStrip: React.FC<{ labels: string[]; values: number[]; unit: string; progress: number; accent: string }> = ({ labels, values, unit, progress, accent }) => {
+  const max = Math.max(...values, 1);
+  const min = Math.min(...values, 0);
+  const span = max - min || 1;
+  const activeIdx = Math.min(values.length - 1, Math.floor(progress * values.length));
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 180 }}>
+        {values.map((v, i) => {
+          const revealed = i <= activeIdx;
+          const h = 24 + ((v - min) / span) * 140;
+          return (
+            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+              <div style={{ fontFamily: body, fontSize: 15, color: revealed ? COLORS.cream : "rgba(245,240,230,0.25)" }}>
+                {Math.round(v)}
+              </div>
+              <div
+                style={{
+                  width: "100%",
+                  height: h,
+                  borderRadius: 6,
+                  background: revealed ? accent : "rgba(255,255,255,0.10)",
+                  transform: `scaleY(${revealed ? 1 : 0.35})`,
+                  transformOrigin: "bottom",
+                  boxShadow: i === activeIdx ? `0 0 24px ${accent}` : "none",
+                }}
+              />
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+        {labels.map((l, i) => (
+          <div key={i} style={{ flex: 1, textAlign: "center", fontFamily: body, fontSize: 13, color: i === activeIdx ? COLORS.gold : "rgba(245,240,230,0.4)" }}>
+            {i % 2 === 0 ? l.slice(0, 2) + "h" : ""}
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 12, fontFamily: body, fontSize: 18, color: COLORS.gold }}>{unit}</div>
+    </div>
+  );
+};
+
+const SceneWeatherWidget: React.FC<{ widget: NonNullable<ShowcaseProps["weatherWidget"]>; duration: number; textPosition?: TextPosition }> = ({ widget, duration, textPosition = "middle" }) => {
+  const frame = useCurrentFrame();
+  const o = ease(frame, 0, 14);
+  const progress = interpolate(frame, [8, Math.max(duration - 6, 20)], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const hourly = (widget.hourly || []).slice(0, 24);
+  const daily = (widget.daily || []).slice(0, widget.range === 7 ? 7 : 3);
+  const oneDay = (widget.range || 1) === 1;
+  const activeH = hourly[Math.min(hourly.length - 1, Math.floor(progress * hourly.length))];
+  return (
+    <AbsoluteFill style={{ alignItems: "center", padding: 50, ...textPositionStyle(textPosition) }}>
+      <WidgetShell kicker="Météo" title={widget.text} opacity={o}>
+        {oneDay && hourly.length > 0 ? (
+          <>
+            <div style={{ display: "flex", alignItems: "center", gap: 22, marginBottom: 18 }}>
+              <div style={{ fontSize: 72, lineHeight: 1 }}>{wmoIcon(activeH?.code)}</div>
+              <div style={{ fontFamily: body, color: COLORS.cream }}>
+                <div style={{ fontSize: 62, fontWeight: 700 }}>{activeH ? `${activeH.temp}°` : "--"}</div>
+                <div style={{ fontSize: 22, color: COLORS.gold }}>
+                  {activeH ? `${activeH.hour} · vent ${activeH.wind} km/h · pluie ${activeH.pop}%` : ""}
+                </div>
+              </div>
+            </div>
+            <HourStrip
+              labels={hourly.map((h) => h.hour)}
+              values={hourly.map((h) => h.temp)}
+              unit="Températures sur 24 h (°C)"
+              progress={progress}
+              accent={COLORS.gold}
+            />
+          </>
+        ) : (
+          <div style={{ display: "flex", gap: 14 }}>
+            {daily.map((d, i) => {
+              const reveal = ease(frame, 10 + i * 6, 26 + i * 6);
+              const focus = Math.floor(progress * daily.length) === i;
+              return (
+                <div
+                  key={d.date}
+                  style={{
+                    flex: 1,
+                    opacity: reveal,
+                    transform: `translateY(${interpolate(reveal, [0, 1], [22, 0])}px) scale(${focus ? 1.05 : 1})`,
+                    borderRadius: 18,
+                    padding: "18px 10px",
+                    textAlign: "center",
+                    background: focus ? "rgba(212,175,55,0.18)" : "rgba(255,255,255,0.06)",
+                    border: `1px solid ${focus ? COLORS.gold : "rgba(212,175,55,0.2)"}`,
+                    fontFamily: body,
+                  }}
+                >
+                  <div style={{ fontSize: 18, color: COLORS.gold }}>{dayLabelFr(d.date)}</div>
+                  <div style={{ fontSize: 42, margin: "8px 0" }}>{wmoIcon(d.code)}</div>
+                  <div style={{ fontSize: 26, color: COLORS.cream, fontWeight: 700 }}>{d.tmax}°</div>
+                  <div style={{ fontSize: 18, color: "rgba(245,240,230,0.6)" }}>{d.tmin}°</div>
+                  <div style={{ fontSize: 15, color: COLORS.gold, marginTop: 6 }}>{d.pop}%</div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </WidgetShell>
+    </AbsoluteFill>
+  );
+};
+
+const SceneTidesWidget: React.FC<{ widget: NonNullable<ShowcaseProps["tidesWidget"]>; duration: number; textPosition?: TextPosition }> = ({ widget, duration, textPosition = "middle" }) => {
+  const frame = useCurrentFrame();
+  const o = ease(frame, 0, 14);
+  const hours = (widget.hours || []).slice(0, 24);
+  const mode = widget.mode || "all";
+  const panels: Array<"tides" | "wind" | "weather"> = mode === "all" ? ["tides", "wind", "weather"] : [mode as "tides" | "wind" | "weather"];
+  const per = Math.max(Math.floor(duration / panels.length), 20);
+  const panelIdx = Math.min(panels.length - 1, Math.floor(frame / per));
+  const local = frame - panelIdx * per;
+  const progress = interpolate(local, [6, Math.max(per - 4, 14)], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const kind = panels[panelIdx];
+  const activeIdx = Math.min(hours.length - 1, Math.floor(progress * hours.length));
+  const active = hours[activeIdx];
+
+  const cfg = kind === "tides"
+    ? { kicker: "Marées", values: hours.map((h) => Number(h.sea ?? 0)), unit: "Hauteur d'eau sur 24 h (m)", accent: "#4FA8D8" }
+    : kind === "wind"
+      ? { kicker: "Vents", values: hours.map((h) => Number(h.wind ?? 0)), unit: "Vent sur 24 h (km/h)", accent: "#63C7A6" }
+      : { kicker: "Météo", values: hours.map((h) => Number(h.temp ?? 0)), unit: "Températures sur 24 h (°C)", accent: COLORS.gold };
+
+  return (
+    <AbsoluteFill style={{ alignItems: "center", padding: 50, ...textPositionStyle(textPosition) }}>
+      <WidgetShell kicker={`Marées, Vents & Météo · ${cfg.kicker}`} title={widget.text} opacity={o}>
+        <div style={{ display: "flex", alignItems: "center", gap: 22, marginBottom: 16, fontFamily: body }}>
+          {kind === "tides" ? (
+            <>
+              <div style={{ fontSize: 64 }}>🌊</div>
+              <div>
+                <div style={{ fontSize: 52, color: COLORS.cream, fontWeight: 700 }}>
+                  {active?.sea != null ? `${active.sea.toFixed(2)} m` : "--"}
+                </div>
+                <div style={{ fontSize: 20, color: COLORS.gold }}>
+                  {(widget.extremes || []).map((e) => `${e.type === "high" ? "PM" : "BM"} ${e.hour}`).join("  ·  ") || active?.hour}
+                </div>
+              </div>
+            </>
+          ) : kind === "wind" ? (
+            <>
+              <div style={{ fontSize: 64 }}>💨</div>
+              <div>
+                <div style={{ fontSize: 52, color: COLORS.cream, fontWeight: 700 }}>{active?.wind != null ? `${active.wind} km/h` : "--"}</div>
+                <div style={{ fontSize: 20, color: COLORS.gold }}>
+                  {active ? `${active.hour} · rafales ${active.gust ?? "--"} km/h · ${active.dir ?? "--"}°` : ""}
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={{ fontSize: 64 }}>{wmoIcon(active?.code)}</div>
+              <div>
+                <div style={{ fontSize: 52, color: COLORS.cream, fontWeight: 700 }}>{active?.temp != null ? `${active.temp}°` : "--"}</div>
+                <div style={{ fontSize: 20, color: COLORS.gold }}>
+                  {active ? `${active.hour} · pluie ${active.pop ?? 0}%` : ""}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+        <HourStrip
+          labels={hours.map((h) => h.hour)}
+          values={cfg.values}
+          unit={cfg.unit}
+          progress={progress}
+          accent={cfg.accent}
+        />
+      </WidgetShell>
     </AbsoluteFill>
   );
 };
@@ -2412,6 +2659,10 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   instagramUrl,
   ficheScreenshotUrl,
   showBlogArticles,
+  showWeatherWidget,
+  weatherWidget,
+  showTidesWidget,
+  tidesWidget,
   blogMode,
   blogArticles,
   scenePois,
@@ -3116,6 +3367,36 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               lng={longitude ?? null}
               textPosition={textPosition}
             />
+          </>
+        );
+      }
+      case "weather": {
+        if (!weatherWidget) return null;
+        return (
+          <>
+            <MotionBackdrop
+              src={bgRotate(planIdx).src}
+              image={bgRotate(planIdx).image}
+              duration={duration}
+              effect={trImageEffect}
+              extraStartSec={bgRotate(planIdx).extraStartSec}
+            />
+            <SceneWeatherWidget widget={weatherWidget} duration={duration} textPosition={textPosition} />
+          </>
+        );
+      }
+      case "tides": {
+        if (!tidesWidget) return null;
+        return (
+          <>
+            <MotionBackdrop
+              src={bgRotate(planIdx).src}
+              image={bgRotate(planIdx).image}
+              duration={duration}
+              effect={trImageEffect}
+              extraStartSec={bgRotate(planIdx).extraStartSec}
+            />
+            <SceneTidesWidget widget={tidesWidget} duration={duration} textPosition={textPosition} />
           </>
         );
       }
