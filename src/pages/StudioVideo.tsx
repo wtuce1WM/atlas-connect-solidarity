@@ -231,6 +231,32 @@ const edgeErrorMessage = async (e: any, fallback: string) => {
   return e?.message ?? fallback;
 };
 
+/** Décode les entités HTML (&amp;, &eacute;, &#39;…) pour l'affichage vidéo. */
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", laquo: "«", raquo: "»",
+  eacute: "é", egrave: "è", ecirc: "ê", agrave: "à", acirc: "â", ccedil: "ç",
+  ugrave: "ù", ucirc: "û", icirc: "î", iuml: "ï", ocirc: "ô", euml: "ë", uuml: "ü",
+  hellip: "…", rsquo: "’", lsquo: "‘", ldquo: "“", rdquo: "”", ndash: "–", mdash: "—",
+  deg: "°", euro: "€", middot: "·", times: "×", copy: "©", reg: "®", trade: "™",
+};
+export const decodeHtmlEntities = (input: string): string =>
+  (input || "")
+    .replace(/&#x([0-9a-f]+);/gi, (_m, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_m, d) => String.fromCodePoint(Number(d)))
+    .replace(/&([a-z]+);/gi, (m, n) => NAMED_ENTITIES[String(n).toLowerCase()] ?? m);
+
+/** Options d'effet de mouvement (identiques côté Remotion). */
+const MOTION_EFFECT_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: "zoom_in", label: "Zoom in" },
+  { value: "zoom_out", label: "Zoom out" },
+  { value: "pan_left", label: "Panoramique gauche" },
+  { value: "pan_right", label: "Panoramique droite" },
+  { value: "pan_down", label: "Panoramique bas" },
+  { value: "pan_up", label: "Panoramique haut" },
+  { value: "scroll_v", label: "Défilé vertical" },
+];
+
+
 export default function StudioVideo() {
   const navigate = useNavigate();
   const [authState, setAuthState] = useState<"loading" | "in" | "out">("loading");
