@@ -56,6 +56,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const [reviewsLang, setReviewsLang] = useState<"fr" | "en" | "ar">("fr");
   const [reviewsPreset, setReviewsPreset] = useState<string>("v-sm");
   const [reviewsCard, setReviewsCard] = useState<"dark" | "widget" | "transparent">("dark");
+  const [rateCard, setRateCard] = useState<"dark" | "widget" | "transparent">("dark");
 
   const [ratePlatform, setRatePlatform] = useState<RatePlatformKey>("all");
   const [rateLang, setRateLang] = useState<"fr" | "en" | "ar">("fr");
@@ -313,7 +314,9 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
   const rateW = rateVariant === "bar" ? 780 : 460;
   const rateH = rateVariant === "bar" ? 120 : 430;
-  const rateUrl = `${SITE}/embed/avis/${slug}?platform=${ratePlatform}&lang=${rateLang}&variant=${rateVariant}${fitParam(fitOf("rate"))}${wbg}`;
+  const rateBgParam =
+    rateCard === "transparent" ? "&bg=transparent" : rateCard === "dark" ? "" : wbg;
+  const rateUrl = `${SITE}/embed/avis/${slug}?platform=${ratePlatform}&lang=${rateLang}&variant=${rateVariant}${fitParam(fitOf("rate"))}${rateBgParam}`;
   const rateSnippet = useMemo(
     () =>
       `<iframe src="${rateUrl}" style="${fitIframeStyle(fitOf("rate"), { maxWidth: rateW, height: rateH, radius: 20 })}" title="Laisser un avis — ${businessName}" loading="lazy"></iframe>`,
@@ -1183,6 +1186,30 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               ))}
             </div>
           </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label className="text-white/80 text-xs">Fond de la carte</Label>
+          <div className="flex gap-1 flex-wrap">
+            {([
+              { key: "dark", label: "Sombre (défaut)" },
+              { key: "widget", label: widgetBgValid ? `Couleur du widget ${widgetBg}` : "Couleur du widget (non définie)" },
+              { key: "transparent", label: "Transparent" },
+            ] as const).map((o) => (
+              <button
+                key={o.key}
+                type="button"
+                onClick={() => setRateCard(o.key)}
+                className={`text-xs py-1.5 px-3 rounded-md border ${rateCard === o.key ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-white/50">
+            « Transparent » et les fonds clairs passent automatiquement le texte en encre sombre pour rester
+            lisibles sur le site hôte.
+          </p>
         </div>
 
         {fitRow("rate")}

@@ -1,7 +1,7 @@
 // Page embarquable « Laisser un avis » : /embed/avis/:slug?platform=all|google|tripadvisor&lang=fr&variant=card|bar
 import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import { applyEmbedBg } from "@/lib/embedFit";
+import { applyEmbedBg, parseBg, resolveEmbedInk } from "@/lib/embedFit";
 import { supabase } from "@/integrations/supabase/client";
 import { tripadvisorReviewUrl } from "@/lib/tripadvisorUrl";
 import EmbedRateUsWidget, { type RateTarget, type RateVariant } from "@/components/embed/EmbedRateUsWidget";
@@ -26,6 +26,15 @@ export default function EmbedRateUs() {
   const langParam = (params.get("lang") || "fr").toLowerCase();
   const lang: Lang = langParam === "en" || langParam === "ar" ? (langParam as Lang) : "fr";
   const L = MESSAGES[lang];
+  // Fond de la carte :
+  //   ?bg=EFE6D8       → carte de cette couleur (encre auto selon luminance)
+  //   ?bg=transparent  → carte transparente : fond du site hôte
+  //   (absent)         → carte sombre d'origine
+  const bgRaw = (params.get("bg") || "").trim();
+  const bgColor = parseBg(bgRaw);
+  const wantsTransparent = /^(transparent|none|0)$/i.test(bgRaw);
+  const surface: string | null | undefined = bgColor || (wantsTransparent ? "" : undefined);
+  const ink = surface === undefined ? "light" : resolveEmbedInk(params.get("ink"), bgColor);
 
   const [name, setName] = useState("");
   const [targets, setTargets] = useState<RateTarget[]>([]);
@@ -124,7 +133,7 @@ export default function EmbedRateUs() {
         </div>
       )}
       {!loading && !error && (
-        <EmbedRateUsWidget businessName={name} targets={targets} lang={lang} variant={variant} />
+        <EmbedRateUsWidget businessName={name} targets={targets} lang={lang} variant={variant} surface={surface} ink={ink} />
       )}
     </div>
   );
