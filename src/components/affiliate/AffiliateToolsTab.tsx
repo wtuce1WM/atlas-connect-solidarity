@@ -467,6 +467,50 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         </div>
       </div>
 
+      <div className="space-y-3">
+        <h3 className="text-white font-semibold flex items-center gap-2">
+          <Globe2 className="h-4 w-4" /> Couleur de fond des widgets
+        </h3>
+        <p className="text-sm text-white/70 max-w-2xl">
+          Par défaut, chaque widget garde sa couleur d'origine. Si vous définissez une couleur ici, elle est
+          appliquée aux widgets de {businessName} — sauf si vous forcez une autre couleur directement dans le widget.
+        </p>
+        <div className="flex items-center gap-2">
+          <input
+            type="color"
+            value={widgetBgValid ? widgetBg : "#EFE6D8"}
+            onChange={(e) => { const v = e.target.value.toUpperCase(); setWidgetBg(v); saveWidgetBg(v); }}
+            disabled={radiusLoading || !businessId}
+            className="h-9 w-10 rounded-md bg-white/10 border border-white/20 p-1 cursor-pointer"
+            aria-label="Couleur de fond des widgets"
+          />
+          <input
+            type="text"
+            placeholder="#EFE6D8"
+            value={widgetBg}
+            onChange={(e) => setWidgetBg(e.target.value.toUpperCase())}
+            onBlur={(e) => saveWidgetBg(e.target.value.toUpperCase())}
+            disabled={radiusLoading || !businessId}
+            className="w-28 rounded-md bg-white/10 border border-white/20 text-white text-sm px-3 py-2 font-mono"
+          />
+          {widgetBg && (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => { setWidgetBg(""); saveWidgetBg(""); }}
+              className="text-white border-white/20 hover:bg-white/10 hover:text-white"
+            >
+              Défaut
+            </Button>
+          )}
+          {widgetBgSaving && <Loader2 className="h-4 w-4 animate-spin text-white/60" />}
+          {!widgetBgSaving && widgetBgSaved && <Check className="h-4 w-4 text-emerald-400" />}
+        </div>
+      </div>
+
+
+
       <div className="space-y-4">
         <h3 className="text-white font-semibold flex items-center gap-2">
           <ExternalLink className="h-4 w-4" /> Liens de partage
