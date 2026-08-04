@@ -29,6 +29,52 @@ const textPositionStyle = (position: TextPosition = "middle"): React.CSSProperti
   }
 };
 
+/**
+ * Colonne « anti-débordement » : mesure la hauteur réelle du contenu et,
+ * si celui-ci dépasse la zone sûre du viewport, ancre le bloc en haut et
+ * réduit l'échelle jusqu'à ce que tout tienne. Le titre ne sort donc jamais
+ * par le haut, quel que soit le volume de texte (Offres / Blocs highlights).
+ */
+const FitColumn: React.FC<{ children: React.ReactNode; align?: "center" | "flex-start"; minScale?: number }> = ({
+  children,
+  align = "center",
+  minScale = 0.62,
+}) => {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [fit, setFit] = React.useState<{ scale: number; overflow: boolean }>({ scale: 1, overflow: false });
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    const parent = el?.parentElement;
+    if (!el || !parent) return;
+    const avail = parent.clientHeight;
+    const h = el.scrollHeight;
+    if (!avail || !h) return;
+    if (h > avail) {
+      setFit({ scale: Math.max(minScale, avail / h), overflow: true });
+    } else {
+      setFit({ scale: 1, overflow: false });
+    }
+  }, [children, minScale]);
+  return (
+    <div
+      ref={ref}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: align,
+        width: "100%",
+        transform: fit.scale === 1 ? undefined : `scale(${fit.scale})`,
+        transformOrigin: "top center",
+        marginTop: fit.overflow ? "auto" : undefined,
+        marginBottom: fit.overflow ? "auto" : undefined,
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+
+
 // ===== Transitions entre les plans =====
 export type TransitionEffect = "crossfade" | "fade_black" | "wipe" | "zoom" | "kenburns" | "slide" | "cut" | "fast" | "mix";
 // Effets réellement utilisables quand "Mix" est choisi (tout sauf fast / mix)
