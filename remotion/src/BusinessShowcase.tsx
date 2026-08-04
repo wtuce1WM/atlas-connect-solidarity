@@ -2264,6 +2264,7 @@ const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[
             : <KenBurns src={heroImg} from={0} duration={durationFrames} />))}
       <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.4) 0%,rgba(0,0,0,0.75) 100%)" }} />
       <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
+        <FitColumn>
         {!data.title && (
           <div style={{ fontFamily: body, color: COLORS.gold, fontSize: 20, letterSpacing: 6, textTransform: "uppercase", textAlign: "center" }}>
             Signature
@@ -2291,7 +2292,9 @@ const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[
             {[data.metric_value, data.metric_title].filter(Boolean).map((v) => decodeEntities(String(v))).join(" · ")}
           </div>
         )}
+        </FitColumn>
       </AbsoluteFill>
+
     </AbsoluteFill>
   );
 };
