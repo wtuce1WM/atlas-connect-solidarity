@@ -1527,6 +1527,22 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     };
     // Étapes BIENVENUE / PROPOSITION (Présence en ligne / CTAs) — juste après le logo,
     // avant « Nom & identité » (kind "hook" côté montage).
+    // Widgets Météo / Marées : juste APRÈS l'étape Hook (kind "name" côté montage).
+    const insertAfterHookScene = (kind: "weather" | "tides") => {
+      const order = (template_props as any).scene_order;
+      if (!Array.isArray(order) || !order.length) return;
+      if (order.includes(kind)) return;
+      let idx = order.indexOf("name");
+      if (idx < 0) idx = order.indexOf("hook");
+      if (idx < 0) {
+        const closingIdx = order.findIndex((k: unknown) => k === "cta" || k === "outro");
+        idx = closingIdx >= 0 ? closingIdx - 1 : order.length - 1;
+      }
+      // On insère après l'étape trouvée, et après un widget déjà inséré.
+      let at = idx + 1;
+      while (at < order.length && (order[at] === "weather" || order[at] === "tides")) at++;
+      order.splice(at, 0, kind);
+    };
     const insertIntroScene = (kind: "welcome" | "proposition") => {
       const order = (template_props as any).scene_order;
       if (!Array.isArray(order) || !order.length) return;
@@ -1565,8 +1581,8 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         template_props.showWeatherWidget = true;
         template_props.weatherWidget = w;
         if (!(template_props as any).scene_durations) (template_props as any).scene_durations = {};
-        if ((template_props as any).scene_durations.weather == null) (template_props as any).scene_durations.weather = 5;
-        ensureSceneInOrder("weather");
+        if ((template_props as any).scene_durations.weather == null) (template_props as any).scene_durations.weather = 6;
+        insertAfterHookScene("weather");
       } catch (e) {
         console.warn("[widgets] weather fetch failed", (e as Error).message);
       }
@@ -1577,8 +1593,8 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         template_props.showTidesWidget = true;
         template_props.tidesWidget = t;
         if (!(template_props as any).scene_durations) (template_props as any).scene_durations = {};
-        if ((template_props as any).scene_durations.tides == null) (template_props as any).scene_durations.tides = 5;
-        ensureSceneInOrder("tides");
+        if ((template_props as any).scene_durations.tides == null) (template_props as any).scene_durations.tides = 6;
+        insertAfterHookScene("tides");
       } catch (e) {
         console.warn("[widgets] tides fetch failed", (e as Error).message);
       }
