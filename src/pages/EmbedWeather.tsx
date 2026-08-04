@@ -103,15 +103,8 @@ export default function EmbedWeather() {
         </div>
       )}
       {!loading && !error && data && (
-        <div
-          ref={innerRef}
-          className="w-full [&>div]:max-w-full"
-          style={
-            fullHeight && scale < 1
-              ? { transform: `scale(${scale})`, transformOrigin: "top center", width: `${100 / scale}%` }
-              : undefined
-          }
-        >
+        <div ref={innerRef} className="w-full [&>div]:max-w-full" style={fitStyle}>
+
           <EmbedWeatherWidget data={data} lang={lang} embedded={fullWidth} />
         </div>
       )}
