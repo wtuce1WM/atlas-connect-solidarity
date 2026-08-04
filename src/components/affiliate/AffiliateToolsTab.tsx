@@ -299,7 +299,10 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     "square": { label: "Carré", ratio: "square", size: "sm", w: 480, h: 480 },
   };
   const preset = REVIEW_PRESETS[reviewsPreset] || REVIEW_PRESETS["v-sm"];
-  const reviewsUrl = `${SITE}/embed/reviews/${slug}?platform=${reviewsPlatform}&lang=${reviewsLang}&ratio=${preset.ratio}&size=${preset.size}${fitParam(fitOf("reviews"))}${wbg}`;
+  const reviewsBgParam =
+    reviewsCard === "transparent" ? "&bg=transparent" : reviewsCard === "dark" ? "" : wbg;
+  const reviewsUrl = `${SITE}/embed/reviews/${slug}?platform=${reviewsPlatform}&lang=${reviewsLang}&ratio=${preset.ratio}&size=${preset.size}${fitParam(fitOf("reviews"))}${reviewsBgParam}`;
+
   const reviewsSnippet = useMemo(
     () =>
       `<iframe src="${reviewsUrl}" style="${fitIframeStyle(fitOf("reviews"), { maxWidth: preset.w, height: preset.h, radius: 20 })}" title="Avis clients — ${businessName}" loading="lazy"></iframe>`,
