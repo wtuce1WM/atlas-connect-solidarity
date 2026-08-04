@@ -84,7 +84,7 @@ export default function EmbedTides() {
   const rootRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const el = rootRef.current;
-    if (!el) return;
+    if (!el || fullHeight) return;
     const post = () => {
       window.parent?.postMessage(
         { type: "owm-tides-height", height: Math.ceil(el.getBoundingClientRect().height) },
@@ -95,12 +95,12 @@ export default function EmbedTides() {
     const ro = new ResizeObserver(post);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [data, loading, error, showPicker]);
+  }, [data, loading, error, showPicker, fullHeight]);
 
   return (
     <div
       ref={rootRef}
-      className={`w-full p-2 mx-auto flex flex-col items-center gap-2 bg-transparent ${capW} ${fullHeight ? "h-screen min-h-screen" : "min-h-0"}`}
+      className={`w-full mx-auto flex flex-col items-center gap-2 bg-transparent ${capW} ${fullHeight ? "h-screen min-h-screen overflow-hidden p-1" : "min-h-0 p-2"}`}
     >
 
       {showPicker && cities.length > 0 && (
