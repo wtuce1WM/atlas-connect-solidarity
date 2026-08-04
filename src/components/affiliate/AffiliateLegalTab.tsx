@@ -35,6 +35,7 @@ const AffiliateLegalTab = ({ affiliateId }: Props) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
   const [countries, setCountries] = useState<Country[]>([]);
   const [docs, setDocs] = useState<LegalDoc[]>([]);
   const [form, setForm] = useState({
