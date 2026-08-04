@@ -515,8 +515,8 @@ function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
     case "whatsapp": return 120;
     case "digital": return DIGITAL_ID_FRAMES;
     case "blog": return 150;
-    case "weather": return Math.round((p.weatherWidget?.durationSec ?? 3) * 30);
-    case "tides": return Math.round((p.tidesWidget?.durationSec ?? 3) * 30);
+    case "weather": return Math.round((p.weatherWidget?.durationSec ?? 5) * 30);
+    case "tides": return Math.round((p.tidesWidget?.durationSec ?? 5) * 30);
     case "cta":
     case "outro": return 150;
   }
