@@ -983,7 +983,7 @@ export default function StudioVideo() {
       }));
       setOffersList(mappedOffers);
       setSelectedOfferIds(new Set(mappedOffers.map((o) => o.id)));
-      const stripHtml = (s: string | null) => (s || "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+      const stripHtml = (s: string | null) => decodeHtmlEntities((s || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
       const hlRaw = (hls.data ?? []) as any[];
       const mappedHl = hlRaw
         .map((h) => ({
