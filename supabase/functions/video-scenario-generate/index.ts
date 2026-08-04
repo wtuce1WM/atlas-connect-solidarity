@@ -116,10 +116,40 @@ Deno.serve(async (req) => {
       };
     }
 
+    const NAMED_ENTITIES: Record<string, string> = {
+      amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", laquo: "«", raquo: "»",
+      eacute: "é", egrave: "è", ecirc: "ê", agrave: "à", acirc: "â", ccedil: "ç",
+      ugrave: "ù", ucirc: "û", icirc: "î", iuml: "ï", ocirc: "ô", euml: "ë", uuml: "ü",
+      hellip: "…", rsquo: "’", lsquo: "‘", ldquo: "“", rdquo: "”", ndash: "–", mdash: "—",
+      deg: "°", euro: "€", middot: "·", times: "×", copy: "©", reg: "®", trade: "™",
+    };
+    const decodeEntities = (input: string): string =>
+      input
+        .replace(/&#x([0-9a-f]+);/gi, (_m, h) => String.fromCodePoint(parseInt(h, 16)))
+        .replace(/&#(\d+);/g, (_m, d) => String.fromCodePoint(Number(d)))
+        .replace(/&([a-z]+);/gi, (m, n) => NAMED_ENTITIES[String(n).toLowerCase()] ?? m);
+
+    const RICH_TAGS = ["b", "strong", "i", "em", "u", "br", "p", "ul", "ol", "li", "span"];
+    /** Conserve gras / italique / listes, retire attributs et autres balises, décode les entités. */
+    const sanitizeRich = (value: unknown): string | null => {
+      if (typeof value !== "string" || !value.trim()) return null;
+      const out = decodeEntities(
+        value
+          .replace(/<\s*(script|style)[\s\S]*?<\s*\/\s*\1\s*>/gi, "")
+          .replace(/<\s*(\/?)\s*([a-z0-9]+)[^>]*>/gi, (_m, slash, tag) =>
+            RICH_TAGS.includes(String(tag).toLowerCase()) ? `<${slash}${String(tag).toLowerCase()}>` : " ",
+          ),
+      )
+        .replace(/[ \t]{2,}/g, " ")
+        .trim();
+      return out || null;
+    };
+
     const stripHtml = (value: unknown): string | null => {
       if (typeof value !== "string") return null;
-      return value.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() || null;
+      return decodeEntities(value.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim() || null;
     };
+
 
     const cleanDisplayText = (value: unknown): string | null => {
       if (typeof value !== "string") return null;
