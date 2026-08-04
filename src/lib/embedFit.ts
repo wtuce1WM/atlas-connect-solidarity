@@ -19,11 +19,33 @@ export const fitFlags = (fit: EmbedFit) => ({
 });
 
 export const FIT_OPTIONS: { value: EmbedFit; label: string }[] = [
-  { value: "", label: "Taille recommandée" },
+  { value: "", label: "Proportions conservées (hauteur auto)" },
   { value: "w", label: "Toute la largeur du widget" },
   { value: "h", label: "Toute la hauteur du widget" },
   { value: "wh", label: "Toute la largeur & hauteur" },
 ];
+
+/** Échelle du contenu d'un widget embarqué (`?size=sm|md|lg`). */
+export type EmbedSize = "sm" | "md" | "lg";
+
+export const parseSize = (raw: string | null | undefined): EmbedSize => {
+  const v = (raw || "").toLowerCase();
+  if (v === "sm" || v === "compact" || v === "mobile") return "sm";
+  if (v === "lg" || v === "large" || v === "desktop") return "lg";
+  return "md";
+};
+
+export const sizeZoom = (s: EmbedSize) => (s === "sm" ? 0.85 : s === "lg" ? 1.15 : 1);
+
+export const SIZE_OPTIONS: { value: EmbedSize; label: string }[] = [
+  { value: "sm", label: "Compact (mobile)" },
+  { value: "md", label: "Standard" },
+  { value: "lg", label: "Large (desktop)" },
+];
+
+/** Largeur d'affichage conseillée selon l'échelle choisie. */
+export const sizeMaxWidth = (s: EmbedSize) => (s === "sm" ? 380 : s === "lg" ? 620 : 460);
+
 
 /** Style inline d'iframe adapté au mode `fit` choisi. */
 export const fitIframeStyle = (

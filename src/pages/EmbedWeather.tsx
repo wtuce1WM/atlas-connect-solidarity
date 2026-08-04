@@ -1,11 +1,12 @@
 // Standalone embeddable weather page: /embed/weather?city=Marrakech&lang=fr
 // Designed to be loaded in an <iframe> from any external site (Claude Design, etc.).
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
-import { parseFit, fitFlags, applyEmbedBg } from "@/lib/embedFit";
+import { parseFit, fitFlags, applyEmbedBg, parseSize, sizeZoom } from "@/lib/embedFit";
 import { useEmbedFitScale } from "@/hooks/useEmbedFitScale";
+
 
 type Lang = "fr" | "en" | "ar";
 
@@ -22,6 +23,8 @@ export default function EmbedWeather() {
   const lang: Lang = langParam === "en" || langParam === "ar" ? (langParam as Lang) : "fr";
   const L = MESSAGES[lang];
   const { fullWidth, fullHeight } = fitFlags(parseFit(params.get("fit")));
+  const zoom = sizeZoom(parseSize(params.get("size")));
+
 
   const [data, setData] = useState<WeatherPayload | null>(null);
   const [error, setError] = useState(false);
@@ -91,7 +94,8 @@ export default function EmbedWeather() {
       ref={rootRef}
       className={`w-full flex justify-center bg-transparent ${
         fullHeight ? "h-screen min-h-screen overflow-hidden items-start p-1" : "min-h-0 items-start p-2"
-      }`}
+      } ${fullWidth ? "px-0" : ""}`}
+
     >
       {loading && (
         <div className="w-full rounded-3xl bg-muted/40 animate-pulse h-[260px] flex items-center justify-center text-sm text-muted-foreground">
@@ -104,11 +108,16 @@ export default function EmbedWeather() {
         </div>
       )}
       {!loading && !error && data && (
-        <div ref={innerRef} className="w-full [&>div]:max-w-full" style={fitStyle}>
-
-          <EmbedWeatherWidget data={data} lang={lang} embedded={fullWidth} />
+        <div
+          ref={innerRef}
+          className="w-full [&>div]:max-w-full"
+          style={{ ...(fitStyle || {}), ...(zoom !== 1 ? ({ zoom } as CSSProperties) : {}) }}
+        >
+          {/* `embedded` = pas de largeur bridée : la taille est pilotée par l'iframe hôte */}
+          <EmbedWeatherWidget data={data} lang={lang} embedded />
         </div>
       )}
+
     </div>
   );
 }

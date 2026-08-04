@@ -9,7 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import AffiliateArticleExport from "@/components/affiliate/AffiliateArticleExport";
 import HexColorField from "@/components/affiliate/HexColorField";
 import WidgetTester from "@/components/affiliate/WidgetTester";
-import { FIT_OPTIONS, fitFlags, fitIframeStyle, fitParam, bgParam, type EmbedFit } from "@/lib/embedFit";
+import { FIT_OPTIONS, fitFlags, fitIframeStyle, fitParam, bgParam, SIZE_OPTIONS, sizeMaxWidth, type EmbedFit, type EmbedSize } from "@/lib/embedFit";
 
 
 export type ToolsRights = {
@@ -64,6 +64,8 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
   const [weatherCity, setWeatherCity] = useState<string>("Marrakech");
   const [weatherLang, setWeatherLang] = useState<"fr" | "en" | "ar">("fr");
+  const [weatherSize, setWeatherSize] = useState<EmbedSize>("md");
+
   const [tidesCity, setTidesCity] = useState<string>("Essaouira");
   const [ficheMaxWidth, setFicheMaxWidth] = useState<number>(480);
   const [ficheShowClub, setFicheShowClub] = useState<boolean>(true);
@@ -361,12 +363,26 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
 
 
-  const weatherUrl = `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}${fitParam(fitOf("weather"))}${wbg}`;
+  const weatherUrl = `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}&size=${weatherSize}${fitParam(fitOf("weather"))}${wbg}`;
+  const weatherMaxW = sizeMaxWidth(weatherSize);
   const weatherSnippet = useMemo(
     () =>
-      `<iframe src="${weatherUrl}" style="${fitIframeStyle(fitOf("weather"), { maxWidth: 420, height: 320, radius: 20 })}" title="Météo — ${weatherCity}" loading="lazy"></iframe>`,
-    [weatherUrl, weatherCity, fits]
+      fitOf("weather") === ""
+        ? // Proportions conservées : la hauteur suit exactement le contenu (aucun scroll interne)
+          `<div style="width:100%;max-width:${weatherMaxW}px;margin:0 auto">
+  <iframe id="owm-weather" src="${weatherUrl}" style="width:100%;display:block;height:560px;border:0;border-radius:20px;background:transparent" title="Météo — ${weatherCity}" loading="lazy"></iframe>
+</div>
+<script>
+  window.addEventListener("message", function (e) {
+    if (!e.data || e.data.type !== "owm-weather-height") return;
+    var f = document.getElementById("owm-weather");
+    if (f) f.style.height = Math.ceil(e.data.height) + "px";
+  });
+</script>`
+        : `<iframe src="${weatherUrl}" style="${fitIframeStyle(fitOf("weather"), { maxWidth: weatherMaxW, height: 560, radius: 20 })}" title="Météo — ${weatherCity}" loading="lazy"></iframe>`,
+    [weatherUrl, weatherCity, weatherMaxW, fits]
   );
+
 
   const tidesUrl = `${SITE}/embed/tides?city=${encodeURIComponent(tidesCity || "Essaouira")}&lang=${tidesLang}${fitParam(fitOf("tides"))}${wbg}`;
   const tidesSnippet = useMemo(
@@ -1305,7 +1321,31 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
             </div>
           </div>
         </div>
+        <div className="space-y-1.5">
+          <Label className="text-white/80 text-xs">Échelle du widget</Label>
+          <div className="flex gap-1 flex-wrap">
+            {SIZE_OPTIONS.map((o) => (
+              <button
+                key={o.value}
+                type="button"
+                onClick={() => setWeatherSize(o.value)}
+                className={`text-xs py-1.5 px-2.5 rounded-md border ${
+                  weatherSize === o.value
+                    ? "bg-white text-neutral-900 border-white"
+                    : "text-white border-white/20 hover:bg-white/10"
+                }`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-white/50">
+            Largeur conseillée : {weatherMaxW}px. Compact ≈ mobile, Large ≈ desktop. Le fond reste
+            transparent si aucune couleur n'est forcée.
+          </p>
+        </div>
         {fitRow("weather")}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <div className="space-y-2">
             <Label className="text-white/80 text-xs">Code à copier (inline)</Label>
@@ -1338,7 +1378,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               <iframe
                 key={weatherUrl}
                 src={weatherUrl}
-                style={{ width: "100%", maxWidth: 420, height: 320, border: 0 }}
+                style={{ width: "100%", maxWidth: weatherMaxW, height: 560, border: 0 }}
                 title="Aperçu météo"
                 loading="lazy"
               />
