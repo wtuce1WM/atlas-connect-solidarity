@@ -464,7 +464,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
                   }`}
                 >
                   <Layers className="h-3.5 w-3.5" />
-                  {g.title} <span className="opacity-70 font-mono">KP{g.slot} · {g.code}</span>
+                  {g.title}
                 </button>
               ))}
             </div>
