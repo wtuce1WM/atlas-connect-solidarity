@@ -388,7 +388,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
             </Button>
           )}
           <p className="text-xs text-white/50 w-full">
-            Format hexadécimal (ex. {DEFAULT_BG}). Vide = palette 1WM par défaut.
+            Format hexadécimal (ex. {DEFAULT_BG}). Vide = fond transparent : le widget prend le fond du site hôte.
           </p>
         </CardContent>
       </Card>
