@@ -169,7 +169,11 @@ const StartVideo: React.FC<{
   const extra = Number.isFinite(extraStartSec) && extraStartSec > 0 ? Math.round(extraStartSec * fps) : 0;
   // Le décalage de relecture reste borné à l'intervalle [Time Start, Time End].
   const span = endAtBase != null ? Math.max(1, endAtBase - base) : undefined;
-  const startFrom = span != null ? base + (extra % span) : base + extra;
+  // Sans Time End connu, on ne connaît pas la durée réelle du clip : un décalage
+  // trop grand ferait démarrer la lecture après la fin (image figée / écran noir).
+  // On borne donc le décalage à 2 s dans ce cas.
+  const safeExtra = span != null ? extra % span : Math.min(extra, Math.round(2 * fps));
+  const startFrom = base + safeExtra;
   const endAt = endAtBase != null && endAtBase > startFrom + 1 ? endAtBase : undefined;
   return (
     <OffthreadVideo
