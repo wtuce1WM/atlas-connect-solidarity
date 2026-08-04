@@ -2407,7 +2407,9 @@ const SceneInfoText: React.FC<{
             </div>
           </div>
         )}
+        </FitColumn>
       </AbsoluteFill>
+
     </AbsoluteFill>
   );
 };
