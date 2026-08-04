@@ -34,6 +34,7 @@ export default function EmbedTides() {
   const [data, setData] = useState<TidesPayload | null>(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { innerRef: fitInnerRef, style: fitStyle } = useEmbedFitScale(fullHeight, [data, loading, error, showPicker]);
 
   useEffect(() => {
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
