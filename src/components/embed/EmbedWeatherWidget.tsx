@@ -189,12 +189,20 @@ export default function EmbedWeatherWidget({
   data,
   lang = "fr",
   embedded = false,
+  surface = "",
+  ink = "dark",
 }: {
   data: WeatherPayload;
   lang?: Lang;
   /** When true, renders flush inside a host card (no max-width, no rounding/shadow). */
   embedded?: boolean;
+  /** Forecast panel background: "" = transparent (host site), "#RRGGBB" = forced color. */
+  surface?: string;
+  /** Ink of the forecast panel, computed from the surface luminance. */
+  ink?: "light" | "dark";
 }) {
+  const panelStyle = { background: surface || "transparent", color: ink === "dark" ? "#171717" : "#FAFAFA" };
+  const tileBg = ink === "dark" ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.12)";
   const main = iconToEmoji(data.icon);
   const gradient = bgFor(data.icon);
   const seven = data.daily7 || [];
@@ -294,11 +302,11 @@ export default function EmbedWeatherWidget({
 
       {/* Forecast — 3 days (compact strip) or 7 days (rows with wind) */}
       {(days.length > 0 || hasSeven) && (
-        <div className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 px-4 py-3">
+        <div className="px-4 py-3" style={panelStyle}>
           <div className="flex items-center justify-between gap-2 mb-2">
             <div className="text-[11px] uppercase tracking-wider opacity-60">{range === 7 ? L.days7 : L.days}</div>
             {hasSeven && (
-              <div className="flex items-center gap-1 rounded-full bg-neutral-100 dark:bg-neutral-800 p-0.5">
+              <div className="flex items-center gap-1 rounded-full p-0.5" style={{ background: tileBg }}>
                 {([3, 7] as const).map((r) => (
                   <button
                     key={r}
@@ -306,10 +314,9 @@ export default function EmbedWeatherWidget({
                     onClick={() => setRange(r)}
                     aria-pressed={range === r}
                     className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors ${
-                      range === r
-                        ? "bg-white dark:bg-neutral-900 shadow text-neutral-900 dark:text-white"
-                        : "text-neutral-500 dark:text-neutral-400"
+                      range === r ? "shadow" : "opacity-60"
                     }`}
+                    style={range === r ? { background: surface || (ink === "dark" ? "#FFFFFF" : "#171717") } : undefined}
                   >
                     {r === 3 ? L.d3 : L.d7}
                   </button>
@@ -323,7 +330,8 @@ export default function EmbedWeatherWidget({
               {seven.slice(0, 7).map((d, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-2 rounded-2xl bg-neutral-100 dark:bg-neutral-800 px-3 py-2"
+                  className="flex items-center gap-2 rounded-2xl px-3 py-2"
+                  style={{ background: tileBg }}
                 >
                   <div className="w-[72px] shrink-0 text-[11px] font-medium opacity-80 truncate">
                     {formatDayLabel(d.date, lang)}
@@ -356,7 +364,7 @@ export default function EmbedWeatherWidget({
               {days.map((d, i) => {
                 const em = iconToEmoji(d.icon);
                 return (
-                  <div key={i} className="flex flex-col items-center justify-center rounded-2xl bg-neutral-100 dark:bg-neutral-800 px-2 py-3">
+                  <div key={i} className="flex flex-col items-center justify-center rounded-2xl px-2 py-3" style={{ background: tileBg }}>
                     <div className="text-[11px] font-medium opacity-80">{formatDayLabel(d.date, lang)}</div>
                     <div className={`text-3xl mt-1 ${em.anim}`} aria-hidden>{em.emoji}</div>
                     <div className="mt-1 text-sm font-semibold">{d.temp_max}° <span className="opacity-50 font-normal">/ {d.temp_min}°</span></div>
@@ -374,12 +382,12 @@ export default function EmbedWeatherWidget({
 
       {/* Signature (hidden when nested inside a host widget that already has one) */}
       {!embedded && (
-        <div className="bg-white dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800 px-4 py-2 flex items-center justify-center">
+        <div className="border-t border-black/10 px-4 py-2 flex items-center justify-center" style={panelStyle}>
           <a
             href="https://oneworldmorocco.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[11px] tracking-wide text-neutral-500 dark:text-neutral-400 hover:text-primary transition-colors"
+            className="text-[11px] tracking-wide opacity-60 hover:text-primary transition-colors"
           >
             oneworldmorocco.com
           </a>

@@ -65,6 +65,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const [weatherCity, setWeatherCity] = useState<string>("Marrakech");
   const [weatherLang, setWeatherLang] = useState<"fr" | "en" | "ar">("fr");
   const [weatherSize, setWeatherSize] = useState<EmbedSize>("md");
+  const [weatherCard, setWeatherCard] = useState<"transparent" | "widget" | "light" | "dark">("transparent");
 
   const [tidesCity, setTidesCity] = useState<string>("Essaouira");
   const [ficheMaxWidth, setFicheMaxWidth] = useState<number>(480);
@@ -381,7 +382,15 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
 
 
-  const weatherUrl = `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}&size=${weatherSize}${fitParam(fitOf("weather"))}${wbg}`;
+  const weatherBgParam =
+    weatherCard === "widget"
+      ? wbg
+      : weatherCard === "light"
+        ? "&bg=FFFFFF"
+        : weatherCard === "dark"
+          ? "&bg=1C1917"
+          : "&bg=transparent";
+  const weatherUrl = `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}&size=${weatherSize}${fitParam(fitOf("weather"))}${weatherBgParam}`;
   const weatherMaxW = sizeMaxWidth(weatherSize);
   const weatherSnippet = useMemo(
     () =>
@@ -1367,6 +1376,31 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
           <p className="text-[11px] text-white/50">
             Largeur conseillée : {weatherMaxW}px. Compact ≈ mobile, Large ≈ desktop. Le fond reste
             transparent si aucune couleur n'est forcée.
+          </p>
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-white/80 text-xs">Fond du bloc prévisions</Label>
+          <div className="flex gap-1 flex-wrap">
+            {([
+              { key: "transparent", label: "Transparent (défaut)" },
+              { key: "widget", label: widgetBgValid ? `Couleur du widget ${widgetBg}` : "Couleur du widget (non définie)" },
+              { key: "light", label: "Blanc" },
+              { key: "dark", label: "Sombre" },
+            ] as const).map((o) => (
+              <button
+                key={o.key}
+                type="button"
+                onClick={() => setWeatherCard(o.key)}
+                className={`text-xs py-1.5 px-3 rounded-md border ${weatherCard === o.key ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-white/50">
+            Par défaut le bloc prévisions est transparent : il prend le fond du site hôte, et l'encre passe
+            automatiquement en sombre ou clair selon la couleur choisie. « Couleur du widget » réutilise la
+            couleur définie plus haut (Couleur de fond des widgets).
           </p>
         </div>
         {fitRow("weather")}
