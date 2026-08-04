@@ -1600,8 +1600,18 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       }
     }
 
+    // Format de sortie (canvas Remotion) — vertical 720×1280 par défaut.
+    {
+      const cw = Number(options?.canvas_width);
+      const ch = Number(options?.canvas_height);
+      (template_props as Record<string, unknown>).canvas_width =
+        Number.isFinite(cw) && cw >= 320 && cw <= 3840 ? Math.round(cw) : 720;
+      (template_props as Record<string, unknown>).canvas_height =
+        Number.isFinite(ch) && ch >= 320 && ch <= 3840 ? Math.round(ch) : 1280;
+    }
 
     if (preview_only) {
+
       return json({
         preview: true,
         template_id,
