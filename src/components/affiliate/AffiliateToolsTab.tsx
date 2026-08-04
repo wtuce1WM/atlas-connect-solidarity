@@ -310,7 +310,16 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
   const reviewsSnippet = useMemo(
     () =>
-      `<iframe src="${reviewsUrl}" style="${fitIframeStyle(fitOf("reviews"), { maxWidth: preset.w, height: preset.h, radius: 20 })}" title="Avis clients — ${businessName}" loading="lazy"></iframe>`,
+      fitOf("reviews") === ""
+        ? autoHeightSnippet({
+            id: "owm-reviews",
+            msgType: "owm-reviews-height",
+            url: reviewsUrl,
+            title: `Avis clients — ${businessName}`,
+            maxWidth: preset.w,
+            height: preset.h,
+          })
+        : `<iframe src="${reviewsUrl}" style="${fitIframeStyle(fitOf("reviews"), { maxWidth: preset.w, height: preset.h, radius: 20 })}" title="Avis clients — ${businessName}" loading="lazy"></iframe>`,
     [reviewsUrl, businessName, preset.w, preset.h, fits]
   );
 
@@ -321,7 +330,16 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const rateUrl = `${SITE}/embed/avis/${slug}?platform=${ratePlatform}&lang=${rateLang}&variant=${rateVariant}${fitParam(fitOf("rate"))}${rateBgParam}`;
   const rateSnippet = useMemo(
     () =>
-      `<iframe src="${rateUrl}" style="${fitIframeStyle(fitOf("rate"), { maxWidth: rateW, height: rateH, radius: 20 })}" title="Laisser un avis — ${businessName}" loading="lazy"></iframe>`,
+      fitOf("rate") === ""
+        ? autoHeightSnippet({
+            id: "owm-rate",
+            msgType: "owm-rate-height",
+            url: rateUrl,
+            title: `Laisser un avis — ${businessName}`,
+            maxWidth: rateW,
+            height: rateH,
+          })
+        : `<iframe src="${rateUrl}" style="${fitIframeStyle(fitOf("rate"), { maxWidth: rateW, height: rateH, radius: 20 })}" title="Laisser un avis — ${businessName}" loading="lazy"></iframe>`,
     [rateUrl, rateW, rateH, businessName, fits]
   );
 
