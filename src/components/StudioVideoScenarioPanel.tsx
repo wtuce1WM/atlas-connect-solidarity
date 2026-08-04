@@ -48,7 +48,7 @@ export type Scene = {
   start: number;
   description: string;
   keywords: string[];
-  icon: "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "whatsapp" | "hours" | "map" | "digital" | "blog" | "weather" | "tides" | "cta" | "outro" | "custom";
+  icon: "logo" | "welcome" | "proposition" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "whatsapp" | "hours" | "map" | "digital" | "blog" | "weather" | "tides" | "cta" | "outro" | "custom";
 };
 
 export type Scenario = {
@@ -70,6 +70,8 @@ export type CustomScene = {
 
 const ICONS: Record<Scene["icon"], React.ReactNode> = {
   logo: <ImageIcon className="h-3.5 w-3.5" />,
+  welcome: <Star className="h-3.5 w-3.5" />,
+  proposition: <Type className="h-3.5 w-3.5" />,
   hook: <Star className="h-3.5 w-3.5" />,
   name: <MessageSquare className="h-3.5 w-3.5" />,
   media: <MessageSquare className="h-3.5 w-3.5" />,
@@ -98,6 +100,8 @@ const ICONS: Record<Scene["icon"], React.ReactNode> = {
 
 const LABELS: Record<Exclude<Scene["icon"], "custom">, string> = {
   logo: "Ouverture logo",
+  welcome: "Bienvenue",
+  proposition: "Proposition",
   // Dans le montage vidéo, la scène "hook" affiche le NOM + 📍 ville · quartier
   hook: "Nom & identité",
   // ... et la scène "name" affiche le TEXTE du hook.
@@ -163,6 +167,10 @@ export function buildScenario(
     whatsappNumber?: string | null;
     /** Texte du hook (étape 2 « Hook ») — remplace l'accroche générée. */
     hookText?: string | null;
+    /** Texte BIENVENUE (Présence en ligne / CTAs) — étape juste après le logo. */
+    welcomeText?: string | null;
+    /** Texte PROPOSITION (Présence en ligne / CTAs) — étape juste après Bienvenue. */
+    propositionText?: string | null;
   }
 ): Scenario {
   const keywords = extractKeywords(prompt);
@@ -187,6 +195,12 @@ export function buildScenario(
   const hookDuration = Math.max(2, Math.round(durationSec * 0.15));
   if (options.openWithLogo && options.logoUrl) {
     push("logo", Math.max(2, Math.round(durationSec * 0.06)), "Ouverture sur le logo de l'établissement (fond transparent).");
+  }
+  if (options.welcomeText?.trim()) {
+    push("welcome", 3, options.welcomeText.trim());
+  }
+  if (options.propositionText?.trim()) {
+    push("proposition", 3, options.propositionText.trim());
   }
   push("hook", nameDuration, businessName ? `${businessName}` : "Nom de l'établissement");
   push("name", hookDuration, options.hookText?.trim() || (businessName ? `Accroche sur ${businessName} et son ambiance.` : "Accroche immersive pour capter l'attention."));
@@ -394,7 +408,7 @@ function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenar
 
 
 function sceneKindFor(icon: Scene["icon"]): SceneMediaKind | null {
-  if (icon === "custom" || icon === "popup" || icon === "highlight" || icon === "blog") return null;
+  if (icon === "custom" || icon === "popup" || icon === "highlight" || icon === "blog" || icon === "welcome" || icon === "proposition") return null;
   return icon as SceneMediaKind;
 }
 
