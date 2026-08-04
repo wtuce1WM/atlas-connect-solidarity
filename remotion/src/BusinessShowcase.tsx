@@ -238,12 +238,13 @@ export type ShowcaseProps = {
   popupImageUrl?: string | null;
   popupTitle?: string | null;
   popupDescription?: string | null;
-  aiSummaries?: Array<{ id?: string; title?: string; content?: string }> | null;
-  /** Effet appliqué au média de fond des séquences Résumé IA */
+  aiSummaries?: Array<{ id?: string; title?: string; content?: string; effect?: string | null }> | null;
+  /** Effet appliqué au média de fond des séquences Résumé IA (défaut global) */
   aiSummaryEffect?: "zoom_in" | "zoom_out" | "pan_left" | "pan_right" | "pan_down" | "pan_up" | "scroll_v" | null;
   externalLinks?: Array<{ id?: string; name?: string; label?: string; url?: string | null; image?: string | null }> | null;
   menuDocs?: Array<{ id?: string; name?: string; url?: string | null }> | null;
-  highlights?: Array<{ id?: string; icon?: string | null; image_url?: string | null; title?: string; description?: string; metric_title?: string; metric_value?: string }> | null;
+  highlights?: Array<{ id?: string; icon?: string | null; image_url?: string | null; title?: string; description?: string; description_html?: string | null; effect?: string | null; metric_title?: string; metric_value?: string }> | null;
+
   showGoogleReviews?: boolean;
   googleReview?: { rating: number | null; count: number | null; url: string | null } | null;
   showTripAdvisor?: boolean;
