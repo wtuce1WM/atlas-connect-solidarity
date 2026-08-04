@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import EmbedTidesWidget, { type TidesPayload } from "@/components/embed/EmbedTidesWidget";
 import { parseFit, fitFlags, applyEmbedBg } from "@/lib/embedFit";
+import { useEmbedFitScale } from "@/hooks/useEmbedFitScale";
 
 type Lang = "fr" | "en" | "ar";
 
