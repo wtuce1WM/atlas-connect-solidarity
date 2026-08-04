@@ -1564,7 +1564,7 @@ export default function StudioVideo() {
 
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
-            highlight_effects: Object.fromEntries(Array.from(selectedHighlightIds).map((id) => [id, highlightEffects[id] || "kenburns_none"]).filter(([, v]) => v !== "kenburns_none")),
+            highlight_effects: Object.fromEntries(Array.from(selectedHighlightIds).filter((id) => !!highlightEffects[id]).map((id) => [id, highlightEffects[id]])),
             ai_summary_ids: Array.from(selectedAiSummaryIds),
             ai_summary_effect: aiSummaryEffect,
             ai_summary_effects: Object.fromEntries(Array.from(selectedAiSummaryIds).map((id) => [id, aiSummaryEffects[id] || aiSummaryEffect])),
