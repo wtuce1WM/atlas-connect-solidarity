@@ -41,11 +41,19 @@ type PoiRow = {
   neighborhood: string | null;
 };
 
+type KpMember = {
+  id: string;
+  name: string;
+  city: string | null;
+  neighborhood: string | null;
+};
+
 type KpGroup = {
   slot: 1 | 2;
   code: string;
   title: string;
   count: number;
+  members: KpMember[];
 };
 
 const DEFAULT_BG = "#EFE6D8";
