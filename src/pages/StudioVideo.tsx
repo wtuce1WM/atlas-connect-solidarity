@@ -387,9 +387,8 @@ export default function StudioVideo() {
   const VIDEO_FORMATS = [
     { value: "portrait" as const, label: "Vertical 720×1280", w: 720, h: 1280 },
     { value: "landscape" as const, label: "Horizontal 1920×1080", w: 1920, h: 1080 },
-    { value: "square" as const, label: "Carré 1080×1080", w: 1080, h: 1080 },
   ];
-  const [videoFormat, setVideoFormat] = useState<"portrait" | "landscape" | "square">("portrait");
+  const [videoFormat, setVideoFormat] = useState<"portrait" | "landscape">("portrait");
   const videoCanvas = VIDEO_FORMATS.find((f) => f.value === videoFormat) ?? VIDEO_FORMATS[0];
 
   const [poiOptions, setPoiOptions] = useState<PlaceOption[]>([]);
