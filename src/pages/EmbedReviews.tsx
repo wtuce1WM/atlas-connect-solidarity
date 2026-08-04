@@ -37,6 +37,16 @@ export default function EmbedReviews() {
   const sizeParam = (params.get("size") || "auto").toLowerCase();
   const size: ReviewsSize = sizeParam === "sm" || sizeParam === "lg" ? (sizeParam as ReviewsSize) : "auto";
   const { fullWidth, fullHeight } = fitFlags(parseFit(params.get("fit")));
+  // Fond de la carte d'avis :
+  //   ?bg=EFE6D8       → la carte prend cette couleur (encre auto selon luminance)
+  //   ?bg=transparent  → carte transparente : fond du site hôte
+  //   (absent)         → carte sombre d'origine
+  const bgRaw = (params.get("bg") || "").trim();
+  const bgColor = parseBg(bgRaw);
+  const wantsTransparent = /^(transparent|none|0)$/i.test(bgRaw);
+  const surface: string | null | undefined = bgColor || (wantsTransparent ? "" : undefined);
+  const ink = surface === undefined ? "light" : resolveEmbedInk(params.get("ink"), bgColor);
+
   
 
   const langParam = (params.get("lang") || "fr").toLowerCase();
