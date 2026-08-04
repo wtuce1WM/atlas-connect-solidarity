@@ -1567,23 +1567,26 @@ const SceneTidesWidget: React.FC<{ widget: NonNullable<ShowcaseProps["tidesWidge
 
 const SceneMap: React.FC<{ lat: number; lng: number; name: string; address?: string | null; textPosition?: TextPosition }> = ({ lat, lng, name, address, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
+  const { h, contentW, gutter, px } = useLayout();
   const labelO = ease(frame, 0, 18);
   const mapO = ease(frame, 10, 30);
   // Google Maps Static via edge proxy (clé stockée côté serveur)
   const mapUrl = `https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/static-map?lat=${lat}&lng=${lng}&zoom=16&size=640x640&scale=2&maptype=roadmap`;
   const pinScale = spring({ frame: frame - 28, fps: 30, config: { damping: 10, stiffness: 180 } });
+  // Carré adapté au canvas : jamais plus large que le contenu ni plus haut que 55 % du canvas.
+  const mapSize = Math.min(contentW, Math.round(h * 0.55), px(620));
   return (
-    <AbsoluteFill style={{ alignItems: "center", padding: 50, ...textPositionStyle(textPosition) }}>
-      <div style={{ opacity: labelO, marginTop: 30, fontFamily: body, color: COLORS.gold, fontSize: 22, letterSpacing: 6, textTransform: "uppercase" }}>
+    <AbsoluteFill style={{ alignItems: "center", padding: gutter, ...textPositionStyle(textPosition) }}>
+      <div style={{ opacity: labelO, marginTop: px(30), fontFamily: body, color: COLORS.gold, fontSize: px(22), letterSpacing: px(6), textTransform: "uppercase" }}>
         Localisation
       </div>
       <div
         style={{
           opacity: mapO,
-          marginTop: 30,
-          width: 620,
-          height: 620,
-          borderRadius: 24,
+          marginTop: px(30),
+          width: mapSize,
+          height: mapSize,
+          borderRadius: px(24),
           overflow: "hidden",
           position: "relative",
           border: `2px solid ${COLORS.gold}`,
@@ -1599,21 +1602,22 @@ const SceneMap: React.FC<{ lat: number; lng: number; name: string; address?: str
             left: "50%",
             transform: `translate(-50%, -100%) scale(${interpolate(pinScale, [0, 1], [0, 1])})`,
             transformOrigin: "bottom center",
-            fontSize: 80,
+            fontSize: px(80),
             filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.6))",
           }}
         >
           📍
         </div>
       </div>
-      <div style={{ opacity: mapO, marginTop: 24, fontFamily: display, fontWeight: 700, color: COLORS.cream, fontSize: 32, textAlign: "center" }}>
+      <div style={{ opacity: mapO, marginTop: px(24), fontFamily: display, fontWeight: 700, color: COLORS.cream, fontSize: px(32), textAlign: "center" }}>
         {name}
       </div>
       {address && (
-        <div style={{ opacity: mapO, marginTop: 8, fontFamily: body, color: COLORS.gold, fontSize: 22, textAlign: "center" }}>
+        <div style={{ opacity: mapO, marginTop: px(8), fontFamily: body, color: COLORS.gold, fontSize: px(22), textAlign: "center" }}>
           {address}
         </div>
       )}
+
     </AbsoluteFill>
   );
 };
