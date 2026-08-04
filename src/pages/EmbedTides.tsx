@@ -134,7 +134,11 @@ export default function EmbedTides() {
         </div>
       )}
       {!loading && !error && data && (
-        <div className={`w-full flex justify-center ${fullHeight ? "flex-1 min-h-0 [&>div]:h-full" : ""}`}>
+        <div
+          ref={fitInnerRef}
+          className="w-full flex justify-center [&>div]:max-w-full"
+          style={fitStyle}
+        >
           <EmbedTidesWidget data={data} lang={lang} compact={compact} fullWidth={fullWidth} onCityChange={setCity} />
         </div>
       )}
