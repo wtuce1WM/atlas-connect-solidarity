@@ -336,19 +336,33 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
             {kpGroups.map((g) => (
               <div
                 key={`${g.slot}-${g.code}`}
-                className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-2.5"
+                className="rounded-lg border border-white/10 bg-white/5 px-3 py-2.5"
               >
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-white truncate">{g.title}</p>
-                  <p className="text-xs text-white/50 font-mono truncate">
-                    KP{g.slot} · {g.code} — {g.count} établissements
-                  </p>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-white truncate">{g.title}</p>
+                    <p className="text-xs text-white/50 font-mono truncate">
+                      KP{g.slot} · {g.code} — {g.count} établissements
+                    </p>
+                  </div>
+                  <Switch
+                    checked={g.slot === 1 ? kpActive : kpActive2}
+                    onCheckedChange={(v) => (g.slot === 1 ? setKpActive(v) : setKpActive2(v))}
+                    aria-label={`Activer le regroupement ${g.title}`}
+                  />
                 </div>
-                <Switch
-                  checked={g.slot === 1 ? kpActive : kpActive2}
-                  onCheckedChange={(v) => (g.slot === 1 ? setKpActive(v) : setKpActive2(v))}
-                  aria-label={`Activer le regroupement ${g.title}`}
-                />
+                {g.members.length > 0 && (
+                  <ul className="mt-2.5 space-y-1 border-t border-white/10 pt-2">
+                    {g.members.map((m) => (
+                      <li key={m.id} className="flex items-center justify-between gap-2 text-xs">
+                        <span className="text-white/90 truncate" title={m.name}>{m.name}</span>
+                        <span className="text-white/50 shrink-0 text-right">
+                          {[m.city, m.neighborhood].filter(Boolean).join(" — ") || "Ville non renseignée"}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             ))}
             <p className="text-xs text-white/50">
