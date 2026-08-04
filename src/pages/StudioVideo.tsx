@@ -3568,8 +3568,24 @@ export default function StudioVideo() {
                               {(h.metric_title || h.metric_value) && (
                                 <div className="mt-1 text-[#C04F17] font-semibold">{h.metric_value} {h.metric_title && <span className="text-muted-foreground font-normal">— {h.metric_title}</span>}</div>
                               )}
+                              {checked && (
+                                <div className="mt-1 flex items-center gap-2" onClick={(e) => e.preventDefault()}>
+                                  <span className="text-muted-foreground shrink-0">Effet</span>
+                                  <select
+                                    value={highlightEffects[h.id] || ""}
+                                    onChange={(e) => setHighlightEffects((prev) => ({ ...prev, [h.id]: e.target.value }))}
+                                    className="flex-1 rounded-md border border-border bg-white px-2 py-1 text-[11px] text-foreground"
+                                  >
+                                    <option value="">Ken Burns (défaut)</option>
+                                    {MOTION_EFFECT_OPTIONS.map((o) => (
+                                      <option key={o.value} value={o.value}>{o.label}</option>
+                                    ))}
+                                  </select>
+                                </div>
+                              )}
                             </div>
                           </label>
+
                         );
                       })}
                     </div>
