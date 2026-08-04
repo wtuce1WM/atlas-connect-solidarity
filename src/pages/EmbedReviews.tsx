@@ -89,6 +89,7 @@ export default function EmbedReviews() {
 
   // Report height to host page for auto-resize.
   useEffect(() => {
+    if (fullHeight) return;
     const post = () =>
       window.parent?.postMessage(
         { type: "owm-reviews-height", height: document.documentElement.scrollHeight },
@@ -101,10 +102,14 @@ export default function EmbedReviews() {
       window.clearTimeout(t);
       window.removeEventListener("resize", post);
     };
-  }, [business, reviews, loading, error]);
+  }, [business, reviews, loading, error, fullHeight]);
 
   return (
-    <div className={`w-full p-2 flex justify-center bg-transparent ${fullHeight ? "h-screen min-h-screen items-stretch [&>div]:h-full" : "items-start"}`}>
+    <div
+      className={`w-full flex justify-center bg-transparent ${
+        fullHeight ? "h-screen min-h-screen overflow-hidden items-start p-1" : "items-start p-2"
+      }`}
+    >
       {loading && (
         <div className="w-full rounded-3xl bg-muted/40 animate-pulse h-[320px] flex items-center justify-center text-sm text-muted-foreground">
           {L.loading}
@@ -116,8 +121,11 @@ export default function EmbedReviews() {
         </div>
       )}
       {!loading && !error && business && (
-        <EmbedReviewsWidget business={business} reviews={reviews} platform={platform} lang={lang} ratio={ratio} size={size} fullWidth={fullWidth} />
+        <div ref={fitInnerRef} className="w-full flex justify-center [&>div]:max-w-full" style={fitStyle}>
+          <EmbedReviewsWidget business={business} reviews={reviews} platform={platform} lang={lang} ratio={ratio} size={size} fullWidth={fullWidth} />
+        </div>
       )}
     </div>
   );
 }
+
