@@ -1109,7 +1109,13 @@ export function StudioVideoScenarioPanel({
 
                 </div>
               </div>
-              <p className="text-sm text-neutral-700 leading-relaxed whitespace-pre-line">{scene.description}</p>
+              <p
+                className={`text-sm text-neutral-700 leading-relaxed whitespace-pre-line ${
+                  scene.icon === "highlight" || scene.icon === "ai_summary" ? "line-clamp-2" : ""
+                }`}
+              >
+                {scene.description}
+              </p>
 
               {scene.icon === "whatsapp" && (() => {
                 const offerScene = editedScenes.find((s) => s.icon === "offer");
