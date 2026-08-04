@@ -1743,7 +1743,7 @@ export default function StudioVideo() {
     optReviews, optHours, optMapMarker, optDigitalId, optInstallCta,
     optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
     optCustomerReview, optPopup, optOpenWithLogo, optClosingSequence,
-    selectedOfferIds, selectedHighlightIds, selectedAiSummaryIds, aiSummaryEffect, selectedExternalLinkIds, selectedMenuDocIds, selectedImages, orderedSelectedVideos, activeVideoStarts, activeVideoEnds,
+    selectedOfferIds, selectedHighlightIds, selectedAiSummaryIds, aiSummaryEffect, highlightEffects, aiSummaryEffects, selectedExternalLinkIds, selectedMenuDocIds, selectedImages, orderedSelectedVideos, activeVideoStarts, activeVideoEnds,
     selectedReviewId, reviewHighlight, textPosition, continuousBg, continuousBgUrl, continuousBgSound,
     soundtrackOn, soundtrackUrl,
     transitionStyle, transitionDifferentiate, transitionVideo, transitionImage,
