@@ -1054,7 +1054,9 @@ const SceneOffer: React.FC<{
           })}
         </div>
       )}
+      </FitColumn>
     </AbsoluteFill>
+
   );
 };
 
