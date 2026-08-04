@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import AffiliateArticleExport from "@/components/affiliate/AffiliateArticleExport";
 import WidgetTester from "@/components/affiliate/WidgetTester";
-import { FIT_OPTIONS, fitFlags, fitIframeStyle, fitParam, type EmbedFit } from "@/lib/embedFit";
+import { FIT_OPTIONS, fitFlags, fitIframeStyle, fitParam, bgParam, type EmbedFit } from "@/lib/embedFit";
 
 
 export type ToolsRights = {
@@ -164,9 +164,10 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     );
   }
 
+  const wbg = bgParam(widgetBgValid ? widgetBg : "");
   const publicUrl = `${SITE}/${slug}`;
   const shortUrl = `${SITE}/b/${slug}`;
-  const embedUrl = `${SITE}/embed/ask/${slug}?theme=${embedTheme}&lang=${embedLang}${fitParam(fitOf("embed"))}`;
+  const embedUrl = `${SITE}/embed/ask/${slug}?theme=${embedTheme}&lang=${embedLang}${fitParam(fitOf("embed"))}${wbg}`;
   const embedSnippet = useMemo(
     () =>
       `<iframe src="${embedUrl}" style="${fitIframeStyle(fitOf("embed"), { maxWidth: 420, height: embedHeight, radius: 16, extra: "box-shadow:0 4px 24px rgba(0,0,0,0.15)" })}" title="Assistant IA — ${businessName}" loading="lazy" allow="clipboard-write"></iframe>`,
@@ -297,7 +298,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     "square": { label: "Carré", ratio: "square", size: "sm", w: 480, h: 480 },
   };
   const preset = REVIEW_PRESETS[reviewsPreset] || REVIEW_PRESETS["v-sm"];
-  const reviewsUrl = `${SITE}/embed/reviews/${slug}?platform=${reviewsPlatform}&lang=${reviewsLang}&ratio=${preset.ratio}&size=${preset.size}${fitParam(fitOf("reviews"))}`;
+  const reviewsUrl = `${SITE}/embed/reviews/${slug}?platform=${reviewsPlatform}&lang=${reviewsLang}&ratio=${preset.ratio}&size=${preset.size}${fitParam(fitOf("reviews"))}${wbg}`;
   const reviewsSnippet = useMemo(
     () =>
       `<iframe src="${reviewsUrl}" style="${fitIframeStyle(fitOf("reviews"), { maxWidth: preset.w, height: preset.h, radius: 20 })}" title="Avis clients — ${businessName}" loading="lazy"></iframe>`,
@@ -306,7 +307,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
   const rateW = rateVariant === "bar" ? 780 : 460;
   const rateH = rateVariant === "bar" ? 120 : 430;
-  const rateUrl = `${SITE}/embed/avis/${slug}?platform=${ratePlatform}&lang=${rateLang}&variant=${rateVariant}${fitParam(fitOf("rate"))}`;
+  const rateUrl = `${SITE}/embed/avis/${slug}?platform=${ratePlatform}&lang=${rateLang}&variant=${rateVariant}${fitParam(fitOf("rate"))}${wbg}`;
   const rateSnippet = useMemo(
     () =>
       `<iframe src="${rateUrl}" style="${fitIframeStyle(fitOf("rate"), { maxWidth: rateW, height: rateH, radius: 20 })}" title="Laisser un avis — ${businessName}" loading="lazy"></iframe>`,
@@ -351,14 +352,14 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
 
 
-  const weatherUrl = `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}${fitParam(fitOf("weather"))}`;
+  const weatherUrl = `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}${fitParam(fitOf("weather"))}${wbg}`;
   const weatherSnippet = useMemo(
     () =>
       `<iframe src="${weatherUrl}" style="${fitIframeStyle(fitOf("weather"), { maxWidth: 420, height: 320, radius: 20 })}" title="Météo — ${weatherCity}" loading="lazy"></iframe>`,
     [weatherUrl, weatherCity, fits]
   );
 
-  const tidesUrl = `${SITE}/embed/tides?city=${encodeURIComponent(tidesCity || "Essaouira")}&lang=${tidesLang}${fitParam(fitOf("tides"))}`;
+  const tidesUrl = `${SITE}/embed/tides?city=${encodeURIComponent(tidesCity || "Essaouira")}&lang=${tidesLang}${fitParam(fitOf("tides"))}${wbg}`;
   const tidesSnippet = useMemo(
     () =>
       `<iframe src="${tidesUrl}" style="${fitIframeStyle(fitOf("tides"), { maxWidth: 520, height: 360, radius: 20 })}" title="Marées — ${tidesCity}" loading="lazy"></iframe>`,
@@ -366,7 +367,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   );
 
   // Widget « Fiche complète » : /b/:slug en mode embed avec auto-resize
-  const ficheUrl = `${SITE}/b/${slug ?? ""}?embed=1${ficheShowClub ? "" : "&club=0"}${fitParam(fitOf("fiche"))}`;
+  const ficheUrl = `${SITE}/b/${slug ?? ""}?embed=1${ficheShowClub ? "" : "&club=0"}${fitParam(fitOf("fiche"))}${wbg}`;
   const ficheSnippet = useMemo(
     () =>
       `<div id="owm-fiche-wrap" style="width:100%;${fitFlags(fitOf("fiche")).fullWidth ? "" : `max-width:${ficheMaxWidth}px;`}margin:0 auto">
