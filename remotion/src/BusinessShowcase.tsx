@@ -2235,8 +2235,14 @@ const RICH_CSS = `
 .rich-video-block ul, .rich-video-block ol { margin: 0.2em 0 0; padding-left: 1.1em; text-align: left; display: inline-block; }
 .rich-video-block li { margin: 0.18em 0; }
 .rich-video-block ul { list-style: none; padding-left: 0; }
-.rich-video-block ul > li::before { content: "◆ "; color: ${COLORS.gold}; }
+/* Le texte de la puce reste sur la même ligne que le symbole : on neutralise
+   les blocs et les sauts de ligne en tête de <li>. */
+.rich-video-block li > p, .rich-video-block li > div, .rich-video-block li > span { display: inline; margin: 0; }
+.rich-video-block li > br:first-child { display: none; }
+.rich-video-block ul > li { display: block; }
+.rich-video-block ul > li::before { content: "◆ "; color: ${COLORS.gold}; white-space: pre; }
 `;
+
 
 const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[number]; background?: string | null; backgroundIsVideo?: boolean; durationFrames: number; textPosition?: TextPosition; effect?: TransitionEffect; motion?: MotionEffect | null }> = ({ data, background, backgroundIsVideo, durationFrames, textPosition = "middle", effect = "kenburns", motion = null }) => {
   const frame = useCurrentFrame();
