@@ -512,54 +512,16 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         </h3>
         <p className="text-sm text-white/70 max-w-2xl">
           <span className="text-white font-medium">Vide = fond transparent.</span> Le widget prend alors le fond du site hôte.
-          Si vous définissez une couleur ici, elle est appliquée aux widgets de {businessName} — sauf si vous forcez une autre couleur directement dans le widget.
+          Si vous saisissez un code hexadécimal ici, il est appliqué aux widgets de {businessName} — sauf si vous forcez une autre couleur directement dans le widget.
         </p>
-        <div className="flex items-center gap-2">
-          <input
-            ref={widgetBgRef}
-            type="color"
-            value={widgetBgValid ? widgetBg : "#FFFFFF"}
-            onChange={(e) => { const v = e.target.value.toUpperCase(); setWidgetBg(v); saveWidgetBg(v); }}
-            disabled={radiusLoading || !businessId}
-            className="sr-only"
-            aria-label="Couleur de fond des widgets"
-            id="widget-bg-color"
-          />
-          <button
-            type="button"
-            onClick={() => widgetBgRef.current?.click()}
-            disabled={radiusLoading || !businessId}
-            className="h-9 w-10 rounded-md border border-white/20 p-1 overflow-hidden shrink-0 focus:outline-none focus:ring-2 focus:ring-primary"
-            aria-label="Choisir une couleur de fond"
-            style={{ background: widgetBgValid ? widgetBg : "transparent" }}
-          >
-            {!widgetBgValid && (
-              <div className="w-full h-full opacity-30" style={{ background: "repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 12px 12px" }} />
-            )}
-          </button>
-          <input
-            type="text"
-            placeholder="Transparent"
-            value={widgetBg}
-            onChange={(e) => setWidgetBg(e.target.value.toUpperCase())}
-            onBlur={(e) => saveWidgetBg(e.target.value.toUpperCase())}
-            disabled={radiusLoading || !businessId}
-            className="w-28 rounded-md bg-white/10 border border-white/20 text-white text-sm px-3 py-2 font-mono"
-          />
-          {widgetBg && (
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => { setWidgetBg(""); saveWidgetBg(""); }}
-              className="text-white border-white/20 hover:bg-white/10 hover:text-white"
-            >
-              Défaut
-            </Button>
-          )}
-          {widgetBgSaving && <Loader2 className="h-4 w-4 animate-spin text-white/60" />}
-          {!widgetBgSaving && widgetBgSaved && <Check className="h-4 w-4 text-emerald-400" />}
-        </div>
+        <HexColorField
+          value={widgetBg}
+          onChange={setWidgetBg}
+          onCommit={saveWidgetBg}
+          disabled={radiusLoading || !businessId}
+          saving={widgetBgSaving}
+          saved={widgetBgSaved}
+        />
       </div>
 
 
