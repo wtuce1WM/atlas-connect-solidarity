@@ -589,10 +589,10 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
           ) : (
             <div
               className="relative h-[460px] w-full overflow-hidden rounded-xl border border-white/10"
-              style={{ background: bgEffective }}
+              style={{ background: bgEffective ?? "transparent" }}
             >
               <PoiGoogleMap
-                key={poiView ? "fit-poi" : kpView ? `fit-kp${kpView}-${kpView === 1 ? kpCity : kpCity2}` : "master"}
+                key={`${bgEffective ?? "transparent"}-${poiView ? "fit-poi" : kpView ? `fit-kp${kpView}-${kpView === 1 ? kpCity : kpCity2}` : "master"}`}
                 pois={mapItems}
                 selectedPoiId={defaultPoiId || null}
                 center={{ lat: biz.latitude, lng: biz.longitude }}
@@ -600,8 +600,8 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
                   ? { fitToMarkers: true, fitPadding: { top: 70, right: 50, bottom: 50, left: 50 } }
                   : { centerAtBottomRatio: 0.4, fitRadiusKm: fitKm })}
                 mapTypeId={mapTypeId}
-                mapTheme="light"
-                baseColor={bgEffective}
+                mapTheme={bgEffective ? "light" : "default-light"}
+                baseColor={bgEffective ?? undefined}
                 connector={connector}
                 onPoiClick={(id) => setDefaultPoiId(id.startsWith("self-") ? "" : id)}
               />
