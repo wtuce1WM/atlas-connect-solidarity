@@ -46,6 +46,9 @@ type KpMember = {
   name: string;
   city: string | null;
   neighborhood: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  images: string[] | null;
 };
 
 type KpGroup = {
@@ -74,6 +77,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
   const [kpGroups, setKpGroups] = useState<KpGroup[]>([]);
   const [kpActive, setKpActive] = useState(false);
   const [kpActive2, setKpActive2] = useState(false);
+  const [kpView, setKpView] = useState<1 | 2 | null>(null);
   const [mapTypeId, setMapTypeId] = useState<"roadmap" | "terrain" | "satellite">("terrain");
   const dirtyRef = useRef(false);
 
@@ -83,6 +87,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
     (async () => {
       setIsLoading(true);
       dirtyRef.current = false;
+      setKpView(null);
       const { data } = await (supabase as any)
         .from("businesses")
         .select("id,name,city,neighborhood,latitude,longitude,images,poi_radius_km,map_bg_color,default_poi_business_id,kp_regroupement,kp_regroupement_2,kp_active,kp_active_2")
@@ -111,12 +116,12 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
                 .eq("kp_regroupement_2", kp2).eq("is_active", true)
             : Promise.resolve({ count: 0 }),
           kp1
-            ? (supabase as any).from("businesses").select("id,name,city,neighborhood")
+            ? (supabase as any).from("businesses").select("id,name,city,neighborhood,latitude,longitude,images")
                 .eq("kp_regroupement", kp1).eq("is_active", true)
                 .order("name", { ascending: true })
             : Promise.resolve({ data: [] }),
           kp2
-            ? (supabase as any).from("businesses").select("id,name,city,neighborhood")
+            ? (supabase as any).from("businesses").select("id,name,city,neighborhood,latitude,longitude,images")
                 .eq("kp_regroupement_2", kp2).eq("is_active", true)
                 .order("name", { ascending: true })
             : Promise.resolve({ data: [] }),
@@ -194,10 +199,17 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
     );
   }, [pois, biz, radiusKm]);
 
+  const kpMembers = useMemo(() => {
+    if (!kpView) return [];
+    const g = kpGroups.find((x) => x.slot === kpView);
+    return (g?.members ?? []).filter(
+      (m) => m.id !== biz?.id && Number(m.latitude) && Number(m.longitude),
+    );
+  }, [kpView, kpGroups, biz?.id]);
+
   const mapItems: PoiMapItem[] = useMemo(() => {
     if (!biz?.latitude || !biz?.longitude) return [];
-    return [
-      {
+    const master = {
         id: `self-${biz.id}`,
         name: biz.name,
         latitude: biz.latitude,
@@ -206,7 +218,23 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
         city: biz.city,
         neighborhood: biz.neighborhood,
         markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
-      },
+      };
+    if (kpView) {
+      return [
+        master,
+        ...kpMembers.map((m) => ({
+          id: m.id,
+          name: m.name,
+          latitude: m.latitude,
+          longitude: m.longitude,
+          images: m.images,
+          city: m.city,
+          neighborhood: m.neighborhood,
+        })),
+      ];
+    }
+    return [
+      master,
       ...nearbyPois.map((p) => ({
         id: p.id,
         name: p.name,
@@ -217,7 +245,17 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
         neighborhood: p.neighborhood,
       })),
     ];
-  }, [biz, nearbyPois]);
+  }, [biz, nearbyPois, kpView, kpMembers]);
+
+  // En mode regroupement, on élargit le zoom pour englober tous les membres.
+  const fitKm = useMemo(() => {
+    if (!kpView || !biz?.latitude || !biz?.longitude) return radiusKm;
+    const max = kpMembers.reduce(
+      (acc, m) => Math.max(acc, haversineKm(biz.latitude!, biz.longitude!, m.latitude!, m.longitude!)),
+      0,
+    );
+    return Math.max(1, max * 1.15);
+  }, [kpView, kpMembers, biz, radiusKm]);
 
   if (isLoading) {
     return (
@@ -379,7 +417,9 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
           <CardTitle className="text-base text-white flex items-center gap-2">
             <MapIcon className="h-4 w-4 text-primary" /> Aperçu de la carte
             <span className="text-xs font-normal text-white/50">
-              {nearbyPois.length} lieu{nearbyPois.length > 1 ? "x" : ""} dans {radiusKm} km
+              {kpView
+                ? `${kpMembers.length + 1} établissement${kpMembers.length ? "s" : ""} du regroupement KP${kpView}`
+                : `${nearbyPois.length} lieu${nearbyPois.length > 1 ? "x" : ""} dans ${radiusKm} km`}
             </span>
           </CardTitle>
         </CardHeader>
@@ -399,18 +439,52 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
             ))}
           </div>
 
+          {kpGroups.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setKpView(null)}
+                className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                  kpView === null
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-white/15 text-white/70 hover:bg-white/10"
+                }`}
+              >
+                À proximité
+              </button>
+              {kpGroups.map((g) => (
+                <button
+                  key={`cta-${g.slot}-${g.code}`}
+                  type="button"
+                  onClick={() => setKpView(kpView === g.slot ? null : g.slot)}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                    kpView === g.slot
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-white/15 text-white/70 hover:bg-white/10"
+                  }`}
+                >
+                  <Layers className="h-3.5 w-3.5" />
+                  {g.title} <span className="opacity-70 font-mono">KP{g.slot} · {g.code}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
           {!biz?.latitude || !biz?.longitude ? (
             <p className="text-sm text-white/50">
               Renseignez les coordonnées GPS (onglet Contact) pour afficher la carte.
             </p>
           ) : (
-            <div className="relative h-[460px] w-full overflow-hidden rounded-xl border border-white/10">
+            <div
+              className="relative h-[460px] w-full overflow-hidden rounded-xl border border-white/10"
+              style={bgValid ? { background: bg } : undefined}
+            >
               <PoiGoogleMap
                 pois={mapItems}
                 selectedPoiId={defaultPoiId || null}
                 center={{ lat: biz.latitude, lng: biz.longitude }}
                 centerAtBottomRatio={0.4}
-                fitRadiusKm={radiusKm}
+                fitRadiusKm={fitKm}
                 mapTypeId={mapTypeId}
                 mapTheme={bgValid ? "light" : "default-light"}
                 baseColor={bgValid ? bg : null}
