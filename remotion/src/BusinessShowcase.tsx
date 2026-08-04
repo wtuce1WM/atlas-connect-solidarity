@@ -2352,6 +2352,32 @@ const RICH_CSS = `
 .rich-video-block p:last-child { margin-bottom: 0; }
 .rich-video-block strong, .rich-video-block b { font-weight: 800; }
 .rich-video-block em, .rich-video-block i { font-style: italic; }
+/* Titres H2 / H3 accentués : doré, gras, léger interlettrage — sans césure
+   artificielle (un titre court reste sur une seule ligne). */
+.rich-video-block h1, .rich-video-block h2, .rich-video-block h3, .rich-video-block h4 {
+  margin: 0.55em 0 0.28em;
+  font-weight: 800;
+  line-height: 1.14;
+  text-wrap: balance;
+  overflow-wrap: normal;
+  word-break: keep-all;
+  hyphens: none;
+}
+.rich-video-block h1, .rich-video-block h2 {
+  font-size: 1.34em;
+  color: ${COLORS.gold};
+  letter-spacing: 0.6px;
+  text-shadow: 0 3px 16px rgba(0,0,0,0.7);
+}
+.rich-video-block h3, .rich-video-block h4 {
+  font-size: 1.14em;
+  color: ${COLORS.bone};
+  letter-spacing: 0.4px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.65);
+}
+.rich-video-block h1:first-child, .rich-video-block h2:first-child,
+.rich-video-block h3:first-child, .rich-video-block h4:first-child { margin-top: 0; }
+.rich-video-block h2 + p, .rich-video-block h3 + p { margin-top: 0; }
 .rich-video-block ul, .rich-video-block ol { margin: 0.2em 0 0; padding-left: 1.1em; text-align: left; display: inline-block; }
 .rich-video-block li { margin: 0.18em 0; }
 .rich-video-block ul { list-style: none; padding-left: 0; }
@@ -2362,6 +2388,7 @@ const RICH_CSS = `
 .rich-video-block ul > li { display: block; }
 .rich-video-block ul > li::before { content: "◆ "; color: ${COLORS.gold}; white-space: pre; }
 `;
+
 
 
 const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[number]; background?: string | null; backgroundIsVideo?: boolean; durationFrames: number; textPosition?: TextPosition; effect?: TransitionEffect; motion?: MotionEffect | null }> = ({ data, background, backgroundIsVideo, durationFrames, textPosition = "middle", effect = "kenburns", motion = null }) => {
