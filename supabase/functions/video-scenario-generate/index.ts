@@ -1514,7 +1514,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       }
     }
 
-    // Widgets Météo / Marées, Vents & Météo — 3 s par défaut, données déterministes.
+    // Widgets Météo / Marées, Vents & Météo — 5 s par défaut, données déterministes.
     // Chaque widget est tenté indépendamment : si l'un échoue, l'autre reste monté.
     const ensureSceneInOrder = (kind: "weather" | "tides") => {
       const order = (template_props as any).scene_order;
@@ -1565,7 +1565,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         template_props.showWeatherWidget = true;
         template_props.weatherWidget = w;
         if (!(template_props as any).scene_durations) (template_props as any).scene_durations = {};
-        if ((template_props as any).scene_durations.weather == null) (template_props as any).scene_durations.weather = 3;
+        if ((template_props as any).scene_durations.weather == null) (template_props as any).scene_durations.weather = 5;
         ensureSceneInOrder("weather");
       } catch (e) {
         console.warn("[widgets] weather fetch failed", (e as Error).message);
@@ -1577,7 +1577,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         template_props.showTidesWidget = true;
         template_props.tidesWidget = t;
         if (!(template_props as any).scene_durations) (template_props as any).scene_durations = {};
-        if ((template_props as any).scene_durations.tides == null) (template_props as any).scene_durations.tides = 3;
+        if ((template_props as any).scene_durations.tides == null) (template_props as any).scene_durations.tides = 5;
         ensureSceneInOrder("tides");
       } catch (e) {
         console.warn("[widgets] tides fetch failed", (e as Error).message);
