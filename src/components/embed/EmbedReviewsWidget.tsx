@@ -200,6 +200,8 @@ export default function EmbedReviewsWidget({
   ratio = "auto",
   size = "auto",
   fullWidth = false,
+  surface,
+  ink = "light",
 }: {
   business: EmbedReviewsBusiness;
   reviews: EmbedReviewItem[];
@@ -209,7 +211,12 @@ export default function EmbedReviewsWidget({
   size?: ReviewsSize;
   /** Étire le widget sur toute la largeur disponible (pas de cap). */
   fullWidth?: boolean;
+  /** Fond de la carte : `#RRGGBB` forcé, ou `null`/"" = transparent (fond du site hôte). */
+  surface?: string | null;
+  /** Encre du contenu : `light` (fond sombre) ou `dark` (fond clair/transparent). */
+  ink?: "light" | "dark";
 }) {
+
   const L = LABELS[lang];
   const { r: shape, s: density } = useResolvedFrame(ratio, size);
   const large = density === "lg";
