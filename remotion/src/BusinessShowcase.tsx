@@ -2975,6 +2975,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     slug,
     logoUrl,
     openWithLogo,
+    welcomeText,
+    propositionText,
     durationSec,
     scene_order,
     scene_durations,
