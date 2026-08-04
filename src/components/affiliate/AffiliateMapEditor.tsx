@@ -534,7 +534,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
           ) : (
             <div
               className="relative h-[460px] w-full overflow-hidden rounded-xl border border-white/10"
-              style={bgValid ? { background: bg } : undefined}
+              style={{ background: bgEffective }}
             >
               <PoiGoogleMap
                 pois={mapItems}
@@ -543,8 +543,9 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
                 centerAtBottomRatio={0.4}
                 fitRadiusKm={fitKm}
                 mapTypeId={mapTypeId}
-                mapTheme={bgValid ? "light" : "default-light"}
-                baseColor={bgValid ? bg : null}
+                mapTheme="light"
+                baseColor={bgEffective}
+                connector={connector}
                 onPoiClick={(id) => setDefaultPoiId(id.startsWith("self-") ? "" : id)}
               />
             </div>
