@@ -1378,7 +1378,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               <iframe
                 key={weatherUrl}
                 src={weatherUrl}
-                style={{ width: "100%", maxWidth: 420, height: 320, border: 0 }}
+                style={{ width: "100%", maxWidth: weatherMaxW, height: 560, border: 0 }}
                 title="Aperçu météo"
                 loading="lazy"
               />
