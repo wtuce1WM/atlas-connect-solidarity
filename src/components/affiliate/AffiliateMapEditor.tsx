@@ -592,7 +592,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
               style={{ background: bgEffective }}
             >
               <PoiGoogleMap
-                key={poiView ? "fit-poi" : kpView ? `fit-kp${kpView}` : "master"}
+                key={poiView ? "fit-poi" : kpView ? `fit-kp${kpView}-${kpView === 1 ? kpCity : kpCity2}` : "master"}
                 pois={mapItems}
                 selectedPoiId={defaultPoiId || null}
                 center={{ lat: biz.latitude, lng: biz.longitude }}
