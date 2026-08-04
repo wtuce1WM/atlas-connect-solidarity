@@ -285,6 +285,13 @@ export function scenarioFromTemplateProps(
   push("hook", Math.max(2, Math.round(durationSec * 0.1)), [name, locationLine ? `📍 ${locationLine}` : ""].filter(Boolean).join("\n"));
   // Scène "name" du montage = TEXTE INTÉGRAL du hook (identique à Remotion)
   push("name", Math.max(2, Math.round(durationSec * 0.12)), hook || tagline || name);
+  // Widgets Météo / Marées — juste après l'étape Hook, 6 s par défaut.
+  if (props?.showWeatherWidget && props?.weatherWidget) {
+    push("weather", Number(props.weatherWidget.durationSec) || 6, String(props.weatherWidget.text || "Widget Météo."));
+  }
+  if (props?.showTidesWidget && props?.tidesWidget) {
+    push("tides", Number(props.tidesWidget.durationSec) || 6, String(props.tidesWidget.text || "Widget Marées, Vents & Météo."));
+  }
   // Étape "media" (montage) : ajoutée manuellement par l'utilisateur via "Ajouter une étape".
 
   // Une scène par offre sélectionnée — position 4 par défaut (juste après Nom / étape texte)
@@ -385,13 +392,7 @@ export function scenarioFromTemplateProps(
         : `Articles de blog (hero + zoom carte) : ${titles}`,
     );
   }
-  // Widgets Météo / Marées — 3 s par défaut, ville choisie dans la carte de l'étape
-  if (props?.showWeatherWidget && props?.weatherWidget) {
-    push("weather", Number(props.weatherWidget.durationSec) || 3, String(props.weatherWidget.text || "Widget Météo."));
-  }
-  if (props?.showTidesWidget && props?.tidesWidget) {
-    push("tides", Number(props.tidesWidget.durationSec) || 3, String(props.tidesWidget.text || "Widget Marées, Vents & Météo."));
-  }
+  // Widgets Météo / Marées — insérés juste après l'étape Hook (voir plus haut).
   if (props?.showWhatsapp && props?.whatsappNumber) {
     push("whatsapp", Math.max(2, Math.round(durationSec * 0.08)), `WhatsApp ${props.whatsappNumber} — logo #25D366 + effet libre au montage.`);
   }
@@ -402,7 +403,7 @@ export function scenarioFromTemplateProps(
 
 // Durée fixe par défaut (en secondes) pour certaines étapes de clôture :
 // elles ne sont pas remises à l'échelle avec la durée cible.
-const FIXED_SCENE_DURATIONS: Partial<Record<Scene["icon"], number>> = { cta: 3, outro: 3 };
+const FIXED_SCENE_DURATIONS: Partial<Record<Scene["icon"], number>> = { cta: 3, outro: 3, weather: 6, tides: 6 };
 
 function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenario {
   const scale = durationSec / Math.max(1, cursor);
@@ -1109,7 +1110,13 @@ export function StudioVideoScenarioPanel({
 
                 </div>
               </div>
-              <p className="text-sm text-neutral-700 leading-relaxed whitespace-pre-line">{scene.description}</p>
+              <p
+                className={`text-sm text-neutral-700 leading-relaxed whitespace-pre-line ${
+                  scene.icon === "highlight" || scene.icon === "ai_summary" ? "line-clamp-2" : ""
+                }`}
+              >
+                {scene.description}
+              </p>
 
               {scene.icon === "whatsapp" && (() => {
                 const offerScene = editedScenes.find((s) => s.icon === "offer");

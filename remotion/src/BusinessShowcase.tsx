@@ -522,8 +522,8 @@ function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
     case "whatsapp": return 120;
     case "digital": return DIGITAL_ID_FRAMES;
     case "blog": return 150;
-    case "weather": return Math.round((p.weatherWidget?.durationSec ?? 5) * 30);
-    case "tides": return Math.round((p.tidesWidget?.durationSec ?? 5) * 30);
+    case "weather": return Math.round((p.weatherWidget?.durationSec ?? 6) * 30);
+    case "tides": return Math.round((p.tidesWidget?.durationSec ?? 6) * 30);
     case "cta":
     case "outro": return 150;
   }
@@ -3127,6 +3127,16 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     menuDocs,
     showGoogleReviews,
     googleReview,
+    // Widgets Météo / Marées & blog : indispensables au plan, sinon les étapes
+    // sont retirées du montage (et laissent un trou noir en fin de vidéo).
+    showWeatherWidget,
+    weatherWidget,
+    showTidesWidget,
+    tidesWidget,
+    showBlogArticles,
+    blogArticles,
+    blogMode,
+    freeZone,
     showTripAdvisor,
     tripAdvisor,
     showRestaurantGuru,
