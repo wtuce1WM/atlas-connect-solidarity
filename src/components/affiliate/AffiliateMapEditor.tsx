@@ -41,11 +41,19 @@ type PoiRow = {
   neighborhood: string | null;
 };
 
+type KpMember = {
+  id: string;
+  name: string;
+  city: string | null;
+  neighborhood: string | null;
+};
+
 type KpGroup = {
   slot: 1 | 2;
   code: string;
   title: string;
   count: number;
+  members: KpMember[];
 };
 
 const DEFAULT_BG = "#EFE6D8";
@@ -93,7 +101,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       const kp2 = (b?.kp_regroupement_2 || "").trim();
       const groups: KpGroup[] = [];
       if (kp1 || kp2) {
-        const [c1, c2, titlesRes] = await Promise.all([
+        const [c1, c2, m1, m2, titlesRes] = await Promise.all([
           kp1
             ? (supabase as any).from("businesses").select("id", { count: "exact", head: true })
                 .eq("kp_regroupement", kp1).eq("is_active", true)
@@ -102,6 +110,16 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
             ? (supabase as any).from("businesses").select("id", { count: "exact", head: true })
                 .eq("kp_regroupement_2", kp2).eq("is_active", true)
             : Promise.resolve({ count: 0 }),
+          kp1
+            ? (supabase as any).from("businesses").select("id,name,city,neighborhood")
+                .eq("kp_regroupement", kp1).eq("is_active", true)
+                .order("name", { ascending: true })
+            : Promise.resolve({ data: [] }),
+          kp2
+            ? (supabase as any).from("businesses").select("id,name,city,neighborhood")
+                .eq("kp_regroupement_2", kp2).eq("is_active", true)
+                .order("name", { ascending: true })
+            : Promise.resolve({ data: [] }),
           (supabase as any).from("kp_group_titles").select("kp_code,kp_type,title"),
         ]);
         const titleMap = new Map<string, string>();
@@ -109,10 +127,22 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
           titleMap.set(`${t.kp_type}:${t.kp_code}`, t.title || ""),
         );
         if (kp1 && Number((c1 as any)?.count || 0) > 1) {
-          groups.push({ slot: 1, code: kp1, title: titleMap.get(`kp1:${kp1}`) || kp1, count: Number((c1 as any).count) });
+          groups.push({
+            slot: 1,
+            code: kp1,
+            title: titleMap.get(`kp1:${kp1}`) || kp1,
+            count: Number((c1 as any).count),
+            members: ((m1 as any)?.data ?? []) as KpMember[],
+          });
         }
         if (kp2 && Number((c2 as any)?.count || 0) > 1) {
-          groups.push({ slot: 2, code: kp2, title: titleMap.get(`kp2:${kp2}`) || kp2, count: Number((c2 as any).count) });
+          groups.push({
+            slot: 2,
+            code: kp2,
+            title: titleMap.get(`kp2:${kp2}`) || kp2,
+            count: Number((c2 as any).count),
+            members: ((m2 as any)?.data ?? []) as KpMember[],
+          });
         }
       }
       if (!cancelled) setKpGroups(groups);
@@ -306,19 +336,33 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
             {kpGroups.map((g) => (
               <div
                 key={`${g.slot}-${g.code}`}
-                className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-2.5"
+                className="rounded-lg border border-white/10 bg-white/5 px-3 py-2.5"
               >
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-white truncate">{g.title}</p>
-                  <p className="text-xs text-white/50 font-mono truncate">
-                    KP{g.slot} · {g.code} — {g.count} établissements
-                  </p>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-white truncate">{g.title}</p>
+                    <p className="text-xs text-white/50 font-mono truncate">
+                      KP{g.slot} · {g.code} — {g.count} établissements
+                    </p>
+                  </div>
+                  <Switch
+                    checked={g.slot === 1 ? kpActive : kpActive2}
+                    onCheckedChange={(v) => (g.slot === 1 ? setKpActive(v) : setKpActive2(v))}
+                    aria-label={`Activer le regroupement ${g.title}`}
+                  />
                 </div>
-                <Switch
-                  checked={g.slot === 1 ? kpActive : kpActive2}
-                  onCheckedChange={(v) => (g.slot === 1 ? setKpActive(v) : setKpActive2(v))}
-                  aria-label={`Activer le regroupement ${g.title}`}
-                />
+                {g.members.length > 0 && (
+                  <ul className="mt-2.5 space-y-1 border-t border-white/10 pt-2">
+                    {g.members.map((m) => (
+                      <li key={m.id} className="flex items-center justify-between gap-2 text-xs">
+                        <span className="text-white/90 truncate" title={m.name}>{m.name}</span>
+                        <span className="text-white/50 shrink-0 text-right">
+                          {[m.city, m.neighborhood].filter(Boolean).join(" — ") || "Ville non renseignée"}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             ))}
             <p className="text-xs text-white/50">
