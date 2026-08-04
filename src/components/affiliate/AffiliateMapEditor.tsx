@@ -192,6 +192,8 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
           default_poi_business_id: defaultPoiId || null,
           kp_active: kpActive,
           kp_active_2: kpActive2,
+          kp_city: kpCity || null,
+          kp_city_2: kpCity2 || null,
         })
         .eq("id", businessId);
       setIsSaving(false);
@@ -199,7 +201,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setSavedAt(Date.now());
     }, 1000);
     return () => clearTimeout(t);
-  }, [bg, bgValid, defaultPoiId, kpActive, kpActive2, businessId, isLoading]);
+  }, [bg, bgValid, defaultPoiId, kpActive, kpActive2, kpCity, kpCity2, businessId, isLoading]);
 
 
   const nearbyPois = useMemo(() => {
@@ -209,13 +211,30 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
     );
   }, [pois, biz, radiusKm]);
 
+  /** Villes disponibles par regroupement (d'après les membres du groupe). */
+  const kpCityOptions = useMemo(() => {
+    const map = new Map<1 | 2, string[]>();
+    kpGroups.forEach((g) => {
+      const set = new Set<string>();
+      g.members.forEach((m) => { if (m.city) set.add(m.city); });
+      map.set(g.slot, Array.from(set).sort((a, b) => a.localeCompare(b)));
+    });
+    return map;
+  }, [kpGroups]);
+
   const kpMembers = useMemo(() => {
     if (!kpView) return [];
     const g = kpGroups.find((x) => x.slot === kpView);
+    const cityFilter = (kpView === 1 ? kpCity : kpCity2).trim();
     return (g?.members ?? []).filter(
-      (m) => m.id !== biz?.id && Number(m.latitude) && Number(m.longitude),
+      (m) =>
+        m.id !== biz?.id &&
+        Number(m.latitude) &&
+        Number(m.longitude) &&
+        (!cityFilter || (m.city || "") === cityFilter),
     );
-  }, [kpView, kpGroups, biz?.id]);
+  }, [kpView, kpGroups, biz?.id, kpCity, kpCity2]);
+
 
   const defaultPoi = useMemo(
     () => pois.find((p) => p.id === defaultPoiId) || null,
