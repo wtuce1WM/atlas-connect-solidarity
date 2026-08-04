@@ -170,14 +170,15 @@ const Footer = ({ variant = "default", className }: FooterProps) => {
           <div>
             <h4 className={`mb-4 font-semibold ${headingColor}`}>{language === "en" ? "Links" : language === "ar" ? "روابط" : "Liens"}</h4>
             <ul className={`space-y-2 ${textSecondary}`}>
-              <li><Link to="/conditions-generales" className="transition-colors hover:text-gold">{language === "en" ? "General Terms of Operation" : language === "ar" ? "الشروط العامة للتشغيل" : "Conditions Générales de Fonctionnement"}</Link></li>
-              <li><Link to="/mission" className="transition-colors hover:text-gold">{t("footer.ourMission")}</Link></li>
-              <li><a href="/affiliates" className="transition-colors hover:text-gold">{t("footer.affiliates")}</a></li>
+              <li><Link to="/conditions-generales" className="transition-colors hover:text-terracotta">{language === "en" ? "General Terms of Operation" : language === "ar" ? "الشروط العامة للتشغيل" : "Conditions Générales de Fonctionnement"}</Link></li>
+              <li><Link to="/mission" className="transition-colors hover:text-terracotta">{t("footer.ourMission")}</Link></li>
+              <li><a href="/affiliates" className="transition-colors hover:text-terracotta">{t("footer.affiliates")}</a></li>
 
-              <li><a href="/staff/login" className="transition-colors hover:text-gold">{t("footer.staff")}</a></li>
-              <li><Link to={withLangPrefix("/blog", language)} className="transition-colors hover:text-gold">{t("footer.blog")}</Link></li>
-              <li><Link to={withLangPrefix("/install", language)} className="transition-colors hover:text-gold">{language === "en" ? "App" : language === "ar" ? "التطبيق" : "Application"}</Link></li>
-              <li><Link to="/devenir-affilie" className="transition-colors hover:text-gold">{language === "ar" ? "أدرج شركتك" : language === "en" ? "Add your business" : "Ajoutez votre entreprise"}</Link></li>
+              <li><a href="/staff/login" className="transition-colors hover:text-terracotta">{t("footer.staff")}</a></li>
+              <li><Link to={withLangPrefix("/blog", language)} className="transition-colors hover:text-terracotta">{t("footer.blog")}</Link></li>
+              <li><Link to={withLangPrefix("/install", language)} className="transition-colors hover:text-terracotta">{language === "en" ? "App" : language === "ar" ? "التطبيق" : "Application"}</Link></li>
+              <li><Link to="/devenir-affilie" className="transition-colors hover:text-terracotta">{language === "ar" ? "أدرج شركتك" : language === "en" ? "Add your business" : "Ajoutez votre entreprise"}</Link></li>
+              <li><Link to="/contact" className="transition-colors hover:text-terracotta">{t("footer.contact")}</Link></li>
             </ul>
           </div>
 
@@ -191,7 +192,7 @@ const Footer = ({ variant = "default", className }: FooterProps) => {
               </li>
               <li className="flex items-center gap-2">
                 <Phone className={`h-4 w-4 ${headingColor}`} />
-                <a href="tel:+212661439221" className="hover:text-gold transition-colors">+212 661-439221</a>
+                <a href="tel:+212661439221" className="hover:text-terracotta transition-colors">+212 661-439221</a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className={`h-4 w-4 ${headingColor}`} />
@@ -207,9 +208,9 @@ const Footer = ({ variant = "default", className }: FooterProps) => {
             © 2026 ZitounMusk. {t("footer.rights")}
           </p>
           <div className={`flex gap-6 text-sm ${textQuaternary}`}>
-            <a href="/confidentialite" className="transition-colors hover:text-gold">{t("footer.privacy")}</a>
-            <a href="/cgu" className="transition-colors hover:text-gold">{t("footer.terms")}</a>
-            <a href="/cookies" className="transition-colors hover:text-gold">{t("footer.cookies")}</a>
+            <a href="/confidentialite" className="transition-colors hover:text-terracotta">{t("footer.privacy")}</a>
+            <a href="/cgu" className="transition-colors hover:text-terracotta">{t("footer.terms")}</a>
+            <a href="/cookies" className="transition-colors hover:text-terracotta">{t("footer.cookies")}</a>
           </div>
         </div>
       </div>
