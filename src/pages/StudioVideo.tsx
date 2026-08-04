@@ -1831,6 +1831,8 @@ export default function StudioVideo() {
             popup: optPopup,
             open_with_logo: !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo,
             logo_url: logoInfo.url,
+            welcome_text: welcomeSceneText,
+            proposition_text: propositionSceneText,
             text_splits: scenarioEdits?.textSplits,
             text_segments: scenarioEdits?.textSegments,
             text_overrides: scenarioEdits?.textOverrides,
