@@ -1083,3 +1083,7 @@ body[data-map-overlay="1"] .owm-panel-searchbar {
 [data-owm-ink="dark"] .bg-white\/5 { background-color: rgb(28 25 23 / 0.04) !important; }
 [data-owm-ink="dark"] .from-white\/25 { --tw-gradient-from: rgb(28 25 23 / 0.12) var(--tw-gradient-from-position) !important; }
 [data-owm-ink="dark"] .to-white\/5 { --tw-gradient-to: rgb(28 25 23 / 0.03) var(--tw-gradient-to-position) !important; }
+[data-owm-ink="dark"] .bg-black\/40 { background-color: rgb(28 25 23 / 0.05) !important; }
+[data-owm-ink="dark"] .shadow-\[inset_0_1px_0_rgba\(255\2c 255\2c 255\2c 0\.4\)\2c 0_8px_32px_rgba\(0\2c 0\2c 0\2c 0\.3\)\] {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.6), 0 6px 20px rgb(28 25 23 / 0.08) !important;
+}
