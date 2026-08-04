@@ -67,3 +67,29 @@ export const applyEmbedBg = (color: string | null | undefined) => {
     document.body.style.background = prevBody;
   };
 };
+
+/** Luminance relative approximative d'une couleur hex (#RRGGBB) → 0..1. */
+export const bgLuminance = (color: string | null | undefined): number | null => {
+  const c = parseBg(color);
+  if (!c) return null;
+  const r = parseInt(c.slice(1, 3), 16) / 255;
+  const g = parseInt(c.slice(3, 5), 16) / 255;
+  const b = parseInt(c.slice(5, 7), 16) / 255;
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+export type EmbedInk = "light" | "dark";
+
+/**
+ * Encre lisible d'un widget embarqué.
+ * `raw` = paramètre `?ink=light|dark|auto`. En auto : déduite de la couleur de
+ * fond forcée ; sans couleur (fond transparent) on suppose un site hôte clair.
+ */
+export const resolveEmbedInk = (raw: string | null | undefined, bg: string | null | undefined): EmbedInk => {
+  const v = (raw || "").toLowerCase();
+  if (v === "light" || v === "clair") return "light";
+  if (v === "dark" || v === "sombre") return "dark";
+  const lum = bgLuminance(bg);
+  if (lum === null) return "dark";
+  return lum > 0.55 ? "dark" : "light";
+};

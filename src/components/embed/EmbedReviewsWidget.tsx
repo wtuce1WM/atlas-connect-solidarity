@@ -200,6 +200,8 @@ export default function EmbedReviewsWidget({
   ratio = "auto",
   size = "auto",
   fullWidth = false,
+  surface,
+  ink = "light",
 }: {
   business: EmbedReviewsBusiness;
   reviews: EmbedReviewItem[];
@@ -209,7 +211,12 @@ export default function EmbedReviewsWidget({
   size?: ReviewsSize;
   /** Étire le widget sur toute la largeur disponible (pas de cap). */
   fullWidth?: boolean;
+  /** Fond de la carte : `#RRGGBB` forcé, ou `null`/"" = transparent (fond du site hôte). */
+  surface?: string | null;
+  /** Encre du contenu : `light` (fond sombre) ou `dark` (fond clair/transparent). */
+  ink?: "light" | "dark";
 }) {
+
   const L = LABELS[lang];
   const { r: shape, s: density } = useResolvedFrame(ratio, size);
   const large = density === "lg";
@@ -433,14 +440,25 @@ export default function EmbedReviewsWidget({
   );
 
   const maxW = shape === "horizontal" ? 900 : shape === "square" ? 520 : 460;
+  const hasSurfaceProp = surface !== undefined;
+  const surfaceColor = (surface || "").trim();
+  const transparent = hasSurfaceProp && !surfaceColor;
 
   return (
     <div
-      className={`w-full mx-auto rounded-3xl border border-white/15 bg-neutral-900/95 ${
-        large ? "p-5 sm:p-6" : "p-4 sm:p-5"
-      } text-white shadow-[0_10px_40px_rgba(0,0,0,0.35)] flex flex-col`}
-      style={{ fontFamily: "'Montserrat', sans-serif", maxWidth: fullWidth ? undefined : maxW }}
+      data-owm-ink={ink}
+      className={`w-full mx-auto rounded-3xl border border-white/15 ${
+        hasSurfaceProp ? "" : "bg-neutral-900/95"
+      } ${large ? "p-5 sm:p-6" : "p-4 sm:p-5"} text-white ${
+        transparent ? "" : "shadow-[0_10px_40px_rgba(0,0,0,0.35)]"
+      } flex flex-col`}
+      style={{
+        fontFamily: "'Montserrat', sans-serif",
+        maxWidth: fullWidth ? undefined : maxW,
+        ...(hasSurfaceProp ? { background: surfaceColor || "transparent" } : null),
+      }}
     >
+
       {shape === "horizontal" ? (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start flex-1">

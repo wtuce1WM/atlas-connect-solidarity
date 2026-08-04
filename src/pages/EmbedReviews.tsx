@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { parseFit, fitFlags, applyEmbedBg } from "@/lib/embedFit";
+import { parseFit, fitFlags, applyEmbedBg, parseBg, resolveEmbedInk } from "@/lib/embedFit";
 import { useEmbedFitScale } from "@/hooks/useEmbedFitScale";
 import EmbedReviewsWidget, {
   type EmbedReviewItem,
@@ -37,6 +37,16 @@ export default function EmbedReviews() {
   const sizeParam = (params.get("size") || "auto").toLowerCase();
   const size: ReviewsSize = sizeParam === "sm" || sizeParam === "lg" ? (sizeParam as ReviewsSize) : "auto";
   const { fullWidth, fullHeight } = fitFlags(parseFit(params.get("fit")));
+  // Fond de la carte d'avis :
+  //   ?bg=EFE6D8       → la carte prend cette couleur (encre auto selon luminance)
+  //   ?bg=transparent  → carte transparente : fond du site hôte
+  //   (absent)         → carte sombre d'origine
+  const bgRaw = (params.get("bg") || "").trim();
+  const bgColor = parseBg(bgRaw);
+  const wantsTransparent = /^(transparent|none|0)$/i.test(bgRaw);
+  const surface: string | null | undefined = bgColor || (wantsTransparent ? "" : undefined);
+  const ink = surface === undefined ? "light" : resolveEmbedInk(params.get("ink"), bgColor);
+
   
 
   const langParam = (params.get("lang") || "fr").toLowerCase();
@@ -126,7 +136,7 @@ export default function EmbedReviews() {
       )}
       {!loading && !error && business && (
         <div ref={fitInnerRef} className="w-full flex justify-center [&>div]:max-w-full" style={fitStyle}>
-          <EmbedReviewsWidget business={business} reviews={reviews} platform={platform} lang={lang} ratio={ratio} size={size} fullWidth={fullWidth} />
+          <EmbedReviewsWidget business={business} reviews={reviews} platform={platform} lang={lang} ratio={ratio} size={size} fullWidth={fullWidth} surface={surface} ink={ink} />
         </div>
       )}
     </div>
