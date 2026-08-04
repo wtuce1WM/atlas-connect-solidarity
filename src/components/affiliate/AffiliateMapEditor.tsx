@@ -78,6 +78,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
   const [kpActive, setKpActive] = useState(false);
   const [kpActive2, setKpActive2] = useState(false);
   const [kpView, setKpView] = useState<1 | 2 | null>(null);
+  const [poiView, setPoiView] = useState(false);
   const [mapTypeId, setMapTypeId] = useState<"roadmap" | "terrain" | "satellite">("terrain");
   const dirtyRef = useRef(false);
 
