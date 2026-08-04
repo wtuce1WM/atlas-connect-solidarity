@@ -456,23 +456,51 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
                     aria-label={`Activer le regroupement ${g.title}`}
                   />
                 </div>
+                <div className="mt-2.5 flex flex-wrap items-center gap-2 border-t border-white/10 pt-2.5">
+                  <Label className="text-white/80 text-xs">Limiter à une ville</Label>
+                  <Select
+                    value={(g.slot === 1 ? kpCity : kpCity2) || "all"}
+                    onValueChange={(v) =>
+                      g.slot === 1 ? setKpCity(v === "all" ? "" : v) : setKpCity2(v === "all" ? "" : v)
+                    }
+                  >
+                    <SelectTrigger className="h-9 text-sm text-white w-56">
+                      <SelectValue placeholder="Toutes les villes" />
+                    </SelectTrigger>
+                    <SelectContent className="z-[90] max-h-72">
+                      <SelectItem value="all" className="text-sm">Toutes les villes</SelectItem>
+                      {(kpCityOptions.get(g.slot) ?? []).map((c) => (
+                        <SelectItem key={c} value={c} className="text-sm">{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 {g.members.length > 0 && (
                   <ul className="mt-2.5 space-y-1 border-t border-white/10 pt-2">
-                    {g.members.map((m) => (
-                      <li key={m.id} className="flex items-center justify-between gap-2 text-xs">
-                        <span className="text-white/90 truncate" title={m.name}>{m.name}</span>
-                        <span className="text-white/50 shrink-0 text-right">
-                          {[m.city, m.neighborhood].filter(Boolean).join(" — ") || "Ville non renseignée"}
-                        </span>
-                      </li>
-                    ))}
+                    {g.members.map((m) => {
+                      const filter = (g.slot === 1 ? kpCity : kpCity2).trim();
+                      const excluded = !!filter && (m.city || "") !== filter;
+                      return (
+                        <li
+                          key={m.id}
+                          className={`flex items-center justify-between gap-2 text-xs ${excluded ? "opacity-40" : ""}`}
+                        >
+                          <span className="text-white/90 truncate" title={m.name}>{m.name}</span>
+                          <span className="text-white/50 shrink-0 text-right">
+                            {[m.city, m.neighborhood].filter(Boolean).join(" — ") || "Ville non renseignée"}
+                          </span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </div>
             ))}
             <p className="text-xs text-white/50">
               Actif = les établissements du même regroupement sont affichés/épinglés avec votre fiche. Désactivé par défaut.
+              Une ville sélectionnée = seuls les marqueurs de cette ville s'affichent dans l'aperçu.
             </p>
+
           </CardContent>
         </Card>
       )}
