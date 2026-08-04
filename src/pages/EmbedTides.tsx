@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import EmbedTidesWidget, { type TidesPayload } from "@/components/embed/EmbedTidesWidget";
-import { parseFit, fitFlags } from "@/lib/embedFit";
+import { parseFit, fitFlags, applyEmbedBg } from "@/lib/embedFit";
 
 type Lang = "fr" | "en" | "ar";
 
@@ -36,8 +36,8 @@ export default function EmbedTides() {
 
   useEffect(() => {
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-    document.body.style.background = "transparent";
-  }, [lang]);
+    return applyEmbedBg(params.get("bg"));
+  }, [lang, params]);
 
   useEffect(() => {
     if (!showPicker) return;

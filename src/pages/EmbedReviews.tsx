@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { parseFit, fitFlags } from "@/lib/embedFit";
+import { parseFit, fitFlags, applyEmbedBg } from "@/lib/embedFit";
 import EmbedReviewsWidget, {
   type EmbedReviewItem,
   type EmbedReviewsBusiness,
@@ -48,8 +48,8 @@ export default function EmbedReviews() {
 
   useEffect(() => {
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-    document.body.style.background = "transparent";
-  }, [lang]);
+    return applyEmbedBg(params.get("bg"));
+  }, [lang, params]);
 
   useEffect(() => {
     let alive = true;

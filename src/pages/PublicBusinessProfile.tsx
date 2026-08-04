@@ -7,6 +7,7 @@ import ShareButton from "@/components/ShareButton";
 import { useSEO } from "@/hooks/useSEO";
 import { tripadvisorReviewUrl } from "@/lib/tripadvisorUrl";
 import hamsaBlueAsset from "@/assets/hamsa-wall-blue.webp.asset.json";
+import { applyEmbedBg } from "@/lib/embedFit";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { withLangPrefix } from "@/lib/localizedPath";
 
@@ -137,15 +138,8 @@ const PublicBusinessProfile = () => {
   // Mode widget : fond transparent pour épouser le site hôte
   useEffect(() => {
     if (!embed) return;
-    const prevHtml = document.documentElement.style.background;
-    const prevBody = document.body.style.background;
-    document.documentElement.style.background = "transparent";
-    document.body.style.background = "transparent";
-    return () => {
-      document.documentElement.style.background = prevHtml;
-      document.body.style.background = prevBody;
-    };
-  }, [embed]);
+    return applyEmbedBg(params.get("bg"));
+  }, [embed, params]);
 
   // Mode widget : remonte la hauteur réelle au site hôte pour auto-resize de l'iframe
   useEffect(() => {

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
-import { parseFit, fitFlags } from "@/lib/embedFit";
+import { parseFit, fitFlags, applyEmbedBg } from "@/lib/embedFit";
 
 type Lang = "fr" | "en" | "ar";
 
@@ -28,9 +28,8 @@ export default function EmbedWeather() {
 
   useEffect(() => {
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-    // Transparent background so the widget blends into the host page.
-    document.body.style.background = "transparent";
-  }, [lang]);
+    return applyEmbedBg(params.get("bg"));
+  }, [lang, params]);
 
   useEffect(() => {
     let alive = true;
