@@ -362,15 +362,28 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-2">
           <input
+            ref={bgColorRef}
             type="color"
-            value={bgValid ? bg : DEFAULT_BG}
+            value={bgValid ? bg : "#FFFFFF"}
             onChange={(e) => setBg(e.target.value.toUpperCase())}
-            className="h-9 w-10 rounded-md bg-white/10 border border-white/20 p-1 cursor-pointer"
+            className="sr-only"
             aria-label="Couleur de fond de la carte"
+            id="map-bg-color"
           />
+          <button
+            type="button"
+            onClick={() => bgColorRef.current?.click()}
+            className="h-9 w-10 rounded-md border border-white/20 p-1 overflow-hidden shrink-0 focus:outline-none focus:ring-2 focus:ring-primary"
+            aria-label="Choisir une couleur de fond"
+            style={{ background: bgValid ? bg : "transparent" }}
+          >
+            {!bgValid && (
+              <div className="w-full h-full opacity-30" style={{ background: "repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 12px 12px" }} />
+            )}
+          </button>
           <input
             type="text"
-            placeholder={DEFAULT_BG}
+            placeholder="Transparent"
             value={bg}
             onChange={(e) => setBg(e.target.value.toUpperCase())}
             className="w-32 rounded-md bg-white/10 border border-white/20 text-white text-sm px-3 py-2 font-mono"
@@ -387,7 +400,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
             </Button>
           )}
           <p className="text-xs text-white/50 w-full">
-            Format hexadécimal (ex. {DEFAULT_BG}). Vide = fond transparent : le widget prend le fond du site hôte.
+            <span className="text-white/80 font-medium">Vide = fond transparent :</span> le widget prend le fond du site hôte. Format hexadécimal si vous forcez une couleur.
           </p>
         </CardContent>
       </Card>
