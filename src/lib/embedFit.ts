@@ -115,3 +115,28 @@ export const resolveEmbedInk = (raw: string | null | undefined, bg: string | nul
   if (lum === null) return "dark";
   return lum > 0.55 ? "dark" : "light";
 };
+
+/**
+ * Snippet iframe « proportions conservées » avec auto-hauteur : le widget publie
+ * sa hauteur réelle (`postMessage`) et l'hôte redimensionne l'iframe → aucun
+ * scroll interne, aucune zone vide. Utilisé quand `fit` est vide.
+ */
+export const autoHeightSnippet = (o: {
+  id: string;
+  msgType: string;
+  url: string;
+  title: string;
+  maxWidth?: number;
+  height: number;
+  radius?: number;
+}) =>
+  `<div style="width:100%;${o.maxWidth ? `max-width:${o.maxWidth}px;` : ""}margin:0 auto">
+  <iframe id="${o.id}" src="${o.url}" style="width:100%;display:block;height:${o.height}px;border:0;border-radius:${o.radius ?? 20}px;background:transparent" title="${o.title}" loading="lazy"></iframe>
+</div>
+<script>
+  window.addEventListener("message", function (e) {
+    if (!e.data || e.data.type !== "${o.msgType}") return;
+    var f = document.getElementById("${o.id}");
+    if (f) f.style.height = Math.ceil(e.data.height) + "px";
+  });
+</script>`

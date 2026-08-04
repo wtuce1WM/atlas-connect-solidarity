@@ -9,7 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import AffiliateArticleExport from "@/components/affiliate/AffiliateArticleExport";
 import HexColorField from "@/components/affiliate/HexColorField";
 import WidgetTester from "@/components/affiliate/WidgetTester";
-import { FIT_OPTIONS, fitFlags, fitIframeStyle, fitParam, bgParam, SIZE_OPTIONS, sizeMaxWidth, type EmbedFit, type EmbedSize } from "@/lib/embedFit";
+import { FIT_OPTIONS, fitFlags, fitIframeStyle, fitParam, bgParam, autoHeightSnippet, SIZE_OPTIONS, sizeMaxWidth, type EmbedFit, type EmbedSize } from "@/lib/embedFit";
 
 
 export type ToolsRights = {
@@ -310,7 +310,16 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
   const reviewsSnippet = useMemo(
     () =>
-      `<iframe src="${reviewsUrl}" style="${fitIframeStyle(fitOf("reviews"), { maxWidth: preset.w, height: preset.h, radius: 20 })}" title="Avis clients — ${businessName}" loading="lazy"></iframe>`,
+      fitOf("reviews") === ""
+        ? autoHeightSnippet({
+            id: "owm-reviews",
+            msgType: "owm-reviews-height",
+            url: reviewsUrl,
+            title: `Avis clients — ${businessName}`,
+            maxWidth: preset.w,
+            height: preset.h,
+          })
+        : `<iframe src="${reviewsUrl}" style="${fitIframeStyle(fitOf("reviews"), { maxWidth: preset.w, height: preset.h, radius: 20 })}" title="Avis clients — ${businessName}" loading="lazy"></iframe>`,
     [reviewsUrl, businessName, preset.w, preset.h, fits]
   );
 
@@ -321,7 +330,16 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const rateUrl = `${SITE}/embed/avis/${slug}?platform=${ratePlatform}&lang=${rateLang}&variant=${rateVariant}${fitParam(fitOf("rate"))}${rateBgParam}`;
   const rateSnippet = useMemo(
     () =>
-      `<iframe src="${rateUrl}" style="${fitIframeStyle(fitOf("rate"), { maxWidth: rateW, height: rateH, radius: 20 })}" title="Laisser un avis — ${businessName}" loading="lazy"></iframe>`,
+      fitOf("rate") === ""
+        ? autoHeightSnippet({
+            id: "owm-rate",
+            msgType: "owm-rate-height",
+            url: rateUrl,
+            title: `Laisser un avis — ${businessName}`,
+            maxWidth: rateW,
+            height: rateH,
+          })
+        : `<iframe src="${rateUrl}" style="${fitIframeStyle(fitOf("rate"), { maxWidth: rateW, height: rateH, radius: 20 })}" title="Laisser un avis — ${businessName}" loading="lazy"></iframe>`,
     [rateUrl, rateW, rateH, businessName, fits]
   );
 
@@ -369,16 +387,14 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     () =>
       fitOf("weather") === ""
         ? // Proportions conservées : la hauteur suit exactement le contenu (aucun scroll interne)
-          `<div style="width:100%;max-width:${weatherMaxW}px;margin:0 auto">
-  <iframe id="owm-weather" src="${weatherUrl}" style="width:100%;display:block;height:560px;border:0;border-radius:20px;background:transparent" title="Météo — ${weatherCity}" loading="lazy"></iframe>
-</div>
-<script>
-  window.addEventListener("message", function (e) {
-    if (!e.data || e.data.type !== "owm-weather-height") return;
-    var f = document.getElementById("owm-weather");
-    if (f) f.style.height = Math.ceil(e.data.height) + "px";
-  });
-</script>`
+          autoHeightSnippet({
+            id: "owm-weather",
+            msgType: "owm-weather-height",
+            url: weatherUrl,
+            title: `Météo — ${weatherCity}`,
+            maxWidth: weatherMaxW,
+            height: 560,
+          })
         : `<iframe src="${weatherUrl}" style="${fitIframeStyle(fitOf("weather"), { maxWidth: weatherMaxW, height: 560, radius: 20 })}" title="Météo — ${weatherCity}" loading="lazy"></iframe>`,
     [weatherUrl, weatherCity, weatherMaxW, fits]
   );
@@ -387,7 +403,16 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const tidesUrl = `${SITE}/embed/tides?city=${encodeURIComponent(tidesCity || "Essaouira")}&lang=${tidesLang}${fitParam(fitOf("tides"))}${wbg}`;
   const tidesSnippet = useMemo(
     () =>
-      `<iframe src="${tidesUrl}" style="${fitIframeStyle(fitOf("tides"), { maxWidth: 520, height: 360, radius: 20 })}" title="Marées — ${tidesCity}" loading="lazy"></iframe>`,
+      fitOf("tides") === ""
+        ? autoHeightSnippet({
+            id: "owm-tides",
+            msgType: "owm-tides-height",
+            url: tidesUrl,
+            title: `Marées — ${tidesCity}`,
+            maxWidth: 520,
+            height: 360,
+          })
+        : `<iframe src="${tidesUrl}" style="${fitIframeStyle(fitOf("tides"), { maxWidth: 520, height: 360, radius: 20 })}" title="Marées — ${tidesCity}" loading="lazy"></iframe>`,
     [tidesUrl, tidesCity, fits]
   );
 
