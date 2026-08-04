@@ -175,8 +175,8 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
   }, [businessId]);
 
   const bgValid = /^#[0-9A-F]{6}$/i.test(bg);
-  /** Couleur de fond appliquée à l'aperçu : celle définie, sinon la palette 1WM. */
-  const bgEffective = bgValid ? bg.toUpperCase() : DEFAULT_BG;
+  /** Couleur forcée, sinon null → fond transparent (le widget prend le fond du site hôte). */
+  const bgEffective = bgValid ? bg.toUpperCase() : null;
   const radiusKm = Number(biz?.poi_radius_km) > 0 ? Number(biz!.poi_radius_km) : 10;
 
   // Auto-save (debounce 1s)
@@ -388,7 +388,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
             </Button>
           )}
           <p className="text-xs text-white/50 w-full">
-            Format hexadécimal (ex. {DEFAULT_BG}). Vide = palette 1WM par défaut.
+            Format hexadécimal (ex. {DEFAULT_BG}). Vide = fond transparent : le widget prend le fond du site hôte.
           </p>
         </CardContent>
       </Card>
@@ -589,10 +589,10 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
           ) : (
             <div
               className="relative h-[460px] w-full overflow-hidden rounded-xl border border-white/10"
-              style={{ background: bgEffective }}
+              style={{ background: bgEffective ?? "transparent" }}
             >
               <PoiGoogleMap
-                key={poiView ? "fit-poi" : kpView ? `fit-kp${kpView}-${kpView === 1 ? kpCity : kpCity2}` : "master"}
+                key={`${bgEffective ?? "transparent"}-${poiView ? "fit-poi" : kpView ? `fit-kp${kpView}-${kpView === 1 ? kpCity : kpCity2}` : "master"}`}
                 pois={mapItems}
                 selectedPoiId={defaultPoiId || null}
                 center={{ lat: biz.latitude, lng: biz.longitude }}
@@ -600,8 +600,8 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
                   ? { fitToMarkers: true, fitPadding: { top: 70, right: 50, bottom: 50, left: 50 } }
                   : { centerAtBottomRatio: 0.4, fitRadiusKm: fitKm })}
                 mapTypeId={mapTypeId}
-                mapTheme="light"
-                baseColor={bgEffective}
+                mapTheme={bgEffective ? "light" : "default-light"}
+                baseColor={bgEffective ?? undefined}
                 connector={connector}
                 onPoiClick={(id) => setDefaultPoiId(id.startsWith("self-") ? "" : id)}
               />

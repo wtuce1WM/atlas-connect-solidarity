@@ -4,6 +4,7 @@ import { Suspense, lazy, useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { applyEmbedBg } from "@/lib/embedFit";
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
@@ -40,7 +41,8 @@ const EmbedNearby = () => {
     setLanguage(lang);
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
     document.title = "À proximité — One World Morocco";
-  }, [lang, setLanguage]);
+    applyEmbedBg(mapBaseColor);
+  }, [lang, setLanguage, mapBaseColor]);
 
   useEffect(() => {
     if (!slug) return;
@@ -65,7 +67,10 @@ const EmbedNearby = () => {
   }
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-background">
+    <div
+      className="relative h-screen w-full overflow-hidden"
+      style={{ background: mapBaseColor ?? "transparent" }}
+    >
       {!businessId ? (
         <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground animate-pulse">
           {L.loading}
