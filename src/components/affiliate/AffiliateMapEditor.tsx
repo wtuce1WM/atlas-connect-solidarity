@@ -85,7 +85,6 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
   const [poiView, setPoiView] = useState(false);
   const [mapTypeId, setMapTypeId] = useState<"roadmap" | "terrain" | "satellite">("terrain");
   const dirtyRef = useRef(false);
-  const bgColorRef = useRef<HTMLInputElement>(null);
 
 
   useEffect(() => {
