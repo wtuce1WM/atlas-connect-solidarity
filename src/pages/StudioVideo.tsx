@@ -3418,15 +3418,8 @@ export default function StudioVideo() {
                      </p>
                    </div>
                  )}
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  className="h-8 text-[12px] px-3 w-full"
-                  onClick={() => setAddStepOpen(true)}
-                >
-                  <Plus className="h-4 w-4 mr-1.5" /> Ajouter une étape
-                </Button>
+
+
 
                 {popupImageUrl && (
                   <div className="rounded-md border border-border bg-background/40 p-2">
