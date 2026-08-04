@@ -209,6 +209,18 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
     );
   }, [kpView, kpGroups, biz?.id]);
 
+  const defaultPoi = useMemo(
+    () => pois.find((p) => p.id === defaultPoiId) || null,
+    [pois, defaultPoiId],
+  );
+
+  const poiDistanceKm = useMemo(() => {
+    if (!defaultPoi || !biz?.latitude || !biz?.longitude) return null;
+    return haversineKm(biz.latitude, biz.longitude, defaultPoi.latitude!, defaultPoi.longitude!);
+  }, [defaultPoi, biz]);
+
+  const fmtDist = (d: number) => (d < 1 ? `${Math.round(d * 1000)} m` : `${d.toFixed(1)} km`);
+
   const mapItems: PoiMapItem[] = useMemo(() => {
     if (!biz?.latitude || !biz?.longitude) return [];
     const master = {
@@ -221,6 +233,20 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
         neighborhood: biz.neighborhood,
         markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
       };
+    if (poiView && defaultPoi) {
+      return [
+        master,
+        {
+          id: defaultPoi.id,
+          name: defaultPoi.name,
+          latitude: defaultPoi.latitude,
+          longitude: defaultPoi.longitude,
+          images: defaultPoi.images,
+          city: defaultPoi.city,
+          neighborhood: defaultPoi.neighborhood,
+        },
+      ];
+    }
     if (kpView) {
       return [
         master,
@@ -247,17 +273,29 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
         neighborhood: p.neighborhood,
       })),
     ];
-  }, [biz, nearbyPois, kpView, kpMembers]);
+  }, [biz, nearbyPois, kpView, kpMembers, poiView, defaultPoi]);
 
-  // En mode regroupement, on élargit le zoom pour englober tous les membres.
+  // Flèche rouge animée Master → POI par défaut (mode POI uniquement).
+  const connector = useMemo(() => {
+    if (!poiView || !defaultPoi || !biz?.latitude || !biz?.longitude) return null;
+    return {
+      from: { lat: biz.latitude, lng: biz.longitude },
+      to: { lat: Number(defaultPoi.latitude), lng: Number(defaultPoi.longitude) },
+      label: poiDistanceKm !== null ? fmtDist(poiDistanceKm) : undefined,
+    };
+  }, [poiView, defaultPoi, biz, poiDistanceKm]);
+
+  // En mode regroupement / POI, on élargit le zoom pour englober tous les marqueurs.
   const fitKm = useMemo(() => {
-    if (!kpView || !biz?.latitude || !biz?.longitude) return radiusKm;
+    if (!biz?.latitude || !biz?.longitude) return radiusKm;
+    if (poiView && poiDistanceKm !== null) return Math.max(0.3, poiDistanceKm * 1.6);
+    if (!kpView) return radiusKm;
     const max = kpMembers.reduce(
       (acc, m) => Math.max(acc, haversineKm(biz.latitude!, biz.longitude!, m.latitude!, m.longitude!)),
       0,
     );
     return Math.max(1, max * 1.15);
-  }, [kpView, kpMembers, biz, radiusKm]);
+  }, [kpView, kpMembers, biz, radiusKm, poiView, poiDistanceKm]);
 
   if (isLoading) {
     return (
