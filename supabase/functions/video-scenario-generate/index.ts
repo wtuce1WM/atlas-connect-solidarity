@@ -135,7 +135,7 @@ async function fetchTidesWidget(citySlug: unknown, mode: string, businessName: s
   return { city: city.name, citySlug: city.slug, mode: safeMode, text, hours, extremes: extremes.slice(0, 4), durationSec: 3 };
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
