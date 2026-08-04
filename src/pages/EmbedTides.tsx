@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import EmbedTidesWidget, { type TidesPayload } from "@/components/embed/EmbedTidesWidget";
 import { parseFit, fitFlags, applyEmbedBg } from "@/lib/embedFit";
+import { useEmbedFitScale } from "@/hooks/useEmbedFitScale";
 
 type Lang = "fr" | "en" | "ar";
 
@@ -33,6 +34,7 @@ export default function EmbedTides() {
   const [data, setData] = useState<TidesPayload | null>(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { innerRef: fitInnerRef, style: fitStyle } = useEmbedFitScale(fullHeight, [data, loading, error, showPicker]);
 
   useEffect(() => {
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
@@ -82,7 +84,7 @@ export default function EmbedTides() {
   const rootRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const el = rootRef.current;
-    if (!el) return;
+    if (!el || fullHeight) return;
     const post = () => {
       window.parent?.postMessage(
         { type: "owm-tides-height", height: Math.ceil(el.getBoundingClientRect().height) },
@@ -93,12 +95,12 @@ export default function EmbedTides() {
     const ro = new ResizeObserver(post);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [data, loading, error, showPicker]);
+  }, [data, loading, error, showPicker, fullHeight]);
 
   return (
     <div
       ref={rootRef}
-      className={`w-full p-2 mx-auto flex flex-col items-center gap-2 bg-transparent ${capW} ${fullHeight ? "h-screen min-h-screen" : "min-h-0"}`}
+      className={`w-full mx-auto flex flex-col items-center gap-2 bg-transparent ${capW} ${fullHeight ? "h-screen min-h-screen overflow-hidden p-1" : "min-h-0 p-2"}`}
     >
 
       {showPicker && cities.length > 0 && (
@@ -132,7 +134,11 @@ export default function EmbedTides() {
         </div>
       )}
       {!loading && !error && data && (
-        <div className={`w-full flex justify-center ${fullHeight ? "flex-1 min-h-0 [&>div]:h-full" : ""}`}>
+        <div
+          ref={fitInnerRef}
+          className="w-full flex justify-center [&>div]:max-w-full"
+          style={fitStyle}
+        >
           <EmbedTidesWidget data={data} lang={lang} compact={compact} fullWidth={fullWidth} onCityChange={setCity} />
         </div>
       )}
