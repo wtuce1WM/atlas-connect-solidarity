@@ -21,7 +21,6 @@ const TEMPLATES = [
   { id: "corporate-vertical", scope: "1WM corporate", description: "Vidéo institutionnelle One World Morocco (modèle économique, villes pionnières, paliers). À utiliser UNIQUEMENT pour des contenus corporate 1WM." },
 ];
 
-Deno.
 // ---------------------------------------------------------------------------
 // Widgets Météo / Marées, Vents & Météo intégrés au montage vidéo.
 // Données Open-Meteo (gratuit, sans clé) résolues à la génération du scénario
@@ -136,7 +135,7 @@ async function fetchTidesWidget(citySlug: unknown, mode: string, businessName: s
   return { city: city.name, citySlug: city.slug, mode: safeMode, text, hours, extremes: extremes.slice(0, 4), durationSec: 3 };
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
@@ -1460,25 +1459,42 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     }
 
     // Widgets Météo / Marées, Vents & Météo — 3 s par défaut, données déterministes.
-    try {
-      const bizName = String((template_props as any)?.name || "Nous");
-      if (options?.weather_widget) {
+    // Chaque widget est tenté indépendamment : si l'un échoue, l'autre reste monté.
+    const ensureSceneInOrder = (kind: "weather" | "tides") => {
+      const order = (template_props as any).scene_order;
+      if (!Array.isArray(order) || !order.length) return; // ordre implicite → déjà géré côté Remotion
+      if (order.includes(kind)) return;
+      // On insère avant la séquence de clôture (cta / outro) si elle existe.
+      const closingIdx = order.findIndex((k: unknown) => k === "cta" || k === "outro");
+      if (closingIdx >= 0) order.splice(closingIdx, 0, kind);
+      else order.push(kind);
+    };
+    const bizName = String((template_props as any)?.name || "Nous");
+    if (options?.weather_widget) {
+      try {
         const w = await fetchWeatherWidget(options?.weather_city, Number(options?.weather_range) || 1, bizName, videoLang);
         template_props.showWeatherWidget = true;
         template_props.weatherWidget = w;
         if (!(template_props as any).scene_durations) (template_props as any).scene_durations = {};
         if ((template_props as any).scene_durations.weather == null) (template_props as any).scene_durations.weather = 3;
+        ensureSceneInOrder("weather");
+      } catch (e) {
+        console.warn("[widgets] weather fetch failed", (e as Error).message);
       }
-      if (options?.tides_widget) {
+    }
+    if (options?.tides_widget) {
+      try {
         const t = await fetchTidesWidget(options?.tides_city, String(options?.tides_mode || "all"), bizName, videoLang);
         template_props.showTidesWidget = true;
         template_props.tidesWidget = t;
         if (!(template_props as any).scene_durations) (template_props as any).scene_durations = {};
         if ((template_props as any).scene_durations.tides == null) (template_props as any).scene_durations.tides = 3;
+        ensureSceneInOrder("tides");
+      } catch (e) {
+        console.warn("[widgets] tides fetch failed", (e as Error).message);
       }
-    } catch (e) {
-      console.warn("[widgets] fetch failed", (e as Error).message);
     }
+
 
     if (preview_only) {
       return json({

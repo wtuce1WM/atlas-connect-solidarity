@@ -29,6 +29,58 @@ const textPositionStyle = (position: TextPosition = "middle"): React.CSSProperti
   }
 };
 
+/**
+ * Colonne « anti-débordement » : mesure la hauteur réelle du contenu et,
+ * si celui-ci dépasse la zone sûre du viewport, ancre le bloc en haut et
+ * réduit l'échelle jusqu'à ce que tout tienne. Le titre ne sort donc jamais
+ * par le haut, quel que soit le volume de texte (Offres / Blocs highlights).
+ */
+const FitColumn: React.FC<{ children: React.ReactNode; align?: "center" | "flex-start"; minScale?: number }> = ({
+  children,
+  align = "center",
+  minScale = 0.62,
+}) => {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [fit, setFit] = React.useState<{ scale: number; height: number | null }>({ scale: 1, height: null });
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    const parent = el?.parentElement;
+    if (!el || !parent) return;
+    const avail = parent.clientHeight;
+    // scrollHeight du contenu non transformé (on mesure avant application du scale)
+    const h = el.scrollHeight;
+    if (!avail || !h) return;
+    if (fit.height == null && h > avail) {
+      setFit({ scale: Math.max(minScale, avail / h), height: avail });
+    }
+  }, [children, minScale, fit.height]);
+  return (
+    <div
+      ref={ref}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: align,
+        width: "100%",
+        // Quand le contenu déborde : on fixe la hauteur de boîte à la zone
+        // disponible et on réduit l'échelle depuis le haut, ce qui garantit
+        // que le titre reste visible dans le viewport.
+        ...(fit.height != null
+          ? {
+              height: fit.height,
+              transform: `scale(${fit.scale})`,
+              transformOrigin: "top center",
+            }
+          : null),
+      }}
+    >
+      {children}
+    </div>
+  );
+
+};
+
+
 // ===== Transitions entre les plans =====
 export type TransitionEffect = "crossfade" | "fade_black" | "wipe" | "zoom" | "kenburns" | "slide" | "cut" | "fast" | "mix";
 // Effets réellement utilisables quand "Mix" est choisi (tout sauf fast / mix)
@@ -925,7 +977,9 @@ const SceneOffer: React.FC<{
   const hasPrice = !!offer.price;
   return (
     <AbsoluteFill style={{ alignItems: "center", padding: 60, ...textPositionStyle(textPosition), opacity: out }}>
+      <FitColumn>
       <div
+
         style={{
           opacity: labelO,
           fontFamily: body,
@@ -1000,7 +1054,9 @@ const SceneOffer: React.FC<{
           })}
         </div>
       )}
+      </FitColumn>
     </AbsoluteFill>
+
   );
 };
 
@@ -2179,8 +2235,14 @@ const RICH_CSS = `
 .rich-video-block ul, .rich-video-block ol { margin: 0.2em 0 0; padding-left: 1.1em; text-align: left; display: inline-block; }
 .rich-video-block li { margin: 0.18em 0; }
 .rich-video-block ul { list-style: none; padding-left: 0; }
-.rich-video-block ul > li::before { content: "◆ "; color: ${COLORS.gold}; }
+/* Le texte de la puce reste sur la même ligne que le symbole : on neutralise
+   les blocs et les sauts de ligne en tête de <li>. */
+.rich-video-block li > p, .rich-video-block li > div, .rich-video-block li > span { display: inline; margin: 0; }
+.rich-video-block li > br:first-child { display: none; }
+.rich-video-block ul > li { display: block; }
+.rich-video-block ul > li::before { content: "◆ "; color: ${COLORS.gold}; white-space: pre; }
 `;
+
 
 const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[number]; background?: string | null; backgroundIsVideo?: boolean; durationFrames: number; textPosition?: TextPosition; effect?: TransitionEffect; motion?: MotionEffect | null }> = ({ data, background, backgroundIsVideo, durationFrames, textPosition = "middle", effect = "kenburns", motion = null }) => {
   const frame = useCurrentFrame();
@@ -2202,6 +2264,7 @@ const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[
             : <KenBurns src={heroImg} from={0} duration={durationFrames} />))}
       <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.4) 0%,rgba(0,0,0,0.75) 100%)" }} />
       <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
+        <FitColumn>
         {!data.title && (
           <div style={{ fontFamily: body, color: COLORS.gold, fontSize: 20, letterSpacing: 6, textTransform: "uppercase", textAlign: "center" }}>
             Signature
@@ -2229,7 +2292,9 @@ const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[
             {[data.metric_value, data.metric_title].filter(Boolean).map((v) => decodeEntities(String(v))).join(" · ")}
           </div>
         )}
+        </FitColumn>
       </AbsoluteFill>
+
     </AbsoluteFill>
   );
 };
@@ -2296,7 +2361,9 @@ const SceneInfoText: React.FC<{
     <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
       <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.42) 0%,rgba(0,0,0,0.78) 100%)" }} />
       <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
+        <FitColumn>
         {safeLogo && (
+
           <div style={{ alignSelf: "center", marginBottom: 18, transform: `scale(${logoS})`, filter: "drop-shadow(0 4px 16px rgba(0,0,0,0.5))" }}>
             <Img src={safeLogo} style={{ width: 120, height: 120, objectFit: "contain", borderRadius: 12, background: "rgba(255,255,255,0.08)" }} />
           </div>
@@ -2340,7 +2407,9 @@ const SceneInfoText: React.FC<{
             </div>
           </div>
         )}
+        </FitColumn>
       </AbsoluteFill>
+
     </AbsoluteFill>
   );
 };
