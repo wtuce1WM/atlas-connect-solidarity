@@ -36,6 +36,8 @@ export default function EmbedReviews() {
   const sizeParam = (params.get("size") || "auto").toLowerCase();
   const size: ReviewsSize = sizeParam === "sm" || sizeParam === "lg" ? (sizeParam as ReviewsSize) : "auto";
   const { fullWidth, fullHeight } = fitFlags(parseFit(params.get("fit")));
+  const { innerRef: fitInnerRef, style: fitStyle } = useEmbedFitScale(fullHeight, [business, reviews, loading, error]);
+
   const langParam = (params.get("lang") || "fr").toLowerCase();
   const lang: Lang = langParam === "en" || langParam === "ar" ? (langParam as Lang) : "fr";
   const L = MESSAGES[lang];
