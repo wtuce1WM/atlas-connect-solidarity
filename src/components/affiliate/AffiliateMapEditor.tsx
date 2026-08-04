@@ -77,7 +77,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       dirtyRef.current = false;
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("id,name,city,neighborhood,latitude,longitude,images,poi_radius_km,map_bg_color,default_poi_business_id")
+        .select("id,name,city,neighborhood,latitude,longitude,images,poi_radius_km,map_bg_color,default_poi_business_id,kp_regroupement,kp_regroupement_2,kp_active,kp_active_2")
         .eq("id", businessId)
         .maybeSingle();
       if (cancelled) return;
@@ -85,6 +85,37 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setBiz(b);
       setBg((b?.map_bg_color || "").toUpperCase());
       setDefaultPoiId(b?.default_poi_business_id || "");
+      setKpActive(!!b?.kp_active);
+      setKpActive2(!!b?.kp_active_2);
+
+      // Regroupements KP (uniquement si > 1 établissement partage le même code)
+      const kp1 = (b?.kp_regroupement || "").trim();
+      const kp2 = (b?.kp_regroupement_2 || "").trim();
+      const groups: KpGroup[] = [];
+      if (kp1 || kp2) {
+        const [c1, c2, titlesRes] = await Promise.all([
+          kp1
+            ? (supabase as any).from("businesses").select("id", { count: "exact", head: true })
+                .eq("kp_regroupement", kp1).eq("is_active", true)
+            : Promise.resolve({ count: 0 }),
+          kp2
+            ? (supabase as any).from("businesses").select("id", { count: "exact", head: true })
+                .eq("kp_regroupement_2", kp2).eq("is_active", true)
+            : Promise.resolve({ count: 0 }),
+          (supabase as any).from("kp_group_titles").select("kp_code,kp_type,title"),
+        ]);
+        const titleMap = new Map<string, string>();
+        ((titlesRes as any)?.data ?? []).forEach((t: any) =>
+          titleMap.set(`${t.kp_type}:${t.kp_code}`, t.title || ""),
+        );
+        if (kp1 && Number((c1 as any)?.count || 0) > 1) {
+          groups.push({ slot: 1, code: kp1, title: titleMap.get(`kp1:${kp1}`) || kp1, count: Number((c1 as any).count) });
+        }
+        if (kp2 && Number((c2 as any)?.count || 0) > 1) {
+          groups.push({ slot: 2, code: kp2, title: titleMap.get(`kp2:${kp2}`) || kp2, count: Number((c2 as any).count) });
+        }
+      }
+      if (!cancelled) setKpGroups(groups);
 
       if (b?.city) {
         const { data: poiData } = await (supabase as any)
@@ -114,6 +145,8 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
         .update({
           map_bg_color: bgValid ? bg.toUpperCase() : null,
           default_poi_business_id: defaultPoiId || null,
+          kp_active: kpActive,
+          kp_active_2: kpActive2,
         })
         .eq("id", businessId);
       setIsSaving(false);
@@ -121,7 +154,8 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setSavedAt(Date.now());
     }, 1000);
     return () => clearTimeout(t);
-  }, [bg, bgValid, defaultPoiId, businessId, isLoading]);
+  }, [bg, bgValid, defaultPoiId, kpActive, kpActive2, businessId, isLoading]);
+
 
   const nearbyPois = useMemo(() => {
     if (!biz?.latitude || !biz?.longitude) return [];
