@@ -66,6 +66,9 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const [weatherLang, setWeatherLang] = useState<"fr" | "en" | "ar">("fr");
   const [weatherSize, setWeatherSize] = useState<EmbedSize>("md");
   const [weatherCard, setWeatherCard] = useState<"transparent" | "widget" | "light" | "dark">("transparent");
+  // Format d'affichage : carte verticale classique ou bandeau footer full-width (desktop).
+  const [weatherLayout, setWeatherLayout] = useState<"card" | "footer">("card");
+  const [weatherSticky, setWeatherSticky] = useState(false);
 
   const [tidesCity, setTidesCity] = useState<string>("Essaouira");
   const [ficheMaxWidth, setFicheMaxWidth] = useState<number>(480);
@@ -390,9 +393,27 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         : weatherCard === "dark"
           ? "&bg=1C1917"
           : "&bg=transparent";
-  const weatherUrl = `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}&size=${weatherSize}${fitParam(fitOf("weather"))}${weatherBgParam}`;
+  const isWeatherFooter = weatherLayout === "footer";
+  const weatherUrl = isWeatherFooter
+    ? `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}&layout=footer&days=3${weatherBgParam}`
+    : `${SITE}/embed/weather?city=${encodeURIComponent(weatherCity || "Marrakech")}&lang=${weatherLang}&size=${weatherSize}${fitParam(fitOf("weather"))}${weatherBgParam}`;
   const weatherMaxW = sizeMaxWidth(weatherSize);
-  const weatherSnippet = useMemo(
+  const weatherFooterSnippet = useMemo(
+    () =>
+      autoHeightSnippet({
+        id: "owm-weather-footer",
+        msgType: "owm-weather-height",
+        url: weatherUrl,
+        title: `Météo — ${weatherCity}`,
+        height: 96,
+        radius: 0,
+        wrapperStyle: weatherSticky
+          ? "position:fixed;left:0;right:0;bottom:0;z-index:2147483000;width:100%"
+          : "width:100%",
+      }),
+    [weatherUrl, weatherCity, weatherSticky]
+  );
+  const weatherCardSnippet = useMemo(
     () =>
       fitOf("weather") === ""
         ? // Proportions conservées : la hauteur suit exactement le contenu (aucun scroll interne)
@@ -407,6 +428,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         : `<iframe src="${weatherUrl}" style="${fitIframeStyle(fitOf("weather"), { maxWidth: weatherMaxW, height: 560, radius: 20 })}" title="Météo — ${weatherCity}" loading="lazy"></iframe>`,
     [weatherUrl, weatherCity, weatherMaxW, fits]
   );
+  const weatherSnippet = isWeatherFooter ? weatherFooterSnippet : weatherCardSnippet;
 
 
   const tidesUrl = `${SITE}/embed/tides?city=${encodeURIComponent(tidesCity || "Essaouira")}&lang=${tidesLang}${fitParam(fitOf("tides"))}${wbg}`;
@@ -1356,6 +1378,50 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
           </div>
         </div>
         <div className="space-y-1.5">
+          <Label className="text-white/80 text-xs">Format d'affichage</Label>
+          <div className="flex gap-1 flex-wrap">
+            {([
+              { key: "card", label: "Carte (défaut)" },
+              { key: "footer", label: "Bandeau footer (desktop)" },
+            ] as const).map((o) => (
+              <button
+                key={o.key}
+                type="button"
+                onClick={() => setWeatherLayout(o.key)}
+                className={`text-xs py-1.5 px-3 rounded-md border ${weatherLayout === o.key ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-white/50">
+            Le bandeau footer occupe toute la largeur du viewport avec une hauteur minimale et 3 jours de
+            prévisions. Sur mobile (&lt; 768px) il bascule automatiquement sur la carte verticale, seule
+            lisible à cette largeur.
+          </p>
+        </div>
+        {isWeatherFooter && (
+          <div className="space-y-1.5">
+            <Label className="text-white/80 text-xs">Position du bandeau</Label>
+            <div className="flex gap-1 flex-wrap">
+              {([
+                { key: false, label: "Dans le flux de la page" },
+                { key: true, label: "Fixé en bas de l'écran (sticky)" },
+              ] as const).map((o) => (
+                <button
+                  key={String(o.key)}
+                  type="button"
+                  onClick={() => setWeatherSticky(o.key)}
+                  className={`text-xs py-1.5 px-3 rounded-md border ${weatherSticky === o.key ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+                >
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        {!isWeatherFooter && (
+        <div className="space-y-1.5">
           <Label className="text-white/80 text-xs">Échelle du widget</Label>
           <div className="flex gap-1 flex-wrap">
             {SIZE_OPTIONS.map((o) => (
@@ -1378,6 +1444,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
             transparent si aucune couleur n'est forcée.
           </p>
         </div>
+        )}
         <div className="space-y-1.5">
           <Label className="text-white/80 text-xs">Fond du bloc prévisions</Label>
           <div className="flex gap-1 flex-wrap">
@@ -1403,7 +1470,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
             couleur définie plus haut (Couleur de fond des widgets).
           </p>
         </div>
-        {fitRow("weather")}
+        {!isWeatherFooter && fitRow("weather")}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <div className="space-y-2">
@@ -1437,7 +1504,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               <iframe
                 key={weatherUrl}
                 src={weatherUrl}
-                style={{ width: "100%", maxWidth: weatherMaxW, height: 560, border: 0 }}
+                style={isWeatherFooter ? { width: "100%", height: 110, border: 0 } : { width: "100%", maxWidth: weatherMaxW, height: 560, border: 0 }}
                 title="Aperçu météo"
                 loading="lazy"
               />
