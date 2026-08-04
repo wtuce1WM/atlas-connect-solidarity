@@ -285,6 +285,13 @@ export function scenarioFromTemplateProps(
   push("hook", Math.max(2, Math.round(durationSec * 0.1)), [name, locationLine ? `📍 ${locationLine}` : ""].filter(Boolean).join("\n"));
   // Scène "name" du montage = TEXTE INTÉGRAL du hook (identique à Remotion)
   push("name", Math.max(2, Math.round(durationSec * 0.12)), hook || tagline || name);
+  // Widgets Météo / Marées — juste après l'étape Hook, 6 s par défaut.
+  if (props?.showWeatherWidget && props?.weatherWidget) {
+    push("weather", Number(props.weatherWidget.durationSec) || 6, String(props.weatherWidget.text || "Widget Météo."));
+  }
+  if (props?.showTidesWidget && props?.tidesWidget) {
+    push("tides", Number(props.tidesWidget.durationSec) || 6, String(props.tidesWidget.text || "Widget Marées, Vents & Météo."));
+  }
   // Étape "media" (montage) : ajoutée manuellement par l'utilisateur via "Ajouter une étape".
 
   // Une scène par offre sélectionnée — position 4 par défaut (juste après Nom / étape texte)
