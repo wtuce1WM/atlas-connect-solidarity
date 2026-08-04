@@ -77,13 +77,22 @@ export default function EmbedRateUsWidget({
   targets,
   lang = "fr",
   variant = "card",
+  surface,
+  ink = "light",
 }: {
   businessName: string;
   targets: RateTarget[];
   lang?: Lang;
   variant?: RateVariant;
+  /** undefined = carte sombre d'origine ; "" = transparente ; "#RRGGBB" = couleur forcée */
+  surface?: string | null;
+  ink?: "light" | "dark";
 }) {
   const L = LABELS[lang];
+  const hasSurfaceProp = surface !== undefined;
+  const surfaceColor = (surface || "").trim();
+  const transparent = hasSurfaceProp && !surfaceColor;
+  const surfaceStyle = hasSurfaceProp ? { background: surfaceColor || "transparent" } : null;
   const primary = targets[0];
   const openPrimary = () => {
     if (primary) window.open(primary.url, "_blank", "noopener,noreferrer");
@@ -117,8 +126,13 @@ export default function EmbedRateUsWidget({
   if (variant === "bar") {
     return (
       <div
-        className="w-full mx-auto rounded-2xl border border-white/15 bg-neutral-900/95 px-4 py-3.5 text-white shadow-[0_10px_40px_rgba(0,0,0,0.35)] flex flex-wrap items-center gap-3 justify-between"
-        style={{ fontFamily: "'Montserrat', sans-serif", maxWidth: 780 }}
+        data-owm-ink={ink}
+        className={`w-full mx-auto rounded-2xl border border-white/15 ${
+          hasSurfaceProp ? "" : "bg-neutral-900/95"
+        } px-4 py-3.5 text-white ${
+          transparent ? "" : "shadow-[0_10px_40px_rgba(0,0,0,0.35)]"
+        } flex flex-wrap items-center gap-3 justify-between`}
+        style={{ fontFamily: "'Montserrat', sans-serif", maxWidth: 780, ...surfaceStyle }}
       >
         <div className="min-w-0">
           <p className="text-[10px] uppercase tracking-[0.2em] text-white/50">{L.kicker}</p>
@@ -150,8 +164,11 @@ export default function EmbedRateUsWidget({
 
   return (
     <div
-      className="relative overflow-hidden w-full mx-auto rounded-3xl border border-white/15 bg-neutral-900/95 p-5 sm:p-6 text-white shadow-[0_10px_40px_rgba(0,0,0,0.35)]"
-      style={{ fontFamily: "'Montserrat', sans-serif", maxWidth: 460 }}
+      data-owm-ink={ink}
+      className={`relative overflow-hidden w-full mx-auto rounded-3xl border border-white/15 ${
+        hasSurfaceProp ? "" : "bg-neutral-900/95"
+      } p-5 sm:p-6 text-white ${transparent ? "" : "shadow-[0_10px_40px_rgba(0,0,0,0.35)]"}`}
+      style={{ fontFamily: "'Montserrat', sans-serif", maxWidth: 460, ...surfaceStyle }}
     >
       <span
         aria-hidden
