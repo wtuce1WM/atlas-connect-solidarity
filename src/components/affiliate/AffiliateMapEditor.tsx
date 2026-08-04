@@ -29,6 +29,8 @@ type Biz = {
   kp_regroupement_2: string | null;
   kp_active: boolean | null;
   kp_active_2: boolean | null;
+  kp_city: string | null;
+  kp_city_2: string | null;
 };
 
 type PoiRow = {
@@ -77,6 +79,8 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
   const [kpGroups, setKpGroups] = useState<KpGroup[]>([]);
   const [kpActive, setKpActive] = useState(false);
   const [kpActive2, setKpActive2] = useState(false);
+  const [kpCity, setKpCity] = useState<string>("");
+  const [kpCity2, setKpCity2] = useState<string>("");
   const [kpView, setKpView] = useState<1 | 2 | null>(null);
   const [poiView, setPoiView] = useState(false);
   const [mapTypeId, setMapTypeId] = useState<"roadmap" | "terrain" | "satellite">("terrain");
@@ -92,7 +96,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setPoiView(false);
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("id,name,city,neighborhood,latitude,longitude,images,poi_radius_km,map_bg_color,default_poi_business_id,kp_regroupement,kp_regroupement_2,kp_active,kp_active_2")
+        .select("id,name,city,neighborhood,latitude,longitude,images,poi_radius_km,map_bg_color,default_poi_business_id,kp_regroupement,kp_regroupement_2,kp_active,kp_active_2,kp_city,kp_city_2")
         .eq("id", businessId)
         .maybeSingle();
       if (cancelled) return;
@@ -102,6 +106,8 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setDefaultPoiId(b?.default_poi_business_id || "");
       setKpActive(!!b?.kp_active);
       setKpActive2(!!b?.kp_active_2);
+      setKpCity(b?.kp_city || "");
+      setKpCity2(b?.kp_city_2 || "");
 
       // Regroupements KP (uniquement si > 1 établissement partage le même code)
       const kp1 = (b?.kp_regroupement || "").trim();
@@ -186,6 +192,8 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
           default_poi_business_id: defaultPoiId || null,
           kp_active: kpActive,
           kp_active_2: kpActive2,
+          kp_city: kpCity || null,
+          kp_city_2: kpCity2 || null,
         })
         .eq("id", businessId);
       setIsSaving(false);
@@ -193,7 +201,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setSavedAt(Date.now());
     }, 1000);
     return () => clearTimeout(t);
-  }, [bg, bgValid, defaultPoiId, kpActive, kpActive2, businessId, isLoading]);
+  }, [bg, bgValid, defaultPoiId, kpActive, kpActive2, kpCity, kpCity2, businessId, isLoading]);
 
 
   const nearbyPois = useMemo(() => {
@@ -203,13 +211,30 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
     );
   }, [pois, biz, radiusKm]);
 
+  /** Villes disponibles par regroupement (d'après les membres du groupe). */
+  const kpCityOptions = useMemo(() => {
+    const map = new Map<1 | 2, string[]>();
+    kpGroups.forEach((g) => {
+      const set = new Set<string>();
+      g.members.forEach((m) => { if (m.city) set.add(m.city); });
+      map.set(g.slot, Array.from(set).sort((a, b) => a.localeCompare(b)));
+    });
+    return map;
+  }, [kpGroups]);
+
   const kpMembers = useMemo(() => {
     if (!kpView) return [];
     const g = kpGroups.find((x) => x.slot === kpView);
+    const cityFilter = (kpView === 1 ? kpCity : kpCity2).trim();
     return (g?.members ?? []).filter(
-      (m) => m.id !== biz?.id && Number(m.latitude) && Number(m.longitude),
+      (m) =>
+        m.id !== biz?.id &&
+        Number(m.latitude) &&
+        Number(m.longitude) &&
+        (!cityFilter || (m.city || "") === cityFilter),
     );
-  }, [kpView, kpGroups, biz?.id]);
+  }, [kpView, kpGroups, biz?.id, kpCity, kpCity2]);
+
 
   const defaultPoi = useMemo(
     () => pois.find((p) => p.id === defaultPoiId) || null,
@@ -431,23 +456,51 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
                     aria-label={`Activer le regroupement ${g.title}`}
                   />
                 </div>
+                <div className="mt-2.5 flex flex-wrap items-center gap-2 border-t border-white/10 pt-2.5">
+                  <Label className="text-white/80 text-xs">Limiter à une ville</Label>
+                  <Select
+                    value={(g.slot === 1 ? kpCity : kpCity2) || "all"}
+                    onValueChange={(v) =>
+                      g.slot === 1 ? setKpCity(v === "all" ? "" : v) : setKpCity2(v === "all" ? "" : v)
+                    }
+                  >
+                    <SelectTrigger className="h-9 text-sm text-white w-56">
+                      <SelectValue placeholder="Toutes les villes" />
+                    </SelectTrigger>
+                    <SelectContent className="z-[90] max-h-72">
+                      <SelectItem value="all" className="text-sm">Toutes les villes</SelectItem>
+                      {(kpCityOptions.get(g.slot) ?? []).map((c) => (
+                        <SelectItem key={c} value={c} className="text-sm">{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 {g.members.length > 0 && (
                   <ul className="mt-2.5 space-y-1 border-t border-white/10 pt-2">
-                    {g.members.map((m) => (
-                      <li key={m.id} className="flex items-center justify-between gap-2 text-xs">
-                        <span className="text-white/90 truncate" title={m.name}>{m.name}</span>
-                        <span className="text-white/50 shrink-0 text-right">
-                          {[m.city, m.neighborhood].filter(Boolean).join(" — ") || "Ville non renseignée"}
-                        </span>
-                      </li>
-                    ))}
+                    {g.members.map((m) => {
+                      const filter = (g.slot === 1 ? kpCity : kpCity2).trim();
+                      const excluded = !!filter && (m.city || "") !== filter;
+                      return (
+                        <li
+                          key={m.id}
+                          className={`flex items-center justify-between gap-2 text-xs ${excluded ? "opacity-40" : ""}`}
+                        >
+                          <span className="text-white/90 truncate" title={m.name}>{m.name}</span>
+                          <span className="text-white/50 shrink-0 text-right">
+                            {[m.city, m.neighborhood].filter(Boolean).join(" — ") || "Ville non renseignée"}
+                          </span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </div>
             ))}
             <p className="text-xs text-white/50">
               Actif = les établissements du même regroupement sont affichés/épinglés avec votre fiche. Désactivé par défaut.
+              Une ville sélectionnée = seuls les marqueurs de cette ville s'affichent dans l'aperçu.
             </p>
+
           </CardContent>
         </Card>
       )}
@@ -539,7 +592,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
               style={{ background: bgEffective }}
             >
               <PoiGoogleMap
-                key={poiView ? "fit-poi" : kpView ? `fit-kp${kpView}` : "master"}
+                key={poiView ? "fit-poi" : kpView ? `fit-kp${kpView}-${kpView === 1 ? kpCity : kpCity2}` : "master"}
                 pois={mapItems}
                 selectedPoiId={defaultPoiId || null}
                 center={{ lat: biz.latitude, lng: biz.longitude }}
