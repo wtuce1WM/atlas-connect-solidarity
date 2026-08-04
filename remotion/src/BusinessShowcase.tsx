@@ -2203,16 +2203,18 @@ const SceneCustomerReview: React.FC<{
 
   const displayText = hasExcerpt ? full : full || excerpt;
   const baseSize = reviewFontSize(displayText.length);
-  // Pas de redimensionnement du texte ni de la carte pendant la phase de focus :
-  // seuls les côtés s'estompent, ce qui évite le saut visuel de re-cadrage.
   const size = baseSize;
+  // Phase de focus : les côtés s'estompent, l'extrait grossit et la carte zoome
+  // légèrement dessus — l'extrait devient l'élément dominant du plan.
   const sideOpacity = interpolate(focus, [0, 1], [1, 0]);
-  const sideBlur = interpolate(focus, [0, 1], [0, 6]);
-  const cardScale = 1;
-
+  const sideBlur = interpolate(focus, [0, 1], [0, 8]);
+  const excerptSize = size * interpolate(focus, [0, 1], [1, 1.5]);
+  const cardScale = interpolate(focus, [0, 1], [1, 1.08]);
+  const excerptGlow = interpolate(focus, [0, 1], [0, 1]);
 
   const platform = platformKeyFromSource(source);
   const meta = platform ? PLATFORM_META[platform] : null;
+  const transparentLogo = platform === "google_review";
 
   return (
     <AbsoluteFill>
@@ -2240,17 +2242,18 @@ const SceneCustomerReview: React.FC<{
                 width: 96,
                 height: 96,
                 borderRadius: 48,
-                background: "rgba(255,255,255,0.97)",
+                background: transparentLogo ? "transparent" : "rgba(255,255,255,0.97)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                overflow: "hidden",
+                overflow: transparentLogo ? "visible" : "hidden",
                 transform: `scale(${interpolate(spring({ frame: frame - 6, fps: 30, config: { damping: 11, stiffness: 160 } }), [0, 1], [0.3, 1]) * (1 + 0.04 * Math.sin(frame / 9))}) rotate(${interpolate(spring({ frame: frame - 6, fps: 30, config: { damping: 11, stiffness: 160 } }), [0, 1], [-30, 0])}deg)`,
-                boxShadow: `0 0 0 5px ${meta.brand}, 0 14px 40px ${meta.brand}66`,
+                boxShadow: transparentLogo ? "none" : `0 0 0 5px ${meta.brand}, 0 14px 40px ${meta.brand}66`,
+                filter: transparentLogo ? `drop-shadow(0 8px 26px ${meta.brand}88)` : undefined,
                 zIndex: 3,
               }}
             >
-              <Img src={staticFile(meta.logo)} style={{ width: 96, height: 96, objectFit: "cover" }} />
+              <Img src={staticFile(meta.logo)} style={{ width: 96, height: 96, objectFit: transparentLogo ? "contain" : "cover" }} />
             </div>
           )}
           <div style={{ fontFamily: display, fontSize: 90, color: meta ? meta.brand : COLORS.gold, lineHeight: 0.7, marginBottom: 12 }}>“</div>
@@ -2263,14 +2266,18 @@ const SceneCustomerReview: React.FC<{
                 <span
                   style={{
                     position: "relative",
-                    display: "inline",
-                    padding: "2px 4px",
-                    borderRadius: 6,
+                    display: "inline-block",
+                    padding: "2px 6px",
+                    borderRadius: 8,
                     backgroundImage: `linear-gradient(90deg, ${COLORS.gold}55 0%, ${COLORS.gold}55 100%)`,
                     backgroundRepeat: "no-repeat",
                     backgroundSize: `${swipe * 100}% 100%`,
                     color: COLORS.cream,
-                    fontWeight: 600,
+                    fontWeight: 700,
+                    fontSize: excerptSize,
+                    lineHeight: 1.32,
+                    textShadow: `0 3px ${10 + 12 * excerptGlow}px rgba(0,0,0,0.75)`,
+                    transition: "none",
                   }}
                 >
                   {mid}
@@ -2283,6 +2290,7 @@ const SceneCustomerReview: React.FC<{
               displayText
             )}
           </div>
+
           {rating != null && Number.isFinite(rating) && (
             <div style={{ marginTop: 20, fontFamily: body, color: meta ? meta.accent : COLORS.gold, fontSize: 30 }}>
               {"★★★★★".slice(0, Math.round(rating))}<span style={{ opacity: 0.3 }}>{"★★★★★".slice(Math.round(rating))}</span>
