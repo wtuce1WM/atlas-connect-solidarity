@@ -2361,7 +2361,9 @@ const SceneInfoText: React.FC<{
     <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
       <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.42) 0%,rgba(0,0,0,0.78) 100%)" }} />
       <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
+        <FitColumn>
         {safeLogo && (
+
           <div style={{ alignSelf: "center", marginBottom: 18, transform: `scale(${logoS})`, filter: "drop-shadow(0 4px 16px rgba(0,0,0,0.5))" }}>
             <Img src={safeLogo} style={{ width: 120, height: 120, objectFit: "contain", borderRadius: 12, background: "rgba(255,255,255,0.08)" }} />
           </div>
