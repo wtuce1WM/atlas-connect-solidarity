@@ -239,8 +239,8 @@ export type ShowcaseProps = {
   videoStarts?: Record<string, number>;
   /** Point de fin (secondes) par URL de vidéo — défini dans le Studio (Time End). */
   videoEnds?: Record<string, number>;
-  offer?: { title?: string; price?: string; lines?: string[]; background_video_url?: string; background_image_url?: string } | null;
-  offers?: Array<{ title?: string; price?: string; lines?: string[]; background_video_url?: string; background_image_url?: string }> | null;
+  offer?: { title?: string; price?: string; lines?: string[]; message_html?: string | null; background_video_url?: string; background_image_url?: string } | null;
+  offers?: Array<{ title?: string; price?: string; lines?: string[]; message_html?: string | null; background_video_url?: string; background_image_url?: string }> | null;
   rating?: number | null;
   reviewsCount?: number | null;
   openingHours?: string | Record<string, string> | null;
@@ -312,7 +312,9 @@ export type ShowcaseProps = {
   popupImageUrl?: string | null;
   popupTitle?: string | null;
   popupDescription?: string | null;
-  aiSummaries?: Array<{ id?: string; title?: string; content?: string; effect?: string | null }> | null;
+  /** Version rich text (gras/italique/puces) du texte popup */
+  popupDescriptionHtml?: string | null;
+  aiSummaries?: Array<{ id?: string; title?: string; content?: string; content_html?: string | null; effect?: string | null }> | null;
   /** Effet appliqué au média de fond des séquences Résumé IA (défaut global) */
   aiSummaryEffect?: "zoom_in" | "zoom_out" | "pan_left" | "pan_right" | "pan_down" | "pan_up" | "scroll_v" | null;
   externalLinks?: Array<{ id?: string; name?: string; label?: string; url?: string | null; image?: string | null }> | null;
@@ -961,7 +963,7 @@ const SceneGallery: React.FC<{ images: string[] }> = ({ images }) => {
 };
 
 const SceneOffer: React.FC<{
-  offer: { title?: string; price?: string; lines?: string[] };
+  offer: { title?: string; price?: string; lines?: string[]; message_html?: string | null };
   city?: string;
   durationFrames?: number;
   textPosition?: TextPosition;
@@ -974,6 +976,8 @@ const SceneOffer: React.FC<{
   const outStart = Math.max(30, durationFrames - 20);
   const out = 1 - ease(frame, outStart, durationFrames);
   const lines = Array.isArray(offer.lines) ? offer.lines.filter(Boolean).slice(0, 6) : [];
+  const richMsg = sanitizeRich(offer.message_html || "");
+  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br)\b/i.test(richMsg);
   const hasPrice = !!offer.price;
   return (
     <AbsoluteFill style={{ alignItems: "center", padding: 60, ...textPositionStyle(textPosition), opacity: out }}>
