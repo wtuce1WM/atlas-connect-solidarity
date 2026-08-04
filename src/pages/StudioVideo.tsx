@@ -3385,7 +3385,39 @@ export default function StudioVideo() {
                       </div>
                     </div>
                   </div>
-                )}
+                 )}
+                 {welcomeLabelText && (
+                   <div className="rounded-md border border-border bg-background/40 p-2">
+                     <label className="flex items-start gap-2 cursor-pointer">
+                       <input
+                         type="checkbox"
+                         className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                         checked={optWelcome}
+                         onChange={(e) => setOptWelcome(e.target.checked)}
+                       />
+                       <span className="font-medium">BIENVENUE — « {welcomeLabelText} »</span>
+                     </label>
+                     <p className="mt-1 pl-6 text-[11px] text-muted-foreground">
+                       Étape placée juste après l'ouverture logo, avant Nom &amp; identité (Présence en ligne / CTAs).
+                     </p>
+                   </div>
+                 )}
+                 {propositionLabelText && (
+                   <div className="rounded-md border border-border bg-background/40 p-2">
+                     <label className="flex items-start gap-2 cursor-pointer">
+                       <input
+                         type="checkbox"
+                         className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                         checked={optProposition}
+                         onChange={(e) => setOptProposition(e.target.checked)}
+                       />
+                       <span className="font-medium">PROPOSITION — « {propositionLabelText} »</span>
+                     </label>
+                     <p className="mt-1 pl-6 text-[11px] text-muted-foreground">
+                       Étape placée après Bienvenue, avant Nom &amp; identité (Présence en ligne / CTAs).
+                     </p>
+                   </div>
+                 )}
                 <Button
                   type="button"
                   size="sm"
