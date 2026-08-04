@@ -92,7 +92,7 @@ async function fetchWeatherWidget(citySlug: unknown, range: number, businessName
   const text = lang === "en"
     ? `${businessName} brings you the weather in ${city.name} ${periodEn}`
     : `${businessName} vous propose la météo à ${city.name} ${periodFr}`;
-  return { city: city.name, citySlug: city.slug, range: days, text, hourly, daily, durationSec: 3 };
+  return { city: city.name, citySlug: city.slug, range: days, text, hourly, daily, durationSec: 5 };
 }
 
 async function fetchTidesWidget(citySlug: unknown, mode: string, businessName: string, lang: string) {
@@ -132,7 +132,7 @@ async function fetchTidesWidget(citySlug: unknown, mode: string, businessName: s
   const text = lang === "en"
     ? `${businessName} brings you the tides, wind and weather in ${city.name} for the day`
     : `${businessName} vous donne les marées, les vents, la météo à ${city.name} sur la journée`;
-  return { city: city.name, citySlug: city.slug, mode: safeMode, text, hours, extremes: extremes.slice(0, 4), durationSec: 3 };
+  return { city: city.name, citySlug: city.slug, mode: safeMode, text, hours, extremes: extremes.slice(0, 4), durationSec: 5 };
 }
 
 Deno.serve(async (req) => {
