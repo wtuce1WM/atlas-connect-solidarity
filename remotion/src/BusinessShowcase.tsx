@@ -2831,11 +2831,33 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
 
 
-  const defaultHero = mixedMode ? safeImages[0] : (useVideos ? safeVideos[0] : safeImages[0]);
+  /**
+   * Quand le montage OUVRE par l'étape Logo (sans média explicitement assigné à
+   * cette étape), c'est le logo qui consomme le média n°1 : le vrai début du
+   * défilement des médias est donc l'étape Logo. On décale toute la
+   * consommation par défaut d'un cran pour éviter de revoir le média n°1 à
+   * l'étape suivante.
+   */
+  const logoOpensMontage =
+    !!logoUrl &&
+    !(Array.isArray((sm as any)?.logo) && (sm as any).logo.length > 0) &&
+    (Array.isArray(scene_order) && scene_order.length > 0
+      ? scene_order[0] === "logo"
+      : !!openWithLogo);
+  const mediaShift = logoOpensMontage && !mixedMode ? 1 : 0;
+  const rotateList = <T,>(arr: T[], k: number): T[] => {
+    if (!arr.length || !k) return arr;
+    const n = k % arr.length;
+    return arr.slice(n).concat(arr.slice(0, n));
+  };
+  const shiftedVideos = rotateList(safeVideos, mediaShift);
+  const shiftedImages = rotateList(safeImages, mediaShift);
+
+  const defaultHero = mixedMode ? shiftedImages[0] : (useVideos ? shiftedVideos[0] : shiftedImages[0]);
   const defaultGallery = mixedMode
-    ? safeVideos
-    : (useVideos ? safeVideos.slice(1) : safeImages.slice(1));
-  const defaultGalleryList = defaultGallery.length ? defaultGallery : (useVideos ? safeVideos : safeImages);
+    ? shiftedVideos
+    : (useVideos ? shiftedVideos.slice(1) : shiftedImages.slice(1));
+  const defaultGalleryList = defaultGallery.length ? defaultGallery : (useVideos ? shiftedVideos : shiftedImages);
   // Fond par défaut pour les scènes "info" sans média dédié (avis plateformes, WhatsApp…)
   // Les vidéos sont prioritaires pour que le fond animé persiste sur ces étapes.
   const isVideoUrl = (u?: string) => !!u && /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u);
