@@ -29,6 +29,8 @@ type Biz = {
   kp_regroupement_2: string | null;
   kp_active: boolean | null;
   kp_active_2: boolean | null;
+  kp_city: string | null;
+  kp_city_2: string | null;
 };
 
 type PoiRow = {
