@@ -199,6 +199,7 @@ export default function EmbedReviewsWidget({
   lang = "fr",
   ratio = "auto",
   size = "auto",
+  fullWidth = false,
 }: {
   business: EmbedReviewsBusiness;
   reviews: EmbedReviewItem[];
@@ -206,6 +207,8 @@ export default function EmbedReviewsWidget({
   lang?: Lang;
   ratio?: ReviewsRatio;
   size?: ReviewsSize;
+  /** Étire le widget sur toute la largeur disponible (pas de cap). */
+  fullWidth?: boolean;
 }) {
   const L = LABELS[lang];
   const { r: shape, s: density } = useResolvedFrame(ratio, size);
@@ -436,7 +439,7 @@ export default function EmbedReviewsWidget({
       className={`w-full mx-auto rounded-3xl border border-white/15 bg-neutral-900/95 ${
         large ? "p-5 sm:p-6" : "p-4 sm:p-5"
       } text-white shadow-[0_10px_40px_rgba(0,0,0,0.35)] flex flex-col`}
-      style={{ fontFamily: "'Montserrat', sans-serif", maxWidth: maxW }}
+      style={{ fontFamily: "'Montserrat', sans-serif", maxWidth: fullWidth ? undefined : maxW }}
     >
       {shape === "horizontal" ? (
         <>

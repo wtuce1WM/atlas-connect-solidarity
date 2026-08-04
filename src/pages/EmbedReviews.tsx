@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { parseFit, fitFlags } from "@/lib/embedFit";
 import EmbedReviewsWidget, {
   type EmbedReviewItem,
   type EmbedReviewsBusiness,
@@ -34,6 +35,7 @@ export default function EmbedReviews() {
     : "auto";
   const sizeParam = (params.get("size") || "auto").toLowerCase();
   const size: ReviewsSize = sizeParam === "sm" || sizeParam === "lg" ? (sizeParam as ReviewsSize) : "auto";
+  const { fullWidth, fullHeight } = fitFlags(parseFit(params.get("fit")));
   const langParam = (params.get("lang") || "fr").toLowerCase();
   const lang: Lang = langParam === "en" || langParam === "ar" ? (langParam as Lang) : "fr";
   const L = MESSAGES[lang];

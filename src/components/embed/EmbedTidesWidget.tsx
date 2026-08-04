@@ -261,11 +261,14 @@ export default function EmbedTidesWidget({
   data,
   lang = "fr",
   compact = false,
+  fullWidth = false,
   onCityChange,
 }: {
   data: TidesPayload;
   lang?: Lang;
   compact?: boolean;
+  /** Étire le widget sur toute la largeur disponible (pas de cap 520px). */
+  fullWidth?: boolean;
   onCityChange?: (slug: string) => void;
 }) {
   const L = T[lang];
