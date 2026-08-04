@@ -2739,22 +2739,20 @@ const SceneCustomerReview: React.FC<{
                 <span
                   style={{
                     position: "relative",
-                    display: "inline-block",
-                    padding: "2px 6px",
-                    borderRadius: 8,
-                    backgroundImage: `linear-gradient(90deg, ${COLORS.gold}55 0%, ${COLORS.gold}55 100%)`,
-                    backgroundRepeat: "no-repeat",
-                    backgroundSize: `${swipe * 100}% 100%`,
-                    color: COLORS.cream,
-                    fontWeight: 700,
+                    display: "inline",
+                    // Pas de rectangle derrière l'extrait : le texte lui-même
+                    // passe du crème au jaune vif avec un halo flashy.
+                    color: interpolateColors(swipe, [0, 1], [COLORS.cream, FLASH_YELLOW]),
+                    fontWeight: 800,
                     fontSize: excerptSize,
                     lineHeight: 1.32,
-                    textShadow: `0 3px ${10 + 12 * excerptGlow}px rgba(0,0,0,0.75)`,
+                    textShadow: `0 2px 8px rgba(0,0,0,0.8), 0 0 ${8 + 26 * swipe * flashPulse}px ${FLASH_YELLOW}${swipe > 0 ? "CC" : "00"}, 0 0 ${18 + 46 * swipe * flashPulse}px ${FLASH_YELLOW}${swipe > 0 ? "77" : "00"}`,
                     transition: "none",
                   }}
                 >
                   {mid}
                 </span>
+
                 {after && (
                   <span style={{ opacity: sideOpacity, filter: `blur(${sideBlur}px)` }}>{after}</span>
                 )}
