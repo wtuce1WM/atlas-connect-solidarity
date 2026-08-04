@@ -1055,6 +1055,29 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
           </p>
         </div>
 
+        <div className="space-y-1.5">
+          <Label className="text-white/80 text-xs">Fond de la carte d'avis</Label>
+          <div className="flex gap-1 flex-wrap">
+            {([
+              { key: "dark", label: "Sombre (défaut)" },
+              { key: "widget", label: widgetBgValid ? `Couleur du widget ${widgetBg}` : "Couleur du widget (non définie)" },
+              { key: "transparent", label: "Transparent" },
+            ] as const).map((o) => (
+              <button
+                key={o.key}
+                type="button"
+                onClick={() => setReviewsCard(o.key)}
+                className={`text-xs py-1.5 px-3 rounded-md border ${reviewsCard === o.key ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-white/50">
+            « Transparent » et les fonds clairs passent automatiquement le texte du widget en encre sombre pour
+            rester lisibles sur le site hôte.
+          </p>
+        </div>
 
 
         {fitRow("reviews")}
