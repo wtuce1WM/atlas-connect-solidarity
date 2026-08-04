@@ -67,7 +67,10 @@ const EmbedNearby = () => {
   }
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-background">
+    <div
+      className="relative h-screen w-full overflow-hidden"
+      style={{ background: mapBaseColor ?? "transparent" }}
+    >
       {!businessId ? (
         <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground animate-pulse">
           {L.loading}
