@@ -96,7 +96,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setPoiView(false);
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("id,name,city,neighborhood,latitude,longitude,images,poi_radius_km,map_bg_color,default_poi_business_id,kp_regroupement,kp_regroupement_2,kp_active,kp_active_2")
+        .select("id,name,city,neighborhood,latitude,longitude,images,poi_radius_km,map_bg_color,default_poi_business_id,kp_regroupement,kp_regroupement_2,kp_active,kp_active_2,kp_city,kp_city_2")
         .eq("id", businessId)
         .maybeSingle();
       if (cancelled) return;
@@ -106,6 +106,8 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setDefaultPoiId(b?.default_poi_business_id || "");
       setKpActive(!!b?.kp_active);
       setKpActive2(!!b?.kp_active_2);
+      setKpCity(b?.kp_city || "");
+      setKpCity2(b?.kp_city_2 || "");
 
       // Regroupements KP (uniquement si > 1 établissement partage le même code)
       const kp1 = (b?.kp_regroupement || "").trim();
