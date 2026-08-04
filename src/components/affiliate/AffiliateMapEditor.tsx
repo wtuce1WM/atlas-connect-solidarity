@@ -3,8 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Check, Map as MapIcon, Palette, MapPin } from "lucide-react";
+import { Loader2, Check, Map as MapIcon, Palette, MapPin, Layers } from "lucide-react";
 import { toast } from "sonner";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 import { haversineKm } from "@/lib/haversine";
@@ -24,6 +25,10 @@ type Biz = {
   poi_radius_km: number | null;
   map_bg_color: string | null;
   default_poi_business_id: string | null;
+  kp_regroupement: string | null;
+  kp_regroupement_2: string | null;
+  kp_active: boolean | null;
+  kp_active_2: boolean | null;
 };
 
 type PoiRow = {
@@ -34,6 +39,13 @@ type PoiRow = {
   images: string[] | null;
   city: string | null;
   neighborhood: string | null;
+};
+
+type KpGroup = {
+  slot: 1 | 2;
+  code: string;
+  title: string;
+  count: number;
 };
 
 const DEFAULT_BG = "#EFE6D8";
@@ -51,8 +63,12 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
   const [pois, setPois] = useState<PoiRow[]>([]);
   const [bg, setBg] = useState<string>("");
   const [defaultPoiId, setDefaultPoiId] = useState<string>("");
+  const [kpGroups, setKpGroups] = useState<KpGroup[]>([]);
+  const [kpActive, setKpActive] = useState(false);
+  const [kpActive2, setKpActive2] = useState(false);
   const [mapTypeId, setMapTypeId] = useState<"roadmap" | "terrain" | "satellite">("terrain");
   const dirtyRef = useRef(false);
+
 
   useEffect(() => {
     let cancelled = false;
