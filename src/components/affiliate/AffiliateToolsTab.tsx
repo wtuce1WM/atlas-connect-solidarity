@@ -55,6 +55,8 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const [reviewsPlatform, setReviewsPlatform] = useState<ReviewPlatformKey>("all");
   const [reviewsLang, setReviewsLang] = useState<"fr" | "en" | "ar">("fr");
   const [reviewsPreset, setReviewsPreset] = useState<string>("v-sm");
+  const [reviewsCard, setReviewsCard] = useState<"dark" | "widget" | "transparent">("dark");
+
   const [ratePlatform, setRatePlatform] = useState<RatePlatformKey>("all");
   const [rateLang, setRateLang] = useState<"fr" | "en" | "ar">("fr");
   const [rateVariant, setRateVariant] = useState<"card" | "bar">("card");
