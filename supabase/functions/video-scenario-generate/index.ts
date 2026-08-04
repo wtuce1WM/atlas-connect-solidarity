@@ -679,7 +679,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         selImages.forEach((u) => allowedUrls.add(u));
         selVideos.forEach((u) => allowedUrls.add(u));
 
-        const ALLOWED_KINDS = new Set(["logo", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog", "weather", "tides", "ai_summary", "external_link", "menu_doc"]);
+        const ALLOWED_KINDS = new Set(["logo", "welcome", "proposition", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog", "weather", "tides", "ai_summary", "external_link", "menu_doc"]);
         const cleaned: Record<string, Array<{ url: string; kind: "image" | "video" }>> = {};
         for (const [k, v] of Object.entries(rawSceneMedia)) {
           if (!ALLOWED_KINDS.has(k) || !Array.isArray(v)) continue;
@@ -956,7 +956,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       }
 
       // Ordre et durées personnalisés des scènes (édités par l'utilisateur dans l'aperçu)
-      const ALLOWED_SCENE_KINDS = new Set(["logo", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog", "weather", "tides", "ai_summary", "external_link", "menu_doc"]);
+      const ALLOWED_SCENE_KINDS = new Set(["logo", "welcome", "proposition", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog", "weather", "tides", "ai_summary", "external_link", "menu_doc"]);
       const rawOrder = options?.scene_order;
       let orderedFromClient: string[] | null = null;
       if (Array.isArray(rawOrder)) {
@@ -1473,6 +1473,39 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       if (closingIdx >= 0) order.splice(closingIdx, 0, kind);
       else order.push(kind);
     };
+    // Étapes BIENVENUE / PROPOSITION (Présence en ligne / CTAs) — juste après le logo,
+    // avant « Nom & identité » (kind "hook" côté montage).
+    const insertIntroScene = (kind: "welcome" | "proposition") => {
+      const order = (template_props as any).scene_order;
+      if (!Array.isArray(order) || !order.length) return;
+      if (order.includes(kind)) return;
+      const anchors = kind === "welcome" ? ["hook"] : ["hook"];
+      let idx = -1;
+      if (kind === "proposition") {
+        const w = order.indexOf("welcome");
+        if (w >= 0) idx = w + 1;
+      }
+      if (idx < 0) {
+        const hookIdx = order.findIndex((k: unknown) => anchors.includes(String(k)));
+        idx = hookIdx >= 0 ? hookIdx : (order[0] === "logo" ? 1 : 0);
+      }
+      order.splice(idx, 0, kind);
+    };
+    const welcomeText = typeof options?.welcome_text === "string" ? options.welcome_text.trim().slice(0, 160) : "";
+    const propositionText = typeof options?.proposition_text === "string" ? options.proposition_text.trim().slice(0, 160) : "";
+    if (welcomeText) {
+      template_props.welcomeText = welcomeText;
+      if (!(template_props as any).scene_durations) (template_props as any).scene_durations = {};
+      if ((template_props as any).scene_durations.welcome == null) (template_props as any).scene_durations.welcome = 3;
+      insertIntroScene("welcome");
+    }
+    if (propositionText) {
+      template_props.propositionText = propositionText;
+      if (!(template_props as any).scene_durations) (template_props as any).scene_durations = {};
+      if ((template_props as any).scene_durations.proposition == null) (template_props as any).scene_durations.proposition = 3;
+      insertIntroScene("proposition");
+    }
+
     const bizName = String((template_props as any)?.name || "Nous");
     if (options?.weather_widget) {
       try {

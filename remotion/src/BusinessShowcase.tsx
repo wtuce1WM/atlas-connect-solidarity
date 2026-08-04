@@ -291,6 +291,10 @@ export type ShowcaseProps = {
   useFullHookScene?: boolean;
   lang?: VideoLang;
   scene_media?: Partial<Record<"logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "whatsapp" | "cta" | "outro", Array<{ url: string; kind: "image" | "video" }>>>;
+  /** Texte BIENVENUE (Présence en ligne / CTAs) — étape juste après le logo. */
+  welcomeText?: string | null;
+  /** Texte PROPOSITION (Présence en ligne / CTAs) — étape après Bienvenue. */
+  propositionText?: string | null;
   scene_order?: Array<string>; // built-in kinds or `custom:<id>`
   scene_durations?: Partial<Record<string, number>>;
   custom_scenes?: Array<{
@@ -437,13 +441,15 @@ const splitHookInTwo = (h: string): [string, string] => {
   return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
 };
 
-type SceneKind = "logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "blog" | "weather" | "tides" | "whatsapp" | "cta" | "outro";
+type SceneKind = "logo" | "welcome" | "proposition" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "blog" | "weather" | "tides" | "whatsapp" | "cta" | "outro";
 
-const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "hook", "name", "offer", "popup", "media", "highlight", "ai_summary", "external_link", "menu_doc", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "blog", "weather", "tides", "whatsapp", "cta"];
+const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "welcome", "proposition", "hook", "name", "offer", "popup", "media", "highlight", "ai_summary", "external_link", "menu_doc", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "blog", "weather", "tides", "whatsapp", "cta"];
 
 function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
   switch (kind) {
     case "logo": return !!(p.openWithLogo && p.logoUrl);
+    case "welcome": return !!(p.welcomeText && p.welcomeText.trim());
+    case "proposition": return !!(p.propositionText && p.propositionText.trim());
     case "hook":
     case "name": return true;
     case "media": return !!p.freeZone;
@@ -485,6 +491,8 @@ function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
 function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
   switch (kind) {
     case "logo": return 60;
+    case "welcome":
+    case "proposition": return 90;
     case "hook": return 120;
     case "name": return 120;
     case "media": return 150;
@@ -2755,6 +2763,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   slug,
   logoUrl,
   openWithLogo,
+  welcomeText,
+  propositionText,
   whatsapp,
   instagramUrl,
   ficheScreenshotUrl,
@@ -2967,6 +2977,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     slug,
     logoUrl,
     openWithLogo,
+    welcomeText,
+    propositionText,
     durationSec,
     scene_order,
     scene_durations,
@@ -3119,6 +3131,25 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             <SceneLogo logoUrl={logoUrl!} durationFrames={duration} background={logoBg} />
+          </AbsoluteFill>
+        );
+      }
+      case "welcome":
+      case "proposition": {
+        const txt = (kind === "welcome" ? welcomeText : propositionText) ?? "";
+        if (!txt.trim()) return null;
+        const arr = Array.isArray((scene_media as any)?.[kind]) ? (scene_media as any)[kind] : [];
+        const bg = arr[0];
+        return (
+          <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
+            <MotionBackdrop
+              src={bg?.kind === "video" ? bg.url : (bg ? undefined : bgRotate(planIdx).src)}
+              image={bg?.kind === "image" ? bg.url : (bg ? undefined : bgRotate(planIdx).image)}
+              duration={duration}
+              effect={trImageEffect}
+              extraStartSec={bg ? 0 : bgRotate(planIdx).extraStartSec}
+            />
+            <HookOverlay text={txt} duration={duration} textPosition={textPosition} />
           </AbsoluteFill>
         );
       }

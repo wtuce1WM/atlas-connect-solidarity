@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut, Maximize2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Plus, GripVertical, Share2, Pencil, SlidersHorizontal, FileText, Crosshair, Target } from "lucide-react";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
+import { welcomeBadgeLabel, propositionLabel } from "@/lib/ctaBadgeLabels";
 import { StudioVideoScenarioPanel, buildScenario, extractKeywords, scenarioFromTemplateProps, type Scenario, type SceneMediaMap, type SceneMediaItem, type ScenarioEdits } from "@/components/StudioVideoScenarioPanel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -448,6 +449,10 @@ export default function StudioVideo() {
   const [optDigitalId, setOptDigitalId] = useState(true);
   const [optPopup, setOptPopup] = useState(true);
   const [optOpenWithLogo, setOptOpenWithLogo] = useState(true);
+  // BIENVENUE / PROPOSITION (Présence en ligne / CTAs) — étapes optionnelles juste après le logo.
+  const [optWelcome, setOptWelcome] = useState(true);
+  const [optProposition, setOptProposition] = useState(true);
+  const [ctaBadges, setCtaBadges] = useState<{ carousel: string | null; proposition: string | null }>({ carousel: null, proposition: null });
   const [optWhatsapp, setOptWhatsapp] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
   const [logoInfo, setLogoInfo] = useState<{ url: string | null; bg: string | null }>({ url: null, bg: null });
@@ -618,6 +623,8 @@ export default function StudioVideo() {
       b(p.optDigitalId, setOptDigitalId);
       b(p.optPopup, setOptPopup);
       b(p.optOpenWithLogo, setOptOpenWithLogo);
+      b(p.optWelcome, setOptWelcome);
+      b(p.optProposition, setOptProposition);
       b(p.optWhatsapp, setOptWhatsapp);
       if (p.textPosition === "top" || p.textPosition === "middle" || p.textPosition === "bottom") setTextPosition(p.textPosition);
       if (typeof p.transitionStyle === "string") setTransitionStyle(p.transitionStyle);
@@ -635,7 +642,7 @@ export default function StudioVideo() {
         prompt, tone, duration, durationAuto, videoLang,
         optReviews, optGoogleReviews, optTripAdvisor, optRestaurantGuru, optCustomerReview,
         optHours, optInstallCta, optClosingSequence, optMapMarker, optDigitalId,
-        optPopup, optOpenWithLogo, optWhatsapp,
+        optPopup, optOpenWithLogo, optWelcome, optProposition, optWhatsapp,
         textPosition, transitionStyle, aiSummaryEffect, blogMode,
       }));
     } catch {
@@ -645,7 +652,7 @@ export default function StudioVideo() {
     PARAMS_KEY, prompt, tone, duration, durationAuto, videoLang,
     optReviews, optGoogleReviews, optTripAdvisor, optRestaurantGuru, optCustomerReview,
     optHours, optInstallCta, optClosingSequence, optMapMarker, optDigitalId,
-    optPopup, optOpenWithLogo, optWhatsapp,
+    optPopup, optOpenWithLogo, optWelcome, optProposition, optWhatsapp,
     textPosition, transitionStyle, aiSummaryEffect, blogMode,
   ]);
 
@@ -907,7 +914,7 @@ export default function StudioVideo() {
       const [biz, docs, yt, promos, hls, revs] = await Promise.all([
         supabase
           .from("businesses")
-          .select("hook_fr,hook_en,description,description_en,images,popup_image_url,opening_hours,show_opening_hours,is_active,logo_url,logo_bg,whatsapp,google_rating,google_review_count,google_review_url,google_reviews_url,google_maps_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,tripadvisor_review_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url,getyourguide_rating,getyourguide_review_count,viator_rating,viator_review_count,avis_verifies_rating,avis_verifies_review_count,trustpilot_rating,trustpilot_review_count,kayak_rating,kayak_review_count,tourradar_rating,tourradar_review_count")
+          .select("carousel_badge,poi_business_style,hook_fr,hook_en,description,description_en,images,popup_image_url,opening_hours,show_opening_hours,is_active,logo_url,logo_bg,whatsapp,google_rating,google_review_count,google_review_url,google_reviews_url,google_maps_url,tripadvisor_rating,tripadvisor_review_count,tripadvisor_url,tripadvisor_review_url,restaurant_guru_rating,restaurant_guru_review_count,restaurant_guru_url,getyourguide_rating,getyourguide_review_count,viator_rating,viator_review_count,avis_verifies_rating,avis_verifies_review_count,trustpilot_rating,trustpilot_review_count,kayak_rating,kayak_review_count,tourradar_rating,tourradar_review_count")
           .eq("id", selected.id)
           .maybeSingle(),
         supabase
@@ -957,6 +964,7 @@ export default function StudioVideo() {
       const popupUrl: string | null = b.popup_image_url && imgs.includes(b.popup_image_url) ? b.popup_image_url : null;
       setPopupImageUrl(popupUrl);
       setLogoInfo({ url: b.logo_url ?? null, bg: b.logo_bg ?? null });
+      setCtaBadges({ carousel: (b.carousel_badge as string) ?? null, proposition: (b.poi_business_style as string) ?? null });
       setOptOpenWithLogo((b.logo_bg === "transparent") && !!b.logo_url);
       setWhatsappNumber((b.whatsapp as string) || null);
       setOptWhatsapp(false);
@@ -1312,11 +1320,25 @@ export default function StudioVideo() {
 
   const promptKeywords = useMemo(() => extractKeywords(prompt), [prompt]);
 
+  // Textes BIENVENUE / PROPOSITION issus de Présence en ligne / CTAs.
+  const welcomeLabelText = useMemo(
+    () => welcomeBadgeLabel(ctaBadges.carousel, selected?.name ?? null, videoLang === "en" ? "en" : "fr"),
+    [ctaBadges.carousel, selected?.name, videoLang]
+  );
+  const propositionLabelText = useMemo(
+    () => propositionLabel(ctaBadges.proposition, selected?.name ?? null, videoLang === "en" ? "en" : "fr"),
+    [ctaBadges.proposition, selected?.name, videoLang]
+  );
+  const welcomeSceneText = optWelcome ? welcomeLabelText : null;
+  const propositionSceneText = optProposition ? propositionLabelText : null;
+
   // Durée calculée automatiquement à partir des étapes actives du scénario.
   const autoDuration = useMemo(() => {
     let s = 4 + 3; // name + hook
     const canLogo = !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo;
     if (canLogo) s += 2;
+    if (welcomeSceneText) s += 3;
+    if (propositionSceneText) s += 3;
     if (optPopup) s += 4;
     const offerCount = selectedOfferIds.size;
     if (offerCount > 0) s += Math.min(6, offerCount) * 5;
@@ -1337,7 +1359,7 @@ export default function StudioVideo() {
     s += 3; // cta
     if (optInstallCta) s += 3; // outro
     return Math.max(10, Math.min(90, s));
-  }, [logoInfo, optOpenWithLogo, optPopup, selectedOfferIds, selectedHighlightIds, selectedAiSummaryIds, selectedExternalLinkIds, selectedMenuDocIds, optReviews, optGoogleReviews, optTripAdvisor, optRestaurantGuru, optCustomerReview, optHours, optMapMarker, optDigitalId, optWhatsapp, whatsappNumber, optInstallCta]);
+  }, [logoInfo, optOpenWithLogo, welcomeSceneText, propositionSceneText, optPopup, selectedOfferIds, selectedHighlightIds, selectedAiSummaryIds, selectedExternalLinkIds, selectedMenuDocIds, optReviews, optGoogleReviews, optTripAdvisor, optRestaurantGuru, optCustomerReview, optHours, optMapMarker, optDigitalId, optWhatsapp, whatsappNumber, optInstallCta]);
 
   const effectiveDuration = durationAuto ? autoDuration : duration;
 
@@ -1370,8 +1392,10 @@ export default function StudioVideo() {
       whatsapp: optWhatsapp,
       whatsappNumber: whatsappNumber,
       hookText: fromVideoOn && synthTitle ? synthTitle : null,
+      welcomeText: welcomeSceneText,
+      propositionText: propositionSceneText,
     });
-  }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optOpenWithLogo, logoInfo, optWhatsapp, whatsappNumber, fromVideoOn, synthTitle]);
+  }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optOpenWithLogo, logoInfo, optWhatsapp, whatsappNumber, fromVideoOn, synthTitle, welcomeSceneText, propositionSceneText]);
 
   // Durée réelle du scénario : priorité aux durées d'étapes réglées dans l'aperçu,
   // sinon la somme des étapes du scénario prévisualisé, sinon la durée cible.
@@ -1557,6 +1581,8 @@ export default function StudioVideo() {
             popup: optPopup,
             open_with_logo: !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo,
             logo_url: logoInfo.url,
+            welcome_text: welcomeSceneText,
+            proposition_text: propositionSceneText,
             text_splits: scenarioEdits?.textSplits,
             text_segments: scenarioEdits?.textSegments,
             text_overrides: scenarioEdits?.textOverrides,
@@ -1805,6 +1831,8 @@ export default function StudioVideo() {
             popup: optPopup,
             open_with_logo: !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo,
             logo_url: logoInfo.url,
+            welcome_text: welcomeSceneText,
+            proposition_text: propositionSceneText,
             text_splits: scenarioEdits?.textSplits,
             text_segments: scenarioEdits?.textSegments,
             text_overrides: scenarioEdits?.textOverrides,
@@ -3357,7 +3385,39 @@ export default function StudioVideo() {
                       </div>
                     </div>
                   </div>
-                )}
+                 )}
+                 {welcomeLabelText && (
+                   <div className="rounded-md border border-border bg-background/40 p-2">
+                     <label className="flex items-start gap-2 cursor-pointer">
+                       <input
+                         type="checkbox"
+                         className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                         checked={optWelcome}
+                         onChange={(e) => setOptWelcome(e.target.checked)}
+                       />
+                       <span className="font-medium">BIENVENUE — « {welcomeLabelText} »</span>
+                     </label>
+                     <p className="mt-1 pl-6 text-[11px] text-muted-foreground">
+                       Étape placée juste après l'ouverture logo, avant Nom &amp; identité (Présence en ligne / CTAs).
+                     </p>
+                   </div>
+                 )}
+                 {propositionLabelText && (
+                   <div className="rounded-md border border-border bg-background/40 p-2">
+                     <label className="flex items-start gap-2 cursor-pointer">
+                       <input
+                         type="checkbox"
+                         className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                         checked={optProposition}
+                         onChange={(e) => setOptProposition(e.target.checked)}
+                       />
+                       <span className="font-medium">PROPOSITION — « {propositionLabelText} »</span>
+                     </label>
+                     <p className="mt-1 pl-6 text-[11px] text-muted-foreground">
+                       Étape placée après Bienvenue, avant Nom &amp; identité (Présence en ligne / CTAs).
+                     </p>
+                   </div>
+                 )}
                 <Button
                   type="button"
                   size="sm"
@@ -4642,6 +4702,8 @@ function VideoParamsDialog({ job }: { job: Job }) {
   if (opts.map_marker) included.push("Google Map");
   if (opts.digital_id) included.push("ID numérique");
   if (opts.install_cta) included.push("CTA install app");
+  if (opts.welcome_text) included.push("Bienvenue");
+  if (opts.proposition_text) included.push("Proposition");
   if (opts.popup) included.push("Popup de bienvenue");
   if (Array.isArray(opts.offer_ids) && opts.offer_ids.length) included.push(`Offres (${opts.offer_ids.length})`);
   if (Array.isArray(opts.highlight_ids) && opts.highlight_ids.length) included.push(`Highlights (${opts.highlight_ids.length})`);
