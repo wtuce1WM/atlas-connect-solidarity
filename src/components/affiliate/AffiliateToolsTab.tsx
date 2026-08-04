@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import AffiliateArticleExport from "@/components/affiliate/AffiliateArticleExport";
+import HexColorField from "@/components/affiliate/HexColorField";
 import WidgetTester from "@/components/affiliate/WidgetTester";
 import { FIT_OPTIONS, fitFlags, fitIframeStyle, fitParam, bgParam, type EmbedFit } from "@/lib/embedFit";
 

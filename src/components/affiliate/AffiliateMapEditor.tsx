@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import HexColorField from "@/components/affiliate/HexColorField";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -361,46 +362,9 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
             <Palette className="h-4 w-4 text-primary" /> Couleur de fond de la carte
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-wrap items-center gap-2">
-          <input
-            ref={bgColorRef}
-            type="color"
-            value={bgValid ? bg : "#FFFFFF"}
-            onChange={(e) => setBg(e.target.value.toUpperCase())}
-            className="sr-only"
-            aria-label="Couleur de fond de la carte"
-            id="map-bg-color"
-          />
-          <button
-            type="button"
-            onClick={() => bgColorRef.current?.click()}
-            className="h-9 w-10 rounded-md border border-white/20 p-1 overflow-hidden shrink-0 focus:outline-none focus:ring-2 focus:ring-primary"
-            aria-label="Choisir une couleur de fond"
-            style={{ background: bgValid ? bg : "transparent" }}
-          >
-            {!bgValid && (
-              <div className="w-full h-full opacity-30" style={{ background: "repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 12px 12px" }} />
-            )}
-          </button>
-          <input
-            type="text"
-            placeholder="Transparent"
-            value={bg}
-            onChange={(e) => setBg(e.target.value.toUpperCase())}
-            className="w-32 rounded-md bg-white/10 border border-white/20 text-white text-sm px-3 py-2 font-mono"
-          />
-          {bg && (
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => setBg("")}
-              className="text-white border-white/20 hover:bg-white/10 hover:text-white"
-            >
-              Défaut
-            </Button>
-          )}
-          <p className="text-xs text-white/50 w-full">
+        <CardContent className="space-y-2">
+          <HexColorField value={bg} onChange={setBg} />
+          <p className="text-xs text-white/50">
             <span className="text-white/80 font-medium">Vide = fond transparent :</span> le widget prend le fond du site hôte. Format hexadécimal si vous forcez une couleur.
           </p>
         </CardContent>
