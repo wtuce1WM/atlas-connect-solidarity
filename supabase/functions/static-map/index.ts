@@ -32,17 +32,26 @@ Deno.serve(async (req) => {
       });
     }
 
-    const params = new URLSearchParams({
-      center: `${lat},${lng}`,
-      zoom,
-      size,
-      scale,
-      maptype,
-      key,
-    });
-    // Marker invisible (le pin animé est dessiné par Remotion par-dessus)
-    // mais on garde un marker discret pour cohérence visuelle au cas où.
-    params.append("markers", `size:tiny|color:0xC04F17|${lat},${lng}`);
+    const lat2 = parseFloat(url.searchParams.get("lat2") || "");
+    const lng2 = parseFloat(url.searchParams.get("lng2") || "");
+    const hasSecond = Number.isFinite(lat2) && Number.isFinite(lng2);
+
+    const params = new URLSearchParams({ size, scale, maptype, key });
+    if (hasSecond) {
+      // Cadrage automatique sur les deux points + trajet terracotta (charte 1WM).
+      params.append("visible", `${lat},${lng}`);
+      params.append("visible", `${lat2},${lng2}`);
+      params.append("path", `color:0xC04F17CC|weight:5|${lat},${lng}|${lat2},${lng2}`);
+      params.append("markers", `size:small|color:0xD4AF37|${lat},${lng}`);
+      params.append("markers", `size:small|color:0xC04F17|${lat2},${lng2}`);
+    } else {
+      params.set("center", `${lat},${lng}`);
+      params.set("zoom", zoom);
+      // Marker invisible (le pin animé est dessiné par Remotion par-dessus)
+      // mais on garde un marker discret pour cohérence visuelle au cas où.
+      params.append("markers", `size:tiny|color:0xC04F17|${lat},${lng}`);
+    }
+
 
     const gUrl = `https://maps.googleapis.com/maps/api/staticmap?${params.toString()}`;
     const res = await fetch(gUrl);
