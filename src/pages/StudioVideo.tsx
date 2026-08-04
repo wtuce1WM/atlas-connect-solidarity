@@ -3602,28 +3602,26 @@ export default function StudioVideo() {
                     </div>
                     <p className="mt-1 text-[11px] text-muted-foreground">Résumés du menu (pour l'IA) : une séquence de 5 s par résumé coché (titre + contenu).</p>
                     <div className="mt-2 flex items-center gap-2 text-xs">
-                      <span className="text-muted-foreground shrink-0">Effet</span>
+                      <span className="text-muted-foreground shrink-0">Effet par défaut</span>
                       <select
                         value={aiSummaryEffect}
                         onChange={(e) => setAiSummaryEffect(e.target.value)}
                         className="flex-1 rounded-md border border-border bg-white px-2 py-1.5 text-xs text-foreground"
                       >
-                        <option value="zoom_in">Zoom in</option>
-                        <option value="zoom_out">Zoom out</option>
-                        <option value="pan_left">Panoramique gauche</option>
-                        <option value="pan_right">Panoramique droite</option>
-                        <option value="pan_down">Panoramique bas</option>
-                        <option value="pan_up">Panoramique haut</option>
-                        <option value="scroll_v">Défilé vertical</option>
+                        {MOTION_EFFECT_OPTIONS.map((o) => (
+                          <option key={o.value} value={o.value}>{o.label}</option>
+                        ))}
                       </select>
                     </div>
                     <div className="mt-2 flex flex-col gap-1.5">
-                      {aiSummariesList.map((s) => (
+                      {aiSummariesList.map((s) => {
+                        const checked = selectedAiSummaryIds.has(s.id);
+                        return (
                         <label key={s.id} className="flex items-start gap-2 cursor-pointer rounded-md border border-border/60 p-2 hover:bg-muted/40">
                           <input
                             type="checkbox"
                             className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
-                            checked={selectedAiSummaryIds.has(s.id)}
+                            checked={checked}
                             onChange={(e) => {
                               setSelectedAiSummaryIds((prev) => {
                                 const next = new Set(prev);
@@ -3635,9 +3633,25 @@ export default function StudioVideo() {
                           <div className="min-w-0 flex-1 text-xs">
                             <div className="font-semibold break-words">{s.title || "Résumé"}</div>
                             {s.content && <div className="mt-1 text-muted-foreground line-clamp-3 break-words">{s.content}</div>}
+                            {checked && (
+                              <div className="mt-1 flex items-center gap-2" onClick={(e) => e.preventDefault()}>
+                                <span className="text-muted-foreground shrink-0">Effet</span>
+                                <select
+                                  value={aiSummaryEffects[s.id] || aiSummaryEffect}
+                                  onChange={(e) => setAiSummaryEffects((prev) => ({ ...prev, [s.id]: e.target.value }))}
+                                  className="flex-1 rounded-md border border-border bg-white px-2 py-1 text-[11px] text-foreground"
+                                >
+                                  {MOTION_EFFECT_OPTIONS.map((o) => (
+                                    <option key={o.value} value={o.value}>{o.label}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
                           </div>
                         </label>
-                      ))}
+                        );
+                      })}
+
                     </div>
                   </div>
                 )}
