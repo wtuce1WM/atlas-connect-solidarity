@@ -2522,6 +2522,7 @@ export type Database = {
           kayak_url: string | null
           keywords: string[] | null
           kp_active: boolean
+          kp_active_2: boolean
           kp_regroupement: string | null
           kp_regroupement_2: string | null
           label1_link_url: string | null
@@ -2707,6 +2708,7 @@ export type Database = {
           kayak_url?: string | null
           keywords?: string[] | null
           kp_active?: boolean
+          kp_active_2?: boolean
           kp_regroupement?: string | null
           kp_regroupement_2?: string | null
           label1_link_url?: string | null
@@ -2892,6 +2894,7 @@ export type Database = {
           kayak_url?: string | null
           keywords?: string[] | null
           kp_active?: boolean
+          kp_active_2?: boolean
           kp_regroupement?: string | null
           kp_regroupement_2?: string | null
           label1_link_url?: string | null
@@ -8167,6 +8170,7 @@ export type Database = {
               kayak_url: string | null
               keywords: string[] | null
               kp_active: boolean
+              kp_active_2: boolean
               kp_regroupement: string | null
               kp_regroupement_2: string | null
               label1_link_url: string | null
@@ -8368,6 +8372,7 @@ export type Database = {
               kayak_url: string | null
               keywords: string[] | null
               kp_active: boolean
+              kp_active_2: boolean
               kp_regroupement: string | null
               kp_regroupement_2: string | null
               label1_link_url: string | null

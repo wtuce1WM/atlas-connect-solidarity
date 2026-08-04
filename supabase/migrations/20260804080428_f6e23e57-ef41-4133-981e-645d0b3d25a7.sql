@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS kp_active_2 boolean NOT NULL DEFAULT false;

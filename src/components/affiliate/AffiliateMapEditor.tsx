@@ -3,8 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Check, Map as MapIcon, Palette, MapPin } from "lucide-react";
+import { Loader2, Check, Map as MapIcon, Palette, MapPin, Layers } from "lucide-react";
 import { toast } from "sonner";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 import { haversineKm } from "@/lib/haversine";
@@ -24,6 +25,10 @@ type Biz = {
   poi_radius_km: number | null;
   map_bg_color: string | null;
   default_poi_business_id: string | null;
+  kp_regroupement: string | null;
+  kp_regroupement_2: string | null;
+  kp_active: boolean | null;
+  kp_active_2: boolean | null;
 };
 
 type PoiRow = {
@@ -34,6 +39,13 @@ type PoiRow = {
   images: string[] | null;
   city: string | null;
   neighborhood: string | null;
+};
+
+type KpGroup = {
+  slot: 1 | 2;
+  code: string;
+  title: string;
+  count: number;
 };
 
 const DEFAULT_BG = "#EFE6D8";
@@ -51,8 +63,12 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
   const [pois, setPois] = useState<PoiRow[]>([]);
   const [bg, setBg] = useState<string>("");
   const [defaultPoiId, setDefaultPoiId] = useState<string>("");
+  const [kpGroups, setKpGroups] = useState<KpGroup[]>([]);
+  const [kpActive, setKpActive] = useState(false);
+  const [kpActive2, setKpActive2] = useState(false);
   const [mapTypeId, setMapTypeId] = useState<"roadmap" | "terrain" | "satellite">("terrain");
   const dirtyRef = useRef(false);
+
 
   useEffect(() => {
     let cancelled = false;
@@ -61,7 +77,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       dirtyRef.current = false;
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("id,name,city,neighborhood,latitude,longitude,images,poi_radius_km,map_bg_color,default_poi_business_id")
+        .select("id,name,city,neighborhood,latitude,longitude,images,poi_radius_km,map_bg_color,default_poi_business_id,kp_regroupement,kp_regroupement_2,kp_active,kp_active_2")
         .eq("id", businessId)
         .maybeSingle();
       if (cancelled) return;
@@ -69,6 +85,37 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setBiz(b);
       setBg((b?.map_bg_color || "").toUpperCase());
       setDefaultPoiId(b?.default_poi_business_id || "");
+      setKpActive(!!b?.kp_active);
+      setKpActive2(!!b?.kp_active_2);
+
+      // Regroupements KP (uniquement si > 1 établissement partage le même code)
+      const kp1 = (b?.kp_regroupement || "").trim();
+      const kp2 = (b?.kp_regroupement_2 || "").trim();
+      const groups: KpGroup[] = [];
+      if (kp1 || kp2) {
+        const [c1, c2, titlesRes] = await Promise.all([
+          kp1
+            ? (supabase as any).from("businesses").select("id", { count: "exact", head: true })
+                .eq("kp_regroupement", kp1).eq("is_active", true)
+            : Promise.resolve({ count: 0 }),
+          kp2
+            ? (supabase as any).from("businesses").select("id", { count: "exact", head: true })
+                .eq("kp_regroupement_2", kp2).eq("is_active", true)
+            : Promise.resolve({ count: 0 }),
+          (supabase as any).from("kp_group_titles").select("kp_code,kp_type,title"),
+        ]);
+        const titleMap = new Map<string, string>();
+        ((titlesRes as any)?.data ?? []).forEach((t: any) =>
+          titleMap.set(`${t.kp_type}:${t.kp_code}`, t.title || ""),
+        );
+        if (kp1 && Number((c1 as any)?.count || 0) > 1) {
+          groups.push({ slot: 1, code: kp1, title: titleMap.get(`kp1:${kp1}`) || kp1, count: Number((c1 as any).count) });
+        }
+        if (kp2 && Number((c2 as any)?.count || 0) > 1) {
+          groups.push({ slot: 2, code: kp2, title: titleMap.get(`kp2:${kp2}`) || kp2, count: Number((c2 as any).count) });
+        }
+      }
+      if (!cancelled) setKpGroups(groups);
 
       if (b?.city) {
         const { data: poiData } = await (supabase as any)
@@ -98,6 +145,8 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
         .update({
           map_bg_color: bgValid ? bg.toUpperCase() : null,
           default_poi_business_id: defaultPoiId || null,
+          kp_active: kpActive,
+          kp_active_2: kpActive2,
         })
         .eq("id", businessId);
       setIsSaving(false);
@@ -105,7 +154,8 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setSavedAt(Date.now());
     }, 1000);
     return () => clearTimeout(t);
-  }, [bg, bgValid, defaultPoiId, businessId, isLoading]);
+  }, [bg, bgValid, defaultPoiId, kpActive, kpActive2, businessId, isLoading]);
+
 
   const nearbyPois = useMemo(() => {
     if (!biz?.latitude || !biz?.longitude) return [];
@@ -244,6 +294,41 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
           )}
         </CardContent>
       </Card>
+
+      {kpGroups.length > 0 && (
+        <Card className="bg-white/5 border-white/10">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base text-white flex items-center gap-2">
+              <Layers className="h-4 w-4 text-primary" /> Regroupements
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {kpGroups.map((g) => (
+              <div
+                key={`${g.slot}-${g.code}`}
+                className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-2.5"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-white truncate">{g.title}</p>
+                  <p className="text-xs text-white/50 font-mono truncate">
+                    KP{g.slot} · {g.code} — {g.count} établissements
+                  </p>
+                </div>
+                <Switch
+                  checked={g.slot === 1 ? kpActive : kpActive2}
+                  onCheckedChange={(v) => (g.slot === 1 ? setKpActive(v) : setKpActive2(v))}
+                  aria-label={`Activer le regroupement ${g.title}`}
+                />
+              </div>
+            ))}
+            <p className="text-xs text-white/50">
+              Actif = les établissements du même regroupement sont affichés/épinglés avec votre fiche. Désactivé par défaut.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+
 
       <Card className="bg-white/5 border-white/10">
         <CardHeader className="pb-3">
