@@ -243,7 +243,7 @@ Deno.serve(async (req) => {
         .replace(/&#(\d+);/g, (_m, d) => String.fromCodePoint(Number(d)))
         .replace(/&([a-z]+);/gi, (m, n) => NAMED_ENTITIES[String(n).toLowerCase()] ?? m);
 
-    const RICH_TAGS = ["b", "strong", "i", "em", "u", "br", "p", "ul", "ol", "li", "span"];
+    const RICH_TAGS = ["b", "strong", "i", "em", "u", "br", "p", "ul", "ol", "li", "span", "h1", "h2", "h3", "h4"];
     /** Conserve gras / italique / listes, retire attributs et autres balises, décode les entités. */
     const sanitizeRich = (value: unknown): string | null => {
       if (typeof value !== "string" || !value.trim()) return null;

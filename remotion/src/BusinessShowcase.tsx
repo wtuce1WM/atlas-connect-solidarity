@@ -7,6 +7,7 @@ import {
   Audio,
   Loop,
   interpolate,
+  interpolateColors,
   spring,
   useCurrentFrame,
   useVideoConfig,
@@ -17,6 +18,8 @@ import { display, body, COLORS } from "./theme";
 // Base 22s @ 30fps — étendu dynamiquement par les options
 export const SHOWCASE_TOTAL_FRAMES = 660;
 export const OPTION_SCENE_FRAMES = 90; // 3s par scène optionnelle
+// Jaune vif « flashy » utilisé pour les extraits d'avis et les étoiles.
+export const FLASH_YELLOW = "#FFE21A";
 
 export type TextPosition = "top" | "middle" | "bottom";
 export type Tone = "immersif" | "dynamique" | "elegant";
@@ -166,7 +169,11 @@ const StartVideo: React.FC<{
   const extra = Number.isFinite(extraStartSec) && extraStartSec > 0 ? Math.round(extraStartSec * fps) : 0;
   // Le décalage de relecture reste borné à l'intervalle [Time Start, Time End].
   const span = endAtBase != null ? Math.max(1, endAtBase - base) : undefined;
-  const startFrom = span != null ? base + (extra % span) : base + extra;
+  // Sans Time End connu, on ne connaît pas la durée réelle du clip : un décalage
+  // trop grand ferait démarrer la lecture après la fin (image figée / écran noir).
+  // On borne donc le décalage à 2 s dans ce cas.
+  const safeExtra = span != null ? extra % span : Math.min(extra, Math.round(2 * fps));
+  const startFrom = base + safeExtra;
   const endAt = endAtBase != null && endAtBase > startFrom + 1 ? endAtBase : undefined;
   return (
     <OffthreadVideo
@@ -988,7 +995,7 @@ const SceneOffer: React.FC<{
   const out = 1 - ease(frame, outStart, durationFrames);
   const lines = Array.isArray(offer.lines) ? offer.lines.filter(Boolean).slice(0, 6) : [];
   const richMsg = sanitizeRich(offer.message_html || "");
-  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br)\b/i.test(richMsg);
+  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br|h1|h2|h3|h4)\b/i.test(richMsg);
   const hasPrice = !!offer.price;
   const hasBody = hasRich || lines.length > 0;
   return (
@@ -2280,7 +2287,7 @@ const ScenePopup: React.FC<{ imageUrl: string; title?: string | null; descriptio
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
   const desc = decodeEntities((description || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
   const richDesc = sanitizeRich(descriptionHtml || "");
-  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br)\b/i.test(richDesc);
+  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br|h1|h2|h3|h4)\b/i.test(richDesc);
   return (
     <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
       <style>{RICH_CSS}</style>
@@ -2324,7 +2331,7 @@ const decodeEntities = (input: string): string => {
     .replace(/&([a-z]+);/gi, (m, n) => named[String(n).toLowerCase()] ?? m);
 };
 
-const ALLOWED_RICH_TAGS = ["b", "strong", "i", "em", "u", "br", "p", "ul", "ol", "li", "span"];
+const ALLOWED_RICH_TAGS = ["b", "strong", "i", "em", "u", "br", "p", "ul", "ol", "li", "span", "h1", "h2", "h3", "h4"];
 
 /** Conserve la mise en forme rich text (gras, italique, listes) et retire tout le reste. */
 const sanitizeRich = (html: string): string =>
@@ -2352,6 +2359,32 @@ const RICH_CSS = `
 .rich-video-block p:last-child { margin-bottom: 0; }
 .rich-video-block strong, .rich-video-block b { font-weight: 800; }
 .rich-video-block em, .rich-video-block i { font-style: italic; }
+/* Titres H2 / H3 accentués : doré, gras, léger interlettrage — sans césure
+   artificielle (un titre court reste sur une seule ligne). */
+.rich-video-block h1, .rich-video-block h2, .rich-video-block h3, .rich-video-block h4 {
+  margin: 0.55em 0 0.28em;
+  font-weight: 800;
+  line-height: 1.14;
+  text-wrap: balance;
+  overflow-wrap: normal;
+  word-break: keep-all;
+  hyphens: none;
+}
+.rich-video-block h1, .rich-video-block h2 {
+  font-size: 1.34em;
+  color: ${COLORS.gold};
+  letter-spacing: 0.6px;
+  text-shadow: 0 3px 16px rgba(0,0,0,0.7);
+}
+.rich-video-block h3, .rich-video-block h4 {
+  font-size: 1.14em;
+  color: ${COLORS.bone};
+  letter-spacing: 0.4px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.65);
+}
+.rich-video-block h1:first-child, .rich-video-block h2:first-child,
+.rich-video-block h3:first-child, .rich-video-block h4:first-child { margin-top: 0; }
+.rich-video-block h2 + p, .rich-video-block h3 + p { margin-top: 0; }
 .rich-video-block ul, .rich-video-block ol { margin: 0.2em 0 0; padding-left: 1.1em; text-align: left; display: inline-block; }
 .rich-video-block li { margin: 0.18em 0; }
 .rich-video-block ul { list-style: none; padding-left: 0; }
@@ -2364,6 +2397,7 @@ const RICH_CSS = `
 `;
 
 
+
 const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[number]; background?: string | null; backgroundIsVideo?: boolean; durationFrames: number; textPosition?: TextPosition; effect?: TransitionEffect; motion?: MotionEffect | null }> = ({ data, background, backgroundIsVideo, durationFrames, textPosition = "middle", effect = "kenburns", motion = null }) => {
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
@@ -2373,7 +2407,7 @@ const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[
   const isVideoHero = !!(backgroundIsVideo && background === heroImg);
   const richDesc = sanitizeRich(data.description_html || data.description || "");
   const plainDesc = decodeEntities((data.description || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
-  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br)\b/i.test(richDesc);
+  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br|h1|h2|h3|h4)\b/i.test(richDesc);
   return (
     <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
       <style>{RICH_CSS}</style>
@@ -2471,7 +2505,9 @@ const SceneInfoText: React.FC<{
   textPosition?: TextPosition;
   /** Habillage décoratif animé (cartes « Menus » sans contenu texte) */
   ornament?: boolean;
-}> = ({ label, title, text, textHtml, logoUrl, durationFrames, textPosition = "middle", ornament = false }) => {
+  /** Intensité du voile sombre au-dessus du média de fond */
+  dim?: "normal" | "light";
+}> = ({ label, title, text, textHtml, logoUrl, durationFrames, textPosition = "middle", ornament = false, dim = "normal" }) => {
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
@@ -2479,12 +2515,18 @@ const SceneInfoText: React.FC<{
   const logoS = interpolate(spring({ frame: frame - 2, fps: 30, config: { damping: 14, stiffness: 160 } }), [0, 1], [0.6, 1]);
   const clean = (v?: string) => decodeEntities((v || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
   const richText = sanitizeRich(textHtml || "");
-  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br)\b/i.test(richText);
+  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br|h1|h2|h3|h4)\b/i.test(richText);
   const safeLogo = typeof logoUrl === "string" && logoUrl.trim().startsWith("http") ? logoUrl : null;
   return (
     <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
       <style>{RICH_CSS}</style>
-      <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.42) 0%,rgba(0,0,0,0.78) 100%)" }} />
+      <AbsoluteFill
+        style={{
+          background: dim === "light"
+            ? "linear-gradient(180deg,rgba(0,0,0,0.12) 0%,rgba(0,0,0,0.42) 100%)"
+            : "linear-gradient(180deg,rgba(0,0,0,0.42) 0%,rgba(0,0,0,0.78) 100%)",
+        }}
+      />
       <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
         <FitColumn>
         {safeLogo && (
@@ -2588,7 +2630,7 @@ const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "r
               {rating.toFixed(1)}<span style={{ fontSize: 40, color: meta.accent }}>/5</span>
             </div>
           )}
-          <div style={{ marginTop: 6, fontFamily: body, fontSize: 32, color: meta.accent }}>
+          <div style={{ marginTop: 6, fontFamily: body, fontSize: 32, color: FLASH_YELLOW, textShadow: `0 0 16px ${FLASH_YELLOW}88` }}>
             {"★★★★★".slice(0, Math.round(rating ?? 0))}<span style={{ opacity: 0.3 }}>{"★★★★★".slice(Math.round(rating ?? 0))}</span>
           </div>
           {count != null && (
@@ -2657,6 +2699,8 @@ const SceneCustomerReview: React.FC<{
   const excerptSize = size * interpolate(focus, [0, 1], [1, 1.5]);
   const cardScale = interpolate(focus, [0, 1], [1, 1.08]);
   const excerptGlow = interpolate(focus, [0, 1], [0, 1]);
+  // Pulsation du halo jaune (effet flashy)
+  const flashPulse = 0.7 + 0.3 * Math.sin(frame / 3.2);
 
   const platform = platformKeyFromSource(source);
   const meta = platform ? PLATFORM_META[platform] : null;
@@ -2712,22 +2756,20 @@ const SceneCustomerReview: React.FC<{
                 <span
                   style={{
                     position: "relative",
-                    display: "inline-block",
-                    padding: "2px 6px",
-                    borderRadius: 8,
-                    backgroundImage: `linear-gradient(90deg, ${COLORS.gold}55 0%, ${COLORS.gold}55 100%)`,
-                    backgroundRepeat: "no-repeat",
-                    backgroundSize: `${swipe * 100}% 100%`,
-                    color: COLORS.cream,
-                    fontWeight: 700,
+                    display: "inline",
+                    // Pas de rectangle derrière l'extrait : le texte lui-même
+                    // passe du crème au jaune vif avec un halo flashy.
+                    color: interpolateColors(swipe, [0, 1], [COLORS.cream, FLASH_YELLOW]),
+                    fontWeight: 800,
                     fontSize: excerptSize,
                     lineHeight: 1.32,
-                    textShadow: `0 3px ${10 + 12 * excerptGlow}px rgba(0,0,0,0.75)`,
+                    textShadow: `0 2px 8px rgba(0,0,0,0.8), 0 0 ${8 + 26 * swipe * flashPulse}px ${FLASH_YELLOW}${swipe > 0 ? "CC" : "00"}, 0 0 ${18 + 46 * swipe * flashPulse}px ${FLASH_YELLOW}${swipe > 0 ? "77" : "00"}`,
                     transition: "none",
                   }}
                 >
                   {mid}
                 </span>
+
                 {after && (
                   <span style={{ opacity: sideOpacity, filter: `blur(${sideBlur}px)` }}>{after}</span>
                 )}
@@ -2738,7 +2780,7 @@ const SceneCustomerReview: React.FC<{
           </div>
 
           {rating != null && Number.isFinite(rating) && (
-            <div style={{ marginTop: 20, fontFamily: body, color: meta ? meta.accent : COLORS.gold, fontSize: 30 }}>
+            <div style={{ marginTop: 20, fontFamily: body, color: FLASH_YELLOW, fontSize: 30, textShadow: `0 0 ${10 + 14 * flashPulse}px ${FLASH_YELLOW}99` }}>
               {"★★★★★".slice(0, Math.round(rating))}<span style={{ opacity: 0.3 }}>{"★★★★★".slice(Math.round(rating))}</span>
             </div>
           )}
@@ -3007,14 +3049,16 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
    * la vidéo n°1. Quand une même vidéo est relue (2e tour, 3e tour…), on décale
    * son point d'entrée pour ne pas revoir le même passage.
    */
-  const REPLAY_OFFSET_SEC = 6;
+  const REPLAY_OFFSET_SEC = 2;
   const bgRotate = (planIdx: number) => {
     const list = safeVideos.length ? safeVideos : safeImages;
     if (!list.length) return { src: undefined, image: undefined, extraStartSec: 0 };
     const i = Math.max(0, planIdx);
     const url = list[i % list.length];
     const pass = Math.floor(i / list.length);
-    const extraStartSec = safeVideos.length ? pass * REPLAY_OFFSET_SEC : 0;
+    // Décalage borné : au-delà, startFrom risque de dépasser la durée réelle du
+    // clip et la vidéo reste figée sur sa dernière image (effet « pause »).
+    const extraStartSec = safeVideos.length ? Math.min(pass, 2) * REPLAY_OFFSET_SEC : 0;
     return { ...fallbackBackdrop(url), extraStartSec };
   };
 
@@ -3320,8 +3364,10 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               effect={trImageEffect}
               motion={kind === "ai_summary" ? (((Array.isArray(aiSummaries) ? aiSummaries : [])[idx]?.effect as any) || (aiSummaryEffect as any) || "zoom_in") : null}
               extraStartSec={bgItem ? 0 : bgRotate(planIdx).extraStartSec}
+              veil="rgba(14,11,8,0.14)"
             />
             <SceneInfoText
+              dim="light"
               label={label}
               title={title}
               text={text}
