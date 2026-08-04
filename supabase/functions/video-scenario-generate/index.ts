@@ -21,7 +21,6 @@ const TEMPLATES = [
   { id: "corporate-vertical", scope: "1WM corporate", description: "Vidéo institutionnelle One World Morocco (modèle économique, villes pionnières, paliers). À utiliser UNIQUEMENT pour des contenus corporate 1WM." },
 ];
 
-Deno.
 // ---------------------------------------------------------------------------
 // Widgets Météo / Marées, Vents & Météo intégrés au montage vidéo.
 // Données Open-Meteo (gratuit, sans clé) résolues à la génération du scénario
