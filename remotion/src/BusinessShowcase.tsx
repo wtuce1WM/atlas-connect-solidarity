@@ -1300,67 +1300,111 @@ const dayLabelFr = (iso: string): string => {
   return `${days[d.getDay()]} ${String(d.getDate()).padStart(2, "0")}`;
 };
 
-const WidgetShell: React.FC<{ title: string; kicker: string; opacity: number; children: React.ReactNode }> = ({ title, kicker, opacity, children }) => (
-  <div
-    style={{
-      opacity,
-      width: 860,
-      borderRadius: 28,
-      padding: "34px 38px",
-      background: "linear-gradient(160deg, rgba(12,12,14,0.88), rgba(28,22,12,0.82))",
-      border: `2px solid ${COLORS.gold}`,
-      boxShadow: "0 24px 70px rgba(0,0,0,0.6)",
-    }}
-  >
-    <div style={{ fontFamily: body, color: COLORS.gold, fontSize: 20, letterSpacing: 5, textTransform: "uppercase" }}>{kicker}</div>
-    <div style={{ marginTop: 10, fontFamily: body, color: COLORS.cream, fontSize: 34, fontWeight: 700, lineHeight: 1.25 }}>{title}</div>
-    <div style={{ marginTop: 26 }}>{children}</div>
-  </div>
-);
+/**
+ * Layout dérivé du canvas : permet aux scènes de s'adapter à tout format
+ * (720×1280 portrait aujourd'hui, 1080×1920 / 1920×1080 / 1:1 demain)
+ * sans layout codé en dur.
+ */
+type SceneLayout = {
+  w: number;
+  h: number;
+  orientation: "portrait" | "landscape" | "square";
+  scale: number;
+  gutter: number;
+  contentW: number;
+  px: (n: number) => number;
+};
 
-/** Barre de progression horaire animée. */
+const useLayout = (): SceneLayout => {
+  const { width: w, height: h } = useVideoConfig();
+  const orientation = w === h ? "square" : w > h ? "landscape" : "portrait";
+  // Base de référence : le plus petit côté du canvas 720×1280.
+  const scale = Math.min(w, h) / 720;
+  const gutter = Math.round(40 * scale);
+  const contentW =
+    orientation === "portrait"
+      ? w - 2 * gutter
+      : Math.min(w - 2 * gutter, Math.round(1100 * scale));
+  return { w, h, orientation, scale, gutter, contentW, px: (n) => Math.round(n * scale) };
+};
+
+const WidgetShell: React.FC<{ title: string; kicker: string; opacity: number; children: React.ReactNode }> = ({ title, kicker, opacity, children }) => {
+  const { contentW, px } = useLayout();
+  return (
+    <div
+      style={{
+        opacity,
+        width: contentW,
+        maxWidth: "100%",
+        borderRadius: px(28),
+        padding: `${px(34)}px ${px(38)}px`,
+        background: "linear-gradient(160deg, rgba(12,12,14,0.88), rgba(28,22,12,0.82))",
+        border: `${Math.max(2, px(2))}px solid ${COLORS.gold}`,
+        boxShadow: "0 24px 70px rgba(0,0,0,0.6)",
+        boxSizing: "border-box",
+      }}
+    >
+      <div style={{ fontFamily: body, color: COLORS.gold, fontSize: px(20), letterSpacing: px(5), textTransform: "uppercase" }}>{kicker}</div>
+      <div style={{ marginTop: px(10), fontFamily: body, color: COLORS.cream, fontSize: px(34), fontWeight: 700, lineHeight: 1.25 }}>{title}</div>
+      <div style={{ marginTop: px(26) }}>{children}</div>
+    </div>
+  );
+};
+
+/** Barre de progression horaire animée, échantillonnée selon le format. */
 const HourStrip: React.FC<{ labels: string[]; values: number[]; unit: string; progress: number; accent: string }> = ({ labels, values, unit, progress, accent }) => {
-  const max = Math.max(...values, 1);
-  const min = Math.min(...values, 0);
+  const { orientation, px } = useLayout();
+  // En portrait, 24 barres sont illisibles : on échantillonne (pas de 2 ou 3 h).
+  const maxBars = orientation === "portrait" ? 10 : 24;
+  const step = Math.max(1, Math.ceil(values.length / maxBars));
+  const idxs = values.map((_, i) => i).filter((i) => i % step === 0);
+  const sValues = idxs.map((i) => values[i]);
+  const sLabels = idxs.map((i) => labels[i] ?? "");
+  const max = Math.max(...sValues, 1);
+  const min = Math.min(...sValues, 0);
   const span = max - min || 1;
-  const activeIdx = Math.min(values.length - 1, Math.floor(progress * values.length));
+  const rawActive = Math.min(values.length - 1, Math.floor(progress * values.length));
+  const activeIdx = Math.min(sValues.length - 1, Math.floor(rawActive / step));
+  const barH = px(180);
+  const labelEvery = sValues.length > 12 ? 2 : 1;
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 180 }}>
-        {values.map((v, i) => {
+      <div style={{ display: "flex", alignItems: "flex-end", gap: px(6), height: barH }}>
+        {sValues.map((v, i) => {
           const revealed = i <= activeIdx;
-          const h = 24 + ((v - min) / span) * 140;
+          const h = px(24) + ((v - min) / span) * px(140);
           return (
-            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-              <div style={{ fontFamily: body, fontSize: 15, color: revealed ? COLORS.cream : "rgba(245,240,230,0.25)" }}>
+            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: px(6) }}>
+              <div style={{ fontFamily: body, fontSize: px(15), color: revealed ? COLORS.cream : "rgba(245,240,230,0.25)" }}>
                 {Math.round(v)}
               </div>
               <div
                 style={{
                   width: "100%",
                   height: h,
-                  borderRadius: 6,
+                  borderRadius: px(6),
                   background: revealed ? accent : "rgba(255,255,255,0.10)",
                   transform: `scaleY(${revealed ? 1 : 0.35})`,
                   transformOrigin: "bottom",
-                  boxShadow: i === activeIdx ? `0 0 24px ${accent}` : "none",
+                  boxShadow: i === activeIdx ? `0 0 ${px(24)}px ${accent}` : "none",
                 }}
               />
             </div>
           );
         })}
       </div>
-      <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
-        {labels.map((l, i) => (
-          <div key={i} style={{ flex: 1, textAlign: "center", fontFamily: body, fontSize: 13, color: i === activeIdx ? COLORS.gold : "rgba(245,240,230,0.4)" }}>
-            {i % 2 === 0 ? l.slice(0, 2) + "h" : ""}
+      <div style={{ display: "flex", gap: px(6), marginTop: px(8) }}>
+        {sLabels.map((l, i) => (
+          <div key={i} style={{ flex: 1, textAlign: "center", fontFamily: body, fontSize: px(13), color: i === activeIdx ? COLORS.gold : "rgba(245,240,230,0.4)" }}>
+            {i % labelEvery === 0 ? l.slice(0, 2) + "h" : ""}
           </div>
         ))}
       </div>
-      <div style={{ marginTop: 12, fontFamily: body, fontSize: 18, color: COLORS.gold }}>{unit}</div>
+      <div style={{ marginTop: px(12), fontFamily: body, fontSize: px(18), color: COLORS.gold }}>{unit}</div>
     </div>
   );
 };
+
 
 const SceneWeatherWidget: React.FC<{ widget: NonNullable<ShowcaseProps["weatherWidget"]>; duration: number; textPosition?: TextPosition }> = ({ widget, duration, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
