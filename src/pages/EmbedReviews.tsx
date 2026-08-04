@@ -101,25 +101,32 @@ export default function EmbedReviews() {
     };
   }, [slug]);
 
-  // Report height to host page for auto-resize.
+  // Hauteur publiée pour l'auto-resize côté hôte : mesurée sur le conteneur
+  // (et non documentElement.scrollHeight) pour éviter la boucle de croissance.
+  const rootRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
-    if (fullHeight) return;
+    const el = rootRef.current;
+    if (!el || fullHeight) return;
     const post = () =>
       window.parent?.postMessage(
-        { type: "owm-reviews-height", height: document.documentElement.scrollHeight },
+        { type: "owm-reviews-height", height: Math.ceil(el.getBoundingClientRect().height) },
         "*",
       );
     post();
     const t = window.setTimeout(post, 300);
     window.addEventListener("resize", post);
+    const ro = new ResizeObserver(post);
+    ro.observe(el);
     return () => {
       window.clearTimeout(t);
       window.removeEventListener("resize", post);
+      ro.disconnect();
     };
   }, [business, reviews, loading, error, fullHeight]);
 
   return (
     <div
+      ref={rootRef}
       className={`w-full flex justify-center bg-transparent ${
         fullHeight ? "h-screen min-h-screen overflow-hidden items-start p-1" : "items-start p-2"
       }`}
