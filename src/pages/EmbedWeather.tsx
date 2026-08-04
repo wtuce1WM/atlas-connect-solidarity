@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 import { parseFit, fitFlags, applyEmbedBg, parseSize, sizeZoom, parseBg, resolveEmbedInk } from "@/lib/embedFit";
 import { useEmbedFitScale } from "@/hooks/useEmbedFitScale";
+import EmbedWeatherFooterBar from "@/components/embed/EmbedWeatherFooterBar";
 
 
 type Lang = "fr" | "en" | "ar";
@@ -28,6 +29,17 @@ export default function EmbedWeather() {
   // ?bg=EFE6D8 force une couleur, l'encre du bloc prévisions suit sa luminance.
   const bgColor = parseBg(params.get("bg"));
   const ink = resolveEmbedInk(params.get("ink"), bgColor);
+  // ?layout=footer : bandeau fin full-width réservé au desktop (>= 768px de large).
+  // En dessous, on retombe sur la carte verticale, seule lisible sur mobile.
+  const footerLayout = (params.get("layout") || "").toLowerCase() === "footer";
+  const footerDays = Math.max(1, Math.min(5, Number(params.get("days")) || 3));
+  const [wide, setWide] = useState(() => (typeof window === "undefined" ? true : window.innerWidth >= 768));
+  useEffect(() => {
+    const onResize = () => setWide(window.innerWidth >= 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  const asFooter = footerLayout && wide;
 
 
   const [data, setData] = useState<WeatherPayload | null>(null);
@@ -73,7 +85,7 @@ export default function EmbedWeather() {
 
   // Report our height to the host page so it can auto-resize the iframe.
   useEffect(() => {
-    if (fullHeight) return;
+    if (fullHeight && !asFooter) return;
     const post = () => {
       const h = rootRef.current?.getBoundingClientRect().height || 0;
       if (h < 40) return;
@@ -90,8 +102,22 @@ export default function EmbedWeather() {
       window.removeEventListener("resize", post);
       ro?.disconnect();
     };
-  }, [data, loading, error, fullHeight]);
+  }, [data, loading, error, fullHeight, asFooter]);
 
+
+  if (asFooter) {
+    return (
+      <div ref={rootRef} className="w-full bg-transparent">
+        {loading && <div className="w-full h-[74px] bg-muted/40 animate-pulse" />}
+        {!loading && (error || !data) && (
+          <div className="w-full py-5 text-center text-sm text-muted-foreground">{L.error}</div>
+        )}
+        {!loading && !error && data && (
+          <EmbedWeatherFooterBar data={data} lang={lang} days={footerDays} />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div
