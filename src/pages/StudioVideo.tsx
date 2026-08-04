@@ -1722,6 +1722,9 @@ export default function StudioVideo() {
       highlights: Array.from(selectedHighlightIds).sort(),
       aiSummaries: Array.from(selectedAiSummaryIds).sort(),
       aiSummaryEffect,
+      highlightEffects: Array.from(selectedHighlightIds).sort().map((id) => `${id}:${highlightEffects[id] || "-"}`).join(","),
+      aiSummaryEffects: Array.from(selectedAiSummaryIds).sort().map((id) => `${id}:${aiSummaryEffects[id] || aiSummaryEffect}`).join(","),
+
       externalLinks: Array.from(selectedExternalLinkIds).sort(),
       menuDocs: Array.from(selectedMenuDocIds).sort(),
       images: Array.from(selectedImages).sort(),
