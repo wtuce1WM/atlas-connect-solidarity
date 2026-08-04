@@ -539,17 +539,20 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
               style={{ background: bgEffective }}
             >
               <PoiGoogleMap
+                key={poiView ? "fit-poi" : kpView ? `fit-kp${kpView}` : "master"}
                 pois={mapItems}
                 selectedPoiId={defaultPoiId || null}
                 center={{ lat: biz.latitude, lng: biz.longitude }}
-                centerAtBottomRatio={0.4}
-                fitRadiusKm={fitKm}
+                {...(poiView || kpView
+                  ? { fitToMarkers: true, fitPadding: { top: 70, right: 50, bottom: 50, left: 50 } }
+                  : { centerAtBottomRatio: 0.4, fitRadiusKm: fitKm })}
                 mapTypeId={mapTypeId}
                 mapTheme="light"
                 baseColor={bgEffective}
                 connector={connector}
                 onPoiClick={(id) => setDefaultPoiId(id.startsWith("self-") ? "" : id)}
               />
+
             </div>
           )}
         </CardContent>
