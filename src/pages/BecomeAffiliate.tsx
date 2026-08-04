@@ -243,6 +243,8 @@ const BecomeAffiliate = () => {
         },
       });
       setFormSubmitted(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
     } catch {
       toast({ variant: "destructive", title: "Erreur", description: "Une erreur est survenue." });
     } finally {
