@@ -4332,10 +4332,10 @@ export default function StudioVideo() {
           )}
 
           <section className="space-y-4 rounded-lg border border-border bg-background p-4">
-            <h2 className="font-semibold text-white">Comment fonctionnent les éléments à inclure dans la vidéo</h2>
+            <h2 className="font-semibold text-black">Comment fonctionnent les éléments à inclure dans la vidéo</h2>
 
             <div className="space-y-2 text-sm text-muted-foreground">
-              <p className="text-white font-medium">1. « Ouvrir avec le logo »</p>
+              <p className="text-black font-medium">1. « Ouvrir avec le logo »</p>
               <p>
                 Cette option n'est proposée que si l'établissement dispose d'un logo avec fond transparent.
                 Lorsqu'elle est cochée, le scénario démarre par une scène d'introduction (environ 2 s) :
@@ -4345,7 +4345,7 @@ export default function StudioVideo() {
             </div>
 
             <div className="space-y-2 text-sm text-muted-foreground">
-              <p className="text-white font-medium">2. Fond de la scène Offres — lisibilité renforcée</p>
+              <p className="text-black font-medium">2. Fond de la scène Offres — lisibilité renforcée</p>
               <p>
                 Le rendu derrière les offres utilise la sélection globale ou le choix de l'IA, avec un overlay
                 sombre allégé (0,22 → 0,48) pour garder la vidéo/image de fond visible tout en assurant la lisibilité du texte.
@@ -4353,7 +4353,7 @@ export default function StudioVideo() {
             </div>
 
             <div className="space-y-2 text-sm text-muted-foreground">
-              <p className="text-white font-medium">3. Ce que fait chaque case cochée</p>
+              <p className="text-black font-medium">3. Ce que fait chaque case cochée</p>
               <ul className="list-disc space-y-1 pl-5 text-xs sm:text-sm">
                 <li><strong>Ouvrir avec le logo</strong> : scène d'intro logo (2 s), visible uniquement si logo_bg = transparent.</li>
                 <li><strong>Avis clients</strong> : scène reviews avec note /20 et nombre d'avis.</li>
@@ -4368,6 +4368,27 @@ export default function StudioVideo() {
               <p className="text-xs pt-1">
                 Ordre par défaut : logo → hook → name → media → offre(s) → avis → horaires → map → digital → CTA.
                 Vous pouvez réordonner et ajuster les durées dans l'aperçu du scénario avant le rendu.
+              </p>
+            </div>
+
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <p className="text-black font-medium">4. Quand faut-il re-générer le scénario avant de générer la vidéo ?</p>
+              <p>
+                Les modifications faites dans l'aperçu du scénario (ordre, durées, textes, POIs, ville des widgets, etc.)
+                sont transmises directement au rendu : elles ne demandent pas de re-génération.
+              </p>
+              <p>
+                Il faut re-générer le scénario dans les cas suivants :
+              </p>
+              <ul className="list-disc space-y-1 pl-5 text-xs sm:text-sm">
+                <li>Changement d'établissement, de prompt, de durée cible ou de ton.</li>
+                <li>Activation/désactivation d'une option globale (avis, horaires, map, ID numérique, CTA install, WhatsApp, etc.).</li>
+                <li>Sélection ou désélection d'offres, highlights, résumés IA, liens, menus, images ou vidéos.</li>
+                <li>Changement de transitions, fond continu ou bande son.</li>
+                <li>Suppression d'étapes intégrées qui fait tomber la durée totale sous 85 % de la cible ou le nombre d'étapes sous 3.</li>
+              </ul>
+              <p className="text-xs pt-1">
+                En l'absence de ces changements, cliquer sur « Générer la vidéo » utilise le scénario actuel tel qu'affiché dans l'aperçu.
               </p>
             </div>
           </section>
