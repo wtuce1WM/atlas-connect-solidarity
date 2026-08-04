@@ -178,6 +178,7 @@ const Footer = ({ variant = "default", className }: FooterProps) => {
               <li><Link to={withLangPrefix("/blog", language)} className="transition-colors hover:text-terracotta">{t("footer.blog")}</Link></li>
               <li><Link to={withLangPrefix("/install", language)} className="transition-colors hover:text-terracotta">{language === "en" ? "App" : language === "ar" ? "التطبيق" : "Application"}</Link></li>
               <li><Link to="/devenir-affilie" className="transition-colors hover:text-terracotta">{language === "ar" ? "أدرج شركتك" : language === "en" ? "Add your business" : "Ajoutez votre entreprise"}</Link></li>
+              <li><Link to="/widgets" className="transition-colors hover:text-terracotta">{language === "en" ? "Widgets" : language === "ar" ? "الأدوات" : "Widgets"}</Link></li>
               <li><Link to="/contact" className="transition-colors hover:text-terracotta">{t("footer.contact")}</Link></li>
             </ul>
           </div>
