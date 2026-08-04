@@ -118,10 +118,22 @@ export const RemotionRoot: React.FC = () => (
         images: [],
         offer: null,
       } as ShowcaseProps}
-      calculateMetadata={({ props }) => ({
-        durationInFrames: computeShowcaseFrames(props as ShowcaseProps),
-        props,
-      })}
+      calculateMetadata={({ props }) => {
+        const p = props as ShowcaseProps;
+        const clamp = (v: unknown, fallback: number) => {
+          const n = Number(v);
+          if (!Number.isFinite(n) || n < 320 || n > 3840) return fallback;
+          // Les dimensions doivent être paires pour l'encodage H.264.
+          return Math.round(n / 2) * 2;
+        };
+        return {
+          durationInFrames: computeShowcaseFrames(p),
+          width: clamp(p.canvas_width, 720),
+          height: clamp(p.canvas_height, 1280),
+          props,
+        };
+      }}
+
     />
   </>
 );
