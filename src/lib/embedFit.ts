@@ -42,3 +42,28 @@ export const fitIframeStyle = (
 
 /** Suffixe d'URL (`&fit=…`) à ajouter aux URLs de widget. */
 export const fitParam = (fit: EmbedFit) => (fit ? `&fit=${fit}` : "");
+
+/** Couleur de fond forcée (`?bg=EFE6D8` ou `#EFE6D8`) — "" si absente/invalide. */
+export const parseBg = (raw: string | null | undefined): string => {
+  const v = (raw || "").trim().replace(/^#/, "");
+  return /^[0-9a-fA-F]{6}$/.test(v) ? `#${v.toUpperCase()}` : "";
+};
+
+/** Suffixe d'URL (`&bg=…`) à ajouter aux URLs de widget. */
+export const bgParam = (color: string | null | undefined) => {
+  const c = parseBg(color);
+  return c ? `&bg=${c.slice(1)}` : "";
+};
+
+/** Applique la couleur de fond du widget (ou transparent) sur html/body. */
+export const applyEmbedBg = (color: string | null | undefined) => {
+  const bg = parseBg(color) || "transparent";
+  const prevHtml = document.documentElement.style.background;
+  const prevBody = document.body.style.background;
+  document.documentElement.style.background = bg;
+  document.body.style.background = bg;
+  return () => {
+    document.documentElement.style.background = prevHtml;
+    document.body.style.background = prevBody;
+  };
+};
