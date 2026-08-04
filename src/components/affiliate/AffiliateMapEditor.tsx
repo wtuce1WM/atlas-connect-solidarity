@@ -295,6 +295,41 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
         </CardContent>
       </Card>
 
+      {kpGroups.length > 0 && (
+        <Card className="bg-white/5 border-white/10">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base text-white flex items-center gap-2">
+              <Layers className="h-4 w-4 text-primary" /> Regroupements
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {kpGroups.map((g) => (
+              <div
+                key={`${g.slot}-${g.code}`}
+                className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-2.5"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-white truncate">{g.title}</p>
+                  <p className="text-xs text-white/50 font-mono truncate">
+                    KP{g.slot} · {g.code} — {g.count} établissements
+                  </p>
+                </div>
+                <Switch
+                  checked={g.slot === 1 ? kpActive : kpActive2}
+                  onCheckedChange={(v) => (g.slot === 1 ? setKpActive(v) : setKpActive2(v))}
+                  aria-label={`Activer le regroupement ${g.title}`}
+                />
+              </div>
+            ))}
+            <p className="text-xs text-white/50">
+              Actif = les établissements du même regroupement sont affichés/épinglés avec votre fiche. Désactivé par défaut.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+
+
       <Card className="bg-white/5 border-white/10">
         <CardHeader className="pb-3">
           <CardTitle className="text-base text-white flex items-center gap-2">
