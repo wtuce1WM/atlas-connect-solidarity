@@ -89,6 +89,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setIsLoading(true);
       dirtyRef.current = false;
       setKpView(null);
+      setPoiView(false);
       const { data } = await (supabase as any)
         .from("businesses")
         .select("id,name,city,neighborhood,latitude,longitude,images,poi_radius_km,map_bg_color,default_poi_business_id,kp_regroupement,kp_regroupement_2,kp_active,kp_active_2")
