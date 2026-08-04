@@ -1300,86 +1300,142 @@ const dayLabelFr = (iso: string): string => {
   return `${days[d.getDay()]} ${String(d.getDate()).padStart(2, "0")}`;
 };
 
-const WidgetShell: React.FC<{ title: string; kicker: string; opacity: number; children: React.ReactNode }> = ({ title, kicker, opacity, children }) => (
-  <div
-    style={{
-      opacity,
-      width: 860,
-      borderRadius: 28,
-      padding: "34px 38px",
-      background: "linear-gradient(160deg, rgba(12,12,14,0.88), rgba(28,22,12,0.82))",
-      border: `2px solid ${COLORS.gold}`,
-      boxShadow: "0 24px 70px rgba(0,0,0,0.6)",
-    }}
-  >
-    <div style={{ fontFamily: body, color: COLORS.gold, fontSize: 20, letterSpacing: 5, textTransform: "uppercase" }}>{kicker}</div>
-    <div style={{ marginTop: 10, fontFamily: body, color: COLORS.cream, fontSize: 34, fontWeight: 700, lineHeight: 1.25 }}>{title}</div>
-    <div style={{ marginTop: 26 }}>{children}</div>
-  </div>
-);
+/**
+ * Layout dérivé du canvas : permet aux scènes de s'adapter à tout format
+ * (720×1280 portrait aujourd'hui, 1080×1920 / 1920×1080 / 1:1 demain)
+ * sans layout codé en dur.
+ */
+type SceneLayout = {
+  w: number;
+  h: number;
+  orientation: "portrait" | "landscape" | "square";
+  scale: number;
+  gutter: number;
+  contentW: number;
+  px: (n: number) => number;
+};
 
-/** Barre de progression horaire animée. */
+const useLayout = (): SceneLayout => {
+  const { width: w, height: h } = useVideoConfig();
+  const orientation = w === h ? "square" : w > h ? "landscape" : "portrait";
+  // Base de référence : le plus petit côté du canvas 720×1280.
+  const scale = Math.min(w, h) / 720;
+  const gutter = Math.round(40 * scale);
+  const contentW =
+    orientation === "portrait"
+      ? w - 2 * gutter
+      : Math.min(w - 2 * gutter, Math.round(1100 * scale));
+  return { w, h, orientation, scale, gutter, contentW, px: (n) => Math.round(n * scale) };
+};
+
+const WidgetShell: React.FC<{ title: string; kicker: string; opacity: number; children: React.ReactNode }> = ({ title, kicker, opacity, children }) => {
+  const { contentW, px } = useLayout();
+  return (
+    <div
+      style={{
+        opacity,
+        width: contentW,
+        maxWidth: "100%",
+        borderRadius: px(28),
+        padding: `${px(34)}px ${px(38)}px`,
+        background: "linear-gradient(160deg, rgba(12,12,14,0.88), rgba(28,22,12,0.82))",
+        border: `${Math.max(2, px(2))}px solid ${COLORS.gold}`,
+        boxShadow: "0 24px 70px rgba(0,0,0,0.6)",
+        boxSizing: "border-box",
+      }}
+    >
+      <div style={{ fontFamily: body, color: COLORS.gold, fontSize: px(20), letterSpacing: px(5), textTransform: "uppercase" }}>{kicker}</div>
+      <div style={{ marginTop: px(10), fontFamily: body, color: COLORS.cream, fontSize: px(34), fontWeight: 700, lineHeight: 1.25 }}>{title}</div>
+      <div style={{ marginTop: px(26) }}>{children}</div>
+    </div>
+  );
+};
+
+/** Barre de progression horaire animée, échantillonnée selon le format. */
 const HourStrip: React.FC<{ labels: string[]; values: number[]; unit: string; progress: number; accent: string }> = ({ labels, values, unit, progress, accent }) => {
-  const max = Math.max(...values, 1);
-  const min = Math.min(...values, 0);
+  const { orientation, px } = useLayout();
+  // En portrait, 24 barres sont illisibles : on échantillonne (pas de 2 ou 3 h).
+  const maxBars = orientation === "portrait" ? 10 : 24;
+  const step = Math.max(1, Math.ceil(values.length / maxBars));
+  const idxs = values.map((_, i) => i).filter((i) => i % step === 0);
+  const sValues = idxs.map((i) => values[i]);
+  const sLabels = idxs.map((i) => labels[i] ?? "");
+  const max = Math.max(...sValues, 1);
+  const min = Math.min(...sValues, 0);
   const span = max - min || 1;
-  const activeIdx = Math.min(values.length - 1, Math.floor(progress * values.length));
+  const rawActive = Math.min(values.length - 1, Math.floor(progress * values.length));
+  const activeIdx = Math.min(sValues.length - 1, Math.floor(rawActive / step));
+  const barH = px(180);
+  const labelEvery = sValues.length > 12 ? 2 : 1;
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 180 }}>
-        {values.map((v, i) => {
+      <div style={{ display: "flex", alignItems: "flex-end", gap: px(6), height: barH }}>
+        {sValues.map((v, i) => {
           const revealed = i <= activeIdx;
-          const h = 24 + ((v - min) / span) * 140;
+          const h = px(24) + ((v - min) / span) * px(140);
           return (
-            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-              <div style={{ fontFamily: body, fontSize: 15, color: revealed ? COLORS.cream : "rgba(245,240,230,0.25)" }}>
-                {Math.round(v)}
+            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: px(6) }}>
+              <div style={{ fontFamily: body, fontSize: px(15), color: revealed ? COLORS.cream : "rgba(245,240,230,0.25)" }}>
+                {max <= 5 ? v.toFixed(1) : Math.round(v)}
               </div>
               <div
                 style={{
                   width: "100%",
                   height: h,
-                  borderRadius: 6,
+                  borderRadius: px(6),
                   background: revealed ? accent : "rgba(255,255,255,0.10)",
                   transform: `scaleY(${revealed ? 1 : 0.35})`,
                   transformOrigin: "bottom",
-                  boxShadow: i === activeIdx ? `0 0 24px ${accent}` : "none",
+                  boxShadow: i === activeIdx ? `0 0 ${px(24)}px ${accent}` : "none",
                 }}
               />
             </div>
           );
         })}
       </div>
-      <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
-        {labels.map((l, i) => (
-          <div key={i} style={{ flex: 1, textAlign: "center", fontFamily: body, fontSize: 13, color: i === activeIdx ? COLORS.gold : "rgba(245,240,230,0.4)" }}>
-            {i % 2 === 0 ? l.slice(0, 2) + "h" : ""}
+      <div style={{ display: "flex", gap: px(6), marginTop: px(8) }}>
+        {sLabels.map((l, i) => (
+          <div key={i} style={{ flex: 1, textAlign: "center", fontFamily: body, fontSize: px(13), color: i === activeIdx ? COLORS.gold : "rgba(245,240,230,0.4)" }}>
+            {i % labelEvery === 0 ? l.slice(0, 2) + "h" : ""}
           </div>
         ))}
       </div>
-      <div style={{ marginTop: 12, fontFamily: body, fontSize: 18, color: COLORS.gold }}>{unit}</div>
+      <div style={{ marginTop: px(12), fontFamily: body, fontSize: px(18), color: COLORS.gold }}>{unit}</div>
     </div>
   );
 };
 
+
 const SceneWeatherWidget: React.FC<{ widget: NonNullable<ShowcaseProps["weatherWidget"]>; duration: number; textPosition?: TextPosition }> = ({ widget, duration, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
+  const { orientation, gutter, px } = useLayout();
+  const portrait = orientation !== "landscape";
   const o = ease(frame, 0, 14);
   const progress = interpolate(frame, [8, Math.max(duration - 6, 20)], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const hourly = (widget.hourly || []).slice(0, 24);
   const daily = (widget.daily || []).slice(0, widget.range === 7 ? 7 : 3);
   const oneDay = (widget.range || 1) === 1;
   const activeH = hourly[Math.min(hourly.length - 1, Math.floor(progress * hourly.length))];
+  // Portrait : au-delà de 4 jours on passe en grille pour rester lisible.
+  const cols = portrait ? Math.min(daily.length, 4) : daily.length;
   return (
-    <AbsoluteFill style={{ alignItems: "center", padding: 50, ...textPositionStyle(textPosition) }}>
+    <AbsoluteFill style={{ alignItems: "center", padding: gutter, ...textPositionStyle(textPosition) }}>
       <WidgetShell kicker="Météo" title={widget.text} opacity={o}>
         {oneDay && hourly.length > 0 ? (
           <>
-            <div style={{ display: "flex", alignItems: "center", gap: 22, marginBottom: 18 }}>
-              <div style={{ fontSize: 72, lineHeight: 1 }}>{wmoIcon(activeH?.code)}</div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: portrait ? "column" : "row",
+                alignItems: portrait ? "flex-start" : "center",
+                gap: px(portrait ? 8 : 22),
+                marginBottom: px(18),
+              }}
+            >
+              <div style={{ fontSize: px(72), lineHeight: 1 }}>{wmoIcon(activeH?.code)}</div>
               <div style={{ fontFamily: body, color: COLORS.cream }}>
-                <div style={{ fontSize: 62, fontWeight: 700 }}>{activeH ? `${activeH.temp}°` : "--"}</div>
-                <div style={{ fontSize: 22, color: COLORS.gold }}>
+                <div style={{ fontSize: px(62), fontWeight: 700, lineHeight: 1.05 }}>{activeH ? `${activeH.temp}°` : "--"}</div>
+                <div style={{ fontSize: px(22), color: COLORS.gold }}>
                   {activeH ? `${activeH.hour} · vent ${activeH.wind} km/h · pluie ${activeH.pop}%` : ""}
                 </div>
               </div>
@@ -1393,7 +1449,7 @@ const SceneWeatherWidget: React.FC<{ widget: NonNullable<ShowcaseProps["weatherW
             />
           </>
         ) : (
-          <div style={{ display: "flex", gap: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gap: px(14) }}>
             {daily.map((d, i) => {
               const reveal = ease(frame, 10 + i * 6, 26 + i * 6);
               const focus = Math.floor(progress * daily.length) === i;
@@ -1401,22 +1457,21 @@ const SceneWeatherWidget: React.FC<{ widget: NonNullable<ShowcaseProps["weatherW
                 <div
                   key={d.date}
                   style={{
-                    flex: 1,
                     opacity: reveal,
                     transform: `translateY(${interpolate(reveal, [0, 1], [22, 0])}px) scale(${focus ? 1.05 : 1})`,
-                    borderRadius: 18,
-                    padding: "18px 10px",
+                    borderRadius: px(18),
+                    padding: `${px(18)}px ${px(10)}px`,
                     textAlign: "center",
                     background: focus ? "rgba(212,175,55,0.18)" : "rgba(255,255,255,0.06)",
                     border: `1px solid ${focus ? COLORS.gold : "rgba(212,175,55,0.2)"}`,
                     fontFamily: body,
                   }}
                 >
-                  <div style={{ fontSize: 18, color: COLORS.gold }}>{dayLabelFr(d.date)}</div>
-                  <div style={{ fontSize: 42, margin: "8px 0" }}>{wmoIcon(d.code)}</div>
-                  <div style={{ fontSize: 26, color: COLORS.cream, fontWeight: 700 }}>{d.tmax}°</div>
-                  <div style={{ fontSize: 18, color: "rgba(245,240,230,0.6)" }}>{d.tmin}°</div>
-                  <div style={{ fontSize: 15, color: COLORS.gold, marginTop: 6 }}>{d.pop}%</div>
+                  <div style={{ fontSize: px(18), color: COLORS.gold }}>{dayLabelFr(d.date)}</div>
+                  <div style={{ fontSize: px(42), margin: `${px(8)}px 0` }}>{wmoIcon(d.code)}</div>
+                  <div style={{ fontSize: px(26), color: COLORS.cream, fontWeight: 700 }}>{d.tmax}°</div>
+                  <div style={{ fontSize: px(18), color: "rgba(245,240,230,0.6)" }}>{d.tmin}°</div>
+                  <div style={{ fontSize: px(15), color: COLORS.gold, marginTop: px(6) }}>{d.pop}%</div>
                 </div>
               );
             })}
@@ -1427,8 +1482,11 @@ const SceneWeatherWidget: React.FC<{ widget: NonNullable<ShowcaseProps["weatherW
   );
 };
 
+
 const SceneTidesWidget: React.FC<{ widget: NonNullable<ShowcaseProps["tidesWidget"]>; duration: number; textPosition?: TextPosition }> = ({ widget, duration, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
+  const { orientation, gutter, px } = useLayout();
+  const portrait = orientation !== "landscape";
   const o = ease(frame, 0, 14);
   const hours = (widget.hours || []).slice(0, 24);
   const mode = widget.mode || "all";
@@ -1447,44 +1505,54 @@ const SceneTidesWidget: React.FC<{ widget: NonNullable<ShowcaseProps["tidesWidge
       ? { kicker: "Vents", values: hours.map((h) => Number(h.wind ?? 0)), unit: "Vent sur 24 h (km/h)", accent: "#63C7A6" }
       : { kicker: "Météo", values: hours.map((h) => Number(h.temp ?? 0)), unit: "Températures sur 24 h (°C)", accent: COLORS.gold };
 
+  const headStyle: React.CSSProperties = {
+    display: "flex",
+    flexDirection: portrait ? "column" : "row",
+    alignItems: portrait ? "flex-start" : "center",
+    gap: px(portrait ? 8 : 22),
+    marginBottom: px(16),
+    fontFamily: body,
+  };
+
   return (
-    <AbsoluteFill style={{ alignItems: "center", padding: 50, ...textPositionStyle(textPosition) }}>
+    <AbsoluteFill style={{ alignItems: "center", padding: gutter, ...textPositionStyle(textPosition) }}>
       <WidgetShell kicker={`Marées, Vents & Météo · ${cfg.kicker}`} title={widget.text} opacity={o}>
-        <div style={{ display: "flex", alignItems: "center", gap: 22, marginBottom: 16, fontFamily: body }}>
+        <div style={headStyle}>
           {kind === "tides" ? (
             <>
-              <div style={{ fontSize: 64 }}>🌊</div>
+              <div style={{ fontSize: px(64) }}>🌊</div>
               <div>
-                <div style={{ fontSize: 52, color: COLORS.cream, fontWeight: 700 }}>
+                <div style={{ fontSize: px(52), color: COLORS.cream, fontWeight: 700, lineHeight: 1.05 }}>
                   {active?.sea != null ? `${active.sea.toFixed(2)} m` : "--"}
                 </div>
-                <div style={{ fontSize: 20, color: COLORS.gold }}>
+                <div style={{ fontSize: px(20), color: COLORS.gold }}>
                   {(widget.extremes || []).map((e) => `${e.type === "high" ? "PM" : "BM"} ${e.hour}`).join("  ·  ") || active?.hour}
                 </div>
               </div>
             </>
           ) : kind === "wind" ? (
             <>
-              <div style={{ fontSize: 64 }}>💨</div>
+              <div style={{ fontSize: px(64) }}>💨</div>
               <div>
-                <div style={{ fontSize: 52, color: COLORS.cream, fontWeight: 700 }}>{active?.wind != null ? `${active.wind} km/h` : "--"}</div>
-                <div style={{ fontSize: 20, color: COLORS.gold }}>
+                <div style={{ fontSize: px(52), color: COLORS.cream, fontWeight: 700, lineHeight: 1.05 }}>{active?.wind != null ? `${active.wind} km/h` : "--"}</div>
+                <div style={{ fontSize: px(20), color: COLORS.gold }}>
                   {active ? `${active.hour} · rafales ${active.gust ?? "--"} km/h · ${active.dir ?? "--"}°` : ""}
                 </div>
               </div>
             </>
           ) : (
             <>
-              <div style={{ fontSize: 64 }}>{wmoIcon(active?.code)}</div>
+              <div style={{ fontSize: px(64) }}>{wmoIcon(active?.code)}</div>
               <div>
-                <div style={{ fontSize: 52, color: COLORS.cream, fontWeight: 700 }}>{active?.temp != null ? `${active.temp}°` : "--"}</div>
-                <div style={{ fontSize: 20, color: COLORS.gold }}>
+                <div style={{ fontSize: px(52), color: COLORS.cream, fontWeight: 700, lineHeight: 1.05 }}>{active?.temp != null ? `${active.temp}°` : "--"}</div>
+                <div style={{ fontSize: px(20), color: COLORS.gold }}>
                   {active ? `${active.hour} · pluie ${active.pop ?? 0}%` : ""}
                 </div>
               </div>
             </>
           )}
         </div>
+
         <HourStrip
           labels={hours.map((h) => h.hour)}
           values={cfg.values}
@@ -1499,23 +1567,26 @@ const SceneTidesWidget: React.FC<{ widget: NonNullable<ShowcaseProps["tidesWidge
 
 const SceneMap: React.FC<{ lat: number; lng: number; name: string; address?: string | null; textPosition?: TextPosition }> = ({ lat, lng, name, address, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
+  const { h, contentW, gutter, px } = useLayout();
   const labelO = ease(frame, 0, 18);
   const mapO = ease(frame, 10, 30);
   // Google Maps Static via edge proxy (clé stockée côté serveur)
   const mapUrl = `https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/static-map?lat=${lat}&lng=${lng}&zoom=16&size=640x640&scale=2&maptype=roadmap`;
   const pinScale = spring({ frame: frame - 28, fps: 30, config: { damping: 10, stiffness: 180 } });
+  // Carré adapté au canvas : jamais plus large que le contenu ni plus haut que 55 % du canvas.
+  const mapSize = Math.min(contentW, Math.round(h * 0.55), px(620));
   return (
-    <AbsoluteFill style={{ alignItems: "center", padding: 50, ...textPositionStyle(textPosition) }}>
-      <div style={{ opacity: labelO, marginTop: 30, fontFamily: body, color: COLORS.gold, fontSize: 22, letterSpacing: 6, textTransform: "uppercase" }}>
+    <AbsoluteFill style={{ alignItems: "center", padding: gutter, ...textPositionStyle(textPosition) }}>
+      <div style={{ opacity: labelO, marginTop: px(30), fontFamily: body, color: COLORS.gold, fontSize: px(22), letterSpacing: px(6), textTransform: "uppercase" }}>
         Localisation
       </div>
       <div
         style={{
           opacity: mapO,
-          marginTop: 30,
-          width: 620,
-          height: 620,
-          borderRadius: 24,
+          marginTop: px(30),
+          width: mapSize,
+          height: mapSize,
+          borderRadius: px(24),
           overflow: "hidden",
           position: "relative",
           border: `2px solid ${COLORS.gold}`,
@@ -1531,21 +1602,22 @@ const SceneMap: React.FC<{ lat: number; lng: number; name: string; address?: str
             left: "50%",
             transform: `translate(-50%, -100%) scale(${interpolate(pinScale, [0, 1], [0, 1])})`,
             transformOrigin: "bottom center",
-            fontSize: 80,
+            fontSize: px(80),
             filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.6))",
           }}
         >
           📍
         </div>
       </div>
-      <div style={{ opacity: mapO, marginTop: 24, fontFamily: display, fontWeight: 700, color: COLORS.cream, fontSize: 32, textAlign: "center" }}>
+      <div style={{ opacity: mapO, marginTop: px(24), fontFamily: display, fontWeight: 700, color: COLORS.cream, fontSize: px(32), textAlign: "center" }}>
         {name}
       </div>
       {address && (
-        <div style={{ opacity: mapO, marginTop: 8, fontFamily: body, color: COLORS.gold, fontSize: 22, textAlign: "center" }}>
+        <div style={{ opacity: mapO, marginTop: px(8), fontFamily: body, color: COLORS.gold, fontSize: px(22), textAlign: "center" }}>
           {address}
         </div>
       )}
+
     </AbsoluteFill>
   );
 };
