@@ -234,7 +234,11 @@ const useL = () => LABELS[React.useContext(LangContext)] ?? LABELS.fr;
 
 
 export type ShowcaseProps = {
+  /** Format de sortie choisi dans le Studio (défaut 720×1280). */
+  canvas_width?: number;
+  canvas_height?: number;
   name?: string;
+
   hook?: string;
   tagline?: string;
   city?: string;

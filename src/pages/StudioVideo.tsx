@@ -383,6 +383,15 @@ export default function StudioVideo() {
   const [tone, setTone] = useState("immersif");
   // Langue du montage vidéo — indépendante de la langue du header du front.
   const [videoLang, setVideoLang] = useState<"fr" | "en">("fr");
+  // Format de sortie de la vidéo (canvas Remotion). 720×1280 par défaut.
+  const VIDEO_FORMATS = [
+    { value: "portrait" as const, label: "Vertical 720×1280", w: 720, h: 1280 },
+    { value: "landscape" as const, label: "Horizontal 1920×1080", w: 1920, h: 1080 },
+    { value: "square" as const, label: "Carré 1080×1080", w: 1080, h: 1080 },
+  ];
+  const [videoFormat, setVideoFormat] = useState<"portrait" | "landscape" | "square">("portrait");
+  const videoCanvas = VIDEO_FORMATS.find((f) => f.value === videoFormat) ?? VIDEO_FORMATS[0];
+
   const [poiOptions, setPoiOptions] = useState<PlaceOption[]>([]);
   const [destOptions, setDestOptions] = useState<PlaceOption[]>([]);
   const [blogPosts, setBlogPosts] = useState<{ id: string; slug: string; title: string; cover: string | null }[]>([]);
@@ -1565,6 +1574,9 @@ export default function StudioVideo() {
 
           options: {
             lang: videoLang,
+            video_format: videoFormat,
+            canvas_width: videoCanvas.w,
+            canvas_height: videoCanvas.h,
             reviews: optReviews,
             hours: optHours,
             map_marker: optMapMarker,
@@ -1815,6 +1827,9 @@ export default function StudioVideo() {
           preview_only: true,
           options: {
             lang: videoLang,
+            video_format: videoFormat,
+            canvas_width: videoCanvas.w,
+            canvas_height: videoCanvas.h,
             reviews: optReviews,
             hours: optHours,
             map_marker: optMapMarker,
@@ -3031,6 +3046,24 @@ export default function StudioVideo() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
+                <Label>Format de la vidéo</Label>
+                <div className="flex gap-2 flex-wrap">
+                  {VIDEO_FORMATS.map((f) => (
+                    <Button
+                      key={f.value}
+                      type="button"
+                      variant={videoFormat === f.value ? "default" : "outline"}
+                      onClick={() => setVideoFormat(f.value)}
+                    >
+                      {f.label}
+                    </Button>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Le montage s'adapte automatiquement au format choisi (typo, blocs, carte, widgets).
+                </p>
+              </div>
+              <div className="space-y-2">
                 <Label>Durée</Label>
                 <div className="flex gap-2 flex-wrap items-center">
                   <Button
@@ -3060,6 +3093,7 @@ export default function StudioVideo() {
                     { value: "en" as const, label: "English" },
                   ]).map((l) => (
                     <Button
+
                       key={l.value}
                       type="button"
                       variant={videoLang === l.value ? "default" : "outline"}
