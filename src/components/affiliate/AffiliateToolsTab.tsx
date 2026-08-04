@@ -70,6 +70,12 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const [radiusSaving, setRadiusSaving] = useState<boolean>(false);
   const [radiusSaved, setRadiusSaved] = useState<boolean>(false);
 
+  // Couleur de fond des widgets (businesses.widget_bg_color)
+  const [widgetBg, setWidgetBg] = useState<string>("");
+  const [widgetBgSaving, setWidgetBgSaving] = useState<boolean>(false);
+  const [widgetBgSaved, setWidgetBgSaved] = useState<boolean>(false);
+  const widgetBgValid = /^#[0-9a-fA-F]{6}$/.test(widgetBg);
+
   useEffect(() => {
     if (!businessId) { setRadiusLoading(false); return; }
     let cancelled = false;
@@ -77,12 +83,13 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       setRadiusLoading(true);
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("poi_radius_km")
+        .select("poi_radius_km, widget_bg_color")
         .eq("id", businessId)
         .maybeSingle();
       if (cancelled) return;
       const v = Number((data as any)?.poi_radius_km);
       setRadiusKm(v > 0 ? v : 10);
+      setWidgetBg(((data as any)?.widget_bg_color || "").toUpperCase());
       setRadiusLoading(false);
     })();
     return () => { cancelled = true; };
@@ -101,6 +108,22 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
     setRadiusSaved(true);
   };
+
+  const saveWidgetBg = async (raw: string) => {
+    if (!businessId) return;
+    const value = /^#[0-9a-fA-F]{6}$/.test(raw) ? raw.toUpperCase() : null;
+    if (raw && !value) return;
+    setWidgetBgSaving(true);
+    setWidgetBgSaved(false);
+    const { error } = await (supabase as any)
+      .from("businesses")
+      .update({ widget_bg_color: value })
+      .eq("id", businessId);
+    setWidgetBgSaving(false);
+    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    setWidgetBgSaved(true);
+  };
+
 
 
 
@@ -172,8 +195,10 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     [embedUrl, businessName]
   );
 
-  const nearbyBgValid = /^#[0-9a-fA-F]{6}$/.test(nearbyBg);
-  const nearbyUrl = `${SITE}/embed/nearby/${slug}?lang=${nearbyLang}${nearbyBgValid ? `&bg=${nearbyBg.slice(1)}` : ""}`;
+  // Couleur forcée dans ce widget, sinon couleur de fond des widgets de l'établissement
+  const effectiveNearbyBg = /^#[0-9a-fA-F]{6}$/.test(nearbyBg) ? nearbyBg : (widgetBgValid ? widgetBg : "");
+  const nearbyBgValid = /^#[0-9a-fA-F]{6}$/.test(effectiveNearbyBg);
+  const nearbyUrl = `${SITE}/embed/nearby/${slug}?lang=${nearbyLang}${nearbyBgValid ? `&bg=${effectiveNearbyBg.slice(1)}` : ""}`;
   const nearbySnippet = useMemo(
     () =>
       `<iframe src="${nearbyUrl}" style="width:100%;height:${nearbyHeight}px;border:0;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.15)" title="À proximité — ${businessName}" loading="lazy" allow="geolocation"></iframe>`,
@@ -441,6 +466,50 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
           {!radiusSaving && radiusSaved && <Check className="h-4 w-4 text-emerald-400" />}
         </div>
       </div>
+
+      <div className="space-y-3">
+        <h3 className="text-white font-semibold flex items-center gap-2">
+          <Globe2 className="h-4 w-4" /> Couleur de fond des widgets
+        </h3>
+        <p className="text-sm text-white/70 max-w-2xl">
+          Par défaut, chaque widget garde sa couleur d'origine. Si vous définissez une couleur ici, elle est
+          appliquée aux widgets de {businessName} — sauf si vous forcez une autre couleur directement dans le widget.
+        </p>
+        <div className="flex items-center gap-2">
+          <input
+            type="color"
+            value={widgetBgValid ? widgetBg : "#EFE6D8"}
+            onChange={(e) => { const v = e.target.value.toUpperCase(); setWidgetBg(v); saveWidgetBg(v); }}
+            disabled={radiusLoading || !businessId}
+            className="h-9 w-10 rounded-md bg-white/10 border border-white/20 p-1 cursor-pointer"
+            aria-label="Couleur de fond des widgets"
+          />
+          <input
+            type="text"
+            placeholder="#EFE6D8"
+            value={widgetBg}
+            onChange={(e) => setWidgetBg(e.target.value.toUpperCase())}
+            onBlur={(e) => saveWidgetBg(e.target.value.toUpperCase())}
+            disabled={radiusLoading || !businessId}
+            className="w-28 rounded-md bg-white/10 border border-white/20 text-white text-sm px-3 py-2 font-mono"
+          />
+          {widgetBg && (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => { setWidgetBg(""); saveWidgetBg(""); }}
+              className="text-white border-white/20 hover:bg-white/10 hover:text-white"
+            >
+              Défaut
+            </Button>
+          )}
+          {widgetBgSaving && <Loader2 className="h-4 w-4 animate-spin text-white/60" />}
+          {!widgetBgSaving && widgetBgSaved && <Check className="h-4 w-4 text-emerald-400" />}
+        </div>
+      </div>
+
+
 
       <div className="space-y-4">
         <h3 className="text-white font-semibold flex items-center gap-2">
