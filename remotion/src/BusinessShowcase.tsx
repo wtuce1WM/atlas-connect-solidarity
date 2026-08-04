@@ -1593,17 +1593,40 @@ const LinkedPlacesMontage: React.FC<{ places: PlaceItem[]; duration: number; mod
   );
 };
 
-const PlaceShot: React.FC<{ url: string; isVideo: boolean; duration: number; name: string; hook?: string | null }> = ({
+/**
+ * Plan d'un lieu lié : média plein cadre dominant (pas d'accroche), distance en
+ * mètres depuis le Master et mini-carte avec flèche directionnelle (charte 1WM).
+ */
+const PlaceShot: React.FC<{ url: string; isVideo: boolean; duration: number; name: string; place?: PlaceItem }> = ({
   url,
   isVideo,
   duration,
   name,
-  hook,
+  place,
 }) => {
   const frame = useCurrentFrame();
   const o = ease(frame, 0, 14);
   const p = duration > 0 ? Math.max(0, Math.min(1, frame / duration)) : 0;
-  const scale = 1.04 + p * 0.08;
+  const scale = 1.04 + p * 0.06;
+
+  const dist = place?.distance_m ?? null;
+  const distLabel = dist == null
+    ? null
+    : dist < 1000
+      ? `${dist} m`
+      : `${(dist / 1000).toFixed(dist < 10000 ? 1 : 0).replace(".", ",")} km`;
+  const bearing = place?.bearing_deg ?? null;
+  const mLat = place?.master_latitude ?? null;
+  const mLng = place?.master_longitude ?? null;
+  const pLat = place?.latitude ?? null;
+  const pLng = place?.longitude ?? null;
+  const mapUrl = mLat != null && mLng != null && pLat != null && pLng != null
+    ? `https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/static-map?lat=${mLat}&lng=${mLng}&lat2=${pLat}&lng2=${pLng}&size=480x480&scale=2&maptype=roadmap`
+    : null;
+
+  const cardIn = ease(frame, 12, 34);
+  const arrowPulse = 1 + Math.sin((frame / 30) * Math.PI) * 0.06;
+
   return (
     <AbsoluteFill style={{ overflow: "hidden", opacity: o }}>
       {isVideo ? (
@@ -1611,36 +1634,93 @@ const PlaceShot: React.FC<{ url: string; isVideo: boolean; duration: number; nam
       ) : (
         <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover", transform: `scale(${scale})` }} />
       )}
-      <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.30) 0%,rgba(14,11,8,0.78) 100%)" }} />
-      <AbsoluteFill style={{ justifyContent: "flex-end", alignItems: "center", padding: 70, pointerEvents: "none" }}>
-        <div style={{ textAlign: "center", maxWidth: 900 }}>
-          <div
-            style={{
-              display: "inline-block",
-              fontFamily: body,
-              fontSize: 22,
-              color: COLORS.gold,
-              border: `1px solid ${COLORS.gold}`,
-              borderRadius: 999,
-              padding: "6px 16px",
-              marginBottom: 14,
-              opacity: ease(frame, 6, 22),
-            }}
-          >
-            📍 {name}
-          </div>
-          {hook && (
+      {/* Voile léger : le média reste dominant. */}
+      <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.08) 0%,rgba(14,11,8,0.10) 55%,rgba(14,11,8,0.52) 100%)" }} />
+
+      <AbsoluteFill style={{ justifyContent: "flex-end", padding: 64, pointerEvents: "none" }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24 }}>
+          <div>
             <div
               style={{
-                fontFamily: display,
-                fontWeight: 700,
-                fontSize: 40,
-                lineHeight: 1.2,
-                color: COLORS.cream,
-                opacity: ease(frame, 14, 32),
+                display: "inline-block",
+                fontFamily: body,
+                fontSize: 22,
+                color: COLORS.gold,
+                background: "rgba(14,11,8,0.55)",
+                border: `1px solid ${COLORS.gold}`,
+                borderRadius: 999,
+                padding: "8px 18px",
+                opacity: ease(frame, 6, 22),
               }}
             >
-              {hook}
+              📍 {name}
+            </div>
+            {distLabel && (
+              <div
+                style={{
+                  marginTop: 14,
+                  fontFamily: display,
+                  fontWeight: 700,
+                  fontSize: 56,
+                  lineHeight: 1,
+                  color: COLORS.cream,
+                  textShadow: "0 6px 24px rgba(0,0,0,0.65)",
+                  opacity: cardIn,
+                  transform: `translateY(${interpolate(cardIn, [0, 1], [16, 0])}px)`,
+                }}
+              >
+                {distLabel}
+                <span style={{ fontFamily: body, fontSize: 22, fontWeight: 400, color: COLORS.gold, marginLeft: 12 }}>
+                  à vol d'oiseau
+                </span>
+              </div>
+            )}
+          </div>
+
+          {mapUrl && (
+            <div
+              style={{
+                position: "relative",
+                width: 300,
+                height: 300,
+                borderRadius: 24,
+                overflow: "hidden",
+                border: `2px solid ${COLORS.gold}`,
+                boxShadow: "0 18px 50px rgba(0,0,0,0.55)",
+                opacity: cardIn,
+                transform: `translateY(${interpolate(cardIn, [0, 1], [24, 0])}px)`,
+              }}
+            >
+              <Img src={mapUrl} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              {bearing != null && (
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 92,
+                      height: 92,
+                      borderRadius: 999,
+                      background: "rgba(14,11,8,0.55)",
+                      border: `2px solid ${COLORS.gold}`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      transform: `scale(${arrowPulse})`,
+                    }}
+                  >
+                    <svg width="46" height="46" viewBox="0 0 24 24" style={{ transform: `rotate(${bearing}deg)` }}>
+                      <path d="M12 2 L19 20 L12 16 L5 20 Z" fill="#C04F17" stroke={COLORS.gold} strokeWidth="1.2" />
+                    </svg>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -1648,6 +1728,7 @@ const PlaceShot: React.FC<{ url: string; isVideo: boolean; duration: number; nam
     </AbsoluteFill>
   );
 };
+
 
 const LinkedPlacesOverlay: React.FC<{ places: Array<{ id: string; name: string }> }> = ({ places }) => {
   const frame = useCurrentFrame();
