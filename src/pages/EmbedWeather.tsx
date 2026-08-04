@@ -5,6 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 import { parseFit, fitFlags, applyEmbedBg } from "@/lib/embedFit";
+import { useEmbedFitScale } from "@/hooks/useEmbedFitScale";
 
 type Lang = "fr" | "en" | "ar";
 
