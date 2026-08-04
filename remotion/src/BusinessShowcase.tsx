@@ -2501,7 +2501,9 @@ const SceneInfoText: React.FC<{
   textPosition?: TextPosition;
   /** Habillage décoratif animé (cartes « Menus » sans contenu texte) */
   ornament?: boolean;
-}> = ({ label, title, text, textHtml, logoUrl, durationFrames, textPosition = "middle", ornament = false }) => {
+  /** Intensité du voile sombre au-dessus du média de fond */
+  dim?: "normal" | "light";
+}> = ({ label, title, text, textHtml, logoUrl, durationFrames, textPosition = "middle", ornament = false, dim = "normal" }) => {
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
@@ -2514,7 +2516,13 @@ const SceneInfoText: React.FC<{
   return (
     <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
       <style>{RICH_CSS}</style>
-      <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.42) 0%,rgba(0,0,0,0.78) 100%)" }} />
+      <AbsoluteFill
+        style={{
+          background: dim === "light"
+            ? "linear-gradient(180deg,rgba(0,0,0,0.12) 0%,rgba(0,0,0,0.42) 100%)"
+            : "linear-gradient(180deg,rgba(0,0,0,0.42) 0%,rgba(0,0,0,0.78) 100%)",
+        }}
+      />
       <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
         <FitColumn>
         {safeLogo && (
@@ -3037,14 +3045,16 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
    * la vidéo n°1. Quand une même vidéo est relue (2e tour, 3e tour…), on décale
    * son point d'entrée pour ne pas revoir le même passage.
    */
-  const REPLAY_OFFSET_SEC = 6;
+  const REPLAY_OFFSET_SEC = 2;
   const bgRotate = (planIdx: number) => {
     const list = safeVideos.length ? safeVideos : safeImages;
     if (!list.length) return { src: undefined, image: undefined, extraStartSec: 0 };
     const i = Math.max(0, planIdx);
     const url = list[i % list.length];
     const pass = Math.floor(i / list.length);
-    const extraStartSec = safeVideos.length ? pass * REPLAY_OFFSET_SEC : 0;
+    // Décalage borné : au-delà, startFrom risque de dépasser la durée réelle du
+    // clip et la vidéo reste figée sur sa dernière image (effet « pause »).
+    const extraStartSec = safeVideos.length ? Math.min(pass, 2) * REPLAY_OFFSET_SEC : 0;
     return { ...fallbackBackdrop(url), extraStartSec };
   };
 
@@ -3350,8 +3360,10 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               effect={trImageEffect}
               motion={kind === "ai_summary" ? (((Array.isArray(aiSummaries) ? aiSummaries : [])[idx]?.effect as any) || (aiSummaryEffect as any) || "zoom_in") : null}
               extraStartSec={bgItem ? 0 : bgRotate(planIdx).extraStartSec}
+              veil="rgba(14,11,8,0.14)"
             />
             <SceneInfoText
+              dim="light"
               label={label}
               title={title}
               text={text}
