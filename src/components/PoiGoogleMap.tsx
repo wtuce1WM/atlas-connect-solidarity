@@ -352,7 +352,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     }
   };
 
-const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls, baseColor, centerAtBottomRatio, mapTypeId, fitRadiusKm, connector }: PoiGoogleMapProps) => {
+const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, fitPadding, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls, baseColor, centerAtBottomRatio, mapTypeId, fitRadiusKm, connector }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
