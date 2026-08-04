@@ -385,13 +385,7 @@ export function scenarioFromTemplateProps(
         : `Articles de blog (hero + zoom carte) : ${titles}`,
     );
   }
-  // Widgets Météo / Marées — 3 s par défaut, ville choisie dans la carte de l'étape
-  if (props?.showWeatherWidget && props?.weatherWidget) {
-    push("weather", Number(props.weatherWidget.durationSec) || 3, String(props.weatherWidget.text || "Widget Météo."));
-  }
-  if (props?.showTidesWidget && props?.tidesWidget) {
-    push("tides", Number(props.tidesWidget.durationSec) || 3, String(props.tidesWidget.text || "Widget Marées, Vents & Météo."));
-  }
+  // Widgets Météo / Marées — insérés juste après l'étape Hook (voir plus haut).
   if (props?.showWhatsapp && props?.whatsappNumber) {
     push("whatsapp", Math.max(2, Math.round(durationSec * 0.08)), `WhatsApp ${props.whatsappNumber} — logo #25D366 + effet libre au montage.`);
   }
