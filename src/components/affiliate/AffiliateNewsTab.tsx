@@ -108,7 +108,7 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
       price: "Sur devis",
       enabled: rights.showcaseSite,
       locked: true,
-      desc: "Votre site Page de présentation dédiée hébergée par One World Morocco (photos, offres, avis, contact). Bientôt disponible.",
+      desc: "Votre site web avec page de présentation dédiée hébergée par One World Morocco (photos, offres, avis, contact) sur votredomaine.com. Bientôt disponible.",
     },
   ];
 
