@@ -70,6 +70,12 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const [radiusSaving, setRadiusSaving] = useState<boolean>(false);
   const [radiusSaved, setRadiusSaved] = useState<boolean>(false);
 
+  // Couleur de fond des widgets (businesses.widget_bg_color)
+  const [widgetBg, setWidgetBg] = useState<string>("");
+  const [widgetBgSaving, setWidgetBgSaving] = useState<boolean>(false);
+  const [widgetBgSaved, setWidgetBgSaved] = useState<boolean>(false);
+  const widgetBgValid = /^#[0-9a-fA-F]{6}$/.test(widgetBg);
+
   useEffect(() => {
     if (!businessId) { setRadiusLoading(false); return; }
     let cancelled = false;
@@ -77,12 +83,13 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       setRadiusLoading(true);
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("poi_radius_km")
+        .select("poi_radius_km, widget_bg_color")
         .eq("id", businessId)
         .maybeSingle();
       if (cancelled) return;
       const v = Number((data as any)?.poi_radius_km);
       setRadiusKm(v > 0 ? v : 10);
+      setWidgetBg(((data as any)?.widget_bg_color || "").toUpperCase());
       setRadiusLoading(false);
     })();
     return () => { cancelled = true; };
@@ -101,6 +108,22 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
     setRadiusSaved(true);
   };
+
+  const saveWidgetBg = async (raw: string) => {
+    if (!businessId) return;
+    const value = /^#[0-9a-fA-F]{6}$/.test(raw) ? raw.toUpperCase() : null;
+    if (raw && !value) return;
+    setWidgetBgSaving(true);
+    setWidgetBgSaved(false);
+    const { error } = await (supabase as any)
+      .from("businesses")
+      .update({ widget_bg_color: value })
+      .eq("id", businessId);
+    setWidgetBgSaving(false);
+    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    setWidgetBgSaved(true);
+  };
+
 
 
 
