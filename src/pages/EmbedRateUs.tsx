@@ -1,6 +1,7 @@
 // Page embarquable « Laisser un avis » : /embed/avis/:slug?platform=all|google|tripadvisor&lang=fr&variant=card|bar
 import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
+import { applyEmbedBg } from "@/lib/embedFit";
 import { supabase } from "@/integrations/supabase/client";
 import { tripadvisorReviewUrl } from "@/lib/tripadvisorUrl";
 import EmbedRateUsWidget, { type RateTarget, type RateVariant } from "@/components/embed/EmbedRateUsWidget";
@@ -33,8 +34,8 @@ export default function EmbedRateUs() {
 
   useEffect(() => {
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-    document.body.style.background = "transparent";
-  }, [lang]);
+    return applyEmbedBg(params.get("bg"));
+  }, [lang, params]);
 
   useEffect(() => {
     let alive = true;
