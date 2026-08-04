@@ -1236,6 +1236,13 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         if (options?.whatsapp_offer_mode === "with_offer") template_props.whatsappShowOffer = true;
       }
 
+      const MOTION_EFFECTS = ["zoom_in", "zoom_out", "pan_left", "pan_right", "pan_down", "pan_up", "scroll_v"];
+      const pickEffect = (map: unknown, id: string, fallback: string | null): string | null => {
+        const v = map && typeof map === "object" ? (map as Record<string, unknown>)[id] : null;
+        if (typeof v === "string" && MOTION_EFFECTS.includes(v)) return v;
+        return fallback && MOTION_EFFECTS.includes(fallback) ? fallback : null;
+      };
+
       // Blocs highlights sélectionnés — une entrée par bloc dans le scénario.
       const rawHighlightIds = Array.isArray(options?.highlight_ids) ? options.highlight_ids : [];
       const highlightIds = rawHighlightIds.filter((v: unknown) => typeof v === "string" && /^[0-9a-f-]{36}$/i.test(v));
@@ -1253,10 +1260,12 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         });
         const builtH = rows
           .map((row: any) => {
-            const title = cleanDisplayText(videoLang === "en" ? pickLang(row.title_en, row.title_fr, row.title) : (row.title_fr || row.title)) || "";
-            const description = stripHtml(videoLang === "en" ? pickLang(row.description_en, row.description_fr, row.description) : (row.description_fr || row.description)) || "";
-            const metric_title = cleanDisplayText(videoLang === "en" ? pickLang(row.metric_title_en, row.metric_title_fr, row.metric_title) : (row.metric_title_fr || row.metric_title)) || "";
-            const metric_value = cleanDisplayText(videoLang === "en" ? pickLang(row.metric_value_en, row.metric_value_fr, row.metric_value) : (row.metric_value_fr || row.metric_value)) || "";
+            const rawDesc = videoLang === "en" ? pickLang(row.description_en, row.description_fr, row.description) : (row.description_fr || row.description);
+            const title = cleanDisplayText(stripHtml(videoLang === "en" ? pickLang(row.title_en, row.title_fr, row.title) : (row.title_fr || row.title))) || "";
+            const description = stripHtml(rawDesc) || "";
+            const description_html = sanitizeRich(rawDesc);
+            const metric_title = cleanDisplayText(stripHtml(videoLang === "en" ? pickLang(row.metric_title_en, row.metric_title_fr, row.metric_title) : (row.metric_title_fr || row.metric_title))) || "";
+            const metric_value = cleanDisplayText(stripHtml(videoLang === "en" ? pickLang(row.metric_value_en, row.metric_value_fr, row.metric_value) : (row.metric_value_fr || row.metric_value))) || "";
             if (!title && !description && !row.image_url && !metric_title && !metric_value) return null;
             return {
               id: row.id,
@@ -1264,6 +1273,8 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
               image_url: row.image_url || null,
               title,
               description,
+              description_html: description_html || undefined,
+              effect: pickEffect(options?.highlight_effects, row.id, null) || undefined,
               metric_title: metric_title || undefined,
               metric_value: metric_value || undefined,
             };
@@ -1284,6 +1295,8 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
           .eq("business_id", resolved_business_id)
           .in("id", sumIds)
           .order("sort_order", { ascending: true });
+        const rawEffect = typeof options?.ai_summary_effect === "string" ? options.ai_summary_effect : "";
+        const globalEffect = MOTION_EFFECTS.includes(rawEffect) ? rawEffect : "zoom_in";
         const built = (rows ?? [])
           .slice()
           .sort((a: any, b: any) => sumIds.indexOf(a.id) - sumIds.indexOf(b.id))
@@ -1291,13 +1304,13 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
             id: r.id,
             title: cleanDisplayText(stripHtml(r.title || "")) || "",
             content: cleanDisplayText(stripHtml(r.content || "")) || "",
+            effect: pickEffect(options?.ai_summary_effects, r.id, globalEffect) || globalEffect,
           }))
           .filter((r: any) => r.title || r.content);
         if (built.length > 0) template_props.aiSummaries = built;
-        const AI_SUMMARY_EFFECTS = ["zoom_in", "zoom_out", "pan_left", "pan_right", "pan_down", "pan_up", "scroll_v"];
-        const rawEffect = typeof options?.ai_summary_effect === "string" ? options.ai_summary_effect : "";
-        template_props.aiSummaryEffect = AI_SUMMARY_EFFECTS.includes(rawEffect) ? rawEffect : "zoom_in";
+        template_props.aiSummaryEffect = globalEffect;
       }
+
       const linkIds = uuidOnly(options?.external_link_ids).slice(0, 8);
       const menuIds = uuidOnly(options?.menu_doc_ids).slice(0, 8);
       if (linkIds.length > 0 || menuIds.length > 0) {
