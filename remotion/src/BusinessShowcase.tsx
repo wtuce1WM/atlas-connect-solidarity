@@ -1585,7 +1585,7 @@ const LinkedPlacesMontage: React.FC<{ places: PlaceItem[]; duration: number; mod
         const dur = i === withMedia.length - 1 ? Math.max(per, duration - from) : per;
         return (
           <Sequence key={`${pl.id}-${i}`} from={from} durationInFrames={dur}>
-            <PlaceShot url={url} isVideo={isVid} duration={dur} name={pl.name} hook={pl.hook ?? null} />
+            <PlaceShot url={url} isVideo={isVid} duration={dur} name={pl.name} place={pl} />
           </Sequence>
         );
       })}
