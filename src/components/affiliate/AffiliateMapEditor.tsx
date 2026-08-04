@@ -481,13 +481,13 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
             ))}
           </div>
 
-          {kpGroups.length > 0 && (
+          {(kpGroups.length > 0 || defaultPoi) && (
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                onClick={() => setKpView(null)}
+                onClick={() => { setKpView(null); setPoiView(false); }}
                 className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                  kpView === null
+                  kpView === null && !poiView
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-white/15 text-white/70 hover:bg-white/10"
                 }`}
@@ -498,9 +498,9 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
                 <button
                   key={`cta-${g.slot}-${g.code}`}
                   type="button"
-                  onClick={() => setKpView(kpView === g.slot ? null : g.slot)}
+                  onClick={() => { setPoiView(false); setKpView(kpView === g.slot ? null : g.slot); }}
                   className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                    kpView === g.slot
+                    kpView === g.slot && !poiView
                       ? "border-primary bg-primary text-primary-foreground"
                       : "border-white/15 text-white/70 hover:bg-white/10"
                   }`}
@@ -509,8 +509,23 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
                   {g.title}
                 </button>
               ))}
+              {defaultPoi && (
+                <button
+                  type="button"
+                  onClick={() => { setKpView(null); setPoiView((v) => !v); }}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                    poiView
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-white/15 text-white/70 hover:bg-white/10"
+                  }`}
+                >
+                  <MapPin className="h-3.5 w-3.5" />
+                  {defaultPoi.name}
+                </button>
+              )}
             </div>
           )}
+
 
           {!biz?.latitude || !biz?.longitude ? (
             <p className="text-sm text-white/50">
