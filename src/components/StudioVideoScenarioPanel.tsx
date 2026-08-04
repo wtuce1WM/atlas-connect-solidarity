@@ -266,6 +266,18 @@ export function scenarioFromTemplateProps(
     push("logo", Math.max(2, Math.round(durationSec * 0.06)), "Ouverture sur le logo de l'établissement.");
   }
 
+  // Étapes BIENVENUE / PROPOSITION (Présence en ligne / CTAs) — juste après le logo,
+  // avant « Nom & identité ». Durées fournies par le scénario côté serveur si présentes.
+  const introDur = (k: "welcome" | "proposition") => {
+    const d = Number(props?.scene_durations?.[k]);
+    return Number.isFinite(d) && d > 0 ? d : 3;
+  };
+  const welcomeTextProp = typeof props?.welcomeText === "string" ? props.welcomeText.trim() : "";
+  if (welcomeTextProp) push("welcome", introDur("welcome"), welcomeTextProp);
+  const propositionTextProp = typeof props?.propositionText === "string" ? props.propositionText.trim() : "";
+  if (propositionTextProp) push("proposition", introDur("proposition"), propositionTextProp);
+
+
   // Scène "hook" du montage = NOM + 📍 ville · quartier (texte exact affiché à l'écran)
   const city = typeof props?.city === "string" ? props.city.trim() : "";
   const neighborhood = typeof props?.neighborhood === "string" ? props.neighborhood.trim() : "";
