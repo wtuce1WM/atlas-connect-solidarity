@@ -447,6 +447,10 @@ export default function StudioVideo() {
   const [selectedAiSummaryIds, setSelectedAiSummaryIds] = useState<Set<string>>(new Set());
   // Effet visuel appliqué au média de fond des séquences « Résumé IA »
   const [aiSummaryEffect, setAiSummaryEffect] = useState<string>("zoom_in");
+  // Effet de mouvement propre à chaque bloc highlight / résumé IA (clé = id)
+  const [highlightEffects, setHighlightEffects] = useState<Record<string, string>>({});
+  const [aiSummaryEffects, setAiSummaryEffects] = useState<Record<string, string>>({});
+
   // Liens externes (business_documents type external_link) — libellé = description (Media, Partenaires…)
   const [externalLinksList, setExternalLinksList] = useState<Array<{ id: string; name: string; label: string; url: string; image: string | null }>>([]);
   const [selectedExternalLinkIds, setSelectedExternalLinkIds] = useState<Set<string>>(new Set());
