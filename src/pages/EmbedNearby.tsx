@@ -40,7 +40,8 @@ const EmbedNearby = () => {
     setLanguage(lang);
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
     document.title = "À proximité — One World Morocco";
-  }, [lang, setLanguage]);
+    applyEmbedBg(mapBaseColor);
+  }, [lang, setLanguage, mapBaseColor]);
 
   useEffect(() => {
     if (!slug) return;
