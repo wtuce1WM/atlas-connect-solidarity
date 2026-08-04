@@ -107,11 +107,16 @@ export default function EmbedWeather() {
         </div>
       )}
       {!loading && !error && data && (
-        <div ref={innerRef} className="w-full [&>div]:max-w-full" style={fitStyle}>
-
-          <EmbedWeatherWidget data={data} lang={lang} embedded={fullWidth} />
+        <div
+          ref={innerRef}
+          className="w-full [&>div]:max-w-full"
+          style={{ ...(fitStyle || {}), ...(zoom !== 1 ? ({ zoom } as CSSProperties) : {}) }}
+        >
+          {/* `embedded` = pas de largeur bridée : la taille est pilotée par l'iframe hôte */}
+          <EmbedWeatherWidget data={data} lang={lang} embedded />
         </div>
       )}
+
     </div>
   );
 }
