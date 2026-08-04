@@ -195,8 +195,10 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     [embedUrl, businessName]
   );
 
-  const nearbyBgValid = /^#[0-9a-fA-F]{6}$/.test(nearbyBg);
-  const nearbyUrl = `${SITE}/embed/nearby/${slug}?lang=${nearbyLang}${nearbyBgValid ? `&bg=${nearbyBg.slice(1)}` : ""}`;
+  // Couleur forcée dans ce widget, sinon couleur de fond des widgets de l'établissement
+  const effectiveNearbyBg = /^#[0-9a-fA-F]{6}$/.test(nearbyBg) ? nearbyBg : (widgetBgValid ? widgetBg : "");
+  const nearbyBgValid = /^#[0-9a-fA-F]{6}$/.test(effectiveNearbyBg);
+  const nearbyUrl = `${SITE}/embed/nearby/${slug}?lang=${nearbyLang}${nearbyBgValid ? `&bg=${effectiveNearbyBg.slice(1)}` : ""}`;
   const nearbySnippet = useMemo(
     () =>
       `<iframe src="${nearbyUrl}" style="width:100%;height:${nearbyHeight}px;border:0;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.15)" title="À proximité — ${businessName}" loading="lazy" allow="geolocation"></iframe>`,
