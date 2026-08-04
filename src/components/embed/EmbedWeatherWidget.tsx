@@ -51,7 +51,7 @@ export type WeatherPayload = {
 type Lang = "fr" | "en" | "ar";
 
 // OpenWeather icon code → emoji + animation kind
-function iconToEmoji(icon: string | undefined): { emoji: string; anim: string } {
+export function iconToEmoji(icon: string | undefined): { emoji: string; anim: string } {
   const c = (icon || "").slice(0, 3);
   const isNight = (icon || "").endsWith("n");
   switch (c) {
@@ -78,7 +78,7 @@ function iconToEmoji(icon: string | undefined): { emoji: string; anim: string } 
 }
 
 // Gradient by primary condition
-function bgFor(icon: string | undefined): string {
+export function bgFor(icon: string | undefined): string {
   const c = (icon || "").slice(0, 3);
   const night = (icon || "").endsWith("n");
   if (c === "01d" || c === "02d") return "from-amber-300 via-orange-400 to-rose-500";
@@ -92,7 +92,7 @@ function bgFor(icon: string | undefined): string {
   return night ? "from-indigo-950 via-slate-900 to-black" : "from-amber-300 via-orange-400 to-rose-500";
 }
 
-function formatDayLabel(dateStr: string, lang: Lang): string {
+export function formatDayLabel(dateStr: string, lang: Lang): string {
   try {
     const d = new Date(dateStr + "T12:00:00");
     const today = new Date();
@@ -109,7 +109,7 @@ function formatDayLabel(dateStr: string, lang: Lang): string {
 }
 
 // Wind direction (meteorological degrees = where wind comes FROM) → compass label
-function compassLabel(deg: number, lang: Lang): string {
+export function compassLabel(deg: number, lang: Lang): string {
   const fr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSO", "SO", "OSO", "O", "ONO", "NO", "NNO"];
   const en = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
   const idx = Math.round(((deg % 360) + 360) % 360 / 22.5) % 16;
@@ -117,7 +117,7 @@ function compassLabel(deg: number, lang: Lang): string {
 }
 
 // Beaufort scale from km/h
-function beaufort(kmh: number): number {
+export function beaufort(kmh: number): number {
   const bounds = [1, 5, 11, 19, 28, 38, 49, 61, 74, 88, 102, 117];
   let b = 0;
   for (const v of bounds) if (kmh >= v) b++;
@@ -125,7 +125,7 @@ function beaufort(kmh: number): number {
 }
 
 // Open-Meteo WMO weather code → emoji
-function codeToEmoji(code: number | null | undefined): string {
+export function codeToEmoji(code: number | null | undefined): string {
   if (code == null) return "☀️";
   if (code === 0) return "☀️";
   if (code <= 2) return "🌤️";
