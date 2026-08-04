@@ -631,10 +631,10 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
           </div>
         </div>
 
+        {fitRow("embed")}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <div className="space-y-2">
             <Label className="text-white/80 text-xs">Code à copier</Label>
-            {fitRow("embed")}
             <textarea
               readOnly
               value={embedSnippet}
@@ -1038,10 +1038,10 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
 
 
+        {fitRow("reviews")}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <div className="space-y-2">
             <Label className="text-white/80 text-xs">Code à copier (inline)</Label>
-            {fitRow("reviews")}
             <textarea
               readOnly
               value={reviewsSnippet}
@@ -1141,10 +1141,10 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
           </div>
         </div>
 
+        {fitRow("rate")}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <div className="space-y-2">
             <Label className="text-white/80 text-xs">Code à copier (inline)</Label>
-            {fitRow("rate")}
             <textarea
               readOnly
               value={rateSnippet}
@@ -1272,10 +1272,10 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
             </div>
           </div>
         </div>
+        {fitRow("weather")}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <div className="space-y-2">
             <Label className="text-white/80 text-xs">Code à copier (inline)</Label>
-            {fitRow("weather")}
             <textarea
               readOnly
               value={weatherSnippet}
@@ -1349,10 +1349,10 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
             </div>
           </div>
         </div>
+        {fitRow("tides")}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <div className="space-y-2">
             <Label className="text-white/80 text-xs">Code à copier (inline)</Label>
-            {fitRow("tides")}
             <textarea
               readOnly
               value={tidesSnippet}
@@ -1434,10 +1434,10 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               </div>
             </div>
           </div>
+          {fitRow("fiche")}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label className="text-white/80 text-xs">Code à copier (iframe + auto-resize)</Label>
-              {fitRow("fiche")}
               <textarea
                 readOnly
                 value={ficheSnippet}
