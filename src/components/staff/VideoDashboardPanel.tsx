@@ -247,6 +247,38 @@ export default function VideoDashboardPanel() {
         </Select>
       </div>
 
+      {/* Cumul historique — toujours en premier, indépendant de la période */}
+      {allTime && (
+        <Card className="border-gold/40 bg-muted/30">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">
+              Cumul total depuis le début du traçage
+              {allTime.since ? ` (${new Date(allTime.since).toLocaleDateString("fr-FR")})` : ""}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <div className="text-3xl font-bold">{fmtUsd(allTime.cost)}</div>
+                <p className="text-sm text-muted-foreground">Coût IA total</p>
+              </div>
+              <div>
+                <div className="text-3xl font-bold">{fmtNum(allTime.tokens)}</div>
+                <p className="text-sm text-muted-foreground">Tokens totaux ({fmtNum(allTime.input)} in / {fmtNum(allTime.output)} out)</p>
+              </div>
+              <div>
+                <div className="text-3xl font-bold">{fmtNum(allTime.calls)}</div>
+                <p className="text-sm text-muted-foreground">Appels IA · {fmtNum(allTime.videos)} vidéos ({fmtNum(allTime.done)} terminées)</p>
+              </div>
+              <div>
+                <div className="text-3xl font-bold">{allTime.done > 0 ? fmtUsd(allTime.cost / allTime.done) : "—"}</div>
+                <p className="text-sm text-muted-foreground">Coût IA moyen / vidéo réussie</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card><CardContent className="pt-4"><div className="text-2xl font-bold">{fmtUsd(totals.cost)}</div><p className="text-sm text-muted-foreground">Coût IA scénario</p></CardContent></Card>
         <Card><CardContent className="pt-4"><div className="text-2xl font-bold">{fmtNum(totals.tokens)}</div><p className="text-sm text-muted-foreground">Tokens ({fmtNum(totals.input)} in / {fmtNum(totals.output)} out)</p></CardContent></Card>
