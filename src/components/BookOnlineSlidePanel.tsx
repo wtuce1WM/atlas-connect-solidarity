@@ -404,6 +404,7 @@ const BookOnlineSlidePanelInner = ({
   const [poiPillOverlay, setPoiPillOverlay] = useState<"poi" | "cat" | null>(null);
   // Pills POI / Catégories : menu déroulant sur desktop, overlay plein écran sur mobile
   const isMobileView = useIsMobile();
+  const isEmbedMapWidget = embedMode && initialOverlay === "poi";
   const usePillDropdown = embedMode || !isMobileView;
   const [poiSubcatOpen, setPoiSubcatOpen] = useState(false);
   const [poiShowAll, setPoiShowAll] = useState(false);
@@ -1525,7 +1526,7 @@ const BookOnlineSlidePanelInner = ({
   const destName = (d: Destination) => language === "en" && d.name_en ? d.name_en : d.name_fr;
 
   return (
-    <div className="h-full overflow-visible overscroll-none bg-black relative">
+    <div className={`h-full overflow-visible overscroll-none relative ${isEmbedMapWidget ? "bg-transparent" : "bg-black"}`}>
       {/* Toolbar portals */}
       <ToolbarPortals
         business={business}
@@ -1556,8 +1557,8 @@ const BookOnlineSlidePanelInner = ({
 
       {/* Full-bleed background — extracted component.
           Widget embarqué "carte" : pas de média de fond (évite l'écran noir + vidéo avant la carte). */}
-      {embedMode && initialOverlay === "poi" ? (
-        <div className="absolute inset-0 bg-background" />
+      {isEmbedMapWidget ? (
+        <div className="absolute inset-0 bg-transparent" />
       ) : (
         <div className={externalVideoBackgroundClass}>
           <MediaBackground
@@ -2925,7 +2926,7 @@ const BookOnlineSlidePanelInner = ({
         }
         const activeProx = proxOpts.find((o) => o.km === poiProximityKm) || null;
         return (
-        <OverlayShell zClass="z-[80]" desktopOnly={false} animClass={embedMode && initialOverlay === "poi" ? "" : "animate-slide-up-from-bottom"}>
+        <OverlayShell zClass="z-[80]" desktopOnly={false} animClass={isEmbedMapWidget ? "animate-slide-in-right" : "animate-slide-up-from-bottom"} className={isEmbedMapWidget ? "lg:left-1/2 lg:w-1/2" : ""} bg={isEmbedMapWidget ? "bg-background" : ""}>
           <div dir="ltr" className="absolute inset-0">
             {!embedMode && (
               <button

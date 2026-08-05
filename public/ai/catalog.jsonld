@@ -3,7 +3,7 @@
   "@type": "ItemList",
   "name": "Catalogue ONE WORLD MOROCCO",
   "url": "https://oneworldmorocco.com/ai/catalog.jsonld",
-  "numberOfItems": 1843,
+  "numberOfItems": 1844,
   "itemListElement": [
     {
       "@type": "ListItem",
@@ -1503,8 +1503,8 @@
         "description": "La longue histoire culinaire de La Maison Arabe remonte à 1946, lorsque deux Françaises entreprenantes, Hélène Sébillon-Larochette et sa fille Suzy, obtinrent du pacha Thami el Glaoui l'autorisation d'ouvrir le premier restaurant ouvert aux étrangers dans la médina. Le pacha mit à leur disposition un serviteur de son palais voisin pour leur enseigner les subtilités de la cuisine marocaine, et La Maison Arabe devint rapidement l'une des tables les plus réputées du continent africain. Depuis, La M",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Derb Assehbe, Bab Doukkala",
-          "addressLocality": "Medina",
+          "streetAddress": "Derb Assehbe",
+          "addressLocality": "Bab Doukkala",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
         },
@@ -1517,7 +1517,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 1501,
+          "reviewCount": 1535,
           "bestRating": 5
         }
       }
@@ -4344,7 +4344,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 1679,
+          "reviewCount": 1909,
           "bestRating": 5
         }
       }
@@ -6035,7 +6035,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.1,
-          "reviewCount": 10461,
+          "reviewCount": 10685,
           "bestRating": 5
         }
       }
@@ -6382,10 +6382,10 @@
         "name": "Cinéma Le Colisée",
         "url": "https://oneworldmorocco.com/cinema-le-colisee",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/719cfac5-4697-4f33-a673-7ea063688636-1770920077560-g1lhkd.jpg",
-        "description": "Le Cinéma Le Colisée est une salle de cinéma emblématique située dans le quartier Guéliz à Marrakech. Il propose des films en version originale sous-titrée en français (VOSTFR), en version française et en arabe. Avec ses deux niveaux – Orchestre (40 Dh, 30 Dh le lundi) et Balcon (50 Dh) – il offre une expérience cinématographique authentique dans un cadre historique. Le Colisée accueille également des événements culturels comme les Semaines du Film Européen.",
+        "description": "Le Cinéma Le Colisée est une salle de cinéma emblématique située dans le quartier Guéliz à Marrakech. Il propose des films en version originale sous-titrée en français (VOSTFR), en version française et en arabe. Avec ses deux niveaux – Orchestre (40 Dh, 30 Dh le lundi) et Balcon (50 Dh) – il offre une expérience cinématographique authentique dans un cadre historique. Le Colisée accueille également des événements culturels comme les Semaines du Film Européen. Situé au cœur de Guéliz , le Cinéma L",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Boulevard Mohammed Zerktouni, Guéliz",
+          "streetAddress": "Bd Mohammed Zerktouni",
           "addressLocality": "Gueliz",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -6399,7 +6399,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.2,
-          "reviewCount": 843,
+          "reviewCount": 888,
           "bestRating": 5
         }
       }
@@ -6462,7 +6462,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.1,
-          "reviewCount": 3744,
+          "reviewCount": 3742,
           "bestRating": 5
         }
       }
@@ -7483,7 +7483,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 15002,
+          "reviewCount": 15277,
           "bestRating": 5
         }
       }
@@ -7607,8 +7607,8 @@
         "telephone": "+212 5243-35764",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.5,
-          "reviewCount": 6,
+          "ratingValue": 4.6,
+          "reviewCount": 7,
           "bestRating": 5
         }
       }
@@ -15312,7 +15312,7 @@
         "description": "Au cœur de la nature marrakchie environnante, le Jardin Ocre offre une immersion où chaque senteur, chaque couleur et chaque saveur révèle la richesse du lieu. Dans cet écrin verdoyant, le visiteur découvre une atmosphère authentique, des moments de partage et des expériences à la fois ludiques et pédagogiques. Ici, les paysages se déploient dans toute leur beauté, la flore s’épanouit au fil des saisons et les animaux éveillent la curiosité des plus jeunes comme des adultes. Entre senteurs enivr",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Km 12 Route d'Amizmiz",
+          "streetAddress": "Km 12",
           "addressLocality": "Route d'Amizmiz",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -15325,8 +15325,8 @@
         "telephone": " +212 5244-25225",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.4,
-          "reviewCount": 41,
+          "ratingValue": 4.5,
+          "reviewCount": 42,
           "bestRating": 5
         }
       }
@@ -16063,14 +16063,14 @@
         },
         "geo": {
           "@type": "GeoCoordinates",
-          "latitude": 31.6087,
-          "longitude": -8.0218
+          "latitude": 31.6213043,
+          "longitude": -8.0198663
         },
         "telephone": "+212 5 24 20 78 54",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.6,
-          "reviewCount": 35,
+          "ratingValue": 4.5,
+          "reviewCount": 39,
           "bestRating": 5
         }
       }
@@ -16647,7 +16647,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 1501,
+          "reviewCount": 1535,
           "bestRating": 5
         }
       }
@@ -17506,8 +17506,8 @@
         "telephone": "+212524388008",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.7,
-          "reviewCount": 66,
+          "ratingValue": 4.6,
+          "reviewCount": 88,
           "bestRating": 5
         }
       }
@@ -17602,7 +17602,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 14922,
+          "reviewCount": 15620,
           "bestRating": 5
         }
       }
@@ -17720,7 +17720,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 14,
+          "reviewCount": 15,
           "bestRating": 5
         }
       }
@@ -18133,7 +18133,7 @@
         "description": "Plongez dans une oasis de calme et de fraîcheur au cœur de la médina de Marrakech. Au pied de la Koutoubia, entre le Palais Royal et l’effervescente place Jemaâ El Fna, la Villa des Orangers, hôtel 5 étoiles à Marrakech, s’ouvre à vous tel un écrin de sérénité dédié à la douceur de vivre. Son authenticité, son atmosphère raffinée, son harmonie de couleurs chatoyantes, de tissus élégants et de bois sculptés lui confèrent un charme unique. Dans l’univers luxueux et confortable de cette somptueuse ",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "6 rue Sidi Mimoun Place Ben Tachfine",
+          "streetAddress": "Place Ben Tachfine",
           "addressLocality": "Medina",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -18147,7 +18147,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 449,
+          "reviewCount": 465,
           "bestRating": 5
         }
       }
@@ -18191,12 +18191,13 @@
       "item": {
         "@type": "LocalBusiness",
         "@id": "https://oneworldmorocco.com/lacoste-carre-eden#business",
-        "name": " Lacoste Carre Eden",
+        "name": "Lacoste Carre Eden",
         "url": "https://oneworldmorocco.com/lacoste-carre-eden",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/7924a190-679d-4981-a12a-b56c257cd680-1773808206740-6hhqn7.webp",
+        "description": "Située dans le prestigieux Centre Commercial Carré Eden , au cœur du quartier de Guéliz à Marrakech, la boutique Lacoste Carré Eden est l'adresse incontournable pour découvrir les collections officielles de la célèbre marque au crocodile. Facilement accessible depuis l'avenue Mohammed V, les principaux hôtels, les restaurants, les cafés et les lieux de shopping de Guéliz, cette boutique accueille aussi bien les habitants de Marrakech que les voyageurs souhaitant profiter d'une expérience shoppin",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Boulevard Mohamed V, Carré Eden",
+          "streetAddress": "Carré Eden",
           "addressLocality": "Gueliz",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -18209,8 +18210,8 @@
         "telephone": "+212524434622",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.5,
-          "reviewCount": 17,
+          "ratingValue": 4.3,
+          "reviewCount": 18,
           "bestRating": 5
         }
       }
@@ -18502,7 +18503,7 @@
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "403 Rue de La Kasbah",
-          "addressLocality": "Medina",
+          "addressLocality": "Kasbah",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
         },
@@ -18515,7 +18516,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 506,
+          "reviewCount": 530,
           "bestRating": 5
         }
       }
@@ -18804,7 +18805,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 642,
+          "reviewCount": 644,
           "bestRating": 5
         }
       }
@@ -18918,21 +18919,21 @@
         "description": "Situé dans les jardins luxuriants du Country Club de La Maison Arabe, Le Figuier est une adresse incontournable pour profiter d’un moment de détente loin de l’agitation de Marrakech. Niché à quelques minutes du centre-ville, ce bar-restaurant de piscine offre une atmosphère élégante et apaisante, idéale pour une escapade en journée. Entouré de verdure, de palmiers et d’espaces ombragés, Le Figuier séduit par son cadre naturel et son ambiance exclusive. Au bord de la piscine, les visiteurs peuven",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Derb Assehbe, Bab Doukkala",
-          "addressLocality": "Medina",
+          "streetAddress": "Derb Assehbe",
+          "addressLocality": "Bab Doukkala",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
         },
         "geo": {
           "@type": "GeoCoordinates",
-          "latitude": 31.6302151,
-          "longitude": -7.9962378
+          "latitude": 31.6281097,
+          "longitude": -7.9604652
         },
         "telephone": "+212524387010",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.5,
-          "reviewCount": 1519,
+          "ratingValue": 4.6,
+          "reviewCount": 31,
           "bestRating": 5
         }
       }
@@ -19412,7 +19413,7 @@
         "description": "Le Comptoir Paysan est une adresse incontournable pour découvrir le meilleur du terroir marocain. Cette épicerie engagée met à l’honneur des produits naturels, biologiques et issus du commerce équitable, directement sélectionnés auprès de coopératives locales à travers tout le Maroc. Fondé avec une volonté de valoriser le savoir-faire traditionnel et de soutenir les petits producteurs, Le Comptoir Paysan propose une large gamme de produits authentiques : huiles d’argan alimentaires et cosmétique",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "534 sidi ghanem",
+          "streetAddress": "N°534",
           "addressLocality": "Sidi Ghanem",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -19458,7 +19459,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 38,
+          "reviewCount": 39,
           "bestRating": 5
         }
       }
@@ -21879,12 +21880,12 @@
     {
       "@type": "ListItem",
       "position": 748,
-      "url": "https://oneworldmorocco.com/m-avenue",
+      "url": "https://oneworldmorocco.com/m-avenue-1",
       "item": {
         "@type": "LocalBusiness",
-        "@id": "https://oneworldmorocco.com/m-avenue#business",
+        "@id": "https://oneworldmorocco.com/m-avenue-1#business",
         "name": "M Avenue",
-        "url": "https://oneworldmorocco.com/m-avenue",
+        "url": "https://oneworldmorocco.com/m-avenue-1",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/fe0ab0ca-e324-4f26-87c5-23ae6a867c3f-1774592776454-7f2c9sq.jpg",
         "description": "Bienvenue à M Avenue, une destination dynamique qui allie luxe, lifestyle et culture, en plein cœur de Marrakech. Conçue comme une expérience urbaine moderne, M Avenue réunit shopping exclusif, restauration raffinée, galeries d’art, espaces bien-être et divertissement — le tout dans un lieu unique. Que vous souhaitiez découvrir l’artisanat local, profiter des marques internationales ou simplement vous détendre dans une atmosphère élégante, M Avenue offre une expérience inoubliable qui reflète l’",
         "address": {
@@ -21903,7 +21904,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 4152,
+          "reviewCount": 4294,
           "bestRating": 5
         }
       }
@@ -22011,7 +22012,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 191,
+          "reviewCount": 192,
           "bestRating": 5
         }
       }
@@ -24689,7 +24690,7 @@
         "description": "Marrakesh Organics est une exploitation oléicole biologique et un centre de formation en écologie situé dans la vallée de l'Ourika, près de Marrakech. Ce projet s'attaque à certains des enjeux majeurs de notre époque : la santé environnementale, la santé humaine et la compréhension interculturelle. Nous transformons un paysage aride et dégradé en un sanctuaire luxuriant, abondant et paisible pour la famille, les invités et la communauté, un espace qui promeut un mode de vie durable, produit des ",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Route de l'Ourika, Km 25, Vallée de l'Ourika",
+          "streetAddress": "Km 25",
           "addressLocality": "Route de l’Ourika",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -24703,7 +24704,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 19,
+          "reviewCount": 21,
           "bestRating": 5
         }
       }
@@ -30094,7 +30095,13 @@
           "latitude": 31.6349268,
           "longitude": -8.0300349
         },
-        "telephone": "+212524449939"
+        "telephone": "+212524449939",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 3.4,
+          "reviewCount": 39,
+          "bestRating": 5
+        }
       }
     },
     {
@@ -30856,7 +30863,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 8,
+          "reviewCount": 9,
           "bestRating": 5
         }
       }
@@ -31109,7 +31116,7 @@
         "description": "Plongez dans le cœur vibrant de Marrakech au Riad 117, à seulement 1 km du Parking Koutoubia de Marrakech. Ce riad authentique et coloré dispose d'une piscine extérieure ouverte toute l'année et d'un service de conciergerie personnalisé pour vous assurer un séjour sur mesure. Chaque chambre du riad dispose de sa propre terrasse, offrant une certaine intimité, et certaines unités offrent une vue imprenable sur la piscine. Le riad a été conçu avec soin, doté d'équipements modernes et d'une touche ",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "N 117 Derb Moulay Abdelkader, Dabachi",
+          "streetAddress": "N 117 Derb Moulay Abdelkader",
           "addressLocality": "Medina",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -31122,8 +31129,8 @@
         "telephone": "+212605599298",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.7,
-          "reviewCount": 141,
+          "ratingValue": 4.6,
+          "reviewCount": 147,
           "bestRating": 5
         }
       }
@@ -31267,11 +31274,11 @@
         "name": "Restaurant de la Maison Arabe",
         "url": "https://oneworldmorocco.com/restaurant-de-la-maison-arabe",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/80015a91-dc1c-4756-8cbf-cbd2160eab3f-1774699939199-lq4g5g.jpg",
-        "description": "Le Restaurant offre une expérience gastronomique raffinée qui célèbre la finesse de la cuisine marocaine. Profitez d’un menu de plats traditionnels et de délicieuses spécialités de La Maison Arabe. Dînez dans un décor orné de portes de palais antiques et de lampes italiennes sous un somptueux plafond zouaké peint à la main, accompagné d’une performance live de musique arabo-andalouse.",
+        "description": "Au cœur de la médina de Marrakech à Bab Doukkala, à quelques minutes de Jemaa el-Fna , le Restaurant de La Maison Arabe est l'une des adresses gastronomiques les plus prestigieuses du Maroc. Installé dans le mythique hôtel La Maison Arabe , ce restaurant emblématique accueille depuis plusieurs décennies des voyageurs du monde entier, des personnalités et des amateurs de haute cuisine marocaine venus découvrir une table réputée pour son élégance, son raffinement et son authenticité. Véritable ins",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Derb Assehbe, Bab Doukkala",
-          "addressLocality": "Medina",
+          "streetAddress": "Derb Assehbe",
+          "addressLocality": "Bab Doukkala",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
         },
@@ -31755,7 +31762,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.4,
-          "reviewCount": 175,
+          "reviewCount": 186,
           "bestRating": 5
         }
       }
@@ -34629,7 +34636,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.4,
-          "reviewCount": 89,
+          "reviewCount": 91,
           "bestRating": 5
         }
       }
@@ -35539,7 +35546,7 @@
         "description": "Vivez un moment de détente incomparable dans un véritable Spa des Mille et Une Nuits. Dans une atmosphère de profonde sérénité, où flottent de doux effluves de pétales de roses ou de fleurs d’orangers, découvrez notre majestueux hammam, réalisé dans le plus pur style des bains marocains, et voyagez dans l’une des plus anciennes traditions de l’Orient. Prolongez votre expérience en savourant les bienfaits de nos gommages et leurs masques corporels, accompagnés par une « Kessala ». Sur le marbre c",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "6 rue Sidi Mimoun Place Ben Tachfine",
+          "streetAddress": "Place Ben Tachfine",
           "addressLocality": "Medina",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -36016,7 +36023,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 519,
+          "reviewCount": 530,
           "bestRating": 5
         }
       }
@@ -47334,6 +47341,7 @@
         "name": "Marché aux fleurs",
         "url": "https://oneworldmorocco.com/marche-aux-fleurs",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/a1f21202-69f7-425c-865a-130e71030921-1780978801139-mvg8dk.webp",
+        "description": "Situé dans le quartier de Guéliz , le Marché aux Fleurs de Marrakech est une adresse incontournable pour les amateurs de fleurs, de plantes et de décoration végétale. Réputé pour la diversité de ses compositions florales et la fraîcheur de ses arrivages, ce marché attire aussi bien les habitants que les professionnels de l'événementiel, les hôtels, les riads, les restaurants et les voyageurs souhaitant découvrir une facette plus authentique de Marrakech. Véritable institution locale, le Marché a",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Rue Ibn Atya",
@@ -47349,7 +47357,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.1,
-          "reviewCount": 300,
+          "reviewCount": 302,
           "bestRating": 5
         }
       }
@@ -50548,7 +50556,7 @@
         "description": "Au cœur de la nature marrakchie environnante, le Jardin Ocre offre une immersion où chaque senteur, chaque couleur et chaque saveur révèle la richesse du lieu. Dans cet écrin verdoyant, le visiteur découvre une atmosphère authentique, des moments de partage et des expériences à la fois ludiques et pédagogiques. Ici, les paysages se déploient dans toute leur beauté, la flore s’épanouit au fil des saisons et les animaux éveillent la curiosité des plus jeunes comme des adultes. Entre senteurs enivr",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Km 12 Route d'Amizmiz",
+          "streetAddress": "Km 12",
           "addressLocality": "Route d'Amizmiz",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -50561,8 +50569,8 @@
         "telephone": " +212 5244-25225",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.4,
-          "reviewCount": 41,
+          "ratingValue": 4.5,
+          "reviewCount": 42,
           "bestRating": 5
         }
       }
@@ -52629,7 +52637,7 @@
         "name": "NaneaKite",
         "url": "https://oneworldmorocco.com/naneakite",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/04b4a5e2-e80c-4ba8-92cd-bee77f821d04-1785313792418-tcvn8d.jpg",
-        "description": "Bienvenue dans notre école de kitesurf à Essaouira, où le vent est notre allié et les vagues notre terrain de jeu. Que vous soyez débutant désireux d'apprendre les bases ou kitesurfeur confirmé souhaitant perfectionner votre technique, notre école propose des cours et des expériences adaptés à vos besoins. Notre école de kitesurf est basée sur la plage, sur le spot principal. Nous disposons de toutes les commodités, comme des douches, des chambres et un service de location de voitures. Nous avon",
+        "description": "Que vous soyez débutant désireux d'apprendre les bases ou kitesurfeur confirmé souhaitant perfectionner votre technique, notre école propose des cours et des expériences adaptés à vos besoins. Notre école de kitesurf est basée sur la plage, sur le spot principal. Nous disposons de toutes les commodités, comme des douches, des chambres et un service de location de voitures. Nous avons accès à différents sports nautiques comme le kitesurf, le surf et le wingfoil. L'école de kitesurf propose des ho",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Rue Abdari",
@@ -52819,6 +52827,38 @@
           "addressLocality": "Gueliz",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1844,
+      "url": "https://oneworldmorocco.com/m-avenue-1",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/m-avenue-1#business",
+        "name": "M Avenue",
+        "url": "https://oneworldmorocco.com/m-avenue-1",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/fe0ab0ca-e324-4f26-87c5-23ae6a867c3f-1774592776454-7f2c9sq.jpg",
+        "description": "Bienvenue à M Avenue, une destination dynamique qui allie luxe, lifestyle et culture, en plein cœur de Marrakech. Conçue comme une expérience urbaine moderne, M Avenue réunit shopping exclusif, restauration raffinée, galeries d’art, espaces bien-être et divertissement — le tout dans un lieu unique. Que vous souhaitiez découvrir l’artisanat local, profiter des marques internationales ou simplement vous détendre dans une atmosphère élégante, M Avenue offre une expérience inoubliable qui reflète l’",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "2 Av. de la Ménara",
+          "addressLocality": "Hivernage",
+          "addressRegion": "Marrakech",
+          "addressCountry": "MA"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.6213534,
+          "longitude": -8.0190026
+        },
+        "telephone": "+212662364203",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.5,
+          "reviewCount": 4294,
+          "bestRating": 5
         }
       }
     }

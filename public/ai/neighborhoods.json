@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/neighborhoods.json",
-    "generated_at": "2026-08-03T15:25:30.545Z",
+    "generated_at": "2026-08-05T14:53:45.899Z",
     "count": 104
   },
   "neighborhoods": [
@@ -1924,10 +1924,6 @@
           "url": "https://oneworldmorocco.com/artizashop"
         },
         {
-          "name": "Ateliers de cuisine La Maison Arabe",
-          "url": "https://oneworldmorocco.com/ateliers-de-cuisine-la-maison-arabe"
-        },
-        {
           "name": "Bab Ssour",
           "url": "https://oneworldmorocco.com/bab-ssour"
         },
@@ -2022,6 +2018,10 @@
         {
           "name": "Café - Cuisine L'Atelier Essaouira",
           "url": "https://oneworldmorocco.com/cafe-cuisine-l-atelier-essaouira"
+        },
+        {
+          "name": "Café Clock Fès",
+          "url": "https://oneworldmorocco.com/cafe-clock-fes"
         }
       ]
     },
@@ -2356,10 +2356,6 @@
           "url": "https://oneworldmorocco.com/artizashop"
         },
         {
-          "name": "Ateliers de cuisine La Maison Arabe",
-          "url": "https://oneworldmorocco.com/ateliers-de-cuisine-la-maison-arabe"
-        },
-        {
           "name": "Bab Ssour",
           "url": "https://oneworldmorocco.com/bab-ssour"
         },
@@ -2454,6 +2450,10 @@
         {
           "name": "Café - Cuisine L'Atelier Essaouira",
           "url": "https://oneworldmorocco.com/cafe-cuisine-l-atelier-essaouira"
+        },
+        {
+          "name": "Café Clock Fès",
+          "url": "https://oneworldmorocco.com/cafe-clock-fes"
         }
       ]
     },
@@ -2547,6 +2547,10 @@
         {
           "name": "La Table du Souk",
           "url": "https://oneworldmorocco.com/la-table-du-souk"
+        },
+        {
+          "name": "La Sultana Marrakech",
+          "url": "https://oneworldmorocco.com/la-sultana-marrakech"
         },
         {
           "name": "Le Odette Rooftop Bar & Mezzé",
@@ -3063,6 +3067,10 @@
       "hook": null,
       "businesses": [
         {
+          "name": "Ateliers de cuisine La Maison Arabe",
+          "url": "https://oneworldmorocco.com/ateliers-de-cuisine-la-maison-arabe"
+        },
+        {
           "name": "Bab Doukkala",
           "url": "https://oneworldmorocco.com/bab-doukkala"
         },
@@ -3087,6 +3095,10 @@
           "url": "https://oneworldmorocco.com/la-maison-arabe"
         },
         {
+          "name": "Le Figuier",
+          "url": "https://oneworldmorocco.com/le-figuier"
+        },
+        {
           "name": "Le Spa de la Maison Arabe",
           "url": "https://oneworldmorocco.com/le-spa-de-la-maison-arab"
         },
@@ -3105,6 +3117,10 @@
         {
           "name": "Musée des Terrasses des Arts",
           "url": "https://oneworldmorocco.com/musee-des-terrasses-des-arts"
+        },
+        {
+          "name": "Restaurant de la Maison Arabe",
+          "url": "https://oneworldmorocco.com/restaurant-de-la-maison-arabe"
         },
         {
           "name": "Restaurant Riad Kniza",
@@ -3327,10 +3343,6 @@
           "url": "https://oneworldmorocco.com/artizashop"
         },
         {
-          "name": "Ateliers de cuisine La Maison Arabe",
-          "url": "https://oneworldmorocco.com/ateliers-de-cuisine-la-maison-arabe"
-        },
-        {
           "name": "Bab Ssour",
           "url": "https://oneworldmorocco.com/bab-ssour"
         },
@@ -3425,6 +3437,10 @@
         {
           "name": "Café - Cuisine L'Atelier Essaouira",
           "url": "https://oneworldmorocco.com/cafe-cuisine-l-atelier-essaouira"
+        },
+        {
+          "name": "Café Clock Fès",
+          "url": "https://oneworldmorocco.com/cafe-clock-fes"
         }
       ]
     },
@@ -3459,10 +3475,6 @@
           "url": "https://oneworldmorocco.com/artizashop"
         },
         {
-          "name": "Ateliers de cuisine La Maison Arabe",
-          "url": "https://oneworldmorocco.com/ateliers-de-cuisine-la-maison-arabe"
-        },
-        {
           "name": "Bab Ssour",
           "url": "https://oneworldmorocco.com/bab-ssour"
         },
@@ -3557,6 +3569,10 @@
         {
           "name": "Café - Cuisine L'Atelier Essaouira",
           "url": "https://oneworldmorocco.com/cafe-cuisine-l-atelier-essaouira"
+        },
+        {
+          "name": "Café Clock Fès",
+          "url": "https://oneworldmorocco.com/cafe-clock-fes"
         }
       ]
     },
@@ -3591,10 +3607,6 @@
           "url": "https://oneworldmorocco.com/artizashop"
         },
         {
-          "name": "Ateliers de cuisine La Maison Arabe",
-          "url": "https://oneworldmorocco.com/ateliers-de-cuisine-la-maison-arabe"
-        },
-        {
           "name": "Bab Ssour",
           "url": "https://oneworldmorocco.com/bab-ssour"
         },
@@ -3689,6 +3701,10 @@
         {
           "name": "Café - Cuisine L'Atelier Essaouira",
           "url": "https://oneworldmorocco.com/cafe-cuisine-l-atelier-essaouira"
+        },
+        {
+          "name": "Café Clock Fès",
+          "url": "https://oneworldmorocco.com/cafe-clock-fes"
         }
       ]
     },
@@ -3976,10 +3992,6 @@
           "url": "https://oneworldmorocco.com/artizashop"
         },
         {
-          "name": "Ateliers de cuisine La Maison Arabe",
-          "url": "https://oneworldmorocco.com/ateliers-de-cuisine-la-maison-arabe"
-        },
-        {
           "name": "Bab Ssour",
           "url": "https://oneworldmorocco.com/bab-ssour"
         },
@@ -4074,6 +4086,10 @@
         {
           "name": "Café - Cuisine L'Atelier Essaouira",
           "url": "https://oneworldmorocco.com/cafe-cuisine-l-atelier-essaouira"
+        },
+        {
+          "name": "Café Clock Fès",
+          "url": "https://oneworldmorocco.com/cafe-clock-fes"
         }
       ]
     },
@@ -4108,10 +4124,6 @@
           "url": "https://oneworldmorocco.com/artizashop"
         },
         {
-          "name": "Ateliers de cuisine La Maison Arabe",
-          "url": "https://oneworldmorocco.com/ateliers-de-cuisine-la-maison-arabe"
-        },
-        {
           "name": "Bab Ssour",
           "url": "https://oneworldmorocco.com/bab-ssour"
         },
@@ -4206,6 +4218,10 @@
         {
           "name": "Café - Cuisine L'Atelier Essaouira",
           "url": "https://oneworldmorocco.com/cafe-cuisine-l-atelier-essaouira"
+        },
+        {
+          "name": "Café Clock Fès",
+          "url": "https://oneworldmorocco.com/cafe-clock-fes"
         }
       ]
     },
@@ -4267,10 +4283,6 @@
           "url": "https://oneworldmorocco.com/artizashop"
         },
         {
-          "name": "Ateliers de cuisine La Maison Arabe",
-          "url": "https://oneworldmorocco.com/ateliers-de-cuisine-la-maison-arabe"
-        },
-        {
           "name": "Bab Ssour",
           "url": "https://oneworldmorocco.com/bab-ssour"
         },
@@ -4365,6 +4377,10 @@
         {
           "name": "Café - Cuisine L'Atelier Essaouira",
           "url": "https://oneworldmorocco.com/cafe-cuisine-l-atelier-essaouira"
+        },
+        {
+          "name": "Café Clock Fès",
+          "url": "https://oneworldmorocco.com/cafe-clock-fes"
         }
       ]
     },
@@ -4563,10 +4579,6 @@
           "url": "https://oneworldmorocco.com/artizashop"
         },
         {
-          "name": "Ateliers de cuisine La Maison Arabe",
-          "url": "https://oneworldmorocco.com/ateliers-de-cuisine-la-maison-arabe"
-        },
-        {
           "name": "Bab Ssour",
           "url": "https://oneworldmorocco.com/bab-ssour"
         },
@@ -4661,6 +4673,10 @@
         {
           "name": "Café - Cuisine L'Atelier Essaouira",
           "url": "https://oneworldmorocco.com/cafe-cuisine-l-atelier-essaouira"
+        },
+        {
+          "name": "Café Clock Fès",
+          "url": "https://oneworldmorocco.com/cafe-clock-fes"
         }
       ]
     }
