@@ -199,14 +199,34 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
               </div>
               <div>
                 <Label>Devise</Label>
-                <Select value={form.promotion_currency} onValueChange={(v: any) => setForm(f => ({ ...f, promotion_currency: v }))}>
-                  <SelectTrigger><SelectValue placeholder="Devise" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="MAD">MAD</SelectItem>
-                    <SelectItem value="EUR">EUR</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-2 mt-1">
+                  {(["MAD", "EUR"] as const).map(c => (
+                    <Button
+                      key={c}
+                      type="button"
+                      variant={form.promotion_currency === c ? "default" : "outline"}
+                      className="flex-1"
+                      onClick={() => setForm(f => ({ ...f, promotion_currency: c }))}
+                    >
+                      {c}
+                    </Button>
+                  ))}
+                </div>
               </div>
+            </div>
+
+            <div>
+              <Label>Mention courte (optionnel)</Label>
+              <Input
+                maxLength={40}
+                value={form.promotion_note}
+                onChange={e => setForm(f => ({ ...f, promotion_note: e.target.value.slice(0, 40) }))}
+                placeholder="jusqu'à demain"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                « - % » et « Valeur » restent numériques (calculs, badges, tri). La mention courte est un texte libre
+                affiché à côté du montant dans les montages vidéo et sur la fiche (ex. « jusqu'à demain », « 2 pers. min »).
+              </p>
             </div>
 
             <div>
