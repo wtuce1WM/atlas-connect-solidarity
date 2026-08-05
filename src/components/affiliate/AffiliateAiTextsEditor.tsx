@@ -67,18 +67,12 @@ const STYLES: Array<{ value: string; label: string; help: string }> = [
 
 const styleLabel = (v: string | null) => STYLES.find((s) => s.value === v)?.label ?? null;
 
-// Champs de la fiche pouvant contenir un menu / carte ou un lien externe.
-const MENU_FIELDS: Array<[string, string]> = [
-  ["menu_url", "Menu"],
-  ["flipbook_url", "Flipbook"],
-  ["pdf_url", "PDF 1"],
-  ["pdf_2_url", "PDF 2"],
-  ["pdf_3_url", "PDF 3"],
-];
+// Les menus / cartes ET les liens externes proviennent EXCLUSIVEMENT des
+// documents du backoffice (business_documents, types menu | flipbook |
+// external_link) : jamais des champs de la fiche (menu_url, pdf_url,
+// flipbook_url, url_1 à url_6, website, réservation…), qui sont des CTAs ou
+// des fichiers legacy.
 
-// Les liens externes proviennent EXCLUSIVEMENT des « Liens Externes » du
-// backoffice (business_documents, type external_link) : jamais des champs
-// url_1 à url_6 / website / réservation, qui sont des CTAs.
 
 
 const MODES: Array<{ value: string; label: string; help: string }> = [
