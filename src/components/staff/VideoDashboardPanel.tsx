@@ -163,7 +163,7 @@ export default function VideoDashboardPanel() {
           .limit(5000),
         supabase
           .from("video_jobs")
-          .select("id,created_at,user_id,business_id,status,title,duration_sec,template_id")
+          .select("id,created_at,user_id,business_id,status,title,duration_sec,template_id,error_message")
           .gte("created_at", since)
           .order("created_at", { ascending: false })
           .limit(2000),
