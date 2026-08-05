@@ -604,6 +604,8 @@ export function StudioVideoScenarioPanel({
   // Ville des étapes widgets (Météo / Marées) — sélectionnée dans la carte de l'étape.
   const [weatherCity, setWeatherCity] = useState<string>("");
   const [tidesCity, setTidesCity] = useState<string>("");
+  // Étapes pour lesquelles l'utilisateur refuse l'image associée par défaut. Clé = kind.
+  const [assocMediaOff, setAssocMediaOff] = useState<Record<string, boolean>>({});
   const [placesSceneKey, setPlacesSceneKey] = useState<string | null>(null);
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
   const [addOpenInternal, setAddOpenInternal] = useState(false);
