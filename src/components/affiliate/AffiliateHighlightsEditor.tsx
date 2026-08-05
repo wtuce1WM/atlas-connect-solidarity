@@ -361,17 +361,18 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
                           <div className="grid grid-cols-2 gap-2">
                             <div>
                               <label className="text-xs font-medium text-muted-foreground mb-1 block">
-                                Valeur ({metricValueVal.length}/{MAX_METRIC})
+                                Titre métrique ({metricTitleVal.length}/{MAX_METRIC})
                               </label>
                               <Input
-                                value={metricValueVal}
-                                onChange={(e) => updateField(i, metricValueField, e.target.value.slice(0, MAX_METRIC))}
-                                placeholder="Ex: 98%"
+                                value={metricTitleVal}
+                                onChange={(e) => updateField(i, metricTitleField, e.target.value.slice(0, MAX_METRIC))}
+                                placeholder="Ex: Satisfaction"
                                 className="h-8 text-sm"
                                 maxLength={MAX_METRIC}
                                 dir={rtl ? "rtl" : "ltr"}
                               />
                             </div>
+
                             <div>
                               <label className="text-xs font-medium text-muted-foreground mb-1 block">
                                 Titre métrique ({metricTitleVal.length}/{MAX_METRIC})
