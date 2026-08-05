@@ -274,10 +274,12 @@ Deno.serve(async (req) => {
 
     const systemPrompt = `Tu rédiges des contenus éditoriaux pour One World Morocco, plateforme de découverte du Maroc.
 ${MODE_BRIEFS[mode]}
+${STYLE_BRIEFS[styleKey]}
 Règles absolues :
 - N'invente RIEN : uniquement ce qui est présent dans les sources et les données de la fiche fournies.
 - Ne mentionne jamais de prix, tarif, budget ou "moins cher".
-- Français naturel et immersif, pas de markdown, pas de listes à puces, pas de guillemets superflus.
+- Français correct, pas de markdown, pas de guillemets superflus.${styleKey === "factual" ? "\n- Pas de symboles de puces : une information par ligne, séparées par des sauts de ligne." : "\n- Pas de listes à puces."}
+
 - Réponds STRICTEMENT en JSON : {"title": string, "hook": string, "content": string}
 - title ≤ 70 caractères, hook ≤ 120 caractères.
 - LONGUEUR IMPÉRATIVE du champ content : version ${len.label}, entre ${len.min} et ${len.max} caractères (${len.paragraphs} séparés par un saut de ligne). Ne descends jamais sous ${len.min} caractères et ne dépasse jamais ${Math.min(len.max, MAX_CONTENT - 100)} caractères.
