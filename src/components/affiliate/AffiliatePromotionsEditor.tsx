@@ -168,36 +168,37 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
 
       {/* Create dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl md:max-w-4xl lg:max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Nouvelle offre</DialogTitle>
             <DialogDescription>Créez une offre promotionnelle pour cet établissement.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="sm:col-span-1">
-                <Label>Type</Label>
-                <Select value={form.promotion_type} onValueChange={(v: any) => setForm(f => ({ ...f, promotion_type: v }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="percentage">Pourcentage (%)</SelectItem>
-                    <SelectItem value="fixed">Montant fixe</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div>
+                <Label>- %</Label>
+                <Input
+                  inputMode="numeric"
+                  maxLength={5}
+                  value={form.promotion_percent}
+                  onChange={e => setForm(f => ({ ...f, promotion_percent: e.target.value.replace(/[^\d.,]/g, "").slice(0, 5) }))}
+                  placeholder="10"
+                />
               </div>
               <div>
                 <Label>Valeur</Label>
                 <Input
-                  type="number"
+                  inputMode="numeric"
+                  maxLength={5}
                   value={form.promotion_value}
-                  onChange={e => setForm(f => ({ ...f, promotion_value: e.target.value }))}
-                  placeholder="10"
+                  onChange={e => setForm(f => ({ ...f, promotion_value: e.target.value.replace(/[^\d.,]/g, "").slice(0, 5) }))}
+                  placeholder="150"
                 />
               </div>
               <div>
                 <Label>Devise</Label>
                 <Select value={form.promotion_currency} onValueChange={(v: any) => setForm(f => ({ ...f, promotion_currency: v }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Devise" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="MAD">MAD</SelectItem>
                     <SelectItem value="EUR">EUR</SelectItem>
@@ -206,34 +207,19 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
               </div>
             </div>
 
-            <div className="space-y-3">
-              <div>
-                <Label>Titre FR *</Label>
-                <Input value={form.title_fr} onChange={e => setForm(f => ({ ...f, title_fr: e.target.value }))} />
-              </div>
-              <div>
-                <Label>Titre EN</Label>
-                <Input value={form.title_en} onChange={e => setForm(f => ({ ...f, title_en: e.target.value }))} />
-              </div>
-              <div>
-                <Label>Titre AR</Label>
-                <Input dir="rtl" value={form.title_ar} onChange={e => setForm(f => ({ ...f, title_ar: e.target.value }))} />
-              </div>
+            <div>
+              <Label>Titre FR *</Label>
+              <Input value={form.title_fr} onChange={e => setForm(f => ({ ...f, title_fr: e.target.value }))} />
             </div>
 
-            <div className="space-y-3">
-              <div>
-                <Label>Message FR</Label>
-                <Textarea rows={3} value={form.promotion_message_fr} onChange={e => setForm(f => ({ ...f, promotion_message_fr: e.target.value }))} />
-              </div>
-              <div>
-                <Label>Message EN</Label>
-                <Textarea rows={3} value={form.promotion_message_en} onChange={e => setForm(f => ({ ...f, promotion_message_en: e.target.value }))} />
-              </div>
-              <div>
-                <Label>Message AR</Label>
-                <Textarea dir="rtl" rows={3} value={form.promotion_message_ar} onChange={e => setForm(f => ({ ...f, promotion_message_ar: e.target.value }))} />
-              </div>
+            <div>
+              <Label>Message FR</Label>
+              <RichTextEditor
+                content={form.promotion_message_fr}
+                onChange={(html) => setForm(f => ({ ...f, promotion_message_fr: html }))}
+                maxHeight="360px"
+                simple
+              />
             </div>
           </div>
           <DialogFooter>
