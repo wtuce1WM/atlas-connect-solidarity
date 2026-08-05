@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Loader2, Sparkles, Trash2, Plus, ArrowUp, ArrowDown, Lock } from "lucide-react";
+import RichTextEditor from "@/components/staff/RichTextEditor";
 
 interface AiText {
   id: string;
@@ -18,14 +18,37 @@ interface AiText {
   is_active: boolean;
   extra_instructions: string | null;
   length_mode: string | null;
+  style_mode: string | null;
 }
 
-const SELECT_COLS = "id,title,hook,content,source_mode,position,is_active,extra_instructions,length_mode";
+const SELECT_COLS =
+  "id,title,hook,content,source_mode,position,is_active,extra_instructions,length_mode,style_mode";
 
 const MAX_TEXTS = 10;
 const MAX_CONTENT = 2000;
 const MAX_TITLE = 70;
 const MAX_HOOK = 120;
+
+const plainLen = (html: string) => {
+  if (!html) return 0;
+  if (typeof window === "undefined") return html.length;
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return (div.textContent || "").trim().length;
+};
+
+// Le générateur renvoie du texte brut : on le convertit en HTML éditable en RichText.
+const toHtml = (txt: string) => {
+  if (!txt) return "";
+  if (/<[a-z][\s\S]*>/i.test(txt)) return txt;
+  const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return txt
+    .split(/\n{1,}/)
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((l) => `<p>${esc(l)}</p>`)
+    .join("");
+};
 
 const LENGTHS: Array<{ value: string; label: string }> = [
   { value: "very_short", label: "Très courte (~400)" },
@@ -35,6 +58,37 @@ const LENGTHS: Array<{ value: string; label: string }> = [
 ];
 
 const lengthLabel = (v: string | null) => LENGTHS.find((l) => l.value === v)?.label ?? null;
+
+const STYLES: Array<{ value: string; label: string; help: string }> = [
+  { value: "default", label: "Par défaut", help: "Rédaction éditoriale standard, fluide et concrète." },
+  { value: "immersive", label: "Immersif (poétique)", help: "Prose sensorielle et évocatrice, toujours ancrée dans les faits détectés." },
+  { value: "factual", label: "Factuel (linéaire)", help: "Restitue les informations de la source (PDF, menu, url) telles quelles, en lignes courtes." },
+];
+
+const styleLabel = (v: string | null) => STYLES.find((s) => s.value === v)?.label ?? null;
+
+// Champs de la fiche pouvant contenir un menu / carte ou un lien externe.
+const MENU_FIELDS: Array<[string, string]> = [
+  ["menu_url", "Menu"],
+  ["n", "Menu (lien)"],
+  ["flipbook_url", "Flipbook"],
+  ["pdf_url", "PDF 1"],
+  ["pdf_2_url", "PDF 2"],
+  ["pdf_3_url", "PDF 3"],
+];
+
+const EXTERNAL_FIELDS: Array<[string, string]> = [
+  ["website", "Site web"],
+  ["online_shop_url", "Boutique en ligne"],
+  ["reserve_now_url", "Réservation"],
+  ["booking_url", "Booking"],
+  ["other_booking_url", "Autre réservation"],
+  ["glovo_url", "Glovo"],
+  ["matterport_url", "Visite virtuelle"],
+  ["url_4", "Lien 4"],
+  ["url_5", "Lien 5"],
+  ["url_6", "Lien 6"],
+];
 
 const MODES: Array<{ value: string; label: string; help: string }> = [
   {
@@ -57,9 +111,20 @@ const MODES: Array<{ value: string; label: string; help: string }> = [
     label: "En suivant le détail des fiches des plateformes renseignées",
     help: "Lecture des fiches Google, TripAdvisor, Restaurant Guru… renseignées dans l'onglet Avis clients.",
   },
+  {
+    value: "menu_links",
+    label: "À partir du menu",
+    help: "Lecture des menus / cartes / PDF détectés sur la fiche. Sélectionnez les liens à exploiter.",
+  },
+  {
+    value: "external_links",
+    label: "À partir de liens externes",
+    help: "Lecture des liens externes détectés sur la fiche (site web, boutique, réservation…).",
+  },
 ];
 
 const modeLabel = (v: string) => MODES.find((m) => m.value === v)?.label ?? v;
+
 
 const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
   const [texts, setTexts] = useState<AiText[]>([]);
