@@ -41,11 +41,13 @@ type Promotion = {
 const emptyForm = {
   title_fr: "",
   promotion_message_fr: "",
+  promotion_type: "percentage" as "percentage" | "fixed",
   promotion_percent: "" as string,
   promotion_value: "" as string,
   promotion_currency: "MAD" as "MAD" | "EUR",
   promotion_note: "" as string,
 };
+
 
 const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
   const { toast } = useToast();
@@ -82,9 +84,14 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
       title_fr: form.title_fr.trim() || null,
       promotion_message: form.promotion_message_fr || null,
       promotion_message_fr: form.promotion_message_fr || null,
-      promotion_type: form.promotion_percent ? "percentage" : "fixed",
-      promotion_value: form.promotion_percent ? Number(form.promotion_percent) : null,
-      savings_amount: form.promotion_value ? Number(form.promotion_value) : null,
+      promotion_type: form.promotion_type,
+      promotion_value: form.promotion_type === "percentage"
+        ? (form.promotion_percent ? Number(String(form.promotion_percent).replace(",", ".")) : null)
+        : (form.promotion_value ? Number(String(form.promotion_value).replace(",", ".")) : null),
+      savings_amount: form.promotion_type === "percentage" && form.promotion_value
+        ? Number(String(form.promotion_value).replace(",", "."))
+        : null,
+
       promotion_currency: form.promotion_currency,
       promotion_note: form.promotion_note.trim() || null,
       sort_order: items.length,
@@ -179,17 +186,36 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
             <DialogDescription>Créez une offre promotionnelle pour cet établissement.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
+            <div>
+              <Label>Type d'offre</Label>
+              <select
+                value={form.promotion_type}
+                onChange={e => setForm(f => ({ ...f, promotion_type: e.target.value as "percentage" | "fixed" }))}
+                className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="percentage">Remise en pourcentage (- %)</option>
+                <option value="fixed">Remise / prix en montant fixe</option>
+              </select>
+              <p className="text-xs text-muted-foreground mt-1">
+                {form.promotion_type === "percentage"
+                  ? "Renseignez « - % » (et éventuellement une valeur d'économie en devise)."
+                  : "Renseignez « Valeur » et la devise ; le champ « - % » est ignoré."}
+              </p>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
               <div>
                 <Label>- %</Label>
                 <Input
                   inputMode="numeric"
                   maxLength={5}
+                  disabled={form.promotion_type !== "percentage"}
                   value={form.promotion_percent}
                   onChange={e => setForm(f => ({ ...f, promotion_percent: e.target.value.replace(/[^\d.,]/g, "").slice(0, 5) }))}
                   placeholder="10"
                 />
               </div>
+
               <div>
                 <Label>Valeur</Label>
                 <Input
