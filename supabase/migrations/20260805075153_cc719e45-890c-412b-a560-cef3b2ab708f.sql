@@ -1,0 +1,1 @@
+ALTER TABLE public.affiliate_business_promotions ADD COLUMN IF NOT EXISTS promotion_note text;

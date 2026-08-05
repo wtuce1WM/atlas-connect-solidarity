@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import RichTextEditor from "@/components/staff/RichTextEditor";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
@@ -33,6 +33,7 @@ type Promotion = {
   promotion_type: string | null;
   promotion_value: number | null;
   promotion_currency: string | null;
+  promotion_note?: string | null;
   savings_amount: number | null;
   sort_order: number;
 };
@@ -43,6 +44,7 @@ const emptyForm = {
   promotion_percent: "" as string,
   promotion_value: "" as string,
   promotion_currency: "MAD" as "MAD" | "EUR",
+  promotion_note: "" as string,
 };
 
 const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
@@ -84,6 +86,7 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
       promotion_value: form.promotion_percent ? Number(form.promotion_percent) : null,
       savings_amount: form.promotion_value ? Number(form.promotion_value) : null,
       promotion_currency: form.promotion_currency,
+      promotion_note: form.promotion_note.trim() || null,
       sort_order: items.length,
     } as any]);
     setSaving(false);
@@ -145,6 +148,7 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-semibold text-sm">{p.title_fr || p.title || "(Sans titre)"}</span>
                     {value && <span className="text-[#C04F17] font-bold text-sm">{value}</span>}
+                    {p.promotion_note && <span className="text-xs italic text-muted-foreground">{p.promotion_note}</span>}
                   </div>
                   {(p.promotion_message_fr || p.promotion_message) && (
                     <div
@@ -198,14 +202,34 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
               </div>
               <div>
                 <Label>Devise</Label>
-                <Select value={form.promotion_currency} onValueChange={(v: any) => setForm(f => ({ ...f, promotion_currency: v }))}>
-                  <SelectTrigger><SelectValue placeholder="Devise" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="MAD">MAD</SelectItem>
-                    <SelectItem value="EUR">EUR</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-2 mt-1">
+                  {(["MAD", "EUR"] as const).map(c => (
+                    <Button
+                      key={c}
+                      type="button"
+                      variant={form.promotion_currency === c ? "default" : "outline"}
+                      className="flex-1"
+                      onClick={() => setForm(f => ({ ...f, promotion_currency: c }))}
+                    >
+                      {c}
+                    </Button>
+                  ))}
+                </div>
               </div>
+            </div>
+
+            <div>
+              <Label>Mention courte (optionnel)</Label>
+              <Input
+                maxLength={40}
+                value={form.promotion_note}
+                onChange={e => setForm(f => ({ ...f, promotion_note: e.target.value.slice(0, 40) }))}
+                placeholder="jusqu'à demain"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                « - % » et « Valeur » restent numériques (calculs, badges, tri). La mention courte est un texte libre
+                affiché à côté du montant dans les montages vidéo et sur la fiche (ex. « jusqu'à demain », « 2 pers. min »).
+              </p>
             </div>
 
             <div>
