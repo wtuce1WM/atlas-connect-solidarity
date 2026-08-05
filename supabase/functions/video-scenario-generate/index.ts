@@ -681,7 +681,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         selImages.forEach((u) => allowedUrls.add(u));
         selVideos.forEach((u) => allowedUrls.add(u));
 
-        const ALLOWED_KINDS = new Set(["logo", "welcome", "proposition", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog", "weather", "tides", "ai_summary", "external_link", "menu_doc"]);
+        const ALLOWED_KINDS = new Set(["logo", "welcome", "proposition", "hook", "name", "ai_card", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog", "weather", "tides", "ai_summary", "external_link", "menu_doc"]);
         const cleaned: Record<string, Array<{ url: string; kind: "image" | "video" }>> = {};
         for (const [k, v] of Object.entries(rawSceneMedia)) {
           if (!ALLOWED_KINDS.has(k) || !Array.isArray(v)) continue;
@@ -1010,7 +1010,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       }
 
       // Ordre et durées personnalisés des scènes (édités par l'utilisateur dans l'aperçu)
-      const ALLOWED_SCENE_KINDS = new Set(["logo", "welcome", "proposition", "hook", "name", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog", "weather", "tides", "ai_summary", "external_link", "menu_doc"]);
+      const ALLOWED_SCENE_KINDS = new Set(["logo", "welcome", "proposition", "hook", "name", "ai_card", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog", "weather", "tides", "ai_summary", "external_link", "menu_doc"]);
       const rawOrder = options?.scene_order;
       let orderedFromClient: string[] | null = null;
       if (Array.isArray(rawOrder)) {
@@ -1291,6 +1291,20 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       // Injection serveur des offres sélectionnées par l'utilisateur.
       // On force la présence de `offer` en base plutôt que compter sur l'IA
       // (l'IA a tendance à ignorer les offres si aucune n'est présente dans `medias`).
+      // Carte IA : l'offre inventée par l'IA n'est conservée que si l'option est cochée.
+      const aiInventedOffer = template_props.offer && typeof template_props.offer === "object"
+        ? { ...template_props.offer }
+        : null;
+      template_props.aiCard = options?.ai_card && aiInventedOffer ? aiInventedOffer : null;
+      if (template_props.aiCard && Array.isArray(template_props.scene_order) && !template_props.scene_order.includes("ai_card")) {
+        template_props.scene_order = [...template_props.scene_order, "ai_card"];
+      }
+      if (!template_props.aiCard && Array.isArray(template_props.scene_order)) {
+        template_props.scene_order = template_props.scene_order.filter((k: unknown) => k !== "ai_card");
+      }
+
+
+
       const rawOfferIds = Array.isArray(options?.offer_ids) ? options.offer_ids : [];
       const offerIds = rawOfferIds.filter((v: unknown) => typeof v === "string" && /^[0-9a-f-]{36}$/i.test(v));
       if (offerIds.length > 0) {
@@ -1625,7 +1639,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       if (!(template_props as any).scene_durations) (template_props as any).scene_durations = {};
       const sd = (template_props as any).scene_durations as Record<string, number>;
       const defaults: Record<string, number> = {
-        welcome: 3, proposition: 3, name: 6, hours: 3, map: 3, digital: 3, weather: 6, tides: 6,
+        welcome: 3, proposition: 3, name: 6, ai_card: 5, hours: 3, map: 3, digital: 3, weather: 6, tides: 6,
       };
       for (const [k, v] of Object.entries(defaults)) if (sd[k] == null) sd[k] = v;
     }
@@ -1634,7 +1648,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     {
       const CANON = [
         "logo", "welcome", "popup", "proposition", "weather", "tides",
-        "hook", "name", "offer", "highlight",
+        "hook", "name", "ai_card", "offer", "highlight",
         "ai_summary", "external_link", "menu_doc", "media",
         "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review",
         "hours", "map", "digital", "blog", "whatsapp", "cta", "outro",

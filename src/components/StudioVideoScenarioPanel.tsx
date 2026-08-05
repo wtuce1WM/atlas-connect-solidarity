@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Cloud, Waves, Clock, MapPin, MessageSquare, Star, Download, QrCode, Calendar, Plus, X, ChevronLeft, ChevronRight, Film, Image as ImageIcon, GripVertical, Minus, Type, Trash2, Pencil } from "lucide-react";
+import { Cloud, Waves, Clock, MapPin, MessageSquare, Star, Download, QrCode, Calendar, Plus, X, ChevronLeft, ChevronRight, Film, Image as ImageIcon, GripVertical, Minus, Type, Trash2, Pencil, Sparkles } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { formatRating } from "@/lib/ratingUtils";
 import { WEATHER_CITY_OPTIONS, TIDES_CITY_OPTIONS, cityNameFromSlug } from "@/lib/videoWidgetCities";
@@ -48,7 +48,7 @@ export type Scene = {
   start: number;
   description: string;
   keywords: string[];
-  icon: "logo" | "welcome" | "proposition" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "whatsapp" | "hours" | "map" | "digital" | "blog" | "weather" | "tides" | "cta" | "outro" | "custom";
+  icon: "logo" | "welcome" | "proposition" | "hook" | "name" | "ai_card" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "whatsapp" | "hours" | "map" | "digital" | "blog" | "weather" | "tides" | "cta" | "outro" | "custom";
 };
 
 export type Scenario = {
@@ -77,6 +77,7 @@ const ICONS: Record<Scene["icon"], React.ReactNode> = {
   media: <MessageSquare className="h-3.5 w-3.5" />,
   popup: <ImageIcon className="h-3.5 w-3.5" />,
   offer: <MessageSquare className="h-3.5 w-3.5" />,
+  ai_card: <Sparkles className="h-3.5 w-3.5" />,
   highlight: <Star className="h-3.5 w-3.5" />,
   ai_summary: <Type className="h-3.5 w-3.5" />,
   external_link: <Type className="h-3.5 w-3.5" />,
@@ -109,6 +110,7 @@ const LABELS: Record<Exclude<Scene["icon"], "custom">, string> = {
   media: "Montage",
   popup: "Popup",
   offer: "Offre",
+  ai_card: "Carte IA",
   highlight: "Bloc highlight",
   ai_summary: "Résumé IA",
   external_link: "Lien externe",
@@ -306,6 +308,15 @@ export function scenarioFromTemplateProps(
   if (hook || tagline) {
     push("name", 6, hook || tagline);
   }
+  // Carte IA (offre rédigée par l'IA, option « Carte IA ») — juste après le Hook.
+  if (props?.aiCard) {
+    const c: any = props.aiCard;
+    const t = (c?.title || "").toString().trim();
+    const pr = (c?.price || "").toString().trim();
+    const ls: string[] = Array.isArray(c?.lines) ? c.lines.map((l: any) => String(l).trim()).filter(Boolean) : [];
+    const desc = [[t, pr].filter(Boolean).join(" · "), ...ls].filter(Boolean).join("\n") || "Carte générée par l'IA.";
+    push("ai_card", 5, desc);
+  }
   // Étape "media" (montage) : ajoutée manuellement par l'utilisateur via "Ajouter une étape".
 
   // Une scène par offre sélectionnée
@@ -421,6 +432,7 @@ const FIXED_SCENE_DURATIONS: Partial<Record<Scene["icon"], number>> = {
   hours: 3,
   map: 3,
   digital: 3,
+  ai_card: 5,
 };
 
 
@@ -1068,7 +1080,8 @@ export function StudioVideoScenarioPanel({
               onDrop={(e) => { e.preventDefault(); handleDrop(scene.id); }}
               onDragEnd={() => { setDragId(null); setOverId(null); }}
               className={cn(
-                "relative bg-white text-black rounded-xl border border-border p-4 overflow-hidden transition-colors",
+                "relative text-black rounded-xl border border-border p-4 overflow-hidden transition-colors",
+                scene.icon === "ai_card" ? "bg-[#BED1FF]" : "bg-white",
                 isDragging && "opacity-50",
                 isOver ? "border-primary" : "hover:border-primary/40"
               )}
@@ -1080,7 +1093,7 @@ export function StudioVideoScenarioPanel({
                     <GripVertical className="h-4 w-4" />
                   </span>
                   {ICONS[scene.icon]}
-                  <span className="truncate">{scene.label}</span>
+                  <span className={cn("truncate", scene.icon === "ai_card" && "text-black text-base font-extrabold tracking-normal normal-case")}>{scene.label}</span>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <div className="flex items-center gap-1 rounded-md border border-neutral-200 bg-neutral-100 px-1 py-0.5">

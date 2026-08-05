@@ -252,6 +252,8 @@ export type ShowcaseProps = {
   videoEnds?: Record<string, number>;
   offer?: { title?: string; price?: string; lines?: string[]; message_html?: string | null; background_video_url?: string; background_image_url?: string } | null;
   offers?: Array<{ title?: string; price?: string; lines?: string[]; message_html?: string | null; background_video_url?: string; background_image_url?: string }> | null;
+  /** Carte "Offre" rédigée par l'IA (option « Carte IA »), distincte des offres en base. */
+  aiCard?: { title?: string; price?: string; lines?: string[]; message_html?: string | null; background_video_url?: string; background_image_url?: string } | null;
   rating?: number | null;
   reviewsCount?: number | null;
   openingHours?: string | Record<string, string> | null;
@@ -452,9 +454,9 @@ const splitHookInTwo = (h: string): [string, string] => {
   return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
 };
 
-type SceneKind = "logo" | "welcome" | "proposition" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "blog" | "weather" | "tides" | "whatsapp" | "cta" | "outro";
+type SceneKind = "logo" | "welcome" | "proposition" | "hook" | "name" | "ai_card" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "blog" | "weather" | "tides" | "whatsapp" | "cta" | "outro";
 
-const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "welcome", "proposition", "hook", "name", "offer", "popup", "media", "highlight", "ai_summary", "external_link", "menu_doc", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "blog", "weather", "tides", "whatsapp", "cta"];
+const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "welcome", "proposition", "hook", "name", "ai_card", "offer", "popup", "media", "highlight", "ai_summary", "external_link", "menu_doc", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "blog", "weather", "tides", "whatsapp", "cta"];
 
 function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
   switch (kind) {
@@ -471,6 +473,7 @@ function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
     case "menu_doc": return Array.isArray(p.menuDocs) && p.menuDocs.length > 0;
     case "cta": return p.showAppInstall !== false;
     case "offer": return !!p.offer || (Array.isArray(p.offers) && p.offers.length > 0);
+    case "ai_card": return !!p.aiCard;
     case "reviews": return !!(p.showReviews && (p.rating || p.reviewsCount));
     case "google_review": {
       const g = p.googleReview;
@@ -514,6 +517,10 @@ function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
     case "menu_doc": return 150;
     case "offer": {
       const lines = p.offer && Array.isArray(p.offer.lines) ? p.offer.lines.length : 0;
+      return 120 + Math.min(lines, 6) * 22;
+    }
+    case "ai_card": {
+      const lines = p.aiCard && Array.isArray(p.aiCard.lines) ? p.aiCard.lines.length : 0;
       return 120 + Math.min(lines, 6) * 22;
     }
     case "reviews":
@@ -2958,6 +2965,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   videoEnds,
   offer = null,
   offers = null,
+  aiCard = null,
   rating,
   reviewsCount,
   openingHours,
@@ -3621,7 +3629,25 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             })()}
           </AbsoluteFill>
         );
+      case "ai_card":
       case "offer": {
+        if (kind === "ai_card") {
+          if (!aiCard) return null;
+          const rot = bgRotate(planIdx);
+          const bgVideo = aiCard.background_video_url || rot.src;
+          const bgImage = !bgVideo ? (aiCard.background_image_url || rot.image) : undefined;
+          return (
+            <AbsoluteFill>
+              {(bgVideo || bgImage) ? (
+                <>
+                  <MotionBackdrop src={bgVideo} image={bgImage} duration={duration} effect={trImageEffect} veil="rgba(14,11,8,0.35)" extraStartSec={aiCard.background_video_url ? 0 : rot.extraStartSec} />
+                  <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.22) 0%,rgba(14,11,8,0.48) 100%)" }} />
+                </>
+              ) : null}
+              <SceneOffer offer={aiCard} city={city} durationFrames={duration} textPosition={textPosition} />
+            </AbsoluteFill>
+          );
+        }
         const idx = typeof offerIndex === "number" ? offerIndex : 0;
         const currentOffer = offersArr[idx] ?? offer;
         if (!currentOffer) return null;
