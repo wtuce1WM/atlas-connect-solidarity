@@ -154,8 +154,9 @@ Deno.serve(async (req) => {
     const { data: biz } = await supabase
       .from("businesses")
       .select(
-        `name, city, neighborhood, hook_fr, description, website, opening_hours, show_opening_hours, is_open_24h, vacation_dates, ${PLATFORM_URL_KEYS.map(([k]) => k).join(", ")}`,
+        `name, city, neighborhood, hook_fr, description, website, opening_hours, show_opening_hours, is_open_24h, vacation_dates, ${PLATFORM_URL_KEYS.map(([k]) => k).join(", ")}, ${MENU_URL_KEYS.map(([k]) => k).join(", ")}, ${EXTERNAL_URL_KEYS.map(([k]) => k).filter((k) => k !== "website").join(", ")}`,
       )
+
       .eq("id", businessId)
       .maybeSingle();
 
