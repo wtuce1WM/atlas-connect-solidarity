@@ -2921,9 +2921,12 @@ const BookOnlineSlidePanelInner = ({
             })()
           : [];
 
-        const afterSubcat = poiSubcatFilter
-          ? afterCat.filter((p) => subcatsOf(p).includes(poiSubcatFilter))
-          : afterCat;
+        const afterSubcat = (() => {
+          let list = afterCat;
+          if (poiSubcatFilter) list = list.filter((p) => subcatsOf(p).includes(poiSubcatFilter));
+          if (catSubcatFilter) list = list.filter((p) => subcatsOf(p).includes(catSubcatFilter));
+          return list;
+        })();
 
         const afterProx = afterSubcat.filter(inRadius);
         const total = afterProx.length;
