@@ -110,10 +110,11 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
   };
 
   const formatValue = (p: Promotion) => {
-    if (p.promotion_type === "percentage" && p.promotion_value != null) return `-${p.promotion_value}%`;
-    if (p.promotion_type === "fixed" && p.promotion_value != null) return `-${p.promotion_value} ${p.promotion_currency || "MAD"}`;
-    if (p.savings_amount != null) return `-${p.savings_amount} ${p.promotion_currency || "MAD"}`;
-    return null;
+    const parts: string[] = [];
+    if (p.promotion_type === "percentage" && p.promotion_value != null) parts.push(`-${p.promotion_value}%`);
+    else if (p.promotion_value != null) parts.push(`-${p.promotion_value} ${p.promotion_currency || "MAD"}`);
+    if (p.savings_amount != null) parts.push(`-${p.savings_amount} ${p.promotion_currency || "MAD"}`);
+    return parts.length ? parts.join(" · ") : null;
   };
 
   return (
