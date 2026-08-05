@@ -62,6 +62,7 @@ const MENU_URL_KEYS = [
   ["pdf_3_url", "PDF 3"],
 ] as const;
 
+// Volontairement sans url_4 / url_5 / url_6 (CTAs libres).
 const EXTERNAL_URL_KEYS = [
   ["website", "Site web"],
   ["online_shop_url", "Boutique en ligne"],
@@ -70,9 +71,6 @@ const EXTERNAL_URL_KEYS = [
   ["other_booking_url", "Autre réservation"],
   ["glovo_url", "Glovo"],
   ["matterport_url", "Visite virtuelle"],
-  ["url_4", "Lien 4"],
-  ["url_5", "Lien 5"],
-  ["url_6", "Lien 6"],
 ] as const;
 
 const STYLE_BRIEFS: Record<string, string> = {
