@@ -401,6 +401,8 @@ const BookOnlineSlidePanelInner = ({
   const [showPoiMapOverlay, setShowPoiMapOverlay] = useState(initialOverlay === "poi");
   const [poiMapMode, setPoiMapMode] = useState<"poi" | "destinations">("poi");
   const [poiSubcatFilter, setPoiSubcatFilter] = useState<string | null>(null);
+  // Sous-catégorie choisie dans le Pill Catégories — état totalement distinct du Pill POI
+  const [catSubcatFilter, setCatSubcatFilter] = useState<string | null>(null);
   const [poiPillOverlay, setPoiPillOverlay] = useState<"poi" | "cat" | null>(null);
   // Pills POI / Catégories : menu déroulant sur desktop, overlay plein écran sur mobile
   const isMobileView = useIsMobile();
@@ -2230,9 +2232,12 @@ const BookOnlineSlidePanelInner = ({
                 const afterCatGrid = activeFrontTabGrid
                   ? activePoiCategoryBusinesses
                   : poiBusinesses;
-                const afterSubcatGrid = poiSubcatFilter
-                  ? afterCatGrid.filter((p) => (p.categories || []).includes(poiSubcatFilter))
-                  : afterCatGrid;
+                const afterSubcatGrid = (() => {
+                  let list = afterCatGrid;
+                  if (poiSubcatFilter) list = list.filter((p) => (p.categories || []).includes(poiSubcatFilter));
+                  if (catSubcatFilter) list = list.filter((p) => (p.categories || []).includes(catSubcatFilter));
+                  return list;
+                })();
                 const afterProxGrid = poiProximityKm != null
                   ? afterSubcatGrid.filter((p) => {
                       const d = userCoords && p.latitude != null && p.longitude != null
@@ -2301,7 +2306,7 @@ const BookOnlineSlidePanelInner = ({
                   )}
                   <div className="w-full max-w-3xl mx-auto px-3 md:px-3 relative" style={{ perspective: "1200px", maxWidth: isMobileGrid ? "85%" : undefined }}>
                     <div
-                      key={`${descGridSection}-${poiCatFilter || "all"}-${poiSubcatFilter || "all"}-${poiProximityKm ?? "all"}-${descGridPage}`}
+                      key={`${descGridSection}-${poiCatFilter || "all"}-${poiSubcatFilter || "all"}-${catSubcatFilter || "all"}-${poiProximityKm ?? "all"}-${descGridPage}`}
                       style={{
                         animation: "0.5s cubic-bezier(0.4, 0, 0.2, 1) both",
                         animationName: "descGridFlip",
@@ -2916,9 +2921,12 @@ const BookOnlineSlidePanelInner = ({
             })()
           : [];
 
-        const afterSubcat = poiSubcatFilter
-          ? afterCat.filter((p) => subcatsOf(p).includes(poiSubcatFilter))
-          : afterCat;
+        const afterSubcat = (() => {
+          let list = afterCat;
+          if (poiSubcatFilter) list = list.filter((p) => subcatsOf(p).includes(poiSubcatFilter));
+          if (catSubcatFilter) list = list.filter((p) => subcatsOf(p).includes(catSubcatFilter));
+          return list;
+        })();
 
         const afterProx = afterSubcat.filter(inRadius);
         const total = afterProx.length;
@@ -3000,7 +3008,7 @@ const BookOnlineSlidePanelInner = ({
                   {activeFrontTab ? (
                     <>
                       {translateFrontStructure(activeFrontTab.name, language)}
-                      {poiSubcatFilter ? <span className="opacity-60"> / {translateSubcategory(poiSubcatFilter, language)}</span> : null}
+                      {catSubcatFilter ? <span className="opacity-60"> / {translateSubcategory(catSubcatFilter, language)}</span> : null}
                     </>
                   ) : (
                     <>
@@ -3044,10 +3052,10 @@ const BookOnlineSlidePanelInner = ({
                       <DropdownMenuTrigger asChild>
                         <button
                           type="button"
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilter && !poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                         >
                           <MapPin className="h-3.5 w-3.5" />
-                          {poiSubcatFilter && !poiCatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
+                          {poiSubcatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="z-[260] max-h-[70vh] min-w-[15rem] overflow-y-auto">
@@ -3057,7 +3065,7 @@ const BookOnlineSlidePanelInner = ({
                           </DropdownMenuItem>
                         )}
                         {poiSubcatList.map(([name, count]) => (
-                          <DropdownMenuItem key={name} onSelect={() => { setPoiCatFilter(null); setPoiSubcatFilter(name); setPoiShowAll(false); }}>
+                          <DropdownMenuItem key={name} onSelect={() => { setPoiSubcatFilter(name); setPoiShowAll(false); }}>
                             {translateSubcategory(name, language)} <span className="ml-1 opacity-60">({count})</span>
                           </DropdownMenuItem>
                         ))}
@@ -3067,11 +3075,12 @@ const BookOnlineSlidePanelInner = ({
                     <button
                       type="button"
                       onClick={() => setPoiPillOverlay("poi")}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilter && !poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                     >
                       <MapPin className="h-3.5 w-3.5" />
-                      {poiSubcatFilter && !poiCatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
+                      {poiSubcatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
                     </button>
+
                   )}
                 </div>
                 {showCatPill && (
@@ -3084,8 +3093,8 @@ const BookOnlineSlidePanelInner = ({
                             className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                           >
                             <SlidersHorizontal className="h-3.5 w-3.5" />
-                            {poiSubcatFilter
-                              ? translateSubcategory(poiSubcatFilter, language)
+                            {catSubcatFilter
+                              ? translateSubcategory(catSubcatFilter, language)
                               : activeFrontTab
                                 ? translateFrontStructure(activeFrontTab.name, language)
                                 : (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories")}
@@ -3095,16 +3104,16 @@ const BookOnlineSlidePanelInner = ({
                           {activeFrontTab ? (
                             <>
                               {/* Fallback vers Catégories en haut des sous-catégories */}
-                              <DropdownMenuItem onSelect={() => { setPoiCatFilter(null); setPoiSubcatFilter(null); setPoiShowAll(false); }}>
+                              <DropdownMenuItem onSelect={() => { setPoiCatFilter(null); setCatSubcatFilter(null); setPoiShowAll(false); }}>
                                 {"\u2039 "}{language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
                               </DropdownMenuItem>
-                              {poiSubcatFilter && (
-                                <DropdownMenuItem onSelect={() => setPoiSubcatFilter(null)}>
+                              {catSubcatFilter && (
+                                <DropdownMenuItem onSelect={() => setCatSubcatFilter(null)}>
                                   {language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
                                 </DropdownMenuItem>
                               )}
                               {catSubcatList.map(([name, count]) => (
-                                <DropdownMenuItem key={name} onSelect={() => { setPoiSubcatFilter(name); setPoiShowAll(false); }}>
+                                <DropdownMenuItem key={name} onSelect={() => { setCatSubcatFilter(name); setPoiShowAll(false); }}>
                                   {translateSubcategory(name, language)} <span className="ml-1 opacity-60">({count})</span>
                                 </DropdownMenuItem>
                               ))}
@@ -3120,7 +3129,7 @@ const BookOnlineSlidePanelInner = ({
                                   onSelect={(e) => {
                                     if (disabled) { e.preventDefault(); return; }
                                     e.preventDefault();
-                                    setPoiCatFilter(ft.id); setPoiSubcatFilter(null); setPoiShowAll(false);
+                                    setPoiCatFilter(ft.id); setCatSubcatFilter(null); setPoiShowAll(false);
                                   }}
                                   className={disabled ? "opacity-40 pointer-events-none" : ""}
                                 >
@@ -3138,8 +3147,8 @@ const BookOnlineSlidePanelInner = ({
                         className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                       >
                         <SlidersHorizontal className="h-3.5 w-3.5" />
-                        {poiSubcatFilter
-                          ? translateSubcategory(poiSubcatFilter, language)
+                        {catSubcatFilter
+                          ? translateSubcategory(catSubcatFilter, language)
                           : activeFrontTab
                             ? translateFrontStructure(activeFrontTab.name, language)
                             : (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories")}
@@ -3164,7 +3173,7 @@ const BookOnlineSlidePanelInner = ({
                 selectedKey={poiSubcatFilter}
                 allLabel={language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
                 onSelectAll={() => { setPoiSubcatFilter(null); setPoiPillOverlay(null); }}
-                onSelect={(key) => { setPoiCatFilter(null); setPoiSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
+                onSelect={(key) => { setPoiSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
                 onClose={() => setPoiPillOverlay(null)}
               />
             )}
@@ -3179,12 +3188,12 @@ const BookOnlineSlidePanelInner = ({
                     label: translateSubcategory(name, language),
                     count,
                   }))}
-                  selectedKey={poiSubcatFilter}
+                  selectedKey={catSubcatFilter}
                   allLabel={language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
                   backLabel={language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
-                  onBack={() => { setPoiCatFilter(null); setPoiSubcatFilter(null); setPoiShowAll(false); }}
-                  onSelectAll={() => { setPoiSubcatFilter(null); setPoiPillOverlay(null); }}
-                  onSelect={(key) => { setPoiSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
+                  onBack={() => { setPoiCatFilter(null); setCatSubcatFilter(null); setPoiShowAll(false); }}
+                  onSelectAll={() => { setCatSubcatFilter(null); setPoiPillOverlay(null); }}
+                  onSelect={(key) => { setCatSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
                   onClose={() => setPoiPillOverlay(null)}
                 />
               ) : (
@@ -3200,13 +3209,13 @@ const BookOnlineSlidePanelInner = ({
                   selectedKey={poiCatFilter}
                   allLabel={language === "en" ? "All categories" : language === "ar" ? "جميع الفئات" : "Toutes les catégories"}
                   onSelectAll={() => {
-                    setPoiCatFilter(null); setPoiSubcatFilter(null);
+                    setPoiCatFilter(null); setCatSubcatFilter(null);
                     setPoiShowAll(false); setPoiPillOverlay(null);
                   }}
                   onSelect={(key) => {
                     // Reste dans l'overlay POI/Map du Master : on ne relance aucune recherche.
                     setPoiCatFilter(key);
-                    setPoiSubcatFilter(null);
+                    setCatSubcatFilter(null);
                     setPoiShowAll(false);
                   }}
                   onClose={() => setPoiPillOverlay(null)}
