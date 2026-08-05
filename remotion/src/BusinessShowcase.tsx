@@ -38,25 +38,40 @@ const textPositionStyle = (position: TextPosition = "middle"): React.CSSProperti
  * réduit l'échelle jusqu'à ce que tout tienne. Le titre ne sort donc jamais
  * par le haut, quel que soit le volume de texte (Offres / Blocs highlights).
  */
-const FitColumn: React.FC<{ children: React.ReactNode; align?: "center" | "flex-start"; minScale?: number }> = ({
-  children,
-  align = "center",
-  minScale = 0.62,
-}) => {
+const FitColumn: React.FC<{
+  children: React.ReactNode;
+  align?: "center" | "flex-start";
+  minScale?: number;
+  /**
+   * Zone haute du viewport (ratio 0→1) volontairement laissée vide, appliquée
+   * UNIQUEMENT quand le texte est trop volumineux et doit être réduit.
+   * Évite que la sur-impression vienne coller au bord haut de l'image.
+   */
+  topSafeRatio?: number;
+}> = ({ children, align = "center", minScale = 0.62, topSafeRatio = 0 }) => {
   const ref = React.useRef<HTMLDivElement>(null);
-  const [fit, setFit] = React.useState<{ scale: number; height: number | null }>({ scale: 1, height: null });
+  const [fit, setFit] = React.useState<{ scale: number; height: number | null; offset: number }>({ scale: 1, height: null, offset: 0 });
   React.useLayoutEffect(() => {
     const el = ref.current;
     const parent = el?.parentElement;
     if (!el || !parent) return;
-    const avail = parent.clientHeight;
+    const availRaw = parent.clientHeight;
     // scrollHeight du contenu non transformé (on mesure avant application du scale)
     const h = el.scrollHeight;
-    if (!avail || !h) return;
-    if (fit.height == null && h > avail) {
-      setFit({ scale: Math.max(minScale, avail / h), height: avail });
+    if (!availRaw || !h) return;
+    if (fit.height == null && h > availRaw) {
+      // Réserve la bande haute (20% du viewport par défaut) : on soustrait ce que
+      // le conteneur occupe déjà au-dessus de cette limite.
+      let offset = 0;
+      if (topSafeRatio > 0) {
+        const viewportH = typeof window !== "undefined" ? window.innerHeight : availRaw;
+        const parentTop = parent.getBoundingClientRect().top;
+        offset = Math.max(0, Math.min(availRaw * 0.5, viewportH * topSafeRatio - parentTop));
+      }
+      const avail = Math.max(1, availRaw - offset);
+      setFit({ scale: Math.max(minScale, avail / h), height: avail, offset });
     }
-  }, [children, minScale, fit.height]);
+  }, [children, minScale, topSafeRatio, fit.height]);
   return (
     <div
       ref={ref}
@@ -71,6 +86,7 @@ const FitColumn: React.FC<{ children: React.ReactNode; align?: "center" | "flex-
         ...(fit.height != null
           ? {
               height: fit.height,
+              marginTop: fit.offset || undefined,
               transform: `scale(${fit.scale})`,
               transformOrigin: "top center",
             }
@@ -80,6 +96,7 @@ const FitColumn: React.FC<{ children: React.ReactNode; align?: "center" | "flex-
       {children}
     </div>
   );
+
 
 };
 
