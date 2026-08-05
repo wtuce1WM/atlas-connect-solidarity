@@ -59,6 +59,12 @@ const API_GROUPS: { key: string; label: string; emoji: string; keywords: string[
     emoji: "✉️",
     keywords: ["resend", "email", "whatsapp", "sms", "otp"],
   },
+  {
+    key: "payment",
+    label: "Paiement & PSP",
+    emoji: "💳",
+    keywords: ["payment", "paiement", "psp", "chaabi", "cmi", "checkout", "transaction", "remboursement", "chargeback", "3d secure", "moyens-paiement"],
+  },
 ];
 
 const OTHER_KEY = "other";
