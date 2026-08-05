@@ -1602,7 +1602,29 @@ export default function StudioVideo() {
     return matches;
   }, [promptKeywords, bizImages, bizVideos]);
 
-  const submit = async () => {
+  // Rassemble tous les médias qui partiront au rendu, pour le pré-vol.
+  const collectPreflightEntries = (chosenImages: string[], chosenVideos: string[]): PreflightEntry[] => {
+    const out: PreflightEntry[] = [];
+    if (logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo) {
+      out.push({ url: logoInfo.url, label: "Logo (étape d'ouverture)", kind: "image" });
+    }
+    chosenImages.forEach((u) => out.push({ url: u, label: "Image sélectionnée", kind: "image" }));
+    chosenVideos.forEach((u) => {
+      const meta = bizVideos.find((v) => v.url === u);
+      out.push({ url: u, label: `Vidéo sélectionnée${meta?.title ? ` — ${meta.title}` : ""}`, kind: meta?.kind === "youtube" ? "youtube" : "video" });
+    });
+    Object.entries(sceneMedia).forEach(([kind, items]) => {
+      (items ?? []).forEach((m) => out.push({ url: m.url, label: `Étape « ${kind} » — média assigné`, kind: m.kind }));
+    });
+    if (continuousBg && continuousBgUrl) {
+      const meta = bizVideos.find((v) => v.url === continuousBgUrl);
+      out.push({ url: continuousBgUrl, label: "Vidéo de fond continue", kind: meta?.kind === "youtube" ? "youtube" : "video" });
+    }
+    if (soundtrackOn && soundtrackUrl) out.push({ url: soundtrackUrl, label: "Piste sonore", kind: "audio" });
+    return out;
+  };
+
+  const submit = async (opts?: { skipPreflight?: boolean }) => {
     if (submitting) return;
     if (hasActiveJob) {
       toast.error("Job déjà lancé — patientez la fin du rendu en cours.");
@@ -1615,7 +1637,29 @@ export default function StudioVideo() {
     setSubmitting(true);
     try {
       const { finalPrompt, chosenImages, chosenVideos } = buildDirectivesPrompt();
+
+      // Pré-vol médias : bloque les causes n°1 de jobs en erreur (liens YouTube,
+      // fichiers Storage supprimés) avant de consommer un rendu.
+      if (!opts?.skipPreflight) {
+        setPreflightRunning(true);
+        let issues: PreflightIssue[] = [];
+        try {
+          issues = await preflightMedia(collectPreflightEntries(chosenImages, chosenVideos));
+        } catch {
+          issues = [];
+        } finally {
+          setPreflightRunning(false);
+        }
+        if (issues.length > 0) {
+          setPreflightIssues(issues);
+          setPreflightOpen(true);
+          setSubmitting(false);
+          return;
+        }
+      }
+
       const { data, error } = await supabase.functions.invoke("video-scenario-generate", {
+
         body: {
           prompt: finalPrompt,
           business_id: selected?.id ?? null,
