@@ -83,6 +83,7 @@ import MediaBackground from "@/components/slidepanel/MediaBackground";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import BusinessPromotionsList from "@/components/slidepanel/BusinessPromotionsList";
 import { useBusinessPromotions } from "@/hooks/useBusinessPromotions";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { buildReviewHtml } from "@/lib/reviewHtmlBuilder";
 
 import VideoThumbnail from "@/components/VideoThumbnail";
