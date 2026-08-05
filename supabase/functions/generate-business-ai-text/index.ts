@@ -270,14 +270,15 @@ Deno.serve(async (req) => {
         sourceBlock = await firecrawlSearch(query, fcKey);
       } else {
         const keys =
-          mode === "menu_links" ? MENU_URL_KEYS : mode === "external_links" ? EXTERNAL_URL_KEYS : PLATFORM_URL_KEYS;
+          mode === "menu_links" || mode === "external_links" ? [] : PLATFORM_URL_KEYS;
         let urls = (keys as ReadonlyArray<readonly [string, string]>)
           .map(([k, label]) => [String((biz as any)[k] ?? "").trim(), label] as const)
           .filter(([u]) => !!u);
 
         // Menus / liens externes : source unique = business_documents
         // (type menu | flipbook | external_link), là où l'affilié saisit « La carte »
-        // ou ses liens presse. Aucun champ CTA (url_1..url_6, website…) n'est lu.
+        // ou ses liens presse. Aucun champ de la fiche n'est lu (ni menu_url /
+        // pdf_url legacy, ni les CTAs url_1..url_6, website…).
         if (mode === "menu_links" || mode === "external_links") {
           const docTypes = mode === "menu_links" ? ["menu", "flipbook"] : ["external_link"];
           const { data: docs } = await supabase
@@ -286,15 +287,15 @@ Deno.serve(async (req) => {
             .eq("business_id", businessId)
             .in("type", docTypes)
             .order("sort_order", { ascending: true });
-          const docUrls = ((docs as any[]) ?? [])
+          urls = ((docs as any[]) ?? [])
             .map((d) => [
               String(d.url ?? "").trim(),
               String(d.name ?? "").trim() ||
                 (d.type === "flipbook" ? "Flipbook" : mode === "menu_links" ? "Menu" : "Lien externe"),
             ] as const)
             .filter(([u]) => !!u);
-          urls = mode === "external_links" ? docUrls : [...docUrls, ...urls];
         }
+
 
 
         // Dédoublonnage par URL.
