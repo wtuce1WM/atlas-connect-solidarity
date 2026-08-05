@@ -3009,7 +3009,7 @@ const BookOnlineSlidePanelInner = ({
                   </div>
                 )}
                 <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                  {embedMode ? (
+                  {usePillDropdown ? (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
@@ -3020,7 +3020,7 @@ const BookOnlineSlidePanelInner = ({
                           {poiSubcatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
                         </button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="z-[260] max-h-[60vh] overflow-y-auto">
+                      <DropdownMenuContent align="end" className="z-[260] max-h-[70vh] min-w-[15rem] overflow-y-auto">
                         {poiSubcatFilter && (
                           <DropdownMenuItem onSelect={() => setPoiSubcatFilter(null)}>
                             {language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
@@ -3046,7 +3046,7 @@ const BookOnlineSlidePanelInner = ({
                 </div>
                 {showCatPill && (
                   <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                    {embedMode ? (
+                    {usePillDropdown ? (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button
@@ -3057,7 +3057,7 @@ const BookOnlineSlidePanelInner = ({
                             {(activeFrontTab && translateFrontStructure(activeFrontTab.name, language)) || (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories")}
                           </button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="z-[260] max-h-[60vh] overflow-y-auto">
+                        <DropdownMenuContent align="end" className="z-[260] max-h-[70vh] min-w-[15rem] overflow-y-auto">
                           {poiCatFilter && (
                             <DropdownMenuItem onSelect={() => { setPoiCatFilter(null); setPoiSubcatFilter(null); setPoiShowAll(false); }}>
                               {language === "en" ? "All categories" : language === "ar" ? "جميع الفئات" : "Toutes les catégories"}
