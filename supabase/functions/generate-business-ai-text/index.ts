@@ -330,7 +330,7 @@ Structure le texte autour de cette consigne : elle doit être traitée explicite
         businessId,
         context: "affiliate_ai_text",
         model: MODEL,
-        metadata: { mode, length: lengthKey },
+        metadata: { mode, length: lengthKey, style: styleKey },
       },
     );
 
@@ -381,6 +381,8 @@ Structure le texte autour de cette consigne : elle doit être traitée explicite
         mode,
         source_label: sourceLabel,
         length: lengthKey,
+        style: styleKey,
+
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
