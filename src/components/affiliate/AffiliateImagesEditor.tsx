@@ -56,7 +56,17 @@ export interface AffiliateImagesEditorHandle {
   save: () => Promise<void>;
 }
 
-const MAX_DESC = 500;
+const MAX_DESC = 1000;
+
+/** Longueur du texte brut d'un contenu HTML (pour le compteur de caractères). */
+const stripHtmlText = (html: string): string => {
+  if (!html) return "";
+  if (typeof window === "undefined") return html.replace(/<[^>]*>/g, "");
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html;
+  return (tmp.textContent || "").replace(/\u00a0/g, " ").trim();
+};
+
 const MAX_IMAGES = 30;
 // Poids max accepté APRÈS optimisation (les images sont recompressées en WebP ≤1920px)
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
