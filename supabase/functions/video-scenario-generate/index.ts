@@ -1681,8 +1681,8 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     {
       const CANON = [
         "logo", "welcome", "popup", "proposition", "weather", "tides",
-        "hook", "name", "ai_card", "offer", "highlight",
-        "ai_summary", "ai_text", "external_link", "menu_doc", "media",
+        "hook", "name", "ai_text", "ai_card", "offer", "highlight",
+        "ai_summary", "external_link", "menu_doc", "media",
         "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review",
         "hours", "map", "digital", "blog", "whatsapp", "cta", "outro",
       ];
