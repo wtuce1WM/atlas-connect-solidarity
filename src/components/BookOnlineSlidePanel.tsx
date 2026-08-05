@@ -3209,13 +3209,13 @@ const BookOnlineSlidePanelInner = ({
                   selectedKey={poiCatFilter}
                   allLabel={language === "en" ? "All categories" : language === "ar" ? "جميع الفئات" : "Toutes les catégories"}
                   onSelectAll={() => {
-                    setPoiCatFilter(null); setPoiSubcatFilter(null);
+                    setPoiCatFilter(null); setCatSubcatFilter(null);
                     setPoiShowAll(false); setPoiPillOverlay(null);
                   }}
                   onSelect={(key) => {
                     // Reste dans l'overlay POI/Map du Master : on ne relance aucune recherche.
                     setPoiCatFilter(key);
-                    setPoiSubcatFilter(null);
+                    setCatSubcatFilter(null);
                     setPoiShowAll(false);
                   }}
                   onClose={() => setPoiPillOverlay(null)}
