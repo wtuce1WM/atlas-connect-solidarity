@@ -2864,8 +2864,15 @@ const BookOnlineSlidePanelInner = ({
           ? cityInRadius.filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
           : (poiBusinesses as any[]);
 
-        // Pill POI / sous-catégories
-        const defaultSubcatOf = (p: any) => ((p.categories || [])[0] || "").trim() || null;
+        // Pill POI / sous-catégories — on prend en compte TOUTES les sous-catégories
+        // d'un POI (pas seulement la première / celle par défaut)
+        const subcatsOf = (p: any): string[] => {
+          const list = Array.isArray(p.categories) ? p.categories : [];
+          const all = [p.main_category, ...list]
+            .map((c: any) => (typeof c === "string" ? c.trim() : ""))
+            .filter(Boolean);
+          return Array.from(new Set(all));
+        };
         let poiSubcatList: [string, number][];
         if (activeFrontTab) {
           poiSubcatList = activeFrontTab.subcategories
@@ -2875,9 +2882,7 @@ const BookOnlineSlidePanelInner = ({
         } else {
           const counts = new Map<string, number>();
           for (const p of afterCat) {
-            const sc = defaultSubcatOf(p);
-            if (!sc) continue;
-            counts.set(sc, (counts.get(sc) || 0) + 1);
+            for (const sc of subcatsOf(p)) counts.set(sc, (counts.get(sc) || 0) + 1);
           }
           poiSubcatList = Array.from(counts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
         }
@@ -2888,8 +2893,9 @@ const BookOnlineSlidePanelInner = ({
                   const sd = activeFrontTab.subcategories.find((s) => s.name === poiSubcatFilter);
                   return sd ? matchesNames(p, sd.names) : true;
                 })
-              : afterCat.filter((p) => defaultSubcatOf(p) === poiSubcatFilter))
+              : afterCat.filter((p) => subcatsOf(p).includes(poiSubcatFilter)))
           : afterCat;
+
         const afterProx = afterSubcat.filter(inRadius);
         const total = afterProx.length;
         const displayedPoi = (poiShowAll || total <= TOP_LIMIT) ? afterProx : afterProx.slice(0, TOP_LIMIT);
