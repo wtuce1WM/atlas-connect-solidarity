@@ -89,7 +89,30 @@ export default function VideoDashboardPanel() {
       const affs = (affRes.data || []) as any[];
       setAffiliateNames(Object.fromEntries(affs.map((a) => [a.id, a.name || a.contact_name || a.contact_email || a.id.slice(0, 8)])));
       setAffiliateByUser(Object.fromEntries(affs.filter((a) => a.user_id).map((a) => [a.user_id as string, a.id as string])));
-      setUserLabels(Object.fromEntries(affs.filter((a) => a.user_id).map((a) => [a.user_id as string, a.contact_email || a.name || a.contact_name || (a.user_id as string).slice(0, 8)])));
+
+      // Libellés utilisateurs : affiliés d'abord, puis membres du Club / staff
+      const labels: Record<string, string> = Object.fromEntries(
+        affs.filter((a) => a.user_id).map((a) => [a.user_id as string, a.contact_email || a.name || a.contact_name || (a.user_id as string).slice(0, 8)])
+      );
+      const userIds = Array.from(new Set([...usageList.map((r) => r.user_id), ...jobList.map((j) => j.user_id)].filter(Boolean))) as string[];
+      const missing = userIds.filter((u) => !labels[u]);
+      if (missing.length) {
+        const [memRes, roleRes] = await Promise.all([
+          supabase.from("club_members").select("user_id,email,first_name,last_name,nickname").in("user_id", missing),
+          supabase.from("user_roles").select("user_id,role").in("user_id", missing),
+        ]);
+        const roleByUser: Record<string, string> = {};
+        for (const r of (roleRes.data || []) as any[]) roleByUser[r.user_id] = r.role;
+        for (const m of (memRes.data || []) as any[]) {
+          const name = [m.first_name, m.last_name].filter(Boolean).join(" ") || m.nickname || m.email;
+          labels[m.user_id] = roleByUser[m.user_id] ? `${name} (${roleByUser[m.user_id]})` : name;
+        }
+        for (const u of missing) {
+          if (!labels[u]) labels[u] = roleByUser[u] ? `${u.slice(0, 8)} (${roleByUser[u]})` : u.slice(0, 8);
+        }
+      }
+      setUserLabels(labels);
+
 
       const bizIds = Array.from(new Set([...usageList.map((r) => r.business_id), ...jobList.map((j) => j.business_id)].filter(Boolean))) as string[];
       if (bizIds.length) {
