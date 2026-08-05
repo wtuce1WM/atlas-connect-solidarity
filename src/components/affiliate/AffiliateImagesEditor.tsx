@@ -221,6 +221,8 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
     const [imageSizes, setImageSizes] = useState<Record<string, number | null>>({});
     const [imageDims, setImageDims] = useState<Record<string, { w: number; h: number } | null>>({});
     const [deleteUrl, setDeleteUrl] = useState<string | null>(null);
+    const [textUrl, setTextUrl] = useState<string | null>(null);
+
     const [deleting, setDeleting] = useState(false);
 
     const sensors = useSensors(
