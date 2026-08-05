@@ -3188,12 +3188,12 @@ const BookOnlineSlidePanelInner = ({
                     label: translateSubcategory(name, language),
                     count,
                   }))}
-                  selectedKey={poiSubcatFilter}
+                  selectedKey={catSubcatFilter}
                   allLabel={language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
                   backLabel={language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
-                  onBack={() => { setPoiCatFilter(null); setPoiSubcatFilter(null); setPoiShowAll(false); }}
-                  onSelectAll={() => { setPoiSubcatFilter(null); setPoiPillOverlay(null); }}
-                  onSelect={(key) => { setPoiSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
+                  onBack={() => { setPoiCatFilter(null); setCatSubcatFilter(null); setPoiShowAll(false); }}
+                  onSelectAll={() => { setCatSubcatFilter(null); setPoiPillOverlay(null); }}
+                  onSelect={(key) => { setCatSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
                   onClose={() => setPoiPillOverlay(null)}
                 />
               ) : (
