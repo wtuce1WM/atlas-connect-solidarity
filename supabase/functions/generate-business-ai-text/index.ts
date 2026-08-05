@@ -225,15 +225,29 @@ Deno.serve(async (req) => {
         sourceLabel = `recherche web « ${query} »`;
         sourceBlock = await firecrawlSearch(query, fcKey);
       } else {
-        const urls = PLATFORM_URL_KEYS
+        const keys =
+          mode === "menu_links" ? MENU_URL_KEYS : mode === "external_links" ? EXTERNAL_URL_KEYS : PLATFORM_URL_KEYS;
+        let urls = keys
           .map(([k, label]) => [String((biz as any)[k] ?? "").trim(), label] as const)
-          .filter(([u]) => !!u)
-          .slice(0, 4);
+          .filter(([u]) => !!u);
+        // Sélection explicite côté affilié : on ne garde que les liens de la fiche.
+        if (requestedUrls.length > 0) {
+          const wanted = new Set(requestedUrls);
+          const filtered = urls.filter(([u]) => wanted.has(u));
+          if (filtered.length > 0) urls = filtered;
+        }
+        urls = urls.slice(0, 4);
+        const emptyMsg =
+          mode === "menu_links"
+            ? "Aucun lien menu / carte détecté sur la fiche."
+            : mode === "external_links"
+              ? "Aucun lien externe détecté sur la fiche."
+              : "Aucune fiche plateforme renseignée (onglet Avis clients).";
         if (urls.length === 0) {
-          return new Response(
-            JSON.stringify({ error: "Aucune fiche plateforme renseignée (onglet Avis clients)." }),
-            { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-          );
+          return new Response(JSON.stringify({ error: emptyMsg }), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
         }
         const parts = await Promise.all(
           urls.map(async ([u, label]) => {
@@ -242,15 +256,21 @@ Deno.serve(async (req) => {
           }),
         );
         sourceBlock = parts.filter(Boolean).join("\n\n").slice(0, 16000);
-        sourceLabel = `fiches ${urls.map(([, l]) => l).join(", ")}`;
+        sourceLabel =
+          mode === "menu_links"
+            ? `menus ${urls.map(([, l]) => l).join(", ")}`
+            : mode === "external_links"
+              ? `liens ${urls.map(([, l]) => l).join(", ")}`
+              : `fiches ${urls.map(([, l]) => l).join(", ")}`;
         if (!sourceBlock) {
           return new Response(
-            JSON.stringify({ error: "Impossible de lire les fiches plateformes (contenu bloqué)." }),
+            JSON.stringify({ error: "Impossible de lire les liens fournis (contenu bloqué ou illisible)." }),
             { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
           );
         }
       }
     }
+
 
     const systemPrompt = `Tu rédiges des contenus éditoriaux pour One World Morocco, plateforme de découverte du Maroc.
 ${MODE_BRIEFS[mode]}
