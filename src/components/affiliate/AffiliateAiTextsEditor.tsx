@@ -425,6 +425,26 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
           />
         </div>
 
+        <div className="space-y-2">
+          <Label className="text-white">Style du texte rendu</Label>
+          <div className="flex flex-wrap gap-2">
+            {STYLES.map((s) => (
+              <button
+                key={s.value}
+                type="button"
+                onClick={() => setStyle(s.value)}
+                className={`rounded-md border px-3 py-2 text-xs font-medium transition-colors ${
+                  style === s.value ? "border-primary bg-primary/10 text-primary" : "border-white/10 text-white/70 hover:bg-white/5"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-white/50">{STYLES.find((s) => s.value === style)!.help}</p>
+        </div>
+
+
         <div className="flex flex-wrap gap-3">
           <Button onClick={generate} disabled={generating || texts.length >= MAX_TEXTS}>
             {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
