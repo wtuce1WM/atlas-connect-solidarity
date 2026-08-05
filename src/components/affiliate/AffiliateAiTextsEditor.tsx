@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Loader2, Sparkles, Trash2, Plus, ArrowUp, ArrowDown, Lock } from "lucide-react";
+import { Loader2, Sparkles, Trash2, Plus, ArrowUp, ArrowDown, Lock, ExternalLink } from "lucide-react";
 import RichTextEditor from "@/components/staff/RichTextEditor";
 
 interface AiText {
@@ -401,19 +401,31 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
             </div>
             <div className="grid gap-1.5">
               {activeLinks.map((l) => (
-                <label key={l.key} className="flex items-start gap-2 text-xs text-white/80">
-                  <input
-                    type="checkbox"
-                    className="mt-0.5 accent-current"
-                    checked={selectedUrls.includes(l.url)}
-                    onChange={() => toggleUrl(l.url)}
-                  />
-                  <span className="min-w-0">
-                    <span className="font-medium text-white">{l.label}</span>{" "}
-                    <span className="break-all text-white/50">{l.url}</span>
-                  </span>
-                </label>
+                <div key={l.key} className="flex items-start gap-2 text-xs text-white/80">
+                  <label className="flex min-w-0 flex-1 items-start gap-2">
+                    <input
+                      type="checkbox"
+                      className="mt-0.5 accent-current"
+                      checked={selectedUrls.includes(l.url)}
+                      onChange={() => toggleUrl(l.url)}
+                    />
+                    <span className="min-w-0">
+                      <span className="font-medium text-white">{l.label}</span>{" "}
+                      <span className="break-all text-white/50">{l.url}</span>
+                    </span>
+                  </label>
+                  <a
+                    href={l.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Ouvrir dans un nouvel onglet"
+                    className="mt-0.5 shrink-0 rounded border border-white/15 p-1 text-white/70 transition hover:bg-white/10 hover:text-white"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                </div>
               ))}
+
             </div>
             <p className="text-xs text-white/50">{selectedUrls.length} lien(s) sélectionné(s) — 4 liens lus au maximum.</p>
           </div>
