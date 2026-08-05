@@ -4,7 +4,41 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Loader2, HelpCircle } from "lucide-react";
+
+/** Icône "?" cliquable expliquant une métrique */
+function Help({ text }: { text: string }) {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          aria-label="Définition de la métrique"
+          className="inline-flex shrink-0 text-muted-foreground hover:text-primary transition-colors align-middle"
+        >
+          <HelpCircle className="h-3.5 w-3.5" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent side="top" className="max-w-xs text-xs leading-relaxed z-[90]">
+        {text}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function Metric({ value, label, help, big, valueClass }: { value: string; label: string; help: string; big?: boolean; valueClass?: string }) {
+  return (
+    <div>
+      <div className={`${big ? "text-3xl" : "text-2xl"} font-bold ${valueClass || ""}`}>{value}</div>
+      <p className="text-sm text-muted-foreground flex items-start gap-1.5">
+        <span>{label}</span>
+        <Help text={help} />
+      </p>
+    </div>
+  );
+}
+
 
 const PERIODS = [
   { label: "7 derniers jours", days: 7 },
