@@ -718,7 +718,64 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Titre / Texte de l'image */}
+        <Dialog open={!!textUrl} onOpenChange={(open) => !open && setTextUrl(null)}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Titre &amp; texte de l'image</DialogTitle>
+            </DialogHeader>
+            {textUrl && (
+              <div className="space-y-4">
+                <img src={textUrl} alt="" className="w-full h-40 object-cover rounded-md border" />
+
+                <div className="space-y-1.5">
+                  <Label>Titre</Label>
+                  <Input
+                    value={titles[textUrl] || ""}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setTitles((prev) => ({ ...prev, [textUrl]: v }));
+                      markDirty();
+                    }}
+                    placeholder="Titre de l'image"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label>Texte</Label>
+                    <span
+                      className={cn(
+                        "text-xs",
+                        stripHtmlText(descriptions[textUrl] || "").length > MAX_DESC
+                          ? "text-destructive font-semibold"
+                          : "text-muted-foreground"
+                      )}
+                    >
+                      {stripHtmlText(descriptions[textUrl] || "").length}/{MAX_DESC}
+                    </span>
+                  </div>
+                  <RichTextEditor
+                    content={descriptions[textUrl] || ""}
+                    onChange={(html) => {
+                      setDescriptions((prev) => ({ ...prev, [textUrl]: html }));
+                      markDirty();
+                    }}
+                    maxHeight="360px"
+                    simple
+                  />
+                </div>
+
+                <div className="flex justify-end">
+                  <Button onClick={() => setTextUrl(null)}>Fermer</Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
+
     );
   }
 );
