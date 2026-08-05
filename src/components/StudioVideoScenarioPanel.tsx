@@ -452,9 +452,15 @@ function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenar
 
 
 function sceneKindFor(icon: Scene["icon"]): SceneMediaKind | null {
-  if (icon === "custom" || icon === "popup" || icon === "highlight" || icon === "blog") return null;
+  // Toutes les cartes (sauf les étapes personnalisées, gérées à part) peuvent recevoir
+  // des médias assignés depuis la galerie de l'établissement.
+  if (icon === "custom") return null;
   return icon as SceneMediaKind;
 }
+
+/** Étapes possédant une image « associée » par défaut (bloc, popup, lien externe). */
+const ASSOC_MEDIA_KINDS = new Set<string>(["highlight", "popup", "external_link", "offer", "blog"]);
+
 
 const isCustomToken = (t: string) => t.startsWith("custom:");
 const customIdFromToken = (t: string) => t.slice("custom:".length);

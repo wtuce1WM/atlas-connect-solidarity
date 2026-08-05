@@ -7375,6 +7375,42 @@ export type Database = {
         }
         Relationships: []
       }
+      video_scenario_steps: {
+        Row: {
+          created_at: string
+          duration_sec: number
+          enabled: boolean
+          id: string
+          label: string | null
+          mode: string
+          position: number
+          scene_key: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          duration_sec?: number
+          enabled?: boolean
+          id?: string
+          label?: string | null
+          mode: string
+          position?: number
+          scene_key: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          duration_sec?: number
+          enabled?: boolean
+          id?: string
+          label?: string | null
+          mode?: string
+          position?: number
+          scene_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       video_views: {
         Row: {
           id: string
