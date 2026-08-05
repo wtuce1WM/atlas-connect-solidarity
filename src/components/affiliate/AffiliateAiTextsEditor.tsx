@@ -136,6 +136,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
   const [lockedIds, setLockedIds] = useState<string[]>([]);
   const [pristine, setPristine] = useState<Record<string, string>>({});
   const [biz, setBiz] = useState<Record<string, any> | null>(null);
+  const [docs, setDocs] = useState<Array<{ type: string; name: string | null; url: string }>>([]);
   const [selectedUrls, setSelectedUrls] = useState<string[]>([]);
 
   const detect = (fields: Array<[string, string]>) =>
@@ -143,8 +144,33 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
       .map(([k, label]) => ({ key: k, label, url: String(biz?.[k] ?? "").trim() }))
       .filter((f) => !!f.url);
 
-  const menuLinks = useMemo(() => detect(MENU_FIELDS), [biz]);
-  const externalLinks = useMemo(() => detect(EXTERNAL_FIELDS), [biz]);
+  // Les menus / cartes et liens externes éditoriaux sont dans business_documents
+  // (type menu | flipbook | external_link) : c'est la source prioritaire.
+  const docLinks = (types: string[], fallbackLabel: string) => {
+    const seen = new Set<string>();
+    return docs
+      .filter((d) => types.includes(d.type) && String(d.url ?? "").trim())
+      .map((d) => ({
+        key: `doc-${d.url}`,
+        label: (d.name ?? "").trim() || (d.type === "flipbook" ? "Flipbook" : fallbackLabel),
+        url: String(d.url).trim(),
+      }))
+      .filter((d) => (seen.has(d.url) ? false : (seen.add(d.url), true)));
+  };
+
+  const dedupe = (list: Array<{ key: string; label: string; url: string }>) => {
+    const seen = new Set<string>();
+    return list.filter((l) => (seen.has(l.url) ? false : (seen.add(l.url), true)));
+  };
+
+  const menuLinks = useMemo(
+    () => dedupe([...docLinks(["menu", "flipbook"], "Menu"), ...detect(MENU_FIELDS)]),
+    [biz, docs],
+  );
+  const externalLinks = useMemo(
+    () => dedupe([...docLinks(["external_link"], "Lien externe"), ...detect(EXTERNAL_FIELDS)]),
+    [biz, docs],
+  );
   const activeLinks = mode === "menu_links" ? menuLinks : mode === "external_links" ? externalLinks : [];
 
   const snapshot = (t: AiText) => JSON.stringify([t.title, t.hook, t.content, t.is_active]);
