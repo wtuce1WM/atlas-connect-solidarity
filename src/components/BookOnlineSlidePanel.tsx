@@ -3193,7 +3193,7 @@ const BookOnlineSlidePanelInner = ({
                   backLabel={language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
                   onBack={() => { setPoiCatFilter(null); setCatSubcatFilter(null); setPoiShowAll(false); }}
                   onSelectAll={() => { setCatSubcatFilter(null); setPoiPillOverlay(null); }}
-                  onSelect={(key) => { setCatSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
+                  onSelect={(key) => { setPoiSubcatFilter(null); setCatSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
                   onClose={() => setPoiPillOverlay(null)}
                 />
               ) : (
