@@ -575,13 +575,14 @@ const AffiliateVideosEditor = forwardRef<AffiliateVideosEditorHandle, Props>(
 
         {/* Titre / Texte de la vidéo */}
         <Dialog open={!!textUid} onOpenChange={(open) => !open && setTextUid(null)}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl md:max-w-4xl lg:max-w-5xl">
             <DialogHeader>
               <DialogTitle>Titre &amp; texte de la vidéo</DialogTitle>
             </DialogHeader>
             {(() => {
               const v = videos.find((x) => x._uid === textUid);
               if (!v) return null;
+              const plainLen = stripHtmlText(v.description || "").length;
               return (
                 <div className="space-y-4">
                   <div className="space-y-1.5">
@@ -596,19 +597,20 @@ const AffiliateVideosEditor = forwardRef<AffiliateVideosEditorHandle, Props>(
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <Label>Texte</Label>
-                      <span className="text-xs text-muted-foreground">
-                        {v.description.length}/{MAX_DESC}
+                      <span
+                        className={cn(
+                          "text-xs",
+                          plainLen > MAX_DESC ? "text-destructive font-semibold" : "text-muted-foreground"
+                        )}
+                      >
+                        {plainLen}/{MAX_DESC}
                       </span>
                     </div>
-                    <Textarea
-                      value={v.description}
-                      onChange={(e) =>
-                        patchVideo(v._uid, { description: e.target.value.slice(0, MAX_DESC) })
-                      }
-                      placeholder="Texte de la vidéo (max 2000)"
-                      rows={8}
-                      maxLength={MAX_DESC}
-                      className="resize-y min-h-[160px]"
+                    <RichTextEditor
+                      content={v.description || ""}
+                      onChange={(html) => patchVideo(v._uid, { description: html })}
+                      maxHeight="360px"
+                      simple
                     />
                   </div>
 
