@@ -466,7 +466,7 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
         const rows = images
           .map((url) => {
             const title = (titles[url] || "").trim();
-            const description = (descriptions[url] || "").trim().slice(0, MAX_DESC);
+            const description = (descriptions[url] || "").trim();
             if (!title && !description) return null;
             return {
               business_id: businessId,
