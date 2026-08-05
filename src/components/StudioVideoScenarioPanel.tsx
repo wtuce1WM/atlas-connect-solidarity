@@ -48,7 +48,7 @@ export type Scene = {
   start: number;
   description: string;
   keywords: string[];
-  icon: "logo" | "welcome" | "proposition" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "whatsapp" | "hours" | "map" | "digital" | "blog" | "weather" | "tides" | "cta" | "outro" | "custom";
+  icon: "logo" | "welcome" | "proposition" | "hook" | "name" | "ai_card" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "whatsapp" | "hours" | "map" | "digital" | "blog" | "weather" | "tides" | "cta" | "outro" | "custom";
 };
 
 export type Scenario = {
@@ -77,6 +77,7 @@ const ICONS: Record<Scene["icon"], React.ReactNode> = {
   media: <MessageSquare className="h-3.5 w-3.5" />,
   popup: <ImageIcon className="h-3.5 w-3.5" />,
   offer: <MessageSquare className="h-3.5 w-3.5" />,
+  ai_card: <Sparkles className="h-3.5 w-3.5" />,
   highlight: <Star className="h-3.5 w-3.5" />,
   ai_summary: <Type className="h-3.5 w-3.5" />,
   external_link: <Type className="h-3.5 w-3.5" />,
@@ -109,6 +110,7 @@ const LABELS: Record<Exclude<Scene["icon"], "custom">, string> = {
   media: "Montage",
   popup: "Popup",
   offer: "Offre",
+  ai_card: "Carte IA",
   highlight: "Bloc highlight",
   ai_summary: "Résumé IA",
   external_link: "Lien externe",
@@ -421,6 +423,7 @@ const FIXED_SCENE_DURATIONS: Partial<Record<Scene["icon"], number>> = {
   hours: 3,
   map: 3,
   digital: 3,
+  ai_card: 5,
 };
 
 
