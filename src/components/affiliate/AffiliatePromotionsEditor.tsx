@@ -43,6 +43,7 @@ const emptyForm = {
   promotion_percent: "" as string,
   promotion_value: "" as string,
   promotion_currency: "MAD" as "MAD" | "EUR",
+  promotion_note: "" as string,
 };
 
 const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
