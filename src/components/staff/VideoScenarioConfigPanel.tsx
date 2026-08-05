@@ -81,11 +81,6 @@ const STEP_DOCS: Record<string, { what: string; filter: string; notes?: string }
     filter: "Incluse s'il y a au moins un highlight rempli et sélectionné.",
     notes: "Une carte par highlight. Texte long auto-réduit, puces sans retour ligne après le symbole.",
   },
-  ai_summary: {
-    what: "Résumés IA du menu (business_menu_summaries) : titre + contenu.",
-    filter: "Incluse si au moins un résumé IA est sélectionné dans le Studio.",
-    notes: "Une carte par résumé ; Rich Text respecté.",
-  },
   ai_text: {
     what: "Textes IA de l'onglet TXT IA de Présence en ligne (titre + corps).",
     filter: "Incluse si l'option « TXT IA » est cochée et qu'au moins un texte IA est sélectionné dans le Studio.",
