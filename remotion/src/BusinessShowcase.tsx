@@ -252,6 +252,8 @@ export type ShowcaseProps = {
   videoEnds?: Record<string, number>;
   offer?: { title?: string; price?: string; lines?: string[]; message_html?: string | null; background_video_url?: string; background_image_url?: string } | null;
   offers?: Array<{ title?: string; price?: string; lines?: string[]; message_html?: string | null; background_video_url?: string; background_image_url?: string }> | null;
+  /** Carte "Offre" rédigée par l'IA (option « Carte IA »), distincte des offres en base. */
+  aiCard?: { title?: string; price?: string; lines?: string[]; message_html?: string | null; background_video_url?: string; background_image_url?: string } | null;
   rating?: number | null;
   reviewsCount?: number | null;
   openingHours?: string | Record<string, string> | null;
