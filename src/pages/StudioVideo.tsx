@@ -4417,12 +4417,55 @@ export default function StudioVideo() {
                 )}
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button onClick={submit} disabled={submitting || hasActiveJob} className="gap-2">
-                  {submitting || hasActiveJob ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-                  {hasActiveJob ? "Job déjà lancé…" : refineFrom ? "Générer la version affinée" : "Générer la vidéo"}
+                <Button onClick={() => submit()} disabled={submitting || hasActiveJob || preflightRunning} className="gap-2">
+                  {submitting || hasActiveJob || preflightRunning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                  {preflightRunning ? "Vérification des médias…" : hasActiveJob ? "Job déjà lancé…" : refineFrom ? "Générer la version affinée" : "Générer la vidéo"}
                 </Button>
               </div>
+
+              <Dialog open={preflightOpen} onOpenChange={setPreflightOpen}>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Vérification des médias avant rendu</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-3 text-sm">
+                    <p className="text-muted-foreground">
+                      {preflightIssues.some((i) => i.severity === "block")
+                        ? "Certains médias ne sont pas rendables : le rendu échouerait. Corrigez-les puis relancez."
+                        : "Points de vigilance détectés. Vous pouvez lancer malgré tout."}
+                    </p>
+                    <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+                      {preflightIssues.map((i, idx) => (
+                        <div
+                          key={`${i.url}-${idx}`}
+                          className={`rounded-md border p-2 ${i.severity === "block" ? "border-destructive/50 bg-destructive/5" : "border-border bg-muted/30"}`}
+                        >
+                          <div className="font-medium">
+                            {i.severity === "block" ? "⛔ " : "⚠️ "}
+                            {i.label}
+                          </div>
+                          <div className="text-muted-foreground">{i.reason}</div>
+                          <div className="mt-1 break-all font-mono text-[11px] text-muted-foreground">{i.url}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex flex-wrap justify-end gap-2 pt-2">
+                      <Button variant="outline" onClick={() => setPreflightOpen(false)}>Corriger</Button>
+                      <Button
+                        variant={preflightIssues.some((i) => i.severity === "block") ? "outline" : "default"}
+                        onClick={() => {
+                          setPreflightOpen(false);
+                          void submit({ skipPreflight: true });
+                        }}
+                      >
+                        Lancer quand même
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
+
           )}
 
 
