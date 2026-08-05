@@ -303,6 +303,8 @@ export type ShowcaseProps = {
   durationSec?: number;
   useFullHookScene?: boolean;
   lang?: VideoLang;
+  /** Refus explicite de l'image associée d'une étape (clé = kind, valeur false). */
+  use_associated_media?: Record<string, boolean>;
   scene_media?: Partial<Record<"logo" | "hook" | "name" | "media" | "popup" | "offer" | "highlight" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "whatsapp" | "cta" | "outro", Array<{ url: string; kind: "image" | "video" }>>>;
   /** Texte BIENVENUE (Présence en ligne / CTAs) — étape juste après le logo. */
   welcomeText?: string | null;
@@ -2998,6 +3000,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   durationSec,
   useFullHookScene,
   scene_media,
+  use_associated_media,
   scene_order,
   scene_durations,
   custom_scenes,
@@ -3075,6 +3078,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
   // Per-scene overrides (if provided). Fall back to computed defaults otherwise.
   const sm = scene_media || {};
+  const assocOff = (k: string) => (use_associated_media as any)?.[k] === false;
   const hookOverride = Array.isArray(sm.hook) ? sm.hook : [];
   const nameOverride = Array.isArray(sm.name) ? sm.name : [];
   const mediaOverride = Array.isArray(sm.media) ? sm.media : [];
@@ -3383,10 +3387,13 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         );
       }
       case "popup": {
-        if (!popupImageUrl) return null;
+        const pArr = Array.isArray((scene_media as any)?.popup) ? (scene_media as any).popup : [];
+        const pItem = pArr.find((x: any) => x?.kind === "image") ?? pArr[0];
+        const popupBg = pItem?.url ?? (assocOff("popup") ? (bgRotate(planIdx).image ?? null) : popupImageUrl);
+        if (!popupBg) return null;
         return (
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
-            <ScenePopup imageUrl={popupImageUrl} title={popupTitle} description={popupDescription} descriptionHtml={popupDescriptionHtml} durationFrames={duration} textPosition={textPosition} />
+            <ScenePopup imageUrl={popupBg} title={popupTitle} description={popupDescription} descriptionHtml={popupDescriptionHtml} durationFrames={duration} textPosition={textPosition} />
           </AbsoluteFill>
         );
       }
@@ -3401,7 +3408,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
             <SceneHighlight
               data={h}
-              background={bgItem?.url ?? h.image_url ?? defaultGalleryList[idx % Math.max(defaultGalleryList.length, 1)] ?? null}
+              background={bgItem?.url ?? (assocOff("highlight") ? null : h.image_url) ?? defaultGalleryList[idx % Math.max(defaultGalleryList.length, 1)] ?? null}
               backgroundIsVideo={bgItem?.kind === "video"}
               durationFrames={duration}
               textPosition={textPosition}
@@ -3446,7 +3453,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         }
         const bgArr = Array.isArray((scene_media as any)?.[kind]) ? (scene_media as any)[kind] : [];
         const bgItem = bgArr[idx] ?? bgArr[0];
-        const imgFallback = kind === "external_link"
+        const imgFallback = kind === "external_link" && !assocOff("external_link")
           ? ((Array.isArray(externalLinks) ? externalLinks : [])[idx]?.image ?? null)
           : null;
         return (
