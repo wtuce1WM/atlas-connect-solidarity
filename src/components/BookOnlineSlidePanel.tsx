@@ -3214,6 +3214,7 @@ const BookOnlineSlidePanelInner = ({
                   }}
                   onSelect={(key) => {
                     // Reste dans l'overlay POI/Map du Master : on ne relance aucune recherche.
+                    setPoiSubcatFilter(null);
                     setPoiCatFilter(key);
                     setCatSubcatFilter(null);
                     setPoiShowAll(false);
