@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-05T14:53:45.791Z",
+    "generated_at": "2026-08-05T15:24:13.495Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
     "count": 1844
   },
@@ -44747,10 +44747,12 @@
       "description": "KidzVille est un parc de jeu sous forme d’une mini ville adaptée à la taille des enfants, et ce dès qu’ils apprennent à marcher. À KidzVille, les enfants peuvent venir jouer aux adultes, apprendre les métiers, laisser libre cours à leur imagination et reproduire les évènements qu’ils vivent dans leur environnement quotidien à leur manière. Par exemple, les enfants pourront faire leur courses au supermarché à leur taille et passer à la caisse, un hôpital pour soigner les bobos, un salon de c",
       "main_category": "Sport & Loisirs",
       "categories": [
+        "Activités pour Enfants",
         "Parc d'attraction"
       ],
       "services": [
-        "Kids Club"
+        "Kids Club",
+        "Aire de Jeux"
       ],
       "city": "Marrakech",
       "neighborhood": "Agdal",
@@ -44758,13 +44760,13 @@
       "country": "MA",
       "latitude": 31.5929071,
       "longitude": -7.9866055,
-      "address": "Centre commerciale al mazar RDC",
+      "address": "Centre commercial Almazar",
       "phone": "+212 621-466099",
       "whatsapp": "+212 621-466099",
       "website": "https://kidzville.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/b57e1bfa-3aeb-4e05-afc2-bd26b49a7218-1771951062474-lkq1gb.png",
       "google_rating": 4.5,
-      "google_review_count": 172,
+      "google_review_count": 180,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],

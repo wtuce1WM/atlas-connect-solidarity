@@ -4454,7 +4454,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/kidzville-marrakech</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-08-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -11742,6 +11742,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/neighborhood/Agdal</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/neighborhood/Hassi%20Labied</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -11763,11 +11768,6 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/neighborhood/M&apos;hamid%20El%20Ghizlane</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://oneworldmorocco.com/neighborhood/Agdal</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>

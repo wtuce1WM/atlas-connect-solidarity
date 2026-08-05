@@ -15418,7 +15418,7 @@
         "description": "KidzVille est un parc de jeu sous forme d’une mini ville adaptée à la taille des enfants, et ce dès qu’ils apprennent à marcher. À KidzVille, les enfants peuvent venir jouer aux adultes, apprendre les métiers, laisser libre cours à leur imagination et reproduire les évènements qu’ils vivent dans leur environnement quotidien à leur manière. Par exemple, les enfants pourront faire leur courses au supermarché à leur taille et passer à la caisse, un hôpital pour soigner les bobos, un salon de c",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Centre commerciale al mazar RDC",
+          "streetAddress": "Centre commercial Almazar",
           "addressLocality": "Agdal",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -15432,7 +15432,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 172,
+          "reviewCount": 180,
           "bestRating": 5
         }
       }
