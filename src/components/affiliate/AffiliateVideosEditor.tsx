@@ -234,6 +234,7 @@ const AffiliateVideosEditor = forwardRef<AffiliateVideosEditorHandle, Props>(
     const [videos, setVideos] = useState<VideoEntry[]>([]);
     const [initialIds, setInitialIds] = useState<string[]>([]);
     const [dirty, setDirty] = useState(false);
+    const [textUid, setTextUid] = useState<string | null>(null);
 
     const sensors = useSensors(
       useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
