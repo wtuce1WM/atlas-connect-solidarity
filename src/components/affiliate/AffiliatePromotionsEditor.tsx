@@ -209,11 +209,13 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
                 <Input
                   inputMode="numeric"
                   maxLength={5}
+                  disabled={form.promotion_type !== "percentage"}
                   value={form.promotion_percent}
                   onChange={e => setForm(f => ({ ...f, promotion_percent: e.target.value.replace(/[^\d.,]/g, "").slice(0, 5) }))}
                   placeholder="10"
                 />
               </div>
+
               <div>
                 <Label>Valeur</Label>
                 <Input
