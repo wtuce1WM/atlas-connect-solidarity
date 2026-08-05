@@ -409,7 +409,20 @@ export function scenarioFromTemplateProps(
 
 // Durée fixe par défaut (en secondes) pour certaines étapes de clôture :
 // elles ne sont pas remises à l'échelle avec la durée cible.
-const FIXED_SCENE_DURATIONS: Partial<Record<Scene["icon"], number>> = { cta: 3, outro: 3, weather: 6, tides: 6 };
+const FIXED_SCENE_DURATIONS: Partial<Record<Scene["icon"], number>> = {
+  cta: 3,
+  outro: 3,
+  weather: 6,
+  tides: 6,
+  welcome: 3,
+  proposition: 3,
+  // "name" = carte « Hook » (texte intégral du hook)
+  name: 6,
+  hours: 3,
+  map: 3,
+  digital: 3,
+};
+
 
 function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenario {
   const scale = durationSec / Math.max(1, cursor);
