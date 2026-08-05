@@ -570,6 +570,61 @@ const AffiliateVideosEditor = forwardRef<AffiliateVideosEditorHandle, Props>(
             Nombre maximum de vidéos atteint ({MAX_VIDEOS})
           </p>
         )}
+
+        {/* Titre / Texte de la vidéo */}
+        <Dialog open={!!textUid} onOpenChange={(open) => !open && setTextUid(null)}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Titre &amp; texte de la vidéo</DialogTitle>
+            </DialogHeader>
+            {(() => {
+              const v = videos.find((x) => x._uid === textUid);
+              if (!v) return null;
+              return (
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label>Titre</Label>
+                    <Input
+                      value={v.name}
+                      onChange={(e) => patchVideo(v._uid, { name: e.target.value })}
+                      placeholder="Titre de la vidéo"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <Label>Texte</Label>
+                      <span className="text-xs text-muted-foreground">
+                        {v.description.length}/{MAX_DESC}
+                      </span>
+                    </div>
+                    <Textarea
+                      value={v.description}
+                      onChange={(e) =>
+                        patchVideo(v._uid, { description: e.target.value.slice(0, MAX_DESC) })
+                      }
+                      placeholder="Texte de la vidéo (max 2000)"
+                      rows={8}
+                      maxLength={MAX_DESC}
+                      className="resize-y min-h-[160px]"
+                    />
+                  </div>
+
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={async () => {
+                        await handleSave();
+                        setTextUid(null);
+                      }}
+                    >
+                      ENREGISTRER
+                    </Button>
+                  </div>
+                </div>
+              );
+            })()}
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
