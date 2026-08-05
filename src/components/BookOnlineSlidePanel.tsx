@@ -2882,36 +2882,42 @@ const BookOnlineSlidePanelInner = ({
           }
           return null;
         };
-        // Sous-catégories retenues = celles qui sont "par défaut" pour au moins un POI du vivier
-        const defaultSubcatSet = new Set<string>();
-        for (const p of afterCat) {
-          const d = defaultSubcatOf(p);
-          if (d) defaultSubcatSet.add(d);
-        }
-        let poiSubcatList: [string, number][];
-        if (activeFrontTab) {
-          poiSubcatList = activeFrontTab.subcategories
-            .filter((sd) => defaultSubcatSet.has(sd.name))
-            .map((sd) => [sd.name, afterCat.filter((p) => matchesNames(p, sd.names)).length] as [string, number])
-            .filter(([, c]) => c > 0)
-            .sort((a, b) => a[0].localeCompare(b[0]));
-        } else {
-          const counts = new Map<string, number>();
-          for (const p of afterCat) {
-            for (const sc of subcatsOf(p)) {
-              if (defaultSubcatSet.has(sc)) counts.set(sc, (counts.get(sc) || 0) + 1);
-            }
+        const defaultSubcatsOf = (list: any[]) => {
+          const s = new Set<string>();
+          for (const p of list) {
+            const d = defaultSubcatOf(p);
+            if (d) s.add(d);
           }
-          poiSubcatList = Array.from(counts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+          return s;
+        };
+
+        // Pill POI : totalement indépendant du Pill Catégories.
+        // Base = POI de proximité de l'établissement Master, entrées = sous-catégories par défaut.
+        const poiPillBase = (poiBusinesses as any[]).filter(inRadius);
+        const poiPillDefaults = defaultSubcatsOf(poiPillBase);
+        const poiSubcatCounts = new Map<string, number>();
+        for (const p of poiPillBase) {
+          for (const sc of subcatsOf(p)) {
+            if (poiPillDefaults.has(sc)) poiSubcatCounts.set(sc, (poiSubcatCounts.get(sc) || 0) + 1);
+          }
         }
+        const poiSubcatList: [string, number][] = Array.from(poiSubcatCounts.entries())
+          .sort((a, b) => a[0].localeCompare(b[0]));
+
+        // Pill Catégories : niveau 2 = sous-catégories (par défaut) de la catégorie choisie
+        const catSubcatList: [string, number][] = activeFrontTab
+          ? (() => {
+              const defs = defaultSubcatsOf(afterCat);
+              return activeFrontTab.subcategories
+                .filter((sd) => defs.has(sd.name))
+                .map((sd) => [sd.name, afterCat.filter((p) => matchesNames(p, sd.names)).length] as [string, number])
+                .filter(([, c]) => c > 0)
+                .sort((a, b) => a[0].localeCompare(b[0]));
+            })()
+          : [];
 
         const afterSubcat = poiSubcatFilter
-          ? (activeFrontTab
-              ? afterCat.filter((p) => {
-                  const sd = activeFrontTab.subcategories.find((s) => s.name === poiSubcatFilter);
-                  return sd ? matchesNames(p, sd.names) : subcatsOf(p).includes(poiSubcatFilter);
-                })
-              : afterCat.filter((p) => subcatsOf(p).includes(poiSubcatFilter)))
+          ? afterCat.filter((p) => subcatsOf(p).includes(poiSubcatFilter))
           : afterCat;
 
         const afterProx = afterSubcat.filter(inRadius);
@@ -3038,10 +3044,10 @@ const BookOnlineSlidePanelInner = ({
                       <DropdownMenuTrigger asChild>
                         <button
                           type="button"
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${!poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilter && !poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                         >
                           <MapPin className="h-3.5 w-3.5" />
-                          {poiSubcatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
+                          {poiSubcatFilter && !poiCatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="z-[260] max-h-[70vh] min-w-[15rem] overflow-y-auto">
@@ -3051,7 +3057,7 @@ const BookOnlineSlidePanelInner = ({
                           </DropdownMenuItem>
                         )}
                         {poiSubcatList.map(([name, count]) => (
-                          <DropdownMenuItem key={name} onSelect={() => setPoiSubcatFilter(name)}>
+                          <DropdownMenuItem key={name} onSelect={() => { setPoiCatFilter(null); setPoiSubcatFilter(name); setPoiShowAll(false); }}>
                             {translateSubcategory(name, language)} <span className="ml-1 opacity-60">({count})</span>
                           </DropdownMenuItem>
                         ))}
@@ -3061,10 +3067,10 @@ const BookOnlineSlidePanelInner = ({
                     <button
                       type="button"
                       onClick={() => setPoiPillOverlay("poi")}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${!poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilter && !poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                     >
                       <MapPin className="h-3.5 w-3.5" />
-                      {poiSubcatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
+                      {poiSubcatFilter && !poiCatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
                     </button>
                   )}
                 </div>
@@ -3078,32 +3084,49 @@ const BookOnlineSlidePanelInner = ({
                             className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                           >
                             <SlidersHorizontal className="h-3.5 w-3.5" />
-                            {(activeFrontTab && translateFrontStructure(activeFrontTab.name, language)) || (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories")}
+                            {activeFrontTab
+                              ? `${translateFrontStructure(activeFrontTab.name, language)}${poiSubcatFilter ? ` / ${translateSubcategory(poiSubcatFilter, language)}` : ""}`
+                              : (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories")}
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="z-[260] max-h-[70vh] min-w-[15rem] overflow-y-auto">
-                          {poiCatFilter && (
-                            <DropdownMenuItem onSelect={() => { setPoiCatFilter(null); setPoiSubcatFilter(null); setPoiShowAll(false); }}>
-                              {language === "en" ? "All categories" : language === "ar" ? "جميع الفئات" : "Toutes les catégories"}
-                            </DropdownMenuItem>
-                          )}
-                          {frontTabs.map((ft) => {
-                            const count = catCounts.get(ft.id) ?? 0;
-                            const disabled = count === 0;
-                            return (
-                              <DropdownMenuItem
-                                key={ft.id}
-                                disabled={disabled}
-                                onSelect={(e) => {
-                                  if (disabled) { e.preventDefault(); return; }
-                                  setPoiCatFilter(ft.id); setPoiSubcatFilter(null); setPoiShowAll(false);
-                                }}
-                                className={disabled ? "opacity-40 pointer-events-none" : ""}
-                              >
-                                {translateFrontStructure(ft.name, language)} <span className="ml-1 opacity-60">({count})</span>
+                          {activeFrontTab ? (
+                            <>
+                              {/* Fallback vers Catégories en haut des sous-catégories */}
+                              <DropdownMenuItem onSelect={() => { setPoiCatFilter(null); setPoiSubcatFilter(null); setPoiShowAll(false); }}>
+                                {"\u2039 "}{language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
                               </DropdownMenuItem>
-                            );
-                          })}
+                              {poiSubcatFilter && (
+                                <DropdownMenuItem onSelect={() => setPoiSubcatFilter(null)}>
+                                  {language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
+                                </DropdownMenuItem>
+                              )}
+                              {catSubcatList.map(([name, count]) => (
+                                <DropdownMenuItem key={name} onSelect={() => { setPoiSubcatFilter(name); setPoiShowAll(false); }}>
+                                  {translateSubcategory(name, language)} <span className="ml-1 opacity-60">({count})</span>
+                                </DropdownMenuItem>
+                              ))}
+                            </>
+                          ) : (
+                            frontTabs.map((ft) => {
+                              const count = catCounts.get(ft.id) ?? 0;
+                              const disabled = count === 0;
+                              return (
+                                <DropdownMenuItem
+                                  key={ft.id}
+                                  disabled={disabled}
+                                  onSelect={(e) => {
+                                    if (disabled) { e.preventDefault(); return; }
+                                    e.preventDefault();
+                                    setPoiCatFilter(ft.id); setPoiSubcatFilter(null); setPoiShowAll(false);
+                                  }}
+                                  className={disabled ? "opacity-40 pointer-events-none" : ""}
+                                >
+                                  {translateFrontStructure(ft.name, language)} <span className="ml-1 opacity-60">({count})</span>
+                                </DropdownMenuItem>
+                              );
+                            })
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     ) : (
@@ -3113,7 +3136,9 @@ const BookOnlineSlidePanelInner = ({
                         className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                       >
                         <SlidersHorizontal className="h-3.5 w-3.5" />
-                        {(activeFrontTab && translateFrontStructure(activeFrontTab.name, language)) || (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories")}
+                        {activeFrontTab
+                          ? `${translateFrontStructure(activeFrontTab.name, language)}${poiSubcatFilter ? ` / ${translateSubcategory(poiSubcatFilter, language)}` : ""}`
+                          : (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories")}
                       </button>
                     )}
                   </div>
@@ -3126,9 +3151,7 @@ const BookOnlineSlidePanelInner = ({
             {poiPillOverlay === "poi" && (
               <PoiFilterChoiceOverlay
                 zClass="z-[250]"
-                title={activeFrontTab
-                  ? translateFrontStructure(activeFrontTab.name, language)
-                  : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
+                title={language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt"}
                 items={poiSubcatList.map(([name, count]) => ({
                   key: name,
                   label: translateSubcategory(name, language),
@@ -3136,39 +3159,55 @@ const BookOnlineSlidePanelInner = ({
                 }))}
                 selectedKey={poiSubcatFilter}
                 allLabel={language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
-                backLabel={activeFrontTab ? (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories") : undefined}
-                onBack={activeFrontTab ? () => setPoiPillOverlay("cat") : undefined}
                 onSelectAll={() => { setPoiSubcatFilter(null); setPoiPillOverlay(null); }}
-                onSelect={(key) => { setPoiSubcatFilter(key); setPoiPillOverlay(null); }}
+                onSelect={(key) => { setPoiCatFilter(null); setPoiSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
                 onClose={() => setPoiPillOverlay(null)}
               />
             )}
 
             {poiPillOverlay === "cat" && (
-              <PoiFilterChoiceOverlay
-                zClass="z-[250]"
-                title={language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
-                items={frontTabs.map((ft) => ({
-                  key: ft.id,
-                  label: translateFrontStructure(ft.name, language),
-                  count: catCounts.get(ft.id) ?? 0,
-                  disabled: (catCounts.get(ft.id) ?? 0) === 0,
-                }))}
-                selectedKey={poiCatFilter}
-                allLabel={language === "en" ? "All categories" : language === "ar" ? "جميع الفئات" : "Toutes les catégories"}
-                onSelectAll={() => {
-                  setPoiCatFilter(null); setPoiSubcatFilter(null);
-                  setPoiShowAll(false); setPoiPillOverlay(null);
-                }}
-                onSelect={(key) => {
-                  // Reste dans l'overlay POI/Map du Master : on ne relance aucune recherche.
-                  setPoiCatFilter(key);
-                  setPoiSubcatFilter(null);
-                  setPoiShowAll(false);
-                  setPoiPillOverlay("poi");
-                }}
-                onClose={() => setPoiPillOverlay(null)}
-              />
+              activeFrontTab ? (
+                <PoiFilterChoiceOverlay
+                  zClass="z-[250]"
+                  title={translateFrontStructure(activeFrontTab.name, language)}
+                  items={catSubcatList.map(([name, count]) => ({
+                    key: name,
+                    label: translateSubcategory(name, language),
+                    count,
+                  }))}
+                  selectedKey={poiSubcatFilter}
+                  allLabel={language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
+                  backLabel={language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
+                  onBack={() => { setPoiCatFilter(null); setPoiSubcatFilter(null); setPoiShowAll(false); }}
+                  onSelectAll={() => { setPoiSubcatFilter(null); setPoiPillOverlay(null); }}
+                  onSelect={(key) => { setPoiSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
+                  onClose={() => setPoiPillOverlay(null)}
+                />
+              ) : (
+                <PoiFilterChoiceOverlay
+                  zClass="z-[250]"
+                  title={language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
+                  items={frontTabs.map((ft) => ({
+                    key: ft.id,
+                    label: translateFrontStructure(ft.name, language),
+                    count: catCounts.get(ft.id) ?? 0,
+                    disabled: (catCounts.get(ft.id) ?? 0) === 0,
+                  }))}
+                  selectedKey={poiCatFilter}
+                  allLabel={language === "en" ? "All categories" : language === "ar" ? "جميع الفئات" : "Toutes les catégories"}
+                  onSelectAll={() => {
+                    setPoiCatFilter(null); setPoiSubcatFilter(null);
+                    setPoiShowAll(false); setPoiPillOverlay(null);
+                  }}
+                  onSelect={(key) => {
+                    // Reste dans l'overlay POI/Map du Master : on ne relance aucune recherche.
+                    setPoiCatFilter(key);
+                    setPoiSubcatFilter(null);
+                    setPoiShowAll(false);
+                  }}
+                  onClose={() => setPoiPillOverlay(null)}
+                />
+              )
             )}
 
 
