@@ -94,12 +94,12 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
         if (result.length > 0) {
           const first = result[0];
           setSectionTitle({
-            fr: first.section_title_fr || "",
+            fr: first.section_title || "",
             en: first.section_title_en || "",
             ar: first.section_title_ar || "",
           });
           setSectionIntro({
-            fr: first.section_intro_fr || "",
+            fr: first.section_intro || "",
             en: first.section_intro_en || "",
             ar: first.section_intro_ar || "",
           });
