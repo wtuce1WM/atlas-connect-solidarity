@@ -717,7 +717,13 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
     if (tok.kind === "custom" && tok.customId) {
       const c = customById.get(tok.customId);
       const d = Number(c?.duration ?? 4);
-      return Math.max(30, Math.round((Number.isFinite(d) && d > 0 ? d : 4) * 30));
+      const base = Math.max(30, Math.round((Number.isFinite(d) && d > 0 ? d : 4) * 30));
+      const chunks = resolveTextChunks(
+        (c?.subtitle ?? "") as string,
+        p.textSegments?.[`custom:${tok.customId}`],
+        p.textSplits?.[`custom:${tok.customId}`] ?? (c as any)?.splitCount ?? p.splitCount,
+      );
+      return base * (chunks.length > 1 ? chunks.length : 1);
     }
     const kind = tok.kind as SceneKind;
     const base = durOverride(kind) ?? defaultSceneFrames(kind, p);
