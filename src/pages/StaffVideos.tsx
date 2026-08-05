@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, LogOut, ListOrdered } from "lucide-react";
+import { ArrowLeft, LogOut, ListOrdered, LayoutDashboard } from "lucide-react";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import VideoScenarioConfigPanel from "@/components/staff/VideoScenarioConfigPanel";
+import VideoDashboardPanel from "@/components/staff/VideoDashboardPanel";
+
 
 const StaffVideos = () => {
   const [user, setUser] = useState<any>(null);
@@ -76,17 +78,25 @@ const StaffVideos = () => {
       </header>
 
       <main className="w-full px-4 py-8">
-        <Tabs defaultValue="scenario">
+        <Tabs defaultValue="dashboard">
           <TabsList className="mb-6 flex flex-wrap h-auto gap-1">
+            <TabsTrigger value="dashboard" className="gap-2">
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
+            </TabsTrigger>
             <TabsTrigger value="scenario" className="gap-2">
               <ListOrdered className="h-4 w-4" />
               Scénario
             </TabsTrigger>
           </TabsList>
+          <TabsContent value="dashboard">
+            <VideoDashboardPanel />
+          </TabsContent>
           <TabsContent value="scenario">
             <VideoScenarioConfigPanel />
           </TabsContent>
         </Tabs>
+
       </main>
 
       <ScrollToTopButton />
