@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Loader2, Sparkles, Trash2, Plus, ArrowUp, ArrowDown, Lock } from "lucide-react";
+import { Loader2, Sparkles, Trash2, Plus, ArrowUp, ArrowDown, Lock, ExternalLink } from "lucide-react";
 import RichTextEditor from "@/components/staff/RichTextEditor";
 
 interface AiText {
