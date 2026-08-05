@@ -79,30 +79,27 @@ const formatFileSize = (bytes: number) => {
 interface SortableCardProps {
   url: string;
   index: number;
-  title: string;
-  description: string;
+  hasText: boolean;
   isPopup: boolean;
   meta?: ImageMeta;
   onPreview: (url: string) => void;
   onDelete: (url: string) => void;
-  onTitleChange: (v: string) => void;
-  onDescriptionChange: (v: string) => void;
+  onOpenText: () => void;
   onPopupToggle: () => void;
 }
 
 const SortableCard = ({
   url,
   index,
-  title,
-  description,
+  hasText,
   isPopup,
   meta,
   onPreview,
   onDelete,
-  onTitleChange,
-  onDescriptionChange,
+  onOpenText,
   onPopupToggle,
 }: SortableCardProps) => {
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: url });
   const style = { transform: CSS.Transform.toString(transform), transition };
 
