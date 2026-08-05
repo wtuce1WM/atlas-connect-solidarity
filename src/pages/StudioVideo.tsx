@@ -1982,24 +1982,24 @@ export default function StudioVideo() {
       });
       if (error) throw error;
       const payload = data as any;
-      const scenario = scenarioFromTemplateProps(payload.template_id, payload.template_props, payload.duration_sec ?? effectiveDuration, payload.rationale);
+      const builtScenario = builtScenarioFromTemplateProps(payload.template_id, payload.template_props, payload.duration_sec ?? effectiveDuration, payload.rationale);
       // L'IA ne décide pas du déroulé : on applique la config backoffice (ordre + durées),
       // sinon l'ordre des étapes cochées.
-      if (Array.isArray(scenario?.scenes) && scenarioStepConfig.length > 0) {
-        const fixed = applyStepsConfig(scenario as any, scenarioStepConfig) as any;
-        scenario.scenes = fixed.scenes;
-        scenario.totalDuration = fixed.totalDuration;
-      } else if (Array.isArray(scenario?.scenes) && referenceKindOrder.length > 0) {
+      if (Array.isArray(builtScenario?.scenes) && builtScenarioStepConfig.length > 0) {
+        const fixed = applyStepsConfig(builtScenario as any, builtScenarioStepConfig) as any;
+        builtScenario.scenes = fixed.scenes;
+        builtScenario.totalDuration = fixed.totalDuration;
+      } else if (Array.isArray(builtScenario?.scenes) && referenceKindOrder.length > 0) {
         const rank = (k: string) => {
           const i = referenceKindOrder.indexOf(k);
           return i === -1 ? Number.MAX_SAFE_INTEGER : i;
         };
-        scenario.scenes = scenario.scenes
+        builtScenario.scenes = builtScenario.scenes
           .map((sc: any, i: number) => ({ sc, i }))
           .sort((a: any, b: any) => rank(String(a.sc.icon)) - rank(String(b.sc.icon)) || a.i - b.i)
           .map((x: any) => x.sc);
       }
-      setAiScenario({ scenario, rationale: payload.rationale, templateId: payload.template_id });
+      setAiScenario({ builtScenario, rationale: payload.rationale, templateId: payload.template_id });
       setAiScenarioSig(currentScenarioSig);
       setScenarioPreviewed(true);
       toast.success("Scénario IA généré.");
