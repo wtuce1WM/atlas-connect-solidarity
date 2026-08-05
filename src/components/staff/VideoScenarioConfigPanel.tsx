@@ -24,6 +24,123 @@ const MODES: Array<{ value: VideoScenarioMode; label: string }> = [
   { value: "corporate", label: "Corporate" },
 ];
 
+/**
+ * Descriptif fonctionnel de chaque étape : ce qu'elle affiche, la condition
+ * qui la fait entrer au montage (sinon elle est retirée automatiquement),
+ * et ses spécificités de rendu.
+ */
+const STEP_DOCS: Record<string, { what: string; filter: string; notes?: string }> = {
+  logo: {
+    what: "Ouverture sur le logo de l'établissement, sur fond de marque.",
+    filter: "Incluse seulement si « Ouvrir avec le logo » est cochée ET qu'un logo existe.",
+    notes: "Le média du logo n'est pas réutilisé juste après (rotation des médias) pour éviter la répétition.",
+  },
+  welcome: {
+    what: "Carte texte d'accueil (champ BIENVENUE des CTAs de Présence en ligne).",
+    filter: "Incluse seulement si le texte BIENVENUE n'est pas vide.",
+    notes: "Rich Text respecté (gras, puces). Texte auto-réduit pour tenir dans le cadre.",
+  },
+  name: {
+    what: "Nom de l'établissement + identité (catégorie, ville/quartier).",
+    filter: "Toujours présente.",
+  },
+  popup: {
+    what: "Visuel du popup promotionnel de la fiche, plein cadre.",
+    filter: "Incluse seulement si « Popup » est cochée ET qu'une image de popup existe.",
+  },
+  proposition: {
+    what: "Carte texte de proposition de valeur (champ PROPOSITION des CTAs).",
+    filter: "Incluse seulement si le texte PROPOSITION n'est pas vide.",
+    notes: "Rich Text respecté, mise à l'échelle automatique du texte.",
+  },
+  weather: {
+    what: "Widget Météo animé sur la ville choisie dans le Studio.",
+    filter: "Incluse seulement si l'étape est activée dans le Studio et qu'une ville est sélectionnée.",
+    notes: "La durée définie ici pilote directement la durée du widget au montage (défaut 6s).",
+  },
+  tides: {
+    what: "Widget Marées, Vents & Météo sur une ville côtière.",
+    filter: "Ville côtière obligatoire (liste marées) + étape activée dans le Studio.",
+    notes: "Durée pilotée par ce réglage (défaut 6s). Variante affichée selon le filtre marées/vents/météo.",
+  },
+  hook: {
+    what: "Phrase d'accroche (Hook) sur média plein cadre.",
+    filter: "Toujours proposée, mais ignorée si le Hook est vide (aucun repli sur la Description).",
+  },
+  ai_card: {
+    what: "Carte IA : synthèse courte générée pour la vidéo.",
+    filter: "Incluse seulement si une Carte IA a été générée/cochée dans le Studio.",
+  },
+  offer: {
+    what: "Offre(s) promotionnelle(s) : titre, valeur (% ou montant), mention courte.",
+    filter: "Incluse s'il y a au moins une offre sélectionnée.",
+    notes: "Plusieurs offres = plusieurs cartes successives ; la durée est répartie par offre.",
+  },
+  highlight: {
+    what: "Blocs highlights (icône/image + titre + texte + métrique).",
+    filter: "Incluse s'il y a au moins un highlight rempli et sélectionné.",
+    notes: "Une carte par highlight. Texte long auto-réduit, puces sans retour ligne après le symbole.",
+  },
+  ai_summary: {
+    what: "Textes IA de l'onglet TXT IA (titre + corps).",
+    filter: "Incluse si au moins un texte IA est sélectionné.",
+    notes: "Une carte par texte ; Rich Text respecté.",
+  },
+  external_link: {
+    what: "Mise en avant des liens externes / presse de la fiche.",
+    filter: "Incluse si au moins un lien externe (documents backoffice, type lien externe) est sélectionné.",
+    notes: "N'utilise jamais les champs url 1 à url 6.",
+  },
+  menu_doc: {
+    what: "Menu / document (carte, flipbook, PDF) avec vignette.",
+    filter: "Incluse si au moins un document de type menu/flipbook est sélectionné.",
+  },
+  media: {
+    what: "Zone libre médias : photos et vidéos de l'établissement.",
+    filter: "Incluse si des médias sont assignés à l'étape (ou « Ajouter média »).",
+    notes: "Les médias déjà utilisés ailleurs sont évités par rotation.",
+  },
+  reviews: {
+    what: "Note globale et nombre d'avis, en carte animée.",
+    filter: "Incluse si « Avis » est cochée ET qu'une note ou un nombre d'avis existe.",
+  },
+  google_review: {
+    what: "Avis Google mis en avant (extrait + note source).",
+    filter: "Incluse si un avis Google exploitable est disponible.",
+    notes: "Les variantes Tripadvisor / Restaurant Guru / avis client suivent la même logique.",
+  },
+  hours: {
+    what: "Horaires d'ouverture de la semaine.",
+    filter: "Incluse si « Horaires » est cochée ET que des horaires sont renseignés.",
+  },
+  map: {
+    what: "Localisation : carte, quartier, POI de proximité avec flèches et distances.",
+    filter: "Incluse si « Localisation » est cochée ET latitude/longitude présentes.",
+    notes: "Durée conseillée : 6s pour 1 POI, +1s par POI supplémentaire.",
+  },
+  digital: {
+    what: "Carte « ID numérique » (widget type Linktree) avec QR / lien de la fiche.",
+    filter: "Incluse si « ID numérique » est cochée ET que la fiche a un slug.",
+  },
+  blog: {
+    what: "Articles de blog liés à l'établissement (titre + visuel).",
+    filter: "Incluse si « Articles blog » est cochée ET qu'au moins un article est lié.",
+  },
+  whatsapp: {
+    what: "Invitation à contacter par WhatsApp avec le numéro affiché.",
+    filter: "Incluse si « WhatsApp » est cochée ET qu'un numéro est renseigné.",
+  },
+  cta: {
+    what: "CTA final : installation de l'app / renvoi vers One World Morocco.",
+    filter: "Incluse sauf si l'installation de l'app est désactivée.",
+    notes: "Toujours placée en dernier au montage, quel que soit l'ordre ici.",
+  },
+  outro: {
+    what: "Séquence de clôture de marque.",
+    filter: "Même condition que le CTA final.",
+  },
+};
+
 const VideoScenarioConfigPanel = () => {
   const [mode, setMode] = useState<VideoScenarioMode>("business");
   const [steps, setSteps] = useState<VideoScenarioStep[]>([]);
@@ -132,7 +249,8 @@ const VideoScenarioConfigPanel = () => {
         ) : (
           <div className="divide-y rounded-lg border">
             {steps.map((s, i) => (
-              <div key={s.id} className="flex items-center gap-3 p-3 flex-wrap">
+              <div key={s.id} className="p-3">
+              <div className="flex items-center gap-3 flex-wrap">
                 <span className="w-8 text-xs font-bold tabular-nums text-muted-foreground">{i + 1}</span>
                 <div className="flex flex-col">
                   <span className="text-sm font-semibold text-black">{s.label || s.scene_key}</span>
@@ -170,6 +288,20 @@ const VideoScenarioConfigPanel = () => {
                     </Button>
                   </div>
                 </div>
+              </div>
+              {STEP_DOCS[s.scene_key] && (
+                <div className="mt-2 ml-11 space-y-0.5 text-[11px] leading-snug text-muted-foreground max-w-3xl">
+                  <p className="text-black/80">{STEP_DOCS[s.scene_key].what}</p>
+                  <p>
+                    <span className="font-semibold">Filtre :</span> {STEP_DOCS[s.scene_key].filter}
+                  </p>
+                  {STEP_DOCS[s.scene_key].notes && (
+                    <p>
+                      <span className="font-semibold">Montage :</span> {STEP_DOCS[s.scene_key].notes}
+                    </p>
+                  )}
+                </div>
+              )}
               </div>
             ))}
           </div>
