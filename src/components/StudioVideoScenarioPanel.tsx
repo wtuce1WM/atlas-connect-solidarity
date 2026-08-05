@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Cloud, Waves, Clock, MapPin, MessageSquare, Star, Download, QrCode, Calendar, Plus, X, ChevronLeft, ChevronRight, Film, Image as ImageIcon, GripVertical, Minus, Type, Trash2, Pencil } from "lucide-react";
+import { Cloud, Waves, Clock, MapPin, MessageSquare, Star, Download, QrCode, Calendar, Plus, X, ChevronLeft, ChevronRight, Film, Image as ImageIcon, GripVertical, Minus, Type, Trash2, Pencil, Sparkles } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { formatRating } from "@/lib/ratingUtils";
 import { WEATHER_CITY_OPTIONS, TIDES_CITY_OPTIONS, cityNameFromSlug } from "@/lib/videoWidgetCities";
