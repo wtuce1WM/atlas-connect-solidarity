@@ -2637,7 +2637,8 @@ const SceneInfoText: React.FC<{
         }}
       />
       <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
-        <FitColumn>
+        {/* 20% haut du viewport laissés libres quand le texte est trop volumineux */}
+        <FitColumn topSafeRatio={0.2}>
         {safeLogo && (
 
           <div style={{ alignSelf: "center", marginBottom: 18, transform: `scale(${logoS})`, filter: "drop-shadow(0 4px 16px rgba(0,0,0,0.5))" }}>
@@ -3464,7 +3465,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         } else if (kind === "ai_text") {
           const item = (Array.isArray(aiTexts) ? aiTexts : [])[idx];
           if (!item) return null;
-          label = lang === "en" ? "About us" : "À propos";
+          // Pas de surtitre « À propos » au montage : le texte parle de lui-même.
+          label = "";
           title = item.title || "";
           text = item.content || "";
           textHtml = item.content_html || null;
