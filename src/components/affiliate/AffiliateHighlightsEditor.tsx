@@ -18,22 +18,23 @@ interface Highlight {
   sort_order: number;
   business_id: string | null;
   image_url: string | null;
-  title_fr: string | null;
+  /** FR = colonnes historiques partagées avec le backoffice et le front public */
+  title: string | null;
   title_en: string | null;
   title_ar: string | null;
-  description_fr: string | null;
+  description: string | null;
   description_en: string | null;
   description_ar: string | null;
-  section_title_fr: string | null;
+  section_title: string | null;
   section_title_en: string | null;
   section_title_ar: string | null;
-  section_intro_fr: string | null;
+  section_intro: string | null;
   section_intro_en: string | null;
   section_intro_ar: string | null;
-  metric_title_fr: string | null;
+  metric_title: string | null;
   metric_title_en: string | null;
   metric_title_ar: string | null;
-  metric_value_fr: string | null;
+  metric_value: string | null;
   metric_value_en: string | null;
   metric_value_ar: string | null;
 }
@@ -53,10 +54,14 @@ const MAX_RICH = 1000;
 const MAX_METRIC = 50;
 const MAX_SECTION_TITLE = 60;
 
+/** FR écrit dans les colonnes historiques (title, description…), EN/AR dans les suffixées. */
+const sfx = (l: Lang) => (l === "fr" ? "" : `_${l}`);
+
 const plainLen = (html: string) =>
   (html || "").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim().length;
 
-const SELECT_COLS = "id,icon,sort_order,business_id,image_url,title_fr,title_en,title_ar,description_fr,description_en,description_ar,section_title_fr,section_title_en,section_title_ar,section_intro_fr,section_intro_en,section_intro_ar,metric_title_fr,metric_title_en,metric_title_ar,metric_value_fr,metric_value_en,metric_value_ar";
+const SELECT_COLS = "id,icon,sort_order,business_id,image_url,title,title_en,title_ar,description,description_en,description_ar,section_title,section_title_en,section_title_ar,section_intro,section_intro_en,section_intro_ar,metric_title,metric_title_en,metric_title_ar,metric_value,metric_value_en,metric_value_ar";
+
 
 const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Props>(
   ({ businessId, onDirtyChange }, ref) => {
