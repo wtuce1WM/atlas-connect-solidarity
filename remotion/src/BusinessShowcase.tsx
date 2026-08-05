@@ -610,14 +610,15 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
     ) {
       requested.push({ kind: "cta" });
     }
-    // cta and outro are two names for the same closing scene: keep only one.
-    const hasOutro = requested.some((t) => t.kind === "outro");
-    const hasCta = requested.some((t) => t.kind === "cta");
-    if (hasOutro && hasCta) {
-      // Drop the auto-appended cta; honor user's explicit outro position.
-      const idxCta = requested.findIndex((t) => t.kind === "cta");
-      if (idxCta >= 0) requested.splice(idxCta, 1);
+    // « Appel à l'action » et « Outro » sont deux étapes DISTINCTES : le CTA
+    // (installation de l'app) puis la clôture de marque. On les conserve toutes
+    // les deux, en garantissant que l'outro passe en dernier.
+    const idxOutro = requested.findIndex((t) => t.kind === "outro");
+    if (idxOutro >= 0 && idxOutro !== requested.length - 1) {
+      const [outroTok] = requested.splice(idxOutro, 1);
+      requested.push(outroTok);
     }
+
     order = requested;
   } else {
     order = active.map((k) => ({ kind: k as SceneKind }));
