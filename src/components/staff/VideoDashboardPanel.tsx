@@ -4,7 +4,41 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Loader2, HelpCircle } from "lucide-react";
+
+/** Icône "?" cliquable expliquant une métrique */
+function Help({ text }: { text: string }) {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          aria-label="Définition de la métrique"
+          className="inline-flex shrink-0 text-muted-foreground hover:text-primary transition-colors align-middle"
+        >
+          <HelpCircle className="h-3.5 w-3.5" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent side="top" className="max-w-xs text-xs leading-relaxed z-[90]">
+        {text}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function Metric({ value, label, help, big, valueClass }: { value: string; label: string; help: string; big?: boolean; valueClass?: string }) {
+  return (
+    <div>
+      <div className={`${big ? "text-3xl" : "text-2xl"} font-bold ${valueClass || ""}`}>{value}</div>
+      <p className="text-sm text-muted-foreground flex items-start gap-1.5">
+        <span>{label}</span>
+        <Help text={help} />
+      </p>
+    </div>
+  );
+}
+
 
 const PERIODS = [
   { label: "7 derniers jours", days: 7 },
@@ -251,49 +285,59 @@ export default function VideoDashboardPanel() {
       {allTime && (
         <Card className="border-gold/40 bg-muted/30">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">
+            <CardTitle className="text-base flex items-center gap-1.5">
               Cumul total depuis le début du traçage
               {allTime.since ? ` (${new Date(allTime.since).toLocaleDateString("fr-FR")})` : ""}
+              <Help text="Ce bloc ignore le sélecteur de période : il additionne TOUTES les lignes de traçage IA des contextes vidéo (studio-video-scenario / -card) enregistrées depuis la première mesure. Attention : des vidéos ont été générées avant la mise en place du traçage de coût, elles ne sont donc pas comptées dans le coût." />
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <div className="text-3xl font-bold">{fmtUsd(allTime.cost)}</div>
-                <p className="text-sm text-muted-foreground">Coût IA total</p>
-              </div>
-              <div>
-                <div className="text-3xl font-bold">{fmtNum(allTime.tokens)}</div>
-                <p className="text-sm text-muted-foreground">Tokens totaux ({fmtNum(allTime.input)} in / {fmtNum(allTime.output)} out)</p>
-              </div>
-              <div>
-                <div className="text-3xl font-bold">{fmtNum(allTime.calls)}</div>
-                <p className="text-sm text-muted-foreground">Appels IA · {fmtNum(allTime.videos)} vidéos ({fmtNum(allTime.done)} terminées)</p>
-              </div>
-              <div>
-                <div className="text-3xl font-bold">{allTime.done > 0 ? fmtUsd(allTime.cost / allTime.done) : "—"}</div>
-                <p className="text-sm text-muted-foreground">Coût IA moyen / vidéo réussie</p>
-              </div>
+              <Metric
+                value={fmtUsd(allTime.cost)}
+                label="Coût IA total"
+                help="Somme de estimated_cost_usd sur tous les appels IA de scénarisation vidéo. Calculé à partir du tarif réel du modèle utilisé (google/gemini-3-flash-preview), input et output séparés. N'inclut PAS le rendu Remotion (minutes GitHub Actions), ni la voix off, ni le stockage."
+                big
+              />
+              <Metric
+                value={fmtNum(allTime.tokens)}
+                label={`Tokens totaux (${fmtNum(allTime.input)} in / ${fmtNum(allTime.output)} out)`}
+                help="Total des tokens facturés. « in » = prompt envoyé au modèle (fiche établissement, avis, médias, documents, consignes) ; « out » = JSON du scénario généré. L'input domine largement car la fiche complète est envoyée à chaque génération."
+                big
+              />
+              <Metric
+                value={fmtNum(allTime.calls)}
+                label={`Appels IA · ${fmtNum(allTime.videos)} vidéos (${fmtNum(allTime.done)} terminées)`}
+                help="Nombre d'appels au modèle IA (1 par clic sur « Générer le scénario »). Il est bien supérieur au nombre de vidéos car on régénère souvent plusieurs scénarios avant de lancer un montage. « vidéos » = lignes dans video_jobs, « terminées » = statut done."
+                big
+              />
+              <Metric
+                value={allTime.done > 0 ? fmtUsd(allTime.cost / allTime.done) : "—"}
+                label="Coût IA moyen / vidéo réussie"
+                help="Coût IA total ÷ nombre de vidéos au statut « done ». C'est le coût réel mesuré, pas une estimation théorique : l'ancienne note interne annonçait ~0,07 $/vidéo sur la base de Claude Sonnet ; le passage à Gemini 3 Flash a divisé ce coût par ~10. À noter : les vidéos antérieures au traçage tirent cette moyenne vers le bas."
+                big
+              />
             </div>
           </CardContent>
         </Card>
       )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card><CardContent className="pt-4"><div className="text-2xl font-bold">{fmtUsd(totals.cost)}</div><p className="text-sm text-muted-foreground">Coût IA scénario</p></CardContent></Card>
-        <Card><CardContent className="pt-4"><div className="text-2xl font-bold">{fmtNum(totals.tokens)}</div><p className="text-sm text-muted-foreground">Tokens ({fmtNum(totals.input)} in / {fmtNum(totals.output)} out)</p></CardContent></Card>
-        <Card><CardContent className="pt-4"><div className="text-2xl font-bold">{fmtNum(totals.calls)}</div><p className="text-sm text-muted-foreground">Appels IA {totals.errors > 0 ? `· ${totals.errors} err.` : ""}</p></CardContent></Card>
-        <Card><CardContent className="pt-4"><div className="text-2xl font-bold">{fmtUsd(totals.costPerVideo)}</div><p className="text-sm text-muted-foreground">Coût IA / vidéo réussie</p></CardContent></Card>
-        <Card><CardContent className="pt-4"><div className="text-2xl font-bold">{fmtNum(totals.videos)}</div><p className="text-sm text-muted-foreground">Vidéos lancées</p></CardContent></Card>
-        <Card><CardContent className="pt-4"><div className="text-2xl font-bold text-green-600">{fmtNum(totals.done)}</div><p className="text-sm text-muted-foreground">Terminées</p></CardContent></Card>
-        <Card><CardContent className="pt-4"><div className="text-2xl font-bold text-destructive">{fmtNum(totals.failed)}</div><p className="text-sm text-muted-foreground">En erreur</p></CardContent></Card>
-        <Card><CardContent className="pt-4"><div className="text-2xl font-bold">{fmtNum(totals.running)}</div><p className="text-sm text-muted-foreground">En cours / en file</p></CardContent></Card>
+        <Card><CardContent className="pt-4"><Metric value={fmtUsd(totals.cost)} label="Coût IA scénario" help="Coût IA cumulé sur la période sélectionnée uniquement (pas par vidéo)." /></CardContent></Card>
+        <Card><CardContent className="pt-4"><Metric value={fmtNum(totals.tokens)} label={`Tokens (${fmtNum(totals.input)} in / ${fmtNum(totals.output)} out)`} help="Tokens consommés sur la période : prompt envoyé (in) + scénario généré (out)." /></CardContent></Card>
+        <Card><CardContent className="pt-4"><Metric value={fmtNum(totals.calls)} label={`Appels IA ${totals.errors > 0 ? `· ${totals.errors} err.` : ""}`} help="Nombre de générations de scénario lancées sur la période. « err. » = appels IA terminés en erreur (statut error dans le traçage)." /></CardContent></Card>
+        <Card><CardContent className="pt-4"><Metric value={fmtUsd(totals.costPerVideo)} label="Coût IA / vidéo réussie" help="Coût IA de la période ÷ vidéos terminées sur la même période. Une régénération de scénario sans montage augmente ce ratio." /></CardContent></Card>
+        <Card><CardContent className="pt-4"><Metric value={fmtNum(totals.videos)} label="Vidéos lancées" help="Toutes les entrées video_jobs créées sur la période, quel que soit leur statut." /></CardContent></Card>
+        <Card><CardContent className="pt-4"><Metric value={fmtNum(totals.done)} label="Terminées" help="Jobs au statut « done » : rendu Remotion terminé et fichier disponible." valueClass="text-green-600" /></CardContent></Card>
+        <Card><CardContent className="pt-4"><Metric value={fmtNum(totals.failed)} label="En erreur" help="Jobs au statut « error » : échec du rendu (workflow GitHub Actions, média manquant, durée invalide…). Le coût IA du scénario reste facturé." valueClass="text-destructive" /></CardContent></Card>
+        <Card><CardContent className="pt-4"><Metric value={fmtNum(totals.running)} label="En cours / en file" help="Jobs au statut « pending » (en attente du runner) ou « rendering » (rendu en cours)." /></CardContent></Card>
       </div>
 
-      <StatsTable title="Classement affiliés" rows={byAffiliate.map(([k, v]) => ({ key: k, label: affiliateNames[k] || k.slice(0, 8), ...v }))} />
-      <StatsTable title="Classement établissements" rows={byBusiness.map(([k, v]) => ({ key: k, label: businessNames[k] || k.slice(0, 8), ...v }))} />
-      <StatsTable title="Top 30 utilisateurs" rows={byUser.map(([k, v]) => ({ key: k, label: userLabels[k] || k.slice(0, 8), ...v }))} />
-      <StatsTable title="Par modèle IA" rows={byModel.map(([k, v]) => ({ key: k, label: k, ...v }))} hideVideos />
+      <StatsTable title="Classement affiliés" help="Un affilié est rattaché soit par affiliate_id sur l'appel IA, soit via le user_id du job vidéo. Les générations faites par le staff (non affiliées) n'apparaissent pas ici." rows={byAffiliate.map(([k, v]) => ({ key: k, label: affiliateNames[k] || k.slice(0, 8), ...v }))} />
+      <StatsTable title="Classement établissements" help="Regroupement par business_id. Les vidéos Corporate (sans établissement) sont exclues de ce classement." rows={byBusiness.map(([k, v]) => ({ key: k, label: businessNames[k] || k.slice(0, 8), ...v }))} />
+      <StatsTable title="Top 30 utilisateurs" help="Les 30 comptes ayant lancé le plus de vidéos (puis le plus de coût). Le libellé affiche le nom/email de l'affilié, du membre Club ou le rôle staff." rows={byUser.map(([k, v]) => ({ key: k, label: userLabels[k] || k.slice(0, 8), ...v }))} />
+      <StatsTable title="Par modèle IA" help="Coût et tokens ventilés par modèle appelé via la passerelle IA. Sans colonne vidéos : un job vidéo peut mobiliser plusieurs modèles." rows={byModel.map(([k, v]) => ({ key: k, label: k, ...v }))} hideVideos />
+
 
       <Card>
         <CardHeader><CardTitle className="text-base">Dernières générations</CardTitle></CardHeader>
@@ -335,7 +379,7 @@ export default function VideoDashboardPanel() {
   );
 }
 
-function StatsTable({ title, rows, hideVideos }: { title: string; rows: { key: string; label: string; calls: number; tokens: number; cost: number; videos: number }[]; hideVideos?: boolean }) {
+function StatsTable({ title, help, rows, hideVideos }: { title: string; help?: string; rows: { key: string; label: string; calls: number; tokens: number; cost: number; videos: number }[]; hideVideos?: boolean }) {
   const sum = rows.reduce(
     (acc, r) => ({ videos: acc.videos + r.videos, calls: acc.calls + r.calls, tokens: acc.tokens + r.tokens, cost: acc.cost + r.cost }),
     { videos: 0, calls: 0, tokens: 0, cost: 0 }
@@ -343,7 +387,10 @@ function StatsTable({ title, rows, hideVideos }: { title: string; rows: { key: s
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{title}</CardTitle>
+        <CardTitle className="text-base flex items-center gap-1.5">
+          {title}
+          {help && <Help text={help} />}
+        </CardTitle>
         <p className="text-xs text-muted-foreground">Coût total = cumul sur la période. Coût / vidéo = coût total ÷ vidéos lancées.</p>
       </CardHeader>
       <CardContent>
@@ -352,11 +399,27 @@ function StatsTable({ title, rows, hideVideos }: { title: string; rows: { key: s
             <TableHeader>
               <TableRow>
                 <TableHead>Nom</TableHead>
-                {!hideVideos && <TableHead className="text-right">Vidéos</TableHead>}
-                <TableHead className="text-right">Appels IA</TableHead>
-                <TableHead className="text-right">Tokens</TableHead>
-                <TableHead className="text-right">Coût total</TableHead>
-                {!hideVideos && <TableHead className="text-right">Coût / vidéo</TableHead>}
+                {!hideVideos && (
+                  <TableHead className="text-right">
+                    <span className="inline-flex items-center gap-1">Vidéos <Help text="Nombre de jobs vidéo (video_jobs) créés sur la période pour cette ligne, tous statuts confondus." /></span>
+                  </TableHead>
+                )}
+                <TableHead className="text-right">
+                  <span className="inline-flex items-center gap-1">Appels IA <Help text="Nombre de générations de scénario IA. Souvent supérieur au nombre de vidéos (régénérations avant montage)." /></span>
+                </TableHead>
+
+                <TableHead className="text-right">
+                  <span className="inline-flex items-center gap-1">Tokens <Help text="Total tokens input + output facturés par la passerelle IA." /></span>
+                </TableHead>
+                <TableHead className="text-right">
+                  <span className="inline-flex items-center gap-1">Coût total <Help text="Cumul en $ sur la période sélectionnée (pas un coût unitaire). Coût IA uniquement, hors rendu Remotion." /></span>
+                </TableHead>
+                {!hideVideos && (
+                  <TableHead className="text-right">
+                    <span className="inline-flex items-center gap-1">Coût / vidéo <Help text="Coût total ÷ nombre de vidéos lancées de cette ligne. Un scénario régénéré plusieurs fois avant montage fait monter ce ratio." /></span>
+                  </TableHead>
+                )}
+
               </TableRow>
             </TableHeader>
             <TableBody>
