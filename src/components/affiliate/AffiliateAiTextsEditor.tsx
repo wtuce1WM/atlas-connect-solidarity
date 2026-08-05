@@ -541,18 +541,18 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
                   <div className="flex items-center justify-between">
                     <Label className="text-white">Texte</Label>
                     <span className={`text-xs ${over ? "text-destructive font-medium" : "text-white/60"}`}>
-                      {t.content.length}/{MAX_CONTENT}
+                      {plainLen(t.content)}/{MAX_CONTENT}
                     </span>
                   </div>
-                  <Textarea
-                    value={t.content}
-                    maxLength={MAX_CONTENT}
-                    onChange={(e) => patch(t.id, "content", e.target.value.slice(0, MAX_CONTENT))}
-                    rows={10}
-                    className="text-white placeholder:text-white/50 bg-zinc-900 border-white/10"
-                    placeholder="Texte généré ou rédigé à la main"
+                  <RichTextEditor
+                    content={t.content || ""}
+                    onChange={(html) => patch(t.id, "content", html)}
+                    bgClass="border border-white/10 bg-zinc-900 text-white"
+                    maxHeight="480px"
+                    simple
                   />
                 </div>
+
 
                 <div className="flex justify-end">
                   <Button onClick={() => save(t)} disabled={savingId === t.id || !isDirty(t)}>
