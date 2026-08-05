@@ -26,7 +26,7 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export type SceneMediaKind = "logo" | "welcome" | "proposition" | "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro" | "ai_summary" | "external_link" | "menu_doc";
+export type SceneMediaKind = "logo" | "welcome" | "proposition" | "hook" | "name" | "media" | "offer" | "reviews" | "hours" | "map" | "digital" | "cta" | "outro" | "ai_summary" | "ai_text" | "external_link" | "menu_doc";
 
 export type SceneMediaItem = {
   url: string;
@@ -38,7 +38,7 @@ export type SceneMediaItem = {
 
 export type SceneMediaMap = Partial<Record<SceneMediaKind, SceneMediaItem[]>>;
 
-export const SCENE_KINDS_WITH_MEDIA: SceneMediaKind[] = ["logo", "welcome", "proposition", "hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro", "ai_summary", "external_link", "menu_doc"];
+export const SCENE_KINDS_WITH_MEDIA: SceneMediaKind[] = ["logo", "welcome", "proposition", "hook", "name", "media", "offer", "reviews", "hours", "map", "digital", "cta", "outro", "ai_summary", "ai_text", "external_link", "menu_doc"];
 
 
 export type Scene = {
@@ -48,7 +48,7 @@ export type Scene = {
   start: number;
   description: string;
   keywords: string[];
-  icon: "logo" | "welcome" | "proposition" | "hook" | "name" | "ai_card" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "whatsapp" | "hours" | "map" | "digital" | "blog" | "weather" | "tides" | "cta" | "outro" | "custom";
+  icon: "logo" | "welcome" | "proposition" | "hook" | "name" | "ai_card" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "ai_text" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "whatsapp" | "hours" | "map" | "digital" | "blog" | "weather" | "tides" | "cta" | "outro" | "custom";
 };
 
 export type Scenario = {
@@ -80,6 +80,7 @@ const ICONS: Record<Scene["icon"], React.ReactNode> = {
   ai_card: <Sparkles className="h-3.5 w-3.5" />,
   highlight: <Star className="h-3.5 w-3.5" />,
   ai_summary: <Type className="h-3.5 w-3.5" />,
+  ai_text: <Type className="h-3.5 w-3.5" />,
   external_link: <Type className="h-3.5 w-3.5" />,
   menu_doc: <Type className="h-3.5 w-3.5" />,
   reviews: <MessageSquare className="h-3.5 w-3.5" />,
@@ -113,6 +114,7 @@ const LABELS: Record<Exclude<Scene["icon"], "custom">, string> = {
   ai_card: "Carte IA",
   highlight: "Bloc highlight",
   ai_summary: "Résumé IA",
+  ai_text: "Texte IA",
   external_link: "Lien externe",
   menu_doc: "Menu / carte",
   reviews: "Avis clients",
@@ -358,6 +360,12 @@ export function scenarioFromTemplateProps(
     const t = (su?.title || "").toString().trim();
     const c = (su?.content || "").toString().trim();
     push("ai_summary", 5, [t, c].filter(Boolean).join("\n") || "Résumé IA du menu.", t ? `Résumé IA — ${t.slice(0, 40)}` : undefined);
+  }
+  const aiTexts: any[] = Array.isArray(props?.aiTexts) ? props.aiTexts : [];
+  for (const su of aiTexts) {
+    const t = (su?.title || "").toString().trim();
+    const c = (su?.content || "").toString().trim();
+    push("ai_text", 5, [t, c].filter(Boolean).join("\n") || "Texte IA.", t ? `Texte IA — ${t.slice(0, 40)}` : undefined);
   }
   const externalLinks: any[] = Array.isArray(props?.externalLinks) ? props.externalLinks : [];
   for (const l of externalLinks) {
@@ -1176,7 +1184,7 @@ export function StudioVideoScenarioPanel({
               </div>
               <p
                 className={`text-sm text-neutral-700 leading-relaxed whitespace-pre-line ${
-                  scene.icon === "highlight" || scene.icon === "ai_summary" ? "line-clamp-2" : ""
+                  scene.icon === "highlight" || scene.icon === "ai_summary" || scene.icon === "ai_text" ? "line-clamp-2" : ""
                 }`}
               >
                 {scene.description}

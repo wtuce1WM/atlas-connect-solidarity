@@ -681,7 +681,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         selImages.forEach((u) => allowedUrls.add(u));
         selVideos.forEach((u) => allowedUrls.add(u));
 
-        const ALLOWED_KINDS = new Set(["logo", "welcome", "proposition", "hook", "name", "ai_card", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog", "weather", "tides", "ai_summary", "external_link", "menu_doc"]);
+        const ALLOWED_KINDS = new Set(["logo", "welcome", "proposition", "hook", "name", "ai_card", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog", "weather", "tides", "ai_summary", "ai_text", "external_link", "menu_doc"]);
         const cleaned: Record<string, Array<{ url: string; kind: "image" | "video" }>> = {};
         for (const [k, v] of Object.entries(rawSceneMedia)) {
           if (!ALLOWED_KINDS.has(k) || !Array.isArray(v)) continue;
@@ -1020,7 +1020,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       }
 
       // Ordre et durées personnalisés des scènes (édités par l'utilisateur dans l'aperçu)
-      const ALLOWED_SCENE_KINDS = new Set(["logo", "welcome", "proposition", "hook", "name", "ai_card", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog", "weather", "tides", "ai_summary", "external_link", "menu_doc"]);
+      const ALLOWED_SCENE_KINDS = new Set(["logo", "welcome", "proposition", "hook", "name", "ai_card", "media", "popup", "offer", "highlight", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "whatsapp", "cta", "outro", "blog", "weather", "tides", "ai_summary", "ai_text", "external_link", "menu_doc"]);
       const rawOrder = options?.scene_order;
       let orderedFromClient: string[] | null = null;
       if (Array.isArray(rawOrder)) {
@@ -1507,6 +1507,29 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         template_props.aiSummaryEffect = globalEffect;
       }
 
+      // Textes IA (onglet TXT IA) — une séquence par texte coché.
+      const aiTextIds = uuidOnly(options?.ai_text_ids).slice(0, 8);
+      if (aiTextIds.length > 0) {
+        const { data: rows } = await supa
+          .from("business_ai_texts")
+          .select("id,title,content,position")
+          .eq("business_id", resolved_business_id)
+          .in("id", aiTextIds)
+          .order("position", { ascending: true });
+        const built = (rows ?? [])
+          .slice()
+          .sort((a: any, b: any) => aiTextIds.indexOf(a.id) - aiTextIds.indexOf(b.id))
+          .map((r: any) => ({
+            id: r.id,
+            title: cleanDisplayText(stripHtml(r.title || "")) || "",
+            content: cleanDisplayText(stripHtml(r.content || "")) || "",
+            content_html: sanitizeRich(r.content || "") || undefined,
+            effect: pickEffect(options?.ai_text_effects, r.id, "zoom_in") || "zoom_in",
+          }))
+          .filter((r: any) => r.title || r.content);
+        if (built.length > 0) template_props.aiTexts = built;
+      }
+
       const linkIds = uuidOnly(options?.external_link_ids).slice(0, 8);
       const menuIds = uuidOnly(options?.menu_doc_ids).slice(0, 8);
       if (linkIds.length > 0 || menuIds.length > 0) {
@@ -1658,7 +1681,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     {
       const CANON = [
         "logo", "welcome", "popup", "proposition", "weather", "tides",
-        "hook", "name", "ai_card", "offer", "highlight",
+        "hook", "name", "ai_text", "ai_card", "offer", "highlight",
         "ai_summary", "external_link", "menu_doc", "media",
         "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review",
         "hours", "map", "digital", "blog", "whatsapp", "cta", "outro",

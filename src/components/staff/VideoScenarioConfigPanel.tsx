@@ -82,9 +82,14 @@ const STEP_DOCS: Record<string, { what: string; filter: string; notes?: string }
     notes: "Une carte par highlight. Texte long auto-réduit, puces sans retour ligne après le symbole.",
   },
   ai_summary: {
-    what: "Textes IA de l'onglet TXT IA (titre + corps).",
-    filter: "Incluse si au moins un texte IA est sélectionné.",
-    notes: "Une carte par texte ; Rich Text respecté.",
+    what: "Résumés IA du menu (business_menu_summaries) : titre + contenu.",
+    filter: "Incluse si au moins un résumé IA est sélectionné dans le Studio.",
+    notes: "Une carte par résumé ; Rich Text respecté.",
+  },
+  ai_text: {
+    what: "Textes IA de l'onglet TXT IA de Présence en ligne (titre + corps).",
+    filter: "Incluse si l'option « TXT IA » est cochée et qu'au moins un texte IA est sélectionné dans le Studio.",
+    notes: "Une carte par texte (5s par défaut) ; Rich Text respecté ; média de fond par rotation ou média assigné via « Ajouter média ».",
   },
   external_link: {
     what: "Mise en avant des liens externes / presse de la fiche.",
