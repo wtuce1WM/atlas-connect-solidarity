@@ -1296,6 +1296,14 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         ? { ...template_props.offer }
         : null;
       template_props.aiCard = options?.ai_card && aiInventedOffer ? aiInventedOffer : null;
+      if (template_props.aiCard && Array.isArray(template_props.scene_order) && !template_props.scene_order.includes("ai_card")) {
+        template_props.scene_order = [...template_props.scene_order, "ai_card"];
+      }
+      if (!template_props.aiCard && Array.isArray(template_props.scene_order)) {
+        template_props.scene_order = template_props.scene_order.filter((k: unknown) => k !== "ai_card");
+      }
+
+
 
       const rawOfferIds = Array.isArray(options?.offer_ids) ? options.offer_ids : [];
       const offerIds = rawOfferIds.filter((v: unknown) => typeof v === "string" && /^[0-9a-f-]{36}$/i.test(v));
