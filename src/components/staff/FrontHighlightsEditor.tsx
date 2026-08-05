@@ -141,12 +141,18 @@ const FrontHighlightsEditor = forwardRef<FrontHighlightsEditorHandle, FrontHighl
         .update({
           icon: h.icon,
           title: h.title,
+          title_fr: h.title,
           description: h.description || "",
+          description_fr: h.description || "",
           section_title: sectionTitle,
+          section_title_fr: sectionTitle,
           section_intro: sectionIntro,
+          section_intro_fr: sectionIntro,
           image_url: h.image_url,
           metric_title: (h.metric_title || "").slice(0, MAX_METRIC) || null,
+          metric_title_fr: (h.metric_title || "").slice(0, MAX_METRIC) || null,
           metric_value: (h.metric_value || "").slice(0, MAX_METRIC) || null,
+          metric_value_fr: (h.metric_value || "").slice(0, MAX_METRIC) || null,
         } as any)
         .eq("id", h.id);
     }
