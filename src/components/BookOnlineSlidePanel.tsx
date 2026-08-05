@@ -3132,9 +3132,7 @@ const BookOnlineSlidePanelInner = ({
             {poiPillOverlay === "poi" && (
               <PoiFilterChoiceOverlay
                 zClass="z-[250]"
-                title={activeFrontTab
-                  ? translateFrontStructure(activeFrontTab.name, language)
-                  : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
+                title={language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt"}
                 items={poiSubcatList.map(([name, count]) => ({
                   key: name,
                   label: translateSubcategory(name, language),
@@ -3142,39 +3140,55 @@ const BookOnlineSlidePanelInner = ({
                 }))}
                 selectedKey={poiSubcatFilter}
                 allLabel={language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
-                backLabel={activeFrontTab ? (language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories") : undefined}
-                onBack={activeFrontTab ? () => setPoiPillOverlay("cat") : undefined}
                 onSelectAll={() => { setPoiSubcatFilter(null); setPoiPillOverlay(null); }}
-                onSelect={(key) => { setPoiSubcatFilter(key); setPoiPillOverlay(null); }}
+                onSelect={(key) => { setPoiCatFilter(null); setPoiSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
                 onClose={() => setPoiPillOverlay(null)}
               />
             )}
 
             {poiPillOverlay === "cat" && (
-              <PoiFilterChoiceOverlay
-                zClass="z-[250]"
-                title={language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
-                items={frontTabs.map((ft) => ({
-                  key: ft.id,
-                  label: translateFrontStructure(ft.name, language),
-                  count: catCounts.get(ft.id) ?? 0,
-                  disabled: (catCounts.get(ft.id) ?? 0) === 0,
-                }))}
-                selectedKey={poiCatFilter}
-                allLabel={language === "en" ? "All categories" : language === "ar" ? "جميع الفئات" : "Toutes les catégories"}
-                onSelectAll={() => {
-                  setPoiCatFilter(null); setPoiSubcatFilter(null);
-                  setPoiShowAll(false); setPoiPillOverlay(null);
-                }}
-                onSelect={(key) => {
-                  // Reste dans l'overlay POI/Map du Master : on ne relance aucune recherche.
-                  setPoiCatFilter(key);
-                  setPoiSubcatFilter(null);
-                  setPoiShowAll(false);
-                  setPoiPillOverlay("poi");
-                }}
-                onClose={() => setPoiPillOverlay(null)}
-              />
+              activeFrontTab ? (
+                <PoiFilterChoiceOverlay
+                  zClass="z-[250]"
+                  title={translateFrontStructure(activeFrontTab.name, language)}
+                  items={catSubcatList.map(([name, count]) => ({
+                    key: name,
+                    label: translateSubcategory(name, language),
+                    count,
+                  }))}
+                  selectedKey={poiSubcatFilter}
+                  allLabel={language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
+                  backLabel={language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
+                  onBack={() => { setPoiCatFilter(null); setPoiSubcatFilter(null); setPoiShowAll(false); }}
+                  onSelectAll={() => { setPoiSubcatFilter(null); setPoiPillOverlay(null); }}
+                  onSelect={(key) => { setPoiSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
+                  onClose={() => setPoiPillOverlay(null)}
+                />
+              ) : (
+                <PoiFilterChoiceOverlay
+                  zClass="z-[250]"
+                  title={language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
+                  items={frontTabs.map((ft) => ({
+                    key: ft.id,
+                    label: translateFrontStructure(ft.name, language),
+                    count: catCounts.get(ft.id) ?? 0,
+                    disabled: (catCounts.get(ft.id) ?? 0) === 0,
+                  }))}
+                  selectedKey={poiCatFilter}
+                  allLabel={language === "en" ? "All categories" : language === "ar" ? "جميع الفئات" : "Toutes les catégories"}
+                  onSelectAll={() => {
+                    setPoiCatFilter(null); setPoiSubcatFilter(null);
+                    setPoiShowAll(false); setPoiPillOverlay(null);
+                  }}
+                  onSelect={(key) => {
+                    // Reste dans l'overlay POI/Map du Master : on ne relance aucune recherche.
+                    setPoiCatFilter(key);
+                    setPoiSubcatFilter(null);
+                    setPoiShowAll(false);
+                  }}
+                  onClose={() => setPoiPillOverlay(null)}
+                />
+              )
             )}
 
 
