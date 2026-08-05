@@ -62,16 +62,11 @@ const MENU_URL_KEYS = [
   ["pdf_3_url", "PDF 3"],
 ] as const;
 
-// Volontairement sans url_4 / url_5 / url_6 (CTAs libres).
-const EXTERNAL_URL_KEYS = [
-  ["website", "Site web"],
-  ["online_shop_url", "Boutique en ligne"],
-  ["reserve_now_url", "Réservation"],
-  ["booking_url", "Booking"],
-  ["other_booking_url", "Autre réservation"],
-  ["glovo_url", "Glovo"],
-  ["matterport_url", "Visite virtuelle"],
-] as const;
+// Les liens externes viennent EXCLUSIVEMENT des « Liens Externes » du backoffice
+// (business_documents, type external_link) : jamais des champs CTA url_1..url_6,
+// website, réservation, etc.
+const EXTERNAL_URL_KEYS = [] as const;
+
 
 const STYLE_BRIEFS: Record<string, string> = {
   default:
