@@ -104,6 +104,58 @@ async function firecrawlScrape(url: string, apiKey: string): Promise<string> {
   return String(json?.data?.markdown ?? "").slice(0, 4000);
 }
 
+// Lecture VISUELLE d'un PDF (carte / menu) par IA multimodale.
+// Nécessaire car les mentions d'allergènes (sans gluten, végétarien…) sont des
+// PICTOGRAMMES : l'extraction texte (Firecrawl) les perd totalement.
+async function visionReadPdf(url: string, label: string, apiKey: string): Promise<string> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return "";
+    const ct = (res.headers.get("content-type") ?? "").toLowerCase();
+    const buf = new Uint8Array(await res.arrayBuffer());
+    // Signature %PDF- ou content-type explicite.
+    const isPdf = ct.includes("pdf") || (buf[0] === 0x25 && buf[1] === 0x50 && buf[2] === 0x44 && buf[3] === 0x46);
+    if (!isPdf || buf.byteLength > 18_000_000) return "";
+
+    let b64 = "";
+    const CH = 0x8000;
+    for (let i = 0; i < buf.length; i += CH) {
+      b64 += String.fromCharCode(...buf.subarray(i, i + CH));
+    }
+    b64 = btoa(b64);
+
+    const ai = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: { "Lovable-API-Key": apiKey, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "google/gemini-3.6-flash",
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text:
+                  "Analyse visuellement ce document (carte / menu). Restitue en texte structuré : les sections, " +
+                  "les intitulés exacts des plats et boissons, les spécialités, et surtout les MENTIONS " +
+                  "D'ALLERGÈNES OU DE RÉGIME indiquées par des pictogrammes ou une légende (sans gluten, " +
+                  "végétarien, vegan, épicé, fruits à coque…) en les associant explicitement à chaque plat concerné. " +
+                  "N'inclus aucun prix. Si un pictogramme est ambigu, ne l'attribue pas.",
+              },
+              { type: "file", file: { filename: `${label}.pdf`, file_data: `data:application/pdf;base64,${b64}` } },
+            ],
+          },
+        ],
+      }),
+    });
+    if (!ai.ok) return "";
+    const json = await ai.json();
+    return String(json?.choices?.[0]?.message?.content ?? "").slice(0, 12000);
+  } catch (_e) {
+    return "";
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
