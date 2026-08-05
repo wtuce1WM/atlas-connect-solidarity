@@ -338,8 +338,9 @@ export type ShowcaseProps = {
   aiSummaryEffect?: "zoom_in" | "zoom_out" | "pan_left" | "pan_right" | "pan_down" | "pan_up" | "scroll_v" | null;
   /** Textes IA (onglet TXT IA de Présence en ligne) — une séquence par texte coché */
   aiTexts?: Array<{ id?: string; title?: string; content?: string; content_html?: string | null; effect?: string | null }> | null;
-  externalLinks?: Array<{ id?: string; name?: string; label?: string; url?: string | null; image?: string | null }> | null;
-  menuDocs?: Array<{ id?: string; name?: string; url?: string | null }> | null;
+  externalLinks?: Array<{ id?: string; name?: string; label?: string; description?: string; description_html?: string | null; url?: string | null; image?: string | null }> | null;
+  menuDocs?: Array<{ id?: string; name?: string; description?: string; description_html?: string | null; url?: string | null }> | null;
+
   highlights?: Array<{ id?: string; icon?: string | null; image_url?: string | null; title?: string; description?: string; description_html?: string | null; effect?: string | null; metric_title?: string; metric_value?: string }> | null;
 
   showGoogleReviews?: boolean;
@@ -3454,7 +3455,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           if (!item) return null;
           label = item.label || (lang === "en" ? "They talk about us" : "Ils en parlent");
           title = item.name || "";
-          text = item.url ? String(item.url).replace(/^https?:\/\//, "").split("/")[0] : "";
+          text = item.description || (item.url ? String(item.url).replace(/^https?:\/\//, "").split("/")[0] : "");
+          textHtml = item.description_html || null;
         } else {
           const item = (Array.isArray(menuDocs) ? menuDocs : [])[idx];
           if (!item) return null;
@@ -3464,8 +3466,10 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           label = title.trim().toLowerCase() === generic.toLowerCase()
             ? (lang === "en" ? "Our selection" : "Notre sélection")
             : generic;
-          text = "";
+          text = item.description || "";
+          textHtml = item.description_html || null;
         }
+
         const bgArr = Array.isArray((scene_media as any)?.[kind]) ? (scene_media as any)[kind] : [];
         const bgItem = bgArr[idx] ?? bgArr[0];
         const imgFallback = kind === "external_link" && !assocOff("external_link")

@@ -1534,6 +1534,9 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
             id: r.id,
             name: cleanDisplayText(stripHtml(r.name || "")) || "Lien",
             label: cleanDisplayText(stripHtml(r.description || "")) || "",
+            // Rich Text de la description du document, respecté au montage.
+            description: cleanDisplayText(stripHtml(r.description || "")) || "",
+            description_html: sanitizeRich(r.description || "") || null,
             url: r.url || null,
             image: typeof r.icon === "string" && r.icon.startsWith("http") ? r.icon : (r.thumbnail_url || null),
           }));
@@ -1544,9 +1547,12 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
           .map((r: any) => ({
             id: r.id,
             name: cleanDisplayText(stripHtml(r.name || "")) || "Menu",
+            description: cleanDisplayText(stripHtml(r.description || "")) || "",
+            description_html: sanitizeRich(r.description || "") || null,
             url: r.url || null,
           }));
         if (menus.length > 0) template_props.menuDocs = menus;
+
       }
     }
 
@@ -1654,25 +1660,61 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       }
     }
 
-    // Durées par défaut (secondes) — imposées si l'utilisateur n'a rien réglé.
+    // ── Configuration backoffice (/staff/backoffice/videos → « Ordre et durées des étapes »).
+    // Source de vérité unique : table video_scenario_steps. Toute modification y est
+    // reprise automatiquement, ici (montage) comme dans l'aperçu du Studio.
+    let cfgOrder: string[] = [];
+    const cfgDurations: Record<string, number> = {};
+    const cfgDisabled = new Set<string>();
+    try {
+      const cfgMode = business_id ? "business" : "corporate";
+      const { data: cfgRows } = await supa
+        .from("video_scenario_steps")
+        .select("scene_key, position, duration_sec, enabled")
+        .eq("mode", cfgMode)
+        .order("position", { ascending: true });
+      for (const r of cfgRows ?? []) {
+        const key = String((r as any).scene_key);
+        if ((r as any).enabled === false) {
+          cfgDisabled.add(key);
+          continue;
+        }
+        cfgOrder.push(key);
+        const d = Number((r as any).duration_sec);
+        if (Number.isFinite(d) && d > 0) cfgDurations[key] = Math.round(d);
+      }
+    } catch (e) {
+      console.warn("[scenario-config] lecture video_scenario_steps échouée", (e as Error).message);
+    }
+
+    // Durées par défaut (secondes) — celles du backoffice d'abord, puis un filet de
+    // sécurité si la table est vide.
     {
       if (!(template_props as any).scene_durations) (template_props as any).scene_durations = {};
       const sd = (template_props as any).scene_durations as Record<string, number>;
-      const defaults: Record<string, number> = {
+      const manualDurations = options?.manual_durations === true;
+      const fallback: Record<string, number> = {
         welcome: 3, proposition: 3, name: 6, ai_card: 5, hours: 3, map: 3, digital: 3, weather: 6, tides: 6,
       };
-      for (const [k, v] of Object.entries(defaults)) if (sd[k] == null) sd[k] = v;
+      // Le backoffice prime sur les durées calculées côté client, sauf réglage manuel
+      // explicite de l'utilisateur dans l'aperçu du scénario.
+      for (const [k, v] of Object.entries(cfgDurations)) {
+        if (!manualDurations || sd[k] == null) sd[k] = v;
+      }
+      for (const [k, v] of Object.entries(fallback)) if (sd[k] == null) sd[k] = v;
     }
 
-    // Ordre canonique du montage — l'IA ne décide plus du déroulé.
+    // Ordre du montage — l'IA ne décide plus du déroulé : ordre backoffice, sinon canon.
     {
-      const CANON = [
-        "logo", "welcome", "popup", "proposition", "weather", "tides",
-        "hook", "name", "ai_text", "ai_card", "offer", "highlight",
-        "external_link", "menu_doc", "media",
-        "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review",
-        "hours", "map", "digital", "blog", "whatsapp", "cta", "outro",
-      ];
+      const CANON = cfgOrder.length
+        ? cfgOrder
+        : [
+            "logo", "welcome", "popup", "proposition", "weather", "tides",
+            "hook", "name", "ai_text", "ai_card", "offer", "highlight",
+            "external_link", "menu_doc", "media",
+            "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review",
+            "hours", "map", "digital", "blog", "whatsapp", "cta", "outro",
+          ];
       const order = (template_props as any).scene_order;
       if (Array.isArray(order) && order.length) {
         const rank = (k: unknown) => {
@@ -1680,11 +1722,13 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
           return i < 0 ? CANON.length : i;
         };
         (template_props as any).scene_order = order
+          .filter((k: unknown) => !cfgDisabled.has(String(k)))
           .map((k: unknown, i: number) => ({ k, i }))
           .sort((a, b) => rank(a.k) - rank(b.k) || a.i - b.i)
           .map((x) => x.k);
       }
     }
+
 
 
     // Format de sortie (canvas Remotion) — vertical 720×1280 par défaut.

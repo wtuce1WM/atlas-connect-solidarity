@@ -1,7 +1,7 @@
 // Shared AI Gateway wrapper + usage tracking for Lovable AI Gateway.
 // Usage is logged to public.ai_usage_events so we can attribute cost per user / affiliate / business.
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2";
 import { createOpenAICompatible } from "npm:@ai-sdk/openai-compatible@1";
 
 export const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
