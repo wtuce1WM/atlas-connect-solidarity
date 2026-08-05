@@ -721,7 +721,7 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
 
         {/* Titre / Texte de l'image */}
         <Dialog open={!!textUrl} onOpenChange={(open) => !open && setTextUrl(null)}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl md:max-w-4xl lg:max-w-5xl">
             <DialogHeader>
               <DialogTitle>Titre &amp; texte de l'image</DialogTitle>
             </DialogHeader>
