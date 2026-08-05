@@ -159,13 +159,18 @@ const STEP_DOCS: Record<string, { what: string; filter: string; notes?: string }
   cta: {
     what: "CTA final : installation de l'app / renvoi vers One World Morocco.",
     filter: "Incluse sauf si l'installation de l'app est désactivée.",
-    notes: "Toujours placée en dernier au montage, quel que soit l'ordre ici ; durée minimale garantie pour éviter une fin noire.",
+    notes: "Placée juste avant l'Outro au montage ; visuel d'établissement en fond ; durée minimale garantie pour éviter une fin noire.",
   },
   outro: {
-    what: "Séquence de clôture de marque.",
+    what: "Outro : clôture de marque, distincte du CTA final.",
     filter: "Même condition que le CTA final.",
-    notes: "Fondu de sortie sur le logo One World Morocco, après le CTA final.",
+    notes: "Toujours en tout dernier plan ; fond de marque (sans photo d'établissement), logo One World Morocco et signature oneworldmorocco.com.",
   },
+  customer_review_note: {
+    what: "",
+    filter: "",
+  },
+
 };
 
 const VideoScenarioConfigPanel = () => {
