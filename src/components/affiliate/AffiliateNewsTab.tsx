@@ -1,4 +1,7 @@
-import { CheckCircle2, XCircle, Bot, MapPin, Newspaper, Mail, Star, CloudSun, Waves, ThumbsUp, BarChart3, Video, Globe2, ExternalLink } from "lucide-react";
+import { useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
+import { CheckCircle2, XCircle, Bot, MapPin, Newspaper, Mail, Star, CloudSun, Waves, ThumbsUp, BarChart3, Video, Globe2, ExternalLink, Eye, QrCode, LayoutPanelTop } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export type NewsRights = {
   aiAssistant: boolean;
@@ -19,6 +22,11 @@ interface Props {
   onGoToTools?: () => void;
 }
 
+type Preview =
+  | { kind: "iframe"; url: string; height?: number }
+  | { kind: "qr" }
+  | null;
+
 type Item = {
   key: string;
   label: string;
@@ -29,12 +37,15 @@ type Item = {
   enabled: boolean;
   locked?: boolean;
   desc: string;
+  preview?: Preview;
 };
 
 const SITE = "https://oneworldmorocco.com";
 
 const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToTools }: Props) => {
   const accountLabel = affiliateName?.trim() || "Compte affilié";
+  const publicUrl = slug ? `${SITE}/b/${slug}` : SITE;
+  const [preview, setPreview] = useState<{ title: string; p: Exclude<Preview, null> } | null>(null);
 
   const LinkCell = ({ scope }: { scope: "Établissement" | "Compte affilié" }) => (
     <div className="leading-tight">
@@ -54,6 +65,7 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
       price: "Sur devis",
       enabled: rights.aiAssistant,
       desc: "Un assistant conversationnel embarqué sur votre site, qui répond aux questions de vos visiteurs et les oriente vers vos offres et les adresses à proximité.",
+      preview: slug ? { kind: "iframe", url: `${SITE}/embed/ask/${slug}?lang=fr`, height: 640 } : null,
     },
     {
       key: "nearby",
@@ -63,6 +75,7 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
       price: "Sur devis",
       enabled: rights.nearbyWidget,
       desc: "Carte Google + liste filtrable des établissements et lieux d'intérêt autour de vous, avec ouverture des fiches sans quitter votre site.",
+      preview: slug ? { kind: "iframe", url: `${SITE}/embed/nearby/${slug}?lang=fr`, height: 620 } : null,
     },
     {
       key: "blog",
@@ -81,6 +94,9 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
       price: "Inclus dans l'abonnement",
       enabled: rights.emailSignature,
       desc: "Bloc HTML statique (Gmail, Outlook, Apple Mail) qui invite vos clients à laisser un avis Google / TripAdvisor depuis chaque email envoyé.",
+      preview: slug
+        ? { kind: "iframe", url: `${SITE}/embed/avis/${slug}?platform=all&lang=fr&variant=card`, height: 380 }
+        : null,
     },
     {
       key: "dashboard",
@@ -90,6 +106,27 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
       price: "Inclus dans l'abonnement",
       enabled: rights.dashboard,
       desc: "Vues de fiche, clics contact, itinéraires, sources de trafic et évolution sur la période, établissement par établissement.",
+      preview: { kind: "iframe", url: `/affiliates/dashboard`, height: 700 },
+    },
+    {
+      key: "fiche",
+      label: "Widget Votre ID numérique type Linktree",
+      icon: LayoutPanelTop,
+      scope: "Établissement",
+      price: "Inclus dans l'abonnement",
+      enabled: true,
+      desc: "Tous vos canaux numériques rassemblés au même endroit. Un lien court et personnalisé que les voyageurs retiennent vraiment — oneworldmorocco.com/yourname. Un seul tap affiche vos offres, vos contacts et vos photos, sur un domaine de voyage de confiance.",
+      preview: slug ? { kind: "iframe", url: `${SITE}/b/${slug}?embed=1`, height: 760 } : null,
+    },
+    {
+      key: "qr",
+      label: "Votre QR code",
+      icon: QrCode,
+      scope: "Établissement",
+      price: "Inclus dans l'abonnement",
+      enabled: true,
+      desc: "Votre propre QR code, à un scan de votre business en ligne. Imprimez le QR sur les reçus, les menus et les cartes de visite.",
+      preview: { kind: "qr" },
     },
     {
       key: "studio",
@@ -119,6 +156,7 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
       icon: Star,
       desc: "Vos avis Google, TripAdvisor et Restaurant Guru sur votre site : note /5, note globale /20, nombre d'avis et avis détaillés.",
       url: slug ? `${SITE}/embed/reviews/${slug}?platform=all&lang=fr` : null,
+      height: 480,
     },
     {
       key: "rate",
@@ -126,6 +164,7 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
       icon: ThumbsUp,
       desc: "Incite vos clients à noter votre établissement sur Google et TripAdvisor en un clic (version carte ou barre).",
       url: slug ? `${SITE}/embed/avis/${slug}?platform=all&lang=fr&variant=card` : null,
+      height: 380,
     },
     {
       key: "weather",
@@ -133,6 +172,7 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
       icon: CloudSun,
       desc: "Météo du jour et prévisions pour votre ville, à intégrer sur votre site.",
       url: `${SITE}/embed/weather?city=Marrakech&lang=fr`,
+      height: 420,
     },
     {
       key: "tides",
@@ -140,10 +180,22 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
       icon: Waves,
       desc: "Horaires des marées pour les villes côtières marocaines (Essaouira, Agadir, Sidi Kaouki…).",
       url: `${SITE}/embed/tides?city=Essaouira&lang=fr`,
+      height: 420,
     },
   ];
 
   const activeCount = items.filter((i) => i.enabled).length;
+
+  const PreviewButton = ({ title, p }: { title: string; p?: Preview }) =>
+    p ? (
+      <button
+        type="button"
+        onClick={() => setPreview({ title, p })}
+        className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+      >
+        <Eye className="h-3 w-3" /> Visualiser
+      </button>
+    ) : null;
 
   return (
     <div className="space-y-8">
@@ -188,6 +240,11 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
                     <div>
                       <p className={i.enabled ? "text-white font-medium" : "text-white/60 font-medium"}>{i.label}</p>
                       <p className="text-xs text-white/50 mt-0.5 max-w-xl">{i.desc}</p>
+                      {i.enabled && i.preview && (
+                        <div className="mt-1">
+                          <PreviewButton title={i.label} p={i.preview} />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </td>
@@ -216,6 +273,11 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
                     <div>
                       <p className="text-white font-medium">{w.label}</p>
                       <p className="text-xs text-white/50 mt-0.5 max-w-xl">{w.desc}</p>
+                      {w.url && (
+                        <div className="mt-1">
+                          <PreviewButton title={w.label} p={{ kind: "iframe", url: w.url, height: w.height }} />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </td>
@@ -254,14 +316,17 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
               <p className="text-xs text-white/60 leading-relaxed">{w.desc}</p>
               <div className="flex items-center gap-3">
                 {w.url && (
-                  <a
-                    href={w.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-xs text-primary hover:underline inline-flex items-center gap-1"
-                  >
-                    Voir un aperçu <ExternalLink className="h-3 w-3" />
-                  </a>
+                  <>
+                    <PreviewButton title={w.label} p={{ kind: "iframe", url: w.url, height: w.height }} />
+                    <a
+                      href={w.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                    >
+                      Nouvel onglet <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </>
                 )}
                 {onGoToTools && (
                   <button type="button" onClick={onGoToTools} className="text-xs text-white/60 hover:text-white">
@@ -296,6 +361,46 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
           </a>
         </div>
       )}
+
+      {/* Preview popup */}
+      <Dialog open={!!preview} onOpenChange={(o) => !o && setPreview(null)}>
+        <DialogContent className="max-w-3xl bg-neutral-950 border-white/10 dark">
+          <DialogHeader>
+            <DialogTitle className="text-white text-base">{preview?.title}</DialogTitle>
+          </DialogHeader>
+          {preview?.p.kind === "iframe" && (
+            <div className="space-y-2">
+              <iframe
+                src={preview.p.url}
+                style={{ width: "100%", height: preview.p.height ?? 560, border: 0, borderRadius: 16, background: "transparent" }}
+                title={preview.title}
+                loading="lazy"
+              />
+              <a
+                href={preview.p.url}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+              >
+                Ouvrir dans un nouvel onglet <ExternalLink className="h-3 w-3" />
+              </a>
+            </div>
+          )}
+          {preview?.p.kind === "qr" && (
+            <div className="flex flex-col items-center gap-3 py-2">
+              <div className="bg-white p-4 rounded-xl">
+                <QRCodeSVG value={publicUrl} size={220} level="M" />
+              </div>
+              <p className="text-xs text-white/60 break-all text-center">{publicUrl}</p>
+              {onGoToTools && (
+                <button type="button" onClick={() => { setPreview(null); onGoToTools(); }} className="text-xs text-primary hover:underline">
+                  Télécharger le QR (onglet Tools)
+                </button>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
