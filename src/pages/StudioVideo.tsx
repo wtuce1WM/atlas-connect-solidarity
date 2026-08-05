@@ -1947,9 +1947,20 @@ export default function StudioVideo() {
             video_starts: activeVideoStarts,
             video_ends: activeVideoEnds,
             scene_media: sceneMedia,
-            scene_order: applyReferenceOrder(scenarioEdits?.order, !!scenarioEdits?.order),
-            scene_durations: scenarioEdits?.durations,
+            scene_order: applyReferenceOrder(
+              scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon),
+              !!scenarioEdits?.order,
+            ),
+            scene_durations: scenarioEdits?.durations ?? (() => {
+              const src = (aiScenario?.scenario ?? scenario)?.scenes;
+              if (!src) return undefined;
+              const out: Record<string, number> = {};
+              for (const s of src) out[s.icon] = s.duration;
+              return out;
+            })(),
+            manual_durations: !!scenarioEdits?.durations,
             custom_scenes: scenarioEdits?.customScenes,
+
             text_position: textPosition,
             transitions: {
               style: transitionStyle,
