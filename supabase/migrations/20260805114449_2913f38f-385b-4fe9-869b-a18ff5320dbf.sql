@@ -1,0 +1,1 @@
+ALTER TABLE public.video_jobs ADD COLUMN IF NOT EXISTS gallery_sort_order integer;
