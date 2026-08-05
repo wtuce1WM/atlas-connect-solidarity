@@ -4883,6 +4883,7 @@ function VideoParamsDialog({ job }: { job: Job }) {
   if (opts.popup) included.push("Popup de bienvenue");
   if (Array.isArray(opts.offer_ids) && opts.offer_ids.length) included.push(`Offres (${opts.offer_ids.length})`);
   if (Array.isArray(opts.highlight_ids) && opts.highlight_ids.length) included.push(`Highlights (${opts.highlight_ids.length})`);
+  if (Array.isArray(opts.ai_text_ids) && opts.ai_text_ids.length) included.push(`TXT IA (${opts.ai_text_ids.length})`);
   if (Array.isArray(opts.blog_post_ids) && opts.blog_post_ids.length) included.push(`Articles de blog (${opts.blog_post_ids.length})`);
 
   const tr = opts.transitions ?? {};
