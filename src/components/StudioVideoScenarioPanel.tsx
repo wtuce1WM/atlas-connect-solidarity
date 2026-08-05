@@ -531,6 +531,12 @@ export type ScenarioEdits = {
   /** Ville (slug) du Widget Marées, Vents & Météo, choisie dans la carte de l'étape. */
   tidesCity?: string;
   /** Durée totale réelle du scénario après édition (secondes). */
+  /**
+   * Utilisation de l'image associée par défaut d'une étape (bloc, popup, lien externe…).
+   * Clé = kind, valeur `false` = ne pas utiliser l'image associée (le rendu retombe sur
+   * les médias assignés, sinon sur la règle « aucun média assigné »).
+   */
+  useAssociatedMedia?: Record<string, boolean>;
   totalDuration?: number;
 };
 
