@@ -1982,11 +1982,11 @@ export default function StudioVideo() {
       });
       if (error) throw error;
       const payload = data as any;
-      const builtScenario = builtScenarioFromTemplateProps(payload.template_id, payload.template_props, payload.duration_sec ?? effectiveDuration, payload.rationale);
+      const builtScenario = scenarioFromTemplateProps(payload.template_id, payload.template_props, payload.duration_sec ?? effectiveDuration, payload.rationale);
       // L'IA ne décide pas du déroulé : on applique la config backoffice (ordre + durées),
       // sinon l'ordre des étapes cochées.
-      if (Array.isArray(builtScenario?.scenes) && builtScenarioStepConfig.length > 0) {
-        const fixed = applyStepsConfig(builtScenario as any, builtScenarioStepConfig) as any;
+      if (Array.isArray(builtScenario?.scenes) && scenarioStepConfig.length > 0) {
+        const fixed = applyStepsConfig(builtScenario as any, scenarioStepConfig) as any;
         builtScenario.scenes = fixed.scenes;
         builtScenario.totalDuration = fixed.totalDuration;
       } else if (Array.isArray(builtScenario?.scenes) && referenceKindOrder.length > 0) {
@@ -1999,7 +1999,7 @@ export default function StudioVideo() {
           .sort((a: any, b: any) => rank(String(a.sc.icon)) - rank(String(b.sc.icon)) || a.i - b.i)
           .map((x: any) => x.sc);
       }
-      setAiScenario({ builtScenario, rationale: payload.rationale, templateId: payload.template_id });
+      setAiScenario({ scenario: builtScenario, rationale: payload.rationale, templateId: payload.template_id });
       setAiScenarioSig(currentScenarioSig);
       setScenarioPreviewed(true);
       toast.success("Scénario IA généré.");
