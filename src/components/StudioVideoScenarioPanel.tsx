@@ -1393,6 +1393,21 @@ export function StudioVideoScenarioPanel({
                   );
                 })()}
 
+              {editable && kind && ASSOC_MEDIA_KINDS.has(String(kind)) && (
+                <label className="mt-3 flex items-center gap-2 text-[11px] text-neutral-600">
+                  <input
+                    type="checkbox"
+                    checked={!assocMediaOff[String(kind)]}
+                    onChange={(e) =>
+                      setAssocMediaOff((prev) => ({ ...prev, [String(kind)]: !e.target.checked }))
+                    }
+                  />
+                  Utiliser l'image associée à cette étape
+                  <span className="text-neutral-400">
+                    (décochée : médias assignés, sinon règle « aucun média assigné »)
+                  </span>
+                </label>
+              )}
               {editable && kind && (
                 <SceneMediaSlot
                   kind={kind}
