@@ -473,6 +473,7 @@ function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
     case "menu_doc": return Array.isArray(p.menuDocs) && p.menuDocs.length > 0;
     case "cta": return p.showAppInstall !== false;
     case "offer": return !!p.offer || (Array.isArray(p.offers) && p.offers.length > 0);
+    case "ai_card": return !!p.aiCard;
     case "reviews": return !!(p.showReviews && (p.rating || p.reviewsCount));
     case "google_review": {
       const g = p.googleReview;
