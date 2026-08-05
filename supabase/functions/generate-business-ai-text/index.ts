@@ -53,19 +53,10 @@ const MODE_BRIEFS: Record<string, string> = {
     "Objectif : rédiger à partir du contenu des liens externes fournis (site web, boutique, PDF, flipbook, pages de réservation). N'utilise que ce qui figure dans ces sources.",
 };
 
-// Liens candidats « menus » et « liens externes » de la fiche.
-const MENU_URL_KEYS = [
-  ["menu_url", "Menu"],
-  ["flipbook_url", "Flipbook"],
-  ["pdf_url", "PDF 1"],
-  ["pdf_2_url", "PDF 2"],
-  ["pdf_3_url", "PDF 3"],
-] as const;
+// Menus / cartes ET liens externes : source unique = business_documents
+// (types menu | flipbook | external_link). Aucun champ de la fiche
+// (menu_url, pdf_url, flipbook_url legacy, url_1..url_6, website…) n'est lu.
 
-// Les liens externes viennent EXCLUSIVEMENT des « Liens Externes » du backoffice
-// (business_documents, type external_link) : jamais des champs CTA url_1..url_6,
-// website, réservation, etc.
-const EXTERNAL_URL_KEYS = [] as const;
 
 
 const STYLE_BRIEFS: Record<string, string> = {
