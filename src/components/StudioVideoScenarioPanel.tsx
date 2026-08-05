@@ -261,43 +261,54 @@ export function scenarioFromTemplateProps(
     return normalize(scenes, durationSec, cursor);
   }
 
+  // Ordre canonique imposé :
+  // logo → Bienvenue → Popup → Proposition → Widgets Météo/Marées → Nom & identité
+  // → Hook → Offre(s) → Bloc(s) highlight → … → CTA
   // Ouverture logo (si option activée et logo transparent disponible)
   if (props?.openWithLogo && props?.logoUrl) {
     push("logo", Math.max(2, Math.round(durationSec * 0.06)), "Ouverture sur le logo de l'établissement.");
   }
 
-  // Étapes BIENVENUE / PROPOSITION (Présence en ligne / CTAs) — juste après le logo,
-  // avant « Nom & identité ». Durées fournies par le scénario côté serveur si présentes.
+  // Étapes BIENVENUE / PROPOSITION (Présence en ligne / CTAs) — 3 s par défaut.
   const introDur = (k: "welcome" | "proposition") => {
     const d = Number(props?.scene_durations?.[k]);
     return Number.isFinite(d) && d > 0 ? d : 3;
   };
   const welcomeTextProp = typeof props?.welcomeText === "string" ? props.welcomeText.trim() : "";
   if (welcomeTextProp) push("welcome", introDur("welcome"), welcomeTextProp);
+
+  // Popup — juste derrière l'étape Bienvenue
+  if (props?.showPopup && props?.popupImageUrl) {
+    push("popup", Math.max(2, Math.round(durationSec * 0.08)), [
+      typeof props?.popupTitle === "string" ? props.popupTitle.trim() : "",
+      typeof props?.popupDescription === "string" ? props.popupDescription.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : "",
+    ].filter(Boolean).join("\n") || "Image d'accueil (popup) en plein écran.");
+  }
+
   const propositionTextProp = typeof props?.propositionText === "string" ? props.propositionText.trim() : "";
   if (propositionTextProp) push("proposition", introDur("proposition"), propositionTextProp);
 
-
-  // Scène "hook" du montage = NOM + 📍 ville · quartier (texte exact affiché à l'écran)
-  const city = typeof props?.city === "string" ? props.city.trim() : "";
-  const neighborhood = typeof props?.neighborhood === "string" ? props.neighborhood.trim() : "";
-  const locationLine = [city, neighborhood].filter(Boolean).join(" · ");
-  push("hook", Math.max(2, Math.round(durationSec * 0.1)), [name, locationLine ? `📍 ${locationLine}` : ""].filter(Boolean).join("\n"));
-  // Scène "name" du montage = TEXTE INTÉGRAL du hook (identique à Remotion).
-  // Hook vide → pas d'étape Hook (on ne recycle jamais la Description).
-  if (hook || tagline) {
-    push("name", Math.max(2, Math.round(durationSec * 0.12)), hook || tagline);
-  }
-  // Widgets Météo / Marées — juste après l'étape Hook, 6 s par défaut.
+  // Widgets Météo / Marées — juste derrière l'étape Proposition, 6 s par défaut.
   if (props?.showWeatherWidget && props?.weatherWidget) {
     push("weather", Number(props.weatherWidget.durationSec) || 6, String(props.weatherWidget.text || "Widget Météo."));
   }
   if (props?.showTidesWidget && props?.tidesWidget) {
     push("tides", Number(props.tidesWidget.durationSec) || 6, String(props.tidesWidget.text || "Widget Marées, Vents & Météo."));
   }
+
+  // Scène "hook" du montage = NOM + 📍 ville · quartier (texte exact affiché à l'écran)
+  const city = typeof props?.city === "string" ? props.city.trim() : "";
+  const neighborhood = typeof props?.neighborhood === "string" ? props.neighborhood.trim() : "";
+  const locationLine = [city, neighborhood].filter(Boolean).join(" · ");
+  push("hook", Math.max(2, Math.round(durationSec * 0.1)), [name, locationLine ? `📍 ${locationLine}` : ""].filter(Boolean).join("\n"));
+  // Scène "name" du montage = TEXTE INTÉGRAL du hook (identique à Remotion), 6 s par défaut.
+  // Hook vide → pas d'étape Hook (on ne recycle jamais la Description).
+  if (hook || tagline) {
+    push("name", 6, hook || tagline);
+  }
   // Étape "media" (montage) : ajoutée manuellement par l'utilisateur via "Ajouter une étape".
 
-  // Une scène par offre sélectionnée — position 4 par défaut (juste après Nom / étape texte)
+  // Une scène par offre sélectionnée
   const offersList: any[] = Array.isArray(props?.offers) ? props.offers : (offer ? [offer] : []);
   if (offersList.length > 0) {
     const perOffer = Math.max(3, Math.round((durationSec * 0.22) / offersList.length));
@@ -316,15 +327,6 @@ export function scenarioFromTemplateProps(
     }
   }
 
-  // Popup (une scène dédiée si l'option est cochée et qu'une image popup existe)
-  if (props?.showPopup && props?.popupImageUrl) {
-    push("popup", Math.max(2, Math.round(durationSec * 0.08)), [
-      typeof props?.popupTitle === "string" ? props.popupTitle.trim() : "",
-      typeof props?.popupDescription === "string" ? props.popupDescription.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : "",
-    ].filter(Boolean).join("\n") || "Image d'accueil (popup) en plein écran.");
-  }
-
-
   // Une scène par bloc highlight sélectionné — titre + texte exacts repris dans la vidéo
   const highlightsList: any[] = Array.isArray(props?.highlights) ? props.highlights : [];
   if (highlightsList.length > 0) {
@@ -337,6 +339,7 @@ export function scenarioFromTemplateProps(
       push("highlight", perHl, summary, title ? `Highlight — ${title.slice(0, 40)}` : undefined);
     }
   }
+
 
   // Résumés IA du menu / liens externes / menus & cartes — 5 s par élément
   const aiSummaries: any[] = Array.isArray(props?.aiSummaries) ? props.aiSummaries : [];
