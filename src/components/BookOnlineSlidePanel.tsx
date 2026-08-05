@@ -3065,7 +3065,7 @@ const BookOnlineSlidePanelInner = ({
                           </DropdownMenuItem>
                         )}
                         {poiSubcatList.map(([name, count]) => (
-                          <DropdownMenuItem key={name} onSelect={() => { setPoiSubcatFilter(name); setPoiShowAll(false); }}>
+                          <DropdownMenuItem key={name} onSelect={() => { setPoiCatFilter(null); setCatSubcatFilter(null); setPoiSubcatFilter(name); setPoiShowAll(false); }}>
                             {translateSubcategory(name, language)} <span className="ml-1 opacity-60">({count})</span>
                           </DropdownMenuItem>
                         ))}
@@ -3173,7 +3173,7 @@ const BookOnlineSlidePanelInner = ({
                 selectedKey={poiSubcatFilter}
                 allLabel={language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
                 onSelectAll={() => { setPoiSubcatFilter(null); setPoiPillOverlay(null); }}
-                onSelect={(key) => { setPoiSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
+                onSelect={(key) => { setPoiCatFilter(null); setCatSubcatFilter(null); setPoiSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
                 onClose={() => setPoiPillOverlay(null)}
               />
             )}
