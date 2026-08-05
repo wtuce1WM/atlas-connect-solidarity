@@ -408,9 +408,18 @@ function StatsTable({ title, help, rows, hideVideos }: { title: string; help?: s
                   <span className="inline-flex items-center gap-1">Appels IA <Help text="Nombre de générations de scénario IA. Souvent supérieur au nombre de vidéos (régénérations avant montage)." /></span>
                 </TableHead>
 
-                <TableHead className="text-right">Tokens</TableHead>
-                <TableHead className="text-right">Coût total</TableHead>
-                {!hideVideos && <TableHead className="text-right">Coût / vidéo</TableHead>}
+                <TableHead className="text-right">
+                  <span className="inline-flex items-center gap-1">Tokens <Help text="Total tokens input + output facturés par la passerelle IA." /></span>
+                </TableHead>
+                <TableHead className="text-right">
+                  <span className="inline-flex items-center gap-1">Coût total <Help text="Cumul en $ sur la période sélectionnée (pas un coût unitaire). Coût IA uniquement, hors rendu Remotion." /></span>
+                </TableHead>
+                {!hideVideos && (
+                  <TableHead className="text-right">
+                    <span className="inline-flex items-center gap-1">Coût / vidéo <Help text="Coût total ÷ nombre de vidéos lancées de cette ligne. Un scénario régénéré plusieurs fois avant montage fait monter ce ratio." /></span>
+                  </TableHead>
+                )}
+
               </TableRow>
             </TableHeader>
             <TableBody>
