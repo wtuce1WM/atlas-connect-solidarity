@@ -74,7 +74,27 @@ type JobRow = {
   title: string | null;
   duration_sec: number;
   template_id: string | null;
+  error_message?: string | null;
 };
+
+/** Regroupe un message d'erreur brut en famille de cause exploitable */
+function errorFamily(msg?: string | null): { family: string; detail: string } {
+  const m = (msg || "").trim();
+  if (!m) return { family: "Inconnue (aucun message)", detail: "—" };
+  const imgMatch = m.match(/Error loading image with src:\s*(\S+)/i);
+  if (imgMatch) {
+    const url = imgMatch[1];
+    if (/youtube\.com|youtu\.be/i.test(url)) return { family: "Média : URL YouTube passée comme image", detail: url };
+    return { family: "Média : image/vidéo introuvable ou 404", detail: url };
+  }
+  if (/Could not find composition/i.test(m)) return { family: "Composition Remotion inexistante (template invalide)", detail: m.slice(0, 160) };
+  if (/delayRender\(\)/i.test(m)) return { family: "Timeout delayRender (média trop lent à charger)", detail: m.slice(0, 160) };
+  if (/row-level security/i.test(m)) return { family: "RLS : écriture refusée (droits)", detail: m.slice(0, 160) };
+  if (/cancelled|Annulé/i.test(m)) return { family: "Annulé / interrompu", detail: m.slice(0, 160) };
+  if (/Command failed with exit code/i.test(m)) return { family: "Échec du process de rendu (exit code)", detail: m.slice(0, 160) };
+  return { family: "Autre", detail: m.slice(0, 160) };
+}
+
 
 const fmtUsd = (n: number) => `$${n.toFixed(4)}`;
 const fmtNum = (n: number) => n.toLocaleString("fr-FR");
