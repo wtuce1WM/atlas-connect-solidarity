@@ -4,7 +4,10 @@ import { useToast } from "@/hooks/use-toast";
 import { compressImage, formatBytes } from "@/lib/imageCompression";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import RichTextEditor from "@/components/staff/RichTextEditor";
+
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   AlertDialog,
