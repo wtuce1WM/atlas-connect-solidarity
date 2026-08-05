@@ -308,6 +308,15 @@ export function scenarioFromTemplateProps(
   if (hook || tagline) {
     push("name", 6, hook || tagline);
   }
+  // Carte IA (offre rédigée par l'IA, option « Carte IA ») — juste après le Hook.
+  if (props?.aiCard) {
+    const c: any = props.aiCard;
+    const t = (c?.title || "").toString().trim();
+    const pr = (c?.price || "").toString().trim();
+    const ls: string[] = Array.isArray(c?.lines) ? c.lines.map((l: any) => String(l).trim()).filter(Boolean) : [];
+    const desc = [[t, pr].filter(Boolean).join(" · "), ...ls].filter(Boolean).join("\n") || "Carte générée par l'IA.";
+    push("ai_card", 5, desc);
+  }
   // Étape "media" (montage) : ajoutée manuellement par l'utilisateur via "Ajouter une étape".
 
   // Une scène par offre sélectionnée
