@@ -458,7 +458,7 @@ const BookOnlineSlidePanelInner = ({
     (async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, priority_score")
+        .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, priority_score, computed_rating, total_review_count")
         .eq("is_active", true)
         .ilike("city", business.city)
         .order("priority_score", { ascending: false, nullsFirst: false })
@@ -484,6 +484,8 @@ const BookOnlineSlidePanelInner = ({
           neighborhood: p.neighborhood,
           categories: p.categories,
           default_service: p.default_service ?? null,
+          computed_rating: p.computed_rating ?? null,
+          total_review_count: p.total_review_count ?? null,
         }));
 
       setPoiCategoryBusinesses(rows as PoiBusiness[]);
@@ -500,7 +502,7 @@ const BookOnlineSlidePanelInner = ({
     (async () => {
       const { data } = await supabase
         .from("businesses")
-        .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, priority_score")
+        .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, priority_score, computed_rating, total_review_count")
         .eq("is_active", true)
         .ilike("city", business.city)
         .order("priority_score", { ascending: false, nullsFirst: false })
@@ -520,6 +522,8 @@ const BookOnlineSlidePanelInner = ({
           categories: p.categories,
           main_category: p.main_category,
           default_service: p.default_service ?? null,
+          computed_rating: p.computed_rating ?? null,
+          total_review_count: p.total_review_count ?? null,
         }));
       setPoiCityBusinesses(rows as PoiBusiness[]);
     })();
@@ -3148,6 +3152,7 @@ const BookOnlineSlidePanelInner = ({
                       id: `self-${business.id}`, name: business.name,
                       latitude: business.latitude, longitude: business.longitude,
                       images: business.images, city: business.city, neighborhood: business.neighborhood,
+                      avgOn20: avgOn20, totalReviews: totalReviewCount,
                       markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
                     } as PoiMapItem] : []),
                     ...destinations.filter(d => d.latitude && d.longitude).map(d => ({
@@ -3161,16 +3166,20 @@ const BookOnlineSlidePanelInner = ({
                       id: `self-${business.id}`, name: business.name,
                       latitude: business.latitude, longitude: business.longitude,
                       images: business.images, city: business.city, neighborhood: business.neighborhood,
+                      avgOn20: avgOn20, totalReviews: totalReviewCount,
                       markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
                     } as PoiMapItem] : []),
                     ...(displayedPoi.map(p => ({
                       id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude,
                       images: p.images, city: p.city, neighborhood: p.neighborhood,
+                      avgOn20: (p as any).computed_rating ?? null,
+                      totalReviews: (p as any).total_review_count ?? 0,
                     } as PoiMapItem))),
                   ]
               }
               selectedPoiId={null}
               center={business?.latitude && business?.longitude ? { lat: business.latitude, lng: business.longitude } : undefined}
+              distanceOrigin={business?.latitude && business?.longitude ? { lat: Number(business.latitude), lng: Number(business.longitude) } : null}
               onPoiClick={(poiId) => {
                 if (poiId.startsWith("self-")) return;
                 if (poiMapMode === "destinations") {
