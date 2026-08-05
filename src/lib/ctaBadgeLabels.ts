@@ -40,3 +40,19 @@ export const propositionLabel = (
   if (st === "propose") return en ? `${name} offers you` : `${name} vous propose`;
   return null;
 };
+
+/** Codes disponibles pour BIENVENUE (`carousel_badge`) — ordre du menu déroulant de Présence en ligne / CTAs. */
+export const WELCOME_BADGE_CODES = [
+  "immergez_vous",
+  "nos_offres",
+  "bienvenue",
+  "bienvenue_a",
+  "bienvenue_au",
+  "bienvenue_chez",
+  "bienvenue_a_l",
+  "bienvenue_a_la",
+  "bienvenue_aux",
+] as const;
+
+/** Codes disponibles pour PROPOSITION (`poi_business_style`). */
+export const PROPOSITION_CODES = ["emmene_a", "propose"] as const;

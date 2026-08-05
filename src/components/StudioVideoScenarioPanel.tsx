@@ -283,8 +283,11 @@ export function scenarioFromTemplateProps(
   const neighborhood = typeof props?.neighborhood === "string" ? props.neighborhood.trim() : "";
   const locationLine = [city, neighborhood].filter(Boolean).join(" · ");
   push("hook", Math.max(2, Math.round(durationSec * 0.1)), [name, locationLine ? `📍 ${locationLine}` : ""].filter(Boolean).join("\n"));
-  // Scène "name" du montage = TEXTE INTÉGRAL du hook (identique à Remotion)
-  push("name", Math.max(2, Math.round(durationSec * 0.12)), hook || tagline || name);
+  // Scène "name" du montage = TEXTE INTÉGRAL du hook (identique à Remotion).
+  // Hook vide → pas d'étape Hook (on ne recycle jamais la Description).
+  if (hook || tagline) {
+    push("name", Math.max(2, Math.round(durationSec * 0.12)), hook || tagline);
+  }
   // Widgets Météo / Marées — juste après l'étape Hook, 6 s par défaut.
   if (props?.showWeatherWidget && props?.weatherWidget) {
     push("weather", Number(props.weatherWidget.durationSec) || 6, String(props.weatherWidget.text || "Widget Météo."));
@@ -513,6 +516,9 @@ export function StudioVideoScenarioPanel({
   onPendingCustomSceneConsumed,
   onRegenerate,
   regenerating,
+  introBadgeOptions,
+  introBadgeCodes,
+  onIntroBadgeChange,
 }: {
   scenario: Scenario;
   className?: string;
@@ -534,6 +540,12 @@ export function StudioVideoScenarioPanel({
   /** Relance la génération du scénario IA (proposée après suppression d'étapes). */
   onRegenerate?: () => void;
   regenerating?: boolean;
+  /** Choix possibles du contenu des étapes BIENVENUE / PROPOSITION (Présence en ligne / CTAs). */
+  introBadgeOptions?: Partial<Record<"welcome" | "proposition", Array<{ value: string; label: string }>>>;
+  /** Code actuellement sélectionné pour chaque étape d'intro. */
+  introBadgeCodes?: Partial<Record<"welcome" | "proposition", string | null>>;
+  /** Notifie le parent du changement de contenu d'une étape d'intro. */
+  onIntroBadgeChange?: (kind: "welcome" | "proposition", code: string, label: string) => void;
 }) {
   // Local edits: per-scene duration overrides + order override (by token) + custom scenes + text splits
   const [durationOverrides, setDurationOverrides] = useState<Record<string, number>>({});
@@ -1117,6 +1129,37 @@ export function StudioVideoScenarioPanel({
               >
                 {scene.description}
               </p>
+              {(scene.icon === "welcome" || scene.icon === "proposition") &&
+                (introBadgeOptions?.[scene.icon]?.length ?? 0) > 0 && (
+                  <div className="mt-2">
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">
+                      Contenu affiché
+                    </label>
+                    <select
+                      className="w-full rounded-md border border-neutral-200 bg-white px-2 py-1.5 text-sm"
+                      value={
+                        introBadgeCodes?.[scene.icon] ??
+                        introBadgeOptions?.[scene.icon]?.[0]?.value ??
+                        ""
+                      }
+                      onChange={(e) => {
+                        const code = e.target.value;
+                        const opt = introBadgeOptions?.[scene.icon]?.find((o) => o.value === code);
+                        if (!opt) return;
+                        const kind = scene.icon as "welcome" | "proposition";
+                        setTextOverrides((prev) => ({
+                          ...prev,
+                          [kind]: { ...(prev[kind] ?? {}), description: opt.label },
+                        }));
+                        onIntroBadgeChange?.(kind, code, opt.label);
+                      }}
+                    >
+                      {introBadgeOptions?.[scene.icon]?.map((o) => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
               {scene.icon === "whatsapp" && (() => {
                 const offerScene = editedScenes.find((s) => s.icon === "offer");
