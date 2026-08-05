@@ -78,17 +78,25 @@ const StaffVideos = () => {
       </header>
 
       <main className="w-full px-4 py-8">
-        <Tabs defaultValue="scenario">
+        <Tabs defaultValue="dashboard">
           <TabsList className="mb-6 flex flex-wrap h-auto gap-1">
+            <TabsTrigger value="dashboard" className="gap-2">
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
+            </TabsTrigger>
             <TabsTrigger value="scenario" className="gap-2">
               <ListOrdered className="h-4 w-4" />
               Scénario
             </TabsTrigger>
           </TabsList>
+          <TabsContent value="dashboard">
+            <VideoDashboardPanel />
+          </TabsContent>
           <TabsContent value="scenario">
             <VideoScenarioConfigPanel />
           </TabsContent>
         </Tabs>
+
       </main>
 
       <ScrollToTopButton />
