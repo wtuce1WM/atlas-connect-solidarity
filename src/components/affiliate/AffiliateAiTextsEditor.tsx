@@ -178,7 +178,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
 
   const load = async () => {
     setLoading(true);
-    const [{ data, error }, linkRes, bizRes] = await Promise.all([
+    const [{ data, error }, linkRes, bizRes, docRes] = await Promise.all([
       supabase
         .from("business_ai_texts")
         .select(SELECT_COLS)
@@ -193,6 +193,12 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
         .select([...MENU_FIELDS, ...EXTERNAL_FIELDS].map(([k]) => k).join(","))
         .eq("id", businessId)
         .maybeSingle(),
+      (supabase as any)
+        .from("business_documents")
+        .select("type, name, url, sort_order")
+        .eq("business_id", businessId)
+        .in("type", ["menu", "flipbook", "external_link"])
+        .order("sort_order", { ascending: true }),
     ]);
     if (error) toast.error("Chargement impossible : " + error.message);
     const list = (data as AiText[]) ?? [];
@@ -204,6 +210,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
     }
     setLockedIds([...locked]);
     setBiz(((bizRes as any)?.data as Record<string, any>) ?? null);
+    setDocs((((docRes as any)?.data as any[]) ?? []) as any);
     setLoading(false);
   };
 
@@ -213,7 +220,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
   useEffect(() => {
     setSelectedUrls(activeLinks.map((l) => l.url));
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [mode, biz]);
+  }, [mode, biz, docs]);
 
   const toggleUrl = (url: string) =>
     setSelectedUrls((prev) => (prev.includes(url) ? prev.filter((u) => u !== url) : [...prev, url]));
