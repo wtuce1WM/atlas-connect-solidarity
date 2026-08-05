@@ -3129,7 +3129,7 @@ const BookOnlineSlidePanelInner = ({
                                   onSelect={(e) => {
                                     if (disabled) { e.preventDefault(); return; }
                                     e.preventDefault();
-                                    setPoiCatFilter(ft.id); setPoiSubcatFilter(null); setPoiShowAll(false);
+                                    setPoiCatFilter(ft.id); setCatSubcatFilter(null); setPoiShowAll(false);
                                   }}
                                   className={disabled ? "opacity-40 pointer-events-none" : ""}
                                 >
