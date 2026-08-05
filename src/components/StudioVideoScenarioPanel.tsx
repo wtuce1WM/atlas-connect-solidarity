@@ -1080,7 +1080,8 @@ export function StudioVideoScenarioPanel({
               onDrop={(e) => { e.preventDefault(); handleDrop(scene.id); }}
               onDragEnd={() => { setDragId(null); setOverId(null); }}
               className={cn(
-                "relative bg-white text-black rounded-xl border border-border p-4 overflow-hidden transition-colors",
+                "relative text-black rounded-xl border border-border p-4 overflow-hidden transition-colors",
+                scene.icon === "ai_card" ? "bg-[#BED1FF]" : "bg-white",
                 isDragging && "opacity-50",
                 isOver ? "border-primary" : "hover:border-primary/40"
               )}
@@ -1092,7 +1093,7 @@ export function StudioVideoScenarioPanel({
                     <GripVertical className="h-4 w-4" />
                   </span>
                   {ICONS[scene.icon]}
-                  <span className="truncate">{scene.label}</span>
+                  <span className={cn("truncate", scene.icon === "ai_card" && "text-black text-base font-extrabold tracking-normal normal-case")}>{scene.label}</span>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <div className="flex items-center gap-1 rounded-md border border-neutral-200 bg-neutral-100 px-1 py-0.5">
