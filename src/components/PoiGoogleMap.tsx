@@ -52,6 +52,8 @@ interface PoiGoogleMapProps {
   mapTypeId?: "roadmap" | "satellite" | "terrain";
   /** When provided together with centerAtBottomRatio, the zoom adjusts so this radius (km) around `center` fits the viewport. */
   fitRadiusKm?: number | null;
+  /** Point de référence pour la distance affichée dans la vignette (ex. marqueur Master). Prioritaire sur la géoloc utilisateur. */
+  distanceOrigin?: { lat: number; lng: number } | null;
   /** Trace une flèche rouge animée entre deux points, avec l'étiquette de distance au milieu. */
   connector?: {
     from: { lat: number; lng: number };
@@ -352,7 +354,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     }
   };
 
-const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, fitPadding, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls, baseColor, centerAtBottomRatio, mapTypeId, fitRadiusKm, connector }: PoiGoogleMapProps) => {
+const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, fitPadding, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls, baseColor, centerAtBottomRatio, mapTypeId, fitRadiusKm, connector, distanceOrigin }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -372,6 +374,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   const openInfoPoiIdRef = useRef<string | null>(null);
   const userLocationRef = useRef(userLocation);
   useEffect(() => { userLocationRef.current = userLocation; }, [userLocation]);
+  const distanceOriginRef = useRef(distanceOrigin);
+  useEffect(() => { distanceOriginRef.current = distanceOrigin; }, [distanceOrigin]);
 
   // Load Google Maps
   useEffect(() => {
@@ -738,7 +742,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
               ${poi.totalReviews ? `<span style="color:rgba(255,255,255,0.7);">· ${poi.totalReviews} avis</span>` : ""}
             </div>`
           : "";
-        const currentUserLoc = userLocationRef.current;
+        const currentUserLoc = distanceOriginRef.current || userLocationRef.current;
         const distKm = currentUserLoc && poi.latitude && poi.longitude
           ? (() => {
               const R = 6371;
