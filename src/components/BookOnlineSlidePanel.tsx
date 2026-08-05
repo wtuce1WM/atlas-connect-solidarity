@@ -2306,7 +2306,7 @@ const BookOnlineSlidePanelInner = ({
                   )}
                   <div className="w-full max-w-3xl mx-auto px-3 md:px-3 relative" style={{ perspective: "1200px", maxWidth: isMobileGrid ? "85%" : undefined }}>
                     <div
-                      key={`${descGridSection}-${poiCatFilter || "all"}-${poiSubcatFilter || "all"}-${poiProximityKm ?? "all"}-${descGridPage}`}
+                      key={`${descGridSection}-${poiCatFilter || "all"}-${poiSubcatFilter || "all"}-${catSubcatFilter || "all"}-${poiProximityKm ?? "all"}-${descGridPage}`}
                       style={{
                         animation: "0.5s cubic-bezier(0.4, 0, 0.2, 1) both",
                         animationName: "descGridFlip",
