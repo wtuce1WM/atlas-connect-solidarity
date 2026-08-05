@@ -126,13 +126,8 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
   const [docs, setDocs] = useState<Array<{ type: string; name: string | null; url: string }>>([]);
   const [selectedUrls, setSelectedUrls] = useState<string[]>([]);
 
-  const detect = (fields: Array<[string, string]>) =>
-    fields
-      .map(([k, label]) => ({ key: k, label, url: String(biz?.[k] ?? "").trim() }))
-      .filter((f) => !!f.url);
-
   // Les menus / cartes et liens externes éditoriaux sont dans business_documents
-  // (type menu | flipbook | external_link) : c'est la source prioritaire.
+  // (type menu | flipbook | external_link) : c'est la SEULE source.
   const docLinks = (types: string[], fallbackLabel: string) => {
     const seen = new Set<string>();
     return docs
@@ -151,9 +146,10 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
   };
 
   const menuLinks = useMemo(
-    () => dedupe([...docLinks(["menu", "flipbook"], "Menu"), ...detect(MENU_FIELDS)]),
-    [biz, docs],
+    () => dedupe(docLinks(["menu", "flipbook"], "Menu")),
+    [docs],
   );
+
   const externalLinks = useMemo(
     () => dedupe(docLinks(["external_link"], "Lien externe")),
     [docs],
