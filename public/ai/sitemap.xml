@@ -3736,7 +3736,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/m-avenue</loc>
+    <loc>https://oneworldmorocco.com/m-avenue-1</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9212,6 +9212,11 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/elevate-cycle</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/m-avenue-1</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
