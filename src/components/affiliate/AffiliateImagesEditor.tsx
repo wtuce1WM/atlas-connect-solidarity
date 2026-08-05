@@ -528,8 +528,10 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
                     key={url}
                     url={url}
                     index={i}
-                    title={titles[url] || ""}
-                    description={descriptions[url] || ""}
+                    hasText={
+                      !!(titles[url] || "").trim() ||
+                      stripHtmlText(descriptions[url] || "").length > 0
+                    }
                     isPopup={popupUrl === url}
                     meta={{
                       size: imageSizes[url],
@@ -539,15 +541,9 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
                     }}
                     onPreview={setLightboxUrl}
                     onDelete={setDeleteUrl}
-                    onTitleChange={(v) => {
-                      setTitles((prev) => ({ ...prev, [url]: v }));
-                      markDirty();
-                    }}
-                    onDescriptionChange={(v) => {
-                      setDescriptions((prev) => ({ ...prev, [url]: v }));
-                      markDirty();
-                    }}
+                    onOpenText={() => setTextUrl(url)}
                     onPopupToggle={() => togglePopup(url)}
+
                   />
                 ))}
               </div>
