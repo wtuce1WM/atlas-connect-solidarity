@@ -239,6 +239,20 @@ const SortableVideo = ({
           </Button>
         </div>
       )}
+
+      <button
+        type="button"
+        onClick={onOpenText}
+        className={cn(
+          "w-full h-7 rounded-md text-[11px] font-bold tracking-wide border transition-colors",
+          entry.name || entry.description
+            ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
+            : "bg-muted text-muted-foreground border-border hover:bg-muted/70"
+        )}
+        title={entry.name || entry.description ? "Titre / texte renseignés" : "Aucun titre ni texte"}
+      >
+        TXT
+      </button>
     </div>
   );
 };
