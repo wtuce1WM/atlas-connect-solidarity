@@ -128,7 +128,7 @@ const STEP_DOCS: Record<string, { what: string; filter: string; notes?: string }
   customer_review: {
     what: "Avis client One World Morocco (verbatim sélectionné dans Studio Vidéo IA).",
     filter: "Incluse si un avis client interne est sélectionné dans l'étape.",
-    notes: "Citation + auteur + note ; texte tronqué en fin de phrase si trop long ; média de fond par rotation.",
+    notes: "Citation + auteur + note ; l'extrait mis en avant est toujours une ou plusieurs phrases complètes issues de l'avis (tout fragment parasite est rejeté) ; média de fond par rotation.",
   },
 
   hours: {
@@ -165,10 +165,6 @@ const STEP_DOCS: Record<string, { what: string; filter: string; notes?: string }
     what: "Outro : clôture de marque, distincte du CTA final.",
     filter: "Même condition que le CTA final.",
     notes: "Toujours en tout dernier plan ; fond de marque (sans photo d'établissement), logo One World Morocco et signature oneworldmorocco.com.",
-  },
-  customer_review_note: {
-    what: "",
-    filter: "",
   },
 
 };
