@@ -74,7 +74,27 @@ type JobRow = {
   title: string | null;
   duration_sec: number;
   template_id: string | null;
+  error_message?: string | null;
 };
+
+/** Regroupe un message d'erreur brut en famille de cause exploitable */
+function errorFamily(msg?: string | null): { family: string; detail: string } {
+  const m = (msg || "").trim();
+  if (!m) return { family: "Inconnue (aucun message)", detail: "—" };
+  const imgMatch = m.match(/Error loading image with src:\s*(\S+)/i);
+  if (imgMatch) {
+    const url = imgMatch[1];
+    if (/youtube\.com|youtu\.be/i.test(url)) return { family: "Média : URL YouTube passée comme image", detail: url };
+    return { family: "Média : image/vidéo introuvable ou 404", detail: url };
+  }
+  if (/Could not find composition/i.test(m)) return { family: "Composition Remotion inexistante (template invalide)", detail: m.slice(0, 160) };
+  if (/delayRender\(\)/i.test(m)) return { family: "Timeout delayRender (média trop lent à charger)", detail: m.slice(0, 160) };
+  if (/row-level security/i.test(m)) return { family: "RLS : écriture refusée (droits)", detail: m.slice(0, 160) };
+  if (/cancelled|Annulé/i.test(m)) return { family: "Annulé / interrompu", detail: m.slice(0, 160) };
+  if (/Command failed with exit code/i.test(m)) return { family: "Échec du process de rendu (exit code)", detail: m.slice(0, 160) };
+  return { family: "Autre", detail: m.slice(0, 160) };
+}
+
 
 const fmtUsd = (n: number) => `$${n.toFixed(4)}`;
 const fmtNum = (n: number) => n.toLocaleString("fr-FR");
@@ -143,7 +163,7 @@ export default function VideoDashboardPanel() {
           .limit(5000),
         supabase
           .from("video_jobs")
-          .select("id,created_at,user_id,business_id,status,title,duration_sec,template_id")
+          .select("id,created_at,user_id,business_id,status,title,duration_sec,template_id,error_message")
           .gte("created_at", since)
           .order("created_at", { ascending: false })
           .limit(2000),
@@ -337,6 +357,68 @@ export default function VideoDashboardPanel() {
       <StatsTable title="Classement établissements" help="Regroupement par business_id. Les vidéos Corporate (sans établissement) sont exclues de ce classement." rows={byBusiness.map(([k, v]) => ({ key: k, label: businessNames[k] || k.slice(0, 8), ...v }))} />
       <StatsTable title="Top 30 utilisateurs" help="Les 30 comptes ayant lancé le plus de vidéos (puis le plus de coût). Le libellé affiche le nom/email de l'affilié, du membre Club ou le rôle staff." rows={byUser.map(([k, v]) => ({ key: k, label: userLabels[k] || k.slice(0, 8), ...v }))} />
       <StatsTable title="Par modèle IA" help="Coût et tokens ventilés par modèle appelé via la passerelle IA. Sans colonne vidéos : un job vidéo peut mobiliser plusieurs modèles." rows={byModel.map(([k, v]) => ({ key: k, label: k, ...v }))} hideVideos />
+
+      {(() => {
+        const errJobs = jobs.filter((j) => j.status === "error");
+        const groups = new Map<string, number>();
+        for (const j of errJobs) {
+          const f = errorFamily(j.error_message).family;
+          groups.set(f, (groups.get(f) || 0) + 1);
+        }
+        const ranked = [...groups.entries()].sort((a, b) => b[1] - a[1]);
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-1.5">
+                Jobs en erreur — causes
+                <Help text="Chaque job au statut « error » est classé par famille de cause, à partir de son message d'erreur brut (error_message renvoyé par le rendu Remotion / GitHub Actions). Un job en erreur a déjà consommé le coût IA du scénario et des minutes de runner : c'est le premier poste d'économie." />
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {errJobs.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Aucun job en erreur sur la période.</p>
+              ) : (
+                <>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Cause</TableHead>
+                        <TableHead className="text-right">Jobs</TableHead>
+                        <TableHead className="text-right">%</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {ranked.map(([f, n]) => (
+                        <TableRow key={f}>
+                          <TableCell className="font-medium">{f}</TableCell>
+                          <TableCell className="text-right">{fmtNum(n)}</TableCell>
+                          <TableCell className="text-right">{Math.round((n / errJobs.length) * 100)}%</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+
+                  <div className="space-y-2">
+                    {errJobs.slice(0, 20).map((j) => {
+                      const { family, detail } = errorFamily(j.error_message);
+                      return (
+                        <div key={j.id} className="rounded-md border border-border p-2 text-xs space-y-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-muted-foreground">{fmtDate(j.created_at)}</span>
+                            <span className="font-medium">{j.business_id ? (businessNames[j.business_id] || "—") : "Corporate"}</span>
+                            <Badge variant="destructive">{family}</Badge>
+                          </div>
+                          <div className="break-all text-muted-foreground">{detail}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })()}
 
 
       <Card>
