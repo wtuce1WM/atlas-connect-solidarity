@@ -3867,8 +3867,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           </>
         );
       }
-      case "cta":
-      case "outro": {
+      case "cta": {
         const it = (sm.cta || [])[0] ?? outroItem;
         return (
           <>
@@ -3885,6 +3884,17 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           </>
         );
       }
+      // Outro : clôture de marque distincte de l'appel à l'action (fond de marque,
+      // logo One World Morocco et signature du site, sans visuel d'établissement).
+      case "outro": {
+        return (
+          <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
+            <Background />
+            <SceneCta name={name} textPosition={textPosition} />
+          </AbsoluteFill>
+        );
+      }
+
     }
   };
 
