@@ -696,6 +696,16 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         if (Object.keys(cleaned).length) template_props.scene_media = cleaned;
       }
 
+      // Refus explicite de l'image associée par défaut d'une étape (bloc, popup, lien externe…)
+      const rawAssoc = options?.use_associated_media;
+      if (rawAssoc && typeof rawAssoc === "object") {
+        const assoc: Record<string, boolean> = {};
+        for (const [k, v] of Object.entries(rawAssoc)) {
+          if (v === false) assoc[k] = false;
+        }
+        if (Object.keys(assoc).length) template_props.use_associated_media = assoc;
+      }
+
       // Étapes personnalisées ajoutées par l'utilisateur dans l'aperçu (carton texte ou overlay).
       // Whitelist stricte : URL média doit appartenir aux médias autorisés.
       const rawCustomScenes = options?.custom_scenes;

@@ -26,6 +26,7 @@ import boZinAsset from "@/assets/bo-zin.mp4.asset.json";
 
 import { collectRatingSources, computeWeightedRatingOn20, getTotalReviewCount, formatRating } from "@/lib/ratingUtils";
 import type { PlaceOption } from "@/components/StudioVideoScenarioPanel";
+import { useVideoScenarioSteps, applyStepsConfig, configOrder } from "@/hooks/useVideoScenarioSteps";
 
 const maisonBrummellVideo = maisonBrummellAsset.url;
 const riadDarNajatVideo = riadDarNajatAsset.url;
@@ -1396,9 +1397,12 @@ export default function StudioVideo() {
 
 
 
+  // Configuration backoffice des étapes (ordre + durées) — /staff/backoffice/videos
+  const scenarioStepConfig = useVideoScenarioSteps(studioMode === "corporate" ? "corporate" : "business");
+
   const scenario = useMemo(() => {
     if (!prompt.trim() || prompt.length < 20) return null;
-    return buildScenario(prompt, selected?.name ?? null, effectiveDuration, {
+    const built = buildScenario(prompt, selected?.name ?? null, effectiveDuration, {
       reviews: optReviews,
       hours: optHours,
       mapMarker: optMapMarker,
@@ -1412,15 +1416,18 @@ export default function StudioVideo() {
       welcomeText: welcomeSceneText,
       propositionText: propositionSceneText,
     });
-  }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optOpenWithLogo, logoInfo, optWhatsapp, whatsappNumber, fromVideoOn, synthTitle, welcomeSceneText, propositionSceneText]);
+    return applyStepsConfig(built as any, scenarioStepConfig) as typeof built;
+  }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optOpenWithLogo, logoInfo, optWhatsapp, whatsappNumber, fromVideoOn, synthTitle, welcomeSceneText, propositionSceneText, scenarioStepConfig]);
 
-  // Ordre du montage : l'IA ne décide plus du déroulé. On impose l'ordre des étapes
-  // cochées dans « Éléments à inclure dans la vidéo » (référence = scénario local).
+  // Ordre du montage : l'IA ne décide plus du déroulé. On impose l'ordre défini en
+  // backoffice (Vidéos / Scénario), sinon les étapes cochées dans « Éléments à inclure ».
   // Si l'utilisateur a réordonné manuellement dans l'aperçu, son ordre reste prioritaire.
-  const referenceKindOrder = useMemo<string[]>(
-    () => (scenario?.scenes ?? []).map((s: any) => String(s.icon)),
-    [scenario],
-  );
+  const referenceKindOrder = useMemo<string[]>(() => {
+    const cfg = configOrder(scenarioStepConfig);
+    if (cfg.length > 0) return cfg;
+    return (scenario?.scenes ?? []).map((s: any) => String(s.icon));
+  }, [scenario, scenarioStepConfig]);
+
   const applyReferenceOrder = (order?: string[] | null, manual?: boolean): string[] | undefined => {
     if (manual) return order ?? undefined;
     if (!Array.isArray(order) || order.length === 0) return order ?? undefined;
@@ -1634,6 +1641,7 @@ export default function StudioVideo() {
             scene_destinations: scenarioEdits?.sceneDestinations,
             places_media_mode: scenarioEdits?.placesMediaMode ?? "videos",
             whatsapp_offer_mode: scenarioEdits?.whatsappOfferMode ?? "number",
+            use_associated_media: scenarioEdits?.useAssociatedMedia ?? undefined,
             blog_articles: optBlogArticles && selectedBlogIds.size > 0,
             blog_article_ids: Array.from(selectedBlogIds),
             blog_mode: blogMode,
@@ -1888,6 +1896,7 @@ export default function StudioVideo() {
             scene_destinations: scenarioEdits?.sceneDestinations,
             places_media_mode: scenarioEdits?.placesMediaMode ?? "videos",
             whatsapp_offer_mode: scenarioEdits?.whatsappOfferMode ?? "number",
+            use_associated_media: scenarioEdits?.useAssociatedMedia ?? undefined,
             blog_articles: optBlogArticles && selectedBlogIds.size > 0,
             blog_article_ids: Array.from(selectedBlogIds),
             blog_mode: blogMode,
@@ -1939,8 +1948,13 @@ export default function StudioVideo() {
       if (error) throw error;
       const payload = data as any;
       const scenario = scenarioFromTemplateProps(payload.template_id, payload.template_props, payload.duration_sec ?? effectiveDuration, payload.rationale);
-      // L'IA ne décide pas du déroulé : on réordonne selon les étapes cochées.
-      if (Array.isArray(scenario?.scenes) && referenceKindOrder.length > 0) {
+      // L'IA ne décide pas du déroulé : on applique la config backoffice (ordre + durées),
+      // sinon l'ordre des étapes cochées.
+      if (Array.isArray(scenario?.scenes) && scenarioStepConfig.length > 0) {
+        const fixed = applyStepsConfig(scenario as any, scenarioStepConfig) as any;
+        scenario.scenes = fixed.scenes;
+        scenario.totalDuration = fixed.totalDuration;
+      } else if (Array.isArray(scenario?.scenes) && referenceKindOrder.length > 0) {
         const rank = (k: string) => {
           const i = referenceKindOrder.indexOf(k);
           return i === -1 ? Number.MAX_SAFE_INTEGER : i;

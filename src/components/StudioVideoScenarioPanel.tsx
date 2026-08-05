@@ -452,9 +452,15 @@ function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenar
 
 
 function sceneKindFor(icon: Scene["icon"]): SceneMediaKind | null {
-  if (icon === "custom" || icon === "popup" || icon === "highlight" || icon === "blog") return null;
+  // Toutes les cartes (sauf les étapes personnalisées, gérées à part) peuvent recevoir
+  // des médias assignés depuis la galerie de l'établissement.
+  if (icon === "custom") return null;
   return icon as SceneMediaKind;
 }
+
+/** Étapes possédant une image « associée » par défaut (bloc, popup, lien externe). */
+const ASSOC_MEDIA_KINDS = new Set<string>(["highlight", "popup", "external_link"]);
+
 
 const isCustomToken = (t: string) => t.startsWith("custom:");
 const customIdFromToken = (t: string) => t.slice("custom:".length);
@@ -525,6 +531,12 @@ export type ScenarioEdits = {
   /** Ville (slug) du Widget Marées, Vents & Météo, choisie dans la carte de l'étape. */
   tidesCity?: string;
   /** Durée totale réelle du scénario après édition (secondes). */
+  /**
+   * Utilisation de l'image associée par défaut d'une étape (bloc, popup, lien externe…).
+   * Clé = kind, valeur `false` = ne pas utiliser l'image associée (le rendu retombe sur
+   * les médias assignés, sinon sur la règle « aucun média assigné »).
+   */
+  useAssociatedMedia?: Record<string, boolean>;
   totalDuration?: number;
 };
 
@@ -592,6 +604,8 @@ export function StudioVideoScenarioPanel({
   // Ville des étapes widgets (Météo / Marées) — sélectionnée dans la carte de l'étape.
   const [weatherCity, setWeatherCity] = useState<string>("");
   const [tidesCity, setTidesCity] = useState<string>("");
+  // Étapes pour lesquelles l'utilisateur refuse l'image associée par défaut. Clé = kind.
+  const [assocMediaOff, setAssocMediaOff] = useState<Record<string, boolean>>({});
   const [placesSceneKey, setPlacesSceneKey] = useState<string | null>(null);
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
   const [addOpenInternal, setAddOpenInternal] = useState(false);
@@ -726,7 +740,8 @@ export function StudioVideoScenarioPanel({
     const hasWaOffer = whatsappOfferMode !== "number";
     const hasWeatherCity = !!weatherCity;
     const hasTidesCity = !!tidesCity;
-    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits && !hasSegments && !hasTextOv && !hasPois && !hasDests && !hasWaOffer && !hasWeatherCity && !hasTidesCity) {
+    const hasAssocOff = Object.values(assocMediaOff).some(Boolean);
+    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits && !hasSegments && !hasTextOv && !hasPois && !hasDests && !hasWaOffer && !hasWeatherCity && !hasTidesCity && !hasAssocOff) {
       onChangeScenarioEdits(null);
       return;
     }
@@ -787,10 +802,18 @@ export function StudioVideoScenarioPanel({
       whatsappOfferMode: hasWaOffer ? whatsappOfferMode : undefined,
       weatherCity: hasWeatherCity ? weatherCity : undefined,
       tidesCity: hasTidesCity ? tidesCity : undefined,
+      useAssociatedMedia: hasAssocOff
+        ? Object.fromEntries(
+            Object.keys(assocMediaOff)
+              .filter((k) => assocMediaOff[k])
+              .map((k) => [k, false]),
+          )
+        : undefined,
       totalDuration: editedScenes.reduce((acc, s) => acc + s.duration, 0),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, segmentOverrides, textOverrides, poiOverrides, destOverrides, placesMediaMode, whatsappOfferMode, weatherCity, tidesCity, editedScenes]);
+  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, segmentOverrides, textOverrides, poiOverrides, destOverrides, placesMediaMode, whatsappOfferMode, weatherCity, tidesCity, assocMediaOff, editedScenes]);
+
 
   const total = editedScenes.reduce((acc, s) => acc + s.duration, 0);
   // Étapes d'origine supprimées (built-in retirées de l'ordre)
@@ -1370,6 +1393,21 @@ export function StudioVideoScenarioPanel({
                   );
                 })()}
 
+              {editable && kind && ASSOC_MEDIA_KINDS.has(String(kind)) && (
+                <label className="mt-3 flex items-center gap-2 text-[11px] text-neutral-600">
+                  <input
+                    type="checkbox"
+                    checked={!assocMediaOff[String(kind)]}
+                    onChange={(e) =>
+                      setAssocMediaOff((prev) => ({ ...prev, [String(kind)]: !e.target.checked }))
+                    }
+                  />
+                  Utiliser l'image associée à cette étape
+                  <span className="text-neutral-400">
+                    (décochée : médias assignés, sinon règle « aucun média assigné »)
+                  </span>
+                </label>
+              )}
               {editable && kind && (
                 <SceneMediaSlot
                   kind={kind}

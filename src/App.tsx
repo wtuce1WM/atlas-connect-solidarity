@@ -73,6 +73,7 @@ const Join = JoinEager;
 const SearchAnalytics = lazy(() => import("./pages/SearchAnalytics"));
 const StaffMaster = lazy(() => import("./pages/StaffMaster"));
 const StaffIA = lazy(() => import("./pages/StaffIA"));
+const StaffVideos = lazy(() => import("./pages/StaffVideos"));
 const StaffBlog = lazy(() => import("./pages/StaffBlog"));
 const StaffB2B = lazy(() => import("./pages/StaffB2B"));
 const StaffTranslations = lazy(() => import("./pages/StaffTranslations"));
@@ -200,7 +201,8 @@ const LocalizedRoutes = () => {
               <Route path="/staff/backoffice/diagnostic" element={<Suspense fallback={null}><StaffRouteGuard>{renderLazyRoute(<PreviewDiagnostic />)}</StaffRouteGuard></Suspense>} />
               <Route path="/en/widgets" element={renderLazyRoute(<Widgets />)} />
               <Route path="/ar/widgets" element={renderLazyRoute(<Widgets />)} />
-              
+              <Route path="/staff/backoffice/videos" element={<Suspense fallback={null}><StaffRouteGuard>{renderLazyRoute(<StaffVideos />)}</StaffRouteGuard></Suspense>} />
+
               {/* Custom-layout blog articles (kept as React components — fetch dynamic data) */}
               <Route path="/blog/5-jours-marrakech-artisanat" element={renderLazyRoute(<MarrakechArtisanat5Jours />)} />
               <Route path="/blog/galeries-art-marrakech" element={renderLazyRoute(<MarrakechGaleriesArt />)} />

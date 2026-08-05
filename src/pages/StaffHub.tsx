@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, BookOpen, Users, Shield, Star, Sparkles, Briefcase, Building2, BadgeCheck, MapPin, LayoutGrid, Save, StickyNote, Presentation, Newspaper, Blocks, Stethoscope } from "lucide-react";
+import { LogOut, BookOpen, Users, Shield, Star, Sparkles, Briefcase, Building2, BadgeCheck, MapPin, LayoutGrid, Save, StickyNote, Presentation, Newspaper, Blocks, Stethoscope, Clapperboard } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import RichTextEditor from "@/components/staff/RichTextEditor";
 import { toast } from "sonner";
@@ -215,6 +215,15 @@ const StaffHub = () => {
       href: "/staff/backoffice/diagnostic",
       color: "from-slate-500/20 to-zinc-500/10",
       iconColor: "text-slate-600",
+      adminOnly: true,
+    },
+    {
+      title: "Vidéos",
+      description: "Configuration du Studio Vidéo IA : ordre et durée des étapes du scénario (établissement / corporate).",
+      icon: Clapperboard,
+      href: "/staff/backoffice/videos",
+      color: "from-fuchsia-500/20 to-rose-500/10",
+      iconColor: "text-fuchsia-600",
       adminOnly: true,
     },
   ];
