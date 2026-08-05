@@ -684,6 +684,8 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
                   )}
                 </div>
               )}
+            </div>
+
 
 
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-black/70 text-white text-sm rounded-full backdrop-blur-sm">
