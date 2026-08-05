@@ -7278,6 +7278,7 @@ export type Database = {
           created_at: string
           duration_sec: number
           error_message: string | null
+          gallery_sort_order: number | null
           id: string
           notify_email: boolean
           notify_email_to: string | null
@@ -7298,6 +7299,7 @@ export type Database = {
           created_at?: string
           duration_sec?: number
           error_message?: string | null
+          gallery_sort_order?: number | null
           id?: string
           notify_email?: boolean
           notify_email_to?: string | null
@@ -7318,6 +7320,7 @@ export type Database = {
           created_at?: string
           duration_sec?: number
           error_message?: string | null
+          gallery_sort_order?: number | null
           id?: string
           notify_email?: boolean
           notify_email_to?: string | null
