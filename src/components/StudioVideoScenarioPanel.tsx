@@ -740,7 +740,8 @@ export function StudioVideoScenarioPanel({
     const hasWaOffer = whatsappOfferMode !== "number";
     const hasWeatherCity = !!weatherCity;
     const hasTidesCity = !!tidesCity;
-    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits && !hasSegments && !hasTextOv && !hasPois && !hasDests && !hasWaOffer && !hasWeatherCity && !hasTidesCity) {
+    const hasAssocOff = Object.values(assocMediaOff).some(Boolean);
+    if (!hasOrder && !hasDurations && !hasCustom && !hasSplits && !hasSegments && !hasTextOv && !hasPois && !hasDests && !hasWaOffer && !hasWeatherCity && !hasTidesCity && !hasAssocOff) {
       onChangeScenarioEdits(null);
       return;
     }
