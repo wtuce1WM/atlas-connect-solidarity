@@ -131,18 +131,30 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState(MODES[0].value);
   const [length, setLength] = useState("short");
+  const [style, setStyle] = useState("default");
   const [extra, setExtra] = useState("");
   const [generating, setGenerating] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [lockedIds, setLockedIds] = useState<string[]>([]);
   const [pristine, setPristine] = useState<Record<string, string>>({});
+  const [biz, setBiz] = useState<Record<string, any> | null>(null);
+  const [selectedUrls, setSelectedUrls] = useState<string[]>([]);
+
+  const detect = (fields: Array<[string, string]>) =>
+    fields
+      .map(([k, label]) => ({ key: k, label, url: String(biz?.[k] ?? "").trim() }))
+      .filter((f) => !!f.url);
+
+  const menuLinks = useMemo(() => detect(MENU_FIELDS), [biz]);
+  const externalLinks = useMemo(() => detect(EXTERNAL_FIELDS), [biz]);
+  const activeLinks = mode === "menu_links" ? menuLinks : mode === "external_links" ? externalLinks : [];
 
   const snapshot = (t: AiText) => JSON.stringify([t.title, t.hook, t.content, t.is_active]);
   const isDirty = (t: AiText) => pristine[t.id] !== undefined && pristine[t.id] !== snapshot(t);
 
   const load = async () => {
     setLoading(true);
-    const [{ data, error }, linkRes] = await Promise.all([
+    const [{ data, error }, linkRes, bizRes] = await Promise.all([
       supabase
         .from("business_ai_texts")
         .select(SELECT_COLS)
@@ -152,6 +164,11 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
         .from("business_embed_ai_item_links")
         .select("ai_text_ids")
         .eq("business_id", businessId),
+      (supabase as any)
+        .from("businesses")
+        .select([...MENU_FIELDS, ...EXTERNAL_FIELDS].map(([k]) => k).join(","))
+        .eq("id", businessId)
+        .maybeSingle(),
     ]);
     if (error) toast.error("Chargement impossible : " + error.message);
     const list = (data as AiText[]) ?? [];
@@ -162,20 +179,41 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
       for (const id of (Array.isArray(row.ai_text_ids) ? row.ai_text_ids : [])) locked.add(String(id));
     }
     setLockedIds([...locked]);
+    setBiz(((bizRes as any)?.data as Record<string, any>) ?? null);
     setLoading(false);
   };
 
   useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [businessId]);
+
+  // À chaque changement de source, on présélectionne tous les liens détectés.
+  useEffect(() => {
+    setSelectedUrls(activeLinks.map((l) => l.url));
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [mode, biz]);
+
+  const toggleUrl = (url: string) =>
+    setSelectedUrls((prev) => (prev.includes(url) ? prev.filter((u) => u !== url) : [...prev, url]));
 
   const generate = async () => {
     if (texts.length >= MAX_TEXTS) {
       toast.error(`Maximum ${MAX_TEXTS} textes IA par établissement.`);
       return;
     }
+    if ((mode === "menu_links" || mode === "external_links") && selectedUrls.length === 0) {
+      toast.error("Sélectionnez au moins un lien.");
+      return;
+    }
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-business-ai-text", {
-        body: { business_id: businessId, mode, length, extra_instructions: extra },
+        body: {
+          business_id: businessId,
+          mode,
+          length,
+          style,
+          extra_instructions: extra,
+          urls: mode === "menu_links" || mode === "external_links" ? selectedUrls : [],
+        },
       });
       if (error) throw error;
       if ((data as any)?.error) {
@@ -187,10 +225,12 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
         .from("business_ai_texts")
         .insert({
           business_id: businessId,
-          title, hook, content,
+          title, hook,
+          content: toHtml(content),
           source_mode: mode,
           position: texts.length,
           length_mode: length,
+          style_mode: style,
           extra_instructions: extra.trim() || null,
         })
         .select(SELECT_COLS)
@@ -205,6 +245,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
       setGenerating(false);
     }
   };
+
 
   const addEmpty = async () => {
     if (texts.length >= MAX_TEXTS) {
