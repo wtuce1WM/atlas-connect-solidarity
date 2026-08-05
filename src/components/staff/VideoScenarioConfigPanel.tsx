@@ -106,15 +106,31 @@ const STEP_DOCS: Record<string, { what: string; filter: string; notes?: string }
     notes: "Un plan par média ; les médias déjà utilisés ailleurs sont évités par rotation ; vidéos lues avec son coupé.",
   },
   reviews: {
-    what: "Note globale et nombre d'avis, en carte animée.",
-    filter: "Incluse si « Avis » est cochée ET qu'une note ou un nombre d'avis existe.",
-    notes: "Étoiles animées + compteur ; média de fond par rotation ou média assigné.",
+    what: "Badge de note agrégée sur 20 + nombre total d'avis clients (moyenne pondérée des 9 plateformes : Google, Tripadvisor, Restaurant Guru, GetYourGuide, Viator, Avis Vérifiés, Trustpilot, Kayak, TourRadar).",
+    filter: "Incluse si « Avis clients » est cochée ET qu'une note agrégée ou un nombre d'avis existe (seuil minimum d'avis requis).",
+    notes: "Badge doré « note/20 » animé + compteur d'avis qui s'incrémente ; média de fond par rotation ou média assigné.",
   },
   google_review: {
-    what: "Avis Google mis en avant (extrait + note source).",
-    filter: "Incluse si un avis Google exploitable est disponible.",
-    notes: "Un extrait tronqué proprement en fin de phrase ; les variantes Tripadvisor / Restaurant Guru / avis client suivent la même logique.",
+    what: "Avis Google mis en avant : note Google, nombre d'avis Google et extrait de commentaire.",
+    filter: "Incluse si une note/un avis Google exploitable est disponible sur la fiche.",
+    notes: "Un extrait tronqué proprement en fin de phrase ; logo/mention source Google ; média de fond par rotation.",
   },
+  tripadvisor: {
+    what: "Avis Tripadvisor : note Tripadvisor, nombre d'avis et extrait éventuel.",
+    filter: "Incluse si la fiche a une note et/ou un nombre d'avis Tripadvisor.",
+    notes: "Même rendu que la carte Avis Google (mention source Tripadvisor) ; 3s par défaut ; média de fond par rotation.",
+  },
+  restaurant_guru: {
+    what: "Avis Restaurant Guru : note et nombre d'avis Restaurant Guru.",
+    filter: "Incluse si la fiche a une note et/ou un nombre d'avis Restaurant Guru.",
+    notes: "Même rendu que la carte Avis Google (mention source Restaurant Guru) ; 3s par défaut ; média de fond par rotation.",
+  },
+  customer_review: {
+    what: "Avis client One World Morocco (verbatim sélectionné dans Studio Vidéo IA).",
+    filter: "Incluse si un avis client interne est sélectionné dans l'étape.",
+    notes: "Citation + auteur + note ; texte tronqué en fin de phrase si trop long ; média de fond par rotation.",
+  },
+
   hours: {
     what: "Horaires d'ouverture de la semaine.",
     filter: "Incluse si « Horaires » est cochée ET que des horaires sont renseignés.",
