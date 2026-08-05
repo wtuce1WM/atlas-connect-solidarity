@@ -379,7 +379,7 @@ export default function VideoDashboardPanel() {
   );
 }
 
-function StatsTable({ title, rows, hideVideos }: { title: string; rows: { key: string; label: string; calls: number; tokens: number; cost: number; videos: number }[]; hideVideos?: boolean }) {
+function StatsTable({ title, help, rows, hideVideos }: { title: string; help?: string; rows: { key: string; label: string; calls: number; tokens: number; cost: number; videos: number }[]; hideVideos?: boolean }) {
   const sum = rows.reduce(
     (acc, r) => ({ videos: acc.videos + r.videos, calls: acc.calls + r.calls, tokens: acc.tokens + r.tokens, cost: acc.cost + r.cost }),
     { videos: 0, calls: 0, tokens: 0, cost: 0 }
@@ -387,7 +387,10 @@ function StatsTable({ title, rows, hideVideos }: { title: string; rows: { key: s
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{title}</CardTitle>
+        <CardTitle className="text-base flex items-center gap-1.5">
+          {title}
+          {help && <Help text={help} />}
+        </CardTitle>
         <p className="text-xs text-muted-foreground">Coût total = cumul sur la période. Coût / vidéo = coût total ÷ vidéos lancées.</p>
       </CardHeader>
       <CardContent>
@@ -396,8 +399,15 @@ function StatsTable({ title, rows, hideVideos }: { title: string; rows: { key: s
             <TableHeader>
               <TableRow>
                 <TableHead>Nom</TableHead>
-                {!hideVideos && <TableHead className="text-right">Vidéos</TableHead>}
-                <TableHead className="text-right">Appels IA</TableHead>
+                {!hideVideos && (
+                  <TableHead className="text-right">
+                    <span className="inline-flex items-center gap-1">Vidéos <Help text="Nombre de jobs vidéo (video_jobs) créés sur la période pour cette ligne, tous statuts confondus." /></span>
+                  </TableHead>
+                )}
+                <TableHead className="text-right">
+                  <span className="inline-flex items-center gap-1">Appels IA <Help text="Nombre de générations de scénario IA. Souvent supérieur au nombre de vidéos (régénérations avant montage)." /></span>
+                </TableHead>
+
                 <TableHead className="text-right">Tokens</TableHead>
                 <TableHead className="text-right">Coût total</TableHead>
                 {!hideVideos && <TableHead className="text-right">Coût / vidéo</TableHead>}
