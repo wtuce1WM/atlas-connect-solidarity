@@ -1,6 +1,6 @@
 /// <reference types="@types/google.maps" />
 import { useEffect, useRef, useState, useMemo } from "react";
-import { Loader2, Maximize2, Minimize2 } from "lucide-react";
+import { Loader2, Maximize2, Minimize2, Plus, Minus } from "lucide-react";
 import goldPinUrl from "@/assets/location-pin-gold.webp";
 
 export interface PoiMapItem {
@@ -377,6 +377,13 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   const distanceOriginRef = useRef(distanceOrigin);
   useEffect(() => { distanceOriginRef.current = distanceOrigin; }, [distanceOrigin]);
 
+  // Current center ref for anchored zoom handlers (avoids stale closures)
+  const centerRef = useRef(center);
+  useEffect(() => { centerRef.current = center; }, [center]);
+
+  // Zoom helper shared by wheel, dblclick and zoom buttons
+  const applyAnchoredZoomRef = useRef<(newZoom: number) => void>(() => {});
+
   // Load Google Maps
   useEffect(() => {
     loadGoogleMaps().then(() => setReady(true)).catch(console.error);
@@ -467,6 +474,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       streetViewControl: false,
       fullscreenControl: false,
       zoomControl: false,
+      scrollwheel: false,
+      disableDoubleClickZoom: true,
       gestureHandling: "greedy",
       clickableIcons: false,
     };
@@ -483,16 +492,75 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     }
     mapRef.current = new gmaps.Map(containerRef.current, opts);
     infoWindowRef.current = new gmaps.InfoWindow();
-    // Dès que l'utilisateur navigue (drag, zoom, double-clic), on abandonne
-    // définitivement la contrainte de centrage du marqueur Master.
+
+    // Zoom helper: keep the Master marker at the same screen pixel while zooming
+    applyAnchoredZoomRef.current = (newZoom: number) => {
+      const map = mapRef.current;
+      if (!map || !gmaps) return;
+      const currentZoom = map.getZoom() ?? 13;
+      if (newZoom === currentZoom) return;
+      const anchor = centerRef.current;
+      const currentCenter = map.getCenter();
+      if (!anchor || !currentCenter) {
+        map.setZoom(newZoom);
+        return;
+      }
+      const projection = map.getProjection();
+      if (!projection) {
+        map.setZoom(newZoom);
+        return;
+      }
+      const anchorWorld = projection.fromLatLngToPoint(new gmaps.LatLng(anchor.lat, anchor.lng));
+      const centerWorld = projection.fromLatLngToPoint(currentCenter);
+      const scaleFactor = Math.pow(2, currentZoom - newZoom);
+      const newCenterWorld = new gmaps.Point(
+        anchorWorld.x + (centerWorld.x - anchorWorld.x) * scaleFactor,
+        anchorWorld.y + (centerWorld.y - anchorWorld.y) * scaleFactor,
+      );
+      map.setZoom(newZoom);
+      map.setCenter(projection.fromPointToLatLng(newCenterWorld));
+    };
+
+    // Wheel / trackpad pinch zoom — anchored on the Master marker
+    const handleWheel = (e: WheelEvent) => {
+      const isZoomGesture = e.ctrlKey || e.metaKey || Math.abs(e.deltaY) > Math.abs(e.deltaX);
+      if (!isZoomGesture) return;
+      e.preventDefault();
+      const map = mapRef.current;
+      if (!map) return;
+      const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 100 : 1);
+      const currentZoom = map.getZoom() ?? 13;
+      const deltaZoom = -dy * 0.0018;
+      const newZoom = Math.max(4, Math.min(20, Math.round((currentZoom + deltaZoom) * 10) / 10));
+      applyAnchoredZoomRef.current(newZoom);
+    };
+
+    // Double-click zoom — also anchored on the Master marker
+    const handleDblClick = (e: MouseEvent) => {
+      e.preventDefault();
+      const map = mapRef.current;
+      if (!map) return;
+      const currentZoom = map.getZoom() ?? 13;
+      applyAnchoredZoomRef.current(Math.min(20, currentZoom + 1));
+    };
+
+    // Dès que l'utilisateur déplace la carte, on abandonne le recentrage automatique.
     const markUserMoved = () => { userMovedRef.current = true; };
     mapRef.current.addListener("dragstart", markUserMoved);
-    mapRef.current.addListener("dblclick", markUserMoved);
-    containerRef.current.addEventListener("wheel", markUserMoved, { passive: true });
+
+    const container = containerRef.current;
+    container.addEventListener("wheel", handleWheel, { passive: false });
+    container.addEventListener("dblclick", handleDblClick, { passive: false });
+
     mapRef.current.addListener("click", () => {
       openInfoPoiIdRef.current = null;
       infoWindowRef.current?.close();
     });
+
+    return () => {
+      container.removeEventListener("wheel", handleWheel);
+      container.removeEventListener("dblclick", handleDblClick);
+    };
   }, [ready, center, centerAtBottomRatio]);
 
   useEffect(() => {
@@ -1034,6 +1102,20 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     animateRafRef.current = requestAnimationFrame(animate);
   }).current;
 
+  const zoomIn = () => {
+    const map = mapRef.current;
+    if (!map) return;
+    const currentZoom = map.getZoom() ?? 13;
+    applyAnchoredZoomRef.current(Math.min(20, currentZoom + 1));
+  };
+
+  const zoomOut = () => {
+    const map = mapRef.current;
+    if (!map) return;
+    const currentZoom = map.getZoom() ?? 13;
+    applyAnchoredZoomRef.current(Math.max(4, currentZoom - 1));
+  };
+
   if (!ready) {
     return (
       <div className="flex h-full items-center justify-center bg-map-surface">
@@ -1047,6 +1129,26 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       <style>{`.gm-style { background-color: hsl(var(--map-surface)) !important; } .gm-style .gm-style-iw-chr { display: none !important; } .gm-style .gm-style-iw { padding: 0 !important; background: transparent !important; box-shadow: none !important; border-radius: 10px !important; } .gm-style .gm-style-iw-d { overflow: hidden !important; background: transparent !important; } .gm-style .gm-style-iw-tc { display: none !important; } .gm-style .gm-style-iw-t::after { display: none !important; } .gm-style .gm-fullscreen-control { display: none !important; } .gm-style .gm-bundled-control button[aria-label*="location" i], .gm-style .gm-bundled-control button[aria-label*="position" i], .gm-style .gm-bundled-control button[title*="location" i], .gm-style button.gm-control-active[draggable="false"][aria-label] { display: none !important; } .gm-style .gmnoprint[role="menubar"] ~ .gmnoprint:not([role]) { display: none !important; }`}</style>
       <div ref={mapShellRef} className="relative h-full w-full overflow-hidden bg-map-surface" style={{ opacity: mapOpacity, transition: "opacity 0.25s ease-in-out" }}>
         <div ref={containerRef} className="h-full w-full bg-map-surface" />
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex flex-col gap-1">
+          <button
+            type="button"
+            onClick={zoomIn}
+            className="flex items-center justify-center w-8 h-8 rounded bg-white/90 backdrop-blur-sm shadow-lg ring-1 ring-black/10 text-black/80 hover:text-black hover:bg-white transition-colors"
+            aria-label="Zoomer"
+            title="Zoomer"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={zoomOut}
+            className="flex items-center justify-center w-8 h-8 rounded bg-white/90 backdrop-blur-sm shadow-lg ring-1 ring-black/10 text-black/80 hover:text-black hover:bg-white transition-colors"
+            aria-label="Dézoomer"
+            title="Dézoomer"
+          >
+            <Minus className="h-4 w-4" />
+          </button>
+        </div>
         {showLayerControls && (
           <div className="absolute bottom-3 right-3 z-10 flex flex-col gap-[1px] rounded-sm overflow-hidden shadow-[0_1px_4px_rgba(0,0,0,0.3)]" style={{ fontFamily: "Roboto, Arial, sans-serif" }}>
             <button
