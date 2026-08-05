@@ -122,6 +122,11 @@ Deno.serve(async (req) => {
     const extra = String(body?.extra_instructions ?? "").slice(0, 500);
     const lengthKey = LENGTH_SPECS[String(body?.length ?? "")] ? String(body.length) : "short";
     const len = LENGTH_SPECS[lengthKey];
+    const styleKey = STYLE_BRIEFS[String(body?.style ?? "")] ? String(body.style) : "default";
+    const requestedUrls: string[] = Array.isArray(body?.urls)
+      ? body.urls.map((u: unknown) => String(u ?? "").trim()).filter(Boolean).slice(0, 6)
+      : [];
+
 
     if (!businessId || !MODE_BRIEFS[mode]) {
       return new Response(JSON.stringify({ error: "business_id et mode valides requis" }), {
