@@ -4429,17 +4429,9 @@ export default function StudioVideo() {
                 <li><strong>Popup de bienvenue</strong> : injecte l'image popup avec titre/description dans les directives IA.</li>
                 <li><strong>Offres</strong> (par offre cochée) : une scène offer par offre avec titre, prix, bullets et fond dédié.</li>
                 <li><strong>Highlights</strong> (par bloc coché) : blocs highlights transmis comme directives au scénario IA.</li>
-                <li>
-                  <strong>Séquence de fin fixe</strong> : verrouille la fin du montage dans un ordre imposé
-                  — <em>offre(s) → WhatsApp → récap / CTA final</em> (puis outro si « Incitation finale à installer l'app » est cochée).
-                  Ces étapes sont déplacées en fin de scénario, quel que soit l'ordre proposé par l'IA. Décochée, l'IA garde
-                  la main sur la fin du montage : le final peut alors varier d'une génération à l'autre (une offre peut par
-                  exemple rester au milieu). C'est une option de <strong>cohérence commerciale</strong> : on termine toujours
-                  par l'offre, le contact WhatsApp puis l'appel à l'action.
-                </li>
               </ul>
               <p className="text-xs pt-1">
-                Ordre par défaut : logo → hook → name → media → offre(s) → avis → horaires → map → digital → CTA.
+                Ordre du montage : celui des étapes cochées ci-dessus (l'IA ne décide pas du déroulé). Il reste modifiable manuellement dans l'aperçu du scénario.
                 Vous pouvez réordonner et ajuster les durées dans l'aperçu du scénario avant le rendu.
               </p>
             </div>
