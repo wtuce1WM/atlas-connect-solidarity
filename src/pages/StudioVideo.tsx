@@ -486,6 +486,10 @@ export default function StudioVideo() {
   const [selectedHighlightIds, setSelectedHighlightIds] = useState<Set<string>>(new Set());
   // Résumés IA du menu (business_menu_summaries)
   const [aiSummariesList, setAiSummariesList] = useState<Array<{ id: string; title: string; content: string }>>([]);
+  // Textes IA du Master (business_ai_texts) — onglet TXT IA de Présence en ligne
+  const [aiTextsList, setAiTextsList] = useState<Array<{ id: string; title: string; content: string }>>([]);
+  const [selectedAiTextIds, setSelectedAiTextIds] = useState<Set<string>>(new Set());
+  const [aiTextEffects, setAiTextEffects] = useState<Record<string, string>>({});
   const [selectedAiSummaryIds, setSelectedAiSummaryIds] = useState<Set<string>>(new Set());
   // Effet visuel appliqué au média de fond des séquences « Résumé IA »
   const [aiSummaryEffect, setAiSummaryEffect] = useState<string>("zoom_in");
@@ -1089,13 +1093,14 @@ export default function StudioVideo() {
   useEffect(() => {
     if (!selected) {
       setAiSummariesList([]); setSelectedAiSummaryIds(new Set());
+      setAiTextsList([]); setSelectedAiTextIds(new Set());
       setExternalLinksList([]); setSelectedExternalLinkIds(new Set());
       setMenuDocsList([]); setSelectedMenuDocIds(new Set());
       return;
     }
     let cancelled = false;
     (async () => {
-      const [sums, docs] = await Promise.all([
+      const [sums, docs, aiTxts] = await Promise.all([
         supabase
           .from("business_menu_summaries")
           .select("id,title,content,sort_order")
@@ -1107,6 +1112,12 @@ export default function StudioVideo() {
           .eq("business_id", selected.id)
           .in("type", ["external_link", "menu"])
           .order("sort_order", { ascending: true }),
+        supabase
+          .from("business_ai_texts")
+          .select("id,title,content,position,is_active")
+          .eq("business_id", selected.id)
+          .eq("is_active", true)
+          .order("position", { ascending: true }),
       ]);
       if (cancelled) return;
       const strip = (s: string | null) => decodeHtmlEntities((s || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
@@ -1116,6 +1127,12 @@ export default function StudioVideo() {
           .filter((r) => r.title || r.content),
       );
       setSelectedAiSummaryIds(new Set());
+      setAiTextsList(
+        ((aiTxts.data ?? []) as any[])
+          .map((r) => ({ id: r.id as string, title: strip(r.title), content: strip(r.content) }))
+          .filter((r) => r.title || r.content),
+      );
+      setSelectedAiTextIds(new Set());
       const rows = (docs.data ?? []) as any[];
       setExternalLinksList(
         rows
@@ -1650,6 +1667,8 @@ export default function StudioVideo() {
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
             highlight_effects: Object.fromEntries(Array.from(selectedHighlightIds).filter((id) => !!highlightEffects[id]).map((id) => [id, highlightEffects[id]])),
+            ai_text_ids: Array.from(selectedAiTextIds),
+            ai_text_effects: Object.fromEntries(Array.from(selectedAiTextIds).map((id) => [id, aiTextEffects[id] || "zoom_in"])),
             ai_summary_ids: Array.from(selectedAiSummaryIds),
             ai_summary_effect: aiSummaryEffect,
             ai_summary_effects: Object.fromEntries(Array.from(selectedAiSummaryIds).map((id) => [id, aiSummaryEffects[id] || aiSummaryEffect])),
@@ -1812,6 +1831,8 @@ export default function StudioVideo() {
       },
       offers: Array.from(selectedOfferIds).sort(),
       highlights: Array.from(selectedHighlightIds).sort(),
+      aiTexts: Array.from(selectedAiTextIds).sort(),
+      aiTextEffects: Array.from(selectedAiTextIds).sort().map((id) => `${id}:${aiTextEffects[id] || "zoom_in"}`).join(","),
       aiSummaries: Array.from(selectedAiSummaryIds).sort(),
       aiSummaryEffect,
       highlightEffects: Array.from(selectedHighlightIds).sort().map((id) => `${id}:${highlightEffects[id] || "-"}`).join(","),
@@ -1838,6 +1859,7 @@ export default function StudioVideo() {
     optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
     optCustomerReview, optPopup, optOpenWithLogo,
     selectedOfferIds, selectedHighlightIds, selectedAiSummaryIds, aiSummaryEffect, highlightEffects, aiSummaryEffects,
+    selectedAiTextIds, aiTextEffects,
     optWeatherWidget, weatherRange, weatherCity, optTidesWidget, tidesMode, tidesCity,
     (scenarioEdits as any)?.weatherCity, (scenarioEdits as any)?.tidesCity, selectedExternalLinkIds, selectedMenuDocIds, selectedImages, orderedSelectedVideos, activeVideoStarts, activeVideoEnds,
     selectedReviewId, reviewHighlight, textPosition, continuousBg, continuousBgUrl, continuousBgSound,
@@ -1905,6 +1927,8 @@ export default function StudioVideo() {
             offer_ids: Array.from(selectedOfferIds),
             highlight_ids: Array.from(selectedHighlightIds),
             highlight_effects: Object.fromEntries(Array.from(selectedHighlightIds).filter((id) => !!highlightEffects[id]).map((id) => [id, highlightEffects[id]])),
+            ai_text_ids: Array.from(selectedAiTextIds),
+            ai_text_effects: Object.fromEntries(Array.from(selectedAiTextIds).map((id) => [id, aiTextEffects[id] || "zoom_in"])),
             ai_summary_ids: Array.from(selectedAiSummaryIds),
             ai_summary_effect: aiSummaryEffect,
             ai_summary_effects: Object.fromEntries(Array.from(selectedAiSummaryIds).map((id) => [id, aiSummaryEffects[id] || aiSummaryEffect])),
@@ -3766,6 +3790,57 @@ export default function StudioVideo() {
                             </div>
                           </label>
 
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+                {aiTextsList.length > 0 && (
+                  <div className="rounded-md border border-border bg-background/40 p-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="font-medium">TXT IA ({aiTextsList.length})</div>
+                      <div className="flex gap-2 text-xs">
+                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedAiTextIds(new Set(aiTextsList.map((s) => s.id)))}>Tout</button>
+                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedAiTextIds(new Set())}>Aucun</button>
+                      </div>
+                    </div>
+                    <p className="mt-1 text-[11px] text-muted-foreground">Textes IA du Master (Présence en ligne / TXT IA) : une séquence « Texte IA » de 5 s par texte coché (titre + texte). Média de fond par rotation, ou média assigné via « Ajouter média » dans la carte du scénario.</p>
+                    <div className="mt-2 flex flex-col gap-1.5">
+                      {aiTextsList.map((s) => {
+                        const checked = selectedAiTextIds.has(s.id);
+                        return (
+                        <label key={s.id} className="flex items-start gap-2 cursor-pointer rounded-md border border-border/60 p-2 hover:bg-muted/40">
+                          <input
+                            type="checkbox"
+                            className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                            checked={checked}
+                            onChange={(e) => {
+                              setSelectedAiTextIds((prev) => {
+                                const next = new Set(prev);
+                                if (e.target.checked) next.add(s.id); else next.delete(s.id);
+                                return next;
+                              });
+                            }}
+                          />
+                          <div className="min-w-0 flex-1 text-xs">
+                            <div className="font-semibold break-words">{s.title || "Texte IA"}</div>
+                            {s.content && <div className="mt-1 text-muted-foreground line-clamp-3 break-words">{s.content}</div>}
+                            {checked && (
+                              <div className="mt-1 flex items-center gap-2" onClick={(e) => e.preventDefault()}>
+                                <span className="text-muted-foreground shrink-0">Effet</span>
+                                <select
+                                  value={aiTextEffects[s.id] || "zoom_in"}
+                                  onChange={(e) => setAiTextEffects((prev) => ({ ...prev, [s.id]: e.target.value }))}
+                                  className="flex-1 rounded-md border border-border bg-white px-2 py-1 text-[11px] text-foreground"
+                                >
+                                  {MOTION_EFFECT_OPTIONS.map((o) => (
+                                    <option key={o.value} value={o.value}>{o.label}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
+                          </div>
+                        </label>
                         );
                       })}
                     </div>
