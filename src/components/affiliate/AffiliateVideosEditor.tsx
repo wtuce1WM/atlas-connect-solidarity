@@ -88,6 +88,7 @@ interface SortableVideoProps {
   onChange: (patch: Partial<VideoEntry>) => void;
   onDelete: () => void;
   onPopupToggle: () => void;
+  onOpenText: () => void;
   onUploadVideo: (file: File) => void;
   uploading: boolean;
 }
@@ -98,10 +99,10 @@ const SortableVideo = ({
   onChange,
   onDelete,
   onPopupToggle,
+  onOpenText,
   onUploadVideo,
   uploading,
 }: SortableVideoProps) => {
-  const [showTxt, setShowTxt] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: entry._uid,
   });
@@ -121,7 +122,7 @@ const SortableVideo = ({
         entry.popup && "ring-2 ring-primary"
       )}
     >
-      {/* Header: drag + index + TXT + popup + delete */}
+      {/* Header: drag + index + popup + delete */}
       <div className="flex items-center gap-1">
         <button
           type="button"
@@ -133,16 +134,7 @@ const SortableVideo = ({
           <GripVertical className="h-3 w-3" />
         </button>
         <span className="text-[9px] text-muted-foreground shrink-0">{index + 1}</span>
-        <Button
-          type="button"
-          variant={entry.description ? "default" : "outline"}
-          size="sm"
-          className="h-5 px-1.5 text-[9px] shrink-0"
-          title="Description popup"
-          onClick={() => setShowTxt((v) => !v)}
-        >
-          TXT
-        </Button>
+
         <label className="flex items-center gap-1 shrink-0 cursor-pointer" title="Ouvrir en popup">
           <Checkbox
             checked={entry.popup}
