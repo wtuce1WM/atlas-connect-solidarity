@@ -620,7 +620,7 @@ const AffiliatePresence = () => {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-lg">{currentBusiness.name}</CardTitle>
+                      <CardTitle className="text-3xl sm:text-4xl font-bold leading-tight">{currentBusiness.name}</CardTitle>
                       <p className="text-sm text-muted-foreground mt-1">
                         {getBusinessCompleteness(currentBusiness).filled}/{VISIBLE_PLATFORMS.length} plateformes configurées
                       </p>
