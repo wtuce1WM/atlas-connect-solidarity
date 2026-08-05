@@ -768,7 +768,14 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
                 </div>
 
                 <div className="flex justify-end">
-                  <Button onClick={() => setTextUrl(null)}>Fermer</Button>
+                  <Button
+                    onClick={async () => {
+                      await handleSave();
+                      setTextUrl(null);
+                    }}
+                  >
+                    ENREGISTRER
+                  </Button>
                 </div>
               </div>
             )}
