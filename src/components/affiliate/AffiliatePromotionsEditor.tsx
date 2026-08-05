@@ -148,6 +148,7 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-semibold text-sm">{p.title_fr || p.title || "(Sans titre)"}</span>
                     {value && <span className="text-[#C04F17] font-bold text-sm">{value}</span>}
+                    {p.promotion_note && <span className="text-xs italic text-muted-foreground">{p.promotion_note}</span>}
                   </div>
                   {(p.promotion_message_fr || p.promotion_message) && (
                     <div
