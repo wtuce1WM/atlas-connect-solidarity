@@ -58,6 +58,41 @@ export default function VideoDashboardPanel() {
   const [affiliateByUser, setAffiliateByUser] = useState<Record<string, string>>({});
   const [businessNames, setBusinessNames] = useState<Record<string, string>>({});
   const [userLabels, setUserLabels] = useState<Record<string, string>>({});
+  const [allTime, setAllTime] = useState<{
+    cost: number; tokens: number; input: number; output: number; calls: number;
+    videos: number; done: number; since: string | null;
+  } | null>(null);
+
+  // Cumul historique (depuis le début du traçage du coût estimé) — indépendant de la période
+  useEffect(() => {
+    (async () => {
+      const [uRes, jRes] = await Promise.all([
+        supabase
+          .from("ai_usage_events")
+          .select("input_tokens,output_tokens,total_tokens,estimated_cost_usd,created_at")
+          .in("context", VIDEO_CONTEXTS)
+          .order("created_at", { ascending: true })
+          .limit(50000),
+        supabase.from("video_jobs").select("status"),
+      ]);
+      const rows = (uRes.data || []) as any[];
+      let cost = 0, tokens = 0, input = 0, output = 0;
+      for (const r of rows) {
+        cost += Number(r.estimated_cost_usd) || 0;
+        tokens += r.total_tokens || 0;
+        input += r.input_tokens || 0;
+        output += r.output_tokens || 0;
+      }
+      const jobsAll = (jRes.data || []) as any[];
+      setAllTime({
+        cost, tokens, input, output, calls: rows.length,
+        videos: jobsAll.length,
+        done: jobsAll.filter((j) => j.status === "done").length,
+        since: rows.length ? rows[0].created_at : null,
+      });
+    })();
+  }, []);
+
 
   useEffect(() => {
     (async () => {
