@@ -17,6 +17,8 @@ import Footer from "@/components/Footer";
 import { welcomeBadgeLabel, propositionLabel, WELCOME_BADGE_CODES, PROPOSITION_CODES } from "@/lib/ctaBadgeLabels";
 import { StudioVideoScenarioPanel, buildScenario, extractKeywords, scenarioFromTemplateProps, type Scenario, type SceneMediaMap, type SceneMediaItem, type ScenarioEdits } from "@/components/StudioVideoScenarioPanel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { preflightMedia, type PreflightEntry, type PreflightIssue } from "@/lib/videoMediaPreflight";
+
 
 import maisonBrummellAsset from "@/assets/maison-brummell.mp4.asset.json";
 import riadDarNajatAsset from "@/assets/riad-dar-najat.mp4.asset.json";
