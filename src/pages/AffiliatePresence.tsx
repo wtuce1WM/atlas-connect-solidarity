@@ -580,37 +580,38 @@ const AffiliatePresence = () => {
 
 
               <HScroll className="flex gap-3 pb-3 -mb-1 overflow-x-auto">
-                {businesses.map(b => {
+                {[...businesses]
+                  .sort((a, b) => (a.name || "").localeCompare(b.name || "", "fr", { sensitivity: "base" }))
+                  .map(b => {
                   const isSelected = b.id === selectedBusiness;
                   return (
                     <button
                       key={b.id}
                       onClick={() => requestSelectBusiness(b.id)}
-                      className={`shrink-0 text-left p-3 rounded-lg border transition-colors min-w-[200px] max-w-[260px] ${
+                      className={`shrink-0 text-left p-3 rounded-lg border transition-colors w-[168px] h-[168px] flex flex-col justify-between ${
                         isSelected
                           ? "border-primary bg-primary/10"
                           : "border-border bg-card hover:border-muted-foreground/30"
                       }`}
                     >
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-medium truncate ${isSelected ? "text-white" : "text-foreground"}`}>{b.name}</p>
-                        <div className="flex items-center justify-between gap-2 mt-1">
-                          <p className={`text-xs ${isSelected ? "text-white/70" : "text-muted-foreground"}`}>{b.city || "—"}</p>
-                          {b.is_active ? (
-                            <span className="inline-flex items-center rounded-full bg-green-500/20 px-2 py-0.5 text-[10px] font-medium text-green-400">
-                              Actif
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-white/50">
-                              Inactif
-                            </span>
-                          )}
-                        </div>
+                      <p className={`text-sm font-medium leading-snug break-words ${isSelected ? "text-white" : "text-foreground"}`}>{b.name}</p>
+                      <div className="flex items-end justify-between gap-2">
+                        <p className={`text-xs ${isSelected ? "text-white/70" : "text-muted-foreground"}`}>{b.city || "—"}</p>
+                        {b.is_active ? (
+                          <span className="inline-flex items-center rounded-full bg-green-500/20 px-2 py-0.5 text-[10px] font-medium text-green-400">
+                            Actif
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-white/50">
+                            Inactif
+                          </span>
+                        )}
                       </div>
                     </button>
                   );
                 })}
               </HScroll>
+
             </div>
 
             {/* Editor Panel */}
