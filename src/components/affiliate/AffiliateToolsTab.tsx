@@ -1590,11 +1590,11 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         </div>
       </div>
 
-      {/* ── Widget Fiche complète ─────────────────────────────── */}
+      {/* ── Widget Votre ID numérique type Linktree ─────────────────────────────── */}
       {slug && (
         <div className="space-y-3">
           <h3 className="text-white font-semibold flex items-center gap-2">
-            <Globe2 className="h-4 w-4" /> Widget Fiche complète (iframe)
+            <Globe2 className="h-4 w-4" /> Widget Votre ID numérique type Linktree (iframe)
           </h3>
           <WidgetTester url={ficheUrl} label={`Fiche complète — ${businessName}`} />
           <p className="text-sm text-white/70">
