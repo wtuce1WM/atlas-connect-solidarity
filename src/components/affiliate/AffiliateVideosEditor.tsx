@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import RichTextEditor from "@/components/staff/RichTextEditor";
 import { cn } from "@/lib/utils";
 import {
   Loader2,
@@ -57,6 +58,14 @@ interface VideoEntry {
 const MAX_VIDEOS = 12;
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
 const MAX_DESC = 2000;
+
+const stripHtmlText = (html: string): string => {
+  if (!html) return "";
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html;
+  return (tmp.textContent || tmp.innerText || "").trim();
+};
+
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -575,13 +584,14 @@ const AffiliateVideosEditor = forwardRef<AffiliateVideosEditorHandle, Props>(
 
         {/* Titre / Texte de la vidéo */}
         <Dialog open={!!textUid} onOpenChange={(open) => !open && setTextUid(null)}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl md:max-w-4xl lg:max-w-5xl">
             <DialogHeader>
               <DialogTitle>Titre &amp; texte de la vidéo</DialogTitle>
             </DialogHeader>
             {(() => {
               const v = videos.find((x) => x._uid === textUid);
               if (!v) return null;
+              const plainLen = stripHtmlText(v.description || "").length;
               return (
                 <div className="space-y-4">
                   <div className="space-y-1.5">
@@ -596,19 +606,20 @@ const AffiliateVideosEditor = forwardRef<AffiliateVideosEditorHandle, Props>(
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <Label>Texte</Label>
-                      <span className="text-xs text-muted-foreground">
-                        {v.description.length}/{MAX_DESC}
+                      <span
+                        className={cn(
+                          "text-xs",
+                          plainLen > MAX_DESC ? "text-destructive font-semibold" : "text-muted-foreground"
+                        )}
+                      >
+                        {plainLen}/{MAX_DESC}
                       </span>
                     </div>
-                    <Textarea
-                      value={v.description}
-                      onChange={(e) =>
-                        patchVideo(v._uid, { description: e.target.value.slice(0, MAX_DESC) })
-                      }
-                      placeholder="Texte de la vidéo (max 2000)"
-                      rows={8}
-                      maxLength={MAX_DESC}
-                      className="resize-y min-h-[160px]"
+                    <RichTextEditor
+                      content={v.description || ""}
+                      onChange={(html) => patchVideo(v._uid, { description: html })}
+                      maxHeight="360px"
+                      simple
                     />
                   </div>
 

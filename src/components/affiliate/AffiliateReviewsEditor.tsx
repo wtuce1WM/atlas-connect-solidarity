@@ -171,17 +171,7 @@ const AffiliateReviewsEditor = ({ businessId, data, onFieldChange, onDataRefresh
         </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="details" className="mt-0">
-        <div className="p-4 bg-muted/30 border border-border rounded-lg space-y-3">
-          <Label className="text-base font-semibold flex items-center gap-2">
-            <MessageSquare className="h-4 w-4" />
-            Détail des avis clients
-          </Label>
-          <ReviewsEditor businessId={businessId} />
-        </div>
-      </TabsContent>
-
-      <TabsContent value="urls" className="mt-0 space-y-4">
+      <TabsContent value="details" className="mt-0 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-border bg-muted/30">
           <div className="flex items-center gap-2">
             {avg !== null ? (
@@ -195,9 +185,21 @@ const AffiliateReviewsEditor = ({ businessId, data, onFieldChange, onDataRefresh
           </div>
           <Button type="button" size="sm" onClick={handleFetch} disabled={loading}>
             {loading ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Save className="h-3.5 w-3.5 mr-1" />}
-            Récupérer les avis & sauvegarder
+            Récupérer les avis &amp; sauvegarder
           </Button>
         </div>
+
+        <div className="p-4 bg-muted/30 border border-border rounded-lg space-y-3">
+          <Label className="text-base font-semibold flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            Détail des avis clients
+          </Label>
+          <ReviewsEditor businessId={businessId} />
+        </div>
+      </TabsContent>
+
+      <TabsContent value="urls" className="mt-0 space-y-4">
+
 
         <div className="grid grid-cols-1 gap-3">
           {PLATFORMS.map(({ urlKey, ratingKey, countKey, label }) => {
