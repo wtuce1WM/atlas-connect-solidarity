@@ -3179,6 +3179,7 @@ const BookOnlineSlidePanelInner = ({
               }
               selectedPoiId={null}
               center={business?.latitude && business?.longitude ? { lat: business.latitude, lng: business.longitude } : undefined}
+              distanceOrigin={business?.latitude && business?.longitude ? { lat: Number(business.latitude), lng: Number(business.longitude) } : null}
               onPoiClick={(poiId) => {
                 if (poiId.startsWith("self-")) return;
                 if (poiMapMode === "destinations") {
