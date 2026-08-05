@@ -249,7 +249,8 @@ const VideoScenarioConfigPanel = () => {
         ) : (
           <div className="divide-y rounded-lg border">
             {steps.map((s, i) => (
-              <div key={s.id} className="flex items-center gap-3 p-3 flex-wrap">
+              <div key={s.id} className="p-3">
+              <div className="flex items-center gap-3 flex-wrap">
                 <span className="w-8 text-xs font-bold tabular-nums text-muted-foreground">{i + 1}</span>
                 <div className="flex flex-col">
                   <span className="text-sm font-semibold text-black">{s.label || s.scene_key}</span>
