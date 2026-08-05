@@ -455,6 +455,8 @@ export default function StudioVideo() {
   const [optMapMarker, setOptMapMarker] = useState(true);
   const [optDigitalId, setOptDigitalId] = useState(true);
   const [optPopup, setOptPopup] = useState(true);
+  // Carte IA : carte « Offre » entièrement rédigée par l'IA (pas issue de la base).
+  const [optAiCard, setOptAiCard] = useState(false);
   const [optOpenWithLogo, setOptOpenWithLogo] = useState(true);
   // BIENVENUE / PROPOSITION (Présence en ligne / CTAs) — étapes optionnelles juste après le logo.
   const [optWelcome, setOptWelcome] = useState(true);
@@ -628,6 +630,7 @@ export default function StudioVideo() {
       b(p.optMapMarker, setOptMapMarker);
       b(p.optDigitalId, setOptDigitalId);
       b(p.optPopup, setOptPopup);
+      b(p.optAiCard, setOptAiCard);
       b(p.optOpenWithLogo, setOptOpenWithLogo);
       b(p.optWelcome, setOptWelcome);
       b(p.optProposition, setOptProposition);
@@ -648,7 +651,7 @@ export default function StudioVideo() {
         prompt, tone, duration, durationAuto, videoLang,
         optReviews, optGoogleReviews, optTripAdvisor, optRestaurantGuru, optCustomerReview,
         optHours, optInstallCta, optMapMarker, optDigitalId,
-        optPopup, optOpenWithLogo, optWelcome, optProposition, optWhatsapp,
+        optPopup, optAiCard, optOpenWithLogo, optWelcome, optProposition, optWhatsapp,
         textPosition, transitionStyle, aiSummaryEffect, blogMode,
       }));
     } catch {
@@ -658,7 +661,7 @@ export default function StudioVideo() {
     PARAMS_KEY, prompt, tone, duration, durationAuto, videoLang,
     optReviews, optGoogleReviews, optTripAdvisor, optRestaurantGuru, optCustomerReview,
     optHours, optInstallCta, optMapMarker, optDigitalId,
-    optPopup, optOpenWithLogo, optWelcome, optProposition, optWhatsapp,
+    optPopup, optAiCard, optOpenWithLogo, optWelcome, optProposition, optWhatsapp,
     textPosition, transitionStyle, aiSummaryEffect, blogMode,
   ]);
 
@@ -1617,6 +1620,7 @@ export default function StudioVideo() {
             customer_review_id: selectedReviewId,
             customer_review_highlight: reviewHighlight || null,
             popup: optPopup,
+            ai_card: optAiCard,
             open_with_logo: !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo,
             logo_url: logoInfo.url,
             welcome_text: welcomeSceneText,
@@ -1870,6 +1874,7 @@ export default function StudioVideo() {
             customer_review_id: selectedReviewId,
             customer_review_highlight: reviewHighlight || null,
             popup: optPopup,
+            ai_card: optAiCard,
             open_with_logo: !!logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo,
             logo_url: logoInfo.url,
             welcome_text: welcomeSceneText,
