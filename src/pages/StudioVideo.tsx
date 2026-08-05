@@ -419,6 +419,10 @@ export default function StudioVideo() {
   const [wordsPerBlock, setWordsPerBlock] = useState(12);
   const [pendingCustomScene, setPendingCustomScene] = useState<any | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [preflightRunning, setPreflightRunning] = useState(false);
+  const [preflightIssues, setPreflightIssues] = useState<PreflightIssue[]>([]);
+  const [preflightOpen, setPreflightOpen] = useState(false);
+
   const [previewing, setPreviewing] = useState(false);
   const [scenarioPreviewed, setScenarioPreviewed] = useState(false);
   const [aiScenario, setAiScenario] = useState<{ scenario: Scenario; rationale?: string; templateId: string } | null>(null);
