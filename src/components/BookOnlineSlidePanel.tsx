@@ -3052,10 +3052,10 @@ const BookOnlineSlidePanelInner = ({
                       <DropdownMenuTrigger asChild>
                         <button
                           type="button"
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilter && !poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                         >
                           <MapPin className="h-3.5 w-3.5" />
-                          {poiSubcatFilter && !poiCatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
+                          {poiSubcatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="z-[260] max-h-[70vh] min-w-[15rem] overflow-y-auto">
@@ -3065,7 +3065,7 @@ const BookOnlineSlidePanelInner = ({
                           </DropdownMenuItem>
                         )}
                         {poiSubcatList.map(([name, count]) => (
-                          <DropdownMenuItem key={name} onSelect={() => { setPoiCatFilter(null); setPoiSubcatFilter(name); setPoiShowAll(false); }}>
+                          <DropdownMenuItem key={name} onSelect={() => { setPoiSubcatFilter(name); setPoiShowAll(false); }}>
                             {translateSubcategory(name, language)} <span className="ml-1 opacity-60">({count})</span>
                           </DropdownMenuItem>
                         ))}
@@ -3075,11 +3075,12 @@ const BookOnlineSlidePanelInner = ({
                     <button
                       type="button"
                       onClick={() => setPoiPillOverlay("poi")}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilter && !poiCatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                     >
                       <MapPin className="h-3.5 w-3.5" />
-                      {poiSubcatFilter && !poiCatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
+                      {poiSubcatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
                     </button>
+
                   )}
                 </div>
                 {showCatPill && (
