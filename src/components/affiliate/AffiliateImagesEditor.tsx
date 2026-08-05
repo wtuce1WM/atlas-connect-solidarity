@@ -676,10 +676,15 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
               {(lightboxTitle || lightboxDesc) && (
                 <div className="bg-black/70 text-white rounded-lg px-4 py-2 max-w-[80vw] text-center">
                   {lightboxTitle && <p className="font-semibold text-sm">{lightboxTitle}</p>}
-                  {lightboxDesc && <p className="text-xs opacity-90 mt-0.5">{lightboxDesc}</p>}
+                  {lightboxDesc && (
+                    <div
+                      className="text-xs opacity-90 mt-0.5 [&_p]:m-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+                      dangerouslySetInnerHTML={{ __html: lightboxDesc }}
+                    />
+                  )}
                 </div>
               )}
-            </div>
+
 
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-black/70 text-white text-sm rounded-full backdrop-blur-sm">
               {lightboxIndex + 1} / {images.length}
