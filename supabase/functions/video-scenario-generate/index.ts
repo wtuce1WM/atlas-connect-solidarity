@@ -1620,6 +1620,39 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       }
     }
 
+    // Durées par défaut (secondes) — imposées si l'utilisateur n'a rien réglé.
+    {
+      if (!(template_props as any).scene_durations) (template_props as any).scene_durations = {};
+      const sd = (template_props as any).scene_durations as Record<string, number>;
+      const defaults: Record<string, number> = {
+        welcome: 3, proposition: 3, name: 6, hours: 3, map: 3, digital: 3, weather: 6, tides: 6,
+      };
+      for (const [k, v] of Object.entries(defaults)) if (sd[k] == null) sd[k] = v;
+    }
+
+    // Ordre canonique du montage — l'IA ne décide plus du déroulé.
+    {
+      const CANON = [
+        "logo", "welcome", "popup", "proposition", "weather", "tides",
+        "hook", "name", "offer", "highlight",
+        "ai_summary", "external_link", "menu_doc", "media",
+        "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review",
+        "hours", "map", "digital", "blog", "whatsapp", "cta", "outro",
+      ];
+      const order = (template_props as any).scene_order;
+      if (Array.isArray(order) && order.length) {
+        const rank = (k: unknown) => {
+          const i = CANON.indexOf(String(k));
+          return i < 0 ? CANON.length : i;
+        };
+        (template_props as any).scene_order = order
+          .map((k: unknown, i: number) => ({ k, i }))
+          .sort((a, b) => rank(a.k) - rank(b.k) || a.i - b.i)
+          .map((x) => x.k);
+      }
+    }
+
+
     // Format de sortie (canvas Remotion) — vertical 720×1280 par défaut.
     {
       const cw = Number(options?.canvas_width);
