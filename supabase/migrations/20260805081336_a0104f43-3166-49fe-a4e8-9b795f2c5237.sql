@@ -1,0 +1,1 @@
+ALTER TABLE public.business_ai_texts ADD COLUMN IF NOT EXISTS style_mode text;

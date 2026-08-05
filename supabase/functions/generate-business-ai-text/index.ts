@@ -47,7 +47,44 @@ const MODE_BRIEFS: Record<string, string> = {
     "Objectif : rédiger une présentation immersive à partir des résultats de recherche web fournis (presse, blogs, annuaires). N'utilise que ce qui figure dans les extraits.",
   platform_pages:
     "Objectif : rédiger une présentation immersive à partir du contenu des fiches des plateformes fournies (descriptions, équipements, spécialités).",
+  menu_links:
+    "Objectif : rédiger à partir du contenu des menus / cartes fournis (plats, sections, spécialités, produits). Ne mentionne jamais de prix même s'ils figurent dans la source.",
+  external_links:
+    "Objectif : rédiger à partir du contenu des liens externes fournis (site web, boutique, PDF, flipbook, pages de réservation). N'utilise que ce qui figure dans ces sources.",
 };
+
+// Liens candidats « menus » et « liens externes » de la fiche.
+const MENU_URL_KEYS = [
+  ["menu_url", "Menu"],
+  ["n", "Menu (lien)"],
+  ["flipbook_url", "Flipbook"],
+  ["pdf_url", "PDF 1"],
+  ["pdf_2_url", "PDF 2"],
+  ["pdf_3_url", "PDF 3"],
+] as const;
+
+const EXTERNAL_URL_KEYS = [
+  ["website", "Site web"],
+  ["online_shop_url", "Boutique en ligne"],
+  ["reserve_now_url", "Réservation"],
+  ["booking_url", "Booking"],
+  ["other_booking_url", "Autre réservation"],
+  ["glovo_url", "Glovo"],
+  ["matterport_url", "Visite virtuelle"],
+  ["url_4", "Lien 4"],
+  ["url_5", "Lien 5"],
+  ["url_6", "Lien 6"],
+] as const;
+
+const STYLE_BRIEFS: Record<string, string> = {
+  default:
+    "Style : rédaction éditoriale standard, français naturel, fluide et concret.",
+  immersive:
+    "Style : IMMERSIF et poétique. Écris une prose sensorielle (lumière, matières, sons, parfums, atmosphère), rythmée, à la deuxième personne du singulier ou en narration neutre. Reste ancré dans les faits fournis : aucune invention, mais une évocation.",
+  factual:
+    "Style : FACTUEL et linéaire. Restitue les informations détectées dans la source (sections, plats, produits, prestations, équipements, horaires) telles quelles, dans l'ordre de la source, en phrases courtes ou en énumérations séparées par des sauts de ligne. Aucune envolée littéraire, aucun adjectif promotionnel, aucun commentaire personnel.",
+};
+
 
 async function firecrawlSearch(query: string, apiKey: string): Promise<string> {
   const res = await fetch("https://api.firecrawl.dev/v1/search", {
@@ -85,6 +122,11 @@ Deno.serve(async (req) => {
     const extra = String(body?.extra_instructions ?? "").slice(0, 500);
     const lengthKey = LENGTH_SPECS[String(body?.length ?? "")] ? String(body.length) : "short";
     const len = LENGTH_SPECS[lengthKey];
+    const styleKey = STYLE_BRIEFS[String(body?.style ?? "")] ? String(body.style) : "default";
+    const requestedUrls: string[] = Array.isArray(body?.urls)
+      ? body.urls.map((u: unknown) => String(u ?? "").trim()).filter(Boolean).slice(0, 6)
+      : [];
+
 
     if (!businessId || !MODE_BRIEFS[mode]) {
       return new Response(JSON.stringify({ error: "business_id et mode valides requis" }), {
@@ -112,8 +154,9 @@ Deno.serve(async (req) => {
     const { data: biz } = await supabase
       .from("businesses")
       .select(
-        `name, city, neighborhood, hook_fr, description, website, opening_hours, show_opening_hours, is_open_24h, vacation_dates, ${PLATFORM_URL_KEYS.map(([k]) => k).join(", ")}`,
+        `name, city, neighborhood, hook_fr, description, website, opening_hours, show_opening_hours, is_open_24h, vacation_dates, ${PLATFORM_URL_KEYS.map(([k]) => k).join(", ")}, ${MENU_URL_KEYS.map(([k]) => k).join(", ")}, ${EXTERNAL_URL_KEYS.map(([k]) => k).filter((k) => k !== "website").join(", ")}`,
       )
+
       .eq("id", businessId)
       .maybeSingle();
 
@@ -182,15 +225,29 @@ Deno.serve(async (req) => {
         sourceLabel = `recherche web « ${query} »`;
         sourceBlock = await firecrawlSearch(query, fcKey);
       } else {
-        const urls = PLATFORM_URL_KEYS
+        const keys =
+          mode === "menu_links" ? MENU_URL_KEYS : mode === "external_links" ? EXTERNAL_URL_KEYS : PLATFORM_URL_KEYS;
+        let urls = keys
           .map(([k, label]) => [String((biz as any)[k] ?? "").trim(), label] as const)
-          .filter(([u]) => !!u)
-          .slice(0, 4);
+          .filter(([u]) => !!u);
+        // Sélection explicite côté affilié : on ne garde que les liens de la fiche.
+        if (requestedUrls.length > 0) {
+          const wanted = new Set(requestedUrls);
+          const filtered = urls.filter(([u]) => wanted.has(u));
+          if (filtered.length > 0) urls = filtered;
+        }
+        urls = urls.slice(0, 4);
+        const emptyMsg =
+          mode === "menu_links"
+            ? "Aucun lien menu / carte détecté sur la fiche."
+            : mode === "external_links"
+              ? "Aucun lien externe détecté sur la fiche."
+              : "Aucune fiche plateforme renseignée (onglet Avis clients).";
         if (urls.length === 0) {
-          return new Response(
-            JSON.stringify({ error: "Aucune fiche plateforme renseignée (onglet Avis clients)." }),
-            { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-          );
+          return new Response(JSON.stringify({ error: emptyMsg }), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
         }
         const parts = await Promise.all(
           urls.map(async ([u, label]) => {
@@ -199,22 +256,30 @@ Deno.serve(async (req) => {
           }),
         );
         sourceBlock = parts.filter(Boolean).join("\n\n").slice(0, 16000);
-        sourceLabel = `fiches ${urls.map(([, l]) => l).join(", ")}`;
+        sourceLabel =
+          mode === "menu_links"
+            ? `menus ${urls.map(([, l]) => l).join(", ")}`
+            : mode === "external_links"
+              ? `liens ${urls.map(([, l]) => l).join(", ")}`
+              : `fiches ${urls.map(([, l]) => l).join(", ")}`;
         if (!sourceBlock) {
           return new Response(
-            JSON.stringify({ error: "Impossible de lire les fiches plateformes (contenu bloqué)." }),
+            JSON.stringify({ error: "Impossible de lire les liens fournis (contenu bloqué ou illisible)." }),
             { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
           );
         }
       }
     }
 
+
     const systemPrompt = `Tu rédiges des contenus éditoriaux pour One World Morocco, plateforme de découverte du Maroc.
 ${MODE_BRIEFS[mode]}
+${STYLE_BRIEFS[styleKey]}
 Règles absolues :
 - N'invente RIEN : uniquement ce qui est présent dans les sources et les données de la fiche fournies.
 - Ne mentionne jamais de prix, tarif, budget ou "moins cher".
-- Français naturel et immersif, pas de markdown, pas de listes à puces, pas de guillemets superflus.
+- Français correct, pas de markdown, pas de guillemets superflus.${styleKey === "factual" ? "\n- Pas de symboles de puces : une information par ligne, séparées par des sauts de ligne." : "\n- Pas de listes à puces."}
+
 - Réponds STRICTEMENT en JSON : {"title": string, "hook": string, "content": string}
 - title ≤ 70 caractères, hook ≤ 120 caractères.
 - LONGUEUR IMPÉRATIVE du champ content : version ${len.label}, entre ${len.min} et ${len.max} caractères (${len.paragraphs} séparés par un saut de ligne). Ne descends jamais sous ${len.min} caractères et ne dépasse jamais ${Math.min(len.max, MAX_CONTENT - 100)} caractères.
@@ -265,7 +330,7 @@ Structure le texte autour de cette consigne : elle doit être traitée explicite
         businessId,
         context: "affiliate_ai_text",
         model: MODEL,
-        metadata: { mode, length: lengthKey },
+        metadata: { mode, length: lengthKey, style: styleKey },
       },
     );
 
@@ -316,6 +381,8 @@ Structure le texte autour de cette consigne : elle doit être traitée explicite
         mode,
         source_label: sourceLabel,
         length: lengthKey,
+        style: styleKey,
+
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );

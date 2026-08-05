@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Loader2, Sparkles, Trash2, Plus, ArrowUp, ArrowDown, Lock } from "lucide-react";
+import RichTextEditor from "@/components/staff/RichTextEditor";
 
 interface AiText {
   id: string;
@@ -18,14 +18,37 @@ interface AiText {
   is_active: boolean;
   extra_instructions: string | null;
   length_mode: string | null;
+  style_mode: string | null;
 }
 
-const SELECT_COLS = "id,title,hook,content,source_mode,position,is_active,extra_instructions,length_mode";
+const SELECT_COLS =
+  "id,title,hook,content,source_mode,position,is_active,extra_instructions,length_mode,style_mode";
 
 const MAX_TEXTS = 10;
 const MAX_CONTENT = 2000;
 const MAX_TITLE = 70;
 const MAX_HOOK = 120;
+
+const plainLen = (html: string) => {
+  if (!html) return 0;
+  if (typeof window === "undefined") return html.length;
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return (div.textContent || "").trim().length;
+};
+
+// Le générateur renvoie du texte brut : on le convertit en HTML éditable en RichText.
+const toHtml = (txt: string) => {
+  if (!txt) return "";
+  if (/<[a-z][\s\S]*>/i.test(txt)) return txt;
+  const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return txt
+    .split(/\n{1,}/)
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((l) => `<p>${esc(l)}</p>`)
+    .join("");
+};
 
 const LENGTHS: Array<{ value: string; label: string }> = [
   { value: "very_short", label: "Très courte (~400)" },
@@ -35,6 +58,37 @@ const LENGTHS: Array<{ value: string; label: string }> = [
 ];
 
 const lengthLabel = (v: string | null) => LENGTHS.find((l) => l.value === v)?.label ?? null;
+
+const STYLES: Array<{ value: string; label: string; help: string }> = [
+  { value: "default", label: "Par défaut", help: "Rédaction éditoriale standard, fluide et concrète." },
+  { value: "immersive", label: "Immersif (poétique)", help: "Prose sensorielle et évocatrice, toujours ancrée dans les faits détectés." },
+  { value: "factual", label: "Factuel (linéaire)", help: "Restitue les informations de la source (PDF, menu, url) telles quelles, en lignes courtes." },
+];
+
+const styleLabel = (v: string | null) => STYLES.find((s) => s.value === v)?.label ?? null;
+
+// Champs de la fiche pouvant contenir un menu / carte ou un lien externe.
+const MENU_FIELDS: Array<[string, string]> = [
+  ["menu_url", "Menu"],
+  ["n", "Menu (lien)"],
+  ["flipbook_url", "Flipbook"],
+  ["pdf_url", "PDF 1"],
+  ["pdf_2_url", "PDF 2"],
+  ["pdf_3_url", "PDF 3"],
+];
+
+const EXTERNAL_FIELDS: Array<[string, string]> = [
+  ["website", "Site web"],
+  ["online_shop_url", "Boutique en ligne"],
+  ["reserve_now_url", "Réservation"],
+  ["booking_url", "Booking"],
+  ["other_booking_url", "Autre réservation"],
+  ["glovo_url", "Glovo"],
+  ["matterport_url", "Visite virtuelle"],
+  ["url_4", "Lien 4"],
+  ["url_5", "Lien 5"],
+  ["url_6", "Lien 6"],
+];
 
 const MODES: Array<{ value: string; label: string; help: string }> = [
   {
@@ -57,27 +111,50 @@ const MODES: Array<{ value: string; label: string; help: string }> = [
     label: "En suivant le détail des fiches des plateformes renseignées",
     help: "Lecture des fiches Google, TripAdvisor, Restaurant Guru… renseignées dans l'onglet Avis clients.",
   },
+  {
+    value: "menu_links",
+    label: "À partir du menu",
+    help: "Lecture des menus / cartes / PDF détectés sur la fiche. Sélectionnez les liens à exploiter.",
+  },
+  {
+    value: "external_links",
+    label: "À partir de liens externes",
+    help: "Lecture des liens externes détectés sur la fiche (site web, boutique, réservation…).",
+  },
 ];
 
 const modeLabel = (v: string) => MODES.find((m) => m.value === v)?.label ?? v;
+
 
 const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
   const [texts, setTexts] = useState<AiText[]>([]);
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState(MODES[0].value);
   const [length, setLength] = useState("short");
+  const [style, setStyle] = useState("default");
   const [extra, setExtra] = useState("");
   const [generating, setGenerating] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [lockedIds, setLockedIds] = useState<string[]>([]);
   const [pristine, setPristine] = useState<Record<string, string>>({});
+  const [biz, setBiz] = useState<Record<string, any> | null>(null);
+  const [selectedUrls, setSelectedUrls] = useState<string[]>([]);
+
+  const detect = (fields: Array<[string, string]>) =>
+    fields
+      .map(([k, label]) => ({ key: k, label, url: String(biz?.[k] ?? "").trim() }))
+      .filter((f) => !!f.url);
+
+  const menuLinks = useMemo(() => detect(MENU_FIELDS), [biz]);
+  const externalLinks = useMemo(() => detect(EXTERNAL_FIELDS), [biz]);
+  const activeLinks = mode === "menu_links" ? menuLinks : mode === "external_links" ? externalLinks : [];
 
   const snapshot = (t: AiText) => JSON.stringify([t.title, t.hook, t.content, t.is_active]);
   const isDirty = (t: AiText) => pristine[t.id] !== undefined && pristine[t.id] !== snapshot(t);
 
   const load = async () => {
     setLoading(true);
-    const [{ data, error }, linkRes] = await Promise.all([
+    const [{ data, error }, linkRes, bizRes] = await Promise.all([
       supabase
         .from("business_ai_texts")
         .select(SELECT_COLS)
@@ -87,6 +164,11 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
         .from("business_embed_ai_item_links")
         .select("ai_text_ids")
         .eq("business_id", businessId),
+      (supabase as any)
+        .from("businesses")
+        .select([...MENU_FIELDS, ...EXTERNAL_FIELDS].map(([k]) => k).join(","))
+        .eq("id", businessId)
+        .maybeSingle(),
     ]);
     if (error) toast.error("Chargement impossible : " + error.message);
     const list = (data as AiText[]) ?? [];
@@ -97,20 +179,41 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
       for (const id of (Array.isArray(row.ai_text_ids) ? row.ai_text_ids : [])) locked.add(String(id));
     }
     setLockedIds([...locked]);
+    setBiz(((bizRes as any)?.data as Record<string, any>) ?? null);
     setLoading(false);
   };
 
   useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [businessId]);
+
+  // À chaque changement de source, on présélectionne tous les liens détectés.
+  useEffect(() => {
+    setSelectedUrls(activeLinks.map((l) => l.url));
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [mode, biz]);
+
+  const toggleUrl = (url: string) =>
+    setSelectedUrls((prev) => (prev.includes(url) ? prev.filter((u) => u !== url) : [...prev, url]));
 
   const generate = async () => {
     if (texts.length >= MAX_TEXTS) {
       toast.error(`Maximum ${MAX_TEXTS} textes IA par établissement.`);
       return;
     }
+    if ((mode === "menu_links" || mode === "external_links") && selectedUrls.length === 0) {
+      toast.error("Sélectionnez au moins un lien.");
+      return;
+    }
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-business-ai-text", {
-        body: { business_id: businessId, mode, length, extra_instructions: extra },
+        body: {
+          business_id: businessId,
+          mode,
+          length,
+          style,
+          extra_instructions: extra,
+          urls: mode === "menu_links" || mode === "external_links" ? selectedUrls : [],
+        },
       });
       if (error) throw error;
       if ((data as any)?.error) {
@@ -122,10 +225,12 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
         .from("business_ai_texts")
         .insert({
           business_id: businessId,
-          title, hook, content,
+          title, hook,
+          content: toHtml(content),
           source_mode: mode,
           position: texts.length,
           length_mode: length,
+          style_mode: style,
           extra_instructions: extra.trim() || null,
         })
         .select(SELECT_COLS)
@@ -140,6 +245,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
       setGenerating(false);
     }
   };
+
 
   const addEmpty = async () => {
     if (texts.length >= MAX_TEXTS) {
@@ -216,7 +322,11 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
         <div className="space-y-2">
           <Label className="text-white">Source de génération</Label>
           <div className="grid gap-2">
-            {MODES.map((m) => (
+            {MODES.filter(
+              (m) =>
+                (m.value !== "menu_links" || menuLinks.length > 0) &&
+                (m.value !== "external_links" || externalLinks.length > 0),
+            ).map((m) => (
               <label
                 key={m.value}
                 className={`flex cursor-pointer items-start gap-3 rounded-md border p-3 transition-colors ${
@@ -231,13 +341,59 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
                   onChange={() => setMode(m.value)}
                 />
                 <span>
-                  <span className="block text-sm font-medium text-white">{m.label}</span>
+                  <span className="block text-sm font-medium text-white">
+                    {m.label}
+                    {m.value === "menu_links" && ` (${menuLinks.length})`}
+                    {m.value === "external_links" && ` (${externalLinks.length})`}
+                  </span>
                   <span className="block text-xs text-white/60">{m.help}</span>
                 </span>
               </label>
             ))}
           </div>
         </div>
+
+        {activeLinks.length > 0 && (
+          <div className="space-y-2 rounded-md border border-primary/20 bg-primary/5 p-3">
+            <div className="flex items-center justify-between gap-3">
+              <Label className="text-white">Liens à exploiter</Label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedUrls(activeLinks.map((l) => l.url))}
+                  className="rounded border border-white/15 px-2 py-1 text-xs text-white/80 hover:bg-white/10"
+                >
+                  Tous
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedUrls([])}
+                  className="rounded border border-white/15 px-2 py-1 text-xs text-white/80 hover:bg-white/10"
+                >
+                  Aucun
+                </button>
+              </div>
+            </div>
+            <div className="grid gap-1.5">
+              {activeLinks.map((l) => (
+                <label key={l.key} className="flex items-start gap-2 text-xs text-white/80">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5 accent-current"
+                    checked={selectedUrls.includes(l.url)}
+                    onChange={() => toggleUrl(l.url)}
+                  />
+                  <span className="min-w-0">
+                    <span className="font-medium text-white">{l.label}</span>{" "}
+                    <span className="break-all text-white/50">{l.url}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+            <p className="text-xs text-white/50">{selectedUrls.length} lien(s) sélectionné(s) — 4 liens lus au maximum.</p>
+          </div>
+        )}
+
 
         <div className="space-y-2">
           <Label className="text-white">Longueur du texte</Label>
@@ -269,6 +425,26 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
           />
         </div>
 
+        <div className="space-y-2">
+          <Label className="text-white">Style du texte rendu</Label>
+          <div className="flex flex-wrap gap-2">
+            {STYLES.map((s) => (
+              <button
+                key={s.value}
+                type="button"
+                onClick={() => setStyle(s.value)}
+                className={`rounded-md border px-3 py-2 text-xs font-medium transition-colors ${
+                  style === s.value ? "border-primary bg-primary/10 text-primary" : "border-white/10 text-white/70 hover:bg-white/5"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-white/50">{STYLES.find((s) => s.value === style)!.help}</p>
+        </div>
+
+
         <div className="flex flex-wrap gap-3">
           <Button onClick={generate} disabled={generating || texts.length >= MAX_TEXTS}>
             {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
@@ -288,7 +464,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
       ) : (
         <div className="space-y-4">
           {texts.map((t, i) => {
-            const over = t.content.length > MAX_CONTENT;
+            const over = plainLen(t.content) > MAX_CONTENT;
             const locked = lockedIds.includes(t.id);
             return (
               <div key={t.id} className="rounded-lg border border-white/10 bg-white/5 p-4 space-y-4">
@@ -365,18 +541,18 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
                   <div className="flex items-center justify-between">
                     <Label className="text-white">Texte</Label>
                     <span className={`text-xs ${over ? "text-destructive font-medium" : "text-white/60"}`}>
-                      {t.content.length}/{MAX_CONTENT}
+                      {plainLen(t.content)}/{MAX_CONTENT}
                     </span>
                   </div>
-                  <Textarea
-                    value={t.content}
-                    maxLength={MAX_CONTENT}
-                    onChange={(e) => patch(t.id, "content", e.target.value.slice(0, MAX_CONTENT))}
-                    rows={10}
-                    className="text-white placeholder:text-white/50 bg-zinc-900 border-white/10"
-                    placeholder="Texte généré ou rédigé à la main"
+                  <RichTextEditor
+                    content={t.content || ""}
+                    onChange={(html) => patch(t.id, "content", html)}
+                    bgClass="border border-white/10 bg-zinc-900 text-white"
+                    maxHeight="480px"
+                    simple
                   />
                 </div>
+
 
                 <div className="flex justify-end">
                   <Button onClick={() => save(t)} disabled={savingId === t.id || !isDirty(t)}>
