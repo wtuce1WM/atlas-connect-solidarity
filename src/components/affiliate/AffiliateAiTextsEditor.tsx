@@ -76,6 +76,8 @@ const MENU_FIELDS: Array<[string, string]> = [
   ["pdf_3_url", "PDF 3"],
 ];
 
+// Volontairement sans url_4 / url_5 / url_6 (CTAs libres) : les liens externes
+// éditoriaux vivent dans business_documents (type external_link).
 const EXTERNAL_FIELDS: Array<[string, string]> = [
   ["website", "Site web"],
   ["online_shop_url", "Boutique en ligne"],
@@ -84,9 +86,6 @@ const EXTERNAL_FIELDS: Array<[string, string]> = [
   ["other_booking_url", "Autre réservation"],
   ["glovo_url", "Glovo"],
   ["matterport_url", "Visite virtuelle"],
-  ["url_4", "Lien 4"],
-  ["url_5", "Lien 5"],
-  ["url_6", "Lien 6"],
 ];
 
 const MODES: Array<{ value: string; label: string; help: string }> = [
@@ -137,6 +136,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
   const [lockedIds, setLockedIds] = useState<string[]>([]);
   const [pristine, setPristine] = useState<Record<string, string>>({});
   const [biz, setBiz] = useState<Record<string, any> | null>(null);
+  const [docs, setDocs] = useState<Array<{ type: string; name: string | null; url: string }>>([]);
   const [selectedUrls, setSelectedUrls] = useState<string[]>([]);
 
   const detect = (fields: Array<[string, string]>) =>
@@ -144,8 +144,33 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
       .map(([k, label]) => ({ key: k, label, url: String(biz?.[k] ?? "").trim() }))
       .filter((f) => !!f.url);
 
-  const menuLinks = useMemo(() => detect(MENU_FIELDS), [biz]);
-  const externalLinks = useMemo(() => detect(EXTERNAL_FIELDS), [biz]);
+  // Les menus / cartes et liens externes éditoriaux sont dans business_documents
+  // (type menu | flipbook | external_link) : c'est la source prioritaire.
+  const docLinks = (types: string[], fallbackLabel: string) => {
+    const seen = new Set<string>();
+    return docs
+      .filter((d) => types.includes(d.type) && String(d.url ?? "").trim())
+      .map((d) => ({
+        key: `doc-${d.url}`,
+        label: (d.name ?? "").trim() || (d.type === "flipbook" ? "Flipbook" : fallbackLabel),
+        url: String(d.url).trim(),
+      }))
+      .filter((d) => (seen.has(d.url) ? false : (seen.add(d.url), true)));
+  };
+
+  const dedupe = (list: Array<{ key: string; label: string; url: string }>) => {
+    const seen = new Set<string>();
+    return list.filter((l) => (seen.has(l.url) ? false : (seen.add(l.url), true)));
+  };
+
+  const menuLinks = useMemo(
+    () => dedupe([...docLinks(["menu", "flipbook"], "Menu"), ...detect(MENU_FIELDS)]),
+    [biz, docs],
+  );
+  const externalLinks = useMemo(
+    () => dedupe([...docLinks(["external_link"], "Lien externe"), ...detect(EXTERNAL_FIELDS)]),
+    [biz, docs],
+  );
   const activeLinks = mode === "menu_links" ? menuLinks : mode === "external_links" ? externalLinks : [];
 
   const snapshot = (t: AiText) => JSON.stringify([t.title, t.hook, t.content, t.is_active]);
@@ -153,7 +178,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
 
   const load = async () => {
     setLoading(true);
-    const [{ data, error }, linkRes, bizRes] = await Promise.all([
+    const [{ data, error }, linkRes, bizRes, docRes] = await Promise.all([
       supabase
         .from("business_ai_texts")
         .select(SELECT_COLS)
@@ -168,6 +193,12 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
         .select([...MENU_FIELDS, ...EXTERNAL_FIELDS].map(([k]) => k).join(","))
         .eq("id", businessId)
         .maybeSingle(),
+      (supabase as any)
+        .from("business_documents")
+        .select("type, name, url, sort_order")
+        .eq("business_id", businessId)
+        .in("type", ["menu", "flipbook", "external_link"])
+        .order("sort_order", { ascending: true }),
     ]);
     if (error) toast.error("Chargement impossible : " + error.message);
     const list = (data as AiText[]) ?? [];
@@ -179,6 +210,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
     }
     setLockedIds([...locked]);
     setBiz(((bizRes as any)?.data as Record<string, any>) ?? null);
+    setDocs((((docRes as any)?.data as any[]) ?? []) as any);
     setLoading(false);
   };
 
@@ -188,7 +220,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
   useEffect(() => {
     setSelectedUrls(activeLinks.map((l) => l.url));
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [mode, biz]);
+  }, [mode, biz, docs]);
 
   const toggleUrl = (url: string) =>
     setSelectedUrls((prev) => (prev.includes(url) ? prev.filter((u) => u !== url) : [...prev, url]));

@@ -62,6 +62,7 @@ const MENU_URL_KEYS = [
   ["pdf_3_url", "PDF 3"],
 ] as const;
 
+// Volontairement sans url_4 / url_5 / url_6 (CTAs libres).
 const EXTERNAL_URL_KEYS = [
   ["website", "Site web"],
   ["online_shop_url", "Boutique en ligne"],
@@ -70,9 +71,6 @@ const EXTERNAL_URL_KEYS = [
   ["other_booking_url", "Autre réservation"],
   ["glovo_url", "Glovo"],
   ["matterport_url", "Visite virtuelle"],
-  ["url_4", "Lien 4"],
-  ["url_5", "Lien 5"],
-  ["url_6", "Lien 6"],
 ] as const;
 
 const STYLE_BRIEFS: Record<string, string> = {
@@ -229,6 +227,31 @@ Deno.serve(async (req) => {
         let urls = keys
           .map(([k, label]) => [String((biz as any)[k] ?? "").trim(), label] as const)
           .filter(([u]) => !!u);
+
+        // Source prioritaire pour les menus / liens externes : business_documents
+        // (type menu | flipbook | external_link), là où l'affilié saisit « La carte », etc.
+        if (mode === "menu_links" || mode === "external_links") {
+          const docTypes = mode === "menu_links" ? ["menu", "flipbook"] : ["external_link"];
+          const { data: docs } = await supabase
+            .from("business_documents")
+            .select("type, name, url, sort_order")
+            .eq("business_id", businessId)
+            .in("type", docTypes)
+            .order("sort_order", { ascending: true });
+          const docUrls = ((docs as any[]) ?? [])
+            .map((d) => [
+              String(d.url ?? "").trim(),
+              String(d.name ?? "").trim() ||
+                (d.type === "flipbook" ? "Flipbook" : mode === "menu_links" ? "Menu" : "Lien externe"),
+            ] as const)
+            .filter(([u]) => !!u);
+          urls = [...docUrls, ...urls];
+        }
+
+        // Dédoublonnage par URL.
+        const seen = new Set<string>();
+        urls = urls.filter(([u]) => (seen.has(u) ? false : (seen.add(u), true)));
+
         // Sélection explicite côté affilié : on ne garde que les liens de la fiche.
         if (requestedUrls.length > 0) {
           const wanted = new Set(requestedUrls);
