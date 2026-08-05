@@ -322,6 +322,12 @@ Deno.serve(async (req) => {
         }
         const parts = await Promise.all(
           urls.map(async ([u, label]) => {
+            // Menus : on tente d'abord la lecture visuelle (pictogrammes allergènes),
+            // puis on retombe sur l'extraction texte classique.
+            if (mode === "menu_links") {
+              const vision = await visionReadPdf(u, label, LOVABLE_API_KEY);
+              if (vision) return `### ${label} (${u}) — lecture visuelle IA\n${vision}`;
+            }
             const md = await firecrawlScrape(u, fcKey);
             return md ? `### ${label} (${u})\n${md}` : "";
           }),
