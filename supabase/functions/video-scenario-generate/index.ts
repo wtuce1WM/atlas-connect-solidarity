@@ -1,5 +1,5 @@
-import { createClient } from "npm:@supabase/supabase-js@2.58.0";
-import { corsHeaders } from "npm:@supabase/supabase-js@2.58.0/cors";
+import { createClient } from "npm:@supabase/supabase-js@2";
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { assertStaffOrAffiliateBusiness } from "../_shared/auth-helpers.ts";
 import { fetchAiGateway, resolveCallerContext } from "../_shared/ai-gateway.ts";
 
