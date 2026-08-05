@@ -7,6 +7,54 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY")!;
 
+
+/**
+ * Carte IA — lecture VISUELLE du/des PDF « carte / menu » liés à la fiche
+ * (business_documents type menu | flipbook), comme dans /affiliates/presence
+ * → TXT IA → « Liens à exploiter ». Les pictogrammes (sans gluten, végétarien…)
+ * et la mise en page ne sont récupérables que par vision multimodale.
+ */
+async function visionReadPdf(url: string, label: string): Promise<string> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return "";
+    const ct = (res.headers.get("content-type") ?? "").toLowerCase();
+    const buf = new Uint8Array(await res.arrayBuffer());
+    const isPdf = ct.includes("pdf") || (buf[0] === 0x25 && buf[1] === 0x50 && buf[2] === 0x44 && buf[3] === 0x46);
+    if (!isPdf || buf.byteLength > 18_000_000) return "";
+    let b64 = "";
+    const CH = 0x8000;
+    for (let i = 0; i < buf.length; i += CH) b64 += String.fromCharCode(...buf.subarray(i, i + CH));
+    b64 = btoa(b64);
+    const ai = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: { "Lovable-API-Key": LOVABLE_API_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "google/gemini-3.6-flash",
+        messages: [{
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text:
+                "Analyse visuellement ce document (carte / menu). Restitue en texte structuré : les sections, " +
+                "les intitulés exacts des plats et boissons, les spécialités, et les mentions de régime " +
+                "indiquées par pictogrammes ou légende (sans gluten, végétarien, vegan, épicé…). " +
+                "N'inclus aucun prix.",
+            },
+            { type: "file", file: { filename: `${label}.pdf`, file_data: `data:application/pdf;base64,${b64}` } },
+          ],
+        }],
+      }),
+    });
+    if (!ai.ok) return "";
+    const json = await ai.json();
+    return String(json?.choices?.[0]?.message?.content ?? "").slice(0, 9000);
+  } catch (_e) {
+    return "";
+  }
+}
+
 // Templates Remotion disponibles, choisis par l'IA.
 // business-showcase = template générique piloté par props (fallback universel).
 const TEMPLATES = [
@@ -232,6 +280,26 @@ Deno.serve(async (req) => {
       };
     }
 
+    // Carte IA : on nourrit le scénario avec le contenu réel des cartes / menus PDF liés.
+    let menuVisionDigest = "";
+    if (options?.ai_card && resolved_business_id) {
+      const { data: menuRows } = await supa
+        .from("business_documents")
+        .select("url,name,type,sort_order")
+        .eq("business_id", resolved_business_id)
+        .in("type", ["menu", "flipbook"])
+        .order("sort_order", { ascending: true })
+        .limit(3);
+      for (const d of menuRows ?? []) {
+        const u = String((d as any)?.url ?? "");
+        if (!/^https?:\/\//i.test(u)) continue;
+        const txt = await visionReadPdf(u, String((d as any)?.name ?? "carte"));
+        if (txt) menuVisionDigest += `\n--- ${(d as any)?.name ?? "Carte"} ---\n${txt}`;
+        if (menuVisionDigest.length > 9000) break;
+      }
+      menuVisionDigest = menuVisionDigest.slice(0, 9000);
+    }
+
     const NAMED_ENTITIES: Record<string, string> = {
       amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", laquo: "«", raquo: "»",
       eacute: "é", egrave: "è", ecirc: "ê", agrave: "à", acirc: "â", ccedil: "ç",
@@ -411,6 +479,10 @@ ${wantsInstallCta ? `- Activer l'incitation à installer l'app (One World Morocc
 Si \`businessContext\` est null, l'établissement est introuvable dans la base : choisis quand même "business-showcase", remplis name/hook/tagline depuis le prompt utilisateur, mets \`"images": []\` et \`"offer": null\`.
 
 LANGUE DE SORTIE (ABSOLUE) : ${videoLang === "en" ? "ANGLAIS" : "FRANÇAIS"}. Tous les textes que tu génères (hook de secours, tagline, titres et lignes d'offre, textes de scènes) doivent être rédigés en ${videoLang === "en" ? "anglais" : "français"}. N'ajoute AUCUNE traduction entre parenthèses. Les noms propres (établissement, ville, quartier) restent inchangés.
+
+${menuVisionDigest ? `CARTE IA — CONTENU RÉEL DES CARTES / MENUS PDF LIÉS À LA FICHE (lecture visuelle) :
+${menuVisionDigest}
+Utilise EXCLUSIVEMENT ce contenu pour construire \`offer\` (scène « Carte IA ») : \`title\` = accroche courte issue de la carte (≤60 car), \`lines\` = 3 à 6 plats/sections réellement présents (≤80 car chacune), \`price\` = null (jamais de prix). N'invente aucun plat.` : ""}
 
 Durée demandée : ${duration_sec}s · Ton : ${tone}.
 
