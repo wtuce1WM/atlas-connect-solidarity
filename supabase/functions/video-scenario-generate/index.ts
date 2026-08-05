@@ -223,8 +223,10 @@ Deno.serve(async (req) => {
 
       businessContext = {
         ...biz,
-        hook: (videoLang === "en" ? pickLang(biz?.hook_en, biz?.description_en) : null)
-          ?? biz?.hook_fr ?? biz?.destination_hook ?? biz?.poi_hook ?? biz?.description ?? null,
+        // Hook STRICT : jamais de repli sur la description (sinon la scène Hook
+        // reprend le texte de présentation, cf. correctif « hook vide »).
+        hook: (videoLang === "en" ? pickLang(biz?.hook_en) : null)
+          ?? biz?.hook_fr ?? biz?.destination_hook ?? biz?.poi_hook ?? null,
         name: (videoLang === "en" ? pickLang(biz?.name_en) : null) ?? biz?.name,
         medias: mergedMedias,
       };
@@ -563,7 +565,7 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     if (template_id === "business-showcase" && businessContext) {
       const realHook = stripHtml(
         videoLang === "en"
-          ? pickLang(businessContext.hook_en, businessContext.description_en, businessContext.hook_fr, businessContext.hook)
+          ? pickLang(businessContext.hook_en, businessContext.hook_fr, businessContext.hook)
           : (businessContext.hook_fr || businessContext.hook),
       );
       if (realHook && typeof realHook === "string" && realHook.trim()) {
@@ -594,8 +596,8 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       if (businessDetails.neighborhood) template_props.neighborhood = businessDetails.neighborhood;
       const realHook = stripHtml(
         videoLang === "en"
-          ? pickLang(businessDetails.hook_en, businessDetails.description_en, businessDetails.hook_fr, businessDetails.destination_hook, businessDetails.poi_hook, businessDetails.description)
-          : (businessDetails.hook_fr || businessDetails.destination_hook || businessDetails.poi_hook || businessDetails.description),
+          ? pickLang(businessDetails.hook_en, businessDetails.hook_fr, businessDetails.destination_hook, businessDetails.poi_hook)
+          : (businessDetails.hook_fr || businessDetails.destination_hook || businessDetails.poi_hook),
       );
       if (realHook) {
         template_props.hook = realHook;
@@ -1516,6 +1518,24 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
 
     // Widgets Météo / Marées, Vents & Météo — 5 s par défaut, données déterministes.
     // Chaque widget est tenté indépendamment : si l'un échoue, l'autre reste monté.
+    // Hook vide en base → on n'invente rien et on retire l'étape Hook du scénario
+    // (kind "name" côté montage) au lieu de reprendre la Description.
+    if (template_id === "business-showcase" && businessDetails) {
+      const dbHook = stripHtml(
+        videoLang === "en"
+          ? pickLang(businessDetails.hook_en, businessDetails.hook_fr, businessDetails.destination_hook, businessDetails.poi_hook)
+          : (businessDetails.hook_fr || businessDetails.destination_hook || businessDetails.poi_hook),
+      );
+      if (!dbHook || !dbHook.trim()) {
+        delete (template_props as any).hook;
+        delete (template_props as any).useFullHookScene;
+        const order = (template_props as any).scene_order;
+        if (Array.isArray(order)) {
+          (template_props as any).scene_order = order.filter((k: unknown) => String(k) !== "name");
+        }
+      }
+    }
+
     const ensureSceneInOrder = (kind: "weather" | "tides") => {
       const order = (template_props as any).scene_order;
       if (!Array.isArray(order) || !order.length) return; // ordre implicite → déjà géré côté Remotion
