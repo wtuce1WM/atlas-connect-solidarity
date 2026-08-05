@@ -17,6 +17,8 @@ import Footer from "@/components/Footer";
 import { welcomeBadgeLabel, propositionLabel, WELCOME_BADGE_CODES, PROPOSITION_CODES } from "@/lib/ctaBadgeLabels";
 import { StudioVideoScenarioPanel, buildScenario, extractKeywords, scenarioFromTemplateProps, type Scenario, type SceneMediaMap, type SceneMediaItem, type ScenarioEdits } from "@/components/StudioVideoScenarioPanel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { preflightMedia, type PreflightEntry, type PreflightIssue } from "@/lib/videoMediaPreflight";
+
 
 import maisonBrummellAsset from "@/assets/maison-brummell.mp4.asset.json";
 import riadDarNajatAsset from "@/assets/riad-dar-najat.mp4.asset.json";
@@ -417,6 +419,10 @@ export default function StudioVideo() {
   const [wordsPerBlock, setWordsPerBlock] = useState(12);
   const [pendingCustomScene, setPendingCustomScene] = useState<any | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [preflightRunning, setPreflightRunning] = useState(false);
+  const [preflightIssues, setPreflightIssues] = useState<PreflightIssue[]>([]);
+  const [preflightOpen, setPreflightOpen] = useState(false);
+
   const [previewing, setPreviewing] = useState(false);
   const [scenarioPreviewed, setScenarioPreviewed] = useState(false);
   const [aiScenario, setAiScenario] = useState<{ scenario: Scenario; rationale?: string; templateId: string } | null>(null);
@@ -1602,7 +1608,29 @@ export default function StudioVideo() {
     return matches;
   }, [promptKeywords, bizImages, bizVideos]);
 
-  const submit = async () => {
+  // Rassemble tous les médias qui partiront au rendu, pour le pré-vol.
+  const collectPreflightEntries = (chosenImages: string[], chosenVideos: string[]): PreflightEntry[] => {
+    const out: PreflightEntry[] = [];
+    if (logoInfo.url && logoInfo.bg === "transparent" && optOpenWithLogo) {
+      out.push({ url: logoInfo.url, label: "Logo (étape d'ouverture)", kind: "image" });
+    }
+    chosenImages.forEach((u) => out.push({ url: u, label: "Image sélectionnée", kind: "image" }));
+    chosenVideos.forEach((u) => {
+      const meta = bizVideos.find((v) => v.url === u);
+      out.push({ url: u, label: `Vidéo sélectionnée${meta?.title ? ` — ${meta.title}` : ""}`, kind: meta?.kind === "youtube" ? "youtube" : "video" });
+    });
+    Object.entries(sceneMedia).forEach(([kind, items]) => {
+      (items ?? []).forEach((m) => out.push({ url: m.url, label: `Étape « ${kind} » — média assigné`, kind: m.kind }));
+    });
+    if (continuousBg && continuousBgUrl) {
+      const meta = bizVideos.find((v) => v.url === continuousBgUrl);
+      out.push({ url: continuousBgUrl, label: "Vidéo de fond continue", kind: meta?.kind === "youtube" ? "youtube" : "video" });
+    }
+    if (soundtrackOn && soundtrackUrl) out.push({ url: soundtrackUrl, label: "Piste sonore", kind: "audio" });
+    return out;
+  };
+
+  const submit = async (opts?: { skipPreflight?: boolean }) => {
     if (submitting) return;
     if (hasActiveJob) {
       toast.error("Job déjà lancé — patientez la fin du rendu en cours.");
@@ -1615,7 +1643,29 @@ export default function StudioVideo() {
     setSubmitting(true);
     try {
       const { finalPrompt, chosenImages, chosenVideos } = buildDirectivesPrompt();
+
+      // Pré-vol médias : bloque les causes n°1 de jobs en erreur (liens YouTube,
+      // fichiers Storage supprimés) avant de consommer un rendu.
+      if (!opts?.skipPreflight) {
+        setPreflightRunning(true);
+        let issues: PreflightIssue[] = [];
+        try {
+          issues = await preflightMedia(collectPreflightEntries(chosenImages, chosenVideos));
+        } catch {
+          issues = [];
+        } finally {
+          setPreflightRunning(false);
+        }
+        if (issues.length > 0) {
+          setPreflightIssues(issues);
+          setPreflightOpen(true);
+          setSubmitting(false);
+          return;
+        }
+      }
+
       const { data, error } = await supabase.functions.invoke("video-scenario-generate", {
+
         body: {
           prompt: finalPrompt,
           business_id: selected?.id ?? null,
@@ -4373,12 +4423,55 @@ export default function StudioVideo() {
                 )}
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button onClick={submit} disabled={submitting || hasActiveJob} className="gap-2">
-                  {submitting || hasActiveJob ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-                  {hasActiveJob ? "Job déjà lancé…" : refineFrom ? "Générer la version affinée" : "Générer la vidéo"}
+                <Button onClick={() => submit()} disabled={submitting || hasActiveJob || preflightRunning} className="gap-2">
+                  {submitting || hasActiveJob || preflightRunning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                  {preflightRunning ? "Vérification des médias…" : hasActiveJob ? "Job déjà lancé…" : refineFrom ? "Générer la version affinée" : "Générer la vidéo"}
                 </Button>
               </div>
+
+              <Dialog open={preflightOpen} onOpenChange={setPreflightOpen}>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Vérification des médias avant rendu</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-3 text-sm">
+                    <p className="text-muted-foreground">
+                      {preflightIssues.some((i) => i.severity === "block")
+                        ? "Certains médias ne sont pas rendables : le rendu échouerait. Corrigez-les puis relancez."
+                        : "Points de vigilance détectés. Vous pouvez lancer malgré tout."}
+                    </p>
+                    <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+                      {preflightIssues.map((i, idx) => (
+                        <div
+                          key={`${i.url}-${idx}`}
+                          className={`rounded-md border p-2 ${i.severity === "block" ? "border-destructive/50 bg-destructive/5" : "border-border bg-muted/30"}`}
+                        >
+                          <div className="font-medium">
+                            {i.severity === "block" ? "⛔ " : "⚠️ "}
+                            {i.label}
+                          </div>
+                          <div className="text-muted-foreground">{i.reason}</div>
+                          <div className="mt-1 break-all font-mono text-[11px] text-muted-foreground">{i.url}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex flex-wrap justify-end gap-2 pt-2">
+                      <Button variant="outline" onClick={() => setPreflightOpen(false)}>Corriger</Button>
+                      <Button
+                        variant={preflightIssues.some((i) => i.severity === "block") ? "outline" : "default"}
+                        onClick={() => {
+                          setPreflightOpen(false);
+                          void submit({ skipPreflight: true });
+                        }}
+                      >
+                        Lancer quand même
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
+
           )}
 
 
