@@ -802,10 +802,18 @@ export function StudioVideoScenarioPanel({
       whatsappOfferMode: hasWaOffer ? whatsappOfferMode : undefined,
       weatherCity: hasWeatherCity ? weatherCity : undefined,
       tidesCity: hasTidesCity ? tidesCity : undefined,
+      useAssociatedMedia: hasAssocOff
+        ? Object.fromEntries(
+            Object.keys(assocMediaOff)
+              .filter((k) => assocMediaOff[k])
+              .map((k) => [k, false]),
+          )
+        : undefined,
       totalDuration: editedScenes.reduce((acc, s) => acc + s.duration, 0),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, segmentOverrides, textOverrides, poiOverrides, destOverrides, placesMediaMode, whatsappOfferMode, weatherCity, tidesCity, editedScenes]);
+  }, [orderOverride, durationOverrides, customScenes, customById, splitOverrides, segmentOverrides, textOverrides, poiOverrides, destOverrides, placesMediaMode, whatsappOfferMode, weatherCity, tidesCity, assocMediaOff, editedScenes]);
+
 
   const total = editedScenes.reduce((acc, s) => acc + s.duration, 0);
   // Étapes d'origine supprimées (built-in retirées de l'ordre)
