@@ -289,6 +289,20 @@ const VideoScenarioConfigPanel = () => {
                   </div>
                 </div>
               </div>
+              {STEP_DOCS[s.scene_key] && (
+                <div className="mt-2 ml-11 space-y-0.5 text-[11px] leading-snug text-muted-foreground max-w-3xl">
+                  <p className="text-black/80">{STEP_DOCS[s.scene_key].what}</p>
+                  <p>
+                    <span className="font-semibold">Filtre :</span> {STEP_DOCS[s.scene_key].filter}
+                  </p>
+                  {STEP_DOCS[s.scene_key].notes && (
+                    <p>
+                      <span className="font-semibold">Montage :</span> {STEP_DOCS[s.scene_key].notes}
+                    </p>
+                  )}
+                </div>
+              )}
+              </div>
             ))}
           </div>
         )}
