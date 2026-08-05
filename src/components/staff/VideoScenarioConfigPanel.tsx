@@ -43,43 +43,47 @@ const STEP_DOCS: Record<string, { what: string; filter: string; notes?: string }
   name: {
     what: "Nom de l'établissement + identité (catégorie, ville/quartier).",
     filter: "Toujours présente.",
+    notes: "Titre en Montserrat sur média plein cadre (rotation) ; badges catégorie/ville animés en entrée.",
   },
   popup: {
     what: "Visuel du popup promotionnel de la fiche, plein cadre.",
     filter: "Incluse seulement si « Popup » est cochée ET qu'une image de popup existe.",
+    notes: "Image affichée sans recadrage agressif (proportions préservées) ; aucun texte ajouté par-dessus.",
   },
   proposition: {
     what: "Carte texte de proposition de valeur (champ PROPOSITION des CTAs).",
     filter: "Incluse seulement si le texte PROPOSITION n'est pas vide.",
-    notes: "Rich Text respecté, mise à l'échelle automatique du texte.",
+    notes: "Rich Text respecté (gras, puces, retours ligne) ; mise à l'échelle automatique du texte ; média de fond par rotation ou média assigné.",
   },
   weather: {
     what: "Widget Météo animé sur la ville choisie dans le Studio.",
     filter: "Incluse seulement si l'étape est activée dans le Studio et qu'une ville est sélectionnée.",
-    notes: "La durée définie ici pilote directement la durée du widget au montage (défaut 6s).",
+    notes: "La durée définie ici pilote directement la durée du widget au montage (défaut 6s) ; rendu identique au widget embarqué (fond selon la couleur widget).",
   },
   tides: {
     what: "Widget Marées, Vents & Météo sur une ville côtière.",
     filter: "Ville côtière obligatoire (liste marées) + étape activée dans le Studio.",
-    notes: "Durée pilotée par ce réglage (défaut 6s). Variante affichée selon le filtre marées/vents/météo.",
+    notes: "Durée pilotée par ce réglage (défaut 6s) ; variante affichée selon le filtre marées/vents/météo choisi dans le Studio.",
   },
   hook: {
     what: "Phrase d'accroche (Hook) sur média plein cadre.",
     filter: "Toujours proposée, mais ignorée si le Hook est vide (aucun repli sur la Description).",
+    notes: "Une seule carte ; texte auto-réduit si long ; média de fond par rotation ou média assigné via « Ajouter média ».",
   },
   ai_card: {
     what: "Carte IA : synthèse courte générée pour la vidéo.",
     filter: "Incluse seulement si une Carte IA a été générée/cochée dans le Studio.",
+    notes: "Rich Text respecté (gras, puces, retours ligne) ; texte auto-réduit pour tenir dans le cadre ; média de fond par rotation ou média assigné via « Ajouter média ».",
   },
   offer: {
     what: "Offre(s) promotionnelle(s) : titre, valeur (% ou montant), mention courte.",
     filter: "Incluse s'il y a au moins une offre sélectionnée.",
-    notes: "Plusieurs offres = plusieurs cartes successives ; la durée est répartie par offre.",
+    notes: "Plusieurs offres = plusieurs cartes successives ; la durée est répartie par offre ; badge valeur en dégradé or, mention courte en pied de carte.",
   },
   highlight: {
     what: "Blocs highlights (icône/image + titre + texte + métrique).",
     filter: "Incluse s'il y a au moins un highlight rempli et sélectionné.",
-    notes: "Une carte par highlight. Texte long auto-réduit, puces sans retour ligne après le symbole.",
+    notes: "Une carte par highlight ; Rich Text respecté, texte long auto-réduit, puces sans retour ligne après le symbole ; média de fond par rotation ou média assigné.",
   },
   ai_text: {
     what: "Textes IA de l'onglet TXT IA de Présence en ligne (titre + corps).",
@@ -89,55 +93,62 @@ const STEP_DOCS: Record<string, { what: string; filter: string; notes?: string }
   external_link: {
     what: "Mise en avant des liens externes / presse de la fiche.",
     filter: "Incluse si au moins un lien externe (documents backoffice, type lien externe) est sélectionné.",
-    notes: "N'utilise jamais les champs url 1 à url 6.",
+    notes: "Une carte par lien (nom + domaine) ; logo/visuel du média utilisé en repli de fond ; n'utilise jamais les champs url 1 à url 6.",
   },
   menu_doc: {
     what: "Menu / document (carte, flipbook, PDF) avec vignette.",
     filter: "Incluse si au moins un document de type menu/flipbook est sélectionné.",
+    notes: "Une carte par document ; ornement décoratif activé ; libellé dédoublonné (« La carte » / « Notre sélection »).",
   },
   media: {
     what: "Zone libre médias : photos et vidéos de l'établissement.",
     filter: "Incluse si des médias sont assignés à l'étape (ou « Ajouter média »).",
-    notes: "Les médias déjà utilisés ailleurs sont évités par rotation.",
+    notes: "Un plan par média ; les médias déjà utilisés ailleurs sont évités par rotation ; vidéos lues avec son coupé.",
   },
   reviews: {
     what: "Note globale et nombre d'avis, en carte animée.",
     filter: "Incluse si « Avis » est cochée ET qu'une note ou un nombre d'avis existe.",
+    notes: "Étoiles animées + compteur ; média de fond par rotation ou média assigné.",
   },
   google_review: {
     what: "Avis Google mis en avant (extrait + note source).",
     filter: "Incluse si un avis Google exploitable est disponible.",
-    notes: "Les variantes Tripadvisor / Restaurant Guru / avis client suivent la même logique.",
+    notes: "Un extrait tronqué proprement en fin de phrase ; les variantes Tripadvisor / Restaurant Guru / avis client suivent la même logique.",
   },
   hours: {
     what: "Horaires d'ouverture de la semaine.",
     filter: "Incluse si « Horaires » est cochée ET que des horaires sont renseignés.",
+    notes: "Grille 7 jours compactée, jours fermés grisés ; auto-réduction si beaucoup de créneaux.",
   },
   map: {
     what: "Localisation : carte, quartier, POI de proximité avec flèches et distances.",
     filter: "Incluse si « Localisation » est cochée ET latitude/longitude présentes.",
-    notes: "Durée conseillée : 6s pour 1 POI, +1s par POI supplémentaire.",
+    notes: "Durée conseillée : 6s pour 1 POI, +1s par POI supplémentaire ; carte centrée sur l'établissement, flèche directionnelle et distance par POI.",
   },
   digital: {
     what: "Carte « ID numérique » (widget type Linktree) avec QR / lien de la fiche.",
     filter: "Incluse si « ID numérique » est cochée ET que la fiche a un slug.",
+    notes: "QR code généré à partir de l'URL publique de la fiche ; média de fond par rotation ou média assigné.",
   },
   blog: {
     what: "Articles de blog liés à l'établissement (titre + visuel).",
     filter: "Incluse si « Articles blog » est cochée ET qu'au moins un article est lié.",
+    notes: "Une carte par article (titre + image de couverture) ; durée répartie entre les articles.",
   },
   whatsapp: {
     what: "Invitation à contacter par WhatsApp avec le numéro affiché.",
     filter: "Incluse si « WhatsApp » est cochée ET qu'un numéro est renseigné.",
+    notes: "Couleur WhatsApp (#25D366) et numéro formaté ; média de fond par rotation ou média assigné.",
   },
   cta: {
     what: "CTA final : installation de l'app / renvoi vers One World Morocco.",
     filter: "Incluse sauf si l'installation de l'app est désactivée.",
-    notes: "Toujours placée en dernier au montage, quel que soit l'ordre ici.",
+    notes: "Toujours placée en dernier au montage, quel que soit l'ordre ici ; durée minimale garantie pour éviter une fin noire.",
   },
   outro: {
     what: "Séquence de clôture de marque.",
     filter: "Même condition que le CTA final.",
+    notes: "Fondu de sortie sur le logo One World Morocco, après le CTA final.",
   },
 };
 

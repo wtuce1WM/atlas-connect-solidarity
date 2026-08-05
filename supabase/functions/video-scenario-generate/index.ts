@@ -1305,6 +1305,18 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
       const aiInventedOffer = template_props.offer && typeof template_props.offer === "object"
         ? { ...template_props.offer }
         : null;
+      if (aiInventedOffer) {
+        // Rich Text respecté : on conserve la mise en forme (gras, puces, retours ligne)
+        // si l'IA renvoie du HTML, sinon on reconstruit un HTML propre à partir des lignes.
+        const rawMsg = String((aiInventedOffer as any).message_html || (aiInventedOffer as any).message || "");
+        const lines = Array.isArray((aiInventedOffer as any).lines)
+          ? (aiInventedOffer as any).lines.map((l: unknown) => String(l || "").trim()).filter(Boolean)
+          : [];
+        const fallbackHtml = lines.length > 0
+          ? `<ul>${lines.map((l: string) => `<li>${l.replace(/[<>]/g, "")}</li>`).join("")}</ul>`
+          : "";
+        (aiInventedOffer as any).message_html = sanitizeRich(rawMsg) || fallbackHtml || undefined;
+      }
       template_props.aiCard = options?.ai_card && aiInventedOffer ? aiInventedOffer : null;
       if (template_props.aiCard && Array.isArray(template_props.scene_order) && !template_props.scene_order.includes("ai_card")) {
         template_props.scene_order = [...template_props.scene_order, "ai_card"];
