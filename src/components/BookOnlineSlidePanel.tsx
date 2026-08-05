@@ -3104,16 +3104,16 @@ const BookOnlineSlidePanelInner = ({
                           {activeFrontTab ? (
                             <>
                               {/* Fallback vers Catégories en haut des sous-catégories */}
-                              <DropdownMenuItem onSelect={() => { setPoiCatFilter(null); setPoiSubcatFilter(null); setPoiShowAll(false); }}>
+                              <DropdownMenuItem onSelect={() => { setPoiCatFilter(null); setCatSubcatFilter(null); setPoiShowAll(false); }}>
                                 {"\u2039 "}{language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
                               </DropdownMenuItem>
-                              {poiSubcatFilter && (
-                                <DropdownMenuItem onSelect={() => setPoiSubcatFilter(null)}>
+                              {catSubcatFilter && (
+                                <DropdownMenuItem onSelect={() => setCatSubcatFilter(null)}>
                                   {language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
                                 </DropdownMenuItem>
                               )}
                               {catSubcatList.map(([name, count]) => (
-                                <DropdownMenuItem key={name} onSelect={() => { setPoiSubcatFilter(name); setPoiShowAll(false); }}>
+                                <DropdownMenuItem key={name} onSelect={() => { setCatSubcatFilter(name); setPoiShowAll(false); }}>
                                   {translateSubcategory(name, language)} <span className="ml-1 opacity-60">({count})</span>
                                 </DropdownMenuItem>
                               ))}
