@@ -3629,7 +3629,25 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             })()}
           </AbsoluteFill>
         );
+      case "ai_card":
       case "offer": {
+        if (kind === "ai_card") {
+          if (!aiCard) return null;
+          const rot = bgRotate(planIdx);
+          const bgVideo = aiCard.background_video_url || rot.src;
+          const bgImage = !bgVideo ? (aiCard.background_image_url || rot.image) : undefined;
+          return (
+            <AbsoluteFill>
+              {(bgVideo || bgImage) ? (
+                <>
+                  <MotionBackdrop src={bgVideo} image={bgImage} duration={duration} effect={trImageEffect} veil="rgba(14,11,8,0.35)" extraStartSec={aiCard.background_video_url ? 0 : rot.extraStartSec} />
+                  <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.22) 0%,rgba(14,11,8,0.48) 100%)" }} />
+                </>
+              ) : null}
+              <SceneOffer offer={aiCard} city={city} durationFrames={duration} textPosition={textPosition} />
+            </AbsoluteFill>
+          );
+        }
         const idx = typeof offerIndex === "number" ? offerIndex : 0;
         const currentOffer = offersArr[idx] ?? offer;
         if (!currentOffer) return null;
