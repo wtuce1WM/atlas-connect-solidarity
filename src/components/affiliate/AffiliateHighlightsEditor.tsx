@@ -177,22 +177,29 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
           .update({
             icon: h.icon,
             image_url: h.image_url,
-            title_fr: h.title_fr,
+            // FR : colonnes historiques (lues par le front et le backoffice) + miroir _fr
+            title: h.title,
+            title_fr: h.title,
             title_en: h.title_en,
             title_ar: h.title_ar,
-            description_fr: h.description_fr,
+            description: h.description,
+            description_fr: h.description,
             description_en: h.description_en,
             description_ar: h.description_ar,
+            section_title: sectionTitle.fr,
             section_title_fr: sectionTitle.fr,
             section_title_en: sectionTitle.en,
             section_title_ar: sectionTitle.ar,
+            section_intro: sectionIntro.fr,
             section_intro_fr: sectionIntro.fr,
             section_intro_en: sectionIntro.en,
             section_intro_ar: sectionIntro.ar,
-            metric_title_fr: (h.metric_title_fr || "").slice(0, MAX_METRIC) || null,
+            metric_title: (h.metric_title || "").slice(0, MAX_METRIC) || null,
+            metric_title_fr: (h.metric_title || "").slice(0, MAX_METRIC) || null,
             metric_title_en: (h.metric_title_en || "").slice(0, MAX_METRIC) || null,
             metric_title_ar: (h.metric_title_ar || "").slice(0, MAX_METRIC) || null,
-            metric_value_fr: (h.metric_value_fr || "").slice(0, MAX_METRIC) || null,
+            metric_value: (h.metric_value || "").slice(0, MAX_METRIC) || null,
+            metric_value_fr: (h.metric_value || "").slice(0, MAX_METRIC) || null,
             metric_value_en: (h.metric_value_en || "").slice(0, MAX_METRIC) || null,
             metric_value_ar: (h.metric_value_ar || "").slice(0, MAX_METRIC) || null,
           } as any)
@@ -208,10 +215,10 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
       [highlights, sectionTitle, sectionIntro, dirty]
     );
 
-    const titleField = `title_${lang}` as keyof Highlight;
-    const descField = `description_${lang}` as keyof Highlight;
-    const metricTitleField = `metric_title_${lang}` as keyof Highlight;
-    const metricValueField = `metric_value_${lang}` as keyof Highlight;
+    const titleField = `title${sfx(lang)}` as keyof Highlight;
+    const descField = `description${sfx(lang)}` as keyof Highlight;
+    const metricTitleField = `metric_title${sfx(lang)}` as keyof Highlight;
+    const metricValueField = `metric_value${sfx(lang)}` as keyof Highlight;
     const rtl = lang === "ar";
     const introLen = plainLen(sectionIntro[lang]);
 
