@@ -2232,9 +2232,12 @@ const BookOnlineSlidePanelInner = ({
                 const afterCatGrid = activeFrontTabGrid
                   ? activePoiCategoryBusinesses
                   : poiBusinesses;
-                const afterSubcatGrid = poiSubcatFilter
-                  ? afterCatGrid.filter((p) => (p.categories || []).includes(poiSubcatFilter))
-                  : afterCatGrid;
+                const afterSubcatGrid = (() => {
+                  let list = afterCatGrid;
+                  if (poiSubcatFilter) list = list.filter((p) => (p.categories || []).includes(poiSubcatFilter));
+                  if (catSubcatFilter) list = list.filter((p) => (p.categories || []).includes(catSubcatFilter));
+                  return list;
+                })();
                 const afterProxGrid = poiProximityKm != null
                   ? afterSubcatGrid.filter((p) => {
                       const d = userCoords && p.latitude != null && p.longitude != null
