@@ -521,6 +521,7 @@ const AffiliateVideosEditor = forwardRef<AffiliateVideosEditorHandle, Props>(
                     onChange={(patch) => patchVideo(v._uid, patch)}
                     onDelete={() => deleteVideo(v._uid)}
                     onPopupToggle={() => togglePopup(v._uid)}
+                    onOpenText={() => setTextUid(v._uid)}
                     onUploadVideo={(file) => uploadVideo(v._uid, file)}
                   />
                 ))}
