@@ -478,7 +478,7 @@ const splitHookInTwo = (h: string): [string, string] => {
 
 type SceneKind = "logo" | "welcome" | "proposition" | "hook" | "name" | "ai_card" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "ai_text" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "blog" | "weather" | "tides" | "whatsapp" | "cta" | "outro";
 
-const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "welcome", "proposition", "hook", "name", "ai_card", "offer", "popup", "media", "highlight", "ai_summary", "ai_text", "external_link", "menu_doc", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "blog", "weather", "tides", "whatsapp", "cta"];
+const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "welcome", "proposition", "hook", "name", "ai_card", "offer", "popup", "media", "highlight", "ai_summary", "ai_text", "external_link", "menu_doc", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "blog", "weather", "tides", "whatsapp", "cta", "outro"];
 
 function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
   switch (kind) {
