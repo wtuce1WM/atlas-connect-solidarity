@@ -59,6 +59,14 @@ const MAX_VIDEOS = 12;
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
 const MAX_DESC = 2000;
 
+const stripHtmlText = (html: string): string => {
+  if (!html) return "";
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html;
+  return (tmp.textContent || tmp.innerText || "").trim();
+};
+
+
 const uid = () => Math.random().toString(36).slice(2, 10);
 
 const renderPreview = (url: string) => {
