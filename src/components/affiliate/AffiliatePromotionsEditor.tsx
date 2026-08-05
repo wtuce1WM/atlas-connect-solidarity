@@ -186,7 +186,24 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
             <DialogDescription>Créez une offre promotionnelle pour cet établissement.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
+            <div>
+              <Label>Type d'offre</Label>
+              <select
+                value={form.promotion_type}
+                onChange={e => setForm(f => ({ ...f, promotion_type: e.target.value as "percentage" | "fixed" }))}
+                className="mt-1 w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="percentage">Remise en pourcentage (- %)</option>
+                <option value="fixed">Remise / prix en montant fixe</option>
+              </select>
+              <p className="text-xs text-muted-foreground mt-1">
+                {form.promotion_type === "percentage"
+                  ? "Renseignez « - % » (et éventuellement une valeur d'économie en devise)."
+                  : "Renseignez « Valeur » et la devise ; le champ « - % » est ignoré."}
+              </p>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
               <div>
                 <Label>- %</Label>
                 <Input
