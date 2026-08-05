@@ -4537,11 +4537,14 @@ export default function StudioVideo() {
 }
 
 function estimateVideoCost(durationSec: number) {
-  const scenarioUsd = 0.034; // Claude Sonnet scenario generation
-  const renderUsd = 0.01 + durationSec * 0.0005; // Remotion Lambda approx
+  // Coût réel mesuré en base (ai_usage_events, contexte studio-video-scenario) :
+  // google/gemini-3-flash-preview → ~$0,00214 par génération de scénario.
+  const scenarioUsd = 0.00214;
+  // Rendu Remotion sur GitHub Actions (minutes runner) : ordre de grandeur.
+  const renderUsd = 0.002 + durationSec * 0.0001;
   const totalUsd = scenarioUsd + renderUsd;
   return {
-    usd: totalUsd.toFixed(2),
+    usd: totalUsd.toFixed(4),
   };
 }
 
