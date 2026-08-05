@@ -459,7 +459,7 @@ function sceneKindFor(icon: Scene["icon"]): SceneMediaKind | null {
 }
 
 /** Étapes possédant une image « associée » par défaut (bloc, popup, lien externe). */
-const ASSOC_MEDIA_KINDS = new Set<string>(["highlight", "popup", "external_link", "offer", "blog"]);
+const ASSOC_MEDIA_KINDS = new Set<string>(["highlight", "popup", "external_link"]);
 
 
 const isCustomToken = (t: string) => t.startsWith("custom:");
