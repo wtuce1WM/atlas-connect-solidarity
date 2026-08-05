@@ -70,7 +70,6 @@ const styleLabel = (v: string | null) => STYLES.find((s) => s.value === v)?.labe
 // Champs de la fiche pouvant contenir un menu / carte ou un lien externe.
 const MENU_FIELDS: Array<[string, string]> = [
   ["menu_url", "Menu"],
-  ["n", "Menu (lien)"],
   ["flipbook_url", "Flipbook"],
   ["pdf_url", "PDF 1"],
   ["pdf_2_url", "PDF 2"],

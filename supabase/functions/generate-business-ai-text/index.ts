@@ -56,7 +56,6 @@ const MODE_BRIEFS: Record<string, string> = {
 // Liens candidats « menus » et « liens externes » de la fiche.
 const MENU_URL_KEYS = [
   ["menu_url", "Menu"],
-  ["n", "Menu (lien)"],
   ["flipbook_url", "Flipbook"],
   ["pdf_url", "PDF 1"],
   ["pdf_2_url", "PDF 2"],
