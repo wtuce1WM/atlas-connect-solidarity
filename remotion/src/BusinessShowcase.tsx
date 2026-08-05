@@ -519,6 +519,10 @@ function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
       const lines = p.offer && Array.isArray(p.offer.lines) ? p.offer.lines.length : 0;
       return 120 + Math.min(lines, 6) * 22;
     }
+    case "ai_card": {
+      const lines = p.aiCard && Array.isArray(p.aiCard.lines) ? p.aiCard.lines.length : 0;
+      return 120 + Math.min(lines, 6) * 22;
+    }
     case "reviews":
     case "hours":
     case "map": return OPTION_SCENE_FRAMES;
