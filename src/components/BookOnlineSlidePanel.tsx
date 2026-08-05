@@ -404,6 +404,7 @@ const BookOnlineSlidePanelInner = ({
   const [poiPillOverlay, setPoiPillOverlay] = useState<"poi" | "cat" | null>(null);
   // Pills POI / Catégories : menu déroulant sur desktop, overlay plein écran sur mobile
   const isMobileView = useIsMobile();
+  const isEmbedMapWidget = embedMode && initialOverlay === "poi";
   const usePillDropdown = embedMode || !isMobileView;
   const [poiSubcatOpen, setPoiSubcatOpen] = useState(false);
   const [poiShowAll, setPoiShowAll] = useState(false);
