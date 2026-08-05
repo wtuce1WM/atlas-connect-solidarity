@@ -17,18 +17,31 @@ export function useVideoScenarioSteps(mode: "business" | "corporate") {
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    const load = async () => {
       const { data } = await supabase
         .from("video_scenario_steps")
         .select("scene_key, position, duration_sec, enabled")
         .eq("mode", mode)
         .order("position", { ascending: true });
       if (!cancelled) setSteps((data ?? []) as VideoScenarioStepConfig[]);
-    })();
+    };
+    load();
+    // Toute modification en backoffice est reprise immédiatement (temps réel + retour d'onglet).
+    const channel = supabase
+      .channel(`video_scenario_steps_${mode}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "video_scenario_steps" }, () => {
+        load();
+      })
+      .subscribe();
+    const onFocus = () => load();
+    window.addEventListener("focus", onFocus);
     return () => {
       cancelled = true;
+      window.removeEventListener("focus", onFocus);
+      supabase.removeChannel(channel);
     };
   }, [mode]);
+
 
   return steps;
 }
