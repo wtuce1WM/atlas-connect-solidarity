@@ -58,6 +58,41 @@ export default function VideoDashboardPanel() {
   const [affiliateByUser, setAffiliateByUser] = useState<Record<string, string>>({});
   const [businessNames, setBusinessNames] = useState<Record<string, string>>({});
   const [userLabels, setUserLabels] = useState<Record<string, string>>({});
+  const [allTime, setAllTime] = useState<{
+    cost: number; tokens: number; input: number; output: number; calls: number;
+    videos: number; done: number; since: string | null;
+  } | null>(null);
+
+  // Cumul historique (depuis le début du traçage du coût estimé) — indépendant de la période
+  useEffect(() => {
+    (async () => {
+      const [uRes, jRes] = await Promise.all([
+        supabase
+          .from("ai_usage_events")
+          .select("input_tokens,output_tokens,total_tokens,estimated_cost_usd,created_at")
+          .in("context", VIDEO_CONTEXTS)
+          .order("created_at", { ascending: true })
+          .limit(50000),
+        supabase.from("video_jobs").select("status"),
+      ]);
+      const rows = (uRes.data || []) as any[];
+      let cost = 0, tokens = 0, input = 0, output = 0;
+      for (const r of rows) {
+        cost += Number(r.estimated_cost_usd) || 0;
+        tokens += r.total_tokens || 0;
+        input += r.input_tokens || 0;
+        output += r.output_tokens || 0;
+      }
+      const jobsAll = (jRes.data || []) as any[];
+      setAllTime({
+        cost, tokens, input, output, calls: rows.length,
+        videos: jobsAll.length,
+        done: jobsAll.filter((j) => j.status === "done").length,
+        since: rows.length ? rows[0].created_at : null,
+      });
+    })();
+  }, []);
+
 
   useEffect(() => {
     (async () => {
@@ -211,6 +246,38 @@ export default function VideoDashboardPanel() {
           </SelectContent>
         </Select>
       </div>
+
+      {/* Cumul historique — toujours en premier, indépendant de la période */}
+      {allTime && (
+        <Card className="border-gold/40 bg-muted/30">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">
+              Cumul total depuis le début du traçage
+              {allTime.since ? ` (${new Date(allTime.since).toLocaleDateString("fr-FR")})` : ""}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <div className="text-3xl font-bold">{fmtUsd(allTime.cost)}</div>
+                <p className="text-sm text-muted-foreground">Coût IA total</p>
+              </div>
+              <div>
+                <div className="text-3xl font-bold">{fmtNum(allTime.tokens)}</div>
+                <p className="text-sm text-muted-foreground">Tokens totaux ({fmtNum(allTime.input)} in / {fmtNum(allTime.output)} out)</p>
+              </div>
+              <div>
+                <div className="text-3xl font-bold">{fmtNum(allTime.calls)}</div>
+                <p className="text-sm text-muted-foreground">Appels IA · {fmtNum(allTime.videos)} vidéos ({fmtNum(allTime.done)} terminées)</p>
+              </div>
+              <div>
+                <div className="text-3xl font-bold">{allTime.done > 0 ? fmtUsd(allTime.cost / allTime.done) : "—"}</div>
+                <p className="text-sm text-muted-foreground">Coût IA moyen / vidéo réussie</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card><CardContent className="pt-4"><div className="text-2xl font-bold">{fmtUsd(totals.cost)}</div><p className="text-sm text-muted-foreground">Coût IA scénario</p></CardContent></Card>
