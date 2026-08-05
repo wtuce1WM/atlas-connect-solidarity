@@ -18,22 +18,23 @@ interface Highlight {
   sort_order: number;
   business_id: string | null;
   image_url: string | null;
-  title_fr: string | null;
+  /** FR = colonnes historiques partagées avec le backoffice et le front public */
+  title: string | null;
   title_en: string | null;
   title_ar: string | null;
-  description_fr: string | null;
+  description: string | null;
   description_en: string | null;
   description_ar: string | null;
-  section_title_fr: string | null;
+  section_title: string | null;
   section_title_en: string | null;
   section_title_ar: string | null;
-  section_intro_fr: string | null;
+  section_intro: string | null;
   section_intro_en: string | null;
   section_intro_ar: string | null;
-  metric_title_fr: string | null;
+  metric_title: string | null;
   metric_title_en: string | null;
   metric_title_ar: string | null;
-  metric_value_fr: string | null;
+  metric_value: string | null;
   metric_value_en: string | null;
   metric_value_ar: string | null;
 }
@@ -53,10 +54,14 @@ const MAX_RICH = 1000;
 const MAX_METRIC = 50;
 const MAX_SECTION_TITLE = 60;
 
+/** FR écrit dans les colonnes historiques (title, description…), EN/AR dans les suffixées. */
+const sfx = (l: Lang) => (l === "fr" ? "" : `_${l}`);
+
 const plainLen = (html: string) =>
   (html || "").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim().length;
 
-const SELECT_COLS = "id,icon,sort_order,business_id,image_url,title_fr,title_en,title_ar,description_fr,description_en,description_ar,section_title_fr,section_title_en,section_title_ar,section_intro_fr,section_intro_en,section_intro_ar,metric_title_fr,metric_title_en,metric_title_ar,metric_value_fr,metric_value_en,metric_value_ar";
+const SELECT_COLS = "id,icon,sort_order,business_id,image_url,title,title_en,title_ar,description,description_en,description_ar,section_title,section_title_en,section_title_ar,section_intro,section_intro_en,section_intro_ar,metric_title,metric_title_en,metric_title_ar,metric_value,metric_value_en,metric_value_ar";
+
 
 const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Props>(
   ({ businessId, onDirtyChange }, ref) => {
@@ -89,12 +94,12 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
         if (result.length > 0) {
           const first = result[0];
           setSectionTitle({
-            fr: first.section_title_fr || "",
+            fr: first.section_title || "",
             en: first.section_title_en || "",
             ar: first.section_title_ar || "",
           });
           setSectionIntro({
-            fr: first.section_intro_fr || "",
+            fr: first.section_intro || "",
             en: first.section_intro_en || "",
             ar: first.section_intro_ar || "",
           });
@@ -172,22 +177,29 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
           .update({
             icon: h.icon,
             image_url: h.image_url,
-            title_fr: h.title_fr,
+            // FR : colonnes historiques (lues par le front et le backoffice) + miroir _fr
+            title: h.title,
+            title_fr: h.title,
             title_en: h.title_en,
             title_ar: h.title_ar,
-            description_fr: h.description_fr,
+            description: h.description,
+            description_fr: h.description,
             description_en: h.description_en,
             description_ar: h.description_ar,
+            section_title: sectionTitle.fr,
             section_title_fr: sectionTitle.fr,
             section_title_en: sectionTitle.en,
             section_title_ar: sectionTitle.ar,
+            section_intro: sectionIntro.fr,
             section_intro_fr: sectionIntro.fr,
             section_intro_en: sectionIntro.en,
             section_intro_ar: sectionIntro.ar,
-            metric_title_fr: (h.metric_title_fr || "").slice(0, MAX_METRIC) || null,
+            metric_title: (h.metric_title || "").slice(0, MAX_METRIC) || null,
+            metric_title_fr: (h.metric_title || "").slice(0, MAX_METRIC) || null,
             metric_title_en: (h.metric_title_en || "").slice(0, MAX_METRIC) || null,
             metric_title_ar: (h.metric_title_ar || "").slice(0, MAX_METRIC) || null,
-            metric_value_fr: (h.metric_value_fr || "").slice(0, MAX_METRIC) || null,
+            metric_value: (h.metric_value || "").slice(0, MAX_METRIC) || null,
+            metric_value_fr: (h.metric_value || "").slice(0, MAX_METRIC) || null,
             metric_value_en: (h.metric_value_en || "").slice(0, MAX_METRIC) || null,
             metric_value_ar: (h.metric_value_ar || "").slice(0, MAX_METRIC) || null,
           } as any)
@@ -203,10 +215,10 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
       [highlights, sectionTitle, sectionIntro, dirty]
     );
 
-    const titleField = `title_${lang}` as keyof Highlight;
-    const descField = `description_${lang}` as keyof Highlight;
-    const metricTitleField = `metric_title_${lang}` as keyof Highlight;
-    const metricValueField = `metric_value_${lang}` as keyof Highlight;
+    const titleField = `title${sfx(lang)}` as keyof Highlight;
+    const descField = `description${sfx(lang)}` as keyof Highlight;
+    const metricTitleField = `metric_title${sfx(lang)}` as keyof Highlight;
+    const metricValueField = `metric_value${sfx(lang)}` as keyof Highlight;
     const rtl = lang === "ar";
     const introLen = plainLen(sectionIntro[lang]);
 
@@ -349,19 +361,6 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
                           <div className="grid grid-cols-2 gap-2">
                             <div>
                               <label className="text-xs font-medium text-muted-foreground mb-1 block">
-                                Valeur ({metricValueVal.length}/{MAX_METRIC})
-                              </label>
-                              <Input
-                                value={metricValueVal}
-                                onChange={(e) => updateField(i, metricValueField, e.target.value.slice(0, MAX_METRIC))}
-                                placeholder="Ex: 98%"
-                                className="h-8 text-sm"
-                                maxLength={MAX_METRIC}
-                                dir={rtl ? "rtl" : "ltr"}
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs font-medium text-muted-foreground mb-1 block">
                                 Titre métrique ({metricTitleVal.length}/{MAX_METRIC})
                               </label>
                               <Input
@@ -373,7 +372,22 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
                                 dir={rtl ? "rtl" : "ltr"}
                               />
                             </div>
+
+                            <div>
+                              <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                                Valeur ({metricValueVal.length}/{MAX_METRIC})
+                              </label>
+                              <Input
+                                value={metricValueVal}
+                                onChange={(e) => updateField(i, metricValueField, e.target.value.slice(0, MAX_METRIC))}
+                                placeholder="Ex: 98%"
+                                className="h-8 text-sm"
+                                maxLength={MAX_METRIC}
+                                dir={rtl ? "rtl" : "ltr"}
+                              />
+                            </div>
                           </div>
+
 
                           <div>
                             <label className="text-xs font-medium text-muted-foreground mb-1 block">Texte</label>

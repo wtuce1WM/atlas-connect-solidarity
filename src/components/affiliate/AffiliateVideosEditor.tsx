@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import {
   Loader2,
@@ -88,6 +90,7 @@ interface SortableVideoProps {
   onChange: (patch: Partial<VideoEntry>) => void;
   onDelete: () => void;
   onPopupToggle: () => void;
+  onOpenText: () => void;
   onUploadVideo: (file: File) => void;
   uploading: boolean;
 }
@@ -98,10 +101,10 @@ const SortableVideo = ({
   onChange,
   onDelete,
   onPopupToggle,
+  onOpenText,
   onUploadVideo,
   uploading,
 }: SortableVideoProps) => {
-  const [showTxt, setShowTxt] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: entry._uid,
   });
@@ -121,7 +124,7 @@ const SortableVideo = ({
         entry.popup && "ring-2 ring-primary"
       )}
     >
-      {/* Header: drag + index + TXT + popup + delete */}
+      {/* Header: drag + index + popup + delete */}
       <div className="flex items-center gap-1">
         <button
           type="button"
@@ -133,16 +136,7 @@ const SortableVideo = ({
           <GripVertical className="h-3 w-3" />
         </button>
         <span className="text-[9px] text-muted-foreground shrink-0">{index + 1}</span>
-        <Button
-          type="button"
-          variant={entry.description ? "default" : "outline"}
-          size="sm"
-          className="h-5 px-1.5 text-[9px] shrink-0"
-          title="Description popup"
-          onClick={() => setShowTxt((v) => !v)}
-        >
-          TXT
-        </Button>
+
         <label className="flex items-center gap-1 shrink-0 cursor-pointer" title="Ouvrir en popup">
           <Checkbox
             checked={entry.popup}
@@ -164,30 +158,6 @@ const SortableVideo = ({
         </Button>
       </div>
 
-      {/* Title */}
-      <Input
-        value={entry.name}
-        onChange={(e) => onChange({ name: e.target.value })}
-        placeholder="Titre"
-        className="h-6 text-[10px]"
-      />
-
-      {/* TXT description */}
-      {showTxt && (
-        <div className="space-y-0.5">
-          <Textarea
-            value={entry.description}
-            onChange={(e) => onChange({ description: e.target.value.slice(0, MAX_DESC) })}
-            placeholder="Description popup (max 2000)"
-            rows={4}
-            maxLength={MAX_DESC}
-            className="text-[10px] min-h-[80px] resize-y"
-          />
-          <p className="text-[9px] text-muted-foreground text-right">
-            {entry.description.length}/{MAX_DESC}
-          </p>
-        </div>
-      )}
 
       {/* Preview or URL/upload */}
       {entry.url ? (
@@ -239,6 +209,20 @@ const SortableVideo = ({
           </Button>
         </div>
       )}
+
+      <button
+        type="button"
+        onClick={onOpenText}
+        className={cn(
+          "w-full h-7 rounded-md text-[11px] font-bold tracking-wide border transition-colors",
+          entry.name || entry.description
+            ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
+            : "bg-muted text-muted-foreground border-border hover:bg-muted/70"
+        )}
+        title={entry.name || entry.description ? "Titre / texte renseignés" : "Aucun titre ni texte"}
+      >
+        TXT
+      </button>
     </div>
   );
 };
@@ -252,6 +236,7 @@ const AffiliateVideosEditor = forwardRef<AffiliateVideosEditorHandle, Props>(
     const [videos, setVideos] = useState<VideoEntry[]>([]);
     const [initialIds, setInitialIds] = useState<string[]>([]);
     const [dirty, setDirty] = useState(false);
+    const [textUid, setTextUid] = useState<string | null>(null);
 
     const sensors = useSensors(
       useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -539,6 +524,7 @@ const AffiliateVideosEditor = forwardRef<AffiliateVideosEditorHandle, Props>(
                     onChange={(patch) => patchVideo(v._uid, patch)}
                     onDelete={() => deleteVideo(v._uid)}
                     onPopupToggle={() => togglePopup(v._uid)}
+                    onOpenText={() => setTextUid(v._uid)}
                     onUploadVideo={(file) => uploadVideo(v._uid, file)}
                   />
                 ))}
@@ -586,6 +572,61 @@ const AffiliateVideosEditor = forwardRef<AffiliateVideosEditorHandle, Props>(
             Nombre maximum de vidéos atteint ({MAX_VIDEOS})
           </p>
         )}
+
+        {/* Titre / Texte de la vidéo */}
+        <Dialog open={!!textUid} onOpenChange={(open) => !open && setTextUid(null)}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Titre &amp; texte de la vidéo</DialogTitle>
+            </DialogHeader>
+            {(() => {
+              const v = videos.find((x) => x._uid === textUid);
+              if (!v) return null;
+              return (
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label>Titre</Label>
+                    <Input
+                      value={v.name}
+                      onChange={(e) => patchVideo(v._uid, { name: e.target.value })}
+                      placeholder="Titre de la vidéo"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <Label>Texte</Label>
+                      <span className="text-xs text-muted-foreground">
+                        {v.description.length}/{MAX_DESC}
+                      </span>
+                    </div>
+                    <Textarea
+                      value={v.description}
+                      onChange={(e) =>
+                        patchVideo(v._uid, { description: e.target.value.slice(0, MAX_DESC) })
+                      }
+                      placeholder="Texte de la vidéo (max 2000)"
+                      rows={8}
+                      maxLength={MAX_DESC}
+                      className="resize-y min-h-[160px]"
+                    />
+                  </div>
+
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={async () => {
+                        await handleSave();
+                        setTextUid(null);
+                      }}
+                    >
+                      ENREGISTRER
+                    </Button>
+                  </div>
+                </div>
+              );
+            })()}
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
