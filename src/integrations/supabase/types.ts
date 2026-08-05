@@ -986,6 +986,7 @@ export type Database = {
           model: string | null
           position: number
           source_mode: string
+          style_mode: string | null
           title: string
           updated_at: string
         }
@@ -1001,6 +1002,7 @@ export type Database = {
           model?: string | null
           position?: number
           source_mode?: string
+          style_mode?: string | null
           title?: string
           updated_at?: string
         }
@@ -1016,6 +1018,7 @@ export type Database = {
           model?: string | null
           position?: number
           source_mode?: string
+          style_mode?: string | null
           title?: string
           updated_at?: string
         }
