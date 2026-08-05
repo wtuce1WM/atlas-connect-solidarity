@@ -76,17 +76,10 @@ const MENU_FIELDS: Array<[string, string]> = [
   ["pdf_3_url", "PDF 3"],
 ];
 
-// Volontairement sans url_4 / url_5 / url_6 (CTAs libres) : les liens externes
-// éditoriaux vivent dans business_documents (type external_link).
-const EXTERNAL_FIELDS: Array<[string, string]> = [
-  ["website", "Site web"],
-  ["online_shop_url", "Boutique en ligne"],
-  ["reserve_now_url", "Réservation"],
-  ["booking_url", "Booking"],
-  ["other_booking_url", "Autre réservation"],
-  ["glovo_url", "Glovo"],
-  ["matterport_url", "Visite virtuelle"],
-];
+// Les liens externes proviennent EXCLUSIVEMENT des « Liens Externes » du
+// backoffice (business_documents, type external_link) : jamais des champs
+// url_1 à url_6 / website / réservation, qui sont des CTAs.
+
 
 const MODES: Array<{ value: string; label: string; help: string }> = [
   {
@@ -168,9 +161,10 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
     [biz, docs],
   );
   const externalLinks = useMemo(
-    () => dedupe([...docLinks(["external_link"], "Lien externe"), ...detect(EXTERNAL_FIELDS)]),
-    [biz, docs],
+    () => dedupe(docLinks(["external_link"], "Lien externe")),
+    [docs],
   );
+
   const activeLinks = mode === "menu_links" ? menuLinks : mode === "external_links" ? externalLinks : [];
 
   const snapshot = (t: AiText) => JSON.stringify([t.title, t.hook, t.content, t.is_active]);
@@ -190,7 +184,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
         .eq("business_id", businessId),
       (supabase as any)
         .from("businesses")
-        .select([...MENU_FIELDS, ...EXTERNAL_FIELDS].map(([k]) => k).join(","))
+        .select(MENU_FIELDS.map(([k]) => k).join(","))
         .eq("id", businessId)
         .maybeSingle(),
       (supabase as any)
