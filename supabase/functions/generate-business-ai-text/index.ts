@@ -47,7 +47,44 @@ const MODE_BRIEFS: Record<string, string> = {
     "Objectif : rédiger une présentation immersive à partir des résultats de recherche web fournis (presse, blogs, annuaires). N'utilise que ce qui figure dans les extraits.",
   platform_pages:
     "Objectif : rédiger une présentation immersive à partir du contenu des fiches des plateformes fournies (descriptions, équipements, spécialités).",
+  menu_links:
+    "Objectif : rédiger à partir du contenu des menus / cartes fournis (plats, sections, spécialités, produits). Ne mentionne jamais de prix même s'ils figurent dans la source.",
+  external_links:
+    "Objectif : rédiger à partir du contenu des liens externes fournis (site web, boutique, PDF, flipbook, pages de réservation). N'utilise que ce qui figure dans ces sources.",
 };
+
+// Liens candidats « menus » et « liens externes » de la fiche.
+const MENU_URL_KEYS = [
+  ["menu_url", "Menu"],
+  ["n", "Menu (lien)"],
+  ["flipbook_url", "Flipbook"],
+  ["pdf_url", "PDF 1"],
+  ["pdf_2_url", "PDF 2"],
+  ["pdf_3_url", "PDF 3"],
+] as const;
+
+const EXTERNAL_URL_KEYS = [
+  ["website", "Site web"],
+  ["online_shop_url", "Boutique en ligne"],
+  ["reserve_now_url", "Réservation"],
+  ["booking_url", "Booking"],
+  ["other_booking_url", "Autre réservation"],
+  ["glovo_url", "Glovo"],
+  ["matterport_url", "Visite virtuelle"],
+  ["url_4", "Lien 4"],
+  ["url_5", "Lien 5"],
+  ["url_6", "Lien 6"],
+] as const;
+
+const STYLE_BRIEFS: Record<string, string> = {
+  default:
+    "Style : rédaction éditoriale standard, français naturel, fluide et concret.",
+  immersive:
+    "Style : IMMERSIF et poétique. Écris une prose sensorielle (lumière, matières, sons, parfums, atmosphère), rythmée, à la deuxième personne du singulier ou en narration neutre. Reste ancré dans les faits fournis : aucune invention, mais une évocation.",
+  factual:
+    "Style : FACTUEL et linéaire. Restitue les informations détectées dans la source (sections, plats, produits, prestations, équipements, horaires) telles quelles, dans l'ordre de la source, en phrases courtes ou en énumérations séparées par des sauts de ligne. Aucune envolée littéraire, aucun adjectif promotionnel, aucun commentaire personnel.",
+};
+
 
 async function firecrawlSearch(query: string, apiKey: string): Promise<string> {
   const res = await fetch("https://api.firecrawl.dev/v1/search", {
