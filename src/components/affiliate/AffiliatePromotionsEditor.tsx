@@ -41,11 +41,13 @@ type Promotion = {
 const emptyForm = {
   title_fr: "",
   promotion_message_fr: "",
+  promotion_type: "percentage" as "percentage" | "fixed",
   promotion_percent: "" as string,
   promotion_value: "" as string,
   promotion_currency: "MAD" as "MAD" | "EUR",
   promotion_note: "" as string,
 };
+
 
 const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
   const { toast } = useToast();
