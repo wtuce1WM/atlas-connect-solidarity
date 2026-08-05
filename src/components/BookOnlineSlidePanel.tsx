@@ -1526,7 +1526,7 @@ const BookOnlineSlidePanelInner = ({
   const destName = (d: Destination) => language === "en" && d.name_en ? d.name_en : d.name_fr;
 
   return (
-    <div className="h-full overflow-visible overscroll-none bg-black relative">
+    <div className={`h-full overflow-visible overscroll-none relative ${isEmbedMapWidget ? "bg-transparent" : "bg-black"}`}>
       {/* Toolbar portals */}
       <ToolbarPortals
         business={business}
