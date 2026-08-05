@@ -76,6 +76,8 @@ const MENU_FIELDS: Array<[string, string]> = [
   ["pdf_3_url", "PDF 3"],
 ];
 
+// Volontairement sans url_4 / url_5 / url_6 (CTAs libres) : les liens externes
+// éditoriaux vivent dans business_documents (type external_link).
 const EXTERNAL_FIELDS: Array<[string, string]> = [
   ["website", "Site web"],
   ["online_shop_url", "Boutique en ligne"],
@@ -84,9 +86,6 @@ const EXTERNAL_FIELDS: Array<[string, string]> = [
   ["other_booking_url", "Autre réservation"],
   ["glovo_url", "Glovo"],
   ["matterport_url", "Visite virtuelle"],
-  ["url_4", "Lien 4"],
-  ["url_5", "Lien 5"],
-  ["url_6", "Lien 6"],
 ];
 
 const MODES: Array<{ value: string; label: string; help: string }> = [
