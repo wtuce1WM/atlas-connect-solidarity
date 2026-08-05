@@ -2616,6 +2616,7 @@ const SceneInfoText: React.FC<{
   /** Intensité du voile sombre au-dessus du média de fond */
   dim?: "normal" | "light";
 }> = ({ label, title, text, textHtml, logoUrl, durationFrames, textPosition = "middle", ornament = false, dim = "normal" }) => {
+
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
