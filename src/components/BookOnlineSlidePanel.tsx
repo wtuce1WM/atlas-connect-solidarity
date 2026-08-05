@@ -401,6 +401,8 @@ const BookOnlineSlidePanelInner = ({
   const [showPoiMapOverlay, setShowPoiMapOverlay] = useState(initialOverlay === "poi");
   const [poiMapMode, setPoiMapMode] = useState<"poi" | "destinations">("poi");
   const [poiSubcatFilter, setPoiSubcatFilter] = useState<string | null>(null);
+  // Sous-catégorie choisie dans le Pill Catégories — état totalement distinct du Pill POI
+  const [catSubcatFilter, setCatSubcatFilter] = useState<string | null>(null);
   const [poiPillOverlay, setPoiPillOverlay] = useState<"poi" | "cat" | null>(null);
   // Pills POI / Catégories : menu déroulant sur desktop, overlay plein écran sur mobile
   const isMobileView = useIsMobile();
