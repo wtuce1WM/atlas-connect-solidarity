@@ -164,30 +164,6 @@ const SortableVideo = ({
         </Button>
       </div>
 
-      {/* Title */}
-      <Input
-        value={entry.name}
-        onChange={(e) => onChange({ name: e.target.value })}
-        placeholder="Titre"
-        className="h-6 text-[10px]"
-      />
-
-      {/* TXT description */}
-      {showTxt && (
-        <div className="space-y-0.5">
-          <Textarea
-            value={entry.description}
-            onChange={(e) => onChange({ description: e.target.value.slice(0, MAX_DESC) })}
-            placeholder="Description popup (max 2000)"
-            rows={4}
-            maxLength={MAX_DESC}
-            className="text-[10px] min-h-[80px] resize-y"
-          />
-          <p className="text-[9px] text-muted-foreground text-right">
-            {entry.description.length}/{MAX_DESC}
-          </p>
-        </div>
-      )}
 
       {/* Preview or URL/upload */}
       {entry.url ? (
