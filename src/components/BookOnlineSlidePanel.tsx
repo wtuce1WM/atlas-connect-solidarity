@@ -2882,36 +2882,42 @@ const BookOnlineSlidePanelInner = ({
           }
           return null;
         };
-        // Sous-catégories retenues = celles qui sont "par défaut" pour au moins un POI du vivier
-        const defaultSubcatSet = new Set<string>();
-        for (const p of afterCat) {
-          const d = defaultSubcatOf(p);
-          if (d) defaultSubcatSet.add(d);
-        }
-        let poiSubcatList: [string, number][];
-        if (activeFrontTab) {
-          poiSubcatList = activeFrontTab.subcategories
-            .filter((sd) => defaultSubcatSet.has(sd.name))
-            .map((sd) => [sd.name, afterCat.filter((p) => matchesNames(p, sd.names)).length] as [string, number])
-            .filter(([, c]) => c > 0)
-            .sort((a, b) => a[0].localeCompare(b[0]));
-        } else {
-          const counts = new Map<string, number>();
-          for (const p of afterCat) {
-            for (const sc of subcatsOf(p)) {
-              if (defaultSubcatSet.has(sc)) counts.set(sc, (counts.get(sc) || 0) + 1);
-            }
+        const defaultSubcatsOf = (list: any[]) => {
+          const s = new Set<string>();
+          for (const p of list) {
+            const d = defaultSubcatOf(p);
+            if (d) s.add(d);
           }
-          poiSubcatList = Array.from(counts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+          return s;
+        };
+
+        // Pill POI : totalement indépendant du Pill Catégories.
+        // Base = POI de proximité de l'établissement Master, entrées = sous-catégories par défaut.
+        const poiPillBase = (poiBusinesses as any[]).filter(inRadius);
+        const poiPillDefaults = defaultSubcatsOf(poiPillBase);
+        const poiSubcatCounts = new Map<string, number>();
+        for (const p of poiPillBase) {
+          for (const sc of subcatsOf(p)) {
+            if (poiPillDefaults.has(sc)) poiSubcatCounts.set(sc, (poiSubcatCounts.get(sc) || 0) + 1);
+          }
         }
+        const poiSubcatList: [string, number][] = Array.from(poiSubcatCounts.entries())
+          .sort((a, b) => a[0].localeCompare(b[0]));
+
+        // Pill Catégories : niveau 2 = sous-catégories (par défaut) de la catégorie choisie
+        const catSubcatList: [string, number][] = activeFrontTab
+          ? (() => {
+              const defs = defaultSubcatsOf(afterCat);
+              return activeFrontTab.subcategories
+                .filter((sd) => defs.has(sd.name))
+                .map((sd) => [sd.name, afterCat.filter((p) => matchesNames(p, sd.names)).length] as [string, number])
+                .filter(([, c]) => c > 0)
+                .sort((a, b) => a[0].localeCompare(b[0]));
+            })()
+          : [];
 
         const afterSubcat = poiSubcatFilter
-          ? (activeFrontTab
-              ? afterCat.filter((p) => {
-                  const sd = activeFrontTab.subcategories.find((s) => s.name === poiSubcatFilter);
-                  return sd ? matchesNames(p, sd.names) : subcatsOf(p).includes(poiSubcatFilter);
-                })
-              : afterCat.filter((p) => subcatsOf(p).includes(poiSubcatFilter)))
+          ? afterCat.filter((p) => subcatsOf(p).includes(poiSubcatFilter))
           : afterCat;
 
         const afterProx = afterSubcat.filter(inRadius);
