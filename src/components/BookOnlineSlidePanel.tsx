@@ -2865,8 +2865,9 @@ const BookOnlineSlidePanelInner = ({
           ? cityInRadius.filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
           : (poiBusinesses as any[]);
 
-        // Pill POI / sous-catégories — on prend en compte TOUTES les sous-catégories
-        // d'un POI (pas seulement la première / celle par défaut)
+        // Pill POI / sous-catégories — le MENU ne liste que les sous-catégories
+        // "par défaut" (1ère sous-catégorie de la fiche), mais le FILTRE retenu
+        // ramène tous les POI qui utilisent cette sous-catégorie, même en 2e/3e position.
         const subcatsOf = (p: any): string[] => {
           const list = Array.isArray(p.categories) ? p.categories : [];
           const all = [p.main_category, ...list]
@@ -2874,16 +2875,32 @@ const BookOnlineSlidePanelInner = ({
             .filter(Boolean);
           return Array.from(new Set(all));
         };
+        const defaultSubcatOf = (p: any): string | null => {
+          const list = Array.isArray(p.categories) ? p.categories : [];
+          for (const c of list) {
+            if (typeof c === "string" && c.trim()) return c.trim();
+          }
+          return null;
+        };
+        // Sous-catégories retenues = celles qui sont "par défaut" pour au moins un POI du vivier
+        const defaultSubcatSet = new Set<string>();
+        for (const p of afterCat) {
+          const d = defaultSubcatOf(p);
+          if (d) defaultSubcatSet.add(d);
+        }
         let poiSubcatList: [string, number][];
         if (activeFrontTab) {
           poiSubcatList = activeFrontTab.subcategories
+            .filter((sd) => defaultSubcatSet.has(sd.name))
             .map((sd) => [sd.name, afterCat.filter((p) => matchesNames(p, sd.names)).length] as [string, number])
             .filter(([, c]) => c > 0)
             .sort((a, b) => a[0].localeCompare(b[0]));
         } else {
           const counts = new Map<string, number>();
           for (const p of afterCat) {
-            for (const sc of subcatsOf(p)) counts.set(sc, (counts.get(sc) || 0) + 1);
+            for (const sc of subcatsOf(p)) {
+              if (defaultSubcatSet.has(sc)) counts.set(sc, (counts.get(sc) || 0) + 1);
+            }
           }
           poiSubcatList = Array.from(counts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
         }
@@ -2892,7 +2909,7 @@ const BookOnlineSlidePanelInner = ({
           ? (activeFrontTab
               ? afterCat.filter((p) => {
                   const sd = activeFrontTab.subcategories.find((s) => s.name === poiSubcatFilter);
-                  return sd ? matchesNames(p, sd.names) : true;
+                  return sd ? matchesNames(p, sd.names) : subcatsOf(p).includes(poiSubcatFilter);
                 })
               : afterCat.filter((p) => subcatsOf(p).includes(poiSubcatFilter)))
           : afterCat;
