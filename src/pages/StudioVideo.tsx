@@ -452,7 +452,6 @@ export default function StudioVideo() {
   const [optCustomerReview, setOptCustomerReview] = useState(false);
   const [optHours, setOptHours] = useState(true);
   const [optInstallCta, setOptInstallCta] = useState(true);
-  const [optClosingSequence, setOptClosingSequence] = useState(true);
   const [optMapMarker, setOptMapMarker] = useState(true);
   const [optDigitalId, setOptDigitalId] = useState(true);
   const [optPopup, setOptPopup] = useState(true);
@@ -626,7 +625,6 @@ export default function StudioVideo() {
       b(p.optCustomerReview, setOptCustomerReview);
       b(p.optHours, setOptHours);
       b(p.optInstallCta, setOptInstallCta);
-      b(p.optClosingSequence, setOptClosingSequence);
       b(p.optMapMarker, setOptMapMarker);
       b(p.optDigitalId, setOptDigitalId);
       b(p.optPopup, setOptPopup);
@@ -649,7 +647,7 @@ export default function StudioVideo() {
       localStorage.setItem(PARAMS_KEY, JSON.stringify({
         prompt, tone, duration, durationAuto, videoLang,
         optReviews, optGoogleReviews, optTripAdvisor, optRestaurantGuru, optCustomerReview,
-        optHours, optInstallCta, optClosingSequence, optMapMarker, optDigitalId,
+        optHours, optInstallCta, optMapMarker, optDigitalId,
         optPopup, optOpenWithLogo, optWelcome, optProposition, optWhatsapp,
         textPosition, transitionStyle, aiSummaryEffect, blogMode,
       }));
@@ -659,7 +657,7 @@ export default function StudioVideo() {
   }, [
     PARAMS_KEY, prompt, tone, duration, durationAuto, videoLang,
     optReviews, optGoogleReviews, optTripAdvisor, optRestaurantGuru, optCustomerReview,
-    optHours, optInstallCta, optClosingSequence, optMapMarker, optDigitalId,
+    optHours, optInstallCta, optMapMarker, optDigitalId,
     optPopup, optOpenWithLogo, optWelcome, optProposition, optWhatsapp,
     textPosition, transitionStyle, aiSummaryEffect, blogMode,
   ]);
@@ -1394,17 +1392,6 @@ export default function StudioVideo() {
 
 
 
-  // Séquence de fin déterministe : offre(s) → WhatsApp → récap/CTA final.
-  // Si l'utilisateur a réordonné manuellement les étapes dans l'aperçu du scénario,
-  // son ordre est prioritaire et n'est plus réécrit.
-  const CLOSING_KINDS = ["offer", "whatsapp", "cta", "outro"];
-  const applyClosingSequence = (order?: string[] | null, manual?: boolean): string[] | undefined => {
-    if (manual) return order ?? undefined;
-    if (!optClosingSequence || !Array.isArray(order) || order.length === 0) return order ?? undefined;
-    const head = order.filter((k) => !CLOSING_KINDS.includes(k));
-    const tail = CLOSING_KINDS.filter((k) => order.includes(k));
-    return [...head, ...tail];
-  };
 
   const scenario = useMemo(() => {
     if (!prompt.trim() || prompt.length < 20) return null;
@@ -1423,6 +1410,27 @@ export default function StudioVideo() {
       propositionText: propositionSceneText,
     });
   }, [prompt, selected?.name, effectiveDuration, optReviews, optHours, optMapMarker, optDigitalId, optInstallCta, optOpenWithLogo, logoInfo, optWhatsapp, whatsappNumber, fromVideoOn, synthTitle, welcomeSceneText, propositionSceneText]);
+
+  // Ordre du montage : l'IA ne décide plus du déroulé. On impose l'ordre des étapes
+  // cochées dans « Éléments à inclure dans la vidéo » (référence = scénario local).
+  // Si l'utilisateur a réordonné manuellement dans l'aperçu, son ordre reste prioritaire.
+  const referenceKindOrder = useMemo<string[]>(
+    () => (scenario?.scenes ?? []).map((s: any) => String(s.icon)),
+    [scenario],
+  );
+  const applyReferenceOrder = (order?: string[] | null, manual?: boolean): string[] | undefined => {
+    if (manual) return order ?? undefined;
+    if (!Array.isArray(order) || order.length === 0) return order ?? undefined;
+    if (referenceKindOrder.length === 0) return order;
+    const rank = (k: string) => {
+      const i = referenceKindOrder.indexOf(k);
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+    };
+    return order
+      .map((k, i) => ({ k, i }))
+      .sort((a, b) => rank(a.k) - rank(b.k) || a.i - b.i)
+      .map((x) => x.k);
+  };
 
   // Durée réelle du scénario : priorité aux durées d'étapes réglées dans l'aperçu,
   // sinon la somme des étapes du scénario prévisualisé, sinon la durée cible.
@@ -1648,7 +1656,7 @@ export default function StudioVideo() {
             video_starts: activeVideoStarts,
             video_ends: activeVideoEnds,
             scene_media: sceneMedia,
-            scene_order: applyClosingSequence(scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon), !!scenarioEdits?.order),
+            scene_order: applyReferenceOrder(scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon), !!scenarioEdits?.order),
             scene_durations: scenarioEdits?.durations ?? (() => {
               const src = (aiScenario?.scenario ?? scenario)?.scenes;
               if (!src) return undefined;
@@ -1788,7 +1796,7 @@ export default function StudioVideo() {
       opts: {
         optReviews, optHours, optMapMarker, optDigitalId, optInstallCta,
         optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
-        optCustomerReview, optPopup, optOpenWithLogo, optClosingSequence,
+        optCustomerReview, optPopup, optOpenWithLogo,
       },
       offers: Array.from(selectedOfferIds).sort(),
       highlights: Array.from(selectedHighlightIds).sort(),
@@ -1816,7 +1824,7 @@ export default function StudioVideo() {
     prompt, effectiveDuration, tone, selected?.id,
     optReviews, optHours, optMapMarker, optDigitalId, optInstallCta,
     optWhatsapp, optGoogleReviews, optTripAdvisor, optRestaurantGuru,
-    optCustomerReview, optPopup, optOpenWithLogo, optClosingSequence,
+    optCustomerReview, optPopup, optOpenWithLogo,
     selectedOfferIds, selectedHighlightIds, selectedAiSummaryIds, aiSummaryEffect, highlightEffects, aiSummaryEffects,
     optWeatherWidget, weatherRange, weatherCity, optTidesWidget, tidesMode, tidesCity,
     (scenarioEdits as any)?.weatherCity, (scenarioEdits as any)?.tidesCity, selectedExternalLinkIds, selectedMenuDocIds, selectedImages, orderedSelectedVideos, activeVideoStarts, activeVideoEnds,
@@ -1901,7 +1909,7 @@ export default function StudioVideo() {
             video_starts: activeVideoStarts,
             video_ends: activeVideoEnds,
             scene_media: sceneMedia,
-            scene_order: applyClosingSequence(scenarioEdits?.order, !!scenarioEdits?.order),
+            scene_order: applyReferenceOrder(scenarioEdits?.order, !!scenarioEdits?.order),
             scene_durations: scenarioEdits?.durations,
             custom_scenes: scenarioEdits?.customScenes,
             text_position: textPosition,
@@ -1926,10 +1934,16 @@ export default function StudioVideo() {
       if (error) throw error;
       const payload = data as any;
       const scenario = scenarioFromTemplateProps(payload.template_id, payload.template_props, payload.duration_sec ?? effectiveDuration, payload.rationale);
-      if (optClosingSequence && Array.isArray(scenario?.scenes)) {
-        const head = scenario.scenes.filter((s: any) => !CLOSING_KINDS.includes(s.icon));
-        const tail = CLOSING_KINDS.flatMap((k) => scenario.scenes.filter((s: any) => s.icon === k));
-        scenario.scenes = [...head, ...tail];
+      // L'IA ne décide pas du déroulé : on réordonne selon les étapes cochées.
+      if (Array.isArray(scenario?.scenes) && referenceKindOrder.length > 0) {
+        const rank = (k: string) => {
+          const i = referenceKindOrder.indexOf(k);
+          return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+        };
+        scenario.scenes = scenario.scenes
+          .map((sc: any, i: number) => ({ sc, i }))
+          .sort((a: any, b: any) => rank(String(a.sc.icon)) - rank(String(b.sc.icon)) || a.i - b.i)
+          .map((x: any) => x.sc);
       }
       setAiScenario({ scenario, rationale: payload.rationale, templateId: payload.template_id });
       setAiScenarioSig(currentScenarioSig);
@@ -4082,13 +4096,6 @@ export default function StudioVideo() {
                   <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optInstallCta} onChange={(e) => setOptInstallCta(e.target.checked)} />
                   <span>Incitation finale à installer l'app</span>
                 </label>
-                <div>
-                  <label className="flex items-start gap-2 cursor-pointer">
-                    <input type="checkbox" className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto" checked={optClosingSequence} onChange={(e) => setOptClosingSequence(e.target.checked)} />
-                    <span>Séquence de fin fixe</span>
-                  </label>
-                  <p className="mt-1 pl-6 text-[11px] text-muted-foreground">Force la fin du montage dans cet ordre : offre(s) → WhatsApp → récap / CTA final. Décoché, l'ordre proposé par l'IA est conservé (le final peut varier d'une génération à l'autre).</p>
-                </div>
               </div>
             </div>
 
@@ -4422,17 +4429,9 @@ export default function StudioVideo() {
                 <li><strong>Popup de bienvenue</strong> : injecte l'image popup avec titre/description dans les directives IA.</li>
                 <li><strong>Offres</strong> (par offre cochée) : une scène offer par offre avec titre, prix, bullets et fond dédié.</li>
                 <li><strong>Highlights</strong> (par bloc coché) : blocs highlights transmis comme directives au scénario IA.</li>
-                <li>
-                  <strong>Séquence de fin fixe</strong> : verrouille la fin du montage dans un ordre imposé
-                  — <em>offre(s) → WhatsApp → récap / CTA final</em> (puis outro si « Incitation finale à installer l'app » est cochée).
-                  Ces étapes sont déplacées en fin de scénario, quel que soit l'ordre proposé par l'IA. Décochée, l'IA garde
-                  la main sur la fin du montage : le final peut alors varier d'une génération à l'autre (une offre peut par
-                  exemple rester au milieu). C'est une option de <strong>cohérence commerciale</strong> : on termine toujours
-                  par l'offre, le contact WhatsApp puis l'appel à l'action.
-                </li>
               </ul>
               <p className="text-xs pt-1">
-                Ordre par défaut : logo → hook → name → media → offre(s) → avis → horaires → map → digital → CTA.
+                Ordre du montage : celui des étapes cochées ci-dessus (l'IA ne décide pas du déroulé). Il reste modifiable manuellement dans l'aperçu du scénario.
                 Vous pouvez réordonner et ajuster les durées dans l'aperçu du scénario avant le rendu.
               </p>
             </div>
