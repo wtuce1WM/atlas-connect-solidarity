@@ -33,6 +33,7 @@ type Promotion = {
   promotion_type: string | null;
   promotion_value: number | null;
   promotion_currency: string | null;
+  promotion_note?: string | null;
   savings_amount: number | null;
   sort_order: number;
 };
