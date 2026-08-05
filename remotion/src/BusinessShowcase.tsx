@@ -478,7 +478,7 @@ const splitHookInTwo = (h: string): [string, string] => {
 
 type SceneKind = "logo" | "welcome" | "proposition" | "hook" | "name" | "ai_card" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "ai_text" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "blog" | "weather" | "tides" | "whatsapp" | "cta" | "outro";
 
-const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "welcome", "proposition", "hook", "name", "ai_card", "offer", "popup", "media", "highlight", "ai_summary", "ai_text", "external_link", "menu_doc", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "blog", "weather", "tides", "whatsapp", "cta"];
+const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "welcome", "proposition", "hook", "name", "ai_card", "offer", "popup", "media", "highlight", "ai_summary", "ai_text", "external_link", "menu_doc", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "blog", "weather", "tides", "whatsapp", "cta", "outro"];
 
 function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
   switch (kind) {
@@ -610,14 +610,15 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
     ) {
       requested.push({ kind: "cta" });
     }
-    // cta and outro are two names for the same closing scene: keep only one.
-    const hasOutro = requested.some((t) => t.kind === "outro");
-    const hasCta = requested.some((t) => t.kind === "cta");
-    if (hasOutro && hasCta) {
-      // Drop the auto-appended cta; honor user's explicit outro position.
-      const idxCta = requested.findIndex((t) => t.kind === "cta");
-      if (idxCta >= 0) requested.splice(idxCta, 1);
+    // « Appel à l'action » et « Outro » sont deux étapes DISTINCTES : le CTA
+    // (installation de l'app) puis la clôture de marque. On les conserve toutes
+    // les deux, en garantissant que l'outro passe en dernier.
+    const idxOutro = requested.findIndex((t) => t.kind === "outro");
+    if (idxOutro >= 0 && idxOutro !== requested.length - 1) {
+      const [outroTok] = requested.splice(idxOutro, 1);
+      requested.push(outroTok);
     }
+
     order = requested;
   } else {
     order = active.map((k) => ({ kind: k as SceneKind }));
@@ -703,14 +704,26 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
     const v = p.scene_durations?.[k];
     return v != null && Number.isFinite(Number(v)) && Number(v) > 0 ? Math.round(Number(v) * 30) : null;
   };
+  // Quand le texte d'une étape est découpé en N cartes successives, la durée
+  // configurée s'applique à CHAQUE carte : on multiplie donc la durée de
+  // l'étape par le nombre de segments (sinon chaque carte serait raccourcie).
+  const splitFactor = (k: SceneKind): number => {
+    if (k !== "name") return 1;
+    const text = (p.textOverrides?.name?.description || "").trim() || (p.hook || "").trim();
+    const chunks = resolveTextChunks(text, p.textSegments?.name, p.textSplits?.name ?? p.splitCount);
+    return chunks.length > 1 ? chunks.length : 1;
+  };
   const durationFor = (tok: Tok): number => {
     if (tok.kind === "custom" && tok.customId) {
       const c = customById.get(tok.customId);
       const d = Number(c?.duration ?? 4);
       return Math.max(30, Math.round((Number.isFinite(d) && d > 0 ? d : 4) * 30));
     }
-    return durOverride(tok.kind as SceneKind) ?? defaultSceneFrames(tok.kind as SceneKind, p);
+    const kind = tok.kind as SceneKind;
+    const base = durOverride(kind) ?? defaultSceneFrames(kind, p);
+    return base * splitFactor(kind);
   };
+
   const durations = order.map(durationFor);
 
   // Stretch CTA to reach requested total ONLY when no explicit per-scene durations were provided.
@@ -2782,14 +2795,17 @@ const SceneCustomerReview: React.FC<{
   const y = interpolate(spring({ frame: frame - 8, fps: 30, config: { damping: 18 } }), [0, 1], [40, 0]);
 
   const full = (fullText || "").trim();
-  const excerpt = (highlight || "").trim();
-  const hasExcerpt = excerpt.length > 0 && full.length > 0 && excerpt.length < full.length;
-
+  const rawExcerpt = (highlight || "").trim();
   // Découpe avant / extrait / après (recherche insensible à la casse)
-  const idx = hasExcerpt ? full.toLowerCase().indexOf(excerpt.toLowerCase()) : -1;
+  const foundIdx = rawExcerpt && full ? full.toLowerCase().indexOf(rawExcerpt.toLowerCase()) : -1;
+  // Un extrait qui n'appartient pas à l'avis est un fragment parasite : on l'ignore.
+  const hasExcerpt = foundIdx >= 0 && rawExcerpt.length < full.length;
+  const excerpt = hasExcerpt ? rawExcerpt : "";
+  const idx = hasExcerpt ? foundIdx : -1;
   const before = idx >= 0 ? full.slice(0, idx) : "";
-  const mid = idx >= 0 ? full.slice(idx, idx + excerpt.length) : excerpt;
+  const mid = idx >= 0 ? full.slice(idx, idx + excerpt.length) : "";
   const after = idx >= 0 ? full.slice(idx + excerpt.length) : "";
+
 
   // Phases : 1) avis entier  2) surlignage doré  3) focus sur l'extrait
   const swipeStart = Math.round(durationFrames * 0.3);
@@ -3852,8 +3868,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           </>
         );
       }
-      case "cta":
-      case "outro": {
+      case "cta": {
         const it = (sm.cta || [])[0] ?? outroItem;
         return (
           <>
@@ -3870,6 +3885,17 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           </>
         );
       }
+      // Outro : clôture de marque distincte de l'appel à l'action (fond de marque,
+      // logo One World Morocco et signature du site, sans visuel d'établissement).
+      case "outro": {
+        return (
+          <AbsoluteFill style={{ backgroundColor: sceneBaseBg }}>
+            <Background />
+            <SceneCta name={name} textPosition={textPosition} />
+          </AbsoluteFill>
+        );
+      }
+
     }
   };
 
