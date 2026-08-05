@@ -703,14 +703,26 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
     const v = p.scene_durations?.[k];
     return v != null && Number.isFinite(Number(v)) && Number(v) > 0 ? Math.round(Number(v) * 30) : null;
   };
+  // Quand le texte d'une étape est découpé en N cartes successives, la durée
+  // configurée s'applique à CHAQUE carte : on multiplie donc la durée de
+  // l'étape par le nombre de segments (sinon chaque carte serait raccourcie).
+  const splitFactor = (k: SceneKind): number => {
+    if (k !== "name") return 1;
+    const text = (p.textOverrides?.name?.description || "").trim() || (p.hook || "").trim();
+    const chunks = resolveTextChunks(text, p.textSegments?.name, p.textSplits?.name ?? p.splitCount);
+    return chunks.length > 1 ? chunks.length : 1;
+  };
   const durationFor = (tok: Tok): number => {
     if (tok.kind === "custom" && tok.customId) {
       const c = customById.get(tok.customId);
       const d = Number(c?.duration ?? 4);
       return Math.max(30, Math.round((Number.isFinite(d) && d > 0 ? d : 4) * 30));
     }
-    return durOverride(tok.kind as SceneKind) ?? defaultSceneFrames(tok.kind as SceneKind, p);
+    const kind = tok.kind as SceneKind;
+    const base = durOverride(kind) ?? defaultSceneFrames(kind, p);
+    return base * splitFactor(kind);
   };
+
   const durations = order.map(durationFor);
 
   // Stretch CTA to reach requested total ONLY when no explicit per-scene durations were provided.
@@ -2782,14 +2794,17 @@ const SceneCustomerReview: React.FC<{
   const y = interpolate(spring({ frame: frame - 8, fps: 30, config: { damping: 18 } }), [0, 1], [40, 0]);
 
   const full = (fullText || "").trim();
-  const excerpt = (highlight || "").trim();
-  const hasExcerpt = excerpt.length > 0 && full.length > 0 && excerpt.length < full.length;
-
+  const rawExcerpt = (highlight || "").trim();
   // Découpe avant / extrait / après (recherche insensible à la casse)
-  const idx = hasExcerpt ? full.toLowerCase().indexOf(excerpt.toLowerCase()) : -1;
+  const foundIdx = rawExcerpt && full ? full.toLowerCase().indexOf(rawExcerpt.toLowerCase()) : -1;
+  // Un extrait qui n'appartient pas à l'avis est un fragment parasite : on l'ignore.
+  const hasExcerpt = foundIdx >= 0 && rawExcerpt.length < full.length;
+  const excerpt = hasExcerpt ? rawExcerpt : "";
+  const idx = hasExcerpt ? foundIdx : -1;
   const before = idx >= 0 ? full.slice(0, idx) : "";
-  const mid = idx >= 0 ? full.slice(idx, idx + excerpt.length) : excerpt;
+  const mid = idx >= 0 ? full.slice(idx, idx + excerpt.length) : "";
   const after = idx >= 0 ? full.slice(idx + excerpt.length) : "";
+
 
   // Phases : 1) avis entier  2) surlignage doré  3) focus sur l'extrait
   const swipeStart = Math.round(durationFrames * 0.3);

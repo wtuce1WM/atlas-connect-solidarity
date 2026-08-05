@@ -1281,16 +1281,37 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
               ? pickLang(revRow.text_en, revRow.text_fr, revRow.text)
               : pickLang(revRow.text_fr, revRow.text)
             ) ?? "";
+            // Extrait mis en avant : uniquement des PHRASES COMPLÈTES issues de
+            // l'avis. Tout fragment parasite (bout de phrase, texte absent de
+            // l'avis, extrait non ponctué) est rejeté au profit d'un repli propre.
+            const cleanFull = fullText.replace(/\s+/g, " ").trim();
+            const sentences = cleanFull.split(/(?<=[.!?…])\s+/).filter((s) => s.trim().length > 0);
+            const firstSentences = (() => {
+              let acc = "";
+              for (const s of sentences) {
+                if (acc.length >= 60) break;
+                acc = acc ? `${acc} ${s.trim()}` : s.trim();
+                if (acc.length > 200) break;
+              }
+              return acc.slice(0, 200);
+            })();
+            const proposed = (customerReviewHighlight || "").replace(/\s+/g, " ").trim();
+            const isValidHighlight =
+              proposed.length >= 30 &&
+              /[.!?…]$/.test(proposed) &&
+              /^[A-ZÀ-ÖØ-Þ«"]/.test(proposed) &&
+              cleanFull.toLowerCase().includes(proposed.toLowerCase());
             template_props.showCustomerReview = true;
             template_props.customerReview = {
               id: revRow.id,
               author: revRow.author_name || null,
               rating: revRow.rating != null ? Number(revRow.rating) : null,
-              text: fullText.slice(0, 800),
-              highlight: customerReviewHighlight || fullText.split(/(?<=[.!?])\s+/)[0]?.slice(0, 200) || fullText.slice(0, 200),
+              text: cleanFull.slice(0, 800),
+              highlight: isValidHighlight ? proposed : (firstSentences || cleanFull.slice(0, 200)),
               source: revRow.source || null,
             };
           }
+
         } catch (_) { /* silent */ }
       }
       const formattedOpeningHours = formatOpeningHours(businessDetails.opening_hours);
