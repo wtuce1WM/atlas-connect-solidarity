@@ -3173,7 +3173,7 @@ const BookOnlineSlidePanelInner = ({
                 selectedKey={poiSubcatFilter}
                 allLabel={language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
                 onSelectAll={() => { setPoiSubcatFilter(null); setPoiPillOverlay(null); }}
-                onSelect={(key) => { setPoiCatFilter(null); setPoiSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
+                onSelect={(key) => { setPoiSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
                 onClose={() => setPoiPillOverlay(null)}
               />
             )}
