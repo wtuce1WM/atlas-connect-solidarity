@@ -322,7 +322,11 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
         <div className="space-y-2">
           <Label className="text-white">Source de génération</Label>
           <div className="grid gap-2">
-            {MODES.map((m) => (
+            {MODES.filter(
+              (m) =>
+                (m.value !== "menu_links" || menuLinks.length > 0) &&
+                (m.value !== "external_links" || externalLinks.length > 0),
+            ).map((m) => (
               <label
                 key={m.value}
                 className={`flex cursor-pointer items-start gap-3 rounded-md border p-3 transition-colors ${
@@ -337,13 +341,59 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
                   onChange={() => setMode(m.value)}
                 />
                 <span>
-                  <span className="block text-sm font-medium text-white">{m.label}</span>
+                  <span className="block text-sm font-medium text-white">
+                    {m.label}
+                    {m.value === "menu_links" && ` (${menuLinks.length})`}
+                    {m.value === "external_links" && ` (${externalLinks.length})`}
+                  </span>
                   <span className="block text-xs text-white/60">{m.help}</span>
                 </span>
               </label>
             ))}
           </div>
         </div>
+
+        {activeLinks.length > 0 && (
+          <div className="space-y-2 rounded-md border border-primary/20 bg-primary/5 p-3">
+            <div className="flex items-center justify-between gap-3">
+              <Label className="text-white">Liens à exploiter</Label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedUrls(activeLinks.map((l) => l.url))}
+                  className="rounded border border-white/15 px-2 py-1 text-xs text-white/80 hover:bg-white/10"
+                >
+                  Tous
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedUrls([])}
+                  className="rounded border border-white/15 px-2 py-1 text-xs text-white/80 hover:bg-white/10"
+                >
+                  Aucun
+                </button>
+              </div>
+            </div>
+            <div className="grid gap-1.5">
+              {activeLinks.map((l) => (
+                <label key={l.key} className="flex items-start gap-2 text-xs text-white/80">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5 accent-current"
+                    checked={selectedUrls.includes(l.url)}
+                    onChange={() => toggleUrl(l.url)}
+                  />
+                  <span className="min-w-0">
+                    <span className="font-medium text-white">{l.label}</span>{" "}
+                    <span className="break-all text-white/50">{l.url}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+            <p className="text-xs text-white/50">{selectedUrls.length} lien(s) sélectionné(s) — 4 liens lus au maximum.</p>
+          </div>
+        )}
+
 
         <div className="space-y-2">
           <Label className="text-white">Longueur du texte</Label>
