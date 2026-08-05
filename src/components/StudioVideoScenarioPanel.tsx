@@ -354,13 +354,8 @@ export function scenarioFromTemplateProps(
   }
 
 
-  // Résumés IA du menu / liens externes / menus & cartes — 5 s par élément
-  const aiSummaries: any[] = Array.isArray(props?.aiSummaries) ? props.aiSummaries : [];
-  for (const su of aiSummaries) {
-    const t = (su?.title || "").toString().trim();
-    const c = (su?.content || "").toString().trim();
-    push("ai_summary", 5, [t, c].filter(Boolean).join("\n") || "Résumé IA du menu.", t ? `Résumé IA — ${t.slice(0, 40)}` : undefined);
-  }
+  // Liens externes / menus & cartes — 5 s par élément
+
   const aiTexts: any[] = Array.isArray(props?.aiTexts) ? props.aiTexts : [];
   for (const su of aiTexts) {
     const t = (su?.title || "").toString().trim();
