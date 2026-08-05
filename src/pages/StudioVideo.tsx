@@ -3492,6 +3492,21 @@ export default function StudioVideo() {
 
 
 
+                <div className="rounded-md border border-border bg-background/40 p-2">
+                  <label className="flex items-start gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
+                      checked={optAiCard}
+                      onChange={(e) => setOptAiCard(e.target.checked)}
+                    />
+                    <span className="font-medium">Carte IA</span>
+                  </label>
+                  <p className="mt-1 pl-6 text-[11px] text-muted-foreground">
+                    Une carte « Offre » entièrement rédigée par l'IA à partir de votre consigne (pas issue de vos offres en base). Placée juste après le Hook. Décochée, aucune carte inventée n'est générée.
+                  </p>
+                </div>
+
                 {popupImageUrl && (
                   <div className="rounded-md border border-border bg-background/40 p-2">
                     <label className="flex items-start gap-2 cursor-pointer">
