@@ -3455,7 +3455,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           if (!item) return null;
           label = item.label || (lang === "en" ? "They talk about us" : "Ils en parlent");
           title = item.name || "";
-          text = item.url ? String(item.url).replace(/^https?:\/\//, "").split("/")[0] : "";
+          text = item.description || (item.url ? String(item.url).replace(/^https?:\/\//, "").split("/")[0] : "");
+          textHtml = item.description_html || null;
         } else {
           const item = (Array.isArray(menuDocs) ? menuDocs : [])[idx];
           if (!item) return null;
@@ -3465,8 +3466,10 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           label = title.trim().toLowerCase() === generic.toLowerCase()
             ? (lang === "en" ? "Our selection" : "Notre sélection")
             : generic;
-          text = "";
+          text = item.description || "";
+          textHtml = item.description_html || null;
         }
+
         const bgArr = Array.isArray((scene_media as any)?.[kind]) ? (scene_media as any)[kind] : [];
         const bgItem = bgArr[idx] ?? bgArr[0];
         const imgFallback = kind === "external_link" && !assocOff("external_link")
