@@ -3065,7 +3065,7 @@ const BookOnlineSlidePanelInner = ({
                           </DropdownMenuItem>
                         )}
                         {poiSubcatList.map(([name, count]) => (
-                          <DropdownMenuItem key={name} onSelect={() => { setPoiSubcatFilter(name); setPoiShowAll(false); }}>
+                          <DropdownMenuItem key={name} onSelect={() => { setPoiCatFilter(null); setCatSubcatFilter(null); setPoiSubcatFilter(name); setPoiShowAll(false); }}>
                             {translateSubcategory(name, language)} <span className="ml-1 opacity-60">({count})</span>
                           </DropdownMenuItem>
                         ))}
