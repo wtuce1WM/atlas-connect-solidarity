@@ -3846,58 +3846,8 @@ export default function StudioVideo() {
                     </div>
                   </div>
                 )}
-                {aiSummariesList.length > 0 && (
-                  <div className="rounded-md border border-border bg-background/40 p-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="font-medium">Ajouter résumé IA ({aiSummariesList.length})</div>
-                      <div className="flex gap-2 text-xs">
-                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedAiSummaryIds(new Set(aiSummariesList.map((s) => s.id)))}>Tout</button>
-                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedAiSummaryIds(new Set())}>Aucun</button>
-                      </div>
-                    </div>
-                    <p className="mt-1 text-[11px] text-muted-foreground">Résumés du menu (pour l'IA) : une séquence de 5 s par résumé coché (titre + contenu).</p>
-                    <div className="mt-2 flex flex-col gap-1.5">
-                      {aiSummariesList.map((s) => {
-                        const checked = selectedAiSummaryIds.has(s.id);
-                        return (
-                        <label key={s.id} className="flex items-start gap-2 cursor-pointer rounded-md border border-border/60 p-2 hover:bg-muted/40">
-                          <input
-                            type="checkbox"
-                            className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
-                            checked={checked}
-                            onChange={(e) => {
-                              setSelectedAiSummaryIds((prev) => {
-                                const next = new Set(prev);
-                                if (e.target.checked) next.add(s.id); else next.delete(s.id);
-                                return next;
-                              });
-                            }}
-                          />
-                          <div className="min-w-0 flex-1 text-xs">
-                            <div className="font-semibold break-words">{s.title || "Résumé"}</div>
-                            {s.content && <div className="mt-1 text-muted-foreground line-clamp-3 break-words">{s.content}</div>}
-                            {checked && (
-                              <div className="mt-1 flex items-center gap-2" onClick={(e) => e.preventDefault()}>
-                                <span className="text-muted-foreground shrink-0">Effet</span>
-                                <select
-                                  value={aiSummaryEffects[s.id] || aiSummaryEffect}
-                                  onChange={(e) => setAiSummaryEffects((prev) => ({ ...prev, [s.id]: e.target.value }))}
-                                  className="flex-1 rounded-md border border-border bg-white px-2 py-1 text-[11px] text-foreground"
-                                >
-                                  {MOTION_EFFECT_OPTIONS.map((o) => (
-                                    <option key={o.value} value={o.value}>{o.label}</option>
-                                  ))}
-                                </select>
-                              </div>
-                            )}
-                          </div>
-                        </label>
-                        );
-                      })}
+                {/* Étape « Résumé IA » retirée (non utilisée). */}
 
-                    </div>
-                  </div>
-                )}
                 <div className="rounded-md border border-border bg-background/40 p-2">
                   <label className="flex items-start gap-2 cursor-pointer">
                     <input
