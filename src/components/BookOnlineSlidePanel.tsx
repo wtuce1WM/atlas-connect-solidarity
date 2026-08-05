@@ -3008,7 +3008,7 @@ const BookOnlineSlidePanelInner = ({
                   {activeFrontTab ? (
                     <>
                       {translateFrontStructure(activeFrontTab.name, language)}
-                      {poiSubcatFilter ? <span className="opacity-60"> / {translateSubcategory(poiSubcatFilter, language)}</span> : null}
+                      {catSubcatFilter ? <span className="opacity-60"> / {translateSubcategory(catSubcatFilter, language)}</span> : null}
                     </>
                   ) : (
                     <>
