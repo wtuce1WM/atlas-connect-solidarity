@@ -181,26 +181,20 @@ const SortableCard = ({
         </div>
       </div>
 
-      <Input
-        value={title}
-        onChange={(e) => onTitleChange(e.target.value)}
-        placeholder="Titre"
-        className="h-6 text-[10px]"
-      />
+      <button
+        type="button"
+        onClick={onOpenText}
+        className={cn(
+          "w-full h-7 rounded-md text-[11px] font-bold tracking-wide border transition-colors",
+          hasText
+            ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
+            : "bg-muted text-muted-foreground border-border hover:bg-muted/70"
+        )}
+        title={hasText ? "Titre / texte renseignés" : "Aucun titre ni texte"}
+      >
+        TXT
+      </button>
 
-      <div className="space-y-0.5">
-        <Textarea
-          value={description}
-          onChange={(e) => onDescriptionChange(e.target.value.slice(0, MAX_DESC))}
-          placeholder="Description (max 500)"
-          maxLength={MAX_DESC}
-          rows={2}
-          className="text-[10px] min-h-[40px] resize-y"
-        />
-        <p className="text-[9px] text-muted-foreground text-right">
-          {description.length}/{MAX_DESC}
-        </p>
-      </div>
     </div>
   );
 };
