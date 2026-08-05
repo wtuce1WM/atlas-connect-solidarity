@@ -1534,6 +1534,9 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
             id: r.id,
             name: cleanDisplayText(stripHtml(r.name || "")) || "Lien",
             label: cleanDisplayText(stripHtml(r.description || "")) || "",
+            // Rich Text de la description du document, respecté au montage.
+            description: cleanDisplayText(stripHtml(r.description || "")) || "",
+            description_html: sanitizeRich(r.description || "") || null,
             url: r.url || null,
             image: typeof r.icon === "string" && r.icon.startsWith("http") ? r.icon : (r.thumbnail_url || null),
           }));
@@ -1544,9 +1547,12 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
           .map((r: any) => ({
             id: r.id,
             name: cleanDisplayText(stripHtml(r.name || "")) || "Menu",
+            description: cleanDisplayText(stripHtml(r.description || "")) || "",
+            description_html: sanitizeRich(r.description || "") || null,
             url: r.url || null,
           }));
         if (menus.length > 0) template_props.menuDocs = menus;
+
       }
     }
 
