@@ -39,12 +39,8 @@ type Promotion = {
 
 const emptyForm = {
   title_fr: "",
-  title_en: "",
-  title_ar: "",
   promotion_message_fr: "",
-  promotion_message_en: "",
-  promotion_message_ar: "",
-  promotion_type: "percentage" as "percentage" | "fixed",
+  promotion_percent: "" as string,
   promotion_value: "" as string,
   promotion_currency: "MAD" as "MAD" | "EUR",
 };
