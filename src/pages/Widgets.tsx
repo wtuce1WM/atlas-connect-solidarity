@@ -1014,8 +1014,8 @@ const Widgets = () => {
             <WidgetSection
               index={6}
               icon={<LayoutPanelTop className="h-5 w-5" />}
-              title="Widget Fiche complète"
-              tagline="Toute la fiche établissement, intégrée dans votre page."
+              title="Widget Votre ID numérique type Linktree"
+              tagline="Tous vos canaux numériques rassemblés au même endroit."
               price="Prix : sur devis"
               description="La fiche publique complète : galerie photo, badge d'avis, présentation, horaires, blocs à la une, boutons de contact et de réservation, adresses à proximité. Fond transparent, coins arrondis, et hauteur automatique — le widget communique sa hauteur réelle à votre page, sans barre de défilement interne."
               params={[
