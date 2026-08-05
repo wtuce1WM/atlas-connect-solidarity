@@ -4,7 +4,10 @@ import { useToast } from "@/hooks/use-toast";
 import { compressImage, formatBytes } from "@/lib/imageCompression";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import RichTextEditor from "@/components/staff/RichTextEditor";
+
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   AlertDialog,
@@ -53,7 +56,17 @@ export interface AffiliateImagesEditorHandle {
   save: () => Promise<void>;
 }
 
-const MAX_DESC = 500;
+const MAX_DESC = 1000;
+
+/** Longueur du texte brut d'un contenu HTML (pour le compteur de caractères). */
+const stripHtmlText = (html: string): string => {
+  if (!html) return "";
+  if (typeof window === "undefined") return html.replace(/<[^>]*>/g, "");
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html;
+  return (tmp.textContent || "").replace(/\u00a0/g, " ").trim();
+};
+
 const MAX_IMAGES = 30;
 // Poids max accepté APRÈS optimisation (les images sont recompressées en WebP ≤1920px)
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
@@ -76,30 +89,27 @@ const formatFileSize = (bytes: number) => {
 interface SortableCardProps {
   url: string;
   index: number;
-  title: string;
-  description: string;
+  hasText: boolean;
   isPopup: boolean;
   meta?: ImageMeta;
   onPreview: (url: string) => void;
   onDelete: (url: string) => void;
-  onTitleChange: (v: string) => void;
-  onDescriptionChange: (v: string) => void;
+  onOpenText: () => void;
   onPopupToggle: () => void;
 }
 
 const SortableCard = ({
   url,
   index,
-  title,
-  description,
+  hasText,
   isPopup,
   meta,
   onPreview,
   onDelete,
-  onTitleChange,
-  onDescriptionChange,
+  onOpenText,
   onPopupToggle,
 }: SortableCardProps) => {
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: url });
   const style = { transform: CSS.Transform.toString(transform), transition };
 
@@ -178,26 +188,20 @@ const SortableCard = ({
         </div>
       </div>
 
-      <Input
-        value={title}
-        onChange={(e) => onTitleChange(e.target.value)}
-        placeholder="Titre"
-        className="h-6 text-[10px]"
-      />
+      <button
+        type="button"
+        onClick={onOpenText}
+        className={cn(
+          "w-full h-7 rounded-md text-[11px] font-bold tracking-wide border transition-colors",
+          hasText
+            ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
+            : "bg-muted text-muted-foreground border-border hover:bg-muted/70"
+        )}
+        title={hasText ? "Titre / texte renseignés" : "Aucun titre ni texte"}
+      >
+        TXT
+      </button>
 
-      <div className="space-y-0.5">
-        <Textarea
-          value={description}
-          onChange={(e) => onDescriptionChange(e.target.value.slice(0, MAX_DESC))}
-          placeholder="Description (max 500)"
-          maxLength={MAX_DESC}
-          rows={2}
-          className="text-[10px] min-h-[40px] resize-y"
-        />
-        <p className="text-[9px] text-muted-foreground text-right">
-          {description.length}/{MAX_DESC}
-        </p>
-      </div>
     </div>
   );
 };
@@ -217,6 +221,8 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
     const [imageSizes, setImageSizes] = useState<Record<string, number | null>>({});
     const [imageDims, setImageDims] = useState<Record<string, { w: number; h: number } | null>>({});
     const [deleteUrl, setDeleteUrl] = useState<string | null>(null);
+    const [textUrl, setTextUrl] = useState<string | null>(null);
+
     const [deleting, setDeleting] = useState(false);
 
     const sensors = useSensors(
@@ -460,7 +466,7 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
         const rows = images
           .map((url) => {
             const title = (titles[url] || "").trim();
-            const description = (descriptions[url] || "").trim().slice(0, MAX_DESC);
+            const description = (descriptions[url] || "").trim();
             if (!title && !description) return null;
             return {
               business_id: businessId,
@@ -534,8 +540,10 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
                     key={url}
                     url={url}
                     index={i}
-                    title={titles[url] || ""}
-                    description={descriptions[url] || ""}
+                    hasText={
+                      !!(titles[url] || "").trim() ||
+                      stripHtmlText(descriptions[url] || "").length > 0
+                    }
                     isPopup={popupUrl === url}
                     meta={{
                       size: imageSizes[url],
@@ -545,15 +553,9 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
                     }}
                     onPreview={setLightboxUrl}
                     onDelete={setDeleteUrl}
-                    onTitleChange={(v) => {
-                      setTitles((prev) => ({ ...prev, [url]: v }));
-                      markDirty();
-                    }}
-                    onDescriptionChange={(v) => {
-                      setDescriptions((prev) => ({ ...prev, [url]: v }));
-                      markDirty();
-                    }}
+                    onOpenText={() => setTextUrl(url)}
                     onPopupToggle={() => togglePopup(url)}
+
                   />
                 ))}
               </div>
@@ -674,10 +676,17 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
               {(lightboxTitle || lightboxDesc) && (
                 <div className="bg-black/70 text-white rounded-lg px-4 py-2 max-w-[80vw] text-center">
                   {lightboxTitle && <p className="font-semibold text-sm">{lightboxTitle}</p>}
-                  {lightboxDesc && <p className="text-xs opacity-90 mt-0.5">{lightboxDesc}</p>}
+                  {lightboxDesc && (
+                    <div
+                      className="text-xs opacity-90 mt-0.5 [&_p]:m-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+                      dangerouslySetInnerHTML={{ __html: lightboxDesc }}
+                    />
+                  )}
                 </div>
               )}
             </div>
+
+
 
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-black/70 text-white text-sm rounded-full backdrop-blur-sm">
               {lightboxIndex + 1} / {images.length}
@@ -709,7 +718,64 @@ const AffiliateImagesEditor = forwardRef<AffiliateImagesEditorHandle, Props>(
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Titre / Texte de l'image */}
+        <Dialog open={!!textUrl} onOpenChange={(open) => !open && setTextUrl(null)}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Titre &amp; texte de l'image</DialogTitle>
+            </DialogHeader>
+            {textUrl && (
+              <div className="space-y-4">
+                <img src={textUrl} alt="" className="w-full h-40 object-cover rounded-md border" />
+
+                <div className="space-y-1.5">
+                  <Label>Titre</Label>
+                  <Input
+                    value={titles[textUrl] || ""}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setTitles((prev) => ({ ...prev, [textUrl]: v }));
+                      markDirty();
+                    }}
+                    placeholder="Titre de l'image"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label>Texte</Label>
+                    <span
+                      className={cn(
+                        "text-xs",
+                        stripHtmlText(descriptions[textUrl] || "").length > MAX_DESC
+                          ? "text-destructive font-semibold"
+                          : "text-muted-foreground"
+                      )}
+                    >
+                      {stripHtmlText(descriptions[textUrl] || "").length}/{MAX_DESC}
+                    </span>
+                  </div>
+                  <RichTextEditor
+                    content={descriptions[textUrl] || ""}
+                    onChange={(html) => {
+                      setDescriptions((prev) => ({ ...prev, [textUrl]: html }));
+                      markDirty();
+                    }}
+                    maxHeight="360px"
+                    simple
+                  />
+                </div>
+
+                <div className="flex justify-end">
+                  <Button onClick={() => setTextUrl(null)}>Fermer</Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
+
     );
   }
 );
