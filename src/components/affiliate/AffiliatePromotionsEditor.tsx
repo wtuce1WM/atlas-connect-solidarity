@@ -85,6 +85,7 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
       promotion_value: form.promotion_percent ? Number(form.promotion_percent) : null,
       savings_amount: form.promotion_value ? Number(form.promotion_value) : null,
       promotion_currency: form.promotion_currency,
+      promotion_note: form.promotion_note.trim() || null,
       sort_order: items.length,
     } as any]);
     setSaving(false);
