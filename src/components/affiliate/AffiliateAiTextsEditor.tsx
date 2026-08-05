@@ -174,7 +174,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
         .eq("business_id", businessId),
       (supabase as any)
         .from("businesses")
-        .select(MENU_FIELDS.map(([k]) => k).join(","))
+        .select("id")
         .eq("id", businessId)
         .maybeSingle(),
       (supabase as any)
