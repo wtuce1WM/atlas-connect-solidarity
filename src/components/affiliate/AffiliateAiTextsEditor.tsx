@@ -67,18 +67,12 @@ const STYLES: Array<{ value: string; label: string; help: string }> = [
 
 const styleLabel = (v: string | null) => STYLES.find((s) => s.value === v)?.label ?? null;
 
-// Champs de la fiche pouvant contenir un menu / carte ou un lien externe.
-const MENU_FIELDS: Array<[string, string]> = [
-  ["menu_url", "Menu"],
-  ["flipbook_url", "Flipbook"],
-  ["pdf_url", "PDF 1"],
-  ["pdf_2_url", "PDF 2"],
-  ["pdf_3_url", "PDF 3"],
-];
+// Les menus / cartes ET les liens externes proviennent EXCLUSIVEMENT des
+// documents du backoffice (business_documents, types menu | flipbook |
+// external_link) : jamais des champs de la fiche (menu_url, pdf_url,
+// flipbook_url, url_1 à url_6, website, réservation…), qui sont des CTAs ou
+// des fichiers legacy.
 
-// Les liens externes proviennent EXCLUSIVEMENT des « Liens Externes » du
-// backoffice (business_documents, type external_link) : jamais des champs
-// url_1 à url_6 / website / réservation, qui sont des CTAs.
 
 
 const MODES: Array<{ value: string; label: string; help: string }> = [
@@ -132,13 +126,8 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
   const [docs, setDocs] = useState<Array<{ type: string; name: string | null; url: string }>>([]);
   const [selectedUrls, setSelectedUrls] = useState<string[]>([]);
 
-  const detect = (fields: Array<[string, string]>) =>
-    fields
-      .map(([k, label]) => ({ key: k, label, url: String(biz?.[k] ?? "").trim() }))
-      .filter((f) => !!f.url);
-
   // Les menus / cartes et liens externes éditoriaux sont dans business_documents
-  // (type menu | flipbook | external_link) : c'est la source prioritaire.
+  // (type menu | flipbook | external_link) : c'est la SEULE source.
   const docLinks = (types: string[], fallbackLabel: string) => {
     const seen = new Set<string>();
     return docs
@@ -157,9 +146,10 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
   };
 
   const menuLinks = useMemo(
-    () => dedupe([...docLinks(["menu", "flipbook"], "Menu"), ...detect(MENU_FIELDS)]),
-    [biz, docs],
+    () => dedupe(docLinks(["menu", "flipbook"], "Menu")),
+    [docs],
   );
+
   const externalLinks = useMemo(
     () => dedupe(docLinks(["external_link"], "Lien externe")),
     [docs],
@@ -184,7 +174,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
         .eq("business_id", businessId),
       (supabase as any)
         .from("businesses")
-        .select(MENU_FIELDS.map(([k]) => k).join(","))
+        .select("id")
         .eq("id", businessId)
         .maybeSingle(),
       (supabase as any)

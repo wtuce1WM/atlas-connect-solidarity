@@ -53,19 +53,10 @@ const MODE_BRIEFS: Record<string, string> = {
     "Objectif : rédiger à partir du contenu des liens externes fournis (site web, boutique, PDF, flipbook, pages de réservation). N'utilise que ce qui figure dans ces sources.",
 };
 
-// Liens candidats « menus » et « liens externes » de la fiche.
-const MENU_URL_KEYS = [
-  ["menu_url", "Menu"],
-  ["flipbook_url", "Flipbook"],
-  ["pdf_url", "PDF 1"],
-  ["pdf_2_url", "PDF 2"],
-  ["pdf_3_url", "PDF 3"],
-] as const;
+// Menus / cartes ET liens externes : source unique = business_documents
+// (types menu | flipbook | external_link). Aucun champ de la fiche
+// (menu_url, pdf_url, flipbook_url legacy, url_1..url_6, website…) n'est lu.
 
-// Les liens externes viennent EXCLUSIVEMENT des « Liens Externes » du backoffice
-// (business_documents, type external_link) : jamais des champs CTA url_1..url_6,
-// website, réservation, etc.
-const EXTERNAL_URL_KEYS = [] as const;
 
 
 const STYLE_BRIEFS: Record<string, string> = {
@@ -198,7 +189,7 @@ Deno.serve(async (req) => {
     const { data: biz } = await supabase
       .from("businesses")
       .select(
-        `name, city, neighborhood, hook_fr, description, website, opening_hours, show_opening_hours, is_open_24h, vacation_dates, ${PLATFORM_URL_KEYS.map(([k]) => k).join(", ")}, ${MENU_URL_KEYS.map(([k]) => k).join(", ")}`,
+        `name, city, neighborhood, hook_fr, description, website, opening_hours, show_opening_hours, is_open_24h, vacation_dates, ${PLATFORM_URL_KEYS.map(([k]) => k).join(", ")}`,
       )
 
       .eq("id", businessId)
@@ -270,14 +261,15 @@ Deno.serve(async (req) => {
         sourceBlock = await firecrawlSearch(query, fcKey);
       } else {
         const keys =
-          mode === "menu_links" ? MENU_URL_KEYS : mode === "external_links" ? EXTERNAL_URL_KEYS : PLATFORM_URL_KEYS;
+          mode === "menu_links" || mode === "external_links" ? [] : PLATFORM_URL_KEYS;
         let urls = (keys as ReadonlyArray<readonly [string, string]>)
           .map(([k, label]) => [String((biz as any)[k] ?? "").trim(), label] as const)
           .filter(([u]) => !!u);
 
         // Menus / liens externes : source unique = business_documents
         // (type menu | flipbook | external_link), là où l'affilié saisit « La carte »
-        // ou ses liens presse. Aucun champ CTA (url_1..url_6, website…) n'est lu.
+        // ou ses liens presse. Aucun champ de la fiche n'est lu (ni menu_url /
+        // pdf_url legacy, ni les CTAs url_1..url_6, website…).
         if (mode === "menu_links" || mode === "external_links") {
           const docTypes = mode === "menu_links" ? ["menu", "flipbook"] : ["external_link"];
           const { data: docs } = await supabase
@@ -286,15 +278,15 @@ Deno.serve(async (req) => {
             .eq("business_id", businessId)
             .in("type", docTypes)
             .order("sort_order", { ascending: true });
-          const docUrls = ((docs as any[]) ?? [])
+          urls = ((docs as any[]) ?? [])
             .map((d) => [
               String(d.url ?? "").trim(),
               String(d.name ?? "").trim() ||
                 (d.type === "flipbook" ? "Flipbook" : mode === "menu_links" ? "Menu" : "Lien externe"),
             ] as const)
             .filter(([u]) => !!u);
-          urls = mode === "external_links" ? docUrls : [...docUrls, ...urls];
         }
+
 
 
         // Dédoublonnage par URL.
