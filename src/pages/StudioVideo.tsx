@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { Loader2, Wand2, Download, Sparkles, X, Trash2, Globe, BarChart3, Video, LogOut, Maximize2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Plus, GripVertical, Share2, Pencil, SlidersHorizontal, FileText, Crosshair, Target } from "lucide-react";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
-import { welcomeBadgeLabel, propositionLabel } from "@/lib/ctaBadgeLabels";
+import { welcomeBadgeLabel, propositionLabel, WELCOME_BADGE_CODES, PROPOSITION_CODES } from "@/lib/ctaBadgeLabels";
 import { StudioVideoScenarioPanel, buildScenario, extractKeywords, scenarioFromTemplateProps, type Scenario, type SceneMediaMap, type SceneMediaItem, type ScenarioEdits } from "@/components/StudioVideoScenarioPanel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -1337,6 +1337,25 @@ export default function StudioVideo() {
     () => propositionLabel(ctaBadges.proposition, selected?.name ?? null, videoLang === "en" ? "en" : "fr"),
     [ctaBadges.proposition, selected?.name, videoLang]
   );
+  // Choix du contenu des étapes BIENVENUE / PROPOSITION (menu déroulant dans les cartes du scénario)
+  const introBadgeOptions = useMemo(() => {
+    const lg = videoLang === "en" ? "en" : "fr";
+    const nm = selected?.name ?? null;
+    return {
+      welcome: WELCOME_BADGE_CODES.map((c) => ({ value: c, label: welcomeBadgeLabel(c, nm, lg) || c }))
+        .filter((o) => !!o.label),
+      proposition: PROPOSITION_CODES.map((c) => ({ value: c, label: propositionLabel(c, nm, lg) || c }))
+        .filter((o) => !!o.label),
+    };
+  }, [selected?.name, videoLang]);
+  const introBadgeCodes = useMemo(
+    () => ({ welcome: ctaBadges.carousel, proposition: ctaBadges.proposition }),
+    [ctaBadges.carousel, ctaBadges.proposition]
+  );
+  const handleIntroBadgeChange = useCallback((kind: "welcome" | "proposition", code: string) => {
+    setCtaBadges((prev) => (kind === "welcome" ? { ...prev, carousel: code } : { ...prev, proposition: code }));
+  }, []);
+
   const welcomeSceneText = optWelcome ? welcomeLabelText : null;
   const propositionSceneText = optProposition ? propositionLabelText : null;
 
@@ -4229,6 +4248,9 @@ export default function StudioVideo() {
                   onPendingCustomSceneConsumed={() => setPendingCustomScene(null)}
                   onRegenerate={previewScenario}
                   regenerating={previewing}
+                  introBadgeOptions={introBadgeOptions}
+                  introBadgeCodes={introBadgeCodes}
+                  onIntroBadgeChange={handleIntroBadgeChange}
                 />
               </div>
             ) : scenario ? (
@@ -4247,6 +4269,9 @@ export default function StudioVideo() {
                 onPendingCustomSceneConsumed={() => setPendingCustomScene(null)}
                 onRegenerate={previewScenario}
                 regenerating={previewing}
+                introBadgeOptions={introBadgeOptions}
+                introBadgeCodes={introBadgeCodes}
+                onIntroBadgeChange={handleIntroBadgeChange}
               />
             ) : null
               )}
@@ -4397,6 +4422,14 @@ export default function StudioVideo() {
                 <li><strong>Popup de bienvenue</strong> : injecte l'image popup avec titre/description dans les directives IA.</li>
                 <li><strong>Offres</strong> (par offre cochée) : une scène offer par offre avec titre, prix, bullets et fond dédié.</li>
                 <li><strong>Highlights</strong> (par bloc coché) : blocs highlights transmis comme directives au scénario IA.</li>
+                <li>
+                  <strong>Séquence de fin fixe</strong> : verrouille la fin du montage dans un ordre imposé
+                  — <em>offre(s) → WhatsApp → récap / CTA final</em> (puis outro si « Incitation finale à installer l'app » est cochée).
+                  Ces étapes sont déplacées en fin de scénario, quel que soit l'ordre proposé par l'IA. Décochée, l'IA garde
+                  la main sur la fin du montage : le final peut alors varier d'une génération à l'autre (une offre peut par
+                  exemple rester au milieu). C'est une option de <strong>cohérence commerciale</strong> : on termine toujours
+                  par l'offre, le contact WhatsApp puis l'appel à l'action.
+                </li>
               </ul>
               <p className="text-xs pt-1">
                 Ordre par défaut : logo → hook → name → media → offre(s) → avis → horaires → map → digital → CTA.
