@@ -336,6 +336,8 @@ export type ShowcaseProps = {
   aiSummaries?: Array<{ id?: string; title?: string; content?: string; content_html?: string | null; effect?: string | null }> | null;
   /** Effet appliqué au média de fond des séquences Résumé IA (défaut global) */
   aiSummaryEffect?: "zoom_in" | "zoom_out" | "pan_left" | "pan_right" | "pan_down" | "pan_up" | "scroll_v" | null;
+  /** Textes IA (onglet TXT IA de Présence en ligne) — une séquence par texte coché */
+  aiTexts?: Array<{ id?: string; title?: string; content?: string; content_html?: string | null; effect?: string | null }> | null;
   externalLinks?: Array<{ id?: string; name?: string; label?: string; url?: string | null; image?: string | null }> | null;
   menuDocs?: Array<{ id?: string; name?: string; url?: string | null }> | null;
   highlights?: Array<{ id?: string; icon?: string | null; image_url?: string | null; title?: string; description?: string; description_html?: string | null; effect?: string | null; metric_title?: string; metric_value?: string }> | null;
@@ -456,9 +458,9 @@ const splitHookInTwo = (h: string): [string, string] => {
   return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
 };
 
-type SceneKind = "logo" | "welcome" | "proposition" | "hook" | "name" | "ai_card" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "blog" | "weather" | "tides" | "whatsapp" | "cta" | "outro";
+type SceneKind = "logo" | "welcome" | "proposition" | "hook" | "name" | "ai_card" | "media" | "popup" | "offer" | "highlight" | "ai_summary" | "ai_text" | "external_link" | "menu_doc" | "reviews" | "google_review" | "tripadvisor" | "restaurant_guru" | "customer_review" | "hours" | "map" | "digital" | "blog" | "weather" | "tides" | "whatsapp" | "cta" | "outro";
 
-const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "welcome", "proposition", "hook", "name", "ai_card", "offer", "popup", "media", "highlight", "ai_summary", "external_link", "menu_doc", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "blog", "weather", "tides", "whatsapp", "cta"];
+const DEFAULT_SCENE_ORDER: SceneKind[] = ["logo", "welcome", "proposition", "hook", "name", "ai_card", "offer", "popup", "media", "highlight", "ai_summary", "ai_text", "external_link", "menu_doc", "reviews", "google_review", "tripadvisor", "restaurant_guru", "customer_review", "hours", "map", "digital", "blog", "weather", "tides", "whatsapp", "cta"];
 
 function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
   switch (kind) {
@@ -471,6 +473,7 @@ function isSceneActive(kind: SceneKind, p: ShowcaseProps): boolean {
     case "popup": return !!(p.showPopup && p.popupImageUrl);
     case "highlight": return Array.isArray(p.highlights) && p.highlights.length > 0;
     case "ai_summary": return Array.isArray(p.aiSummaries) && p.aiSummaries.length > 0;
+    case "ai_text": return Array.isArray(p.aiTexts) && p.aiTexts.length > 0;
     case "external_link": return Array.isArray(p.externalLinks) && p.externalLinks.length > 0;
     case "menu_doc": return Array.isArray(p.menuDocs) && p.menuDocs.length > 0;
     case "cta": return p.showAppInstall !== false;
@@ -515,6 +518,7 @@ function defaultSceneFrames(kind: SceneKind, p: ShowcaseProps): number {
     case "popup": return 120;
     case "highlight": return 140;
     case "ai_summary":
+    case "ai_text":
     case "external_link":
     case "menu_doc": return 150;
     case "offer": {
@@ -640,6 +644,7 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
   // Expand ai_summary / external_link / menu_doc tokens (one per selected item).
   for (const spec of [
     { kind: "ai_summary" as SceneKind, list: Array.isArray(p.aiSummaries) ? p.aiSummaries : [] },
+    { kind: "ai_text" as SceneKind, list: Array.isArray(p.aiTexts) ? p.aiTexts : [] },
     { kind: "external_link" as SceneKind, list: Array.isArray(p.externalLinks) ? p.externalLinks : [] },
     { kind: "menu_doc" as SceneKind, list: Array.isArray(p.menuDocs) ? p.menuDocs : [] },
   ]) {
@@ -3017,6 +3022,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   highlights,
   aiSummaries,
   aiSummaryEffect,
+  aiTexts,
   externalLinks,
   menuDocs,
   showGoogleReviews,
@@ -3211,6 +3217,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     highlights,
     aiSummaries,
     aiSummaryEffect,
+    aiTexts,
     externalLinks,
     menuDocs,
     showGoogleReviews,
@@ -3420,6 +3427,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
       }
 
       case "ai_summary":
+      case "ai_text":
       case "external_link":
       case "menu_doc": {
         const idx = typeof offerIndex === "number" ? offerIndex : 0;
@@ -3432,6 +3440,13 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
           if (!item) return null;
           label = lang === "en" ? "Menu highlights" : "La carte";
           title = item.title || label;
+          text = item.content || "";
+          textHtml = item.content_html || null;
+        } else if (kind === "ai_text") {
+          const item = (Array.isArray(aiTexts) ? aiTexts : [])[idx];
+          if (!item) return null;
+          label = lang === "en" ? "About us" : "À propos";
+          title = item.title || "";
           text = item.content || "";
           textHtml = item.content_html || null;
         } else if (kind === "external_link") {
@@ -3463,7 +3478,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               image={bgItem?.kind === "image" ? bgItem.url : (bgItem ? undefined : (imgFallback ?? bgRotate(planIdx).image))}
               duration={duration}
               effect={trImageEffect}
-              motion={kind === "ai_summary" ? (((Array.isArray(aiSummaries) ? aiSummaries : [])[idx]?.effect as any) || (aiSummaryEffect as any) || "zoom_in") : null}
+              motion={kind === "ai_text" ? (((Array.isArray(aiTexts) ? aiTexts : [])[idx]?.effect as any) || "zoom_in") : kind === "ai_summary" ? (((Array.isArray(aiSummaries) ? aiSummaries : [])[idx]?.effect as any) || (aiSummaryEffect as any) || "zoom_in") : null}
               extraStartSec={bgItem ? 0 : bgRotate(planIdx).extraStartSec}
               veil="rgba(14,11,8,0.14)"
             />
