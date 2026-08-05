@@ -161,9 +161,10 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
     [biz, docs],
   );
   const externalLinks = useMemo(
-    () => dedupe([...docLinks(["external_link"], "Lien externe"), ...detect(EXTERNAL_FIELDS)]),
-    [biz, docs],
+    () => dedupe(docLinks(["external_link"], "Lien externe")),
+    [docs],
   );
+
   const activeLinks = mode === "menu_links" ? menuLinks : mode === "external_links" ? externalLinks : [];
 
   const snapshot = (t: AiText) => JSON.stringify([t.title, t.hook, t.content, t.is_active]);
