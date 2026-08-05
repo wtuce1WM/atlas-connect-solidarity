@@ -3113,7 +3113,7 @@ const BookOnlineSlidePanelInner = ({
                                 </DropdownMenuItem>
                               )}
                               {catSubcatList.map(([name, count]) => (
-                                <DropdownMenuItem key={name} onSelect={() => { setCatSubcatFilter(name); setPoiShowAll(false); }}>
+                                <DropdownMenuItem key={name} onSelect={() => { setPoiSubcatFilter(null); setCatSubcatFilter(name); setPoiShowAll(false); }}>
                                   {translateSubcategory(name, language)} <span className="ml-1 opacity-60">({count})</span>
                                 </DropdownMenuItem>
                               ))}
@@ -3129,7 +3129,7 @@ const BookOnlineSlidePanelInner = ({
                                   onSelect={(e) => {
                                     if (disabled) { e.preventDefault(); return; }
                                     e.preventDefault();
-                                    setPoiCatFilter(ft.id); setCatSubcatFilter(null); setPoiShowAll(false);
+                                    setPoiSubcatFilter(null); setPoiCatFilter(ft.id); setCatSubcatFilter(null); setPoiShowAll(false);
                                   }}
                                   className={disabled ? "opacity-40 pointer-events-none" : ""}
                                 >
@@ -3193,7 +3193,7 @@ const BookOnlineSlidePanelInner = ({
                   backLabel={language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
                   onBack={() => { setPoiCatFilter(null); setCatSubcatFilter(null); setPoiShowAll(false); }}
                   onSelectAll={() => { setCatSubcatFilter(null); setPoiPillOverlay(null); }}
-                  onSelect={(key) => { setCatSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
+                  onSelect={(key) => { setPoiSubcatFilter(null); setCatSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
                   onClose={() => setPoiPillOverlay(null)}
                 />
               ) : (
@@ -3214,6 +3214,7 @@ const BookOnlineSlidePanelInner = ({
                   }}
                   onSelect={(key) => {
                     // Reste dans l'overlay POI/Map du Master : on ne relance aucune recherche.
+                    setPoiSubcatFilter(null);
                     setPoiCatFilter(key);
                     setCatSubcatFilter(null);
                     setPoiShowAll(false);
