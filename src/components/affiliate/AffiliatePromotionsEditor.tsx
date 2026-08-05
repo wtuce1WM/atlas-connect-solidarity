@@ -84,9 +84,14 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
       title_fr: form.title_fr.trim() || null,
       promotion_message: form.promotion_message_fr || null,
       promotion_message_fr: form.promotion_message_fr || null,
-      promotion_type: form.promotion_percent ? "percentage" : "fixed",
-      promotion_value: form.promotion_percent ? Number(form.promotion_percent) : null,
-      savings_amount: form.promotion_value ? Number(form.promotion_value) : null,
+      promotion_type: form.promotion_type,
+      promotion_value: form.promotion_type === "percentage"
+        ? (form.promotion_percent ? Number(String(form.promotion_percent).replace(",", ".")) : null)
+        : (form.promotion_value ? Number(String(form.promotion_value).replace(",", ".")) : null),
+      savings_amount: form.promotion_type === "percentage" && form.promotion_value
+        ? Number(String(form.promotion_value).replace(",", "."))
+        : null,
+
       promotion_currency: form.promotion_currency,
       promotion_note: form.promotion_note.trim() || null,
       sort_order: items.length,
