@@ -464,7 +464,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
       ) : (
         <div className="space-y-4">
           {texts.map((t, i) => {
-            const over = t.content.length > MAX_CONTENT;
+            const over = plainLen(t.content) > MAX_CONTENT;
             const locked = lockedIds.includes(t.id);
             return (
               <div key={t.id} className="rounded-lg border border-white/10 bg-white/5 p-4 space-y-4">
