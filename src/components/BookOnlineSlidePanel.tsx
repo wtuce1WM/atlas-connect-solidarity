@@ -3116,14 +3116,14 @@ const BookOnlineSlidePanelInner = ({
                   <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                     <button
                       type="button"
-                      onClick={() => setPoiShowAll(false)}
+                      onClick={() => { resetWidgetMapView(); setPoiShowAll(false); }}
                       className={`px-3 py-1 rounded-full transition-colors ${!poiShowAll ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                     >
                       {language === "en" ? "Top 20" : language === "ar" ? "أفضل 20" : "Top 20"}
                     </button>
                     <button
                       type="button"
-                      onClick={() => setPoiShowAll(true)}
+                      onClick={() => { resetWidgetMapView(); setPoiShowAll(true); }}
                       className={`px-3 py-1 rounded-full transition-colors ${poiShowAll ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                     >
                       {language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"} <span className="ml-0.5 opacity-70">{total}</span>
@@ -3144,12 +3144,12 @@ const BookOnlineSlidePanelInner = ({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="z-[260] max-h-[70vh] min-w-[15rem] overflow-y-auto">
                         {poiSubcatFilter && (
-                          <DropdownMenuItem onSelect={() => setPoiSubcatFilter(null)}>
+                          <DropdownMenuItem onSelect={() => { resetWidgetMapView(); setPoiSubcatFilter(null); }}>
                             {language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
                           </DropdownMenuItem>
                         )}
                         {poiSubcatList.map(([name, count]) => (
-                          <DropdownMenuItem key={name} onSelect={() => { setPoiCatFilter(null); setCatSubcatFilter(null); setPoiSubcatFilter(name); setPoiShowAll(false); }}>
+                          <DropdownMenuItem key={name} onSelect={() => { resetWidgetMapView(); setPoiCatFilter(null); setCatSubcatFilter(null); setPoiSubcatFilter(name); setPoiShowAll(false); }}>
                             {translateSubcategory(name, language)} <span className="ml-1 opacity-60">({count})</span>
                           </DropdownMenuItem>
                         ))}
@@ -3188,16 +3188,16 @@ const BookOnlineSlidePanelInner = ({
                           {activeFrontTab ? (
                             <>
                               {/* Fallback vers Catégories en haut des sous-catégories */}
-                              <DropdownMenuItem onSelect={() => { setPoiCatFilter(null); setCatSubcatFilter(null); setPoiShowAll(false); }}>
+                              <DropdownMenuItem onSelect={() => { resetWidgetMapView(); setPoiCatFilter(null); setCatSubcatFilter(null); setPoiShowAll(false); }}>
                                 {"\u2039 "}{language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
                               </DropdownMenuItem>
                               {catSubcatFilter && (
-                                <DropdownMenuItem onSelect={() => setCatSubcatFilter(null)}>
+                                <DropdownMenuItem onSelect={() => { resetWidgetMapView(); setCatSubcatFilter(null); }}>
                                   {language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
                                 </DropdownMenuItem>
                               )}
                               {catSubcatList.map(([name, count]) => (
-                                <DropdownMenuItem key={name} onSelect={() => { setPoiSubcatFilter(null); setCatSubcatFilter(name); setPoiShowAll(false); }}>
+                                <DropdownMenuItem key={name} onSelect={() => { resetWidgetMapView(); setPoiSubcatFilter(null); setCatSubcatFilter(name); setPoiShowAll(false); }}>
                                   {translateSubcategory(name, language)} <span className="ml-1 opacity-60">({count})</span>
                                 </DropdownMenuItem>
                               ))}
@@ -3213,7 +3213,7 @@ const BookOnlineSlidePanelInner = ({
                                   onSelect={(e) => {
                                     if (disabled) { e.preventDefault(); return; }
                                     e.preventDefault();
-                                    setPoiSubcatFilter(null); setPoiCatFilter(ft.id); setCatSubcatFilter(null); setPoiShowAll(false);
+                                    resetWidgetMapView(); setPoiSubcatFilter(null); setPoiCatFilter(ft.id); setCatSubcatFilter(null); setPoiShowAll(false);
                                   }}
                                   className={disabled ? "opacity-40 pointer-events-none" : ""}
                                 >
@@ -3463,7 +3463,7 @@ const BookOnlineSlidePanelInner = ({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="z-[260]">
                       {poiProximityKm != null && (
-                        <DropdownMenuItem onSelect={() => setPoiProximityKm(null)}>
+                        <DropdownMenuItem onSelect={() => { resetWidgetMapView(); setPoiProximityKm(null); }}>
                           {language === "en" ? "All distances" : language === "ar" ? "جميع المسافات" : "Toutes distances"}
                         </DropdownMenuItem>
                       )}
@@ -3474,7 +3474,7 @@ const BookOnlineSlidePanelInner = ({
                           <DropdownMenuItem
                             key={o.km}
                             disabled={disabled}
-                            onSelect={(e) => { if (disabled) { e.preventDefault(); return; } setPoiProximityKm(o.km); }}
+                            onSelect={(e) => { if (disabled) { e.preventDefault(); return; } resetWidgetMapView(); setPoiProximityKm(o.km); }}
                             className={disabled ? "opacity-40 pointer-events-none" : ""}
                           >
                             {o.label} <span className="ml-1 opacity-60">({count})</span>
