@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-06T04:34:38.804Z",
+    "generated_at": "2026-08-06T15:52:36.262Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
     "count": 1844
   },
@@ -45519,7 +45519,8 @@
         "Mixologie",
         "Musique Live",
         "Lounge",
-        "Smoothies"
+        "Smoothies",
+        "Cave à vin d'exception"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -45527,10 +45528,10 @@
       "country": "MA",
       "latitude": 31.6261794,
       "longitude": -7.9930986,
-      "address": "Kissariat Ben Khalid R'mila, 1 Rue Fatima Zahra",
+      "address": "Kissariat Ben Khalid R'mila",
       "phone": "+212664464450",
       "whatsapp": "+212664464450",
-      "website": "https://www.kabana-marrakech.com/fr",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e9fb7268-74cb-4211-ac40-8e5e192935b4-1777272052457-2haukm.jpg",
       "google_rating": 4.4,
       "google_review_count": 5510,
@@ -46156,6 +46157,7 @@
       "description": "Le centre culturel dispose d’instruments d’observation performants mis à la disposition du public. L’observatoire astronomique offre aux particuliers, aux groupes, comités d’entreprise comme aux scolaires la possibilité de découvrir l’astronomie ou de se perfectionner. Des observations tous publics ( Samedi ) ou des soirées privées sont organisées sur la terrasse. Deux coupoles abritent différents instruments pour l’observation des objets célestes dont le plus gros télescope du Maroc : Un télesc",
       "main_category": "Tourisme",
       "categories": [
+        "Sites touristiques",
         "Activités culturelles"
       ],
       "services": [
@@ -46170,10 +46172,10 @@
       "address": "Km 1",
       "phone": null,
       "whatsapp": null,
-      "website": "https://www.atlasgolfmarrakech.com/fr/centre-culturel/observatoire/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/0b3030a1-e0ce-43ae-8462-39e437b77198-1777450377410-esamsa.jpg",
       "google_rating": 4.3,
-      "google_review_count": 36,
+      "google_review_count": 39,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],

@@ -1374,7 +1374,7 @@ async function main() {
     mkdirSync(ratedDir, { recursive: true });
     writeFileSync(
       join(ratedDir, "index.html"),
-      buildRatedRankingHtml(rows, scored.length, `${BASE_URL}/og/rated-businesses.jpg`),
+      buildRatedRankingHtml(rows, scored.length, `${BASE_URL}/__l5e/assets-v1/74b197a6-8fb3-47b5-abac-9c3d7391adb5/rated-businesses-hero.webp`),
       "utf8",
     );
     console.log(`[og-pages] classement prérendu : ${rows.length} lignes / ${scored.length} établissements notés`);
