@@ -76,6 +76,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
   const [biz, setBiz] = useState<Biz | null>(null);
   const [pois, setPois] = useState<PoiRow[]>([]);
   const [bg, setBg] = useState<string>("");
+  const [defaultPoiId, setDefaultPoiId] = useState<string>("");
   const [defaultPoiIsMaster, setDefaultPoiIsMaster] = useState(false);
   const [kpGroups, setKpGroups] = useState<KpGroup[]>([]);
   const [kpActive, setKpActive] = useState(false);
