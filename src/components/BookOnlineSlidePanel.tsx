@@ -2842,6 +2842,17 @@ const BookOnlineSlidePanelInner = ({
       {showPoiMapOverlay && (() => {
         const TOP_LIMIT = 20;
         const activeFrontTab = poiCatFilter ? frontTabs.find(t => t.id === poiCatFilter) || null : null;
+        // Widget Adresses à proximité : on neutralise la catégorie de Structure du Front
+        // qui contient la sous-catégorie par défaut du Master (ex. Hébergement pour Riad El Fenn).
+        const masterDefaultSubcat = (() => {
+          const list = Array.isArray((business as any)?.categories) ? (business as any).categories : [];
+          for (const c of list) if (typeof c === "string" && c.trim()) return c.trim();
+          const mc = (business as any)?.main_category;
+          return typeof mc === "string" && mc.trim() ? mc.trim() : null;
+        })();
+        const catPillTabs = isEmbedMapWidget && masterDefaultSubcat
+          ? frontTabs.filter((ft) => !ft.subcategoryNames.has(masterDefaultSubcat))
+          : frontTabs;
         // Origine unique des distances : l'établissement Master (fallback géoloc)
         const proxOrigin = (business?.latitude != null && business?.longitude != null
           ? { lat: business.latitude, lng: business.longitude }
@@ -2862,7 +2873,7 @@ const BookOnlineSlidePanelInner = ({
         // Vivier ville restreint au rayon actif → base des compteurs catégories
         const cityInRadius = (poiCityBusinesses as any[]).filter(inRadius);
         const catCounts = new Map<string, number>();
-        for (const ft of frontTabs) {
+        for (const ft of catPillTabs) {
           catCounts.set(ft.id, cityInRadius.filter((p) => matchesNames(p, ft.subcategoryNames)).length);
         }
 
@@ -2933,7 +2944,7 @@ const BookOnlineSlidePanelInner = ({
         const displayedPoi = (poiShowAll || total <= TOP_LIMIT) ? afterProx : afterProx.slice(0, TOP_LIMIT);
         // Le toggle reste visible dès que le vivier dépasse 20, indépendamment des filtres actifs
         const showAllToggle = poiMapMode === "poi" && (afterSubcat.length > TOP_LIMIT || poiShowAll);
-        const showCatPill = poiMapMode === "poi" && frontTabs.length >= 2;
+        const showCatPill = poiMapMode === "poi" && catPillTabs.length >= 2;
         const showSubcatPill = poiMapMode === "poi" && poiSubcatList.length >= 2;
         const showProxPill = poiMapMode === "poi";
         const proxOpts: { km: number; label: string }[] = [
@@ -3119,7 +3130,7 @@ const BookOnlineSlidePanelInner = ({
                               ))}
                             </>
                           ) : (
-                            frontTabs.map((ft) => {
+                            catPillTabs.map((ft) => {
                               const count = catCounts.get(ft.id) ?? 0;
                               const disabled = count === 0;
                               return (
@@ -3200,7 +3211,7 @@ const BookOnlineSlidePanelInner = ({
                 <PoiFilterChoiceOverlay
                   zClass="z-[250]"
                   title={language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
-                  items={frontTabs.map((ft) => ({
+                  items={catPillTabs.map((ft) => ({
                     key: ft.id,
                     label: translateFrontStructure(ft.name, language),
                     count: catCounts.get(ft.id) ?? 0,
