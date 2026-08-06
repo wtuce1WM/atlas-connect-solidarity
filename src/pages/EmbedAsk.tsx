@@ -1446,7 +1446,7 @@ const EmbedAsk = () => {
                         key={`fu-${i}-${k}`}
                         type="button"
                         onClick={() => sendFollowup(f.label, f.id)}
-                        className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
+                        className={`text-xs px-3 py-1.5 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
                       >
                         {f.label}
                       </button>
@@ -1480,7 +1480,7 @@ const EmbedAsk = () => {
                   key={s.id}
                   type="button"
                   onClick={() => { send(label, s.id); }}
-                  className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
+                  className={`text-xs px-3 py-1.5 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
                 >
                   {label}
                 </button>
