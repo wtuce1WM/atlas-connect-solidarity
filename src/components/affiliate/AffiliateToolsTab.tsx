@@ -72,7 +72,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const [weatherSticky, setWeatherSticky] = useState(false);
 
   const [tidesCity, setTidesCity] = useState<string>("Essaouira");
-  const [ficheMaxWidth, setFicheMaxWidth] = useState<number>(480);
+  const [ficheMaxWidth, setFicheMaxWidth] = useState<number>(380);
   const [ficheShowClub, setFicheShowClub] = useState<boolean>(true);
   const [tidesLang, setTidesLang] = useState<"fr" | "en" | "ar">("fr");
 
