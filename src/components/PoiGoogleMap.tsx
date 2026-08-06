@@ -543,6 +543,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       e.preventDefault();
       const map = mapRef.current;
       if (!map) return;
+      userMovedRef.current = true;
       const currentZoom = map.getZoom() ?? 13;
       applyAnchoredZoomRef.current(Math.min(20, currentZoom + 1));
     };
