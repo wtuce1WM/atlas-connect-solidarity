@@ -359,8 +359,19 @@ const EmbedAsk = () => {
   const { slug = "" } = useParams();
   const [params] = useSearchParams();
   const lang = (["fr", "en", "ar"].includes(params.get("lang") || "") ? params.get("lang") : "fr") as "fr" | "en" | "ar";
-  const initialTheme = params.get("theme") === "light" ? "light" : "dark";
+  // Fond du widget :
+  //   ?bg=EFE6D8       → l'assistant prend cette couleur (encre auto selon luminance)
+  //   ?bg=transparent  → fond transparent : le fond du site hôte apparaît
+  const bgRaw = (params.get("bg") || "").trim();
+  const embedBgColor = parseBg(bgRaw);
+  const bgTransparent = /^(transparent|none|0)$/i.test(bgRaw);
+  const customBg = !!embedBgColor || bgTransparent;
+  const bgInk = customBg ? resolveEmbedInk(params.get("ink"), embedBgColor) : null;
+  const initialTheme = customBg
+    ? (bgInk === "dark" ? "light" : "dark")
+    : params.get("theme") === "light" ? "light" : "dark";
   const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (customBg) return initialTheme;
     if (typeof window !== "undefined") {
       const saved = window.localStorage.getItem("embed-ask-theme");
       if (saved === "light" || saved === "dark") return saved;
@@ -368,8 +379,13 @@ const EmbedAsk = () => {
     return initialTheme;
   });
   useEffect(() => {
+    if (customBg) return;
     try { window.localStorage.setItem("embed-ask-theme", theme); } catch { /* noop */ }
-  }, [theme]);
+  }, [theme, customBg]);
+  useEffect(() => {
+    if (!customBg) return;
+    return applyEmbedBg(embedBgColor || "");
+  }, [customBg, embedBgColor]);
 
   const [businessName, setBusinessName] = useState<string>("");
   const [assistantTitle, setAssistantTitle] = useState<string>("");
