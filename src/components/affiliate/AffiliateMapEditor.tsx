@@ -106,6 +106,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setBiz(b);
       setBg((b?.map_bg_color || "").toUpperCase());
       setDefaultPoiId(b?.default_poi_business_id || "");
+      setDefaultPoiIsMaster(!!b?.default_poi_is_master);
       setKpActive(!!b?.kp_active);
       setKpActive2(!!b?.kp_active_2);
       setKpCity(b?.kp_city || "");
