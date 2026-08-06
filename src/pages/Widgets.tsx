@@ -205,6 +205,56 @@ const GeoMarketingBanner = () => {
     </div>
   );
 };
+/* ---------------- Marketing push : Assistant IA & Vocal ---------------- */
+const AiMarketingBanner = () => (
+  <div
+    className="relative overflow-hidden rounded-2xl border border-gold/40 p-6 sm:p-8 animate-glow-pulse"
+    style={{ background: "var(--gradient-morocco)" }}
+  >
+    <div className="pointer-events-none absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+    <div className="pointer-events-none absolute right-10 top-5 h-20 w-20 rounded-full border border-white/20 animate-float" />
+    <div className="pointer-events-none absolute left-8 bottom-4 h-14 w-14 rounded-full border border-gold/30 animate-float [animation-delay:1.4s]" />
+
+    <div className="relative z-10 space-y-4">
+      <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-white backdrop-blur-sm">
+        <Sparkles className="h-3.5 w-3.5 text-gold" />
+        Conseiller local augmenté
+      </div>
+      <h3 className="text-2xl font-bold leading-tight text-white sm:text-3xl">
+        Il écoute, il répond, il fait voyager — <span className="text-gold">à la voix comme au clavier</span>
+      </h3>
+      <p className="max-w-2xl text-sm leading-relaxed text-white/85 sm:text-base">
+        Un assistant qui parle la langue de vos visiteurs, se pilote au micro, illustre ses réponses
+        avec des vidéos immersives et transforme une simple question en envie de réserver.
+      </p>
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { k: "Vocal", v: "Question posée au micro, réponse lue à voix haute" },
+          { k: "Vidéos immersives", v: "Chaque adresse citée s'anime en vidéo verticale" },
+          { k: "Inspirationnel", v: "Suggestions et relances qui donnent des idées, pas des listes" },
+          { k: "L'App dans l'embed", v: "Carte, itinéraires, réservation : tout reste actif dans le widget" },
+        ].map((f) => (
+          <div key={f.k} className="rounded-xl bg-black/20 px-4 py-3 backdrop-blur-sm">
+            <div className="text-sm font-bold text-gold">{f.k}</div>
+            <div className="mt-1 text-[12.5px] leading-snug text-white/80">{f.v}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3 pt-1 text-xs font-medium text-white/80 sm:text-sm">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 backdrop-blur-sm">
+          <span className="inline-block h-2 w-2 rounded-full bg-gold animate-pulse" />
+          Réponses ancrées sur nos données réelles
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 backdrop-blur-sm">
+          Intégration iframe en 1 ligne de code
+        </span>
+      </div>
+    </div>
+  </div>
+);
+
 
 
 interface WidgetSectionProps {
@@ -226,6 +276,8 @@ interface WidgetSectionProps {
   snippet: string;
   snippetPreviewLines?: number;
   extra?: React.ReactNode;
+  /** Bloc affiché juste sous le titre du widget. */
+  banner?: React.ReactNode;
 }
 
 const WidgetSection = ({
@@ -245,6 +297,7 @@ const WidgetSection = ({
   snippet,
   snippetPreviewLines,
   extra,
+  banner,
 }: WidgetSectionProps) => (
 
   <section className="scroll-mt-32 border-t border-border pt-16">
@@ -265,6 +318,7 @@ const WidgetSection = ({
         </span>
       )}
     </h2>
+    {banner && <div className="mb-6">{banner}</div>}
     <p className="text-lg text-primary font-medium mb-4">{tagline}</p>
     {price !== "Gratuit" && <Badge className="mb-5">{price}</Badge>}
     <p className="text-base text-muted-foreground max-w-3xl mb-8">{description}</p>
@@ -340,6 +394,7 @@ const NEARBY_DEMO_NAMES = [
   "Royal Mansour Marrakech",
   "Aéroport international Marrakech-Ménara",
   "Aéroport d'Essaouira-Mogador",
+  "Délégation Régionale Du Tourisme Marrakech",
   "Le Bistro Arabe",
   "Carré Eden Shopping Center",
   "Côté Bougie M Avenue",
@@ -389,6 +444,7 @@ const NearbyWidgetSection = ({ index }: { index: number }) => {
       index={index}
       icon={<MapPin className="h-5 w-5" />}
       title="Widget Map & App"
+      banner={<GeoMarketingBanner />}
       tagline="Les meilleures adresses autour d'un point sur une carte en mode vidéos immersives & inspirationelles avec fonctions avancées."
       price="Prix : sur devis"
       description="Reprend l'expérience de découverte de la plateforme : établissements actifs situés autour du point de référence, classés par catégorie, avec carte Google Maps native, fiches détaillées et contact direct. La carte s'affiche immédiatement, sans média d'introduction. Vous pouvez optionnellement adapter la couleur de fond de la carte."
@@ -429,9 +485,6 @@ const NearbyWidgetSection = ({ index }: { index: number }) => {
               );
             })}
           </HScroll>
-          <div className="mb-5">
-            <GeoMarketingBanner />
-          </div>
           <iframe
             src={toPreview(url)}
             title={`Adresses à proximité — ${activeName}`}
@@ -1168,6 +1221,7 @@ const Widgets = () => {
               index={1}
               icon={<MessageSquare className="h-5 w-5" />}
               title="Widget Assistant IA & Vocal"
+              banner={<AiMarketingBanner />}
               tagline="Un conseiller local intelligent, greffé à votre page."
               price="Prix : sur devis"
               description="L'assistant répond aux questions des visiteurs sur un établissement et son environnement en mode texte et vocal : que faire à proximité, rooftops, horaires, réservation en ligne, menus, articles liés. Les suggestions de départ et les relances sont pilotées depuis notre back-office. L'App peut être consultée à partir des réponses de l'assistant IA et garde toutes ses fonctionnalités (itinéraires, réservation...)."
