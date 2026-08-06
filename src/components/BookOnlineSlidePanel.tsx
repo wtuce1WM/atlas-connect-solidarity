@@ -3290,6 +3290,26 @@ const BookOnlineSlidePanelInner = ({
                   : widgetMapView === "poi"
                     ? (widgetDefaultPoi ? [widgetDefaultPoi] : [])
                     : (widgetKpGroups.find(g => g.slot === (widgetMapView === "kp1" ? 1 : 2))?.members ?? []);
+              const fmtDist = (d: number) => (d < 1 ? `${Math.round(d * 1000)} m` : `${d.toFixed(1)} km`);
+              const poiDistanceKm =
+                isEmbedMapWidget && widgetMapView === "poi" && widgetDefaultPoi?.latitude && business?.latitude && business?.longitude
+                  ? haversineKm(Number(business.latitude), Number(business.longitude), Number(widgetDefaultPoi.latitude), Number(widgetDefaultPoi.longitude))
+                  : null;
+              const widgetConnector =
+                poiDistanceKm !== null && widgetDefaultPoi
+                  ? {
+                      from: { lat: Number(business!.latitude), lng: Number(business!.longitude) },
+                      to: { lat: Number(widgetDefaultPoi.latitude), lng: Number(widgetDefaultPoi.longitude) },
+                      label: fmtDist(poiDistanceKm),
+                    }
+                  : undefined;
+              const widgetFitKm =
+                widgetMembers && business?.latitude && business?.longitude
+                  ? (poiDistanceKm !== null
+                      ? Math.max(0.3, poiDistanceKm * 1.6)
+                      : Math.max(1, widgetMembers.reduce((acc, m) => (m.latitude && m.longitude ? Math.max(acc, haversineKm(Number(business.latitude), Number(business.longitude), Number(m.latitude), Number(m.longitude))) : acc), 0) * 1.15))
+                  : null;
+
               const overridePois: PoiMapItem[] | null = widgetMembers
                 ? [
                     ...(business?.latitude && business?.longitude ? [{
