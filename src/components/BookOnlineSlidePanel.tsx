@@ -424,6 +424,47 @@ const BookOnlineSlidePanelInner = ({
     setPoiProximityKm(allowed.includes(raw) ? raw : 10);
   }, [business]);
 
+  /* ─── Widget "Adresses à proximité" : pills Regroupements KP + Lieu d'intérêt par défaut ─── */
+  type WidgetKpGroup = { slot: 1 | 2; code: string; title: string; members: any[] };
+  const [widgetKpGroups, setWidgetKpGroups] = useState<WidgetKpGroup[]>([]);
+  const [widgetDefaultPoi, setWidgetDefaultPoi] = useState<any | null>(null);
+  const [widgetMapView, setWidgetMapView] = useState<"nearby" | "kp1" | "kp2" | "poi">("nearby");
+  useEffect(() => { setWidgetMapView("nearby"); }, [businessId]);
+  useEffect(() => {
+    if (!isEmbedMapWidget || !businessId) return;
+    let cancelled = false;
+    (async () => {
+      const { data: b } = await (supabase as any)
+        .from("businesses")
+        .select("kp_regroupement,kp_regroupement_2,default_poi_business_id")
+        .eq("id", businessId)
+        .maybeSingle();
+      if (cancelled || !b) return;
+      const kp1 = (b.kp_regroupement || "").trim();
+      const kp2 = (b.kp_regroupement_2 || "").trim();
+      const sel = "id,name,city,neighborhood,latitude,longitude,images,computed_rating,total_review_count";
+      const [m1, m2, titlesRes, poiRes] = await Promise.all([
+        kp1 ? (supabase as any).from("businesses").select(sel).eq("kp_regroupement", kp1).eq("is_active", true).order("name") : Promise.resolve({ data: [] }),
+        kp2 ? (supabase as any).from("businesses").select(sel).eq("kp_regroupement_2", kp2).eq("is_active", true).order("name") : Promise.resolve({ data: [] }),
+        (kp1 || kp2) ? (supabase as any).from("kp_group_titles").select("kp_code,kp_type,title") : Promise.resolve({ data: [] }),
+        b.default_poi_business_id
+          ? (supabase as any).from("businesses").select(sel).eq("id", b.default_poi_business_id).maybeSingle()
+          : Promise.resolve({ data: null }),
+      ]);
+      if (cancelled) return;
+      const titleMap = new Map<string, string>();
+      ((titlesRes as any)?.data ?? []).forEach((t: any) => titleMap.set(`${t.kp_type}:${t.kp_code}`, t.title || ""));
+      const groups: WidgetKpGroup[] = [];
+      const mem1 = ((m1 as any)?.data ?? []) as any[];
+      const mem2 = ((m2 as any)?.data ?? []) as any[];
+      if (kp1 && mem1.length > 1) groups.push({ slot: 1, code: kp1, title: titleMap.get(`kp1:${kp1}`) || kp1, members: mem1 });
+      if (kp2 && mem2.length > 1) groups.push({ slot: 2, code: kp2, title: titleMap.get(`kp2:${kp2}`) || kp2, members: mem2 });
+      setWidgetKpGroups(groups);
+      setWidgetDefaultPoi((poiRes as any)?.data ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [isEmbedMapWidget, businessId]);
+
   const [poiCategoryBusinesses, setPoiCategoryBusinesses] = useState<PoiBusiness[]>([]);
   const [poiCategoryBusinessCatId, setPoiCategoryBusinessCatId] = useState<string | null>(null);
   // Vivier ville complet (toutes catégories) : sert au calcul des compteurs
