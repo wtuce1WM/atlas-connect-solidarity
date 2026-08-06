@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Eye, MessageCircle, Phone, Mail, MapPin, ExternalLink, TrendingUp, TrendingDown } from "lucide-react";
+import { Loader2, Eye, MessageCircle, Phone, Mail, MapPin, ExternalLink, TrendingUp, TrendingDown, Radar } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { useBusinessAnalytics, type AnalyticsRange } from "@/hooks/useBusinessAnalytics";
 import { trackEvent } from "@/lib/analytics";
@@ -30,6 +30,7 @@ const RANGES: { value: AnalyticsRange; label: string }[] = [
 ];
 
 const KPIS: Array<{ key: string; label: string; icon: typeof Eye; color: string }> = [
+  { key: "impression", label: "Impressions", icon: Radar, color: "text-muted-foreground" },
   { key: "view", label: "Vues", icon: Eye, color: "text-primary" },
   { key: "whatsapp_click", label: "WhatsApp", icon: MessageCircle, color: "text-green-500" },
   { key: "phone_click", label: "Appels", icon: Phone, color: "text-blue-500" },
@@ -211,7 +212,7 @@ export default function BusinessAnalyticsPanel({ fixedBusinessId, affiliateId, s
 
       {activeBusinessId && data && (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
             {KPIS.map((kpi) => {
               const curr = data.totals[kpi.key] || 0;
               const prev = data.previous_totals[kpi.key] || 0;
