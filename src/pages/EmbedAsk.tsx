@@ -24,7 +24,7 @@ const DestinationSlidePanel = lazy(() => import("@/components/DestinationSlidePa
 const PoiGoogleMap = lazy(() => import("@/components/PoiGoogleMap"));
 const LocationPickerDialog = lazy(() => import("@/components/LocationPickerDialog"));
 import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedCardCarousel";
-import { Maximize2 } from "lucide-react";
+import { Maximize2, X } from "lucide-react";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { applyEmbedBg, parseBg, resolveEmbedInk } from "@/lib/embedFit";
