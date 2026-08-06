@@ -1188,6 +1188,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   const zoomIn = () => {
     const map = mapRef.current;
     if (!map) return;
+    // Geste utilisateur explicite : plus aucun recentrage/zoom automatique.
+    userMovedRef.current = true;
     const currentZoom = map.getZoom() ?? 13;
     applyAnchoredZoomRef.current(Math.min(20, currentZoom + 1));
   };
@@ -1195,9 +1197,11 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   const zoomOut = () => {
     const map = mapRef.current;
     if (!map) return;
+    userMovedRef.current = true;
     const currentZoom = map.getZoom() ?? 13;
     applyAnchoredZoomRef.current(Math.max(4, currentZoom - 1));
   };
+
 
   if (!ready) {
     return (
