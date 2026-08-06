@@ -183,7 +183,11 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const wbg = bgParam(widgetBgValid ? widgetBg : "");
   const publicUrl = `${SITE}/${slug}`;
   const shortUrl = `${SITE}/b/${slug}`;
-  const embedUrl = `${SITE}/embed/ask/${slug}?theme=${embedTheme}&lang=${embedLang}${fitParam(fitOf("embed"))}${wbg}`;
+  // Assistant IA : version « couleur de fond des widgets » (si définie) ou version transparente
+  const embedBase = `${SITE}/embed/ask/${slug}?theme=${embedTheme}&lang=${embedLang}${fitParam(fitOf("embed"))}`;
+  const embedUrlWidget = `${embedBase}${wbg}`;
+  const embedUrlTransparent = `${embedBase}&bg=transparent`;
+  const embedUrl = embedCard === "transparent" ? embedUrlTransparent : embedUrlWidget;
   const embedSnippet = useMemo(
     () =>
       `<iframe src="${embedUrl}" style="${fitIframeStyle(fitOf("embed"), { maxWidth: 420, height: embedHeight, radius: 16, extra: "box-shadow:0 4px 24px rgba(0,0,0,0.15)" })}" title="Assistant IA — ${businessName}" loading="lazy" allow="clipboard-write"></iframe>`,
