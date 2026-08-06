@@ -3279,11 +3279,35 @@ const BookOnlineSlidePanelInner = ({
                 />
               )
             )}
-
-
-
+            {(() => {
+              // Widget : vue Regroupement KP / Lieu d'intérêt par défaut (comme l'Aperçu de la carte affilié)
+              const widgetMembers: any[] | null =
+                !isEmbedMapWidget || widgetMapView === "nearby"
+                  ? null
+                  : widgetMapView === "poi"
+                    ? (widgetDefaultPoi ? [widgetDefaultPoi] : [])
+                    : (widgetKpGroups.find(g => g.slot === (widgetMapView === "kp1" ? 1 : 2))?.members ?? []);
+              const overridePois: PoiMapItem[] | null = widgetMembers
+                ? [
+                    ...(business?.latitude && business?.longitude ? [{
+                      id: `self-${business.id}`, name: business.name,
+                      latitude: business.latitude, longitude: business.longitude,
+                      images: business.images, city: business.city, neighborhood: business.neighborhood,
+                      avgOn20: avgOn20, totalReviews: totalReviewCount,
+                      markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
+                    } as PoiMapItem] : []),
+                    ...widgetMembers
+                      .filter((m) => m.id !== business?.id && m.latitude && m.longitude)
+                      .map((m) => ({
+                        id: m.id, name: m.name, latitude: Number(m.latitude), longitude: Number(m.longitude),
+                        images: m.images, city: m.city, neighborhood: m.neighborhood,
+                        avgOn20: m.computed_rating ?? null, totalReviews: m.total_review_count ?? 0,
+                      } as PoiMapItem)),
+                  ]
+                : null;
+              return (
             <PoiGoogleMap
-              pois={poiMapMode === "destinations"
+              pois={overridePois ? overridePois : poiMapMode === "destinations"
                 ? [
                     ...(business?.latitude && business?.longitude ? [{
                       id: `self-${business.id}`, name: business.name,
