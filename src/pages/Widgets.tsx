@@ -8,6 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Copy, CloudSun, MessageSquare, MapPin, Sparkles, Star, Newspaper, Waves, LayoutPanelTop, ExternalLink, ThumbsUp, Mail } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { toast } from "@/hooks/use-toast";
+import widgetsHero from "@/assets/widgets-hero.jpg";
+import widgetsHeroVertical from "@/assets/widgets-hero-vertical.jpg";
+
 
 const SITE = "https://oneworldmorocco.com";
 const DEMO_SLUG = "riad-dar-najat";
