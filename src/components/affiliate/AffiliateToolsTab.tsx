@@ -272,6 +272,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   (function () {
     var tab = document.getElementById('owm-embed-tab');
     var panel = document.getElementById('owm-embed-panel');
+    var frame = document.getElementById('owm-embed-iframe');
     function open() { panel.classList.add('open'); panel.setAttribute('aria-hidden', 'false'); }
     function shut() { panel.classList.remove('open'); panel.setAttribute('aria-hidden', 'true'); }
     tab.addEventListener('click', open);
@@ -288,7 +289,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') shut(); });
   })();
 </script>`,
-    [panelUrl, businessName, panelSurface, embedTheme]
+    [panelUrl, businessName, panelSurface, embedTheme, tabTopCss]
   );
 
 
