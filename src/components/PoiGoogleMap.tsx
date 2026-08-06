@@ -834,7 +834,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
           ${distHtml}
         </div>`;
         infoWindowRef.current?.setContent(html);
-        infoWindowRef.current?.setOptions({ pixelOffset: new gmaps.Size(0, -50) });
+        infoWindowRef.current?.setOptions({ pixelOffset: new gmaps.Size(0, -50), disableAutoPan: true });
         infoWindowRef.current?.setPosition(position);
         infoWindowRef.current?.open(map);
         // Make infowindow clickable + hoverable
