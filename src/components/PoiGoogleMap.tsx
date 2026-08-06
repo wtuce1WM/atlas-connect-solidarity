@@ -491,7 +491,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
           : LIGHT_MAP_STYLES;
     }
     mapRef.current = new gmaps.Map(containerRef.current, opts);
-    infoWindowRef.current = new gmaps.InfoWindow();
+    // disableAutoPan : survoler un POI excentré ne doit jamais déplacer la carte.
+    infoWindowRef.current = new gmaps.InfoWindow({ disableAutoPan: true });
 
     // Zoom helper: keep the Master marker at the same screen pixel while zooming
     applyAnchoredZoomRef.current = (newZoom: number) => {
@@ -528,6 +529,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       e.preventDefault();
       const map = mapRef.current;
       if (!map) return;
+      // Geste utilisateur : plus aucun recentrage automatique sur le Master.
+      userMovedRef.current = true;
       const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 100 : 1);
       const currentZoom = map.getZoom() ?? 13;
       const deltaZoom = -dy * 0.0018;
@@ -540,6 +543,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       e.preventDefault();
       const map = mapRef.current;
       if (!map) return;
+      userMovedRef.current = true;
       const currentZoom = map.getZoom() ?? 13;
       applyAnchoredZoomRef.current(Math.min(20, currentZoom + 1));
     };
@@ -833,7 +837,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
           ${distHtml}
         </div>`;
         infoWindowRef.current?.setContent(html);
-        infoWindowRef.current?.setOptions({ pixelOffset: new gmaps.Size(0, -50) });
+        infoWindowRef.current?.setOptions({ pixelOffset: new gmaps.Size(0, -50), disableAutoPan: true });
         infoWindowRef.current?.setPosition(position);
         infoWindowRef.current?.open(map);
         // Make infowindow clickable + hoverable
