@@ -49,7 +49,10 @@ const EmbedNearby = () => {
     let cancelled = false;
     (async () => {
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
-      const query = supabase.from("businesses").select("id").eq("is_active", true);
+      // Pas de filtre is_active : la fiche de référence peut être désactivée
+      // (ex. Délégation Régionale Du Tourisme Marrakech) — elle ne sert que de
+      // point de départ de la carte.
+      const query = supabase.from("businesses").select("id");
       const { data } = await (isUuid ? query.eq("id", slug) : query.eq("slug", slug)).maybeSingle();
       if (cancelled) return;
       if (data?.id) setBusinessId(data.id);

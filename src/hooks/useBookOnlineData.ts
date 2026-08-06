@@ -221,7 +221,12 @@ function setCacheEntry(id: string, data: CachedBusinessData) {
   businessDataCache.set(id, data);
 }
 
-export function useBookOnlineData(businessId: string) {
+/**
+ * @param allowInactive Autorise le chargement d'un établissement désactivé
+ *   (cas des widgets embarqués où la fiche ne sert que de point de référence
+ *   sur la carte, ex. "Délégation Régionale Du Tourisme Marrakech").
+ */
+export function useBookOnlineData(businessId: string, allowInactive = false) {
   const { language } = useLanguage();
   const { brokenUrls: brokenLinksSet, loaded: brokenLinksLoaded } = useBrokenLinks();
 
@@ -248,7 +253,7 @@ export function useBookOnlineData(businessId: string) {
     let isCancelled = false;
 
     // Check cache first — restore immediately without network round-trip
-    const cached = businessDataCache.get(`${businessId}:${language}`);
+    const cached = businessDataCache.get(`${businessId}:${language}:${allowInactive ? 1 : 0}`);
     if (cached) {
       setBusiness(cached.business);
       setWoDescription(cached.woDescription);
@@ -297,7 +302,7 @@ export function useBookOnlineData(businessId: string) {
          .from("businesses")
           .select("id, name, slug, logo_url, logo_bg, images, city, neighborhood, address, latitude, longitude, poi_radius_km, website, website_cta, website_presentation_mode, whatsapp, online_shop_url, online_shop_cta, online_shop_presentation_mode, reserve_now_url, reserve_now_cta, booking_url, airbnb_url, hotels_com_url, trivago_url, other_booking_url, other_booking_name, glovo_url, google_maps_url, phone, skype, email, languages, opening_hours, show_opening_hours, is_open_24h, show_videos, default_sound_on, prioritize_images, google_rating, google_review_count, google_reviews_url, google_review_url, google_place_id, tripadvisor_rating, tripadvisor_review_count, tripadvisor_url, tripadvisor_review_url, restaurant_guru_rating, restaurant_guru_review_count, restaurant_guru_url, trustpilot_rating, trustpilot_review_count, trustpilot_url, getyourguide_rating, getyourguide_review_count, getyourguide_url, viator_rating, viator_review_count, viator_url, avis_verifies_rating, avis_verifies_review_count, avis_verifies_url, tourradar_rating, tourradar_review_count, tourradar_url, computed_rating, total_review_count, online_shop_force_external, website_force_external, reserve_now_force_external, hook_fr, hook_en, hook_ar, description, description_fr, description_en, description_ar, facebook_url, instagram_url, tiktok_url, youtube_url, twitter_url, linkedin_url, pinterest_url, vimeo_url, snapchat_url, menu_url, menu_name, menu_language, video_1_url, kp_regroupement, kp_regroupement_2, kp_active, is_master, main_category, categories, presentation_mode, url_4, url_4_cta, url_4_force_external, url_4_presentation_mode, url_5, url_5_cta, url_5_force_external, url_5_presentation_mode, min_price, gamme_id, manual_price_range, default_service, matterport_url, carousel_badge, show_youtube_tab, hide_description, spotify_url, soundcloud_url, substack_url, popup_image_url")
           .eq("id", businessId)
-          .eq("is_active", true)
+          .in("is_active", allowInactive ? [true, false] : [true])
           .maybeSingle(),
         supabase
           .from("business_web_only")
@@ -814,14 +819,14 @@ export function useBookOnlineData(businessId: string) {
     return () => {
       isCancelled = true;
     };
-  }, [businessId, language]);
+  }, [businessId, language, allowInactive]);
 
   // Persist to cache once all data is loaded (including secondary fetches)
   useEffect(() => {
     if (isLoading || !business) return;
     // Debounce slightly to ensure secondary fetches have settled
     const timer = setTimeout(() => {
-      setCacheEntry(`${businessId}:${language}`, {
+      setCacheEntry(`${businessId}:${language}:${allowInactive ? 1 : 0}`, {
         business, woDescription, destinations, poiBusinesses,
         reviewTexts, externalLinks, menuSummaries, menuDocsRaw,
         videoDocs, categoryIcon, showGoogleMap, kpRelated,

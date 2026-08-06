@@ -241,7 +241,7 @@ const BookOnlineSlidePanelInner = ({
     business, woDescription, destinations, poiBusinesses, isLoading,
     reviewTexts, externalLinks, menuSummaries, menuDocs, videoDocs,
     allVideoUrls, categoryIcon, showGoogleMap, kpRelated, kpSubcategoryItems, kpSubcategoryLabel, isKp1Only, liteApiHotelId, serpApiMapping, isHotelWithPrice,
-  } = useBookOnlineData(businessId);
+  } = useBookOnlineData(businessId, !!embedMode);
 
   // --- Extracted hooks ---
   // Fetch YouTube videos for this business to drive background ordering:
