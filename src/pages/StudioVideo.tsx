@@ -1748,6 +1748,7 @@ export default function StudioVideo() {
             selected_videos: chosenVideos,
             video_starts: activeVideoStarts,
             video_ends: activeVideoEnds,
+            video_durations: activeVideoDurations,
             scene_media: sceneMedia,
             scene_order: applyReferenceOrder(scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon), !!scenarioEdits?.order),
             scene_durations: scenarioEdits?.durations ?? (() => {
@@ -2011,6 +2012,7 @@ export default function StudioVideo() {
             selected_videos: chosenVideos,
             video_starts: activeVideoStarts,
             video_ends: activeVideoEnds,
+            video_durations: activeVideoDurations,
             scene_media: sceneMedia,
             scene_order: applyReferenceOrder(
               scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon),
