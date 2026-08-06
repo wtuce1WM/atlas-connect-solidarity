@@ -529,6 +529,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       e.preventDefault();
       const map = mapRef.current;
       if (!map) return;
+      // Geste utilisateur : plus aucun recentrage automatique sur le Master.
+      userMovedRef.current = true;
       const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 100 : 1);
       const currentZoom = map.getZoom() ?? 13;
       const deltaZoom = -dy * 0.0018;
