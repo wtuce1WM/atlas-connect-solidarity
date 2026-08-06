@@ -3430,8 +3430,8 @@ const BookOnlineSlidePanelInner = ({
                   ]
               }
               selectedPoiId={null}
-              center={business?.latitude && business?.longitude ? { lat: business.latitude, lng: business.longitude } : undefined}
-              distanceOrigin={business?.latitude && business?.longitude ? { lat: Number(business.latitude), lng: Number(business.longitude) } : null}
+              center={poiMasterCenter}
+              distanceOrigin={poiMasterCenter ? { lat: poiMasterCenter.lat, lng: poiMasterCenter.lng } : null}
               onPoiClick={(poiId) => {
                 if (poiId.startsWith("self-")) return;
                 if (overridePois) {
