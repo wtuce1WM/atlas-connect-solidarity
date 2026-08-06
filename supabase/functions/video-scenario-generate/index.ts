@@ -752,10 +752,10 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
 
       // Durée réelle par vidéo (secondes) : permet de boucler le média quand
       // l'étape est plus longue que le clip (au lieu de figer la dernière image).
-      const rawDurations = options?.video_durations;
-      if (rawDurations && typeof rawDurations === "object") {
+      const rawVideoDurations = options?.video_durations;
+      if (rawVideoDurations && typeof rawVideoDurations === "object") {
         const durs: Record<string, number> = {};
-        for (const [u, t] of Object.entries(rawDurations as Record<string, unknown>)) {
+        for (const [u, t] of Object.entries(rawVideoDurations as Record<string, unknown>)) {
           if (typeof u !== "string" || !/^https?:\/\//i.test(u)) continue;
           const n = Number(t);
           if (!Number.isFinite(n) || n <= 0.5 || n > 3600) continue;
