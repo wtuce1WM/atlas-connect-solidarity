@@ -833,10 +833,18 @@ const EmbedAsk = () => {
   const chipBg = lightInk
     ? "bg-neutral-100 border border-neutral-300 text-neutral-900"
     : "bg-neutral-900 border border-neutral-700 text-neutral-100";
-  // Puces : intérieur en couleur « mode sombre » de l'affilié, texte en couleur « mode clair ».
-  const chipStyle: React.CSSProperties | undefined =
-    widgetColors.dark && widgetColors.light
-      ? { background: widgetColors.dark, color: widgetColors.light, borderColor: "transparent" }
+  // Puces : en mode clair, intérieur « mode sombre » / texte « mode clair ».
+  // En mode sombre, l'inverse : intérieur « mode clair » et texte foncé.
+  const hasAffiliateColors = !!(widgetColors.dark && widgetColors.light);
+  const chipStyle: React.CSSProperties | undefined = hasAffiliateColors
+    ? theme === "light"
+      ? { background: widgetColors.dark!, color: widgetColors.light!, borderColor: "transparent" }
+      : { background: widgetColors.light!, color: widgetColors.dark!, borderColor: "transparent" }
+    : undefined;
+  // Cartes des réponses IA : en mode sombre, fond en couleur « mode clair » + texte foncé.
+  const cardStyle: React.CSSProperties | undefined =
+    hasAffiliateColors && theme === "dark"
+      ? { background: widgetColors.light!, color: widgetColors.dark!, borderColor: "transparent" }
       : undefined;
 
   // Build conversation-wide dictionaries of businesses cited across all assistant messages.
@@ -1091,7 +1099,7 @@ const EmbedAsk = () => {
           return (
             <div key={m.id || i} className="flex flex-col items-start gap-2">
               {articleCard && articleCard.inline ? (
-                <div className={`w-full max-w-[85%] rounded-2xl overflow-hidden ${cardBg}`}>
+                <div className={`w-full max-w-[85%] rounded-2xl overflow-hidden ${cardBg}`} style={cardStyle}>
                   <a
                     href={`/embed/ask/${slug}/article/${articleCard.slug}`}
                     className="block relative w-full aspect-[16/7] bg-neutral-800 group"
@@ -1141,6 +1149,7 @@ const EmbedAsk = () => {
                 <a
                   href={`/embed/ask/${slug}/article/${articleCard.slug}`}
                   className={`relative flex w-full max-w-[85%] gap-3 rounded-2xl overflow-hidden ${cardBg} hover:opacity-95 transition-opacity`}
+                  style={cardStyle}
                 >
                   {articleCard.image ? (
                     <img src={articleCard.image} alt={articleCard.title} className="w-24 h-24 object-cover flex-shrink-0" loading="lazy" />
@@ -1212,8 +1221,8 @@ const EmbedAsk = () => {
                 );
               })()}
 
-              <div className={`${articleCard?.inline ? "max-w-full w-full" : "max-w-[85%]"} rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${asstBubble}`}>
-                <div className={`prose prose-sm max-w-none dark:prose-invert prose-p:my-2 prose-ul:my-1 ${articleCard?.inline ? "prose-hr:my-6 prose-hr:border-neutral-300 dark:prose-hr:border-neutral-700" : ""}`}>
+              <div className={`${articleCard?.inline ? "max-w-full w-full" : "max-w-[85%]"} rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${asstBubble}`} style={cardStyle}>
+                <div className={`prose prose-sm max-w-none ${cardStyle ? "text-current prose-p:text-current prose-li:text-current prose-ul:text-current prose-headings:text-current prose-strong:text-current" : "dark:prose-invert"} prose-p:my-2 prose-ul:my-1 ${articleCard?.inline ? "prose-hr:my-6 prose-hr:border-neutral-300 dark:prose-hr:border-neutral-700" : ""}`}>
                   <ReactMarkdown
                     components={{
                       strong: StrongCited as any,
@@ -1260,7 +1269,7 @@ const EmbedAsk = () => {
                       <div
                         key={p.id}
                         className={`relative rounded-2xl overflow-hidden border ${border} ${cardBg}`}
-                        style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}
+                        style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.08)", ...(cardStyle || {}) }}
                       >
                         <div className="flex gap-3 p-3">
                           <button
@@ -1496,7 +1505,7 @@ const EmbedAsk = () => {
 
         {status === "submitted" && (
           <div className="flex justify-start">
-            <div className={`rounded-2xl px-3.5 py-2.5 text-sm ${asstBubble}`}>
+            <div className={`rounded-2xl px-3.5 py-2.5 text-sm ${asstBubble}`} style={cardStyle}>
               <span className="inline-flex gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60 animate-bounce" style={{ animationDelay: "0ms" }} />
                 <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60 animate-bounce" style={{ animationDelay: "120ms" }} />
