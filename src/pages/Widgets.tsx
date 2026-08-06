@@ -1057,29 +1057,6 @@ const Widgets = () => {
           <div className="space-y-20">
             <WidgetSection
               index={1}
-              icon={<CloudSun className="h-5 w-5" />}
-              title="Widget Météo"
-              tagline="La météo d'une ville marocaine, en direct et sans clé API."
-              price="Gratuit"
-              description="Températures actuelles, conditions et prévisions pour Marrakech, Essaouira ou toute autre ville couverte. Compact, sobre, signé oneworldmorocco.com. Une version JSON de l'API est également disponible pour un affichage entièrement sur-mesure."
-
-              params={[
-                { name: "city", value: "Marrakech, Essaouira…" },
-                { name: "lang", value: "fr | en | ar" },
-              ]}
-              previewUrl={toPreview(weatherUrl)}
-              autoHeight
-              previewHeight={420}
-              previewMaxWidth={420}
-
-              snippet={`<iframe src="${weatherUrl}" style="width:100%;max-width:420px;height:560px;border:0;border-radius:20px" title="Météo Marrakech" loading="lazy"></iframe>`}
-
-            />
-
-            <TidesWidgetSection index={2} />
-
-            <WidgetSection
-              index={3}
               icon={<MessageSquare className="h-5 w-5" />}
               title="Widget Assistant IA"
               tagline="Un conseiller local intelligent, greffé à votre page."
@@ -1110,13 +1087,10 @@ const Widgets = () => {
               }
             />
 
-            <NearbyWidgetSection index={4} />
-
-
-            <ReviewsWidgetSection index={5} />
+            <NearbyWidgetSection index={2} />
 
             <WidgetSection
-              index={6}
+              index={3}
               icon={<LayoutPanelTop className="h-5 w-5" />}
               title="Widget Votre ID numérique type Linktree"
               tagline="Tous vos canaux numériques rassemblés au même endroit."
@@ -1143,6 +1117,31 @@ window.addEventListener('message', function (e) {
 });
 </script>`}
             />
+
+            <WidgetSection
+              index={4}
+              icon={<CloudSun className="h-5 w-5" />}
+              title="Widget Météo"
+              tagline="La météo d'une ville marocaine, en direct et sans clé API."
+              price="Gratuit"
+              description="Températures actuelles, conditions et prévisions pour Marrakech, Essaouira ou toute autre ville couverte. Compact, sobre, signé oneworldmorocco.com. Une version JSON de l'API est également disponible pour un affichage entièrement sur-mesure."
+
+              params={[
+                { name: "city", value: "Marrakech, Essaouira…" },
+                { name: "lang", value: "fr | en | ar" },
+              ]}
+              previewUrl={toPreview(weatherUrl)}
+              autoHeight
+              previewHeight={420}
+              previewMaxWidth={420}
+
+              snippet={`<iframe src="${weatherUrl}" style="width:100%;max-width:420px;height:560px;border:0;border-radius:20px" title="Météo Marrakech" loading="lazy"></iframe>`}
+
+            />
+
+            <TidesWidgetSection index={5} />
+
+            <ReviewsWidgetSection index={6} />
 
             <RateUsWidgetSection index={7} />
 
