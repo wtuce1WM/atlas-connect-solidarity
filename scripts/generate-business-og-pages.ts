@@ -1305,6 +1305,85 @@ async function main() {
     writeFileSync(join(articleDir, "index.html"), buildArticleHtml(article), "utf8");
   }
 
+  // 5b) Page custom /blog/etablissements-notes : prérendu du classement réel
+  //     (contenu lisible sans JS pour Googlebot + crawlers IA).
+  try {
+    const RPAGE = 1000;
+    let rFrom = 0;
+    const rated: any[] = [];
+    while (true) {
+      const { data, error } = await supabase
+        .from("businesses")
+        .select(
+          "id, slug, name, city, neighborhood, main_category, categories, services, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count",
+        )
+        .eq("is_active", true)
+        .or("google_review_count.gt.0,tripadvisor_review_count.gt.0,restaurant_guru_review_count.gt.0")
+        .order("id")
+        .range(rFrom, rFrom + RPAGE - 1);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      rated.push(...data);
+      if (data.length < RPAGE) break;
+      rFrom += RPAGE;
+    }
+
+    const vanityBySlugTarget = new Map(vanities.map((v) => [v.target_id, v.slug]));
+    const scored = rated
+      .map((b) => {
+        const sources: Array<{ rating: number; count: number }> = [];
+        if (b.google_rating && b.google_review_count) sources.push({ rating: b.google_rating, count: b.google_review_count });
+        if (b.tripadvisor_rating && b.tripadvisor_review_count) sources.push({ rating: b.tripadvisor_rating, count: b.tripadvisor_review_count });
+        if (b.restaurant_guru_rating && b.restaurant_guru_review_count) sources.push({ rating: b.restaurant_guru_rating, count: b.restaurant_guru_review_count });
+        const total = sources.reduce((s, x) => s + x.count, 0);
+        if (!total) return null;
+        const avg = Math.round((sources.reduce((s, x) => s + (x.rating / 5) * 20 * x.count, 0) / total) * 100) / 100;
+        const vslug = vanityBySlugTarget.get(b.id) || b.slug;
+        return {
+          name: b.name as string,
+          url: vslug ? `${BASE_URL}/${vslug}` : `${BASE_URL}/search?openBusiness=${b.id}`,
+          city: (b.city as string) || "",
+          neighborhood: (b.neighborhood as string) || "",
+          subcat: (Array.isArray(b.categories) && b.categories[0]) || b.main_category || "",
+          google: b.google_rating ? `${b.google_rating}/5 (${b.google_review_count})` : "—",
+          guru: b.restaurant_guru_rating ? `${b.restaurant_guru_rating}/5 (${b.restaurant_guru_review_count})` : "—",
+          tripadvisor: b.tripadvisor_rating ? `${b.tripadvisor_rating}/5 (${b.tripadvisor_review_count})` : "—",
+          avg: avg.toFixed(2),
+          avgNum: avg,
+          total,
+        };
+      })
+      .filter(Boolean) as Array<Record<string, any>>;
+
+    scored.sort((a, b) => b.avgNum - a.avgNum || b.total - a.total);
+    const rows: RankedRow[] = scored.slice(0, 500).map((r, i) => ({
+      rank: i + 1,
+      name: r.name,
+      url: r.url,
+      city: r.city,
+      neighborhood: r.neighborhood,
+      subcat: r.subcat,
+      google: r.google,
+      guru: r.guru,
+      tripadvisor: r.tripadvisor,
+      avg: r.avg,
+      total: r.total,
+    }));
+
+    const ratedDir = join(PUBLIC_DIR, "blog", "etablissements-notes");
+    mkdirSync(ratedDir, { recursive: true });
+    writeFileSync(
+      join(ratedDir, "index.html"),
+      buildRatedRankingHtml(rows, scored.length, `${BASE_URL}/og/rated-businesses.jpg`),
+      "utf8",
+    );
+    console.log(`[og-pages] classement prérendu : ${rows.length} lignes / ${scored.length} établissements notés`);
+  } catch (err) {
+    console.error("[og-pages] échec prérendu /blog/etablissements-notes:", err);
+  }
+
+
+
   // 6) Génère les pages HUBS (destinations, catégories, quartiers)
   // Ces répertoires racines sont marqués pour être nettoyables au prochain run.
   const destDir = join(PUBLIC_DIR, "destination");
