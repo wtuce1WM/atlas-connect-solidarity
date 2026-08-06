@@ -22,6 +22,9 @@ const AffiliatesResetPassword = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isRecovery, setIsRecovery] = useState(false);
+  const [resendEmail, setResendEmail] = useState("");
+  const [isResending, setIsResending] = useState(false);
+  const [resent, setResent] = useState(false);
 
   const translations = {
     fr: {
