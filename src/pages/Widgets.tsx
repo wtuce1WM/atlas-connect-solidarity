@@ -429,6 +429,9 @@ const NearbyWidgetSection = ({ index }: { index: number }) => {
               );
             })}
           </HScroll>
+          <div className="mb-5">
+            <GeoMarketingBanner />
+          </div>
           <iframe
             src={toPreview(url)}
             title={`Adresses à proximité — ${activeName}`}
