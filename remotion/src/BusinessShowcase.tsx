@@ -704,30 +704,17 @@ export function buildScenePlan(p: ShowcaseProps): ScenePlanItem[] {
     const v = p.scene_durations?.[k];
     return v != null && Number.isFinite(Number(v)) && Number(v) > 0 ? Math.round(Number(v) * 30) : null;
   };
-  // Quand le texte d'une étape est découpé en N cartes successives, la durée
-  // configurée s'applique à CHAQUE carte : on multiplie donc la durée de
-  // l'étape par le nombre de segments (sinon chaque carte serait raccourcie).
-  const splitFactor = (k: SceneKind): number => {
-    if (k !== "name") return 1;
-    const text = (p.textOverrides?.name?.description || "").trim() || (p.hook || "").trim();
-    const chunks = resolveTextChunks(text, p.textSegments?.name, p.textSplits?.name ?? p.splitCount);
-    return chunks.length > 1 ? chunks.length : 1;
-  };
+  // La durée d'une étape est la durée TOTALE de l'étape, exactement comme dans
+  // « Aperçu du scénario » : quand le texte est découpé en N cartes, cette durée
+  // est répartie entre les cartes (duration / N), on ne la multiplie donc pas.
   const durationFor = (tok: Tok): number => {
     if (tok.kind === "custom" && tok.customId) {
       const c = customById.get(tok.customId);
       const d = Number(c?.duration ?? 4);
-      const base = Math.max(30, Math.round((Number.isFinite(d) && d > 0 ? d : 4) * 30));
-      const chunks = resolveTextChunks(
-        (c?.subtitle ?? "") as string,
-        p.textSegments?.[`custom:${tok.customId}`],
-        p.textSplits?.[`custom:${tok.customId}`] ?? (c as any)?.splitCount ?? p.splitCount,
-      );
-      return base * (chunks.length > 1 ? chunks.length : 1);
+      return Math.max(30, Math.round((Number.isFinite(d) && d > 0 ? d : 4) * 30));
     }
     const kind = tok.kind as SceneKind;
-    const base = durOverride(kind) ?? defaultSceneFrames(kind, p);
-    return base * splitFactor(kind);
+    return durOverride(kind) ?? defaultSceneFrames(kind, p);
   };
 
   const durations = order.map(durationFor);
