@@ -115,6 +115,7 @@ function PlatformRow({
   url,
   lang,
   compact,
+  dark,
 }: {
   logo: string;
   name: string;
@@ -123,6 +124,7 @@ function PlatformRow({
   url: string | null;
   lang: Lang;
   compact?: boolean;
+  dark?: boolean;
 }) {
   const L = LABELS[lang];
   const inner = (
@@ -134,7 +136,11 @@ function PlatformRow({
         onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")}
       />
       <span className="min-w-0 flex-1">
-        <span className={`block ${compact ? "text-[12px]" : "text-sm"} font-semibold text-white truncate`}>
+        <span
+          className={`block ${compact ? "text-[12px]" : "text-sm"} font-semibold ${
+            dark ? "text-black" : "text-white"
+          } truncate`}
+        >
           {name}
         </span>
         <span className="flex items-center gap-1.5 flex-wrap">
@@ -143,26 +149,34 @@ function PlatformRow({
             {rating.toFixed(1)}/5
           </span>
           {count ? (
-            <span className="text-xs text-white/60">
+            <span className={`text-xs ${dark ? "text-black/60" : "text-white/60"}`}>
               · {count.toLocaleString("fr-FR")} {L.reviews}
             </span>
           ) : null}
         </span>
       </span>
-      {url ? <ExternalLink className="h-3.5 w-3.5 text-white/40 shrink-0" /> : null}
+      {url ? (
+        <ExternalLink className={`h-3.5 w-3.5 ${dark ? "text-black/40" : "text-white/40"} shrink-0`} />
+      ) : null}
     </>
   );
-  const cls = `flex items-center gap-3 rounded-xl border border-white/15 bg-white/5 ${
-    compact ? "px-2.5 py-2" : "px-3 py-2.5"
-  } transition-colors`;
+  const cls = `flex items-center gap-3 rounded-xl border ${
+    dark ? "border-black/10 bg-black/[0.03]" : "border-white/15 bg-white/5"
+  } ${compact ? "px-2.5 py-2" : "px-3 py-2.5"} transition-colors`;
   return url ? (
-    <a href={url} target="_blank" rel="noopener noreferrer" className={`${cls} hover:bg-white/10`}>
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`${cls} ${dark ? "hover:bg-black/[0.06]" : "hover:bg-white/10"}`}
+    >
       {inner}
     </a>
   ) : (
     <div className={cls}>{inner}</div>
   );
 }
+
 
 /** Auto-detect frame shape/size from the viewport (iframe) dimensions. */
 function useResolvedFrame(ratio: ReviewsRatio, size: ReviewsSize) {
@@ -224,6 +238,12 @@ export default function EmbedReviewsWidget({
   const L = LABELS[lang];
   const { r: shape, s: density } = useResolvedFrame(ratio, size);
   const large = density === "lg";
+  const dark = ink === "dark";
+  const cMuted = dark ? "text-black/50" : "text-white/50";
+  const cSoft = dark ? "text-black/60" : "text-white/60";
+  const cBody = dark ? "text-black/80" : "text-white/85";
+  const cPanel = dark ? "border-black/10 bg-black/[0.03]" : "border-white/10 bg-white/5";
+  const cBtn = dark ? "border-black/20 hover:bg-black/[0.06]" : "border-white/20 hover:bg-white/10";
 
   const platformRows = useMemo(() => {
     const rows: { key: string; logo: string; name: string; rating: number; count: number | null; url: string | null }[] = [];
@@ -276,7 +296,7 @@ export default function EmbedReviewsWidget({
 
   const header = (
     <div className="space-y-1">
-      <p className="text-[11px] uppercase tracking-[0.15em] text-white/50">{L.customerReviews}</p>
+      <p className={`text-[11px] uppercase tracking-[0.15em] ${cMuted}`}>{L.customerReviews}</p>
       <h2 className={`${large ? "text-lg" : "text-base"} font-bold leading-tight`}>{business.name}</h2>
     </div>
   );
@@ -287,16 +307,22 @@ export default function EmbedReviewsWidget({
         dir="ltr"
         className={`relative flex items-center justify-center gap-2.5 ${
           large ? "py-2 px-5" : "py-1.5 px-4"
-        } rounded-full border border-white/30 backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_8px_32px_rgba(0,0,0,0.3)] flex-wrap`}
+        } rounded-full border ${
+          dark
+            ? "border-black/15 bg-black/[0.04] shadow-none"
+            : "border-white/30 backdrop-blur-2xl bg-black/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_8px_32px_rgba(0,0,0,0.3)]"
+        } overflow-hidden flex-wrap`}
       >
-        <span aria-hidden className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
+        {!dark && (
+          <span aria-hidden className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
+        )}
         <Star className={`${large ? "h-7 w-7" : "h-6 w-6"} text-gold fill-gold`} />
         <span className={`${large ? "text-4xl" : "text-3xl"} font-black text-gold whitespace-nowrap`}>
           {avgOn20}
-          <span className="text-base font-semibold text-white/60">/20</span>
+          <span className={`text-base font-semibold ${cSoft}`}>/20</span>
         </span>
         {totalCount > 0 && (
-          <span className="text-xs text-white/60 font-medium whitespace-nowrap">
+          <span className={`text-xs ${cSoft} font-medium whitespace-nowrap`}>
             · {totalCount.toLocaleString("fr-FR")} {L.reviews}
           </span>
         )}
@@ -307,14 +333,14 @@ export default function EmbedReviewsWidget({
     platformRows.length > 0 ? (
       <div className={shape === "square" ? "grid grid-cols-1 gap-1.5" : "space-y-2"}>
         {platformRows.map((p) => (
-          <PlatformRow key={p.key} {...p} lang={lang} compact={compactRows} />
+          <PlatformRow key={p.key} {...p} lang={lang} compact={compactRows} dark={dark} />
         ))}
       </div>
     ) : null;
 
   const reviewCard = (
     <div
-      className={`rounded-2xl border border-white/10 bg-white/5 ${large ? "p-4" : "p-3.5"} flex flex-col ${
+      className={`rounded-2xl border ${cPanel} ${large ? "p-4" : "p-3.5"} flex flex-col ${
         shape === "horizontal" ? "h-full" : ""
       }`}
       style={{ minHeight: large ? 200 : shape === "square" ? 104 : 132 }}
@@ -326,12 +352,12 @@ export default function EmbedReviewsWidget({
               <p className="text-sm font-semibold truncate">{current.author_name || L.anonymous}</p>
               {current.rating ? <Stars rating={current.rating} size={13} /> : null}
             </div>
-            <span className="text-[11px] text-white/40 shrink-0">
+            <span className={`text-[11px] ${dark ? "text-black/40" : "text-white/40"} shrink-0`}>
               {Math.min(index + 1, list.length)}/{list.length}
             </span>
           </div>
           <blockquote
-            className={`${large ? "text-[15px]" : "text-sm"} leading-relaxed text-white/85 flex-1 overflow-y-auto overscroll-contain pr-1`}
+            className={`${large ? "text-[15px]" : "text-sm"} leading-relaxed ${cBody} flex-1 overflow-y-auto overscroll-contain pr-1`}
             style={{
               maxHeight: large ? 260 : shape === "square" ? 120 : 180,
               scrollbarWidth: "thin",
@@ -346,7 +372,7 @@ export default function EmbedReviewsWidget({
                 type="button"
                 aria-label={L.prev}
                 onClick={() => setIndex((i) => (i - 1 + list.length) % list.length)}
-                className="h-8 w-8 inline-flex items-center justify-center rounded-full border border-white/20 hover:bg-white/10"
+                className={`h-8 w-8 inline-flex items-center justify-center rounded-full border ${cBtn}`}
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -354,7 +380,7 @@ export default function EmbedReviewsWidget({
                 type="button"
                 aria-label={L.next}
                 onClick={() => setIndex((i) => (i + 1) % list.length)}
-                className="h-8 w-8 inline-flex items-center justify-center rounded-full border border-white/20 hover:bg-white/10"
+                className={`h-8 w-8 inline-flex items-center justify-center rounded-full border ${cBtn}`}
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
@@ -362,7 +388,7 @@ export default function EmbedReviewsWidget({
           )}
         </>
       ) : (
-        <p className="text-sm text-white/50 m-auto text-center">{L.noReview}</p>
+        <p className={`text-sm ${cMuted} m-auto text-center`}>{L.noReview}</p>
       )}
     </div>
   );
@@ -436,7 +462,7 @@ export default function EmbedReviewsWidget({
         href="https://oneworldmorocco.com"
         target="_blank"
         rel="noopener noreferrer"
-        className="text-[11px] text-white/45 hover:text-white/80 transition-colors"
+        className={`text-[11px] ${dark ? "text-black/45 hover:text-black/80" : "text-white/45 hover:text-white/80"} transition-colors`}
       >
         oneworldmorocco.com
       </a>
@@ -454,10 +480,12 @@ export default function EmbedReviewsWidget({
       className={`w-full mx-auto ${
         frameless
           ? "border-0 bg-transparent p-0"
-          : `rounded-3xl border border-white/15 ${hasSurfaceProp ? "" : "bg-neutral-900/95"} ${
-              large ? "p-5 sm:p-6" : "p-4 sm:p-5"
-            } ${transparent ? "" : "shadow-[0_10px_40px_rgba(0,0,0,0.35)]"}`
-      } text-white flex flex-col`}
+          : `rounded-3xl border ${dark ? "border-black/10" : "border-white/15"} ${
+              hasSurfaceProp ? "" : "bg-neutral-900/95"
+            } ${large ? "p-5 sm:p-6" : "p-4 sm:p-5"} ${
+              transparent || dark ? "" : "shadow-[0_10px_40px_rgba(0,0,0,0.35)]"
+            }`
+      } ${dark ? "text-black" : "text-white"} flex flex-col`}
       style={{
         fontFamily: "'Montserrat', sans-serif",
         maxWidth: fullWidth ? undefined : maxW,
