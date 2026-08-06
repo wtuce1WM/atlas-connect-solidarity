@@ -195,28 +195,43 @@ const StartVideo: React.FC<{
 }> = ({ src, muted = true, volume, loop = true, style, extraStartSec = 0 }) => {
   const base = useVideoStartFrames(src) ?? 0;
   const endAtBase = useVideoEndFrames(src);
+  const naturalFrames = useVideoDurationFrames(src);
   const { fps } = useVideoConfig();
   const extra = Number.isFinite(extraStartSec) && extraStartSec > 0 ? Math.round(extraStartSec * fps) : 0;
-  // Le décalage de relecture reste borné à l'intervalle [Time Start, Time End].
-  const span = endAtBase != null ? Math.max(1, endAtBase - base) : undefined;
-  // Sans Time End connu, on ne connaît pas la durée réelle du clip : un décalage
+  // Fin utile du clip : Time End s'il est défini, sinon la durée réelle du média.
+  const hardEnd = endAtBase ?? naturalFrames;
+  // Le décalage de relecture reste borné à l'intervalle [Time Start, fin utile].
+  const span = hardEnd != null ? Math.max(1, hardEnd - base) : undefined;
+  // Sans fin connue, on ne connaît pas la durée réelle du clip : un décalage
   // trop grand ferait démarrer la lecture après la fin (image figée / écran noir).
   // On borne donc le décalage à 2 s dans ce cas.
   const safeExtra = span != null ? extra % span : Math.min(extra, Math.round(2 * fps));
   const startFrom = base + safeExtra;
-  const endAt = endAtBase != null && endAtBase > startFrom + 1 ? endAtBase : undefined;
-  return (
+  const endAt = hardEnd != null && hardEnd > startFrom + 1 ? hardEnd : undefined;
+  const video = (
     <OffthreadVideo
       src={src}
       muted={muted}
       volume={volume as never}
-      loop={loop}
+      loop={false}
       startFrom={startFrom > 0 ? startFrom : undefined}
       endAt={endAt}
       style={style ?? { width: "100%", height: "100%", objectFit: "cover" }}
     />
   );
+  // Segment utile connu : on le répète explicitement via <Loop> pour couvrir
+  // toute la durée de l'étape, au lieu de figer la dernière image à la fin.
+  const loopFrames = endAt != null ? Math.max(1, endAt - startFrom - 1) : null;
+  if (loop && loopFrames && loopFrames > fps) {
+    return (
+      <Loop durationInFrames={loopFrames} layout="none">
+        {video}
+      </Loop>
+    );
+  }
+  return video;
 };
+
 
 const useTone = (): ToneConfig => TONE_CONFIG[React.useContext(ToneContext)] ?? TONE_CONFIG.immersif;
 
