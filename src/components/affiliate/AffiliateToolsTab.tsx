@@ -233,7 +233,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   // Panneau flottant : le volet reprend exactement la couleur du widget dans le
   // mode choisi (clair / sombre) pour éviter tout liseré blanc ou gris.
   const panelSurface = askBgValid ? askBgColor : embedTheme === "dark" ? "#0A0A0A" : "#FFFFFF";
-  const panelUrl = `${embedUrl}&panel=1`;
+  const panelUrl = `${embedUrlWidget}&panel=1`;
   const floatingSnippet = useMemo(
     () => `<!-- Assistant IA One World Morocco — ${businessName} -->
 <style>
