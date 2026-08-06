@@ -804,6 +804,12 @@ const EmbedAsk = () => {
   const border = theme === "light" ? "border-neutral-200" : "border-neutral-800";
   const inputBg = theme === "light" ? "bg-white" : "bg-neutral-900";
   const cardBg = theme === "light" ? "bg-white border border-neutral-200" : "bg-neutral-900 border border-neutral-800";
+  // Encre réellement lisible : avec un fond personnalisé, elle dépend de la couleur du fond.
+  const lightInk = customBg ? bgInk === "dark" : theme === "light";
+  // Puces (suggestions / relances) : contraste explicite, jamais de texte clair sur fond clair.
+  const chipBg = lightInk
+    ? "bg-neutral-100 border border-neutral-300 text-neutral-900"
+    : "bg-neutral-900 border border-neutral-700 text-neutral-100";
 
   // Build conversation-wide dictionaries of businesses cited across all assistant messages.
   // - richByName: full rich data (images, coords, ratings) coming from a SHOW_ON_MAP payload.
