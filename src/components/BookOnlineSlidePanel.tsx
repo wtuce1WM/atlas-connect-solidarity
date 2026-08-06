@@ -3364,7 +3364,29 @@ const BookOnlineSlidePanelInner = ({
             />
               );
             })()}
+            {isEmbedMapWidget && (widgetKpGroups.length > 0 || widgetDefaultPoi) && (
+              <div className="absolute top-3 left-3 right-3 z-[12] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
+                {[
+                  { key: "nearby" as const, label: language === "en" ? "Nearby" : language === "ar" ? "بالقرب" : "À proximité" },
+                  ...widgetKpGroups.map((g) => ({ key: (g.slot === 1 ? "kp1" : "kp2") as "kp1" | "kp2", label: g.title })),
+                  ...(widgetDefaultPoi ? [{ key: "poi" as const, label: widgetDefaultPoi.name as string }] : []),
+                ].map((p) => (
+                  <button
+                    key={p.key}
+                    type="button"
+                    onClick={() => setWidgetMapView(p.key)}
+                    className={`pointer-events-auto rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wider shadow-lg ring-1 ring-black/10 backdrop-blur-sm transition-colors ${
+                      widgetMapView === p.key ? "bg-black text-white" : "bg-white/90 text-black/70 hover:text-black"
+                    }`}
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="absolute bottom-16 left-3 right-3 z-[10] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
+
               {showProxPill && (
                 <div className="inline-flex rounded-full bg-white/90 backdrop-blur-sm shadow-lg ring-1 ring-black/10 p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                   <DropdownMenu>
