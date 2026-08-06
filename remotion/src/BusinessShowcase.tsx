@@ -344,6 +344,8 @@ export type ShowcaseProps = {
     extremes?: Array<{ hour: string; type: "high" | "low"; height: number }>;
     /** Marnage moyen de vive-eau du port (m) — base du coefficient estimé. */
     springRange?: number | null;
+    /** Date du jour affichée dans le titre (« Jeu. 6 août »). */
+    dateLabel?: string | null;
   } | null;
   scenePois?: Record<string, PlaceItem[]>;
   sceneDestinations?: Record<string, PlaceItem[]>;
@@ -1907,21 +1909,33 @@ const SceneTidesWidget: React.FC<{ widget: NonNullable<ShowcaseProps["tidesWidge
                 </>
               ) : kind === "wind" ? (
                 <>
-                  <div style={{ fontSize: px(64) }}>💨</div>
+                  {/* Icône Vent + heure en gros doré sur la même ligne */}
+                  <div style={{ display: "flex", alignItems: "center", gap: px(16) }}>
+                    <div style={{ fontSize: px(64) }}>💨</div>
+                    <div style={{ fontSize: px(portrait ? 58 : 66), color: COLORS.gold, fontWeight: 700, lineHeight: 1 }}>
+                      {active?.hour ?? "--:--"}
+                    </div>
+                  </div>
                   <div>
                     <div style={{ fontSize: px(52), color: COLORS.cream, fontWeight: 700, lineHeight: 1.05 }}>{active?.wind != null ? `${active.wind} km/h` : "--"}</div>
                     <div style={{ fontSize: px(20), color: COLORS.gold }}>
-                      {active ? `${active.hour} · rafales ${active.gust ?? "--"} km/h · ${active.dir ?? "--"}°` : ""}
+                      {active ? `rafales ${active.gust ?? "--"} km/h · ${active.dir ?? "--"}°` : ""}
                     </div>
                   </div>
                 </>
               ) : (
                 <>
-                  <div style={{ fontSize: px(64) }}>{wmoIcon(active?.code)}</div>
+                  {/* Icône Météo + heure en gros doré sur la même ligne */}
+                  <div style={{ display: "flex", alignItems: "center", gap: px(16) }}>
+                    <div style={{ fontSize: px(64) }}>{wmoIcon(active?.code)}</div>
+                    <div style={{ fontSize: px(portrait ? 58 : 66), color: COLORS.gold, fontWeight: 700, lineHeight: 1 }}>
+                      {active?.hour ?? "--:--"}
+                    </div>
+                  </div>
                   <div>
                     <div style={{ fontSize: px(52), color: COLORS.cream, fontWeight: 700, lineHeight: 1.05 }}>{active?.temp != null ? `${active.temp}°` : "--"}</div>
                     <div style={{ fontSize: px(20), color: COLORS.gold }}>
-                      {active ? `${active.hour} · pluie ${active.pop ?? 0}%` : ""}
+                      {active ? `pluie ${active.pop ?? 0}%` : ""}
                     </div>
                   </div>
                 </>
@@ -3147,13 +3161,20 @@ const SceneCustomerReview: React.FC<{
   const displayText = hasExcerpt ? full : full || excerpt;
   const baseSize = reviewFontSize(displayText.length);
   const size = baseSize;
-  // Phase de focus : les côtés s'estompent, l'extrait grossit et la carte zoome
-  // légèrement dessus — l'extrait devient l'élément dominant du plan.
-  const sideOpacity = interpolate(focus, [0, 1], [1, 0]);
-  const sideBlur = interpolate(focus, [0, 1], [0, 8]);
-  const excerptSize = size * interpolate(focus, [0, 1], [1, 1.5]);
-  const cardScale = interpolate(focus, [0, 1], [1, 1.08]);
-  const excerptGlow = interpolate(focus, [0, 1], [0, 1]);
+  // Phase de focus : au lieu de grossir l'extrait *dans* le paragraphe (ce qui
+  // reflowe les lignes et provoque un saut visuel), on superpose deux calques
+  // dans la même cellule de grille et on fait un fondu croisé fluide :
+  //   calque A = avis complet (extrait déjà surligné en jaune)
+  //   calque B = extrait isolé, plus grand, centré
+  // La hauteur de la carte est celle du plus grand calque → aucun saut.
+  const fullOpacity = interpolate(focus, [0, 1], [1, 0]);
+  const fullBlur = interpolate(focus, [0, 1], [0, 7]);
+  const fullScale = interpolate(focus, [0, 1], [1, 0.96]);
+  const isoOpacity = focus;
+  const isoScale = interpolate(focus, [0, 1], [0.93, 1]);
+  const excerptSize = size;
+  const isoSize = reviewFontSize(Math.max(excerpt.length, 1)) * 1.22;
+  const cardScale = interpolate(focus, [0, 1], [1, 1.04]);
   // Pulsation du halo jaune (effet flashy)
   const flashPulse = 0.7 + 0.3 * Math.sin(frame / 3.2);
 
@@ -3202,35 +3223,60 @@ const SceneCustomerReview: React.FC<{
             </div>
           )}
           <div style={{ fontFamily: display, fontSize: 90, color: meta ? meta.brand : COLORS.gold, lineHeight: 0.7, marginBottom: 12 }}>“</div>
-          <div style={{ fontFamily: body, color: COLORS.cream, fontSize: size, lineHeight: 1.45 }}>
-            {hasExcerpt ? (
-              <>
-                {before && (
-                  <span style={{ opacity: sideOpacity, filter: `blur(${sideBlur}px)` }}>{before}</span>
-                )}
-                <span
-                  style={{
-                    position: "relative",
-                    display: "inline",
-                    // Pas de rectangle derrière l'extrait : le texte lui-même
-                    // passe du crème au jaune vif avec un halo flashy.
-                    color: interpolateColors(swipe, [0, 1], [COLORS.cream, FLASH_YELLOW]),
-                    fontWeight: 800,
-                    fontSize: excerptSize,
-                    lineHeight: 1.32,
-                    textShadow: `0 2px 8px rgba(0,0,0,0.8), 0 0 ${8 + 26 * swipe * flashPulse}px ${FLASH_YELLOW}${swipe > 0 ? "CC" : "00"}, 0 0 ${18 + 46 * swipe * flashPulse}px ${FLASH_YELLOW}${swipe > 0 ? "77" : "00"}`,
-                    transition: "none",
-                  }}
-                >
-                  {mid}
-                </span>
+          <div style={{ display: "grid", alignItems: "center", justifyItems: "center" }}>
+            <div
+              style={{
+                gridArea: "1 / 1",
+                fontFamily: body,
+                color: COLORS.cream,
+                fontSize: size,
+                lineHeight: 1.45,
+                opacity: hasExcerpt ? fullOpacity : 1,
+                filter: hasExcerpt ? `blur(${fullBlur}px)` : undefined,
+                transform: `scale(${hasExcerpt ? fullScale : 1})`,
+                transformOrigin: "center",
+              }}
+            >
+              {hasExcerpt ? (
+                <>
+                  {before && <span>{before}</span>}
+                  <span
+                    style={{
+                      // Pas de rectangle derrière l'extrait : le texte lui-même
+                      // passe du crème au jaune vif avec un halo flashy.
+                      color: interpolateColors(swipe, [0, 1], [COLORS.cream, FLASH_YELLOW]),
+                      fontWeight: 800,
+                      fontSize: excerptSize,
+                      lineHeight: 1.32,
+                      textShadow: `0 2px 8px rgba(0,0,0,0.8), 0 0 ${8 + 26 * swipe * flashPulse}px ${FLASH_YELLOW}${swipe > 0 ? "CC" : "00"}, 0 0 ${18 + 46 * swipe * flashPulse}px ${FLASH_YELLOW}${swipe > 0 ? "77" : "00"}`,
+                    }}
+                  >
+                    {mid}
+                  </span>
+                  {after && <span>{after}</span>}
+                </>
+              ) : (
+                displayText
+              )}
+            </div>
 
-                {after && (
-                  <span style={{ opacity: sideOpacity, filter: `blur(${sideBlur}px)` }}>{after}</span>
-                )}
-              </>
-            ) : (
-              displayText
+            {hasExcerpt && (
+              <div
+                style={{
+                  gridArea: "1 / 1",
+                  fontFamily: body,
+                  fontWeight: 800,
+                  color: FLASH_YELLOW,
+                  fontSize: isoSize,
+                  lineHeight: 1.32,
+                  opacity: isoOpacity,
+                  transform: `scale(${isoScale})`,
+                  transformOrigin: "center",
+                  textShadow: `0 2px 8px rgba(0,0,0,0.85), 0 0 ${20 + 26 * flashPulse}px ${FLASH_YELLOW}CC, 0 0 ${40 + 46 * flashPulse}px ${FLASH_YELLOW}66`,
+                }}
+              >
+                {mid}
+              </div>
             )}
           </div>
 
