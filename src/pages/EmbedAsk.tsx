@@ -528,13 +528,16 @@ const EmbedAsk = () => {
 
   const isMobile = useMemo(() => typeof window !== "undefined" && window.innerWidth < 768, []);
 
+  // Couleurs de fond des widgets définies par l'affilié (mode clair / mode sombre).
+  const [widgetColors, setWidgetColors] = useState<{ light: string | null; dark: string | null }>({ light: null, dark: null });
+
   // Load host business
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("id, name, latitude, longitude, city, url_6_title")
+        .select("id, name, latitude, longitude, city, url_6_title, widget_bg_color, widget_bg_color_dark")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
@@ -545,6 +548,8 @@ const EmbedAsk = () => {
       setAssistantTitle((row?.url_6_title as string) || "");
       setBusinessId((row?.id as string) || null);
       setBusinessCity((row?.city as string) || null);
+      const hex = (v: any) => (typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v.trim()) ? v.trim() : null);
+      setWidgetColors({ light: hex(row?.widget_bg_color), dark: hex(row?.widget_bg_color_dark) });
       if (row?.latitude != null && row?.longitude != null) {
         setHostLocation({ lat: Number(row.latitude), lng: Number(row.longitude) });
       }
@@ -810,6 +815,11 @@ const EmbedAsk = () => {
   const chipBg = lightInk
     ? "bg-neutral-100 border border-neutral-300 text-neutral-900"
     : "bg-neutral-900 border border-neutral-700 text-neutral-100";
+  // Puces : intérieur en couleur « mode sombre » de l'affilié, texte en couleur « mode clair ».
+  const chipStyle: React.CSSProperties | undefined =
+    widgetColors.dark && widgetColors.light
+      ? { background: widgetColors.dark, color: widgetColors.light, borderColor: "transparent" }
+      : undefined;
 
   // Build conversation-wide dictionaries of businesses cited across all assistant messages.
   // - richByName: full rich data (images, coords, ratings) coming from a SHOW_ON_MAP payload.
@@ -1447,6 +1457,7 @@ const EmbedAsk = () => {
                         type="button"
                         onClick={() => sendFollowup(f.label, f.id)}
                         className={`text-xs px-3 py-1.5 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
+                        style={chipStyle}
                       >
                         {f.label}
                       </button>
@@ -1481,6 +1492,7 @@ const EmbedAsk = () => {
                   type="button"
                   onClick={() => { send(label, s.id); }}
                   className={`text-xs px-3 py-1.5 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
+                        style={chipStyle}
                 >
                   {label}
                 </button>
