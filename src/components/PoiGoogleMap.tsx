@@ -837,7 +837,35 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
           ${distHtml}
         </div>`;
         infoWindowRef.current?.setContent(html);
-        infoWindowRef.current?.setOptions({ pixelOffset: new gmaps.Size(0, -50), disableAutoPan: true });
+        // Ancrage dynamique de l'infobulle : au-dessus par défaut, en dessous si le POI
+        // est près du haut, et décalage horizontal si elle dépasse d'un bord (padding 12px).
+        const IW_W = 268;
+        const IW_H = img ? 200 : 90;
+        const PAD = 12;
+        let offX = 0;
+        let offY = -50;
+        try {
+          const proj = map.getProjection();
+          const c = map.getCenter();
+          const cw = containerRef.current?.clientWidth || 0;
+          const ch = containerRef.current?.clientHeight || 0;
+          if (proj && c && cw && ch) {
+            const scale = Math.pow(2, map.getZoom() ?? 13);
+            const wp = proj.fromLatLngToPoint(new gmaps.LatLng(position.lat, position.lng));
+            const wc = proj.fromLatLngToPoint(c);
+            const px = (wp.x - wc.x) * scale + cw / 2;
+            const py = (wp.y - wc.y) * scale + ch / 2;
+            // Vertical : bascule en dessous si pas la place au-dessus.
+            if (py - IW_H - 50 < PAD) offY = IW_H + 60;
+            // Horizontal : recentrage dans les bords.
+            const left = px - IW_W / 2;
+            const right = px + IW_W / 2;
+            if (left < PAD) offX = PAD - left;
+            else if (right > cw - PAD) offX = cw - PAD - right;
+          }
+        } catch { /* projection indisponible : offsets par défaut */ }
+        infoWindowRef.current?.setOptions({ pixelOffset: new gmaps.Size(offX, offY), disableAutoPan: true });
+
         infoWindowRef.current?.setPosition(position);
         infoWindowRef.current?.open(map);
         // Make infowindow clickable + hoverable
