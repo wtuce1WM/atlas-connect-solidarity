@@ -231,7 +231,9 @@ async function fetchLucideIcon(name: string): Promise<string> {
 /* ── Custom Label Overlay ── */
 type LabelMarkerOverlay = google.maps.OverlayView & {
   setHighlighted: (val: boolean) => void;
+  pulse: (direction: 1 | -1) => void;
 };
+
 
 const createLabelMarkerClass = (gmaps: typeof google.maps) =>
   class LabelMarker extends gmaps.OverlayView {
@@ -306,6 +308,22 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       if (this.div) this.applyStyle();
     }
 
+    /** Petit effet de resize (zoom-in / zoom-out) sur le marqueur. */
+    pulse(direction: 1 | -1) {
+      const el = this.div;
+      if (!el) return;
+      const base = this.highlighted ? 1.08 : 1;
+      const peak = base * (direction > 0 ? 1.24 : 0.8);
+      el.style.transition = "transform 0.22s cubic-bezier(0.34,1.56,0.64,1)";
+      el.style.transform = `translate(-50%,-100%) scale(${peak})`;
+      window.setTimeout(() => {
+        if (!this.div) return;
+        this.div.style.transition = "transform 0.28s cubic-bezier(0.34,1.56,0.64,1)";
+        this.div.style.transform = `translate(-50%,-100%) scale(${base})`;
+      }, 200);
+    }
+
+
     private applyStyle() {
       if (!this.div) return;
       const hlc = this.highlightColor;
@@ -363,6 +381,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   const userMarkerRef = useRef<LabelMarkerOverlay | null>(null);
   const [ready, setReady] = useState(false);
   const hasFittedRef = useRef(false);
+  const zoomAnimRef = useRef<number | null>(null);
+
   const [iconCache, setIconCache] = useState<Map<string, string>>(new Map());
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [trafficOn, setTrafficOn] = useState(false);
@@ -478,7 +498,10 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       disableDoubleClickZoom: true,
       gestureHandling: "greedy",
       clickableIcons: false,
+      // Zoom fractionnaire : indispensable pour animer le zoom en douceur.
+      isFractionalZoomEnabled: true,
     };
+
     if (isNativeTheme) {
       // Native Google Maps color scheme (only honored at construction time).
       (opts as any).colorScheme = mapTheme === "default-dark" ? "DARK" : "LIGHT";
@@ -941,12 +964,14 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     if (hasCenterOffset) {
 
       needsFitRef.current = false;
+      const firstFit = !hasFittedRef.current;
       hasFittedRef.current = true;
       // Position unique et invariante : le Master reste à `centerAtBottomRatio`
       // du bas, quels que soient les filtres (POI / catégories / rayon).
       const height = containerRef.current?.clientHeight || 0;
       const width = containerRef.current?.clientWidth || 0;
-      let z = map.getZoom() ?? 13;
+      const startZ = map.getZoom() ?? 13;
+      let z = startZ;
       // Le rayon du pill « À proximité » pilote le zoom : le cercle doit tenir
       // dans le viewport, au-dessus et autour du marqueur Master.
       if (fitRadiusKm && fitRadiusKm > 0 && height > 0 && width > 0 && center) {
@@ -957,18 +982,44 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         const metersPerPixelAtZ0 = 156543.03392 * Math.cos((center.lat * Math.PI) / 180);
         const target = Math.log2((metersPerPixelAtZ0 * availablePx) / (fitRadiusKm * 1000));
         z = Math.max(4, Math.min(18, Math.round(target * 2) / 2));
-        map.setZoom(z);
       }
-      if (height > 0 && center) {
-        const markerOffsetFromCenterPx = (0.5 - centerAtBottomRatio!) * height;
-        map.setCenter({
-          lat: centerLatForMarkerPosition(center.lat, z, markerOffsetFromCenterPx),
-          lng: center.lng,
-        });
+      const applyView = (zoom: number) => {
+        map.setZoom(zoom);
+        if (height > 0 && center) {
+          const markerOffsetFromCenterPx = (0.5 - centerAtBottomRatio!) * height;
+          map.setCenter({
+            lat: centerLatForMarkerPosition(center.lat, zoom, markerOffsetFromCenterPx),
+            lng: center.lng,
+          });
+        }
+      };
+
+      const delta = z - startZ;
+      if (firstFit || Math.abs(delta) < 0.01) {
+        applyView(z);
+        return;
       }
+
+      // Transition douce du zoom + petit resize des marqueurs (zoom-in / zoom-out).
+      overlaysRef.current.forEach((o) => o.pulse(delta > 0 ? 1 : -1));
+      if (zoomAnimRef.current != null) cancelAnimationFrame(zoomAnimRef.current);
+      const t0 = performance.now();
+      const duration = 450;
+      const step = (t: number) => {
+        const p = Math.min(1, (t - t0) / duration);
+        const e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+        applyView(startZ + delta * e);
+        if (p < 1) {
+          zoomAnimRef.current = requestAnimationFrame(step);
+        } else {
+          zoomAnimRef.current = null;
+        }
+      };
+      zoomAnimRef.current = requestAnimationFrame(step);
       return;
 
     }
+
 
 
     // In fitToMarkers mode, fit strictly to result markers so all are visible.
