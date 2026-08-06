@@ -27,6 +27,7 @@ import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedC
 import { Maximize2 } from "lucide-react";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { applyEmbedBg, parseBg, resolveEmbedInk } from "@/lib/embedFit";
 
 // EmbedMediaBottomBar (Pause/Mute) removed — the BookOnlineSlidePanel now renders
 // its own liquid-glass PanelSearchBar with 6 CTAs and integrated video controls.
