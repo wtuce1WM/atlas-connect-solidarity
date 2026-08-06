@@ -396,11 +396,6 @@ const EmbedAsk = () => {
     if (customBg) return;
     try { window.localStorage.setItem("embed-ask-theme", theme); } catch { /* noop */ }
   }, [theme, customBg]);
-  useEffect(() => {
-    if (!customBg) return;
-    return applyEmbedBg(cardColor ? "" : embedBgColor || "");
-  }, [customBg, embedBgColor]);
-
   const [businessName, setBusinessName] = useState<string>("");
   const [assistantTitle, setAssistantTitle] = useState<string>("");
   const [businessId, setBusinessId] = useState<string | null>(null);
@@ -530,6 +525,17 @@ const EmbedAsk = () => {
 
   // Couleurs de fond des widgets définies par l'affilié (mode clair / mode sombre).
   const [widgetColors, setWidgetColors] = useState<{ light: string | null; dark: string | null }>({ light: null, dark: null });
+
+  // La couleur passée dans l'URL initialise le widget, mais le sélecteur clair/sombre
+  // doit ensuite réellement basculer entre les deux couleurs enregistrées.
+  const activeWidgetBg =
+    (theme === "light" ? widgetColors.light : widgetColors.dark) || innerBgColor;
+  const activeBgInk = resolveEmbedInk(null, activeWidgetBg);
+
+  useEffect(() => {
+    if (!customBg) return;
+    return applyEmbedBg(activeWidgetBg || "");
+  }, [customBg, activeWidgetBg]);
 
   // Load host business
   useEffect(() => {
@@ -802,7 +808,7 @@ const EmbedAsk = () => {
   // on neutralise les fonds opaques pour laisser passer celui du site hôte.
   const bg = customBg ? "bg-transparent" : theme === "light" ? "bg-white" : "bg-neutral-950";
   const surface = customBg
-    ? `bg-transparent ${bgInk === "dark" ? "text-neutral-900" : "text-neutral-100"}`
+    ? `bg-transparent ${activeBgInk === "dark" ? "text-neutral-900" : "text-neutral-100"}`
     : theme === "light" ? "bg-white text-neutral-900" : "bg-neutral-950 text-neutral-100";
   const userBubble = theme === "light" ? "bg-neutral-900 text-white" : "bg-white text-neutral-900";
   const asstBubble = theme === "light" ? "bg-neutral-100 text-neutral-900" : "bg-neutral-800 text-neutral-50";
@@ -810,7 +816,7 @@ const EmbedAsk = () => {
   const inputBg = theme === "light" ? "bg-white" : "bg-neutral-900";
   const cardBg = theme === "light" ? "bg-white border border-neutral-200" : "bg-neutral-900 border border-neutral-800";
   // Encre réellement lisible : avec un fond personnalisé, elle dépend de la couleur du fond.
-  const lightInk = customBg ? bgInk === "dark" : theme === "light";
+  const lightInk = customBg ? activeBgInk === "dark" : theme === "light";
   // Puces (suggestions / relances) : contraste explicite, jamais de texte clair sur fond clair.
   const chipBg = lightInk
     ? "bg-neutral-100 border border-neutral-300 text-neutral-900"
