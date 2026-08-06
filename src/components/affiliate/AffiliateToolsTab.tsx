@@ -9,7 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import AffiliateArticleExport from "@/components/affiliate/AffiliateArticleExport";
 import HexColorField from "@/components/affiliate/HexColorField";
 import WidgetTester from "@/components/affiliate/WidgetTester";
-import { FIT_OPTIONS, fitFlags, fitIframeStyle, fitParam, bgParam,
+import { FIT_OPTIONS, fitFlags, fitIframeStyle, fitParam,
   cardParam, autoHeightSnippet, SIZE_OPTIONS, sizeMaxWidth, type EmbedFit, type EmbedSize } from "@/lib/embedFit";
 
 
@@ -630,17 +630,34 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
           <Globe2 className="h-4 w-4" /> Couleur de fond des widgets
         </h3>
         <p className="text-sm text-white/70 max-w-2xl">
-          <span className="text-white font-medium">Vide = fond transparent.</span> Le widget prend alors le fond du site hôte.
-          Si vous saisissez un code hexadécimal ici, il est appliqué aux widgets de {businessName} — sauf si vous forcez une autre couleur directement dans le widget.
+          <span className="text-white font-medium">Vide = fond transparent.</span> Le fond de la page du widget reste
+          toujours transparent (celui du site hôte) : la couleur saisie est appliquée à l'intérieur du widget.
+          Une couleur par mode d'affichage : mode clair et mode sombre.
         </p>
-        <HexColorField
-          value={widgetBg}
-          onChange={setWidgetBg}
-          onCommit={saveWidgetBg}
-          disabled={radiusLoading || !businessId}
-          saving={widgetBgSaving}
-          saved={widgetBgSaved}
-        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl">
+          <div className="space-y-1.5">
+            <Label className="text-white/80 text-xs">Mode clair</Label>
+            <HexColorField
+              value={widgetBg}
+              onChange={setWidgetBg}
+              onCommit={saveWidgetBg}
+              disabled={radiusLoading || !businessId}
+              saving={widgetBgSaving}
+              saved={widgetBgSaved}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-white/80 text-xs">Mode sombre</Label>
+            <HexColorField
+              value={widgetBgDark}
+              onChange={setWidgetBgDark}
+              onCommit={saveWidgetBgDark}
+              disabled={radiusLoading || !businessId}
+              saving={widgetBgDarkSaving}
+              saved={widgetBgDarkSaved}
+            />
+          </div>
+        </div>
       </div>
 
 
@@ -788,7 +805,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
           <div className="space-y-3">
             <div className="space-y-2">
               <Label className="text-white/80 text-xs">
-                {widgetBgValid ? `Aperçu — couleur de fond des widgets (${widgetBg})` : "Aperçu — fond par défaut (aucune couleur définie)"}
+                {askBgValid ? `Aperçu — intérieur du widget (${askBgColor}, fond transparent)` : "Aperçu — fond par défaut (aucune couleur définie)"}
               </Label>
               <div
                 className="rounded-md overflow-hidden border border-white/20 flex justify-center"
@@ -1378,7 +1395,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
           <div className="space-y-3">
             <div className="space-y-2">
               <Label className="text-white/80 text-xs">
-                {widgetBgValid ? `Aperçu — couleur de fond des widgets (${widgetBg})` : "Aperçu — fond par défaut (aucune couleur définie)"}
+                {widgetBgValid ? `Aperçu — intérieur du widget (${widgetBg}, fond transparent)` : "Aperçu — fond par défaut (aucune couleur définie)"}
               </Label>
               <div
                 className="rounded-md overflow-hidden border border-white/20 flex justify-center"
