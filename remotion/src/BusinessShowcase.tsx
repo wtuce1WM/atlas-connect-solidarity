@@ -1907,21 +1907,33 @@ const SceneTidesWidget: React.FC<{ widget: NonNullable<ShowcaseProps["tidesWidge
                 </>
               ) : kind === "wind" ? (
                 <>
-                  <div style={{ fontSize: px(64) }}>💨</div>
+                  {/* Icône Vent + heure en gros doré sur la même ligne */}
+                  <div style={{ display: "flex", alignItems: "center", gap: px(16) }}>
+                    <div style={{ fontSize: px(64) }}>💨</div>
+                    <div style={{ fontSize: px(portrait ? 58 : 66), color: COLORS.gold, fontWeight: 700, lineHeight: 1 }}>
+                      {active?.hour ?? "--:--"}
+                    </div>
+                  </div>
                   <div>
                     <div style={{ fontSize: px(52), color: COLORS.cream, fontWeight: 700, lineHeight: 1.05 }}>{active?.wind != null ? `${active.wind} km/h` : "--"}</div>
                     <div style={{ fontSize: px(20), color: COLORS.gold }}>
-                      {active ? `${active.hour} · rafales ${active.gust ?? "--"} km/h · ${active.dir ?? "--"}°` : ""}
+                      {active ? `rafales ${active.gust ?? "--"} km/h · ${active.dir ?? "--"}°` : ""}
                     </div>
                   </div>
                 </>
               ) : (
                 <>
-                  <div style={{ fontSize: px(64) }}>{wmoIcon(active?.code)}</div>
+                  {/* Icône Météo + heure en gros doré sur la même ligne */}
+                  <div style={{ display: "flex", alignItems: "center", gap: px(16) }}>
+                    <div style={{ fontSize: px(64) }}>{wmoIcon(active?.code)}</div>
+                    <div style={{ fontSize: px(portrait ? 58 : 66), color: COLORS.gold, fontWeight: 700, lineHeight: 1 }}>
+                      {active?.hour ?? "--:--"}
+                    </div>
+                  </div>
                   <div>
                     <div style={{ fontSize: px(52), color: COLORS.cream, fontWeight: 700, lineHeight: 1.05 }}>{active?.temp != null ? `${active.temp}°` : "--"}</div>
                     <div style={{ fontSize: px(20), color: COLORS.gold }}>
-                      {active ? `${active.hour} · pluie ${active.pop ?? 0}%` : ""}
+                      {active ? `pluie ${active.pop ?? 0}%` : ""}
                     </div>
                   </div>
                 </>
