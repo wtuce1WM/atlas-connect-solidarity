@@ -381,6 +381,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
   const userMarkerRef = useRef<LabelMarkerOverlay | null>(null);
   const [ready, setReady] = useState(false);
   const hasFittedRef = useRef(false);
+  const zoomAnimRef = useRef<number | null>(null);
+
   const [iconCache, setIconCache] = useState<Map<string, string>>(new Map());
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [trafficOn, setTrafficOn] = useState(false);
