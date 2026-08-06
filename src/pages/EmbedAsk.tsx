@@ -24,7 +24,7 @@ const DestinationSlidePanel = lazy(() => import("@/components/DestinationSlidePa
 const PoiGoogleMap = lazy(() => import("@/components/PoiGoogleMap"));
 const LocationPickerDialog = lazy(() => import("@/components/LocationPickerDialog"));
 import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedCardCarousel";
-import { Maximize2 } from "lucide-react";
+import { Maximize2, X } from "lucide-react";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { applyEmbedBg, parseBg, resolveEmbedInk } from "@/lib/embedFit";
@@ -371,10 +371,19 @@ const EmbedAsk = () => {
   const innerBgColor = cardColor || embedBgColor;
   const customBg = !!embedBgColor || bgTransparent || !!cardColor;
   const bgInk = customBg ? resolveEmbedInk(params.get("ink"), innerBgColor) : null;
-  const initialTheme = customBg
+  // Le paramètre `theme` explicite est toujours prioritaire (cohérence clair/sombre
+  // entre l'iframe simple et la variante « panneau flottant »).
+  const themeParam = params.get("theme") === "light" ? "light" : params.get("theme") === "dark" ? "dark" : null;
+  // Panneau flottant : l'hôte demande une croix de fermeture dans le widget.
+  const inFloatingPanel = /^(1|true)$/i.test(params.get("panel") || "");
+  const initialTheme = themeParam
+    ? themeParam
+    : customBg
     ? (bgInk === "dark" ? "light" : "dark")
-    : params.get("theme") === "light" ? "light" : "dark";
+    : "dark";
+
   const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (themeParam) return themeParam;
     if (customBg) return initialTheme;
     if (typeof window !== "undefined") {
       const saved = window.localStorage.getItem("embed-ask-theme");
@@ -382,6 +391,7 @@ const EmbedAsk = () => {
     }
     return initialTheme;
   });
+
   useEffect(() => {
     if (customBg) return;
     try { window.localStorage.setItem("embed-ask-theme", theme); } catch { /* noop */ }
@@ -946,6 +956,22 @@ const EmbedAsk = () => {
       style={innerBgColor ? { background: innerBgColor } : undefined}
     >
       <header className={`px-4 py-3 border-b ${border} flex items-center gap-3`}>
+        {inFloatingPanel && (
+          <button
+            type="button"
+            onClick={() => {
+              try { window.parent?.postMessage({ type: "owm-embed-close" }, "*"); } catch { /* noop */ }
+            }}
+            title={lang === "en" ? "Close" : lang === "ar" ? "إغلاق" : "Fermer"}
+            aria-label={lang === "en" ? "Close" : lang === "ar" ? "إغلاق" : "Fermer"}
+            className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border ${border} ${
+              theme === "light" ? "bg-white/70 text-neutral-900" : "bg-white/10 text-neutral-100"
+            } opacity-80 hover:opacity-100 transition-opacity`}
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+
         <div className="w-8 h-8 rounded-full bg-[#C24B3F] flex items-center justify-center text-white text-sm font-semibold">
           {((assistantTitle || businessName) || "?").slice(0, 1).toUpperCase()}
         </div>
