@@ -60,6 +60,17 @@ const RatedBusinesses = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isStaff, setIsStaff] = useState(false);
 
+  useSEO({
+    title: "Classement des établissements notés au Maroc",
+    description:
+      "Classement unique sur 20 des établissements du Maroc : notes Google, TripAdvisor et Restaurant Guru réunies. Hôtels, riads, restaurants et activités à Marrakech et Essaouira.",
+    canonical: "/blog/etablissements-notes",
+    ogImage: ratedHeroAsset.url,
+    ogType: "article",
+  });
+
+
+
   const t = (fr: string, en: string, ar: string) =>
     language === "en" ? en : language === "ar" ? ar : fr;
 
