@@ -987,7 +987,13 @@ const EmbedAsk = () => {
     <div
       dir={dir}
       className={`fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""}`}
-      style={innerBgColor ? { background: innerBgColor } : undefined}
+      style={
+        bgTransparent && !activeWidgetBg
+          ? undefined
+          : activeWidgetBg
+          ? { background: activeWidgetBg, colorScheme: theme === "light" ? "light" : "dark" }
+          : undefined
+      }
     >
       <header className={`px-4 py-3 border-b ${border} flex items-center gap-3`}>
         {inFloatingPanel && (
