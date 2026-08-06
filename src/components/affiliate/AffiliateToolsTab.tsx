@@ -708,6 +708,28 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
           </div>
         </div>
 
+        <div className="space-y-1.5">
+          <Label className="text-white/80 text-xs">Fond du widget</Label>
+          <div className="flex gap-1 flex-wrap">
+            {([
+              { key: "widget", label: widgetBgValid ? `Couleur du widget ${widgetBg}` : "Couleur du widget (non définie)" },
+              { key: "transparent", label: "Transparent" },
+            ] as const).map((o) => (
+              <button
+                key={o.key}
+                type="button"
+                onClick={() => setEmbedCard(o.key)}
+                className={`text-xs py-1.5 px-3 rounded-md border ${embedCard === o.key ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-white/50">
+            « Transparent » laisse apparaître le fond du site hôte. Les deux versions sont visibles ci-dessous.
+          </p>
+        </div>
+
         {fitRow("embed")}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <div className="space-y-2">
@@ -735,19 +757,47 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               </Button>
             </div>
           </div>
-          <div className="space-y-2">
-            <Label className="text-white/80 text-xs">Aperçu en direct</Label>
-            <div className="rounded-md overflow-hidden border border-white/20 bg-black/30 flex justify-center">
-              <iframe
-                key={embedUrl + embedHeight}
-                src={embedUrl}
-                style={{ width: "100%", maxWidth: fitFlags(fitOf("embed")).fullWidth ? undefined : 420, height: embedHeight, border: 0 }}
-                title="Aperçu"
-                loading="lazy"
-              />
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label className="text-white/80 text-xs">
+                {widgetBgValid ? `Aperçu — couleur de fond des widgets (${widgetBg})` : "Aperçu — fond par défaut (aucune couleur définie)"}
+              </Label>
+              <div
+                className="rounded-md overflow-hidden border border-white/20 flex justify-center"
+                style={{ background: widgetBgValid ? widgetBg : undefined }}
+              >
+                <iframe
+                  key={embedUrlWidget + embedHeight}
+                  src={embedUrlWidget}
+                  style={{ width: "100%", maxWidth: fitFlags(fitOf("embed")).fullWidth ? undefined : 420, height: embedHeight, border: 0 }}
+                  title="Aperçu — couleur du widget"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white/80 text-xs">Aperçu — fond transparent (fond du site hôte)</Label>
+              <div
+                className="rounded-md overflow-hidden border border-white/20 flex justify-center"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(45deg,rgba(255,255,255,0.12) 25%,transparent 25%,transparent 75%,rgba(255,255,255,0.12) 75%),linear-gradient(45deg,rgba(255,255,255,0.12) 25%,transparent 25%,transparent 75%,rgba(255,255,255,0.12) 75%)",
+                  backgroundSize: "16px 16px",
+                  backgroundPosition: "0 0, 8px 8px",
+                }}
+              >
+                <iframe
+                  key={embedUrlTransparent + embedHeight}
+                  src={embedUrlTransparent}
+                  style={{ width: "100%", maxWidth: fitFlags(fitOf("embed")).fullWidth ? undefined : 420, height: embedHeight, border: 0 }}
+                  title="Aperçu — fond transparent"
+                  loading="lazy"
+                />
+              </div>
             </div>
           </div>
         </div>
+
 
         <div className="rounded-lg border border-white/20 bg-white/5 p-4 space-y-3">
           <h4 className="text-white font-semibold text-sm flex items-center gap-2">
