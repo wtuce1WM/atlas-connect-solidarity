@@ -444,6 +444,7 @@ const NearbyWidgetSection = ({ index }: { index: number }) => {
       index={index}
       icon={<MapPin className="h-5 w-5" />}
       title="Widget Map & App"
+      banner={<GeoMarketingBanner />}
       tagline="Les meilleures adresses autour d'un point sur une carte en mode vidéos immersives & inspirationelles avec fonctions avancées."
       price="Prix : sur devis"
       description="Reprend l'expérience de découverte de la plateforme : établissements actifs situés autour du point de référence, classés par catégorie, avec carte Google Maps native, fiches détaillées et contact direct. La carte s'affiche immédiatement, sans média d'introduction. Vous pouvez optionnellement adapter la couleur de fond de la carte."
