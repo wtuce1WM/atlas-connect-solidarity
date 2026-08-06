@@ -1099,7 +1099,7 @@ const EmbedAsk = () => {
           return (
             <div key={m.id || i} className="flex flex-col items-start gap-2">
               {articleCard && articleCard.inline ? (
-                <div className={`w-full max-w-[85%] rounded-2xl overflow-hidden ${cardBg}`}>
+                <div className={`w-full max-w-[85%] rounded-2xl overflow-hidden ${cardBg}`} style={cardStyle}>
                   <a
                     href={`/embed/ask/${slug}/article/${articleCard.slug}`}
                     className="block relative w-full aspect-[16/7] bg-neutral-800 group"
