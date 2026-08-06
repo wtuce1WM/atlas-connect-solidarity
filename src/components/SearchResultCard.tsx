@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { Building2, Star, MapPin, Leaf, Truck, Accessibility, Package, Award, Bookmark } from "lucide-react";
+import { trackBusinessImpression, type ImpressionSurface } from "@/lib/businessAnalytics";
 import { optimizeSupabaseImage } from "@/lib/imageOptimization";
 import { useBookmark } from "@/hooks/useBookmark";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -36,6 +38,8 @@ interface SearchResultCardProps {
   onClick: () => void;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
+  /** Surface d'apparition pour le compteur d'impressions (défaut: liste). */
+  impressionSurface?: ImpressionSurface;
 }
 
 
@@ -48,10 +52,11 @@ function getLogIcon(l: string) {
   return Package;
 }
 
-export default function SearchResultCard({ business, index, labelLogos, distanceKm, onClick, onMouseEnter, onMouseLeave }: SearchResultCardProps) {
+export default function SearchResultCard({ business, index, labelLogos, distanceKm, onClick, onMouseEnter, onMouseLeave, impressionSurface = "list" }: SearchResultCardProps) {
   const { language } = useLanguage();
   const { translateService, translateSubcategory } = useTaxonomyTranslations();
   const openStatus = useOpenStatus({ business, language });
+  useEffect(() => { trackBusinessImpression(business.id, impressionSurface); }, [business.id, impressionSurface]);
   const rawImg = business.images?.[0] || business.logo_url;
   const dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
   const size = Math.round(450 * dpr);

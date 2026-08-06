@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 type BusinessEventType =
   | "view"
+  | "impression"
   | "whatsapp_click"
   | "phone_click"
   | "email_click"
@@ -17,6 +18,9 @@ type BusinessEventType =
   | "video_play"
   | "document_open"
   | "outbound_click";
+
+/** Surfaces d'apparition (impressions) : liste de résultats, carte, carrousel, widget. */
+export type ImpressionSurface = "list" | "map" | "carousel" | "widget" | "blog";
 
 interface QueuedEvent {
   business_id: string;
@@ -119,4 +123,58 @@ if (typeof window !== "undefined") {
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") flushSync();
   });
+}
+
+/* ------------------------------------------------------------------ */
+/* Impressions (apparitions en liste / carte / carrousel)              */
+/* ------------------------------------------------------------------ */
+
+const IMP_DEDUPE_KEY = "bz-imp-dedupe-v1";
+const IMP_DEDUPE_TTL = 30 * 60 * 1000; // 30 min, par établissement ET par surface
+
+function shouldDedupeImpression(businessId: string, surface: ImpressionSurface): boolean {
+  const key = `${businessId}|${surface}`;
+  try {
+    const raw = sessionStorage.getItem(IMP_DEDUPE_KEY);
+    const map: Record<string, number> = raw ? JSON.parse(raw) : {};
+    const now = Date.now();
+    for (const k of Object.keys(map)) if (now - map[k] > IMP_DEDUPE_TTL) delete map[k];
+    if (map[key] && now - map[key] < IMP_DEDUPE_TTL) return true;
+    map[key] = now;
+    sessionStorage.setItem(IMP_DEDUPE_KEY, JSON.stringify(map));
+  } catch { /* noop */ }
+  return false;
+}
+
+/** Une apparition d'établissement (carte de liste, marqueur de carte, carrousel). */
+export function trackBusinessImpression(
+  businessId: string | null | undefined,
+  surface: ImpressionSurface = "list",
+  meta?: Record<string, unknown>,
+) {
+  if (!businessId) return;
+  if (shouldDedupeImpression(businessId, surface)) return;
+  queue.push({
+    business_id: businessId,
+    event_type: "impression",
+    event_subtype: surface,
+    session_id: getSessionId(),
+    source_page: window.location.pathname + window.location.search,
+    referrer_domain: refDomain(),
+    meta: meta ?? null,
+  });
+  scheduleFlush();
+}
+
+/** Version groupée (ex. tous les marqueurs affichés sur une carte). */
+export function trackBusinessImpressions(
+  businessIds: Array<string | null | undefined>,
+  surface: ImpressionSurface = "list",
+) {
+  const seen = new Set<string>();
+  for (const id of businessIds) {
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    trackBusinessImpression(id, surface);
+  }
 }

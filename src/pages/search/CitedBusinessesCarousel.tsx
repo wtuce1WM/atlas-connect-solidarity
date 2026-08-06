@@ -47,6 +47,7 @@ export default function CitedBusinessesCarousel({
                 onClick={() => onOpen(full)}
                 onMouseEnter={() => onHover(b.id)}
                 onMouseLeave={() => onHover(null)}
+                impressionSurface="carousel"
               />
             </div>
           );

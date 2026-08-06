@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { Loader2, Maximize2, Minimize2, Plus, Minus } from "lucide-react";
 import goldPinUrl from "@/assets/location-pin-gold.webp";
+import { trackBusinessImpressions } from "@/lib/businessAnalytics";
 
 export interface PoiMapItem {
   id: string;
@@ -426,6 +427,12 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     }
     await shell.requestFullscreen();
   };
+
+  // Impressions "carte" : chaque établissement affiché comme marqueur (dédupé par session)
+  useEffect(() => {
+    if (!pois.length) return;
+    trackBusinessImpressions(pois.map((p) => p.id), "map");
+  }, [pois]);
 
   // Pre-fetch Lucide icons for visible subcategories
   useEffect(() => {
