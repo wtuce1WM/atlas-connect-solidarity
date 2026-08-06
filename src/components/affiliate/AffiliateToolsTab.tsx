@@ -230,6 +230,10 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     [embedUrl, embedHeight, businessName, fits]
   );
 
+  // Panneau flottant : le volet reprend exactement la couleur du widget dans le
+  // mode choisi (clair / sombre) pour éviter tout liseré blanc ou gris.
+  const panelSurface = askBgValid ? askBgColor : embedTheme === "dark" ? "#0A0A0A" : "#FFFFFF";
+  const panelUrl = `${embedUrl}&panel=1`;
   const floatingSnippet = useMemo(
     () => `<!-- Assistant IA One World Morocco — ${businessName} -->
 <style>
@@ -243,43 +247,38 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   }
   #owm-embed-panel {
     position: fixed; top: 0; right: -100%; width: 50vw; height: 100vh;
-    background: #fff; z-index: 999999; transition: right .35s ease;
+    background: ${panelSurface}; color-scheme: ${embedTheme};
+    z-index: 999999; transition: right .35s ease;
     box-shadow: -8px 0 40px rgba(0,0,0,.25); display: flex; flex-direction: column;
   }
   #owm-embed-panel.open { right: 0; }
-  #owm-embed-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 20px; background: #0F172A; color: #fff;
-    font-family: Montserrat, sans-serif; font-weight: 600; font-size: 14px;
-  }
-  #owm-embed-close { background: transparent; border: none; color: #fff; font-size: 22px; cursor: pointer; padding: 0 8px; }
-  #owm-embed-iframe { flex: 1; width: 100%; border: none; }
+  #owm-embed-iframe { flex: 1; width: 100%; border: none; background: ${panelSurface}; }
   @media (max-width: 768px) { #owm-embed-panel { width: 100vw; } }
 </style>
 
 <button id="owm-embed-tab" aria-label="Ouvrir l&#39;assistant IA">Assistant 1WM</button>
 <div id="owm-embed-panel" role="dialog" aria-hidden="true">
-  <div id="owm-embed-header">
-    <span>Assistant — ${businessName}</span>
-    <button id="owm-embed-close" aria-label="Fermer">&#10005;</button>
-  </div>
-  <iframe id="owm-embed-iframe" src="${embedUrl}" title="Assistant IA — ${businessName}" allow="clipboard-write; geolocation" loading="lazy"></iframe>
+  <iframe id="owm-embed-iframe" src="${panelUrl}" title="Assistant IA — ${businessName}" allow="clipboard-write; geolocation" loading="lazy"></iframe>
 </div>
 
 <script>
   (function () {
     var tab = document.getElementById('owm-embed-tab');
     var panel = document.getElementById('owm-embed-panel');
-    var close = document.getElementById('owm-embed-close');
     function open() { panel.classList.add('open'); panel.setAttribute('aria-hidden', 'false'); }
     function shut() { panel.classList.remove('open'); panel.setAttribute('aria-hidden', 'true'); }
     tab.addEventListener('click', open);
-    close.addEventListener('click', shut);
+    // La croix de fermeture est dans le widget (à gauche de l'avatar) : il nous
+    // prévient par postMessage.
+    window.addEventListener('message', function (e) {
+      if (e && e.data && e.data.type === 'owm-embed-close') shut();
+    });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') shut(); });
   })();
 </script>`,
-    [embedUrl, businessName]
+    [panelUrl, businessName, panelSurface, embedTheme]
   );
+
 
   // Couleur forcée dans ce widget, sinon couleur de fond des widgets de l'établissement
   const effectiveNearbyBg = /^#[0-9a-fA-F]{6}$/.test(nearbyBg) ? nearbyBg : (widgetBgValid ? widgetBg : "");
