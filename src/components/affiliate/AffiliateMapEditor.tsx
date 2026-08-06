@@ -98,7 +98,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setPoiView(false);
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("id,name,city,neighborhood,latitude,longitude,images,poi_radius_km,map_bg_color,default_poi_business_id,kp_regroupement,kp_regroupement_2,kp_active,kp_active_2,kp_city,kp_city_2")
+        .select("id,name,city,neighborhood,latitude,longitude,images,poi_radius_km,map_bg_color,default_poi_business_id,default_poi_is_master,kp_regroupement,kp_regroupement_2,kp_active,kp_active_2,kp_city,kp_city_2")
         .eq("id", businessId)
         .maybeSingle();
       if (cancelled) return;
