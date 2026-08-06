@@ -3256,8 +3256,8 @@ const BookOnlineSlidePanelInner = ({
                 }))}
                 selectedKey={poiSubcatFilter}
                 allLabel={language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
-                onSelectAll={() => { setPoiSubcatFilter(null); setPoiPillOverlay(null); }}
-                onSelect={(key) => { setPoiCatFilter(null); setCatSubcatFilter(null); setPoiSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
+                onSelectAll={() => { resetWidgetMapView(); setPoiSubcatFilter(null); setPoiPillOverlay(null); }}
+                onSelect={(key) => { resetWidgetMapView(); setPoiCatFilter(null); setCatSubcatFilter(null); setPoiSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
                 onClose={() => setPoiPillOverlay(null)}
               />
             )}
@@ -3275,9 +3275,9 @@ const BookOnlineSlidePanelInner = ({
                   selectedKey={catSubcatFilter}
                   allLabel={language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
                   backLabel={language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
-                  onBack={() => { setPoiCatFilter(null); setCatSubcatFilter(null); setPoiShowAll(false); }}
-                  onSelectAll={() => { setCatSubcatFilter(null); setPoiPillOverlay(null); }}
-                  onSelect={(key) => { setPoiSubcatFilter(null); setCatSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
+                  onBack={() => { resetWidgetMapView(); setPoiCatFilter(null); setCatSubcatFilter(null); setPoiShowAll(false); }}
+                  onSelectAll={() => { resetWidgetMapView(); setCatSubcatFilter(null); setPoiPillOverlay(null); }}
+                  onSelect={(key) => { resetWidgetMapView(); setPoiSubcatFilter(null); setCatSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
                   onClose={() => setPoiPillOverlay(null)}
                 />
               ) : (
