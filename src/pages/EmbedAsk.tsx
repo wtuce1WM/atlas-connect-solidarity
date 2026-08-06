@@ -971,7 +971,7 @@ const EmbedAsk = () => {
             title={lang === "en" ? "Close" : lang === "ar" ? "إغلاق" : "Fermer"}
             aria-label={lang === "en" ? "Close" : lang === "ar" ? "إغلاق" : "Fermer"}
             className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border ${border} ${
-              theme === "light" ? "bg-white/70 text-neutral-900" : "bg-white/10 text-neutral-100"
+              lightInk ? "bg-black/5 text-neutral-900 border-neutral-300" : "bg-white/10 text-neutral-100"
             } opacity-80 hover:opacity-100 transition-opacity`}
           >
             <X className="w-4 h-4" />
