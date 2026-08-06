@@ -3147,13 +3147,20 @@ const SceneCustomerReview: React.FC<{
   const displayText = hasExcerpt ? full : full || excerpt;
   const baseSize = reviewFontSize(displayText.length);
   const size = baseSize;
-  // Phase de focus : les côtés s'estompent, l'extrait grossit et la carte zoome
-  // légèrement dessus — l'extrait devient l'élément dominant du plan.
-  const sideOpacity = interpolate(focus, [0, 1], [1, 0]);
-  const sideBlur = interpolate(focus, [0, 1], [0, 8]);
-  const excerptSize = size * interpolate(focus, [0, 1], [1, 1.5]);
-  const cardScale = interpolate(focus, [0, 1], [1, 1.08]);
-  const excerptGlow = interpolate(focus, [0, 1], [0, 1]);
+  // Phase de focus : au lieu de grossir l'extrait *dans* le paragraphe (ce qui
+  // reflowe les lignes et provoque un saut visuel), on superpose deux calques
+  // dans la même cellule de grille et on fait un fondu croisé fluide :
+  //   calque A = avis complet (extrait déjà surligné en jaune)
+  //   calque B = extrait isolé, plus grand, centré
+  // La hauteur de la carte est celle du plus grand calque → aucun saut.
+  const fullOpacity = interpolate(focus, [0, 1], [1, 0]);
+  const fullBlur = interpolate(focus, [0, 1], [0, 7]);
+  const fullScale = interpolate(focus, [0, 1], [1, 0.96]);
+  const isoOpacity = focus;
+  const isoScale = interpolate(focus, [0, 1], [0.93, 1]);
+  const excerptSize = size;
+  const isoSize = reviewFontSize(Math.max(excerpt.length, 1)) * 1.22;
+  const cardScale = interpolate(focus, [0, 1], [1, 1.04]);
   // Pulsation du halo jaune (effet flashy)
   const flashPulse = 0.7 + 0.3 * Math.sin(frame / 3.2);
 
