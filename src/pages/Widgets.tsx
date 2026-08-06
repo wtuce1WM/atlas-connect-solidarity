@@ -5,9 +5,7 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Copy, CloudSun, MessageSquare, MapPin, Star, Newspaper, Waves, LayoutPanelTop, ExternalLink, ThumbsUp, Mail } from "lucide-react";
-import { useSEO } from "@/hooks/useSEO";
-import { toast } from "@/hooks/use-toast";
+import { MapPin, Sparkles } from "lucide-react";
 
 const SITE = "https://oneworldmorocco.com";
 const DEMO_SLUG = "riad-dar-najat";
