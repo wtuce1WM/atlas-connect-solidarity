@@ -947,6 +947,20 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
             {copied === "floating" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
             Copier le code panneau flottant (Wix / Custom Code)
           </Button>
+          <div className="space-y-2">
+            <Label className="text-white/80 text-xs">
+              Aperçu du volet ({embedTheme === "dark" ? "mode sombre" : "mode clair"}) — la croix de fermeture est en haut à gauche
+            </Label>
+            <div className="rounded-md overflow-hidden border border-white/20" style={{ background: panelSurface }}>
+              <iframe
+                key={panelUrl + embedHeight}
+                src={previewSrc(panelUrl)}
+                style={{ width: "100%", height: embedHeight, border: 0 }}
+                title="Aperçu — panneau flottant"
+                loading="lazy"
+              />
+            </div>
+          </div>
         </div>
       </div>
       )}

@@ -804,6 +804,12 @@ const EmbedAsk = () => {
   const border = theme === "light" ? "border-neutral-200" : "border-neutral-800";
   const inputBg = theme === "light" ? "bg-white" : "bg-neutral-900";
   const cardBg = theme === "light" ? "bg-white border border-neutral-200" : "bg-neutral-900 border border-neutral-800";
+  // Encre réellement lisible : avec un fond personnalisé, elle dépend de la couleur du fond.
+  const lightInk = customBg ? bgInk === "dark" : theme === "light";
+  // Puces (suggestions / relances) : contraste explicite, jamais de texte clair sur fond clair.
+  const chipBg = lightInk
+    ? "bg-neutral-100 border border-neutral-300 text-neutral-900"
+    : "bg-neutral-900 border border-neutral-700 text-neutral-100";
 
   // Build conversation-wide dictionaries of businesses cited across all assistant messages.
   // - richByName: full rich data (images, coords, ratings) coming from a SHOW_ON_MAP payload.
@@ -965,7 +971,7 @@ const EmbedAsk = () => {
             title={lang === "en" ? "Close" : lang === "ar" ? "إغلاق" : "Fermer"}
             aria-label={lang === "en" ? "Close" : lang === "ar" ? "إغلاق" : "Fermer"}
             className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border ${border} ${
-              theme === "light" ? "bg-white/70 text-neutral-900" : "bg-white/10 text-neutral-100"
+              lightInk ? "bg-black/5 text-neutral-900 border-neutral-300" : "bg-white/10 text-neutral-100"
             } opacity-80 hover:opacity-100 transition-opacity`}
           >
             <X className="w-4 h-4" />
@@ -1440,7 +1446,7 @@ const EmbedAsk = () => {
                         key={`fu-${i}-${k}`}
                         type="button"
                         onClick={() => sendFollowup(f.label, f.id)}
-                        className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
+                        className={`text-xs px-3 py-1.5 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
                       >
                         {f.label}
                       </button>
@@ -1474,7 +1480,7 @@ const EmbedAsk = () => {
                   key={s.id}
                   type="button"
                   onClick={() => { send(label, s.id); }}
-                  className={`text-xs px-3 py-1.5 rounded-full ${cardBg} hover:opacity-90 transition-opacity`}
+                  className={`text-xs px-3 py-1.5 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
                 >
                   {label}
                 </button>
