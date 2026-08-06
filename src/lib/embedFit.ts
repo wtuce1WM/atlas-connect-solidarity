@@ -77,6 +77,16 @@ export const bgParam = (color: string | null | undefined) => {
   return c ? `&bg=${c.slice(1)}` : "";
 };
 
+/**
+ * Suffixe d'URL « page transparente + intérieur coloré » :
+ * `&bg=transparent&card=EFE6D8`. Le fond du site hôte reste visible autour du
+ * widget, seule la carte du widget prend la couleur choisie.
+ */
+export const cardParam = (color: string | null | undefined) => {
+  const c = parseBg(color);
+  return c ? `&bg=transparent&card=${c.slice(1)}` : "&bg=transparent";
+};
+
 /** Applique la couleur de fond du widget (ou transparent) sur html/body. */
 export const applyEmbedBg = (color: string | null | undefined) => {
   const bg = parseBg(color) || "transparent";

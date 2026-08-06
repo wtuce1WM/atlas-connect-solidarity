@@ -30,11 +30,14 @@ export default function EmbedRateUs() {
   //   ?bg=EFE6D8       → carte de cette couleur (encre auto selon luminance)
   //   ?bg=transparent  → carte transparente : fond du site hôte
   //   (absent)         → carte sombre d'origine
+  //   ?card=EFE6D8     → intérieur de la carte coloré, page transparente
   const bgRaw = (params.get("bg") || "").trim();
   const bgColor = parseBg(bgRaw);
+  const cardColor = parseBg(params.get("card"));
   const wantsTransparent = /^(transparent|none|0)$/i.test(bgRaw);
-  const surface: string | null | undefined = bgColor || (wantsTransparent ? "" : undefined);
-  const ink = surface === undefined ? "light" : resolveEmbedInk(params.get("ink"), bgColor);
+  const surface: string | null | undefined =
+    cardColor || bgColor || (wantsTransparent ? "" : undefined);
+  const ink = surface === undefined ? "light" : resolveEmbedInk(params.get("ink"), bgColor || cardColor);
 
   const [name, setName] = useState("");
   const [targets, setTargets] = useState<RateTarget[]>([]);
@@ -43,7 +46,7 @@ export default function EmbedRateUs() {
 
   useEffect(() => {
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-    return applyEmbedBg(params.get("bg"));
+    return applyEmbedBg(cardColor ? "" : params.get("bg"));
   }, [lang, params]);
 
   useEffect(() => {
