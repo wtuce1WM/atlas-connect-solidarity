@@ -1745,6 +1745,9 @@ export default function StudioVideo() {
               for (const s of src) out[s.icon] = s.duration;
               return out;
             })(),
+            // Durées réglées dans « Aperçu du scénario » : elles priment sur les
+            // durées par défaut du backoffice (/staff/backoffice/videos).
+            manual_durations: !!scenarioEdits?.durations,
             custom_scenes: scenarioEdits?.customScenes,
             text_position: textPosition,
             transitions: {
