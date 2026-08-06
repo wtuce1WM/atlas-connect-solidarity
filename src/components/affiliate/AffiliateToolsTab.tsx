@@ -29,6 +29,14 @@ interface Props {
 
 const SITE = "https://oneworldmorocco.com";
 
+// Les codes à copier pointent toujours vers le domaine de production, mais les
+// APERÇUS doivent être servis par l'origine courante (preview / staging) sinon on
+// visualise la version publiée et non les réglages en cours.
+const previewSrc = (url: string) =>
+  typeof window !== "undefined" && window.location.origin !== SITE
+    ? url.replace(SITE, window.location.origin)
+    : url;
+
 const REVIEW_PLATFORMS = [
   { key: "all" as const, label: "Synthèse" },
   { key: "google" as const, label: "Google" },
@@ -818,7 +826,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               >
                 <iframe
                   key={embedUrlWidget + embedHeight}
-                  src={embedUrlWidget}
+                  src={previewSrc(embedUrlWidget)}
                   style={{ width: "100%", maxWidth: fitFlags(fitOf("embed")).fullWidth ? undefined : 420, height: embedHeight, border: 0 }}
                   title="Aperçu — couleur du widget"
                   loading="lazy"
@@ -838,7 +846,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               >
                 <iframe
                   key={embedUrlTransparent + embedHeight}
-                  src={embedUrlTransparent}
+                  src={previewSrc(embedUrlTransparent)}
                   style={{ width: "100%", maxWidth: fitFlags(fitOf("embed")).fullWidth ? undefined : 420, height: embedHeight, border: 0 }}
                   title="Aperçu — fond transparent"
                   loading="lazy"
@@ -1113,7 +1121,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
             <div className="rounded-md overflow-hidden border border-white/20 bg-black/30">
               <iframe
                 key={nearbyUrl + nearbyHeight}
-                src={nearbyUrl}
+                src={previewSrc(nearbyUrl)}
                 style={{ width: "100%", height: nearbyHeight, border: 0 }}
                 title="Aperçu À proximité"
                 loading="lazy"
@@ -1270,7 +1278,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
             <div className="rounded-md overflow-hidden border border-white/20 bg-black/30 flex justify-center">
               <iframe
                 key={reviewsUrl}
-                src={reviewsUrl}
+                src={previewSrc(reviewsUrl)}
                 style={{ width: "100%", maxWidth: preset.w, height: preset.h, border: 0 }}
                 title="Aperçu avis clients"
                 loading="lazy"
@@ -1408,7 +1416,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               >
                 <iframe
                   key={rateUrlWidget}
-                  src={rateUrlWidget}
+                  src={previewSrc(rateUrlWidget)}
                   style={{ width: "100%", maxWidth: rateW, height: rateH, border: 0 }}
                   title="Aperçu laisser un avis — couleur du widget"
                   loading="lazy"
@@ -1428,7 +1436,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               >
                 <iframe
                   key={rateUrlTransparent}
-                  src={rateUrlTransparent}
+                  src={previewSrc(rateUrlTransparent)}
                   style={{ width: "100%", maxWidth: rateW, height: rateH, border: 0 }}
                   title="Aperçu laisser un avis — fond transparent"
                   loading="lazy"
@@ -1655,7 +1663,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
             <div className="rounded-md overflow-hidden border border-white/20 bg-black/30 flex justify-center">
               <iframe
                 key={weatherUrl}
-                src={weatherUrl}
+                src={previewSrc(weatherUrl)}
                 style={isWeatherFooter ? { width: "100%", height: 110, border: 0 } : { width: "100%", maxWidth: weatherMaxW, height: 560, border: 0 }}
                 title="Aperçu météo"
                 loading="lazy"
@@ -1732,7 +1740,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
             <div className="rounded-md overflow-hidden border border-white/20 bg-black/30 flex justify-center">
               <iframe
                 key={tidesUrl}
-                src={tidesUrl}
+                src={previewSrc(tidesUrl)}
                 style={{ width: "100%", maxWidth: 520, height: 360, border: 0 }}
                 title="Aperçu marées"
                 loading="lazy"
@@ -1821,7 +1829,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               <div className="rounded-md overflow-hidden border border-white/20 bg-black/30 flex justify-center p-2">
                 <iframe
                   key={ficheUrl}
-                  src={ficheUrl}
+                  src={previewSrc(ficheUrl)}
                   style={{ width: fitFlags(fitOf("fiche")).fullWidth ? "100%" : ficheMaxWidth, maxWidth: "100%", height: 900, border: 0 }}
                   title="Aperçu fiche"
                   loading="lazy"
