@@ -347,7 +347,10 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const rateH = rateVariant === "bar" ? 120 : 430;
   const rateBgParam =
     rateCard === "transparent" ? "&bg=transparent" : rateCard === "dark" ? "" : wbg;
-  const rateUrl = `${SITE}/embed/avis/${slug}?platform=${ratePlatform}&lang=${rateLang}&variant=${rateVariant}${fitParam(fitOf("rate"))}${rateBgParam}`;
+  const rateBase = `${SITE}/embed/avis/${slug}?platform=${ratePlatform}&lang=${rateLang}&variant=${rateVariant}${fitParam(fitOf("rate"))}`;
+  const rateUrlWidget = `${rateBase}${wbg}`;
+  const rateUrlTransparent = `${rateBase}&bg=transparent`;
+  const rateUrl = `${rateBase}${rateBgParam}`;
   const rateSnippet = useMemo(
     () =>
       fitOf("rate") === ""
