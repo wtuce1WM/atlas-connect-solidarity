@@ -496,7 +496,10 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       disableDoubleClickZoom: true,
       gestureHandling: "greedy",
       clickableIcons: false,
+      // Zoom fractionnaire : indispensable pour animer le zoom en douceur.
+      isFractionalZoomEnabled: true,
     };
+
     if (isNativeTheme) {
       // Native Google Maps color scheme (only honored at construction time).
       (opts as any).colorScheme = mapTheme === "default-dark" ? "DARK" : "LIGHT";
