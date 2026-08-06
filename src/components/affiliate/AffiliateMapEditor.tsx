@@ -375,9 +375,21 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
 
       <Card className="bg-white/5 border-white/10">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base text-white flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-primary" /> Lieu d'intérêt par défaut
-          </CardTitle>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <CardTitle className="text-base text-white flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-primary" /> Lieu d'intérêt par défaut
+            </CardTitle>
+            <label className="flex items-center gap-2 text-xs text-white/80 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={defaultPoiIsMaster}
+                disabled={!defaultPoiId}
+                onChange={(e) => setDefaultPoiIsMaster(e.target.checked)}
+                className="h-4 w-4 accent-primary cursor-pointer disabled:cursor-not-allowed"
+              />
+              Marqueur par défaut sur la Map
+            </label>
+          </div>
         </CardHeader>
         <CardContent className="space-y-2">
           {pois.length === 0 ? (
