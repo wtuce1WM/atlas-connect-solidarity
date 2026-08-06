@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { businessUrl } from "@/lib/businessUrl";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
 import { Link, useNavigate } from "react-router-dom";
@@ -58,6 +59,17 @@ const RatedBusinesses = () => {
   const [vanityMap, setVanityMap] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isStaff, setIsStaff] = useState(false);
+
+  useSEO({
+    title: "Classement des établissements notés au Maroc",
+    description:
+      "Classement unique sur 20 des établissements du Maroc : notes Google, TripAdvisor et Restaurant Guru réunies. Hôtels, riads, restaurants et activités à Marrakech et Essaouira.",
+    canonical: "/blog/etablissements-notes",
+    ogImage: ratedHeroAsset.url,
+    ogType: "article",
+  });
+
+
 
   const t = (fr: string, en: string, ar: string) =>
     language === "en" ? en : language === "ar" ? ar : fr;
