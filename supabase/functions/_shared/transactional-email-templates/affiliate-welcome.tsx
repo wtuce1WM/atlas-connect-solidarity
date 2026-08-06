@@ -52,7 +52,7 @@ const AffiliateWelcomeEmail = ({
         ) : null}
 
         <Text style={small}>
-          Ce lien est valable une seule fois et expire après 24 heures. Une fois votre mot de
+          Ce lien est valable une seule fois et expire après 1 heure. Passé ce délai, demandez-en un nouveau depuis la page de connexion partenaire. Une fois votre mot de
           passe défini, connectez-vous à tout moment depuis{' '}
           <Link href={dashboardUrl} style={link}>votre espace partenaire</Link>.
         </Text>

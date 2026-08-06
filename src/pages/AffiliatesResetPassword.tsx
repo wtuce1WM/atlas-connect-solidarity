@@ -22,6 +22,9 @@ const AffiliatesResetPassword = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isRecovery, setIsRecovery] = useState(false);
+  const [resendEmail, setResendEmail] = useState("");
+  const [isResending, setIsResending] = useState(false);
+  const [resent, setResent] = useState(false);
 
   const translations = {
     fr: {
@@ -38,6 +41,10 @@ const AffiliatesResetPassword = () => {
       invalidLink: "Lien invalide",
       invalidLinkDesc: "Ce lien de réinitialisation est invalide ou a expiré. Veuillez en demander un nouveau.",
       backToLogin: "Retour à la connexion",
+      resendTitle: "Recevoir un nouveau lien",
+      resendPlaceholder: "Votre adresse email",
+      resendCta: "M'envoyer un lien",
+      resendDone: "Lien envoyé — vérifiez votre boîte email (valable 1 heure).",
     },
     en: {
       title: "New Password",
@@ -53,6 +60,10 @@ const AffiliatesResetPassword = () => {
       invalidLink: "Invalid link",
       invalidLinkDesc: "This reset link is invalid or expired. Please request a new one.",
       backToLogin: "Back to login",
+      resendTitle: "Get a new link",
+      resendPlaceholder: "Your email address",
+      resendCta: "Send me a link",
+      resendDone: "Link sent — check your inbox (valid for 1 hour).",
     },
     ar: {
       title: "كلمة مرور جديدة",
@@ -68,6 +79,10 @@ const AffiliatesResetPassword = () => {
       invalidLink: "رابط غير صالح",
       invalidLinkDesc: "رابط إعادة التعيين غير صالح أو منتهي الصلاحية.",
       backToLogin: "العودة لتسجيل الدخول",
+      resendTitle: "الحصول على رابط جديد",
+      resendPlaceholder: "بريدك الإلكتروني",
+      resendCta: "أرسل لي رابطًا",
+      resendDone: "تم إرسال الرابط — تحقق من بريدك (صالح لمدة ساعة).",
     },
   };
 
@@ -150,6 +165,25 @@ const AffiliatesResetPassword = () => {
     }
   };
 
+  const handleResend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const email = resendEmail.trim().toLowerCase();
+    if (!email.includes("@")) return;
+    setIsResending(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/affiliates/reset-password`,
+      });
+      if (error) throw error;
+      setResent(true);
+      toast({ title: t.resendTitle, description: t.resendDone });
+    } catch (error: any) {
+      toast({ title: t.error, description: error.message, variant: "destructive" });
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   if (!isRecovery) {
     return (
     <div className="min-h-screen bg-black">
@@ -166,8 +200,25 @@ const AffiliatesResetPassword = () => {
                 <CardTitle className="text-xl text-foreground">{t.invalidLink}</CardTitle>
                 <CardDescription className="text-muted-foreground">{t.invalidLinkDesc}</CardDescription>
               </CardHeader>
-              <CardContent>
-                <Button className="w-full bg-gold text-gold-foreground hover:bg-gold/90" onClick={() => navigate("/affiliates")}>
+              <CardContent className="space-y-4">
+                <form onSubmit={handleResend} className="space-y-2">
+                  <Label htmlFor="resend-email" className="text-foreground">{t.resendTitle}</Label>
+                  <Input
+                    id="resend-email"
+                    type="email"
+                    value={resendEmail}
+                    onChange={(e) => setResendEmail(e.target.value)}
+                    placeholder={t.resendPlaceholder}
+                    className="bg-background border-border"
+                    required
+                  />
+                  <Button type="submit" className="w-full bg-gold text-gold-foreground hover:bg-gold/90" disabled={isResending}>
+                    {isResending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    {t.resendCta}
+                  </Button>
+                  {resent && <p className="text-xs text-emerald-400">{t.resendDone}</p>}
+                </form>
+                <Button variant="outline" className="w-full" onClick={() => navigate("/affiliates")}>
                   {t.backToLogin}
                 </Button>
               </CardContent>
@@ -178,6 +229,7 @@ const AffiliatesResetPassword = () => {
       </div>
     );
   }
+
 
   return (
     <div className="min-h-screen bg-black">
