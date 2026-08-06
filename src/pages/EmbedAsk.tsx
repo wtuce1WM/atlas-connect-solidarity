@@ -371,9 +371,17 @@ const EmbedAsk = () => {
   const innerBgColor = cardColor || embedBgColor;
   const customBg = !!embedBgColor || bgTransparent || !!cardColor;
   const bgInk = customBg ? resolveEmbedInk(params.get("ink"), innerBgColor) : null;
-  const initialTheme = customBg
+  // Le paramètre `theme` explicite est toujours prioritaire (cohérence clair/sombre
+  // entre l'iframe simple et la variante « panneau flottant »).
+  const themeParam = params.get("theme") === "light" ? "light" : params.get("theme") === "dark" ? "dark" : null;
+  // Panneau flottant : l'hôte demande une croix de fermeture dans le widget.
+  const inFloatingPanel = /^(1|true)$/i.test(params.get("panel") || "");
+  const initialTheme = themeParam
+    ? themeParam
+    : customBg
     ? (bgInk === "dark" ? "light" : "dark")
-    : params.get("theme") === "light" ? "light" : "dark";
+    : "dark";
+
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (customBg) return initialTheme;
     if (typeof window !== "undefined") {
