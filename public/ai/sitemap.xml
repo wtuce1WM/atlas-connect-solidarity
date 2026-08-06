@@ -311,7 +311,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/bab-doukkala-2</loc>
+    <loc>https://oneworldmorocco.com/bab-doukkala-1</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -2522,11 +2522,6 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/kasbah-d-eau</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://oneworldmorocco.com/kabana-rooftop-lounge-bar</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9197,6 +9192,11 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/nona-s-table</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/bab-doukkala-1</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

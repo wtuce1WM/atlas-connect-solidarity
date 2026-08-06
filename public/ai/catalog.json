@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-05T15:24:13.495Z",
+    "generated_at": "2026-08-06T04:34:38.804Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
     "count": 1844
   },
@@ -2271,7 +2271,9 @@
       "categories": [
         "Aviation civile"
       ],
-      "services": [],
+      "services": [
+        "Aéroport"
+      ],
       "city": "Marrakech",
       "neighborhood": "Menara",
       "region": "Marrakech-Safi",
@@ -2281,10 +2283,10 @@
       "address": null,
       "phone": null,
       "whatsapp": null,
-      "website": "https://aeroport-marrakech.com/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/85d827af-ca97-4bd7-b781-cedb5bde17f6-1775277741278-g5h29.jpg",
       "google_rating": 3.7,
-      "google_review_count": 11579,
+      "google_review_count": 12663,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -3027,7 +3029,9 @@
       "categories": [
         "Aviation civile"
       ],
-      "services": [],
+      "services": [
+        "Aéroport"
+      ],
       "city": "Essaouira",
       "neighborhood": null,
       "region": "Marrakech-Safi",
@@ -3040,7 +3044,7 @@
       "website": "https://aeroport-essaouira.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1775480220392-m2spxk.webp",
       "google_rating": 3.7,
-      "google_review_count": 473,
+      "google_review_count": 548,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -4630,8 +4634,8 @@
     },
     {
       "id": "3729b4b4-c229-4a94-b0ab-86b374f56c2c",
-      "slug": "bab-doukkala-2",
-      "url": "https://oneworldmorocco.com/bab-doukkala-2",
+      "slug": "bab-doukkala-1",
+      "url": "https://oneworldmorocco.com/bab-doukkala-1",
       "name": "BaB Doukkala",
       "hook": "🚪 Porte majestueuse d’Essaouira, Bab Doukkala ouvre la médina sur l’histoire et l’océan 🌊",
       "description": "🏛️ Véritable symbole de la médina d’Essaouira, Bab Doukkala est bien plus qu’une simple porte : c’est une entrée monumentale chargée d’histoire et d’émotions. Construite au XVIIIe siècle sous le règne du sultan Mohammed Ben Abdellah, elle faisait partie du système défensif de la ville et contrôlait autrefois les flux commerciaux vers l’intérieur des terres et la région des Doukkala. 🌍 Située au nord-est de la médina, cette porte imposante marque aujourd’hui encore une transition saisissante en",
@@ -4640,7 +4644,8 @@
         "Sites touristiques"
       ],
       "services": [
-        "Place publique"
+        "Place publique",
+        "Porte"
       ],
       "city": "Essaouira",
       "neighborhood": "Medina",
@@ -4654,7 +4659,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/3729b4b4-c229-4a94-b0ab-86b374f56c2c-1776304180968-2yz0z.jpeg",
       "google_rating": 4.5,
-      "google_review_count": 80,
+      "google_review_count": 126,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -5165,10 +5170,13 @@
       "description": "Située au nord-ouest de la médina de Marrakech, Bab Doukkala est bien plus qu’une simple porte : c’est une véritable immersion dans le quotidien marrakchi 🏺✨. Construite à l’époque almoravide au XIIe siècle, elle fait partie des entrées historiques majeures de la ville, reliant autrefois Marrakech aux routes du nord du Maroc Derrière cette imposante porte en remparts ocre se cache un quartier vivant et authentique 🔥. Contrairement aux zones plus touristiques, Bab Doukkala offre une atmosphère ",
       "main_category": "Tourisme",
       "categories": [
-        "Sites touristiques"
+        "Sites touristiques",
+        "Marché traditionnel"
       ],
       "services": [
-        "Place publique"
+        "Place publique",
+        "Porte",
+        "Souk"
       ],
       "city": "Marrakech",
       "neighborhood": "Bab Doukkala",
@@ -5182,7 +5190,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/48980873-0e6a-4ce4-9490-d9bbff8bcbfb-1776137133577-et6t3.webp",
       "google_rating": 4.2,
-      "google_review_count": 451,
+      "google_review_count": 487,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -5193,7 +5201,7 @@
       "social": {
         "instagram": null,
         "facebook": null,
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d26155621-Reviews-Bab_Doukkala-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -42584,80 +42592,6 @@
       }
     },
     {
-      "id": "338632e7-7bd9-45b9-8c69-f40299525f98",
-      "slug": "kabana-rooftop-lounge-bar",
-      "url": "https://oneworldmorocco.com/kabana-rooftop-lounge-bar",
-      "name": "Kabana Rooftop Lounge Bar",
-      "hook": "Concerts live, cocktails signatures, service attentionné... Best Rooftop in Town.",
-      "description": "Au coucher du soleil, le Kabana se transforme en un véritable repaire musical, rythmé par des événements toute l’année, transformant chaque visite en célébration. Découvrez une atmosphère unique : un rooftop aux allures d'un jardin suspendu face à la silhouette emblématique de la Koutoubia. Niché au cœur de la Médina, le Kabana est votre échappée tropicale, entre imprimés jungle, paillote en chaume et végétation luxuriante — un cadre aussi chaleureux qu’envoûtant. Concerts live, cocktails signat",
-      "main_category": "Restauration",
-      "categories": [
-        "Bar"
-      ],
-      "services": [
-        "Rooftop",
-        "Cocktails",
-        "Cocktails sans alcool",
-        "Caves à vin"
-      ],
-      "city": "Marrakech",
-      "neighborhood": "Medina",
-      "region": "Marrakech-Safi",
-      "country": "MA",
-      "latitude": 31.6261794,
-      "longitude": -7.9930986,
-      "address": "1 Rue Fatima Zahra",
-      "phone": "+212664464450",
-      "whatsapp": null,
-      "website": "https://www.kabana-marrakech.com/fr",
-      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/338632e7-7bd9-45b9-8c69-f40299525f98-1775739311129-ia825.jpg",
-      "google_rating": 4.4,
-      "google_review_count": 4511,
-      "price_range": null,
-      "min_price_mad": null,
-      "languages": [],
-      "opening_hours": {
-        "friday": {
-          "open": "11:00",
-          "close": "02:00"
-        },
-        "monday": {
-          "open": "11:00",
-          "close": "02:00"
-        },
-        "sunday": {
-          "open": "11:00",
-          "close": "02:00"
-        },
-        "tuesday": {
-          "open": "11:00",
-          "close": "02:00"
-        },
-        "saturday": {
-          "open": "11:00",
-          "close": "02:00"
-        },
-        "thursday": {
-          "open": "11:00",
-          "close": "02:00"
-        },
-        "wednesday": {
-          "open": "11:00",
-          "close": "02:00"
-        }
-      },
-      "is_open_24h": false,
-      "booking_url": "https://www.kabana-marrakech.com/fr/online-reservation",
-      "menu_url": "https://www.kabana-marrakech.com/fr/menu",
-      "social": {
-        "instagram": "https://www.instagram.com/kabana.marrakech/",
-        "facebook": null,
-        "tripadvisor": null,
-        "youtube": null,
-        "linkedin": null
-      }
-    },
-    {
       "id": "33c21bff-d523-4b57-9e15-d16b7057e7a1",
       "slug": "iris-retreat",
       "url": "https://oneworldmorocco.com/iris-retreat",
@@ -45555,7 +45489,8 @@
       "description": "Idéalement situé aux portes de la Medina de Marrakech et facilement accessible, ce lieu incontournable vibre au cœur de la ville, offrant une expérience mémorable de jour comme de nuit. BEST ROOFTOP IN TOWN Plongez dans une ambiance vibrante et cosmopolite, et savourez une cuisine créative aux inspirations méditerranéennes. Découvrez également notre menu sushis, notre large choix de cocktails et spiritueux ainsi que notre carte de vins soigneusement sélectionnée par notre équipe. Notre terrasse ",
       "main_category": "Restauration",
       "categories": [
-        "Restaurant"
+        "Restaurant",
+        "Bar"
       ],
       "services": [
         "Cuisine internationale",
@@ -45574,7 +45509,17 @@
         "Cuisine chinoise",
         "Cuisine méditerranéenne",
         "Caves à vin",
-        "Rooftop"
+        "Rooftop",
+        "Champagne",
+        "Cave à vin",
+        "Salades",
+        "Vue sur la ville",
+        "Cocktails sans alcool",
+        "DJ's",
+        "Mixologie",
+        "Musique Live",
+        "Lounge",
+        "Smoothies"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -45588,7 +45533,7 @@
       "website": "https://www.kabana-marrakech.com/fr",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e9fb7268-74cb-4211-ac40-8e5e192935b4-1777272052457-2haukm.jpg",
       "google_rating": 4.4,
-      "google_review_count": 4975,
+      "google_review_count": 5510,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -45628,7 +45573,7 @@
       "social": {
         "instagram": "https://www.instagram.com/kabana.marrakech/",
         "facebook": "https://www.facebook.com/Kabana.Marrakech",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293734-d19095875-Reviews-Kabana-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -147685,7 +147630,7 @@
       "website": "https://palmiya.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/30a70a96-7d9a-482e-977e-5e703abafc0f-1781955796977-ef9hal.jpg",
       "google_rating": 3.8,
-      "google_review_count": 133,
+      "google_review_count": 136,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -147923,7 +147868,7 @@
         "Sautoir"
       ],
       "city": "Marrakech",
-      "neighborhood": "Gueliz",
+      "neighborhood": "Hivernage",
       "region": "Marrakech-Safi",
       "country": "MA",
       "latitude": 31.6219735,
@@ -147933,8 +147878,8 @@
       "whatsapp": "+212661061604",
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/026a15c4-1cab-4456-baf3-6ea16ac4a2e6-1784017460287-939kql.jpg",
-      "google_rating": 3,
-      "google_review_count": 4,
+      "google_rating": 4.2,
+      "google_review_count": 10,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -151496,6 +151441,49 @@
         "instagram": null,
         "facebook": null,
         "tripadvisor": null,
+        "youtube": null,
+        "linkedin": null
+      }
+    },
+    {
+      "id": "3729b4b4-c229-4a94-b0ab-86b374f56c2c",
+      "slug": "bab-doukkala-1",
+      "url": "https://oneworldmorocco.com/bab-doukkala-1",
+      "name": "BaB Doukkala",
+      "hook": "🚪 Porte majestueuse d’Essaouira, Bab Doukkala ouvre la médina sur l’histoire et l’océan 🌊",
+      "description": "🏛️ Véritable symbole de la médina d’Essaouira, Bab Doukkala est bien plus qu’une simple porte : c’est une entrée monumentale chargée d’histoire et d’émotions. Construite au XVIIIe siècle sous le règne du sultan Mohammed Ben Abdellah, elle faisait partie du système défensif de la ville et contrôlait autrefois les flux commerciaux vers l’intérieur des terres et la région des Doukkala. 🌍 Située au nord-est de la médina, cette porte imposante marque aujourd’hui encore une transition saisissante en",
+      "main_category": "Tourisme",
+      "categories": [
+        "Sites touristiques"
+      ],
+      "services": [
+        "Place publique",
+        "Porte"
+      ],
+      "city": "Essaouira",
+      "neighborhood": "Medina",
+      "region": "Marrakech-Safi",
+      "country": "MA",
+      "latitude": 31.5161811,
+      "longitude": -9.7658151,
+      "address": "7 Rue Zaire",
+      "phone": null,
+      "whatsapp": null,
+      "website": null,
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/3729b4b4-c229-4a94-b0ab-86b374f56c2c-1776304180968-2yz0z.jpeg",
+      "google_rating": 4.5,
+      "google_review_count": 126,
+      "price_range": null,
+      "min_price_mad": null,
+      "languages": [],
+      "opening_hours": null,
+      "is_open_24h": false,
+      "booking_url": null,
+      "menu_url": null,
+      "social": {
+        "instagram": null,
+        "facebook": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g298349-d20308914-Reviews-Bab_Doukkala-Essaouira_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
