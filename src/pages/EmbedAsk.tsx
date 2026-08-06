@@ -362,11 +362,15 @@ const EmbedAsk = () => {
   // Fond du widget :
   //   ?bg=EFE6D8       → l'assistant prend cette couleur (encre auto selon luminance)
   //   ?bg=transparent  → fond transparent : le fond du site hôte apparaît
+  //   ?card=EFE6D8     → intérieur du widget de cette couleur, page transparente
   const bgRaw = (params.get("bg") || "").trim();
   const embedBgColor = parseBg(bgRaw);
+  const cardColor = parseBg(params.get("card"));
   const bgTransparent = /^(transparent|none|0)$/i.test(bgRaw);
-  const customBg = !!embedBgColor || bgTransparent;
-  const bgInk = customBg ? resolveEmbedInk(params.get("ink"), embedBgColor) : null;
+  // Couleur appliquée à l'intérieur du widget (carte) : `card` en priorité.
+  const innerBgColor = cardColor || embedBgColor;
+  const customBg = !!embedBgColor || bgTransparent || !!cardColor;
+  const bgInk = customBg ? resolveEmbedInk(params.get("ink"), innerBgColor) : null;
   const initialTheme = customBg
     ? (bgInk === "dark" ? "light" : "dark")
     : params.get("theme") === "light" ? "light" : "dark";
@@ -384,7 +388,7 @@ const EmbedAsk = () => {
   }, [theme, customBg]);
   useEffect(() => {
     if (!customBg) return;
-    return applyEmbedBg(embedBgColor || "");
+    return applyEmbedBg(cardColor ? "" : embedBgColor || "");
   }, [customBg, embedBgColor]);
 
   const [businessName, setBusinessName] = useState<string>("");
@@ -936,7 +940,11 @@ const EmbedAsk = () => {
   };
 
   return (
-    <div dir={dir} className={`fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""}`}>
+    <div
+      dir={dir}
+      className={`fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""}`}
+      style={innerBgColor ? { background: innerBgColor } : undefined}
+    >
       <header className={`px-4 py-3 border-b ${border} flex items-center gap-3`}>
         <div className="w-8 h-8 rounded-full bg-[#C24B3F] flex items-center justify-center text-white text-sm font-semibold">
           {((assistantTitle || businessName) || "?").slice(0, 1).toUpperCase()}

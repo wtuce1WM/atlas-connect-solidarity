@@ -27,7 +27,10 @@ export default function EmbedWeather() {
   const zoom = sizeZoom(parseSize(params.get("size")));
   // Fond : transparent par défaut (le widget prend le fond du site hôte).
   // ?bg=EFE6D8 force une couleur, l'encre du bloc prévisions suit sa luminance.
-  const bgColor = parseBg(params.get("bg"));
+  // ?card=EFE6D8 : intérieur du widget coloré mais page transparente.
+  const bgParamColor = parseBg(params.get("bg"));
+  const cardColor = parseBg(params.get("card"));
+  const bgColor = cardColor || bgParamColor;
   const ink = resolveEmbedInk(params.get("ink"), bgColor);
   // ?layout=footer : bandeau fin full-width réservé au desktop (>= 768px de large).
   // En dessous, on retombe sur la carte verticale, seule lisible sur mobile.
@@ -48,7 +51,7 @@ export default function EmbedWeather() {
 
   useEffect(() => {
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-    return applyEmbedBg(params.get("bg"));
+    return applyEmbedBg(cardColor ? "" : params.get("bg"));
   }, [lang, params]);
 
   useEffect(() => {
