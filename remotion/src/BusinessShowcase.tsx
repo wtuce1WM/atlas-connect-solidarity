@@ -3029,6 +3029,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   videos = [],
   videoStarts,
   videoEnds,
+  videoDurations,
   offer = null,
   offers = null,
   aiCard = null,
