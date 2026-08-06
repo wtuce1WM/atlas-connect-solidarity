@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import HScroll from "@/components/HScroll";
 import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -225,7 +226,126 @@ const WidgetSection = ({
   </section>
 );
 
+/* ---------------- Widget Adresses à proximité (sélecteur d'établissement) ---------------- */
+
+const NEARBY_DEMO_NAMES = [
+  "Riad Dar Najat",
+  "La Mamounia",
+  "Royal Mansour Marrakech",
+  "Aéroport international Marrakech-Ménara",
+  "Le Bistro Arabe",
+  "Carré Eden Shopping Center",
+  "Côté Bougie M Avenue",
+  "La Sultana Marrakech",
+  "La Table by Madada",
+  "Lacoste Carre Eden",
+  "M Avenue",
+  "Maison Brummell Majorelle",
+  "The Farasha Farmhouse",
+];
+
+type NearbyDemoBiz = {
+  id: string;
+  name: string;
+  slug: string | null;
+  city: string | null;
+  neighborhood: string | null;
+  images: string[] | null;
+};
+
+const NearbyWidgetSection = ({ index }: { index: number }) => {
+  const [items, setItems] = useState<NearbyDemoBiz[]>([]);
+  const [slug, setSlug] = useState(DEMO_SLUG);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id,name,slug,city,neighborhood,images")
+        .in("name", NEARBY_DEMO_NAMES);
+      if (cancelled) return;
+      const rows = (data as NearbyDemoBiz[]) ?? [];
+      const ordered = NEARBY_DEMO_NAMES
+        .map((n) => rows.find((r) => r.name === n))
+        .filter((r): r is NearbyDemoBiz => !!r && !!r.slug);
+      setItems(ordered);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const url = `${SITE}/embed/nearby/${slug}?lang=fr`;
+  const activeName = items.find((i) => i.slug === slug)?.name || "Riad Dar Najat";
+
+  return (
+    <WidgetSection
+      index={index}
+      icon={<MapPin className="h-5 w-5" />}
+      title="Widget Adresses à proximité"
+      tagline="Les meilleures adresses autour d'un point, sur carte ou en liste."
+      price="Prix : sur devis"
+      description="Reprend l'expérience de découverte de la plateforme : établissements actifs situés autour du point de référence, classés par catégorie, avec carte Google Maps native, fiches détaillées et contact direct. La carte s'affiche immédiatement, sans média d'introduction. Vous pouvez optionnellement adapter la couleur de fond de la carte."
+      params={[
+        { name: "slug", value: "établissement de référence" },
+        { name: "lang", value: "fr | en | ar" },
+        { name: "bg", value: "couleur de fond optionnelle (hex sans #)" },
+      ]}
+      fullWidthPreview
+      previewNode={
+        <>
+          <HScroll className="flex gap-3 overflow-x-auto scrollbar-hide pb-3">
+            {items.map((b) => {
+              const active = b.slug === slug;
+              const img = b.images?.[0] || null;
+              return (
+                <button
+                  key={b.id}
+                  type="button"
+                  onClick={() => setSlug(b.slug!)}
+                  className={`relative shrink-0 w-40 h-40 rounded-2xl overflow-hidden text-left ring-2 transition-shadow ${
+                    active ? "ring-primary shadow-lg" : "ring-transparent hover:ring-primary/40"
+                  }`}
+                >
+                  {img ? (
+                    <img src={img} alt={b.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+                  ) : (
+                    <div className="absolute inset-0 bg-muted" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
+                  <div className="absolute inset-x-0 bottom-0 p-2.5">
+                    <div className="text-[12.5px] font-bold leading-tight text-white break-words">{b.name}</div>
+                    <div className="text-[11px] text-white/80 mt-0.5 break-words">
+                      {[b.city, b.neighborhood].filter(Boolean).join(" · ")}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </HScroll>
+          <iframe
+            src={toPreview(url)}
+            title={`Adresses à proximité — ${activeName}`}
+            loading="lazy"
+            style={{ width: "100%", height: 620, border: 0, borderRadius: 20 }}
+            className="bg-card shadow-lg"
+          />
+          <a
+            href={toPreview(url)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+          >
+            Ouvrir en plein écran <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        </>
+      }
+      snippet={`<iframe src="${url}" style="width:100%;height:620px;border:0;border-radius:20px" title="Adresses à proximité" loading="lazy"></iframe>`}
+    />
+  );
+};
+
 /* ---------------- Widget Marées (configurateur ville / langue) ---------------- */
+
 
 const TIDE_CITIES: { slug: string; name: string; sea: "atlantic" | "mediterranean" }[] = [
   { slug: "essaouira", name: "Essaouira", sea: "atlantic" },
@@ -867,7 +987,7 @@ const Widgets = () => {
 
   const weatherUrl = `${SITE}/embed/weather?city=Marrakech&lang=fr`;
   const askUrl = `${SITE}/embed/ask/${DEMO_SLUG}?theme=light&lang=fr`;
-  const nearbyUrl = `${SITE}/embed/nearby/${DEMO_SLUG}?lang=fr`;
+  
   const ficheUrl = `${SITE}/b/${DEMO_SLUG}?embed=1&lang=fr`;
 
   const floatingSnippet = useMemo(
@@ -989,25 +1109,8 @@ const Widgets = () => {
               }
             />
 
-            <WidgetSection
-              index={4}
-              icon={<MapPin className="h-5 w-5" />}
-              title="Widget Adresses à proximité"
-              tagline="Les meilleures adresses autour d'un point, sur carte ou en liste."
-              price="Prix : sur devis"
-              description="Reprend l'expérience de découverte de la plateforme : établissements actifs situés à moins d'un kilomètre, classés par catégorie, avec carte Google Maps native, fiches détaillées et contact direct. La carte s'affiche immédiatement, sans média d'introduction. Vous pouvez optionnellement adapter la couleur de fond de la carte."
-              params={[
-                { name: "slug", value: "établissement de référence" },
-                { name: "lang", value: "fr | en | ar" },
-                { name: "bg", value: "couleur de fond optionnelle (hex sans #)" },
-              ]}
+            <NearbyWidgetSection index={4} />
 
-              previewUrl={toPreview(nearbyUrl)}
-              previewHeight={620}
-              fullWidthPreview
-
-              snippet={`<iframe src="${nearbyUrl}" style="width:100%;height:620px;border:0;border-radius:20px" title="Adresses à proximité" loading="lazy"></iframe>`}
-            />
 
             <ReviewsWidgetSection index={5} />
 
