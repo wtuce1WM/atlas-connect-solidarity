@@ -47,6 +47,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const qrRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [embedTheme, setEmbedTheme] = useState<"dark" | "light">("dark");
+  const [embedCard, setEmbedCard] = useState<"widget" | "transparent">("widget");
   const [embedLang, setEmbedLang] = useState<"fr" | "en" | "ar">("fr");
   const [embedHeight, setEmbedHeight] = useState<number>(640);
   const [nearbyLang, setNearbyLang] = useState<"fr" | "en" | "ar">("fr");
