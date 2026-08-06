@@ -898,7 +898,10 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
             const px = (wp.x - wc.x) * scale + cw / 2;
             const py = (wp.y - wc.y) * scale + ch / 2;
             // Vertical : bascule en dessous si pas la place au-dessus.
-            if (py - IW_H - 50 < PAD) offY = IW_H + 60;
+            // Le marqueur est dessiné au-dessus de son point d'ancrage (translate -100%),
+            // donc la miniature se colle juste sous le bas du marqueur (petit gap de 6px).
+            if (py - IW_H - 50 < PAD) offY = IW_H + 6;
+
             // Horizontal : recentrage dans les bords.
             const left = px - IW_W / 2;
             const right = px + IW_W / 2;
