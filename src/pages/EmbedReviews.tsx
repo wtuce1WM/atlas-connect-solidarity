@@ -48,6 +48,10 @@ export default function EmbedReviews() {
   const wantsTransparent = /^(transparent|none|0)$/i.test(bgRaw);
   const surface: string | null | undefined = bgColor || (wantsTransparent ? (cardColor || "") : undefined);
   const ink = surface === undefined ? "light" : resolveEmbedInk(params.get("ink"), bgColor || cardColor);
+  // ?frame=0 (ou frameless=1) → aucun cadre : fusion parfaite avec la section hôte
+  const frameless = /^(0|none|off|no)$/i.test((params.get("frame") || "").trim()) ||
+    /^(1|true|yes)$/i.test((params.get("frameless") || "").trim());
+
 
   
 
