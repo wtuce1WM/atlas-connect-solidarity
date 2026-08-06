@@ -4052,6 +4052,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         </AbsoluteFill>
       </SuppressBgContext.Provider>
     </ToneContext.Provider>
+    </VideoDurationsContext.Provider>
     </VideoEndsContext.Provider>
     </VideoStartsContext.Provider>
     </LangContext.Provider>
