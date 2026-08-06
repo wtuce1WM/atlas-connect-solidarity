@@ -115,6 +115,7 @@ function PlatformRow({
   url,
   lang,
   compact,
+  dark,
 }: {
   logo: string;
   name: string;
@@ -123,6 +124,7 @@ function PlatformRow({
   url: string | null;
   lang: Lang;
   compact?: boolean;
+  dark?: boolean;
 }) {
   const L = LABELS[lang];
   const inner = (
@@ -134,7 +136,11 @@ function PlatformRow({
         onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")}
       />
       <span className="min-w-0 flex-1">
-        <span className={`block ${compact ? "text-[12px]" : "text-sm"} font-semibold text-white truncate`}>
+        <span
+          className={`block ${compact ? "text-[12px]" : "text-sm"} font-semibold ${
+            dark ? "text-black" : "text-white"
+          } truncate`}
+        >
           {name}
         </span>
         <span className="flex items-center gap-1.5 flex-wrap">
@@ -143,26 +149,34 @@ function PlatformRow({
             {rating.toFixed(1)}/5
           </span>
           {count ? (
-            <span className="text-xs text-white/60">
+            <span className={`text-xs ${dark ? "text-black/60" : "text-white/60"}`}>
               · {count.toLocaleString("fr-FR")} {L.reviews}
             </span>
           ) : null}
         </span>
       </span>
-      {url ? <ExternalLink className="h-3.5 w-3.5 text-white/40 shrink-0" /> : null}
+      {url ? (
+        <ExternalLink className={`h-3.5 w-3.5 ${dark ? "text-black/40" : "text-white/40"} shrink-0`} />
+      ) : null}
     </>
   );
-  const cls = `flex items-center gap-3 rounded-xl border border-white/15 bg-white/5 ${
-    compact ? "px-2.5 py-2" : "px-3 py-2.5"
-  } transition-colors`;
+  const cls = `flex items-center gap-3 rounded-xl border ${
+    dark ? "border-black/10 bg-black/[0.03]" : "border-white/15 bg-white/5"
+  } ${compact ? "px-2.5 py-2" : "px-3 py-2.5"} transition-colors`;
   return url ? (
-    <a href={url} target="_blank" rel="noopener noreferrer" className={`${cls} hover:bg-white/10`}>
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`${cls} ${dark ? "hover:bg-black/[0.06]" : "hover:bg-white/10"}`}
+    >
       {inner}
     </a>
   ) : (
     <div className={cls}>{inner}</div>
   );
 }
+
 
 /** Auto-detect frame shape/size from the viewport (iframe) dimensions. */
 function useResolvedFrame(ratio: ReviewsRatio, size: ReviewsSize) {
