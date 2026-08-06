@@ -26,6 +26,7 @@ type Biz = {
   poi_radius_km: number | null;
   map_bg_color: string | null;
   default_poi_business_id: string | null;
+  default_poi_is_master: boolean | null;
   kp_regroupement: string | null;
   kp_regroupement_2: string | null;
   kp_active: boolean | null;
