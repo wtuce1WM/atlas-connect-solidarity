@@ -15683,7 +15683,7 @@
         "description": "Idéalement situé aux portes de la Medina de Marrakech et facilement accessible, ce lieu incontournable vibre au cœur de la ville, offrant une expérience mémorable de jour comme de nuit. BEST ROOFTOP IN TOWN Plongez dans une ambiance vibrante et cosmopolite, et savourez une cuisine créative aux inspirations méditerranéennes. Découvrez également notre menu sushis, notre large choix de cocktails et spiritueux ainsi que notre carte de vins soigneusement sélectionnée par notre équipe. Notre terrasse ",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Kissariat Ben Khalid R'mila, 1 Rue Fatima Zahra",
+          "streetAddress": "Kissariat Ben Khalid R'mila",
           "addressLocality": "Medina",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -15974,7 +15974,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.3,
-          "reviewCount": 36,
+          "reviewCount": 39,
           "bestRating": 5
         }
       }

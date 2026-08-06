@@ -807,6 +807,136 @@ function buildArticleHtml(article: StaticArticle): string {
 </html>`;
 }
 
+/* ------------------------------------------------------------------------
+ * Page custom /blog/etablissements-notes — prérendu COMPLET (contenu lisible
+ * sans JS) pour Googlebot et les crawlers IA (ClaudeBot, GPTBot, PerplexityBot…),
+ * qui n'exécutent pas le React de la SPA et ne voyaient donc que le shell.
+ * Les visiteurs humains sont réhydratés vers l'app (même script que les autres
+ * shells statiques).
+ * ---------------------------------------------------------------------- */
+interface RankedRow {
+  rank: number;
+  name: string;
+  url: string;
+  city: string;
+  neighborhood: string;
+  subcat: string;
+  google: string;
+  guru: string;
+  tripadvisor: string;
+  avg: string;
+  total: number;
+}
+
+function buildRatedRankingHtml(rows: RankedRow[], totalCount: number, image: string): string {
+  const url = `${BASE_URL}/blog/etablissements-notes`;
+  const title = `Classement des établissements notés au Maroc — ${SITE_NAME}`;
+  const description = `Classement sur 20 de ${totalCount} établissements du Maroc : notes Google, TripAdvisor et Restaurant Guru réunies. Hôtels, riads, restaurants et activités à Marrakech, Essaouira et au-delà.`;
+  const e = {
+    title: escapeHtml(title),
+    description: escapeHtml(description),
+    image: escapeHtml(image),
+    url: escapeHtml(url),
+  };
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Classement des établissements notés au Maroc",
+    description,
+    numberOfItems: rows.length,
+    itemListOrder: "https://schema.org/ItemListOrderDescending",
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    itemListElement: rows.slice(0, 100).map((r) => ({
+      "@type": "ListItem",
+      position: r.rank,
+      url: r.url,
+      name: r.name,
+    })),
+  };
+
+  const tableRows = rows
+    .map(
+      (r) => `<tr>
+        <td>${r.rank}</td>
+        <td><a href="${escapeHtml(r.url)}">${escapeHtml(r.name)}</a></td>
+        <td>${escapeHtml(r.city)}</td>
+        <td>${escapeHtml(r.neighborhood)}</td>
+        <td>${escapeHtml(r.subcat)}</td>
+        <td>${escapeHtml(r.google)}</td>
+        <td>${escapeHtml(r.guru)}</td>
+        <td>${escapeHtml(r.tripadvisor)}</td>
+        <td><strong>${escapeHtml(r.avg)}</strong></td>
+        <td>${r.total}</td>
+      </tr>`,
+    )
+    .join("\n");
+
+  return `<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>${e.title}</title>
+    <meta name="description" content="${e.description}" />
+    <link rel="canonical" href="${e.url}" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="${e.title}" />
+    <meta property="og:description" content="${e.description}" />
+    <meta property="og:url" content="${e.url}" />
+    <meta property="og:image" content="${e.image}" />
+    <meta property="og:site_name" content="${SITE_NAME}" />
+    <meta property="og:locale" content="fr_FR" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${e.title}" />
+    <meta name="twitter:description" content="${e.description}" />
+    <meta name="twitter:image" content="${e.image}" />
+
+    <script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>
+  </head>
+  <body style="background-color:#faf8f5;margin:0">
+    <main style="font-family:system-ui,sans-serif;max-width:1100px;margin:0 auto;padding:24px">
+      <h1>Établissements notés au Maroc</h1>
+      <p>${e.description}</p>
+      <p>
+        Méthodologie : chaque note source (Google, Restaurant Guru, TripAdvisor) est ramenée sur 20,
+        puis pondérée par le nombre d'avis de la source. Le classement ci-dessous présente les
+        ${rows.length} meilleurs établissements sur ${totalCount} référencés avec des avis vérifiés.
+      </p>
+      <table border="1" cellspacing="0" cellpadding="4">
+        <thead>
+          <tr>
+            <th>#</th><th>Nom</th><th>Ville</th><th>Quartier</th><th>Sous-catégorie</th>
+            <th>Google</th><th>Restaurant Guru</th><th>TripAdvisor</th><th>Moyenne /20</th><th>Total avis</th>
+          </tr>
+        </thead>
+        <tbody>
+${tableRows}
+        </tbody>
+      </table>
+      <p><a href="${BASE_URL}/blog">Retour au blog ${SITE_NAME}</a></p>
+    </main>
+    <script>
+      (function () {
+        var ua = navigator.userAgent || "";
+        var isPreviewBot = /WhatsApp|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|Slackbot|TelegramBot|Pinterest|Discordbot|Googlebot|Google-InspectionTool|GoogleOther|Google-Extended|bingbot|GPTBot|OAI-SearchBot|ChatGPT-User|PerplexityBot|Perplexity-User|ClaudeBot|Claude-Web|anthropic-ai|Applebot|Applebot-Extended|Amazonbot|Bytespider|Meta-ExternalAgent|Meta-ExternalFetcher|DuckAssistBot|YouBot|CCBot|cohere-ai|Diffbot/i.test(ua);
+        if (isPreviewBot) return;
+        fetch("/index.html", { cache: "no-store" })
+          .then(function (response) { return response.text(); })
+          .then(function (html) {
+            document.open();
+            document.write(html);
+            document.close();
+          })
+          .catch(function () {});
+      })();
+    </script>
+  </body>
+</html>`;
+}
+
 interface HubItem {
   name: string;
   url: string;
@@ -1174,6 +1304,85 @@ async function main() {
     mkdirSync(articleDir, { recursive: true });
     writeFileSync(join(articleDir, "index.html"), buildArticleHtml(article), "utf8");
   }
+
+  // 5b) Page custom /blog/etablissements-notes : prérendu du classement réel
+  //     (contenu lisible sans JS pour Googlebot + crawlers IA).
+  try {
+    const RPAGE = 1000;
+    let rFrom = 0;
+    const rated: any[] = [];
+    while (true) {
+      const { data, error } = await supabase
+        .from("businesses")
+        .select(
+          "id, slug, name, city, neighborhood, main_category, categories, services, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count",
+        )
+        .eq("is_active", true)
+        .or("google_review_count.gt.0,tripadvisor_review_count.gt.0,restaurant_guru_review_count.gt.0")
+        .order("id")
+        .range(rFrom, rFrom + RPAGE - 1);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      rated.push(...data);
+      if (data.length < RPAGE) break;
+      rFrom += RPAGE;
+    }
+
+    const vanityBySlugTarget = new Map(vanities.map((v) => [v.target_id, v.slug]));
+    const scored = rated
+      .map((b) => {
+        const sources: Array<{ rating: number; count: number }> = [];
+        if (b.google_rating && b.google_review_count) sources.push({ rating: b.google_rating, count: b.google_review_count });
+        if (b.tripadvisor_rating && b.tripadvisor_review_count) sources.push({ rating: b.tripadvisor_rating, count: b.tripadvisor_review_count });
+        if (b.restaurant_guru_rating && b.restaurant_guru_review_count) sources.push({ rating: b.restaurant_guru_rating, count: b.restaurant_guru_review_count });
+        const total = sources.reduce((s, x) => s + x.count, 0);
+        if (!total) return null;
+        const avg = Math.round((sources.reduce((s, x) => s + (x.rating / 5) * 20 * x.count, 0) / total) * 100) / 100;
+        const vslug = vanityBySlugTarget.get(b.id) || b.slug;
+        return {
+          name: b.name as string,
+          url: vslug ? `${BASE_URL}/${vslug}` : `${BASE_URL}/search?openBusiness=${b.id}`,
+          city: (b.city as string) || "",
+          neighborhood: (b.neighborhood as string) || "",
+          subcat: (Array.isArray(b.categories) && b.categories[0]) || b.main_category || "",
+          google: b.google_rating ? `${b.google_rating}/5 (${b.google_review_count})` : "—",
+          guru: b.restaurant_guru_rating ? `${b.restaurant_guru_rating}/5 (${b.restaurant_guru_review_count})` : "—",
+          tripadvisor: b.tripadvisor_rating ? `${b.tripadvisor_rating}/5 (${b.tripadvisor_review_count})` : "—",
+          avg: avg.toFixed(2),
+          avgNum: avg,
+          total,
+        };
+      })
+      .filter(Boolean) as Array<Record<string, any>>;
+
+    scored.sort((a, b) => b.avgNum - a.avgNum || b.total - a.total);
+    const rows: RankedRow[] = scored.slice(0, 500).map((r, i) => ({
+      rank: i + 1,
+      name: r.name,
+      url: r.url,
+      city: r.city,
+      neighborhood: r.neighborhood,
+      subcat: r.subcat,
+      google: r.google,
+      guru: r.guru,
+      tripadvisor: r.tripadvisor,
+      avg: r.avg,
+      total: r.total,
+    }));
+
+    const ratedDir = join(PUBLIC_DIR, "blog", "etablissements-notes");
+    mkdirSync(ratedDir, { recursive: true });
+    writeFileSync(
+      join(ratedDir, "index.html"),
+      buildRatedRankingHtml(rows, scored.length, `${BASE_URL}/__l5e/assets-v1/74b197a6-8fb3-47b5-abac-9c3d7391adb5/rated-businesses-hero.webp`),
+      "utf8",
+    );
+    console.log(`[og-pages] classement prérendu : ${rows.length} lignes / ${scored.length} établissements notés`);
+  } catch (err) {
+    console.error("[og-pages] échec prérendu /blog/etablissements-notes:", err);
+  }
+
+
 
   // 6) Génère les pages HUBS (destinations, catégories, quartiers)
   // Ces répertoires racines sont marqués pour être nettoyables au prochain run.
