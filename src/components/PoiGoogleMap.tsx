@@ -962,12 +962,14 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     if (hasCenterOffset) {
 
       needsFitRef.current = false;
+      const firstFit = !hasFittedRef.current;
       hasFittedRef.current = true;
       // Position unique et invariante : le Master reste à `centerAtBottomRatio`
       // du bas, quels que soient les filtres (POI / catégories / rayon).
       const height = containerRef.current?.clientHeight || 0;
       const width = containerRef.current?.clientWidth || 0;
-      let z = map.getZoom() ?? 13;
+      const startZ = map.getZoom() ?? 13;
+      let z = startZ;
       // Le rayon du pill « À proximité » pilote le zoom : le cercle doit tenir
       // dans le viewport, au-dessus et autour du marqueur Master.
       if (fitRadiusKm && fitRadiusKm > 0 && height > 0 && width > 0 && center) {
@@ -978,18 +980,44 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         const metersPerPixelAtZ0 = 156543.03392 * Math.cos((center.lat * Math.PI) / 180);
         const target = Math.log2((metersPerPixelAtZ0 * availablePx) / (fitRadiusKm * 1000));
         z = Math.max(4, Math.min(18, Math.round(target * 2) / 2));
-        map.setZoom(z);
       }
-      if (height > 0 && center) {
-        const markerOffsetFromCenterPx = (0.5 - centerAtBottomRatio!) * height;
-        map.setCenter({
-          lat: centerLatForMarkerPosition(center.lat, z, markerOffsetFromCenterPx),
-          lng: center.lng,
-        });
+      const applyView = (zoom: number) => {
+        map.setZoom(zoom);
+        if (height > 0 && center) {
+          const markerOffsetFromCenterPx = (0.5 - centerAtBottomRatio!) * height;
+          map.setCenter({
+            lat: centerLatForMarkerPosition(center.lat, zoom, markerOffsetFromCenterPx),
+            lng: center.lng,
+          });
+        }
+      };
+
+      const delta = z - startZ;
+      if (firstFit || Math.abs(delta) < 0.01) {
+        applyView(z);
+        return;
       }
+
+      // Transition douce du zoom + petit resize des marqueurs (zoom-in / zoom-out).
+      overlaysRef.current.forEach((o) => o.pulse(delta > 0 ? 1 : -1));
+      if (zoomAnimRef.current != null) cancelAnimationFrame(zoomAnimRef.current);
+      const t0 = performance.now();
+      const duration = 450;
+      const step = (t: number) => {
+        const p = Math.min(1, (t - t0) / duration);
+        const e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+        applyView(startZ + delta * e);
+        if (p < 1) {
+          zoomAnimRef.current = requestAnimationFrame(step);
+        } else {
+          zoomAnimRef.current = null;
+        }
+      };
+      zoomAnimRef.current = requestAnimationFrame(step);
       return;
 
     }
+
 
 
     // In fitToMarkers mode, fit strictly to result markers so all are visible.
