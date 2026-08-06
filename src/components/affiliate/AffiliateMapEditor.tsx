@@ -26,6 +26,7 @@ type Biz = {
   poi_radius_km: number | null;
   map_bg_color: string | null;
   default_poi_business_id: string | null;
+  default_poi_is_master: boolean | null;
   kp_regroupement: string | null;
   kp_regroupement_2: string | null;
   kp_active: boolean | null;
@@ -76,6 +77,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
   const [pois, setPois] = useState<PoiRow[]>([]);
   const [bg, setBg] = useState<string>("");
   const [defaultPoiId, setDefaultPoiId] = useState<string>("");
+  const [defaultPoiIsMaster, setDefaultPoiIsMaster] = useState(false);
   const [kpGroups, setKpGroups] = useState<KpGroup[]>([]);
   const [kpActive, setKpActive] = useState(false);
   const [kpActive2, setKpActive2] = useState(false);
@@ -96,7 +98,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setPoiView(false);
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("id,name,city,neighborhood,latitude,longitude,images,poi_radius_km,map_bg_color,default_poi_business_id,kp_regroupement,kp_regroupement_2,kp_active,kp_active_2,kp_city,kp_city_2")
+        .select("id,name,city,neighborhood,latitude,longitude,images,poi_radius_km,map_bg_color,default_poi_business_id,default_poi_is_master,kp_regroupement,kp_regroupement_2,kp_active,kp_active_2,kp_city,kp_city_2")
         .eq("id", businessId)
         .maybeSingle();
       if (cancelled) return;
@@ -104,6 +106,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setBiz(b);
       setBg((b?.map_bg_color || "").toUpperCase());
       setDefaultPoiId(b?.default_poi_business_id || "");
+      setDefaultPoiIsMaster(!!b?.default_poi_is_master);
       setKpActive(!!b?.kp_active);
       setKpActive2(!!b?.kp_active_2);
       setKpCity(b?.kp_city || "");
@@ -190,6 +193,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
         .update({
           map_bg_color: bgValid ? bg.toUpperCase() : null,
           default_poi_business_id: defaultPoiId || null,
+          default_poi_is_master: !!defaultPoiId && defaultPoiIsMaster,
           kp_active: kpActive,
           kp_active_2: kpActive2,
           kp_city: kpCity || null,
@@ -201,7 +205,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setSavedAt(Date.now());
     }, 1000);
     return () => clearTimeout(t);
-  }, [bg, bgValid, defaultPoiId, kpActive, kpActive2, kpCity, kpCity2, businessId, isLoading]);
+  }, [bg, bgValid, defaultPoiId, defaultPoiIsMaster, kpActive, kpActive2, kpCity, kpCity2, businessId, isLoading]);
 
 
   const nearbyPois = useMemo(() => {
@@ -371,9 +375,21 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
 
       <Card className="bg-white/5 border-white/10">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base text-white flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-primary" /> Lieu d'intérêt par défaut
-          </CardTitle>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <CardTitle className="text-base text-white flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-primary" /> Lieu d'intérêt par défaut
+            </CardTitle>
+            <label className="flex items-center gap-2 text-xs text-white/80 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={defaultPoiIsMaster}
+                disabled={!defaultPoiId}
+                onChange={(e) => setDefaultPoiIsMaster(e.target.checked)}
+                className="h-4 w-4 accent-primary cursor-pointer disabled:cursor-not-allowed"
+              />
+              Marqueur par défaut sur la Map
+            </label>
+          </div>
         </CardHeader>
         <CardContent className="space-y-2">
           {pois.length === 0 ? (
