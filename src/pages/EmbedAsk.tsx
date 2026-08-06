@@ -383,6 +383,7 @@ const EmbedAsk = () => {
     : "dark";
 
   const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (themeParam) return themeParam;
     if (customBg) return initialTheme;
     if (typeof window !== "undefined") {
       const saved = window.localStorage.getItem("embed-ask-theme");
@@ -390,6 +391,7 @@ const EmbedAsk = () => {
     }
     return initialTheme;
   });
+
   useEffect(() => {
     if (customBg) return;
     try { window.localStorage.setItem("embed-ask-theme", theme); } catch { /* noop */ }
