@@ -205,7 +205,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setSavedAt(Date.now());
     }, 1000);
     return () => clearTimeout(t);
-  }, [bg, bgValid, defaultPoiId, kpActive, kpActive2, kpCity, kpCity2, businessId, isLoading]);
+  }, [bg, bgValid, defaultPoiId, defaultPoiIsMaster, kpActive, kpActive2, kpCity, kpCity2, businessId, isLoading]);
 
 
   const nearbyPois = useMemo(() => {
