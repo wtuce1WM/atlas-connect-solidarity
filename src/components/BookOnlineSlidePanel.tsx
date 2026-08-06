@@ -407,7 +407,21 @@ const BookOnlineSlidePanelInner = ({
   // Pills POI / Catégories : menu déroulant sur desktop, overlay plein écran sur mobile
   const isMobileView = useIsMobile();
   const isEmbedMapWidget = embedMode && initialOverlay === "poi";
+  // En embed, les breakpoints Tailwind se basent sur la largeur de l'iframe (souvent < 1024px)
+  // alors que l'hôte est un desktop. On mesure donc la largeur réelle du widget.
+  const [embedWideView, setEmbedWideView] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth >= 700 : false
+  );
+  useEffect(() => {
+    if (!isEmbedMapWidget) return;
+    const onResize = () => setEmbedWideView(window.innerWidth >= 700);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [isEmbedMapWidget]);
+  const embedHalfSheet = isEmbedMapWidget && embedWideView;
   const usePillDropdown = embedMode || !isMobileView;
+
   const [poiSubcatOpen, setPoiSubcatOpen] = useState(false);
   const [poiShowAll, setPoiShowAll] = useState(false);
   const [poiProximityKm, setPoiProximityKm] = useState<number | null>(null);
