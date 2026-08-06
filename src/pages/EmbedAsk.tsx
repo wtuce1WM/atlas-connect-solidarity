@@ -1505,7 +1505,7 @@ const EmbedAsk = () => {
 
         {status === "submitted" && (
           <div className="flex justify-start">
-            <div className={`rounded-2xl px-3.5 py-2.5 text-sm ${asstBubble}`}>
+            <div className={`rounded-2xl px-3.5 py-2.5 text-sm ${asstBubble}`} style={cardStyle}>
               <span className="inline-flex gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60 animate-bounce" style={{ animationDelay: "0ms" }} />
                 <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60 animate-bounce" style={{ animationDelay: "120ms" }} />
