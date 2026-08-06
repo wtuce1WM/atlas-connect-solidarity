@@ -447,17 +447,20 @@ export default function EmbedReviewsWidget({
   return (
     <div
       data-owm-ink={ink}
-      className={`w-full mx-auto rounded-3xl border border-white/15 ${
-        hasSurfaceProp ? "" : "bg-neutral-900/95"
-      } ${large ? "p-5 sm:p-6" : "p-4 sm:p-5"} text-white ${
-        transparent ? "" : "shadow-[0_10px_40px_rgba(0,0,0,0.35)]"
-      } flex flex-col`}
+      className={`w-full mx-auto ${
+        frameless
+          ? "border-0 bg-transparent p-0"
+          : `rounded-3xl border border-white/15 ${hasSurfaceProp ? "" : "bg-neutral-900/95"} ${
+              large ? "p-5 sm:p-6" : "p-4 sm:p-5"
+            } ${transparent ? "" : "shadow-[0_10px_40px_rgba(0,0,0,0.35)]"}`
+      } text-white flex flex-col`}
       style={{
         fontFamily: "'Montserrat', sans-serif",
         maxWidth: fullWidth ? undefined : maxW,
-        ...(hasSurfaceProp ? { background: surfaceColor || "transparent" } : null),
+        ...(!frameless && hasSurfaceProp ? { background: surfaceColor || "transparent" } : null),
       }}
     >
+
 
       {shape === "horizontal" ? (
         <>
