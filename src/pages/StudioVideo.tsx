@@ -715,6 +715,18 @@ export default function StudioVideo() {
     return out;
   }, [orderedSelectedVideos, videoEnds, activeVideoStarts]);
 
+  // Durées réelles des vidéos sélectionnées : permet au montage de boucler le
+  // clip quand l'étape dure plus longtemps que la vidéo de fond.
+  const activeVideoDurations = useMemo(() => {
+    const out: Record<string, number> = {};
+    for (const u of orderedSelectedVideos) {
+      const d = bizVideos.find((x) => x.url === u)?.duration;
+      if (Number.isFinite(d) && (d as number) > 0.5) out[u] = Math.round((d as number) * 10) / 10;
+    }
+    return out;
+  }, [orderedSelectedVideos, bizVideos]);
+
+
   // Durée totale utile des vidéos du montage (Time End − Time Start)
   const orderedVideosTotalDuration = useMemo(() => {
     let sum = 0;
@@ -1736,6 +1748,7 @@ export default function StudioVideo() {
             selected_videos: chosenVideos,
             video_starts: activeVideoStarts,
             video_ends: activeVideoEnds,
+            video_durations: activeVideoDurations,
             scene_media: sceneMedia,
             scene_order: applyReferenceOrder(scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon), !!scenarioEdits?.order),
             scene_durations: scenarioEdits?.durations ?? (() => {
@@ -1999,6 +2012,7 @@ export default function StudioVideo() {
             selected_videos: chosenVideos,
             video_starts: activeVideoStarts,
             video_ends: activeVideoEnds,
+            video_durations: activeVideoDurations,
             scene_media: sceneMedia,
             scene_order: applyReferenceOrder(
               scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon),

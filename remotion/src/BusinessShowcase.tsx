@@ -150,6 +150,9 @@ const useSuppressBg = (): boolean => React.useContext(SuppressBgContext);
 const VideoStartsContext = React.createContext<Record<string, number>>({});
 // Time End : point de fin (secondes) par URL de vidéo, défini dans le Studio.
 const VideoEndsContext = React.createContext<Record<string, number>>({});
+// Durée réelle (secondes) par URL de vidéo — permet de boucler le média plutôt
+// que de figer la dernière image quand l'étape est plus longue que la vidéo.
+const VideoDurationsContext = React.createContext<Record<string, number>>({});
 /** Frame de fin d'une vidéo (Time End) — undefined si non défini. */
 const useVideoEndFrames = (src?: string | null): number | undefined => {
   const ends = React.useContext(VideoEndsContext);
@@ -159,6 +162,16 @@ const useVideoEndFrames = (src?: string | null): number | undefined => {
   if (!Number.isFinite(sec) || (sec as number) <= 0) return undefined;
   return Math.max(1, Math.round((sec as number) * fps));
 };
+/** Durée réelle d'une vidéo en frames — undefined si inconnue. */
+const useVideoDurationFrames = (src?: string | null): number | undefined => {
+  const durations = React.useContext(VideoDurationsContext);
+  const { fps } = useVideoConfig();
+  if (!src) return undefined;
+  const sec = durations?.[src];
+  if (!Number.isFinite(sec) || (sec as number) <= 0.5) return undefined;
+  return Math.max(1, Math.round((sec as number) * fps));
+};
+
 /** Frames à sauter au début d'une vidéo (Time Start). */
 const useVideoStartFrames = (src?: string | null): number | undefined => {
   const starts = React.useContext(VideoStartsContext);
@@ -182,28 +195,43 @@ const StartVideo: React.FC<{
 }> = ({ src, muted = true, volume, loop = true, style, extraStartSec = 0 }) => {
   const base = useVideoStartFrames(src) ?? 0;
   const endAtBase = useVideoEndFrames(src);
+  const naturalFrames = useVideoDurationFrames(src);
   const { fps } = useVideoConfig();
   const extra = Number.isFinite(extraStartSec) && extraStartSec > 0 ? Math.round(extraStartSec * fps) : 0;
-  // Le décalage de relecture reste borné à l'intervalle [Time Start, Time End].
-  const span = endAtBase != null ? Math.max(1, endAtBase - base) : undefined;
-  // Sans Time End connu, on ne connaît pas la durée réelle du clip : un décalage
+  // Fin utile du clip : Time End s'il est défini, sinon la durée réelle du média.
+  const hardEnd = endAtBase ?? naturalFrames;
+  // Le décalage de relecture reste borné à l'intervalle [Time Start, fin utile].
+  const span = hardEnd != null ? Math.max(1, hardEnd - base) : undefined;
+  // Sans fin connue, on ne connaît pas la durée réelle du clip : un décalage
   // trop grand ferait démarrer la lecture après la fin (image figée / écran noir).
   // On borne donc le décalage à 2 s dans ce cas.
   const safeExtra = span != null ? extra % span : Math.min(extra, Math.round(2 * fps));
   const startFrom = base + safeExtra;
-  const endAt = endAtBase != null && endAtBase > startFrom + 1 ? endAtBase : undefined;
-  return (
+  const endAt = hardEnd != null && hardEnd > startFrom + 1 ? hardEnd : undefined;
+  const video = (
     <OffthreadVideo
       src={src}
       muted={muted}
       volume={volume as never}
-      loop={loop}
+      loop={false}
       startFrom={startFrom > 0 ? startFrom : undefined}
       endAt={endAt}
       style={style ?? { width: "100%", height: "100%", objectFit: "cover" }}
     />
   );
+  // Segment utile connu : on le répète explicitement via <Loop> pour couvrir
+  // toute la durée de l'étape, au lieu de figer la dernière image à la fin.
+  const loopFrames = endAt != null ? Math.max(1, endAt - startFrom - 1) : null;
+  if (loop && loopFrames && loopFrames > fps) {
+    return (
+      <Loop durationInFrames={loopFrames} layout="none">
+        {video}
+      </Loop>
+    );
+  }
+  return video;
 };
+
 
 const useTone = (): ToneConfig => TONE_CONFIG[React.useContext(ToneContext)] ?? TONE_CONFIG.immersif;
 
@@ -267,6 +295,8 @@ export type ShowcaseProps = {
   videoStarts?: Record<string, number>;
   /** Point de fin (secondes) par URL de vidéo — défini dans le Studio (Time End). */
   videoEnds?: Record<string, number>;
+  /** Durée réelle (secondes) par URL de vidéo — sert à boucler le média. */
+  videoDurations?: Record<string, number>;
   offer?: { title?: string; price?: string; lines?: string[]; message_html?: string | null; background_video_url?: string; background_image_url?: string } | null;
   offers?: Array<{ title?: string; price?: string; lines?: string[]; message_html?: string | null; background_video_url?: string; background_image_url?: string }> | null;
   /** Carte "Offre" rédigée par l'IA (option « Carte IA »), distincte des offres en base. */
@@ -312,6 +342,8 @@ export type ShowcaseProps = {
     durationSec?: number;
     hours?: Array<{ hour: string; sea: number | null; temp: number | null; code: number | null; wind: number | null; gust: number | null; dir: number | null; pop: number | null }>;
     extremes?: Array<{ hour: string; type: "high" | "low"; height: number }>;
+    /** Marnage moyen de vive-eau du port (m) — base du coefficient estimé. */
+    springRange?: number | null;
   } | null;
   scenePois?: Record<string, PlaceItem[]>;
   sceneDestinations?: Record<string, PlaceItem[]>;
@@ -1525,6 +1557,162 @@ const SceneWeatherWidget: React.FC<{ widget: NonNullable<ShowcaseProps["weatherW
 };
 
 
+// ===== Règle des douzièmes (marées) =====
+type TideExtreme = { hour: string; type: "high" | "low"; height: number };
+/** Répartition du marnage par heure-marée : 1/12, 2/12, 3/12, 3/12, 2/12, 1/12. */
+const TWELFTHS = [1, 2, 3, 3, 2, 1];
+const hhmmToMin = (h?: string | null) => {
+  if (!h || !/^\d{1,2}:\d{2}/.test(h)) return null;
+  const [a, b] = h.split(":");
+  return Number(a) * 60 + Number(b);
+};
+const minToHhmm = (m: number) => {
+  const v = ((Math.round(m) % 1440) + 1440) % 1440;
+  return `${String(Math.floor(v / 60)).padStart(2, "0")}:${String(v % 60).padStart(2, "0")}`;
+};
+/** Cycle marée le plus marqué de la journée (paire basse↔haute consécutive). */
+function mainTideCycle(exts: TideExtreme[]) {
+  let best: { from: TideExtreme; to: TideExtreme; range: number; durMin: number } | null = null;
+  for (let i = 0; i < exts.length - 1; i++) {
+    const a = exts[i];
+    const b = exts[i + 1];
+    if (a.type === b.type) continue;
+    const ma = hhmmToMin(a.hour);
+    const mb = hhmmToMin(b.hour);
+    if (ma == null || mb == null) continue;
+    let durMin = mb - ma;
+    if (durMin <= 0) durMin += 1440;
+    if (durMin < 180 || durMin > 500) continue;
+    const range = Math.abs(b.height - a.height);
+    if (!best || range > best.range) best = { from: a, to: b, range, durMin };
+  }
+  return best;
+}
+/** Phase (heure-marée 1→6) d'un horaire dans le cycle courant. */
+function tidePhaseAt(exts: TideExtreme[], hour?: string | null) {
+  const t = hhmmToMin(hour);
+  if (t == null || exts.length < 2) return null;
+  for (let i = 0; i < exts.length - 1; i++) {
+    const ma = hhmmToMin(exts[i].hour);
+    const mb = hhmmToMin(exts[i + 1].hour);
+    if (ma == null || mb == null || exts[i].type === exts[i + 1].type) continue;
+    if (t < ma || t > mb) continue;
+    const durMin = Math.max(1, mb - ma);
+    const step = durMin / 6;
+    const phase = Math.min(6, Math.max(1, Math.floor((t - ma) / step) + 1));
+    return { phase, rising: exts[i + 1].type === "high", hourTideMin: Math.round(step) };
+  }
+  return null;
+}
+const tideCoefficient = (range: number | null, springRange?: number | null) => {
+  if (range == null || !springRange || springRange <= 0) return null;
+  return Math.max(20, Math.min(120, Math.round((range / springRange) * 95)));
+};
+
+/** Récapitulatif marées : plus haute / plus basse, marnage, douzièmes, coefficient, étale. */
+const TidesRecapPanel: React.FC<{ widget: NonNullable<ShowcaseProps["tidesWidget"]>; local: number; duration: number }> = ({ widget, local, duration }) => {
+  const { orientation, px } = useLayout();
+  const portrait = orientation !== "landscape";
+  const exts = (widget.extremes || []) as TideExtreme[];
+  const highs = exts.filter((e) => e.type === "high");
+  const lows = exts.filter((e) => e.type === "low");
+  const topHigh = highs.length ? highs.reduce((a, b) => (b.height > a.height ? b : a)) : null;
+  const topLow = lows.length ? lows.reduce((a, b) => (b.height < a.height ? b : a)) : null;
+  const cycle = mainTideCycle(exts);
+  const range = cycle ? cycle.range : topHigh && topLow ? Math.abs(topHigh.height - topLow.height) : null;
+  const twelfth = range != null ? range / 12 : null;
+  const hourTide = cycle ? Math.round(cycle.durMin / 6) : null;
+  const coef = tideCoefficient(range, widget.springRange ?? null);
+  const rising = cycle ? cycle.to.type === "high" : true;
+  const startH = cycle ? hhmmToMin(cycle.from.hour) : null;
+  const baseHeight = cycle ? cycle.from.height : null;
+
+  let cum = 0;
+  const steps = TWELFTHS.map((tw, i) => {
+    cum += tw;
+    const h = baseHeight != null && twelfth != null
+      ? baseHeight + (rising ? 1 : -1) * twelfth * cum
+      : null;
+    return {
+      i,
+      tw,
+      cum,
+      hour: startH != null && cycle ? minToHhmm(startH + ((i + 1) * cycle.durMin) / 6) : null,
+      height: h,
+    };
+  });
+
+  const reveal = (from: number, to: number) => ease(local, from, to);
+  const line = (label: string, value: string, delay: number) => (
+    <div style={{ opacity: reveal(delay, delay + 12), fontFamily: body, display: "flex", gap: px(10), alignItems: "baseline" }}>
+      <span style={{ fontSize: px(20), color: "rgba(245,240,230,0.65)" }}>{label}</span>
+      <span style={{ fontSize: px(26), color: COLORS.cream, fontWeight: 700 }}>{value}</span>
+    </div>
+  );
+
+  return (
+    <>
+      <div style={{ display: "flex", flexDirection: portrait ? "column" : "row", gap: px(portrait ? 10 : 34), marginBottom: px(14) }}>
+        <div style={{ opacity: reveal(2, 16), fontFamily: body }}>
+          <div style={{ fontSize: px(18), color: COLORS.gold, letterSpacing: px(3) }}>PLEINE MER</div>
+          <div style={{ fontSize: px(portrait ? 46 : 52), color: COLORS.gold, fontWeight: 700, lineHeight: 1.05 }}>
+            {topHigh ? topHigh.hour : "--"}
+          </div>
+          <div style={{ fontSize: px(24), color: COLORS.cream }}>{topHigh ? `${topHigh.height.toFixed(2)} m` : ""}</div>
+        </div>
+        <div style={{ opacity: reveal(8, 22), fontFamily: body }}>
+          <div style={{ fontSize: px(18), color: COLORS.gold, letterSpacing: px(3) }}>BASSE MER</div>
+          <div style={{ fontSize: px(portrait ? 46 : 52), color: COLORS.gold, fontWeight: 700, lineHeight: 1.05 }}>
+            {topLow ? topLow.hour : "--"}
+          </div>
+          <div style={{ fontSize: px(24), color: COLORS.cream }}>{topLow ? `${topLow.height.toFixed(2)} m` : ""}</div>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", flexWrap: "wrap", gap: px(portrait ? 8 : 26), marginBottom: px(14) }}>
+        {line("Marnage", range != null ? `${range.toFixed(2)} m` : "--", 14)}
+        {line("1/12", twelfth != null ? `${twelfth.toFixed(2)} m` : "--", 18)}
+        {line("Heure-marée", hourTide != null ? `${hourTide} min` : "--", 22)}
+        {coef != null && line("Coefficient", `${coef} · ${coef >= 70 ? "vive-eau" : "morte-eau"}`, 26)}
+      </div>
+
+      {/* Règle des douzièmes : 1 · 2 · 3 · 3 · 2 · 1 */}
+      <div style={{ display: "flex", alignItems: "flex-end", gap: px(8), height: px(portrait ? 150 : 170) }}>
+        {steps.map((s) => {
+          const grow = ease(local, 26 + s.i * 6, 44 + s.i * 6);
+          const hRatio = s.tw / 3;
+          return (
+            <div key={s.i} style={{ flex: 1, textAlign: "center", fontFamily: body }}>
+              <div style={{ fontSize: px(18), color: COLORS.cream, opacity: grow, marginBottom: px(4) }}>
+                {s.height != null ? `${s.height.toFixed(2)}` : ""}
+              </div>
+              <div
+                style={{
+                  height: `${hRatio * 62 * grow}%`,
+                  minHeight: px(4),
+                  borderRadius: px(8),
+                  background: "linear-gradient(180deg,#7FD3F7 0%,#2F7FB0 100%)",
+                  opacity: 0.35 + 0.65 * grow,
+                }}
+              />
+              <div style={{ fontSize: px(19), color: COLORS.gold, marginTop: px(6), opacity: grow }}>{s.tw}/12</div>
+              <div style={{ fontSize: px(16), color: "rgba(245,240,230,0.6)", opacity: grow }}>{s.hour ?? ""}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ marginTop: px(12), opacity: reveal(70, 86), fontFamily: body, fontSize: px(19), color: "rgba(245,240,230,0.75)", lineHeight: 1.35 }}>
+        Règle des douzièmes : l'eau {rising ? "monte" : "descend"} lentement, puis très vite en 3ᵉ et 4ᵉ heure-marée.
+        {topHigh || topLow ? " Étale " : ""}
+        {topHigh || topLow
+          ? `(pause du niveau, ~30 min) autour de ${topHigh ? topHigh.hour : "--"}${topLow ? ` et ${topLow.hour}` : ""}.`
+          : ""}
+      </div>
+    </>
+  );
+};
+
 const SceneTidesWidget: React.FC<{ widget: NonNullable<ShowcaseProps["tidesWidget"]>; duration: number; textPosition?: TextPosition }> = ({ widget, duration, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
   const { orientation, gutter, px } = useLayout();
@@ -1532,14 +1720,27 @@ const SceneTidesWidget: React.FC<{ widget: NonNullable<ShowcaseProps["tidesWidge
   const o = ease(frame, 0, 14);
   const hours = (widget.hours || []).slice(0, 24);
   const mode = widget.mode || "all";
-  const panels: Array<"tides" | "wind" | "weather"> = mode === "all" ? ["tides", "wind", "weather"] : [mode as "tides" | "wind" | "weather"];
-  const per = Math.max(Math.floor(duration / panels.length), 20);
-  const panelIdx = Math.min(panels.length - 1, Math.floor(frame / per));
-  const local = frame - panelIdx * per;
+  const exts = (widget.extremes || []) as TideExtreme[];
+  const basePanels: Array<"tides" | "wind" | "weather"> = mode === "all" ? ["tides", "wind", "weather"] : [mode as "tides" | "wind" | "weather"];
+  // Récapitulatif marées en fin d'étape (≥ 3 s) dès qu'il reste assez de place.
+  const wantRecap = (mode === "all" || mode === "tides") && exts.length >= 2 && duration >= 180;
+  const recapFrames = wantRecap ? Math.min(180, Math.max(90, Math.round(duration * 0.3))) : 0;
+  const panelsFrames = Math.max(30, duration - recapFrames);
+  const per = Math.max(Math.floor(panelsFrames / basePanels.length), 20);
+  const inRecap = wantRecap && frame >= basePanels.length * per;
+  const panelIdx = Math.min(basePanels.length - 1, Math.floor(frame / per));
+  const local = inRecap ? frame - basePanels.length * per : frame - panelIdx * per;
   const progress = interpolate(local, [6, Math.max(per - 4, 14)], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const kind = panels[panelIdx];
+  const kind = basePanels[panelIdx];
   const activeIdx = Math.min(hours.length - 1, Math.floor(progress * hours.length));
   const active = hours[activeIdx];
+
+  // Phase de marée + vitesse instantanée (cm/min) à l'heure affichée.
+  const phase = tidePhaseAt(exts, active?.hour);
+  const nextSea = hours[Math.min(hours.length - 1, activeIdx + 1)]?.sea;
+  const cmPerMin =
+    active?.sea != null && nextSea != null ? ((nextSea - active.sea) * 100) / 60 : null;
+  const slack = cmPerMin != null && Math.abs(cmPerMin) < 0.2;
 
   const cfg = kind === "tides"
     ? { kicker: "Marées", values: hours.map((h) => Number(h.sea ?? 0)), unit: "Hauteur d'eau sur 24 h (m)", accent: "#4FA8D8" }
@@ -1558,54 +1759,75 @@ const SceneTidesWidget: React.FC<{ widget: NonNullable<ShowcaseProps["tidesWidge
 
   return (
     <AbsoluteFill style={{ alignItems: "center", padding: gutter, ...textPositionStyle(textPosition) }}>
-      <WidgetShell kicker={`Marées, Vents & Météo · ${cfg.kicker}`} title={widget.text} opacity={o}>
-        <div style={headStyle}>
-          {kind === "tides" ? (
-            <>
-              <div style={{ fontSize: px(64) }}>🌊</div>
-              <div>
-                <div style={{ fontSize: px(52), color: COLORS.cream, fontWeight: 700, lineHeight: 1.05 }}>
-                  {active?.sea != null ? `${active.sea.toFixed(2)} m` : "--"}
-                </div>
-                <div style={{ fontSize: px(20), color: COLORS.gold }}>
-                  {(widget.extremes || []).map((e) => `${e.type === "high" ? "PM" : "BM"} ${e.hour}`).join("  ·  ") || active?.hour}
-                </div>
-              </div>
-            </>
-          ) : kind === "wind" ? (
-            <>
-              <div style={{ fontSize: px(64) }}>💨</div>
-              <div>
-                <div style={{ fontSize: px(52), color: COLORS.cream, fontWeight: 700, lineHeight: 1.05 }}>{active?.wind != null ? `${active.wind} km/h` : "--"}</div>
-                <div style={{ fontSize: px(20), color: COLORS.gold }}>
-                  {active ? `${active.hour} · rafales ${active.gust ?? "--"} km/h · ${active.dir ?? "--"}°` : ""}
-                </div>
-              </div>
-            </>
-          ) : (
-            <>
-              <div style={{ fontSize: px(64) }}>{wmoIcon(active?.code)}</div>
-              <div>
-                <div style={{ fontSize: px(52), color: COLORS.cream, fontWeight: 700, lineHeight: 1.05 }}>{active?.temp != null ? `${active.temp}°` : "--"}</div>
-                <div style={{ fontSize: px(20), color: COLORS.gold }}>
-                  {active ? `${active.hour} · pluie ${active.pop ?? 0}%` : ""}
-                </div>
-              </div>
-            </>
-          )}
-        </div>
+      <WidgetShell
+        kicker={inRecap ? `Marées · Récapitulatif · ${widget.city}` : `Marées, Vents & Météo · ${cfg.kicker}`}
+        title={widget.text}
+        opacity={o}
+      >
+        {inRecap ? (
+          <TidesRecapPanel widget={widget} local={local} duration={recapFrames} />
+        ) : (
+          <>
+            <div style={headStyle}>
+              {kind === "tides" ? (
+                <>
+                  {/* Icône Vague + heure en gros doré sur la même ligne */}
+                  <div style={{ display: "flex", alignItems: "center", gap: px(16) }}>
+                    <div style={{ fontSize: px(64) }}>🌊</div>
+                    <div style={{ fontSize: px(portrait ? 58 : 66), color: COLORS.gold, fontWeight: 700, lineHeight: 1 }}>
+                      {active?.hour ?? "--:--"}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: px(52), color: COLORS.cream, fontWeight: 700, lineHeight: 1.05 }}>
+                      {active?.sea != null ? `${active.sea.toFixed(2)} m` : "--"}
+                    </div>
+                    <div style={{ fontSize: px(20), color: COLORS.gold }}>
+                      {slack
+                        ? "Étale · le niveau ne change plus"
+                        : phase
+                          ? `${phase.phase}ᵉ heure-marée · ${phase.rising ? "monte" : "descend"}${cmPerMin != null ? ` ${Math.abs(cmPerMin).toFixed(1)} cm/min` : ""}`
+                          : (exts.map((e) => `${e.type === "high" ? "PM" : "BM"} ${e.hour}`).join("  ·  ") || "")}
+                    </div>
+                  </div>
+                </>
+              ) : kind === "wind" ? (
+                <>
+                  <div style={{ fontSize: px(64) }}>💨</div>
+                  <div>
+                    <div style={{ fontSize: px(52), color: COLORS.cream, fontWeight: 700, lineHeight: 1.05 }}>{active?.wind != null ? `${active.wind} km/h` : "--"}</div>
+                    <div style={{ fontSize: px(20), color: COLORS.gold }}>
+                      {active ? `${active.hour} · rafales ${active.gust ?? "--"} km/h · ${active.dir ?? "--"}°` : ""}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ fontSize: px(64) }}>{wmoIcon(active?.code)}</div>
+                  <div>
+                    <div style={{ fontSize: px(52), color: COLORS.cream, fontWeight: 700, lineHeight: 1.05 }}>{active?.temp != null ? `${active.temp}°` : "--"}</div>
+                    <div style={{ fontSize: px(20), color: COLORS.gold }}>
+                      {active ? `${active.hour} · pluie ${active.pop ?? 0}%` : ""}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
 
-        <HourStrip
-          labels={hours.map((h) => h.hour)}
-          values={cfg.values}
-          unit={cfg.unit}
-          progress={progress}
-          accent={cfg.accent}
-        />
+            <HourStrip
+              labels={hours.map((h) => h.hour)}
+              values={cfg.values}
+              unit={cfg.unit}
+              progress={progress}
+              accent={cfg.accent}
+            />
+          </>
+        )}
       </WidgetShell>
     </AbsoluteFill>
   );
 };
+
 
 const SceneMap: React.FC<{ lat: number; lng: number; name: string; address?: string | null; textPosition?: TextPosition }> = ({ lat, lng, name, address, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
@@ -2999,6 +3221,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
   videos = [],
   videoStarts,
   videoEnds,
+  videoDurations,
   offer = null,
   offers = null,
   aiCard = null,
@@ -3940,6 +4163,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     <LangContext.Provider value={_lang}>
     <VideoStartsContext.Provider value={videoStarts ?? {}}>
     <VideoEndsContext.Provider value={videoEnds ?? {}}>
+    <VideoDurationsContext.Provider value={videoDurations ?? {}}>
     <ToneContext.Provider value={tone}>
       <SuppressBgContext.Provider value={continuousMode || slideshowMode}>
         <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
@@ -4020,6 +4244,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         </AbsoluteFill>
       </SuppressBgContext.Provider>
     </ToneContext.Provider>
+    </VideoDurationsContext.Provider>
     </VideoEndsContext.Provider>
     </VideoStartsContext.Provider>
     </LangContext.Provider>

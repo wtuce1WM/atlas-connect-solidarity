@@ -177,10 +177,21 @@ async function fetchTidesWidget(citySlug: unknown, mode: string, businessName: s
   }
   const allowed = new Set(["all", "tides", "wind", "weather"]);
   const safeMode = allowed.has(mode) ? mode : "all";
+  // Marnage moyen de vive-eau (m) par port — base du coefficient estimé.
+  const SPRING_RANGE: Record<string, number> = {
+    essaouira: 2.9,
+    agadir: 2.6,
+    casablanca: 3.2,
+    "el-jadida": 3.1,
+    dakhla: 1.9,
+    tanger: 2.5,
+  };
+  const springRange = SPRING_RANGE[String(city.slug || "").toLowerCase()] ?? 2.9;
   const text = lang === "en"
     ? `${businessName} brings you the tides, wind and weather in ${city.name} for the day`
     : `${businessName} vous donne les marées, les vents, la météo à ${city.name} sur la journée`;
-  return { city: city.name, citySlug: city.slug, mode: safeMode, text, hours, extremes: extremes.slice(0, 4), durationSec: 5 };
+  return { city: city.name, citySlug: city.slug, mode: safeMode, text, hours, extremes: extremes.slice(0, 4), springRange, durationSec: 9 };
+
 }
 
 Deno.serve(async (req) => {
@@ -738,6 +749,22 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         }
         if (Object.keys(ends).length) template_props.videoEnds = ends;
       }
+
+      // Durée réelle par vidéo (secondes) : permet de boucler le média quand
+      // l'étape est plus longue que le clip (au lieu de figer la dernière image).
+      const rawDurations = options?.video_durations;
+      if (rawDurations && typeof rawDurations === "object") {
+        const durs: Record<string, number> = {};
+        for (const [u, t] of Object.entries(rawDurations as Record<string, unknown>)) {
+          if (typeof u !== "string" || !/^https?:\/\//i.test(u)) continue;
+          const n = Number(t);
+          if (!Number.isFinite(n) || n <= 0.5 || n > 3600) continue;
+          durs[u] = Math.round(n * 10) / 10;
+        }
+        if (Object.keys(durs).length) template_props.videoDurations = durs;
+      }
+
+
 
 
       // Sélection média par scène (facultatif). Whitelist stricte : chaque URL doit
