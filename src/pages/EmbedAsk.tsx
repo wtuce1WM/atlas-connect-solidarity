@@ -1149,6 +1149,7 @@ const EmbedAsk = () => {
                 <a
                   href={`/embed/ask/${slug}/article/${articleCard.slug}`}
                   className={`relative flex w-full max-w-[85%] gap-3 rounded-2xl overflow-hidden ${cardBg} hover:opacity-95 transition-opacity`}
+                  style={cardStyle}
                 >
                   {articleCard.image ? (
                     <img src={articleCard.image} alt={articleCard.title} className="w-24 h-24 object-cover flex-shrink-0" loading="lazy" />
