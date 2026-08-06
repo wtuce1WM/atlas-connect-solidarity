@@ -3377,10 +3377,11 @@ const BookOnlineSlidePanelInner = ({
                   setSelectedKpBusinessId(poiId);
                 }
               }}
-              fitToMarkers={!!overridePois}
+              fitToMarkers={!!overridePois && widgetFitKm == null}
               centerAtBottomRatio={0.4}
               mapTypeId={poiMapTypeId}
-              fitRadiusKm={overridePois ? null : (poiMapMode === "destinations" ? null : poiProximityKm)}
+              fitRadiusKm={overridePois ? widgetFitKm : (poiMapMode === "destinations" ? null : poiProximityKm)}
+              connector={widgetConnector}
               baseColor={mapBaseColor || undefined}
               mapTheme={mapTheme}
               userLocation={userCoords ? { lat: userCoords.lat, lng: userCoords.lng } : null}
@@ -3388,18 +3389,27 @@ const BookOnlineSlidePanelInner = ({
               );
             })()}
             {isEmbedMapWidget && (widgetKpGroups.length > 0 || widgetDefaultPoi) && (
-              <div className="absolute top-[110px] left-3 right-3 z-[30] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
+              <div className="absolute bottom-6 left-3 right-3 z-[10] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
                 {[
-                  { key: "nearby" as const, label: language === "en" ? "Nearby" : language === "ar" ? "بالقرب" : "À proximité" },
                   ...widgetKpGroups.map((g) => ({ key: (g.slot === 1 ? "kp1" : "kp2") as "kp1" | "kp2", label: g.title })),
                   ...(widgetDefaultPoi ? [{ key: "poi" as const, label: widgetDefaultPoi.name as string }] : []),
                 ].map((p) => (
                   <button
                     key={p.key}
                     type="button"
-                    onClick={() => setWidgetMapView(p.key)}
-                    className={`pointer-events-auto rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wider shadow-lg ring-1 ring-black/10 backdrop-blur-sm transition-colors ${
-                      widgetMapView === p.key ? "bg-black text-white" : "bg-white/90 text-black/70 hover:text-black"
+                    onClick={() => {
+                      const next = widgetMapView === p.key ? "nearby" : p.key;
+                      setWidgetMapView(next);
+                      if (next !== "nearby") {
+                        // Reset du Pill Proximité pour un cadrage optimal des marqueurs
+                        setPoiProximityKm(null);
+                        setPoiSubcatFilter(null);
+                        setCatSubcatFilter(null);
+                        setPoiCatFilter(null);
+                      }
+                    }}
+                    className={`pointer-events-auto rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wider shadow-lg ring-1 ring-white/10 backdrop-blur-sm transition-colors ${
+                      widgetMapView === p.key ? "bg-white text-black" : "bg-black/85 text-white hover:bg-black"
                     }`}
                     style={{ fontFamily: "'Montserrat', sans-serif" }}
                   >
@@ -3408,6 +3418,7 @@ const BookOnlineSlidePanelInner = ({
                 ))}
               </div>
             )}
+
             <div className="absolute bottom-16 left-3 right-3 z-[10] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
 
               {showProxPill && (
