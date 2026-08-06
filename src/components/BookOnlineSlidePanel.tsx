@@ -444,6 +444,10 @@ const BookOnlineSlidePanelInner = ({
   const [widgetDefaultPoi, setWidgetDefaultPoi] = useState<any | null>(null);
   const [widgetMapView, setWidgetMapView] = useState<"nearby" | "kp1" | "kp2" | "poi">("nearby");
   useEffect(() => { setWidgetMapView("nearby"); }, [businessId]);
+  // Un clic dans un Pill du haut (POI / Catégories / Top20 / Proximité) remet la carte
+  // en vue "À proximité" : les pills du bas (KP1/KP2/POI) ne bloquent jamais ceux du haut.
+  const resetWidgetMapView = useCallback(() => setWidgetMapView("nearby"), []);
+
   useEffect(() => {
     if (!isEmbedMapWidget || !businessId) return;
     let cancelled = false;
