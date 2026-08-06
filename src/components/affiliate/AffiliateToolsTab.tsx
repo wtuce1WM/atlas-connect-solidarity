@@ -3,6 +3,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { Copy, Check, Download, ExternalLink, QrCode, Globe2, Mail, Bot, MapPin, Newspaper, Star, CloudSun, ThumbsUp, Waves, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -59,6 +60,8 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const [embedCard, setEmbedCard] = useState<"widget" | "transparent">("widget");
   const [embedLang, setEmbedLang] = useState<"fr" | "en" | "ar">("fr");
   const [embedHeight, setEmbedHeight] = useState<number>(640);
+  const [assistantName, setAssistantName] = useState<string>("Zitoun IA");
+  const [panelTabPos, setPanelTabPos] = useState<"top" | "middle" | "bottom">("middle");
   const [nearbyLang, setNearbyLang] = useState<"fr" | "en" | "ar">("fr");
   const [nearbyHeight, setNearbyHeight] = useState<number>(720);
   const [nearbyBg, setNearbyBg] = useState<string>("");
@@ -233,12 +236,17 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   // Panneau flottant : le volet reprend exactement la couleur du widget dans le
   // mode choisi (clair / sombre) pour éviter tout liseré blanc ou gris.
   const panelSurface = askBgValid ? askBgColor : embedTheme === "dark" ? "#0A0A0A" : "#FFFFFF";
-  const panelUrl = `${embedUrlWidget}&panel=1`;
+  const trimmedAssistantName = assistantName.trim();
+  const panelUrl = `${embedUrlWidget}&panel=1${
+    trimmedAssistantName ? `&name=${encodeURIComponent(trimmedAssistantName)}` : ""
+  }`;
+  const tabTopCss =
+    panelTabPos === "top" ? "25%" : panelTabPos === "bottom" ? "75%" : "50%";
   const floatingSnippet = useMemo(
     () => `<!-- Assistant IA One World Morocco — ${businessName} -->
 <style>
   #owm-embed-tab {
-    position: fixed; top: 50%; right: max(16px, env(safe-area-inset-right));
+    position: fixed; top: ${tabTopCss}; right: max(16px, env(safe-area-inset-right));
     transform: translateY(-50%) rotate(-90deg); transform-origin: right center;
     background: #C04F17; color: #fff; padding: 14px 22px; border: none;
     border-radius: 8px 8px 0 0; font-family: Montserrat, sans-serif;
@@ -265,6 +273,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   (function () {
     var tab = document.getElementById('owm-embed-tab');
     var panel = document.getElementById('owm-embed-panel');
+    var frame = document.getElementById('owm-embed-iframe');
     function open() { panel.classList.add('open'); panel.setAttribute('aria-hidden', 'false'); }
     function shut() { panel.classList.remove('open'); panel.setAttribute('aria-hidden', 'true'); }
     tab.addEventListener('click', open);
@@ -281,7 +290,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') shut(); });
   })();
 </script>`,
-    [panelUrl, businessName, panelSurface, embedTheme]
+    [panelUrl, businessName, panelSurface, embedTheme, tabTopCss]
   );
 
 
@@ -941,6 +950,48 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               <span className="font-mono">&lt;script&gt;</span> : collez-le tel quel, sans rien ajouter autour.
             </p>
           </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label className="text-white/80 text-xs">Nom de l'assistant IA</Label>
+              <Input
+                value={assistantName}
+                onChange={(e) => setAssistantName(e.target.value)}
+                placeholder="Zitoun IA"
+                className="h-9 bg-white/10 border-white/20 text-white placeholder:text-white/40 text-sm"
+              />
+              <p className="text-[11px] text-white/50">
+                Ce nom s'affiche en haut du volet, à la place du nom de l'établissement.
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-white/80 text-xs">Position du CTA « Assistant 1WM » (bord droit)</Label>
+              <div className="grid grid-cols-3 gap-1">
+                {([
+                  { value: "top", label: "À 25 % du haut" },
+                  { value: "middle", label: "Au milieu" },
+                  { value: "bottom", label: "À 25 % du bas" },
+                ] as const).map((o) => (
+                  <button
+                    key={o.value}
+                    type="button"
+                    onClick={() => setPanelTabPos(o.value)}
+                    className={`text-[11px] leading-tight py-1.5 px-2 rounded-md border ${
+                      panelTabPos === o.value
+                        ? "bg-white text-neutral-900 border-white"
+                        : "text-white border-white/20 hover:bg-white/10"
+                    }`}
+                  >
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] text-white/50">
+                Distance calculée sur la hauteur du viewport (25 % / 50 % / 75 %).
+              </p>
+            </div>
+          </div>
+
           <textarea
             readOnly
             value={floatingSnippet}
