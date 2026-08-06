@@ -3209,35 +3209,60 @@ const SceneCustomerReview: React.FC<{
             </div>
           )}
           <div style={{ fontFamily: display, fontSize: 90, color: meta ? meta.brand : COLORS.gold, lineHeight: 0.7, marginBottom: 12 }}>“</div>
-          <div style={{ fontFamily: body, color: COLORS.cream, fontSize: size, lineHeight: 1.45 }}>
-            {hasExcerpt ? (
-              <>
-                {before && (
-                  <span style={{ opacity: sideOpacity, filter: `blur(${sideBlur}px)` }}>{before}</span>
-                )}
-                <span
-                  style={{
-                    position: "relative",
-                    display: "inline",
-                    // Pas de rectangle derrière l'extrait : le texte lui-même
-                    // passe du crème au jaune vif avec un halo flashy.
-                    color: interpolateColors(swipe, [0, 1], [COLORS.cream, FLASH_YELLOW]),
-                    fontWeight: 800,
-                    fontSize: excerptSize,
-                    lineHeight: 1.32,
-                    textShadow: `0 2px 8px rgba(0,0,0,0.8), 0 0 ${8 + 26 * swipe * flashPulse}px ${FLASH_YELLOW}${swipe > 0 ? "CC" : "00"}, 0 0 ${18 + 46 * swipe * flashPulse}px ${FLASH_YELLOW}${swipe > 0 ? "77" : "00"}`,
-                    transition: "none",
-                  }}
-                >
-                  {mid}
-                </span>
+          <div style={{ display: "grid", alignItems: "center", justifyItems: "center" }}>
+            <div
+              style={{
+                gridArea: "1 / 1",
+                fontFamily: body,
+                color: COLORS.cream,
+                fontSize: size,
+                lineHeight: 1.45,
+                opacity: hasExcerpt ? fullOpacity : 1,
+                filter: hasExcerpt ? `blur(${fullBlur}px)` : undefined,
+                transform: `scale(${hasExcerpt ? fullScale : 1})`,
+                transformOrigin: "center",
+              }}
+            >
+              {hasExcerpt ? (
+                <>
+                  {before && <span>{before}</span>}
+                  <span
+                    style={{
+                      // Pas de rectangle derrière l'extrait : le texte lui-même
+                      // passe du crème au jaune vif avec un halo flashy.
+                      color: interpolateColors(swipe, [0, 1], [COLORS.cream, FLASH_YELLOW]),
+                      fontWeight: 800,
+                      fontSize: excerptSize,
+                      lineHeight: 1.32,
+                      textShadow: `0 2px 8px rgba(0,0,0,0.8), 0 0 ${8 + 26 * swipe * flashPulse}px ${FLASH_YELLOW}${swipe > 0 ? "CC" : "00"}, 0 0 ${18 + 46 * swipe * flashPulse}px ${FLASH_YELLOW}${swipe > 0 ? "77" : "00"}`,
+                    }}
+                  >
+                    {mid}
+                  </span>
+                  {after && <span>{after}</span>}
+                </>
+              ) : (
+                displayText
+              )}
+            </div>
 
-                {after && (
-                  <span style={{ opacity: sideOpacity, filter: `blur(${sideBlur}px)` }}>{after}</span>
-                )}
-              </>
-            ) : (
-              displayText
+            {hasExcerpt && (
+              <div
+                style={{
+                  gridArea: "1 / 1",
+                  fontFamily: body,
+                  fontWeight: 800,
+                  color: FLASH_YELLOW,
+                  fontSize: isoSize,
+                  lineHeight: 1.32,
+                  opacity: isoOpacity,
+                  transform: `scale(${isoScale})`,
+                  transformOrigin: "center",
+                  textShadow: `0 2px 8px rgba(0,0,0,0.85), 0 0 ${20 + 26 * flashPulse}px ${FLASH_YELLOW}CC, 0 0 ${40 + 46 * flashPulse}px ${FLASH_YELLOW}66`,
+                }}
+              >
+                {mid}
+              </div>
             )}
           </div>
 
