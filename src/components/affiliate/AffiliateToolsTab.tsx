@@ -47,6 +47,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const qrRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [embedTheme, setEmbedTheme] = useState<"dark" | "light">("dark");
+  const [embedCard, setEmbedCard] = useState<"widget" | "transparent">("widget");
   const [embedLang, setEmbedLang] = useState<"fr" | "en" | "ar">("fr");
   const [embedHeight, setEmbedHeight] = useState<number>(640);
   const [nearbyLang, setNearbyLang] = useState<"fr" | "en" | "ar">("fr");
@@ -71,7 +72,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const [weatherSticky, setWeatherSticky] = useState(false);
 
   const [tidesCity, setTidesCity] = useState<string>("Essaouira");
-  const [ficheMaxWidth, setFicheMaxWidth] = useState<number>(480);
+  const [ficheMaxWidth, setFicheMaxWidth] = useState<number>(380);
   const [ficheShowClub, setFicheShowClub] = useState<boolean>(true);
   const [tidesLang, setTidesLang] = useState<"fr" | "en" | "ar">("fr");
 
@@ -104,8 +105,13 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       if (cancelled) return;
       const v = Number((data as any)?.poi_radius_km);
       setRadiusKm(v > 0 ? v : 10);
-      setWidgetBg(((data as any)?.widget_bg_color || "").toUpperCase());
+      const wcolor = ((data as any)?.widget_bg_color || "").toUpperCase();
+      setWidgetBg(wcolor);
+      // Widget « À proximité » : on pré-remplit le fond de carte avec la couleur
+      // de fond des widgets de l'établissement quand elle est définie.
+      if (/^#[0-9A-F]{6}$/.test(wcolor)) setNearbyBg((prev) => prev || wcolor);
       setRadiusLoading(false);
+
     })();
     return () => { cancelled = true; };
   }, [businessId]);
@@ -177,7 +183,11 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const wbg = bgParam(widgetBgValid ? widgetBg : "");
   const publicUrl = `${SITE}/${slug}`;
   const shortUrl = `${SITE}/b/${slug}`;
-  const embedUrl = `${SITE}/embed/ask/${slug}?theme=${embedTheme}&lang=${embedLang}${fitParam(fitOf("embed"))}${wbg}`;
+  // Assistant IA : version « couleur de fond des widgets » (si définie) ou version transparente
+  const embedBase = `${SITE}/embed/ask/${slug}?theme=${embedTheme}&lang=${embedLang}${fitParam(fitOf("embed"))}`;
+  const embedUrlWidget = `${embedBase}${wbg}`;
+  const embedUrlTransparent = `${embedBase}&bg=transparent`;
+  const embedUrl = embedCard === "transparent" ? embedUrlTransparent : embedUrlWidget;
   const embedSnippet = useMemo(
     () =>
       `<iframe src="${embedUrl}" style="${fitIframeStyle(fitOf("embed"), { maxWidth: 420, height: embedHeight, radius: 16, extra: "box-shadow:0 4px 24px rgba(0,0,0,0.15)" })}" title="Assistant IA — ${businessName}" loading="lazy" allow="clipboard-write"></iframe>`,
@@ -308,8 +318,14 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     "square": { label: "Carré", ratio: "square", size: "sm", w: 480, h: 480 },
   };
   const preset = REVIEW_PRESETS[reviewsPreset] || REVIEW_PRESETS["v-sm"];
+  // « Transparent » : la page du widget est transparente (fond du site hôte) mais
+  // l'intérieur de la carte d'avis prend la couleur de fond des widgets (`card=`).
   const reviewsBgParam =
-    reviewsCard === "transparent" ? "&bg=transparent" : reviewsCard === "dark" ? "" : wbg;
+    reviewsCard === "transparent"
+      ? `&bg=transparent${widgetBgValid ? `&card=${widgetBg.slice(1)}` : ""}`
+      : reviewsCard === "dark"
+        ? ""
+        : wbg;
   const reviewsUrl = `${SITE}/embed/reviews/${slug}?platform=${reviewsPlatform}&lang=${reviewsLang}&ratio=${preset.ratio}&size=${preset.size}${fitParam(fitOf("reviews"))}${reviewsBgParam}`;
 
   const reviewsSnippet = useMemo(
@@ -331,7 +347,10 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const rateH = rateVariant === "bar" ? 120 : 430;
   const rateBgParam =
     rateCard === "transparent" ? "&bg=transparent" : rateCard === "dark" ? "" : wbg;
-  const rateUrl = `${SITE}/embed/avis/${slug}?platform=${ratePlatform}&lang=${rateLang}&variant=${rateVariant}${fitParam(fitOf("rate"))}${rateBgParam}`;
+  const rateBase = `${SITE}/embed/avis/${slug}?platform=${ratePlatform}&lang=${rateLang}&variant=${rateVariant}${fitParam(fitOf("rate"))}`;
+  const rateUrlWidget = `${rateBase}${wbg}`;
+  const rateUrlTransparent = `${rateBase}&bg=transparent`;
+  const rateUrl = `${rateBase}${rateBgParam}`;
   const rateSnippet = useMemo(
     () =>
       fitOf("rate") === ""
@@ -451,7 +470,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const ficheUrl = `${SITE}/b/${slug ?? ""}?embed=1${ficheShowClub ? "" : "&club=0"}${fitParam(fitOf("fiche"))}${wbg}`;
   const ficheSnippet = useMemo(
     () =>
-      `<div id="owm-fiche-wrap" style="width:100%;${fitFlags(fitOf("fiche")).fullWidth ? "" : `max-width:${ficheMaxWidth}px;`}margin:0 auto">
+      `<div id="owm-fiche-wrap" style="${fitFlags(fitOf("fiche")).fullWidth ? "width:100%;" : `width:${ficheMaxWidth}px;max-width:100%;`}margin:0 auto">
   <iframe id="owm-fiche-frame" src="${ficheUrl}" style="${fitIframeStyle(fitOf("fiche"), { height: 1200, radius: 24, extra: "background:transparent" })}" title="Fiche — ${businessName}" loading="lazy" allow="clipboard-write"></iframe>
 </div>
 <script>
@@ -689,6 +708,28 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
           </div>
         </div>
 
+        <div className="space-y-1.5">
+          <Label className="text-white/80 text-xs">Fond du widget</Label>
+          <div className="flex gap-1 flex-wrap">
+            {([
+              { key: "widget", label: widgetBgValid ? `Couleur du widget ${widgetBg}` : "Couleur du widget (non définie)" },
+              { key: "transparent", label: "Transparent" },
+            ] as const).map((o) => (
+              <button
+                key={o.key}
+                type="button"
+                onClick={() => setEmbedCard(o.key)}
+                className={`text-xs py-1.5 px-3 rounded-md border ${embedCard === o.key ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-white/50">
+            « Transparent » laisse apparaître le fond du site hôte. Les deux versions sont visibles ci-dessous.
+          </p>
+        </div>
+
         {fitRow("embed")}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           <div className="space-y-2">
@@ -716,19 +757,47 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               </Button>
             </div>
           </div>
-          <div className="space-y-2">
-            <Label className="text-white/80 text-xs">Aperçu en direct</Label>
-            <div className="rounded-md overflow-hidden border border-white/20 bg-black/30 flex justify-center">
-              <iframe
-                key={embedUrl + embedHeight}
-                src={embedUrl}
-                style={{ width: "100%", maxWidth: fitFlags(fitOf("embed")).fullWidth ? undefined : 420, height: embedHeight, border: 0 }}
-                title="Aperçu"
-                loading="lazy"
-              />
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label className="text-white/80 text-xs">
+                {widgetBgValid ? `Aperçu — couleur de fond des widgets (${widgetBg})` : "Aperçu — fond par défaut (aucune couleur définie)"}
+              </Label>
+              <div
+                className="rounded-md overflow-hidden border border-white/20 flex justify-center"
+                style={{ background: widgetBgValid ? widgetBg : undefined }}
+              >
+                <iframe
+                  key={embedUrlWidget + embedHeight}
+                  src={embedUrlWidget}
+                  style={{ width: "100%", maxWidth: fitFlags(fitOf("embed")).fullWidth ? undefined : 420, height: embedHeight, border: 0 }}
+                  title="Aperçu — couleur du widget"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white/80 text-xs">Aperçu — fond transparent (fond du site hôte)</Label>
+              <div
+                className="rounded-md overflow-hidden border border-white/20 flex justify-center"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(45deg,rgba(255,255,255,0.12) 25%,transparent 25%,transparent 75%,rgba(255,255,255,0.12) 75%),linear-gradient(45deg,rgba(255,255,255,0.12) 25%,transparent 25%,transparent 75%,rgba(255,255,255,0.12) 75%)",
+                  backgroundSize: "16px 16px",
+                  backgroundPosition: "0 0, 8px 8px",
+                }}
+              >
+                <iframe
+                  key={embedUrlTransparent + embedHeight}
+                  src={embedUrlTransparent}
+                  style={{ width: "100%", maxWidth: fitFlags(fitOf("embed")).fullWidth ? undefined : 420, height: embedHeight, border: 0 }}
+                  title="Aperçu — fond transparent"
+                  loading="lazy"
+                />
+              </div>
             </div>
           </div>
         </div>
+
 
         <div className="rounded-lg border border-white/20 bg-white/5 p-4 space-y-3">
           <h4 className="text-white font-semibold text-sm flex items-center gap-2">
@@ -1273,18 +1342,46 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               </Button>
             </div>
           </div>
-          <div className="space-y-2">
-            <Label className="text-white/80 text-xs">Aperçu en direct</Label>
-            <div className="rounded-md overflow-hidden border border-white/20 bg-black/30 flex justify-center">
-              <iframe
-                key={rateUrl}
-                src={rateUrl}
-                style={{ width: "100%", maxWidth: rateW, height: rateH, border: 0 }}
-                title="Aperçu laisser un avis"
-                loading="lazy"
-              />
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label className="text-white/80 text-xs">
+                {widgetBgValid ? `Aperçu — couleur de fond des widgets (${widgetBg})` : "Aperçu — fond par défaut (aucune couleur définie)"}
+              </Label>
+              <div
+                className="rounded-md overflow-hidden border border-white/20 flex justify-center"
+                style={{ background: widgetBgValid ? widgetBg : undefined }}
+              >
+                <iframe
+                  key={rateUrlWidget}
+                  src={rateUrlWidget}
+                  style={{ width: "100%", maxWidth: rateW, height: rateH, border: 0 }}
+                  title="Aperçu laisser un avis — couleur du widget"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white/80 text-xs">Aperçu — fond transparent (fond du site hôte)</Label>
+              <div
+                className="rounded-md overflow-hidden border border-white/20 flex justify-center"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(45deg,rgba(255,255,255,0.12) 25%,transparent 25%,transparent 75%,rgba(255,255,255,0.12) 75%),linear-gradient(45deg,rgba(255,255,255,0.12) 25%,transparent 25%,transparent 75%,rgba(255,255,255,0.12) 75%)",
+                  backgroundSize: "16px 16px",
+                  backgroundPosition: "0 0, 8px 8px",
+                }}
+              >
+                <iframe
+                  key={rateUrlTransparent}
+                  src={rateUrlTransparent}
+                  style={{ width: "100%", maxWidth: rateW, height: rateH, border: 0 }}
+                  title="Aperçu laisser un avis — fond transparent"
+                  loading="lazy"
+                />
+              </div>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -1666,11 +1763,11 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
             </div>
             <div className="space-y-2">
               <Label className="text-white/80 text-xs">Aperçu en direct</Label>
-              <div className="rounded-md overflow-hidden border border-white/20 bg-black/30 flex justify-center">
+              <div className="rounded-md overflow-hidden border border-white/20 bg-black/30 flex justify-center p-2">
                 <iframe
                   key={ficheUrl}
                   src={ficheUrl}
-                  style={{ width: "100%", maxWidth: ficheMaxWidth, height: 720, border: 0 }}
+                  style={{ width: fitFlags(fitOf("fiche")).fullWidth ? "100%" : ficheMaxWidth, maxWidth: "100%", height: 900, border: 0 }}
                   title="Aperçu fiche"
                   loading="lazy"
                 />

@@ -27,6 +27,7 @@ import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedC
 import { Maximize2 } from "lucide-react";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { applyEmbedBg, parseBg, resolveEmbedInk } from "@/lib/embedFit";
 
 // EmbedMediaBottomBar (Pause/Mute) removed — the BookOnlineSlidePanel now renders
 // its own liquid-glass PanelSearchBar with 6 CTAs and integrated video controls.
@@ -358,8 +359,19 @@ const EmbedAsk = () => {
   const { slug = "" } = useParams();
   const [params] = useSearchParams();
   const lang = (["fr", "en", "ar"].includes(params.get("lang") || "") ? params.get("lang") : "fr") as "fr" | "en" | "ar";
-  const initialTheme = params.get("theme") === "light" ? "light" : "dark";
+  // Fond du widget :
+  //   ?bg=EFE6D8       → l'assistant prend cette couleur (encre auto selon luminance)
+  //   ?bg=transparent  → fond transparent : le fond du site hôte apparaît
+  const bgRaw = (params.get("bg") || "").trim();
+  const embedBgColor = parseBg(bgRaw);
+  const bgTransparent = /^(transparent|none|0)$/i.test(bgRaw);
+  const customBg = !!embedBgColor || bgTransparent;
+  const bgInk = customBg ? resolveEmbedInk(params.get("ink"), embedBgColor) : null;
+  const initialTheme = customBg
+    ? (bgInk === "dark" ? "light" : "dark")
+    : params.get("theme") === "light" ? "light" : "dark";
   const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (customBg) return initialTheme;
     if (typeof window !== "undefined") {
       const saved = window.localStorage.getItem("embed-ask-theme");
       if (saved === "light" || saved === "dark") return saved;
@@ -367,8 +379,13 @@ const EmbedAsk = () => {
     return initialTheme;
   });
   useEffect(() => {
+    if (customBg) return;
     try { window.localStorage.setItem("embed-ask-theme", theme); } catch { /* noop */ }
-  }, [theme]);
+  }, [theme, customBg]);
+  useEffect(() => {
+    if (!customBg) return;
+    return applyEmbedBg(embedBgColor || "");
+  }, [customBg, embedBgColor]);
 
   const [businessName, setBusinessName] = useState<string>("");
   const [assistantTitle, setAssistantTitle] = useState<string>("");
@@ -762,8 +779,12 @@ const EmbedAsk = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatKey]);
 
-  const bg = theme === "light" ? "bg-white" : "bg-neutral-950";
-  const surface = theme === "light" ? "bg-white text-neutral-900" : "bg-neutral-950 text-neutral-100";
+  // Quand un fond personnalisé est demandé (couleur du widget ou transparent),
+  // on neutralise les fonds opaques pour laisser passer celui du site hôte.
+  const bg = customBg ? "bg-transparent" : theme === "light" ? "bg-white" : "bg-neutral-950";
+  const surface = customBg
+    ? `bg-transparent ${bgInk === "dark" ? "text-neutral-900" : "text-neutral-100"}`
+    : theme === "light" ? "bg-white text-neutral-900" : "bg-neutral-950 text-neutral-100";
   const userBubble = theme === "light" ? "bg-neutral-900 text-white" : "bg-white text-neutral-900";
   const asstBubble = theme === "light" ? "bg-neutral-100 text-neutral-900" : "bg-neutral-800 text-neutral-50";
   const border = theme === "light" ? "border-neutral-200" : "border-neutral-800";
