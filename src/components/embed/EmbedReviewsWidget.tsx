@@ -202,6 +202,7 @@ export default function EmbedReviewsWidget({
   fullWidth = false,
   surface,
   ink = "light",
+  frameless = false,
 }: {
   business: EmbedReviewsBusiness;
   reviews: EmbedReviewItem[];
@@ -215,7 +216,10 @@ export default function EmbedReviewsWidget({
   surface?: string | null;
   /** Encre du contenu : `light` (fond sombre) ou `dark` (fond clair/transparent). */
   ink?: "light" | "dark";
+  /** Supprime le cadre extérieur (bordure, ombre, padding, fond) → fusion parfaite avec la section hôte. */
+  frameless?: boolean;
 }) {
+
 
   const L = LABELS[lang];
   const { r: shape, s: density } = useResolvedFrame(ratio, size);
