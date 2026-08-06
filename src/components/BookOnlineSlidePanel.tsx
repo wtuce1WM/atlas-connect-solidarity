@@ -454,12 +454,14 @@ const BookOnlineSlidePanelInner = ({
     (async () => {
       const { data: b } = await (supabase as any)
         .from("businesses")
-        .select("kp_regroupement,kp_regroupement_2,default_poi_business_id")
+        .select("kp_regroupement,kp_regroupement_2,default_poi_business_id,kp_city,kp_city_2")
         .eq("id", businessId)
         .maybeSingle();
       if (cancelled || !b) return;
       const kp1 = (b.kp_regroupement || "").trim();
       const kp2 = (b.kp_regroupement_2 || "").trim();
+      const kpCity1 = (b.kp_city || "").trim();
+      const kpCity2 = (b.kp_city_2 || "").trim();
       const sel = "id,name,city,neighborhood,latitude,longitude,images,computed_rating,total_review_count";
       const [m1, m2, titlesRes, poiRes] = await Promise.all([
         kp1 ? (supabase as any).from("businesses").select(sel).eq("kp_regroupement", kp1).eq("is_active", true).order("name") : Promise.resolve({ data: [] }),
@@ -473,8 +475,12 @@ const BookOnlineSlidePanelInner = ({
       const titleMap = new Map<string, string>();
       ((titlesRes as any)?.data ?? []).forEach((t: any) => titleMap.set(`${t.kp_type}:${t.kp_code}`, t.title || ""));
       const groups: WidgetKpGroup[] = [];
-      const mem1 = ((m1 as any)?.data ?? []) as any[];
-      const mem2 = ((m2 as any)?.data ?? []) as any[];
+      // "Limiter à une ville" (kp_city / kp_city_2) : le Master reste toujours affiché,
+      // seuls les membres de la ville choisie sont retenus.
+      const byCity = (list: any[], city: string) =>
+        city ? list.filter((m) => m.id === businessId || (m.city || "").trim() === city) : list;
+      const mem1 = byCity(((m1 as any)?.data ?? []) as any[], kpCity1);
+      const mem2 = byCity(((m2 as any)?.data ?? []) as any[], kpCity2);
       if (kp1 && mem1.length > 1) groups.push({ slot: 1, code: kp1, title: titleMap.get(`kp1:${kp1}`) || kp1, members: mem1 });
       if (kp2 && mem2.length > 1) groups.push({ slot: 2, code: kp2, title: titleMap.get(`kp2:${kp2}`) || kp2, members: mem2 });
       setWidgetKpGroups(groups);
@@ -482,6 +488,7 @@ const BookOnlineSlidePanelInner = ({
     })();
     return () => { cancelled = true; };
   }, [isEmbedMapWidget, businessId]);
+
 
   const [poiCategoryBusinesses, setPoiCategoryBusinesses] = useState<PoiBusiness[]>([]);
   const [poiCategoryBusinessCatId, setPoiCategoryBusinessCatId] = useState<string | null>(null);
