@@ -221,7 +221,12 @@ function setCacheEntry(id: string, data: CachedBusinessData) {
   businessDataCache.set(id, data);
 }
 
-export function useBookOnlineData(businessId: string) {
+/**
+ * @param allowInactive Autorise le chargement d'un établissement désactivé
+ *   (cas des widgets embarqués où la fiche ne sert que de point de référence
+ *   sur la carte, ex. "Délégation Régionale Du Tourisme Marrakech").
+ */
+export function useBookOnlineData(businessId: string, allowInactive = false) {
   const { language } = useLanguage();
   const { brokenUrls: brokenLinksSet, loaded: brokenLinksLoaded } = useBrokenLinks();
 
