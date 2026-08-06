@@ -470,7 +470,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const ficheUrl = `${SITE}/b/${slug ?? ""}?embed=1${ficheShowClub ? "" : "&club=0"}${fitParam(fitOf("fiche"))}${wbg}`;
   const ficheSnippet = useMemo(
     () =>
-      `<div id="owm-fiche-wrap" style="width:100%;${fitFlags(fitOf("fiche")).fullWidth ? "" : `max-width:${ficheMaxWidth}px;`}margin:0 auto">
+      `<div id="owm-fiche-wrap" style="${fitFlags(fitOf("fiche")).fullWidth ? "width:100%;" : `width:${ficheMaxWidth}px;max-width:100%;`}margin:0 auto">
   <iframe id="owm-fiche-frame" src="${ficheUrl}" style="${fitIframeStyle(fitOf("fiche"), { height: 1200, radius: 24, extra: "background:transparent" })}" title="Fiche — ${businessName}" loading="lazy" allow="clipboard-write"></iframe>
 </div>
 <script>
