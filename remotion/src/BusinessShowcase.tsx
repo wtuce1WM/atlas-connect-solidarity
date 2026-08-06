@@ -342,6 +342,8 @@ export type ShowcaseProps = {
     durationSec?: number;
     hours?: Array<{ hour: string; sea: number | null; temp: number | null; code: number | null; wind: number | null; gust: number | null; dir: number | null; pop: number | null }>;
     extremes?: Array<{ hour: string; type: "high" | "low"; height: number }>;
+    /** Marnage moyen de vive-eau du port (m) — base du coefficient estimé. */
+    springRange?: number | null;
   } | null;
   scenePois?: Record<string, PlaceItem[]>;
   sceneDestinations?: Record<string, PlaceItem[]>;
