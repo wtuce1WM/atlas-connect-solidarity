@@ -1191,7 +1191,18 @@ const Widgets = () => {
         <div className="max-w-5xl mx-auto">
           {/* Intro */}
           <header className="mb-20">
+            <picture>
+              <source media="(min-width: 768px)" srcSet={widgetsHero} />
+              <img
+                src={widgetsHeroVertical}
+                alt="Widgets One World Morocco : assistant IA vocal, carte des adresses à proximité et avis clients"
+                width={1920}
+                height={960}
+                className="mb-10 w-full rounded-2xl border border-gold/30 object-cover"
+              />
+            </picture>
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-primary mb-5">
+
               Écosystème ouvert
             </p>
             <h1 className="text-4xl md:text-6xl font-bold text-foreground leading-tight mb-8">
