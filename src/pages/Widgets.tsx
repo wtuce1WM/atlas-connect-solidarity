@@ -297,6 +297,7 @@ const WidgetSection = ({
   snippet,
   snippetPreviewLines,
   extra,
+  banner,
 }: WidgetSectionProps) => (
 
   <section className="scroll-mt-32 border-t border-border pt-16">
@@ -317,6 +318,7 @@ const WidgetSection = ({
         </span>
       )}
     </h2>
+    {banner && <div className="mb-6">{banner}</div>}
     <p className="text-lg text-primary font-medium mb-4">{tagline}</p>
     {price !== "Gratuit" && <Badge className="mb-5">{price}</Badge>}
     <p className="text-base text-muted-foreground max-w-3xl mb-8">{description}</p>
