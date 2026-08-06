@@ -819,7 +819,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
     return () => {
       isCancelled = true;
     };
-  }, [businessId, language]);
+  }, [businessId, language, allowInactive]);
 
   // Persist to cache once all data is loaded (including secondary fetches)
   useEffect(() => {
