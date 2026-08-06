@@ -474,10 +474,12 @@ const BookOnlineSlidePanelInner = ({
   // Embed: auto-open the "À proximité" overlay once the business is resolved.
   const autoPoiOpenedRef = useRef(false);
   useEffect(() => {
-    if (initialOverlay !== "poi" || autoPoiOpenedRef.current || !business?.id) return;
+    if (initialOverlay !== "poi") return;
+    // Widget embed : l'overlay POI doit rester ouvert en permanence (jamais d'affichage des infos du Master).
+    if (!showPoiMapOverlay) setShowPoiMapOverlay(true);
     autoPoiOpenedRef.current = true;
-    setShowPoiMapOverlay(true);
-  }, [initialOverlay, business?.id]);
+  }, [initialOverlay, business?.id, showPoiMapOverlay]);
+
 
   const geo = useGeolocation();
   const { coords: userCoords } = geo;
