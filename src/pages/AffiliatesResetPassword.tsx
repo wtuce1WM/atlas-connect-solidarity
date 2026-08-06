@@ -79,6 +79,10 @@ const AffiliatesResetPassword = () => {
       invalidLink: "رابط غير صالح",
       invalidLinkDesc: "رابط إعادة التعيين غير صالح أو منتهي الصلاحية.",
       backToLogin: "العودة لتسجيل الدخول",
+      resendTitle: "الحصول على رابط جديد",
+      resendPlaceholder: "بريدك الإلكتروني",
+      resendCta: "أرسل لي رابطًا",
+      resendDone: "تم إرسال الرابط — تحقق من بريدك (صالح لمدة ساعة).",
     },
   };
 
