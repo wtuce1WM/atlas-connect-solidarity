@@ -949,6 +949,48 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               <span className="font-mono">&lt;script&gt;</span> : collez-le tel quel, sans rien ajouter autour.
             </p>
           </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label className="text-white/80 text-xs">Nom de l'assistant IA</Label>
+              <Input
+                value={assistantName}
+                onChange={(e) => setAssistantName(e.target.value)}
+                placeholder="Zitoun IA"
+                className="h-9 bg-white/10 border-white/20 text-white placeholder:text-white/40 text-sm"
+              />
+              <p className="text-[11px] text-white/50">
+                Ce nom s'affiche en haut du volet, à la place du nom de l'établissement.
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-white/80 text-xs">Position du CTA « Assistant 1WM » (bord droit)</Label>
+              <div className="grid grid-cols-3 gap-1">
+                {([
+                  { value: "top", label: "À 25 % du haut" },
+                  { value: "middle", label: "Au milieu" },
+                  { value: "bottom", label: "À 25 % du bas" },
+                ] as const).map((o) => (
+                  <button
+                    key={o.value}
+                    type="button"
+                    onClick={() => setPanelTabPos(o.value)}
+                    className={`text-[11px] leading-tight py-1.5 px-2 rounded-md border ${
+                      panelTabPos === o.value
+                        ? "bg-white text-neutral-900 border-white"
+                        : "text-white border-white/20 hover:bg-white/10"
+                    }`}
+                  >
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] text-white/50">
+                Distance calculée sur la hauteur du viewport (25 % / 50 % / 75 %).
+              </p>
+            </div>
+          </div>
+
           <textarea
             readOnly
             value={floatingSnippet}
