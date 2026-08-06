@@ -3365,7 +3365,7 @@ const BookOnlineSlidePanelInner = ({
               );
             })()}
             {isEmbedMapWidget && (widgetKpGroups.length > 0 || widgetDefaultPoi) && (
-              <div className="absolute top-3 left-3 right-3 z-[12] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
+              <div className="absolute top-[86px] left-3 right-3 z-[30] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
                 {[
                   { key: "nearby" as const, label: language === "en" ? "Nearby" : language === "ar" ? "بالقرب" : "À proximité" },
                   ...widgetKpGroups.map((g) => ({ key: (g.slot === 1 ? "kp1" : "kp2") as "kp1" | "kp2", label: g.title })),
