@@ -739,6 +739,22 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         if (Object.keys(ends).length) template_props.videoEnds = ends;
       }
 
+      // Durée réelle par vidéo (secondes) : permet de boucler le média quand
+      // l'étape est plus longue que le clip (au lieu de figer la dernière image).
+      const rawDurations = options?.video_durations;
+      if (rawDurations && typeof rawDurations === "object") {
+        const durs: Record<string, number> = {};
+        for (const [u, t] of Object.entries(rawDurations as Record<string, unknown>)) {
+          if (typeof u !== "string" || !/^https?:\/\//i.test(u)) continue;
+          const n = Number(t);
+          if (!Number.isFinite(n) || n <= 0.5 || n > 3600) continue;
+          durs[u] = Math.round(n * 10) / 10;
+        }
+        if (Object.keys(durs).length) template_props.videoDurations = durs;
+      }
+
+
+
 
       // Sélection média par scène (facultatif). Whitelist stricte : chaque URL doit
       // appartenir aux médias autorisés de l'établissement (images ou vidéos internes).
