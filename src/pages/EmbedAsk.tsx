@@ -1221,7 +1221,7 @@ const EmbedAsk = () => {
                 );
               })()}
 
-              <div className={`${articleCard?.inline ? "max-w-full w-full" : "max-w-[85%]"} rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${asstBubble}`}>
+              <div className={`${articleCard?.inline ? "max-w-full w-full" : "max-w-[85%]"} rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${asstBubble}`} style={cardStyle}>
                 <div className={`prose prose-sm max-w-none dark:prose-invert prose-p:my-2 prose-ul:my-1 ${articleCard?.inline ? "prose-hr:my-6 prose-hr:border-neutral-300 dark:prose-hr:border-neutral-700" : ""}`}>
                   <ReactMarkdown
                     components={{
