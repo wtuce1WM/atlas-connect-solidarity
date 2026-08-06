@@ -3410,13 +3410,7 @@ const BookOnlineSlidePanelInner = ({
             <PoiGoogleMap
               pois={overridePois ? overridePois : poiMapMode === "destinations"
                 ? [
-                    ...(business?.latitude && business?.longitude ? [{
-                      id: `self-${business.id}`, name: business.name,
-                      latitude: business.latitude, longitude: business.longitude,
-                      images: business.images, city: business.city, neighborhood: business.neighborhood,
-                      avgOn20: avgOn20, totalReviews: totalReviewCount,
-                      markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
-                    } as PoiMapItem] : []),
+                    ...(poiMasterItem ? [poiMasterItem] : []),
                     ...destinations.filter(d => d.latitude && d.longitude).map(d => ({
                       id: d.id, name: d.name_fr, latitude: d.latitude!, longitude: d.longitude!,
                       images: (d.images && d.images.length > 0) ? d.images : (d.image_url ? [d.image_url] : null),
@@ -3424,15 +3418,11 @@ const BookOnlineSlidePanelInner = ({
                     } as PoiMapItem)),
                   ]
                 : [
-                    ...(business?.latitude && business?.longitude ? [{
-                      id: `self-${business.id}`, name: business.name,
-                      latitude: business.latitude, longitude: business.longitude,
-                      images: business.images, city: business.city, neighborhood: business.neighborhood,
-                      avgOn20: avgOn20, totalReviews: totalReviewCount,
-                      markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
-                    } as PoiMapItem] : []),
-                    ...(displayedPoi.map(p => ({
-                      id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude,
+                    ...(poiMasterItem ? [poiMasterItem] : []),
+                    ...(displayedPoi
+                      .filter(p => p.id !== poiMasterOverride?.id)
+                      .map(p => ({
+                ಼      id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude,
                       images: p.images, city: p.city, neighborhood: p.neighborhood,
                       avgOn20: (p as any).computed_rating ?? null,
                       totalReviews: (p as any).total_review_count ?? 0,
