@@ -765,7 +765,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
           <Label className="text-white/80 text-xs">Fond du widget</Label>
           <div className="flex gap-1 flex-wrap">
             {([
-              { key: "widget", label: widgetBgValid ? `Couleur du widget ${widgetBg}` : "Couleur du widget (non définie)" },
+              { key: "widget", label: askBgValid ? `Couleur du widget ${askBgColor}` : "Couleur du widget (non définie)" },
               { key: "transparent", label: "Transparent" },
             ] as const).map((o) => (
               <button
@@ -782,6 +782,41 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
             « Transparent » laisse apparaître le fond du site hôte. Les deux versions sont visibles ci-dessous.
           </p>
         </div>
+
+        {/* Édition directe de la couleur utilisée par le mode d'affichage courant
+            (clair / sombre) — évite de remonter à la section « Couleur de fond des widgets ». */}
+        <div className="space-y-1.5">
+          <Label className="text-white/80 text-xs">
+            {embedTheme === "dark" ? "Couleur du widget — mode sombre" : "Couleur du widget — mode clair"}
+          </Label>
+          {embedTheme === "dark" ? (
+            <>
+              <HexColorField
+                value={widgetBgDark}
+                onChange={setWidgetBgDark}
+                onCommit={saveWidgetBgDark}
+                disabled={radiusLoading || !businessId}
+                saving={widgetBgDarkSaving}
+                saved={widgetBgDarkSaved}
+              />
+              {!widgetBgDarkValid && widgetBgValid && (
+                <p className="text-[11px] text-white/50">
+                  Aucune couleur sombre définie : la couleur du mode clair ({widgetBg}) est utilisée.
+                </p>
+              )}
+            </>
+          ) : (
+            <HexColorField
+              value={widgetBg}
+              onChange={setWidgetBg}
+              onCommit={saveWidgetBg}
+              disabled={radiusLoading || !businessId}
+              saving={widgetBgSaving}
+              saved={widgetBgSaved}
+            />
+          )}
+        </div>
+
 
         {fitRow("embed")}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
