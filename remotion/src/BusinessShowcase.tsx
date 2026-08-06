@@ -4036,7 +4036,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                   <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.22) 0%,rgba(14,11,8,0.48) 100%)" }} />
                 </>
               ) : null}
-              <SceneOffer offer={aiCard} city={city} durationFrames={duration} textPosition={textPosition} />
+              <SceneManualCard card={aiCard} durationFrames={duration} textPosition={textPosition} />
             </AbsoluteFill>
           );
         }
