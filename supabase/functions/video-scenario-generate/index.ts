@@ -187,10 +187,17 @@ async function fetchTidesWidget(citySlug: unknown, mode: string, businessName: s
     tanger: 2.5,
   };
   const springRange = SPRING_RANGE[String(city.slug || "").toLowerCase()] ?? 2.9;
+  // Date du jour (fuseau Maroc) — affichée à la place de « sur la journée ».
+  const refDay = String(times[0] ?? "").slice(0, 10) || new Date().toISOString().slice(0, 10);
+  const dFr = new Date(`${refDay}T12:00:00`);
+  const DAYS_FR = ["Dim.", "Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam."];
+  const MONTHS_FR = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+  const dateFr = `${DAYS_FR[dFr.getDay()]} ${dFr.getDate()} ${MONTHS_FR[dFr.getMonth()]}`;
+  const dateEn = dFr.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "long" });
   const text = lang === "en"
-    ? `${businessName} brings you the tides, wind and weather in ${city.name} for the day`
-    : `${businessName} vous donne les marées, les vents, la météo à ${city.name} sur la journée`;
-  return { city: city.name, citySlug: city.slug, mode: safeMode, text, hours, extremes: extremes.slice(0, 4), springRange, durationSec: 9 };
+    ? `${businessName} brings you the tides, wind and weather in ${city.name} — ${dateEn}`
+    : `${businessName} vous donne les marées, les vents, la météo à ${city.name} — ${dateFr}`;
+  return { city: city.name, citySlug: city.slug, mode: safeMode, text, hours, extremes: extremes.slice(0, 4), springRange, durationSec: 9, dateLabel: lang === "en" ? dateEn : dateFr };
 
 }
 
