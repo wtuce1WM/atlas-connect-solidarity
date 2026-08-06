@@ -1514,6 +1514,8 @@ const BookOnlineSlidePanelInner = ({
   }, [setIsFileVideoVertical, setIsFileVideoSquare]);
 
   if (isLoading) {
+    // Widget carte embarqué : pas de squelette de fiche (on n'affiche jamais l'accueil du Master).
+    if (isEmbedMapWidget) return <div className="h-full w-full bg-transparent" />;
     return (
       <div className="h-full overflow-y-auto bg-background p-6 space-y-6">
         <Skeleton className="w-full aspect-video rounded-xl" />
@@ -1522,6 +1524,7 @@ const BookOnlineSlidePanelInner = ({
       </div>
     );
   }
+
 
   if (!business) return null;
 
