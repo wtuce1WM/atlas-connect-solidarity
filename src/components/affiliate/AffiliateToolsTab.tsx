@@ -272,6 +272,11 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     // prévient par postMessage.
     window.addEventListener('message', function (e) {
       if (e && e.data && e.data.type === 'owm-embed-close') shut();
+      if (e && e.data && e.data.type === 'owm-embed-theme' && /^#[0-9A-Fa-f]{6}$/.test(e.data.background || '')) {
+        panel.style.background = e.data.background;
+        frame.style.background = e.data.background;
+        panel.style.colorScheme = e.data.theme === 'dark' ? 'dark' : 'light';
+      }
     });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') shut(); });
   })();

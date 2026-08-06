@@ -537,6 +537,18 @@ const EmbedAsk = () => {
     return applyEmbedBg(activeWidgetBg || "");
   }, [customBg, activeWidgetBg]);
 
+  // Le panneau flottant vit dans une iframe : prévenir la page hôte afin que son
+  // propre fond ne reste pas bloqué sur la couleur du mode initial.
+  useEffect(() => {
+    if (!inFloatingPanel || !activeWidgetBg) return;
+    try {
+      window.parent?.postMessage(
+        { type: "owm-embed-theme", theme, background: activeWidgetBg },
+        "*",
+      );
+    } catch { /* noop */ }
+  }, [inFloatingPanel, theme, activeWidgetBg]);
+
   // Load host business
   useEffect(() => {
     let cancelled = false;
