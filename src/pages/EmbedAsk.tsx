@@ -833,10 +833,18 @@ const EmbedAsk = () => {
   const chipBg = lightInk
     ? "bg-neutral-100 border border-neutral-300 text-neutral-900"
     : "bg-neutral-900 border border-neutral-700 text-neutral-100";
-  // Puces : intérieur en couleur « mode sombre » de l'affilié, texte en couleur « mode clair ».
-  const chipStyle: React.CSSProperties | undefined =
-    widgetColors.dark && widgetColors.light
-      ? { background: widgetColors.dark, color: widgetColors.light, borderColor: "transparent" }
+  // Puces : en mode clair, intérieur « mode sombre » / texte « mode clair ».
+  // En mode sombre, l'inverse : intérieur « mode clair » et texte foncé.
+  const hasAffiliateColors = !!(widgetColors.dark && widgetColors.light);
+  const chipStyle: React.CSSProperties | undefined = hasAffiliateColors
+    ? theme === "light"
+      ? { background: widgetColors.dark!, color: widgetColors.light!, borderColor: "transparent" }
+      : { background: widgetColors.light!, color: widgetColors.dark!, borderColor: "transparent" }
+    : undefined;
+  // Cartes des réponses IA : en mode sombre, fond en couleur « mode clair » + texte foncé.
+  const cardStyle: React.CSSProperties | undefined =
+    hasAffiliateColors && theme === "dark"
+      ? { background: widgetColors.light!, color: widgetColors.dark!, borderColor: "transparent" }
       : undefined;
 
   // Build conversation-wide dictionaries of businesses cited across all assistant messages.
