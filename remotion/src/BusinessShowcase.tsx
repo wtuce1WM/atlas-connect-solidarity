@@ -150,6 +150,9 @@ const useSuppressBg = (): boolean => React.useContext(SuppressBgContext);
 const VideoStartsContext = React.createContext<Record<string, number>>({});
 // Time End : point de fin (secondes) par URL de vidéo, défini dans le Studio.
 const VideoEndsContext = React.createContext<Record<string, number>>({});
+// Durée réelle (secondes) par URL de vidéo — permet de boucler le média plutôt
+// que de figer la dernière image quand l'étape est plus longue que la vidéo.
+const VideoDurationsContext = React.createContext<Record<string, number>>({});
 /** Frame de fin d'une vidéo (Time End) — undefined si non défini. */
 const useVideoEndFrames = (src?: string | null): number | undefined => {
   const ends = React.useContext(VideoEndsContext);
@@ -159,6 +162,16 @@ const useVideoEndFrames = (src?: string | null): number | undefined => {
   if (!Number.isFinite(sec) || (sec as number) <= 0) return undefined;
   return Math.max(1, Math.round((sec as number) * fps));
 };
+/** Durée réelle d'une vidéo en frames — undefined si inconnue. */
+const useVideoDurationFrames = (src?: string | null): number | undefined => {
+  const durations = React.useContext(VideoDurationsContext);
+  const { fps } = useVideoConfig();
+  if (!src) return undefined;
+  const sec = durations?.[src];
+  if (!Number.isFinite(sec) || (sec as number) <= 0.5) return undefined;
+  return Math.max(1, Math.round((sec as number) * fps));
+};
+
 /** Frames à sauter au début d'une vidéo (Time Start). */
 const useVideoStartFrames = (src?: string | null): number | undefined => {
   const starts = React.useContext(VideoStartsContext);
