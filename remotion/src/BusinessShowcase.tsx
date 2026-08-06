@@ -1163,6 +1163,120 @@ const SceneOffer: React.FC<{
   );
 };
 
+/**
+ * Carte ajoutée manuellement au scénario (étape « ai_card ») :
+ * le titre et le texte sont rendus dans DEUX blocs totalement indépendants
+ * (deux lignes de flux, gap explicite, aucune superposition possible), et le
+ * texte est débarrassé d'un éventuel titre dupliqué en tête de contenu.
+ */
+const normalizeForCompare = (s: string) =>
+  s.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim().toLowerCase();
+
+const stripLeadingTitle = (html: string, title: string) => {
+  const t = normalizeForCompare(title);
+  if (!t) return html;
+  // Retire le premier bloc (titre ou paragraphe) s'il répète le titre de la carte.
+  return html.replace(/^\s*<(h[1-4]|p)\b[^>]*>([\s\S]*?)<\/\1>/i, (m, _tag, inner) =>
+    normalizeForCompare(String(inner)) === t ? "" : m,
+  );
+};
+
+const SceneManualCard: React.FC<{
+  card: { title?: string; price?: string; lines?: string[]; message_html?: string | null };
+  durationFrames?: number;
+  textPosition?: TextPosition;
+}> = ({ card, durationFrames = 120, textPosition = "middle" }) => {
+  const frame = useCurrentFrame();
+  const titleO = ease(frame, 0, 24);
+  const bodyO = ease(frame, 18, 44);
+  const outStart = Math.max(30, durationFrames - 20);
+  const out = 1 - ease(frame, outStart, durationFrames);
+
+  const title = (card.title || "").trim();
+  const lines = Array.isArray(card.lines) ? card.lines.filter(Boolean).slice(0, 6) : [];
+  const rawRich = sanitizeRich(card.message_html || "");
+  const richMsg = stripLeadingTitle(rawRich, title);
+  const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br|h1|h2|h3|h4)\b/i.test(richMsg);
+  const hasBody = hasRich || lines.length > 0;
+
+  return (
+    <AbsoluteFill style={{ alignItems: "center", padding: 60, ...textPositionStyle(textPosition), opacity: out }}>
+      <style>{RICH_CSS}</style>
+      <FitColumn topSafeRatio={0.14}>
+        {title ? (
+          <div
+            style={{
+              display: "block",
+              width: "100%",
+              opacity: titleO,
+              fontFamily: display,
+              fontWeight: 700,
+              color: COLORS.cream,
+              fontSize: hasBody ? 46 : 56,
+              textAlign: "center",
+              lineHeight: 1.12,
+              padding: "0 20px",
+              textShadow: "0 3px 18px rgba(0,0,0,0.6)",
+            }}
+          >
+            {title}
+          </div>
+        ) : null}
+
+        {title && hasBody ? (
+          <div
+            style={{
+              width: 120,
+              height: 2,
+              marginTop: 22,
+              marginBottom: 22,
+              background: COLORS.gold,
+              opacity: bodyO * 0.8,
+              flex: "0 0 auto",
+            }}
+          />
+        ) : null}
+
+        {hasBody ? (
+          <div style={{ display: "block", width: "100%", opacity: bodyO }}>
+            {hasRich ? (
+              <RichBlock
+                html={richMsg}
+                style={{
+                  fontFamily: body,
+                  color: COLORS.cream,
+                  fontSize: 24,
+                  lineHeight: 1.38,
+                  maxWidth: 660,
+                  margin: "0 auto",
+                }}
+              />
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center", maxWidth: 620, margin: "0 auto" }}>
+                {lines.map((line, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      opacity: ease(frame, 22 + i * 8, 44 + i * 8),
+                      fontFamily: body,
+                      color: COLORS.cream,
+                      fontSize: 24,
+                      lineHeight: 1.38,
+                      textAlign: "center",
+                    }}
+                  >
+                    {line}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : null}
+      </FitColumn>
+    </AbsoluteFill>
+  );
+};
+
 const SceneCta: React.FC<{ name: string; textPosition?: TextPosition }> = ({ name, textPosition = "middle" }) => {
   const L = useL();
   const frame = useCurrentFrame();
