@@ -989,25 +989,8 @@ const Widgets = () => {
               }
             />
 
-            <WidgetSection
-              index={4}
-              icon={<MapPin className="h-5 w-5" />}
-              title="Widget Adresses à proximité"
-              tagline="Les meilleures adresses autour d'un point, sur carte ou en liste."
-              price="Prix : sur devis"
-              description="Reprend l'expérience de découverte de la plateforme : établissements actifs situés à moins d'un kilomètre, classés par catégorie, avec carte Google Maps native, fiches détaillées et contact direct. La carte s'affiche immédiatement, sans média d'introduction. Vous pouvez optionnellement adapter la couleur de fond de la carte."
-              params={[
-                { name: "slug", value: "établissement de référence" },
-                { name: "lang", value: "fr | en | ar" },
-                { name: "bg", value: "couleur de fond optionnelle (hex sans #)" },
-              ]}
+            <NearbyWidgetSection index={4} />
 
-              previewUrl={toPreview(nearbyUrl)}
-              previewHeight={620}
-              fullWidthPreview
-
-              snippet={`<iframe src="${nearbyUrl}" style="width:100%;height:620px;border:0;border-radius:20px" title="Adresses à proximité" loading="lazy"></iframe>`}
-            />
 
             <ReviewsWidgetSection index={5} />
 
