@@ -60,6 +60,10 @@ const AffiliatesResetPassword = () => {
       invalidLink: "Invalid link",
       invalidLinkDesc: "This reset link is invalid or expired. Please request a new one.",
       backToLogin: "Back to login",
+      resendTitle: "Get a new link",
+      resendPlaceholder: "Your email address",
+      resendCta: "Send me a link",
+      resendDone: "Link sent — check your inbox (valid for 1 hour).",
     },
     ar: {
       title: "كلمة مرور جديدة",
