@@ -5,7 +5,7 @@ import { z } from "npm:zod@3.23.8";
 const EVENT_TYPES = [
   "view","whatsapp_click","phone_click","email_click","directions_click",
   "affiliate_click","bookmark_add","bookmark_remove","share_open","share_complete",
-  "booking_intent","video_play","document_open","outbound_click",
+  "booking_intent","video_play","document_open","outbound_click","impression",
 ] as const;
 
 const EventSchema = z.object({

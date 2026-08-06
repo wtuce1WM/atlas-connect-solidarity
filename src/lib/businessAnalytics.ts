@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 type BusinessEventType =
   | "view"
+  | "impression"
   | "whatsapp_click"
   | "phone_click"
   | "email_click"
@@ -17,6 +18,9 @@ type BusinessEventType =
   | "video_play"
   | "document_open"
   | "outbound_click";
+
+/** Surfaces d'apparition (impressions) : liste de résultats, carte, carrousel, widget. */
+export type ImpressionSurface = "list" | "map" | "carousel" | "widget" | "blog";
 
 interface QueuedEvent {
   business_id: string;
