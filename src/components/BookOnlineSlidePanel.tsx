@@ -2846,7 +2846,7 @@ const BookOnlineSlidePanelInner = ({
 
       {/* POI sub-panel */}
       {selectedPoiBusinessId && (
-        <OverlayShell zClass="z-[85]" coverToolbar={false} animClass={isEmbedMapWidget ? "animate-slide-in-right" : "animate-slide-up-from-bottom"} bg="bg-background" className={`flex flex-col ${isEmbedMapWidget ? "lg:left-1/2 lg:w-1/2" : ""}`}>
+        <OverlayShell zClass="z-[85]" coverToolbar={false} animClass={isEmbedMapWidget ? "animate-slide-in-right" : "animate-slide-up-from-bottom"} bg="bg-background" className={`flex flex-col ${embedHalfSheet ? "left-1/2 w-1/2" : ""}`}>
 
           <SlidePanelHeader
             onClose={() => { setSelectedPoiBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); onMosaicStateChange?.(false); if (poiOpenedFromMapRef.current) poiOpenedFromMapRef.current = false; }}
