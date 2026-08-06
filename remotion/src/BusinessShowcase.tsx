@@ -3971,6 +3971,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     <LangContext.Provider value={_lang}>
     <VideoStartsContext.Provider value={videoStarts ?? {}}>
     <VideoEndsContext.Provider value={videoEnds ?? {}}>
+    <VideoDurationsContext.Provider value={videoDurations ?? {}}>
     <ToneContext.Provider value={tone}>
       <SuppressBgContext.Provider value={continuousMode || slideshowMode}>
         <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
