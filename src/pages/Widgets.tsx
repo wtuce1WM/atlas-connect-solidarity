@@ -233,6 +233,7 @@ const NEARBY_DEMO_NAMES = [
   "La Mamounia",
   "Royal Mansour Marrakech",
   "Aéroport international Marrakech-Ménara",
+  "Aéroport d'Essaouira-Mogador",
   "Le Bistro Arabe",
   "Carré Eden Shopping Center",
   "Côté Bougie M Avenue",

@@ -134,13 +134,13 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/aeroport-d-essaouira-mogador</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-08-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://oneworldmorocco.com/aeroport-international-marrakech-menara</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-08-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -602,7 +602,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/atelier-44-m-avenue</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-08-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -914,13 +914,13 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/bab-doukkala</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-08-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://oneworldmorocco.com/bab-doukkala-1</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-08-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -1802,7 +1802,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/carrefour-market-menara-mall</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-08-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -2282,7 +2282,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/cote-bougie-m-avenue</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-08-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -4297,14 +4297,8 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/kabana-rooftop-bar</loc>
-    <lastmod>2026-08-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://oneworldmorocco.com/kabana-rooftop-food-cocktails</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-08-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -4982,7 +4976,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/la-sultana-marrakech</loc>
-    <lastmod>2026-08-05</lastmod>
+    <lastmod>2026-08-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -5084,13 +5078,13 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/lac-lalla-takerkoust</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-08-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://oneworldmorocco.com/lacoste-carre-eden</loc>
-    <lastmod>2026-08-05</lastmod>
+    <lastmod>2026-08-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -6062,7 +6056,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/m-avenue-1</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-08-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -7826,7 +7820,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/palmiya-fun-and-water-land</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-08-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -11407,17 +11401,17 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/category/Tourisme</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://oneworldmorocco.com/category/Commerce</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://oneworldmorocco.com/category/H%C3%B4tellerie</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/category/Tourisme</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
