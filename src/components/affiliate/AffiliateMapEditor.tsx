@@ -193,6 +193,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
         .update({
           map_bg_color: bgValid ? bg.toUpperCase() : null,
           default_poi_business_id: defaultPoiId || null,
+          default_poi_is_master: !!defaultPoiId && defaultPoiIsMaster,
           kp_active: kpActive,
           kp_active_2: kpActive2,
           kp_city: kpCity || null,
