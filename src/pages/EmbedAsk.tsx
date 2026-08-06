@@ -1222,7 +1222,7 @@ const EmbedAsk = () => {
               })()}
 
               <div className={`${articleCard?.inline ? "max-w-full w-full" : "max-w-[85%]"} rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${asstBubble}`} style={cardStyle}>
-                <div className={`prose prose-sm max-w-none ${cardStyle ? "prose-headings:text-current prose-strong:text-current prose-a:text-current [&_*]:text-current" : "dark:prose-invert"} prose-p:my-2 prose-ul:my-1 ${articleCard?.inline ? "prose-hr:my-6 prose-hr:border-neutral-300 dark:prose-hr:border-neutral-700" : ""}`}>
+                <div className={`prose prose-sm max-w-none ${cardStyle ? "text-current prose-p:text-current prose-li:text-current prose-ul:text-current prose-headings:text-current prose-strong:text-current" : "dark:prose-invert"} prose-p:my-2 prose-ul:my-1 ${articleCard?.inline ? "prose-hr:my-6 prose-hr:border-neutral-300 dark:prose-hr:border-neutral-700" : ""}`}>
                   <ReactMarkdown
                     components={{
                       strong: StrongCited as any,
