@@ -3422,11 +3422,11 @@ const BookOnlineSlidePanelInner = ({
                     ...(displayedPoi
                       .filter(p => p.id !== poiMasterOverride?.id)
                       .map(p => ({
-                ಼      id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude,
-                      images: p.images, city: p.city, neighborhood: p.neighborhood,
-                      avgOn20: (p as any).computed_rating ?? null,
-                      totalReviews: (p as any).total_review_count ?? 0,
-                    } as PoiMapItem))),
+                        id: p.id, name: p.name, latitude: p.latitude, longitude: p.longitude,
+                        images: p.images, city: p.city, neighborhood: p.neighborhood,
+                        avgOn20: (p as any).computed_rating ?? null,
+                        totalReviews: (p as any).total_review_count ?? 0,
+                      } as PoiMapItem))),
                   ]
               }
               selectedPoiId={null}
