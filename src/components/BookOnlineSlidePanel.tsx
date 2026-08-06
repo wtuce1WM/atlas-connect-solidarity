@@ -2842,6 +2842,17 @@ const BookOnlineSlidePanelInner = ({
       {showPoiMapOverlay && (() => {
         const TOP_LIMIT = 20;
         const activeFrontTab = poiCatFilter ? frontTabs.find(t => t.id === poiCatFilter) || null : null;
+        // Widget Adresses à proximité : on neutralise la catégorie de Structure du Front
+        // qui contient la sous-catégorie par défaut du Master (ex. Hébergement pour Riad El Fenn).
+        const masterDefaultSubcat = (() => {
+          const list = Array.isArray((business as any)?.categories) ? (business as any).categories : [];
+          for (const c of list) if (typeof c === "string" && c.trim()) return c.trim();
+          const mc = (business as any)?.main_category;
+          return typeof mc === "string" && mc.trim() ? mc.trim() : null;
+        })();
+        const catPillTabs = isEmbedMapWidget && masterDefaultSubcat
+          ? frontTabs.filter((ft) => !ft.subcategoryNames.has(masterDefaultSubcat))
+          : frontTabs;
         // Origine unique des distances : l'établissement Master (fallback géoloc)
         const proxOrigin = (business?.latitude != null && business?.longitude != null
           ? { lat: business.latitude, lng: business.longitude }
