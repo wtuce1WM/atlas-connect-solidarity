@@ -29,6 +29,14 @@ interface Props {
 
 const SITE = "https://oneworldmorocco.com";
 
+// Les codes à copier pointent toujours vers le domaine de production, mais les
+// APERÇUS doivent être servis par l'origine courante (preview / staging) sinon on
+// visualise la version publiée et non les réglages en cours.
+const previewSrc = (url: string) =>
+  typeof window !== "undefined" && window.location.origin !== SITE
+    ? url.replace(SITE, window.location.origin)
+    : url;
+
 const REVIEW_PLATFORMS = [
   { key: "all" as const, label: "Synthèse" },
   { key: "google" as const, label: "Google" },
