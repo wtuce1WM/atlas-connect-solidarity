@@ -9,7 +9,8 @@ import { toast } from "@/hooks/use-toast";
 import AffiliateArticleExport from "@/components/affiliate/AffiliateArticleExport";
 import HexColorField from "@/components/affiliate/HexColorField";
 import WidgetTester from "@/components/affiliate/WidgetTester";
-import { FIT_OPTIONS, fitFlags, fitIframeStyle, fitParam, bgParam, autoHeightSnippet, SIZE_OPTIONS, sizeMaxWidth, type EmbedFit, type EmbedSize } from "@/lib/embedFit";
+import { FIT_OPTIONS, fitFlags, fitIframeStyle, fitParam, bgParam,
+  cardParam, autoHeightSnippet, SIZE_OPTIONS, sizeMaxWidth, type EmbedFit, type EmbedSize } from "@/lib/embedFit";
 
 
 export type ToolsRights = {
@@ -91,6 +92,11 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const [widgetBgSaving, setWidgetBgSaving] = useState<boolean>(false);
   const [widgetBgSaved, setWidgetBgSaved] = useState<boolean>(false);
   const widgetBgValid = /^#[0-9a-fA-F]{6}$/.test(widgetBg);
+  // Couleur de fond des widgets dédiée au mode sombre (businesses.widget_bg_color_dark).
+  const [widgetBgDark, setWidgetBgDark] = useState<string>("");
+  const [widgetBgDarkSaving, setWidgetBgDarkSaving] = useState<boolean>(false);
+  const [widgetBgDarkSaved, setWidgetBgDarkSaved] = useState<boolean>(false);
+  const widgetBgDarkValid = /^#[0-9a-fA-F]{6}$/.test(widgetBgDark);
 
   useEffect(() => {
     if (!businessId) { setRadiusLoading(false); return; }
@@ -99,7 +105,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       setRadiusLoading(true);
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("poi_radius_km, widget_bg_color")
+        .select("poi_radius_km, widget_bg_color, widget_bg_color_dark")
         .eq("id", businessId)
         .maybeSingle();
       if (cancelled) return;
@@ -107,6 +113,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       setRadiusKm(v > 0 ? v : 10);
       const wcolor = ((data as any)?.widget_bg_color || "").toUpperCase();
       setWidgetBg(wcolor);
+      setWidgetBgDark(((data as any)?.widget_bg_color_dark || "").toUpperCase());
       // Widget « À proximité » : on pré-remplit le fond de carte avec la couleur
       // de fond des widgets de l'établissement quand elle est définie.
       if (/^#[0-9A-F]{6}$/.test(wcolor)) setNearbyBg((prev) => prev || wcolor);
@@ -148,6 +155,21 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
 
 
+  const saveWidgetBgDark = async (raw: string) => {
+    if (!businessId) return;
+    const value = /^#[0-9a-fA-F]{6}$/.test(raw) ? raw.toUpperCase() : null;
+    if (raw && !value) return;
+    setWidgetBgDarkSaving(true);
+    setWidgetBgDarkSaved(false);
+    const { error } = await (supabase as any)
+      .from("businesses")
+      .update({ widget_bg_color_dark: value })
+      .eq("id", businessId);
+    setWidgetBgDarkSaving(false);
+    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    setWidgetBgDarkSaved(true);
+  };
+
   const fitRow = (key: string) => (
     <div className="space-y-1.5">
       <Label className="text-white/80 text-xs">Ajustement dans la page hôte</Label>
@@ -180,12 +202,18 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     );
   }
 
-  const wbg = bgParam(widgetBgValid ? widgetBg : "");
+  // « Couleur du widget » = intérieur du widget coloré, page toujours transparente.
+  const wbg = cardParam(widgetBgValid ? widgetBg : "");
+  // Assistant IA : la couleur suit le mode d'affichage choisi (clair / sombre).
+  const askBgColor =
+    embedTheme === "dark" ? (widgetBgDarkValid ? widgetBgDark : widgetBg) : widgetBg;
+  const askBgValid = /^#[0-9a-fA-F]{6}$/.test(askBgColor);
+  const askCard = cardParam(askBgValid ? askBgColor : "");
   const publicUrl = `${SITE}/${slug}`;
   const shortUrl = `${SITE}/b/${slug}`;
   // Assistant IA : version « couleur de fond des widgets » (si définie) ou version transparente
   const embedBase = `${SITE}/embed/ask/${slug}?theme=${embedTheme}&lang=${embedLang}${fitParam(fitOf("embed"))}`;
-  const embedUrlWidget = `${embedBase}${wbg}`;
+  const embedUrlWidget = `${embedBase}${askCard}`;
   const embedUrlTransparent = `${embedBase}&bg=transparent`;
   const embedUrl = embedCard === "transparent" ? embedUrlTransparent : embedUrlWidget;
   const embedSnippet = useMemo(
@@ -764,7 +792,12 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               </Label>
               <div
                 className="rounded-md overflow-hidden border border-white/20 flex justify-center"
-                style={{ background: widgetBgValid ? widgetBg : undefined }}
+                style={{
+                  backgroundImage:
+                    "linear-gradient(45deg,rgba(255,255,255,0.12) 25%,transparent 25%,transparent 75%,rgba(255,255,255,0.12) 75%),linear-gradient(45deg,rgba(255,255,255,0.12) 25%,transparent 25%,transparent 75%,rgba(255,255,255,0.12) 75%)",
+                  backgroundSize: "16px 16px",
+                  backgroundPosition: "0 0, 8px 8px",
+                }}
               >
                 <iframe
                   key={embedUrlWidget + embedHeight}
@@ -1349,7 +1382,12 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               </Label>
               <div
                 className="rounded-md overflow-hidden border border-white/20 flex justify-center"
-                style={{ background: widgetBgValid ? widgetBg : undefined }}
+                style={{
+                  backgroundImage:
+                    "linear-gradient(45deg,rgba(255,255,255,0.12) 25%,transparent 25%,transparent 75%,rgba(255,255,255,0.12) 75%),linear-gradient(45deg,rgba(255,255,255,0.12) 25%,transparent 25%,transparent 75%,rgba(255,255,255,0.12) 75%)",
+                  backgroundSize: "16px 16px",
+                  backgroundPosition: "0 0, 8px 8px",
+                }}
               >
                 <iframe
                   key={rateUrlWidget}
