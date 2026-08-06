@@ -5,7 +5,7 @@ import HomeMindtripHeader from "@/components/home/HomeMindtripHeader";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Copy, CloudSun, MessageSquare, MapPin, Star, Newspaper, Waves, LayoutPanelTop, ExternalLink, ThumbsUp, Mail } from "lucide-react";
+import { Check, Copy, CloudSun, MessageSquare, MapPin, Sparkles, Star, Newspaper, Waves, LayoutPanelTop, ExternalLink, ThumbsUp, Mail } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { toast } from "@/hooks/use-toast";
 
@@ -97,6 +97,112 @@ const AutoHeightIframe = ({
       className="bg-card shadow-lg"
     />
 
+  );
+};
+
+/* ---------------- Marketing push : compteur géolocalisé ---------------- */
+const GEO_MARRAKECH = 1178;
+const GEO_ESSAOUIRA = 339;
+
+function formatCount(n: number) {
+  return n.toLocaleString("fr-FR").replace(/\s/g, "\u00A0");
+}
+
+function useAnimatedCount(target: number, duration = 2200) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    let raf = 0;
+    const start = performance.now();
+    const easeOutQuint = (t: number) => 1 - Math.pow(1 - t, 5);
+    const tick = (now: number) => {
+      const progress = Math.min((now - start) / duration, 1);
+      setValue(Math.floor(easeOutQuint(progress) * target));
+      if (progress < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        setValue(target);
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return value;
+}
+
+const GeoMarketingBanner = () => {
+  const marrakech = useAnimatedCount(GEO_MARRAKECH);
+  const essaouira = useAnimatedCount(GEO_ESSAOUIRA);
+  const marrakechDone = marrakech === GEO_MARRAKECH;
+  const essaouiraDone = essaouira === GEO_ESSAOUIRA;
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-gold/40 p-6 sm:p-8 lg:p-10 animate-glow-pulse" style={{ background: "var(--gradient-morocco)" }}>
+      {/* Shimmer */}
+      <div className="pointer-events-none absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+
+      {/* Floating decorative rings */}
+      <div className="pointer-events-none absolute right-8 top-6 h-24 w-24 rounded-full border border-white/20 animate-float" />
+      <div className="pointer-events-none absolute left-10 bottom-4 h-16 w-16 rounded-full border border-white/20 animate-float [animation-delay:1.2s]" />
+      <div className="pointer-events-none absolute right-1/4 bottom-8 h-10 w-10 rounded-full border border-gold/30 animate-float [animation-delay:2.4s]" />
+
+      <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex-1 space-y-3">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-white backdrop-blur-sm">
+            <Sparkles className="h-3.5 w-3.5 text-gold" />
+            Carte vivante One World Morocco
+          </div>
+          <h3 className="text-2xl font-bold leading-tight text-white sm:text-3xl">
+            Des centaines d'adresses géolocalisées autour de vos visiteurs
+          </h3>
+          <p className="max-w-xl text-sm leading-relaxed text-white/85 sm:text-base">
+            Le widget Map & App affiche en temps réel les établissements actifs situés autour d'un point de référence — restaurants, riads, activités, commerces — avec fiches, itinéraires et contact direct.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+          {/* Marrakech counter */}
+          <div className="relative flex min-w-[11rem] flex-col items-center rounded-xl bg-black/20 px-5 py-4 text-center backdrop-blur-sm">
+            <div className="absolute -top-2 left-1/2 -translate-x-1/2">
+              <div className="relative flex items-center justify-center">
+                <MapPin className="relative z-10 h-5 w-5 text-gold" fill="currentColor" />
+                <span className="absolute inline-flex h-8 w-8 animate-pin-pulse rounded-full bg-gold/40" />
+                <span className="absolute inline-flex h-8 w-8 animate-pin-pulse rounded-full bg-gold/25 [animation-delay:0.7s]" />
+              </div>
+            </div>
+            <span
+              className={`mt-3 text-4xl font-bold tracking-tight text-gold sm:text-5xl ${marrakechDone ? "animate-count-pop" : ""}`}
+              key={marrakechDone ? "marrakech-done" : "marrakech-running"}
+            >
+              {formatCount(marrakech)}
+            </span>
+            <span className="mt-1 text-xs font-semibold uppercase tracking-widest text-white/90">Marrakech · Imlil · Agafay</span>
+            <span className="mt-0.5 text-[10px] uppercase tracking-wider text-white/60">GPS renseigné</span>
+          </div>
+
+          {/* Essaouira counter */}
+          <div className="relative flex min-w-[11rem] flex-col items-center rounded-xl bg-black/20 px-5 py-4 text-center backdrop-blur-sm">
+            <span
+              className={`text-4xl font-bold tracking-tight text-white sm:text-5xl ${essaouiraDone ? "animate-count-pop" : ""}`}
+              key={essaouiraDone ? "essaouira-done" : "essaouira-running"}
+            >
+              {formatCount(essaouira)}
+            </span>
+            <span className="mt-1 text-xs font-semibold uppercase tracking-widest text-white/90">Essaouira</span>
+            <span className="mt-0.5 text-[10px] uppercase tracking-wider text-white/60">& littoral</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative z-10 mt-6 flex flex-wrap items-center gap-3 text-xs font-medium text-white/80 sm:text-sm">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 backdrop-blur-sm">
+          <span className="inline-block h-2 w-2 rounded-full bg-gold animate-pulse" />
+          Mise à jour automatique depuis la base One World Morocco
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 backdrop-blur-sm">
+          Intégration iframe en 1 ligne de code
+        </span>
+      </div>
+    </div>
   );
 };
 
@@ -323,6 +429,9 @@ const NearbyWidgetSection = ({ index }: { index: number }) => {
               );
             })}
           </HScroll>
+          <div className="mb-5">
+            <GeoMarketingBanner />
+          </div>
           <iframe
             src={toPreview(url)}
             title={`Adresses à proximité — ${activeName}`}
