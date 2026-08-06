@@ -235,12 +235,17 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   // Panneau flottant : le volet reprend exactement la couleur du widget dans le
   // mode choisi (clair / sombre) pour éviter tout liseré blanc ou gris.
   const panelSurface = askBgValid ? askBgColor : embedTheme === "dark" ? "#0A0A0A" : "#FFFFFF";
-  const panelUrl = `${embedUrlWidget}&panel=1`;
+  const trimmedAssistantName = assistantName.trim();
+  const panelUrl = `${embedUrlWidget}&panel=1${
+    trimmedAssistantName ? `&name=${encodeURIComponent(trimmedAssistantName)}` : ""
+  }`;
+  const tabTopCss =
+    panelTabPos === "top" ? "25%" : panelTabPos === "bottom" ? "75%" : "50%";
   const floatingSnippet = useMemo(
     () => `<!-- Assistant IA One World Morocco — ${businessName} -->
 <style>
   #owm-embed-tab {
-    position: fixed; top: 50%; right: max(16px, env(safe-area-inset-right));
+    position: fixed; top: ${tabTopCss}; right: max(16px, env(safe-area-inset-right));
     transform: translateY(-50%) rotate(-90deg); transform-origin: right center;
     background: #C04F17; color: #fff; padding: 14px 22px; border: none;
     border-radius: 8px 8px 0 0; font-family: Montserrat, sans-serif;
