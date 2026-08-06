@@ -987,7 +987,7 @@ const Widgets = () => {
 
   const weatherUrl = `${SITE}/embed/weather?city=Marrakech&lang=fr`;
   const askUrl = `${SITE}/embed/ask/${DEMO_SLUG}?theme=light&lang=fr`;
-  const nearbyUrl = `${SITE}/embed/nearby/${DEMO_SLUG}?lang=fr`;
+  
   const ficheUrl = `${SITE}/b/${DEMO_SLUG}?embed=1&lang=fr`;
 
   const floatingSnippet = useMemo(
