@@ -41,6 +41,10 @@ const AffiliatesResetPassword = () => {
       invalidLink: "Lien invalide",
       invalidLinkDesc: "Ce lien de réinitialisation est invalide ou a expiré. Veuillez en demander un nouveau.",
       backToLogin: "Retour à la connexion",
+      resendTitle: "Recevoir un nouveau lien",
+      resendPlaceholder: "Votre adresse email",
+      resendCta: "M'envoyer un lien",
+      resendDone: "Lien envoyé — vérifiez votre boîte email (valable 1 heure).",
     },
     en: {
       title: "New Password",
