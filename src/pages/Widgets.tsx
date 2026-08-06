@@ -8,6 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Copy, CloudSun, MessageSquare, MapPin, Sparkles, Star, Newspaper, Waves, LayoutPanelTop, ExternalLink, ThumbsUp, Mail } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 import { toast } from "@/hooks/use-toast";
+import widgetsHero from "@/assets/widgets-hero.jpg";
+import widgetsHeroVertical from "@/assets/widgets-hero-vertical.jpg";
+
 
 const SITE = "https://oneworldmorocco.com";
 const DEMO_SLUG = "riad-dar-najat";
@@ -1146,6 +1149,8 @@ const Widgets = () => {
     description:
       "Météo, marées, assistant IA, adresses à proximité, avis clients, articles : intégrez les widgets One World Morocco sur votre site ou celui de vos partenaires.",
     canonical: "/widgets",
+    ogImage: `${SITE}/og/widgets.jpg`,
+
   });
 
   const weatherUrl = `${SITE}/embed/weather?city=Marrakech&lang=fr`;
@@ -1191,7 +1196,18 @@ const Widgets = () => {
         <div className="max-w-5xl mx-auto">
           {/* Intro */}
           <header className="mb-20">
+            <picture>
+              <source media="(min-width: 768px)" srcSet={widgetsHero} />
+              <img
+                src={widgetsHeroVertical}
+                alt="Widgets One World Morocco : assistant IA vocal, carte des adresses à proximité et avis clients"
+                width={1920}
+                height={960}
+                className="mb-10 w-full rounded-2xl border border-gold/30 object-cover"
+              />
+            </picture>
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-primary mb-5">
+
               Écosystème ouvert
             </p>
             <h1 className="text-4xl md:text-6xl font-bold text-foreground leading-tight mb-8">
