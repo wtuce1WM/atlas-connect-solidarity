@@ -779,8 +779,12 @@ const EmbedAsk = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatKey]);
 
-  const bg = theme === "light" ? "bg-white" : "bg-neutral-950";
-  const surface = theme === "light" ? "bg-white text-neutral-900" : "bg-neutral-950 text-neutral-100";
+  // Quand un fond personnalisé est demandé (couleur du widget ou transparent),
+  // on neutralise les fonds opaques pour laisser passer celui du site hôte.
+  const bg = customBg ? "bg-transparent" : theme === "light" ? "bg-white" : "bg-neutral-950";
+  const surface = customBg
+    ? `bg-transparent ${bgInk === "dark" ? "text-neutral-900" : "text-neutral-100"}`
+    : theme === "light" ? "bg-white text-neutral-900" : "bg-neutral-950 text-neutral-100";
   const userBubble = theme === "light" ? "bg-neutral-900 text-white" : "bg-white text-neutral-900";
   const asstBubble = theme === "light" ? "bg-neutral-100 text-neutral-900" : "bg-neutral-800 text-neutral-50";
   const border = theme === "light" ? "border-neutral-200" : "border-neutral-800";
