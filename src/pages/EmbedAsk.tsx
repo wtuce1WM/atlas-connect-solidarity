@@ -956,6 +956,22 @@ const EmbedAsk = () => {
       style={innerBgColor ? { background: innerBgColor } : undefined}
     >
       <header className={`px-4 py-3 border-b ${border} flex items-center gap-3`}>
+        {inFloatingPanel && (
+          <button
+            type="button"
+            onClick={() => {
+              try { window.parent?.postMessage({ type: "owm-embed-close" }, "*"); } catch { /* noop */ }
+            }}
+            title={lang === "en" ? "Close" : lang === "ar" ? "إغلاق" : "Fermer"}
+            aria-label={lang === "en" ? "Close" : lang === "ar" ? "إغلاق" : "Fermer"}
+            className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border ${border} ${
+              theme === "light" ? "bg-white/70 text-neutral-900" : "bg-white/10 text-neutral-100"
+            } opacity-80 hover:opacity-100 transition-opacity`}
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+
         <div className="w-8 h-8 rounded-full bg-[#C24B3F] flex items-center justify-center text-white text-sm font-semibold">
           {((assistantTitle || businessName) || "?").slice(0, 1).toUpperCase()}
         </div>
