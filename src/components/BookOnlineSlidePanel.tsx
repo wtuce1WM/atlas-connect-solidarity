@@ -1313,6 +1313,54 @@ const BookOnlineSlidePanelInner = ({
     return { avgOn20: business.computed_rating ?? null, totalReviewCount: business.total_review_count ?? 0 };
   }, [business]);
 
+  /* ─── Marqueur master de l'overlay POI ───
+     Si l'établissement a coché "Marqueur par défaut sur la Map" sur son Lieu
+     d'intérêt par défaut, c'est ce POI qui devient le marqueur master. */
+  const [poiMasterOverride, setPoiMasterOverride] = useState<any | null>(null);
+  useEffect(() => {
+    setPoiMasterOverride(null);
+    if (!businessId) return;
+    let cancelled = false;
+    (async () => {
+      const { data: b } = await (supabase as any)
+        .from("businesses")
+        .select("default_poi_business_id,default_poi_is_master")
+        .eq("id", businessId)
+        .maybeSingle();
+      if (cancelled || !b?.default_poi_is_master || !b?.default_poi_business_id) return;
+      const { data: poi } = await (supabase as any)
+        .from("businesses")
+        .select("id,name,city,neighborhood,latitude,longitude,images,computed_rating,total_review_count")
+        .eq("id", b.default_poi_business_id)
+        .maybeSingle();
+      if (cancelled || !poi?.latitude || !poi?.longitude) return;
+      setPoiMasterOverride(poi);
+    })();
+    return () => { cancelled = true; };
+  }, [businessId]);
+
+  /** Marqueur master effectif (POI par défaut si coché, sinon l'établissement). */
+  const poiMasterItem = useMemo(() => {
+    const src = poiMasterOverride ?? business;
+    if (!src?.latitude || !src?.longitude) return null;
+    return {
+      id: `self-${src.id}`,
+      name: src.name,
+      latitude: Number(src.latitude),
+      longitude: Number(src.longitude),
+      images: src.images,
+      city: src.city ?? null,
+      neighborhood: src.neighborhood ?? null,
+      avgOn20: poiMasterOverride ? (poiMasterOverride.computed_rating ?? null) : avgOn20,
+      totalReviews: poiMasterOverride ? (poiMasterOverride.total_review_count ?? 0) : totalReviewCount,
+      markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
+    } as PoiMapItem;
+  }, [poiMasterOverride, business, avgOn20, totalReviewCount]);
+
+  const poiMasterCenter = poiMasterItem ? { lat: poiMasterItem.latitude, lng: poiMasterItem.longitude } : undefined;
+
+
+
   const hasHighlights = useMemo(
     () => highlights.some((h) => h.title?.trim() || h.description?.trim()),
     [highlights]
