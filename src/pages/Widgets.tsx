@@ -1149,6 +1149,8 @@ const Widgets = () => {
     description:
       "Météo, marées, assistant IA, adresses à proximité, avis clients, articles : intégrez les widgets One World Morocco sur votre site ou celui de vos partenaires.",
     canonical: "/widgets",
+    ogImage: `${SITE}/og/widgets.jpg`,
+
   });
 
   const weatherUrl = `${SITE}/embed/weather?city=Marrakech&lang=fr`;
