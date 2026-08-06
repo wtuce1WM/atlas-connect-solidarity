@@ -1037,7 +1037,8 @@ const BookOnlineSlidePanelInner = ({
     setKpGroupTitle(null);
     setActiveVideoOverlay(null);
     setVideoOverlayClosing(false);
-    setShowPoiMapOverlay(false);
+    setShowPoiMapOverlay(initialOverlay === "poi");
+
     setShowDescriptionOverlay(false);
     setShowAvailabilitySearch(false);
     setDescGridSection(null);
