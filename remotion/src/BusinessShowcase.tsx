@@ -344,6 +344,8 @@ export type ShowcaseProps = {
     extremes?: Array<{ hour: string; type: "high" | "low"; height: number }>;
     /** Marnage moyen de vive-eau du port (m) — base du coefficient estimé. */
     springRange?: number | null;
+    /** Date du jour affichée dans le titre (« Jeu. 6 août »). */
+    dateLabel?: string | null;
   } | null;
   scenePois?: Record<string, PlaceItem[]>;
   sceneDestinations?: Record<string, PlaceItem[]>;
