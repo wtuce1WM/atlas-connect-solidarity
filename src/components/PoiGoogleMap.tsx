@@ -898,7 +898,10 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
             const px = (wp.x - wc.x) * scale + cw / 2;
             const py = (wp.y - wc.y) * scale + ch / 2;
             // Vertical : bascule en dessous si pas la place au-dessus.
-            if (py - IW_H - 50 < PAD) offY = IW_H + 60;
+            // Le marqueur est dessiné au-dessus de son point d'ancrage (translate -100%),
+            // donc la miniature se colle juste sous le bas du marqueur (petit gap de 6px).
+            if (py - IW_H - 50 < PAD) offY = IW_H + 6;
+
             // Horizontal : recentrage dans les bords.
             const left = px - IW_W / 2;
             const right = px + IW_W / 2;
@@ -1232,7 +1235,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
 
   return (
     <>
-      <style>{`.gm-style { background-color: hsl(var(--map-surface)) !important; } .gm-style .gm-style-iw-chr { display: none !important; } .gm-style .gm-style-iw { padding: 0 !important; background: transparent !important; box-shadow: none !important; border-radius: 10px !important; } .gm-style .gm-style-iw-d { overflow: hidden !important; background: transparent !important; } .gm-style .gm-style-iw-tc { display: none !important; } .gm-style .gm-style-iw-t::after { display: none !important; } .gm-style .gm-fullscreen-control { display: none !important; } .gm-style .gm-bundled-control button[aria-label*="location" i], .gm-style .gm-bundled-control button[aria-label*="position" i], .gm-style .gm-bundled-control button[title*="location" i], .gm-style button.gm-control-active[draggable="false"][aria-label] { display: none !important; } .gm-style .gmnoprint[role="menubar"] ~ .gmnoprint:not([role]) { display: none !important; }`}</style>
+      <style>{`.gm-style { background-color: hsl(var(--map-surface)) !important; z-index: auto !important; } .gm-style .gm-style-iw-a { z-index: 40 !important; } .gm-style .gm-style-iw-chr { display: none !important; } .gm-style .gm-style-iw { padding: 0 !important; background: transparent !important; box-shadow: none !important; border-radius: 10px !important; } .gm-style .gm-style-iw-d { overflow: hidden !important; background: transparent !important; } .gm-style .gm-style-iw-tc { display: none !important; } .gm-style .gm-style-iw-t::after { display: none !important; } .gm-style .gm-fullscreen-control { display: none !important; } .gm-style .gm-bundled-control button[aria-label*="location" i], .gm-style .gm-bundled-control button[aria-label*="position" i], .gm-style .gm-bundled-control button[title*="location" i], .gm-style button.gm-control-active[draggable="false"][aria-label] { display: none !important; } .gm-style .gmnoprint[role="menubar"] ~ .gmnoprint:not([role]) { display: none !important; }`}</style>
       <div ref={mapShellRef} className="relative h-full w-full overflow-hidden bg-map-surface" style={{ opacity: mapOpacity, transition: "opacity 0.25s ease-in-out" }}>
         <div ref={containerRef} className="h-full w-full bg-map-surface" />
         <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex flex-col gap-1">
