@@ -158,6 +158,26 @@ export default {
           "0%": { transform: "translate(0,0) scale(1)", opacity: "1" },
           "100%": { transform: "translate(0,-40px) scale(1.8)", opacity: "0" },
         },
+        "shimmer": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-14px)" },
+        },
+        "count-pop": {
+          "0%": { transform: "scale(1.45)", opacity: "0.6" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
+        "pin-pulse": {
+          "0%": { transform: "scale(0.75)", opacity: "0.7" },
+          "100%": { transform: "scale(1.5)", opacity: "0" },
+        },
+        "glow-pulse": {
+          "0%, 100%": { boxShadow: "0 0 40px -10px hsl(43 75% 55% / 0.45)" },
+          "50%": { boxShadow: "0 0 70px -5px hsl(43 75% 55% / 0.75)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
