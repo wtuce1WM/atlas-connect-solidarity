@@ -295,6 +295,8 @@ export type ShowcaseProps = {
   videoStarts?: Record<string, number>;
   /** Point de fin (secondes) par URL de vidéo — défini dans le Studio (Time End). */
   videoEnds?: Record<string, number>;
+  /** Durée réelle (secondes) par URL de vidéo — sert à boucler le média. */
+  videoDurations?: Record<string, number>;
   offer?: { title?: string; price?: string; lines?: string[]; message_html?: string | null; background_video_url?: string; background_image_url?: string } | null;
   offers?: Array<{ title?: string; price?: string; lines?: string[]; message_html?: string | null; background_video_url?: string; background_image_url?: string }> | null;
   /** Carte "Offre" rédigée par l'IA (option « Carte IA »), distincte des offres en base. */
