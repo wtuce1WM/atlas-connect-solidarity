@@ -168,6 +168,7 @@ const BusinessCard = ({
   activeTimeSlot
 }: BusinessCardProps) => {
   const { language } = useLanguage();
+  useEffect(() => { trackBusinessImpression(business.id, "list"); }, [business.id]);
   const { speak: ttsSpeak, stop: ttsStop, status: ttsStatus } = useTextToSpeech();
   const gamme = getBusinessGamme(business, gammes);
   const badge = getBusinessBadge(business, badges, subcategories, badgeSubcategories);
