@@ -2480,6 +2480,7 @@ export type Database = {
           default_destination_id: string | null
           default_destination_style: string
           default_poi_business_id: string | null
+          default_poi_is_master: boolean
           default_service: string | null
           default_sound_on: boolean
           description: string | null
@@ -2670,6 +2671,7 @@ export type Database = {
           default_destination_id?: string | null
           default_destination_style?: string
           default_poi_business_id?: string | null
+          default_poi_is_master?: boolean
           default_service?: string | null
           default_sound_on?: boolean
           description?: string | null
@@ -2860,6 +2862,7 @@ export type Database = {
           default_destination_id?: string | null
           default_destination_style?: string
           default_poi_business_id?: string | null
+          default_poi_is_master?: boolean
           default_service?: string | null
           default_sound_on?: boolean
           description?: string | null
@@ -8179,6 +8182,7 @@ export type Database = {
               default_destination_id: string | null
               default_destination_style: string
               default_poi_business_id: string | null
+              default_poi_is_master: boolean
               default_service: string | null
               default_sound_on: boolean
               description: string | null
@@ -8385,6 +8389,7 @@ export type Database = {
               default_destination_id: string | null
               default_destination_style: string
               default_poi_business_id: string | null
+              default_poi_is_master: boolean
               default_service: string | null
               default_sound_on: boolean
               description: string | null

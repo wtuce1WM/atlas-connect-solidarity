@@ -1,0 +1,1 @@
+ALTER TABLE public.businesses ADD COLUMN IF NOT EXISTS default_poi_is_master boolean NOT NULL DEFAULT false;
