@@ -596,11 +596,23 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
     map.setOptions({ fullscreenControl: false });
   }, [ready]);
 
-  // Un changement de rayon (pill « À proximité ») est une intention explicite :
-  // on réautorise un recentrage/zoom sur le Master.
+  // Un changement de filtre (Pills du haut ou du bas : rayon, POI, catégories,
+  // regroupements…) est une intention explicite : on réautorise un recentrage/
+  // resize de la carte piloté par le rayon du pill « À proximité ».
+  const filterSignature = useMemo(
+    () =>
+      [
+        fitRadiusKm ?? "",
+        center ? `${center.lat.toFixed(5)},${center.lng.toFixed(5)}` : "",
+        pois.length,
+        pois.map((p) => p.id).join("|"),
+      ].join("~"),
+    [fitRadiusKm, center, pois],
+  );
   useEffect(() => {
     userMovedRef.current = false;
-  }, [fitRadiusKm]);
+  }, [filterSignature]);
+
 
   // Bascule du type de carte (plan / satellite / relief) sans reconstruire la carte.
   useEffect(() => {
