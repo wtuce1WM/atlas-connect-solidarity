@@ -59,6 +59,8 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const [embedCard, setEmbedCard] = useState<"widget" | "transparent">("widget");
   const [embedLang, setEmbedLang] = useState<"fr" | "en" | "ar">("fr");
   const [embedHeight, setEmbedHeight] = useState<number>(640);
+  const [assistantName, setAssistantName] = useState<string>("Zitoun IA");
+  const [panelTabPos, setPanelTabPos] = useState<"top" | "middle" | "bottom">("middle");
   const [nearbyLang, setNearbyLang] = useState<"fr" | "en" | "ar">("fr");
   const [nearbyHeight, setNearbyHeight] = useState<number>(720);
   const [nearbyBg, setNearbyBg] = useState<string>("");
