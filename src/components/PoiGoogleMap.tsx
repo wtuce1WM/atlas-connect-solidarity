@@ -491,7 +491,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
           : LIGHT_MAP_STYLES;
     }
     mapRef.current = new gmaps.Map(containerRef.current, opts);
-    infoWindowRef.current = new gmaps.InfoWindow();
+    // disableAutoPan : survoler un POI excentré ne doit jamais déplacer la carte.
+    infoWindowRef.current = new gmaps.InfoWindow({ disableAutoPan: true });
 
     // Zoom helper: keep the Master marker at the same screen pixel while zooming
     applyAnchoredZoomRef.current = (newZoom: number) => {
