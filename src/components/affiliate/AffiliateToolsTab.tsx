@@ -1763,11 +1763,11 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
             </div>
             <div className="space-y-2">
               <Label className="text-white/80 text-xs">Aperçu en direct</Label>
-              <div className="rounded-md overflow-hidden border border-white/20 bg-black/30 flex justify-center">
+              <div className="rounded-md overflow-hidden border border-white/20 bg-black/30 flex justify-center p-2">
                 <iframe
                   key={ficheUrl}
                   src={ficheUrl}
-                  style={{ width: "100%", maxWidth: ficheMaxWidth, height: 720, border: 0 }}
+                  style={{ width: fitFlags(fitOf("fiche")).fullWidth ? "100%" : ficheMaxWidth, maxWidth: "100%", height: 900, border: 0 }}
                   title="Aperçu fiche"
                   loading="lazy"
                 />
