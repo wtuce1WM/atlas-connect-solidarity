@@ -1269,7 +1269,7 @@ const EmbedAsk = () => {
                       <div
                         key={p.id}
                         className={`relative rounded-2xl overflow-hidden border ${border} ${cardBg}`}
-                        style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}
+                        style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.08)", ...(cardStyle || {}) }}
                       >
                         <div className="flex gap-3 p-3">
                           <button
