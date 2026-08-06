@@ -3343,7 +3343,9 @@ const BookOnlineSlidePanelInner = ({
               distanceOrigin={business?.latitude && business?.longitude ? { lat: Number(business.latitude), lng: Number(business.longitude) } : null}
               onPoiClick={(poiId) => {
                 if (poiId.startsWith("self-")) return;
-                if (poiMapMode === "destinations") {
+                if (overridePois) {
+                  setSelectedKpBusinessId(poiId);
+                } else if (poiMapMode === "destinations") {
                   setSelectedDestinationId(poiId);
                 } else if (poiBusinesses.length > 0) {
                   poiOpenedFromMapRef.current = true;
@@ -3352,14 +3354,16 @@ const BookOnlineSlidePanelInner = ({
                   setSelectedKpBusinessId(poiId);
                 }
               }}
-              fitToMarkers={false}
+              fitToMarkers={!!overridePois}
               centerAtBottomRatio={0.4}
               mapTypeId={poiMapTypeId}
-              fitRadiusKm={poiMapMode === "destinations" ? null : poiProximityKm}
+              fitRadiusKm={overridePois ? null : (poiMapMode === "destinations" ? null : poiProximityKm)}
               baseColor={mapBaseColor || undefined}
               mapTheme={mapTheme}
               userLocation={userCoords ? { lat: userCoords.lat, lng: userCoords.lng } : null}
             />
+              );
+            })()}
             <div className="absolute bottom-16 left-3 right-3 z-[10] flex items-center justify-center gap-2 flex-wrap pointer-events-none">
               {showProxPill && (
                 <div className="inline-flex rounded-full bg-white/90 backdrop-blur-sm shadow-lg ring-1 ring-black/10 p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
