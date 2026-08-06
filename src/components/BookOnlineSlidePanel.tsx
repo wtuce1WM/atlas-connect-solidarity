@@ -444,18 +444,24 @@ const BookOnlineSlidePanelInner = ({
   const [widgetDefaultPoi, setWidgetDefaultPoi] = useState<any | null>(null);
   const [widgetMapView, setWidgetMapView] = useState<"nearby" | "kp1" | "kp2" | "poi">("nearby");
   useEffect(() => { setWidgetMapView("nearby"); }, [businessId]);
+  // Un clic dans un Pill du haut (POI / Catégories / Top20 / Proximité) remet la carte
+  // en vue "À proximité" : les pills du bas (KP1/KP2/POI) ne bloquent jamais ceux du haut.
+  const resetWidgetMapView = useCallback(() => setWidgetMapView("nearby"), []);
+
   useEffect(() => {
     if (!isEmbedMapWidget || !businessId) return;
     let cancelled = false;
     (async () => {
       const { data: b } = await (supabase as any)
         .from("businesses")
-        .select("kp_regroupement,kp_regroupement_2,default_poi_business_id")
+        .select("kp_regroupement,kp_regroupement_2,default_poi_business_id,kp_city,kp_city_2")
         .eq("id", businessId)
         .maybeSingle();
       if (cancelled || !b) return;
       const kp1 = (b.kp_regroupement || "").trim();
       const kp2 = (b.kp_regroupement_2 || "").trim();
+      const kpCity1 = (b.kp_city || "").trim();
+      const kpCity2 = (b.kp_city_2 || "").trim();
       const sel = "id,name,city,neighborhood,latitude,longitude,images,computed_rating,total_review_count";
       const [m1, m2, titlesRes, poiRes] = await Promise.all([
         kp1 ? (supabase as any).from("businesses").select(sel).eq("kp_regroupement", kp1).eq("is_active", true).order("name") : Promise.resolve({ data: [] }),
@@ -469,8 +475,12 @@ const BookOnlineSlidePanelInner = ({
       const titleMap = new Map<string, string>();
       ((titlesRes as any)?.data ?? []).forEach((t: any) => titleMap.set(`${t.kp_type}:${t.kp_code}`, t.title || ""));
       const groups: WidgetKpGroup[] = [];
-      const mem1 = ((m1 as any)?.data ?? []) as any[];
-      const mem2 = ((m2 as any)?.data ?? []) as any[];
+      // "Limiter à une ville" (kp_city / kp_city_2) : le Master reste toujours affiché,
+      // seuls les membres de la ville choisie sont retenus.
+      const byCity = (list: any[], city: string) =>
+        city ? list.filter((m) => m.id === businessId || (m.city || "").trim() === city) : list;
+      const mem1 = byCity(((m1 as any)?.data ?? []) as any[], kpCity1);
+      const mem2 = byCity(((m2 as any)?.data ?? []) as any[], kpCity2);
       if (kp1 && mem1.length > 1) groups.push({ slot: 1, code: kp1, title: titleMap.get(`kp1:${kp1}`) || kp1, members: mem1 });
       if (kp2 && mem2.length > 1) groups.push({ slot: 2, code: kp2, title: titleMap.get(`kp2:${kp2}`) || kp2, members: mem2 });
       setWidgetKpGroups(groups);
@@ -478,6 +488,7 @@ const BookOnlineSlidePanelInner = ({
     })();
     return () => { cancelled = true; };
   }, [isEmbedMapWidget, businessId]);
+
 
   const [poiCategoryBusinesses, setPoiCategoryBusinesses] = useState<PoiBusiness[]>([]);
   const [poiCategoryBusinessCatId, setPoiCategoryBusinessCatId] = useState<string | null>(null);
@@ -3105,14 +3116,14 @@ const BookOnlineSlidePanelInner = ({
                   <div className="inline-flex rounded-full bg-black/50 backdrop-blur-sm p-0.5 text-[11px] font-semibold uppercase tracking-wider pointer-events-auto" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                     <button
                       type="button"
-                      onClick={() => setPoiShowAll(false)}
+                      onClick={() => { resetWidgetMapView(); setPoiShowAll(false); }}
                       className={`px-3 py-1 rounded-full transition-colors ${!poiShowAll ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                     >
                       {language === "en" ? "Top 20" : language === "ar" ? "أفضل 20" : "Top 20"}
                     </button>
                     <button
                       type="button"
-                      onClick={() => setPoiShowAll(true)}
+                      onClick={() => { resetWidgetMapView(); setPoiShowAll(true); }}
                       className={`px-3 py-1 rounded-full transition-colors ${poiShowAll ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                     >
                       {language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"} <span className="ml-0.5 opacity-70">{total}</span>
@@ -3133,12 +3144,12 @@ const BookOnlineSlidePanelInner = ({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="z-[260] max-h-[70vh] min-w-[15rem] overflow-y-auto">
                         {poiSubcatFilter && (
-                          <DropdownMenuItem onSelect={() => setPoiSubcatFilter(null)}>
+                          <DropdownMenuItem onSelect={() => { resetWidgetMapView(); setPoiSubcatFilter(null); }}>
                             {language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
                           </DropdownMenuItem>
                         )}
                         {poiSubcatList.map(([name, count]) => (
-                          <DropdownMenuItem key={name} onSelect={() => { setPoiCatFilter(null); setCatSubcatFilter(null); setPoiSubcatFilter(name); setPoiShowAll(false); }}>
+                          <DropdownMenuItem key={name} onSelect={() => { resetWidgetMapView(); setPoiCatFilter(null); setCatSubcatFilter(null); setPoiSubcatFilter(name); setPoiShowAll(false); }}>
                             {translateSubcategory(name, language)} <span className="ml-1 opacity-60">({count})</span>
                           </DropdownMenuItem>
                         ))}
@@ -3177,16 +3188,16 @@ const BookOnlineSlidePanelInner = ({
                           {activeFrontTab ? (
                             <>
                               {/* Fallback vers Catégories en haut des sous-catégories */}
-                              <DropdownMenuItem onSelect={() => { setPoiCatFilter(null); setCatSubcatFilter(null); setPoiShowAll(false); }}>
+                              <DropdownMenuItem onSelect={() => { resetWidgetMapView(); setPoiCatFilter(null); setCatSubcatFilter(null); setPoiShowAll(false); }}>
                                 {"\u2039 "}{language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
                               </DropdownMenuItem>
                               {catSubcatFilter && (
-                                <DropdownMenuItem onSelect={() => setCatSubcatFilter(null)}>
+                                <DropdownMenuItem onSelect={() => { resetWidgetMapView(); setCatSubcatFilter(null); }}>
                                   {language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
                                 </DropdownMenuItem>
                               )}
                               {catSubcatList.map(([name, count]) => (
-                                <DropdownMenuItem key={name} onSelect={() => { setPoiSubcatFilter(null); setCatSubcatFilter(name); setPoiShowAll(false); }}>
+                                <DropdownMenuItem key={name} onSelect={() => { resetWidgetMapView(); setPoiSubcatFilter(null); setCatSubcatFilter(name); setPoiShowAll(false); }}>
                                   {translateSubcategory(name, language)} <span className="ml-1 opacity-60">({count})</span>
                                 </DropdownMenuItem>
                               ))}
@@ -3202,7 +3213,7 @@ const BookOnlineSlidePanelInner = ({
                                   onSelect={(e) => {
                                     if (disabled) { e.preventDefault(); return; }
                                     e.preventDefault();
-                                    setPoiSubcatFilter(null); setPoiCatFilter(ft.id); setCatSubcatFilter(null); setPoiShowAll(false);
+                                    resetWidgetMapView(); setPoiSubcatFilter(null); setPoiCatFilter(ft.id); setCatSubcatFilter(null); setPoiShowAll(false);
                                   }}
                                   className={disabled ? "opacity-40 pointer-events-none" : ""}
                                 >
@@ -3245,8 +3256,8 @@ const BookOnlineSlidePanelInner = ({
                 }))}
                 selectedKey={poiSubcatFilter}
                 allLabel={language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
-                onSelectAll={() => { setPoiSubcatFilter(null); setPoiPillOverlay(null); }}
-                onSelect={(key) => { setPoiCatFilter(null); setCatSubcatFilter(null); setPoiSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
+                onSelectAll={() => { resetWidgetMapView(); setPoiSubcatFilter(null); setPoiPillOverlay(null); }}
+                onSelect={(key) => { resetWidgetMapView(); setPoiCatFilter(null); setCatSubcatFilter(null); setPoiSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
                 onClose={() => setPoiPillOverlay(null)}
               />
             )}
@@ -3264,9 +3275,9 @@ const BookOnlineSlidePanelInner = ({
                   selectedKey={catSubcatFilter}
                   allLabel={language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
                   backLabel={language === "en" ? "Categories" : language === "ar" ? "الفئات" : "Catégories"}
-                  onBack={() => { setPoiCatFilter(null); setCatSubcatFilter(null); setPoiShowAll(false); }}
-                  onSelectAll={() => { setCatSubcatFilter(null); setPoiPillOverlay(null); }}
-                  onSelect={(key) => { setPoiSubcatFilter(null); setCatSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
+                  onBack={() => { resetWidgetMapView(); setPoiCatFilter(null); setCatSubcatFilter(null); setPoiShowAll(false); }}
+                  onSelectAll={() => { resetWidgetMapView(); setCatSubcatFilter(null); setPoiPillOverlay(null); }}
+                  onSelect={(key) => { resetWidgetMapView(); setPoiSubcatFilter(null); setCatSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
                   onClose={() => setPoiPillOverlay(null)}
                 />
               ) : (
@@ -3282,11 +3293,13 @@ const BookOnlineSlidePanelInner = ({
                   selectedKey={poiCatFilter}
                   allLabel={language === "en" ? "All categories" : language === "ar" ? "جميع الفئات" : "Toutes les catégories"}
                   onSelectAll={() => {
+                    resetWidgetMapView();
                     setPoiCatFilter(null); setCatSubcatFilter(null);
                     setPoiShowAll(false); setPoiPillOverlay(null);
                   }}
                   onSelect={(key) => {
                     // Reste dans l'overlay POI/Map du Master : on ne relance aucune recherche.
+                    resetWidgetMapView();
                     setPoiSubcatFilter(null);
                     setPoiCatFilter(key);
                     setCatSubcatFilter(null);
@@ -3452,7 +3465,7 @@ const BookOnlineSlidePanelInner = ({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="z-[260]">
                       {poiProximityKm != null && (
-                        <DropdownMenuItem onSelect={() => setPoiProximityKm(null)}>
+                        <DropdownMenuItem onSelect={() => { resetWidgetMapView(); setPoiProximityKm(null); }}>
                           {language === "en" ? "All distances" : language === "ar" ? "جميع المسافات" : "Toutes distances"}
                         </DropdownMenuItem>
                       )}
@@ -3463,7 +3476,7 @@ const BookOnlineSlidePanelInner = ({
                           <DropdownMenuItem
                             key={o.km}
                             disabled={disabled}
-                            onSelect={(e) => { if (disabled) { e.preventDefault(); return; } setPoiProximityKm(o.km); }}
+                            onSelect={(e) => { if (disabled) { e.preventDefault(); return; } resetWidgetMapView(); setPoiProximityKm(o.km); }}
                             className={disabled ? "opacity-40 pointer-events-none" : ""}
                           >
                             {o.label} <span className="ml-1 opacity-60">({count})</span>
