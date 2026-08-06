@@ -105,8 +105,13 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       if (cancelled) return;
       const v = Number((data as any)?.poi_radius_km);
       setRadiusKm(v > 0 ? v : 10);
-      setWidgetBg(((data as any)?.widget_bg_color || "").toUpperCase());
+      const wcolor = ((data as any)?.widget_bg_color || "").toUpperCase();
+      setWidgetBg(wcolor);
+      // Widget « À proximité » : on pré-remplit le fond de carte avec la couleur
+      // de fond des widgets de l'établissement quand elle est définie.
+      if (/^#[0-9A-F]{6}$/.test(wcolor)) setNearbyBg((prev) => prev || wcolor);
       setRadiusLoading(false);
+
     })();
     return () => { cancelled = true; };
   }, [businessId]);
