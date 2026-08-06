@@ -1514,6 +1514,8 @@ const BookOnlineSlidePanelInner = ({
   }, [setIsFileVideoVertical, setIsFileVideoSquare]);
 
   if (isLoading) {
+    // Widget carte embarqué : pas de squelette de fiche (on n'affiche jamais l'accueil du Master).
+    if (isEmbedMapWidget) return <div className="h-full w-full bg-transparent" />;
     return (
       <div className="h-full overflow-y-auto bg-background p-6 space-y-6">
         <Skeleton className="w-full aspect-video rounded-xl" />
@@ -1522,6 +1524,7 @@ const BookOnlineSlidePanelInner = ({
       </div>
     );
   }
+
 
   if (!business) return null;
 
@@ -2785,7 +2788,8 @@ const BookOnlineSlidePanelInner = ({
 
       {/* POI sub-panel */}
       {selectedPoiBusinessId && (
-        <OverlayShell zClass="z-[85]" coverToolbar={false} animClass="animate-slide-up-from-bottom" bg="bg-background" className="flex flex-col">
+        <OverlayShell zClass="z-[85]" coverToolbar={false} animClass={isEmbedMapWidget ? "animate-slide-in-right" : "animate-slide-up-from-bottom"} bg="bg-background" className={`flex flex-col ${isEmbedMapWidget ? "lg:left-1/2 lg:w-1/2" : ""}`}>
+
           <SlidePanelHeader
             onClose={() => { setSelectedPoiBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); onMosaicStateChange?.(false); if (poiOpenedFromMapRef.current) poiOpenedFromMapRef.current = false; }}
             alwaysDark
@@ -2968,7 +2972,7 @@ const BookOnlineSlidePanelInner = ({
         }
         const activeProx = proxOpts.find((o) => o.km === poiProximityKm) || null;
         return (
-        <OverlayShell zClass="z-[80]" desktopOnly={false} animClass={isEmbedMapWidget ? "animate-slide-in-right" : "animate-slide-up-from-bottom"} className={isEmbedMapWidget ? "lg:left-1/2 lg:w-1/2" : ""} bg={isEmbedMapWidget ? "bg-background" : ""}>
+        <OverlayShell zClass="z-[80]" desktopOnly={false} animClass={isEmbedMapWidget ? "animate-slide-in-right" : "animate-slide-up-from-bottom"} bg={isEmbedMapWidget ? "bg-background" : ""}>
           <div dir="ltr" className="absolute inset-0">
             {!embedMode && (
               <button
