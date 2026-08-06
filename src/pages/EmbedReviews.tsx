@@ -48,6 +48,10 @@ export default function EmbedReviews() {
   const wantsTransparent = /^(transparent|none|0)$/i.test(bgRaw);
   const surface: string | null | undefined = bgColor || (wantsTransparent ? (cardColor || "") : undefined);
   const ink = surface === undefined ? "light" : resolveEmbedInk(params.get("ink"), bgColor || cardColor);
+  // ?frame=0 (ou frameless=1) → aucun cadre : fusion parfaite avec la section hôte
+  const frameless = /^(0|none|off|no)$/i.test((params.get("frame") || "").trim()) ||
+    /^(1|true|yes)$/i.test((params.get("frameless") || "").trim());
+
 
   
 
@@ -145,7 +149,7 @@ export default function EmbedReviews() {
       )}
       {!loading && !error && business && (
         <div ref={fitInnerRef} className="w-full flex justify-center [&>div]:max-w-full" style={fitStyle}>
-          <EmbedReviewsWidget business={business} reviews={reviews} platform={platform} lang={lang} ratio={ratio} size={size} fullWidth={fullWidth} surface={surface} ink={ink} />
+          <EmbedReviewsWidget business={business} reviews={reviews} platform={platform} lang={lang} ratio={ratio} size={size} fullWidth={fullWidth} surface={surface} ink={ink} frameless={frameless} />
         </div>
       )}
     </div>
