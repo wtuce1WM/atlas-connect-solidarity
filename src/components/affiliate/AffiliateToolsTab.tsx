@@ -318,8 +318,14 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     "square": { label: "Carré", ratio: "square", size: "sm", w: 480, h: 480 },
   };
   const preset = REVIEW_PRESETS[reviewsPreset] || REVIEW_PRESETS["v-sm"];
+  // « Transparent » : la page du widget est transparente (fond du site hôte) mais
+  // l'intérieur de la carte d'avis prend la couleur de fond des widgets (`card=`).
   const reviewsBgParam =
-    reviewsCard === "transparent" ? "&bg=transparent" : reviewsCard === "dark" ? "" : wbg;
+    reviewsCard === "transparent"
+      ? `&bg=transparent${widgetBgValid ? `&card=${widgetBg.slice(1)}` : ""}`
+      : reviewsCard === "dark"
+        ? ""
+        : wbg;
   const reviewsUrl = `${SITE}/embed/reviews/${slug}?platform=${reviewsPlatform}&lang=${reviewsLang}&ratio=${preset.ratio}&size=${preset.size}${fitParam(fitOf("reviews"))}${reviewsBgParam}`;
 
   const reviewsSnippet = useMemo(
