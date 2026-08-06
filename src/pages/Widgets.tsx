@@ -276,6 +276,8 @@ interface WidgetSectionProps {
   snippet: string;
   snippetPreviewLines?: number;
   extra?: React.ReactNode;
+  /** Bloc affiché juste sous le titre du widget. */
+  banner?: React.ReactNode;
 }
 
 const WidgetSection = ({
