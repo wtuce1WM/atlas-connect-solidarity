@@ -306,6 +306,22 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
       if (this.div) this.applyStyle();
     }
 
+    /** Petit effet de resize (zoom-in / zoom-out) sur le marqueur. */
+    pulse(direction: 1 | -1) {
+      const el = this.div;
+      if (!el) return;
+      const base = this.highlighted ? 1.08 : 1;
+      const peak = base * (direction > 0 ? 1.24 : 0.8);
+      el.style.transition = "transform 0.22s cubic-bezier(0.34,1.56,0.64,1)";
+      el.style.transform = `translate(-50%,-100%) scale(${peak})`;
+      window.setTimeout(() => {
+        if (!this.div) return;
+        this.div.style.transition = "transform 0.28s cubic-bezier(0.34,1.56,0.64,1)";
+        this.div.style.transform = `translate(-50%,-100%) scale(${base})`;
+      }, 200);
+    }
+
+
     private applyStyle() {
       if (!this.div) return;
       const hlc = this.highlightColor;
