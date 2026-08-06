@@ -205,6 +205,56 @@ const GeoMarketingBanner = () => {
     </div>
   );
 };
+/* ---------------- Marketing push : Assistant IA & Vocal ---------------- */
+const AiMarketingBanner = () => (
+  <div
+    className="relative overflow-hidden rounded-2xl border border-gold/40 p-6 sm:p-8 animate-glow-pulse"
+    style={{ background: "var(--gradient-morocco)" }}
+  >
+    <div className="pointer-events-none absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+    <div className="pointer-events-none absolute right-10 top-5 h-20 w-20 rounded-full border border-white/20 animate-float" />
+    <div className="pointer-events-none absolute left-8 bottom-4 h-14 w-14 rounded-full border border-gold/30 animate-float [animation-delay:1.4s]" />
+
+    <div className="relative z-10 space-y-4">
+      <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-white backdrop-blur-sm">
+        <Sparkles className="h-3.5 w-3.5 text-gold" />
+        Conseiller local augmenté
+      </div>
+      <h3 className="text-2xl font-bold leading-tight text-white sm:text-3xl">
+        Il écoute, il répond, il fait voyager — <span className="text-gold">à la voix comme au clavier</span>
+      </h3>
+      <p className="max-w-2xl text-sm leading-relaxed text-white/85 sm:text-base">
+        Un assistant qui parle la langue de vos visiteurs, se pilote au micro, illustre ses réponses
+        avec des vidéos immersives et transforme une simple question en envie de réserver.
+      </p>
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { k: "Vocal", v: "Question posée au micro, réponse lue à voix haute" },
+          { k: "Vidéos immersives", v: "Chaque adresse citée s'anime en vidéo verticale" },
+          { k: "Inspirationnel", v: "Suggestions et relances qui donnent des idées, pas des listes" },
+          { k: "L'App dans l'embed", v: "Carte, itinéraires, réservation : tout reste actif dans le widget" },
+        ].map((f) => (
+          <div key={f.k} className="rounded-xl bg-black/20 px-4 py-3 backdrop-blur-sm">
+            <div className="text-sm font-bold text-gold">{f.k}</div>
+            <div className="mt-1 text-[12.5px] leading-snug text-white/80">{f.v}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3 pt-1 text-xs font-medium text-white/80 sm:text-sm">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 backdrop-blur-sm">
+          <span className="inline-block h-2 w-2 rounded-full bg-gold animate-pulse" />
+          Réponses ancrées sur nos données réelles
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 backdrop-blur-sm">
+          Intégration iframe en 1 ligne de code
+        </span>
+      </div>
+    </div>
+  </div>
+);
+
 
 
 interface WidgetSectionProps {
