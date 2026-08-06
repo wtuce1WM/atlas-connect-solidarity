@@ -3411,7 +3411,7 @@ const BookOnlineSlidePanelInner = ({
               connector={widgetConnector}
               baseColor={mapBaseColor || undefined}
               mapTheme={mapTheme}
-              userLocation={userCoords ? { lat: userCoords.lat, lng: userCoords.lng } : null}
+              userLocation={showUserMarker && userCoords ? { lat: userCoords.lat, lng: userCoords.lng } : null}
             />
               );
             })()}
