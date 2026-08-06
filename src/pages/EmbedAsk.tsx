@@ -1023,10 +1023,10 @@ const EmbedAsk = () => {
         )}
 
         <div className="w-8 h-8 rounded-full bg-[#C24B3F] flex items-center justify-center text-white text-sm font-semibold">
-          {((assistantTitle || businessName) || "?").slice(0, 1).toUpperCase()}
+          {((assistantNameParam || assistantTitle || businessName) || "?").slice(0, 1).toUpperCase()}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="font-semibold truncate text-sm">{assistantTitle || businessName || "…"}</div>
+          <div className="font-semibold truncate text-sm">{assistantNameParam || assistantTitle || businessName || "…"}</div>
           <div className="text-[11px] opacity-60 truncate">{L.hint}</div>
         </div>
         <button
