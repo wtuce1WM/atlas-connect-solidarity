@@ -508,6 +508,9 @@ const BookOnlineSlidePanelInner = ({
 
   const geo = useGeolocation();
   const { coords: userCoords } = geo;
+  // Marqueur "Vous êtes ici" : jamais dans le widget embed (site tiers), et
+  // uniquement si la géoloc est réellement active (pas de coords résiduelles).
+  const showUserMarker = !embedMode && geo.isEnabled;
   // LocationPicker is mounted globally on SearchPage; no local instance here to avoid double-open.
   const { tabs: frontTabs } = useFrontStructureTabs(business?.city || null);
   const { translateSubcategory } = useTaxonomyTranslations();
@@ -3411,7 +3414,7 @@ const BookOnlineSlidePanelInner = ({
               connector={widgetConnector}
               baseColor={mapBaseColor || undefined}
               mapTheme={mapTheme}
-              userLocation={userCoords ? { lat: userCoords.lat, lng: userCoords.lng } : null}
+              userLocation={showUserMarker && userCoords ? { lat: userCoords.lat, lng: userCoords.lng } : null}
             />
               );
             })()}
