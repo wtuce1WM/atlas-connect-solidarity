@@ -1,0 +1,1 @@
+ALTER TABLE public.front_highlights ADD COLUMN IF NOT EXISTS section_columns smallint NOT NULL DEFAULT 2;

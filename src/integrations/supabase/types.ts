@@ -4387,6 +4387,7 @@ export type Database = {
           metric_value_ar: string | null
           metric_value_en: string | null
           metric_value_fr: string | null
+          section_columns: number
           section_intro: string | null
           section_intro_ar: string | null
           section_intro_en: string | null
@@ -4420,6 +4421,7 @@ export type Database = {
           metric_value_ar?: string | null
           metric_value_en?: string | null
           metric_value_fr?: string | null
+          section_columns?: number
           section_intro?: string | null
           section_intro_ar?: string | null
           section_intro_en?: string | null
@@ -4453,6 +4455,7 @@ export type Database = {
           metric_value_ar?: string | null
           metric_value_en?: string | null
           metric_value_fr?: string | null
+          section_columns?: number
           section_intro?: string | null
           section_intro_ar?: string | null
           section_intro_en?: string | null

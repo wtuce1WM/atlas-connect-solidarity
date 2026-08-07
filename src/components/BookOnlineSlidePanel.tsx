@@ -647,21 +647,21 @@ const BookOnlineSlidePanelInner = ({
   const [allYoutubeVideos, setAllYoutubeVideos] = useState<YouTubeVideo[]>([]);
   const [kpGroupTitle, setKpGroupTitle] = useState<string | null>(null);
   const [highlights, setHighlights] = useState<{ id: string; icon: string; title: string; description: string; image_url: string | null; metric_title: string | null; metric_value: string | null }[]>([]);
-  const [highlightsSection, setHighlightsSection] = useState<{ title: string | null; intro: string | null }>({ title: null, intro: null });
+  const [highlightsSection, setHighlightsSection] = useState<{ title: string | null; intro: string | null; columns: number }>({ title: null, intro: null, columns: 2 });
 
   useEffect(() => {
-    if (!businessId) { setHighlights([]); setHighlightsSection({ title: null, intro: null }); return; }
+    if (!businessId) { setHighlights([]); setHighlightsSection({ title: null, intro: null, columns: 2 }); return; }
     let cancelled = false;
     (async () => {
       const { data } = await supabase
         .from("front_highlights")
-        .select("id, icon, title, description, image_url, sort_order, section_title, section_intro, metric_title, metric_value")
+        .select("id, icon, title, description, image_url, sort_order, section_title, section_intro, section_columns, metric_title, metric_value")
         .eq("business_id", businessId)
         .order("sort_order");
       if (cancelled || !data) return;
       const rows = data as any[];
       setHighlights(rows.map(r => ({ id: r.id, icon: r.icon, title: r.title || "", description: r.description || "", image_url: r.image_url, metric_title: r.metric_title || null, metric_value: r.metric_value || null })));
-      setHighlightsSection({ title: rows[0]?.section_title || null, intro: rows[0]?.section_intro || null });
+      setHighlightsSection({ title: rows[0]?.section_title || null, intro: rows[0]?.section_intro || null, columns: Number(rows[0]?.section_columns) || 2 });
     })();
     return () => { cancelled = true; };
   }, [businessId]);
@@ -2552,7 +2552,7 @@ const BookOnlineSlidePanelInner = ({
                             )}
                           </div>
                         )}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
+                        <div className={`grid grid-cols-1 gap-3 ${highlightsSection.columns === 1 ? "" : highlightsSection.columns === 3 ? "md:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2"}`}>
                           {visible.map((h) => (
                             <div key={h.id} className="rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm p-3 flex flex-col gap-2">
                               {h.image_url && (

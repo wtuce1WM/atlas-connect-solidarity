@@ -60,15 +60,17 @@ const sfx = (l: Lang) => (l === "fr" ? "" : `_${l}`);
 const plainLen = (html: string) =>
   (html || "").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim().length;
 
-const SELECT_COLS = "id,icon,sort_order,business_id,image_url,title,title_en,title_ar,description,description_en,description_ar,section_title,section_title_en,section_title_ar,section_intro,section_intro_en,section_intro_ar,metric_title,metric_title_en,metric_title_ar,metric_value,metric_value_en,metric_value_ar";
+const SELECT_COLS = "id,icon,sort_order,business_id,image_url,section_columns,title,title_en,title_ar,description,description_en,description_ar,section_title,section_title_en,section_title_ar,section_intro,section_intro_en,section_intro_ar,metric_title,metric_title_en,metric_title_ar,metric_value,metric_value_en,metric_value_ar";
 
 
 const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Props>(
   ({ businessId, onDirtyChange }, ref) => {
     const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
     const [highlights, setHighlights] = useState<Highlight[]>([]);
     const [sectionTitle, setSectionTitle] = useState<Record<Lang, string>>({ fr: "", en: "", ar: "" });
     const [sectionIntro, setSectionIntro] = useState<Record<Lang, string>>({ fr: "", en: "", ar: "" });
+    const [sectionColumns, setSectionColumns] = useState<number>(2);
     const [lang, setLang] = useState<Lang>("fr");
     const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
     const [dirty, setDirty] = useState(false);
@@ -103,6 +105,7 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
             en: first.section_intro_en || "",
             ar: first.section_intro_ar || "",
           });
+          setSectionColumns(Number((first as any).section_columns) || 2);
         }
 
         const existingOrders = new Set(result.map((h) => h.sort_order));
@@ -171,48 +174,59 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
     };
 
     const handleSave = async () => {
-      for (const h of highlights) {
-        await supabase
-          .from("front_highlights")
-          .update({
-            icon: h.icon,
-            image_url: h.image_url,
-            // FR : colonnes historiques (lues par le front et le backoffice) + miroir _fr
-            title: h.title,
-            title_fr: h.title,
-            title_en: h.title_en,
-            title_ar: h.title_ar,
-            description: h.description,
-            description_fr: h.description,
-            description_en: h.description_en,
-            description_ar: h.description_ar,
-            section_title: sectionTitle.fr,
-            section_title_fr: sectionTitle.fr,
-            section_title_en: sectionTitle.en,
-            section_title_ar: sectionTitle.ar,
-            section_intro: sectionIntro.fr,
-            section_intro_fr: sectionIntro.fr,
-            section_intro_en: sectionIntro.en,
-            section_intro_ar: sectionIntro.ar,
-            metric_title: (h.metric_title || "").slice(0, MAX_METRIC) || null,
-            metric_title_fr: (h.metric_title || "").slice(0, MAX_METRIC) || null,
-            metric_title_en: (h.metric_title_en || "").slice(0, MAX_METRIC) || null,
-            metric_title_ar: (h.metric_title_ar || "").slice(0, MAX_METRIC) || null,
-            metric_value: (h.metric_value || "").slice(0, MAX_METRIC) || null,
-            metric_value_fr: (h.metric_value || "").slice(0, MAX_METRIC) || null,
-            metric_value_en: (h.metric_value_en || "").slice(0, MAX_METRIC) || null,
-            metric_value_ar: (h.metric_value_ar || "").slice(0, MAX_METRIC) || null,
-          } as any)
-          .eq("id", h.id);
+      setSaving(true);
+      try {
+        for (const h of highlights) {
+          const { error } = await supabase
+            .from("front_highlights")
+            .update({
+              icon: h.icon || "",
+              image_url: h.image_url || null,
+              section_columns: sectionColumns,
+              // FR : colonnes historiques (lues par le front et le backoffice) + miroir _fr
+              title: h.title || "",
+              title_fr: h.title || "",
+              title_en: h.title_en,
+              title_ar: h.title_ar,
+              description: h.description || "",
+              description_fr: h.description || "",
+              description_en: h.description_en,
+              description_ar: h.description_ar,
+              section_title: sectionTitle.fr,
+              section_title_fr: sectionTitle.fr,
+              section_title_en: sectionTitle.en,
+              section_title_ar: sectionTitle.ar,
+              section_intro: sectionIntro.fr,
+              section_intro_fr: sectionIntro.fr,
+              section_intro_en: sectionIntro.en,
+              section_intro_ar: sectionIntro.ar,
+              metric_title: (h.metric_title || "").slice(0, MAX_METRIC) || null,
+              metric_title_fr: (h.metric_title || "").slice(0, MAX_METRIC) || null,
+              metric_title_en: (h.metric_title_en || "").slice(0, MAX_METRIC) || null,
+              metric_title_ar: (h.metric_title_ar || "").slice(0, MAX_METRIC) || null,
+              metric_value: (h.metric_value || "").slice(0, MAX_METRIC) || null,
+              metric_value_fr: (h.metric_value || "").slice(0, MAX_METRIC) || null,
+              metric_value_en: (h.metric_value_en || "").slice(0, MAX_METRIC) || null,
+              metric_value_ar: (h.metric_value_ar || "").slice(0, MAX_METRIC) || null,
+            } as any)
+            .eq("id", h.id);
+          if (error) throw error;
+        }
+        setDirty(false);
+        onDirtyChange?.(false);
+        toast({ title: "Blocs enregistrés ✓" });
+      } catch (e: any) {
+        toast({ variant: "destructive", title: "Erreur d'enregistrement", description: e.message });
+        throw e;
+      } finally {
+        setSaving(false);
       }
-      setDirty(false);
-      onDirtyChange?.(false);
     };
 
     useImperativeHandle(
       ref,
       () => ({ save: handleSave, hasChanges: () => dirty }),
-      [highlights, sectionTitle, sectionIntro, dirty]
+      [highlights, sectionTitle, sectionIntro, sectionColumns, dirty]
     );
 
     const titleField = `title${sfx(lang)}` as keyof Highlight;
@@ -243,20 +257,39 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
             <TabsContent key={l} value={l} className="space-y-4 mt-4" dir={l === "ar" ? "rtl" : "ltr"}>
               {l === lang && (
                 <>
-                  <div className="space-y-2">
-                    <label className="text-xs font-medium text-muted-foreground">Titre de la section</label>
-                    <Input
-                      value={sectionTitle[lang]}
-                      onChange={(e) => {
-                        setSectionTitle((s) => ({ ...s, [lang]: e.target.value.slice(0, MAX_SECTION_TITLE) }));
-                        markDirty();
-                      }}
-                      placeholder="Ex: Nos Points Forts"
-                      className="h-9 text-sm max-w-md"
-                      maxLength={MAX_SECTION_TITLE}
-                      dir={rtl ? "rtl" : "ltr"}
-                    />
-                    <p className="text-xs text-muted-foreground">{sectionTitle[lang].length}/{MAX_SECTION_TITLE}</p>
+                  <div className="flex flex-wrap items-start gap-4">
+                    <div className="space-y-2 flex-1 min-w-[220px]">
+                      <label className="text-xs font-medium text-muted-foreground">Titre de la section</label>
+                      <Input
+                        value={sectionTitle[lang]}
+                        onChange={(e) => {
+                          setSectionTitle((s) => ({ ...s, [lang]: e.target.value.slice(0, MAX_SECTION_TITLE) }));
+                          markDirty();
+                        }}
+                        placeholder="Ex: Nos Points Forts"
+                        className="h-9 text-sm max-w-md"
+                        maxLength={MAX_SECTION_TITLE}
+                        dir={rtl ? "rtl" : "ltr"}
+                      />
+                      <p className="text-xs text-muted-foreground">{sectionTitle[lang].length}/{MAX_SECTION_TITLE}</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium text-muted-foreground">Présentation horizontale</label>
+                      <select
+                        value={sectionColumns}
+                        onChange={(e) => {
+                          setSectionColumns(Number(e.target.value));
+                          markDirty();
+                        }}
+                        className="h-9 w-[200px] rounded-md border border-input bg-background px-2 text-sm"
+                      >
+                        <option value={1}>1 (peu d'infos)</option>
+                        <option value={2}>2 (par défaut)</option>
+                        <option value={3}>3 (beaucoup d'infos)</option>
+                      </select>
+                      <p className="text-xs text-muted-foreground">Nombre de blocs par ligne sur la fiche.</p>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -409,7 +442,8 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
                   </div>
 
                   <div className="flex justify-end pt-2">
-                    <Button size="sm" disabled={!dirty} onClick={handleSave}>
+                    <Button size="sm" disabled={!dirty || saving} onClick={() => handleSave().catch(() => {})}>
+                      {saving && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
                       Enregistrer les blocs
                     </Button>
                   </div>

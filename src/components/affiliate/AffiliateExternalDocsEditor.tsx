@@ -275,6 +275,17 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
       ))}
     </select>
   );
+  const EXTERNAL_TITLES: Record<string, string> = {
+    presse: "Ils parlent de nous",
+    media: "Ils parlent de nous",
+    partenaires: "Ils nous font confiance",
+    recompenses: "Nous sommes reconnus par :",
+    certifications: "Nous sommes certifiés par :",
+    en_savoir_plus: "En savoir plus",
+  };
+  const derivedExternalTitle =
+    EXTERNAL_TITLES[(externals[0]?.description || "").toLowerCase()] || "+ d'infos";
+
 
   if (loading) {
     return (
@@ -298,12 +309,16 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
           <SortableContext items={menus.map((d) => d._uid)} strategy={verticalListSortingStrategy}>
             {menus.map((doc, idx) => (
               <SortableRow key={doc._uid} id={doc._uid}>
-                <Switch
-                  checked={doc.force_external}
-                  onCheckedChange={(c) => patch(setMenus, idx, { force_external: c })}
-                  title="Ouvrir en lien externe"
-                  className="shrink-0"
-                />
+                <div className="flex shrink-0 flex-col items-center gap-1">
+                  <Switch
+                    checked={doc.force_external}
+                    onCheckedChange={(c) => patch(setMenus, idx, { force_external: c })}
+                    title="Ouvrir en lien externe"
+                  />
+                  {doc.force_external && (
+                    <span className="text-[10px] leading-none text-orange-500">⚡ Lien externe activé</span>
+                  )}
+                </div>
                 <div className="relative shrink-0">
                   {doc.icon ? (
                     <img src={getDocIconSrc(doc.icon)} alt="" className="h-9 w-9 rounded border border-white/15 object-contain p-0.5" />
@@ -392,12 +407,16 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
           <SortableContext items={flipbooks.map((d) => d._uid)} strategy={verticalListSortingStrategy}>
             {flipbooks.map((doc, idx) => (
               <SortableRow key={doc._uid} id={doc._uid}>
-                <Switch
-                  checked={doc.force_external}
-                  onCheckedChange={(c) => patch(setFlipbooks, idx, { force_external: c })}
-                  title="Ouvrir en lien externe"
-                  className="shrink-0"
-                />
+                <div className="flex shrink-0 flex-col items-center gap-1">
+                  <Switch
+                    checked={doc.force_external}
+                    onCheckedChange={(c) => patch(setFlipbooks, idx, { force_external: c })}
+                    title="Ouvrir en lien externe"
+                  />
+                  {doc.force_external && (
+                    <span className="text-[10px] leading-none text-orange-500">⚡ Lien externe activé</span>
+                  )}
+                </div>
                 <div className="group relative shrink-0">
                   {doc.icon ? (
                     <>
@@ -472,12 +491,16 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
           <SortableContext items={externals.map((d) => d._uid)} strategy={verticalListSortingStrategy}>
             {externals.map((doc, idx) => (
               <SortableRow key={doc._uid} id={doc._uid}>
-                <Switch
-                  checked={doc.force_external}
-                  onCheckedChange={(c) => patch(setExternals, idx, { force_external: c })}
-                  title="Ouvrir en lien externe"
-                  className="shrink-0"
-                />
+                <div className="flex shrink-0 flex-col items-center gap-1">
+                  <Switch
+                    checked={doc.force_external}
+                    onCheckedChange={(c) => patch(setExternals, idx, { force_external: c })}
+                    title="Ouvrir en lien externe"
+                  />
+                  {doc.force_external && (
+                    <span className="text-[10px] leading-none text-orange-500">⚡ Lien externe activé</span>
+                  )}
+                </div>
                 <div className="group relative shrink-0">
                   <label className="block cursor-pointer">
                     {doc.image_url ? (
@@ -549,6 +572,29 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
           </SortableContext>
         </DndContext>
         {externals.length === 0 && <p className="text-xs text-white/50">Aucun lien externe ajouté.</p>}
+
+        {externals.length > 0 && (
+          <div className="rounded-lg border border-white/10 bg-white/5 p-3 text-xs leading-relaxed text-white/70">
+            <p className="mb-1 font-semibold text-white/90">Titre affiché sur la fiche : « {derivedExternalTitle} »</p>
+            <p>
+              Le titre de la carte « Liens externes » sur votre fiche est <strong>dynamique</strong> : il est déduit
+              de la rubrique du <strong>premier lien de la liste</strong> (l'ordre est celui défini ici par
+              glisser-déposer). Correspondances :
+            </p>
+            <ul className="mt-1 space-y-0.5 pl-4">
+              <li>• Presse ou Media → « Ils parlent de nous »</li>
+              <li>• Partenaires → « Ils nous font confiance »</li>
+              <li>• Récompenses → « Nous sommes reconnus par : »</li>
+              <li>• Certifications → « Nous sommes certifiés par : »</li>
+              <li>• En savoir plus → « En savoir plus »</li>
+              <li>• Aucune rubrique / autre → « + d'infos »</li>
+            </ul>
+            <p className="mt-1">
+              Le titre est traduit automatiquement en EN et AR selon la langue du visiteur. Pour changer ce message,
+              placez en première position le lien portant la rubrique souhaitée.
+            </p>
+          </div>
+        )}
       </section>
 
       <div className="flex justify-end">
