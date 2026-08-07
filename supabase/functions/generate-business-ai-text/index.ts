@@ -84,7 +84,7 @@ async function firecrawlSearch(query: string, apiKey: string): Promise<string> {
     .slice(0, 12000);
 }
 
-async function firecrawlScrape(url: string, apiKey: string): Promise<string> {
+async function firecrawlScrape(url: string, apiKey: string, maxChars = 4000): Promise<string> {
   const res = await fetch("https://api.firecrawl.dev/v1/scrape", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
@@ -92,7 +92,7 @@ async function firecrawlScrape(url: string, apiKey: string): Promise<string> {
   });
   if (!res.ok) return "";
   const json = await res.json();
-  return String(json?.data?.markdown ?? "").slice(0, 4000);
+  return String(json?.data?.markdown ?? "").slice(0, maxChars);
 }
 
 // Lecture VISUELLE d'un PDF (carte / menu) par IA multimodale.
@@ -330,7 +330,7 @@ Deno.serve(async (req) => {
               const vision = await visionReadPdf(u, label, LOVABLE_API_KEY, includePrices);
               if (vision) return `### ${label} (${u}) — lecture visuelle IA\n${vision}`;
             }
-            const md = await firecrawlScrape(u, fcKey);
+            const md = await firecrawlScrape(u, fcKey, includePrices ? 9000 : 4000);
             return md ? `### ${label} (${u})\n${md}` : "";
           }),
         );
