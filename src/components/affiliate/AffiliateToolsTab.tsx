@@ -772,7 +772,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
                 <button
                   key={t}
                   type="button"
-                  onClick={() => setEmbedTheme(t)}
+                  onClick={() => saveEmbedTheme(t)}
                   className={`flex-1 text-xs py-1.5 rounded-md border ${embedTheme === t ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
                 >
                   {t === "dark" ? "Sombre" : "Clair"}
