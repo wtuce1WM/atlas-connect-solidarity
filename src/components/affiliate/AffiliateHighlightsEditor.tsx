@@ -105,6 +105,7 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
             en: first.section_intro_en || "",
             ar: first.section_intro_ar || "",
           });
+          setSectionColumns(Number((first as any).section_columns) || 2);
         }
 
         const existingOrders = new Set(result.map((h) => h.sort_order));
