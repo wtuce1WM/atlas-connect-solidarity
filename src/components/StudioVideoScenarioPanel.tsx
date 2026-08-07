@@ -1278,9 +1278,28 @@ export function StudioVideoScenarioPanel({
                         <option key={c.slug} value={c.slug}>{c.name}</option>
                       ))}
                     </select>
-                    <span className="w-full text-[11px] text-neutral-500">
-                      Texte affiché au montage avec « {cityNameFromSlug(value, list)} ».
-                    </span>
+                    {isWeather ? (
+                      <div className="w-full">
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">
+                          Texte affiché au montage
+                        </label>
+                        <Textarea
+                          rows={2}
+                          value={textOverrides.weather?.description ?? scene.description ?? ""}
+                          onChange={(e) =>
+                            setTextOverrides((prev) => ({
+                              ...prev,
+                              weather: { ...(prev.weather ?? {}), description: e.target.value.slice(0, 300) },
+                            }))
+                          }
+                          className="bg-white text-[12px] text-black"
+                        />
+                      </div>
+                    ) : (
+                      <span className="w-full text-[11px] text-neutral-500">
+                        Texte affiché au montage avec « {cityNameFromSlug(value, list)} ».
+                      </span>
+                    )}
                   </div>
                 );
               })()}
