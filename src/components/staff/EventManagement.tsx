@@ -1351,7 +1351,7 @@ const EventManagement = () => {
                     "Cocktails", "Consulter notre offre", "Contactez-moi", "Contactez nous",
                     "Day Pass", "En savoir +", "Forfaits", "Google Play", "Hammam", "Hotel",
                     "La carte", "Les boissons", "Menu", "Nos services", "Notre offre",
-                    "Plus d'informations", "Programme", "Réserver en ligne", "Réservez",
+                    "Plus d'informations", "Programme", "Réserver en ligne", "Réserver une chambre", "Réserver une table", "Réservez",
                     "Restaurant", "Riad", "Séances", "Site web", "Spa", "WhatsApp",
                   ].map(opt => (
                     <SelectItem key={opt} value={opt}>{opt}</SelectItem>

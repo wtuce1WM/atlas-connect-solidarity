@@ -9,6 +9,8 @@ import { whatsappUrl } from "@/lib/phoneUtils";
 export const CTA_MODE_LABELS: Record<string, { fr: string; en: string; ar: string }> = {
   acheter_en_ligne: { fr: 'Acheter en ligne', en: 'Shop Online', ar: 'اشترِ عبر الإنترنت' },
   reserver_en_ligne: { fr: 'Réserver en ligne', en: 'Book Online', ar: 'احجز عبر الإنترنت' },
+  reserver_une_table: { fr: 'Réserver une table', en: 'Book a Table', ar: 'احجز طاولة' },
+  reserver_une_chambre: { fr: 'Réserver une chambre', en: 'Book a Room', ar: 'احجز غرفة' },
   consulter_offre: { fr: 'Consulter notre offre', en: 'View Our Offer', ar: 'اطلع على عرضنا' },
   plus_informations: { fr: "Plus d'informations", en: 'More Information', ar: 'مزيد من المعلومات' },
   contactez_nous: { fr: 'Contactez nous', en: 'Contact Us', ar: 'اتصل بنا' },

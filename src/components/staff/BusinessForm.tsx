@@ -943,6 +943,8 @@ const CTA_SELECT_OPTIONS = [
   "Plus d'informations",
   "Programme",
   "Réserver en ligne",
+  "Réserver une chambre",
+  "Réserver une table",
   "Réservez",
   "Restaurant",
   "Riad",
@@ -977,6 +979,8 @@ const CTA_VALUE_LABELS: Record<string, string> = {
   "plus informations": "Plus d'informations",
   "plus dinformations": "Plus d'informations",
   "reserver en ligne": "Réserver en ligne",
+  "reserver une chambre": "Réserver une chambre",
+  "reserver une table": "Réserver une table",
   reservez: "Réservez",
   restaurant: "Restaurant",
   riad: "Riad",
@@ -3557,6 +3561,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 <SelectContent className="bg-background z-50">
                   <SelectItem value="acheter_en_ligne">Acheter en ligne</SelectItem>
                   <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
+                  <SelectItem value="reserver_une_table">Réserver une table</SelectItem>
+                  <SelectItem value="reserver_une_chambre">Réserver une chambre</SelectItem>
                   <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
                   <SelectItem value="plus_informations">Plus d'informations</SelectItem>
                   <SelectItem value="contactez_nous">Contactez nous</SelectItem>
@@ -3633,6 +3639,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 <SelectContent className="bg-background z-50">
                   <SelectItem value="acheter_en_ligne">Acheter en ligne</SelectItem>
                   <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
+                  <SelectItem value="reserver_une_table">Réserver une table</SelectItem>
+                  <SelectItem value="reserver_une_chambre">Réserver une chambre</SelectItem>
                   <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
                   <SelectItem value="plus_informations">Plus d'informations</SelectItem>
                   <SelectItem value="contactez_nous">Contactez nous</SelectItem>
@@ -3709,6 +3717,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 <SelectContent className="bg-background z-50">
                   <SelectItem value="acheter_en_ligne">Acheter en ligne</SelectItem>
                   <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
+                  <SelectItem value="reserver_une_table">Réserver une table</SelectItem>
+                  <SelectItem value="reserver_une_chambre">Réserver une chambre</SelectItem>
                   <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
                   <SelectItem value="plus_informations">Plus d'informations</SelectItem>
                   <SelectItem value="contactez_nous">Contactez nous</SelectItem>
@@ -3770,6 +3780,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 <SelectContent className="bg-background z-50">
                   <SelectItem value="acheter_en_ligne">Acheter en ligne</SelectItem>
                   <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
+                  <SelectItem value="reserver_une_table">Réserver une table</SelectItem>
+                  <SelectItem value="reserver_une_chambre">Réserver une chambre</SelectItem>
                   <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
                   <SelectItem value="plus_informations">Plus d'informations</SelectItem>
                   <SelectItem value="contactez_nous">Contactez nous</SelectItem>
@@ -3831,6 +3843,8 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                 <SelectContent className="bg-background z-50">
                   <SelectItem value="acheter_en_ligne">Acheter en ligne</SelectItem>
                   <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
+                  <SelectItem value="reserver_une_table">Réserver une table</SelectItem>
+                  <SelectItem value="reserver_une_chambre">Réserver une chambre</SelectItem>
                   <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
                   <SelectItem value="plus_informations">Plus d'informations</SelectItem>
                   <SelectItem value="contactez_nous">Contactez nous</SelectItem>
