@@ -88,6 +88,27 @@ import { buildReviewHtml } from "@/lib/reviewHtmlBuilder";
 
 import VideoThumbnail from "@/components/VideoThumbnail";
 
+const spotifyEmbedUrl = (raw: string): string | null => {
+  const match = raw.match(/open\.spotify\.com\/(?:embed\/)?(playlist|album|track|episode|show|artist)\/([a-zA-Z0-9]+)/);
+  return match ? `https://open.spotify.com/embed/${match[1]}/${match[2]}?utm_source=oneworldmorocco` : null;
+};
+
+const soundcloudEmbedUrl = (raw: string): string | null => {
+  if (!/soundcloud\.com\//i.test(raw)) return null;
+  const params = new URLSearchParams({
+    url: raw,
+    color: "#ff5500",
+    auto_play: "false",
+    hide_related: "true",
+    show_comments: "false",
+    show_user: "true",
+    show_reposts: "false",
+    show_teaser: "false",
+    visual: "true",
+  });
+  return `https://w.soundcloud.com/player/?${params.toString()}`;
+};
+
 /* Static hook text component */
 const TypewriterHook = ({ text }: { text: string }) => {
   return (
@@ -2679,21 +2700,21 @@ const BookOnlineSlidePanelInner = ({
                           {business?.spotify_url && (
                             <iframe
                               key="w-spotify"
-                              src={`/embed/spotify/${business.slug}?bg=transparent&fit=w&lang=${language}`}
+                              src={spotifyEmbedUrl(business.spotify_url) || business.spotify_url}
                               title="Spotify"
                               scrolling="no"
                               allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                              style={{ width: "100%", height: 520, border: 0, background: "transparent", overflow: "hidden" }}
+                              style={{ width: "100%", height: 352, border: 0, background: "transparent", overflow: "hidden", borderRadius: 12 }}
                             />
                           )}
                           {business?.soundcloud_url && (
                             <iframe
                               key="w-soundcloud"
-                              src={`/embed/soundcloud/${business.slug}?visual=1&bg=transparent&fit=w&lang=${language}`}
+                              src={soundcloudEmbedUrl(business.soundcloud_url) || business.soundcloud_url}
                               title="SoundCloud"
                               scrolling="no"
                               allow="autoplay"
-                              style={{ width: "100%", height: 500, border: 0, background: "transparent", overflow: "hidden" }}
+                              style={{ width: "100%", height: 400, border: 0, background: "transparent", overflow: "hidden", borderRadius: 12 }}
                             />
                           )}
                           {(business as any)?.substack_url && (
