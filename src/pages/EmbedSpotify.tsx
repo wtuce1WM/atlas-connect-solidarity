@@ -41,7 +41,10 @@ const EmbedSpotify = () => {
   const langParam = (params.get("lang") || "fr").toLowerCase();
   const lang: Lang = langParam === "en" || langParam === "ar" ? (langParam as Lang) : "fr";
   const L = MESSAGES[lang];
-  const theme = (params.get("theme") || "light") === "dark" ? "dark" : "light";
+  const themeRaw = (params.get("theme") || "").toLowerCase();
+  // Sans paramètre `theme` : couleurs par défaut Spotify (pochette) + fond transparent.
+  const theme: "dark" | "light" | null = themeRaw === "dark" ? "dark" : themeRaw === "light" ? "light" : null;
+
   const bgRaw = params.get("bg") || "";
   const surface = parseBg(bgRaw) || "transparent";
   const { fullWidth, fullHeight } = fitFlags(parseFit(params.get("fit")));
