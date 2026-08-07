@@ -15,9 +15,10 @@ import Footer from "@/components/Footer";
 import HScroll from "@/components/HScroll";
 import {
   Loader2, Globe, CheckCircle2, AlertCircle, ExternalLink,
-  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench, Wand2, BarChart3, LogOut, Globe2, Newspaper, Scale, Bot
+  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench, Wand2, BarChart3, LogOut, Globe2, Newspaper, Scale, Bot, Music2, AudioLines
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
+import SubstackIcon from "@/components/icons/SubstackIcon";
 import { type OpeningHours } from "@/components/staff/OpeningHoursEditor";
 import AffiliateOpeningHoursEditor from "@/components/affiliate/AffiliateOpeningHoursEditor";
 import AffiliateContactEditor, { type CityOption, type NeighborhoodOption, type CtaUrlItem } from "@/components/affiliate/AffiliateContactEditor";
