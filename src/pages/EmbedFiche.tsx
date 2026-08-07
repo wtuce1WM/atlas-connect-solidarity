@@ -28,6 +28,11 @@ const EmbedFiche = () => {
   const lang: Lang = langParam === "en" || langParam === "ar" ? (langParam as Lang) : "fr";
   const L = MESSAGES[lang];
 
+  // Couleur de fond du widget : ?bg=EFE6D8 (couleur pleine) ou ?bg=transparent
+  const bgRaw = (params.get("bg") || "").trim();
+  const bgColor = parseBg(bgRaw);
+  const surface = bgColor || "transparent";
+
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
 
@@ -35,6 +40,9 @@ const EmbedFiche = () => {
     setLanguage(lang);
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
   }, [lang, setLanguage]);
+
+  useEffect(() => applyEmbedBg(bgRaw), [bgRaw]);
+
 
   useEffect(() => {
     if (!slug) return;
