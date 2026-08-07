@@ -2619,18 +2619,27 @@ const BookOnlineSlidePanelInner = ({
                                 onClick={() => {
                                   if (link.url && link.url !== "#" && link.url !== "*") openDocOrBooking(link.url, link.name || "Lien", true);
                                 }}
-                                className="rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm p-4 flex flex-col items-center justify-center gap-3 hover:bg-white/10 transition-colors text-center"
+                                className="rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm p-3 flex flex-col items-center justify-center gap-2 hover:bg-white/10 transition-colors text-center"
                               >
                                 {logo ? (
-                                  <img src={logo} alt={link.name || ""} className="h-20 md:h-24 w-auto max-w-full object-contain" loading="lazy" />
+                                  <div
+                                    className="w-full h-20 md:h-24 rounded-lg flex items-center justify-center p-2"
+                                    style={{ backgroundColor: 'rgba(150,150,150,0.92)' }}
+                                  >
+                                    <img src={logo} alt={link.name || ""} className="max-h-full w-auto max-w-full object-contain" loading="lazy" />
+                                  </div>
                                 ) : (
-                                  <div className="h-20 md:h-24 w-full flex items-center justify-center">
-                                    <Newspaper className="h-10 w-10 text-gold/70" />
+                                  <div
+                                    className="w-full h-20 md:h-24 rounded-lg flex items-center justify-center"
+                                    style={{ backgroundColor: 'rgba(150,150,150,0.92)' }}
+                                  >
+                                    <Newspaper className="h-9 w-9 text-black/60" />
                                   </div>
                                 )}
-                                <span className="text-sm md:text-base font-bold uppercase tracking-[0.08em] text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                                <span className="text-sm md:text-base font-semibold normal-case tracking-normal text-white leading-snug" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                   {link.name}
                                 </span>
+
                               </button>
                             );
                           })}
