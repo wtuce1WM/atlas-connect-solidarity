@@ -2787,15 +2787,14 @@ const BookOnlineSlidePanelInner = ({
                                 {[d.name, ptLabel].filter(Boolean).join(" — ")}
                                 {d.price ? ` · ${d.price}` : ""}
                               </h3>
-                              <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
+                              <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10" style={{ height: "min(80vh, 900px)" }}>
                                 {isExternalVideoUrl(d.url) ? (
                                   <iframe
                                     src={getVideoEmbed(d.url, window.location.origin, { autoplay: false }).embedUrl}
                                     title={d.name || ptLabel}
                                     allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
                                     allowFullScreen
-                                    className="w-full block border-0"
-                                    style={{ aspectRatio: "16 / 9", minHeight: 240 }}
+                                    className="w-full h-full block border-0"
                                   />
                                 ) : (
                                   <video
@@ -2804,13 +2803,13 @@ const BookOnlineSlidePanelInner = ({
                                     controls
                                     playsInline
                                     preload="metadata"
-                                    className="w-full block"
-                                    style={{ aspectRatio: "16 / 9", background: "#000" }}
+                                    className="w-full h-full block object-contain"
+                                    style={{ background: "#000" }}
                                   />
                                 )}
                               </div>
                               {d.description && (
-                                <p className="mt-2 text-sm text-white/80 leading-relaxed">{d.description}</p>
+                                <p className="mt-2 text-sm text-white/80 leading-relaxed whitespace-pre-line">{htmlToPlainText(d.description)}</p>
                               )}
                             </div>
                           );
