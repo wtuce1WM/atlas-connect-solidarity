@@ -2540,10 +2540,11 @@ const BookOnlineSlidePanelInner = ({
                         {(highlightsSection.title || highlightsSection.intro) && (
                           <div className="mb-4">
                             {highlightsSection.title && (
-                              <h3 className="text-base font-bold uppercase tracking-[0.12em] text-white mb-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                              <h2 className="text-lg md:text-2xl font-bold uppercase tracking-[0.12em] text-white mb-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                 {highlightsSection.title}
-                              </h3>
+                              </h2>
                             )}
+
                             {highlightsSection.intro && (
                               <div
                                 className="text-sm text-white/80 leading-relaxed font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] prose prose-invert prose-sm max-w-none [&_*]:!text-white/80 [&_a]:!text-white [&_p]:my-1"
