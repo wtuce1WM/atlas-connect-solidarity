@@ -965,7 +965,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
               </p>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-white/80 text-xs">Position du CTA « Assistant 1WM » (bord droit)</Label>
+              <Label className="text-white/80 text-xs">Position du CTA « {trimmedAssistantName || 'Assistant 1WM'} » (bord droit)</Label>
               <div className="grid grid-cols-3 gap-1">
                 {([
                   { value: "top", label: "À 25 % du haut" },
