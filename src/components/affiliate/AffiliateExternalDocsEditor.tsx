@@ -124,19 +124,24 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
   const [menus, setMenus] = useState<DocEntry[]>([]);
   const [flipbooks, setFlipbooks] = useState<DocEntry[]>([]);
   const [externals, setExternals] = useState<DocEntry[]>([]);
+  const [matterportUrl, setMatterportUrl] = useState("");
   const [initialIds, setInitialIds] = useState<string[]>([]);
 
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
       setLoading(true);
-      const { data } = await supabase
-        .from("business_documents")
-        .select("*")
-        .eq("business_id", businessId)
-        .in("type", ["menu", "flipbook", "external_link"])
-        .order("sort_order", { ascending: true });
+      const [{ data }, { data: biz }] = await Promise.all([
+        supabase
+          .from("business_documents")
+          .select("*")
+          .eq("business_id", businessId)
+          .in("type", ["menu", "flipbook", "external_link"])
+          .order("sort_order", { ascending: true }),
+        supabase.from("businesses").select("matterport_url").eq("id", businessId).maybeSingle(),
+      ]);
       if (cancelled) return;
+      setMatterportUrl((biz as any)?.matterport_url || "");
       const map = (rows: any[]): DocEntry[] =>
         rows.map((d) => ({
           _uid: d.id,
@@ -186,6 +191,12 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
     if (loading) return;
     setSaving(true);
     try {
+      const { error: bizError } = await supabase
+        .from("businesses")
+        .update({ matterport_url: matterportUrl.trim() || null } as any)
+        .eq("id", businessId);
+      if (bizError) throw bizError;
+
       const groups: { type: DocType; rows: DocEntry[] }[] = [
         { type: "menu", rows: menus },
         { type: "flipbook", rows: flipbooks },
@@ -297,6 +308,43 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
 
   return (
     <div className="space-y-8">
+      {/* Visite Virtuelle 3D */}
+      <section className="space-y-2">
+        <Label className="text-base font-semibold text-white">🧭 Visite Virtuelle 3D (Matterport)</Label>
+        <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 p-2">
+          <Input
+            value={matterportUrl}
+            onChange={(e) => setMatterportUrl(e.target.value)}
+            placeholder="https://my.matterport.com/show/?m=..."
+            className="h-9 flex-1 border-white/15 bg-background text-sm"
+          />
+          {matterportUrl.trim() && (
+            <>
+              <a
+                href={matterportUrl.trim()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 text-white/50 hover:text-white"
+                title="Tester le lien"
+              >
+                <ExternalLink className="h-4 w-4" />
+              </a>
+              <button
+                type="button"
+                onClick={() => setMatterportUrl("")}
+                className="shrink-0 text-white/40 hover:text-destructive"
+                title="Effacer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </>
+          )}
+        </div>
+        <p className="text-xs text-white/50">
+          Affichée sur la fiche comme onglet « Visite 3D » et dans les médias du panneau.
+        </p>
+      </section>
+
       {/* Menus */}
       <section className="space-y-2">
         <div className="flex items-center justify-between">
