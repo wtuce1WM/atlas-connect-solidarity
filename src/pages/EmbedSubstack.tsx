@@ -9,10 +9,13 @@ import { Loader2, ExternalLink } from "lucide-react";
 type Lang = "fr" | "en" | "ar";
 
 const MESSAGES: Record<Lang, { loading: string; none: string; read: string; all: string }> = {
-  fr: { loading: "Chargement des articles…", none: "Aucune newsletter pour cet établissement.", read: "Lire", all: "Voir toute la newsletter" },
-  en: { loading: "Loading posts…", none: "No newsletter for this business.", read: "Read", all: "See the whole newsletter" },
-  ar: { loading: "جار التحميل…", none: "لا توجد نشرة إخبارية.", read: "اقرأ", all: "كل النشرة" },
+  fr: { loading: "Chargement des articles…", none: "Aucune newsletter pour cet établissement.", read: "Lire", all: "S'abonner" },
+  en: { loading: "Loading posts…", none: "No newsletter for this business.", read: "Read", all: "Subscribe" },
+  ar: { loading: "جار التحميل…", none: "لا توجد نشرة إخبارية.", read: "اقرأ", all: "اشترك" },
 };
+
+/** Couleur crème par défaut des cartes (fond front) */
+const DEFAULT_CARD = "#ECD6B8";
 
 type Item = { title: string; link: string; pubDate: string; excerpt: string; image: string | null };
 
@@ -28,7 +31,8 @@ const EmbedSubstack = () => {
   const bgRaw = params.get("bg") || "";
   const surface = parseBg(bgRaw) || "transparent";
   const { fullWidth, fullHeight } = fitFlags(parseFit(params.get("fit")));
-  const limit = Math.max(1, Math.min(10, Number(params.get("limit")) || 3));
+  const cardBg = parseBg(params.get("card")) || DEFAULT_CARD;
+  const limit = Math.max(1, Math.min(10, Number(params.get("limit")) || 10));
 
   const [feedUrl, setFeedUrl] = useState<string | null>(null);
   const [items, setItems] = useState<Item[]>([]);
@@ -89,7 +93,8 @@ const EmbedSubstack = () => {
                 href={it.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex gap-3 rounded-2xl border border-border bg-background p-3 transition-colors hover:bg-background/80"
+                className="group flex gap-3 rounded-2xl p-3 transition-opacity hover:opacity-90"
+                style={{ background: cardBg, color: "#1A1A1A" }}
               >
                 {it.image && (
                   <img
@@ -100,9 +105,9 @@ const EmbedSubstack = () => {
                   />
                 )}
                 <div className="min-w-0 flex-1">
-                  <h3 className="line-clamp-2 text-sm font-semibold text-foreground">{it.title}</h3>
-                  {it.pubDate && <p className="mt-0.5 text-[11px] text-muted-foreground">{fmtDate(it.pubDate)}</p>}
-                  {it.excerpt && <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{it.excerpt}</p>}
+                  <h3 className="line-clamp-2 text-sm font-semibold" style={{ color: "#1A1A1A" }}>{it.title}</h3>
+                  {it.pubDate && <p className="mt-0.5 text-[11px]" style={{ color: "rgba(26,26,26,0.6)" }}>{fmtDate(it.pubDate)}</p>}
+                  {it.excerpt && <p className="mt-1 line-clamp-2 text-xs" style={{ color: "rgba(26,26,26,0.75)" }}>{it.excerpt}</p>}
                 </div>
               </a>
             ))}
@@ -110,9 +115,9 @@ const EmbedSubstack = () => {
               href={feedUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-accent/40"
+              className="mx-auto mt-1 inline-flex items-center justify-center gap-1.5 rounded-full bg-[#FF6719] px-5 py-2 text-sm font-semibold text-white hover:brightness-110 transition"
             >
-              {L.all} <ExternalLink className="h-3.5 w-3.5" />
+              <ExternalLink className="h-4 w-4" /> {L.all}
             </a>
           </>
         )}
