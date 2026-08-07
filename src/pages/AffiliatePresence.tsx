@@ -37,6 +37,7 @@ import AffiliatePromotionsEditor from "@/components/affiliate/AffiliatePromotion
 import AffiliateServicesEditor from "@/components/affiliate/AffiliateServicesEditor";
 import AffiliateImagesEditor from "@/components/affiliate/AffiliateImagesEditor";
 import AffiliateVideosEditor from "@/components/affiliate/AffiliateVideosEditor";
+import AffiliateExternalDocsEditor from "@/components/affiliate/AffiliateExternalDocsEditor";
 import AffiliateToolsTab from "@/components/affiliate/AffiliateToolsTab";
 import AffiliateNewsTab from "@/components/affiliate/AffiliateNewsTab";
 import AffiliateShowcaseSiteEditor from "@/components/affiliate/AffiliateShowcaseSiteEditor";
