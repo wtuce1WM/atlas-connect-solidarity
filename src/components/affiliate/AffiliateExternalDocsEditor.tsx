@@ -587,6 +587,7 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
               <li>• Récompenses → « Nous sommes reconnus par : »</li>
               <li>• Certifications → « Nous sommes certifiés par : »</li>
               <li>• En savoir plus → « En savoir plus »</li>
+              <li>• Aucune rubrique / autre → « + d'infos »</li>
             </ul>
             <p className="mt-1">
               Le titre est traduit automatiquement en EN et AR selon la langue du visiteur. Pour changer ce message,
