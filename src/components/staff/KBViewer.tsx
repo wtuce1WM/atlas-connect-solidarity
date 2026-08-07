@@ -21,6 +21,7 @@ import methodePromptsMd from "@/content/kb/methode-prompts-economie-credits.md?r
 import contexteHistoriqueMd from "@/content/kb/contexte-et-historique.md?raw";
 import lovableSkillsMd from "@/content/kb/lovable-skills.md?raw";
 import connecteurMcpClaudeMd from "@/content/kb/connecteur-mcp-claude.md?raw";
+import repartitionIaDevisMd from "@/content/kb/repartition-ia-devis-factures.md?raw";
 
 const SECTIONS = [
   { id: "architecture", label: "Règles d'architecture", icon: Building2, content: architectureMd },
