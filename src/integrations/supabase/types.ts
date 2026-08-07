@@ -2748,6 +2748,7 @@ export type Database = {
           whatsapp: string | null
           widget_bg_color: string | null
           widget_bg_color_dark: string | null
+          widget_theme: string | null
           wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
           youtube_channel_featured: boolean
           youtube_channel_thumbnail_url: string | null
@@ -2941,6 +2942,7 @@ export type Database = {
           whatsapp?: string | null
           widget_bg_color?: string | null
           widget_bg_color_dark?: string | null
+          widget_theme?: string | null
           wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
           youtube_channel_featured?: boolean
           youtube_channel_thumbnail_url?: string | null
@@ -3134,6 +3136,7 @@ export type Database = {
           whatsapp?: string | null
           widget_bg_color?: string | null
           widget_bg_color_dark?: string | null
+          widget_theme?: string | null
           wtuce_status?: Database["public"]["Enums"]["wtuce_status"] | null
           youtube_channel_featured?: boolean
           youtube_channel_thumbnail_url?: string | null
@@ -8884,6 +8887,7 @@ export type Database = {
               whatsapp: string | null
               widget_bg_color: string | null
               widget_bg_color_dark: string | null
+              widget_theme: string | null
               wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
               youtube_channel_featured: boolean
               youtube_channel_thumbnail_url: string | null
@@ -9093,6 +9097,7 @@ export type Database = {
               whatsapp: string | null
               widget_bg_color: string | null
               widget_bg_color_dark: string | null
+              widget_theme: string | null
               wtuce_status: Database["public"]["Enums"]["wtuce_status"] | null
               youtube_channel_featured: boolean
               youtube_channel_thumbnail_url: string | null
