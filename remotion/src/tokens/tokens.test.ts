@@ -21,6 +21,7 @@ const MIGRATED = [
   "src/scenes/SceneClose.tsx",
   "src/CorporateVertical.tsx",
   "src/AgentIaDemo.tsx",
+  "src/BusinessShowcase.tsx",
 ];
 
 const FORBIDDEN: { name: string; re: RegExp }[] = [

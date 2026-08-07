@@ -2906,13 +2906,13 @@ const RICH_CSS = `
   font-size: 1.34em;
   color: ${COLORS.gold};
   letter-spacing: 0.6px;
-  text-shadow: 0 3px 16px rgba(0,0,0,0.7);
+  text-shadow: ${shadowOn(3, 16, "black", 0.7)};
 }
 .rich-video-block h3, .rich-video-block h4 {
   font-size: 1.14em;
   color: ${COLORS.bone};
   letter-spacing: 0.4px;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.65);
+  text-shadow: ${shadowOn(2, 12, "black", 0.65)};
 }
 .rich-video-block h1:first-child, .rich-video-block h2:first-child,
 .rich-video-block h3:first-child, .rich-video-block h4:first-child { margin-top: 0; }
