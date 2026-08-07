@@ -959,17 +959,38 @@ const AffiliatePresence = () => {
 
                     {/* Tools Tab */}
                     <TabsContent value="tools">
-                      <AffiliateToolsTab
-                        slug={currentBusiness.slug}
-                        businessName={currentBusiness.name}
-                        businessId={currentBusiness.id}
-                        rights={{
-                          aiAssistant: !!featureRights[currentBusiness.id]?.has_ai_assistant,
-                          blogExport: !!featureRights[currentBusiness.id]?.has_blog_export,
-                          nearbyWidget: !!featureRights[currentBusiness.id]?.has_nearby_widget,
-                          emailSignature: featureRights[currentBusiness.id]?.has_email_signature !== false,
-                        }}
-                      />
+                      <Tabs defaultValue="widgets" className="w-full">
+                        <TabsList className="mb-4 w-full flex flex-col items-stretch gap-1 border-b border-white/10 bg-transparent p-0 h-auto sm:flex-row sm:items-center sm:justify-start">
+                          <TabsTrigger value="widgets" className="group w-full sm:w-auto shrink-0 px-4 py-2.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                            <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Widgets</span>
+                          </TabsTrigger>
+                          <TabsTrigger value="published" className="group w-full sm:w-auto shrink-0 px-4 py-2.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                            <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Publiés</span>
+                          </TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="widgets">
+                          <AffiliateToolsTab
+                            slug={currentBusiness.slug}
+                            businessName={currentBusiness.name}
+                            businessId={currentBusiness.id}
+                            rights={{
+                              aiAssistant: !!featureRights[currentBusiness.id]?.has_ai_assistant,
+                              blogExport: !!featureRights[currentBusiness.id]?.has_blog_export,
+                              nearbyWidget: !!featureRights[currentBusiness.id]?.has_nearby_widget,
+                              emailSignature: featureRights[currentBusiness.id]?.has_email_signature !== false,
+                            }}
+                          />
+                        </TabsContent>
+
+                        <TabsContent value="published">
+                          <AffiliatePublishedWidgetsPanel
+                            key={currentBusiness.id}
+                            businessId={currentBusiness.id}
+                            slug={currentBusiness.slug}
+                          />
+                        </TabsContent>
+                      </Tabs>
                     </TabsContent>
 
                     {/* Text Tab */}
