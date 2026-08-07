@@ -58,6 +58,7 @@ import OverlayShell from "@/components/overlays/OverlayShell";
 import SpotifyOverlay from "@/components/overlays/SpotifyOverlay";
 import SubstackArticlesOverlay from "@/components/overlays/SubstackArticlesOverlay";
 import SubstackIcon from "@/components/icons/SubstackIcon";
+import InlineSubstackWidget from "@/components/InlineSubstackWidget";
 import SoundCloudOverlay from "@/components/overlays/SoundCloudOverlay";
 import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
 import PanelSearchBar from "@/components/PanelSearchBar";
@@ -847,17 +848,6 @@ const BookOnlineSlidePanelInner = ({
   const [showHoursOverlay, setShowHoursOverlay] = useState(false);
   const [showSpotifyOverlay, setShowSpotifyOverlay] = useState(false);
   const [showSubstackOverlay, setShowSubstackOverlay] = useState(false);
-  const [substackWidgetHeight, setSubstackWidgetHeight] = useState(640);
-
-  useEffect(() => {
-    const onSubstackHeight = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin || event.data?.type !== "owm-substack-height") return;
-      const height = Number(event.data.height);
-      if (Number.isFinite(height) && height > 0) setSubstackWidgetHeight(Math.ceil(height));
-    };
-    window.addEventListener("message", onSubstackHeight);
-    return () => window.removeEventListener("message", onSubstackHeight);
-  }, []);
   const [showSoundCloudOverlay, setShowSoundCloudOverlay] = useState(false);
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
@@ -2729,13 +2719,9 @@ const BookOnlineSlidePanelInner = ({
                             />
                           )}
                           {(business as any)?.substack_url && (
-                            <iframe
-                              key="w-substack"
-                              src={`/embed/substack/${business.slug}?limit=10&bg=transparent&fit=w&lang=${language}`}
-                              title="Newsletter"
-                              allowTransparency
-                              scrolling="no"
-                              style={{ width: "100%", height: substackWidgetHeight, border: 0, backgroundColor: "transparent", colorScheme: "normal", overflow: "hidden" }}
+                            <InlineSubstackWidget
+                              url={(business as any).substack_url}
+                              language={language}
                             />
                           )}
                         </div>
