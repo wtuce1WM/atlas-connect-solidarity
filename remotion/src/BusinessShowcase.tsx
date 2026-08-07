@@ -3039,7 +3039,9 @@ const SceneInfoText: React.FC<{
   ornament?: boolean;
   /** Intensité du voile sombre au-dessus du média de fond */
   dim?: "normal" | "light";
-}> = ({ label, title, text, textHtml, logoUrl, durationFrames, textPosition = "middle", ornament = false, dim = "normal" }) => {
+  /** Mise en page « carte manuelle » : pleine largeur du viewport + mêmes tailles Titre/Texte */
+  wide?: boolean;
+}> = ({ label, title, text, textHtml, logoUrl, durationFrames, textPosition = "middle", ornament = false, dim = "normal", wide = false }) => {
 
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
@@ -3050,6 +3052,13 @@ const SceneInfoText: React.FC<{
   const richText = sanitizeRich(textHtml || "");
   const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br|h1|h2|h3|h4)\b/i.test(richText);
   const safeLogo = typeof logoUrl === "string" && logoUrl.trim().startsWith("http") ? logoUrl : null;
+  const titleSize = wide ? 68 : 52;
+  const titleLh = wide ? 1.1 : 1.12;
+  const textSize = wide ? 34 : 26;
+  const textLh = wide ? 1.3 : 1.42;
+  const textMaxWidth = wide ? undefined : 620;
+  const richMaxWidth = wide ? undefined : 640;
+  const textMarginTop = wide ? 44 : 20;
   return (
     <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
       <style>{RICH_CSS}</style>
@@ -3060,7 +3069,7 @@ const SceneInfoText: React.FC<{
             : "linear-gradient(180deg,rgba(0,0,0,0.42) 0%,rgba(0,0,0,0.78) 100%)",
         }}
       />
-      <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
+      <AbsoluteFill style={{ padding: wide ? "80px 60px" : 60, ...textPositionStyle(textPosition) }}>
         {/* 20% haut du viewport laissés libres quand le texte est trop volumineux */}
         <FitColumn topSafeRatio={0.2}>
         {safeLogo && (
@@ -3075,19 +3084,20 @@ const SceneInfoText: React.FC<{
           </div>
         )}
         {title && (
-          <div style={{ marginTop: 14, transform: `translateY(${titleY}px)`, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 52, lineHeight: 1.12, textAlign: "center", textShadow: "0 4px 20px rgba(0,0,0,0.7)" }}>
+          <div style={{ marginTop: 14, transform: `translateY(${titleY}px)`, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: titleSize, lineHeight: titleLh, textAlign: "center", textShadow: "0 4px 20px rgba(0,0,0,0.7)" }}>
             {clean(title)}
           </div>
         )}
         {hasRich ? (
           <RichBlock
             html={richText}
-            style={{ marginTop: 20, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.42, textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 640, alignSelf: "center" }}
+            style={{ marginTop: textMarginTop, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: textSize, lineHeight: textLh, textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: richMaxWidth, alignSelf: wide ? "stretch" : "center" }}
           />
         ) : text ? (
-          <div style={{ marginTop: 20, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.42, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 620 }}>
+          <div style={{ marginTop: textMarginTop, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: textSize, lineHeight: textLh, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: textMaxWidth }}>
             {clean(text)}
           </div>
+
         ) : null}
         {ornament && (
           <div style={{ marginTop: 26, alignSelf: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
