@@ -106,12 +106,12 @@ export default function AvailabilitySearchOverlay({ language, isSearching, initi
 
   const card = (
       <div
-        className={`${transparent ? "" : "backdrop-blur-md"} border border-white/20 rounded-2xl p-5 text-white ${inline ? "w-full max-w-full" : "w-[22rem] max-w-[95vw] animate-zoom-out-center"}`}
+        className={`${transparent ? "" : "backdrop-blur-md"} border border-white/20 rounded-2xl p-4 md:p-5 text-white ${inline ? "w-full max-w-full" : "w-[22rem] max-w-[95vw] animate-zoom-out-center"}`}
         style={{ backgroundColor: transparent ? "transparent" : "#3B3B3B" }}
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-sm font-semibold uppercase tracking-wider flex items-center gap-1.5" style={{ color: "#ECD6B8" }}>
+        <div className="flex items-center justify-between mb-3 md:mb-4">
+          <p className="text-xs md:text-sm font-semibold uppercase tracking-wider flex items-center gap-1.5" style={{ color: "#ECD6B8" }}>
             <Search className="h-4 w-4" />
             {isEn ? "Check availability" : "Vérifier la disponibilité"}
           </p>
@@ -122,10 +122,10 @@ export default function AvailabilitySearchOverlay({ language, isSearching, initi
           )}
         </div>
 
-        <div className="flex gap-1 mb-3">
+        <div className="flex gap-1 mb-2 md:mb-3">
           <button
             onClick={() => setSelectingField("checkin")}
-            className={`flex-1 rounded-lg px-2 py-2 text-xs font-semibold transition-colors ${
+            className={`flex-1 rounded-lg px-2 py-1.5 md:py-2 text-xs font-semibold transition-colors ${
               selectingField === "checkin" ? "bg-white text-black" : "bg-white/10 text-white/70"
             }`}
           >
@@ -136,7 +136,7 @@ export default function AvailabilitySearchOverlay({ language, isSearching, initi
           </button>
           <button
             onClick={() => setSelectingField("checkout")}
-            className={`flex-1 rounded-lg px-2 py-2 text-xs font-semibold transition-colors ${
+            className={`flex-1 rounded-lg px-2 py-1.5 md:py-2 text-xs font-semibold transition-colors ${
               selectingField === "checkout" ? "bg-white text-black" : "bg-white/10 text-white/70"
             }`}
           >
@@ -145,7 +145,7 @@ export default function AvailabilitySearchOverlay({ language, isSearching, initi
             </span>
             {checkOut.split("-").reverse().join("/")}
           </button>
-          <div className="bg-white/10 rounded-lg px-2 py-2 flex flex-col items-center">
+          <div className="bg-white/10 rounded-lg px-2 py-1.5 md:py-2 flex flex-col items-center">
             <span className="block text-[9px] uppercase tracking-wider opacity-60">
               <Users className="h-3 w-3 inline" />
             </span>
@@ -159,7 +159,7 @@ export default function AvailabilitySearchOverlay({ language, isSearching, initi
           </div>
         </div>
 
-        <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center justify-between mb-0.5 md:mb-1">
           <button onClick={prevMonth} className="p-1 hover:bg-white/10 rounded">
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -215,8 +215,8 @@ export default function AvailabilitySearchOverlay({ language, isSearching, initi
             onSearch(checkIn, checkOut, adults);
           }}
           disabled={isSearching}
-          className="mt-4 w-full px-4 rounded-lg bg-white text-black font-medium text-xs md:text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 normal-case tracking-normal whitespace-nowrap shrink-0"
-          style={{ fontFamily: "'Montserrat', sans-serif", height: '40px' }}
+          className="mt-3 md:mt-4 w-full px-4 rounded-lg bg-white text-black font-medium text-xs md:text-sm hover:bg-white/90 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 normal-case tracking-normal whitespace-nowrap shrink-0"
+          style={{ fontFamily: "'Montserrat', sans-serif", height: '38px' }}
         >
           {isSearching ? <Loader2 className="h-4 w-4 animate-spin text-black" /> : <Search className="h-4 w-4 text-black" />}
           <span>{isEn ? "Check availability" : "Vérifier la disponibilité"}</span>
