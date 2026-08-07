@@ -64,14 +64,21 @@ const EmbedFiche = () => {
 
   if (notFound) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-background text-sm text-muted-foreground">
+      <div
+        className="h-screen w-full flex items-center justify-center overflow-hidden text-sm text-muted-foreground"
+        style={{ background: surface }}
+      >
         {L.notFound}
       </div>
     );
   }
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-background flex flex-col">
+    <div
+      className="relative h-screen w-full overflow-hidden flex flex-col"
+      style={{ background: surface }}
+    >
+
       {!businessId ? (
         <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground animate-pulse">
           {L.loading}
