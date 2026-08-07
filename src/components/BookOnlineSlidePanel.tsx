@@ -2730,7 +2730,7 @@ const BookOnlineSlidePanelInner = ({
                     const candidates: { url: string; label: string; forceExternal?: boolean }[] = [
                       websiteUrl && {
                         url: websiteUrl,
-                        label: resolveCtaLabel(business?.presentation_mode, null, "site_web", language),
+                        label: resolveCtaLabel(business?.presentation_mode, null, "plus_informations", language),
                         forceExternal: business?.website_force_external,
                       },
                       ctaConfig.bookingCta && { url: ctaConfig.bookingCta.fullUrl, label: ctaConfig.bookingCtaLabel, forceExternal: ctaConfig.bookingCta.forceExternal },
