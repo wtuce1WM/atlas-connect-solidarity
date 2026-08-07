@@ -2654,6 +2654,7 @@ export type Database = {
           show_opening_hours: boolean | null
           show_videos: boolean
           show_youtube_tab: boolean
+          showcase_target_url: string | null
           skype: string | null
           slug: string
           snapchat_url: string | null
@@ -2846,6 +2847,7 @@ export type Database = {
           show_opening_hours?: boolean | null
           show_videos?: boolean
           show_youtube_tab?: boolean
+          showcase_target_url?: string | null
           skype?: string | null
           slug: string
           snapchat_url?: string | null
@@ -3038,6 +3040,7 @@ export type Database = {
           show_opening_hours?: boolean | null
           show_videos?: boolean
           show_youtube_tab?: boolean
+          showcase_target_url?: string | null
           skype?: string | null
           slug?: string
           snapchat_url?: string | null
@@ -8787,6 +8790,7 @@ export type Database = {
               show_opening_hours: boolean | null
               show_videos: boolean
               show_youtube_tab: boolean
+              showcase_target_url: string | null
               skype: string | null
               slug: string
               snapchat_url: string | null
@@ -8995,6 +8999,7 @@ export type Database = {
               show_opening_hours: boolean | null
               show_videos: boolean
               show_youtube_tab: boolean
+              showcase_target_url: string | null
               skype: string | null
               slug: string
               snapchat_url: string | null

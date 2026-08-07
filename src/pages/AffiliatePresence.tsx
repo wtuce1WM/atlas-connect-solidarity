@@ -149,7 +149,7 @@ const AffiliatePresence = () => {
   const [hasVideoStudio, setHasVideoStudio] = useState(false);
   const [hasShowcaseSite, setHasShowcaseSite] = useState(false);
   const [hasCustomDomain, setHasCustomDomain] = useState(false);
-  const [featureRights, setFeatureRights] = useState<Record<string, { has_ai_assistant: boolean; has_blog_export: boolean; has_nearby_widget: boolean; has_email_signature: boolean }>>({});
+  const [featureRights, setFeatureRights] = useState<Record<string, { has_ai_assistant: boolean; has_blog_export: boolean; has_nearby_widget: boolean; has_email_signature: boolean; has_showcase_site: boolean }>>({});
   const [activeTab, setActiveTab] = useState("news");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newBusinessName, setNewBusinessName] = useState("");
@@ -269,14 +269,15 @@ const AffiliatePresence = () => {
 
       const { data: rightsRows } = await supabase
         .from("business_feature_rights")
-        .select("business_id, has_ai_assistant, has_blog_export, has_nearby_widget, has_email_signature");
-      const map: Record<string, { has_ai_assistant: boolean; has_blog_export: boolean; has_nearby_widget: boolean; has_email_signature: boolean }> = {};
+        .select("business_id, has_ai_assistant, has_blog_export, has_nearby_widget, has_email_signature, has_showcase_site");
+      const map: Record<string, { has_ai_assistant: boolean; has_blog_export: boolean; has_nearby_widget: boolean; has_email_signature: boolean; has_showcase_site: boolean }> = {};
       ((rightsRows as any[]) || []).forEach((r) => {
         map[r.business_id] = {
           has_ai_assistant: !!r.has_ai_assistant,
           has_blog_export: !!r.has_blog_export,
           has_nearby_widget: !!r.has_nearby_widget,
           has_email_signature: r.has_email_signature !== false,
+          has_showcase_site: !!r.has_showcase_site,
         };
       });
       setFeatureRights(map);
@@ -939,6 +940,7 @@ const AffiliatePresence = () => {
                     <TabsContent value="news">
                       <AffiliateNewsTab
                         businessName={currentBusiness.name}
+                        businessId={currentBusiness.id}
                         affiliateName={affiliateName}
                         slug={currentBusiness.slug}
                         onGoToTools={() => setActiveTab("tools")}
@@ -949,7 +951,7 @@ const AffiliatePresence = () => {
                           emailSignature: featureRights[currentBusiness.id]?.has_email_signature !== false,
                           dashboard: hasDashboard,
                           videoStudio: hasVideoStudio,
-                          showcaseSite: hasShowcaseSite,
+                          showcaseSite: !!featureRights[currentBusiness.id]?.has_showcase_site,
                           customDomain: hasCustomDomain,
                         }}
                       />
