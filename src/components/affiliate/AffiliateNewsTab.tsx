@@ -142,6 +142,19 @@ const AffiliateNewsTab = ({ businessName, businessId = null, affiliateName, slug
       desc: "Publiez sur votre propre site un article de blog 1WM rattaché à votre établissement (carrousel photos, carte, badges avis, panneau fiche).",
     },
     {
+      key: "fiche-widget",
+      label: "Widget Fiche 1WM",
+      icon: LayoutPanelTop,
+      scope: "Établissement",
+      price: "Inclus dans l'abonnement",
+      enabled: true,
+      desc: "Votre fiche établissement complète (photos, offres, avis, contact, carte) embarquée sur votre site, sans scroll inutile et avec la couleur de fond de votre choix ou un fond transparent.",
+      preview: slug
+        ? { kind: "iframe", url: `${SITE}/embed/fiche/${slug}?lang=fr&bg=transparent`, height: 760 }
+        : null,
+    },
+    {
+
       key: "signature",
       label: "Signature email « Laisser un avis »",
       icon: Mail,
