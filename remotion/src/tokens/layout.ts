@@ -16,6 +16,7 @@ export const surfaces = {
   columnEmber: `linear-gradient(160deg, ${palette.emberDeep} 0%, ${palette.night} 100%)`,
   columnSoft: `linear-gradient(160deg, ${palette.emberSoft} 0%, ${palette.night} 100%)`,
   columnHot: `linear-gradient(160deg, ${palette.emberHot} 0%, ${palette.night} 100%)`,
+  agentBackdrop: `radial-gradient(ellipse at top, ${palette.emberNight} 0%, ${palette.night} 70%)`,
   corporateGlow: `radial-gradient(60% 40% at 50% 0%, ${palette.terracotta}38 0%, ${palette.night}00 60%), radial-gradient(70% 50% at 50% 100%, ${palette.gold}24 0%, ${palette.night}00 60%)`,
   brownVertical: `linear-gradient(180deg, ${palette.brown} 0%, ${palette.night} 50%, ${palette.brown} 100%)`,
 } as const;

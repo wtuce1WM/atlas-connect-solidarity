@@ -8,12 +8,16 @@ export const palette = {
   gold: "#D4AF37",
   cream: "#F2E6D2",
   bone: "#E8D9BE",
+  white: "#FFFFFF",
+  black: "#000000",
+  slate: "#3B3B3B",
 
   // Teintes de fond dérivées (dégradés de scène)
   emberDeep: "#2a1a0e",
   emberSoft: "#1c1612",
   emberHot: "#2a0f08",
   glowCore: "#1c150d",
+  emberNight: "#1b1410",
   brown: "#1a120a",
 } as const;
 
