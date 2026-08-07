@@ -2619,27 +2619,25 @@ const BookOnlineSlidePanelInner = ({
                                 onClick={() => {
                                   if (link.url && link.url !== "#" && link.url !== "*") openDocOrBooking(link.url, link.name || "Lien", true);
                                 }}
-                                className="rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm p-3 flex flex-col items-center justify-center gap-2 hover:bg-white/10 transition-colors text-center"
+                                className="rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm p-0 flex flex-col items-stretch overflow-hidden hover:bg-white/10 transition-colors text-center"
                               >
-                                {logo ? (
-                                  <div
-                                    className="w-full h-20 md:h-24 rounded-lg flex items-center justify-center p-2"
-                                    style={{ backgroundColor: 'rgba(150,150,150,0.92)' }}
-                                  >
+                                {/* Logo / icône toujours en haut, hauteur fixe pour alignement entre cartes */}
+                                <div
+                                  className="h-20 md:h-24 w-full flex items-center justify-center p-2"
+                                  style={{ backgroundColor: 'rgba(150,150,150,0.92)' }}
+                                >
+                                  {logo ? (
                                     <img src={logo} alt={link.name || ""} className="max-h-full w-auto max-w-full object-contain" loading="lazy" />
-                                  </div>
-                                ) : (
-                                  <div
-                                    className="w-full h-20 md:h-24 rounded-lg flex items-center justify-center"
-                                    style={{ backgroundColor: 'rgba(150,150,150,0.92)' }}
-                                  >
+                                  ) : (
                                     <Newspaper className="h-9 w-9 text-black/60" />
-                                  </div>
-                                )}
-                                <span className="text-sm md:text-base font-semibold normal-case tracking-normal text-white leading-snug" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                                  {link.name}
-                                </span>
-
+                                  )}
+                                </div>
+                                {/* Texte en bas, centré verticalement dans l'espace restant */}
+                                <div className="flex-1 flex items-center justify-center p-3 min-h-[48px]">
+                                  <span className="text-sm md:text-base font-semibold normal-case tracking-normal text-white leading-snug" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                                    {link.name}
+                                  </span>
+                                </div>
                               </button>
                             );
                           })}
