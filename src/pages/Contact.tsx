@@ -32,7 +32,7 @@ const Contact = () => {
       const { error } = await supabase.functions.invoke("send-transactional-email", {
         body: {
           templateName: "contact-form",
-          recipientEmail: "jf@oneworldmorocco.com",
+          recipientEmail: "info@oneworldmorocco.com",
           idempotencyKey,
           templateData: { name: name.trim(), email: email.trim(), message: message.trim() },
         },
@@ -93,7 +93,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground mb-1">Email</h3>
-                    <p className="text-muted-foreground">info@wtuce.org</p>
+                    <p className="text-muted-foreground">info@oneworldmorocco.com</p>
                   </div>
                 </div>
               </div>

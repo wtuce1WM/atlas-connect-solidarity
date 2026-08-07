@@ -197,7 +197,7 @@ const Footer = ({ variant = "default", className }: FooterProps) => {
               </li>
               <li className="flex items-center gap-2">
                 <Mail className={`h-4 w-4 ${headingColor}`} />
-                info@wtuce.org
+                <a href="mailto:info@oneworldmorocco.com" className="hover:text-terracotta transition-colors">info@oneworldmorocco.com</a>
               </li>
             </ul>
           </div>
