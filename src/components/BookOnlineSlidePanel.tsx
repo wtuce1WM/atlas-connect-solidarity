@@ -2634,22 +2634,20 @@ const BookOnlineSlidePanelInner = ({
                                 onClick={() => {
                                   if (link.url && link.url !== "#" && link.url !== "*") openDocOrBooking(link.url, link.name || "Lien", true);
                                 }}
-                                className="rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm p-0 flex flex-col items-stretch overflow-hidden hover:bg-white/10 transition-colors text-center"
+                                className="rounded-xl border border-white/10 p-0 flex flex-col items-stretch overflow-hidden transition-opacity hover:opacity-90 text-center"
+                                style={{ backgroundColor: 'rgba(150,150,150,0.92)' }}
                               >
                                 {/* Logo / icône toujours en haut, hauteur fixe pour alignement entre cartes */}
-                                <div
-                                  className="h-20 md:h-24 w-full flex items-center justify-center p-2"
-                                  style={{ backgroundColor: 'rgba(150,150,150,0.92)' }}
-                                >
+                                <div className="h-20 md:h-24 w-full flex items-center justify-center p-2">
                                   {logo ? (
                                     <img src={logo} alt={link.name || ""} className="max-h-full w-auto max-w-full object-contain" loading="lazy" />
                                   ) : (
                                     <Newspaper className="h-9 w-9 text-black/60" />
                                   )}
                                 </div>
-                                {/* Texte en bas, centré verticalement dans l'espace restant */}
+                                {/* Texte en bas, sur le même fond gris que le logo */}
                                 <div className="flex-1 flex items-center justify-center p-3 min-h-[48px]">
-                                  <span className="text-sm md:text-base font-semibold normal-case tracking-normal text-white leading-snug" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                                  <span className="text-sm md:text-base font-semibold normal-case tracking-normal text-black/85 leading-snug" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                     {link.name}
                                   </span>
                                 </div>
@@ -2660,6 +2658,58 @@ const BookOnlineSlidePanelInner = ({
                       </div>
                     );
                   })()}
+
+                  {/* WhatsApp + widgets Réseaux & flux (Spotify / SoundCloud / Substack) */}
+                  {!descOverlayContent && (business?.whatsapp || business?.spotify_url || business?.soundcloud_url || (business as any)?.substack_url) && (
+                    <div className="mt-8 pt-6 border-t border-white/10 space-y-5">
+                      {business?.whatsapp && (
+                        <a
+                          href={whatsappUrl(business.whatsapp, language === "en" ? `Hello ${business?.name || ""}, I found you on One World Morocco.` : language === "ar" ? `مرحبا ${business?.name || ""}` : `Bonjour ${business?.name || ""}, je vous ai trouvé sur One World Morocco.`)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-black hover:brightness-110 transition"
+                          style={{ fontFamily: "'Montserrat', sans-serif" }}
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                          {language === "en" ? "WhatsApp message" : language === "ar" ? "رسالة واتساب" : "Message WhatsApp"}
+                        </a>
+                      )}
+                      {business?.slug && (business?.spotify_url || business?.soundcloud_url || (business as any)?.substack_url) && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {business?.spotify_url && (
+                            <iframe
+                              src={`/embed/spotify/${business.slug}?theme=dark&bg=transparent&lang=${language}`}
+                              title="Spotify"
+                              loading="lazy"
+                              scrolling="no"
+                              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                              style={{ width: "100%", height: 372, border: 0, background: "transparent", overflow: "hidden" }}
+                            />
+                          )}
+                          {business?.soundcloud_url && (
+                            <iframe
+                              src={`/embed/soundcloud/${business.slug}?visual=1&bg=transparent&lang=${language}`}
+                              title="SoundCloud"
+                              loading="lazy"
+                              scrolling="no"
+                              allow="autoplay"
+                              style={{ width: "100%", height: 420, border: 0, background: "transparent", overflow: "hidden" }}
+                            />
+                          )}
+                          {(business as any)?.substack_url && (
+                            <iframe
+                              src={`/embed/substack/${business.slug}?limit=3&bg=transparent&lang=${language}`}
+                              title="Newsletter"
+                              loading="lazy"
+                              scrolling="no"
+                              style={{ width: "100%", height: 418, border: 0, background: "transparent", overflow: "hidden" }}
+                            />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
 
 
                   {/* Badges (Menu / Images / Vidéos, liens externes, réseaux & réservation) — sous les blocs highlights */}
