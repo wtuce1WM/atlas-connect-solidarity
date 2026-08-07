@@ -652,6 +652,60 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_number_sequences: {
+        Row: {
+          kind: string
+          last_value: number
+          year: number
+        }
+        Insert: {
+          kind: string
+          last_value?: number
+          year: number
+        }
+        Update: {
+          kind?: string
+          last_value?: number
+          year?: number
+        }
+        Relationships: []
+      }
+      billing_services: {
+        Row: {
+          code: string | null
+          created_at: string
+          created_by: string | null
+          description_fr: string | null
+          id: string
+          is_active: boolean
+          name_fr: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string
+          created_by?: string | null
+          description_fr?: string | null
+          id?: string
+          is_active?: boolean
+          name_fr: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string | null
+          created_at?: string
+          created_by?: string | null
+          description_fr?: string | null
+          id?: string
+          is_active?: boolean
+          name_fr?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       blocked_domains: {
         Row: {
           created_at: string
@@ -5376,6 +5430,140 @@ export type Database = {
         }
         Relationships: []
       }
+      invoice_items: {
+        Row: {
+          created_at: string
+          id: string
+          invoice_id: string
+          label: string
+          line_total_ht: number
+          line_total_ttc: number
+          line_total_vat: number
+          manual_reason: string | null
+          price_source: Database["public"]["Enums"]["billing_price_source"]
+          quantity: number
+          recurrence: Database["public"]["Enums"]["billing_recurrence"]
+          sort_order: number
+          unit_price_ht: number
+          vat_exempt: boolean
+          vat_exempt_reason: string | null
+          vat_rate: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invoice_id: string
+          label: string
+          line_total_ht?: number
+          line_total_ttc?: number
+          line_total_vat?: number
+          manual_reason?: string | null
+          price_source?: Database["public"]["Enums"]["billing_price_source"]
+          quantity?: number
+          recurrence?: Database["public"]["Enums"]["billing_recurrence"]
+          sort_order?: number
+          unit_price_ht?: number
+          vat_exempt?: boolean
+          vat_exempt_reason?: string | null
+          vat_rate?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invoice_id?: string
+          label?: string
+          line_total_ht?: number
+          line_total_ttc?: number
+          line_total_vat?: number
+          manual_reason?: string | null
+          price_source?: Database["public"]["Enums"]["billing_price_source"]
+          quantity?: number
+          recurrence?: Database["public"]["Enums"]["billing_recurrence"]
+          sort_order?: number
+          unit_price_ht?: number
+          vat_exempt?: boolean
+          vat_exempt_reason?: string | null
+          vat_rate?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          affiliate_id: string | null
+          created_at: string
+          currency: Database["public"]["Enums"]["billing_currency"]
+          id: string
+          number: string | null
+          paid_at: string | null
+          pdf_url: string | null
+          prospect_email: string | null
+          prospect_name: string | null
+          quote_id: string | null
+          status: Database["public"]["Enums"]["invoice_status"]
+          total_ht: number
+          total_ttc: number
+          total_vat: number
+          updated_at: string
+        }
+        Insert: {
+          affiliate_id?: string | null
+          created_at?: string
+          currency?: Database["public"]["Enums"]["billing_currency"]
+          id?: string
+          number?: string | null
+          paid_at?: string | null
+          pdf_url?: string | null
+          prospect_email?: string | null
+          prospect_name?: string | null
+          quote_id?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          total_ht?: number
+          total_ttc?: number
+          total_vat?: number
+          updated_at?: string
+        }
+        Update: {
+          affiliate_id?: string | null
+          created_at?: string
+          currency?: Database["public"]["Enums"]["billing_currency"]
+          id?: string
+          number?: string | null
+          paid_at?: string | null
+          pdf_url?: string | null
+          prospect_email?: string | null
+          prospect_name?: string | null
+          quote_id?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          total_ht?: number
+          total_ttc?: number
+          total_vat?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       knowledge_entries: {
         Row: {
           business_id: string | null
@@ -5868,6 +6056,85 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_links: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          invoice_id: string
+          token: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invoice_id: string
+          token?: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          invoice_id?: string
+          token?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_links_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: Database["public"]["Enums"]["billing_currency"]
+          id: string
+          invoice_id: string
+          paid_at: string | null
+          provider: string
+          provider_reference: string | null
+          status: Database["public"]["Enums"]["billing_payment_status"]
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: Database["public"]["Enums"]["billing_currency"]
+          id?: string
+          invoice_id: string
+          paid_at?: string | null
+          provider: string
+          provider_reference?: string | null
+          status?: Database["public"]["Enums"]["billing_payment_status"]
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: Database["public"]["Enums"]["billing_currency"]
+          id?: string
+          invoice_id?: string
+          paid_at?: string | null
+          provider?: string
+          provider_reference?: string | null
+          status?: Database["public"]["Enums"]["billing_payment_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       personas: {
         Row: {
           created_at: string
@@ -6088,6 +6355,59 @@ export type Database = {
         }
         Relationships: []
       }
+      pricing_grids: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          currency: Database["public"]["Enums"]["billing_currency"]
+          id: string
+          is_active: boolean
+          notes: string | null
+          recurrence: Database["public"]["Enums"]["billing_recurrence"]
+          service_id: string
+          unit_price: number
+          updated_at: string
+          valid_from: string
+          valid_to: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["billing_currency"]
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          recurrence?: Database["public"]["Enums"]["billing_recurrence"]
+          service_id: string
+          unit_price: number
+          updated_at?: string
+          valid_from?: string
+          valid_to?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["billing_currency"]
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          recurrence?: Database["public"]["Enums"]["billing_recurrence"]
+          service_id?: string
+          unit_price?: number
+          updated_at?: string
+          valid_from?: string
+          valid_to?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_grids_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "billing_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -6117,6 +6437,164 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      quote_items: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          line_total_ht: number
+          line_total_ttc: number
+          line_total_vat: number
+          manual_reason: string | null
+          price_source: Database["public"]["Enums"]["billing_price_source"]
+          pricing_grid_id: string | null
+          quantity: number
+          quote_id: string
+          recurrence: Database["public"]["Enums"]["billing_recurrence"]
+          sort_order: number
+          unit_price_ht: number
+          vat_exempt: boolean
+          vat_exempt_reason: string | null
+          vat_rate: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          line_total_ht?: number
+          line_total_ttc?: number
+          line_total_vat?: number
+          manual_reason?: string | null
+          price_source?: Database["public"]["Enums"]["billing_price_source"]
+          pricing_grid_id?: string | null
+          quantity?: number
+          quote_id: string
+          recurrence?: Database["public"]["Enums"]["billing_recurrence"]
+          sort_order?: number
+          unit_price_ht?: number
+          vat_exempt?: boolean
+          vat_exempt_reason?: string | null
+          vat_rate?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          line_total_ht?: number
+          line_total_ttc?: number
+          line_total_vat?: number
+          manual_reason?: string | null
+          price_source?: Database["public"]["Enums"]["billing_price_source"]
+          pricing_grid_id?: string | null
+          quantity?: number
+          quote_id?: string
+          recurrence?: Database["public"]["Enums"]["billing_recurrence"]
+          sort_order?: number
+          unit_price_ht?: number
+          vat_exempt?: boolean
+          vat_exempt_reason?: string | null
+          vat_rate?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_items_pricing_grid_id_fkey"
+            columns: ["pricing_grid_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_grids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quote_items_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quotes: {
+        Row: {
+          accepted_at: string | null
+          affiliate_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: Database["public"]["Enums"]["billing_currency"]
+          expired_at: string | null
+          expires_at: string | null
+          id: string
+          internal_notes: string | null
+          invoiced_at: string | null
+          number: string | null
+          prospect_email: string | null
+          prospect_name: string | null
+          refusal_reason: string | null
+          refused_at: string | null
+          reminder_sent_at: string | null
+          sent_at: string | null
+          status: Database["public"]["Enums"]["quote_status"]
+          subtotal_ht: number
+          total_ttc: number
+          total_vat: number
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          affiliate_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["billing_currency"]
+          expired_at?: string | null
+          expires_at?: string | null
+          id?: string
+          internal_notes?: string | null
+          invoiced_at?: string | null
+          number?: string | null
+          prospect_email?: string | null
+          prospect_name?: string | null
+          refusal_reason?: string | null
+          refused_at?: string | null
+          reminder_sent_at?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["quote_status"]
+          subtotal_ht?: number
+          total_ttc?: number
+          total_vat?: number
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          affiliate_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: Database["public"]["Enums"]["billing_currency"]
+          expired_at?: string | null
+          expires_at?: string | null
+          id?: string
+          internal_notes?: string | null
+          invoiced_at?: string | null
+          number?: string | null
+          prospect_email?: string | null
+          prospect_name?: string | null
+          refusal_reason?: string | null
+          refused_at?: string | null
+          reminder_sent_at?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["quote_status"]
+          subtotal_ht?: number
+          total_ttc?: number
+          total_vat?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       regions: {
         Row: {
@@ -8133,6 +8611,7 @@ export type Database = {
         }
         Returns: number
       }
+      next_billing_number: { Args: { _kind: string }; Returns: string }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
@@ -8609,6 +9088,18 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "staff" | "affiliate" | "video_studio"
+      billing_currency: "MAD" | "EUR" | "USD"
+      billing_payment_status: "pending" | "succeeded" | "failed"
+      billing_price_source: "grid" | "manual"
+      billing_recurrence: "one_time" | "monthly" | "quarterly" | "yearly"
+      invoice_status: "unpaid" | "paid"
+      quote_status:
+        | "draft"
+        | "sent"
+        | "accepted"
+        | "refused"
+        | "expired"
+        | "invoiced"
       wtuce_status: "verified" | "pending"
     }
     CompositeTypes: {
@@ -8738,6 +9229,19 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "staff", "affiliate", "video_studio"],
+      billing_currency: ["MAD", "EUR", "USD"],
+      billing_payment_status: ["pending", "succeeded", "failed"],
+      billing_price_source: ["grid", "manual"],
+      billing_recurrence: ["one_time", "monthly", "quarterly", "yearly"],
+      invoice_status: ["unpaid", "paid"],
+      quote_status: [
+        "draft",
+        "sent",
+        "accepted",
+        "refused",
+        "expired",
+        "invoiced",
+      ],
       wtuce_status: ["verified", "pending"],
     },
   },
