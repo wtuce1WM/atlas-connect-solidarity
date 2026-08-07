@@ -362,9 +362,12 @@ Règles absolues :
 - N'invente RIEN : uniquement ce qui est présent dans les sources et les données de la fiche fournies.
 ${includePrices
   ? `- PRIX : tu DOIS restituer les prix EXACTEMENT tels qu'ils figurent dans les sources (avec leur devise), sans jamais en inventer ni en arrondir.
-- Termine le texte par une synthèse chiffrée : un PRIX MOYEN GÉNÉRAL (moyenne de tous les prix relevés) puis des PRIX MOYENS PAR SECTION / CATÉGORIE (entrées, plats, desserts, boissons, cocktails… selon les sections réellement présentes), sous la forme « Section : moyenne X MAD (min–max) ». Calcule ces moyennes uniquement à partir des prix réellement relevés et indique entre parenthèses le nombre de prix pris en compte.
+- Structure le texte par SECTIONS : une ligne de titre de section courte (Entrées, Plats, Desserts, Cocktails…) puis une ligne par intitulé sous la forme « Intitulé — 120 MAD ».
+- N'écris AUCUNE synthèse de moyennes : elle est calculée automatiquement et ajoutée après ton texte.
+- Réserve environ 250 caractères de marge sous la limite haute pour cette synthèse.
 - Si aucun prix n'est lisible dans les sources, écris-le explicitement au lieu d'estimer.`
   : `- Ne mentionne jamais de prix, tarif, budget ou "moins cher".`}
+
 - Français correct, pas de markdown, pas de guillemets superflus.${styleKey === "factual" ? "\n- Pas de symboles de puces : une information par ligne, séparées par des sauts de ligne." : "\n- Pas de listes à puces."}
 
 - Réponds STRICTEMENT en JSON : {"title": string, "hook": string, "content": string}
@@ -465,11 +468,71 @@ Structure le texte autour de cette consigne : elle doit être traitée explicite
       return endsClean(base) ? base.trim() : trimToLastSentence(base);
     };
 
+    // Synthèse chiffrée calculée en code (le modèle la tronquait ou l'omettait).
+    // On relit les prix réellement présents dans le texte généré, par section.
+    const buildPriceSummary = (text: string): string => {
+      const priceRe = /(\d{1,3}(?:[ .\u00a0]\d{3})*(?:[.,]\d{1,2})?)\s*(MAD|DH|DHS|Dhs|dh|€|EUR|USD|\$)/gi;
+      const lines = text.split(/\n+/);
+      const sections: { name: string; values: number[] }[] = [];
+      let current = { name: "Général", values: [] as number[] };
+      sections.push(current);
+      let currency = "MAD";
+      for (const rawLine of lines) {
+        const line = rawLine.trim();
+        if (!line) continue;
+        const found = [...line.matchAll(priceRe)];
+        if (found.length === 0) {
+          // ligne sans prix courte = probable titre de section
+          if (line.length <= 60) {
+            current = { name: line.replace(/[:\-–—]+$/, "").trim(), values: [] };
+            sections.push(current);
+          }
+          continue;
+        }
+        for (const m of found) {
+          const n = Number(m[1].replace(/[ .\u00a0]/g, (c) => (c === "." ? "" : "")).replace(",", "."));
+          if (!Number.isFinite(n) || n <= 0) continue;
+          const cur = m[2].toUpperCase();
+          currency = cur === "DH" || cur === "DHS" ? "MAD" : cur === "€" ? "EUR" : cur;
+          current.values.push(n);
+        }
+      }
+      const all = sections.flatMap((s) => s.values);
+      if (all.length < 2) return "";
+      const avg = (a: number[]) => Math.round(a.reduce((x, y) => x + y, 0) / a.length);
+      const parts: string[] = [];
+      parts.push(
+        `Prix moyen général : ${avg(all)} ${currency} (${Math.min(...all)}–${Math.max(...all)} ${currency}, ${all.length} prix relevés).`,
+      );
+      for (const s of sections) {
+        if (s.values.length < 2 || s.name === "Général") continue;
+        parts.push(
+          `${s.name} : moyenne ${avg(s.values)} ${currency} (${Math.min(...s.values)}–${Math.max(...s.values)} ${currency}, ${s.values.length} prix).`,
+        );
+      }
+      return parts.join("\n");
+    };
+
+    let content = cleanSentences(parsed.content, MAX_CONTENT);
+    if (includePrices) {
+      const summary = buildPriceSummary(content);
+      if (summary) {
+        // On retire une éventuelle synthèse partielle produite par le modèle
+        content = content
+          .split(/\n+/)
+          .filter((l) => !/^(prix moyen g|moyenne des prix|synth)/i.test(l.trim()))
+          .join("\n");
+        const budget = MAX_CONTENT - summary.length - 2;
+        content = cleanSentences(content, Math.max(300, budget)) + "\n\n" + summary;
+      }
+    }
+
     return new Response(
       JSON.stringify({
         title: clean(parsed.title, 70),
         hook: clean(parsed.hook, 120),
-        content: cleanSentences(parsed.content, MAX_CONTENT),
+        content,
+
         mode,
         source_label: sourceLabel,
         length: lengthKey,
