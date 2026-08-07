@@ -2733,8 +2733,9 @@ const BookOnlineSlidePanelInner = ({
                               key="w-substack"
                               src={`/embed/substack/${business.slug}?limit=10&bg=transparent&fit=w&lang=${language}`}
                               title="Newsletter"
+                              allowTransparency
                               scrolling="no"
-                              style={{ width: "100%", height: substackWidgetHeight, border: 0, background: "transparent", overflow: "hidden" }}
+                              style={{ width: "100%", height: substackWidgetHeight, border: 0, backgroundColor: "transparent", colorScheme: "normal", overflow: "hidden" }}
                             />
                           )}
                         </div>

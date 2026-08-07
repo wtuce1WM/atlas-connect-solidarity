@@ -95,16 +95,26 @@ export const applyEmbedBg = (color: string | null | undefined) => {
   const prevBody = document.body.style.background;
   const prevRoot = root?.style.background ?? "";
   const prevScheme = document.documentElement.style.colorScheme;
-  document.documentElement.style.background = bg;
-  document.body.style.background = bg;
-  if (root) root.style.background = bg;
+  document.documentElement.style.setProperty("background", bg, "important");
+  document.documentElement.style.setProperty("background-color", bg, "important");
+  document.body.style.setProperty("background", bg, "important");
+  document.body.style.setProperty("background-color", bg, "important");
+  if (root) {
+    root.style.setProperty("background", bg, "important");
+    root.style.setProperty("background-color", bg, "important");
+  }
   // Sans ceci, `color-scheme: dark` fait peindre le canvas de l'iframe en noir
   // même avec html/body transparents → le widget n'apparaît pas transparent.
   document.documentElement.style.colorScheme = "light";
   return () => {
+    document.documentElement.style.removeProperty("background-color");
     document.documentElement.style.background = prevHtml;
+    document.body.style.removeProperty("background-color");
     document.body.style.background = prevBody;
-    if (root) root.style.background = prevRoot;
+    if (root) {
+      root.style.removeProperty("background-color");
+      root.style.background = prevRoot;
+    }
     document.documentElement.style.colorScheme = prevScheme;
   };
 };
