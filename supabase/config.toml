@@ -81,3 +81,5 @@ project_id = "plnphgdrawpsnumnejzc"
     verify_jwt = false
   [functions.widget-alerts-unsubscribe]
     verify_jwt = false
+  [functions.widget-alerts-subscribe]
+    verify_jwt = false

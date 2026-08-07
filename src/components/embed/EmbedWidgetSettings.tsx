@@ -83,6 +83,9 @@ const T: Record<Lang, Record<string, string>> = {
 };
 
 const STORAGE_KEY = "owm-widget-alert-prefs";
+const ALLOWED_AVATAR_MIME = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const MAX_AVATAR_BYTES = 400 * 1024;
+
 
 export default function EmbedWidgetSettings({
   lang = "fr",
@@ -102,7 +105,9 @@ export default function EmbedWidgetSettings({
   const [email, setEmail] = React.useState("");
   const [nickname, setNickname] = React.useState("");
   const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null);
+  const [pendingAvatar, setPendingAvatar] = React.useState<{ mime: string; data: string } | null>(null);
   const [uploading, setUploading] = React.useState(false);
+
   const [alerts, setAlerts] = React.useState<Record<AlertKey, boolean>>({
     spring_tide: false,
     surf: false,
@@ -151,15 +156,17 @@ export default function EmbedWidgetSettings({
     setUploading(true);
     setErrorMsg(null);
     try {
-      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-      const path = `${crypto.randomUUID()}.${ext}`;
-      const { error } = await supabase.storage.from("widget-avatars").upload(path, file, {
-        cacheControl: "3600",
-        upsert: false,
+      if (!ALLOWED_AVATAR_MIME.includes(file.type) || file.size > MAX_AVATAR_BYTES) {
+        throw new Error("invalid");
+      }
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error("read"));
+        reader.readAsDataURL(file);
       });
-      if (error) throw error;
-      const { data } = supabase.storage.from("widget-avatars").getPublicUrl(path);
-      setAvatarUrl(data.publicUrl);
+      setPendingAvatar({ mime: file.type, data: dataUrl.split(",")[1] || "" });
+      setAvatarUrl(dataUrl);
     } catch {
       setErrorMsg(L.errUpload);
     } finally {
@@ -181,7 +188,8 @@ export default function EmbedWidgetSettings({
       city_name: cityName,
       email: trimmed,
       nickname: nickname.trim() || null,
-      avatar_url: avatarUrl,
+      avatar_url: avatarUrl && /^https:\/\//i.test(avatarUrl) ? avatarUrl : null,
+      avatar: pendingAvatar,
       lang,
       alert_spring_tide: alerts.spring_tide,
       alert_surf: alerts.surf,
@@ -189,22 +197,34 @@ export default function EmbedWidgetSettings({
       alert_wingfoil: alerts.wingfoil,
       alert_fishing: alerts.fishing,
     };
-    const { error } = await supabase
-      .from("widget_alert_subscribers")
-      .upsert(payload, { onConflict: "email,city_slug", ignoreDuplicates: false });
-    if (error) {
+    let savedAvatarUrl: string | null = payload.avatar_url;
+    try {
+      const { data, error } = await supabase.functions.invoke("widget-alerts-subscribe", {
+        body: payload,
+      });
+      if (error) throw error;
+      if (data?.avatar_url) {
+        savedAvatarUrl = data.avatar_url as string;
+        setAvatarUrl(savedAvatarUrl);
+      }
+      setPendingAvatar(null);
+    } catch {
       setErrorMsg(L.errSave);
       setStatus("error");
       return;
     }
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ email: trimmed, nickname, avatarUrl, alerts }));
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ email: trimmed, nickname, avatarUrl: savedAvatarUrl, alerts }),
+      );
     } catch {
       /* ignore */
     }
     setStatus("saved");
     setTimeout(() => onClose(), 1200);
   };
+
 
   return (
     <div
