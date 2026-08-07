@@ -2501,7 +2501,7 @@ const BookOnlineSlidePanelInner = ({
                     </p>
                   )}
                   {!descOverlayContent && avgOn20 != null && totalReviewCount > 0 && (
-                    <div className="mb-5 flex">
+                    <div className="mb-5 flex justify-center">
                       <div
                         dir="ltr"
                         className="relative flex items-center justify-center gap-1.5 md:gap-2.5 py-1 md:py-1.5 px-3 md:px-4 rounded-full border border-white/30 cursor-pointer backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)]"
