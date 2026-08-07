@@ -13,7 +13,7 @@ import {
   useVideoConfig,
   staticFile,
 } from "remotion";
-import { palette as COLORS, alpha, elevation, shadowOn, dropShadow, sp, display, body } from "./tokens";
+import { palette as COLORS, alpha, elevation, shadowOn, shadowOf, glowOf, stack, dropShadow, sp, display, body } from "./tokens";
 
 // Base 22s @ 30fps — étendu dynamiquement par les options
 export const SHOWCASE_TOTAL_FRAMES = 660;
@@ -3165,7 +3165,7 @@ const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "r
           <Img src={staticFile(meta.logo)} style={{ width: 132, height: 132, objectFit: kind === "google_review" ? "contain" : "cover" }} />
         </div>
 
-        <div style={{ marginTop: 24, alignSelf: "center", transform: `scale(${interpolate(badgeS, [0, 1], [0.85, 1])})`, padding: "48px 46px 30px", background: alpha("night", 0.72), border: `2px solid ${meta.brand}`, borderRadius: 26, textAlign: "center", boxShadow: `0 12px 60px ${meta.brand}55` }}>
+        <div style={{ marginTop: 24, alignSelf: "center", transform: `scale(${interpolate(badgeS, [0, 1], [0.85, 1])})`, padding: "48px 46px 30px", background: alpha("night", 0.72), border: `2px solid ${meta.brand}`, borderRadius: 26, textAlign: "center", boxShadow: shadowOf(12, 60, meta.brand, 0.333) }}>
           <div style={{ fontFamily: body, color: meta.brand, fontSize: 20, letterSpacing: 6, textTransform: "uppercase" }}>
             {L.reviewsOf(meta.label)}
           </div>
@@ -3174,7 +3174,7 @@ const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "r
               {rating.toFixed(1)}<span style={{ fontSize: 40, color: meta.accent }}>/5</span>
             </div>
           )}
-          <div style={{ marginTop: 6, fontFamily: body, fontSize: 32, color: FLASH_YELLOW, textShadow: `0 0 16px ${FLASH_YELLOW}88` }}>
+          <div style={{ marginTop: 6, fontFamily: body, fontSize: 32, color: FLASH_YELLOW, textShadow: glowOf(16, FLASH_YELLOW, 0.533) }}>
             {"★★★★★".slice(0, Math.round(rating ?? 0))}<span style={{ opacity: 0.3 }}>{"★★★★★".slice(Math.round(rating ?? 0))}</span>
           </div>
           {count != null && (
@@ -3326,7 +3326,11 @@ const SceneCustomerReview: React.FC<{
                       fontWeight: 800,
                       fontSize: excerptSize,
                       lineHeight: 1.32,
-                      textShadow: `0 2px 8px ${alpha("black", 0.8)}, 0 0 ${8 + 26 * swipe * flashPulse}px ${FLASH_YELLOW}${swipe > 0 ? "CC" : "00"}, 0 0 ${18 + 46 * swipe * flashPulse}px ${FLASH_YELLOW}${swipe > 0 ? "77" : "00"}`,
+                      textShadow: stack(
+                        shadowOn(2, 8, "black", 0.8),
+                        glowOf(8 + 26 * swipe * flashPulse, FLASH_YELLOW, swipe > 0 ? 0.8 : 0),
+                        glowOf(18 + 46 * swipe * flashPulse, FLASH_YELLOW, swipe > 0 ? 0.467 : 0),
+                      ),
                     }}
                   >
                     {mid}
@@ -3350,7 +3354,11 @@ const SceneCustomerReview: React.FC<{
                   opacity: isoOpacity,
                   transform: `scale(${isoScale})`,
                   transformOrigin: "center",
-                  textShadow: `0 2px 8px ${alpha("black", 0.85)}, 0 0 ${20 + 26 * flashPulse}px ${FLASH_YELLOW}CC, 0 0 ${40 + 46 * flashPulse}px ${FLASH_YELLOW}66`,
+                  textShadow: stack(
+                    shadowOn(2, 8, "black", 0.85),
+                    glowOf(20 + 26 * flashPulse, FLASH_YELLOW, 0.8),
+                    glowOf(40 + 46 * flashPulse, FLASH_YELLOW, 0.4),
+                  ),
                 }}
               >
                 {mid}
@@ -3359,7 +3367,7 @@ const SceneCustomerReview: React.FC<{
           </div>
 
           {rating != null && Number.isFinite(rating) && (
-            <div style={{ marginTop: 20, fontFamily: body, color: FLASH_YELLOW, fontSize: 30, textShadow: `0 0 ${10 + 14 * flashPulse}px ${FLASH_YELLOW}99` }}>
+            <div style={{ marginTop: 20, fontFamily: body, color: FLASH_YELLOW, fontSize: 30, textShadow: glowOf(10 + 14 * flashPulse, FLASH_YELLOW, 0.6) }}>
               {"★★★★★".slice(0, Math.round(rating))}<span style={{ opacity: 0.3 }}>{"★★★★★".slice(Math.round(rating))}</span>
             </div>
           )}

@@ -29,3 +29,18 @@ export const shadowOn = (
   key: PaletteKey = "night",
   a = 0.6,
 ): string => `0 ${offsetY}px ${blur}px ${alpha(key, a)}`;
+
+/** Suffixe hex 8-digit pour une couleur arbitraire (non palette) */
+const suffix = (a: number) =>
+  Math.round(Math.max(0, Math.min(1, a)) * 255).toString(16).padStart(2, "0");
+
+/** Ombre portée sur une couleur dynamique (marque tierce, accent calculé) */
+export const shadowOf = (offsetY: number, blur: number, color: string, a: number): string =>
+  `0 ${offsetY}px ${blur}px ${color}${suffix(a)}`;
+
+/** Lueur centrée (halo) sur une couleur dynamique */
+export const glowOf = (blur: number, color: string, a: number): string =>
+  `0 0 ${blur}px ${color}${suffix(a)}`;
+
+/** Composition d'ombres (`textShadow` / `boxShadow` multi-couches) */
+export const stack = (...parts: string[]): string => parts.join(", ");
