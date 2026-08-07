@@ -60,7 +60,7 @@ const sfx = (l: Lang) => (l === "fr" ? "" : `_${l}`);
 const plainLen = (html: string) =>
   (html || "").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim().length;
 
-const SELECT_COLS = "id,icon,sort_order,business_id,image_url,title,title_en,title_ar,description,description_en,description_ar,section_title,section_title_en,section_title_ar,section_intro,section_intro_en,section_intro_ar,metric_title,metric_title_en,metric_title_ar,metric_value,metric_value_en,metric_value_ar";
+const SELECT_COLS = "id,icon,sort_order,business_id,image_url,section_columns,title,title_en,title_ar,description,description_en,description_ar,section_title,section_title_en,section_title_ar,section_intro,section_intro_en,section_intro_ar,metric_title,metric_title_en,metric_title_ar,metric_value,metric_value_en,metric_value_ar";
 
 
 const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Props>(
