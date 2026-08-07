@@ -3720,7 +3720,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               }}>{c.title}</div>
             );
             const textStyle: React.CSSProperties = {
-              marginTop: 20,
+              marginTop: 110,
               color: "rgba(255,255,255,0.92)",
               fontFamily: body,
               fontSize: 34,
