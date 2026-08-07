@@ -9,9 +9,11 @@ interface AvailabilitySearchOverlayProps {
   initialAdults?: number;
   onSearch: (checkIn: string, checkOut: string, adults: number) => void;
   onClose: () => void;
+  /** Rendu inline (sans fond noir plein écran ni bouton fermer) */
+  inline?: boolean;
 }
 
-export default function AvailabilitySearchOverlay({ language, isSearching, initialCheckIn, initialCheckOut, initialAdults, onSearch, onClose }: AvailabilitySearchOverlayProps) {
+export default function AvailabilitySearchOverlay({ language, isSearching, initialCheckIn, initialCheckOut, initialAdults, onSearch, onClose, inline }: AvailabilitySearchOverlayProps) {
   const isEn = language === "en";
 
   const fmt = (d: Date) => d.toISOString().split("T")[0];
