@@ -19,6 +19,31 @@ export const palette = {
   glowCore: "#1c150d",
   emberNight: "#1b1410",
   brown: "#1a120a",
+  nightWarm: "#1A1410",
+  emberLight: "#3A2418",
+  emberDark: "#1A1006",
+  nearBlack: "#0A0A0A",
+  shadowDeep: "#0A0807",
+  charcoal: "#0C0C0E",
+  inkWarm: "#1C160C",
+  parchment: "#F5F0E6",
+
+  // Accent « flashy » (extraits d'avis, étoiles)
+  flash: "#FFE21A",
+
+  // Couleurs de marques tierces (logos / accents de source)
+  whatsapp: "#25D366",
+  google: "#4285F4",
+  googleAccent: "#EA4335",
+  tripadvisor: "#34E0A1",
+  tripadvisorAccent: "#F2B203",
+  restaurantGuru: "#CB2027",
+
+  // Widgets météo / marées
+  sky: "#7FD3F7",
+  skyDeep: "#2F7FB0",
+  tide: "#4FA8D8",
+  wind: "#63C7A6",
 } as const;
 
 export type PaletteKey = keyof typeof palette;

@@ -13,13 +13,13 @@ import {
   useVideoConfig,
   staticFile,
 } from "remotion";
-import { display, body, COLORS } from "./theme";
+import { palette as COLORS, alpha, elevation, shadowOn, shadowOf, glowOf, stack, dropShadow, sp, display, body } from "./tokens";
 
 // Base 22s @ 30fps — étendu dynamiquement par les options
 export const SHOWCASE_TOTAL_FRAMES = 660;
 export const OPTION_SCENE_FRAMES = 90; // 3s par scène optionnelle
 // Jaune vif « flashy » utilisé pour les extraits d'avis et les étoiles.
-export const FLASH_YELLOW = "#FFE21A";
+export const FLASH_YELLOW = COLORS.flash;
 
 export type TextPosition = "top" | "middle" | "bottom";
 export type Tone = "immersif" | "dynamique" | "elegant";
@@ -137,9 +137,9 @@ export type ToneConfig = {
   overlay: string;          // finition globale (superposition CSS)
 };
 export const TONE_CONFIG: Record<Tone, ToneConfig> = {
-  immersif:  { kenBurnsZoom: 0.22, fadeFrames: 16, overlay: "radial-gradient(80% 100% at 50% 50%,rgba(0,0,0,0) 40%,rgba(0,0,0,0.35) 100%)" },
-  dynamique: { kenBurnsZoom: 0.10, fadeFrames: 6,  overlay: "linear-gradient(180deg,rgba(192,79,23,0.10) 0%,rgba(0,0,0,0.15) 100%)" },
-  elegant:   { kenBurnsZoom: 0.06, fadeFrames: 20, overlay: "linear-gradient(180deg,rgba(255,255,255,0.04) 0%,rgba(0,0,0,0.10) 100%)" },
+  immersif:  { kenBurnsZoom: 0.22, fadeFrames: 16, overlay: `radial-gradient(80% 100% at 50% 50%,${alpha("black", 0)} 40%,${alpha("black", 0.35)} 100%)` },
+  dynamique: { kenBurnsZoom: 0.10, fadeFrames: 6,  overlay: `linear-gradient(180deg,${alpha("terracotta", 0.10)} 0%,${alpha("black", 0.15)} 100%)` },
+  elegant:   { kenBurnsZoom: 0.06, fadeFrames: 20, overlay: `linear-gradient(180deg,${alpha("white", 0.04)} 0%,${alpha("black", 0.10)} 100%)` },
 };
 const ToneContext = React.createContext<Tone>("immersif");
 // Mode "vidéo unique en fond continu" : neutralise tous les fonds de scène
@@ -530,9 +530,9 @@ const PriceBadge: React.FC<{ label: string; duration: number }> = ({ label, dura
           padding: "14px 28px",
           borderRadius: 999,
           border: `1px solid ${COLORS.gold}`,
-          background: "rgba(0,0,0,0.42)",
+          background: alpha("black", 0.42),
           backdropFilter: "blur(6px)",
-          boxShadow: "0 8px 28px rgba(0,0,0,0.4)",
+          boxShadow: shadowOn(8, 28, "black", 0.4),
         }}
       >
         <div style={{ width: 8, height: 8, borderRadius: 999, background: COLORS.gold, opacity: 0.85 }} />
@@ -543,7 +543,7 @@ const PriceBadge: React.FC<{ label: string; duration: number }> = ({ label, dura
             fontWeight: 700,
             letterSpacing: 1.2,
             textTransform: "uppercase",
-            color: "#fff",
+            color: COLORS.white,
             whiteSpace: "nowrap",
           }}
         >
@@ -556,7 +556,7 @@ const PriceBadge: React.FC<{ label: string; duration: number }> = ({ label, dura
             bottom: 0,
             left: shine,
             width: 90,
-            background: "linear-gradient(100deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.22) 50%, rgba(255,255,255,0) 100%)",
+            background: `linear-gradient(100deg, ${alpha("white", 0)} 0%, ${alpha("white", 0.22)} 50%, ${alpha("white", 0)} 100%)`,
             transform: "skewX(-18deg)",
           }}
         />
@@ -898,11 +898,11 @@ const SceneTransition: React.FC<{ effect: TransitionEffect; duration: number; ch
 
 const Background: React.FC = () => (
   <AbsoluteFill style={{ background: COLORS.night, overflow: "hidden" }}>
-    <AbsoluteFill style={{ background: "linear-gradient(180deg,#1a120a 0%,#0e0b08 50%,#1a120a 100%)" }} />
+    <AbsoluteFill style={{ background: `linear-gradient(180deg,${COLORS.brown} 0%,${COLORS.night} 50%,${COLORS.brown} 100%)` }} />
     <AbsoluteFill
       style={{
         background:
-          "radial-gradient(60% 40% at 50% 0%,rgba(192,79,23,0.22) 0%,rgba(14,11,8,0) 60%),radial-gradient(70% 50% at 50% 100%,rgba(212,175,55,0.14) 0%,rgba(14,11,8,0) 60%)",
+          `radial-gradient(60% 40% at 50% 0%,${alpha("terracotta", 0.22)} 0%,${alpha("night", 0)} 60%),radial-gradient(70% 50% at 50% 100%,${alpha("gold", 0.14)} 0%,${alpha("night", 0)} 60%)`,
       }}
     />
   </AbsoluteFill>
@@ -936,7 +936,7 @@ const KenBurns: React.FC<{ src: string; from: number; duration: number }> = ({ s
         />
       )}
       <AbsoluteFill
-        style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.02) 40%,rgba(14,11,8,0.55) 100%)" }}
+        style={{ background: `linear-gradient(180deg,${alpha("black", 0.02)} 40%,${alpha("night", 0.55)} 100%)` }}
       />
     </AbsoluteFill>
   );
@@ -960,7 +960,7 @@ function resolveTextChunks(text: string, explicit?: string[], n?: number): strin
 
 const SceneHook: React.FC<{ name: string; location: string; img?: string; textPosition?: TextPosition }> = ({ name, location, img, textPosition = "middle" }) => {
   const frame = useCurrentFrame();
-  const titleY = interpolate(spring({ frame: frame - 8, fps: 30, config: { damping: 18 } }), [0, 1], [40, 0]);
+  const titleY = interpolate(spring({ frame: frame - 8, fps: 30, config: sp(18) }), [0, 1], [40, 0]);
   const titleO = ease(frame, 8, 28);
   const locO = ease(frame, 30, 55);
   const out = 1 - ease(frame, 100, 120);
@@ -977,7 +977,7 @@ const SceneHook: React.FC<{ name: string; location: string; img?: string; textPo
             color: COLORS.cream,
             fontSize: 64,
             lineHeight: 1.05,
-            textShadow: "0 4px 24px rgba(0,0,0,0.6)",
+            textShadow: shadowOn(4, 24, "black", 0.6),
           }}
         >
           {name}
@@ -991,7 +991,7 @@ const SceneHook: React.FC<{ name: string; location: string; img?: string; textPo
               color: COLORS.gold,
               fontSize: 30,
               lineHeight: 1.3,
-              textShadow: "0 2px 12px rgba(0,0,0,0.7)",
+              textShadow: shadowOn(2, 12, "black", 0.7),
               display: "flex",
               alignItems: "center",
               gap: 10,
@@ -1025,7 +1025,7 @@ const HookOverlay: React.FC<{ text: string; duration: number; textPosition?: Tex
             textTransform: "uppercase",
             textAlign: "center",
             marginBottom: 18,
-            textShadow: "0 2px 12px rgba(0,0,0,0.7)",
+            textShadow: shadowOn(2, 12, "black", 0.7),
           }}
         >
           {title}
@@ -1040,7 +1040,7 @@ const HookOverlay: React.FC<{ text: string; duration: number; textPosition?: Tex
             fontSize: textSize,
             lineHeight: 1.55,
             textAlign: "center",
-            textShadow: "0 4px 24px rgba(0,0,0,0.75)",
+            textShadow: shadowOn(4, 24, "black", 0.75),
           }}
         >
           {text}
@@ -1134,7 +1134,7 @@ const SceneOffer: React.FC<{
   const frame = useCurrentFrame();
   const labelO = ease(frame, 0, 18);
   const titleO = ease(frame, 14, 36);
-  const priceS = spring({ frame: frame - 24, fps: 30, config: { damping: 14 } });
+  const priceS = spring({ frame: frame - 24, fps: 30, config: sp(14) });
   const outStart = Math.max(30, durationFrames - 20);
   const out = 1 - ease(frame, outStart, durationFrames);
   const lines = Array.isArray(offer.lines) ? offer.lines.filter(Boolean).slice(0, 6) : [];
@@ -1286,7 +1286,7 @@ const SceneManualCard: React.FC<{
               textAlign: "center",
               lineHeight: 1.12,
               padding: "0 20px",
-              textShadow: "0 3px 18px rgba(0,0,0,0.6)",
+              textShadow: shadowOn(3, 18, "black", 0.6),
             }}
           >
             {title}
@@ -1350,7 +1350,7 @@ const SceneManualCard: React.FC<{
 const SceneCta: React.FC<{ name: string; textPosition?: TextPosition }> = ({ name, textPosition = "middle" }) => {
   const L = useL();
   const frame = useCurrentFrame();
-  const iconS = spring({ frame, fps: 30, config: { damping: 14 } });
+  const iconS = spring({ frame, fps: 30, config: sp(14) });
   const lineO = ease(frame, 18, 36);
   const ctaO = ease(frame, 36, 60);
   return (
@@ -1394,7 +1394,7 @@ const SceneCta: React.FC<{ name: string; textPosition?: TextPosition }> = ({ nam
 const SceneInstallCta: React.FC<{ name: string; textPosition?: TextPosition }> = ({ name, textPosition = "middle" }) => {
   const L = useL();
   const frame = useCurrentFrame();
-  const iconS = spring({ frame, fps: 30, config: { damping: 14 } });
+  const iconS = spring({ frame, fps: 30, config: sp(14) });
   const titleO = ease(frame, 12, 30);
   const badgeO = ease(frame, 34, 54);
   return (
@@ -1413,7 +1413,7 @@ const SceneInstallCta: React.FC<{ name: string; textPosition?: TextPosition }> =
           fontSize: 46,
           textAlign: "center",
           lineHeight: 1.12,
-          textShadow: "0 4px 24px rgba(0,0,0,0.65)",
+          textShadow: shadowOn(4, 24, "black", 0.65),
         }}
       >
         Emportez {name}
@@ -1435,7 +1435,7 @@ const SceneInstallCta: React.FC<{ name: string; textPosition?: TextPosition }> =
           color: COLORS.cream,
           fontSize: 26,
           letterSpacing: 1,
-          boxShadow: "0 18px 54px rgba(192,79,23,0.35)",
+          boxShadow: shadowOn(18, 54, "terracotta", 0.35),
         }}
       >
         {L.installApp}
@@ -1474,7 +1474,7 @@ const SceneReviews: React.FC<{ rating?: number | null; count?: number | null; te
             color: COLORS.terracotta,
             fontSize: 180,
             lineHeight: 1,
-            textShadow: "0 4px 24px rgba(0,0,0,0.6)",
+            textShadow: shadowOn(4, 24, "black", 0.6),
           }}
         >
           {animatedNote}
@@ -1482,7 +1482,7 @@ const SceneReviews: React.FC<{ rating?: number | null; count?: number | null; te
         </div>
       )}
       {count != null && count > 0 && (
-        <div style={{ marginTop: 30, fontFamily: display, fontWeight: 700, color: COLORS.cream, fontSize: 56, textShadow: "0 2px 12px rgba(0,0,0,0.7)" }}>
+        <div style={{ marginTop: 30, fontFamily: display, fontWeight: 700, color: COLORS.cream, fontSize: 56, textShadow: shadowOn(2, 12, "black", 0.7) }}>
           {animatedCount.toLocaleString(L.numberLocale)}
           <span style={{ fontSize: 26, color: COLORS.gold, marginLeft: 14, letterSpacing: 3, textTransform: "uppercase" }}>{L.reviewsWord}</span>
         </div>
@@ -1519,7 +1519,7 @@ const SceneHours: React.FC<{ openingHours: string | Record<string, string>; text
                 display: "flex",
                 justifyContent: "space-between",
                 padding: "14px 0",
-                borderBottom: "1px solid rgba(212,175,55,0.18)",
+                borderBottom: `1px solid ${alpha("gold", 0.18)}`,
                 fontFamily: body,
                 fontSize: 28,
               }}
@@ -1596,9 +1596,9 @@ const WidgetShell: React.FC<{ title: string; kicker: string; opacity: number; ch
         maxWidth: "100%",
         borderRadius: px(28),
         padding: `${px(34)}px ${px(38)}px`,
-        background: "linear-gradient(160deg, rgba(12,12,14,0.88), rgba(28,22,12,0.82))",
+        background: `linear-gradient(160deg, ${alpha("charcoal", 0.88)}, ${alpha("inkWarm", 0.82)})`,
         border: `${Math.max(2, px(2))}px solid ${COLORS.gold}`,
-        boxShadow: "0 24px 70px rgba(0,0,0,0.6)",
+        boxShadow: shadowOn(24, 70, "black", 0.6),
         boxSizing: "border-box",
       }}
     >
@@ -1633,7 +1633,7 @@ const HourStrip: React.FC<{ labels: string[]; values: number[]; unit: string; pr
           const h = px(24) + ((v - min) / span) * px(140);
           return (
             <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: px(6) }}>
-              <div style={{ fontFamily: body, fontSize: px(15), color: revealed ? COLORS.cream : "rgba(245,240,230,0.25)" }}>
+              <div style={{ fontFamily: body, fontSize: px(15), color: revealed ? COLORS.cream : alpha("parchment", 0.25) }}>
                 {max <= 5 ? v.toFixed(1) : Math.round(v)}
               </div>
               <div
@@ -1641,7 +1641,7 @@ const HourStrip: React.FC<{ labels: string[]; values: number[]; unit: string; pr
                   width: "100%",
                   height: h,
                   borderRadius: px(6),
-                  background: revealed ? accent : "rgba(255,255,255,0.10)",
+                  background: revealed ? accent : alpha("white", 0.10),
                   transform: `scaleY(${revealed ? 1 : 0.35})`,
                   transformOrigin: "bottom",
                   boxShadow: i === activeIdx ? `0 0 ${px(24)}px ${accent}` : "none",
@@ -1653,7 +1653,7 @@ const HourStrip: React.FC<{ labels: string[]; values: number[]; unit: string; pr
       </div>
       <div style={{ display: "flex", gap: px(6), marginTop: px(8) }}>
         {sLabels.map((l, i) => (
-          <div key={i} style={{ flex: 1, textAlign: "center", fontFamily: body, fontSize: px(13), color: i === activeIdx ? COLORS.gold : "rgba(245,240,230,0.4)" }}>
+          <div key={i} style={{ flex: 1, textAlign: "center", fontFamily: body, fontSize: px(13), color: i === activeIdx ? COLORS.gold : alpha("parchment", 0.4) }}>
             {i % labelEvery === 0 ? l.slice(0, 2) + "h" : ""}
           </div>
         ))}
@@ -1720,15 +1720,15 @@ const SceneWeatherWidget: React.FC<{ widget: NonNullable<ShowcaseProps["weatherW
                     borderRadius: px(18),
                     padding: `${px(18)}px ${px(10)}px`,
                     textAlign: "center",
-                    background: focus ? "rgba(212,175,55,0.18)" : "rgba(255,255,255,0.06)",
-                    border: `1px solid ${focus ? COLORS.gold : "rgba(212,175,55,0.2)"}`,
+                    background: focus ? alpha("gold", 0.18) : alpha("white", 0.06),
+                    border: `1px solid ${focus ? COLORS.gold : alpha("gold", 0.2)}`,
                     fontFamily: body,
                   }}
                 >
                   <div style={{ fontSize: px(18), color: COLORS.gold }}>{dayLabelFr(d.date)}</div>
                   <div style={{ fontSize: px(42), margin: `${px(8)}px 0` }}>{wmoIcon(d.code)}</div>
                   <div style={{ fontSize: px(26), color: COLORS.cream, fontWeight: 700 }}>{d.tmax}°</div>
-                  <div style={{ fontSize: px(18), color: "rgba(245,240,230,0.6)" }}>{d.tmin}°</div>
+                  <div style={{ fontSize: px(18), color: alpha("parchment", 0.6) }}>{d.tmin}°</div>
                   <div style={{ fontSize: px(15), color: COLORS.gold, marginTop: px(6) }}>{d.pop}%</div>
                 </div>
               );
@@ -1829,7 +1829,7 @@ const TidesRecapPanel: React.FC<{ widget: NonNullable<ShowcaseProps["tidesWidget
   const reveal = (from: number, to: number) => ease(local, from, to);
   const line = (label: string, value: string, delay: number) => (
     <div style={{ opacity: reveal(delay, delay + 12), fontFamily: body, display: "flex", gap: px(10), alignItems: "baseline" }}>
-      <span style={{ fontSize: px(20), color: "rgba(245,240,230,0.65)" }}>{label}</span>
+      <span style={{ fontSize: px(20), color: alpha("parchment", 0.65) }}>{label}</span>
       <span style={{ fontSize: px(26), color: COLORS.cream, fontWeight: 700 }}>{value}</span>
     </div>
   );
@@ -1875,18 +1875,18 @@ const TidesRecapPanel: React.FC<{ widget: NonNullable<ShowcaseProps["tidesWidget
                   height: `${hRatio * 62 * grow}%`,
                   minHeight: px(4),
                   borderRadius: px(8),
-                  background: "linear-gradient(180deg,#7FD3F7 0%,#2F7FB0 100%)",
+                  background: `linear-gradient(180deg,${COLORS.sky} 0%,${COLORS.skyDeep} 100%)`,
                   opacity: 0.35 + 0.65 * grow,
                 }}
               />
               <div style={{ fontSize: px(19), color: COLORS.gold, marginTop: px(6), opacity: grow }}>{s.tw}/12</div>
-              <div style={{ fontSize: px(16), color: "rgba(245,240,230,0.6)", opacity: grow }}>{s.hour ?? ""}</div>
+              <div style={{ fontSize: px(16), color: alpha("parchment", 0.6), opacity: grow }}>{s.hour ?? ""}</div>
             </div>
           );
         })}
       </div>
 
-      <div style={{ marginTop: px(12), opacity: reveal(70, 86), fontFamily: body, fontSize: px(19), color: "rgba(245,240,230,0.75)", lineHeight: 1.35 }}>
+      <div style={{ marginTop: px(12), opacity: reveal(70, 86), fontFamily: body, fontSize: px(19), color: alpha("parchment", 0.75), lineHeight: 1.35 }}>
         Règle des douzièmes : l'eau {rising ? "monte" : "descend"} lentement, puis très vite en 3ᵉ et 4ᵉ heure-marée.
         {topHigh || topLow ? " Étale " : ""}
         {topHigh || topLow
@@ -1927,9 +1927,9 @@ const SceneTidesWidget: React.FC<{ widget: NonNullable<ShowcaseProps["tidesWidge
   const slack = cmPerMin != null && Math.abs(cmPerMin) < 0.2;
 
   const cfg = kind === "tides"
-    ? { kicker: "Marées", values: hours.map((h) => Number(h.sea ?? 0)), unit: "Hauteur d'eau sur 24 h (m)", accent: "#4FA8D8" }
+    ? { kicker: "Marées", values: hours.map((h) => Number(h.sea ?? 0)), unit: "Hauteur d'eau sur 24 h (m)", accent: COLORS.tide }
     : kind === "wind"
-      ? { kicker: "Vents", values: hours.map((h) => Number(h.wind ?? 0)), unit: "Vent sur 24 h (km/h)", accent: "#63C7A6" }
+      ? { kicker: "Vents", values: hours.map((h) => Number(h.wind ?? 0)), unit: "Vent sur 24 h (km/h)", accent: COLORS.wind }
       : { kicker: "Météo", values: hours.map((h) => Number(h.temp ?? 0)), unit: "Températures sur 24 h (°C)", accent: COLORS.gold };
 
   const headStyle: React.CSSProperties = {
@@ -2032,7 +2032,7 @@ const SceneMap: React.FC<{ lat: number; lng: number; name: string; address?: str
   const mapO = ease(frame, 10, 30);
   // Google Maps Static via edge proxy (clé stockée côté serveur)
   const mapUrl = `https://plnphgdrawpsnumnejzc.supabase.co/functions/v1/static-map?lat=${lat}&lng=${lng}&zoom=16&size=640x640&scale=2&maptype=roadmap`;
-  const pinScale = spring({ frame: frame - 28, fps: 30, config: { damping: 10, stiffness: 180 } });
+  const pinScale = spring({ frame: frame - 28, fps: 30, config: sp(10, 180) });
   // Carré adapté au canvas : jamais plus large que le contenu ni plus haut que 55 % du canvas.
   const mapSize = Math.min(contentW, Math.round(h * 0.55), px(620));
   return (
@@ -2050,7 +2050,7 @@ const SceneMap: React.FC<{ lat: number; lng: number; name: string; address?: str
           overflow: "hidden",
           position: "relative",
           border: `2px solid ${COLORS.gold}`,
-          boxShadow: "0 18px 60px rgba(0,0,0,0.6)",
+          boxShadow: shadowOn(18, 60, "black", 0.6),
         }}
       >
         <Img src={mapUrl} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -2063,7 +2063,7 @@ const SceneMap: React.FC<{ lat: number; lng: number; name: string; address?: str
             transform: `translate(-50%, -100%) scale(${interpolate(pinScale, [0, 1], [0, 1])})`,
             transformOrigin: "bottom center",
             fontSize: px(80),
-            filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.6))",
+            filter: `drop-shadow(${shadowOn(4, 12, "black", 0.6)})`,
           }}
         >
           📍
@@ -2174,7 +2174,7 @@ const PlaceShot: React.FC<{ url: string; isVideo: boolean; duration: number; nam
         <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover", transform: `scale(${scale})` }} />
       )}
       {/* Voile léger : le média reste dominant. */}
-      <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.08) 0%,rgba(14,11,8,0.10) 55%,rgba(14,11,8,0.52) 100%)" }} />
+      <AbsoluteFill style={{ background: `linear-gradient(180deg,${alpha("night", 0.08)} 0%,${alpha("night", 0.10)} 55%,${alpha("night", 0.52)} 100%)` }} />
 
       <AbsoluteFill style={{ justifyContent: "flex-end", padding: 64, pointerEvents: "none" }}>
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24 }}>
@@ -2185,7 +2185,7 @@ const PlaceShot: React.FC<{ url: string; isVideo: boolean; duration: number; nam
                 fontFamily: body,
                 fontSize: 22,
                 color: COLORS.gold,
-                background: "rgba(14,11,8,0.55)",
+                background: alpha("night", 0.55),
                 border: `1px solid ${COLORS.gold}`,
                 borderRadius: 999,
                 padding: "8px 18px",
@@ -2203,7 +2203,7 @@ const PlaceShot: React.FC<{ url: string; isVideo: boolean; duration: number; nam
                   fontSize: 56,
                   lineHeight: 1,
                   color: COLORS.cream,
-                  textShadow: "0 6px 24px rgba(0,0,0,0.65)",
+                  textShadow: shadowOn(6, 24, "black", 0.65),
                   opacity: cardIn,
                   transform: `translateY(${interpolate(cardIn, [0, 1], [16, 0])}px)`,
                 }}
@@ -2225,7 +2225,7 @@ const PlaceShot: React.FC<{ url: string; isVideo: boolean; duration: number; nam
                 borderRadius: 24,
                 overflow: "hidden",
                 border: `2px solid ${COLORS.gold}`,
-                boxShadow: "0 18px 50px rgba(0,0,0,0.55)",
+                boxShadow: shadowOn(18, 50, "black", 0.55),
                 opacity: cardIn,
                 transform: `translateY(${interpolate(cardIn, [0, 1], [24, 0])}px)`,
               }}
@@ -2246,7 +2246,7 @@ const PlaceShot: React.FC<{ url: string; isVideo: boolean; duration: number; nam
                       width: 92,
                       height: 92,
                       borderRadius: 999,
-                      background: "rgba(14,11,8,0.55)",
+                      background: alpha("night", 0.55),
                       border: `2px solid ${COLORS.gold}`,
                       display: "flex",
                       alignItems: "center",
@@ -2255,7 +2255,7 @@ const PlaceShot: React.FC<{ url: string; isVideo: boolean; duration: number; nam
                     }}
                   >
                     <svg width="46" height="46" viewBox="0 0 24 24" style={{ transform: `rotate(${bearing}deg)` }}>
-                      <path d="M12 2 L19 20 L12 16 L5 20 Z" fill="#C04F17" stroke={COLORS.gold} strokeWidth="1.2" />
+                      <path d="M12 2 L19 20 L12 16 L5 20 Z" fill={COLORS.terracotta} stroke={COLORS.gold} strokeWidth="1.2" />
                     </svg>
                   </div>
                 </div>
@@ -2286,7 +2286,7 @@ const LinkedPlacesOverlay: React.FC<{ places: Array<{ id: string; name: string }
                 fontFamily: body,
                 fontSize: 24,
                 color: COLORS.cream,
-                background: "rgba(14,11,8,0.6)",
+                background: alpha("night", 0.6),
                 border: `1px solid ${COLORS.gold}`,
                 borderRadius: 999,
                 padding: "8px 18px",
@@ -2330,8 +2330,8 @@ const SceneBlogArticle: React.FC<{
             overflow: "hidden",
             position: "relative",
             border: `2px solid ${COLORS.gold}`,
-            boxShadow: "0 24px 70px rgba(0,0,0,0.65)",
-            background: "#fff",
+            boxShadow: shadowOn(24, 70, "black", 0.65),
+            background: COLORS.white,
           }}
         >
           <Img
@@ -2363,7 +2363,7 @@ const SceneBlogArticle: React.FC<{
     : null;
   const mapO = ease(frame, Math.round(duration * 0.35), Math.round(duration * 0.35) + 20);
   const heroScale = interpolate(frame, [0, duration], [1.06, 1.16], { extrapolateRight: "clamp" });
-  const pinScale = spring({ frame: frame - Math.round(duration * 0.45), fps: 30, config: { damping: 10, stiffness: 180 } });
+  const pinScale = spring({ frame: frame - Math.round(duration * 0.45), fps: 30, config: sp(10, 180) });
 
   return (
     <AbsoluteFill style={{ alignItems: "center", padding: 50, ...textPositionStyle(textPosition) }}>
@@ -2379,9 +2379,9 @@ const SceneBlogArticle: React.FC<{
           borderRadius: 24,
           overflow: "hidden",
           border: `2px solid ${COLORS.gold}`,
-          boxShadow: "0 18px 60px rgba(0,0,0,0.6)",
+          boxShadow: shadowOn(18, 60, "black", 0.6),
           position: "relative",
-          background: "#000",
+          background: COLORS.black,
         }}
       >
         {article.heroUrl && (
@@ -2398,7 +2398,7 @@ const SceneBlogArticle: React.FC<{
                 transform: `translate(-50%, -100%) scale(${interpolate(pinScale, [0, 1], [0, 1])})`,
                 transformOrigin: "bottom center",
                 fontSize: 76,
-                filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.6))",
+                filter: `drop-shadow(${shadowOn(4, 12, "black", 0.6)})`,
               }}
             >
               📍
@@ -2451,7 +2451,7 @@ const SceneDigitalId: React.FC<{
   const shimmerProgress = ((frame % shimmerPeriod) / shimmerPeriod) * 200 - 50; // -50% → 150%
 
   const ctaBase: React.CSSProperties = {
-    color: "#fff",
+    color: COLORS.white,
     fontFamily: body,
     fontWeight: 700,
     fontSize: 16,
@@ -2470,7 +2470,7 @@ const SceneDigitalId: React.FC<{
         bottom: 0,
         left: `${shimmerProgress}%`,
         width: "40%",
-        background: "linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0.45) 50%,rgba(255,255,255,0) 100%)",
+        background: `linear-gradient(90deg,${alpha("white", 0)} 0%,${alpha("white", 0.45)} 50%,${alpha("white", 0)} 100%)`,
         transform: "skewX(-20deg)",
         pointerEvents: "none",
       }}
@@ -2489,33 +2489,33 @@ const SceneDigitalId: React.FC<{
           width: 560,
           height: 1020,
           borderRadius: 48,
-          background: "#0a0a0a",
+          background: COLORS.nearBlack,
           padding: 14,
           position: "relative",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.7)",
+          boxShadow: shadowOn(24, 80, "black", 0.7),
         }}
       >
         {/* Phase 1 — fiche réelle (screenshot live) sinon mockup reconstruit */}
         <AbsoluteFill style={{ opacity: phase1O, padding: 14 }}>
-          <div style={{ width: "100%", height: "100%", borderRadius: 36, overflow: "hidden", background: "#0a0807", display: "flex", flexDirection: "column" }}>
+          <div style={{ width: "100%", height: "100%", borderRadius: 36, overflow: "hidden", background: COLORS.shadowDeep, display: "flex", flexDirection: "column" }}>
             {ficheScreenshotUrl ? (
-              <Img src={ficheScreenshotUrl} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center", background: "#0a0807" }} />
+              <Img src={ficheScreenshotUrl} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center", background: COLORS.shadowDeep }} />
             ) : (
               <>
-                <div style={{ position: "relative", width: "100%", height: 360, background: "#1a1410" }}>
+                <div style={{ position: "relative", width: "100%", height: 360, background: COLORS.nightWarm }}>
                   {heroImage ? (
                     <Img src={heroImage} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   ) : (
-                    <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg,#3a2418,#1a1006)" }} />
+                    <div style={{ width: "100%", height: "100%", background: `linear-gradient(135deg,${COLORS.emberLight},${COLORS.emberDark})` }} />
                   )}
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(0,0,0,0.0) 50%,rgba(10,8,7,0.95) 100%)" }} />
+                  <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg,${alpha("black", 0.0)} 50%,${alpha("shadowDeep", 0.95)} 100%)` }} />
                   {ratingStr && (
-                    <div style={{ position: "absolute", top: 16, right: 16, background: "rgba(0,0,0,0.65)", color: "#fff", fontFamily: body, fontWeight: 700, fontSize: 18, padding: "6px 12px", borderRadius: 20, display: "flex", alignItems: "center", gap: 6 }}>
+                    <div style={{ position: "absolute", top: 16, right: 16, background: alpha("black", 0.65), color: COLORS.white, fontFamily: body, fontWeight: 700, fontSize: 18, padding: "6px 12px", borderRadius: 20, display: "flex", alignItems: "center", gap: 6 }}>
                       <span style={{ color: COLORS.gold }}>★</span> {ratingStr}{reviewsCount ? ` (${reviewsCount})` : ""}
                     </div>
                   )}
                 </div>
-                <div style={{ padding: "22px 24px", color: "#fff", flex: 1, display: "flex", flexDirection: "column", gap: 14 }}>
+                <div style={{ padding: "22px 24px", color: COLORS.white, flex: 1, display: "flex", flexDirection: "column", gap: 14 }}>
                   <div style={{ fontFamily: display, fontWeight: 800, fontSize: 30, lineHeight: 1.1 }}>{name}</div>
                   {city && (
                     <div style={{ fontFamily: body, color: COLORS.gold, fontSize: 16, letterSpacing: 1.5, textTransform: "uppercase" }}>
@@ -2523,7 +2523,7 @@ const SceneDigitalId: React.FC<{
                     </div>
                   )}
                   {teaser && (
-                    <div style={{ fontFamily: body, fontStyle: "italic", color: "rgba(255,255,255,0.85)", fontSize: 17, lineHeight: 1.4 }}>
+                    <div style={{ fontFamily: body, fontStyle: "italic", color: alpha("white", 0.85), fontSize: 17, lineHeight: 1.4 }}>
                       « {teaser} »
                     </div>
                   )}
@@ -2532,7 +2532,7 @@ const SceneDigitalId: React.FC<{
                       {L.viewFullPage}
                       {shimmerEl}
                     </div>
-                    <div style={{ ...ctaBase, background: "#1a1410", border: "1px solid rgba(212,175,55,0.4)", fontWeight: 600, fontSize: 14 }}>
+                    <div style={{ ...ctaBase, background: COLORS.nightWarm, border: `1px solid ${alpha("gold", 0.4)}`, fontWeight: 600, fontSize: 14 }}>
                       oneworldmorocco.com/b/{slug}
                       {shimmerEl}
                     </div>
@@ -2545,9 +2545,9 @@ const SceneDigitalId: React.FC<{
 
         {/* Phase 2 — QR code */}
         <AbsoluteFill style={{ opacity: phase2O, padding: 14 }}>
-          <div style={{ width: "100%", height: "100%", borderRadius: 36, background: "#0e0b08", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 36 }}>
-            <div style={{ fontFamily: display, fontWeight: 800, color: "#fff", fontSize: 30, textAlign: "center", marginBottom: 22 }}>{name}</div>
-            <div style={{ background: "#fff", padding: 18, borderRadius: 22, boxShadow: "0 12px 40px rgba(212,175,55,0.25)" }}>
+          <div style={{ width: "100%", height: "100%", borderRadius: 36, background: COLORS.night, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 36 }}>
+            <div style={{ fontFamily: display, fontWeight: 800, color: COLORS.white, fontSize: 30, textAlign: "center", marginBottom: 22 }}>{name}</div>
+            <div style={{ background: COLORS.white, padding: 18, borderRadius: 22, boxShadow: shadowOn(12, 40, "gold", 0.25) }}>
               <Img src={qrUrl} style={{ width: 340, height: 340, display: "block" }} />
             </div>
             <div style={{ marginTop: 20, fontFamily: body, color: COLORS.gold, fontSize: 17, letterSpacing: 4, textTransform: "uppercase" }}>
@@ -2584,7 +2584,7 @@ const VideoCover: React.FC<{ src: string; from: number; duration: number }> = ({
         <Img src={src} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       )}
       <AbsoluteFill
-        style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.02) 40%,rgba(14,11,8,0.55) 100%)" }}
+        style={{ background: `linear-gradient(180deg,${alpha("black", 0.02)} 40%,${alpha("night", 0.55)} 100%)` }}
       />
     </AbsoluteFill>
   );
@@ -2603,7 +2603,7 @@ const VideoBackdrop: React.FC<{ src?: string; image?: string }> = ({ src, image 
       ) : (
         <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       )}
-      <AbsoluteFill style={{ background: "rgba(14,11,8,0.46)" }} />
+      <AbsoluteFill style={{ background: alpha("night", 0.46) }} />
     </AbsoluteFill>
   );
 };
@@ -2648,7 +2648,7 @@ const MotionBackdrop: React.FC<{
   extraStartSec?: number;
   /** Effet de mouvement explicite (prioritaire sur `effect`) pour les images fixes */
   motion?: MotionEffect | null;
-}> = ({ src, image, duration, effect, veil = "rgba(14,11,8,0.46)", extraStartSec = 0, motion = null }) => {
+}> = ({ src, image, duration, effect, veil = alpha("night", 0.46), extraStartSec = 0, motion = null }) => {
   const frame = useCurrentFrame();
   const tone = useTone();
   const suppressBg = useSuppressBg();
@@ -2759,7 +2759,7 @@ const GlobalImageSlideshow: React.FC<{ images: string[]; total: number; effect: 
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
       {slides}
-      <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.34) 0%,rgba(14,11,8,0.56) 100%)" }} />
+      <AbsoluteFill style={{ background: `linear-gradient(180deg,${alpha("night", 0.34)} 0%,${alpha("night", 0.56)} 100%)` }} />
     </AbsoluteFill>
   );
 };
@@ -2776,7 +2776,7 @@ const removeDecorativeTaglineWords = (value: string): string =>
 
 const SceneLogo: React.FC<{ logoUrl: string; durationFrames?: number; background?: { url: string; kind: "image" | "video" } | null }> = ({ logoUrl, durationFrames = 60, background = null }) => {
   const frame = useCurrentFrame();
-  const s = spring({ frame, fps: 30, config: { damping: 18, stiffness: 120 } });
+  const s = spring({ frame, fps: 30, config: sp(18, 120) });
   const outStart = Math.max(20, durationFrames - 14);
   const out = 1 - ease(frame, outStart, durationFrames);
   const scale = interpolate(s, [0, 1], [0.85, 1]);
@@ -2794,7 +2794,7 @@ const SceneLogo: React.FC<{ logoUrl: string; durationFrames?: number; background
         />
       )}
       {background && (
-        <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.35) 0%,rgba(0,0,0,0.55) 100%)" }} />
+        <AbsoluteFill style={{ background: `linear-gradient(180deg,${alpha("black", 0.35)} 0%,${alpha("black", 0.55)} 100%)` }} />
       )}
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
         <Img
@@ -2805,7 +2805,7 @@ const SceneLogo: React.FC<{ logoUrl: string; durationFrames?: number; background
             objectFit: "contain",
             opacity: s,
             transform: `scale(${scale})`,
-            filter: "drop-shadow(0 8px 32px rgba(0,0,0,0.55))",
+            filter: `drop-shadow(${shadowOn(8, 32, "black", 0.55)})`,
           }}
         />
       </AbsoluteFill>
@@ -2824,21 +2824,21 @@ const ScenePopup: React.FC<{ imageUrl: string; title?: string | null; descriptio
     <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
       <style>{RICH_CSS}</style>
       <KenBurns src={imageUrl} from={0} duration={durationFrames} />
-      <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.15) 0%,rgba(0,0,0,0.7) 100%)" }} />
+      <AbsoluteFill style={{ background: `linear-gradient(180deg,${alpha("black", 0.15)} 0%,${alpha("black", 0.7)} 100%)` }} />
       <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
         <FitColumn>
         {title && (
-          <div style={{ fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 54, lineHeight: 1.1, textShadow: "0 4px 20px rgba(0,0,0,0.7)", textAlign: "center" }}>
+          <div style={{ fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 54, lineHeight: 1.1, textShadow: shadowOn(4, 20, "black", 0.7), textAlign: "center" }}>
             {decodeEntities(title)}
           </div>
         )}
         {hasRich ? (
           <RichBlock
             html={richDesc}
-            style={{ marginTop: 18, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.35, textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 640, alignSelf: "center" }}
+            style={{ marginTop: 18, fontFamily: body, color: alpha("white", 0.94), fontSize: 26, lineHeight: 1.35, textShadow: shadowOn(2, 10, "black", 0.6), maxWidth: 640, alignSelf: "center" }}
           />
         ) : desc ? (
-          <div style={{ marginTop: 18, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.35, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 640 }}>
+          <div style={{ marginTop: 18, fontFamily: body, color: alpha("white", 0.94), fontSize: 26, lineHeight: 1.35, textAlign: "center", textShadow: shadowOn(2, 10, "black", 0.6), maxWidth: 640 }}>
             {desc}
           </div>
         ) : null}
@@ -2906,13 +2906,13 @@ const RICH_CSS = `
   font-size: 1.34em;
   color: ${COLORS.gold};
   letter-spacing: 0.6px;
-  text-shadow: 0 3px 16px rgba(0,0,0,0.7);
+  text-shadow: ${shadowOn(3, 16, "black", 0.7)};
 }
 .rich-video-block h3, .rich-video-block h4 {
   font-size: 1.14em;
   color: ${COLORS.bone};
   letter-spacing: 0.4px;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.65);
+  text-shadow: ${shadowOn(2, 12, "black", 0.65)};
 }
 .rich-video-block h1:first-child, .rich-video-block h2:first-child,
 .rich-video-block h3:first-child, .rich-video-block h4:first-child { margin-top: 0; }
@@ -2934,7 +2934,7 @@ const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
-  const titleY = interpolate(spring({ frame: frame - 6, fps: 30, config: { damping: 18 } }), [0, 1], [30, 0]);
+  const titleY = interpolate(spring({ frame: frame - 6, fps: 30, config: sp(18) }), [0, 1], [30, 0]);
   const heroImg = data.image_url || background || undefined;
   const isVideoHero = !!(backgroundIsVideo && background === heroImg);
   const richDesc = sanitizeRich(data.description_html || data.description || "");
@@ -2946,9 +2946,9 @@ const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[
       {heroImg && (isVideoHero
         ? <VideoCover src={heroImg} from={0} duration={durationFrames} />
         : (motion
-            ? <MotionBackdrop image={heroImg} duration={durationFrames} effect={effect} motion={motion} veil="rgba(0,0,0,0)" />
+            ? <MotionBackdrop image={heroImg} duration={durationFrames} effect={effect} motion={motion} veil={alpha("black", 0)} />
             : <KenBurns src={heroImg} from={0} duration={durationFrames} />))}
-      <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(0,0,0,0.4) 0%,rgba(0,0,0,0.75) 100%)" }} />
+      <AbsoluteFill style={{ background: `linear-gradient(180deg,${alpha("black", 0.4)} 0%,${alpha("black", 0.75)} 100%)` }} />
       <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
         <FitColumn>
         {!data.title && (
@@ -2957,7 +2957,7 @@ const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[
           </div>
         )}
         {data.title && (
-          <div style={{ marginTop: 14, transform: `translateY(${titleY}px)`, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 56, lineHeight: 1.1, textAlign: "center", textShadow: "0 4px 20px rgba(0,0,0,0.7)" }}>
+          <div style={{ marginTop: 14, transform: `translateY(${titleY}px)`, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 56, lineHeight: 1.1, textAlign: "center", textShadow: shadowOn(4, 20, "black", 0.7) }}>
             {decodeEntities(data.title)}
           </div>
         )}
@@ -2965,16 +2965,16 @@ const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[
           hasRich ? (
             <RichBlock
               html={richDesc}
-              style={{ marginTop: 20, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.4, textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 640, alignSelf: "center" }}
+              style={{ marginTop: 20, fontFamily: body, color: alpha("white", 0.94), fontSize: 26, lineHeight: 1.4, textShadow: shadowOn(2, 10, "black", 0.6), maxWidth: 640, alignSelf: "center" }}
             />
           ) : (
-            <div style={{ marginTop: 20, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.4, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 620 }}>
+            <div style={{ marginTop: 20, fontFamily: body, color: alpha("white", 0.94), fontSize: 26, lineHeight: 1.4, textAlign: "center", textShadow: shadowOn(2, 10, "black", 0.6), maxWidth: 620 }}>
               {plainDesc.slice(0, 280)}
             </div>
           )
         )}
         {(data.metric_title || data.metric_value) && (
-          <div style={{ marginTop: 28, padding: "14px 26px", border: `1px solid ${COLORS.gold}`, borderRadius: 14, fontFamily: display, color: COLORS.gold, fontSize: 28, textAlign: "center", background: "rgba(212,175,55,0.08)" }}>
+          <div style={{ marginTop: 28, padding: "14px 26px", border: `1px solid ${COLORS.gold}`, borderRadius: 14, fontFamily: display, color: COLORS.gold, fontSize: 28, textAlign: "center", background: alpha("gold", 0.08) }}>
             {[data.metric_value, data.metric_title].filter(Boolean).map((v) => decodeEntities(String(v))).join(" · ")}
           </div>
         )}
@@ -2987,15 +2987,15 @@ const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[
 
 
 const PLATFORM_META: Record<"google_review" | "tripadvisor" | "restaurant_guru", { label: string; brand: string; accent: string; logo: string }> = {
-  google_review:   { label: "Google",          brand: "#4285F4", accent: "#EA4335", logo: "brands/google-logo.png" },
-  tripadvisor:     { label: "TripAdvisor",     brand: "#34E0A1", accent: "#F2B203", logo: "brands/logo_tripadvisor.webp" },
-  restaurant_guru: { label: "Restaurant Guru", brand: "#CB2027", accent: "#F2B203", logo: "brands/logo_restaurant_guru.webp" },
+  google_review:   { label: "Google",          brand: COLORS.google, accent: COLORS.googleAccent, logo: "brands/google-logo.png" },
+  tripadvisor:     { label: "TripAdvisor",     brand: COLORS.tripadvisor, accent: COLORS.tripadvisorAccent, logo: "brands/logo_tripadvisor.webp" },
+  restaurant_guru: { label: "Restaurant Guru", brand: COLORS.restaurantGuru, accent: COLORS.tripadvisorAccent, logo: "brands/logo_restaurant_guru.webp" },
 };
 
 /** Logo géant en filigrane qui déborde du cadre + dérive lente : signature visuelle des séquences de marque */
 const BrandBleedLogo: React.FC<{ src: string; color: string; durationFrames: number; side?: "left" | "right" }> = ({ src, color, durationFrames, side = "left" }) => {
   const frame = useCurrentFrame();
-  const enter = spring({ frame, fps: 30, config: { damping: 22, stiffness: 90 } });
+  const enter = spring({ frame, fps: 30, config: sp(22, 90) });
   const drift = interpolate(frame, [0, durationFrames], [0, side === "left" ? 60 : -60]);
   const rot = interpolate(frame, [0, durationFrames], [side === "left" ? -14 : 14, side === "left" ? -4 : 4]);
   const scale = interpolate(enter, [0, 1], [1.35, 1]);
@@ -3046,8 +3046,8 @@ const SceneInfoText: React.FC<{
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
-  const titleY = interpolate(spring({ frame: frame - 6, fps: 30, config: { damping: 18 } }), [0, 1], [30, 0]);
-  const logoS = interpolate(spring({ frame: frame - 2, fps: 30, config: { damping: 14, stiffness: 160 } }), [0, 1], [0.6, 1]);
+  const titleY = interpolate(spring({ frame: frame - 6, fps: 30, config: sp(18) }), [0, 1], [30, 0]);
+  const logoS = interpolate(spring({ frame: frame - 2, fps: 30, config: sp(14, 160) }), [0, 1], [0.6, 1]);
   const clean = (v?: string) => decodeEntities((v || "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
   const richText = sanitizeRich(textHtml || "");
   const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br|h1|h2|h3|h4)\b/i.test(richText);
@@ -3065,8 +3065,8 @@ const SceneInfoText: React.FC<{
       <AbsoluteFill
         style={{
           background: dim === "light"
-            ? "linear-gradient(180deg,rgba(0,0,0,0.12) 0%,rgba(0,0,0,0.42) 100%)"
-            : "linear-gradient(180deg,rgba(0,0,0,0.42) 0%,rgba(0,0,0,0.78) 100%)",
+            ? `linear-gradient(180deg,${alpha("black", 0.12)} 0%,${alpha("black", 0.42)} 100%)`
+            : `linear-gradient(180deg,${alpha("black", 0.42)} 0%,${alpha("black", 0.78)} 100%)`,
         }}
       />
       <AbsoluteFill style={{ padding: wide ? "80px 60px" : 60, ...textPositionStyle(textPosition) }}>
@@ -3074,8 +3074,8 @@ const SceneInfoText: React.FC<{
         <FitColumn topSafeRatio={0.2}>
         {safeLogo && (
 
-          <div style={{ alignSelf: "center", marginBottom: 18, transform: `scale(${logoS})`, filter: "drop-shadow(0 4px 16px rgba(0,0,0,0.5))" }}>
-            <Img src={safeLogo} style={{ width: 120, height: 120, objectFit: "contain", borderRadius: 12, background: "rgba(255,255,255,0.08)" }} />
+          <div style={{ alignSelf: "center", marginBottom: 18, transform: `scale(${logoS})`, filter: `drop-shadow(${shadowOn(4, 16, "black", 0.5)})` }}>
+            <Img src={safeLogo} style={{ width: 120, height: 120, objectFit: "contain", borderRadius: 12, background: alpha("white", 0.08) }} />
           </div>
         )}
         {label && (
@@ -3084,17 +3084,17 @@ const SceneInfoText: React.FC<{
           </div>
         )}
         {title && (
-          <div style={{ marginTop: 14, transform: `translateY(${titleY}px)`, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: titleSize, lineHeight: titleLh, textAlign: "center", textShadow: "0 4px 20px rgba(0,0,0,0.7)" }}>
+          <div style={{ marginTop: 14, transform: `translateY(${titleY}px)`, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: titleSize, lineHeight: titleLh, textAlign: "center", textShadow: shadowOn(4, 20, "black", 0.7) }}>
             {clean(title)}
           </div>
         )}
         {hasRich ? (
           <RichBlock
             html={richText}
-            style={{ marginTop: textMarginTop, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: textSize, lineHeight: textLh, textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: richMaxWidth, alignSelf: wide ? "stretch" : "center" }}
+            style={{ marginTop: textMarginTop, fontFamily: body, color: alpha("white", 0.94), fontSize: textSize, lineHeight: textLh, textShadow: shadowOn(2, 10, "black", 0.6), maxWidth: richMaxWidth, alignSelf: wide ? "stretch" : "center" }}
           />
         ) : text ? (
-          <div style={{ marginTop: textMarginTop, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: textSize, lineHeight: textLh, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: textMaxWidth }}>
+          <div style={{ marginTop: textMarginTop, fontFamily: body, color: alpha("white", 0.94), fontSize: textSize, lineHeight: textLh, textAlign: "center", textShadow: shadowOn(2, 10, "black", 0.6), maxWidth: textMaxWidth }}>
             {clean(text)}
           </div>
 
@@ -3118,7 +3118,7 @@ const SceneInfoText: React.FC<{
                 />
               ))}
             </div>
-            <div style={{ fontFamily: body, color: "rgba(255,255,255,0.82)", fontSize: 22, letterSpacing: 2, textTransform: "uppercase", textAlign: "center" }}>
+            <div style={{ fontFamily: body, color: alpha("white", 0.82), fontSize: 22, letterSpacing: 2, textTransform: "uppercase", textAlign: "center" }}>
               À découvrir sur place
             </div>
           </div>
@@ -3136,8 +3136,8 @@ const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "r
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
-  const badgeS = spring({ frame: frame - 10, fps: 30, config: { damping: 12, stiffness: 140 } });
-  const chipS = spring({ frame: frame - 4, fps: 30, config: { damping: 10, stiffness: 180 } });
+  const badgeS = spring({ frame: frame - 10, fps: 30, config: sp(12, 140) });
+  const chipS = spring({ frame: frame - 4, fps: 30, config: sp(10, 180) });
   const ringPulse = 1 + 0.05 * Math.sin(frame / 9);
   return (
     <AbsoluteFill>
@@ -3150,7 +3150,7 @@ const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "r
             width: 132,
             height: 132,
             borderRadius: 66,
-            background: kind === "google_review" ? "transparent" : "rgba(255,255,255,0.96)",
+            background: kind === "google_review" ? "transparent" : alpha("white", 0.96),
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -3165,7 +3165,7 @@ const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "r
           <Img src={staticFile(meta.logo)} style={{ width: 132, height: 132, objectFit: kind === "google_review" ? "contain" : "cover" }} />
         </div>
 
-        <div style={{ marginTop: 24, alignSelf: "center", transform: `scale(${interpolate(badgeS, [0, 1], [0.85, 1])})`, padding: "48px 46px 30px", background: "rgba(14,11,8,0.72)", border: `2px solid ${meta.brand}`, borderRadius: 26, textAlign: "center", boxShadow: `0 12px 60px ${meta.brand}55` }}>
+        <div style={{ marginTop: 24, alignSelf: "center", transform: `scale(${interpolate(badgeS, [0, 1], [0.85, 1])})`, padding: "48px 46px 30px", background: alpha("night", 0.72), border: `2px solid ${meta.brand}`, borderRadius: 26, textAlign: "center", boxShadow: shadowOf(12, 60, meta.brand, 0.333) }}>
           <div style={{ fontFamily: body, color: meta.brand, fontSize: 20, letterSpacing: 6, textTransform: "uppercase" }}>
             {L.reviewsOf(meta.label)}
           </div>
@@ -3174,7 +3174,7 @@ const ScenePlatformReview: React.FC<{ kind: "google_review" | "tripadvisor" | "r
               {rating.toFixed(1)}<span style={{ fontSize: 40, color: meta.accent }}>/5</span>
             </div>
           )}
-          <div style={{ marginTop: 6, fontFamily: body, fontSize: 32, color: FLASH_YELLOW, textShadow: `0 0 16px ${FLASH_YELLOW}88` }}>
+          <div style={{ marginTop: 6, fontFamily: body, fontSize: 32, color: FLASH_YELLOW, textShadow: glowOf(16, FLASH_YELLOW, 0.533) }}>
             {"★★★★★".slice(0, Math.round(rating ?? 0))}<span style={{ opacity: 0.3 }}>{"★★★★★".slice(Math.round(rating ?? 0))}</span>
           </div>
           {count != null && (
@@ -3213,7 +3213,7 @@ const SceneCustomerReview: React.FC<{
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 20);
   const out = 1 - ease(frame, durationFrames - 16, durationFrames);
-  const y = interpolate(spring({ frame: frame - 8, fps: 30, config: { damping: 18 } }), [0, 1], [40, 0]);
+  const y = interpolate(spring({ frame: frame - 8, fps: 30, config: sp(18) }), [0, 1], [40, 0]);
 
   const full = (fullText || "").trim();
   const rawExcerpt = (highlight || "").trim();
@@ -3270,7 +3270,7 @@ const SceneCustomerReview: React.FC<{
             alignSelf: "center",
             maxWidth: 660,
             padding: 40,
-            background: "rgba(14,11,8,0.78)",
+            background: alpha("night", 0.78),
             border: `1px solid ${meta ? meta.brand + "99" : COLORS.gold + "55"}`,
             borderRadius: 22,
             textAlign: "center",
@@ -3286,12 +3286,12 @@ const SceneCustomerReview: React.FC<{
                 width: 96,
                 height: 96,
                 borderRadius: 48,
-                background: transparentLogo ? "transparent" : "rgba(255,255,255,0.97)",
+                background: transparentLogo ? "transparent" : alpha("white", 0.97),
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 overflow: transparentLogo ? "visible" : "hidden",
-                transform: `scale(${interpolate(spring({ frame: frame - 6, fps: 30, config: { damping: 11, stiffness: 160 } }), [0, 1], [0.3, 1]) * (1 + 0.04 * Math.sin(frame / 9))}) rotate(${interpolate(spring({ frame: frame - 6, fps: 30, config: { damping: 11, stiffness: 160 } }), [0, 1], [-30, 0])}deg)`,
+                transform: `scale(${interpolate(spring({ frame: frame - 6, fps: 30, config: sp(11, 160) }), [0, 1], [0.3, 1]) * (1 + 0.04 * Math.sin(frame / 9))}) rotate(${interpolate(spring({ frame: frame - 6, fps: 30, config: sp(11, 160) }), [0, 1], [-30, 0])}deg)`,
                 boxShadow: transparentLogo ? "none" : `0 0 0 5px ${meta.brand}, 0 14px 40px ${meta.brand}66`,
                 filter: transparentLogo ? `drop-shadow(0 8px 26px ${meta.brand}88)` : undefined,
                 zIndex: 3,
@@ -3326,7 +3326,11 @@ const SceneCustomerReview: React.FC<{
                       fontWeight: 800,
                       fontSize: excerptSize,
                       lineHeight: 1.32,
-                      textShadow: `0 2px 8px rgba(0,0,0,0.8), 0 0 ${8 + 26 * swipe * flashPulse}px ${FLASH_YELLOW}${swipe > 0 ? "CC" : "00"}, 0 0 ${18 + 46 * swipe * flashPulse}px ${FLASH_YELLOW}${swipe > 0 ? "77" : "00"}`,
+                      textShadow: stack(
+                        shadowOn(2, 8, "black", 0.8),
+                        glowOf(8 + 26 * swipe * flashPulse, FLASH_YELLOW, swipe > 0 ? 0.8 : 0),
+                        glowOf(18 + 46 * swipe * flashPulse, FLASH_YELLOW, swipe > 0 ? 0.467 : 0),
+                      ),
                     }}
                   >
                     {mid}
@@ -3350,7 +3354,11 @@ const SceneCustomerReview: React.FC<{
                   opacity: isoOpacity,
                   transform: `scale(${isoScale})`,
                   transformOrigin: "center",
-                  textShadow: `0 2px 8px rgba(0,0,0,0.85), 0 0 ${20 + 26 * flashPulse}px ${FLASH_YELLOW}CC, 0 0 ${40 + 46 * flashPulse}px ${FLASH_YELLOW}66`,
+                  textShadow: stack(
+                    shadowOn(2, 8, "black", 0.85),
+                    glowOf(20 + 26 * flashPulse, FLASH_YELLOW, 0.8),
+                    glowOf(40 + 46 * flashPulse, FLASH_YELLOW, 0.4),
+                  ),
                 }}
               >
                 {mid}
@@ -3359,12 +3367,12 @@ const SceneCustomerReview: React.FC<{
           </div>
 
           {rating != null && Number.isFinite(rating) && (
-            <div style={{ marginTop: 20, fontFamily: body, color: FLASH_YELLOW, fontSize: 30, textShadow: `0 0 ${10 + 14 * flashPulse}px ${FLASH_YELLOW}99` }}>
+            <div style={{ marginTop: 20, fontFamily: body, color: FLASH_YELLOW, fontSize: 30, textShadow: glowOf(10 + 14 * flashPulse, FLASH_YELLOW, 0.6) }}>
               {"★★★★★".slice(0, Math.round(rating))}<span style={{ opacity: 0.3 }}>{"★★★★★".slice(Math.round(rating))}</span>
             </div>
           )}
           {author && (
-            <div style={{ marginTop: 16, fontFamily: body, color: "rgba(255,255,255,0.7)", fontSize: 24, letterSpacing: 2, textTransform: "uppercase" }}>
+            <div style={{ marginTop: 16, fontFamily: body, color: alpha("white", 0.7), fontSize: 24, letterSpacing: 2, textTransform: "uppercase" }}>
               — {author}{meta ? ` · ${meta.label}` : ""}
             </div>
           )}
@@ -3380,13 +3388,13 @@ const SceneWhatsapp: React.FC<{ number: string; durationFrames: number; textPosi
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
   const out = 1 - ease(frame, durationFrames - 14, durationFrames);
-  const pop = spring({ frame: frame - 4, fps: 30, config: { damping: 9, stiffness: 190 } });
+  const pop = spring({ frame: frame - 4, fps: 30, config: sp(9, 190) });
   const pulse = 1 + 0.05 * Math.sin(frame / 8);
   // Onde radar qui part du logo
   const wave = (frame % 40) / 40;
   return (
     <AbsoluteFill>
-      <BrandBleedLogo src="brands/logo_whatsapp.webp" color="#25D366" durationFrames={durationFrames} side="right" />
+      <BrandBleedLogo src="brands/logo_whatsapp.webp" color={COLORS.whatsapp} durationFrames={durationFrames} side="right" />
       <AbsoluteFill style={{ opacity: Math.min(inO, out), padding: 60, ...textPositionStyle(textPosition), alignItems: "center" }}>
         <div style={{ position: "relative", width: 200, height: 200, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div
@@ -3395,7 +3403,7 @@ const SceneWhatsapp: React.FC<{ number: string; durationFrames: number; textPosi
               width: 180,
               height: 180,
               borderRadius: 999,
-              border: "3px solid #25D366",
+              border: `3px solid ${COLORS.whatsapp}`,
               transform: `scale(${1 + wave * 1.1})`,
               opacity: 0.55 * (1 - wave),
             }}
@@ -3407,16 +3415,16 @@ const SceneWhatsapp: React.FC<{ number: string; durationFrames: number; textPosi
               borderRadius: 90,
               overflow: "hidden",
               transform: `scale(${interpolate(pop, [0, 1], [0.5, 1]) * pulse}) rotate(${interpolate(pop, [0, 1], [-18, 0])}deg)`,
-              boxShadow: "0 18px 60px rgba(37,211,102,0.55)",
+              boxShadow: shadowOn(18, 60, "whatsapp", 0.55),
             }}
           >
             <Img src={staticFile("brands/logo_whatsapp.webp")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           </div>
         </div>
-        <div style={{ marginTop: 24, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 44, letterSpacing: 1, textAlign: "center", textShadow: "0 4px 16px rgba(0,0,0,0.6)" }}>
+        <div style={{ marginTop: 24, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 44, letterSpacing: 1, textAlign: "center", textShadow: shadowOn(4, 16, "black", 0.6) }}>
           {number}
         </div>
-        <div style={{ marginTop: 14, fontFamily: body, color: "#25D366", fontSize: 26, letterSpacing: 4, textTransform: "uppercase" }}>
+        <div style={{ marginTop: 14, fontFamily: body, color: COLORS.whatsapp, fontSize: 26, letterSpacing: 4, textTransform: "uppercase" }}>
           {L.whatsappDirect}
         </div>
         {Array.isArray(lines) && lines.length > 0 && (
@@ -3433,7 +3441,7 @@ const SceneWhatsapp: React.FC<{ number: string; durationFrames: number; textPosi
                     textAlign: "center",
                     opacity: a,
                     transform: `translateY(${interpolate(a, [0, 1], [14, 0])}px)`,
-                    textShadow: "0 3px 14px rgba(0,0,0,0.6)",
+                    textShadow: shadowOn(3, 14, "black", 0.6),
                   }}
                 >
                   {t}
@@ -3778,7 +3786,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
 
 
           {c.mode === "overlay" && (
-            <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0.18) 50%, rgba(0,0,0,0.45) 100%)" }} />
+            <AbsoluteFill style={{ background: `linear-gradient(180deg, ${alpha("black", 0.32)} 0%, ${alpha("black", 0.18)} 50%, ${alpha("black", 0.45)} 100%)` }} />
           )}
           {(() => {
             const chunks = resolveTextChunks(
@@ -3788,23 +3796,23 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             );
             const titleBlock = (
               <div style={{
-                color: "#fff",
+                color: COLORS.white,
                 fontFamily: display,
                 fontSize: 68,
                 fontWeight: 800,
                 lineHeight: 1.1,
                 textAlign: "center",
-                textShadow: "0 4px 24px rgba(0,0,0,0.55)",
+                textShadow: shadowOn(4, 24, "black", 0.55),
               }}>{c.title}</div>
             );
             const textStyle: React.CSSProperties = {
               marginTop: 110,
-              color: "rgba(255,255,255,0.92)",
+              color: alpha("white", 0.92),
               fontFamily: body,
               fontSize: 34,
               lineHeight: 1.3,
               textAlign: "center",
-              textShadow: "0 2px 12px rgba(0,0,0,0.5)",
+              textShadow: shadowOn(2, 12, "black", 0.5),
             };
             if (chunks.length > 1) {
               const segFrames = Math.max(1, Math.floor(duration / chunks.length));
@@ -3974,7 +3982,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               effect={trImageEffect}
               motion={kind === "ai_text" ? (((Array.isArray(aiTexts) ? aiTexts : [])[idx]?.effect as any) || "zoom_in") : kind === "ai_summary" ? (((Array.isArray(aiSummaries) ? aiSummaries : [])[idx]?.effect as any) || (aiSummaryEffect as any) || "zoom_in") : null}
               extraStartSec={bgItem ? 0 : bgRotate(planIdx).extraStartSec}
-              veil="rgba(14,11,8,0.14)"
+              veil={alpha("night", 0.14)}
             />
             <SceneInfoText
               dim="light"
@@ -4139,7 +4147,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                   <HookOverlay text={primary} duration={duration} textPosition={textPosition} />
                   {secondary ? (
                     <AbsoluteFill style={{ pointerEvents: "none" }}>
-                      <div style={{ position: "absolute", left: 0, right: 0, bottom: 120, textAlign: "center", padding: "0 40px", fontFamily: "'Avenir Next', 'Nunito Sans', sans-serif", fontSize: 30, lineHeight: 1.3, color: "rgba(255,255,255,0.92)", textShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>{secondary}</div>
+                      <div style={{ position: "absolute", left: 0, right: 0, bottom: 120, textAlign: "center", padding: "0 40px", fontFamily: "'Avenir Next', 'Nunito Sans', sans-serif", fontSize: 30, lineHeight: 1.3, color: alpha("white", 0.92), textShadow: shadowOn(2, 8, "black", 0.6) }}>{secondary}</div>
                     </AbsoluteFill>
                   ) : null}
                 </>
@@ -4158,8 +4166,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             <AbsoluteFill>
               {(bgVideo || bgImage) ? (
                 <>
-                  <MotionBackdrop src={bgVideo} image={bgImage} duration={duration} effect={trImageEffect} veil="rgba(14,11,8,0.35)" extraStartSec={aiCard.background_video_url ? 0 : rot.extraStartSec} />
-                  <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.22) 0%,rgba(14,11,8,0.48) 100%)" }} />
+                  <MotionBackdrop src={bgVideo} image={bgImage} duration={duration} effect={trImageEffect} veil={alpha("night", 0.35)} extraStartSec={aiCard.background_video_url ? 0 : rot.extraStartSec} />
+                  <AbsoluteFill style={{ background: `linear-gradient(180deg,${alpha("night", 0.22)} 0%,${alpha("night", 0.48)} 100%)` }} />
                 </>
               ) : null}
               <SceneManualCard card={aiCard} durationFrames={duration} textPosition={textPosition} />
@@ -4185,8 +4193,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               if (finalVideo || finalImage) {
                 return (
                   <>
-                    <MotionBackdrop src={finalVideo} image={finalImage} duration={duration} effect={trImageEffect} veil="rgba(14,11,8,0.35)" extraStartSec={fallbackVideo ? offerRot.extraStartSec : 0} />
-                    <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.22) 0%,rgba(14,11,8,0.48) 100%)" }} />
+                    <MotionBackdrop src={finalVideo} image={finalImage} duration={duration} effect={trImageEffect} veil={alpha("night", 0.35)} extraStartSec={fallbackVideo ? offerRot.extraStartSec : 0} />
+                    <AbsoluteFill style={{ background: `linear-gradient(180deg,${alpha("night", 0.22)} 0%,${alpha("night", 0.48)} 100%)` }} />
                   </>
                 );
               }
@@ -4444,7 +4452,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
                 return video;
               })()}
 
-              <AbsoluteFill style={{ background: "linear-gradient(180deg,rgba(14,11,8,0.22) 0%,rgba(14,11,8,0.38) 100%)" }} />
+              <AbsoluteFill style={{ background: `linear-gradient(180deg,${alpha("night", 0.22)} 0%,${alpha("night", 0.38)} 100%)` }} />
             </AbsoluteFill>
           ) : slideshowMode ? (
             <GlobalImageSlideshow images={safeImages} total={totalFrames} effect={trImageEffect} />

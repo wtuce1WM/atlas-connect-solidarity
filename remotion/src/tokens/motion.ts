@@ -18,6 +18,13 @@ export const springs: Record<string, Partial<SpringConfig>> = {
   heavy: { damping: 15, stiffness: 80, mass: 2 },
 };
 
+/**
+ * Spring config ad hoc mais tokenisé : aucune scène ne déclare `config: { ... }`.
+ * `sp(18)` ou `sp(10, 180)`.
+ */
+export const sp = (damping: number, stiffness?: number): Partial<SpringConfig> =>
+  stiffness === undefined ? { damping } : { damping, stiffness };
+
 /** Durées d'animation en frames (30 fps) */
 export const dur = {
   flash: 8,
@@ -41,4 +48,4 @@ export const beat = {
   out: [105, 120] as const,
 } as const;
 
-export const motion = { springs, dur, stagger, beat } as const;
+export const motion = { springs, sp, dur, stagger, beat } as const;

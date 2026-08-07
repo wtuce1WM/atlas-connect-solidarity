@@ -1,8 +1,8 @@
 export { palette, alpha, hexA, transparent } from "./palette";
 export { type, family, size, weight, tracking, leading, display, body } from "./type";
 export { space, safe, radius } from "./space";
-export { elevation, dropShadow } from "./elevation";
-export { motion, springs, dur, stagger, beat } from "./motion";
+export { elevation, dropShadow, shadowOn, shadowOf, glowOf, stack } from "./elevation";
+export { motion, springs, sp, dur, stagger, beat } from "./motion";
 export { scrim, vignette } from "./scrim";
 export { layout, canvas, surfaces, rule } from "./layout";
 
