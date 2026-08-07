@@ -131,13 +131,17 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
     let cancelled = false;
     const load = async () => {
       setLoading(true);
-      const { data } = await supabase
-        .from("business_documents")
-        .select("*")
-        .eq("business_id", businessId)
-        .in("type", ["menu", "flipbook", "external_link"])
-        .order("sort_order", { ascending: true });
+      const [{ data }, { data: biz }] = await Promise.all([
+        supabase
+          .from("business_documents")
+          .select("*")
+          .eq("business_id", businessId)
+          .in("type", ["menu", "flipbook", "external_link"])
+          .order("sort_order", { ascending: true }),
+        supabase.from("businesses").select("matterport_url").eq("id", businessId).maybeSingle(),
+      ]);
       if (cancelled) return;
+      setMatterportUrl((biz as any)?.matterport_url || "");
       const map = (rows: any[]): DocEntry[] =>
         rows.map((d) => ({
           _uid: d.id,
