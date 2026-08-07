@@ -1721,7 +1721,7 @@ const SceneWeatherWidget: React.FC<{ widget: NonNullable<ShowcaseProps["weatherW
                     padding: `${px(18)}px ${px(10)}px`,
                     textAlign: "center",
                     background: focus ? alpha("gold", 0.18) : alpha("white", 0.06),
-                    border: `1px solid ${focus ? COLORS.gold : "${alpha("gold", 0.2)}"}`,
+                    border: `1px solid ${focus ? COLORS.gold : alpha("gold", 0.2)}`,
                     fontFamily: body,
                   }}
                 >
