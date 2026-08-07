@@ -78,7 +78,8 @@ import { HotelAvailabilityResult } from "@/components/slidepanel/HotelAvailabili
 import AvailabilitySearchOverlay from "@/components/overlays/AvailabilitySearchOverlay";
 
 // Extracted hooks & components
-import { useCtaConfig } from "@/hooks/useCtaConfig";
+import { useCtaConfig, resolveCtaLabel } from "@/hooks/useCtaConfig";
+import { getVideoEmbed } from "@/lib/videoEmbed";
 import { useMediaItems, useVideoInfo } from "@/hooks/useMediaItems";
 import MediaBackground from "@/components/slidepanel/MediaBackground";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
