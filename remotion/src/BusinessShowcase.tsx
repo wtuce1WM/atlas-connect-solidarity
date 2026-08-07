@@ -232,6 +232,74 @@ const StartVideo: React.FC<{
   return video;
 };
 
+/** Pool global des vidéos de l'établissement — sert à enchaîner les clips
+ *  quand un clip est plus court que la durée de l'étape (au lieu de le boucler). */
+const VideoPoolContext = React.createContext<string[]>([]);
+
+/** Vidéo de fond qui, si le clip est plus court que l'étape, enchaîne
+ *  automatiquement sur les clips suivants du pool au lieu de boucler. */
+const ChainedVideo: React.FC<{ src: string; duration: number; extraStartSec?: number }> = ({
+  src,
+  duration,
+  extraStartSec = 0,
+}) => {
+  const starts = React.useContext(VideoStartsContext);
+  const ends = React.useContext(VideoEndsContext);
+  const durs = React.useContext(VideoDurationsContext);
+  const pool = React.useContext(VideoPoolContext);
+  const { fps } = useVideoConfig();
+
+  const spanOf = (u: string): number | null => {
+    const b = Number.isFinite(starts?.[u]) && starts[u] > 0 ? Math.round(starts[u] * fps) : 0;
+    const e = Number.isFinite(ends?.[u]) && ends[u] > 0
+      ? Math.round(ends[u] * fps)
+      : Number.isFinite(durs?.[u]) && durs[u] > 0.5
+        ? Math.round(durs[u] * fps)
+        : null;
+    return e != null && e > b + 1 ? e - b - 1 : null;
+  };
+
+  const first = spanOf(src);
+  const others = (Array.isArray(pool) ? pool : []).filter((u) => u && u !== src && isVideoSrc(u));
+  // Clip assez long, durée inconnue, ou aucun autre clip → comportement d'origine.
+  if (!first || first >= duration - Math.round(fps * 0.2) || others.length === 0) {
+    return <StartVideo src={src} extraStartSec={extraStartSec} />;
+  }
+
+  const order = [src, ...others];
+  const segs: { url: string; from: number; frames: number; extra: number }[] = [];
+  let acc = 0;
+  let i = 0;
+  while (acc < duration && segs.length < 16) {
+    const u = order[i % order.length];
+    const pass = Math.floor(i / order.length);
+    const s = spanOf(u) ?? duration - acc;
+    const take = Math.max(1, Math.min(s, duration - acc));
+    segs.push({
+      url: u,
+      from: acc,
+      frames: take,
+      extra: pass > 0 ? Math.min(pass, 2) * 2 : u === src ? extraStartSec : 0,
+    });
+    acc += take;
+    i += 1;
+  }
+
+  return (
+    <>
+      {segs.map((s, idx) => (
+        <Sequence key={`${s.url}-${idx}`} from={s.from} durationInFrames={s.frames} layout="none">
+          <AbsoluteFill>
+            <StartVideo src={s.url} extraStartSec={s.extra} />
+          </AbsoluteFill>
+        </Sequence>
+      ))}
+    </>
+  );
+};
+
+
+
 
 const useTone = (): ToneConfig => TONE_CONFIG[React.useContext(ToneContext)] ?? TONE_CONFIG.immersif;
 
@@ -2615,7 +2683,7 @@ const MotionBackdrop: React.FC<{
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
       {isVid ? (
-        <StartVideo src={url} extraStartSec={extraStartSec} />
+        <ChainedVideo src={url} duration={duration} extraStartSec={extraStartSec} />
 
       ) : (
         <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover", transform, ...imgStyle }} />
@@ -4324,6 +4392,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     <VideoStartsContext.Provider value={videoStarts ?? {}}>
     <VideoEndsContext.Provider value={videoEnds ?? {}}>
     <VideoDurationsContext.Provider value={videoDurations ?? {}}>
+    <VideoPoolContext.Provider value={safeVideos}>
+
     <ToneContext.Provider value={tone}>
       <SuppressBgContext.Provider value={continuousMode || slideshowMode}>
         <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
@@ -4404,7 +4474,9 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         </AbsoluteFill>
       </SuppressBgContext.Provider>
     </ToneContext.Provider>
+    </VideoPoolContext.Provider>
     </VideoDurationsContext.Provider>
+
     </VideoEndsContext.Provider>
     </VideoStartsContext.Provider>
     </LangContext.Provider>
