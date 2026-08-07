@@ -2058,14 +2058,14 @@ function TextSplitEditorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-white text-black sm:max-w-2xl">
-        <DialogHeader>
+      <DialogContent className="bg-white text-black sm:max-w-3xl max-h-[92vh] flex flex-col overflow-hidden">
+        <DialogHeader className="shrink-0">
           <DialogTitle>Caler les étapes de découpe au caractère</DialogTitle>
         </DialogHeader>
-        <p className="text-[11px] text-neutral-600">
+        <p className="shrink-0 text-[11px] text-neutral-600">
           Cliquez sur un caractère pour poser (ou retirer) un point de coupe juste avant lui. Chaque couleur = une étape affichée à l'écran.
         </p>
-        <div className="max-h-64 overflow-y-auto rounded-md border border-neutral-200 bg-neutral-50 p-3 leading-loose text-[15px]">
+        <div className="flex-1 min-h-0 rounded-md border border-neutral-200 bg-neutral-50 p-3 leading-relaxed text-[14px] break-words whitespace-pre-wrap">
           {text.split("").map((ch, i) => {
             const isCut = pts.includes(i);
             const color = colors[segIndexAt(i) % colors.length];
@@ -2083,23 +2083,22 @@ function TextSplitEditorDialog({
             );
           })}
         </div>
-        <div className="space-y-1">
+        <div className="shrink-0 space-y-1">
           {segs.map((t, i) => (
             <div key={i} className="flex gap-2 text-[11px]">
               <span className="shrink-0 font-bold tabular-nums" style={{ color: colors[i % colors.length] }}>
                 Étape {i + 1} · {perSeg.toFixed(1)}s
               </span>
-              <span className="text-neutral-700">{t}</span>
+              <span className="truncate text-neutral-700">{t}</span>
             </div>
           ))}
         </div>
-        <DialogFooter className="gap-2">
+        <DialogFooter className="shrink-0 gap-2">
           <Button variant="ghost" size="sm" onClick={() => setPts([])}>Tout effacer</Button>
-          <Button variant="outline" size="sm" onClick={() => setPts(evenSplitPoints(text, Math.max(2, segs.length)))}>
-            Répartir équitablement
-          </Button>
           <Button size="sm" onClick={() => onSubmit(pts)}>Appliquer</Button>
         </DialogFooter>
+      </DialogContent>
+    </Dialog>
       </DialogContent>
     </Dialog>
   );
