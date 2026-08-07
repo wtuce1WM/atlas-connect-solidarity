@@ -135,11 +135,23 @@ async function fetchWeatherWidget(citySlug: unknown, range: number, businessName
     pop: Math.round(Number(d.precipitation_probability_max?.[i] ?? 0)),
     wind: Math.round(Number(d.wind_speed_10m_max?.[i] ?? 0)),
   }));
-  const periodFr = days === 1 ? "sur la journée" : days === 3 ? "sur 3 jours" : "sur la semaine";
-  const periodEn = days === 1 ? "for the day" : days === 3 ? "for 3 days" : "for the week";
+  const fmtFr = (iso: string) => {
+    const s = new Intl.DateTimeFormat("fr-FR", {
+      weekday: "short", day: "numeric", month: "long", year: "numeric", timeZone: "Africa/Casablanca",
+    }).format(new Date(`${iso}T12:00:00Z`));
+    // "ven. 7 août 2026" → "Ven. 7 août 2026"
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  };
+  const fmtEn = (iso: string) => new Intl.DateTimeFormat("en-GB", {
+    weekday: "short", day: "numeric", month: "long", year: "numeric", timeZone: "Africa/Casablanca",
+  }).format(new Date(`${iso}T12:00:00Z`));
+  const firstDate = daily[0]?.date ?? dTimes[0] ?? new Date().toISOString().slice(0, 10);
+  const lastDate = daily[daily.length - 1]?.date ?? firstDate;
+  const periodFr = days === 1 ? `du ${fmtFr(firstDate)}` : `du ${fmtFr(firstDate)} au ${fmtFr(lastDate)}`;
+  const periodEn = days === 1 ? `on ${fmtEn(firstDate)}` : `from ${fmtEn(firstDate)} to ${fmtEn(lastDate)}`;
   const text = lang === "en"
-    ? `${businessName} brings you the weather in ${city.name} ${periodEn}`
-    : `${businessName} vous propose la météo à ${city.name} ${periodFr}`;
+    ? `${businessName} brings you the weather in ${city.name} ${periodEn}.`
+    : `${businessName} vous propose la météo à ${city.name} ${periodFr}.`;
   return { city: city.name, citySlug: city.slug, range: days, text, hourly, daily, durationSec: 5 };
 }
 
@@ -1765,6 +1777,9 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     if (options?.weather_widget) {
       try {
         const w = await fetchWeatherWidget(options?.weather_city, Number(options?.weather_range) || 1, bizName, videoLang);
+        // Texte modifiable dans la carte « Widget Météo » de l'aperçu du scénario.
+        const weatherOv = (template_props as any)?.textOverrides?.weather?.description;
+        if (typeof weatherOv === "string" && weatherOv.trim()) w.text = weatherOv.trim();
         template_props.showWeatherWidget = true;
         template_props.weatherWidget = w;
         if (!(template_props as any).scene_durations) (template_props as any).scene_durations = {};
