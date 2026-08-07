@@ -24,9 +24,13 @@ export const size = {
   body: 30,
   h4: 42,
   h3: 56,
+  h3xl: 64,
   h2: 72,
+  h2xl: 84,
   h1: 96,
+  h1xl: 110,
   display: 128,
+  displayXl: 140,
   hero: 160,
 } as const;
 
