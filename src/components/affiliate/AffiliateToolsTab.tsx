@@ -190,6 +190,20 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     setWidgetBgDarkSaved(true);
   };
 
+  /** Thème par défaut du widget (sombre/clair) — persisté sur businesses.widget_theme. */
+  const saveEmbedTheme = async (t: "dark" | "light") => {
+    setEmbedTheme(t);
+    if (!businessId) return;
+    const { error } = await (supabase as any)
+      .from("businesses")
+      .update({ widget_theme: t })
+      .eq("id", businessId);
+    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    toast({ title: t === "dark" ? "Thème sombre enregistré" : "Thème clair enregistré" });
+  };
+
+
+
   const fitRow = (key: string) => (
     <div className="space-y-1.5">
       <Label className="text-white/80 text-xs">Ajustement dans la page hôte</Label>
