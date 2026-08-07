@@ -3,13 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, ArrowLeft, UserCheck, Star, BarChart3, ShieldCheck } from "lucide-react";
+import { LogOut, ArrowLeft, UserCheck, Star, BarChart3, ShieldCheck, ReceiptText } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import AffiliateManagement from "@/components/staff/AffiliateManagement";
 import AffiliateRightsPanel from "@/components/staff/AffiliateRightsPanel";
 import SponsorManagement from "@/components/staff/SponsorManagement";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import BusinessAnalyticsPanel from "@/components/affiliate/BusinessAnalyticsPanel";
+import BillingManagement from "@/components/staff/billing/BillingManagement";
+
 
 
 const StaffB2B = () => {
@@ -99,7 +101,12 @@ const StaffB2B = () => {
               <BarChart3 className="h-4 w-4" />
               Analytics
             </TabsTrigger>
+            <TabsTrigger value="billing" className="gap-2">
+              <ReceiptText className="h-4 w-4" />
+              Devis &amp; Factures
+            </TabsTrigger>
           </TabsList>
+
 
           <TabsContent value="affiliates">
             <Tabs defaultValue="management">
@@ -129,6 +136,12 @@ const StaffB2B = () => {
           <TabsContent value="analytics">
             <BusinessAnalyticsPanel staffAllBusinesses />
           </TabsContent>
+
+          <TabsContent value="billing">
+            <BillingManagement />
+          </TabsContent>
+
+
 
         </Tabs>
       </main>
