@@ -1035,6 +1035,7 @@ export type Database = {
           extra_instructions: string | null
           hook: string
           id: string
+          include_prices: boolean
           is_active: boolean
           length_mode: string | null
           model: string | null
@@ -1051,6 +1052,7 @@ export type Database = {
           extra_instructions?: string | null
           hook?: string
           id?: string
+          include_prices?: boolean
           is_active?: boolean
           length_mode?: string | null
           model?: string | null
@@ -1067,6 +1069,7 @@ export type Database = {
           extra_instructions?: string | null
           hook?: string
           id?: string
+          include_prices?: boolean
           is_active?: boolean
           length_mode?: string | null
           model?: string | null

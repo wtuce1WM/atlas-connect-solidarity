@@ -1,0 +1,1 @@
+ALTER TABLE public.business_ai_texts ADD COLUMN IF NOT EXISTS include_prices boolean NOT NULL DEFAULT false;
