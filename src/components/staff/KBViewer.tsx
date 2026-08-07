@@ -40,7 +40,7 @@ const SECTIONS = [
   { id: "contexte-et-historique", label: "Contexte & historique", icon: History, content: contexteHistoriqueMd },
   { id: "lovable-skills", label: "Skills Lovable", icon: Bot, content: lovableSkillsMd },
   { id: "connecteur-mcp-claude", label: "Connecteur MCP / Claude", icon: Plug, content: connecteurMcpClaudeMd },
-  { id: "repartition-ia-devis-factures", label: "Répartition IA & module Devis", icon: Wallet, content: repartitionIaDevisMd },
+  
 ];
 
 
