@@ -1756,7 +1756,7 @@ const BookOnlineSlidePanelInner = ({
                   >
                     {currentLang.flag}
                   </button>
-                  <span className="flex items-center gap-1.5 opacity-100 md:opacity-0 md:max-w-0 md:overflow-hidden group-hover:opacity-100 group-hover:max-w-[120px] transition-all duration-300 ease-out">
+                  <span className="flex items-center gap-1.5 opacity-0 max-w-0 overflow-hidden group-hover:opacity-100 group-hover:max-w-[120px] transition-all duration-300 ease-out">
                     {otherLangs.map((opt) => (
                       <button
                         key={opt.code}
@@ -2492,7 +2492,7 @@ const BookOnlineSlidePanelInner = ({
                 </div>
               );
             })() : (
-              <div className="w-full h-full overflow-y-auto overscroll-contain scrollbar-gold">
+              <div className="w-full h-full overflow-y-auto overscroll-contain">
                 <div className="px-4 pt-4 pb-6 md:pl-6 md:pt-6 pr-4 md:pr-6">
                   {descOverlayContent && (
                     <>
@@ -2778,18 +2778,22 @@ const BookOnlineSlidePanelInner = ({
                     const hasImagesBadge = images.length > 1;
                     const hasMenuBar = menuDocs.length > 0 || hasVideosBadge || hasImagesBadge;
                     if (!(externalLinks.length > 0 || hasSocialBar || hasMenuBar)) return null;
-                    const stripClass = "flex items-center gap-2 py-1 overflow-x-auto overflow-y-hidden scrollbar-gold flex-nowrap";
-                    const onStripWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-                      const el = e.currentTarget;
-                      if (el.scrollWidth > el.clientWidth && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-                        el.scrollLeft += e.deltaY;
-                      }
+                    const stripClass = "flex items-center gap-2 py-1 overflow-x-auto overflow-y-hidden flex-nowrap";
+                    const stripWheelRef = (el: HTMLDivElement | null) => {
+                      if (!el || (el as any).__owmWheelX) return;
+                      (el as any).__owmWheelX = true;
+                      el.addEventListener("wheel", (ev: WheelEvent) => {
+                        if (el.scrollWidth <= el.clientWidth) return;
+                        if (Math.abs(ev.deltaY) <= Math.abs(ev.deltaX)) return;
+                        ev.preventDefault();
+                        el.scrollLeft += ev.deltaY;
+                      }, { passive: false });
                     };
                     const badgeClass = "shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors whitespace-nowrap";
                     return (
                       <div className="mt-8 pt-6 border-t border-white/10 flex flex-col gap-2">
                         {hasMenuBar && (
-                          <div dir="ltr" onWheel={onStripWheel} className={stripClass}>
+                          <div dir="ltr" ref={stripWheelRef} className={stripClass}>
                             {hasVideosBadge && (
                               <button onClick={() => { setDescGridSection("videos"); setDescGridPage(0); setDescOverlayDirect(false); setShowDescriptionOverlay(true); }} className={badgeClass}>
                                 <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">Vidéos</span>
@@ -2808,7 +2812,7 @@ const BookOnlineSlidePanelInner = ({
                           </div>
                         )}
                         {hasSocialBar && (
-                          <div dir="ltr" onWheel={onStripWheel} className={stripClass}>
+                          <div dir="ltr" ref={stripWheelRef} className={stripClass}>
                             {socialItems.map((s, i) => (
                               <button key={i} onClick={() => (s.onClick ? s.onClick() : window.open(s.url, "_blank", "noopener"))} className={badgeClass} title={s.name}>
                                 {s.icon}
