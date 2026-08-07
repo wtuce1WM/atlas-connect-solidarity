@@ -197,17 +197,34 @@ const AffiliatePublishedWidgetsPanel = ({ businessId, slug, onGoToWidgets }: Pro
                     </div>
                   </td>
                   <td className="px-3 py-2.5">
-                    <select
-                      value={cur.format}
-                      onChange={(e) => set(w.key, { format: e.target.value as Format })}
-                      className="h-8 rounded-md bg-white/5 border border-white/15 text-white text-xs px-2"
-                    >
-                      {FORMATS.filter((f) => w.formats.includes(f.value)).map((f) => (
-                        <option key={f.value} value={f.value} className="bg-neutral-900">
-                          {f.label}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <select
+                        value={cur.format}
+                        onChange={(e) => set(w.key, { format: e.target.value as Format })}
+                        className="h-8 rounded-md bg-white/5 border border-white/15 text-white text-xs px-2"
+                      >
+                        {FORMATS.filter((f) => w.formats.includes(f.value)).map((f) => (
+                          <option key={f.value} value={f.value} className="bg-neutral-900">
+                            {f.label}
+                          </option>
+                        ))}
+                      </select>
+                      {pubState(w.key) === "published" && (
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[#25D366]/15 text-[#25D366] border border-[#25D366]/40 whitespace-nowrap">
+                          Publié
+                        </span>
+                      )}
+                      {pubState(w.key) === "dirty" && (
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-400/15 text-amber-300 border border-amber-400/40 whitespace-nowrap">
+                          Modifié
+                        </span>
+                      )}
+                      {pubState(w.key) === "none" && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-white/40 border border-white/10 whitespace-nowrap">
+                          Non publié
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-3 py-2.5">
                     <input
