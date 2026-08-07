@@ -86,6 +86,11 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const [tidesCity, setTidesCity] = useState<string>("Essaouira");
   const [ficheMaxWidth, setFicheMaxWidth] = useState<number>(380);
   const [ficheShowClub, setFicheShowClub] = useState<boolean>(true);
+  // Widget Fiche 1WM (/embed/fiche/:slug)
+  const [f1wmLang, setF1wmLang] = useState<"fr" | "en" | "ar">("fr");
+  const [f1wmHeight, setF1wmHeight] = useState<number>(900);
+  const [f1wmBgMode, setF1wmBgMode] = useState<"widget" | "transparent">("widget");
+
   const [tidesLang, setTidesLang] = useState<"fr" | "en" | "ar">("fr");
 
   // Ajustement de chaque widget dans son iframe (largeur / hauteur / les deux)
