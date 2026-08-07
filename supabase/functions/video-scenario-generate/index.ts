@@ -1777,6 +1777,9 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
     if (options?.weather_widget) {
       try {
         const w = await fetchWeatherWidget(options?.weather_city, Number(options?.weather_range) || 1, bizName, videoLang);
+        // Texte modifiable dans la carte « Widget Météo » de l'aperçu du scénario.
+        const weatherOv = (template_props as any)?.textOverrides?.weather?.description;
+        if (typeof weatherOv === "string" && weatherOv.trim()) w.text = weatherOv.trim();
         template_props.showWeatherWidget = true;
         template_props.weatherWidget = w;
         if (!(template_props as any).scene_durations) (template_props as any).scene_durations = {};
