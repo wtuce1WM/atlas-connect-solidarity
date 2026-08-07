@@ -137,6 +137,12 @@ const StaffB2B = () => {
             <BusinessAnalyticsPanel staffAllBusinesses />
           </TabsContent>
 
+          <TabsContent value="billing">
+            <BillingManagement />
+          </TabsContent>
+
+
+
         </Tabs>
       </main>
 
