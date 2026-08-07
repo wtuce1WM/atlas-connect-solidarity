@@ -2564,10 +2564,11 @@ const BookOnlineSlidePanelInner = ({
                               <div className="flex items-center gap-2">
                                 {h.icon && <DynamicIcon name={h.icon} className="h-4 w-4 text-gold shrink-0" />}
                                 {h.title && (
-                                  <h4 className="text-xs font-bold uppercase tracking-[0.1em] text-white" style={{ fontFamily: "'Montserrat', sans-serif", WebkitTextStroke: '0.6px currentColor', textShadow: '0 0 0 currentColor' }}>
+                                  <h3 className="text-sm md:text-base font-bold uppercase tracking-[0.1em] text-white" style={{ fontFamily: "'Montserrat', sans-serif", WebkitTextStroke: '0.6px currentColor', textShadow: '0 0 0 currentColor' }}>
                                     {h.title}
-                                  </h4>
+                                  </h3>
                                 )}
+
                               </div>
                               {(h.metric_title || h.metric_value) && (
                                 <div className="flex items-baseline gap-2">
