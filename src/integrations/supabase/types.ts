@@ -2515,6 +2515,7 @@ export type Database = {
           account_type: string | null
           address: string | null
           affiliate_id: string | null
+          affiliate_private_note: string | null
           ai_review_summary: Json | null
           airbnb_url: string | null
           avg_price_range: Json | null
@@ -2706,6 +2707,7 @@ export type Database = {
           account_type?: string | null
           address?: string | null
           affiliate_id?: string | null
+          affiliate_private_note?: string | null
           ai_review_summary?: Json | null
           airbnb_url?: string | null
           avg_price_range?: Json | null
@@ -2897,6 +2899,7 @@ export type Database = {
           account_type?: string | null
           address?: string | null
           affiliate_id?: string | null
+          affiliate_private_note?: string | null
           ai_review_summary?: Json | null
           airbnb_url?: string | null
           avg_price_range?: Json | null
@@ -8642,6 +8645,7 @@ export type Database = {
               account_type: string | null
               address: string | null
               affiliate_id: string | null
+              affiliate_private_note: string | null
               ai_review_summary: Json | null
               airbnb_url: string | null
               avg_price_range: Json | null
@@ -8849,6 +8853,7 @@ export type Database = {
               account_type: string | null
               address: string | null
               affiliate_id: string | null
+              affiliate_private_note: string | null
               ai_review_summary: Json | null
               airbnb_url: string | null
               avg_price_range: Json | null
