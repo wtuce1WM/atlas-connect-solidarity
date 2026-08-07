@@ -142,9 +142,18 @@ const AffiliatePublishedWidgetsPanel = ({ businessId, slug, onGoToWidgets }: Pro
         { onConflict: "business_id,widget_key" },
       );
     setSavingKey(null);
+    if (!error) setSaved((prev) => ({ ...prev, [key]: { format: cur.format, target_url: cur.target_url.trim() } }));
     toast(error
       ? { title: "Erreur", description: error.message, variant: "destructive" }
       : { title: "Format publié enregistré" });
+  };
+
+  /** État de publication : publié (identique à la base), modifié, ou jamais publié. */
+  const pubState = (key: string): "published" | "dirty" | "none" => {
+    const s = saved[key];
+    if (!s) return "none";
+    const cur = get(key);
+    return s.format === cur.format && (s.target_url || "") === cur.target_url.trim() ? "published" : "dirty";
   };
 
   const configured = useMemo(() => Object.keys(rows).length, [rows]);
