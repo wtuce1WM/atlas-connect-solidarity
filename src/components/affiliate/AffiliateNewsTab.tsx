@@ -196,11 +196,10 @@ const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToToo
       key: "showcase",
       label: "Votre site web avec votre nom de domaine avec les données 1WM",
       icon: Globe2,
-      scope: "Compte affilié",
+      scope: "Établissement",
       price: "Sur devis",
       enabled: rights.showcaseSite,
-      locked: true,
-      desc: "Votre site web avec page de présentation dédiée hébergée par One World Morocco (photos, offres, avis, contact) sur votredomaine.com. Bientôt disponible.",
+      desc: "Votre site web avec page de présentation dédiée hébergée par One World Morocco (photos, offres, avis, contact) sur votredomaine.com.",
     },
   ];
 
