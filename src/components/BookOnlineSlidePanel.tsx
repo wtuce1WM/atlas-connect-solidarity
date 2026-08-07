@@ -1429,7 +1429,7 @@ const BookOnlineSlidePanelInner = ({
     return (
       <div key={keyPrefix} className="my-10 w-full flex flex-col items-center gap-4">
         {showAvail && (
-          <div className="w-full">
+          <div className="w-full max-w-[19rem] mx-auto text-[0.92em]">
             <AvailabilitySearchOverlay
               inline
               transparent
@@ -1438,11 +1438,16 @@ const BookOnlineSlidePanelInner = ({
               initialCheckIn={fallbackPanelData?.checkIn ?? initialAvailabilityCheckIn}
               initialCheckOut={fallbackPanelData?.checkOut ?? initialAvailabilityCheckOut}
               initialAdults={fallbackPanelData?.adults ?? initialAvailabilityAdults}
-              onSearch={(checkIn, checkOut, adults) => handleCheckAvailability(checkIn, checkOut, adults)}
+              onSearch={(checkIn, checkOut, adults) => {
+                setShowDescriptionOverlay(false);
+                setShowAvailabilitySearch(false);
+                handleCheckAvailability(checkIn, checkOut, adults);
+              }}
               onClose={() => {}}
             />
           </div>
         )}
+
         {showHours && business && (
           <div className="w-full bg-transparent border border-white/20 rounded-2xl p-5 text-white text-center">
             <p className="text-sm font-semibold text-gold uppercase tracking-wider flex items-center justify-center gap-1.5 mb-4">
