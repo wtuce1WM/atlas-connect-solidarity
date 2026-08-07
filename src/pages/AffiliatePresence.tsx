@@ -39,6 +39,7 @@ import AffiliateImagesEditor from "@/components/affiliate/AffiliateImagesEditor"
 import AffiliateVideosEditor from "@/components/affiliate/AffiliateVideosEditor";
 import AffiliateExternalDocsEditor from "@/components/affiliate/AffiliateExternalDocsEditor";
 import AffiliateToolsTab from "@/components/affiliate/AffiliateToolsTab";
+import AffiliatePublishedWidgetsPanel from "@/components/affiliate/AffiliatePublishedWidgetsPanel";
 import AffiliateNewsTab from "@/components/affiliate/AffiliateNewsTab";
 import AffiliateShowcaseSiteEditor from "@/components/affiliate/AffiliateShowcaseSiteEditor";
 import VacationDatesEditor, { type VacationPeriod } from "@/components/staff/VacationDatesEditor";
