@@ -270,6 +270,19 @@ const AffiliatePublishedWidgetsPanel = ({ businessId, slug, onGoToWidgets }: Pro
                 title={preview.title}
                 loading="lazy"
               />
+              {(() => {
+                const s = saved[preview.widgetKey];
+                if (!s) return <p className="text-xs text-white/50">Aucune version publiée pour ce widget (aperçu du brouillon).</p>;
+                const fmt = FORMATS.find((f) => f.value === s.format)?.label || s.format;
+                const dirty = pubState(preview.widgetKey) === "dirty";
+                return (
+                  <p className="text-xs text-white/60">
+                    Version publiée : <span className="text-[#25D366]">{fmt}</span>
+                    {s.target_url ? <>, cible <span className="text-white/80">{s.target_url}</span></> : ", aucune URL cible"}
+                    {dirty && <span className="text-amber-300"> — modifications non enregistrées</span>}
+                  </p>
+                );
+              })()}
               <a href={preview.url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline inline-flex items-center gap-1">
                 Ouvrir dans un nouvel onglet <ExternalLink className="h-3 w-3" />
               </a>
