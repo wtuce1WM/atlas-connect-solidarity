@@ -1,11 +1,8 @@
 import React from "react";
 import { AbsoluteFill } from "remotion";
-import {
-  TransitionSeries,
-  linearTiming,
-} from "@remotion/transitions";
+import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
-import { COLORS } from "./theme";
+import { V } from "./tokens";
 import { SceneOpen } from "./scenes/SceneOpen";
 import { SceneKoutoubia } from "./scenes/SceneKoutoubia";
 import { SceneTriptych } from "./scenes/SceneTriptych";
@@ -19,7 +16,7 @@ export const TOTAL_FRAMES = SCENE * 5 - T * 4; // 520 frames @ 30fps = 17.3s
 
 export const MainVideo: React.FC = () => {
   return (
-    <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+    <AbsoluteFill style={{ backgroundColor: V.palette.night }}>
       <TransitionSeries>
         <TransitionSeries.Sequence durationInFrames={SCENE}>
           <SceneOpen />
@@ -54,11 +51,10 @@ export const MainVideo: React.FC = () => {
         </TransitionSeries.Sequence>
       </TransitionSeries>
 
-      {/* persistent film grain vignette */}
+      {/* vignette persistante */}
       <AbsoluteFill
         style={{
-          background:
-            "radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%)",
+          background: V.vignette(0.55),
           pointerEvents: "none",
         }}
       />

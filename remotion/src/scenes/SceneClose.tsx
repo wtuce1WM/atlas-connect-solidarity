@@ -8,14 +8,16 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { COLORS, serif, sans } from "../theme";
+import { V } from "../tokens";
+
+const { palette, type: T, space, radius, elevation, dropShadow, scrim, motion, layout } = V;
 
 export const SceneClose: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
   const bgScale = interpolate(frame, [0, 120], [1.15, 1.05]);
-  const hamsaIn = spring({ frame, fps, config: { damping: 22, stiffness: 90 } });
+  const hamsaIn = spring({ frame, fps, config: motion.springs.snappy });
   const hamsaScale = interpolate(hamsaIn, [0, 1], [0.7, 1]);
 
   const titleOp = interpolate(frame, [20, 50], [0, 1], { extrapolateRight: "clamp" });
@@ -27,7 +29,7 @@ export const SceneClose: React.FC = () => {
   const urlY = interpolate(frame, [55, 80], [14, 0], { extrapolateRight: "clamp" });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: COLORS.night, overflow: "hidden" }}>
+    <AbsoluteFill style={{ backgroundColor: palette.night, overflow: "hidden" }}>
       <Img
         src={staticFile("images/koutoubia.webp")}
         style={{
@@ -38,25 +40,20 @@ export const SceneClose: React.FC = () => {
           opacity: 0.55,
         }}
       />
-      <AbsoluteFill
-        style={{
-          background:
-            "radial-gradient(ellipse at center, rgba(14,11,8,0.35) 0%, rgba(14,11,8,0.95) 80%)",
-        }}
-      />
+      <AbsoluteFill style={{ background: scrim("center", 0.35, 0.95) }} />
 
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
         <div
           style={{
             transform: `scale(${hamsaScale})`,
             opacity: hamsaIn,
-            filter: "drop-shadow(0 8px 32px rgba(212,175,55,0.5))",
-            marginBottom: 50,
+            filter: dropShadow(elevation.glowGold),
+            marginBottom: space[9],
           }}
         >
           <Img
             src={staticFile("images/hamsa.webp")}
-            style={{ width: 140, height: 140, borderRadius: 28 }}
+            style={{ width: 140, height: 140, borderRadius: radius.lg }}
           />
         </div>
 
@@ -64,37 +61,37 @@ export const SceneClose: React.FC = () => {
           style={{
             opacity: titleOp,
             transform: `translateY(${titleY}px)`,
-            fontFamily: serif,
-            color: COLORS.cream,
-            fontWeight: 300,
-            fontSize: 96,
-            letterSpacing: "0.02em",
-            lineHeight: 1,
+            fontFamily: T.family.display,
+            color: palette.cream,
+            fontWeight: T.weight.light,
+            fontSize: T.size.h1,
+            letterSpacing: T.tracking.normal,
+            lineHeight: T.leading.tight,
           }}
         >
-          One <span style={{ fontStyle: "italic", color: COLORS.gold }}>World</span> Morocco
+          One <span style={{ fontStyle: "italic", color: palette.gold }}>World</span> Morocco
         </div>
 
         <div
           style={{
-            marginTop: 36,
+            marginTop: space[8],
             width: lineW,
-            height: 1,
-            backgroundColor: COLORS.gold,
+            height: layout.rule.hairline,
+            backgroundColor: palette.gold,
           }}
         />
 
         <div
           style={{
-            marginTop: 32,
+            marginTop: space[7],
             opacity: urlOp,
             transform: `translateY(${urlY}px)`,
-            fontFamily: sans,
-            color: COLORS.bone,
-            letterSpacing: "0.45em",
+            fontFamily: T.family.body,
+            color: palette.bone,
+            letterSpacing: T.tracking.tracked,
             fontSize: 20,
             textTransform: "uppercase",
-            fontWeight: 400,
+            fontWeight: T.weight.regular,
           }}
         >
           oneworldmorocco.com
