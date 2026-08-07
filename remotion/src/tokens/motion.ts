@@ -6,6 +6,8 @@ export const springs: Record<string, Partial<SpringConfig>> = {
   soft: { damping: 200 },
   /** Rebond léger, entrée d'élément */
   snappy: { damping: 22, stiffness: 90 },
+  /** Entrée douce sans overshoot marqué */
+  gentle: { damping: 18 },
   /** Réactif, accents */
   quick: { damping: 24, stiffness: 110 },
   /** Révélation lente (clip-path, panneaux) */
