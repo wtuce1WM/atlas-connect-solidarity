@@ -2111,6 +2111,194 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       )}
 
 
+      {/* ── Réseaux & flux : Spotify / SoundCloud / Substack ─── */}
+      {slug && (socialUrls.spotify || socialUrls.soundcloud || socialUrls.substack) && (
+        <div className="space-y-8">
+          {socialUrls.spotify && (
+            <div className="space-y-3">
+              <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
+                <Music2 className="h-6 w-6 shrink-0 text-[#1DB954]" /> Widget Spotify
+              </h3>
+              <WidgetTester url={spotifyUrl} label={`Spotify — ${businessName}`} />
+              <p className="text-sm text-white/70">
+                Votre playlist / album Spotify embarqué depuis le lien renseigné dans Liens → Web &amp; Socials.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-white/80 text-xs">Format du player</Label>
+                  <div className="flex gap-1">
+                    {[{ v: false, l: "Complet (352px)" }, { v: true, l: "Compact (152px)" }].map((o) => (
+                      <button key={String(o.v)} type="button" onClick={() => setSpotifyCompact(o.v)}
+                        className={`flex-1 text-[11px] py-1.5 px-2 rounded-md border ${spotifyCompact === o.v ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}>
+                        {o.l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-white/80 text-xs">Fond du widget</Label>
+                  <div className="flex gap-1">
+                    {[{ key: "widget" as const, label: widgetBgValid ? `Couleur ${widgetBg}` : "Couleur (non définie)" }, { key: "transparent" as const, label: "Transparent" }].map((o) => (
+                      <button key={o.key} type="button" onClick={() => setSpotifyBgMode(o.key)}
+                        className={`flex-1 text-[11px] py-1.5 px-2 rounded-md border ${spotifyBgMode === o.key ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}>
+                        {o.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {fitRow("spotify")}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label className="text-white/80 text-xs">Code à copier</Label>
+                  <textarea readOnly value={spotifySnippet} onFocus={(e) => e.currentTarget.select()} rows={4}
+                    className="w-full rounded-md bg-white/10 border border-white/20 text-white text-xs px-3 py-2 font-mono resize-none" />
+                  <div className="flex gap-2 flex-wrap">
+                    <Button type="button" size="sm" onClick={() => copy(spotifySnippet, "spotify")}>
+                      {copied === "spotify" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />} Copier le code iframe
+                    </Button>
+                    <Button type="button" size="sm" variant="outline" asChild className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                      <a href={spotifyUrl} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-4 w-4 mr-1" /> Ouvrir</a>
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-white/80 text-xs">Aperçu en direct</Label>
+                  <div className="rounded-md overflow-hidden border border-white/20 bg-black/30">
+                    <iframe key={spotifyUrl} src={previewSrc(spotifyUrl)} title="Aperçu Spotify" loading="lazy"
+                      style={{ width: "100%", height: spotifyHeight, border: 0, background: "transparent" }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {socialUrls.soundcloud && (
+            <div className="space-y-3">
+              <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
+                <AudioLines className="h-6 w-6 shrink-0 text-[#FF5500]" /> Widget SoundCloud
+              </h3>
+              <WidgetTester url={scUrl} label={`SoundCloud — ${businessName}`} />
+              <p className="text-sm text-white/70">
+                Votre piste / playlist SoundCloud embarquée depuis le lien renseigné dans Liens → Web &amp; Socials.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-white/80 text-xs">Format du player</Label>
+                  <div className="flex gap-1">
+                    {[{ v: true, l: "Visuel (pochette)" }, { v: false, l: "Bandeau compact" }].map((o) => (
+                      <button key={String(o.v)} type="button" onClick={() => setScVisual(o.v)}
+                        className={`flex-1 text-[11px] py-1.5 px-2 rounded-md border ${scVisual === o.v ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}>
+                        {o.l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-white/80 text-xs">Fond du widget</Label>
+                  <div className="flex gap-1">
+                    {[{ key: "widget" as const, label: widgetBgValid ? `Couleur ${widgetBg}` : "Couleur (non définie)" }, { key: "transparent" as const, label: "Transparent" }].map((o) => (
+                      <button key={o.key} type="button" onClick={() => setScBgMode(o.key)}
+                        className={`flex-1 text-[11px] py-1.5 px-2 rounded-md border ${scBgMode === o.key ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}>
+                        {o.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {fitRow("soundcloud")}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label className="text-white/80 text-xs">Code à copier</Label>
+                  <textarea readOnly value={scSnippet} onFocus={(e) => e.currentTarget.select()} rows={4}
+                    className="w-full rounded-md bg-white/10 border border-white/20 text-white text-xs px-3 py-2 font-mono resize-none" />
+                  <div className="flex gap-2 flex-wrap">
+                    <Button type="button" size="sm" onClick={() => copy(scSnippet, "soundcloud")}>
+                      {copied === "soundcloud" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />} Copier le code iframe
+                    </Button>
+                    <Button type="button" size="sm" variant="outline" asChild className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                      <a href={scUrl} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-4 w-4 mr-1" /> Ouvrir</a>
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-white/80 text-xs">Aperçu en direct</Label>
+                  <div className="rounded-md overflow-hidden border border-white/20 bg-black/30">
+                    <iframe key={scUrl} src={previewSrc(scUrl)} title="Aperçu SoundCloud" loading="lazy"
+                      style={{ width: "100%", height: scHeight, border: 0, background: "transparent" }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {socialUrls.substack && (
+            <div className="space-y-3">
+              <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
+                <Rss className="h-6 w-6 shrink-0 text-[#FF6719]" /> Widget Newsletter (Substack)
+              </h3>
+              <WidgetTester url={subUrl} label={`Newsletter — ${businessName}`} />
+              <p className="text-sm text-white/70">
+                Vos derniers articles Substack, mis à jour automatiquement depuis le lien renseigné dans Liens → Web &amp; Socials.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-white/80 text-xs">Langue</Label>
+                  <div className="flex gap-1">
+                    {(["fr", "en", "ar"] as const).map((l) => (
+                      <button key={l} type="button" onClick={() => setSubLang(l)}
+                        className={`flex-1 text-xs py-1.5 rounded-md border uppercase ${subLang === l ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}>
+                        {l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-white/80 text-xs">Nombre d'articles</Label>
+                  <input type="number" min={1} max={10} value={subLimit}
+                    onChange={(e) => setSubLimit(Math.max(1, Math.min(10, Number(e.target.value) || 3)))}
+                    className="w-full rounded-md bg-white/10 border border-white/20 text-white text-sm px-3 py-1.5" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-white/80 text-xs">Fond du widget</Label>
+                  <div className="flex gap-1">
+                    {[{ key: "widget" as const, label: widgetBgValid ? `Couleur ${widgetBg}` : "Couleur (non définie)" }, { key: "transparent" as const, label: "Transparent" }].map((o) => (
+                      <button key={o.key} type="button" onClick={() => setSubBgMode(o.key)}
+                        className={`flex-1 text-[11px] py-1.5 px-2 rounded-md border ${subBgMode === o.key ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}>
+                        {o.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {fitRow("substack")}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label className="text-white/80 text-xs">Code à copier</Label>
+                  <textarea readOnly value={subSnippet} onFocus={(e) => e.currentTarget.select()} rows={4}
+                    className="w-full rounded-md bg-white/10 border border-white/20 text-white text-xs px-3 py-2 font-mono resize-none" />
+                  <div className="flex gap-2 flex-wrap">
+                    <Button type="button" size="sm" onClick={() => copy(subSnippet, "substack")}>
+                      {copied === "substack" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />} Copier le code iframe
+                    </Button>
+                    <Button type="button" size="sm" variant="outline" asChild className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                      <a href={subUrl} target="_blank" rel="noopener noreferrer"><ExternalLink className="h-4 w-4 mr-1" /> Ouvrir</a>
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-white/80 text-xs">Aperçu en direct</Label>
+                  <div className="rounded-md overflow-hidden border border-white/20 bg-black/30">
+                    <iframe key={subUrl} src={previewSrc(subUrl)} title="Aperçu Newsletter" loading="lazy"
+                      style={{ width: "100%", height: subHeight, border: 0, background: "transparent" }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
     </div>
   );
 };
