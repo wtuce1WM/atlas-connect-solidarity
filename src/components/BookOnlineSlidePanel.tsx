@@ -2909,7 +2909,8 @@ const BookOnlineSlidePanelInner = ({
                   })()}
 
 
-
+                  {/* Widgets Disponibilité / Horaires — avant les badges */}
+                  {renderInlineDescWidgets("desc-widgets-bottom")}
 
 
                   {/* Badges (Menu / Images / Vidéos, liens externes, réseaux & réservation) — sous les blocs highlights */}
