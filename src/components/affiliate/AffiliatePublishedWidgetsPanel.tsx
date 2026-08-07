@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Bot, MapPin, Star, ThumbsUp, CloudSun, Waves, LayoutPanelTop, Eye, ExternalLink, Save } from "lucide-react";
+import { Bot, MapPin, Star, ThumbsUp, CloudSun, Waves, LayoutPanelTop, Newspaper, Eye, ExternalLink, Save } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
@@ -84,7 +84,17 @@ const WIDGETS: WidgetDef[] = [
     height: 760,
     url: (slug) => (slug ? `${SITE}/b/${slug}?embed=1` : null),
   },
+  {
+    key: "fiche1wm",
+    label: "Widget Fiche 1WM",
+    icon: Newspaper,
+    formats: ["inline", "fullscreen"],
+    height: 900,
+    url: (slug, f) =>
+      slug ? `${SITE}/embed/fiche/${slug}?lang=fr&bg=transparent${f === "fullscreen" ? "&fit=wh" : ""}` : null,
+  },
 ];
+
 
 interface Props {
   businessId: string;

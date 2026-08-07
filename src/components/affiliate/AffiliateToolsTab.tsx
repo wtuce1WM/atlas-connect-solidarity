@@ -86,6 +86,11 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const [tidesCity, setTidesCity] = useState<string>("Essaouira");
   const [ficheMaxWidth, setFicheMaxWidth] = useState<number>(380);
   const [ficheShowClub, setFicheShowClub] = useState<boolean>(true);
+  // Widget Fiche 1WM (/embed/fiche/:slug)
+  const [f1wmLang, setF1wmLang] = useState<"fr" | "en" | "ar">("fr");
+  const [f1wmHeight, setF1wmHeight] = useState<number>(900);
+  const [f1wmBgMode, setF1wmBgMode] = useState<"widget" | "transparent">("widget");
+
   const [tidesLang, setTidesLang] = useState<"fr" | "en" | "ar">("fr");
 
   // Ajustement de chaque widget dans son iframe (largeur / hauteur / les deux)
@@ -535,6 +540,18 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     [ficheUrl, ficheMaxWidth, businessName, fits]
   );
 
+  // Widget Fiche 1WM : /embed/fiche/:slug (BookOnlineSlidePanel embarqué)
+  const f1wmBgParam =
+    f1wmBgMode === "transparent" ? "&bg=transparent" : widgetBgValid ? `&bg=${widgetBg.slice(1)}` : "";
+  const f1wmUrl = `${SITE}/embed/fiche/${slug ?? ""}?lang=${f1wmLang}${f1wmBgParam}${fitParam(fitOf("fiche1wm"))}`;
+  const f1wmSnippet = useMemo(
+    () =>
+      `<iframe src="${f1wmUrl}" style="${fitIframeStyle(fitOf("fiche1wm"), { height: f1wmHeight, radius: 20, extra: "width:100%;background:transparent" })}" title="Fiche 1WM — ${businessName}" loading="lazy" allow="clipboard-write; geolocation"></iframe>`,
+    [f1wmUrl, f1wmHeight, businessName, fits]
+  );
+
+
+
 
 
 
@@ -617,7 +634,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   return (
     <div className="space-y-6">
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <MapPin className="h-4 w-4" /> Rayon de proximité
         </h3>
         <p className="text-sm text-white/70 max-w-2xl">
@@ -647,7 +664,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <Globe2 className="h-4 w-4" /> Couleur de fond des widgets
         </h3>
         <p className="text-sm text-white/70 max-w-2xl">
@@ -684,7 +701,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
 
       <div className="space-y-4">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <ExternalLink className="h-4 w-4" /> Liens de partage
         </h3>
         {renderUrlRow("URL publique (fiche)", publicUrl, "public")}
@@ -693,7 +710,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
 
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <QrCode className="h-4 w-4" /> QR Code
         </h3>
         <div className="flex flex-col sm:flex-row items-start gap-4">
@@ -718,7 +735,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       </div>
       {rights.aiAssistant && (
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <Bot className="h-4 w-4" /> Assistant IA embarqué (iframe)
         </h3>
         <WidgetTester url={embedUrl} label="Assistant IA embarqué" />
@@ -1024,7 +1041,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       {/* ---------- Export d'article de blog ---------- */}
       {rights.blogExport && (
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <Newspaper className="h-4 w-4" /> Vos articles de blog (code à copier)
         </h3>
         <p className="text-sm text-white/70">
@@ -1038,7 +1055,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
       {/* ---------- Services optionnels manquants (domaine) ---------- */}
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <Globe2 className="h-4 w-4" /> Redirection 301 depuis votre domaine (gratuit, DIY)
         </h3>
         <p className="text-sm text-white/70">
@@ -1089,7 +1106,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       {/* ---------- Widget « À proximité » (overlay POI) ---------- */}
       {rights.nearbyWidget && (
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <MapPin className="h-4 w-4" /> Widget « À proximité » (carte + établissements autour de vous)
         </h3>
         <WidgetTester url={nearbyUrl} label="Widget À proximité" />
@@ -1262,7 +1279,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
       {/* ── Widget Avis clients ───────────────────────────────── */}
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <Star className="h-4 w-4" /> Widget Avis clients (iframe)
         </h3>
         <WidgetTester url={reviewsUrl} label="Widget Avis clients" />
@@ -1395,7 +1412,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
       {/* ── Widget Laisser un avis ────────────────────────────── */}
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <ThumbsUp className="h-4 w-4" /> Widget Laisser un avis (iframe)
         </h3>
         <WidgetTester url={rateUrl} label="Widget Laisser un avis" />
@@ -1556,7 +1573,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       {rights.emailSignature && (
       <div className="space-y-3">
 
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <Mail className="h-4 w-4" /> Signature email « Laisser un avis » (HTML statique)
         </h3>
         <p className="text-sm text-white/70">
@@ -1608,7 +1625,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
       {/* ── Widget Météo ──────────────────────────────────────── */}
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <CloudSun className="h-4 w-4" /> Widget Météo (iframe)
         </h3>
         <WidgetTester url={weatherUrl} label="Widget Météo" />
@@ -1779,7 +1796,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
       {/* ── Widget Marées ─────────────────────────────────────── */}
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <Waves className="h-4 w-4" /> Widget Marées (iframe)
         </h3>
         <WidgetTester url={tidesUrl} label="Widget Marées, Vents & Météo" />
@@ -1857,7 +1874,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       {/* ── Widget Votre ID numérique type Linktree ─────────────────────────────── */}
       {slug && (
         <div className="space-y-3">
-          <h3 className="text-white font-semibold flex items-center gap-2">
+          <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
             <Globe2 className="h-4 w-4" /> Widget Votre ID numérique type Linktree (iframe)
           </h3>
           <WidgetTester url={ficheUrl} label={`Fiche complète — ${businessName}`} />
@@ -1936,6 +1953,106 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
                   src={previewSrc(ficheUrl)}
                   style={{ width: fitFlags(fitOf("fiche")).fullWidth ? "100%" : ficheMaxWidth, maxWidth: "100%", height: 900, border: 0 }}
                   title="Aperçu fiche"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Widget Fiche 1WM ─────────────────────────────────── */}
+      {slug && (
+        <div className="space-y-3">
+          <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
+            <Newspaper className="h-6 w-6 shrink-0" /> Widget Fiche 1WM (iframe)
+          </h3>
+          <WidgetTester url={f1wmUrl} label={`Fiche 1WM — ${businessName}`} />
+          <p className="text-sm text-white/70">
+            La fiche complète de <span className="font-semibold text-white">{businessName}</span> (photos, avis, offres,
+            horaires, carte, CTAs) embarquée sur votre site, sans scroll vertical inutile.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-white/80 text-xs">Langue</Label>
+              <div className="flex gap-1">
+                {(["fr", "en", "ar"] as const).map((l) => (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => setF1wmLang(l)}
+                    className={`flex-1 text-xs py-1.5 rounded-md border uppercase ${f1wmLang === l ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-white/80 text-xs">Hauteur (px)</Label>
+              <input
+                type="number"
+                min={400}
+                max={2000}
+                value={f1wmHeight}
+                onChange={(e) => setF1wmHeight(Number(e.target.value) || 900)}
+                className="w-full rounded-md bg-white/10 border border-white/20 text-white text-sm px-3 py-1.5"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-white/80 text-xs">Fond du widget</Label>
+              <div className="flex gap-1">
+                {[
+                  { key: "widget" as const, label: widgetBgValid ? `Couleur ${widgetBg}` : "Couleur (non définie)" },
+                  { key: "transparent" as const, label: "Transparent" },
+                ].map((o) => (
+                  <button
+                    key={o.key}
+                    type="button"
+                    onClick={() => setF1wmBgMode(o.key)}
+                    className={`flex-1 text-[11px] py-1.5 px-2 rounded-md border ${f1wmBgMode === o.key ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+                  >
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          {fitRow("fiche1wm")}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label className="text-white/80 text-xs">Code à copier</Label>
+              <textarea
+                readOnly
+                value={f1wmSnippet}
+                onFocus={(e) => e.currentTarget.select()}
+                rows={4}
+                className="w-full rounded-md bg-white/10 border border-white/20 text-white text-xs px-3 py-2 font-mono resize-none"
+              />
+              <div className="flex gap-2 flex-wrap">
+                <Button type="button" size="sm" onClick={() => copy(f1wmSnippet, "fiche1wm")}>
+                  {copied === "fiche1wm" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                  Copier le code iframe
+                </Button>
+                <Button type="button" size="sm" variant="outline" onClick={() => copy(f1wmUrl, "fiche1wm-url")} className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                  {copied === "fiche1wm-url" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                  Copier l'URL seule
+                </Button>
+                <Button type="button" size="sm" variant="outline" asChild className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                  <a href={f1wmUrl} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="h-4 w-4 mr-1" /> Ouvrir
+                  </a>
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white/80 text-xs">Aperçu en direct</Label>
+              <div className="rounded-md overflow-hidden border border-white/20 bg-black/30">
+                <iframe
+                  key={f1wmUrl}
+                  src={previewSrc(f1wmUrl)}
+                  style={{ width: "100%", height: f1wmHeight, border: 0, background: "transparent" }}
+                  title="Aperçu Fiche 1WM"
                   loading="lazy"
                 />
               </div>
