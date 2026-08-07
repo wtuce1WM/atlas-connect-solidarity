@@ -2716,6 +2716,25 @@ const BookOnlineSlidePanelInner = ({
 
                   )}
 
+                  {/* Visite virtuelle 3D (Matterport) affichée pleine largeur */}
+                  {!descOverlayContent && business?.matterport_url && /^https?:\/\//i.test(business.matterport_url) && (
+                    <div className="mt-8 w-full">
+                      <h3 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">
+                        {language === 'en' ? '3D Virtual Tour' : 'Visite virtuelle 3D'}
+                      </h3>
+                      <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
+                        <iframe
+                          src={business.matterport_url}
+                          title={language === 'en' ? '3D Virtual Tour' : 'Visite virtuelle 3D'}
+                          allow="xr-spatial-tracking; fullscreen; gyroscope; accelerometer"
+                          allowFullScreen
+                          className="w-full block border-0"
+                          style={{ aspectRatio: '16 / 10', minHeight: 320 }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
                   {/* Flipbooks (Issuu, Calaméo, FlipHTML5…) affichés pleine largeur */}
                   {!descOverlayContent && (() => {
                     const flipbooks = (menuDocs || []).filter((d: any) => d.type === 'flipbook' && typeof d.url === 'string' && /^https?:\/\//i.test(d.url));
