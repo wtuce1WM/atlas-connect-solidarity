@@ -89,7 +89,7 @@ const EmbedSubstack = () => {
                 href={it.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex gap-3 rounded-2xl border border-border bg-card p-3 transition-colors hover:bg-accent/40"
+                className="group flex gap-3 rounded-2xl border border-border bg-background p-3 transition-colors hover:bg-background/80"
               >
                 {it.image && (
                   <img

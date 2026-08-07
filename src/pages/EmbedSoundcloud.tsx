@@ -99,7 +99,6 @@ const EmbedSoundcloud = () => {
               borderRadius: 12,
             }}
             allow="autoplay"
-            loading="lazy"
           />
         ) : (
           <p className="py-8 text-center text-sm text-muted-foreground">{L.none}</p>

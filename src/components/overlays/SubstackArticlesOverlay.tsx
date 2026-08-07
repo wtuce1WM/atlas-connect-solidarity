@@ -95,20 +95,20 @@ const SubstackArticlesOverlay = ({ substackUrl, businessName, onClose }: Substac
             <div className="px-4 py-8 text-center text-sm text-muted-foreground">Aucun article trouvé.</div>
           )}
           {!loading && !error && items.length > 0 && (
-            <ul className="divide-y">
+            <ul className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-4 p-4 md:grid-cols-2">
               {items.map((it, i) => (
-                <li key={i}>
+                <li key={i} className="overflow-hidden rounded-lg border bg-background">
                   <a
                     href={it.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex gap-3 p-3 hover:bg-muted/50 transition-colors"
+                    className="flex h-full flex-col gap-3 p-3 transition-opacity hover:opacity-90 sm:flex-row"
                   >
                     {it.image && (
                       <img
                         src={it.image}
                         alt=""
-                        className="w-20 h-20 sm:w-28 sm:h-28 object-cover rounded-md shrink-0"
+                        className="aspect-[16/10] w-full object-cover rounded-md shrink-0 sm:h-44 sm:w-52"
                         loading="lazy"
                       />
                     )}
@@ -116,7 +116,7 @@ const SubstackArticlesOverlay = ({ substackUrl, businessName, onClose }: Substac
                       <h3 className="font-semibold text-sm sm:text-base leading-snug line-clamp-2">{it.title}</h3>
                       <p className="text-xs text-muted-foreground mt-1">{formatDate(it.pubDate)}</p>
                       {it.excerpt && (
-                        <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-2 sm:line-clamp-3">{it.excerpt}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-3 sm:line-clamp-5">{it.excerpt}</p>
                       )}
                     </div>
                   </a>

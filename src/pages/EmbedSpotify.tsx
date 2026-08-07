@@ -95,7 +95,6 @@ const EmbedSpotify = () => {
               borderRadius: 12,
             }}
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy"
           />
         ) : (
           <p className="py-8 text-center text-sm text-muted-foreground">{L.none}</p>
