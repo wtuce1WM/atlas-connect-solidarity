@@ -1,11 +1,13 @@
-// Fiche établissement embarquable : /embed/fiche/:slug?lang=fr
+// Fiche établissement embarquable : /embed/fiche/:slug?lang=fr&bg=EFE6D8|transparent
 // Réutilise BookOnlineSlidePanel — même mode de lecture que le panneau de droite
 // des articles de blog (aucun fork de logique).
 import { Suspense, lazy, useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { applyEmbedBg, parseBg } from "@/lib/embedFit";
 import { Loader2 } from "lucide-react";
+
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
@@ -26,6 +28,11 @@ const EmbedFiche = () => {
   const lang: Lang = langParam === "en" || langParam === "ar" ? (langParam as Lang) : "fr";
   const L = MESSAGES[lang];
 
+  // Couleur de fond du widget : ?bg=EFE6D8 (couleur pleine) ou ?bg=transparent
+  const bgRaw = (params.get("bg") || "").trim();
+  const bgColor = parseBg(bgRaw);
+  const surface = bgColor || "transparent";
+
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
 
@@ -33,6 +40,9 @@ const EmbedFiche = () => {
     setLanguage(lang);
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
   }, [lang, setLanguage]);
+
+  useEffect(() => applyEmbedBg(bgRaw), [bgRaw]);
+
 
   useEffect(() => {
     if (!slug) return;
@@ -54,14 +64,21 @@ const EmbedFiche = () => {
 
   if (notFound) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-background text-sm text-muted-foreground">
+      <div
+        className="h-screen w-full flex items-center justify-center overflow-hidden text-sm text-muted-foreground"
+        style={{ background: surface }}
+      >
         {L.notFound}
       </div>
     );
   }
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-background flex flex-col">
+    <div
+      className="relative h-screen w-full overflow-hidden flex flex-col"
+      style={{ background: surface }}
+    >
+
       {!businessId ? (
         <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground animate-pulse">
           {L.loading}
