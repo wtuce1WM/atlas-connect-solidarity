@@ -2,9 +2,9 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-07T13:57:35.557Z",
+    "generated_at": "2026-08-07T15:08:16.605Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
-    "count": 1844
+    "count": 1845
   },
   "businesses": [
     {
@@ -48105,7 +48105,7 @@
       "website": "https://www.royalmansour.com/casablanca/restauration/la-grande-table-marocaine/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/81093a67-cafa-4a41-b690-2ca1cc6c9803-1770557388703-z9vpot.webp",
       "google_rating": 4.6,
-      "google_review_count": 358,
+      "google_review_count": 511,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -48116,7 +48116,7 @@
       "social": {
         "instagram": "https://www.instagram.com/royalmansourcasablanca/",
         "facebook": "https://www.facebook.com/royalmansourcasablanca",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293732-d27945886-Reviews-La_Grande_Table_Marocaine_Royal_Mansour_Casablanca-Casablanca_Casablanca_Settat.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -49617,8 +49617,8 @@
     },
     {
       "id": "dfc74ffe-028f-4e9c-8dfe-e6fa6dbab966",
-      "slug": "la-grande-table-marocaine",
-      "url": "https://oneworldmorocco.com/la-grande-table-marocaine",
+      "slug": "la-grande-table-marocaine-marrakech",
+      "url": "https://oneworldmorocco.com/la-grande-table-marocaine-marrakech",
       "name": "La Grande Table Marocaine",
       "hook": "Restaurant marocain signature à Marrakech",
       "description": "Avec La Grande Table Marocaine du Royal Mansour, Marrakech, capitale de l’hospitalité et de la générosité, a trouvé sa meilleure ambassadrice pour illustrer l’art de recevoir ancré dans la culture locale. Le meilleur restaurant marocain d’Afrique augure d’un voyage sensoriel hors du commun dont les initiés aimeraient garder pour eux seuls le secret. Une Grande Table, comme une ode à l'excellence de la cuisine marocaine Au sein du Pavillon des restaurants, le célèbre Patio Bleu mène les pas des v",
@@ -49643,7 +49643,9 @@
         "Champagne",
         "Plats Vegan",
         "Plats végétariens",
-        "Tenue correcte exigée"
+        "Tenue correcte exigée",
+        "Etoilé",
+        "Gastronomique"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -49654,10 +49656,10 @@
       "address": "Rue Abou El Abbas Sebti",
       "phone": "+212 (0) 529 80 82 82",
       "whatsapp": "+212 (0) 630 00 44 33",
-      "website": "https://www.royalmansour.com/marrakech/restauration/la-grande-table-marocaine/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/dfc74ffe-028f-4e9c-8dfe-e6fa6dbab966-1770558055449-nvsz0a.webp",
-      "google_rating": 4.6,
-      "google_review_count": 74,
+      "google_rating": 4.5,
+      "google_review_count": 87,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -95672,7 +95674,11 @@
         "Pâtes",
         "Homard / Langouste",
         "Pizza",
-        "Salades"
+        "Salades",
+        "Plats végétariens",
+        "Viande",
+        "Poisson",
+        "Gastronomique"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -95683,10 +95689,10 @@
       "address": "Rue Abou Abbas El Sebti",
       "phone": "+212 (0) 529 80 82 82",
       "whatsapp": null,
-      "website": "https://www.royalmansour.com/marrakech/restauration/sesamo/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/427292c9-be14-4f7b-82a0-2b2aaa1bddde-1770733576525-3iaa1.webp",
       "google_rating": 4.6,
-      "google_review_count": 171,
+      "google_review_count": 218,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -95733,7 +95739,7 @@
       "social": {
         "instagram": "https://www.instagram.com/royalmansourmarrakech/",
         "facebook": "https://www.facebook.com/royalmansour/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293734-d23687170-Reviews-Sesamo_Royal_Mansour_Marrakech-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": "https://www.youtube.com/channel/UCZXiuD9Uqkowh6JxTwS7rzAww.tiktok.com/@royalmansourmarrakech",
         "linkedin": null
       }
@@ -151749,6 +151755,102 @@
         "facebook": "https://www.facebook.com/people/Elevate-Cycle-Marrakech/61557848156550/",
         "tripadvisor": null,
         "youtube": null,
+        "linkedin": null
+      }
+    },
+    {
+      "id": "dfc74ffe-028f-4e9c-8dfe-e6fa6dbab966",
+      "slug": "la-grande-table-marocaine-marrakech",
+      "url": "https://oneworldmorocco.com/la-grande-table-marocaine-marrakech",
+      "name": "La Grande Table Marocaine",
+      "hook": "Restaurant marocain signature à Marrakech",
+      "description": "Avec La Grande Table Marocaine du Royal Mansour, Marrakech, capitale de l’hospitalité et de la générosité, a trouvé sa meilleure ambassadrice pour illustrer l’art de recevoir ancré dans la culture locale. Le meilleur restaurant marocain d’Afrique augure d’un voyage sensoriel hors du commun dont les initiés aimeraient garder pour eux seuls le secret. Une Grande Table, comme une ode à l'excellence de la cuisine marocaine Au sein du Pavillon des restaurants, le célèbre Patio Bleu mène les pas des v",
+      "main_category": "Restauration",
+      "categories": [
+        "Restaurant"
+      ],
+      "services": [
+        "Dîner",
+        "Poisson",
+        "Viande",
+        "Fruits de mer",
+        "Cuisine marocaine",
+        "Voiturier",
+        "Cave à vin d'exception",
+        "Cocktails",
+        "Climatisé",
+        "Parking gratuit",
+        "Caves à vin",
+        "Homard / Langouste",
+        "Coquillages",
+        "Champagne",
+        "Plats Vegan",
+        "Plats végétariens",
+        "Tenue correcte exigée",
+        "Etoilé",
+        "Gastronomique"
+      ],
+      "city": "Marrakech",
+      "neighborhood": "Medina",
+      "region": "Marrakech-Safi",
+      "country": "MA",
+      "latitude": 31.6252658,
+      "longitude": -8.0007587,
+      "address": "Rue Abou El Abbas Sebti",
+      "phone": "+212 (0) 529 80 82 82",
+      "whatsapp": "+212 (0) 630 00 44 33",
+      "website": null,
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/dfc74ffe-028f-4e9c-8dfe-e6fa6dbab966-1770558055449-nvsz0a.webp",
+      "google_rating": 4.5,
+      "google_review_count": 87,
+      "price_range": null,
+      "min_price_mad": null,
+      "languages": [],
+      "opening_hours": {
+        "friday": {
+          "open": "19:00",
+          "close": "22:30",
+          "closed": false
+        },
+        "monday": {
+          "open": "19:00",
+          "close": "22:30",
+          "closed": false
+        },
+        "sunday": {
+          "open": "19:00",
+          "close": "22:30",
+          "closed": false
+        },
+        "tuesday": {
+          "open": "19:00",
+          "close": "22:30",
+          "closed": false
+        },
+        "saturday": {
+          "open": "19:00",
+          "close": "22:30",
+          "closed": false
+        },
+        "thursday": {
+          "open": "19:00",
+          "close": "22:30",
+          "closed": false
+        },
+        "wednesday": {
+          "open": "19:00",
+          "close": "22:30",
+          "closed": false
+        }
+      },
+      "is_open_24h": false,
+      "booking_url": "https://www.royalmansour.com/marrakech/restauration/la-grande-table-marocaine/#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjM3MDcyIiwidG9nZ2xlIjpmYWxzZX0%3D",
+      "menu_url": null,
+      "social": {
+        "instagram": "https://www.instagram.com/royalmansourmarrakech/",
+        "facebook": "https://www.facebook.com/royalmansour/",
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293734-d24021319-Reviews-La_Grande_Table_Marocaine-Marrakech_Marrakech_Safi.html?m=66827",
+        "youtube": "https://www.youtube.com/@royalmansourfilms",
         "linkedin": null
       }
     },

@@ -2956,7 +2956,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/la-grande-table-marocaine</loc>
+    <loc>https://oneworldmorocco.com/la-grande-table-marocaine-marrakech</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9212,6 +9212,11 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/elevate-cycle</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/la-grande-table-marocaine-marrakech</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

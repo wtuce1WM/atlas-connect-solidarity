@@ -1429,8 +1429,9 @@ const BookOnlineSlidePanelInner = ({
     return (
       <div key={keyPrefix} className="my-10 w-full flex flex-col items-center gap-4">
         {showAvail && (
-          <div className="w-full max-w-[19rem] mx-auto text-[0.92em]">
+          <div className="w-full max-w-none md:max-w-[22rem] mx-auto text-[0.92em]">
             <AvailabilitySearchOverlay
+
               inline
               transparent
               language={language}
@@ -2808,7 +2809,7 @@ const BookOnlineSlidePanelInner = ({
                                 title={c.label}
                                 allow="payment; clipboard-write; fullscreen"
                                 className="w-full block border-0"
-                                style={{ aspectRatio: "16 / 11", minHeight: 420 }}
+                                style={{ aspectRatio: "16 / 10", minHeight: 640 }}
                               />
                             </div>
                           </div>
