@@ -121,7 +121,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       setRadiusLoading(true);
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("poi_radius_km, widget_bg_color, widget_bg_color_dark")
+        .select("poi_radius_km, widget_bg_color, widget_bg_color_dark, widget_theme")
         .eq("id", businessId)
         .maybeSingle();
       if (cancelled) return;
@@ -130,6 +130,10 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       const wcolor = ((data as any)?.widget_bg_color || "").toUpperCase();
       setWidgetBg(wcolor);
       setWidgetBgDark(((data as any)?.widget_bg_color_dark || "").toUpperCase());
+      if ((data as any)?.widget_theme === "light" || (data as any)?.widget_theme === "dark") {
+        setEmbedTheme((data as any).widget_theme);
+      }
+
       // Widget « À proximité » : on pré-remplit le fond de carte avec la couleur
       // de fond des widgets de l'établissement quand elle est définie.
       if (/^#[0-9A-F]{6}$/.test(wcolor)) setNearbyBg((prev) => prev || wcolor);
@@ -185,6 +189,20 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
     setWidgetBgDarkSaved(true);
   };
+
+  /** Thème par défaut du widget (sombre/clair) — persisté sur businesses.widget_theme. */
+  const saveEmbedTheme = async (t: "dark" | "light") => {
+    setEmbedTheme(t);
+    if (!businessId) return;
+    const { error } = await (supabase as any)
+      .from("businesses")
+      .update({ widget_theme: t })
+      .eq("id", businessId);
+    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    toast({ title: t === "dark" ? "Thème sombre enregistré" : "Thème clair enregistré" });
+  };
+
+
 
   const fitRow = (key: string) => (
     <div className="space-y-1.5">
@@ -754,7 +772,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
                 <button
                   key={t}
                   type="button"
-                  onClick={() => setEmbedTheme(t)}
+                  onClick={() => saveEmbedTheme(t)}
                   className={`flex-1 text-xs py-1.5 rounded-md border ${embedTheme === t ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
                 >
                   {t === "dark" ? "Sombre" : "Clair"}
