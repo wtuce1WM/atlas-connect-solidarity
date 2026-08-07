@@ -3986,6 +3986,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               durationFrames={duration}
               textPosition={textPosition}
               ornament={kind === "menu_doc"}
+              wide={kind === "ai_text"}
+
             />
           </AbsoluteFill>
         );
