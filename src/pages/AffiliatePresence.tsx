@@ -622,14 +622,14 @@ const AffiliatePresence = () => {
             {currentBusiness && (
               <Card className="bg-card border-border dark">
                 <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <CardTitle className="text-3xl sm:text-4xl font-bold leading-tight">{currentBusiness.name}</CardTitle>
                       <p className="text-sm text-muted-foreground mt-1">
                         {getBusinessCompleteness(currentBusiness).filled}/{VISIBLE_PLATFORMS.length} plateformes configurées
                       </p>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:gap-3">
                       <AffiliatePrivateNoteDialog
                         businessId={currentBusiness.id}
                         initialNote={currentBusiness.affiliate_private_note}
@@ -637,6 +637,7 @@ const AffiliatePresence = () => {
                       />
                       <Button
                         size="sm"
+                        className="w-full sm:w-auto"
                         disabled={!hasEdits || savingId === currentBusiness.id}
                         onClick={() => handleSave(currentBusiness.id)}
                       >
@@ -649,6 +650,7 @@ const AffiliatePresence = () => {
                       </Button>
                     </div>
                   </div>
+
                 </CardHeader>
                 <CardContent>
                   <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
