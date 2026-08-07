@@ -2609,7 +2609,7 @@ const BookOnlineSlidePanelInner = ({
                         <h2 className="text-lg md:text-2xl font-bold uppercase tracking-[0.12em] text-white mb-4" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                           {heading}
                         </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                           {items.map((link, i) => {
                             const logo = typeof link.icon === "string" && /^https?:\/\//i.test(link.icon) ? link.icon : null;
                             return (
@@ -2710,24 +2710,6 @@ const BookOnlineSlidePanelInner = ({
                             {menuDocs.map((doc) => (
                               <button key={doc.id} onClick={() => openDocOrBooking(doc.url, doc.name || 'Menu')} className={badgeClass}>
                                 <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">{doc.name || 'Menu'}</span>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                        {externalLinks.length > 0 && (
-                          <div dir="ltr" onWheel={onStripWheel} className={stripClass}>
-                            {externalLinks.map((link) => (
-                              <button
-                                key={link.id}
-                                onClick={() => {
-                                  if (link.url && link.url !== '#' && link.url !== '*') {
-                                    openDocOrBooking(link.url, link.name || 'Lien', true);
-                                  }
-                                }}
-                                className={badgeClass}
-                                title={link.name || 'Lien'}
-                              >
-                                <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">{link.name || 'Lien'}</span>
                               </button>
                             ))}
                           </div>
