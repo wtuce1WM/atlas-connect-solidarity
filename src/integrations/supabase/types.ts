@@ -1598,6 +1598,7 @@ export type Database = {
           has_dashboard: boolean
           has_email_signature: boolean
           has_nearby_widget: boolean
+          has_showcase_site: boolean
           id: string
           updated_at: string
         }
@@ -1609,6 +1610,7 @@ export type Database = {
           has_dashboard?: boolean
           has_email_signature?: boolean
           has_nearby_widget?: boolean
+          has_showcase_site?: boolean
           id?: string
           updated_at?: string
         }
@@ -1620,6 +1622,7 @@ export type Database = {
           has_dashboard?: boolean
           has_email_signature?: boolean
           has_nearby_widget?: boolean
+          has_showcase_site?: boolean
           id?: string
           updated_at?: string
         }
