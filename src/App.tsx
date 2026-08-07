@@ -94,6 +94,9 @@ const Install = lazy(() => import("./pages/Install"));
 const EmbedAsk = lazy(() => import("./pages/EmbedAsk"));
 const EmbedWeather = lazy(() => import("./pages/EmbedWeather"));
 const EmbedTides = lazy(() => import("./pages/EmbedTides"));
+const EmbedSpotify = lazy(() => import("./pages/EmbedSpotify"));
+const EmbedSoundcloud = lazy(() => import("./pages/EmbedSoundcloud"));
+const EmbedSubstack = lazy(() => import("./pages/EmbedSubstack"));
 const EmbedNearby = lazy(() => import("./pages/EmbedNearby"));
 const EmbedArticleMap = lazy(() => import("./pages/EmbedArticleMap"));
 const EmbedFiche = lazy(() => import("./pages/EmbedFiche"));
@@ -261,6 +264,9 @@ const LocalizedRoutes = () => {
               <Route path="/site/:slug" element={renderLazyRoute(<ShowcaseSite />)} />
               <Route path="/embed/weather" element={renderLazyRoute(<EmbedWeather />)} />
               <Route path="/embed/tides" element={renderLazyRoute(<EmbedTides />)} />
+              <Route path="/embed/spotify/:slug" element={renderLazyRoute(<EmbedSpotify />)} />
+              <Route path="/embed/soundcloud/:slug" element={renderLazyRoute(<EmbedSoundcloud />)} />
+              <Route path="/embed/substack/:slug" element={renderLazyRoute(<EmbedSubstack />)} />
               <Route path="/embed/nearby/:slug" element={renderLazyRoute(<EmbedNearby />)} />
               <Route path="/embed/article-map/:slug" element={renderLazyRoute(<EmbedArticleMap />)} />
 
