@@ -21,6 +21,7 @@ import methodePromptsMd from "@/content/kb/methode-prompts-economie-credits.md?r
 import contexteHistoriqueMd from "@/content/kb/contexte-et-historique.md?raw";
 import lovableSkillsMd from "@/content/kb/lovable-skills.md?raw";
 import connecteurMcpClaudeMd from "@/content/kb/connecteur-mcp-claude.md?raw";
+import repartitionIaDevisMd from "@/content/kb/repartition-ia-devis-factures.md?raw";
 
 const SECTIONS = [
   { id: "architecture", label: "Règles d'architecture", icon: Building2, content: architectureMd },
@@ -39,6 +40,7 @@ const SECTIONS = [
   { id: "contexte-et-historique", label: "Contexte & historique", icon: History, content: contexteHistoriqueMd },
   { id: "lovable-skills", label: "Skills Lovable", icon: Bot, content: lovableSkillsMd },
   { id: "connecteur-mcp-claude", label: "Connecteur MCP / Claude", icon: Plug, content: connecteurMcpClaudeMd },
+  { id: "repartition-ia-devis-factures", label: "Répartition IA & module Devis", icon: Wallet, content: repartitionIaDevisMd },
 ];
 
 
