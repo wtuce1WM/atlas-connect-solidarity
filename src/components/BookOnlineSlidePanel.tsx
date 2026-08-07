@@ -2492,6 +2492,35 @@ const BookOnlineSlidePanelInner = ({
                       )}
                     </>
                   )}
+                  {!descOverlayContent && hookText && (
+                    <p
+                      className="text-base md:text-xl leading-relaxed tracking-[0.02em] text-white/90 mb-3"
+                      style={{ fontFamily: "'Montserrat', sans-serif" }}
+                    >
+                      {hookText}
+                    </p>
+                  )}
+                  {!descOverlayContent && avgOn20 != null && totalReviewCount > 0 && (
+                    <div className="mb-5 flex">
+                      <div
+                        dir="ltr"
+                        className="relative flex items-center justify-center gap-1.5 md:gap-2.5 py-1 md:py-1.5 px-3 md:px-4 rounded-full border border-white/30 cursor-pointer backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)]"
+                        onClick={handleOpenReviews}
+                      >
+                        <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
+                        <span aria-hidden="true" className="pointer-events-none absolute top-0 left-2 right-2 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
+                        <div className="flex items-center gap-1.5 md:gap-2.5">
+                          <Star className="h-5 w-5 md:h-7 md:w-7 text-gold fill-gold" />
+                          <span className="text-2xl md:text-4xl font-black text-gold whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                            {avgOn20}<span className="text-sm md:text-xl font-semibold text-white/60">/20</span>
+                          </span>
+                        </div>
+                        <span className="text-[10px] md:text-sm text-white/60 font-medium whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                          · {totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : language === "ar" ? "آراء" : "avis"}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                   {(() => {
                     const rawHtml = descOverlayContent ? descOverlayContent.html : woDescription;
                     if (!rawHtml) return null;
