@@ -83,6 +83,9 @@ const T: Record<Lang, Record<string, string>> = {
 };
 
 const STORAGE_KEY = "owm-widget-alert-prefs";
+const ALLOWED_AVATAR_MIME = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const MAX_AVATAR_BYTES = 400 * 1024;
+
 
 export default function EmbedWidgetSettings({
   lang = "fr",
