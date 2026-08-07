@@ -2517,7 +2517,7 @@ const BookOnlineSlidePanelInner = ({
                   )}
                   {!descOverlayContent && hookText && (
                     <p
-                      className="text-base md:text-xl leading-relaxed tracking-[0.02em] text-white/90 mb-3"
+                      className="text-xl md:text-3xl leading-snug tracking-[0.02em] text-white/90 mb-4"
                       style={{ fontFamily: "'Montserrat', sans-serif" }}
                     >
                       {hookText}
@@ -2716,6 +2716,34 @@ const BookOnlineSlidePanelInner = ({
 
                   )}
 
+                  {/* Flipbooks (Issuu, Calaméo, FlipHTML5…) affichés pleine largeur */}
+                  {!descOverlayContent && (() => {
+                    const flipbooks = (menuDocs || []).filter((d: any) => d.type === 'flipbook' && typeof d.url === 'string' && /^https?:\/\//i.test(d.url));
+                    if (flipbooks.length === 0) return null;
+                    return (
+                      <div className="mt-8 flex flex-col gap-6">
+                        {flipbooks.map((d: any) => (
+                          <div key={d.url} className="w-full">
+                            {d.name && (
+                              <h3 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">{d.name}</h3>
+                            )}
+                            <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
+                              <iframe
+                                src={getFlipbookEmbedUrl(d.url)}
+                                title={d.name || 'Flipbook'}
+                                allow="clipboard-write; fullscreen"
+                                className="w-full block border-0"
+                                style={{ aspectRatio: '16 / 10', minHeight: 320 }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
+
+
+
 
 
                   {/* Badges (Menu / Images / Vidéos, liens externes, réseaux & réservation) — sous les blocs highlights */}
@@ -2764,7 +2792,7 @@ const BookOnlineSlidePanelInner = ({
                     const hasImagesBadge = images.length > 1;
                     const hasMenuBar = menuDocs.length > 0 || hasVideosBadge || hasImagesBadge;
                     if (!(externalLinks.length > 0 || hasSocialBar || hasMenuBar)) return null;
-                    const stripClass = "flex items-center gap-2 py-1 overflow-x-auto overflow-y-hidden flex-nowrap";
+                    const stripClass = "flex items-center gap-2 py-1 overflow-x-auto overflow-y-hidden flex-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden";
                     const stripWheelRef = (el: HTMLDivElement | null) => {
                       if (!el || (el as any).__owmWheelX) return;
                       (el as any).__owmWheelX = true;
