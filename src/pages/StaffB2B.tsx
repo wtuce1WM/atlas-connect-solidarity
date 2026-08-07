@@ -101,7 +101,12 @@ const StaffB2B = () => {
               <BarChart3 className="h-4 w-4" />
               Analytics
             </TabsTrigger>
+            <TabsTrigger value="billing" className="gap-2">
+              <ReceiptText className="h-4 w-4" />
+              Devis &amp; Factures
+            </TabsTrigger>
           </TabsList>
+
 
           <TabsContent value="affiliates">
             <Tabs defaultValue="management">
