@@ -57,7 +57,12 @@ interface MapSlidePanelProps {
   mapTheme?: "light" | "dark" | "default-light" | "default-dark";
   /** When true, exposes native Plan/Satellite/Relief selector + Traffic/Transit toggles. */
   showLayerControls?: boolean;
+  /** Forces a 100%-viewport-width panel on every device, with a slide-in from the right. */
+  fullWidth?: boolean;
+  /** Background color of the panel shell (widget light/dark color). */
+  panelBg?: string;
 }
+
 
 const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
   marrakech: { lat: 31.6295, lng: -7.9811 },
