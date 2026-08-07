@@ -442,7 +442,8 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
                   </div>
 
                   <div className="flex justify-end pt-2">
-                    <Button size="sm" disabled={!dirty} onClick={handleSave}>
+                    <Button size="sm" disabled={!dirty || saving} onClick={() => handleSave().catch(() => {})}>
+                      {saving && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
                       Enregistrer les blocs
                     </Button>
                   </div>
