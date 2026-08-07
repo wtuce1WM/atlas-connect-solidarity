@@ -352,7 +352,7 @@ Deno.serve(async (req) => {
 
 
     const modeBrief = includePrices
-      ? "Objectif : restituer le contenu des menus / cartes fournis (sections, plats, boissons) AVEC leurs prix tels qu'ils figurent dans la source, puis calculer des prix moyens (général et par section)."
+      ? "Objectif : restituer le contenu des menus / cartes fournis (sections, plats, boissons) AVEC leurs prix tels qu'ils figurent dans la source. N'écris AUCUNE synthèse de prix : les médianes et le prix repas type sont calculés automatiquement et ajoutés après ton texte."
       : MODE_BRIEFS[mode];
 
     const systemPrompt = `Tu rédiges des contenus éditoriaux pour One World Morocco, plateforme de découverte du Maroc.
@@ -499,15 +499,59 @@ Structure le texte autour de cette consigne : elle doit être traitée explicite
       }
       const all = sections.flatMap((s) => s.values);
       if (all.length < 2) return "";
-      const avg = (a: number[]) => Math.round(a.reduce((x, y) => x + y, 0) / a.length);
+      const median = (a: number[]) => {
+        const s = [...a].sort((x, y) => x - y);
+        const m = Math.floor(s.length / 2);
+        return Math.round(s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2);
+      };
+
+      // Classification des sections : boissons exclues du panier repas
+      const norm = (v: string) =>
+        v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      const kindOf = (name: string): "drink" | "starter" | "main" | "dessert" | "other" => {
+        const n = norm(name);
+        if (/(boisson|vin|cave|cocktail|bar|biere|champagne|soft|cafe|the|jus|spiritueux|whisk|digestif|aperitif)/.test(n)) return "drink";
+        if (/(entree|starter|mezze|salade|soupe|tapas|amuse)/.test(n)) return "starter";
+        if (/(plat|main|grillade|tajine|couscous|pasta|pizza|viande|poisson|burger|wok)/.test(n)) return "main";
+        if (/(dessert|patisserie|douceur|gourmandise|glace)/.test(n)) return "dessert";
+        return "other";
+      };
+
+      const foodValues = sections.filter((s) => kindOf(s.name) !== "drink").flatMap((s) => s.values);
+      // Exclusion des produits exceptionnels : > 4x la médiane alimentaire
+      const foodMedian = foodValues.length ? median(foodValues) : 0;
+      const isOutlier = (v: number) => foodMedian > 0 && v > foodMedian * 4;
+      const pick = (kind: string) =>
+        sections.filter((s) => kindOf(s.name) === kind).flatMap((s) => s.values).filter((v) => !isOutlier(v));
+
       const parts: string[] = [];
-      parts.push(
-        `Prix moyen général : ${avg(all)} ${currency} (${Math.min(...all)}–${Math.max(...all)} ${currency}, ${all.length} prix relevés).`,
-      );
+      const starters = pick("starter");
+      const mains = pick("main");
+      const desserts = pick("dessert");
+      if (mains.length) {
+        const typical =
+          median(mains) + (starters.length ? median(starters) : 0) + (desserts.length ? median(desserts) : 0);
+        const composition = [
+          starters.length ? `entrée ${median(starters)}` : null,
+          `plat ${median(mains)}`,
+          desserts.length ? `dessert ${median(desserts)}` : null,
+        ].filter(Boolean).join(" + ");
+        parts.push(
+          `Prix repas type : ${typical} ${currency} par personne (${composition} ${currency}, médianes hors boissons).`,
+        );
+      }
+
+      const cleanFood = foodValues.filter((v) => !isOutlier(v));
+      if (cleanFood.length >= 2) {
+        parts.push(
+          `Fourchette à la carte (hors boissons) : médiane ${median(cleanFood)} ${currency}, de ${Math.min(...cleanFood)} à ${Math.max(...cleanFood)} ${currency} (${cleanFood.length} prix relevés).`,
+        );
+      }
+
       for (const s of sections) {
         if (s.values.length < 2 || s.name === "Général") continue;
         parts.push(
-          `${s.name} : moyenne ${avg(s.values)} ${currency} (${Math.min(...s.values)}–${Math.max(...s.values)} ${currency}, ${s.values.length} prix).`,
+          `${s.name} : médiane ${median(s.values)} ${currency} (${Math.min(...s.values)}–${Math.max(...s.values)} ${currency}, ${s.values.length} prix).`,
         );
       }
       return parts.join("\n");
@@ -520,7 +564,7 @@ Structure le texte autour de cette consigne : elle doit être traitée explicite
         // On retire une éventuelle synthèse partielle produite par le modèle
         content = content
           .split(/\n+/)
-          .filter((l) => !/^(prix moyen g|moyenne des prix|synth)/i.test(l.trim()))
+          .filter((l) => !/^(prix moyen g|prix repas type|fourchette a la carte|fourchette à la carte|moyenne des prix|synth)/i.test(l.trim()))
           .join("\n");
         const budget = MAX_CONTENT - summary.length - 2;
         content = cleanSentences(content, Math.max(300, budget)) + "\n\n" + summary;

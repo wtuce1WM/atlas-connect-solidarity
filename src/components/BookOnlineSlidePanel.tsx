@@ -1806,27 +1806,6 @@ const BookOnlineSlidePanelInner = ({
               <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           )}
-          {externalLinks.length > 0 && (() => {
-            const extDesc = externalLinks[0]?.description?.toLowerCase() || "";
-            const isPresse = extDesc === "presse" || extDesc === "media";
-            const extLabel = (() => {
-              if (extDesc === "partenaires") return language === "en" ? "They trust us" : language === "ar" ? "يثقون بنا" : "Ils nous font confiance";
-              if (extDesc === "recompenses") return language === "en" ? "Recognized by" : language === "ar" ? "معترف بنا من" : "Nous sommes reconnus par";
-              if (extDesc === "certifications") return language === "en" ? "Certified by" : language === "ar" ? "معتمدون من" : "Nous sommes certifiés par";
-              if (extDesc === "en_savoir_plus") return language === "en" ? "Learn more" : language === "ar" ? "اعرف المزيد" : "En savoir plus";
-              if (extDesc === "presse" || extDesc === "media") return language === "en" ? "They talk about us" : language === "ar" ? "يتحدثون عنا" : "Ils parlent de nous";
-              return language === "en" ? "More info" : language === "ar" ? "معلومات أكثر" : "+ d'infos";
-            })();
-            return (
-              <div data-cta-tap onClick={handleCtaTap('ext', () => { setExtLinksOrigin('carousel'); setShowExtLinksOverlay(true); })} className={`group cta-peek ${tappedCta === 'ext' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
-                <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
-                <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[200px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{extLabel}</span>
-                {isPresse
-                  ? <Newspaper className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
-                  : <ExternalLink className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />}
-              </div>
-            );
-          })()}
         </div>
       )}
 
