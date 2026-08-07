@@ -2592,6 +2592,53 @@ const BookOnlineSlidePanelInner = ({
                     );
                   })()}
 
+                  {/* Ils parlent de nous (liens externes avec logos) */}
+                  {!descOverlayContent && externalLinks.length > 0 && (() => {
+                    const EXT_LABELS: Record<string, Record<string, string>> = {
+                      fr: { partenaires: "Ils nous font confiance", recompenses: "Nous sommes reconnus par", certifications: "Nous sommes certifiés par", presse: "Ils parlent de nous", media: "Ils parlent de nous" },
+                      en: { partenaires: "They trust us", recompenses: "We are recognised by", certifications: "We are certified by", presse: "They talk about us", media: "They talk about us" },
+                      ar: { partenaires: "يثقون بنا", recompenses: "معترف بنا من قِبَل", certifications: "نحن معتمدون من قِبَل", presse: "يتحدثون عنّا", media: "يتحدثون عنّا" },
+                    };
+                    const L = EXT_LABELS[language as string] ?? EXT_LABELS.fr;
+                    const key = (externalLinks[0]?.description || "").toLowerCase().trim();
+                    const heading = L[key] || L.presse;
+                    const items = externalLinks.filter((l) => (l.name || "").trim());
+                    if (items.length === 0) return null;
+                    return (
+                      <div className="mt-8 pt-6 border-t border-white/10">
+                        <h2 className="text-lg md:text-2xl font-bold uppercase tracking-[0.12em] text-white mb-4" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                          {heading}
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          {items.map((link, i) => {
+                            const logo = typeof link.icon === "string" && /^https?:\/\//i.test(link.icon) ? link.icon : null;
+                            return (
+                              <button
+                                key={`${link.name}-${i}`}
+                                onClick={() => {
+                                  if (link.url && link.url !== "#" && link.url !== "*") openDocOrBooking(link.url, link.name || "Lien", true);
+                                }}
+                                className="rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm p-4 flex flex-col items-center justify-center gap-3 hover:bg-white/10 transition-colors text-center"
+                              >
+                                {logo ? (
+                                  <img src={logo} alt={link.name || ""} className="h-20 md:h-24 w-auto max-w-full object-contain" loading="lazy" />
+                                ) : (
+                                  <div className="h-20 md:h-24 w-full flex items-center justify-center">
+                                    <Newspaper className="h-10 w-10 text-gold/70" />
+                                  </div>
+                                )}
+                                <span className="text-sm md:text-base font-bold uppercase tracking-[0.08em] text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                                  {link.name}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+
                   {/* Badges (Menu / Images / Vidéos, liens externes, réseaux & réservation) — sous les blocs highlights */}
                   {(() => {
                     const socialItems: { name: string; url: string; icon: React.ReactNode; onClick?: () => void }[] = [
