@@ -1,11 +1,13 @@
-// Fiche établissement embarquable : /embed/fiche/:slug?lang=fr
+// Fiche établissement embarquable : /embed/fiche/:slug?lang=fr&bg=EFE6D8|transparent
 // Réutilise BookOnlineSlidePanel — même mode de lecture que le panneau de droite
 // des articles de blog (aucun fork de logique).
 import { Suspense, lazy, useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { applyEmbedBg, parseBg } from "@/lib/embedFit";
 import { Loader2 } from "lucide-react";
+
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
