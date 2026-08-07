@@ -970,7 +970,7 @@ const HookOverlay: React.FC<{ text: string; duration: number; textPosition?: Tex
             fontWeight: 700,
             color: COLORS.cream,
             fontSize: textSize,
-            lineHeight: 1.18,
+            lineHeight: 1.55,
             textAlign: "center",
             textShadow: "0 4px 24px rgba(0,0,0,0.75)",
           }}
