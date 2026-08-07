@@ -37,6 +37,7 @@ import AffiliatePromotionsEditor from "@/components/affiliate/AffiliatePromotion
 import AffiliateServicesEditor from "@/components/affiliate/AffiliateServicesEditor";
 import AffiliateImagesEditor from "@/components/affiliate/AffiliateImagesEditor";
 import AffiliateVideosEditor from "@/components/affiliate/AffiliateVideosEditor";
+import AffiliateExternalDocsEditor from "@/components/affiliate/AffiliateExternalDocsEditor";
 import AffiliateToolsTab from "@/components/affiliate/AffiliateToolsTab";
 import AffiliateNewsTab from "@/components/affiliate/AffiliateNewsTab";
 import AffiliateShowcaseSiteEditor from "@/components/affiliate/AffiliateShowcaseSiteEditor";
@@ -725,49 +726,67 @@ const AffiliatePresence = () => {
                     </TabsList>
 
                     {/* Links Tab */}
-                    <TabsContent value="links" className="space-y-3">
-                      {VISIBLE_PLATFORMS.map(platform => {
-                        const currentValue = getCurrentValue(currentBusiness.id, platform.key, currentBusiness.links[platform.key]);
-                        const isFilled = !!currentValue;
-                        const isEdited = editedFields[currentBusiness.id]?.[platform.key] !== undefined;
+                    <TabsContent value="links">
+                      <Tabs defaultValue="web" className="w-full">
+                        <TabsList className="mb-4 w-full flex items-center justify-start gap-1 border-b border-white/10 bg-transparent p-0 h-auto">
+                          <TabsTrigger value="web" className="group shrink-0 px-4 py-2.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                            <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Web &amp; Socials</span>
+                          </TabsTrigger>
+                          <TabsTrigger value="externes" className="group shrink-0 px-4 py-2.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                            <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Externes</span>
+                          </TabsTrigger>
+                        </TabsList>
 
-                        return (
-                          <div key={platform.key} className="flex items-center gap-3">
-                            <div className={`shrink-0 ${platform.color}`}>
-                              {platform.icon}
-                            </div>
-                            <div className="w-[130px] shrink-0">
-                              <span className="text-sm font-medium text-foreground">{platform.label}</span>
-                            </div>
-                            <div className="flex-1 relative">
-                              <Input
-                                value={currentValue}
-                                onChange={(e) => handleFieldChange(currentBusiness.id, platform.key, e.target.value)}
-                                placeholder={`URL ${platform.label}...`}
-                                className={`text-xs pr-8 ${isEdited ? "border-primary" : ""}`}
-                              />
-                              {currentValue && (
-                                <a
-                                  href={currentValue}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                                >
-                                  <ExternalLink className="h-3.5 w-3.5" />
-                                </a>
-                              )}
-                            </div>
-                            <div className="shrink-0">
-                              {isFilled ? (
-                                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                              ) : (
-                                <AlertCircle className="h-4 w-4 text-orange-400" />
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
+                        <TabsContent value="web" className="space-y-3">
+                          {VISIBLE_PLATFORMS.map(platform => {
+                            const currentValue = getCurrentValue(currentBusiness.id, platform.key, currentBusiness.links[platform.key]);
+                            const isFilled = !!currentValue;
+                            const isEdited = editedFields[currentBusiness.id]?.[platform.key] !== undefined;
+
+                            return (
+                              <div key={platform.key} className="flex items-center gap-3">
+                                <div className={`shrink-0 ${platform.color}`}>
+                                  {platform.icon}
+                                </div>
+                                <div className="w-[130px] shrink-0">
+                                  <span className="text-sm font-medium text-foreground">{platform.label}</span>
+                                </div>
+                                <div className="flex-1 relative">
+                                  <Input
+                                    value={currentValue}
+                                    onChange={(e) => handleFieldChange(currentBusiness.id, platform.key, e.target.value)}
+                                    placeholder={`URL ${platform.label}...`}
+                                    className={`text-xs pr-8 ${isEdited ? "border-primary" : ""}`}
+                                  />
+                                  {currentValue && (
+                                    <a
+                                      href={currentValue}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                    >
+                                      <ExternalLink className="h-3.5 w-3.5" />
+                                    </a>
+                                  )}
+                                </div>
+                                <div className="shrink-0">
+                                  {isFilled ? (
+                                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                                  ) : (
+                                    <AlertCircle className="h-4 w-4 text-orange-400" />
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </TabsContent>
+
+                        <TabsContent value="externes">
+                          <AffiliateExternalDocsEditor businessId={currentBusiness.id} />
+                        </TabsContent>
+                      </Tabs>
                     </TabsContent>
+
 
                     {/* CTAs Tab */}
                     <TabsContent value="ctas">
