@@ -4,18 +4,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { ChevronDown, Loader2 } from "lucide-react";
 
 type AffiliateRightKey =
   | "has_dashboard"
   | "has_video_studio"
-  | "has_showcase_site"
   | "has_custom_domain";
 
 const AFFILIATE_RIGHTS: { key: AffiliateRightKey; label: string; locked?: boolean }[] = [
   { key: "has_dashboard", label: "Dashboard" },
   { key: "has_video_studio", label: "Studio" },
-  { key: "has_showcase_site", label: "Site vitrine 1WM", locked: true },
   { key: "has_custom_domain", label: "Domaine personnalisé", locked: true },
 ];
 
@@ -23,13 +21,15 @@ type BusinessRightKey =
   | "has_ai_assistant"
   | "has_blog_export"
   | "has_nearby_widget"
-  | "has_email_signature";
+  | "has_email_signature"
+  | "has_showcase_site";
 
-const BUSINESS_RIGHTS: { key: BusinessRightKey; label: string }[] = [
+const BUSINESS_RIGHTS: { key: BusinessRightKey; label: string; locked?: boolean }[] = [
   { key: "has_ai_assistant", label: "Assistant IA" },
   { key: "has_blog_export", label: "Export d'article de blog" },
   { key: "has_nearby_widget", label: "Adresses à proximité" },
   { key: "has_email_signature", label: "Signature email « Laisser un avis »" },
+  { key: "has_showcase_site", label: "Site vitrine 1WM", locked: true },
 ];
 
 interface AffiliateRow {
@@ -52,6 +52,7 @@ const emptyRights = (): Record<BusinessRightKey, boolean> => ({
   has_blog_export: false,
   has_nearby_widget: false,
   has_email_signature: true,
+  has_showcase_site: false,
 });
 
 const AffiliateRightsPanel = () => {
@@ -61,6 +62,7 @@ const AffiliateRightsPanel = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const load = async () => {
@@ -93,6 +95,7 @@ const AffiliateRightsPanel = () => {
             has_blog_export: !!r.has_blog_export,
             has_nearby_widget: !!r.has_nearby_widget,
             has_email_signature: r.has_email_signature !== false,
+            has_showcase_site: !!r.has_showcase_site,
           };
         });
         setBizRights(map);
@@ -167,15 +170,32 @@ const AffiliateRightsPanel = () => {
         {filtered.map((affiliate) => {
           const list = businessesByAffiliate[affiliate.id] || [];
           return (
-            <Card key={affiliate.id}>
+            <Card key={affiliate.id} className="h-fit">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center justify-between gap-2">
-                  <span className="truncate">{affiliate.name}</span>
-                  {affiliate.is_active === false && (
-                    <span className="text-xs font-normal text-muted-foreground">inactif</span>
-                  )}
+                <CardTitle className="text-base">
+                  <button
+                    type="button"
+                    onClick={() => setExpanded((p) => ({ ...p, [affiliate.id]: !p[affiliate.id] }))}
+                    className="w-full flex items-center justify-between gap-2 text-left"
+                  >
+                    <span className="truncate">{affiliate.name}</span>
+                    <span className="flex items-center gap-2 shrink-0">
+                      {affiliate.is_active === false && (
+                        <span className="text-xs font-normal text-muted-foreground">inactif</span>
+                      )}
+                      <span className="text-xs font-normal text-muted-foreground">
+                        {list.length} étab.
+                      </span>
+                      <ChevronDown
+                        className={`h-4 w-4 text-muted-foreground transition-transform ${
+                          expanded[affiliate.id] ? "rotate-180" : ""
+                        }`}
+                      />
+                    </span>
+                  </button>
                 </CardTitle>
               </CardHeader>
+              {expanded[affiliate.id] && (
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   {AFFILIATE_RIGHTS.map((right) => (
@@ -215,10 +235,19 @@ const AffiliateRightsPanel = () => {
                         <p className="text-sm font-medium text-foreground truncate">{biz.name}</p>
                         {BUSINESS_RIGHTS.map((right) => (
                           <div key={right.key} className="flex items-center justify-between gap-3">
-                            <span className="text-sm text-muted-foreground">{right.label}</span>
+                            <span
+                              className={
+                                right.locked
+                                  ? "text-sm text-muted-foreground/50"
+                                  : "text-sm text-muted-foreground"
+                              }
+                            >
+                              {right.label}
+                              {right.locked && <span className="ml-2 text-xs">(bientôt disponible)</span>}
+                            </span>
                             <Switch
                               checked={!!r[right.key]}
-                              disabled={saving === `${biz.id}:${right.key}`}
+                              disabled={!!right.locked || saving === `${biz.id}:${right.key}`}
                               onCheckedChange={(checked) => toggleBusiness(biz.id, right.key, checked)}
                             />
                           </div>
@@ -228,6 +257,7 @@ const AffiliateRightsPanel = () => {
                   })}
                 </div>
               </CardContent>
+              )}
             </Card>
           );
         })}

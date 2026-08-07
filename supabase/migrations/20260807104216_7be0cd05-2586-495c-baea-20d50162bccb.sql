@@ -1,0 +1,1 @@
+ALTER TABLE public.business_feature_rights ADD COLUMN IF NOT EXISTS has_showcase_site boolean NOT NULL DEFAULT false;
