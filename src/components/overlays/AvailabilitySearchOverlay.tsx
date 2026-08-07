@@ -220,6 +220,13 @@ export default function AvailabilitySearchOverlay({ language, isSearching, initi
           <span>{isEn ? "Check availability" : "Vérifier la disponibilité"}</span>
         </button>
       </div>
+  );
+
+  if (inline) return card;
+
+  return (
+    <div className="absolute inset-0 z-[75] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+      {card}
     </div>
   );
 }
