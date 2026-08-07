@@ -352,7 +352,7 @@ Deno.serve(async (req) => {
 
 
     const modeBrief = includePrices
-      ? "Objectif : restituer le contenu des menus / cartes fournis (sections, plats, boissons) AVEC leurs prix tels qu'ils figurent dans la source, puis calculer des prix moyens (général et par section)."
+      ? "Objectif : restituer le contenu des menus / cartes fournis (sections, plats, boissons) AVEC leurs prix tels qu'ils figurent dans la source. N'écris AUCUNE synthèse de prix : les médianes et le prix repas type sont calculés automatiquement et ajoutés après ton texte."
       : MODE_BRIEFS[mode];
 
     const systemPrompt = `Tu rédiges des contenus éditoriaux pour One World Morocco, plateforme de découverte du Maroc.
@@ -564,7 +564,7 @@ Structure le texte autour de cette consigne : elle doit être traitée explicite
         // On retire une éventuelle synthèse partielle produite par le modèle
         content = content
           .split(/\n+/)
-          .filter((l) => !/^(prix moyen g|moyenne des prix|synth)/i.test(l.trim()))
+          .filter((l) => !/^(prix moyen g|prix repas type|fourchette a la carte|fourchette à la carte|moyenne des prix|synth)/i.test(l.trim()))
           .join("\n");
         const budget = MAX_CONTENT - summary.length - 2;
         content = cleanSentences(content, Math.max(300, budget)) + "\n\n" + summary;
