@@ -1971,6 +1971,51 @@ export type Database = {
           },
         ]
       }
+      business_published_widgets: {
+        Row: {
+          business_id: string
+          created_at: string
+          format: string
+          id: string
+          target_url: string | null
+          updated_at: string
+          widget_key: string
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          format?: string
+          id?: string
+          target_url?: string | null
+          updated_at?: string
+          widget_key: string
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          format?: string
+          id?: string
+          target_url?: string | null
+          updated_at?: string
+          widget_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_published_widgets_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_published_widgets_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_showcase_site: {
         Row: {
           business_id: string
