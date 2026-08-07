@@ -443,7 +443,9 @@ function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenar
   const scale = durationSec / Math.max(1, cursor);
   let start = 0;
   const scaled = scenes.map((s) => {
-    const fixed = FIXED_SCENE_DURATIONS[s.icon];
+    // Météo/Marées : la durée provient du widget (météo 1 j = 5 s, 3 j = 7 s, 7 j = 10 s)
+    const fixed = s.icon === "weather" || s.icon === "tides" ? s.duration : FIXED_SCENE_DURATIONS[s.icon];
+
     const duration = fixed ?? Math.max(1, Math.round(s.duration * scale));
     const scene = { ...s, duration, start };
     start += duration;
