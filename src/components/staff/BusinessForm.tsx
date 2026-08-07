@@ -2303,6 +2303,9 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
     const businessData = {
       name: formData.name,
       description: formData.description || null,
+      // `description` est la description FR canonique éditée ici : on synchronise
+      // `description_fr` pour éviter toute version obsolète/tronquée côté front.
+      description_fr: formData.description || null,
       address: formData.address || null,
       city: formData.city || null,
       region: formData.region || null,
