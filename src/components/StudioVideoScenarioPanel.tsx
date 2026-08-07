@@ -292,9 +292,13 @@ export function scenarioFromTemplateProps(
   const propositionTextProp = typeof props?.propositionText === "string" ? props.propositionText.trim() : "";
   if (propositionTextProp) push("proposition", introDur("proposition"), propositionTextProp);
 
-  // Widgets Météo / Marées — juste derrière l'étape Proposition, 6 s par défaut.
+  // Widgets Météo / Marées — juste derrière l'étape Proposition.
+  // Météo : 5 s (1 jour), 7 s (3 jours), 10 s (7 jours) — valeur portée par le widget.
   if (props?.showWeatherWidget && props?.weatherWidget) {
-    push("weather", Number(props.weatherWidget.durationSec) || 6, String(props.weatherWidget.text || "Widget Météo."));
+    const wRange = Number(props.weatherWidget.range) || 1;
+    const wDur = Number(props.weatherWidget.durationSec) || (wRange === 7 ? 10 : wRange === 3 ? 7 : 5);
+    push("weather", wDur, String(props.weatherWidget.text || "Widget Météo."));
+
   }
   if (props?.showTidesWidget && props?.tidesWidget) {
     push("tides", Number(props.tidesWidget.durationSec) || 6, String(props.tidesWidget.text || "Widget Marées, Vents & Météo."));
