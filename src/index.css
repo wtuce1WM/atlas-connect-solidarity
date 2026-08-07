@@ -42,6 +42,12 @@ All colors MUST be HSL.
     --map-surface-foreground: 0 0% 20%;
     --searchbar-surface: 0 0% 100%;
 
+    /* Substack embed */
+    --substack-card: 33 53% 83%;
+    --substack-card-foreground: 0 0% 10%;
+    --substack-brand: 19 100% 55%;
+    --substack-brand-foreground: 0 0% 100%;
+
     /* WTUCE Blue */
     --wtuce-blue: 220 100% 40%;
     --wtuce-blue-foreground: 0 0% 100%;
