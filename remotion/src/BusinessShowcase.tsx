@@ -2063,7 +2063,7 @@ const SceneMap: React.FC<{ lat: number; lng: number; name: string; address?: str
             transform: `translate(-50%, -100%) scale(${interpolate(pinScale, [0, 1], [0, 1])})`,
             transformOrigin: "bottom center",
             fontSize: px(80),
-            filter: "drop-shadow(${shadowOn(4, 12, "black", 0.6)})",
+            filter: `drop-shadow(${shadowOn(4, 12, "black", 0.6)})`,
           }}
         >
           📍
@@ -2255,7 +2255,7 @@ const PlaceShot: React.FC<{ url: string; isVideo: boolean; duration: number; nam
                     }}
                   >
                     <svg width="46" height="46" viewBox="0 0 24 24" style={{ transform: `rotate(${bearing}deg)` }}>
-                      <path d="M12 2 L19 20 L12 16 L5 20 Z" fill=COLORS.terracotta stroke={COLORS.gold} strokeWidth="1.2" />
+                      <path d="M12 2 L19 20 L12 16 L5 20 Z" fill={COLORS.terracotta} stroke={COLORS.gold} strokeWidth="1.2" />
                     </svg>
                   </div>
                 </div>
@@ -2398,7 +2398,7 @@ const SceneBlogArticle: React.FC<{
                 transform: `translate(-50%, -100%) scale(${interpolate(pinScale, [0, 1], [0, 1])})`,
                 transformOrigin: "bottom center",
                 fontSize: 76,
-                filter: "drop-shadow(${shadowOn(4, 12, "black", 0.6)})",
+                filter: `drop-shadow(${shadowOn(4, 12, "black", 0.6)})`,
               }}
             >
               📍
@@ -2805,7 +2805,7 @@ const SceneLogo: React.FC<{ logoUrl: string; durationFrames?: number; background
             objectFit: "contain",
             opacity: s,
             transform: `scale(${scale})`,
-            filter: "drop-shadow(${shadowOn(8, 32, "black", 0.55)})",
+            filter: `drop-shadow(${shadowOn(8, 32, "black", 0.55)})`,
           }}
         />
       </AbsoluteFill>
@@ -2946,7 +2946,7 @@ const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[
       {heroImg && (isVideoHero
         ? <VideoCover src={heroImg} from={0} duration={durationFrames} />
         : (motion
-            ? <MotionBackdrop image={heroImg} duration={durationFrames} effect={effect} motion={motion} veil=alpha("black", 0) />
+            ? <MotionBackdrop image={heroImg} duration={durationFrames} effect={effect} motion={motion} veil={alpha("black", 0)} />
             : <KenBurns src={heroImg} from={0} duration={durationFrames} />))}
       <AbsoluteFill style={{ background: `linear-gradient(180deg,${alpha("black", 0.4)} 0%,${alpha("black", 0.75)} 100%)` }} />
       <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
@@ -3074,7 +3074,7 @@ const SceneInfoText: React.FC<{
         <FitColumn topSafeRatio={0.2}>
         {safeLogo && (
 
-          <div style={{ alignSelf: "center", marginBottom: 18, transform: `scale(${logoS})`, filter: "drop-shadow(${shadowOn(4, 16, "black", 0.5)})" }}>
+          <div style={{ alignSelf: "center", marginBottom: 18, transform: `scale(${logoS})`, filter: `drop-shadow(${shadowOn(4, 16, "black", 0.5)})` }}>
             <Img src={safeLogo} style={{ width: 120, height: 120, objectFit: "contain", borderRadius: 12, background: alpha("white", 0.08) }} />
           </div>
         )}
@@ -3386,7 +3386,7 @@ const SceneWhatsapp: React.FC<{ number: string; durationFrames: number; textPosi
   const wave = (frame % 40) / 40;
   return (
     <AbsoluteFill>
-      <BrandBleedLogo src="brands/logo_whatsapp.webp" color=COLORS.whatsapp durationFrames={durationFrames} side="right" />
+      <BrandBleedLogo src="brands/logo_whatsapp.webp" color={COLORS.whatsapp} durationFrames={durationFrames} side="right" />
       <AbsoluteFill style={{ opacity: Math.min(inO, out), padding: 60, ...textPositionStyle(textPosition), alignItems: "center" }}>
         <div style={{ position: "relative", width: 200, height: 200, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div
@@ -3974,7 +3974,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               effect={trImageEffect}
               motion={kind === "ai_text" ? (((Array.isArray(aiTexts) ? aiTexts : [])[idx]?.effect as any) || "zoom_in") : kind === "ai_summary" ? (((Array.isArray(aiSummaries) ? aiSummaries : [])[idx]?.effect as any) || (aiSummaryEffect as any) || "zoom_in") : null}
               extraStartSec={bgItem ? 0 : bgRotate(planIdx).extraStartSec}
-              veil=alpha("night", 0.14)
+              veil={alpha("night", 0.14)}
             />
             <SceneInfoText
               dim="light"
@@ -4158,7 +4158,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
             <AbsoluteFill>
               {(bgVideo || bgImage) ? (
                 <>
-                  <MotionBackdrop src={bgVideo} image={bgImage} duration={duration} effect={trImageEffect} veil=alpha("night", 0.35) extraStartSec={aiCard.background_video_url ? 0 : rot.extraStartSec} />
+                  <MotionBackdrop src={bgVideo} image={bgImage} duration={duration} effect={trImageEffect} veil={alpha("night", 0.35)} extraStartSec={aiCard.background_video_url ? 0 : rot.extraStartSec} />
                   <AbsoluteFill style={{ background: `linear-gradient(180deg,${alpha("night", 0.22)} 0%,${alpha("night", 0.48)} 100%)` }} />
                 </>
               ) : null}
@@ -4185,7 +4185,7 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               if (finalVideo || finalImage) {
                 return (
                   <>
-                    <MotionBackdrop src={finalVideo} image={finalImage} duration={duration} effect={trImageEffect} veil=alpha("night", 0.35) extraStartSec={fallbackVideo ? offerRot.extraStartSec : 0} />
+                    <MotionBackdrop src={finalVideo} image={finalImage} duration={duration} effect={trImageEffect} veil={alpha("night", 0.35)} extraStartSec={fallbackVideo ? offerRot.extraStartSec : 0} />
                     <AbsoluteFill style={{ background: `linear-gradient(180deg,${alpha("night", 0.22)} 0%,${alpha("night", 0.48)} 100%)` }} />
                   </>
                 );
