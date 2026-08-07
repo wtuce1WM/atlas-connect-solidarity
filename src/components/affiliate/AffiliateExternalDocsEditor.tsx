@@ -191,6 +191,12 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
     if (loading) return;
     setSaving(true);
     try {
+      const { error: bizError } = await supabase
+        .from("businesses")
+        .update({ matterport_url: matterportUrl.trim() || null } as any)
+        .eq("id", businessId);
+      if (bizError) throw bizError;
+
       const groups: { type: DocType; rows: DocEntry[] }[] = [
         { type: "menu", rows: menus },
         { type: "flipbook", rows: flipbooks },
