@@ -11,9 +11,11 @@ interface AvailabilitySearchOverlayProps {
   onClose: () => void;
   /** Rendu inline (sans fond noir plein écran ni bouton fermer) */
   inline?: boolean;
+  /** Fond transparent (utilisé dans l'overlay Full Description) */
+  transparent?: boolean;
 }
 
-export default function AvailabilitySearchOverlay({ language, isSearching, initialCheckIn, initialCheckOut, initialAdults, onSearch, onClose, inline }: AvailabilitySearchOverlayProps) {
+export default function AvailabilitySearchOverlay({ language, isSearching, initialCheckIn, initialCheckOut, initialAdults, onSearch, onClose, inline, transparent }: AvailabilitySearchOverlayProps) {
   const isEn = language === "en";
 
   const fmt = (d: Date) => d.toISOString().split("T")[0];
@@ -104,8 +106,8 @@ export default function AvailabilitySearchOverlay({ language, isSearching, initi
 
   const card = (
       <div
-        className={`backdrop-blur-md border border-white/20 rounded-2xl p-5 text-white ${inline ? "w-full max-w-full" : "w-[22rem] max-w-[95vw] animate-zoom-out-center"}`}
-        style={{ backgroundColor: "#3B3B3B" }}
+        className={`${transparent ? "" : "backdrop-blur-md"} border border-white/20 rounded-2xl p-5 text-white ${inline ? "w-full max-w-full" : "w-[22rem] max-w-[95vw] animate-zoom-out-center"}`}
+        style={{ backgroundColor: transparent ? "transparent" : "#3B3B3B" }}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">

@@ -1427,11 +1427,12 @@ const BookOnlineSlidePanelInner = ({
     const showHours = !showAvail && !!hasOpeningHours && !business?.is_open_24h;
     if (!showAvail && !showHours) return null;
     return (
-      <div key={keyPrefix} className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 justify-items-center">
+      <div key={keyPrefix} className="my-10 w-full flex flex-col items-center gap-4">
         {showAvail && (
-          <div className="w-full max-w-[22rem]">
+          <div className="w-full">
             <AvailabilitySearchOverlay
               inline
+              transparent
               language={language}
               isSearching={hotelSearchLoading}
               initialCheckIn={fallbackPanelData?.checkIn ?? initialAvailabilityCheckIn}
@@ -1443,8 +1444,8 @@ const BookOnlineSlidePanelInner = ({
           </div>
         )}
         {showHours && business && (
-          <div className="w-full max-w-[22rem] bg-black/80 backdrop-blur-md border border-white/20 rounded-2xl p-5 text-white">
-            <p className="text-sm font-semibold text-gold uppercase tracking-wider flex items-center gap-1.5 mb-4">
+          <div className="w-full bg-transparent border border-white/20 rounded-2xl p-5 text-white text-center">
+            <p className="text-sm font-semibold text-gold uppercase tracking-wider flex items-center justify-center gap-1.5 mb-4">
               <Clock className="h-4 w-4" />
               {language === "en" ? "Opening hours" : language === "ar" ? "أوقات العمل" : "Horaires d'ouverture"}
             </p>
