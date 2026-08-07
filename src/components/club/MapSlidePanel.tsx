@@ -88,6 +88,15 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [proximityKm, setProximityKm] = useState<number | null>(null);
+  // Animation d'entrée (slide-in depuis la droite) pour la variante pleine largeur
+  const [entered, setEntered] = useState(false);
+  useEffect(() => {
+    if (!open) { setEntered(false); return; }
+    const id = requestAnimationFrame(() => setEntered(true));
+    return () => cancelAnimationFrame(id);
+  }, [open]);
+
+
 
   // Analytics: overlay_open lorsque la carte s'ouvre
   useEffect(() => {
