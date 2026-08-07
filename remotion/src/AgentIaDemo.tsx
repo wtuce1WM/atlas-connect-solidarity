@@ -10,7 +10,9 @@ import {
   interpolate,
   spring,
 } from "remotion";
-import { display, body, COLORS } from "./theme";
+import { V } from "./tokens";
+
+const { palette: C, type: T, space, radius, motion: M, elevation, layout, alpha, scrim } = V;
 
 // Agent IA Demo — 17s vertical 720x1280 (510 frames @ 30fps)
 const S1 = 60;   // 0-2s   Hook
@@ -22,33 +24,33 @@ const S6 = 60;   // 15-17s CTA logo
 
 export const AGENT_IA_TOTAL_FRAMES = S1 + S2 + S3 + S4 + S5 + S6; // 510
 
-const W = 720;
-const H = 1280;
+const W = layout.canvas.story.width;
+const H = layout.canvas.story.height;
 
 // ── Persistent backdrop (zellige + voile) ──────────────────────────────────
 const Backdrop: React.FC = () => (
-  <AbsoluteFill style={{ background: `radial-gradient(ellipse at top, #1b1410 0%, ${COLORS.night} 70%)` }}>
+  <AbsoluteFill style={{ background: layout.surfaces.agentBackdrop }}>
     <AbsoluteFill style={{ opacity: 0.12 }}>
       <Img
         src={staticFile("images/koutoubia.webp")}
         style={{ width: "100%", height: "100%", objectFit: "cover", filter: "blur(8px) saturate(0.6)" }}
       />
     </AbsoluteFill>
-    <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.85) 100%)" }} />
+    <AbsoluteFill style={{ background: scrim("bottom", 0.55, 0.85) }} />
   </AbsoluteFill>
 );
 
 const Caret: React.FC = () => {
   const f = useCurrentFrame();
-  const op = Math.floor(f / 8) % 2 === 0 ? 1 : 0;
+  const op = Math.floor(f / M.dur.flash) % 2 === 0 ? 1 : 0;
   return (
     <span
       style={{
         display: "inline-block",
         width: 4,
         height: "0.95em",
-        background: COLORS.gold,
-        marginLeft: 6,
+        background: C.gold,
+        marginLeft: space[1] + 2,
         verticalAlign: "text-bottom",
         opacity: op,
       }}
@@ -69,33 +71,35 @@ const SceneHook: React.FC = () => {
   const f = useCurrentFrame();
   const fade = useFadeInOut(S1, 6, 14);
   const text = "Et si une IA connaissait le Maroc mieux que personne ?";
-  const chars = Math.floor(interpolate(f, [4, 50], [0, text.length], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+  const chars = Math.floor(
+    interpolate(f, [4, 50], [0, text.length], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+  );
   const shown = text.slice(0, chars);
 
   return (
     <AbsoluteFill style={{ opacity: fade }}>
-      <AbsoluteFill style={{ padding: "0 60px", justifyContent: "center", alignItems: "flex-start" }}>
+      <AbsoluteFill style={{ padding: `0 ${space[10]}px`, justifyContent: "center", alignItems: "flex-start" }}>
         <div
           style={{
-            fontFamily: body,
-            fontSize: 18,
-            letterSpacing: 6,
+            fontFamily: T.family.body,
+            fontSize: T.size.label,
+            letterSpacing: T.tracking.tracked,
             textTransform: "uppercase",
-            color: COLORS.gold,
-            marginBottom: 28,
-            opacity: interpolate(f, [0, 14], [0, 1], { extrapolateRight: "clamp" }),
+            color: C.gold,
+            marginBottom: space[6],
+            opacity: interpolate(f, [0, M.dur.fast], [0, 1], { extrapolateRight: "clamp" }),
           }}
         >
           Agent IA · One World Morocco
         </div>
         <div
           style={{
-            fontFamily: display,
-            fontWeight: 700,
-            fontSize: 54,
-            lineHeight: 1.2,
-            color: COLORS.cream,
-            textShadow: "0 4px 24px rgba(0,0,0,0.7)",
+            fontFamily: T.family.display,
+            fontWeight: T.weight.bold,
+            fontSize: T.size.h3,
+            lineHeight: T.leading.normal,
+            color: C.cream,
+            textShadow: elevation.readOnPhotoStrong,
           }}
         >
           {shown}
@@ -112,28 +116,35 @@ const ChatHeader: React.FC = () => (
     style={{
       display: "flex",
       alignItems: "center",
-      gap: 14,
-      padding: "26px 28px 18px",
-      borderBottom: "1px solid rgba(255,255,255,0.08)",
+      gap: space[3] + 2,
+      padding: `${space[6]}px ${space[6]}px ${space[4]}px`,
+      borderBottom: `${layout.rule.hairline}px solid ${alpha("white", 0.08)}`,
     }}
   >
     <div
       style={{
         width: 44,
         height: 44,
-        borderRadius: 12,
-        background: COLORS.terracotta,
+        borderRadius: radius.sm + 4,
+        background: C.terracotta,
         overflow: "hidden",
-        boxShadow: "0 4px 14px rgba(192,79,23,0.5)",
+        boxShadow: elevation.glowEmber,
       }}
     >
       <Img src={staticFile("images/app-icon-1wm.png")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
     </div>
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <span style={{ fontFamily: display, fontWeight: 700, fontSize: 22, color: COLORS.cream }}>
+      <span style={{ fontFamily: T.family.display, fontWeight: T.weight.bold, fontSize: T.size.caption, color: C.cream }}>
         Agent IA
       </span>
-      <span style={{ fontFamily: body, fontSize: 14, color: COLORS.gold, letterSpacing: 1 }}>
+      <span
+        style={{
+          fontFamily: T.family.body,
+          fontSize: T.size.micro + 2,
+          color: C.gold,
+          letterSpacing: T.tracking.normal,
+        }}
+      >
         oneworldmorocco.com
       </span>
     </div>
@@ -143,18 +154,18 @@ const ChatHeader: React.FC = () => (
 const UserBubble: React.FC<{ text: string; typingChars?: number }> = ({ text, typingChars }) => {
   const shown = typingChars != null ? text.slice(0, typingChars) : text;
   return (
-    <div style={{ display: "flex", justifyContent: "flex-end", padding: "0 24px", marginTop: 18 }}>
+    <div style={{ display: "flex", justifyContent: "flex-end", padding: `0 ${space[5]}px`, marginTop: space[4] }}>
       <div
         style={{
-          background: COLORS.terracotta,
-          color: "#FFFFFF",
-          fontFamily: body,
-          fontSize: 22,
-          lineHeight: 1.35,
-          padding: "16px 20px",
-          borderRadius: "22px 22px 6px 22px",
+          background: C.terracotta,
+          color: C.white,
+          fontFamily: T.family.body,
+          fontSize: T.size.caption,
+          lineHeight: T.leading.normal,
+          padding: `${space[4]}px ${space[5]}px`,
+          borderRadius: `${radius.md + 6}px ${radius.md + 6}px ${radius.sm - 2}px ${radius.md + 6}px`,
           maxWidth: "85%",
-          boxShadow: "0 6px 18px rgba(192,79,23,0.35)",
+          boxShadow: elevation.glowEmber,
         }}
       >
         {shown}
@@ -171,14 +182,14 @@ const TypingDots: React.FC = () => {
     return Math.max(0.3, (v + 1) / 2);
   };
   return (
-    <div style={{ display: "flex", gap: 8, padding: "0 24px", marginTop: 18 }}>
+    <div style={{ display: "flex", gap: space[2], padding: `0 ${space[5]}px`, marginTop: space[4] }}>
       <div
         style={{
-          background: "rgba(255,255,255,0.08)",
-          padding: "16px 22px",
-          borderRadius: "22px 22px 22px 6px",
+          background: alpha("white", 0.08),
+          padding: `${space[4]}px ${space[5]}px`,
+          borderRadius: `${radius.md + 6}px ${radius.md + 6}px ${radius.md + 6}px ${radius.sm - 2}px`,
           display: "flex",
-          gap: 8,
+          gap: space[2],
           alignItems: "center",
         }}
       >
@@ -188,8 +199,8 @@ const TypingDots: React.FC = () => {
             style={{
               width: 10,
               height: 10,
-              borderRadius: 999,
-              background: COLORS.gold,
+              borderRadius: radius.pill,
+              background: C.gold,
               opacity: dot(i),
             }}
           />
@@ -204,7 +215,9 @@ const SceneQuestion: React.FC = () => {
   const f = useCurrentFrame();
   const fade = useFadeInOut(S2, 8, 14);
   const text = "Je cherche un riad à Marrakech avec piscine, du 20 au 25 septembre pour 2 adultes";
-  const chars = Math.floor(interpolate(f, [8, 70], [0, text.length], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+  const chars = Math.floor(
+    interpolate(f, [8, 70], [0, text.length], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+  );
   const showDots = f > 72;
 
   return (
@@ -230,20 +243,22 @@ const SceneAnswer: React.FC = () => {
   const fade = useFadeInOut(S3, 10, 14);
 
   const intro = "Voici 3 riads d'exception dans la médina :";
-  const introChars = Math.floor(interpolate(f, [6, 36], [0, intro.length], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+  const introChars = Math.floor(
+    interpolate(f, [6, 36], [0, intro.length], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+  );
 
   return (
     <AbsoluteFill style={{ opacity: fade }}>
       <ChatHeader />
 
       {/* Assistant bubble (no background) */}
-      <div style={{ padding: "20px 28px 0", marginTop: 8 }}>
+      <div style={{ padding: `${space[5]}px ${space[6]}px 0`, marginTop: space[2] }}>
         <div
           style={{
-            fontFamily: body,
-            fontSize: 22,
-            lineHeight: 1.4,
-            color: COLORS.cream,
+            fontFamily: T.family.body,
+            fontSize: T.size.caption,
+            lineHeight: T.leading.normal,
+            color: C.cream,
           }}
         >
           {intro.slice(0, introChars)}
@@ -252,37 +267,44 @@ const SceneAnswer: React.FC = () => {
       </div>
 
       {/* Cards stagger */}
-      <div style={{ padding: "24px 24px 0", display: "flex", flexDirection: "column", gap: 16 }}>
+      <div
+        style={{
+          padding: `${space[5]}px ${space[5]}px 0`,
+          display: "flex",
+          flexDirection: "column",
+          gap: space[4],
+        }}
+      >
         {SPOTS.map((s, i) => {
           const enter = spring({
-            frame: f - 40 - i * 14,
+            frame: f - 40 - i * (space[3] + 2),
             fps,
-            config: { damping: 18, stiffness: 110 },
+            config: M.springs.quick,
           });
           return (
             <div
               key={s.name}
               style={{
                 opacity: enter,
-                transform: `translateY(${interpolate(enter, [0, 1], [40, 0])}px)`,
+                transform: `translateY(${interpolate(enter, [0, 1], [space[8], 0])}px)`,
                 display: "flex",
-                gap: 14,
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(212,175,55,0.18)",
-                borderRadius: 18,
-                padding: 12,
+                gap: space[3] + 2,
+                background: alpha("white", 0.04),
+                border: `${layout.rule.hairline}px solid ${alpha("gold", 0.18)}`,
+                borderRadius: radius.md + 2,
+                padding: space[3],
                 alignItems: "center",
-                boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
+                boxShadow: elevation.liftCardSoft,
               }}
             >
               <div
                 style={{
                   width: 110,
                   height: 110,
-                  borderRadius: 14,
+                  borderRadius: radius.sm + 6,
                   overflow: "hidden",
                   flexShrink: 0,
-                  background: "#000",
+                  background: C.black,
                 }}
               >
                 <Video
@@ -292,29 +314,49 @@ const SceneAnswer: React.FC = () => {
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               </div>
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontFamily: display, fontWeight: 700, fontSize: 24, color: COLORS.cream }}>
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: space[1] + 2 }}>
+                <div
+                  style={{
+                    fontFamily: T.family.display,
+                    fontWeight: T.weight.bold,
+                    fontSize: T.size.caption + 2,
+                    color: C.cream,
+                  }}
+                >
                   {s.name}
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: space[2] + 2 }}>
                   <span
                     style={{
-                      fontFamily: display,
-                      fontWeight: 700,
-                      fontSize: 16,
-                      color: "#0E0B08",
-                      background: COLORS.gold,
-                      padding: "3px 10px",
-                      borderRadius: 999,
+                      fontFamily: T.family.display,
+                      fontWeight: T.weight.bold,
+                      fontSize: T.size.kicker,
+                      color: C.night,
+                      background: C.gold,
+                      padding: `3px ${space[2] + 2}px`,
+                      borderRadius: radius.pill,
                     }}
                   >
                     ★ {s.rating}/20
                   </span>
-                  <span style={{ fontFamily: body, fontSize: 16, color: "rgba(255,255,255,0.65)" }}>
+                  <span
+                    style={{
+                      fontFamily: T.family.body,
+                      fontSize: T.size.kicker,
+                      color: alpha("white", 0.65),
+                    }}
+                  >
                     Médina · Marrakech
                   </span>
                 </div>
-                <div style={{ fontFamily: body, fontSize: 18, color: COLORS.gold, fontWeight: 700 }}>
+                <div
+                  style={{
+                    fontFamily: T.family.body,
+                    fontSize: T.size.label,
+                    color: C.gold,
+                    fontWeight: T.weight.bold,
+                  }}
+                >
                   dès {s.price}/nuit
                 </div>
               </div>
@@ -332,7 +374,6 @@ const SceneMap: React.FC = () => {
   const { fps } = useVideoConfig();
   const fade = useFadeInOut(S4, 10, 14);
 
-  // Stylized "map" — koutoubia bg tinted + grid + markers
   const markers = [
     { x: 0.28, y: 0.42, label: "Dar Najat", delay: 6 },
     { x: 0.58, y: 0.36, label: "Jnane Rumi", delay: 16 },
@@ -344,30 +385,30 @@ const SceneMap: React.FC = () => {
       <AbsoluteFill>
         <Img
           src={staticFile("images/marrakech.jpg")}
-          style={{ width: "100%", height: "100%", objectFit: "cover", filter: "saturate(0.7) brightness(0.55) hue-rotate(-10deg)" }}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            filter: "saturate(0.7) brightness(0.55) hue-rotate(-10deg)",
+          }}
         />
       </AbsoluteFill>
-      <AbsoluteFill
-        style={{
-          background:
-            "radial-gradient(circle at 50% 50%, rgba(14,11,8,0) 0%, rgba(14,11,8,0.55) 70%, rgba(14,11,8,0.9) 100%)",
-        }}
-      />
+      <AbsoluteFill style={{ background: scrim("center", 0, 0.9) }} />
 
       {/* Title */}
       <div
         style={{
           position: "absolute",
-          top: 60,
+          top: space[10],
           left: 0,
           right: 0,
           textAlign: "center",
-          fontFamily: body,
-          fontSize: 16,
-          letterSpacing: 6,
+          fontFamily: T.family.body,
+          fontSize: T.size.kicker,
+          letterSpacing: T.tracking.tracked,
           textTransform: "uppercase",
-          color: COLORS.gold,
-          opacity: interpolate(f, [0, 14], [0, 1], { extrapolateRight: "clamp" }),
+          color: C.gold,
+          opacity: interpolate(f, [0, M.dur.fast], [0, 1], { extrapolateRight: "clamp" }),
         }}
       >
         Marrakech · Médina
@@ -375,7 +416,7 @@ const SceneMap: React.FC = () => {
 
       {/* Markers */}
       {markers.map((m, i) => {
-        const s = spring({ frame: f - m.delay, fps, config: { damping: 12, stiffness: 140 } });
+        const s = spring({ frame: f - m.delay, fps, config: M.springs.heavy });
         const pulse = 0.6 + 0.4 * Math.sin((f - m.delay) / 4);
         return (
           <div
@@ -395,12 +436,12 @@ const SceneMap: React.FC = () => {
                   position: "absolute",
                   left: "50%",
                   top: "50%",
-                  width: 60,
-                  height: 60,
-                  marginLeft: -30,
-                  marginTop: -30,
-                  borderRadius: 999,
-                  border: `2px solid ${COLORS.terracotta}`,
+                  width: space[10],
+                  height: space[10],
+                  marginLeft: -space[10] / 2,
+                  marginTop: -space[10] / 2,
+                  borderRadius: radius.pill,
+                  border: `${layout.rule.thick}px solid ${C.terracotta}`,
                   opacity: pulse * 0.5,
                   transform: `scale(${1 + (1 - pulse) * 0.8})`,
                 }}
@@ -411,21 +452,21 @@ const SceneMap: React.FC = () => {
                   height: 44,
                   borderRadius: "50% 50% 50% 0",
                   transform: "rotate(-45deg)",
-                  background: COLORS.terracotta,
-                  boxShadow: "0 6px 16px rgba(0,0,0,0.6)",
-                  border: "3px solid #fff",
+                  background: C.terracotta,
+                  boxShadow: elevation.liftCardSoft,
+                  border: `3px solid ${C.white}`,
                 }}
               />
               <div
                 style={{
-                  marginTop: 10,
-                  fontFamily: body,
-                  fontWeight: 700,
-                  fontSize: 14,
-                  color: "#fff",
-                  background: "rgba(0,0,0,0.6)",
-                  padding: "3px 8px",
-                  borderRadius: 6,
+                  marginTop: space[2] + 2,
+                  fontFamily: T.family.body,
+                  fontWeight: T.weight.bold,
+                  fontSize: T.size.micro + 2,
+                  color: C.white,
+                  background: alpha("night", 0.6),
+                  padding: `3px ${space[2]}px`,
+                  borderRadius: radius.sm - 2,
                   whiteSpace: "nowrap",
                   textAlign: "center",
                 }}
@@ -441,23 +482,23 @@ const SceneMap: React.FC = () => {
       <div
         style={{
           position: "absolute",
-          bottom: 90,
+          bottom: space[13],
           left: 0,
           right: 0,
           textAlign: "center",
-          opacity: interpolate(f, [30, 50], [0, 1], { extrapolateRight: "clamp" }),
+          opacity: interpolate(f, [M.dur.slow, 50], [0, 1], { extrapolateRight: "clamp" }),
         }}
       >
         <span
           style={{
             display: "inline-block",
-            background: "#3B3B3B",
-            color: "#fff",
-            fontFamily: body,
-            fontSize: 18,
-            fontWeight: 700,
-            padding: "10px 18px",
-            borderRadius: 999,
+            background: C.slate,
+            color: C.white,
+            fontFamily: T.family.body,
+            fontSize: T.size.label,
+            fontWeight: T.weight.bold,
+            padding: `${space[2] + 2}px ${space[4] + 2}px`,
+            borderRadius: radius.pill,
           }}
         >
           À proximité · 3 km
@@ -473,8 +514,10 @@ const SceneRefine: React.FC = () => {
   const { fps } = useVideoConfig();
   const fade = useFadeInOut(S5, 8, 14);
   const text = "…et plutôt dans la médina";
-  const chars = Math.floor(interpolate(f, [6, 36], [0, text.length], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
-  const checkS = spring({ frame: f - 40, fps, config: { damping: 14, stiffness: 110 } });
+  const chars = Math.floor(
+    interpolate(f, [6, 36], [0, text.length], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
+  );
+  const checkS = spring({ frame: f - 40, fps, config: M.springs.hero });
 
   return (
     <AbsoluteFill style={{ opacity: fade }}>
@@ -483,47 +526,49 @@ const SceneRefine: React.FC = () => {
 
       <div
         style={{
-          marginTop: 38,
-          padding: "0 28px",
+          marginTop: space[8],
+          padding: `0 ${space[6]}px`,
           opacity: checkS,
-          transform: `translateY(${interpolate(checkS, [0, 1], [16, 0])}px)`,
+          transform: `translateY(${interpolate(checkS, [0, 1], [space[4], 0])}px)`,
         }}
       >
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 12,
-            fontFamily: body,
-            fontSize: 22,
-            color: COLORS.cream,
+            gap: space[3],
+            fontFamily: T.family.body,
+            fontSize: T.size.caption,
+            color: C.cream,
           }}
         >
           <span
             style={{
-              width: 28,
-              height: 28,
-              borderRadius: 999,
-              background: COLORS.gold,
-              color: COLORS.night,
+              width: space[6] + 2,
+              height: space[6] + 2,
+              borderRadius: radius.pill,
+              background: C.gold,
+              color: C.night,
               display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
-              fontWeight: 800,
-              fontSize: 18,
+              fontWeight: T.weight.bold,
+              fontSize: T.size.label,
             }}
           >
             ✓
           </span>
-          <span>Filtre appliqué : <b style={{ color: COLORS.gold }}>Médina</b></span>
+          <span>
+            Filtre appliqué : <b style={{ color: C.gold }}>Médina</b>
+          </span>
         </div>
         <div
           style={{
-            marginTop: 14,
-            fontFamily: body,
-            fontSize: 18,
-            color: "rgba(255,255,255,0.7)",
-            paddingLeft: 40,
+            marginTop: space[3] + 2,
+            fontFamily: T.family.body,
+            fontSize: T.size.label,
+            color: alpha("white", 0.7),
+            paddingLeft: space[8] + 2,
           }}
         >
           3 résultats sur la carte · prix & disponibilité mis à jour
@@ -537,22 +582,18 @@ const SceneRefine: React.FC = () => {
 const SceneCta: React.FC = () => {
   const f = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const fadeIn = interpolate(f, [0, 14], [0, 1], { extrapolateRight: "clamp" });
-  const iconS = spring({ frame: f - 6, fps, config: { damping: 14, stiffness: 110 } });
+  const fadeIn = interpolate(f, [0, M.dur.fast], [0, 1], { extrapolateRight: "clamp" });
+  const iconS = spring({ frame: f - 6, fps, config: M.springs.hero });
   const pulse = 1 + Math.sin(f / 6) * 0.015;
 
   return (
     <AbsoluteFill style={{ opacity: fadeIn }}>
-      <AbsoluteFill
-        style={{
-          background: `radial-gradient(ellipse at center, ${COLORS.ink} 0%, ${COLORS.night} 70%)`,
-        }}
-      />
+      <AbsoluteFill style={{ background: layout.surfaces.glow }} />
       <AbsoluteFill
         style={{
           alignItems: "center",
           justifyContent: "center",
-          padding: "80px 60px",
+          padding: `${space[12]}px ${space[10]}px`,
           textAlign: "center",
         }}
       >
@@ -560,36 +601,39 @@ const SceneCta: React.FC = () => {
           style={{
             width: 200,
             height: 200,
-            borderRadius: 44,
-            background: COLORS.terracotta,
+            borderRadius: radius.lg + space[4],
+            background: C.terracotta,
             overflow: "hidden",
             transform: `scale(${interpolate(iconS, [0, 1], [0.5, 1]) * pulse})`,
             opacity: iconS,
-            boxShadow: `0 20px 50px rgba(192,79,23,0.5)`,
+            boxShadow: elevation.glowEmber,
           }}
         >
-          <Img src={staticFile("images/app-icon-1wm.png")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <Img
+            src={staticFile("images/app-icon-1wm.png")}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
         </div>
         <div
           style={{
-            marginTop: 40,
-            fontFamily: display,
-            fontWeight: 700,
-            fontSize: 48,
-            color: COLORS.cream,
-            lineHeight: 1.1,
-            opacity: interpolate(f, [14, 32], [0, 1], { extrapolateRight: "clamp" }),
+            marginTop: space[8],
+            fontFamily: T.family.display,
+            fontWeight: T.weight.bold,
+            fontSize: T.size.h4 + 6,
+            color: C.cream,
+            lineHeight: T.leading.snug,
+            opacity: interpolate(f, [M.dur.fast, 32], [0, 1], { extrapolateRight: "clamp" }),
           }}
         >
           Agent IA<br />One World Morocco
         </div>
         <div
           style={{
-            marginTop: 18,
-            fontFamily: body,
+            marginTop: space[4],
+            fontFamily: T.family.body,
             fontStyle: "italic",
-            fontSize: 24,
-            color: COLORS.gold,
+            fontSize: T.size.caption + 2,
+            color: C.gold,
             opacity: interpolate(f, [22, 42], [0, 1], { extrapolateRight: "clamp" }),
           }}
         >
@@ -598,16 +642,16 @@ const SceneCta: React.FC = () => {
         <div
           style={{
             position: "absolute",
-            bottom: 90,
+            bottom: space[13],
             left: 0,
             right: 0,
-            fontFamily: body,
-            fontSize: 18,
-            letterSpacing: 4,
+            fontFamily: T.family.body,
+            fontSize: T.size.label,
+            letterSpacing: T.tracking.wide,
             textTransform: "uppercase",
-            color: "rgba(255,255,255,0.7)",
+            color: alpha("white", 0.7),
             textAlign: "center",
-            opacity: interpolate(f, [30, 50], [0, 1], { extrapolateRight: "clamp" }),
+            opacity: interpolate(f, [M.dur.slow, 50], [0, 1], { extrapolateRight: "clamp" }),
           }}
         >
           oneworldmorocco.com
@@ -618,7 +662,7 @@ const SceneCta: React.FC = () => {
 };
 
 export const AgentIaDemo: React.FC = () => (
-  <AbsoluteFill style={{ background: COLORS.night, width: W, height: H }}>
+  <AbsoluteFill style={{ background: C.night, width: W, height: H }}>
     <Backdrop />
     <Series>
       <Series.Sequence durationInFrames={S1}><SceneHook /></Series.Sequence>
