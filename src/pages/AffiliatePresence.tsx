@@ -15,9 +15,10 @@ import Footer from "@/components/Footer";
 import HScroll from "@/components/HScroll";
 import {
   Loader2, Globe, CheckCircle2, AlertCircle, ExternalLink,
-  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench, Wand2, BarChart3, LogOut, Globe2, Newspaper, Scale, Bot
+  Save, Facebook, Instagram, Youtube, MapPin, Star, Building2, Phone, Clock, HelpCircle, MessageSquare, FileText, Sparkles, ImageIcon, Video, Plus, Tag, Wrench, Wand2, BarChart3, LogOut, Globe2, Newspaper, Scale, Bot, Music2, AudioLines
 } from "lucide-react";
 import { InstagramIcon, TikTokIcon, PinterestIcon } from "@/components/staff/SocialMediaIcons";
+import SubstackIcon from "@/components/icons/SubstackIcon";
 import { type OpeningHours } from "@/components/staff/OpeningHoursEditor";
 import AffiliateOpeningHoursEditor from "@/components/affiliate/AffiliateOpeningHoursEditor";
 import AffiliateContactEditor, { type CityOption, type NeighborhoodOption, type CtaUrlItem } from "@/components/affiliate/AffiliateContactEditor";
@@ -55,6 +56,9 @@ const PLATFORMS = [
   { key: "pinterest_url", label: "Pinterest", icon: <PinterestIcon className="h-4 w-4" />, color: "text-red-600" },
   { key: "linkedin_url", label: "LinkedIn", icon: <Globe className="h-4 w-4" />, color: "text-blue-700" },
   { key: "twitter_url", label: "X (Twitter)", icon: <Globe className="h-4 w-4" />, color: "text-foreground" },
+  { key: "spotify_url", label: "Spotify", icon: <Music2 className="h-4 w-4" />, color: "text-green-500" },
+  { key: "soundcloud_url", label: "SoundCloud", icon: <AudioLines className="h-4 w-4" />, color: "text-orange-500" },
+  { key: "substack_url", label: "Substack", icon: <SubstackIcon className="h-4 w-4" />, color: "text-[#FF6719]" },
   { key: "website", label: "Site web", icon: <Globe className="h-4 w-4" />, color: "text-emerald-500" },
   { key: "tripadvisor_url", label: "TripAdvisor", icon: <Globe className="h-4 w-4" />, color: "text-green-600" },
   { key: "booking_url", label: "Booking.com", icon: <Globe className="h-4 w-4" />, color: "text-blue-800" },

@@ -382,7 +382,7 @@ const EmbedAsk = () => {
     ? themeParam
     : customBg
     ? (bgInk === "dark" ? "light" : "dark")
-    : "dark";
+    : "light";
 
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (themeParam) return themeParam;
