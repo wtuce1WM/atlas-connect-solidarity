@@ -134,13 +134,13 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/aeroport-d-essaouira-mogador</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://oneworldmorocco.com/aeroport-international-marrakech-menara</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -1970,7 +1970,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/chapka-assurances-voyage</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-08-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -3038,7 +3038,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/elevate-cycle</loc>
-    <lastmod>2026-07-20</lastmod>
+    <lastmod>2026-08-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -4670,7 +4670,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/l-observatoire-de-marrakech</loc>
-    <lastmod>2026-06-30</lastmod>
+    <lastmod>2026-08-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -8864,7 +8864,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/riad-dar-najat</loc>
-    <lastmod>2026-08-04</lastmod>
+    <lastmod>2026-08-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9134,7 +9134,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/rooftop-dardar</loc>
-    <lastmod>2026-07-28</lastmod>
+    <lastmod>2026-08-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -10142,7 +10142,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/the-sun-set-rooftop</loc>
-    <lastmod>2026-07-23</lastmod>
+    <lastmod>2026-08-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -11766,6 +11766,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/neighborhood/Mellah</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/neighborhood/Corniche</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -11802,11 +11807,6 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/neighborhood/Hay%20Al%20Massar</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://oneworldmorocco.com/neighborhood/Mellah</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
