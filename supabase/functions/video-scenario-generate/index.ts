@@ -152,7 +152,10 @@ async function fetchWeatherWidget(citySlug: unknown, range: number, businessName
   const text = lang === "en"
     ? `${businessName} brings you the weather in ${city.name} ${periodEn}.`
     : `${businessName} vous propose la météo à ${city.name} ${periodFr}.`;
-  return { city: city.name, citySlug: city.slug, range: days, text, hourly, daily, durationSec: 5 };
+  // Durée par défaut selon l'étendue : 1 jour = 5 s, 3 jours = 7 s, 7 jours = 10 s.
+  const durationSec = days === 7 ? 10 : days === 3 ? 7 : 5;
+  return { city: city.name, citySlug: city.slug, range: days, text, hourly, daily, durationSec };
+
 }
 
 async function fetchTidesWidget(citySlug: unknown, mode: string, businessName: string, lang: string) {
@@ -1783,7 +1786,10 @@ ${parentJob ? `MODE AFFINAGE : tu pars d'un scénario existant (ci-dessous) et t
         template_props.showWeatherWidget = true;
         template_props.weatherWidget = w;
         if (!(template_props as any).scene_durations) (template_props as any).scene_durations = {};
-        if ((template_props as any).scene_durations.weather == null) (template_props as any).scene_durations.weather = 6;
+        if ((template_props as any).scene_durations.weather == null) {
+          (template_props as any).scene_durations.weather = Number(w.durationSec) || 5;
+        }
+
         insertAfterHookScene("weather");
       } catch (e) {
         console.warn("[widgets] weather fetch failed", (e as Error).message);

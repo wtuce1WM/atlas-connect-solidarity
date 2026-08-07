@@ -232,6 +232,74 @@ const StartVideo: React.FC<{
   return video;
 };
 
+/** Pool global des vidéos de l'établissement — sert à enchaîner les clips
+ *  quand un clip est plus court que la durée de l'étape (au lieu de le boucler). */
+const VideoPoolContext = React.createContext<string[]>([]);
+
+/** Vidéo de fond qui, si le clip est plus court que l'étape, enchaîne
+ *  automatiquement sur les clips suivants du pool au lieu de boucler. */
+const ChainedVideo: React.FC<{ src: string; duration: number; extraStartSec?: number }> = ({
+  src,
+  duration,
+  extraStartSec = 0,
+}) => {
+  const starts = React.useContext(VideoStartsContext);
+  const ends = React.useContext(VideoEndsContext);
+  const durs = React.useContext(VideoDurationsContext);
+  const pool = React.useContext(VideoPoolContext);
+  const { fps } = useVideoConfig();
+
+  const spanOf = (u: string): number | null => {
+    const b = Number.isFinite(starts?.[u]) && starts[u] > 0 ? Math.round(starts[u] * fps) : 0;
+    const e = Number.isFinite(ends?.[u]) && ends[u] > 0
+      ? Math.round(ends[u] * fps)
+      : Number.isFinite(durs?.[u]) && durs[u] > 0.5
+        ? Math.round(durs[u] * fps)
+        : null;
+    return e != null && e > b + 1 ? e - b - 1 : null;
+  };
+
+  const first = spanOf(src);
+  const others = (Array.isArray(pool) ? pool : []).filter((u) => u && u !== src && isVideoSrc(u));
+  // Clip assez long, durée inconnue, ou aucun autre clip → comportement d'origine.
+  if (!first || first >= duration - Math.round(fps * 0.2) || others.length === 0) {
+    return <StartVideo src={src} extraStartSec={extraStartSec} />;
+  }
+
+  const order = [src, ...others];
+  const segs: { url: string; from: number; frames: number; extra: number }[] = [];
+  let acc = 0;
+  let i = 0;
+  while (acc < duration && segs.length < 16) {
+    const u = order[i % order.length];
+    const pass = Math.floor(i / order.length);
+    const s = spanOf(u) ?? duration - acc;
+    const take = Math.max(1, Math.min(s, duration - acc));
+    segs.push({
+      url: u,
+      from: acc,
+      frames: take,
+      extra: pass > 0 ? Math.min(pass, 2) * 2 : u === src ? extraStartSec : 0,
+    });
+    acc += take;
+    i += 1;
+  }
+
+  return (
+    <>
+      {segs.map((s, idx) => (
+        <Sequence key={`${s.url}-${idx}`} from={s.from} durationInFrames={s.frames} layout="none">
+          <AbsoluteFill>
+            <StartVideo src={s.url} extraStartSec={s.extra} />
+          </AbsoluteFill>
+        </Sequence>
+      ))}
+    </>
+  );
+};
+
+
+
 
 const useTone = (): ToneConfig => TONE_CONFIG[React.useContext(ToneContext)] ?? TONE_CONFIG.immersif;
 
@@ -2615,7 +2683,7 @@ const MotionBackdrop: React.FC<{
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
       {isVid ? (
-        <StartVideo src={url} extraStartSec={extraStartSec} />
+        <ChainedVideo src={url} duration={duration} extraStartSec={extraStartSec} />
 
       ) : (
         <Img src={url} style={{ width: "100%", height: "100%", objectFit: "cover", transform, ...imgStyle }} />
@@ -2971,7 +3039,9 @@ const SceneInfoText: React.FC<{
   ornament?: boolean;
   /** Intensité du voile sombre au-dessus du média de fond */
   dim?: "normal" | "light";
-}> = ({ label, title, text, textHtml, logoUrl, durationFrames, textPosition = "middle", ornament = false, dim = "normal" }) => {
+  /** Mise en page « carte manuelle » : pleine largeur du viewport + mêmes tailles Titre/Texte */
+  wide?: boolean;
+}> = ({ label, title, text, textHtml, logoUrl, durationFrames, textPosition = "middle", ornament = false, dim = "normal", wide = false }) => {
 
   const frame = useCurrentFrame();
   const inO = ease(frame, 0, 16);
@@ -2982,6 +3052,13 @@ const SceneInfoText: React.FC<{
   const richText = sanitizeRich(textHtml || "");
   const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br|h1|h2|h3|h4)\b/i.test(richText);
   const safeLogo = typeof logoUrl === "string" && logoUrl.trim().startsWith("http") ? logoUrl : null;
+  const titleSize = wide ? 68 : 52;
+  const titleLh = wide ? 1.1 : 1.12;
+  const textSize = wide ? 34 : 26;
+  const textLh = wide ? 1.3 : 1.42;
+  const textMaxWidth = wide ? undefined : 620;
+  const richMaxWidth = wide ? undefined : 640;
+  const textMarginTop = wide ? 44 : 20;
   return (
     <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
       <style>{RICH_CSS}</style>
@@ -2992,7 +3069,7 @@ const SceneInfoText: React.FC<{
             : "linear-gradient(180deg,rgba(0,0,0,0.42) 0%,rgba(0,0,0,0.78) 100%)",
         }}
       />
-      <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
+      <AbsoluteFill style={{ padding: wide ? "80px 60px" : 60, ...textPositionStyle(textPosition) }}>
         {/* 20% haut du viewport laissés libres quand le texte est trop volumineux */}
         <FitColumn topSafeRatio={0.2}>
         {safeLogo && (
@@ -3007,19 +3084,20 @@ const SceneInfoText: React.FC<{
           </div>
         )}
         {title && (
-          <div style={{ marginTop: 14, transform: `translateY(${titleY}px)`, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 52, lineHeight: 1.12, textAlign: "center", textShadow: "0 4px 20px rgba(0,0,0,0.7)" }}>
+          <div style={{ marginTop: 14, transform: `translateY(${titleY}px)`, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: titleSize, lineHeight: titleLh, textAlign: "center", textShadow: "0 4px 20px rgba(0,0,0,0.7)" }}>
             {clean(title)}
           </div>
         )}
         {hasRich ? (
           <RichBlock
             html={richText}
-            style={{ marginTop: 20, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.42, textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 640, alignSelf: "center" }}
+            style={{ marginTop: textMarginTop, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: textSize, lineHeight: textLh, textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: richMaxWidth, alignSelf: wide ? "stretch" : "center" }}
           />
         ) : text ? (
-          <div style={{ marginTop: 20, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: 26, lineHeight: 1.42, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: 620 }}>
+          <div style={{ marginTop: textMarginTop, fontFamily: body, color: "rgba(255,255,255,0.94)", fontSize: textSize, lineHeight: textLh, textAlign: "center", textShadow: "0 2px 10px rgba(0,0,0,0.6)", maxWidth: textMaxWidth }}>
             {clean(text)}
           </div>
+
         ) : null}
         {ornament && (
           <div style={{ marginTop: 26, alignSelf: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
@@ -3908,6 +3986,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
               durationFrames={duration}
               textPosition={textPosition}
               ornament={kind === "menu_doc"}
+              wide={kind === "ai_text"}
+
             />
           </AbsoluteFill>
         );
@@ -4324,6 +4404,8 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
     <VideoStartsContext.Provider value={videoStarts ?? {}}>
     <VideoEndsContext.Provider value={videoEnds ?? {}}>
     <VideoDurationsContext.Provider value={videoDurations ?? {}}>
+    <VideoPoolContext.Provider value={safeVideos}>
+
     <ToneContext.Provider value={tone}>
       <SuppressBgContext.Provider value={continuousMode || slideshowMode}>
         <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
@@ -4404,7 +4486,9 @@ export const BusinessShowcase: React.FC<ShowcaseProps> = ({
         </AbsoluteFill>
       </SuppressBgContext.Provider>
     </ToneContext.Provider>
+    </VideoPoolContext.Provider>
     </VideoDurationsContext.Provider>
+
     </VideoEndsContext.Provider>
     </VideoStartsContext.Provider>
     </LangContext.Provider>

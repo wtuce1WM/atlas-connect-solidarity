@@ -292,9 +292,13 @@ export function scenarioFromTemplateProps(
   const propositionTextProp = typeof props?.propositionText === "string" ? props.propositionText.trim() : "";
   if (propositionTextProp) push("proposition", introDur("proposition"), propositionTextProp);
 
-  // Widgets Météo / Marées — juste derrière l'étape Proposition, 6 s par défaut.
+  // Widgets Météo / Marées — juste derrière l'étape Proposition.
+  // Météo : 5 s (1 jour), 7 s (3 jours), 10 s (7 jours) — valeur portée par le widget.
   if (props?.showWeatherWidget && props?.weatherWidget) {
-    push("weather", Number(props.weatherWidget.durationSec) || 6, String(props.weatherWidget.text || "Widget Météo."));
+    const wRange = Number(props.weatherWidget.range) || 1;
+    const wDur = Number(props.weatherWidget.durationSec) || (wRange === 7 ? 10 : wRange === 3 ? 7 : 5);
+    push("weather", wDur, String(props.weatherWidget.text || "Widget Météo."));
+
   }
   if (props?.showTidesWidget && props?.tidesWidget) {
     push("tides", Number(props.tidesWidget.durationSec) || 6, String(props.tidesWidget.text || "Widget Marées, Vents & Météo."));
@@ -443,7 +447,9 @@ function normalize(scenes: Scene[], durationSec: number, cursor: number): Scenar
   const scale = durationSec / Math.max(1, cursor);
   let start = 0;
   const scaled = scenes.map((s) => {
-    const fixed = FIXED_SCENE_DURATIONS[s.icon];
+    // Météo/Marées : la durée provient du widget (météo 1 j = 5 s, 3 j = 7 s, 7 j = 10 s)
+    const fixed = s.icon === "weather" || s.icon === "tides" ? s.duration : FIXED_SCENE_DURATIONS[s.icon];
+
     const duration = fixed ?? Math.max(1, Math.round(s.duration * scale));
     const scene = { ...s, duration, start };
     start += duration;
