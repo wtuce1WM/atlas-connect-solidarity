@@ -174,48 +174,59 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
     };
 
     const handleSave = async () => {
-      for (const h of highlights) {
-        await supabase
-          .from("front_highlights")
-          .update({
-            icon: h.icon,
-            image_url: h.image_url,
-            // FR : colonnes historiques (lues par le front et le backoffice) + miroir _fr
-            title: h.title,
-            title_fr: h.title,
-            title_en: h.title_en,
-            title_ar: h.title_ar,
-            description: h.description,
-            description_fr: h.description,
-            description_en: h.description_en,
-            description_ar: h.description_ar,
-            section_title: sectionTitle.fr,
-            section_title_fr: sectionTitle.fr,
-            section_title_en: sectionTitle.en,
-            section_title_ar: sectionTitle.ar,
-            section_intro: sectionIntro.fr,
-            section_intro_fr: sectionIntro.fr,
-            section_intro_en: sectionIntro.en,
-            section_intro_ar: sectionIntro.ar,
-            metric_title: (h.metric_title || "").slice(0, MAX_METRIC) || null,
-            metric_title_fr: (h.metric_title || "").slice(0, MAX_METRIC) || null,
-            metric_title_en: (h.metric_title_en || "").slice(0, MAX_METRIC) || null,
-            metric_title_ar: (h.metric_title_ar || "").slice(0, MAX_METRIC) || null,
-            metric_value: (h.metric_value || "").slice(0, MAX_METRIC) || null,
-            metric_value_fr: (h.metric_value || "").slice(0, MAX_METRIC) || null,
-            metric_value_en: (h.metric_value_en || "").slice(0, MAX_METRIC) || null,
-            metric_value_ar: (h.metric_value_ar || "").slice(0, MAX_METRIC) || null,
-          } as any)
-          .eq("id", h.id);
+      setSaving(true);
+      try {
+        for (const h of highlights) {
+          const { error } = await supabase
+            .from("front_highlights")
+            .update({
+              icon: h.icon || "",
+              image_url: h.image_url || null,
+              section_columns: sectionColumns,
+              // FR : colonnes historiques (lues par le front et le backoffice) + miroir _fr
+              title: h.title || "",
+              title_fr: h.title || "",
+              title_en: h.title_en,
+              title_ar: h.title_ar,
+              description: h.description || "",
+              description_fr: h.description || "",
+              description_en: h.description_en,
+              description_ar: h.description_ar,
+              section_title: sectionTitle.fr,
+              section_title_fr: sectionTitle.fr,
+              section_title_en: sectionTitle.en,
+              section_title_ar: sectionTitle.ar,
+              section_intro: sectionIntro.fr,
+              section_intro_fr: sectionIntro.fr,
+              section_intro_en: sectionIntro.en,
+              section_intro_ar: sectionIntro.ar,
+              metric_title: (h.metric_title || "").slice(0, MAX_METRIC) || null,
+              metric_title_fr: (h.metric_title || "").slice(0, MAX_METRIC) || null,
+              metric_title_en: (h.metric_title_en || "").slice(0, MAX_METRIC) || null,
+              metric_title_ar: (h.metric_title_ar || "").slice(0, MAX_METRIC) || null,
+              metric_value: (h.metric_value || "").slice(0, MAX_METRIC) || null,
+              metric_value_fr: (h.metric_value || "").slice(0, MAX_METRIC) || null,
+              metric_value_en: (h.metric_value_en || "").slice(0, MAX_METRIC) || null,
+              metric_value_ar: (h.metric_value_ar || "").slice(0, MAX_METRIC) || null,
+            } as any)
+            .eq("id", h.id);
+          if (error) throw error;
+        }
+        setDirty(false);
+        onDirtyChange?.(false);
+        toast({ title: "Blocs enregistrés ✓" });
+      } catch (e: any) {
+        toast({ variant: "destructive", title: "Erreur d'enregistrement", description: e.message });
+        throw e;
+      } finally {
+        setSaving(false);
       }
-      setDirty(false);
-      onDirtyChange?.(false);
     };
 
     useImperativeHandle(
       ref,
       () => ({ save: handleSave, hasChanges: () => dirty }),
-      [highlights, sectionTitle, sectionIntro, dirty]
+      [highlights, sectionTitle, sectionIntro, sectionColumns, dirty]
     );
 
     const titleField = `title${sfx(lang)}` as keyof Highlight;
