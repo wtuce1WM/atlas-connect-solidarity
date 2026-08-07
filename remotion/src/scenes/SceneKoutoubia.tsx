@@ -6,7 +6,9 @@ import {
   staticFile,
   useCurrentFrame,
 } from "remotion";
-import { COLORS, display, body } from "../theme";
+import { V } from "../tokens";
+
+const { palette, type: T, space, scrim, layout } = V;
 
 export const SceneKoutoubia: React.FC = () => {
   const frame = useCurrentFrame();
@@ -22,7 +24,7 @@ export const SceneKoutoubia: React.FC = () => {
   const lineW = interpolate(frame, [40, 90], [0, 220], { extrapolateRight: "clamp" });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: COLORS.night, overflow: "hidden" }}>
+    <AbsoluteFill style={{ backgroundColor: palette.night, overflow: "hidden" }}>
       <Img
         src={staticFile("images/home-bg.webp")}
         style={{
@@ -32,31 +34,26 @@ export const SceneKoutoubia: React.FC = () => {
           transform: `scale(${scale}) translateX(${x}px)`,
         }}
       />
-      <AbsoluteFill
-        style={{
-          background:
-            "linear-gradient(90deg, rgba(14,11,8,0.85) 0%, rgba(14,11,8,0.55) 45%, rgba(14,11,8,0.15) 100%)",
-        }}
-      />
+      <AbsoluteFill style={{ background: scrim("left", 0.15, 0.85) }} />
 
       <AbsoluteFill
         style={{
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "flex-start",
-          padding: "0 140px",
+          padding: `0 ${layout.safe.horizontal.x}px`,
         }}
       >
         <div
           style={{
             opacity: kickerOp,
-            fontFamily: body,
-            color: COLORS.gold,
-            letterSpacing: "0.6em",
-            fontSize: 16,
-            fontWeight: 400,
+            fontFamily: T.family.body,
+            color: palette.gold,
+            letterSpacing: T.tracking.ultra,
+            fontSize: T.size.kicker,
+            fontWeight: T.weight.regular,
             textTransform: "uppercase",
-            marginBottom: 26,
+            marginBottom: space[6],
           }}
         >
           Marrakech · Atlas · Sahara · Atlantique
@@ -66,12 +63,12 @@ export const SceneKoutoubia: React.FC = () => {
           style={{
             opacity: titleOp,
             transform: `translateY(${titleY}px)`,
-            fontFamily: display,
-            color: COLORS.cream,
-            fontWeight: 300,
-            fontSize: 128,
-            lineHeight: 0.98,
-            letterSpacing: "-0.02em",
+            fontFamily: T.family.display,
+            color: palette.cream,
+            fontWeight: T.weight.light,
+            fontSize: T.size.display,
+            lineHeight: T.leading.none,
+            letterSpacing: T.tracking.tight,
           }}
         >
           Votre Maroc,
@@ -80,12 +77,12 @@ export const SceneKoutoubia: React.FC = () => {
           style={{
             opacity: titleOp,
             transform: `translateY(${titleY}px)`,
-            fontFamily: display,
-            color: COLORS.terracotta,
-            fontWeight: 600,
-            fontSize: 128,
-            lineHeight: 0.98,
-            letterSpacing: "-0.02em",
+            fontFamily: T.family.display,
+            color: palette.terracotta,
+            fontWeight: T.weight.semibold,
+            fontSize: T.size.display,
+            lineHeight: T.leading.none,
+            letterSpacing: T.tracking.tight,
             marginTop: 6,
           }}
         >
@@ -94,10 +91,10 @@ export const SceneKoutoubia: React.FC = () => {
 
         <div
           style={{
-            marginTop: 40,
+            marginTop: space[9],
             width: lineW,
-            height: 2,
-            backgroundColor: COLORS.gold,
+            height: layout.rule.thick,
+            backgroundColor: palette.gold,
             opacity: kickerOp,
           }}
         />

@@ -8,7 +8,9 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { COLORS, serif, sans } from "../theme";
+import { V } from "../tokens";
+
+const { palette, hexA, type: T, space, scrim, motion, layout } = V;
 
 const STATS = [
   { num: "1 200+", label: "lieux d'exception" },
@@ -24,7 +26,7 @@ export const SceneAgent: React.FC = () => {
   const imgX = interpolate(frame, [0, 120], [10, -30]);
 
   return (
-    <AbsoluteFill style={{ backgroundColor: COLORS.ink }}>
+    <AbsoluteFill style={{ backgroundColor: palette.ink }}>
       <div
         style={{
           position: "absolute",
@@ -42,12 +44,7 @@ export const SceneAgent: React.FC = () => {
             transform: `scale(${imgScale}) translateX(${imgX}px)`,
           }}
         />
-        <AbsoluteFill
-          style={{
-            background:
-              "linear-gradient(90deg, rgba(14,11,8,0.25) 0%, rgba(14,11,8,0.85) 100%)",
-          }}
-        />
+        <AbsoluteFill style={{ background: scrim("right", 0.25, 0.85) }} />
       </div>
 
       <AbsoluteFill
@@ -55,18 +52,18 @@ export const SceneAgent: React.FC = () => {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "flex-start",
-          padding: "0 140px 0 calc(55% + 90px)",
+          padding: `0 ${layout.safe.horizontal.x}px 0 calc(55% + ${space[13]}px)`,
         }}
       >
         <div
           style={{
             opacity: interpolate(frame, [10, 30, 105, 120], [0, 1, 1, 0]),
-            fontFamily: sans,
-            color: COLORS.gold,
-            letterSpacing: "0.5em",
+            fontFamily: T.family.body,
+            color: palette.gold,
+            letterSpacing: T.tracking.spaced,
             fontSize: 14,
             textTransform: "uppercase",
-            marginBottom: 30,
+            marginBottom: space[7],
           }}
         >
           Un guide qui vous connaît
@@ -76,21 +73,24 @@ export const SceneAgent: React.FC = () => {
           style={{
             opacity: interpolate(frame, [20, 45, 105, 120], [0, 1, 1, 0]),
             transform: `translateY(${interpolate(frame, [20, 45], [20, 0], { extrapolateRight: "clamp" })}px)`,
-            fontFamily: serif,
-            color: COLORS.cream,
-            fontWeight: 300,
+            fontFamily: T.family.display,
+            color: palette.cream,
+            fontWeight: T.weight.light,
             fontSize: 64,
-            lineHeight: 1.05,
-            marginBottom: 60,
+            lineHeight: T.leading.snug,
+            marginBottom: space[10],
             maxWidth: 720,
           }}
         >
-          Demandez. <span style={{ fontStyle: "italic", color: COLORS.terracotta }}>Le Maroc répond.</span>
+          Demandez.{" "}
+          <span style={{ fontStyle: "italic", color: palette.terracotta }}>
+            Le Maroc répond.
+          </span>
         </div>
 
         {STATS.map((s, i) => {
-          const d = 35 + i * 12;
-          const op = spring({ frame: frame - d, fps, config: { damping: 200 } });
+          const d = 35 + i * motion.stagger.base;
+          const op = spring({ frame: frame - d, fps, config: motion.springs.soft });
           return (
             <div
               key={s.label}
@@ -99,19 +99,19 @@ export const SceneAgent: React.FC = () => {
                 transform: `translateY(${interpolate(op, [0, 1], [20, 0])}px)`,
                 display: "flex",
                 alignItems: "baseline",
-                gap: 26,
-                marginBottom: 22,
-                borderTop: `1px solid ${COLORS.gold}33`,
-                paddingTop: 16,
+                gap: space[6],
+                marginBottom: space[5],
+                borderTop: `${layout.rule.hairline}px solid ${hexA("gold", 0.2)}`,
+                paddingTop: space[4],
                 width: 600,
               }}
             >
               <div
                 style={{
-                  fontFamily: serif,
-                  color: COLORS.gold,
-                  fontWeight: 500,
-                  fontSize: 56,
+                  fontFamily: T.family.display,
+                  color: palette.gold,
+                  fontWeight: T.weight.medium,
+                  fontSize: T.size.h3,
                   minWidth: 180,
                 }}
               >
@@ -119,11 +119,11 @@ export const SceneAgent: React.FC = () => {
               </div>
               <div
                 style={{
-                  fontFamily: sans,
-                  color: COLORS.bone,
-                  fontSize: 18,
-                  fontWeight: 300,
-                  letterSpacing: "0.18em",
+                  fontFamily: T.family.body,
+                  color: palette.bone,
+                  fontSize: T.size.label,
+                  fontWeight: T.weight.light,
+                  letterSpacing: T.tracking.wide,
                   textTransform: "uppercase",
                 }}
               >

@@ -6,32 +6,33 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { COLORS, display, body } from "../theme";
+import { V } from "../tokens";
+
+const { palette, hexA, type: T, space, scrim, motion, layout } = V;
 
 const PANELS: { bg: string; word: string; tone: string }[] = [
-  { bg: "linear-gradient(160deg, #2a1a0e 0%, #0e0b08 100%)", word: "Découvrir", tone: COLORS.gold },
-  { bg: "linear-gradient(160deg, #1c1612 0%, #0e0b08 100%)", word: "Vivre", tone: COLORS.cream },
-  { bg: "linear-gradient(160deg, #2a0f08 0%, #0e0b08 100%)", word: "Partager", tone: COLORS.terracotta },
+  { bg: layout.surfaces.columnEmber, word: "Découvrir", tone: palette.gold },
+  { bg: layout.surfaces.columnSoft, word: "Vivre", tone: palette.cream },
+  { bg: layout.surfaces.columnHot, word: "Partager", tone: palette.terracotta },
 ];
-
 
 export const SceneTriptych: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
   return (
-    <AbsoluteFill style={{ backgroundColor: COLORS.night, flexDirection: "row" }}>
+    <AbsoluteFill style={{ backgroundColor: palette.night, flexDirection: "row" }}>
       {PANELS.map((p, i) => {
-        const delay = i * 8;
+        const delay = i * motion.stagger.tight;
         const reveal = spring({
           frame: frame - delay,
           fps,
-          config: { damping: 200, stiffness: 80 },
+          config: motion.springs.reveal,
         });
         const wordIn = spring({
-          frame: frame - delay - 18,
+          frame: frame - delay - motion.stagger.loose,
           fps,
-          config: { damping: 24, stiffness: 110 },
+          config: motion.springs.quick,
         });
         const wordY = interpolate(wordIn, [0, 1], [40, 0]);
 
@@ -46,31 +47,25 @@ export const SceneTriptych: React.FC = () => {
               background: p.bg,
             }}
           >
-            <AbsoluteFill
-
-              style={{
-                background:
-                  "linear-gradient(180deg, rgba(14,11,8,0.15) 0%, rgba(14,11,8,0.85) 100%)",
-              }}
-            />
+            <AbsoluteFill style={{ background: scrim("bottom", 0.15, 0.85) }} />
             <AbsoluteFill
               style={{
                 flexDirection: "column",
                 justifyContent: "flex-end",
                 alignItems: "center",
-                padding: "0 0 120px 0",
+                padding: `0 0 ${space[14]}px 0`,
               }}
             >
               <div
                 style={{
                   opacity: interpolate(wordIn, [0, 1], [0, 1]),
                   transform: `translateY(${wordY}px)`,
-                  fontFamily: body,
-                  color: COLORS.bone,
-                  letterSpacing: "0.5em",
-                  fontSize: 12,
+                  fontFamily: T.family.body,
+                  color: palette.bone,
+                  letterSpacing: T.tracking.spaced,
+                  fontSize: T.size.micro,
                   textTransform: "uppercase",
-                  marginBottom: 14,
+                  marginBottom: space[3],
                 }}
               >
                 0{i + 1}
@@ -79,12 +74,12 @@ export const SceneTriptych: React.FC = () => {
                 style={{
                   opacity: interpolate(wordIn, [0, 1], [0, 1]),
                   transform: `translateY(${wordY}px)`,
-                  fontFamily: display,
+                  fontFamily: T.family.display,
                   color: p.tone,
-                  fontWeight: 600,
+                  fontWeight: T.weight.semibold,
                   fontSize: 78,
-                  lineHeight: 1,
-                  letterSpacing: "-0.01em",
+                  lineHeight: T.leading.tight,
+                  letterSpacing: T.tracking.snug,
                 }}
               >
                 {p.word}
@@ -96,9 +91,9 @@ export const SceneTriptych: React.FC = () => {
                   position: "absolute",
                   right: 0,
                   top: 0,
-                  width: 1,
+                  width: layout.rule.hairline,
                   height: "100%",
-                  background: `linear-gradient(180deg, transparent, ${COLORS.gold}55, transparent)`,
+                  background: `linear-gradient(180deg, transparent, ${hexA("gold", 0.33)}, transparent)`,
                 }}
               />
             )}
