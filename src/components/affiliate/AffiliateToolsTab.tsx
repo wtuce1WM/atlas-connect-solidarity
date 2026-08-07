@@ -264,7 +264,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   @media (max-width: 768px) { #owm-embed-panel { width: 100vw; } }
 </style>
 
-<button id="owm-embed-tab" aria-label="Ouvrir l&#39;assistant IA">Assistant 1WM</button>
+<button id="owm-embed-tab" aria-label="Ouvrir l&#39;assistant IA">${trimmedAssistantName || 'Assistant 1WM'}</button>
 <div id="owm-embed-panel" role="dialog" aria-hidden="true">
   <iframe id="owm-embed-iframe" src="${panelUrl}" title="Assistant IA — ${businessName}" allow="clipboard-write; geolocation" loading="lazy"></iframe>
 </div>
