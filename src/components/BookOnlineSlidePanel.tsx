@@ -647,7 +647,7 @@ const BookOnlineSlidePanelInner = ({
   const [allYoutubeVideos, setAllYoutubeVideos] = useState<YouTubeVideo[]>([]);
   const [kpGroupTitle, setKpGroupTitle] = useState<string | null>(null);
   const [highlights, setHighlights] = useState<{ id: string; icon: string; title: string; description: string; image_url: string | null; metric_title: string | null; metric_value: string | null }[]>([]);
-  const [highlightsSection, setHighlightsSection] = useState<{ title: string | null; intro: string | null }>({ title: null, intro: null });
+  const [highlightsSection, setHighlightsSection] = useState<{ title: string | null; intro: string | null; columns: number }>({ title: null, intro: null, columns: 2 });
 
   useEffect(() => {
     if (!businessId) { setHighlights([]); setHighlightsSection({ title: null, intro: null }); return; }
