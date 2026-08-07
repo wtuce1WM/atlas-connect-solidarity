@@ -78,12 +78,15 @@ const extractCoordsFromMapsUrl = (url: string): { lat: number; lng: number } | n
 };
 
 const Row = ({ icon, label, children }: { icon: React.ReactNode; label: string; children: React.ReactNode }) => (
-  <div className="flex items-center gap-3">
-    <div className="h-4 w-4 shrink-0">{icon}</div>
-    <span className="w-[130px] text-sm font-medium text-foreground shrink-0">{label}</span>
+  <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
+    <div className="flex items-center gap-2 sm:gap-3">
+      <div className="h-4 w-4 shrink-0">{icon}</div>
+      <span className="text-sm font-medium text-foreground sm:w-[130px] sm:shrink-0">{label}</span>
+    </div>
     <div className="flex-1">{children}</div>
   </div>
 );
+
 
 const AffiliateContactEditor = ({
   phone, whatsapp, email,
