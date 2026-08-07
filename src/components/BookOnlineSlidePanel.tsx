@@ -2735,7 +2735,8 @@ const BookOnlineSlidePanelInner = ({
                     const norm = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
                     const isBookingLabel = (label: string) => {
                       const n = norm(label || "").trim();
-                      return n === "reservez" || n === "reserver en ligne" || n === "day pass";
+                      return n === "reservez" || n === "reserver en ligne" || n === "day pass"
+                        || n === "reserver une table" || n === "reserver une chambre";
                     };
                     // Seuls les CTA explicitement renseignés sur l'URL comptent :
                     // pas de repli sur presentation_mode, et le site web est exclu.

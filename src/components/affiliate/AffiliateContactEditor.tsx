@@ -27,7 +27,7 @@ const CTA_SELECT_OPTIONS = [
   "Consulter notre offre", "Contactez-moi", "Contactez nous", "Day Pass",
   "En savoir +", "Forfaits", "Google Play", "Hammam", "Hotel", "La carte",
   "Les boissons", "Menu", "Nos services", "Notre offre", "Plus d'informations",
-  "Programme", "Réserver en ligne", "Réservez", "Restaurant", "Riad",
+  "Programme", "Réserver en ligne", "Réserver une chambre", "Réserver une table", "Réservez", "Restaurant", "Riad",
   "Séances", "Site web", "Spa", "WhatsApp",
 ];
 
