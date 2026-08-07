@@ -1961,6 +1961,106 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         </div>
       )}
 
+      {/* ── Widget Fiche 1WM ─────────────────────────────────── */}
+      {slug && (
+        <div className="space-y-3">
+          <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
+            <Newspaper className="h-6 w-6 shrink-0" /> Widget Fiche 1WM (iframe)
+          </h3>
+          <WidgetTester url={f1wmUrl} label={`Fiche 1WM — ${businessName}`} />
+          <p className="text-sm text-white/70">
+            La fiche complète de <span className="font-semibold text-white">{businessName}</span> (photos, avis, offres,
+            horaires, carte, CTAs) embarquée sur votre site, sans scroll vertical inutile.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-white/80 text-xs">Langue</Label>
+              <div className="flex gap-1">
+                {(["fr", "en", "ar"] as const).map((l) => (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => setF1wmLang(l)}
+                    className={`flex-1 text-xs py-1.5 rounded-md border uppercase ${f1wmLang === l ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-white/80 text-xs">Hauteur (px)</Label>
+              <input
+                type="number"
+                min={400}
+                max={2000}
+                value={f1wmHeight}
+                onChange={(e) => setF1wmHeight(Number(e.target.value) || 900)}
+                className="w-full rounded-md bg-white/10 border border-white/20 text-white text-sm px-3 py-1.5"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-white/80 text-xs">Fond du widget</Label>
+              <div className="flex gap-1">
+                {[
+                  { key: "widget" as const, label: widgetBgValid ? `Couleur ${widgetBg}` : "Couleur (non définie)" },
+                  { key: "transparent" as const, label: "Transparent" },
+                ].map((o) => (
+                  <button
+                    key={o.key}
+                    type="button"
+                    onClick={() => setF1wmBgMode(o.key)}
+                    className={`flex-1 text-[11px] py-1.5 px-2 rounded-md border ${f1wmBgMode === o.key ? "bg-white text-neutral-900 border-white" : "text-white border-white/20 hover:bg-white/10"}`}
+                  >
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          {fitRow("fiche1wm")}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label className="text-white/80 text-xs">Code à copier</Label>
+              <textarea
+                readOnly
+                value={f1wmSnippet}
+                onFocus={(e) => e.currentTarget.select()}
+                rows={4}
+                className="w-full rounded-md bg-white/10 border border-white/20 text-white text-xs px-3 py-2 font-mono resize-none"
+              />
+              <div className="flex gap-2 flex-wrap">
+                <Button type="button" size="sm" onClick={() => copy(f1wmSnippet, "fiche1wm")}>
+                  {copied === "fiche1wm" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                  Copier le code iframe
+                </Button>
+                <Button type="button" size="sm" variant="outline" onClick={() => copy(f1wmUrl, "fiche1wm-url")} className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                  {copied === "fiche1wm-url" ? <Check className="h-4 w-4 mr-1" /> : <Copy className="h-4 w-4 mr-1" />}
+                  Copier l'URL seule
+                </Button>
+                <Button type="button" size="sm" variant="outline" asChild className="text-white border-white/20 hover:bg-white/10 hover:text-white">
+                  <a href={f1wmUrl} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="h-4 w-4 mr-1" /> Ouvrir
+                  </a>
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-white/80 text-xs">Aperçu en direct</Label>
+              <div className="rounded-md overflow-hidden border border-white/20 bg-black/30">
+                <iframe
+                  key={f1wmUrl}
+                  src={previewSrc(f1wmUrl)}
+                  style={{ width: "100%", height: f1wmHeight, border: 0, background: "transparent" }}
+                  title="Aperçu Fiche 1WM"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
 
     </div>
   );
