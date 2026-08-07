@@ -1691,9 +1691,9 @@ function CustomSceneDialog({
             <Input
               id="cs-title"
               value={title}
-              onChange={(e) => setTitle(e.target.value.slice(0, 120))}
-              placeholder="Texte principal (max 120)"
-              maxLength={120}
+              onChange={(e) => setTitle(e.target.value.slice(0, 20))}
+              placeholder="Texte principal (max 20)"
+              maxLength={20}
             />
           </div>
 
