@@ -2592,6 +2592,8 @@ const BookOnlineSlidePanelInner = ({
                       </div>
                     </div>
                   )}
+                  {/* Widgets Disponibilité / Horaires — sous le badge de note */}
+                  {renderInlineDescWidgets("desc-widgets-top")}
                   {(() => {
                     const rawHtml = descOverlayContent ? descOverlayContent.html : woDescription;
                     if (!rawHtml) return null;
