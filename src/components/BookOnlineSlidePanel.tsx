@@ -2734,22 +2734,16 @@ const BookOnlineSlidePanelInner = ({
                   {!descOverlayContent && (() => {
                     const norm = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
                     const isBookingLabel = (label: string) => {
-                      const n = norm(label);
-                      return n.includes("reservez") || n.includes("reserver en ligne") || n.includes("day pass");
+                      const n = norm(label || "").trim();
+                      return n === "reservez" || n === "reserver en ligne" || n === "day pass";
                     };
-                    const websiteUrl = business?.website
-                      ? (business.website.startsWith("http") ? business.website : `https://${business.website}`)
-                      : null;
+                    // Seuls les CTA explicitement renseignés sur l'URL comptent :
+                    // pas de repli sur presentation_mode, et le site web est exclu.
                     const candidates: { url: string; label: string; forceExternal?: boolean }[] = [
-                      websiteUrl && {
-                        url: websiteUrl,
-                        label: resolveCtaLabel(business?.presentation_mode, null, "plus_informations", language),
-                        forceExternal: business?.website_force_external,
-                      },
-                      ctaConfig.bookingCta && { url: ctaConfig.bookingCta.fullUrl, label: ctaConfig.bookingCtaLabel, forceExternal: ctaConfig.bookingCta.forceExternal },
-                      ctaConfig.shopCta && { url: ctaConfig.shopCta.fullUrl, label: ctaConfig.shopCtaLabel, forceExternal: ctaConfig.shopCta.forceExternal },
-                      ctaConfig.url4Cta && { url: ctaConfig.url4Cta.fullUrl, label: ctaConfig.url4CtaLabel, forceExternal: ctaConfig.url4Cta.forceExternal },
-                      ctaConfig.url5Cta && { url: ctaConfig.url5Cta.fullUrl, label: ctaConfig.url5CtaLabel, forceExternal: ctaConfig.url5Cta.forceExternal },
+                      ctaConfig.bookingCta && business?.reserve_now_cta && { url: ctaConfig.bookingCta.fullUrl, label: business.reserve_now_cta, forceExternal: ctaConfig.bookingCta.forceExternal },
+                      ctaConfig.shopCta && business?.online_shop_cta && { url: ctaConfig.shopCta.fullUrl, label: business.online_shop_cta, forceExternal: ctaConfig.shopCta.forceExternal },
+                      ctaConfig.url4Cta && (business as any)?.url_4_cta && { url: ctaConfig.url4Cta.fullUrl, label: (business as any).url_4_cta, forceExternal: ctaConfig.url4Cta.forceExternal },
+                      ctaConfig.url5Cta && (business as any)?.url_5_cta && { url: ctaConfig.url5Cta.fullUrl, label: (business as any).url_5_cta, forceExternal: ctaConfig.url5Cta.forceExternal },
                     ].filter(Boolean) as { url: string; label: string; forceExternal?: boolean }[];
                     const embeds = candidates.filter(
                       (c) => !c.forceExternal && /^https?:\/\//i.test(c.url) && isBookingLabel(c.label)
