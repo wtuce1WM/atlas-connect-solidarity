@@ -540,6 +540,18 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     [ficheUrl, ficheMaxWidth, businessName, fits]
   );
 
+  // Widget Fiche 1WM : /embed/fiche/:slug (BookOnlineSlidePanel embarqué)
+  const f1wmBgParam =
+    f1wmBgMode === "transparent" ? "&bg=transparent" : widgetBgValid ? `&bg=${widgetBg.slice(1)}` : "";
+  const f1wmUrl = `${SITE}/embed/fiche/${slug ?? ""}?lang=${f1wmLang}${f1wmBgParam}${fitParam(fitOf("fiche1wm"))}`;
+  const f1wmSnippet = useMemo(
+    () =>
+      `<iframe src="${f1wmUrl}" style="${fitIframeStyle(fitOf("fiche1wm"), { height: f1wmHeight, radius: 20, extra: "width:100%;background:transparent" })}" title="Fiche 1WM — ${businessName}" loading="lazy" allow="clipboard-write; geolocation"></iframe>`,
+    [f1wmUrl, f1wmHeight, businessName, fits]
+  );
+
+
+
 
 
 
