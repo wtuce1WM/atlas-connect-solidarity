@@ -66,7 +66,9 @@ const SELECT_COLS = "id,icon,sort_order,business_id,image_url,section_columns,ti
 
 const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Props>(
   ({ businessId, onDirtyChange }, ref) => {
+    const isMobile = useIsMobile();
     const [loading, setLoading] = useState(true);
+
     const [saving, setSaving] = useState(false);
     const [highlights, setHighlights] = useState<Highlight[]>([]);
     const [sectionTitle, setSectionTitle] = useState<Record<Lang, string>>({ fr: "", en: "", ar: "" });
