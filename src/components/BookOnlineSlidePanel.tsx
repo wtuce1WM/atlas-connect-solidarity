@@ -2798,9 +2798,9 @@ const BookOnlineSlidePanelInner = ({
                                 <PhoneMockupFrame frameColor="dark" screenAspect="9 / 16">
                                   {isExternalVideoUrl(d.url) ? (
                                     <iframe
-                                      src={getVideoEmbed(d.url, window.location.origin, { autoplay: false }).embedUrl}
+                                      src={getVideoEmbed(d.url, window.location.origin, { autoplay: false, muted: true } as any).embedUrl}
                                       title={d.name || ptLabel}
-                                      allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                                      allow="encrypted-media; fullscreen; picture-in-picture"
                                       allowFullScreen
                                       className="w-full h-full block border-0"
                                     />
@@ -2809,6 +2809,7 @@ const BookOnlineSlidePanelInner = ({
                                       src={d.url}
                                       poster={d.thumbnail_url || undefined}
                                       controls
+                                      muted
                                       playsInline
                                       preload="metadata"
                                       className="w-full h-full block object-cover"
