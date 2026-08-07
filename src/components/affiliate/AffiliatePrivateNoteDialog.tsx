@@ -64,11 +64,15 @@ const AffiliatePrivateNoteDialog = ({
         size="sm"
         variant="outline"
         onClick={() => setOpen(true)}
-        className={hasNote ? "border-gold/50 text-gold hover:text-gold" : undefined}
+        className={`h-auto w-full py-1.5 sm:w-auto ${hasNote ? "border-gold/50 text-gold hover:text-gold" : ""}`}
       >
-        <NotebookPen className="h-4 w-4 mr-1" />
-        Note interne
+        <NotebookPen className="h-4 w-4 mr-1 shrink-0" />
+        <span className="flex flex-col leading-tight sm:block">
+          <span>Note</span>
+          <span className="sm:before:content-['_']">interne</span>
+        </span>
       </Button>
+
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="bg-card border-border text-foreground dark sm:max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
