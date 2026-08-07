@@ -1,5 +1,5 @@
 import { palette } from "./palette";
-import { space } from "./space";
+import { space, safe } from "./space";
 
 /** Canvas de référence */
 export const canvas = {
@@ -25,4 +25,4 @@ export const rule = {
   thick: 2,
 } as const;
 
-export const layout = { canvas, surfaces, rule, pad: space } as const;
+export const layout = { canvas, surfaces, rule, safe, pad: space } as const;
