@@ -1312,7 +1312,7 @@ const EmbedAsk = () => {
                         </div>
                         {p.review?.text && (
                           <div className="px-3 pb-3">
-                            <div className={`rounded-lg p-2.5 text-[12px] leading-relaxed border ${border}`} style={{ background: theme === "light" ? "rgba(0,0,0,0.03)" : "rgba(255,255,255,0.04)" }}>
+                            <div className={`rounded-lg p-2.5 text-[12px] leading-relaxed border ${border}`} style={theme === "light" ? { background: "rgba(0,0,0,0.03)" } : { background: "#FFFFFF", color: "#000000" }}>
                               <div className="italic opacity-90">« {p.review.text} »</div>
                               {p.review.author && (
                                 <div className="mt-1 text-[10px] opacity-60">
