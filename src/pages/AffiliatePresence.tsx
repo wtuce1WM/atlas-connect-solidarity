@@ -730,14 +730,15 @@ const AffiliatePresence = () => {
                     {/* Links Tab */}
                     <TabsContent value="links">
                       <Tabs defaultValue="web" className="w-full">
-                        <TabsList className="mb-4 w-full flex items-center justify-start gap-1 border-b border-white/10 bg-transparent p-0 h-auto">
-                          <TabsTrigger value="web" className="group shrink-0 px-4 py-2.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <TabsList className="mb-4 w-full flex flex-col items-stretch gap-1 border-b border-white/10 bg-transparent p-0 h-auto sm:flex-row sm:items-center sm:justify-start">
+                          <TabsTrigger value="web" className="group w-full sm:w-auto shrink-0 px-4 py-2.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
                             <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Web &amp; Socials</span>
                           </TabsTrigger>
-                          <TabsTrigger value="externes" className="group shrink-0 px-4 py-2.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                          <TabsTrigger value="externes" className="group w-full sm:w-auto shrink-0 px-4 py-2.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
                             <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Externes</span>
                           </TabsTrigger>
                         </TabsList>
+
 
                         <TabsContent value="web" className="space-y-3">
                           {VISIBLE_PLATFORMS.map(platform => {
