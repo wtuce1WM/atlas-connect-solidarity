@@ -47411,7 +47411,7 @@
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "20 Derb Assabbane",
-          "addressLocality": "Gueliz",
+          "addressLocality": "Medina",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
         },
@@ -47424,7 +47424,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 81,
+          "reviewCount": 88,
           "bestRating": 5
         }
       }
