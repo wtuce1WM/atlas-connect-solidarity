@@ -100,8 +100,9 @@ interface Props {
 const AffiliatePublishedWidgetsPanel = ({ businessId, slug, onGoToWidgets }: Props) => {
   const { toast } = useToast();
   const [rows, setRows] = useState<Record<string, { format: Format; target_url: string }>>({});
+  const [saved, setSaved] = useState<Record<string, { format: Format; target_url: string }>>({});
   const [savingKey, setSavingKey] = useState<string | null>(null);
-  const [preview, setPreview] = useState<{ title: string; url: string; height: number } | null>(null);
+  const [preview, setPreview] = useState<{ title: string; url: string; height: number; widgetKey: string } | null>(null);
   const [defaultTargetUrl, setDefaultTargetUrl] = useState("");
 
   useEffect(() => {
