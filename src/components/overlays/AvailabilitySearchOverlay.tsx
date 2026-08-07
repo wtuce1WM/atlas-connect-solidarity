@@ -9,9 +9,11 @@ interface AvailabilitySearchOverlayProps {
   initialAdults?: number;
   onSearch: (checkIn: string, checkOut: string, adults: number) => void;
   onClose: () => void;
+  /** Rendu inline (sans fond noir plein écran ni bouton fermer) */
+  inline?: boolean;
 }
 
-export default function AvailabilitySearchOverlay({ language, isSearching, initialCheckIn, initialCheckOut, initialAdults, onSearch, onClose }: AvailabilitySearchOverlayProps) {
+export default function AvailabilitySearchOverlay({ language, isSearching, initialCheckIn, initialCheckOut, initialAdults, onSearch, onClose, inline }: AvailabilitySearchOverlayProps) {
   const isEn = language === "en";
 
   const fmt = (d: Date) => d.toISOString().split("T")[0];
@@ -100,10 +102,9 @@ export default function AvailabilitySearchOverlay({ language, isSearching, initi
 
   const isInRange = (dateStr: string) => dateStr > checkIn && dateStr < checkOut;
 
-  return (
-    <div className="absolute inset-0 z-[75] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+  const card = (
       <div
-        className="backdrop-blur-md border border-white/20 rounded-2xl p-5 w-[22rem] max-w-[95vw] text-white animate-zoom-out-center"
+        className={`backdrop-blur-md border border-white/20 rounded-2xl p-5 text-white ${inline ? "w-full max-w-full" : "w-[22rem] max-w-[95vw] animate-zoom-out-center"}`}
         style={{ backgroundColor: "#3B3B3B" }}
         onClick={e => e.stopPropagation()}
       >
@@ -112,9 +113,11 @@ export default function AvailabilitySearchOverlay({ language, isSearching, initi
             <Search className="h-4 w-4" />
             {isEn ? "Check availability" : "Vérifier la disponibilité"}
           </p>
-          <button onClick={onClose} className="p-1.5 rounded-full bg-white text-black hover:bg-white/90 transition-colors shadow-md" title="Fermer">
-            <X className="h-4 w-4 text-black" />
-          </button>
+          {!inline && (
+            <button onClick={onClose} className="p-1.5 rounded-full bg-white text-black hover:bg-white/90 transition-colors shadow-md" title="Fermer">
+              <X className="h-4 w-4 text-black" />
+            </button>
+          )}
         </div>
 
         <div className="flex gap-1 mb-3">
@@ -217,6 +220,13 @@ export default function AvailabilitySearchOverlay({ language, isSearching, initi
           <span>{isEn ? "Check availability" : "Vérifier la disponibilité"}</span>
         </button>
       </div>
+  );
+
+  if (inline) return card;
+
+  return (
+    <div className="absolute inset-0 z-[75] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+      {card}
     </div>
   );
 }
