@@ -617,7 +617,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   return (
     <div className="space-y-6">
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <MapPin className="h-4 w-4" /> Rayon de proximité
         </h3>
         <p className="text-sm text-white/70 max-w-2xl">
@@ -647,7 +647,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <Globe2 className="h-4 w-4" /> Couleur de fond des widgets
         </h3>
         <p className="text-sm text-white/70 max-w-2xl">
@@ -684,7 +684,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
 
       <div className="space-y-4">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <ExternalLink className="h-4 w-4" /> Liens de partage
         </h3>
         {renderUrlRow("URL publique (fiche)", publicUrl, "public")}
@@ -693,7 +693,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
 
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <QrCode className="h-4 w-4" /> QR Code
         </h3>
         <div className="flex flex-col sm:flex-row items-start gap-4">
@@ -718,7 +718,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       </div>
       {rights.aiAssistant && (
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <Bot className="h-4 w-4" /> Assistant IA embarqué (iframe)
         </h3>
         <WidgetTester url={embedUrl} label="Assistant IA embarqué" />
@@ -1024,7 +1024,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       {/* ---------- Export d'article de blog ---------- */}
       {rights.blogExport && (
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <Newspaper className="h-4 w-4" /> Vos articles de blog (code à copier)
         </h3>
         <p className="text-sm text-white/70">
@@ -1038,7 +1038,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
       {/* ---------- Services optionnels manquants (domaine) ---------- */}
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <Globe2 className="h-4 w-4" /> Redirection 301 depuis votre domaine (gratuit, DIY)
         </h3>
         <p className="text-sm text-white/70">
@@ -1089,7 +1089,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       {/* ---------- Widget « À proximité » (overlay POI) ---------- */}
       {rights.nearbyWidget && (
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <MapPin className="h-4 w-4" /> Widget « À proximité » (carte + établissements autour de vous)
         </h3>
         <WidgetTester url={nearbyUrl} label="Widget À proximité" />
@@ -1262,7 +1262,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
       {/* ── Widget Avis clients ───────────────────────────────── */}
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <Star className="h-4 w-4" /> Widget Avis clients (iframe)
         </h3>
         <WidgetTester url={reviewsUrl} label="Widget Avis clients" />
@@ -1395,7 +1395,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
       {/* ── Widget Laisser un avis ────────────────────────────── */}
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <ThumbsUp className="h-4 w-4" /> Widget Laisser un avis (iframe)
         </h3>
         <WidgetTester url={rateUrl} label="Widget Laisser un avis" />
@@ -1556,7 +1556,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       {rights.emailSignature && (
       <div className="space-y-3">
 
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <Mail className="h-4 w-4" /> Signature email « Laisser un avis » (HTML statique)
         </h3>
         <p className="text-sm text-white/70">
@@ -1608,7 +1608,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
       {/* ── Widget Météo ──────────────────────────────────────── */}
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <CloudSun className="h-4 w-4" /> Widget Météo (iframe)
         </h3>
         <WidgetTester url={weatherUrl} label="Widget Météo" />
@@ -1779,7 +1779,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
       {/* ── Widget Marées ─────────────────────────────────────── */}
       <div className="space-y-3">
-        <h3 className="text-white font-semibold flex items-center gap-2">
+        <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
           <Waves className="h-4 w-4" /> Widget Marées (iframe)
         </h3>
         <WidgetTester url={tidesUrl} label="Widget Marées, Vents & Météo" />
@@ -1857,7 +1857,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       {/* ── Widget Votre ID numérique type Linktree ─────────────────────────────── */}
       {slug && (
         <div className="space-y-3">
-          <h3 className="text-white font-semibold flex items-center gap-2">
+          <h3 className="text-white font-bold text-3xl sm:text-4xl leading-tight flex items-center gap-2">
             <Globe2 className="h-4 w-4" /> Widget Votre ID numérique type Linktree (iframe)
           </h3>
           <WidgetTester url={ficheUrl} label={`Fiche complète — ${businessName}`} />
