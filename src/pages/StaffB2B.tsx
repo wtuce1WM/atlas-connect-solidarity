@@ -3,13 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, ArrowLeft, UserCheck, Star, BarChart3, ShieldCheck } from "lucide-react";
+import { LogOut, ArrowLeft, UserCheck, Star, BarChart3, ShieldCheck, ReceiptText } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import AffiliateManagement from "@/components/staff/AffiliateManagement";
 import AffiliateRightsPanel from "@/components/staff/AffiliateRightsPanel";
 import SponsorManagement from "@/components/staff/SponsorManagement";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import BusinessAnalyticsPanel from "@/components/affiliate/BusinessAnalyticsPanel";
+import BillingManagement from "@/components/staff/billing/BillingManagement";
+
 
 
 const StaffB2B = () => {
