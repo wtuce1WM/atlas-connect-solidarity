@@ -100,8 +100,9 @@ interface Props {
 const AffiliatePublishedWidgetsPanel = ({ businessId, slug, onGoToWidgets }: Props) => {
   const { toast } = useToast();
   const [rows, setRows] = useState<Record<string, { format: Format; target_url: string }>>({});
+  const [saved, setSaved] = useState<Record<string, { format: Format; target_url: string }>>({});
   const [savingKey, setSavingKey] = useState<string | null>(null);
-  const [preview, setPreview] = useState<{ title: string; url: string; height: number } | null>(null);
+  const [preview, setPreview] = useState<{ title: string; url: string; height: number; widgetKey: string } | null>(null);
   const [defaultTargetUrl, setDefaultTargetUrl] = useState("");
 
   useEffect(() => {
@@ -120,6 +121,7 @@ const AffiliatePublishedWidgetsPanel = ({ businessId, slug, onGoToWidgets }: Pro
         map[r.widget_key] = { format: (r.format || "inline") as Format, target_url: r.target_url || "" };
       });
       setRows(map);
+      setSaved(map);
       setDefaultTargetUrl(((biz as any)?.showcase_target_url as string) || "");
     })();
     return () => { cancel = true; };
@@ -140,9 +142,18 @@ const AffiliatePublishedWidgetsPanel = ({ businessId, slug, onGoToWidgets }: Pro
         { onConflict: "business_id,widget_key" },
       );
     setSavingKey(null);
+    if (!error) setSaved((prev) => ({ ...prev, [key]: { format: cur.format, target_url: cur.target_url.trim() } }));
     toast(error
       ? { title: "Erreur", description: error.message, variant: "destructive" }
       : { title: "Format publié enregistré" });
+  };
+
+  /** État de publication : publié (identique à la base), modifié, ou jamais publié. */
+  const pubState = (key: string): "published" | "dirty" | "none" => {
+    const s = saved[key];
+    if (!s) return "none";
+    const cur = get(key);
+    return s.format === cur.format && (s.target_url || "") === cur.target_url.trim() ? "published" : "dirty";
   };
 
   const configured = useMemo(() => Object.keys(rows).length, [rows]);
@@ -186,17 +197,34 @@ const AffiliatePublishedWidgetsPanel = ({ businessId, slug, onGoToWidgets }: Pro
                     </div>
                   </td>
                   <td className="px-3 py-2.5">
-                    <select
-                      value={cur.format}
-                      onChange={(e) => set(w.key, { format: e.target.value as Format })}
-                      className="h-8 rounded-md bg-white/5 border border-white/15 text-white text-xs px-2"
-                    >
-                      {FORMATS.filter((f) => w.formats.includes(f.value)).map((f) => (
-                        <option key={f.value} value={f.value} className="bg-neutral-900">
-                          {f.label}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <select
+                        value={cur.format}
+                        onChange={(e) => set(w.key, { format: e.target.value as Format })}
+                        className="h-8 rounded-md bg-white/5 border border-white/15 text-white text-xs px-2"
+                      >
+                        {FORMATS.filter((f) => w.formats.includes(f.value)).map((f) => (
+                          <option key={f.value} value={f.value} className="bg-neutral-900">
+                            {f.label}
+                          </option>
+                        ))}
+                      </select>
+                      {pubState(w.key) === "published" && (
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[#25D366]/15 text-[#25D366] border border-[#25D366]/40 whitespace-nowrap">
+                          Publié
+                        </span>
+                      )}
+                      {pubState(w.key) === "dirty" && (
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-amber-400/15 text-amber-300 border border-amber-400/40 whitespace-nowrap">
+                          Modifié
+                        </span>
+                      )}
+                      {pubState(w.key) === "none" && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/5 text-white/40 border border-white/10 whitespace-nowrap">
+                          Non publié
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-3 py-2.5">
                     <input
@@ -211,7 +239,7 @@ const AffiliatePublishedWidgetsPanel = ({ businessId, slug, onGoToWidgets }: Pro
                       {url && (
                         <button
                           type="button"
-                          onClick={() => setPreview({ title: `${w.label} — ${FORMATS.find((f) => f.value === cur.format)?.label}`, url, height: w.height })}
+                          onClick={() => setPreview({ title: `${w.label} — ${FORMATS.find((f) => f.value === cur.format)?.label}`, url, height: w.height, widgetKey: w.key })}
                           className="text-xs text-primary hover:underline inline-flex items-center gap-1"
                         >
                           <Eye className="h-3 w-3" /> Visualiser
@@ -242,6 +270,19 @@ const AffiliatePublishedWidgetsPanel = ({ businessId, slug, onGoToWidgets }: Pro
                 title={preview.title}
                 loading="lazy"
               />
+              {(() => {
+                const s = saved[preview.widgetKey];
+                if (!s) return <p className="text-xs text-white/50">Aucune version publiée pour ce widget (aperçu du brouillon).</p>;
+                const fmt = FORMATS.find((f) => f.value === s.format)?.label || s.format;
+                const dirty = pubState(preview.widgetKey) === "dirty";
+                return (
+                  <p className="text-xs text-white/60">
+                    Version publiée : <span className="text-[#25D366]">{fmt}</span>
+                    {s.target_url ? <>, cible <span className="text-white/80">{s.target_url}</span></> : ", aucune URL cible"}
+                    {dirty && <span className="text-amber-300"> — modifications non enregistrées</span>}
+                  </p>
+                );
+              })()}
               <a href={preview.url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline inline-flex items-center gap-1">
                 Ouvrir dans un nouvel onglet <ExternalLink className="h-3 w-3" />
               </a>
