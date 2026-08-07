@@ -30,7 +30,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-type DocType = "menu" | "flipbook" | "external";
+type DocType = "menu" | "flipbook" | "external_link";
 
 interface DocEntry {
   _uid: string;
@@ -134,7 +134,7 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
         .from("business_documents")
         .select("*")
         .eq("business_id", businessId)
-        .in("type", ["menu", "flipbook", "external"])
+        .in("type", ["menu", "flipbook", "external_link"])
         .order("sort_order", { ascending: true });
       if (cancelled) return;
       const map = (rows: any[]): DocEntry[] =>
@@ -145,14 +145,15 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
           name: d.name || "",
           language: d.language || "",
           icon: d.icon || "",
-          image_url: (d as any).image_url || "",
+          // Les liens externes stockent leur logo dans la colonne `icon`
+          image_url: d.type === "external_link" ? d.icon || "" : "",
           description: d.description || "",
           force_external: !!d.force_external,
         }));
       const all = (data || []) as any[];
       setMenus(map(all.filter((d) => d.type === "menu")));
       setFlipbooks(map(all.filter((d) => d.type === "flipbook")));
-      setExternals(map(all.filter((d) => d.type === "external")));
+      setExternals(map(all.filter((d) => d.type === "external_link")));
       setInitialIds(all.map((d) => d.id));
       setLoading(false);
     };
@@ -188,7 +189,7 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
       const groups: { type: DocType; rows: DocEntry[] }[] = [
         { type: "menu", rows: menus },
         { type: "flipbook", rows: flipbooks },
-        { type: "external", rows: externals },
+        { type: "external_link", rows: externals },
       ];
 
       const keptIds = new Set(
@@ -203,19 +204,19 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
       for (const { type, rows } of groups) {
         for (let i = 0; i < rows.length; i++) {
           const d = rows[i];
-          if (!d.url.trim()) continue;
+          const isExternal = type === "external_link";
+          if (isExternal ? !d.name.trim() : !d.url.trim()) continue;
           const payload: any = {
             business_id: businessId,
             type,
             url: d.url.trim(),
             name: d.name || null,
             language: d.language || null,
-            icon: d.icon || null,
-            description: type === "external" ? d.description || null : null,
+            icon: isExternal ? d.image_url || null : d.icon || null,
+            description: isExternal ? d.description || "presse" : null,
             force_external: d.force_external,
             sort_order: i,
           };
-          if (type === "external") payload.image_url = d.image_url || null;
           if (d.id) {
             const { error } = await supabase.from("business_documents").update(payload).eq("id", d.id);
             if (error) throw error;
