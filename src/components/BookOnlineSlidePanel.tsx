@@ -4,7 +4,7 @@ import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import { YoutubeScrubBar } from "@/components/video/YoutubeScrubBar";
 import { createPortal } from "react-dom";
-import { MapPin, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Landmark, Clock, Play, Pause, Volume2, VolumeX, Building2, Compass, ShoppingCart, SlidersHorizontal, CheckCircle2, Circle, Navigation, Heart, Hash } from "lucide-react";
+import { MapPin, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Clock, Play, Pause, Volume2, VolumeX, Building2, Compass, ShoppingCart, SlidersHorizontal, CheckCircle2, Circle, Navigation, Heart } from "lucide-react";
 import ShareButton from "@/components/ShareButton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
@@ -993,7 +993,7 @@ const BookOnlineSlidePanelInner = ({
       setPeekHoraires(false);
     }, 5000);
 
-    const count = 6;
+    const count = 4;
     const start = 450;
     const open = 1500;
     const stagger = 180;
@@ -1717,35 +1717,44 @@ const BookOnlineSlidePanelInner = ({
               { code: "ar" as const, flag: "🇲🇦", label: "العربية" },
             ];
             const ctaLabel = language === "en" ? "Language" : language === "ar" ? "اللغة" : "Langue";
+            const currentLang = LANG_OPTIONS.find((opt) => opt.code === language) || LANG_OPTIONS[0];
+            const otherLangs = LANG_OPTIONS.filter((opt) => opt.code !== language);
             return (
               <div className={`group cta-peek ${peekCta[0] ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
                 <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
                 <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{ctaLabel}</span>
                 <span className="flex items-center gap-1.5 group-hover:ml-2 transition-[margin] duration-300">
-                  {LANG_OPTIONS.map((opt) => {
-                    const isActive = language === opt.code;
-                    return (
+                  <button
+                    type="button"
+                    data-cta-tap
+                    onClick={(e) => e.stopPropagation()}
+                    aria-label={`Current language ${currentLang.label}`}
+                    title={currentLang.label}
+                    className="relative inline-flex items-center justify-center text-[22px] leading-none shrink-0 opacity-100 scale-110 transition-all duration-200"
+                  >
+                    {currentLang.flag}
+                  </button>
+                  <span className="flex items-center gap-1.5 opacity-100 md:opacity-0 md:max-w-0 md:overflow-hidden group-hover:opacity-100 group-hover:max-w-[120px] transition-all duration-300 ease-out">
+                    {otherLangs.map((opt) => (
                       <button
                         key={opt.code}
                         type="button"
                         data-cta-tap
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (!isActive) {
-                            setLanguage(opt.code);
-                            import("@/lib/analytics").then(({ trackEvent }) =>
-                              trackEvent("language_switch", { from: language, to: opt.code, source: "slidepanel_cta" })
-                            ).catch(() => {});
-                          }
+                          setLanguage(opt.code);
+                          import("@/lib/analytics").then(({ trackEvent }) =>
+                            trackEvent("language_switch", { from: language, to: opt.code, source: "slidepanel_cta" })
+                          ).catch(() => {});
                         }}
                         aria-label={`Switch to ${opt.label}`}
                         title={opt.label}
-                        className={`relative inline-flex items-center justify-center text-[22px] leading-none shrink-0 transition-all duration-200 ${isActive ? 'opacity-100 scale-110' : 'opacity-60 hover:opacity-100 hover:scale-110'}`}
+                        className="relative inline-flex items-center justify-center text-[22px] leading-none shrink-0 opacity-60 hover:opacity-100 hover:scale-110 transition-all duration-200"
                       >
                         {opt.flag}
                       </button>
-                    );
-                  })}
+                    ))}
+                  </span>
                 </span>
               </div>
             );
@@ -1797,18 +1806,6 @@ const BookOnlineSlidePanelInner = ({
               <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           )}
-          {hasKpCarousel && (
-            <div data-cta-tap onClick={handleCtaTap('kp', () => { setDescGridSection("kp"); setDescGridPage(0); setDescOverlayDirect(true); setShowDescriptionOverlay(true); })} className={`group cta-peek ${peekCta[4] || tappedCta === 'kp' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
-              <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
-              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[200px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{kpGroupTitle || (language === "en" ? "Other establishments" : language === "ar" ? "مؤسسات أخرى" : "Autres établissements")}</span>
-              <Landmark className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
-            </div>
-          )}
-          <div data-cta-tap onClick={handleCtaTap('tags', () => setHashtagsOverlayActive(true))} className={`group cta-peek ${peekCta[5] || tappedCta === 'tags' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
-            <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
-            <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{language === "en" ? "Tags" : language === "ar" ? "الوسوم" : "Tags"}</span>
-            <Hash className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
-          </div>
           {externalLinks.length > 0 && (() => {
             const extDesc = externalLinks[0]?.description?.toLowerCase() || "";
             const isPresse = extDesc === "presse" || extDesc === "media";

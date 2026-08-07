@@ -8878,7 +8878,7 @@
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "4 Riad Zitoun Lakdim",
-          "addressLocality": "Medina",
+          "addressLocality": "Mellah",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
         },
@@ -8891,7 +8891,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.4,
-          "reviewCount": 4998,
+          "reviewCount": 4972,
           "bestRating": 5
         }
       }
@@ -49775,7 +49775,7 @@
         "name": "The Sun-Set Rooftop",
         "url": "https://oneworldmorocco.com/the-sun-set-rooftop",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/04b348d0-2061-4576-b7f7-f2b759f63e7a-1781359067448-vf2zdn.jpg",
-        "description": "The Sun-Set Rooftop est né d’une vision simple : créer un lieu où les gens se rencontrent naturellement. Suspendu au-dessus de Marrakech, notre rooftop célèbre le coucher du soleil comme un rituel, mêlant musique, gastronomie et énergie humaine dans un cadre élégant et décontracté. Chaque détail est pensé pour faire vibrer l’instant. Plus qu’un restaurant ou un bar, Sun-Set est un point de rendez-vous. Ici, les DJ sets accompagnent les conversations, les tapas se partagent, et les nuits s’écrive",
+        "description": "Situé dans le quartier Semlalia , aux portes de Guéliz , The Sun-Set Rooftop Marrakech s'impose comme l'une des nouvelles adresses les plus tendance de la ville. Classé N°2 des 20 meilleures tables de Marrakech d'après les grandes plateformes d'avis clients , ce rooftop séduit par son atmosphère élégante, sa vue panoramique sur Marrakech , sa programmation musicale avec DJ sets , son service haut de gamme et une cuisine créative mêlant inspirations méditerranéennes, internationales et marocaines",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Bd Abdelkrim Al Khattabi",
@@ -49791,7 +49791,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 458,
+          "reviewCount": 475,
           "bestRating": 5
         }
       }
@@ -52673,7 +52673,7 @@
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "4 Riad Zitoun Lakdim",
-          "addressLocality": "Medina",
+          "addressLocality": "Mellah",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
         },
@@ -52686,7 +52686,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.4,
-          "reviewCount": 4998,
+          "reviewCount": 4972,
           "bestRating": 5
         }
       }
@@ -52826,6 +52826,17 @@
           "addressLocality": "Gueliz",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.6331192,
+          "longitude": -8.0149357
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.9,
+          "reviewCount": 113,
+          "bestRating": 5
         }
       }
     },
