@@ -19,10 +19,11 @@ interface AiText {
   extra_instructions: string | null;
   length_mode: string | null;
   style_mode: string | null;
+  include_prices: boolean | null;
 }
 
 const SELECT_COLS =
-  "id,title,hook,content,source_mode,position,is_active,extra_instructions,length_mode,style_mode";
+  "id,title,hook,content,source_mode,position,is_active,extra_instructions,length_mode,style_mode,include_prices";
 
 const MAX_TEXTS = 10;
 const MAX_CONTENT = 2000;
@@ -125,6 +126,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
   const [biz, setBiz] = useState<Record<string, any> | null>(null);
   const [docs, setDocs] = useState<Array<{ type: string; name: string | null; url: string }>>([]);
   const [selectedUrls, setSelectedUrls] = useState<string[]>([]);
+  const [includePrices, setIncludePrices] = useState(false);
 
   // Les menus / cartes et liens externes éditoriaux sont dans business_documents
   // (type menu | flipbook | external_link) : c'est la SEULE source.
@@ -156,6 +158,9 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
   );
 
   const activeLinks = mode === "menu_links" ? menuLinks : mode === "external_links" ? externalLinks : [];
+
+  // Analyse des prix : réservée aux menus/cartes, en mode Factuel et longueur ~2000.
+  const canIncludePrices = mode === "menu_links" && style === "factual" && length === "long";
 
   const snapshot = (t: AiText) => JSON.stringify([t.title, t.hook, t.content, t.is_active]);
   const isDirty = (t: AiText) => pristine[t.id] !== undefined && pristine[t.id] !== snapshot(t);
@@ -206,6 +211,11 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [mode, biz, docs]);
 
+  useEffect(() => {
+    if (!canIncludePrices && includePrices) setIncludePrices(false);
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [canIncludePrices]);
+
   const toggleUrl = (url: string) =>
     setSelectedUrls((prev) => (prev.includes(url) ? prev.filter((u) => u !== url) : [...prev, url]));
 
@@ -227,6 +237,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
           length,
           style,
           extra_instructions: extra,
+          include_prices: canIncludePrices && includePrices,
           urls: mode === "menu_links" || mode === "external_links" ? selectedUrls : [],
         },
       });
@@ -246,6 +257,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
           position: texts.length,
           length_mode: length,
           style_mode: style,
+          include_prices: canIncludePrices && includePrices,
           extra_instructions: extra.trim() || null,
         })
         .select(SELECT_COLS)
@@ -471,6 +483,24 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
           <p className="text-xs text-white/50">{STYLES.find((s) => s.value === style)!.help}</p>
         </div>
 
+        {canIncludePrices && (
+          <label className="flex cursor-pointer items-start gap-3 rounded-md border border-gold/30 bg-gold/5 p-3">
+            <input
+              type="checkbox"
+              className="mt-1 accent-current"
+              checked={includePrices}
+              onChange={(e) => setIncludePrices(e.target.checked)}
+            />
+            <span>
+              <span className="block text-sm font-medium text-white">Récupérer les prix et calculer les moyennes</span>
+              <span className="block text-xs text-white/60">
+                Uniquement disponible pour les menus / cartes, en style Factuel et longueur Longue (~2000).
+                Les prix lus dans la source sont restitués, avec un prix moyen général et des prix moyens par section.
+              </span>
+            </span>
+          </label>
+        )}
+
 
         <div className="flex flex-wrap gap-3">
           <Button onClick={generate} disabled={generating || texts.length >= MAX_TEXTS}>
@@ -481,7 +511,7 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
             <Plus className="h-4 w-4" /> Ajouter un texte vide
           </Button>
         </div>
-        <p className="text-xs text-white/50">{activeMode.help} Textes limités à {MAX_CONTENT} caractères. Aucun prix n'est jamais mentionné.</p>
+        <p className="text-xs text-white/50">{activeMode.help} Textes limités à {MAX_CONTENT} caractères.{canIncludePrices && includePrices ? " Les prix de la source seront restitués et moyennés." : " Aucun prix n'est mentionné."}</p>
       </div>
 
       {loading ? (
@@ -501,6 +531,12 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
                     <span className="text-xs text-white/50">{modeLabel(t.source_mode)}</span>
                     {lengthLabel(t.length_mode) && (
                       <span className="rounded bg-white/10 px-2 py-0.5 text-xs text-white/70">{lengthLabel(t.length_mode)}</span>
+                    )}
+                    {styleLabel(t.style_mode) && (
+                      <span className="rounded bg-white/10 px-2 py-0.5 text-xs text-white/70">Ton : {styleLabel(t.style_mode)}</span>
+                    )}
+                    {t.include_prices && (
+                      <span className="rounded bg-gold/20 px-2 py-0.5 text-xs text-gold">Prix analysés</span>
                     )}
                     {locked && (
                       <span className="inline-flex items-center gap-1 rounded bg-amber-500/15 px-2 py-0.5 text-xs text-amber-300">

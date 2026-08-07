@@ -29,6 +29,7 @@ import AffiliateAiTextsEditor from "@/components/affiliate/AffiliateAiTextsEdito
 import AffiliateAgentIaEditor from "@/components/affiliate/AffiliateAgentIaEditor";
 import AffiliateMapEditor from "@/components/affiliate/AffiliateMapEditor";
 import AffiliateCtasEditor from "@/components/affiliate/AffiliateCtasEditor";
+import AffiliatePrivateNoteDialog from "@/components/affiliate/AffiliatePrivateNoteDialog";
 
 
 import AffiliateHighlightsEditor from "@/components/affiliate/AffiliateHighlightsEditor";
@@ -122,6 +123,7 @@ interface BusinessPresence {
   name_ar: string | null;
   carousel_badge: string | null;
   poi_business_style: string | null;
+  affiliate_private_note: string | null;
   is_active: boolean;
 }
 
@@ -172,7 +174,7 @@ const AffiliatePresence = () => {
       "address", "neighborhood", "latitude", "longitude", "opening_hours",
       "show_opening_hours", "closure_message", "vacation_dates",
       "hook_fr", "hook_en", "hook_ar", "description", "description_fr", "description_en", "description_ar",
-      "is_active", "carousel_badge", "poi_business_style",
+      "is_active", "carousel_badge", "poi_business_style", "affiliate_private_note",
       ...PLATFORMS.map(p => p.key),
       ...CTA_EXTRA_FIELDS,
       ...REVIEW_FIELDS].join(",");
@@ -225,6 +227,7 @@ const AffiliatePresence = () => {
         name_ar: b.name_ar ?? null,
         carousel_badge: b.carousel_badge ?? null,
         poi_business_style: b.poi_business_style ?? null,
+        affiliate_private_note: b.affiliate_private_note ?? null,
         is_active: b.is_active ?? true,
 
       };
@@ -626,6 +629,11 @@ const AffiliatePresence = () => {
                       </p>
                     </div>
                     <div className="flex items-center gap-3">
+                      <AffiliatePrivateNoteDialog
+                        businessId={currentBusiness.id}
+                        initialNote={currentBusiness.affiliate_private_note}
+                        onSaved={(note) => setBusinesses(prev => prev.map(b => b.id === currentBusiness.id ? { ...b, affiliate_private_note: note } : b))}
+                      />
                       <Button
                         size="sm"
                         disabled={!hasEdits || savingId === currentBusiness.id}
