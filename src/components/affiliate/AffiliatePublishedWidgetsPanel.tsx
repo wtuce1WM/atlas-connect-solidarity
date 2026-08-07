@@ -120,9 +120,9 @@ const AffiliatePublishedWidgetsPanel = ({ businessId, slug, onGoToWidgets }: Pro
       ((pub as any[]) || []).forEach((r) => {
         map[r.widget_key] = { format: (r.format || "inline") as Format, target_url: r.target_url || "" };
       });
+      setRows(map);
       setSaved(map);
       setDefaultTargetUrl(((biz as any)?.showcase_target_url as string) || "");
-    })();
     })();
     return () => { cancel = true; };
   }, [businessId]);
