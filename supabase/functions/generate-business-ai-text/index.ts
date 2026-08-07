@@ -98,7 +98,7 @@ async function firecrawlScrape(url: string, apiKey: string): Promise<string> {
 // Lecture VISUELLE d'un PDF (carte / menu) par IA multimodale.
 // Nécessaire car les mentions d'allergènes (sans gluten, végétarien…) sont des
 // PICTOGRAMMES : l'extraction texte (Firecrawl) les perd totalement.
-async function visionReadPdf(url: string, label: string, apiKey: string): Promise<string> {
+async function visionReadPdf(url: string, label: string, apiKey: string, withPrices = false): Promise<string> {
   try {
     const res = await fetch(url);
     if (!res.ok) return "";
@@ -131,7 +131,10 @@ async function visionReadPdf(url: string, label: string, apiKey: string): Promis
                   "les intitulés exacts des plats et boissons, les spécialités, et surtout les MENTIONS " +
                   "D'ALLERGÈNES OU DE RÉGIME indiquées par des pictogrammes ou une légende (sans gluten, " +
                   "végétarien, vegan, épicé, fruits à coque…) en les associant explicitement à chaque plat concerné. " +
-                  "N'inclus aucun prix. Si un pictogramme est ambigu, ne l'attribue pas.",
+                  (withPrices
+                    ? "Relève AUSSI le PRIX exact de chaque intitulé tel qu'il apparaît (avec sa devise), sous la forme « Intitulé — 120 MAD ». N'invente aucun prix : si un prix est absent ou illisible, écris « prix non indiqué »."
+                    : "N'inclus aucun prix.") +
+                  " Si un pictogramme est ambigu, ne l'attribue pas.",
               },
               { type: "file", file: { filename: `${label}.pdf`, file_data: `data:application/pdf;base64,${b64}` } },
             ],
@@ -158,6 +161,13 @@ Deno.serve(async (req) => {
     const lengthKey = LENGTH_SPECS[String(body?.length ?? "")] ? String(body.length) : "short";
     const len = LENGTH_SPECS[lengthKey];
     const styleKey = STYLE_BRIEFS[String(body?.style ?? "")] ? String(body.style) : "default";
+    // Analyse des prix : strictement réservée aux menus/cartes, style Factuel,
+    // longueur Longue (~2000). Toute autre combinaison l'ignore.
+    const includePrices =
+      body?.include_prices === true &&
+      String(body?.mode ?? "") === "menu_links" &&
+      String(body?.style ?? "") === "factual" &&
+      String(body?.length ?? "") === "long";
     const requestedUrls: string[] = Array.isArray(body?.urls)
       ? body.urls.map((u: unknown) => String(u ?? "").trim()).filter(Boolean).slice(0, 6)
       : [];
@@ -317,7 +327,7 @@ Deno.serve(async (req) => {
             // Menus : on tente d'abord la lecture visuelle (pictogrammes allergènes),
             // puis on retombe sur l'extraction texte classique.
             if (mode === "menu_links") {
-              const vision = await visionReadPdf(u, label, LOVABLE_API_KEY);
+              const vision = await visionReadPdf(u, label, LOVABLE_API_KEY, includePrices);
               if (vision) return `### ${label} (${u}) — lecture visuelle IA\n${vision}`;
             }
             const md = await firecrawlScrape(u, fcKey);
@@ -341,12 +351,20 @@ Deno.serve(async (req) => {
     }
 
 
+    const modeBrief = includePrices
+      ? "Objectif : restituer le contenu des menus / cartes fournis (sections, plats, boissons) AVEC leurs prix tels qu'ils figurent dans la source, puis calculer des prix moyens (général et par section)."
+      : MODE_BRIEFS[mode];
+
     const systemPrompt = `Tu rédiges des contenus éditoriaux pour One World Morocco, plateforme de découverte du Maroc.
-${MODE_BRIEFS[mode]}
+${modeBrief}
 ${STYLE_BRIEFS[styleKey]}
 Règles absolues :
 - N'invente RIEN : uniquement ce qui est présent dans les sources et les données de la fiche fournies.
-- Ne mentionne jamais de prix, tarif, budget ou "moins cher".
+${includePrices
+  ? `- PRIX : tu DOIS restituer les prix EXACTEMENT tels qu'ils figurent dans les sources (avec leur devise), sans jamais en inventer ni en arrondir.
+- Termine le texte par une synthèse chiffrée : un PRIX MOYEN GÉNÉRAL (moyenne de tous les prix relevés) puis des PRIX MOYENS PAR SECTION / CATÉGORIE (entrées, plats, desserts, boissons, cocktails… selon les sections réellement présentes), sous la forme « Section : moyenne X MAD (min–max) ». Calcule ces moyennes uniquement à partir des prix réellement relevés et indique entre parenthèses le nombre de prix pris en compte.
+- Si aucun prix n'est lisible dans les sources, écris-le explicitement au lieu d'estimer.`
+  : `- Ne mentionne jamais de prix, tarif, budget ou "moins cher".`}
 - Français correct, pas de markdown, pas de guillemets superflus.${styleKey === "factual" ? "\n- Pas de symboles de puces : une information par ligne, séparées par des sauts de ligne." : "\n- Pas de listes à puces."}
 
 - Réponds STRICTEMENT en JSON : {"title": string, "hook": string, "content": string}
@@ -399,7 +417,7 @@ Structure le texte autour de cette consigne : elle doit être traitée explicite
         businessId,
         context: "affiliate_ai_text",
         model: MODEL,
-        metadata: { mode, length: lengthKey, style: styleKey },
+        metadata: { mode, length: lengthKey, style: styleKey, include_prices: includePrices },
       },
     );
 
@@ -432,14 +450,19 @@ Structure le texte autour de cette consigne : elle doit être traitée explicite
 
     // Coupe uniquement sur une fin de phrase : évite les textes tronqués en
     // plein mot quand le modèle dépasse la limite de caractères.
+    // Garantit une fin de phrase complète, y compris quand le modèle s'arrête
+    // de lui-même en plein milieu d'une phrase (sans dépasser la limite).
+    const endsClean = (t: string) => /[.!?…:»)\]]$/.test(t);
+    const trimToLastSentence = (t: string) => {
+      const lastEnd = Math.max(t.lastIndexOf("."), t.lastIndexOf("!"), t.lastIndexOf("?"), t.lastIndexOf("…"));
+      if (lastEnd > t.length * 0.5) return t.slice(0, lastEnd + 1).trim();
+      const lastSpace = t.lastIndexOf(" ");
+      return (lastSpace > 0 ? t.slice(0, lastSpace) : t).trim() + ".";
+    };
     const cleanSentences = (s: unknown, max: number) => {
       const txt = String(s ?? "").replace(/^["'\s]+|["'\s]+$/g, "");
-      if (txt.length <= max) return txt;
-      const cut = txt.slice(0, max);
-      const lastEnd = Math.max(cut.lastIndexOf("."), cut.lastIndexOf("!"), cut.lastIndexOf("?"), cut.lastIndexOf("…"));
-      if (lastEnd > max * 0.55) return cut.slice(0, lastEnd + 1).trim();
-      const lastSpace = cut.lastIndexOf(" ");
-      return (lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trim() + ".";
+      const base = txt.length <= max ? txt : txt.slice(0, max);
+      return endsClean(base) ? base.trim() : trimToLastSentence(base);
     };
 
     return new Response(
@@ -451,6 +474,7 @@ Structure le texte autour de cette consigne : elle doit être traitée explicite
         source_label: sourceLabel,
         length: lengthKey,
         style: styleKey,
+        include_prices: includePrices,
 
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
