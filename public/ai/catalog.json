@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-07T10:38:15.323Z",
+    "generated_at": "2026-08-07T13:51:33.240Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
     "count": 1844
   },
@@ -50674,10 +50674,10 @@
       "address": "7/8 Derb Chaabane Riad Zitoun Lakdim",
       "phone": "+212524429645",
       "whatsapp": "+212524429645",
-      "website": null,
+      "website": "https://riad-monceau.com/bistro-arabe-jazz-restaurant/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/17adc634-052a-42f6-a694-6c7f63d22228-1772552960259-8way58.webp",
       "google_rating": 4.8,
-      "google_review_count": 15620,
+      "google_review_count": 15632,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -50740,7 +50740,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://riad-monceau.com/bistro-arabe-jazz-restaurant/",
+      "booking_url": "https://bookings.zenchef.com/results?rid=360675&pid=1001&lang=en",
       "menu_url": "https://issuu.com/riad-monceau/docs/carte-bistro-arabe-marrakech?fr=sMjA2Nzc1NDMwMzA",
       "social": {
         "instagram": "https://www.instagram.com/lebistroarabe/",
@@ -65282,7 +65282,7 @@
       "phone": "+212(0)672278607",
       "whatsapp": null,
       "website": null,
-      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1770444081174-u8yf4l.jpg",
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/98116ccc-e811-461f-b096-93bcfd00174b-1786109690533-dg4atr.webp",
       "google_rating": 5,
       "google_review_count": 3,
       "price_range": null,
@@ -108582,7 +108582,7 @@
       "website": "https://www.valeriebarkowski.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/87c80646-c3b7-4c34-97bd-89e0c812b1be-1779624185563-3wat.webp",
       "google_rating": 4.8,
-      "google_review_count": 37,
+      "google_review_count": 39,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -108645,7 +108645,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.valeriebarkowski.com/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/valeriebarkowski/",

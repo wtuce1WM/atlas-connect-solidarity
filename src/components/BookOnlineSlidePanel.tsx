@@ -59,6 +59,7 @@ import SpotifyOverlay from "@/components/overlays/SpotifyOverlay";
 import SubstackArticlesOverlay from "@/components/overlays/SubstackArticlesOverlay";
 import SubstackIcon from "@/components/icons/SubstackIcon";
 import InlineSubstackWidget from "@/components/InlineSubstackWidget";
+import PhoneMockupFrame from "@/components/PhoneMockupFrame";
 import SoundCloudOverlay from "@/components/overlays/SoundCloudOverlay";
 import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
 import PanelSearchBar from "@/components/PanelSearchBar";
@@ -2799,26 +2800,27 @@ const BookOnlineSlidePanelInner = ({
                                 {[d.name, ptLabel].filter(Boolean).join(" — ")}
                                 {d.price ? ` · ${d.price}` : ""}
                               </h3>
-                              <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10" style={{ height: "min(80vh, 900px)" }}>
-                                {isExternalVideoUrl(d.url) ? (
-                                  <iframe
-                                    src={getVideoEmbed(d.url, window.location.origin, { autoplay: false }).embedUrl}
-                                    title={d.name || ptLabel}
-                                    allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-                                    allowFullScreen
-                                    className="w-full h-full block border-0"
-                                  />
-                                ) : (
-                                  <video
-                                    src={d.url}
-                                    poster={d.thumbnail_url || undefined}
-                                    controls
-                                    playsInline
-                                    preload="metadata"
-                                    className="w-full h-full block object-contain"
-                                    style={{ background: "#000" }}
-                                  />
-                                )}
+                              <div className="w-full flex justify-center">
+                                <PhoneMockupFrame frameColor="dark" screenAspect="9 / 16">
+                                  {isExternalVideoUrl(d.url) ? (
+                                    <iframe
+                                      src={getVideoEmbed(d.url, window.location.origin, { autoplay: false }).embedUrl}
+                                      title={d.name || ptLabel}
+                                      allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                                      allowFullScreen
+                                      className="w-full h-full block border-0"
+                                    />
+                                  ) : (
+                                    <video
+                                      src={d.url}
+                                      poster={d.thumbnail_url || undefined}
+                                      controls
+                                      playsInline
+                                      preload="metadata"
+                                      className="w-full h-full block object-cover"
+                                    />
+                                  )}
+                                </PhoneMockupFrame>
                               </div>
                               {d.description && (
                                 <p className="mt-2 text-sm text-white/80 leading-relaxed whitespace-pre-line">{htmlToPlainText(d.description)}</p>
