@@ -121,7 +121,7 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       setRadiusLoading(true);
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("poi_radius_km, widget_bg_color, widget_bg_color_dark")
+        .select("poi_radius_km, widget_bg_color, widget_bg_color_dark, widget_theme")
         .eq("id", businessId)
         .maybeSingle();
       if (cancelled) return;
@@ -130,6 +130,10 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       const wcolor = ((data as any)?.widget_bg_color || "").toUpperCase();
       setWidgetBg(wcolor);
       setWidgetBgDark(((data as any)?.widget_bg_color_dark || "").toUpperCase());
+      if ((data as any)?.widget_theme === "light" || (data as any)?.widget_theme === "dark") {
+        setEmbedTheme((data as any).widget_theme);
+      }
+
       // Widget « À proximité » : on pré-remplit le fond de carte avec la couleur
       // de fond des widgets de l'établissement quand elle est définie.
       if (/^#[0-9A-F]{6}$/.test(wcolor)) setNearbyBg((prev) => prev || wcolor);
