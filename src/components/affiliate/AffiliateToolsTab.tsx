@@ -1,6 +1,6 @@
 import { useRef, useState, useMemo, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { Copy, Check, Download, ExternalLink, QrCode, Globe2, Mail, Bot, MapPin, Newspaper, Star, CloudSun, ThumbsUp, Waves, Loader2 } from "lucide-react";
+import { Copy, Check, Download, ExternalLink, QrCode, Globe2, Mail, Bot, MapPin, Newspaper, Star, CloudSun, ThumbsUp, Waves, Loader2, Music2, AudioLines, Rss } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -93,6 +93,16 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
 
   const [tidesLang, setTidesLang] = useState<"fr" | "en" | "ar">("fr");
 
+  // Widgets Réseaux & flux (Spotify / SoundCloud / Substack)
+  const [socialUrls, setSocialUrls] = useState<{ spotify: string; soundcloud: string; substack: string }>({ spotify: "", soundcloud: "", substack: "" });
+  const [spotifyBgMode, setSpotifyBgMode] = useState<"widget" | "transparent">("widget");
+  const [spotifyCompact, setSpotifyCompact] = useState(false);
+  const [scBgMode, setScBgMode] = useState<"widget" | "transparent">("widget");
+  const [scVisual, setScVisual] = useState(true);
+  const [subBgMode, setSubBgMode] = useState<"widget" | "transparent">("widget");
+  const [subLang, setSubLang] = useState<"fr" | "en" | "ar">("fr");
+  const [subLimit, setSubLimit] = useState<number>(3);
+
   // Ajustement de chaque widget dans son iframe (largeur / hauteur / les deux)
   const [fits, setFits] = useState<Record<string, EmbedFit>>({});
   const fitOf = (key: string): EmbedFit => fits[key] || "";
@@ -121,12 +131,17 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       setRadiusLoading(true);
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("poi_radius_km, widget_bg_color, widget_bg_color_dark, widget_theme")
+        .select("poi_radius_km, widget_bg_color, widget_bg_color_dark, widget_theme, spotify_url, soundcloud_url, substack_url")
         .eq("id", businessId)
         .maybeSingle();
       if (cancelled) return;
       const v = Number((data as any)?.poi_radius_km);
       setRadiusKm(v > 0 ? v : 10);
+      setSocialUrls({
+        spotify: (data as any)?.spotify_url || "",
+        soundcloud: (data as any)?.soundcloud_url || "",
+        substack: (data as any)?.substack_url || "",
+      });
       const wcolor = ((data as any)?.widget_bg_color || "").toUpperCase();
       setWidgetBg(wcolor);
       setWidgetBgDark(((data as any)?.widget_bg_color_dark || "").toUpperCase());
@@ -567,6 +582,22 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
       `<iframe src="${f1wmUrl}" style="${fitIframeStyle(fitOf("fiche1wm"), { height: f1wmHeight, radius: 20, extra: "width:100%;background:transparent" })}" title="Fiche 1WM — ${businessName}" loading="lazy" allow="clipboard-write; geolocation"></iframe>`,
     [f1wmUrl, f1wmHeight, businessName, fits]
   );
+
+  // Widgets Réseaux & flux
+  const bgFor = (mode: "widget" | "transparent") =>
+    mode === "transparent" ? "&bg=transparent" : widgetBgValid ? `&bg=${widgetBg.slice(1)}` : "";
+
+  const spotifyUrl = `${SITE}/embed/spotify/${slug ?? ""}?theme=${embedTheme}${bgFor(spotifyBgMode)}${spotifyCompact ? "&compact=1" : ""}${fitParam(fitOf("spotify"))}`;
+  const spotifyHeight = spotifyCompact ? 172 : 372;
+  const spotifySnippet = `<iframe src="${spotifyUrl}" style="${fitIframeStyle(fitOf("spotify"), { maxWidth: 560, height: spotifyHeight, radius: 16, extra: "background:transparent" })}" title="Spotify — ${businessName}" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>`;
+
+  const scUrl = `${SITE}/embed/soundcloud/${slug ?? ""}?${scVisual ? "visual=1" : "visual=0"}${bgFor(scBgMode)}${fitParam(fitOf("soundcloud"))}`;
+  const scHeight = scVisual ? 420 : 186;
+  const scSnippet = `<iframe src="${scUrl}" style="${fitIframeStyle(fitOf("soundcloud"), { maxWidth: 560, height: scHeight, radius: 16, extra: "background:transparent" })}" title="SoundCloud — ${businessName}" loading="lazy" allow="autoplay"></iframe>`;
+
+  const subUrl = `${SITE}/embed/substack/${slug ?? ""}?lang=${subLang}&limit=${subLimit}${bgFor(subBgMode)}${fitParam(fitOf("substack"))}`;
+  const subHeight = 130 + subLimit * 96;
+  const subSnippet = `<iframe src="${subUrl}" style="${fitIframeStyle(fitOf("substack"), { maxWidth: 560, height: subHeight, radius: 16, extra: "background:transparent" })}" title="Newsletter — ${businessName}" loading="lazy"></iframe>`;
 
 
 
