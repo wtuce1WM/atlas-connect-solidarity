@@ -239,7 +239,7 @@ const AffiliatePublishedWidgetsPanel = ({ businessId, slug, onGoToWidgets }: Pro
                       {url && (
                         <button
                           type="button"
-                          onClick={() => setPreview({ title: `${w.label} — ${FORMATS.find((f) => f.value === cur.format)?.label}`, url, height: w.height })}
+                          onClick={() => setPreview({ title: `${w.label} — ${FORMATS.find((f) => f.value === cur.format)?.label}`, url, height: w.height, widgetKey: w.key })}
                           className="text-xs text-primary hover:underline inline-flex items-center gap-1"
                         >
                           <Eye className="h-3 w-3" /> Visualiser
