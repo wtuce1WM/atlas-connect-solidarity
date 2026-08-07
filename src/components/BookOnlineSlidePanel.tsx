@@ -111,6 +111,18 @@ const soundcloudEmbedUrl = (raw: string): string | null => {
   return `https://w.soundcloud.com/player/?${params.toString()}`;
 };
 
+/* Convertit un texte HTML (issu du backoffice) en texte lisible, entités décodées */
+const htmlToPlainText = (raw: string): string => {
+  if (!raw) return "";
+  const withBreaks = raw
+    .replace(/<\s*br\s*\/?\s*>/gi, "\n")
+    .replace(/<\/\s*(p|div|li|h[1-6])\s*>/gi, "\n")
+    .replace(/<[^>]*>/g, "");
+  const el = document.createElement("textarea");
+  el.innerHTML = withBreaks;
+  return el.value.replace(/\n{3,}/g, "\n\n").trim();
+};
+
 /* Static hook text component */
 const TypewriterHook = ({ text }: { text: string }) => {
   return (
@@ -2518,7 +2530,7 @@ const BookOnlineSlidePanelInner = ({
                   )}
                   {!descOverlayContent && hookText && (
                     <p
-                      className="text-xl md:text-3xl leading-snug tracking-[0.02em] text-white/90 mb-4"
+                      className="text-xl md:text-3xl leading-snug tracking-[0.02em] text-white/90 mb-4 text-center"
                       style={{ fontFamily: "'Montserrat', sans-serif" }}
                     >
                       {hookText}
@@ -2787,15 +2799,14 @@ const BookOnlineSlidePanelInner = ({
                                 {[d.name, ptLabel].filter(Boolean).join(" — ")}
                                 {d.price ? ` · ${d.price}` : ""}
                               </h3>
-                              <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
+                              <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10" style={{ height: "min(80vh, 900px)" }}>
                                 {isExternalVideoUrl(d.url) ? (
                                   <iframe
                                     src={getVideoEmbed(d.url, window.location.origin, { autoplay: false }).embedUrl}
                                     title={d.name || ptLabel}
                                     allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
                                     allowFullScreen
-                                    className="w-full block border-0"
-                                    style={{ aspectRatio: "16 / 9", minHeight: 240 }}
+                                    className="w-full h-full block border-0"
                                   />
                                 ) : (
                                   <video
@@ -2804,13 +2815,13 @@ const BookOnlineSlidePanelInner = ({
                                     controls
                                     playsInline
                                     preload="metadata"
-                                    className="w-full block"
-                                    style={{ aspectRatio: "16 / 9", background: "#000" }}
+                                    className="w-full h-full block object-contain"
+                                    style={{ background: "#000" }}
                                   />
                                 )}
                               </div>
                               {d.description && (
-                                <p className="mt-2 text-sm text-white/80 leading-relaxed">{d.description}</p>
+                                <p className="mt-2 text-sm text-white/80 leading-relaxed whitespace-pre-line">{htmlToPlainText(d.description)}</p>
                               )}
                             </div>
                           );
