@@ -125,7 +125,23 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
   const [flipbooks, setFlipbooks] = useState<DocEntry[]>([]);
   const [externals, setExternals] = useState<DocEntry[]>([]);
   const [matterportUrl, setMatterportUrl] = useState("");
+  const [savingMatterport, setSavingMatterport] = useState(false);
   const [initialIds, setInitialIds] = useState<string[]>([]);
+
+  const saveMatterport = async () => {
+    setSavingMatterport(true);
+    const { error } = await supabase
+      .from("businesses")
+      .update({ matterport_url: matterportUrl.trim() || null } as any)
+      .eq("id", businessId);
+    setSavingMatterport(false);
+    if (error) {
+      toast({ variant: "destructive", title: "Erreur", description: error.message });
+      return;
+    }
+    toast({ title: "Visite 3D enregistrée ✓" });
+  };
+
 
   useEffect(() => {
     let cancelled = false;
