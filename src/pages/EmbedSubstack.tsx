@@ -1,6 +1,6 @@
 // Widget Substack embarquable : /embed/substack/:slug?lang=fr&bg=…&fit=…&limit=3
 // Lit businesses.substack_url et affiche les derniers articles via l'edge function substack-feed.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { applyEmbedBg, parseBg, parseFit, fitFlags } from "@/lib/embedFit";
@@ -37,6 +37,7 @@ const EmbedSubstack = () => {
   const [feedUrl, setFeedUrl] = useState<string | null>(null);
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
@@ -65,6 +66,18 @@ const EmbedSubstack = () => {
     return () => { cancelled = true; };
   }, [slug, limit]);
 
+  useEffect(() => {
+    const content = contentRef.current;
+    if (!content) return;
+    const publishHeight = () => {
+      window.parent.postMessage({ type: "owm-substack-height", height: Math.ceil(content.scrollHeight) }, "*");
+    };
+    publishHeight();
+    const observer = new ResizeObserver(publishHeight);
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, [loading, items]);
+
   const fmtDate = (d: string) => {
     const t = Date.parse(d);
     if (Number.isNaN(t)) return "";
@@ -75,7 +88,8 @@ const EmbedSubstack = () => {
 
   return (
     <div
-      className={`w-full flex justify-center ${fullHeight ? "h-screen min-h-screen overflow-auto" : "min-h-0"} p-2`}
+      ref={contentRef}
+      className={`w-full flex justify-center ${fullHeight ? "min-h-screen" : "min-h-0"} overflow-hidden p-2`}
       style={{ background: surface }}
     >
       <div className={`w-full ${fullWidth ? "" : "max-w-[560px]"} flex flex-col gap-2`}>
