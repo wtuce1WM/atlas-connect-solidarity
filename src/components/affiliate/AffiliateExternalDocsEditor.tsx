@@ -275,6 +275,17 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
       ))}
     </select>
   );
+  const EXTERNAL_TITLES: Record<string, string> = {
+    presse: "Ils parlent de nous",
+    media: "Ils parlent de nous",
+    partenaires: "Ils nous font confiance",
+    recompenses: "Nous sommes reconnus par :",
+    certifications: "Nous sommes certifiés par :",
+    en_savoir_plus: "En savoir plus",
+  };
+  const derivedExternalTitle =
+    EXTERNAL_TITLES[(externals[0]?.description || "").toLowerCase()] || "+ d'infos";
+
 
   if (loading) {
     return (
