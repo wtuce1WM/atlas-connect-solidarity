@@ -29,7 +29,7 @@ const BUSINESS_RIGHTS: { key: BusinessRightKey; label: string; locked?: boolean 
   { key: "has_blog_export", label: "Export d'article de blog" },
   { key: "has_nearby_widget", label: "Adresses à proximité" },
   { key: "has_email_signature", label: "Signature email « Laisser un avis »" },
-  { key: "has_showcase_site", label: "Site vitrine 1WM", locked: true },
+  { key: "has_showcase_site", label: "Site vitrine 1WM" },
 ];
 
 interface AffiliateRow {
@@ -273,7 +273,7 @@ const AffiliateRightsPanel = () => {
             <p className="text-sm font-medium text-foreground">Site vitrine 1WM</p>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Publication d’une page de présentation dédiée sur one world morocco (nom, photos, offres, avis, contact).
-              Option non activable pour l’instant.
+              Activable par établissement.
             </p>
           </div>
           <div className="space-y-1">
