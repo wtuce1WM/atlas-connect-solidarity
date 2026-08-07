@@ -105,7 +105,9 @@ export default function EmbedWidgetSettings({
   const [email, setEmail] = React.useState("");
   const [nickname, setNickname] = React.useState("");
   const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null);
+  const [pendingAvatar, setPendingAvatar] = React.useState<{ mime: string; data: string } | null>(null);
   const [uploading, setUploading] = React.useState(false);
+
   const [alerts, setAlerts] = React.useState<Record<AlertKey, boolean>>({
     spring_tide: false,
     surf: false,
