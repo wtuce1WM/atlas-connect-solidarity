@@ -84,7 +84,17 @@ const WIDGETS: WidgetDef[] = [
     height: 760,
     url: (slug) => (slug ? `${SITE}/b/${slug}?embed=1` : null),
   },
+  {
+    key: "fiche1wm",
+    label: "Widget Fiche 1WM",
+    icon: Newspaper,
+    formats: ["inline", "fullscreen"],
+    height: 900,
+    url: (slug, f) =>
+      slug ? `${SITE}/embed/fiche/${slug}?lang=fr&bg=transparent${f === "fullscreen" ? "&fit=wh" : ""}` : null,
+  },
 ];
+
 
 interface Props {
   businessId: string;
