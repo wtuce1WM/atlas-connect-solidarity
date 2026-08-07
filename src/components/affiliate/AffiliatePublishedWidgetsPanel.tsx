@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Bot, MapPin, Star, ThumbsUp, CloudSun, Waves, LayoutPanelTop, Eye, ExternalLink, Save } from "lucide-react";
+import { Bot, MapPin, Star, ThumbsUp, CloudSun, Waves, LayoutPanelTop, Newspaper, Eye, ExternalLink, Save } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
