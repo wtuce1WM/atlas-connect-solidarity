@@ -57,7 +57,12 @@ interface MapSlidePanelProps {
   mapTheme?: "light" | "dark" | "default-light" | "default-dark";
   /** When true, exposes native Plan/Satellite/Relief selector + Traffic/Transit toggles. */
   showLayerControls?: boolean;
+  /** Forces a 100%-viewport-width panel on every device, with a slide-in from the right. */
+  fullWidth?: boolean;
+  /** Background color of the panel shell (widget light/dark color). */
+  panelBg?: string;
 }
+
 
 const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
   marrakech: { lat: 31.6295, lng: -7.9811 },
@@ -74,7 +79,7 @@ const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
 };
 const normalize = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
-const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, onBookmark, isBookmarked, disableUserLocation, hostLocation, hostLabel, mapTheme, showLayerControls }: MapSlidePanelProps) => {
+const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, onBookmark, isBookmarked, disableUserLocation, hostLocation, hostLabel, mapTheme, showLayerControls, fullWidth, panelBg }: MapSlidePanelProps) => {
   const { language } = useLanguage();
   const mt = MT[language as keyof typeof MT] || MT.fr;
 
@@ -83,6 +88,15 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [proximityKm, setProximityKm] = useState<number | null>(null);
+  // Animation d'entrée (slide-in depuis la droite) pour la variante pleine largeur
+  const [entered, setEntered] = useState(false);
+  useEffect(() => {
+    if (!open) { setEntered(false); return; }
+    const id = requestAnimationFrame(() => setEntered(true));
+    return () => cancelAnimationFrame(id);
+  }, [open]);
+
+
 
   // Analytics: overlay_open lorsque la carte s'ouvre
   useEffect(() => {
@@ -210,8 +224,19 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
     <>
       <div className="fixed inset-0 bg-black/50 z-[80]" onClick={onClose} />
       <div
-        className={`fixed z-[81] bg-[#ECD6B8] shadow-2xl overflow-hidden flex flex-col
-          ${isMobile ? "inset-0" : "top-0 right-0 h-full w-1/2 rounded-l-2xl"}`}
+        className={`fixed z-[81] shadow-2xl overflow-hidden flex flex-col ${panelBg ? "" : "bg-[#ECD6B8]"}
+          ${fullWidth ? "inset-0 w-full" : isMobile ? "inset-0" : "top-0 right-0 h-full w-1/2 rounded-l-2xl"}`}
+        style={{
+          ...(panelBg ? { background: panelBg } : null),
+          ...(fullWidth
+            ? {
+                transform: entered ? "translateX(0)" : "translateX(100%)",
+                transition: "transform 380ms cubic-bezier(0.22, 1, 0.36, 1)",
+                willChange: "transform",
+              }
+            : null),
+        }}
+
       >
         {/* Map fills the panel; toolbar floats on top */}
         <div className="relative flex-1">

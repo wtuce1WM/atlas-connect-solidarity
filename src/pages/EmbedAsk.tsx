@@ -1669,12 +1669,15 @@ const EmbedAsk = () => {
         title={openMap?.title || undefined}
         businesses={openMap?.businesses || []}
         isMobile={isMobile}
+        fullWidth
+        panelBg={activeWidgetBg || undefined}
         disableUserLocation
         hostLocation={hostLocation}
         hostLabel={businessName}
         mapTheme={theme === "dark" ? "default-dark" : "default-light"}
         showLayerControls
       />
+
 
       <EventsSlidePanel
         open={!!openEvents}
