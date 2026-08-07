@@ -1422,8 +1422,9 @@ const BookOnlineSlidePanelInner = ({
 
   // Widgets inline (Disponibilité / Horaires) affichés dans l'overlay Full Description
   const renderInlineDescWidgets = (keyPrefix: string) => {
-    const showAvail = !!serpApiMapping;
-    const showHours = !!hasOpeningHours && !business?.is_open_24h;
+    // Même logique exclusive que le CTA de gauche : Disponibilité sinon Horaires
+    const showAvail = !!isHotelWithPrice;
+    const showHours = !showAvail && !!hasOpeningHours && !business?.is_open_24h;
     if (!showAvail && !showHours) return null;
     return (
       <div key={keyPrefix} className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 justify-items-center">
