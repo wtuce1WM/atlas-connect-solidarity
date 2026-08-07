@@ -111,6 +111,18 @@ const soundcloudEmbedUrl = (raw: string): string | null => {
   return `https://w.soundcloud.com/player/?${params.toString()}`;
 };
 
+/* Convertit un texte HTML (issu du backoffice) en texte lisible, entités décodées */
+const htmlToPlainText = (raw: string): string => {
+  if (!raw) return "";
+  const withBreaks = raw
+    .replace(/<\s*br\s*\/?\s*>/gi, "\n")
+    .replace(/<\/\s*(p|div|li|h[1-6])\s*>/gi, "\n")
+    .replace(/<[^>]*>/g, "");
+  const el = document.createElement("textarea");
+  el.innerHTML = withBreaks;
+  return el.value.replace(/\n{3,}/g, "\n\n").trim();
+};
+
 /* Static hook text component */
 const TypewriterHook = ({ text }: { text: string }) => {
   return (
