@@ -859,6 +859,8 @@ const BookOnlineSlidePanelInner = ({
   const [hashtagsOverlayActive, setHashtagsOverlayActive] = useState(false);
   const [aiOverlayActive, setAiOverlayActive] = useState(false);
   const [showAvailabilitySearch, setShowAvailabilitySearch] = useState(false);
+  // Réservations embarquées : chargement à la demande (évite tout son/auto-play involontaire)
+  const [loadedBookingEmbeds, setLoadedBookingEmbeds] = useState<string[]>([]);
   const [showHoursOverlay, setShowHoursOverlay] = useState(false);
   const [showSpotifyOverlay, setShowSpotifyOverlay] = useState(false);
   const [showSubstackOverlay, setShowSubstackOverlay] = useState(false);
