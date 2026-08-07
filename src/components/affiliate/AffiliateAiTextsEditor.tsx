@@ -374,6 +374,11 @@ const AffiliateAiTextsEditor = ({ businessId }: { businessId: string }) => {
                     {m.value === "external_links" && ` (${externalLinks.length})`}
                   </span>
                   <span className="block text-xs text-white/60">{m.help}</span>
+                  {m.value === "menu_links" && (
+                    <span className="mt-1 block text-xs text-white/45">
+                      Affiches "Récupérer les prix et calculer les moyennes », visible seulement en À partir du menu + Factuel + Longue (~2000) : prix restitués tels quels, prix moyen général + moyennes par section (min–max, nb de prix), lecture de source élargie à 9 000 caractères."
+                    </span>
+                  )}
                 </span>
               </label>
             ))}
