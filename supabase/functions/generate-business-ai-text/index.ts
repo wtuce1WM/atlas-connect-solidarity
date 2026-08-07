@@ -362,9 +362,12 @@ Règles absolues :
 - N'invente RIEN : uniquement ce qui est présent dans les sources et les données de la fiche fournies.
 ${includePrices
   ? `- PRIX : tu DOIS restituer les prix EXACTEMENT tels qu'ils figurent dans les sources (avec leur devise), sans jamais en inventer ni en arrondir.
-- Termine le texte par une synthèse chiffrée : un PRIX MOYEN GÉNÉRAL (moyenne de tous les prix relevés) puis des PRIX MOYENS PAR SECTION / CATÉGORIE (entrées, plats, desserts, boissons, cocktails… selon les sections réellement présentes), sous la forme « Section : moyenne X MAD (min–max) ». Calcule ces moyennes uniquement à partir des prix réellement relevés et indique entre parenthèses le nombre de prix pris en compte.
+- Structure le texte par SECTIONS : une ligne de titre de section courte (Entrées, Plats, Desserts, Cocktails…) puis une ligne par intitulé sous la forme « Intitulé — 120 MAD ».
+- N'écris AUCUNE synthèse de moyennes : elle est calculée automatiquement et ajoutée après ton texte.
+- Réserve environ 250 caractères de marge sous la limite haute pour cette synthèse.
 - Si aucun prix n'est lisible dans les sources, écris-le explicitement au lieu d'estimer.`
   : `- Ne mentionne jamais de prix, tarif, budget ou "moins cher".`}
+
 - Français correct, pas de markdown, pas de guillemets superflus.${styleKey === "factual" ? "\n- Pas de symboles de puces : une information par ligne, séparées par des sauts de ligne." : "\n- Pas de listes à puces."}
 
 - Réponds STRICTEMENT en JSON : {"title": string, "hook": string, "content": string}
