@@ -2720,10 +2720,10 @@ const BookOnlineSlidePanelInner = ({
                           {(business as any)?.substack_url && (
                             <iframe
                               key="w-substack"
-                              src={`/embed/substack/${business.slug}?limit=3&bg=transparent&fit=w&lang=${language}`}
+                              src={`/embed/substack/${business.slug}?limit=10&bg=transparent&fit=w&lang=${language}`}
                               title="Newsletter"
-                              scrolling="no"
-                              style={{ width: "100%", height: 560, border: 0, background: "transparent", overflow: "hidden" }}
+                              scrolling="auto"
+                              style={{ width: "100%", height: 640, border: 0, background: "transparent" }}
                             />
                           )}
                         </div>
