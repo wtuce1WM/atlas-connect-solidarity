@@ -298,12 +298,16 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
           <SortableContext items={menus.map((d) => d._uid)} strategy={verticalListSortingStrategy}>
             {menus.map((doc, idx) => (
               <SortableRow key={doc._uid} id={doc._uid}>
-                <Switch
-                  checked={doc.force_external}
-                  onCheckedChange={(c) => patch(setMenus, idx, { force_external: c })}
-                  title="Ouvrir en lien externe"
-                  className="shrink-0"
-                />
+                <div className="flex shrink-0 flex-col items-center gap-1">
+                  <Switch
+                    checked={doc.force_external}
+                    onCheckedChange={(c) => patch(setMenus, idx, { force_external: c })}
+                    title="Ouvrir en lien externe"
+                  />
+                  {doc.force_external && (
+                    <span className="text-[10px] leading-none text-orange-500">⚡ Lien externe activé</span>
+                  )}
+                </div>
                 <div className="relative shrink-0">
                   {doc.icon ? (
                     <img src={getDocIconSrc(doc.icon)} alt="" className="h-9 w-9 rounded border border-white/15 object-contain p-0.5" />
