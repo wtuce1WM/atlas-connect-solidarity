@@ -2,7 +2,6 @@ import React from "react";
 import {
   AbsoluteFill,
   Sequence,
-  Video,
   interpolate,
   spring,
   useCurrentFrame,
@@ -10,7 +9,9 @@ import {
   staticFile,
   Img,
 } from "remotion";
-import { display, body, COLORS } from "./theme";
+import { V } from "./tokens";
+
+const { palette: C, type: T, space, motion: M, layout } = V;
 
 export const CORP_TOTAL_FRAMES = 840; // 28s at 30fps
 
@@ -21,19 +22,9 @@ const ease = (f: number, a: number, b: number) =>
 // ---------- persistent background ----------
 const Background: React.FC = () => {
   return (
-    <AbsoluteFill style={{ background: COLORS.night, overflow: "hidden" }}>
-      <AbsoluteFill
-        style={{
-          background:
-            "linear-gradient(180deg, #1a120a 0%, #0e0b08 50%, #1a120a 100%)",
-        }}
-      />
-      <AbsoluteFill
-        style={{
-          background:
-            "radial-gradient(60% 40% at 50% 0%, rgba(192,79,23,0.22) 0%, rgba(14,11,8,0) 60%), radial-gradient(70% 50% at 50% 100%, rgba(212,175,55,0.14) 0%, rgba(14,11,8,0) 60%)",
-        }}
-      />
+    <AbsoluteFill style={{ background: C.night, overflow: "hidden" }}>
+      <AbsoluteFill style={{ background: layout.surfaces.brownVertical }} />
+      <AbsoluteFill style={{ background: layout.surfaces.corporateGlow }} />
     </AbsoluteFill>
   );
 };
@@ -42,10 +33,14 @@ const Background: React.FC = () => {
 const SceneOpen: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const iconSpring = spring({ frame, fps, config: { damping: 14, stiffness: 90 } });
+  const iconSpring = spring({ frame, fps, config: M.springs.hero });
   const iconScale = interpolate(iconSpring, [0, 1], [0.6, 1]);
-  const titleY = interpolate(spring({ frame: frame - 18, fps, config: { damping: 18 } }), [0, 1], [40, 0]);
-  const titleO = ease(frame, 18, 40);
+  const titleY = interpolate(
+    spring({ frame: frame - M.stagger.loose, fps, config: M.springs.gentle }),
+    [0, 1],
+    [space[8], 0],
+  );
+  const titleO = ease(frame, M.stagger.loose, 40);
   const subO = ease(frame, 40, 65);
   const out = 1 - ease(frame, 75, 90);
   return (
@@ -56,31 +51,31 @@ const SceneOpen: React.FC = () => {
       />
       <div
         style={{
-          marginTop: 48,
-          fontFamily: display,
-          fontWeight: 700,
-          letterSpacing: 6,
-          color: COLORS.cream,
-          fontSize: 64,
+          marginTop: space[9],
+          fontFamily: T.family.display,
+          fontWeight: T.weight.bold,
+          letterSpacing: T.tracking.wide,
+          color: C.cream,
+          fontSize: T.size.h3xl,
           textTransform: "uppercase",
           opacity: titleO,
           transform: `translateY(${titleY}px)`,
           textAlign: "center",
-          lineHeight: 1.05,
+          lineHeight: T.leading.snug,
         }}
       >
         One World<br />Morocco
       </div>
       <div
         style={{
-          marginTop: 28,
+          marginTop: space[6],
           width: 900,
           textAlign: "center",
-          fontFamily: body,
-          fontWeight: 400,
-          color: COLORS.gold,
-          fontSize: 30,
-          letterSpacing: 1,
+          fontFamily: T.family.body,
+          fontWeight: T.weight.regular,
+          color: C.gold,
+          fontSize: T.size.body,
+          letterSpacing: T.tracking.normal,
           opacity: subO,
         }}
       >
@@ -95,23 +90,25 @@ const SceneOpen: React.FC = () => {
 const SceneMission: React.FC = () => {
   const frame = useCurrentFrame();
   const words = ["Transformons", "chaque", "transaction", "en impact", "POSITIF."];
-  const out = 1 - ease(frame, 105, 120);
+  const out = 1 - ease(frame, M.beat.out[0], M.beat.out[1]);
   return (
-    <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 90, opacity: out }}>
+    <AbsoluteFill
+      style={{ alignItems: "center", justifyContent: "center", padding: space[13], opacity: out }}
+    >
       <div
         style={{
-          fontFamily: display,
-          fontWeight: 700,
-          color: COLORS.cream,
-          fontSize: 96,
-          lineHeight: 1.05,
+          fontFamily: T.family.display,
+          fontWeight: T.weight.bold,
+          color: C.cream,
+          fontSize: T.size.h1,
+          lineHeight: T.leading.snug,
           textAlign: "center",
         }}
       >
         {words.map((w, i) => {
-          const start = i * 8;
-          const o = ease(frame, start, start + 18);
-          const y = interpolate(o, [0, 1], [40, 0]);
+          const start = i * M.stagger.tight;
+          const o = ease(frame, start, start + M.stagger.loose);
+          const y = interpolate(o, [0, 1], [space[8], 0]);
           const isAccent = w === "POSITIF.";
           return (
             <span
@@ -120,8 +117,8 @@ const SceneMission: React.FC = () => {
                 display: "inline-block",
                 opacity: o,
                 transform: `translateY(${y}px)`,
-                color: isAccent ? COLORS.terracotta : COLORS.cream,
-                marginRight: 18,
+                color: isAccent ? C.terracotta : C.cream,
+                marginRight: space[4],
               }}
             >
               {w}
@@ -142,41 +139,51 @@ const Pillar: React.FC<{ big: string; title: string; text: string; delay: number
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const s = spring({ frame: frame - delay, fps, config: { damping: 18 } });
-  const y = interpolate(s, [0, 1], [80, 0]);
+  const s = spring({ frame: frame - delay, fps, config: M.springs.gentle });
+  const y = interpolate(s, [0, 1], [space[12], 0]);
   return (
     <div
       style={{
         opacity: s,
         transform: `translateY(${y}px)`,
         textAlign: "center",
-        padding: "32px 24px",
-        borderTop: `1px solid ${COLORS.gold}33`,
-        borderBottom: `1px solid ${COLORS.gold}33`,
-        marginBottom: 24,
+        padding: `${space[7]}px ${space[5]}px`,
+        borderTop: `${layout.rule.hairline}px solid ${V.hexA("gold", 0.2)}`,
+        borderBottom: `${layout.rule.hairline}px solid ${V.hexA("gold", 0.2)}`,
+        marginBottom: space[5],
       }}
     >
-      <div style={{ fontFamily: display, fontWeight: 700, fontSize: 140, color, lineHeight: 1 }}>{big}</div>
       <div
         style={{
-          fontFamily: display,
-          fontWeight: 600,
-          fontSize: 42,
-          color: COLORS.cream,
-          marginTop: 12,
-          letterSpacing: 1,
+          fontFamily: T.family.display,
+          fontWeight: T.weight.bold,
+          fontSize: T.size.displayXl,
+          color,
+          lineHeight: T.leading.tight,
+        }}
+      >
+        {big}
+      </div>
+      <div
+        style={{
+          fontFamily: T.family.display,
+          fontWeight: T.weight.semibold,
+          fontSize: T.size.h4,
+          color: C.cream,
+          marginTop: space[3],
+          letterSpacing: T.tracking.normal,
         }}
       >
         {title}
       </div>
       <div
         style={{
-          fontFamily: body,
-          fontWeight: 400,
-          fontSize: 26,
-          color: COLORS.bone,
-          marginTop: 12,
-          lineHeight: 1.35,
+          fontFamily: T.family.body,
+          fontWeight: T.weight.regular,
+          fontSize: T.size.lead,
+          color: C.bone,
+          marginTop: space[3],
+          lineHeight: T.leading.normal,
         }}
       >
         {text}
@@ -189,25 +196,25 @@ const ScenePillars: React.FC = () => {
   const frame = useCurrentFrame();
   const out = 1 - ease(frame, 135, 150);
   return (
-    <AbsoluteFill style={{ padding: 80, justifyContent: "center", opacity: out }}>
+    <AbsoluteFill style={{ padding: space[12], justifyContent: "center", opacity: out }}>
       <Pillar
         delay={0}
         big="0"
-        color={COLORS.terracotta}
+        color={C.terracotta}
         title="Zéro Commission"
         text="Vous gardez l'intégralité de votre chiffre d'affaires."
       />
       <Pillar
-        delay={18}
+        delay={M.stagger.loose}
         big="∞"
-        color={COLORS.gold}
+        color={C.gold}
         title="Abonnement Mensuel"
         text="Transparent, prévisible — sans intermédiaire prédateur."
       />
       <Pillar
-        delay={36}
+        delay={M.stagger.loose * 2}
         big="20%"
-        color={COLORS.terracotta}
+        color={C.terracotta}
         title="Reversés"
         text="À des causes humanitaires au Maroc, via séquestre bancaire."
       />
@@ -218,22 +225,24 @@ const ScenePillars: React.FC = () => {
 const SceneCompare: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const titleO = ease(frame, 0, 18);
-  const leftS = spring({ frame: frame - 18, fps, config: { damping: 18 } });
-  const rightS = spring({ frame: frame - 36, fps, config: { damping: 18 } });
-  const out = 1 - ease(frame, 105, 120);
+  const titleO = ease(frame, 0, M.stagger.loose);
+  const leftS = spring({ frame: frame - M.stagger.loose, fps, config: M.springs.gentle });
+  const rightS = spring({ frame: frame - M.stagger.loose * 2, fps, config: M.springs.gentle });
+  const out = 1 - ease(frame, M.beat.out[0], M.beat.out[1]);
   return (
-    <AbsoluteFill style={{ padding: 80, justifyContent: "center", alignItems: "center", opacity: out }}>
+    <AbsoluteFill
+      style={{ padding: space[12], justifyContent: "center", alignItems: "center", opacity: out }}
+    >
       <div
         style={{
           opacity: titleO,
-          fontFamily: display,
-          fontWeight: 600,
-          color: COLORS.cream,
-          fontSize: 52,
+          fontFamily: T.family.display,
+          fontWeight: T.weight.semibold,
+          color: C.cream,
+          fontSize: T.size.h3,
           textAlign: "center",
-          letterSpacing: 1,
-          marginBottom: 80,
+          letterSpacing: T.tracking.normal,
+          marginBottom: space[12],
         }}
       >
         Un modèle inversé.
@@ -241,40 +250,71 @@ const SceneCompare: React.FC = () => {
       <div
         style={{
           opacity: leftS,
-          transform: `translateY(${interpolate(leftS, [0, 1], [60, 0])}px)`,
+          transform: `translateY(${interpolate(leftS, [0, 1], [space[10], 0])}px)`,
           textAlign: "center",
-          marginBottom: 100,
+          marginBottom: space[13],
         }}
       >
-        <div style={{ fontFamily: body, color: COLORS.bone, fontSize: 28, letterSpacing: 2, textTransform: "uppercase" }}>
+        <div
+          style={{
+            fontFamily: T.family.body,
+            color: C.bone,
+            fontSize: T.size.lead,
+            letterSpacing: T.tracking.wide,
+            textTransform: "uppercase",
+          }}
+        >
           One World Morocco
         </div>
-        <div style={{ fontFamily: display, fontWeight: 700, color: COLORS.gold, fontSize: 160, lineHeight: 1 }}>
+        <div
+          style={{
+            fontFamily: T.family.display,
+            fontWeight: T.weight.bold,
+            color: C.gold,
+            fontSize: T.size.hero,
+            lineHeight: T.leading.tight,
+          }}
+        >
           ≈ 1,75%
         </div>
-        <div style={{ fontFamily: body, color: COLORS.cream, fontSize: 26, marginTop: 8 }}>
+        <div
+          style={{
+            fontFamily: T.family.body,
+            color: C.cream,
+            fontSize: T.size.lead,
+            marginTop: space[2],
+          }}
+        >
           du CA · zéro commission
         </div>
       </div>
       <div
         style={{
           opacity: rightS,
-          transform: `translateY(${interpolate(rightS, [0, 1], [60, 0])}px)`,
+          transform: `translateY(${interpolate(rightS, [0, 1], [space[10], 0])}px)`,
           textAlign: "center",
         }}
       >
-        <div style={{ fontFamily: body, color: COLORS.bone, fontSize: 26, letterSpacing: 2, textTransform: "uppercase" }}>
+        <div
+          style={{
+            fontFamily: T.family.body,
+            color: C.bone,
+            fontSize: T.size.lead,
+            letterSpacing: T.tracking.wide,
+            textTransform: "uppercase",
+          }}
+        >
           Plateformes classiques
         </div>
         <div
           style={{
-            fontFamily: display,
-            fontWeight: 700,
-            color: COLORS.terracotta,
-            fontSize: 140,
-            lineHeight: 1,
+            fontFamily: T.family.display,
+            fontWeight: T.weight.bold,
+            color: C.terracotta,
+            fontSize: T.size.displayXl,
+            lineHeight: T.leading.tight,
             textDecoration: "line-through",
-            textDecorationThickness: 6,
+            textDecorationThickness: layout.rule.thick * 3,
           }}
         >
           jusqu'à 25%
@@ -287,22 +327,24 @@ const SceneCompare: React.FC = () => {
 const SceneCities: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const titleO = ease(frame, 0, 18);
-  const mS = spring({ frame: frame - 15, fps, config: { damping: 18 } });
-  const eS = spring({ frame: frame - 30, fps, config: { damping: 18 } });
+  const titleO = ease(frame, 0, M.stagger.loose);
+  const mS = spring({ frame: frame - M.stagger.base, fps, config: M.springs.gentle });
+  const eS = spring({ frame: frame - M.stagger.base * 2, fps, config: M.springs.gentle });
   const tagO = ease(frame, 50, 70);
   const out = 1 - ease(frame, 75, 90);
   return (
-    <AbsoluteFill style={{ padding: 80, justifyContent: "center", alignItems: "center", opacity: out }}>
+    <AbsoluteFill
+      style={{ padding: space[12], justifyContent: "center", alignItems: "center", opacity: out }}
+    >
       <div
         style={{
           opacity: titleO,
-          fontFamily: body,
-          color: COLORS.gold,
-          fontSize: 28,
-          letterSpacing: 6,
+          fontFamily: T.family.body,
+          color: C.gold,
+          fontSize: T.size.lead,
+          letterSpacing: T.tracking.tracked,
           textTransform: "uppercase",
-          marginBottom: 50,
+          marginBottom: space[9],
         }}
       >
         Villes pionnières
@@ -310,12 +352,12 @@ const SceneCities: React.FC = () => {
       <div
         style={{
           opacity: mS,
-          transform: `translateX(${interpolate(mS, [0, 1], [-80, 0])}px)`,
-          fontFamily: display,
-          fontWeight: 700,
-          color: COLORS.cream,
-          fontSize: 110,
-          lineHeight: 1.05,
+          transform: `translateX(${interpolate(mS, [0, 1], [-space[12], 0])}px)`,
+          fontFamily: T.family.display,
+          fontWeight: T.weight.bold,
+          color: C.cream,
+          fontSize: T.size.h1xl,
+          lineHeight: T.leading.snug,
         }}
       >
         Marrakech
@@ -323,23 +365,23 @@ const SceneCities: React.FC = () => {
       <div
         style={{
           opacity: eS,
-          transform: `translateX(${interpolate(eS, [0, 1], [80, 0])}px)`,
-          fontFamily: display,
-          fontWeight: 700,
-          color: COLORS.cream,
-          fontSize: 110,
-          lineHeight: 1.05,
+          transform: `translateX(${interpolate(eS, [0, 1], [space[12], 0])}px)`,
+          fontFamily: T.family.display,
+          fontWeight: T.weight.bold,
+          color: C.cream,
+          fontSize: T.size.h1xl,
+          lineHeight: T.leading.snug,
         }}
       >
         Essaouira
       </div>
       <div
         style={{
-          marginTop: 60,
+          marginTop: space[10],
           opacity: tagO,
-          fontFamily: body,
-          color: COLORS.bone,
-          fontSize: 30,
+          fontFamily: T.family.body,
+          color: C.bone,
+          fontSize: T.size.body,
           fontStyle: "italic",
         }}
       >
@@ -352,18 +394,20 @@ const SceneCities: React.FC = () => {
 const SceneTiers: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const titleO = ease(frame, 0, 18);
+  const titleO = ease(frame, 0, M.stagger.loose);
   const tiers = ["Micro", "Intermédiaire", "Premium", "Branding"];
   const out = 1 - ease(frame, 135, 150);
   return (
-    <AbsoluteFill style={{ padding: 80, justifyContent: "center", alignItems: "center", opacity: out }}>
+    <AbsoluteFill
+      style={{ padding: space[12], justifyContent: "center", alignItems: "center", opacity: out }}
+    >
       <div
         style={{
           opacity: titleO,
-          fontFamily: body,
-          color: COLORS.gold,
-          fontSize: 26,
-          letterSpacing: 6,
+          fontFamily: T.family.body,
+          color: C.gold,
+          fontSize: T.size.lead,
+          letterSpacing: T.tracking.tracked,
           textTransform: "uppercase",
         }}
       >
@@ -372,35 +416,39 @@ const SceneTiers: React.FC = () => {
       <div
         style={{
           opacity: titleO,
-          marginTop: 24,
-          fontFamily: display,
-          fontWeight: 700,
-          color: COLORS.cream,
-          fontSize: 72,
+          marginTop: space[5],
+          fontFamily: T.family.display,
+          fontWeight: T.weight.bold,
+          color: C.cream,
+          fontSize: T.size.h2,
           textAlign: "center",
-          lineHeight: 1.05,
+          lineHeight: T.leading.snug,
         }}
       >
         Un engagement,<br />quatre paliers.
       </div>
 
-      <div style={{ marginTop: 70, width: "100%" }}>
+      <div style={{ marginTop: space[11], width: "100%" }}>
         {tiers.map((t, i) => {
-          const s = spring({ frame: frame - (24 + i * 12), fps, config: { damping: 18 } });
-          const y = interpolate(s, [0, 1], [40, 0]);
+          const s = spring({
+            frame: frame - (space[5] + i * M.stagger.base),
+            fps,
+            config: M.springs.gentle,
+          });
+          const y = interpolate(s, [0, 1], [space[8], 0]);
           return (
             <div
               key={t}
               style={{
                 opacity: s,
                 transform: `translateY(${y}px)`,
-                fontFamily: display,
-                fontWeight: 600,
-                fontSize: 56,
-                color: COLORS.cream,
+                fontFamily: T.family.display,
+                fontWeight: T.weight.semibold,
+                fontSize: T.size.h3,
+                color: C.cream,
                 textAlign: "center",
-                padding: "18px 0",
-                borderBottom: `1px solid ${COLORS.gold}44`,
+                padding: `${space[4]}px 0`,
+                borderBottom: `${layout.rule.hairline}px solid ${V.hexA("gold", 0.27)}`,
               }}
             >
               {t}
@@ -415,25 +463,32 @@ const SceneTiers: React.FC = () => {
 const SceneClose: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const iconS = spring({ frame, fps, config: { damping: 14 } });
-  const lineO = ease(frame, 18, 36);
-  const ctaS = spring({ frame: frame - 30, fps, config: { damping: 14 } });
+  const iconS = spring({ frame, fps, config: M.springs.hero });
+  const lineO = ease(frame, M.stagger.loose, 36);
+  const ctaS = spring({ frame: frame - M.dur.slow, fps, config: M.springs.hero });
   return (
     <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
       <Img
         src={staticFile("images/app-icon-1wm.png")}
-        style={{ width: 220, height: 220, transform: `scale(${interpolate(iconS, [0, 1], [0.7, 1])})`, opacity: iconS }}
+        style={{
+          width: 220,
+          height: 220,
+          transform: `scale(${interpolate(iconS, [0, 1], [0.7, 1])})`,
+          opacity: iconS,
+        }}
       />
       <div
         style={{
           opacity: lineO,
-          marginTop: 36,
-          fontFamily: display,
-          fontWeight: 700,
-          color: COLORS.cream,
-          fontSize: 64,
-          letterSpacing: 4,
+          marginTop: space[7],
+          fontFamily: T.family.display,
+          fontWeight: T.weight.bold,
+          color: C.cream,
+          fontSize: T.size.h3xl,
+          letterSpacing: T.tracking.wide,
           textTransform: "uppercase",
+          textAlign: "center",
+          lineHeight: T.leading.snug,
         }}
       >
         Rejoignez<br />le mouvement.
@@ -441,11 +496,11 @@ const SceneClose: React.FC = () => {
       <div
         style={{
           opacity: ctaS,
-          marginTop: 40,
-          fontFamily: body,
-          color: COLORS.gold,
-          fontSize: 30,
-          letterSpacing: 3,
+          marginTop: space[8],
+          fontFamily: T.family.body,
+          color: C.gold,
+          fontSize: T.size.body,
+          letterSpacing: T.tracking.wide,
         }}
       >
         oneworldmorocco.com
@@ -456,7 +511,7 @@ const SceneClose: React.FC = () => {
 
 export const CorporateVertical: React.FC = () => {
   return (
-    <AbsoluteFill style={{ backgroundColor: COLORS.night }}>
+    <AbsoluteFill style={{ backgroundColor: C.night }}>
       <Background />
       <Sequence from={0} durationInFrames={90}><SceneOpen /></Sequence>
       <Sequence from={90} durationInFrames={120}><SceneMission /></Sequence>
