@@ -97,7 +97,7 @@ type Item = {
 
 const SITE = "https://oneworldmorocco.com";
 
-const AffiliateNewsTab = ({ businessName, affiliateName, slug, rights, onGoToTools }: Props) => {
+const AffiliateNewsTab = ({ businessName, businessId = null, affiliateName, slug, rights, onGoToTools }: Props) => {
   const accountLabel = affiliateName?.trim() || "Compte affilié";
   const publicUrl = slug ? `${SITE}/b/${slug}` : SITE;
   const [preview, setPreview] = useState<{ title: string; p: Exclude<Preview, null> } | null>(null);
