@@ -2099,7 +2099,5 @@ function TextSplitEditorDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-      </DialogContent>
-    </Dialog>
   );
 }
