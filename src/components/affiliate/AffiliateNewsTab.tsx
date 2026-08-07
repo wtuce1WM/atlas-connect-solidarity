@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { CheckCircle2, XCircle, Bot, MapPin, Newspaper, Mail, Star, CloudSun, Waves, ThumbsUp, BarChart3, Video, Globe2, ExternalLink, Eye, QrCode, LayoutPanelTop } from "lucide-react";
+import { CheckCircle2, XCircle, Bot, MapPin, Newspaper, Mail, Star, CloudSun, Waves, ThumbsUp, BarChart3, Video, Globe2, ExternalLink, Eye, QrCode, LayoutPanelTop, Save } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export type NewsRights = {
   aiAssistant: boolean;
@@ -16,11 +20,62 @@ export type NewsRights = {
 
 interface Props {
   businessName: string;
+  businessId?: string | null;
   affiliateName?: string;
   slug: string | null;
   rights: NewsRights;
   onGoToTools?: () => void;
 }
+
+/** Champ « URL cible » du site vitrine, avec CTA de sauvegarde au niveau du champ. */
+const ShowcaseTargetUrlField = ({ businessId }: { businessId: string }) => {
+  const { toast } = useToast();
+  const [value, setValue] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    let cancel = false;
+    supabase
+      .from("businesses")
+      .select("showcase_target_url")
+      .eq("id", businessId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!cancel) setValue(((data as any)?.showcase_target_url as string) || "");
+      });
+    return () => { cancel = true; };
+  }, [businessId]);
+
+  const save = async () => {
+    setSaving(true);
+    const { error } = await supabase
+      .from("businesses")
+      .update({ showcase_target_url: value.trim() || null } as any)
+      .eq("id", businessId);
+    setSaving(false);
+    toast(error
+      ? { title: "Erreur", description: error.message, variant: "destructive" }
+      : { title: "URL cible enregistrée" });
+  };
+
+  return (
+    <div className="mt-2 space-y-1">
+      <p className="text-[11px] text-white/50">URL cible (votre domaine)</p>
+      <div className="flex items-center gap-2 max-w-md">
+        <Input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="https://votredomaine.com"
+          className="h-8 text-xs bg-white/5 border-white/15 text-white"
+        />
+        <Button type="button" size="sm" className="h-8 px-2" onClick={save} disabled={saving}>
+          <Save className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 
 type Preview =
   | { kind: "iframe"; url: string; height?: number }
