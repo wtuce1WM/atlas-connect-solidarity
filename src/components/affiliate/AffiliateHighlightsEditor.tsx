@@ -257,20 +257,39 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
             <TabsContent key={l} value={l} className="space-y-4 mt-4" dir={l === "ar" ? "rtl" : "ltr"}>
               {l === lang && (
                 <>
-                  <div className="space-y-2">
-                    <label className="text-xs font-medium text-muted-foreground">Titre de la section</label>
-                    <Input
-                      value={sectionTitle[lang]}
-                      onChange={(e) => {
-                        setSectionTitle((s) => ({ ...s, [lang]: e.target.value.slice(0, MAX_SECTION_TITLE) }));
-                        markDirty();
-                      }}
-                      placeholder="Ex: Nos Points Forts"
-                      className="h-9 text-sm max-w-md"
-                      maxLength={MAX_SECTION_TITLE}
-                      dir={rtl ? "rtl" : "ltr"}
-                    />
-                    <p className="text-xs text-muted-foreground">{sectionTitle[lang].length}/{MAX_SECTION_TITLE}</p>
+                  <div className="flex flex-wrap items-start gap-4">
+                    <div className="space-y-2 flex-1 min-w-[220px]">
+                      <label className="text-xs font-medium text-muted-foreground">Titre de la section</label>
+                      <Input
+                        value={sectionTitle[lang]}
+                        onChange={(e) => {
+                          setSectionTitle((s) => ({ ...s, [lang]: e.target.value.slice(0, MAX_SECTION_TITLE) }));
+                          markDirty();
+                        }}
+                        placeholder="Ex: Nos Points Forts"
+                        className="h-9 text-sm max-w-md"
+                        maxLength={MAX_SECTION_TITLE}
+                        dir={rtl ? "rtl" : "ltr"}
+                      />
+                      <p className="text-xs text-muted-foreground">{sectionTitle[lang].length}/{MAX_SECTION_TITLE}</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium text-muted-foreground">Présentation horizontale</label>
+                      <select
+                        value={sectionColumns}
+                        onChange={(e) => {
+                          setSectionColumns(Number(e.target.value));
+                          markDirty();
+                        }}
+                        className="h-9 w-[200px] rounded-md border border-input bg-background px-2 text-sm"
+                      >
+                        <option value={1}>1 (peu d'infos)</option>
+                        <option value={2}>2 (par défaut)</option>
+                        <option value={3}>3 (beaucoup d'infos)</option>
+                      </select>
+                      <p className="text-xs text-muted-foreground">Nombre de blocs par ligne sur la fiche.</p>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
