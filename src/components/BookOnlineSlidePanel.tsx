@@ -2561,7 +2561,132 @@ const BookOnlineSlidePanelInner = ({
                       </div>
                     );
                   })()}
+
+                  {/* Badges (Menu / Images / Vidéos, liens externes, réseaux & réservation) — sous les blocs highlights */}
+                  {(() => {
+                    const socialItems: { name: string; url: string; icon: React.ReactNode; onClick?: () => void }[] = [
+                      business?.website && { name: "Site web", url: business.website, icon: <Globe className="h-4 w-4" />, onClick: () => {
+                        const url = business.website!.startsWith("http") ? business.website! : `https://${business.website}`;
+                        if (business?.website_force_external) window.open(url, "_blank", "noopener");
+                        else openDocOrBooking(url, "Site web", true);
+                      } },
+                      ctaConfig.bookingCta && { name: ctaConfig.bookingCtaLabel, url: ctaConfig.bookingCta.fullUrl, icon: <CalendarCheck className="h-4 w-4" />, onClick: () => {
+                        if (ctaConfig.bookingCta!.forceExternal) window.open(ctaConfig.bookingCta!.fullUrl, "_blank", "noopener");
+                        else openDocOrBooking(ctaConfig.bookingCta!.fullUrl, ctaConfig.bookingCtaLabel, true);
+                      } },
+                      ctaConfig.shopCta && { name: ctaConfig.shopCtaLabel, url: ctaConfig.shopCta.fullUrl, icon: <ShoppingCart className="h-4 w-4" />, onClick: () => {
+                        if (ctaConfig.shopCta!.forceExternal) window.open(ctaConfig.shopCta!.fullUrl, "_blank", "noopener");
+                        else openDocOrBooking(ctaConfig.shopCta!.fullUrl, ctaConfig.shopCtaLabel, true);
+                      } },
+                      business?.instagram_url && { name: "Instagram", url: business.instagram_url, icon: <InstagramIcon className="h-4 w-4" /> },
+                      business?.facebook_url && { name: "Facebook", url: business.facebook_url, icon: <FacebookIcon className="h-4 w-4 text-[#1877F2]" /> },
+                      business?.tiktok_url && { name: "TikTok", url: business.tiktok_url, icon: <TikTokIcon className="h-5 w-5" /> },
+                      business?.youtube_url && { name: "YouTube", url: business.youtube_url, icon: <YouTubeIcon className="h-4 w-4 text-[#FF0000]" /> },
+                      business?.twitter_url && { name: "X", url: business.twitter_url, icon: <TwitterIcon className="h-5 w-5" /> },
+                      business?.linkedin_url && { name: "LinkedIn", url: business.linkedin_url, icon: <LinkedInIcon className="h-5 w-5 text-[#0A66C2]" /> },
+                      business?.pinterest_url && { name: "Pinterest", url: business.pinterest_url, icon: <PinterestIcon className="h-4 w-4 text-[#E60023]" /> },
+                      business?.vimeo_url && { name: "Vimeo", url: business.vimeo_url, icon: <VimeoIcon className="h-4 w-4 text-[#1AB7EA]" /> },
+                      business?.snapchat_url && { name: "Snapchat", url: business.snapchat_url, icon: <SnapchatIcon className="h-4 w-4" /> },
+                      (business as any)?.substack_url && { name: "Substack", url: (business as any).substack_url, icon: <SubstackIcon className="h-4 w-4 text-[#FF6719]" />, onClick: () => setShowSubstackOverlay(true) },
+                      business?.spotify_url && { name: "Spotify", url: business.spotify_url, icon: <SpotifyBadgeIcon />, onClick: () => setShowSpotifyOverlay(true) },
+                      business?.soundcloud_url && { name: "SoundCloud", url: business.soundcloud_url, icon: <SoundCloudBadgeIcon />, onClick: () => setShowSoundCloudOverlay(true) },
+                    ].filter(Boolean) as { name: string; url: string; icon: React.ReactNode; onClick?: () => void }[];
+                    const bookingItems: { name: string; url: string; icon: React.ReactNode; label?: boolean }[] = [
+                      business?.tripadvisor_url && { name: "TripAdvisor", url: business.tripadvisor_url, icon: <TripAdvisorIcon className="h-4 w-4 text-[#34E0A1]" /> },
+                      (business as any)?.booking_url && { name: "Booking.com", url: (business as any).booking_url, icon: <BookingIcon className="h-4 w-4 text-[#003580]" /> },
+                      (business as any)?.airbnb_url && { name: "Airbnb", url: (business as any).airbnb_url, icon: <AirbnbIcon className="h-4 w-4 text-[#FF5A5F]" /> },
+                      (business as any)?.glovo_url && { name: "Glovo", url: (business as any).glovo_url, icon: <img src={glovoLogo} alt="Glovo" className="h-4 w-4 object-contain" /> },
+                      (business as any)?.hotels_com_url && { name: "Hotels.com", url: (business as any).hotels_com_url, icon: null, label: true },
+                      (business as any)?.trivago_url && { name: "Trivago", url: (business as any).trivago_url, icon: null, label: true },
+                      business?.getyourguide_url && { name: "GetYourGuide", url: business.getyourguide_url, icon: null, label: true },
+                      business?.viator_url && { name: "Viator", url: business.viator_url, icon: null, label: true },
+                      business?.tourradar_url && { name: "TourRadar", url: business.tourradar_url, icon: null, label: true },
+                      (business as any)?.other_booking_url && { name: (business as any).other_booking_name || "Réservation", url: (business as any).other_booking_url, icon: <ExternalLink className="h-3.5 w-3.5" /> },
+                    ].filter(Boolean) as { name: string; url: string; icon: React.ReactNode; label?: boolean }[];
+                    const hasSocialBar = socialItems.length > 0 || bookingItems.length > 0;
+                    const hasVideosBadge = nonExternalVideoDocs.length >= 1;
+                    const hasImagesBadge = images.length > 1;
+                    const hasMenuBar = menuDocs.length > 0 || hasVideosBadge || hasImagesBadge;
+                    if (!(externalLinks.length > 0 || hasSocialBar || hasMenuBar)) return null;
+                    const stripClass = "flex items-center gap-2 py-1 overflow-x-auto overflow-y-hidden scrollbar-gold flex-nowrap";
+                    const onStripWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+                      const el = e.currentTarget;
+                      if (el.scrollWidth > el.clientWidth && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                        el.scrollLeft += e.deltaY;
+                      }
+                    };
+                    const badgeClass = "shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors whitespace-nowrap";
+                    return (
+                      <div className="mt-8 pt-6 border-t border-white/10 flex flex-col gap-2">
+                        {hasMenuBar && (
+                          <div dir="ltr" onWheel={onStripWheel} className={stripClass}>
+                            {hasVideosBadge && (
+                              <button onClick={() => { setDescGridSection("videos"); setDescGridPage(0); setDescOverlayDirect(false); setShowDescriptionOverlay(true); }} className={badgeClass}>
+                                <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">Vidéos</span>
+                              </button>
+                            )}
+                            {hasImagesBadge && (
+                              <button onClick={() => { setDescGridSection("images"); setDescGridPage(0); setDescOverlayDirect(false); setShowDescriptionOverlay(true); }} className={badgeClass}>
+                                <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">Images</span>
+                              </button>
+                            )}
+                            {menuDocs.map((doc) => (
+                              <button key={doc.id} onClick={() => openDocOrBooking(doc.url, doc.name || 'Menu')} className={badgeClass}>
+                                <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">{doc.name || 'Menu'}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        {externalLinks.length > 0 && (
+                          <div dir="ltr" onWheel={onStripWheel} className={stripClass}>
+                            {externalLinks.map((link) => (
+                              <button
+                                key={link.id}
+                                onClick={() => {
+                                  if (link.url && link.url !== '#' && link.url !== '*') {
+                                    openDocOrBooking(link.url, link.name || 'Lien', true);
+                                  }
+                                }}
+                                className={badgeClass}
+                                title={link.name || 'Lien'}
+                              >
+                                <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">{link.name || 'Lien'}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        {hasSocialBar && (
+                          <div dir="ltr" onWheel={onStripWheel} className={stripClass}>
+                            {socialItems.map((s, i) => (
+                              <button key={i} onClick={() => (s.onClick ? s.onClick() : window.open(s.url, "_blank", "noopener"))} className={badgeClass} title={s.name}>
+                                {s.icon}
+                                <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">{s.name}</span>
+                              </button>
+                            ))}
+                            {socialItems.length > 0 && bookingItems.length > 0 && (
+                              <div className="shrink-0 w-px h-6 bg-white/20" />
+                            )}
+                            {bookingItems.map((item) => (
+                              <button
+                                key={`${item.name}-${item.url}`}
+                                onClick={() => {
+                                  if (item.name === "Booking.com") openDocOrBooking(item.url, item.name, true);
+                                  else window.open(item.url, "_blank", "noopener");
+                                }}
+                                className={badgeClass}
+                                title={item.name}
+                              >
+                                {!item.label && item.icon}
+                                <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">{item.name}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
+
 
               </div>
             )}
