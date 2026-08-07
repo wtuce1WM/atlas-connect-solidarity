@@ -269,14 +269,15 @@ const AffiliatePresence = () => {
 
       const { data: rightsRows } = await supabase
         .from("business_feature_rights")
-        .select("business_id, has_ai_assistant, has_blog_export, has_nearby_widget, has_email_signature");
-      const map: Record<string, { has_ai_assistant: boolean; has_blog_export: boolean; has_nearby_widget: boolean; has_email_signature: boolean }> = {};
+        .select("business_id, has_ai_assistant, has_blog_export, has_nearby_widget, has_email_signature, has_showcase_site");
+      const map: Record<string, { has_ai_assistant: boolean; has_blog_export: boolean; has_nearby_widget: boolean; has_email_signature: boolean; has_showcase_site: boolean }> = {};
       ((rightsRows as any[]) || []).forEach((r) => {
         map[r.business_id] = {
           has_ai_assistant: !!r.has_ai_assistant,
           has_blog_export: !!r.has_blog_export,
           has_nearby_widget: !!r.has_nearby_widget,
           has_email_signature: r.has_email_signature !== false,
+          has_showcase_site: !!r.has_showcase_site,
         };
       });
       setFeatureRights(map);
