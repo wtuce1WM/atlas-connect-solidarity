@@ -2661,13 +2661,13 @@ const BookOnlineSlidePanelInner = ({
 
                   {/* WhatsApp + widgets Réseaux & flux (Spotify / SoundCloud / Substack) */}
                   {!descOverlayContent && (business?.whatsapp || business?.spotify_url || business?.soundcloud_url || (business as any)?.substack_url) && (
-                    <div className="mt-8 pt-6 border-t border-white/10 space-y-5">
+                    <div className="mt-8 pt-6 border-t border-white/10 space-y-6 text-center">
                       {business?.whatsapp && (
                         <a
                           href={whatsappUrl(business.whatsapp, language === "en" ? `Hello ${business?.name || ""}, I found you on One World Morocco.` : language === "ar" ? `مرحبا ${business?.name || ""}` : `Bonjour ${business?.name || ""}, je vous ai trouvé sur One World Morocco.`)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-black hover:brightness-110 transition"
+                          className="mx-auto inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-black hover:brightness-110 transition"
                           style={{ fontFamily: "'Montserrat', sans-serif" }}
                         >
                           <MessageCircle className="h-4 w-4" />
@@ -2675,39 +2675,40 @@ const BookOnlineSlidePanelInner = ({
                         </a>
                       )}
                       {business?.slug && (business?.spotify_url || business?.soundcloud_url || (business as any)?.substack_url) && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="mx-auto w-full max-w-[720px] flex flex-col items-center gap-6">
                           {business?.spotify_url && (
                             <iframe
-                              src={`/embed/spotify/${business.slug}?theme=dark&bg=transparent&lang=${language}`}
+                              key="w-spotify"
+                              src={`/embed/spotify/${business.slug}?bg=transparent&fit=w&lang=${language}`}
                               title="Spotify"
-                              loading="lazy"
                               scrolling="no"
                               allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                              style={{ width: "100%", height: 372, border: 0, background: "transparent", overflow: "hidden" }}
+                              style={{ width: "100%", height: 520, border: 0, background: "transparent", overflow: "hidden" }}
                             />
                           )}
                           {business?.soundcloud_url && (
                             <iframe
-                              src={`/embed/soundcloud/${business.slug}?visual=1&bg=transparent&lang=${language}`}
+                              key="w-soundcloud"
+                              src={`/embed/soundcloud/${business.slug}?visual=1&bg=transparent&fit=w&lang=${language}`}
                               title="SoundCloud"
-                              loading="lazy"
                               scrolling="no"
                               allow="autoplay"
-                              style={{ width: "100%", height: 420, border: 0, background: "transparent", overflow: "hidden" }}
+                              style={{ width: "100%", height: 500, border: 0, background: "transparent", overflow: "hidden" }}
                             />
                           )}
                           {(business as any)?.substack_url && (
                             <iframe
-                              src={`/embed/substack/${business.slug}?limit=3&bg=transparent&lang=${language}`}
+                              key="w-substack"
+                              src={`/embed/substack/${business.slug}?limit=3&bg=transparent&fit=w&lang=${language}`}
                               title="Newsletter"
-                              loading="lazy"
                               scrolling="no"
-                              style={{ width: "100%", height: 418, border: 0, background: "transparent", overflow: "hidden" }}
+                              style={{ width: "100%", height: 560, border: 0, background: "transparent", overflow: "hidden" }}
                             />
                           )}
                         </div>
                       )}
                     </div>
+
                   )}
 
 

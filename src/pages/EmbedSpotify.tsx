@@ -14,19 +14,25 @@ const MESSAGES: Record<Lang, { loading: string; none: string }> = {
   ar: { loading: "جار التحميل…", none: "لا يوجد رابط Spotify." },
 };
 
-/** Convertit une URL Spotify publique en URL d'embed officielle. */
-export const toSpotifyEmbed = (raw: string, theme: "dark" | "light"): string | null => {
+/**
+ * Convertit une URL Spotify publique en URL d'embed officielle.
+ * `theme = null` → aucun paramètre `theme` : Spotify applique les couleurs par
+ * défaut de la playlist/album (comme dans l'overlay Spotify de la fiche).
+ */
+export const toSpotifyEmbed = (raw: string, theme: "dark" | "light" | null): string | null => {
   try {
     const url = new URL(raw.startsWith("http") ? raw : `https://${raw}`);
     if (!/(^|\.)spotify\.com$/.test(url.hostname)) return null;
     const path = url.pathname.replace(/^\/embed/, "");
     const m = path.match(/\/(track|album|playlist|artist|show|episode)\/([A-Za-z0-9]+)/);
     if (!m) return null;
-    return `https://open.spotify.com/embed/${m[1]}/${m[2]}?utm_source=oneworldmorocco&theme=${theme === "light" ? 1 : 0}`;
+    const themeParam = theme ? `&theme=${theme === "light" ? 1 : 0}` : "";
+    return `https://open.spotify.com/embed/${m[1]}/${m[2]}?utm_source=oneworldmorocco${themeParam}`;
   } catch {
     return null;
   }
 };
+
 
 const EmbedSpotify = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -35,7 +41,10 @@ const EmbedSpotify = () => {
   const langParam = (params.get("lang") || "fr").toLowerCase();
   const lang: Lang = langParam === "en" || langParam === "ar" ? (langParam as Lang) : "fr";
   const L = MESSAGES[lang];
-  const theme = (params.get("theme") || "light") === "dark" ? "dark" : "light";
+  const themeRaw = (params.get("theme") || "").toLowerCase();
+  // Sans paramètre `theme` : couleurs par défaut Spotify (pochette) + fond transparent.
+  const theme: "dark" | "light" | null = themeRaw === "dark" ? "dark" : themeRaw === "light" ? "light" : null;
+
   const bgRaw = params.get("bg") || "";
   const surface = parseBg(bgRaw) || "transparent";
   const { fullWidth, fullHeight } = fitFlags(parseFit(params.get("fit")));
