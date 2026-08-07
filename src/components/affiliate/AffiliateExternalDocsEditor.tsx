@@ -311,39 +311,53 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
       {/* Visite Virtuelle 3D */}
       <section className="space-y-2">
         <Label className="text-base font-semibold text-white">🧭 Visite Virtuelle 3D (Matterport)</Label>
-        <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 p-2">
-          <Input
-            value={matterportUrl}
-            onChange={(e) => setMatterportUrl(e.target.value)}
-            placeholder="https://my.matterport.com/show/?m=..."
-            className="h-9 flex-1 border-white/15 bg-background text-sm"
-          />
-          {matterportUrl.trim() && (
-            <>
-              <a
-                href={matterportUrl.trim()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="shrink-0 text-white/50 hover:text-white"
-                title="Tester le lien"
-              >
-                <ExternalLink className="h-4 w-4" />
-              </a>
-              <button
-                type="button"
-                onClick={() => setMatterportUrl("")}
-                className="shrink-0 text-white/40 hover:text-destructive"
-                title="Effacer"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </>
-          )}
+        <div className="flex flex-col gap-2 rounded-lg border border-white/10 bg-white/5 p-2 sm:flex-row sm:items-center">
+          <div className="flex flex-1 items-center gap-2">
+            <Input
+              value={matterportUrl}
+              onChange={(e) => setMatterportUrl(e.target.value)}
+              placeholder="https://my.matterport.com/show/?m=..."
+              className="h-9 flex-1 border-white/15 bg-background text-sm"
+            />
+            {matterportUrl.trim() && (
+              <>
+                <a
+                  href={matterportUrl.trim()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="shrink-0 text-white/50 hover:text-white"
+                  title="Tester le lien"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setMatterportUrl("")}
+                  className="shrink-0 text-white/40 hover:text-destructive"
+                  title="Effacer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </>
+            )}
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            className="shrink-0"
+            disabled={savingMatterport}
+            onClick={saveMatterport}
+          >
+            {savingMatterport ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Save className="mr-1 h-4 w-4" />}
+            Enregistrer
+          </Button>
         </div>
         <p className="text-xs text-white/50">
           Affichée sur la fiche comme onglet « Visite 3D » et dans les médias du panneau.
         </p>
       </section>
+
 
       {/* Menus */}
       <section className="space-y-2">
