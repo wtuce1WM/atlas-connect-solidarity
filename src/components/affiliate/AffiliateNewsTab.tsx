@@ -299,6 +299,9 @@ const AffiliateNewsTab = ({ businessName, businessId = null, affiliateName, slug
                           <PreviewButton title={i.label} p={i.preview} />
                         </div>
                       )}
+                      {i.key === "showcase" && i.enabled && businessId && (
+                        <ShowcaseTargetUrlField businessId={businessId} />
+                      )}
                     </div>
                   </div>
                 </td>
