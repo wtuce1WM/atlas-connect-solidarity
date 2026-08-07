@@ -2792,20 +2792,45 @@ const BookOnlineSlidePanelInner = ({
                     if (unique.length === 0) return null;
                     return (
                       <div className="mt-8 flex flex-col gap-6">
-                        {unique.map((c) => (
+                        {unique.map((c) => {
+                          const isLoaded = loadedBookingEmbeds.includes(c.url);
+                          return (
                           <div key={c.url} className="w-full">
                             <h3 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">{c.label}</h3>
                             <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
-                              <iframe
-                                src={c.url}
-                                title={c.label}
-                                allow="payment; clipboard-write; fullscreen"
-                                className="w-full block border-0"
-                                style={{ aspectRatio: "16 / 11", minHeight: 420 }}
-                              />
+                              {isLoaded ? (
+                                <iframe
+                                  src={c.url}
+                                  title={c.label}
+                                  allow="payment; clipboard-write; fullscreen"
+                                  className="w-full block border-0"
+                                  style={{ aspectRatio: "16 / 11", minHeight: 420 }}
+                                />
+                              ) : (
+                                <div
+                                  className="w-full flex flex-col items-center justify-center gap-3 px-6 text-center"
+                                  style={{ aspectRatio: "16 / 11", minHeight: 420 }}
+                                >
+                                  <p className="text-white/70 text-sm">
+                                    {language === "en"
+                                      ? "Load the booking module in this page."
+                                      : language === "ar"
+                                      ? "تحميل وحدة الحجز في هذه الصفحة."
+                                      : "Chargez le module de réservation dans cette page."}
+                                  </p>
+                                  <button
+                                    type="button"
+                                    onClick={() => setLoadedBookingEmbeds((prev) => [...prev, c.url])}
+                                    className="inline-flex items-center gap-2 rounded-full bg-gold px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-black hover:brightness-110 transition font-['Montserrat',sans-serif]"
+                                  >
+                                    {c.label}
+                                  </button>
+                                </div>
+                              )}
                             </div>
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     );
                   })()}
