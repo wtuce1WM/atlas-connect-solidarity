@@ -2501,7 +2501,7 @@ const BookOnlineSlidePanelInner = ({
                     </p>
                   )}
                   {!descOverlayContent && avgOn20 != null && totalReviewCount > 0 && (
-                    <div className="mb-5 flex">
+                    <div className="mb-5 flex justify-center">
                       <div
                         dir="ltr"
                         className="relative flex items-center justify-center gap-1.5 md:gap-2.5 py-1 md:py-1.5 px-3 md:px-4 rounded-full border border-white/30 cursor-pointer backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)]"
@@ -2540,10 +2540,11 @@ const BookOnlineSlidePanelInner = ({
                         {(highlightsSection.title || highlightsSection.intro) && (
                           <div className="mb-4">
                             {highlightsSection.title && (
-                              <h3 className="text-base font-bold uppercase tracking-[0.12em] text-white mb-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                              <h2 className="text-lg md:text-2xl font-bold uppercase tracking-[0.12em] text-white mb-2" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                 {highlightsSection.title}
-                              </h3>
+                              </h2>
                             )}
+
                             {highlightsSection.intro && (
                               <div
                                 className="text-sm text-white/80 leading-relaxed font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif] prose prose-invert prose-sm max-w-none [&_*]:!text-white/80 [&_a]:!text-white [&_p]:my-1"
@@ -2552,7 +2553,7 @@ const BookOnlineSlidePanelInner = ({
                             )}
                           </div>
                         )}
-                        <div className={`grid grid-cols-1 gap-3 ${highlightsSection.columns === 1 ? "" : highlightsSection.columns === 3 ? "md:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2"}`}>
+                        <div className={`grid grid-cols-1 gap-3 ${highlightsSection.columns === 1 ? "" : highlightsSection.columns === 3 ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
                           {visible.map((h) => (
                             <div key={h.id} className="rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm p-3 flex flex-col gap-2">
                               {h.image_url && (
@@ -2590,6 +2591,53 @@ const BookOnlineSlidePanelInner = ({
                       </div>
                     );
                   })()}
+
+                  {/* Ils parlent de nous (liens externes avec logos) */}
+                  {!descOverlayContent && externalLinks.length > 0 && (() => {
+                    const EXT_LABELS: Record<string, Record<string, string>> = {
+                      fr: { partenaires: "Ils nous font confiance", recompenses: "Nous sommes reconnus par", certifications: "Nous sommes certifiés par", presse: "Ils parlent de nous", media: "Ils parlent de nous" },
+                      en: { partenaires: "They trust us", recompenses: "We are recognised by", certifications: "We are certified by", presse: "They talk about us", media: "They talk about us" },
+                      ar: { partenaires: "يثقون بنا", recompenses: "معترف بنا من قِبَل", certifications: "نحن معتمدون من قِبَل", presse: "يتحدثون عنّا", media: "يتحدثون عنّا" },
+                    };
+                    const L = EXT_LABELS[language as string] ?? EXT_LABELS.fr;
+                    const key = (externalLinks[0]?.description || "").toLowerCase().trim();
+                    const heading = L[key] || L.presse;
+                    const items = externalLinks.filter((l) => (l.name || "").trim());
+                    if (items.length === 0) return null;
+                    return (
+                      <div className="mt-8 pt-6 border-t border-white/10">
+                        <h2 className="text-lg md:text-2xl font-bold uppercase tracking-[0.12em] text-white mb-4" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                          {heading}
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          {items.map((link, i) => {
+                            const logo = typeof link.icon === "string" && /^https?:\/\//i.test(link.icon) ? link.icon : null;
+                            return (
+                              <button
+                                key={`${link.name}-${i}`}
+                                onClick={() => {
+                                  if (link.url && link.url !== "#" && link.url !== "*") openDocOrBooking(link.url, link.name || "Lien", true);
+                                }}
+                                className="rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm p-4 flex flex-col items-center justify-center gap-3 hover:bg-white/10 transition-colors text-center"
+                              >
+                                {logo ? (
+                                  <img src={logo} alt={link.name || ""} className="h-20 md:h-24 w-auto max-w-full object-contain" loading="lazy" />
+                                ) : (
+                                  <div className="h-20 md:h-24 w-full flex items-center justify-center">
+                                    <Newspaper className="h-10 w-10 text-gold/70" />
+                                  </div>
+                                )}
+                                <span className="text-sm md:text-base font-bold uppercase tracking-[0.08em] text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                                  {link.name}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
 
                   {/* Badges (Menu / Images / Vidéos, liens externes, réseaux & réservation) — sous les blocs highlights */}
                   {(() => {
