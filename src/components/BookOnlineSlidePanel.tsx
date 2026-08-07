@@ -2716,7 +2716,110 @@ const BookOnlineSlidePanelInner = ({
 
                   )}
 
+                  {/* Réservation embarquée : url 1 à 5 sans « Lien externe » activé et CTA Réservez / Réserver en ligne / Day Pass */}
+                  {!descOverlayContent && (() => {
+                    const norm = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                    const isBookingLabel = (label: string) => {
+                      const n = norm(label);
+                      return n.includes("reservez") || n.includes("reserver en ligne") || n.includes("day pass");
+                    };
+                    const websiteUrl = business?.website
+                      ? (business.website.startsWith("http") ? business.website : `https://${business.website}`)
+                      : null;
+                    const candidates: { url: string; label: string; forceExternal?: boolean }[] = [
+                      websiteUrl && {
+                        url: websiteUrl,
+                        label: resolveCtaLabel(business?.presentation_mode, null, "site_web", language),
+                        forceExternal: business?.website_force_external,
+                      },
+                      ctaConfig.bookingCta && { url: ctaConfig.bookingCta.fullUrl, label: ctaConfig.bookingCtaLabel, forceExternal: ctaConfig.bookingCta.forceExternal },
+                      ctaConfig.shopCta && { url: ctaConfig.shopCta.fullUrl, label: ctaConfig.shopCtaLabel, forceExternal: ctaConfig.shopCta.forceExternal },
+                      ctaConfig.url4Cta && { url: ctaConfig.url4Cta.fullUrl, label: ctaConfig.url4CtaLabel, forceExternal: ctaConfig.url4Cta.forceExternal },
+                      ctaConfig.url5Cta && { url: ctaConfig.url5Cta.fullUrl, label: ctaConfig.url5CtaLabel, forceExternal: ctaConfig.url5Cta.forceExternal },
+                    ].filter(Boolean) as { url: string; label: string; forceExternal?: boolean }[];
+                    const embeds = candidates.filter(
+                      (c) => !c.forceExternal && /^https?:\/\//i.test(c.url) && isBookingLabel(c.label)
+                    );
+                    const seen = new Set<string>();
+                    const unique = embeds.filter((c) => (seen.has(c.url) ? false : (seen.add(c.url), true)));
+                    if (unique.length === 0) return null;
+                    return (
+                      <div className="mt-8 flex flex-col gap-6">
+                        {unique.map((c) => (
+                          <div key={c.url} className="w-full">
+                            <h3 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">{c.label}</h3>
+                            <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
+                              <iframe
+                                src={c.url}
+                                title={c.label}
+                                allow="payment; clipboard-write; fullscreen"
+                                className="w-full block border-0"
+                                style={{ aspectRatio: "16 / 11", minHeight: 420 }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
+
+                  {/* Vidéos propriétaires Location / Vente — 4 premières, pleine largeur */}
+                  {!descOverlayContent && (() => {
+                    const rentalSaleVideos = (videoDocs || [])
+                      .filter((d: any) => {
+                        const pt = (d.price_type || "").toString().toLowerCase();
+                        return (pt === "location" || pt === "vente") && typeof d.url === "string" && d.url.length > 0 && (!d.business_id || d.business_id === businessId);
+                      })
+                      .sort((a: any, b: any) => (a.sort_order ?? 9999) - (b.sort_order ?? 9999))
+                      .slice(0, 4);
+                    if (rentalSaleVideos.length === 0) return null;
+                    return (
+                      <div className="mt-8 flex flex-col gap-6">
+                        {rentalSaleVideos.map((d: any) => {
+                          const pt = (d.price_type || "").toString().toLowerCase();
+                          const ptLabel = pt === "location"
+                            ? (language === "en" ? "For rent" : "Location")
+                            : (language === "en" ? "For sale" : "Vente");
+                          return (
+                            <div key={d.url} className="w-full">
+                              <h3 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">
+                                {[d.name, ptLabel].filter(Boolean).join(" — ")}
+                                {d.price ? ` · ${d.price}` : ""}
+                              </h3>
+                              <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
+                                {isExternalVideoUrl(d.url) ? (
+                                  <iframe
+                                    src={getVideoEmbed(d.url, window.location.origin, { autoplay: false }).embedUrl}
+                                    title={d.name || ptLabel}
+                                    allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                                    allowFullScreen
+                                    className="w-full block border-0"
+                                    style={{ aspectRatio: "16 / 9", minHeight: 240 }}
+                                  />
+                                ) : (
+                                  <video
+                                    src={d.url}
+                                    poster={d.thumbnail_url || undefined}
+                                    controls
+                                    playsInline
+                                    preload="metadata"
+                                    className="w-full block"
+                                    style={{ aspectRatio: "16 / 9", background: "#000" }}
+                                  />
+                                )}
+                              </div>
+                              {d.description && (
+                                <p className="mt-2 text-sm text-white/80 leading-relaxed">{d.description}</p>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
+
                   {/* Visite virtuelle 3D (Matterport) affichée pleine largeur */}
+
                   {!descOverlayContent && business?.matterport_url && /^https?:\/\//i.test(business.matterport_url) && (
                     <div className="mt-8 w-full">
                       <h3 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">
