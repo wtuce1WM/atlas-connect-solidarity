@@ -329,7 +329,8 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
                             {h.icon && <DynamicIcon name={h.icon} className="h-5 w-5 text-primary" />}
                           </div>
 
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+
                             <div>
                               <label className="text-xs font-medium text-muted-foreground mb-1 block">Image</label>
                               <input
