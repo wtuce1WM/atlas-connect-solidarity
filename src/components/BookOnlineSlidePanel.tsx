@@ -2517,7 +2517,7 @@ const BookOnlineSlidePanelInner = ({
                   )}
                   {!descOverlayContent && hookText && (
                     <p
-                      className="text-base md:text-xl leading-relaxed tracking-[0.02em] text-white/90 mb-3"
+                      className="text-xl md:text-3xl leading-snug tracking-[0.02em] text-white/90 mb-4"
                       style={{ fontFamily: "'Montserrat', sans-serif" }}
                     >
                       {hookText}
