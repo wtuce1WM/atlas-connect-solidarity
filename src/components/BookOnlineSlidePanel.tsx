@@ -1418,6 +1418,40 @@ const BookOnlineSlidePanelInner = ({
   // Extracted open status hook
   const openBadgeInfo = useOpenStatus({ business, language });
 
+  // Widgets inline (Disponibilité / Horaires) affichés dans l'overlay Full Description
+  const renderInlineDescWidgets = (keyPrefix: string) => {
+    const showAvail = !!serpApiMapping;
+    const showHours = !!hasOpeningHours && !business?.is_open_24h;
+    if (!showAvail && !showHours) return null;
+    return (
+      <div key={keyPrefix} className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 justify-items-center">
+        {showAvail && (
+          <div className="w-full max-w-[22rem]">
+            <AvailabilitySearchOverlay
+              inline
+              language={language}
+              isSearching={hotelSearchLoading}
+              initialCheckIn={fallbackPanelData?.checkIn ?? initialAvailabilityCheckIn}
+              initialCheckOut={fallbackPanelData?.checkOut ?? initialAvailabilityCheckOut}
+              initialAdults={fallbackPanelData?.adults ?? initialAvailabilityAdults}
+              onSearch={(checkIn, checkOut, adults) => handleCheckAvailability(checkIn, checkOut, adults)}
+              onClose={() => {}}
+            />
+          </div>
+        )}
+        {showHours && business && (
+          <div className="w-full max-w-[22rem] bg-black/80 backdrop-blur-md border border-white/20 rounded-2xl p-5 text-white">
+            <p className="text-sm font-semibold text-gold uppercase tracking-wider flex items-center gap-1.5 mb-4">
+              <Clock className="h-4 w-4" />
+              {language === "en" ? "Opening hours" : language === "ar" ? "أوقات العمل" : "Horaires d'ouverture"}
+            </p>
+            <HoursOverlayContent business={business} language={language} />
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // Bottom tabs
   // Non-YouTube/Vimeo videos (own hosted files + generic videos linked to the POI)
   const nonExternalVideoDocs = useMemo(
