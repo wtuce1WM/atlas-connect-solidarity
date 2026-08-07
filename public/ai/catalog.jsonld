@@ -17570,7 +17570,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 15620,
+          "reviewCount": 15632,
           "bestRating": 5
         }
       }
@@ -22731,7 +22731,7 @@
         "@id": "https://oneworldmorocco.com/m2maroc-immo#business",
         "name": "M2Maroc Immo",
         "url": "https://oneworldmorocco.com/m2maroc-immo",
-        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/new-1770444081174-u8yf4l.jpg",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/98116ccc-e811-461f-b096-93bcfd00174b-1786109690533-dg4atr.webp",
         "description": "Depuis ces bureaux a Marrakech (Rue Imam Chafai, Residence Jawhara Apt 18, Gueliz) et a Londres, nous pouvons vous aider dans vos démarches pour l’achat ou la location d’un bien immobilier au Maroc. Nous parlons le Français, l’Anglais, l’Arabe, le Néerlandais, l’Italien et l’Espagnol et somme donc a l’écoute de toutes vos questions relatives a l’immobilier au Maroc. Qu’il s’agisse de l’achat ou la location d’un riad, une villa, une maison, un appartement, un commerce, un terrain ou un bureau, co",
         "address": {
           "@type": "PostalAddress",
@@ -38707,7 +38707,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 37,
+          "reviewCount": 39,
           "bestRating": 5
         }
       }
