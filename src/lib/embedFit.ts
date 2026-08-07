@@ -90,17 +90,21 @@ export const cardParam = (color: string | null | undefined) => {
 /** Applique la couleur de fond du widget (ou transparent) sur html/body. */
 export const applyEmbedBg = (color: string | null | undefined) => {
   const bg = parseBg(color) || "transparent";
+  const root = document.getElementById("root");
   const prevHtml = document.documentElement.style.background;
   const prevBody = document.body.style.background;
+  const prevRoot = root?.style.background ?? "";
   const prevScheme = document.documentElement.style.colorScheme;
   document.documentElement.style.background = bg;
   document.body.style.background = bg;
+  if (root) root.style.background = bg;
   // Sans ceci, `color-scheme: dark` fait peindre le canvas de l'iframe en noir
   // même avec html/body transparents → le widget n'apparaît pas transparent.
   document.documentElement.style.colorScheme = "light";
   return () => {
     document.documentElement.style.background = prevHtml;
     document.body.style.background = prevBody;
+    if (root) root.style.background = prevRoot;
     document.documentElement.style.colorScheme = prevScheme;
   };
 };

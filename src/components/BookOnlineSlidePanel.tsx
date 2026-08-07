@@ -847,6 +847,17 @@ const BookOnlineSlidePanelInner = ({
   const [showHoursOverlay, setShowHoursOverlay] = useState(false);
   const [showSpotifyOverlay, setShowSpotifyOverlay] = useState(false);
   const [showSubstackOverlay, setShowSubstackOverlay] = useState(false);
+  const [substackWidgetHeight, setSubstackWidgetHeight] = useState(640);
+
+  useEffect(() => {
+    const onSubstackHeight = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin || event.data?.type !== "owm-substack-height") return;
+      const height = Number(event.data.height);
+      if (Number.isFinite(height) && height > 0) setSubstackWidgetHeight(Math.ceil(height));
+    };
+    window.addEventListener("message", onSubstackHeight);
+    return () => window.removeEventListener("message", onSubstackHeight);
+  }, []);
   const [showSoundCloudOverlay, setShowSoundCloudOverlay] = useState(false);
   const [hotelSearchLoading, setHotelSearchLoading] = useState(false);
   const [showTransitionOverlay, setShowTransitionOverlay] = useState(false);
@@ -2722,8 +2733,8 @@ const BookOnlineSlidePanelInner = ({
                               key="w-substack"
                               src={`/embed/substack/${business.slug}?limit=10&bg=transparent&fit=w&lang=${language}`}
                               title="Newsletter"
-                              scrolling="auto"
-                              style={{ width: "100%", height: 640, border: 0, background: "transparent" }}
+                              scrolling="no"
+                              style={{ width: "100%", height: substackWidgetHeight, border: 0, background: "transparent", overflow: "hidden" }}
                             />
                           )}
                         </div>
