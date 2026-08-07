@@ -19,13 +19,17 @@ const MIGRATED = [
   "src/scenes/SceneTriptych.tsx",
   "src/scenes/SceneAgent.tsx",
   "src/scenes/SceneClose.tsx",
+  "src/CorporateVertical.tsx",
+  "src/AgentIaDemo.tsx",
 ];
 
 const FORBIDDEN: { name: string; re: RegExp }[] = [
   { name: "couleur hex en dur", re: /#[0-9a-fA-F]{3,8}\b/ },
   { name: "rgba()/rgb() en dur", re: /\brgba?\(/ },
-  { name: "textShadow inline", re: /textShadow\s*:/ },
-  { name: "boxShadow inline", re: /boxShadow\s*:/ },
+  // Les ombres sont autorisées uniquement via un token (`elevation.*`),
+  // jamais via une valeur littérale.
+  { name: "textShadow littéral", re: /textShadow\s*:\s*["'`]/ },
+  { name: "boxShadow littéral", re: /boxShadow\s*:\s*["'`]/ },
   { name: "config de spring local", re: /config\s*:\s*\{/ },
 ];
 
