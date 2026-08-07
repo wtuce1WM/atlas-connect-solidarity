@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import IconPicker from "@/components/staff/IconPicker";
 import DynamicIcon from "@/components/DynamicIcon";
 import RichTextEditor from "@/components/staff/RichTextEditor";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type Lang = "fr" | "en" | "ar";
 
