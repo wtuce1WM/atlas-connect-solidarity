@@ -940,6 +940,7 @@ const AffiliatePresence = () => {
                     <TabsContent value="news">
                       <AffiliateNewsTab
                         businessName={currentBusiness.name}
+                        businessId={currentBusiness.id}
                         affiliateName={affiliateName}
                         slug={currentBusiness.slug}
                         onGoToTools={() => setActiveTab("tools")}
@@ -950,7 +951,7 @@ const AffiliatePresence = () => {
                           emailSignature: featureRights[currentBusiness.id]?.has_email_signature !== false,
                           dashboard: hasDashboard,
                           videoStudio: hasVideoStudio,
-                          showcaseSite: hasShowcaseSite,
+                          showcaseSite: !!featureRights[currentBusiness.id]?.has_showcase_site,
                           customDomain: hasCustomDomain,
                         }}
                       />
