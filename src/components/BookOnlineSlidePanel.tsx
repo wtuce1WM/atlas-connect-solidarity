@@ -2809,7 +2809,7 @@ const BookOnlineSlidePanelInner = ({
                                 title={c.label}
                                 allow="payment; clipboard-write; fullscreen"
                                 className="w-full block border-0"
-                                style={{ aspectRatio: "16 / 10", minHeight: 560 }}
+                                style={{ aspectRatio: "16 / 10", minHeight: 640 }}
                               />
                             </div>
                           </div>
