@@ -149,7 +149,7 @@ const AffiliatePresence = () => {
   const [hasVideoStudio, setHasVideoStudio] = useState(false);
   const [hasShowcaseSite, setHasShowcaseSite] = useState(false);
   const [hasCustomDomain, setHasCustomDomain] = useState(false);
-  const [featureRights, setFeatureRights] = useState<Record<string, { has_ai_assistant: boolean; has_blog_export: boolean; has_nearby_widget: boolean; has_email_signature: boolean }>>({});
+  const [featureRights, setFeatureRights] = useState<Record<string, { has_ai_assistant: boolean; has_blog_export: boolean; has_nearby_widget: boolean; has_email_signature: boolean; has_showcase_site: boolean }>>({});
   const [activeTab, setActiveTab] = useState("news");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newBusinessName, setNewBusinessName] = useState("");
