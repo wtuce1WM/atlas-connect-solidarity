@@ -622,14 +622,14 @@ const AffiliatePresence = () => {
             {currentBusiness && (
               <Card className="bg-card border-border dark">
                 <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <CardTitle className="text-3xl sm:text-4xl font-bold leading-tight">{currentBusiness.name}</CardTitle>
                       <p className="text-sm text-muted-foreground mt-1">
                         {getBusinessCompleteness(currentBusiness).filled}/{VISIBLE_PLATFORMS.length} plateformes configurées
                       </p>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:gap-3">
                       <AffiliatePrivateNoteDialog
                         businessId={currentBusiness.id}
                         initialNote={currentBusiness.affiliate_private_note}
@@ -637,6 +637,7 @@ const AffiliatePresence = () => {
                       />
                       <Button
                         size="sm"
+                        className="w-full sm:w-auto"
                         disabled={!hasEdits || savingId === currentBusiness.id}
                         onClick={() => handleSave(currentBusiness.id)}
                       >
@@ -649,6 +650,7 @@ const AffiliatePresence = () => {
                       </Button>
                     </div>
                   </div>
+
                 </CardHeader>
                 <CardContent>
                   <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -728,14 +730,15 @@ const AffiliatePresence = () => {
                     {/* Links Tab */}
                     <TabsContent value="links">
                       <Tabs defaultValue="web" className="w-full">
-                        <TabsList className="mb-4 w-full flex items-center justify-start gap-1 border-b border-white/10 bg-transparent p-0 h-auto">
-                          <TabsTrigger value="web" className="group shrink-0 px-4 py-2.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                        <TabsList className="mb-4 w-full flex flex-col items-stretch gap-1 border-b border-white/10 bg-transparent p-0 h-auto sm:flex-row sm:items-center sm:justify-start">
+                          <TabsTrigger value="web" className="group w-full sm:w-auto shrink-0 px-4 py-2.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
                             <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Web &amp; Socials</span>
                           </TabsTrigger>
-                          <TabsTrigger value="externes" className="group shrink-0 px-4 py-2.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
+                          <TabsTrigger value="externes" className="group w-full sm:w-auto shrink-0 px-4 py-2.5 border-b-2 border-transparent bg-transparent rounded-none shadow-none hover:bg-white/5 data-[state=active]:border-primary data-[state=active]:bg-white/5">
                             <span className="text-sm font-medium text-white/60 group-data-[state=active]:text-white group-data-[state=active]:font-semibold">Externes</span>
                           </TabsTrigger>
                         </TabsList>
+
 
                         <TabsContent value="web" className="space-y-3">
                           {VISIBLE_PLATFORMS.map(platform => {
@@ -744,12 +747,21 @@ const AffiliatePresence = () => {
                             const isEdited = editedFields[currentBusiness.id]?.[platform.key] !== undefined;
 
                             return (
-                              <div key={platform.key} className="flex items-center gap-3">
-                                <div className={`shrink-0 ${platform.color}`}>
-                                  {platform.icon}
-                                </div>
-                                <div className="w-[130px] shrink-0">
-                                  <span className="text-sm font-medium text-foreground">{platform.label}</span>
+                              <div key={platform.key} className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-3">
+                                <div className="flex items-center gap-2 sm:gap-3">
+                                  <div className={`shrink-0 ${platform.color}`}>
+                                    {platform.icon}
+                                  </div>
+                                  <div className="sm:w-[130px] sm:shrink-0">
+                                    <span className="text-sm font-medium text-foreground">{platform.label}</span>
+                                  </div>
+                                  <div className="shrink-0 sm:hidden">
+                                    {isFilled ? (
+                                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                                    ) : (
+                                      <AlertCircle className="h-4 w-4 text-orange-400" />
+                                    )}
+                                  </div>
                                 </div>
                                 <div className="flex-1 relative">
                                   <Input
@@ -769,7 +781,7 @@ const AffiliatePresence = () => {
                                     </a>
                                   )}
                                 </div>
-                                <div className="shrink-0">
+                                <div className="hidden shrink-0 sm:block">
                                   {isFilled ? (
                                     <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                                   ) : (
@@ -777,6 +789,7 @@ const AffiliatePresence = () => {
                                   )}
                                 </div>
                               </div>
+
                             );
                           })}
                         </TabsContent>

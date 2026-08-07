@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import IconPicker from "@/components/staff/IconPicker";
 import DynamicIcon from "@/components/DynamicIcon";
 import RichTextEditor from "@/components/staff/RichTextEditor";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type Lang = "fr" | "en" | "ar";
 
@@ -65,7 +66,9 @@ const SELECT_COLS = "id,icon,sort_order,business_id,image_url,section_columns,ti
 
 const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Props>(
   ({ businessId, onDirtyChange }, ref) => {
+    const isMobile = useIsMobile();
     const [loading, setLoading] = useState(true);
+
     const [saving, setSaving] = useState(false);
     const [highlights, setHighlights] = useState<Highlight[]>([]);
     const [sectionTitle, setSectionTitle] = useState<Record<Lang, string>>({ fr: "", en: "", ar: "" });
@@ -329,7 +332,8 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
                             {h.icon && <DynamicIcon name={h.icon} className="h-5 w-5 text-primary" />}
                           </div>
 
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+
                             <div>
                               <label className="text-xs font-medium text-muted-foreground mb-1 block">Image</label>
                               <input
@@ -429,9 +433,10 @@ const AffiliateHighlightsEditor = forwardRef<AffiliateHighlightsEditorHandle, Pr
                               content={descVal}
                               onChange={(html) => updateField(i, descField, html)}
                               placeholder={`Description (max ${MAX_RICH} caractères)`}
-                              maxHeight="240px"
+                              maxHeight={isMobile ? "560px" : "240px"}
                               bgClass="bg-zinc-900 text-white border border-white/10"
                             />
+
                             <p className={`text-xs text-right ${descLen > MAX_RICH ? "text-destructive font-bold" : "text-muted-foreground"}`}>
                               {descLen}/{MAX_RICH}{descLen > MAX_RICH && " ⚠"}
                             </p>

@@ -163,7 +163,7 @@ const IconPicker = ({ value, onChange }: IconPickerProps) => {
 
     return (
       <ScrollArea className="h-80">
-        <div className="grid grid-cols-8 gap-1.5 p-3">
+        <div className="grid grid-cols-6 gap-1.5 p-3 sm:grid-cols-8">
           {icons.map((iconName) => {
             const IconComp = isLucide ? LUCIDE_ICONS[iconName] : reactIcons[iconName];
             if (!IconComp) return null;
@@ -187,10 +187,10 @@ const IconPicker = ({ value, onChange }: IconPickerProps) => {
             );
           })}
           {icons.length === 0 && (
-            <p className="col-span-8 text-center text-sm text-muted-foreground py-4">Aucune icône trouvée</p>
+            <p className="col-span-6 sm:col-span-8 text-center text-sm text-muted-foreground py-4">Aucune icône trouvée</p>
           )}
           {!isLucide && icons.length >= 500 && !search && (
-            <p className="col-span-8 text-center text-xs text-muted-foreground py-2">Utilisez la recherche pour trouver plus d'icônes…</p>
+            <p className="col-span-6 sm:col-span-8 text-center text-xs text-muted-foreground py-2">Utilisez la recherche pour trouver plus d'icônes…</p>
           )}
         </div>
       </ScrollArea>
@@ -211,7 +211,7 @@ const IconPicker = ({ value, onChange }: IconPickerProps) => {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[480px] p-0" align="start">
+      <PopoverContent className="w-[calc(100vw-2rem)] max-w-[480px] p-0 sm:w-[480px]" align="start" collisionPadding={12}>
         <div className="p-2 border-b">
           <Input
             placeholder="Rechercher une icône..."
