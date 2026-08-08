@@ -4011,7 +4011,7 @@ const BookOnlineSlidePanelInner = ({
               {showOverlay && <div className="absolute inset-0 bg-black/55 pointer-events-none" />}
 
               {isPopupSlide && hasMeta && (
-                <div className="relative pt-12 px-6 pb-6 text-white">
+                <div className="relative pt-12 px-6 pb-6 text-white overflow-y-auto max-h-[calc(90vh-3rem)]">
                   {popupMeta.title && (
                     <h3 className="text-3xl md:text-4xl font-extrabold leading-tight mb-4 pr-12" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                       {popupMeta.title}
@@ -4026,7 +4026,7 @@ const BookOnlineSlidePanelInner = ({
               )}
 
               {!isPopupSlide && currentPromo && (
-                <div className="relative pt-20 px-6 pb-6 text-white flex-1">
+                <div className="relative pt-20 px-6 pb-6 text-white flex-1 overflow-y-auto min-h-0">
                   {promoAmount && (
                     <div
                       className="absolute top-3 left-6 flex items-center gap-2 justify-center z-10 text-white bg-black/65 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 shadow-xl min-w-max"
