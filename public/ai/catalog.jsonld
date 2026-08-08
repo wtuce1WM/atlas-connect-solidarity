@@ -15664,8 +15664,8 @@
         "telephone": "+212 524-328751",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.6,
-          "reviewCount": 72,
+          "ratingValue": 4.5,
+          "reviewCount": 75,
           "bestRating": 5
         }
       }
@@ -23403,7 +23403,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 10884,
+          "reviewCount": 12898,
           "bestRating": 5
         }
       }
@@ -32702,7 +32702,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.2,
-          "reviewCount": 2009,
+          "reviewCount": 2036,
           "bestRating": 5
         }
       }
@@ -38285,8 +38285,8 @@
         "telephone": "+212 6 69 09 08 28",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.5,
-          "reviewCount": 586,
+          "ratingValue": 4.6,
+          "reviewCount": 730,
           "bestRating": 5
         }
       }
@@ -43134,7 +43134,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 24,
+          "reviewCount": 37,
           "bestRating": 5
         }
       }
