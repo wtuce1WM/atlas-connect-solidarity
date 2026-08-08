@@ -2643,11 +2643,19 @@ const BookOnlineSlidePanelInner = ({
                   )}
                   {!descOverlayContent && hookText && (
                     <p
-                      className="text-xl md:text-3xl leading-snug tracking-[0.02em] text-white/90 mb-4 text-center"
+                      className="text-xl md:text-3xl leading-snug tracking-[0.02em] text-white/90 mb-2 text-center"
                       style={{ fontFamily: "'Montserrat', sans-serif" }}
                     >
                       {hookText}
                     </p>
+                  )}
+                  {!descOverlayContent && hookText && (business?.city || business?.neighborhood || business?.address) && (
+                    <div className="mb-4 flex items-center justify-center gap-1.5 text-xs md:text-sm text-white/80 text-center">
+                      <MapPin className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">
+                        {[business?.city, business?.neighborhood, business?.address].filter(Boolean).join(" • ")}
+                      </span>
+                    </div>
                   )}
                   {!descOverlayContent && avgOn20 != null && totalReviewCount > 0 && (
                     <div className="mb-5 flex justify-center">
@@ -3221,7 +3229,7 @@ const BookOnlineSlidePanelInner = ({
                       ? whatsappUrl(business.whatsapp, language === "en" ? `Hello ${business?.name || ""}, I found you on One World Morocco.` : language === "ar" ? `مرحبا ${business?.name || ""}` : `Bonjour ${business?.name || ""}, je vous ai trouvé sur One World Morocco.`)
                       : null;
                     return (
-                      <div className="sticky bottom-0 z-30 mt-8 pt-3 pb-0 bg-transparent flex flex-col gap-2">
+                      <div className="sticky bottom-0 z-[70] mt-8 pt-3 pb-0 bg-transparent flex flex-col gap-2">
                         {(hasMenuBar || waHref) && (
                           <div dir="ltr" ref={stripWheelRef} className={stripClass}>
                             {waHref && (
