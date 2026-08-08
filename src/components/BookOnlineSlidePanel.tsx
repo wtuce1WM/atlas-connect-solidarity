@@ -2341,10 +2341,12 @@ const BookOnlineSlidePanelInner = ({
           showGoogleMap={showGoogleMap}
           externalVideoInteractiveMode={externalVideoInteractiveMode}
           effectiveMedia={effectiveMedia}
-          bookingCta={null}
-          shopCta={ctaConfig.shopCta}
+          // Barre de CTAs rectangle : uniquement l'URL 2 (Réserver). Aucun fallback.
+          bookingCta={ctaConfig.bookingCta}
+          shopCta={null}
           url4Cta={null}
           url5Cta={null}
+
 
           bookingCtaLabel={ctaConfig.bookingCtaLabel}
           shopCtaLabel={ctaConfig.shopCtaLabel}
