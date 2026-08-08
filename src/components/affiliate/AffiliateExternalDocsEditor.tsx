@@ -131,6 +131,7 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
   const [menus, setMenus] = useState<DocEntry[]>([]);
   const [flipbooks, setFlipbooks] = useState<DocEntry[]>([]);
   const [externals, setExternals] = useState<DocEntry[]>([]);
+  const [widgets, setWidgets] = useState<DocEntry[]>([]);
   const [matterportUrl, setMatterportUrl] = useState("");
   const [savingMatterport, setSavingMatterport] = useState(false);
   const [initialIds, setInitialIds] = useState<string[]>([]);
