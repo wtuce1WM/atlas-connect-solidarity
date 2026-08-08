@@ -86,6 +86,7 @@ import { useMediaItems, useVideoInfo } from "@/hooks/useMediaItems";
 import MediaBackground from "@/components/slidepanel/MediaBackground";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import BusinessPromotionsList from "@/components/slidepanel/BusinessPromotionsList";
+import ImageGallerySection from "@/components/slidepanel/ImageGallerySection";
 import { useBusinessPromotions } from "@/hooks/useBusinessPromotions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { buildReviewHtml } from "@/lib/reviewHtmlBuilder";
