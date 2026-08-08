@@ -110,7 +110,6 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
   );
 
   return (
-
     <div className="mt-8 pt-6 border-t border-white/10">
       <h2 className="text-lg md:text-xl font-bold uppercase mb-4 text-white font-['Montserrat',sans-serif]">
         {t.title}
@@ -131,40 +130,7 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
         </div>
       )}
 
-  const LeaveReviewWidgets = () => (
-    <div className="flex flex-wrap gap-2 justify-center">
-      {activePlatforms.map((p) => {
-        const logo = LOGO_MAP[p.name];
-        let leaveHref: string | null = p.leaveReviewUrl || null;
-        if (!leaveHref && p.name === "TripAdvisor") {
-          leaveHref = tripadvisorReviewUrl(p.listingUrl || p.url);
-        }
-        if (!leaveHref) return null;
-        return (
-          <a
-            key={p.name}
-            href={leaveHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg bg-primary text-primary-foreground no-underline hover:brightness-110 font-['Montserrat',sans-serif] whitespace-nowrap"
-          >
-            {logo && (
-              <img
-                src={logo}
-                alt={p.name}
-                className="w-4 h-4 object-contain rounded shrink-0"
-                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-              />
-            )}
-            ✍️ {t.leave} {p.name}
-          </a>
-        );
-      })}
-    </div>
-  );
-
       {activePlatforms.length > 0 && <LeaveReviewWidgets />}
-
 
       {ordered.length > 0 && (
         <div className="mt-5">
@@ -183,6 +149,11 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
                 </footer>
               </blockquote>
             ))}
+            {expanded && activePlatforms.length > 0 && (
+              <div className="pt-2">
+                <LeaveReviewWidgets />
+              </div>
+            )}
           </div>
 
           {hiddenCount > 0 && (
