@@ -61,6 +61,7 @@ import SpotifyOverlay from "@/components/overlays/SpotifyOverlay";
 import SubstackArticlesOverlay from "@/components/overlays/SubstackArticlesOverlay";
 import SubstackIcon from "@/components/icons/SubstackIcon";
 import InlineSubstackWidget from "@/components/InlineSubstackWidget";
+import InlineYouTubeSection from "@/components/InlineYouTubeSection";
 import PhoneMockupFrame from "@/components/PhoneMockupFrame";
 import SoundCloudOverlay from "@/components/overlays/SoundCloudOverlay";
 import SerpApiHotelOverlay from "@/components/SerpApiHotelOverlay";
