@@ -2353,10 +2353,11 @@ const BookOnlineSlidePanelInner = ({
           showGoogleMap={showGoogleMap}
           externalVideoInteractiveMode={externalVideoInteractiveMode}
           effectiveMedia={effectiveMedia}
-          bookingCta={ctaConfig.bookingCta}
+          bookingCta={null}
           shopCta={ctaConfig.shopCta}
-          url4Cta={ctaConfig.url4Cta}
-          url5Cta={ctaConfig.url5Cta}
+          url4Cta={null}
+          url5Cta={null}
+
           bookingCtaLabel={ctaConfig.bookingCtaLabel}
           shopCtaLabel={ctaConfig.shopCtaLabel}
           url4CtaLabel={ctaConfig.url4CtaLabel}
