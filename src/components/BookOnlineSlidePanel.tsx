@@ -1512,7 +1512,7 @@ const BookOnlineSlidePanelInner = ({
     // Même logique exclusive que le CTA de gauche : Disponibilité sinon Horaires.
     // Si l'établissement expose son propre widget de réservation (code par intention),
     // on n'affiche pas notre widget de disponibilité — et pas de repli sur les horaires.
-    const showAvail = !!isHotelWithPrice && !hasBookingIntentWidget;
+    const showAvail = !!isHotelWithPrice && !hasBookingIntentWidget && !hasOwnBookingCtaUrl;
     const showHours = !isHotelWithPrice && !!hasOpeningHours && !business?.is_open_24h;
     if (!showAvail && !showHours) return null;
 
