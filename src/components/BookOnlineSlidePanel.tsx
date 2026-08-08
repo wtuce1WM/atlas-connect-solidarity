@@ -2934,27 +2934,46 @@ const BookOnlineSlidePanelInner = ({
                       ctaConfig.url5Cta && (business as any)?.url_5_cta && { url: ctaConfig.url5Cta.fullUrl, label: (business as any).url_5_cta, forceExternal: ctaConfig.url5Cta.forceExternal },
                     ].filter(Boolean) as { url: string; label: string; forceExternal?: boolean }[];
                     const embeds = candidates.filter(
-                      (c) => !c.forceExternal && /^https?:\/\//i.test(c.url) && isBookingLabel(c.label)
+                      (c) => !c.forceExternal && (/^https?:\/\//i.test(c.url) || widgetCodes.some((w) => w.intents.some((i) => norm(i).trim() === norm(c.label).trim()))) && isBookingLabel(c.label)
                     );
                     const seen = new Set<string>();
                     const unique = embeds.filter((c) => (seen.has(c.url) ? false : (seen.add(c.url), true)));
                     if (unique.length === 0) return null;
+                    // Un code de widget partageant la même intention (CTA) remplace l'iframe de l'URL.
+                    const findWidget = (label: string) =>
+                      widgetCodes.find((w) => w.intents.some((i) => norm(i).trim() === norm(label).trim())) || null;
+                    const usedWidgets = new Set<string>();
                     return (
                       <div className="mt-8 flex flex-col gap-6">
-                        {unique.map((c) => (
-                          <div key={c.url} className="w-full">
-                            <h3 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">{c.label}</h3>
-                            <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
-                              <iframe
-                                src={c.url}
-                                title={c.label}
-                                allow="payment; clipboard-write; fullscreen"
-                                className="w-full block border-0"
-                                style={{ aspectRatio: "16 / 10", minHeight: 640 }}
-                              />
+                        {unique.map((c) => {
+                          const w = findWidget(c.label);
+                          if (w && !usedWidgets.has(w.id)) {
+                            usedWidgets.add(w.id);
+                            return (
+                              <div key={`w-${w.id}`} className="w-full">
+                                <h3 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">{c.label}</h3>
+                                <div className="w-full rounded-xl overflow-hidden bg-white/95 border border-white/10 p-2">
+                                  <WidgetCodeEmbed code={w.code} className="w-full" />
+                                </div>
+                              </div>
+                            );
+                          }
+                          if (w) return null; // widget déjà affiché pour une autre intention identique
+                          return (
+                            <div key={c.url} className="w-full">
+                              <h3 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">{c.label}</h3>
+                              <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
+                                <iframe
+                                  src={c.url}
+                                  title={c.label}
+                                  allow="payment; clipboard-write; fullscreen"
+                                  className="w-full block border-0"
+                                  style={{ aspectRatio: "16 / 10", minHeight: 640 }}
+                                />
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     );
                   })()}
