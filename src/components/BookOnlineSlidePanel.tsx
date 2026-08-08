@@ -1455,12 +1455,54 @@ const BookOnlineSlidePanelInner = ({
   // Extracted open status hook
   const openBadgeInfo = useOpenStatus({ business, language });
 
+  // Widgets « par intention » (codes de widget) correspondant à un CTA de réservation
+  const normIntent = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  const isBookingIntentLabel = (label?: string | null) => {
+    const n = normIntent(label || "");
+    return n === "reservez" || n === "reserver en ligne" || n === "day pass"
+      || n === "reserver une table" || n === "reserver une chambre";
+  };
+  const bookingIntentWidgets = useMemo(() => {
+    const labels = [
+      business?.reserve_now_cta,
+      business?.online_shop_cta,
+      (business as any)?.url_4_cta,
+      (business as any)?.url_5_cta,
+    ].filter((l): l is string => !!l && isBookingIntentLabel(l));
+    const out: { id: string; code: string; label: string }[] = [];
+    labels.forEach((label) => {
+      const w = widgetCodes.find((wc) => wc.intents.some((i) => normIntent(i) === normIntent(label)));
+      if (w && !out.some((o) => o.id === w.id)) out.push({ id: w.id, code: w.code, label });
+    });
+    return out;
+  }, [widgetCodes, business?.reserve_now_cta, business?.online_shop_cta, (business as any)?.url_4_cta, (business as any)?.url_5_cta]);
+  const hasBookingIntentWidget = bookingIntentWidgets.length > 0;
+
+  const renderIntentWidgets = (keyPrefix: string) => {
+    if (!hasBookingIntentWidget) return null;
+    return (
+      <div key={keyPrefix} className="mb-6 flex flex-col gap-6">
+        {bookingIntentWidgets.map((w) => (
+          <div key={`${keyPrefix}-${w.id}`} className="w-full">
+            <h3 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">{w.label}</h3>
+            <div className="w-full rounded-xl overflow-hidden bg-white/95 border border-white/10 p-2">
+              <WidgetCodeEmbed code={w.code} className="w-full" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   // Widgets inline (Disponibilité / Horaires) affichés dans l'overlay Full Description
   const renderInlineDescWidgets = (keyPrefix: string) => {
-    // Même logique exclusive que le CTA de gauche : Disponibilité sinon Horaires
-    const showAvail = !!isHotelWithPrice;
-    const showHours = !showAvail && !!hasOpeningHours && !business?.is_open_24h;
+    // Même logique exclusive que le CTA de gauche : Disponibilité sinon Horaires.
+    // Si l'établissement expose son propre widget de réservation (code par intention),
+    // on n'affiche pas notre widget de disponibilité — et pas de repli sur les horaires.
+    const showAvail = !!isHotelWithPrice && !hasBookingIntentWidget;
+    const showHours = !isHotelWithPrice && !!hasOpeningHours && !business?.is_open_24h;
     if (!showAvail && !showHours) return null;
+
     return (
       <div key={keyPrefix} className="my-10 w-full flex flex-col items-center gap-4">
         {showAvail && (
@@ -2647,10 +2689,10 @@ const BookOnlineSlidePanelInner = ({
                         )}
                         <div
                           key={`desc-promo-${safe}`}
-                          className="relative w-full max-w-md rounded-2xl overflow-hidden shadow-2xl flex flex-col bg-cover bg-no-repeat bg-center h-auto btn-flash-auto animate-scale-in"
-                          style={{ backgroundImage: bg ? `url(${bg})` : undefined, backgroundColor: bg ? undefined : "#1a1a1a" }}
+                          className="relative w-full max-w-md rounded-2xl overflow-hidden shadow-2xl flex flex-col h-auto btn-flash-auto animate-scale-in border border-white/10"
+                          style={{ backgroundColor: "#1a1a1a" }}
                         >
-                          {(!isPopup || hasMeta) && <div className="absolute inset-0 bg-black/55 pointer-events-none" />}
+
                           {isPopup ? (
                             hasMeta ? (
                               <div className="relative pt-6 px-6 pb-8 text-white">
@@ -2720,8 +2762,11 @@ const BookOnlineSlidePanelInner = ({
                       </div>
                     );
                   })()}
+                  {/* Widget « par intention » de l'établissement — sous la carte popup / offres */}
+                  {!descOverlayContent && renderIntentWidgets("desc-intent-top")}
                   {/* Widgets Disponibilité / Horaires — sous le badge de note */}
                   {renderInlineDescWidgets("desc-widgets-top")}
+
 
                   {(() => {
                     const rawHtml = descOverlayContent ? descOverlayContent.html : woDescription;
