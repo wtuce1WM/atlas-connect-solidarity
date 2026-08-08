@@ -1,0 +1,2 @@
+ALTER TABLE public.business_documents DROP CONSTRAINT business_documents_type_check;
+ALTER TABLE public.business_documents ADD CONSTRAINT business_documents_type_check CHECK (type = ANY (ARRAY['menu'::text,'flipbook'::text,'external_link'::text,'video'::text,'widget_code'::text]));
