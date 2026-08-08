@@ -26,6 +26,7 @@ import HotelApiComparison from "@/components/staff/HotelApiComparison";
 import PricingManagement from "@/components/staff/PricingManagement";
 import BlogManagement from "@/components/staff/BlogManagement";
 import VanityUrlsManagement from "@/components/staff/VanityUrlsManagement";
+import StaffERDPanel from "@/components/staff/StaffERDPanel";
 
 
 const StaffMaster = () => {
@@ -148,6 +149,10 @@ const StaffMaster = () => {
               <LinkIcon className="h-4 w-4" />
               Alias URL
             </TabsTrigger>
+            <TabsTrigger value="schema" className="gap-2">
+              <Database className="h-4 w-4" />
+              Schéma
+            </TabsTrigger>
             {isAdmin && (
             <TabsTrigger value="users" className="gap-2">
               <Users className="h-4 w-4" />
@@ -205,6 +210,10 @@ const StaffMaster = () => {
 
           <TabsContent value="vanity-urls">
             <VanityUrlsManagement />
+          </TabsContent>
+
+          <TabsContent value="schema">
+            <StaffERDPanel />
           </TabsContent>
 
           {isAdmin && (
