@@ -2608,8 +2608,9 @@ const BookOnlineSlidePanelInner = ({
                 </div>
               );
             })() : (
-              <div className="w-full h-full overflow-y-auto overscroll-contain">
-                <div className="px-4 pt-4 pb-6 md:pl-6 md:pt-6 pr-4 md:pr-6">
+              <RevealScrollArea innerClassName="px-4 pt-4 pb-6 md:pl-6 md:pt-6 pr-4 md:pr-6">
+                <div className="contents">
+
                   {descOverlayContent && (
                     <>
                       {!(descOverlayContent.title?.toLowerCase().startsWith("avis") || descOverlayContent.title?.toLowerCase().startsWith("customer")) && (
