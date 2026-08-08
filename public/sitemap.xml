@@ -4268,7 +4268,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/jnane-rumi</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -6638,7 +6638,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/medersa-ben-youssef</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -8864,7 +8864,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/riad-dar-najat</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -8882,13 +8882,13 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/riad-el-aaiun</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://oneworldmorocco.com/riad-el-fenn</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -10052,7 +10052,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/the-farmhouse-marrakech</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -10508,7 +10508,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/villa-aaron-restaurant</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -11441,6 +11441,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/category/Bien-%C3%AAtre</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/category/Sport%20%26%20Loisirs</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -11452,11 +11457,6 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/category/%C3%89ducation</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://oneworldmorocco.com/category/Bien-%C3%AAtre</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

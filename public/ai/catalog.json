@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-07T15:08:16.605Z",
+    "generated_at": "2026-08-08T10:20:26.921Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
     "count": 1845
   },
@@ -45469,8 +45469,8 @@
       "whatsapp": null,
       "website": "https://jnanerumi.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e24f1ac3-a529-44f5-bbf1-1b1aa80ed0bd-1776579992103-c2cyrl.jpg",
-      "google_rating": 4.6,
-      "google_review_count": 72,
+      "google_rating": 4.5,
+      "google_review_count": 75,
       "price_range": "500 à 1000€",
       "min_price_mad": 540,
       "languages": [],
@@ -67202,7 +67202,7 @@
       "website": "https://www.medersabenyoussef.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/0087c454-7f62-4b1a-85d2-acb319679591-1775408151700-54xtp5.jpg",
       "google_rating": 4.7,
-      "google_review_count": 10884,
+      "google_review_count": 12898,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -67237,12 +67237,12 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.medersabenyoussef.ma/",
+      "booking_url": "https://www.medersabenyoussef.ma/billeterie/",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/medersabenyoussef/",
         "facebook": "https://www.facebook.com/ben.youssef.medersa",
-        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d308902-Reviews-Medersa_Ben_Youssef-Marrakech_Marrakech_Safi.html",
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d308902-Reviews-Medersa_Ben_Youssef-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -92856,7 +92856,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/703c2d86-e475-4ccc-9dfa-69b0c1718e3d-1782112105525-fc2m1.webp",
       "google_rating": 4.2,
-      "google_review_count": 2009,
+      "google_review_count": 2036,
       "price_range": "500 à 1000€",
       "min_price_mad": 675,
       "languages": [],
@@ -107575,8 +107575,8 @@
       "whatsapp": null,
       "website": "https://www.villa-aaron.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/60bde00b-5610-4afe-ac68-3c1922cd1f5a-1775715824058-hxnrgg.jpg",
-      "google_rating": 4.5,
-      "google_review_count": 586,
+      "google_rating": 4.6,
+      "google_review_count": 730,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -107616,7 +107616,7 @@
       "social": {
         "instagram": "https://www.instagram.com/villa_aaron_marrakech/",
         "facebook": "https://www.facebook.com/p/Villa-Aaron-Marrakech-61561771071573/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293734-d27940033-Reviews-Villa_Aaron_Marrakech-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -122970,7 +122970,6 @@
         "Masque à l'argile verte",
         "Masque d'algues aux sels de mer",
         "Masque de Ghassoul",
-        "Massage à domicile",
         "Massage à quatre mains",
         "Massage anti-stress",
         "Massage aux pierres chaudes",
@@ -122995,7 +122994,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/cecc8606-e8ca-402d-af73-2769e306194e-1780829982288-n9nihs.jpg",
       "google_rating": 5,
-      "google_review_count": 24,
+      "google_review_count": 37,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],

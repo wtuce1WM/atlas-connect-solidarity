@@ -86,6 +86,7 @@ import { useMediaItems, useVideoInfo } from "@/hooks/useMediaItems";
 import MediaBackground from "@/components/slidepanel/MediaBackground";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
 import BusinessPromotionsList from "@/components/slidepanel/BusinessPromotionsList";
+import ImageGallerySection from "@/components/slidepanel/ImageGallerySection";
 import { useBusinessPromotions } from "@/hooks/useBusinessPromotions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { buildReviewHtml } from "@/lib/reviewHtmlBuilder";
@@ -2921,6 +2922,19 @@ const BookOnlineSlidePanelInner = ({
                       </div>
                     );
                   })()}
+
+                  {/* Images — galerie masonry cinématique bord-à-bord */}
+                  {!descOverlayContent && images.length > 0 && (
+                    <ImageGallerySection
+                      images={images}
+                      language={language as "fr" | "en" | "ar"}
+                      onOpenImage={(url) => {
+                        const mi = mediaItems.findIndex((m) => m.kind === "image" && m.url === url);
+                        setLightboxIndex(mi >= 0 ? mi : 0);
+                        setIsLightboxOpen(true);
+                      }}
+                    />
+                  )}
 
                   {/* Widget Assistant IA du Master — sous les blocs highlights */}
                   {!descOverlayContent && business?.slug && (
