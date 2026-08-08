@@ -1164,11 +1164,8 @@ export default function StudioVideo() {
           })),
       );
       setSelectedExternalLinkIds(new Set());
-      setMenuDocsList(
-        rows
-          .filter((d) => d.type === "menu" && d.url)
-          .map((d) => ({ id: d.id as string, name: strip(d.name) || "Menu", url: d.url as string })),
-      );
+      // Option « Ajouter Menus » abandonnée : plus aucun menu proposé au scénario.
+      setMenuDocsList([]);
       setSelectedMenuDocIds(new Set());
     })();
     return () => { cancelled = true; };
@@ -1880,10 +1877,6 @@ export default function StudioVideo() {
     const chosenLinks = externalLinksList.filter((l) => selectedExternalLinkIds.has(l.id));
     if (chosenLinks.length > 0) {
       directives.push(`Ajouter une séquence par lien externe (libellé existant + titre du lien, 5 s par défaut) :\n  * ${chosenLinks.map((l) => `${l.label ? `[${l.label}] ` : ""}${l.name}`).join("\n  * ")}`);
-    }
-    const chosenMenus = menuDocsList.filter((m) => selectedMenuDocIds.has(m.id));
-    if (chosenMenus.length > 0) {
-      directives.push(`Ajouter une séquence par menu / carte (libellé libre existant, 5 s par défaut) :\n  * ${chosenMenus.map((m) => m.name).join("\n  * ")}`);
     }
     const chosenImages = Array.from(selectedImages);
     const chosenVideos = orderedSelectedVideos;
