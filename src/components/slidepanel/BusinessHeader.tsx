@@ -13,6 +13,7 @@ interface BusinessHeaderProps {
   openBadgeInfo?: { text: string; isOpen: boolean } | null;
   /** Compact mode: background hugs content, name centered (used by YouTube tab opener) */
   compact?: boolean;
+  language?: "fr" | "en" | "ar";
 }
 
 
@@ -27,6 +28,7 @@ const BusinessHeader = React.memo(function BusinessHeader({
   onOpenReviews,
   openBadgeInfo,
   compact = false,
+  language = "fr",
 }: BusinessHeaderProps) {
   if (compact) {
     return (
@@ -79,6 +81,9 @@ const BusinessHeader = React.memo(function BusinessHeader({
                   {avgOn20}<span className="font-bold text-gold/80">/20</span>
                 </span>
                 <span className="!font-bold text-gold/90 tabular-nums">{totalReviewCount.toLocaleString("fr-FR")}</span>
+                <span className="text-xs text-gold/80 font-medium whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                  {language === "en" ? "reviews" : language === "ar" ? "آراء" : "avis"}
+                </span>
               </span>
             )}
           </p>
