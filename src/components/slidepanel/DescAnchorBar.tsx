@@ -21,6 +21,58 @@ const MAX_LABEL = 22;
 const DescAnchorBar = ({ containerId, deps }: DescAnchorBarProps) => {
   const [anchors, setAnchors] = useState<Anchor[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const wheelRef = useRef<HTMLDivElement | null>(null);
+
+  // Molette (deltaY ou deltaX) + drag souris → scroll horizontal.
+  // Ré-attaché quand la barre (dé)monte, car elle n'existe qu'à partir de 3 ancres.
+  useEffect(() => {
+    const el = wheelRef.current;
+    if (!el) return;
+
+    const onWheel = (e: WheelEvent) => {
+      const factor = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? el.clientWidth : 1;
+      const dx = e.deltaX * factor;
+      const dy = e.deltaY * factor;
+      const delta = Math.abs(dx) > Math.abs(dy) ? dx : dy;
+      if (Math.abs(delta) < 1) return;
+      const max = el.scrollWidth - el.clientWidth;
+      if (max <= 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+      el.scrollLeft = Math.max(0, Math.min(max, el.scrollLeft + delta));
+    };
+
+    let down = false;
+    let startX = 0;
+    let startScroll = 0;
+    let moved = false;
+    const onPointerDown = (e: PointerEvent) => {
+      if (e.pointerType === "touch") return;
+      down = true; moved = false; startX = e.clientX; startScroll = el.scrollLeft;
+    };
+    const onPointerMove = (e: PointerEvent) => {
+      if (!down) return;
+      const d = e.clientX - startX;
+      if (Math.abs(d) > 4) moved = true;
+      if (moved) el.scrollLeft = startScroll - d;
+    };
+    const onPointerUp = () => { down = false; };
+    const onClickCapture = (e: MouseEvent) => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } };
+
+    el.addEventListener("wheel", onWheel, { passive: false, capture: true });
+    el.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+    el.addEventListener("click", onClickCapture, true);
+    return () => {
+      el.removeEventListener("wheel", onWheel, { capture: true } as any);
+      el.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+      el.removeEventListener("click", onClickCapture, true);
+    };
+  }, [anchors.length]);
+
 
   const scan = useCallback(() => {
     const root = document.getElementById(containerId);
