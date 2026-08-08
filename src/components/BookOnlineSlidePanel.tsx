@@ -1886,7 +1886,7 @@ const BookOnlineSlidePanelInner = ({
       ? whatsappUrl(business.whatsapp, language === "en" ? `Hello ${business?.name || ""}, I found you on One World Morocco.` : language === "ar" ? `مرحبا ${business?.name || ""}` : `Bonjour ${business?.name || ""}, je vous ai trouvé sur One World Morocco.`)
       : null;
     return (
-      <div className="relative z-[50] shrink-0 py-2 bg-transparent flex flex-col gap-2">
+      <div className="relative z-[70] shrink-0 py-2 bg-transparent flex flex-col gap-2">
         {(hasSocialBar || waHref) && (
           <div dir="ltr" ref={stripWheelRef} className={stripClass}>
             {waHref && (
