@@ -1366,6 +1366,17 @@ export default function StudioVideo() {
   );
   const hasActiveJob = activeJobs.length > 0;
 
+  // Filet de sécurité : si le realtime ne remonte pas (perte de socket, onglet
+  // en arrière-plan…), on rafraîchit les jobs toutes les 8 s tant qu'un rendu
+  // est en cours ou vient d'être lancé.
+  useEffect(() => {
+    if (!hasActiveJob && !currentJobId) return;
+    const t = setInterval(loadJobs, 8000);
+    return () => clearInterval(t);
+  }, [hasActiveJob, currentJobId, loadJobs]);
+
+
+
   const promptKeywords = useMemo(() => extractKeywords(prompt), [prompt]);
 
   // Textes BIENVENUE / PROPOSITION issus de Présence en ligne / CTAs.
