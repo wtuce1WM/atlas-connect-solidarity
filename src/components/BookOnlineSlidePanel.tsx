@@ -4127,7 +4127,7 @@ const BookOnlineSlidePanelInner = ({
               {(() => {
                 const hasMessage = !!currentPromo.promotion_message && currentPromo.promotion_message.replace(/<[^>]*>/g, '').trim() !== "";
                 return (
-                  <div className={`relative pt-28 px-6 pb-6 text-white flex-1 flex flex-col ${!hasMessage ? 'justify-center' : ''}`}>
+                  <div className={`relative pt-28 px-6 pb-6 text-white flex-1 flex flex-col overflow-y-auto min-h-0 ${!hasMessage ? 'justify-center' : ''}`}>
                     <div className={`flex items-start gap-3 ${!hasMessage ? 'justify-center mb-0' : 'justify-between mb-4'}`}>
                       <h3 
                         className={`text-3xl md:text-4xl font-extrabold ${!hasMessage ? 'text-center leading-[1.6] md:leading-[1.8]' : 'leading-tight'}`} 
