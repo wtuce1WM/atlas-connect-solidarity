@@ -1455,12 +1455,54 @@ const BookOnlineSlidePanelInner = ({
   // Extracted open status hook
   const openBadgeInfo = useOpenStatus({ business, language });
 
+  // Widgets « par intention » (codes de widget) correspondant à un CTA de réservation
+  const normIntent = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  const isBookingIntentLabel = (label?: string | null) => {
+    const n = normIntent(label || "");
+    return n === "reservez" || n === "reserver en ligne" || n === "day pass"
+      || n === "reserver une table" || n === "reserver une chambre";
+  };
+  const bookingIntentWidgets = React.useMemo(() => {
+    const labels = [
+      business?.reserve_now_cta,
+      business?.online_shop_cta,
+      (business as any)?.url_4_cta,
+      (business as any)?.url_5_cta,
+    ].filter((l): l is string => !!l && isBookingIntentLabel(l));
+    const out: { id: string; code: string; label: string }[] = [];
+    labels.forEach((label) => {
+      const w = widgetCodes.find((wc) => wc.intents.some((i) => normIntent(i) === normIntent(label)));
+      if (w && !out.some((o) => o.id === w.id)) out.push({ id: w.id, code: w.code, label });
+    });
+    return out;
+  }, [widgetCodes, business?.reserve_now_cta, business?.online_shop_cta, (business as any)?.url_4_cta, (business as any)?.url_5_cta]);
+  const hasBookingIntentWidget = bookingIntentWidgets.length > 0;
+
+  const renderIntentWidgets = (keyPrefix: string) => {
+    if (!hasBookingIntentWidget) return null;
+    return (
+      <div key={keyPrefix} className="mb-6 flex flex-col gap-6">
+        {bookingIntentWidgets.map((w) => (
+          <div key={`${keyPrefix}-${w.id}`} className="w-full">
+            <h3 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">{w.label}</h3>
+            <div className="w-full rounded-xl overflow-hidden bg-white/95 border border-white/10 p-2">
+              <WidgetCodeEmbed code={w.code} className="w-full" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   // Widgets inline (Disponibilité / Horaires) affichés dans l'overlay Full Description
   const renderInlineDescWidgets = (keyPrefix: string) => {
-    // Même logique exclusive que le CTA de gauche : Disponibilité sinon Horaires
-    const showAvail = !!isHotelWithPrice;
-    const showHours = !showAvail && !!hasOpeningHours && !business?.is_open_24h;
+    // Même logique exclusive que le CTA de gauche : Disponibilité sinon Horaires.
+    // Si l'établissement expose son propre widget de réservation (code par intention),
+    // on n'affiche pas notre widget de disponibilité — et pas de repli sur les horaires.
+    const showAvail = !!isHotelWithPrice && !hasBookingIntentWidget;
+    const showHours = !isHotelWithPrice && !!hasOpeningHours && !business?.is_open_24h;
     if (!showAvail && !showHours) return null;
+
     return (
       <div key={keyPrefix} className="my-10 w-full flex flex-col items-center gap-4">
         {showAvail && (
