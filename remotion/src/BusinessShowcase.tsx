@@ -2478,7 +2478,9 @@ const VideoCover: React.FC<{ src: string; from: number; duration: number }> = ({
   return (
     <AbsoluteFill style={{ opacity: o, overflow: "hidden" }}>
       {isVideoSrc(src) ? (
-        <StartVideo src={src} />
+        // Enchaîne sur les clips suivants du pool si la vidéo est plus courte
+        // que l'étape (au lieu de la boucler 2 ou 3 fois).
+        <ChainedVideo src={src} duration={duration} />
       ) : (
         <Img src={src} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       )}
