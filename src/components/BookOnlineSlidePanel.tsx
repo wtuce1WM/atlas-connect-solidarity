@@ -55,6 +55,7 @@ import { isExternalVideoUrl } from "@/lib/videoSourceFilter";
 import DocumentOverlay from "@/components/overlays/DocumentOverlay";
 import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
 import OverlayShell from "@/components/overlays/OverlayShell";
+import WidgetCodeEmbed from "@/components/widgets/WidgetCodeEmbed";
 import SpotifyOverlay from "@/components/overlays/SpotifyOverlay";
 import SubstackArticlesOverlay from "@/components/overlays/SubstackArticlesOverlay";
 import SubstackIcon from "@/components/icons/SubstackIcon";
@@ -278,6 +279,38 @@ const BookOnlineSlidePanelInner = ({
     reviewTexts, externalLinks, menuSummaries, menuDocs, videoDocs,
     allVideoUrls, categoryIcon, showGoogleMap, kpRelated, kpSubcategoryItems, kpSubcategoryLabel, isKp1Only, liteApiHotelId, serpApiMapping, isHotelWithPrice,
   } = useBookOnlineData(businessId, !!embedMode);
+
+  // Codes de widgets (par intention) — servent de widget de réservation prioritaire
+  // sur l'iframe de l'URL quand le CTA de l'URL correspond à une intention du widget.
+  const [widgetCodes, setWidgetCodes] = useState<{ id: string; code: string; name: string | null; intents: string[] }[]>([]);
+  useEffect(() => {
+    if (!businessId) { setWidgetCodes([]); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("business_documents")
+        .select("id, url, name, description, sort_order")
+        .eq("business_id", businessId)
+        .eq("type", "widget_code")
+        .order("sort_order", { ascending: true });
+      if (cancelled) return;
+      setWidgetCodes(
+        ((data || []) as any[])
+          .filter((d) => typeof d.url === "string" && d.url.trim())
+          // Pas de widget YouTube dans l'overlay
+          .filter((d) => !/youtube\.com|youtu\.be/i.test(d.url))
+          .map((d) => ({
+            id: d.id,
+            code: d.url as string,
+            name: d.name || null,
+            intents: String(d.description || "").split("|").map((s) => s.trim()).filter(Boolean),
+          }))
+      );
+    })();
+    return () => { cancelled = true; };
+  }, [businessId]);
+
+
 
   // --- Extracted hooks ---
   // Fetch YouTube videos for this business to drive background ordering:
@@ -2901,27 +2934,46 @@ const BookOnlineSlidePanelInner = ({
                       ctaConfig.url5Cta && (business as any)?.url_5_cta && { url: ctaConfig.url5Cta.fullUrl, label: (business as any).url_5_cta, forceExternal: ctaConfig.url5Cta.forceExternal },
                     ].filter(Boolean) as { url: string; label: string; forceExternal?: boolean }[];
                     const embeds = candidates.filter(
-                      (c) => !c.forceExternal && /^https?:\/\//i.test(c.url) && isBookingLabel(c.label)
+                      (c) => !c.forceExternal && (/^https?:\/\//i.test(c.url) || widgetCodes.some((w) => w.intents.some((i) => norm(i).trim() === norm(c.label).trim()))) && isBookingLabel(c.label)
                     );
                     const seen = new Set<string>();
                     const unique = embeds.filter((c) => (seen.has(c.url) ? false : (seen.add(c.url), true)));
                     if (unique.length === 0) return null;
+                    // Un code de widget partageant la même intention (CTA) remplace l'iframe de l'URL.
+                    const findWidget = (label: string) =>
+                      widgetCodes.find((w) => w.intents.some((i) => norm(i).trim() === norm(label).trim())) || null;
+                    const usedWidgets = new Set<string>();
                     return (
                       <div className="mt-8 flex flex-col gap-6">
-                        {unique.map((c) => (
-                          <div key={c.url} className="w-full">
-                            <h3 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">{c.label}</h3>
-                            <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
-                              <iframe
-                                src={c.url}
-                                title={c.label}
-                                allow="payment; clipboard-write; fullscreen"
-                                className="w-full block border-0"
-                                style={{ aspectRatio: "16 / 10", minHeight: 640 }}
-                              />
+                        {unique.map((c) => {
+                          const w = findWidget(c.label);
+                          if (w && !usedWidgets.has(w.id)) {
+                            usedWidgets.add(w.id);
+                            return (
+                              <div key={`w-${w.id}`} className="w-full">
+                                <h3 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">{c.label}</h3>
+                                <div className="w-full rounded-xl overflow-hidden bg-white/95 border border-white/10 p-2">
+                                  <WidgetCodeEmbed code={w.code} className="w-full" />
+                                </div>
+                              </div>
+                            );
+                          }
+                          if (w) return null; // widget déjà affiché pour une autre intention identique
+                          return (
+                            <div key={c.url} className="w-full">
+                              <h3 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">{c.label}</h3>
+                              <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
+                                <iframe
+                                  src={c.url}
+                                  title={c.label}
+                                  allow="payment; clipboard-write; fullscreen"
+                                  className="w-full block border-0"
+                                  style={{ aspectRatio: "16 / 10", minHeight: 640 }}
+                                />
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     );
                   })()}
