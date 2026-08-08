@@ -55,6 +55,7 @@ import { isExternalVideoUrl } from "@/lib/videoSourceFilter";
 import DocumentOverlay from "@/components/overlays/DocumentOverlay";
 import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
 import OverlayShell from "@/components/overlays/OverlayShell";
+import RevealScrollArea from "@/components/slidepanel/RevealScrollArea";
 import WidgetCodeEmbed from "@/components/widgets/WidgetCodeEmbed";
 import SpotifyOverlay from "@/components/overlays/SpotifyOverlay";
 import SubstackArticlesOverlay from "@/components/overlays/SubstackArticlesOverlay";
@@ -2609,7 +2610,6 @@ const BookOnlineSlidePanelInner = ({
               );
             })() : (
               <RevealScrollArea innerClassName="px-4 pt-4 pb-6 md:pl-6 md:pt-6 pr-4 md:pr-6">
-                <div className="contents">
 
                   {descOverlayContent && (
                     <>
@@ -3363,7 +3363,6 @@ const BookOnlineSlidePanelInner = ({
                       </div>
                     );
                   })()}
-                </div>
 
 
               </RevealScrollArea>
