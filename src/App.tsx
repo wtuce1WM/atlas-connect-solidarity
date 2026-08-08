@@ -178,6 +178,8 @@ const LocalizedRoutes = () => {
               <Route path="/category/:categoryName" element={renderLazyRoute(<CategoryPage />)} />
               <Route path="/service/*" element={renderLazyRoute(<ServicePage />)} />
               <Route path="/search" element={renderLazyRoute(<SearchPage />)} />
+              <Route path="/hashtag/:label" element={renderLazyRoute(<HashtagResolver />)} />
+
               <Route path="/staff/login" element={renderLazyRoute(<StaffLogin />)} />
               <Route path="/staff/backoffice" element={renderLazyRoute(<StaffHub />)} />
               <Route path="/staff/catalogue" element={renderLazyRoute(<StaffBackoffice />)} />
