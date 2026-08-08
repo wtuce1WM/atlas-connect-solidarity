@@ -3192,7 +3192,7 @@ const BookOnlineSlidePanelInner = ({
                     const hasVideosBadge = nonExternalVideoDocs.length >= 1;
                     const hasImagesBadge = images.length > 1;
                     const hasMenuBar = menuDocs.length > 0 || hasVideosBadge || hasImagesBadge;
-                    if (!(externalLinks.length > 0 || hasSocialBar || hasMenuBar)) return null;
+                    if (!(externalLinks.length > 0 || hasSocialBar || hasMenuBar || business?.whatsapp)) return null;
                     const stripClass = "flex items-center gap-2 py-1 overflow-x-auto overflow-y-hidden flex-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden";
                     const stripWheelRef = (el: HTMLDivElement | null) => {
                       if (!el || (el as any).__owmWheelX) return;
