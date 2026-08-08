@@ -1285,16 +1285,19 @@ export default function StudioVideo() {
   }, [selected, refineFrom]);
 
   // Recent jobs + realtime
+  const loadJobs = useCallback(async () => {
+    const { data } = await supabase
+      .from("video_jobs")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(12);
+    if (data) setJobs(data as Job[]);
+  }, []);
+
   useEffect(() => {
-    const load = async () => {
-      const { data } = await supabase
-        .from("video_jobs")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(12);
-      setJobs((data ?? []) as Job[]);
-    };
+    const load = loadJobs;
     load();
+
 
     const channel = supabase
       .channel("video_jobs_studio")
