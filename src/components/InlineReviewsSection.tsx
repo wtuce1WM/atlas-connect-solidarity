@@ -77,6 +77,38 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
   const visible = expanded ? ordered.slice(0, 10) : ordered.slice(0, 1);
   const hiddenCount = Math.max(0, Math.min(ordered.length, 10) - 1);
 
+  const LeaveReviewWidgets = () => (
+    <div className="flex flex-wrap gap-2 justify-center">
+      {activePlatforms.map((p) => {
+        const logo = LOGO_MAP[p.name];
+        let leaveHref: string | null = p.leaveReviewUrl || null;
+        if (!leaveHref && p.name === "TripAdvisor") {
+          leaveHref = tripadvisorReviewUrl(p.listingUrl || p.url);
+        }
+        if (!leaveHref) return null;
+        return (
+          <a
+            key={p.name}
+            href={leaveHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg bg-primary text-primary-foreground no-underline hover:brightness-110 font-['Montserrat',sans-serif] whitespace-nowrap"
+          >
+            {logo && (
+              <img
+                src={logo}
+                alt={p.name}
+                className="w-4 h-4 object-contain rounded shrink-0"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+              />
+            )}
+            ✍️ {t.leave} {p.name}
+          </a>
+        );
+      })}
+    </div>
+  );
+
   return (
     <div className="mt-8 pt-6 border-t border-white/10">
       <h2 className="text-lg md:text-xl font-bold uppercase mb-4 text-white font-['Montserrat',sans-serif]">
@@ -98,52 +130,7 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
         </div>
       )}
 
-      {activePlatforms.length > 0 && (
-        <div className="flex flex-wrap gap-2 justify-center">
-          {activePlatforms.map((p) => {
-            const logo = LOGO_MAP[p.name];
-            let leaveHref: string | null = p.leaveReviewUrl || null;
-            if (!leaveHref && p.name === "TripAdvisor") {
-              leaveHref = tripadvisorReviewUrl(p.listingUrl || p.url);
-            }
-            return (
-              <div key={p.name} className="flex flex-col gap-1 w-[calc(50%-6px)] md:w-[160px]">
-                <a
-                  href={p.url || undefined}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-2.5 py-1.5 h-11 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] transition-colors no-underline"
-                >
-                  {logo && (
-                    <img
-                      src={logo}
-                      alt={p.name}
-                      className="w-6 h-6 object-contain rounded shrink-0"
-                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                    />
-                  )}
-                  <span className="flex flex-col min-w-0 flex-1 leading-tight">
-                    <strong className="text-xs text-white truncate">{p.name}</strong>
-                    <span className="text-[0.7rem] text-white/70 truncate">
-                      {p.rating}/5 — {p.count?.toLocaleString("fr-FR")}
-                    </span>
-                  </span>
-                </a>
-                {leaveHref && (
-                  <a
-                    href={leaveHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-1 text-[0.7rem] font-semibold px-1.5 py-1 rounded-md bg-primary text-primary-foreground no-underline hover:brightness-110 font-['Montserrat',sans-serif] whitespace-nowrap"
-                  >
-                    ✍️ {t.leave}
-                  </a>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
+      {activePlatforms.length > 0 && <LeaveReviewWidgets />}
 
       {ordered.length > 0 && (
         <div className="mt-5">
@@ -162,6 +149,11 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
                 </footer>
               </blockquote>
             ))}
+            {expanded && activePlatforms.length > 0 && (
+              <div className="pt-2">
+                <LeaveReviewWidgets />
+              </div>
+            )}
           </div>
 
           {hiddenCount > 0 && (
