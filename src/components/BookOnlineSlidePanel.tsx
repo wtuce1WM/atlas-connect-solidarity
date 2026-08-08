@@ -1009,6 +1009,25 @@ const BookOnlineSlidePanelInner = ({
     }
   }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, showHoursOverlay, showAvailabilitySearch, showDescriptionOverlay, showDirections, showBookingOverlay, docOverlay, showMosaic, showYoutubeOverlay, showExternalVideosOverlay]);
 
+  // Desktop: Esc closes the Full Description overlay (same cascade as the header X)
+  useEffect(() => {
+    if (!showDescriptionOverlay) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (typeof window !== "undefined" && window.innerWidth < 1024) return;
+      e.stopPropagation();
+      if (descGridSection && !descOverlayDirect) { setDescGridSection(null); setDescGridPage(0); return; }
+      if (descOverlayContent && !descOverlayDirect) { setDescOverlayContent(null); return; }
+      setShowDescriptionOverlay(false);
+      setDescOverlayContent(null);
+      setDescOverlayDirect(false);
+      setDescGridSection(null);
+      setDescGridPage(0);
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [showDescriptionOverlay, descGridSection, descOverlayContent, descOverlayDirect]);
+
   const hideCardsRef = useRef<() => void>(() => {});
   const hasSerpMapping = !!serpApiMapping || !!liteApiHotelId;
 
