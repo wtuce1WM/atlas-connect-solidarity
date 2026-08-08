@@ -2771,7 +2771,7 @@ const BookOnlineSlidePanelInner = ({
                       <div className="w-full mx-auto max-w-[820px] rounded-xl overflow-hidden bg-black/30 border border-white/10">
                         <iframe
                           key={`ai-widget-${business.slug}`}
-                          src={`/n/${business.slug}?theme=${(business as any)?.widget_theme === "light" ? "light" : "dark"}&lang=${language}`}
+                          src={`/embed/ask/${business.slug}?theme=${(business as any)?.widget_theme === "light" ? "light" : "dark"}&lang=${language}`}
                           title={language === "en" ? "AI Assistant" : "Assistant IA"}
                           allow="clipboard-write; microphone; fullscreen"
                           className="w-full block border-0"
