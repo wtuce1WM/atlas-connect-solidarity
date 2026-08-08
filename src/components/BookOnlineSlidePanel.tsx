@@ -4004,7 +4004,7 @@ const BookOnlineSlidePanelInner = ({
               className={`relative w-full h-auto rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-cover bg-no-repeat bg-center ${
                 isPopupSlide && !hasMeta 
                   ? "w-[98vw] max-w-[98vw] md:max-w-2xl lg:max-w-4xl xl:max-w-[85vh] aspect-[1333/1737] max-h-[96vh] sm:max-h-[90vh] md:max-h-[88vh]" 
-                  : "max-w-md max-h-[90vh] sm:max-h-[80vh] sm:aspect-[1333/1737]"
+                  : "max-w-md max-h-[90vh] sm:max-h-[84vh]"
               }`}
               style={{ backgroundImage: `url(${isPopupSlide ? (business as any).popup_image_url : promoBg})` }}
             >
