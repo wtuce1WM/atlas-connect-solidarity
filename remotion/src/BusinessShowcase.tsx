@@ -6,6 +6,7 @@ import {
   OffthreadVideo,
   Audio,
   Loop,
+  Easing,
   interpolate,
   interpolateColors,
   spring,
