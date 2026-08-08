@@ -226,6 +226,7 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
         { type: "menu", rows: menus },
         { type: "flipbook", rows: flipbooks },
         { type: "external_link", rows: externals },
+        { type: "widget_code", rows: widgets },
       ];
 
       const keptIds = new Set(
