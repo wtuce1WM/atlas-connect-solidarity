@@ -1285,16 +1285,19 @@ export default function StudioVideo() {
   }, [selected, refineFrom]);
 
   // Recent jobs + realtime
+  const loadJobs = useCallback(async () => {
+    const { data } = await supabase
+      .from("video_jobs")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(12);
+    if (data) setJobs(data as Job[]);
+  }, []);
+
   useEffect(() => {
-    const load = async () => {
-      const { data } = await supabase
-        .from("video_jobs")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(12);
-      setJobs((data ?? []) as Job[]);
-    };
+    const load = loadJobs;
     load();
+
 
     const channel = supabase
       .channel("video_jobs_studio")
@@ -1362,6 +1365,17 @@ export default function StudioVideo() {
     [jobs, currentUserId]
   );
   const hasActiveJob = activeJobs.length > 0;
+
+  // Filet de sécurité : si le realtime ne remonte pas (perte de socket, onglet
+  // en arrière-plan…), on rafraîchit les jobs toutes les 8 s tant qu'un rendu
+  // est en cours ou vient d'être lancé.
+  useEffect(() => {
+    if (!hasActiveJob && !currentJobId) return;
+    const t = setInterval(loadJobs, 8000);
+    return () => clearInterval(t);
+  }, [hasActiveJob, currentJobId, loadJobs]);
+
+
 
   const promptKeywords = useMemo(() => extractKeywords(prompt), [prompt]);
 
@@ -1785,9 +1799,13 @@ export default function StudioVideo() {
       const job = (data as any)?.job as Job;
       if (job) {
         setCurrentJobId(job.id);
+        // Affichage immédiat du bandeau « Vidéo en cours de génération » sans
+        // attendre l'événement realtime (qui peut arriver tard ou être perdu).
+        setJobs((prev) => [job, ...prev.filter((j) => j.id !== job.id)].slice(0, 20));
         setRefineFrom(null);
         toast.success("Scénario généré. Rendu en attente du worker.");
       }
+
     } catch (e: any) {
       toast.error(await edgeErrorMessage(e, "Erreur lors de la génération."));
     } finally {
