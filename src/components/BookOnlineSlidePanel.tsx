@@ -380,6 +380,8 @@ const BookOnlineSlidePanelInner = ({
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
   const [showPromosPopup, setShowPromosPopup] = useState(false);
   const [popupSlide, setPopupSlide] = useState(0);
+  const [descPromoSlide, setDescPromoSlide] = useState(0);
+
   const [popupMeta, setPopupMeta] = useState<{ title: string | null; description: string | null }>({ title: null, description: null });
   const welcomePopupShownRef = useRef<string | null>(null);
   const promosPopupShownRef = useRef<string | null>(null);
