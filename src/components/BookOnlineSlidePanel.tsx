@@ -5,6 +5,8 @@ import SlidePanelHeader from "@/components/SlidePanelHeader";
 import { YoutubeScrubBar } from "@/components/video/YoutubeScrubBar";
 import { createPortal } from "react-dom";
 import { MapPin, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Clock, Play, Pause, Volume2, VolumeX, Building2, Compass, ShoppingCart, SlidersHorizontal, CheckCircle2, Circle, Navigation, Heart } from "lucide-react";
+import { GiWalkingBoot } from "react-icons/gi";
+import { BsCalendarDay } from "react-icons/bs";
 import ShareButton from "@/components/ShareButton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
@@ -1076,6 +1078,7 @@ const BookOnlineSlidePanelInner = ({
   const [peekCta, setPeekCta] = useState<boolean[]>([]);
   const [peekDispo, setPeekDispo] = useState(false);
   const [peekHoraires, setPeekHoraires] = useState(false);
+  const [peekItin, setPeekItin] = useState(false);
   const peekPlayedRef = useRef<string | null>(null);
   useEffect(() => {
     if (!businessId) return;
@@ -1101,6 +1104,9 @@ const BookOnlineSlidePanelInner = ({
       timers.push(window.setTimeout(() => setPeekCta(p => { const n = [...p]; n[i] = true; return n; }), start + i * stagger));
       timers.push(window.setTimeout(() => setPeekCta(p => { const n = [...p]; n[i] = false; return n; }), start + i * stagger + open));
     }
+    // Peek the Itinéraire CTA last, after the main rail cascade.
+    timers.push(window.setTimeout(() => setPeekItin(true), start + count * stagger + 120));
+    timers.push(window.setTimeout(() => setPeekItin(false), start + count * stagger + 120 + open));
     return () => timers.forEach(clearTimeout);
   }, [businessId, showWelcomePopup]);
   useEffect(() => { peekPlayedRef.current = null; }, [businessId]);
@@ -2063,7 +2069,7 @@ const BookOnlineSlidePanelInner = ({
             <div data-cta-tap onClick={handleCtaTap('dispo', () => setShowAvailabilitySearch(true))} className={`group cta-peek ${peekDispo || tappedCta === 'dispo' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
               <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{language === "en" ? "Availability" : language === "ar" ? "التوفر" : "Disponibilité"}</span>
-              <CalendarCheck className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
+              <BsCalendarDay className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           ) : hasOpeningHours && !business?.is_open_24h ? (
             <div
@@ -2091,10 +2097,10 @@ const BookOnlineSlidePanelInner = ({
             </div>
           )}
           {showGoogleMap && !hideDirections && business?.latitude && business?.longitude && (
-            <div data-cta-tap onClick={handleCtaTap('itin', () => setShowDirections(true))} className={`group cta-peek ${tappedCta === 'itin' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 bg-gold text-gold-foreground hover:bg-gold/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
+            <div data-cta-tap onClick={handleCtaTap('itin', () => setShowDirections(true))} className={`group cta-peek ${peekItin || tappedCta === 'itin' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 bg-gold text-gold-foreground hover:bg-gold/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
               <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
               <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{language === "en" ? "Directions" : language === "ar" ? "طريق" : "Itinéraire"}</span>
-              <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
+              <GiWalkingBoot className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           )}
 
@@ -2123,6 +2129,7 @@ const BookOnlineSlidePanelInner = ({
           totalReviewCount={totalReviewCount}
           onOpenReviews={handleOpenReviews}
           openBadgeInfo={openBadgeInfo}
+          language={language}
         />
 
         {/* Top bar: toggle, flags, rating — below BusinessHeader */}
@@ -2273,26 +2280,7 @@ const BookOnlineSlidePanelInner = ({
                   );
                 }
                 if (avgOn20 != null && totalReviewCount > 0) {
-                  return (
-                    <div
-                      dir="ltr"
-                      key={`rating-${business?.id}`}
-                      className="relative flex items-center justify-center gap-1.5 md:gap-2.5 py-1 md:py-1.5 px-3 md:px-4 rounded-full border border-white/30 cursor-pointer flex-wrap slidepanel-rating-short backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)]"
-                      onClick={handleOpenReviews}
-                    >
-                      <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
-                      <span aria-hidden="true" className="pointer-events-none absolute top-0 left-2 right-2 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
-                      <div className="flex items-center gap-1.5 md:gap-2.5">
-                        <Star className="h-5 w-5 md:h-7 md:w-7 text-gold fill-gold" />
-                        <span className="text-2xl md:text-4xl font-black text-gold whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                          {avgOn20}<span className="text-sm md:text-xl font-semibold text-white/60">/20</span>
-                        </span>
-                      </div>
-                      <span className="text-[10px] md:text-sm text-white/60 font-medium whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                        · {totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : language === "ar" ? "آراء" : "avis"}
-                      </span>
-                    </div>
-                  );
+                  return null;
                 }
                 return null;
               })()}
