@@ -21,22 +21,19 @@ export default function AvailabilitySearchOverlay({ language, isSearching, initi
   const fmt = (d: Date) => d.toISOString().split("T")[0];
   const todayStrInit = fmt(new Date());
 
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const defaultCheckout = new Date(tomorrow);
-  defaultCheckout.setDate(defaultCheckout.getDate() + 3);
+  // Dates par défaut : J+30 → J+35
+  const defaultIn = new Date();
+  defaultIn.setDate(defaultIn.getDate() + 30);
+  const defaultOut = new Date();
+  defaultOut.setDate(defaultOut.getDate() + 35);
 
-  // Priority: explicit initial props > sessionStorage > defaults
   const STORAGE_KEY = "hotel_availability_last_search";
   const saved = (() => {
     try {
       const raw = sessionStorage.getItem(STORAGE_KEY);
       if (!raw) return null;
       const parsed = JSON.parse(raw);
-      if (
-        parsed?.checkIn && parsed?.checkOut && parsed?.adults &&
-        parsed.checkIn > todayStrInit && parsed.checkOut > parsed.checkIn
-      ) return parsed;
+      if (parsed?.adults) return parsed;
     } catch { /* ignore */ }
     return null;
   })();
@@ -44,8 +41,8 @@ export default function AvailabilitySearchOverlay({ language, isSearching, initi
   const validInitialCheckIn = initialCheckIn && initialCheckIn > todayStrInit ? initialCheckIn : null;
   const validInitialCheckOut = initialCheckOut && initialCheckOut > (validInitialCheckIn || todayStrInit) ? initialCheckOut : null;
 
-  const [checkIn, setCheckIn] = useState<string>(validInitialCheckIn ?? saved?.checkIn ?? fmt(tomorrow));
-  const [checkOut, setCheckOut] = useState<string>(validInitialCheckOut ?? saved?.checkOut ?? fmt(defaultCheckout));
+  const [checkIn, setCheckIn] = useState<string>(validInitialCheckIn ?? fmt(defaultIn));
+  const [checkOut, setCheckOut] = useState<string>(validInitialCheckOut ?? fmt(defaultOut));
   const [adults, setAdults] = useState<number>(initialAdults ?? saved?.adults ?? 2);
   const [selectingField, setSelectingField] = useState<"checkin" | "checkout">("checkin");
 

@@ -3213,11 +3213,6 @@ const BookOnlineSlidePanelInner = ({
                       <div className="sticky bottom-0 z-30 mt-8 pt-3 pb-3 border-t border-white/10 bg-black/80 backdrop-blur-md flex flex-col gap-2">
                         {(hasMenuBar || waHref) && (
                           <div dir="ltr" ref={stripWheelRef} className={stripClass}>
-                            {hasVideosBadge && (
-                              <button onClick={() => { setDescGridSection("videos"); setDescGridPage(0); setDescOverlayDirect(false); setShowDescriptionOverlay(true); }} className={badgeClass}>
-                                <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">Vidéos</span>
-                              </button>
-                            )}
                             {waHref && (
                               <a
                                 href={waHref}
@@ -3229,6 +3224,11 @@ const BookOnlineSlidePanelInner = ({
                                 <WhatsAppIcon className="h-4 w-4" />
                                 <span className="text-[11px] font-bold uppercase font-['Montserrat',sans-serif] whitespace-nowrap">WhatsApp</span>
                               </a>
+                            )}
+                            {hasVideosBadge && (
+                              <button onClick={() => { setDescGridSection("videos"); setDescGridPage(0); setDescOverlayDirect(false); setShowDescriptionOverlay(true); }} className={badgeClass}>
+                                <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">Vidéos</span>
+                              </button>
                             )}
                             {hasImagesBadge && (
                               <button onClick={() => { setDescGridSection("images"); setDescGridPage(0); setDescOverlayDirect(false); setShowDescriptionOverlay(true); }} className={badgeClass}>
