@@ -92,6 +92,7 @@ import ImageGallerySection from "@/components/slidepanel/ImageGallerySection";
 import { useBusinessPromotions } from "@/hooks/useBusinessPromotions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { buildReviewHtml } from "@/lib/reviewHtmlBuilder";
+import InlineReviewsSection from "@/components/InlineReviewsSection";
 
 import VideoThumbnail from "@/components/VideoThumbnail";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
