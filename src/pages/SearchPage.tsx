@@ -6386,10 +6386,9 @@ const SearchPage = () => {
 
           {/* Right panel — business detail */}
           <div
-            className={`fixed top-0 left-0 right-0 bottom-0 z-[220] bg-background shadow-2xl overflow-visible flex flex-col animate-slide-in-right lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:transition-[width] lg:duration-300 lg:ease-out slidepanel-container ${isCompactPanelExpanded ? "lg:w-full border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"}`}
+            className={`fixed top-0 left-0 right-0 bottom-0 z-[220] bg-black shadow-2xl overflow-visible flex flex-col animate-slide-in-right lg:left-auto lg:bottom-auto lg:border-l lg:border-border lg:transition-[width] lg:duration-300 lg:ease-out slidepanel-container ${isCompactPanelExpanded ? "lg:w-full border-l-2 shadow-[-8px_0_30px_-5px_rgba(0,0,0,0.15)]" : "lg:w-1/2"}`}
             style={{
               height: "100dvh",
-              paddingTop: isSubDesktop ? "env(safe-area-inset-top)" : undefined,
               transform: isMobile && swipeOffsetY !== 0 ? `translateY(${swipeOffsetY}px)` : undefined,
               transition: isMobile && swipeOffsetY === 0 ? "transform 0.2s ease-out" : undefined,
             }}
