@@ -10027,7 +10027,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 145,
+          "reviewCount": 153,
           "bestRating": 5
         }
       }
@@ -32497,7 +32497,7 @@
         "description": "Le Riad Madame se situe au cœur de la médina de Marrakech, dans un quartier calme et sûr, à 7 minutes à pied de la place Jemaa el Fna. Riad privé (non maison d'hôtes), disponible uniquement à la location en son intégralité. 3 grandes suites avec lit queen size, salle de bain, télévision et petit salon. Patio avec piscine et Bouh (salon extérieur couvert marocain), spa bouillonnant sur la petite terrasse, roof-top avec vue sur l'Atlas. WiFi, climatisation réversible, toit ouvrant électrique. Enti",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "30 Derb el Arsa (par le passage Boutouil) - Kennaria - Marakech",
+          "streetAddress": "30 Derb el Arsa",
           "addressLocality": "Medina",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -32509,8 +32509,8 @@
         },
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 5,
-          "reviewCount": 15,
+          "ratingValue": 4.6,
+          "reviewCount": 19,
           "bestRating": 5
         }
       }

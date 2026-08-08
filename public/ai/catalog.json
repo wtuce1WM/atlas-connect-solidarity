@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-08T14:50:03.379Z",
+    "generated_at": "2026-08-08T15:17:14.264Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
     "count": 1845
   },
@@ -29448,7 +29448,7 @@
       "website": "https://www.dinnerinthesky.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/eb0ad0ba-63be-4f72-84c9-5a8f5738268e-1772197462060-6lg37.jpg",
       "google_rating": 5,
-      "google_review_count": 145,
+      "google_review_count": 153,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -29516,7 +29516,7 @@
       "social": {
         "instagram": "https://www.instagram.com/dinnerintheskymorocco/",
         "facebook": "https://www.facebook.com/dinnerintheskyofficialmaroc/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d27147552-Reviews-Dinner_in_the_Sky_Marrakech-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -92463,13 +92463,13 @@
       "country": "MA",
       "latitude": 31.6257846,
       "longitude": -7.9852739,
-      "address": "30 Derb el Arsa (par le passage Boutouil) - Kennaria - Marakech",
+      "address": "30 Derb el Arsa",
       "phone": null,
       "whatsapp": "+212 662 87 41 24",
       "website": "https://www.riadmadame.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/54bb49e3-9b13-48fb-be57-533c2b2dd14c-1774827220334-3hryf.jpg",
-      "google_rating": 5,
-      "google_review_count": 15,
+      "google_rating": 4.6,
+      "google_review_count": 19,
       "price_range": "200 à 500€",
       "min_price_mad": 465,
       "languages": [],
