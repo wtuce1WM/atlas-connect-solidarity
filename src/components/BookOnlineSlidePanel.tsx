@@ -2762,8 +2762,11 @@ const BookOnlineSlidePanelInner = ({
                       </div>
                     );
                   })()}
+                  {/* Widget « par intention » de l'établissement — sous la carte popup / offres */}
+                  {!descOverlayContent && renderIntentWidgets("desc-intent-top")}
                   {/* Widgets Disponibilité / Horaires — sous le badge de note */}
                   {renderInlineDescWidgets("desc-widgets-top")}
+
 
                   {(() => {
                     const rawHtml = descOverlayContent ? descOverlayContent.html : woDescription;
