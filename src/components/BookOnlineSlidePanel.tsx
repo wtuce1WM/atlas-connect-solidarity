@@ -3281,10 +3281,7 @@ const BookOnlineSlidePanelInner = ({
                       (business as any)?.other_booking_url && { name: (business as any).other_booking_name || "Réservation", url: (business as any).other_booking_url, icon: <ExternalLink className="h-3.5 w-3.5" /> },
                     ].filter(Boolean) as { name: string; url: string; icon: React.ReactNode; label?: boolean }[];
                     const hasSocialBar = socialItems.length > 0 || bookingItems.length > 0;
-                    const hasVideosBadge = nonExternalVideoDocs.length >= 1;
-                    const hasImagesBadge = images.length > 1;
-                    const hasMenuBar = menuDocs.length > 0 || hasVideosBadge || hasImagesBadge;
-                    if (!(externalLinks.length > 0 || hasSocialBar || hasMenuBar || business?.whatsapp)) return null;
+                    if (!(hasSocialBar || business?.whatsapp)) return null;
                     const stripClass = "flex items-center gap-2 py-1 overflow-x-auto overflow-y-hidden flex-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden";
                     const stripWheelRef = (el: HTMLDivElement | null) => {
                       if (!el || (el as any).__owmWheelX) return;
@@ -3302,7 +3299,7 @@ const BookOnlineSlidePanelInner = ({
                       : null;
                     return (
                       <div className="sticky bottom-0 z-[70] mt-8 pt-3 pb-0 bg-transparent flex flex-col gap-2">
-                        {(hasMenuBar || waHref) && (
+                        {(hasSocialBar || waHref) && (
                           <div dir="ltr" ref={stripWheelRef} className={stripClass}>
                             {waHref && (
                               <a
@@ -3316,25 +3313,6 @@ const BookOnlineSlidePanelInner = ({
                                 <span className="text-[11px] font-bold uppercase font-['Montserrat',sans-serif] whitespace-nowrap">WhatsApp</span>
                               </a>
                             )}
-                            {hasVideosBadge && (
-                              <button onClick={() => { setDescGridSection("videos"); setDescGridPage(0); setDescOverlayDirect(false); setShowDescriptionOverlay(true); }} className={badgeClass}>
-                                <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">Vidéos</span>
-                              </button>
-                            )}
-                            {hasImagesBadge && (
-                              <button onClick={() => { setDescGridSection("images"); setDescGridPage(0); setDescOverlayDirect(false); setShowDescriptionOverlay(true); }} className={badgeClass}>
-                                <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">Images</span>
-                              </button>
-                            )}
-                            {menuDocs.map((doc) => (
-                              <button key={doc.id} onClick={() => openDocOrBooking(doc.url, doc.name || 'Menu')} className={badgeClass}>
-                                <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">{doc.name || 'Menu'}</span>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                        {hasSocialBar && (
-                          <div dir="ltr" ref={stripWheelRef} className={stripClass}>
                             {socialItems.map((s, i) => (
                               <button key={i} onClick={() => (s.onClick ? s.onClick() : window.open(s.url, "_blank", "noopener"))} className={badgeClass} title={s.name}>
                                 {s.icon}
