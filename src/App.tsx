@@ -29,6 +29,7 @@ const CityMap = lazy(() => import("./pages/CityMap"));
 const CategoryPage = lazy(() => import("./pages/CategoryPage"));
 const ServicePage = lazy(() => import("./pages/ServicePage"));
 const SearchPage = lazy(() => import("./pages/SearchPage"));
+const HashtagResolver = lazy(() => import("./pages/HashtagResolver"));
 const StaffLogin = lazy(() => import("./pages/StaffLogin"));
 const StaffBackoffice = lazy(() => import("./pages/StaffBackoffice"));
 const StaffHub = lazy(() => import("./pages/StaffHub"));
