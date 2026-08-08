@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 
 /**
- * Desktop-only anchor bar with scroll-spy for the Full Description overlay.
+ * Anchor bar with scroll-spy for the Full Description overlay.
  *
  * It discovers sections generically by scanning the `h2` headings inside the
  * scroll container (id = `containerId`), so no section markup has to change.
- * Hidden on mobile (no room, and the reading flow is linear there).
+ * Supports horizontal scrolling with the mouse wheel on all devices.
  */
 interface DescAnchorBarProps {
   /** id of the scrolling element containing the sections */
