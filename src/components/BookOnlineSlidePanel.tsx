@@ -56,6 +56,7 @@ import DocumentOverlay from "@/components/overlays/DocumentOverlay";
 import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
 import OverlayShell from "@/components/overlays/OverlayShell";
 import RevealScrollArea from "@/components/slidepanel/RevealScrollArea";
+import DescAnchorBar from "@/components/slidepanel/DescAnchorBar";
 import WidgetCodeEmbed from "@/components/widgets/WidgetCodeEmbed";
 import SpotifyOverlay from "@/components/overlays/SpotifyOverlay";
 import SubstackArticlesOverlay from "@/components/overlays/SubstackArticlesOverlay";
@@ -1007,6 +1008,25 @@ const BookOnlineSlidePanelInner = ({
       interceptCloseRef.current = null;
     }
   }, [previousBusinessId, cameFromFallback, fallbackPanelData, interceptCloseRef, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId, showHoursOverlay, showAvailabilitySearch, showDescriptionOverlay, showDirections, showBookingOverlay, docOverlay, showMosaic, showYoutubeOverlay, showExternalVideosOverlay]);
+
+  // Desktop: Esc closes the Full Description overlay (same cascade as the header X)
+  useEffect(() => {
+    if (!showDescriptionOverlay) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (typeof window !== "undefined" && window.innerWidth < 1024) return;
+      e.stopPropagation();
+      if (descGridSection && !descOverlayDirect) { setDescGridSection(null); setDescGridPage(0); return; }
+      if (descOverlayContent && !descOverlayDirect) { setDescOverlayContent(null); return; }
+      setShowDescriptionOverlay(false);
+      setDescOverlayContent(null);
+      setDescOverlayDirect(false);
+      setDescGridSection(null);
+      setDescGridPage(0);
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [showDescriptionOverlay, descGridSection, descOverlayContent, descOverlayDirect]);
 
   const hideCardsRef = useRef<() => void>(() => {});
   const hasSerpMapping = !!serpApiMapping || !!liteApiHotelId;
@@ -2547,6 +2567,9 @@ const BookOnlineSlidePanelInner = ({
               <X className="h-4 w-4" />
             </button>
             <h2 className="text-sm font-bold uppercase font-['Montserrat',sans-serif] truncate text-white flex-1">{business?.name}</h2>
+            {!descGridSection && !descOverlayContent && (
+              <DescAnchorBar containerId="owm-desc-scroll" deps={business?.id} />
+            )}
           </div>
           )}
           <div className="relative z-[50] flex-1 min-h-0 order-[-1]" style={{ perspective: "1200px" }}>
@@ -2713,7 +2736,7 @@ const BookOnlineSlidePanelInner = ({
                 </div>
               );
             })() : (
-              <RevealScrollArea innerClassName="px-4 pt-4 pb-6 md:pl-6 md:pt-6 pr-4 md:pr-6">
+              <RevealScrollArea id="owm-desc-scroll" innerClassName="px-4 pt-4 pb-6 md:pl-6 md:pt-6 pr-4 md:pr-6">
 
                   {descOverlayContent && (
                     <>

@@ -22,6 +22,8 @@ interface RevealScrollAreaProps {
   innerClassName?: string;
   /** content must be at least this many times the viewport height to enable FX */
   threshold?: number;
+  /** id forwarded to the scrolling element (used by the anchor bar scroll-spy) */
+  id?: string;
 }
 
 const RevealScrollArea = ({
@@ -29,6 +31,7 @@ const RevealScrollArea = ({
   className = "",
   innerClassName = "",
   threshold = 1.4,
+  id,
 }: RevealScrollAreaProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
@@ -106,6 +109,7 @@ const RevealScrollArea = ({
   return (
     <div
       ref={scrollRef}
+      id={id}
       onScroll={measure}
       className={`w-full h-full overflow-y-auto overscroll-contain ${className}`}
     >
