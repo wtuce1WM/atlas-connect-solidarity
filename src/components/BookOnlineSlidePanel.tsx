@@ -2762,6 +2762,28 @@ const BookOnlineSlidePanelInner = ({
                     );
                   })()}
 
+                  {/* Widget Assistant IA du Master — sous les blocs highlights */}
+                  {!descOverlayContent && business?.slug && (
+                    <div className="mt-8 pt-6 border-t border-white/10">
+                      <h3 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">
+                        {language === "en" ? "AI Assistant" : language === "ar" ? "المساعد الذكي" : "Assistant IA"}
+                      </h3>
+                      <div className="w-full mx-auto max-w-[820px] rounded-xl overflow-hidden bg-black/30 border border-white/10">
+                        <iframe
+                          key={`ai-widget-${business.slug}`}
+                          src={`/n/${business.slug}?theme=${(business as any)?.widget_theme === "light" ? "light" : "dark"}&lang=${language}`}
+                          title={language === "en" ? "AI Assistant" : "Assistant IA"}
+                          allow="clipboard-write; microphone; fullscreen"
+                          className="w-full block border-0"
+                          style={{ height: 640 }}
+                          loading="lazy"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+
+
                   {/* Ils parlent de nous (liens externes avec logos) */}
                   {!descOverlayContent && externalLinks.length > 0 && (() => {
                     const EXT_LABELS: Record<string, Record<string, string>> = {
