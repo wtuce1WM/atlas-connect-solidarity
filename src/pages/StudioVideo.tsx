@@ -1764,7 +1764,7 @@ export default function StudioVideo() {
             video_ends: activeVideoEnds,
             video_durations: activeVideoDurations,
             scene_media: sceneMedia,
-            scene_order: applyReferenceOrder(scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon), !!scenarioEdits?.order),
+            scene_order: applyReferenceOrder(scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon), !!(scenarioEdits as any)?.manualOrder),
             scene_durations: scenarioEdits?.durations ?? (() => {
               const src = (aiScenario?.scenario ?? scenario)?.scenes;
               if (!src) return undefined;
@@ -1774,7 +1774,7 @@ export default function StudioVideo() {
             })(),
             // Durées réglées dans « Aperçu du scénario » : elles priment sur les
             // durées par défaut du backoffice (/staff/backoffice/videos).
-            manual_durations: !!scenarioEdits?.durations,
+            manual_durations: !!(scenarioEdits as any)?.manualDurations,
             custom_scenes: scenarioEdits?.customScenes,
             text_position: textPosition,
             transitions: {
@@ -2034,7 +2034,7 @@ export default function StudioVideo() {
             scene_media: sceneMedia,
             scene_order: applyReferenceOrder(
               scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon),
-              !!scenarioEdits?.order,
+              !!(scenarioEdits as any)?.manualOrder,
             ),
             scene_durations: scenarioEdits?.durations ?? (() => {
               const src = (aiScenario?.scenario ?? scenario)?.scenes;
@@ -2043,7 +2043,7 @@ export default function StudioVideo() {
               for (const s of src) out[s.icon] = s.duration;
               return out;
             })(),
-            manual_durations: !!scenarioEdits?.durations,
+            manual_durations: !!(scenarioEdits as any)?.manualDurations,
             custom_scenes: scenarioEdits?.customScenes,
 
             text_position: textPosition,
