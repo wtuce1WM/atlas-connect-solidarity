@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Link2, ExternalLink, Tag, LayoutTemplate } from "lucide-react";
 import type { CtaUrlItem } from "@/components/affiliate/AffiliateContactEditor";
 
-const CTA_SELECT_OPTIONS = [
+export const CTA_SELECT_OPTIONS = [
   "Acheter en ligne", "Achetez", "Accréditations", "App Store", "Application",
   "Billetterie", "Boissons", "Carte des soins", "Carte des vins", "Cocktails",
   "Consulter notre offre", "Contactez-moi", "Contactez nous", "Day Pass",

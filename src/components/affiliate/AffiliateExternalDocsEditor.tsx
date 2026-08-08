@@ -29,8 +29,15 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Textarea } from "@/components/ui/textarea";
+import { CTA_SELECT_OPTIONS } from "@/components/affiliate/AffiliateCtasEditor";
 
-type DocType = "menu" | "flipbook" | "external_link";
+/** Intentions = libellés du menu déroulant CTA des URL 1 à 5, triés alphabétiquement. */
+const INTENT_OPTIONS = [...CTA_SELECT_OPTIONS].sort((a, b) =>
+  a.localeCompare(b, "fr", { sensitivity: "base" })
+);
+
+type DocType = "menu" | "flipbook" | "external_link" | "widget_code";
 
 interface DocEntry {
   _uid: string;
@@ -124,6 +131,7 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
   const [menus, setMenus] = useState<DocEntry[]>([]);
   const [flipbooks, setFlipbooks] = useState<DocEntry[]>([]);
   const [externals, setExternals] = useState<DocEntry[]>([]);
+  const [widgets, setWidgets] = useState<DocEntry[]>([]);
   const [matterportUrl, setMatterportUrl] = useState("");
   const [savingMatterport, setSavingMatterport] = useState(false);
   const [initialIds, setInitialIds] = useState<string[]>([]);
@@ -152,7 +160,7 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
           .from("business_documents")
           .select("*")
           .eq("business_id", businessId)
-          .in("type", ["menu", "flipbook", "external_link"])
+          .in("type", ["menu", "flipbook", "external_link", "widget_code"])
           .order("sort_order", { ascending: true }),
         supabase.from("businesses").select("matterport_url").eq("id", businessId).maybeSingle(),
       ]);
@@ -175,6 +183,7 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
       setMenus(map(all.filter((d) => d.type === "menu")));
       setFlipbooks(map(all.filter((d) => d.type === "flipbook")));
       setExternals(map(all.filter((d) => d.type === "external_link")));
+      setWidgets(map(all.filter((d) => d.type === "widget_code")));
       setInitialIds(all.map((d) => d.id));
       setLoading(false);
     };
@@ -217,6 +226,7 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
         { type: "menu", rows: menus },
         { type: "flipbook", rows: flipbooks },
         { type: "external_link", rows: externals },
+        { type: "widget_code", rows: widgets },
       ];
 
       const keptIds = new Set(
@@ -232,6 +242,7 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
         for (let i = 0; i < rows.length; i++) {
           const d = rows[i];
           const isExternal = type === "external_link";
+          const isWidget = type === "widget_code";
           if (isExternal ? !d.name.trim() : !d.url.trim()) continue;
           const payload: any = {
             business_id: businessId,
@@ -239,8 +250,8 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
             url: d.url.trim(),
             name: d.name || null,
             language: d.language || null,
-            icon: isExternal ? d.image_url || null : d.icon || null,
-            description: isExternal ? d.description || "presse" : null,
+            icon: isExternal ? d.image_url || null : isWidget ? null : d.icon || null,
+            description: isExternal ? d.description || "presse" : isWidget ? d.description || null : null,
             force_external: d.force_external,
             sort_order: i,
           };
@@ -674,6 +685,75 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
           </div>
         )}
       </section>
+
+      {/* Codes de widgets associés à une intention */}
+      <section className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label className="text-base font-semibold text-white">🧩 Codes de widgets (par intention)</Label>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-7 gap-1 text-xs"
+            onClick={() => setWidgets((p) => [...p, emptyDoc("")])}
+          >
+            <Plus className="h-3 w-3" /> Ajouter
+          </Button>
+        </div>
+        <DndContext collisionDetection={closestCenter} onDragEnd={makeDragEnd(setWidgets)}>
+          <SortableContext items={widgets.map((d) => d._uid)} strategy={verticalListSortingStrategy}>
+            {widgets.map((doc, idx) => (
+              <SortableRow key={doc._uid} id={doc._uid}>
+                <div className="flex min-w-0 flex-1 flex-col gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <select
+                      value={doc.description}
+                      onChange={(e) => patch(setWidgets, idx, { description: e.target.value })}
+                      className="h-9 w-52 shrink-0 rounded-md border border-white/15 bg-background px-2 text-sm"
+                      title="Intention associée"
+                    >
+                      <option value="">🎯 Intention…</option>
+                      {INTENT_OPTIONS.map((o) => (
+                        <option key={o} value={o}>{o}</option>
+                      ))}
+                    </select>
+                    <Input
+                      value={doc.name}
+                      onChange={(e) => patch(setWidgets, idx, { name: e.target.value })}
+                      placeholder="Nom du widget (optionnel)"
+                      className="w-56 shrink-0 text-xs"
+                    />
+                    {langSelect(doc.language, (v) => patch(setWidgets, idx, { language: v }))}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="ml-auto shrink-0 px-2 text-destructive hover:text-destructive"
+                      onClick={() => setWidgets((p) => p.filter((_, i) => i !== idx))}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <Textarea
+                    value={doc.url}
+                    onChange={(e) => patch(setWidgets, idx, { url: e.target.value })}
+                    placeholder='<iframe src="https://…" …></iframe> ou <script …></script>'
+                    rows={5}
+                    className="w-full border-white/15 bg-background font-mono text-xs"
+                  />
+                </div>
+              </SortableRow>
+            ))}
+          </SortableContext>
+        </DndContext>
+        {widgets.length === 0 && <p className="text-xs text-white/50">Aucun code de widget enregistré.</p>}
+        <p className="text-xs text-white/50">
+          Collez le code d'intégration (iframe / script) et choisissez l'intention correspondante — la liste reprend
+          les libellés du menu déroulant CTA des URL 1 à 5, classés par ordre alphabétique.
+        </p>
+      </section>
+
+
 
       <div className="flex justify-end">
         <Button type="button" onClick={handleSave} disabled={saving}>
