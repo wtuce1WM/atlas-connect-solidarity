@@ -2871,6 +2871,17 @@ const BookOnlineSlidePanelInner = ({
                     );
                   })()}
 
+                  {/* Avis clients — détail texte + widgets « Laisser un avis » (sous les blocs highlights) */}
+                  {!descOverlayContent && (
+                    <InlineReviewsSection
+                      texts={reviewTexts}
+                      platforms={reviewPlatforms as any}
+                      avgOn20={avgOn20}
+                      totalReviewCount={totalReviewCount}
+                      language={language}
+                    />
+                  )}
+
                   {/* Vidéos — grille 3x3 desktop / 2x2 mobile (propriétaires + YouTube/externes) */}
                   {!descOverlayContent && (nonExternalVideoDocs.length + externalVideoDocs.length) > 0 && (() => {
                     const urlOrder = new Map(allVideoUrls.map((u, i) => [u, i]));
