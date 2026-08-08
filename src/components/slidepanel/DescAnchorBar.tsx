@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 
 /**
- * Desktop-only anchor bar with scroll-spy for the Full Description overlay.
+ * Anchor bar with scroll-spy for the Full Description overlay.
  *
  * It discovers sections generically by scanning the `h2` headings inside the
  * scroll container (id = `containerId`), so no section markup has to change.
- * Hidden on mobile (no room, and the reading flow is linear there).
+ * Supports horizontal scrolling with the mouse wheel on all devices.
  */
 interface DescAnchorBarProps {
   /** id of the scrolling element containing the sections */
@@ -76,7 +76,18 @@ const DescAnchorBar = ({ containerId, deps }: DescAnchorBarProps) => {
   return (
     <div
       dir="ltr"
-      className="hidden lg:flex items-center gap-1 min-w-0 max-w-[62%] overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+      ref={(el) => {
+        if (!el) return;
+        if ((el as any).__owmWheelSet) return;
+        (el as any).__owmWheelSet = true;
+        el.addEventListener("wheel", (ev: WheelEvent) => {
+          if (el.scrollWidth <= el.clientWidth) return;
+          if (Math.abs(ev.deltaY) <= Math.abs(ev.deltaX)) return;
+          ev.preventDefault();
+          el.scrollLeft += ev.deltaY;
+        }, { passive: false });
+      }}
+      className="flex items-center gap-1.5 min-w-0 max-w-full overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden touch-pan-x"
     >
       {anchors.map((a) => (
         <button
