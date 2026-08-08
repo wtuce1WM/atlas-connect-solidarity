@@ -1146,34 +1146,8 @@ const SceneOffer: React.FC<{
     <AbsoluteFill style={{ alignItems: "center", padding: 60, ...textPositionStyle(textPosition), opacity: out }}>
       <style>{RICH_CSS}</style>
       <FitColumn>
-      <div
-
-        style={{
-          opacity: labelO,
-          fontFamily: body,
-          color: COLORS.gold,
-          fontSize: 22,
-          letterSpacing: 6,
-          textTransform: "uppercase",
-        }}
-      >
-        {city ? `${L.offer} · ${city}` : L.offer}
-      </div>
-      <div
-        style={{
-          opacity: titleO,
-          marginTop: 24,
-          fontFamily: display,
-          fontWeight: 700,
-          color: COLORS.cream,
-          fontSize: hasBody ? 46 : 54,
-          textAlign: "center",
-          lineHeight: 1.1,
-          padding: "0 20px",
-        }}
-      >
-        {offer.title || lines[0] || L.offer}
-      </div>
+      <CardLabel opacity={labelO}>{city ? `${L.offer} · ${city}` : L.offer}</CardLabel>
+      <CardTitle opacity={titleO} marginTop={24}>{offer.title || lines[0] || L.offer}</CardTitle>
       {hasPrice && (
         <div
           style={{
@@ -1192,40 +1166,9 @@ const SceneOffer: React.FC<{
         </div>
       )}
       {hasRich ? (
-        <RichBlock
-          html={richMsg}
-          style={{ marginTop: 28, fontFamily: body, color: COLORS.cream, fontSize: 24, lineHeight: 1.35, maxWidth: 640, alignSelf: "center", opacity: ease(frame, 30, 52) }}
-        />
-      ) : lines.length > 0 && (
-        <div
-          style={{
-            marginTop: 28,
-            display: "flex",
-            flexDirection: "column",
-            gap: 10,
-            alignItems: "center",
-            maxWidth: 620,
-          }}
-        >
-          {lines.map((line, i) => {
-            const lineO = ease(frame, 30 + i * 8, 48 + i * 8);
-            return (
-              <div
-                key={i}
-                style={{
-                  opacity: lineO,
-                  fontFamily: body,
-                  color: COLORS.cream,
-                  fontSize: 24,
-                  lineHeight: 1.35,
-                  textAlign: "center",
-                }}
-              >
-                {line}
-              </div>
-            );
-          })}
-        </div>
+        <CardBody html={richMsg} opacity={ease(frame, 30, 52)} />
+      ) : (
+        <CardBody lines={lines} frame={frame} lineStart={30} />
       )}
       </FitColumn>
     </AbsoluteFill>
@@ -1273,25 +1216,7 @@ const SceneManualCard: React.FC<{
     <AbsoluteFill style={{ alignItems: "center", padding: 60, ...textPositionStyle(textPosition), opacity: out }}>
       <style>{RICH_CSS}</style>
       <FitColumn topSafeRatio={0.14}>
-        {title ? (
-          <div
-            style={{
-              display: "block",
-              width: "100%",
-              opacity: titleO,
-              fontFamily: display,
-              fontWeight: 700,
-              color: COLORS.cream,
-              fontSize: hasBody ? 46 : 56,
-              textAlign: "center",
-              lineHeight: 1.12,
-              padding: "0 20px",
-              textShadow: shadowOn(3, 18, "black", 0.6),
-            }}
-          >
-            {title}
-          </div>
-        ) : null}
+        {title ? <CardTitle opacity={titleO} marginTop={0}>{title}</CardTitle> : null}
 
         {title && hasBody ? (
           <div
@@ -1308,37 +1233,11 @@ const SceneManualCard: React.FC<{
         ) : null}
 
         {hasBody ? (
-          <div style={{ display: "block", width: "100%", opacity: bodyO }}>
+          <div style={{ display: "block", width: "100%" }}>
             {hasRich ? (
-              <RichBlock
-                html={richMsg}
-                style={{
-                  fontFamily: body,
-                  color: COLORS.cream,
-                  fontSize: 24,
-                  lineHeight: 1.38,
-                  maxWidth: 660,
-                  margin: "0 auto",
-                }}
-              />
+              <CardBody html={richMsg} opacity={bodyO} marginTop={0} />
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center", maxWidth: 620, margin: "0 auto" }}>
-                {lines.map((line, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      opacity: ease(frame, 22 + i * 8, 44 + i * 8),
-                      fontFamily: body,
-                      color: COLORS.cream,
-                      fontSize: 24,
-                      lineHeight: 1.38,
-                      textAlign: "center",
-                    }}
-                  >
-                    {line}
-                  </div>
-                ))}
-              </div>
+              <CardBody lines={lines} frame={frame} lineStart={22} opacity={bodyO} marginTop={0} />
             )}
           </div>
         ) : null}
@@ -2827,21 +2726,8 @@ const ScenePopup: React.FC<{ imageUrl: string; title?: string | null; descriptio
       <AbsoluteFill style={{ background: `linear-gradient(180deg,${alpha("black", 0.15)} 0%,${alpha("black", 0.7)} 100%)` }} />
       <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
         <FitColumn>
-        {title && (
-          <div style={{ fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 54, lineHeight: 1.1, textShadow: shadowOn(4, 20, "black", 0.7), textAlign: "center" }}>
-            {decodeEntities(title)}
-          </div>
-        )}
-        {hasRich ? (
-          <RichBlock
-            html={richDesc}
-            style={{ marginTop: 18, fontFamily: body, color: alpha("white", 0.94), fontSize: 26, lineHeight: 1.35, textShadow: shadowOn(2, 10, "black", 0.6), maxWidth: 640, alignSelf: "center" }}
-          />
-        ) : desc ? (
-          <div style={{ marginTop: 18, fontFamily: body, color: alpha("white", 0.94), fontSize: 26, lineHeight: 1.35, textAlign: "center", textShadow: shadowOn(2, 10, "black", 0.6), maxWidth: 640 }}>
-            {desc}
-          </div>
-        ) : null}
+        {title && <CardTitle marginTop={0}>{decodeEntities(title)}</CardTitle>}
+        {hasRich ? <CardBody html={richDesc} /> : <CardBody text={desc} />}
         </FitColumn>
       </AbsoluteFill>
     </AbsoluteFill>
@@ -3065,28 +2951,9 @@ const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[
       <AbsoluteFill style={{ background: `linear-gradient(180deg,${alpha("black", 0.4)} 0%,${alpha("black", 0.75)} 100%)` }} />
       <AbsoluteFill style={{ padding: 60, ...textPositionStyle(textPosition) }}>
         <FitColumn>
-        {!data.title && (
-          <div style={{ fontFamily: body, color: COLORS.gold, fontSize: 20, letterSpacing: 6, textTransform: "uppercase", textAlign: "center" }}>
-            Signature
-          </div>
-        )}
-        {data.title && (
-          <div style={{ marginTop: 14, transform: `translateY(${titleY}px)`, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: 56, lineHeight: 1.1, textAlign: "center", textShadow: shadowOn(4, 20, "black", 0.7) }}>
-            {decodeEntities(data.title)}
-          </div>
-        )}
-        {(hasRich ? richDesc : plainDesc) && (
-          hasRich ? (
-            <RichBlock
-              html={richDesc}
-              style={{ marginTop: 20, fontFamily: body, color: alpha("white", 0.94), fontSize: 26, lineHeight: 1.4, textShadow: shadowOn(2, 10, "black", 0.6), maxWidth: 640, alignSelf: "center" }}
-            />
-          ) : (
-            <div style={{ marginTop: 20, fontFamily: body, color: alpha("white", 0.94), fontSize: 26, lineHeight: 1.4, textAlign: "center", textShadow: shadowOn(2, 10, "black", 0.6), maxWidth: 620 }}>
-              {plainDesc.slice(0, 280)}
-            </div>
-          )
-        )}
+        {!data.title && <CardLabel>Signature</CardLabel>}
+        {data.title && <CardTitle translateY={titleY}>{decodeEntities(data.title)}</CardTitle>}
+        {hasRich ? <CardBody html={richDesc} /> : <CardBody text={plainDesc.slice(0, 280)} />}
         {(data.metric_title || data.metric_value) && (
           <div style={{ marginTop: 28, padding: "14px 26px", border: `1px solid ${COLORS.gold}`, borderRadius: 14, fontFamily: display, color: COLORS.gold, fontSize: 28, textAlign: "center", background: alpha("gold", 0.08) }}>
             {[data.metric_value, data.metric_title].filter(Boolean).map((v) => decodeEntities(String(v))).join(" · ")}
@@ -3166,12 +3033,6 @@ const SceneInfoText: React.FC<{
   const richText = sanitizeRich(textHtml || "");
   const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br|h1|h2|h3|h4)\b/i.test(richText);
   const safeLogo = typeof logoUrl === "string" && logoUrl.trim().startsWith("http") ? logoUrl : null;
-  const titleSize = wide ? 68 : 52;
-  const titleLh = wide ? 1.1 : 1.12;
-  const textSize = wide ? 34 : 26;
-  const textLh = wide ? 1.3 : 1.42;
-  const textMaxWidth = wide ? undefined : 620;
-  const richMaxWidth = wide ? undefined : 640;
   const textMarginTop = wide ? 44 : 20;
   return (
     <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
@@ -3192,27 +3053,13 @@ const SceneInfoText: React.FC<{
             <Img src={safeLogo} style={{ width: 120, height: 120, objectFit: "contain", borderRadius: 12, background: alpha("white", 0.08) }} />
           </div>
         )}
-        {label && (
-          <div style={{ fontFamily: body, color: COLORS.gold, fontSize: 20, letterSpacing: 6, textTransform: "uppercase", textAlign: "center" }}>
-            {clean(label).slice(0, 40)}
-          </div>
-        )}
-        {title && (
-          <div style={{ marginTop: 14, transform: `translateY(${titleY}px)`, fontFamily: display, fontWeight: 800, color: COLORS.cream, fontSize: titleSize, lineHeight: titleLh, textAlign: "center", textShadow: shadowOn(4, 20, "black", 0.7) }}>
-            {clean(title)}
-          </div>
-        )}
+        {label && <CardLabel>{clean(label).slice(0, 40)}</CardLabel>}
+        {title && <CardTitle wide={wide} translateY={titleY}>{clean(title)}</CardTitle>}
         {hasRich ? (
-          <RichBlock
-            html={richText}
-            style={{ marginTop: textMarginTop, fontFamily: body, color: alpha("white", 0.94), fontSize: textSize, lineHeight: textLh, textShadow: shadowOn(2, 10, "black", 0.6), maxWidth: richMaxWidth, alignSelf: wide ? "stretch" : "center" }}
-          />
-        ) : text ? (
-          <div style={{ marginTop: textMarginTop, fontFamily: body, color: alpha("white", 0.94), fontSize: textSize, lineHeight: textLh, textAlign: "center", textShadow: shadowOn(2, 10, "black", 0.6), maxWidth: textMaxWidth }}>
-            {clean(text)}
-          </div>
-
-        ) : null}
+          <CardBody html={richText} wide={wide} marginTop={textMarginTop} />
+        ) : (
+          <CardBody text={text} wide={wide} marginTop={textMarginTop} />
+        )}
         {ornament && (
           <div style={{ marginTop: 26, alignSelf: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
             {/* filet doré qui se déploie */}
