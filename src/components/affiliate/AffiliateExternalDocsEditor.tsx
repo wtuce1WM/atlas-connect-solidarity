@@ -707,13 +707,21 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
                 <div className="flex min-w-0 flex-1 flex-col gap-2">
                   <div className="flex flex-wrap items-center gap-2">
                     <select
-                      value={doc.description}
-                      onChange={(e) => patch(setWidgets, idx, { description: e.target.value })}
+                      value=""
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        if (!v) return;
+                        const cur = parseIntents(doc.description);
+                        if (!cur.includes(v)) {
+                          patch(setWidgets, idx, { description: joinIntents([...cur, v]) });
+                        }
+                        e.target.value = "";
+                      }}
                       className="h-9 w-52 shrink-0 rounded-md border border-white/15 bg-background px-2 text-sm"
-                      title="Intention associée"
+                      title="Ajouter une intention"
                     >
-                      <option value="">🎯 Intention…</option>
-                      {INTENT_OPTIONS.map((o) => (
+                      <option value="">🎯 Ajouter une intention…</option>
+                      {INTENT_OPTIONS.filter((o) => !parseIntents(doc.description).includes(o)).map((o) => (
                         <option key={o} value={o}>{o}</option>
                       ))}
                     </select>
@@ -734,6 +742,26 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
+                  {parseIntents(doc.description).length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {parseIntents(doc.description).map((it) => (
+                        <button
+                          key={it}
+                          type="button"
+                          onClick={() =>
+                            patch(setWidgets, idx, {
+                              description: joinIntents(parseIntents(doc.description).filter((x) => x !== it)),
+                            })
+                          }
+                          className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/15 px-2.5 py-0.5 text-[11px] text-white hover:bg-destructive/20"
+                          title="Retirer cette intention"
+                        >
+                          {it} <span className="text-white/60">✕</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
                   <Textarea
                     value={doc.url}
                     onChange={(e) => patch(setWidgets, idx, { url: e.target.value })}
