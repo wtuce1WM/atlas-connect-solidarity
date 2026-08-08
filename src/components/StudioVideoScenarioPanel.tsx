@@ -547,6 +547,10 @@ export type ScenarioEdits = {
    */
   useAssociatedMedia?: Record<string, boolean>;
   totalDuration?: number;
+  /** L'utilisateur a réellement réordonné les étapes dans l'aperçu. */
+  manualOrder?: boolean;
+  /** L'utilisateur a réellement modifié au moins une durée dans l'aperçu. */
+  manualDurations?: boolean;
 };
 
 export function StudioVideoScenarioPanel({
@@ -801,6 +805,8 @@ export function StudioVideoScenarioPanel({
     onChangeScenarioEdits({
       order: orderTokens,
       durations,
+      manualOrder: hasOrder,
+      manualDurations: hasDurations,
       customScenes: hasCustom ? customScenes : undefined,
       textSplits: Object.keys(textSplits).length ? textSplits : undefined,
       textSegments: Object.keys(textSegments).length ? textSegments : undefined,

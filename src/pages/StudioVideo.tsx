@@ -1164,11 +1164,8 @@ export default function StudioVideo() {
           })),
       );
       setSelectedExternalLinkIds(new Set());
-      setMenuDocsList(
-        rows
-          .filter((d) => d.type === "menu" && d.url)
-          .map((d) => ({ id: d.id as string, name: strip(d.name) || "Menu", url: d.url as string })),
-      );
+      // Option « Ajouter Menus » abandonnée : plus aucun menu proposé au scénario.
+      setMenuDocsList([]);
       setSelectedMenuDocIds(new Set());
     })();
     return () => { cancelled = true; };
@@ -1764,7 +1761,7 @@ export default function StudioVideo() {
             video_ends: activeVideoEnds,
             video_durations: activeVideoDurations,
             scene_media: sceneMedia,
-            scene_order: applyReferenceOrder(scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon), !!scenarioEdits?.order),
+            scene_order: applyReferenceOrder(scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon), !!(scenarioEdits as any)?.manualOrder),
             scene_durations: scenarioEdits?.durations ?? (() => {
               const src = (aiScenario?.scenario ?? scenario)?.scenes;
               if (!src) return undefined;
@@ -1774,7 +1771,7 @@ export default function StudioVideo() {
             })(),
             // Durées réglées dans « Aperçu du scénario » : elles priment sur les
             // durées par défaut du backoffice (/staff/backoffice/videos).
-            manual_durations: !!scenarioEdits?.durations,
+            manual_durations: !!(scenarioEdits as any)?.manualDurations,
             custom_scenes: scenarioEdits?.customScenes,
             text_position: textPosition,
             transitions: {
@@ -1880,10 +1877,6 @@ export default function StudioVideo() {
     const chosenLinks = externalLinksList.filter((l) => selectedExternalLinkIds.has(l.id));
     if (chosenLinks.length > 0) {
       directives.push(`Ajouter une séquence par lien externe (libellé existant + titre du lien, 5 s par défaut) :\n  * ${chosenLinks.map((l) => `${l.label ? `[${l.label}] ` : ""}${l.name}`).join("\n  * ")}`);
-    }
-    const chosenMenus = menuDocsList.filter((m) => selectedMenuDocIds.has(m.id));
-    if (chosenMenus.length > 0) {
-      directives.push(`Ajouter une séquence par menu / carte (libellé libre existant, 5 s par défaut) :\n  * ${chosenMenus.map((m) => m.name).join("\n  * ")}`);
     }
     const chosenImages = Array.from(selectedImages);
     const chosenVideos = orderedSelectedVideos;
@@ -2034,7 +2027,7 @@ export default function StudioVideo() {
             scene_media: sceneMedia,
             scene_order: applyReferenceOrder(
               scenarioEdits?.order ?? (aiScenario?.scenario ?? scenario)?.scenes.map((s) => s.icon),
-              !!scenarioEdits?.order,
+              !!(scenarioEdits as any)?.manualOrder,
             ),
             scene_durations: scenarioEdits?.durations ?? (() => {
               const src = (aiScenario?.scenario ?? scenario)?.scenes;
@@ -2043,7 +2036,7 @@ export default function StudioVideo() {
               for (const s of src) out[s.icon] = s.duration;
               return out;
             })(),
-            manual_durations: !!scenarioEdits?.durations,
+            manual_durations: !!(scenarioEdits as any)?.manualDurations,
             custom_scenes: scenarioEdits?.customScenes,
 
             text_position: textPosition,
@@ -4067,37 +4060,6 @@ export default function StudioVideo() {
                             {l.label && <div className="uppercase tracking-widest text-[10px] text-[#C04F17] font-bold">{l.label}</div>}
                             <div className="font-semibold break-words">{l.name}</div>
                           </div>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {menuDocsList.length > 0 && (
-                  <div className="rounded-md border border-border bg-background/40 p-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="font-medium">Ajouter Menus ({menuDocsList.length})</div>
-                      <div className="flex gap-2 text-xs">
-                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedMenuDocIds(new Set(menuDocsList.map((m) => m.id)))}>Tout</button>
-                        <button type="button" className="underline hover:text-primary" onClick={() => setSelectedMenuDocIds(new Set())}>Aucun</button>
-                      </div>
-                    </div>
-                    <p className="mt-1 text-[11px] text-muted-foreground">Libellé libre existant (Menu, Carte, Drinks…) : une séquence de 5 s par menu coché.</p>
-                    <div className="mt-2 flex flex-col gap-1.5">
-                      {menuDocsList.map((m) => (
-                        <label key={m.id} className="flex items-start gap-2 cursor-pointer rounded-md border border-border/60 p-2 hover:bg-muted/40">
-                          <input
-                            type="checkbox"
-                            className="mt-1 h-4 w-4 rounded border-gray-300 bg-white accent-primary appearance-auto"
-                            checked={selectedMenuDocIds.has(m.id)}
-                            onChange={(e) => {
-                              setSelectedMenuDocIds((prev) => {
-                                const next = new Set(prev);
-                                if (e.target.checked) next.add(m.id); else next.delete(m.id);
-                                return next;
-                              });
-                            }}
-                          />
-                          <div className="min-w-0 flex-1 text-xs font-semibold break-words">{m.name}</div>
                         </label>
                       ))}
                     </div>

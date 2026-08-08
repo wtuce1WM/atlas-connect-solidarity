@@ -95,11 +95,6 @@ const STEP_DOCS: Record<string, { what: string; filter: string; notes?: string }
     filter: "Incluse si au moins un lien externe (documents backoffice, type lien externe) est sélectionné.",
     notes: "Une carte par lien (nom + domaine) ; logo/visuel du média utilisé en repli de fond ; n'utilise jamais les champs url 1 à url 6.",
   },
-  menu_doc: {
-    what: "Menu / document (carte, flipbook, PDF) avec vignette.",
-    filter: "Incluse si au moins un document de type menu/flipbook est sélectionné.",
-    notes: "Une carte par document ; ornement décoratif activé ; libellé dédoublonné (« La carte » / « Notre sélection »).",
-  },
   media: {
     what: "Zone libre médias : photos et vidéos de l'établissement.",
     filter: "Incluse si des médias sont assignés à l'étape (ou « Ajouter média »).",
@@ -184,7 +179,8 @@ const VideoScenarioConfigPanel = () => {
       .eq("mode", mode)
       .order("position", { ascending: true });
     if (error) toast.error("Chargement impossible");
-    setSteps(((data ?? []) as VideoScenarioStep[]).slice());
+    // Étape « Menus » abandonnée : on ne l'affiche plus.
+    setSteps(((data ?? []) as VideoScenarioStep[]).filter((s) => s.scene_key !== "menu_doc"));
     setDirty(false);
     setLoading(false);
   }, [mode]);
