@@ -2877,6 +2877,29 @@ const BookOnlineSlidePanelInner = ({
                     </div>
                   )}
 
+                  {/* Widget Adresses à proximité — full width */}
+                  {!descOverlayContent && business?.slug && (
+                    <div className="mt-8 pt-6 border-t border-white/10">
+                      <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">
+                        {language === "en" ? "Nearby" : language === "ar" ? "بالقرب" : "À proximité"}
+                        {videoTabLabel ? <span className="normal-case font-semibold text-white/70"> — {videoTabLabel}</span> : null}
+                      </h2>
+                      <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
+                        <iframe
+                          key={`nearby-widget-${business.slug}`}
+                          src={`/embed/nearby/${business.slug}?lang=${language}`}
+                          title={language === "en" ? "Nearby" : "À proximité"}
+                          allow="geolocation; fullscreen"
+                          className="w-full block border-0"
+                          style={{ height: 640 }}
+                          loading="lazy"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+
+
 
 
                   {/* Ils parlent de nous (liens externes avec logos) */}
@@ -2930,21 +2953,9 @@ const BookOnlineSlidePanelInner = ({
                     );
                   })()}
 
-                  {/* WhatsApp + widgets Réseaux & flux (Spotify / SoundCloud / Substack) */}
-                  {!descOverlayContent && (business?.whatsapp || business?.spotify_url || business?.soundcloud_url || (business as any)?.substack_url) && (
+                  {/* Widgets Réseaux & flux (Spotify / SoundCloud / Substack) — CTA WhatsApp uniquement dans la barre fixe du bas */}
+                  {!descOverlayContent && (business?.spotify_url || business?.soundcloud_url || (business as any)?.substack_url) && (
                     <div className="mt-8 pt-6 border-t border-white/10 space-y-6 text-center">
-                      {business?.whatsapp && (
-                        <a
-                          href={whatsappUrl(business.whatsapp, language === "en" ? `Hello ${business?.name || ""}, I found you on One World Morocco.` : language === "ar" ? `مرحبا ${business?.name || ""}` : `Bonjour ${business?.name || ""}, je vous ai trouvé sur One World Morocco.`)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mx-auto inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-black hover:brightness-110 transition"
-                          style={{ fontFamily: "'Montserrat', sans-serif" }}
-                        >
-                          <MessageCircle className="h-4 w-4" />
-                          {language === "en" ? "WhatsApp message" : language === "ar" ? "رسالة واتساب" : "Message WhatsApp"}
-                        </a>
-                      )}
                       {business?.slug && (business?.spotify_url || business?.soundcloud_url || (business as any)?.substack_url) && (
                         <div className="mx-auto w-full max-w-[720px] flex flex-col items-center gap-6">
                           {business?.spotify_url && (
@@ -3210,7 +3221,7 @@ const BookOnlineSlidePanelInner = ({
                       ? whatsappUrl(business.whatsapp, language === "en" ? `Hello ${business?.name || ""}, I found you on One World Morocco.` : language === "ar" ? `مرحبا ${business?.name || ""}` : `Bonjour ${business?.name || ""}, je vous ai trouvé sur One World Morocco.`)
                       : null;
                     return (
-                      <div className="sticky bottom-0 z-30 mt-8 pt-3 pb-3 border-t border-white/10 bg-black/80 backdrop-blur-md flex flex-col gap-2">
+                      <div className="sticky bottom-0 z-30 mt-8 pt-3 pb-0 bg-transparent flex flex-col gap-2">
                         {(hasMenuBar || waHref) && (
                           <div dir="ltr" ref={stripWheelRef} className={stripClass}>
                             {waHref && (
