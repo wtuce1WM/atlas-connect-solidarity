@@ -91,6 +91,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { buildReviewHtml } from "@/lib/reviewHtmlBuilder";
 
 import VideoThumbnail from "@/components/VideoThumbnail";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 
 const spotifyEmbedUrl = (raw: string): string | null => {
   const match = raw.match(/open\.spotify\.com\/(?:embed\/)?(playlist|album|track|episode|show|artist)\/([a-zA-Z0-9]+)/);
@@ -1522,7 +1523,7 @@ const BookOnlineSlidePanelInner = ({
     return (
       <div key={keyPrefix} className="my-10 w-full flex flex-col items-center gap-4">
         {showAvail && (
-          <div className="w-full max-w-none md:max-w-[34rem] mx-auto text-[0.92em]">
+          <div className="w-full max-w-none md:max-w-[27rem] mx-auto text-[0.88em]">
             <AvailabilitySearchOverlay
 
               inline
@@ -3192,7 +3193,7 @@ const BookOnlineSlidePanelInner = ({
                     const hasVideosBadge = nonExternalVideoDocs.length >= 1;
                     const hasImagesBadge = images.length > 1;
                     const hasMenuBar = menuDocs.length > 0 || hasVideosBadge || hasImagesBadge;
-                    if (!(externalLinks.length > 0 || hasSocialBar || hasMenuBar)) return null;
+                    if (!(externalLinks.length > 0 || hasSocialBar || hasMenuBar || business?.whatsapp)) return null;
                     const stripClass = "flex items-center gap-2 py-1 overflow-x-auto overflow-y-hidden flex-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden";
                     const stripWheelRef = (el: HTMLDivElement | null) => {
                       if (!el || (el as any).__owmWheelX) return;
@@ -3205,14 +3206,29 @@ const BookOnlineSlidePanelInner = ({
                       }, { passive: false });
                     };
                     const badgeClass = "shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors whitespace-nowrap";
+                    const waHref = business?.whatsapp
+                      ? whatsappUrl(business.whatsapp, language === "en" ? `Hello ${business?.name || ""}, I found you on One World Morocco.` : language === "ar" ? `مرحبا ${business?.name || ""}` : `Bonjour ${business?.name || ""}, je vous ai trouvé sur One World Morocco.`)
+                      : null;
                     return (
-                      <div className="mt-8 pt-6 border-t border-white/10 flex flex-col gap-2">
-                        {hasMenuBar && (
+                      <div className="sticky bottom-0 z-30 mt-8 pt-3 pb-3 border-t border-white/10 bg-black/80 backdrop-blur-md flex flex-col gap-2">
+                        {(hasMenuBar || waHref) && (
                           <div dir="ltr" ref={stripWheelRef} className={stripClass}>
                             {hasVideosBadge && (
                               <button onClick={() => { setDescGridSection("videos"); setDescGridPage(0); setDescOverlayDirect(false); setShowDescriptionOverlay(true); }} className={badgeClass}>
                                 <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">Vidéos</span>
                               </button>
+                            )}
+                            {waHref && (
+                              <a
+                                href={waHref}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-[#25D366] text-black hover:brightness-110 transition-colors whitespace-nowrap"
+                                title="WhatsApp"
+                              >
+                                <WhatsAppIcon className="h-4 w-4" />
+                                <span className="text-[11px] font-bold uppercase font-['Montserrat',sans-serif] whitespace-nowrap">WhatsApp</span>
+                              </a>
                             )}
                             {hasImagesBadge && (
                               <button onClick={() => { setDescGridSection("images"); setDescGridPage(0); setDescOverlayDirect(false); setShowDescriptionOverlay(true); }} className={badgeClass}>

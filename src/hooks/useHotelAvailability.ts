@@ -192,9 +192,51 @@ export function useHotelAvailability({
           gammes: gammes.map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })),
         });
       } else {
+        // Aucune intersection SerpAPI : proposer quand même les alternatives de la ville
         hideCards();
+        const altBizIds = [...new Set(allMappings.map((m: any) => m.business_id).filter(Boolean))].filter((id) => id !== businessId);
+        let altHotels: FallbackHotel[] = [];
+        if (altBizIds.length > 0) {
+          const { data: altData } = await supabase
+            .from("businesses")
+            .select("id, name, slug, images, city, region, neighborhood, address, phone, whatsapp, skype, categories, default_service, hook_fr, logo_url, computed_rating, total_review_count, gamme_id, badge_id, wtuce_status, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, reserve_now_url, manual_price_range, opening_hours, show_opening_hours, is_open_24h, engagements, online_shop_url, latitude, longitude, google_maps_url, rating, website, min_price, main_category")
+            .in("id", altBizIds)
+            .eq("is_active", true)
+            .eq("main_category", "Hôtellerie");
+
+          for (const biz of (altData || [])) {
+            const gammeInfo = biz.gamme_id ? gammeMap.get(biz.gamme_id) || null : null;
+            altHotels.push({
+              hotelId: biz.id,
+              businessId: biz.id,
+              name: biz.name,
+              wtuce_status: biz.wtuce_status || undefined,
+              offers: [],
+              dbImage: biz.images?.[0] || undefined,
+              dbGoogleRating: biz.google_rating,
+              dbGoogleReviewCount: biz.google_review_count,
+              dbTripadvisorRating: biz.tripadvisor_rating,
+              dbTripadvisorReviewCount: biz.tripadvisor_review_count,
+              serpPrice: null,
+              reserveNowUrl: biz.reserve_now_url,
+              manualPriceRange: biz.manual_price_range,
+              isCurrentHotel: false,
+              gamme: gammeInfo ? { name_fr: (gammeInfo as any).name_fr, color_hex: (gammeInfo as any).color_hex, text_color_hex: (gammeInfo as any).text_color_hex } : null,
+              dealDescription: null,
+              dbBusiness: biz,
+            } satisfies FallbackHotel);
+          }
+
+          altHotels.sort((a, b) => {
+            const aV = a.wtuce_status === "verified" ? 1 : 0;
+            const bV = b.wtuce_status === "verified" ? 1 : 0;
+            if (aV !== bV) return bV - aV;
+            return (b.dbBusiness?.computed_rating || 0) - (a.dbBusiness?.computed_rating || 0);
+          });
+        }
+
         openFallback({
-          hotels: [], city: cityName, checkIn, checkOut, adults, source: "serpapi",
+          hotels: altHotels, city: cityName, checkIn, checkOut, adults, source: "serpapi",
           gammes: gammes.map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })),
         });
       }
