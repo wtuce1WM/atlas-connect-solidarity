@@ -186,16 +186,12 @@ export function useHotelAvailability({
         return (b.dbBusiness?.computed_rating || 0) - (a.dbBusiness?.computed_rating || 0);
       });
 
-      if (hotels.length > 0) {
-        openFallback({
-          hotels, city: cityName, checkIn, checkOut, adults, source: "serpapi",
-          gammes: gammes.map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })),
-        });
-      } else {
-        // Aucune intersection SerpAPI : proposer quand même les alternatives de la ville
-        hideCards();
-        const altBizIds = [...new Set(allMappings.map((m: any) => m.business_id).filter(Boolean))].filter((id) => id !== businessId);
-        let altHotels: FallbackHotel[] = [];
+      // Alternatives : autres hôtels/riads mappés de la ville, même sans intersection SerpAPI
+      const alreadyIds = new Set(hotels.map((h) => h.businessId));
+      const needAlternatives = hotels.filter((h) => !h.isCurrentHotel).length === 0;
+      if (needAlternatives) {
+        const altBizIds = [...new Set(allMappings.map((m: any) => m.business_id).filter(Boolean))]
+          .filter((id) => id !== businessId && !alreadyIds.has(id));
         if (altBizIds.length > 0) {
           const { data: altData } = await supabase
             .from("businesses")
@@ -204,9 +200,10 @@ export function useHotelAvailability({
             .eq("is_active", true)
             .eq("main_category", "Hôtellerie");
 
+          const alts: FallbackHotel[] = [];
           for (const biz of (altData || [])) {
             const gammeInfo = biz.gamme_id ? gammeMap.get(biz.gamme_id) || null : null;
-            altHotels.push({
+            alts.push({
               hotelId: biz.id,
               businessId: biz.id,
               name: biz.name,
@@ -226,20 +223,22 @@ export function useHotelAvailability({
               dbBusiness: biz,
             } satisfies FallbackHotel);
           }
-
-          altHotels.sort((a, b) => {
+          alts.sort((a, b) => {
             const aV = a.wtuce_status === "verified" ? 1 : 0;
             const bV = b.wtuce_status === "verified" ? 1 : 0;
             if (aV !== bV) return bV - aV;
             return (b.dbBusiness?.computed_rating || 0) - (a.dbBusiness?.computed_rating || 0);
           });
+          hotels.push(...alts);
         }
-
-        openFallback({
-          hotels: altHotels, city: cityName, checkIn, checkOut, adults, source: "serpapi",
-          gammes: gammes.map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })),
-        });
       }
+
+      if (hotels.length === 0) hideCards();
+
+      openFallback({
+        hotels, city: cityName, checkIn, checkOut, adults, source: "serpapi",
+        gammes: gammes.map((g: any) => ({ id: g.id, name_fr: g.name_fr, color_hex: g.color_hex, text_color_hex: g.text_color_hex, sort_order: g.sort_order })),
+      });
     } catch (err: any) {
       console.error("Hotel availability error:", err);
       const { toast } = await import("sonner");
