@@ -3224,7 +3224,7 @@ const BookOnlineSlidePanelInner = ({
                         el.scrollLeft += ev.deltaY;
                       }, { passive: false });
                     };
-                    const badgeClass = "shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors whitespace-nowrap";
+                    const badgeClass = "shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/20 hover:bg-white/40 text-white backdrop-blur-md border border-white/15 transition-colors whitespace-nowrap";
                     const waHref = business?.whatsapp
                       ? whatsappUrl(business.whatsapp, language === "en" ? `Hello ${business?.name || ""}, I found you on One World Morocco.` : language === "ar" ? `مرحبا ${business?.name || ""}` : `Bonjour ${business?.name || ""}, je vous ai trouvé sur One World Morocco.`)
                       : null;
