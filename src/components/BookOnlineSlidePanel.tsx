@@ -2576,8 +2576,118 @@ const BookOnlineSlidePanelInner = ({
                       </div>
                     </div>
                   )}
+                  {/* Cartes Image popup + Offres — sous le badge avis client */}
+                  {!descOverlayContent && (() => {
+                    const popupUrl = (business as any)?.popup_image_url as string | undefined;
+                    const slides: { kind: "popup" | "promo"; promo?: any }[] = [
+                      ...(popupUrl ? [{ kind: "popup" as const }] : []),
+                      ...businessPromotions.map((p: any) => ({ kind: "promo" as const, promo: p })),
+                    ];
+                    if (slides.length === 0) return null;
+                    const total = slides.length;
+                    const safe = Math.min(descPromoSlide, total - 1);
+                    const slide = slides[safe];
+                    const isPopup = slide.kind === "popup";
+                    const promo = slide.promo;
+                    const bg = isPopup ? popupUrl : (images[0] || popupUrl);
+                    const hasMeta = !!(popupMeta.title || popupMeta.description);
+                    const hasMessage = !!promo?.promotion_message && promo.promotion_message.replace(/<[^>]*>/g, "").trim() !== "";
+                    const promoAmount = promo ? (() => {
+                      if (promo.promotion_type === "percentage" && promo.promotion_value != null) return `-${promo.promotion_value}%`;
+                      if (promo.promotion_type === "fixed" && promo.promotion_value != null) return `-${promo.promotion_value} ${promo.promotion_currency || "MAD"}`;
+                      if (promo.savings_amount != null) return `-${promo.savings_amount} ${promo.promotion_currency || "MAD"}`;
+                      return null;
+                    })() : null;
+                    return (
+                      <div className="mb-6 flex items-center justify-center gap-2">
+                        {total > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => setDescPromoSlide((s) => (s - 1 + total) % total)}
+                            className="shrink-0 h-11 w-9 rounded-l-md bg-black/60 hover:bg-black/80 text-white flex items-center justify-center border border-r-0 border-white/10 backdrop-blur-sm active:scale-95 transition-all"
+                            aria-label="Précédent"
+                          >
+                            <ChevronLeft className="h-5 w-5 stroke-[2.5]" />
+                          </button>
+                        )}
+                        <div
+                          key={`desc-promo-${safe}`}
+                          className="relative w-full max-w-md rounded-2xl overflow-hidden shadow-2xl flex flex-col bg-cover bg-no-repeat bg-center h-auto btn-flash-auto animate-scale-in"
+                          style={{ backgroundImage: bg ? `url(${bg})` : undefined, backgroundColor: bg ? undefined : "#1a1a1a" }}
+                        >
+                          {(!isPopup || hasMeta) && <div className="absolute inset-0 bg-black/55 pointer-events-none" />}
+                          {isPopup ? (
+                            hasMeta ? (
+                              <div className="relative pt-6 px-6 pb-8 text-white">
+                                {popupMeta.title && (
+                                  <h3 className="text-2xl md:text-3xl font-extrabold leading-tight mb-3" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                                    {popupMeta.title}
+                                  </h3>
+                                )}
+                                {popupMeta.description && (
+                                  <p className="text-base leading-relaxed text-white/95 font-medium whitespace-pre-line">
+                                    {popupMeta.description}
+                                  </p>
+                                )}
+                              </div>
+                            ) : (
+                              <img src={popupUrl} alt={business?.name || ""} className="relative w-full h-auto" loading="lazy" />
+                            )
+                          ) : (
+                            <div className={`relative ${promoAmount ? "pt-20" : "pt-6"} px-6 pb-8 text-white flex flex-col ${!hasMessage ? "justify-center" : ""}`}>
+                              {promoAmount && (
+                                <div
+                                  className="absolute top-3 left-6 flex items-center gap-2 z-10 text-white bg-black/65 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 shadow-xl min-w-max"
+                                  style={{ fontFamily: "'Montserrat', sans-serif" }}
+                                >
+                                  <span className="text-white font-black text-[11px] tracking-widest uppercase leading-none whitespace-nowrap">{language === "en" ? "save" : language === "ar" ? "وفّر" : "économisez"}</span>
+                                  <span className="text-[#D4AF37] font-black text-xl leading-none whitespace-nowrap">{promoAmount}</span>
+                                </div>
+                              )}
+                              <h3
+                                className={`text-2xl md:text-3xl font-extrabold ${!hasMessage ? "text-center leading-[1.6]" : "leading-tight mb-3"}`}
+                                style={{ fontFamily: "'Montserrat', sans-serif" }}
+                              >
+                                {promo.title}
+                              </h3>
+                              {hasMessage && (
+                                <div
+                                  className="prose prose-invert prose-base max-w-none text-base leading-relaxed text-white font-medium prose-headings:text-white prose-headings:font-bold prose-strong:text-white prose-a:text-[#C04F17] prose-a:underline [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_li::marker]:!text-white [&_img]:rounded-md [&_img]:max-w-full [&_p]:!text-white [&_span]:!text-white [&_strong]:!text-white [&_a]:!text-[#C04F17]"
+                                  dangerouslySetInnerHTML={{ __html: promo.promotion_message }}
+                                />
+                              )}
+                            </div>
+                          )}
+                          {total > 1 && (
+                            <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-10">
+                              {Array.from({ length: total }).map((_, i) => (
+                                <button
+                                  key={i}
+                                  type="button"
+                                  aria-label={`Slide ${i + 1}`}
+                                  onClick={() => setDescPromoSlide(i)}
+                                  className={`h-1.5 rounded-full transition-all ${i === safe ? "w-5 bg-white" : "w-1.5 bg-white/50"}`}
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        {total > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => setDescPromoSlide((s) => (s + 1) % total)}
+                            className="shrink-0 h-11 w-9 rounded-r-md bg-black/60 hover:bg-black/80 text-white flex items-center justify-center border border-l-0 border-white/10 backdrop-blur-sm active:scale-95 transition-all"
+                            aria-label="Suivant"
+                          >
+                            <ChevronRight className="h-5 w-5 stroke-[2.5]" />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })()}
                   {/* Widgets Disponibilité / Horaires — sous le badge de note */}
                   {renderInlineDescWidgets("desc-widgets-top")}
+
                   {(() => {
                     const rawHtml = descOverlayContent ? descOverlayContent.html : woDescription;
                     if (!rawHtml) return null;
