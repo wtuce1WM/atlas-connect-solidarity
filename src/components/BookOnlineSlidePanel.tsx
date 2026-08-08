@@ -1501,7 +1501,7 @@ const BookOnlineSlidePanelInner = ({
       <div key={keyPrefix} className="mb-6 flex flex-col gap-6">
         {bookingIntentWidgets.map((w) => (
           <div key={`${keyPrefix}-${w.id}`} className="w-full">
-            <h2 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">{w.label}</h2>
+            <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">{w.label}</h2>
             <div className="w-full rounded-xl overflow-hidden bg-white/95 border border-white/10 p-2">
               <WidgetCodeEmbed code={w.code} className="w-full" />
             </div>
@@ -2860,7 +2860,7 @@ const BookOnlineSlidePanelInner = ({
                   {/* Widget Assistant IA du Master — sous les blocs highlights */}
                   {!descOverlayContent && business?.slug && (
                     <div className="mt-8 pt-6 border-t border-white/10">
-                      <h2 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">
+                      <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">
                         {language === "en" ? "AI Assistant" : language === "ar" ? "المساعد الذكي" : "Assistant IA"}
                       </h2>
                       <div className="w-full mx-auto max-w-[820px] rounded-xl overflow-hidden bg-black/30 border border-white/10">
@@ -3013,7 +3013,7 @@ const BookOnlineSlidePanelInner = ({
                             usedWidgets.add(w.id);
                             return (
                               <div key={`w-${w.id}`} className="w-full">
-                                <h2 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">{c.label}</h2>
+                                <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">{c.label}</h2>
                                 <div className="w-full rounded-xl overflow-hidden bg-white/95 border border-white/10 p-2">
                                   <WidgetCodeEmbed code={w.code} className="w-full" />
                                 </div>
@@ -3023,7 +3023,7 @@ const BookOnlineSlidePanelInner = ({
                           if (w) return null; // widget déjà affiché pour une autre intention identique
                           return (
                             <div key={c.url} className="w-full">
-                              <h2 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">{c.label}</h2>
+                              <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">{c.label}</h2>
                               <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
                                 <iframe
                                   src={c.url}
@@ -3126,7 +3126,7 @@ const BookOnlineSlidePanelInner = ({
                         {flipbooks.map((d: any) => (
                           <div key={d.url} className="w-full">
                             {d.name && (
-                              <h2 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">{d.name}</h2>
+                              <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">{d.name}</h2>
                             )}
                             <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
                               <iframe
