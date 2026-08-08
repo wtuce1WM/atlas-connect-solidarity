@@ -1785,9 +1785,13 @@ export default function StudioVideo() {
       const job = (data as any)?.job as Job;
       if (job) {
         setCurrentJobId(job.id);
+        // Affichage immédiat du bandeau « Vidéo en cours de génération » sans
+        // attendre l'événement realtime (qui peut arriver tard ou être perdu).
+        setJobs((prev) => [job, ...prev.filter((j) => j.id !== job.id)].slice(0, 20));
         setRefineFrom(null);
         toast.success("Scénario généré. Rendu en attente du worker.");
       }
+
     } catch (e: any) {
       toast.error(await edgeErrorMessage(e, "Erreur lors de la génération."));
     } finally {
