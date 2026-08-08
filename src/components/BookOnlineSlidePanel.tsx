@@ -3246,6 +3246,11 @@ const BookOnlineSlidePanelInner = ({
                   })()}
 
 
+                  {/* Chaîne YouTube (Shorts prioritaires) — au-dessus des widgets Horaires/Disponibilité */}
+                  {!descOverlayContent && business?.id && (
+                    <InlineYouTubeSection businessId={business.id} language={language} />
+                  )}
+
                   {/* Widgets Disponibilité / Horaires — avant les badges */}
                   {renderInlineDescWidgets("desc-widgets-bottom")}
 
