@@ -1480,15 +1480,18 @@ const BookOnlineSlidePanelInner = ({
 
   // Un champ url 1 à 5 avec un CTA de réservation (Réservez, Réserver une chambre/table, Réserver en ligne…)
   // signifie que l'établissement gère déjà sa réservation : on n'affiche pas notre widget de disponibilité.
+  // Exception : si le lien est marqué comme « externe » (force_external), on conserve notre widget car
+  // l'établissement redirige simplement vers un tiers sans embarquer son propre système de réservation.
   const hasOwnBookingCtaUrl = useMemo(() => {
-    const pairs: Array<[any, any]> = [
-      [business?.reserve_now_cta, (business as any)?.reserve_now_url],
-      [business?.online_shop_cta, (business as any)?.online_shop_url],
-      [(business as any)?.url_4_cta, (business as any)?.url_4],
-      [(business as any)?.url_5_cta, (business as any)?.url_5],
+    const pairs: Array<[any, any, any]> = [
+      [business?.reserve_now_cta, (business as any)?.reserve_now_url, (business as any)?.reserve_now_force_external],
+      [business?.online_shop_cta, (business as any)?.online_shop_url, (business as any)?.online_shop_force_external],
+      [(business as any)?.url_4_cta, (business as any)?.url_4, (business as any)?.url_4_force_external],
+      [(business as any)?.url_5_cta, (business as any)?.url_5, (business as any)?.url_5_force_external],
     ];
-    return pairs.some(([label, url]) => !!url && isBookingIntentLabel(label));
+    return pairs.some(([label, url, forceExternal]) => !!url && !forceExternal && isBookingIntentLabel(label));
   }, [business]);
+
 
 
   const renderIntentWidgets = (keyPrefix: string) => {
