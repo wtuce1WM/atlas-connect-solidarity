@@ -97,8 +97,66 @@ const FitColumn: React.FC<{
     </div>
   );
 
-
 };
+
+/**
+ * Colonne à défilement vertical (cartes texte pleine largeur) : le contenu
+ * garde sa taille réelle et remonte lentement quand il dépasse la zone
+ * disponible. Vitesse bornée pour rester lisible (≈ 34→90 px/s).
+ */
+const ScrollColumn: React.FC<{
+  children: React.ReactNode;
+  durationFrames: number;
+  /** frames de pause avant le départ du défilement */
+  holdIn?: number;
+  /** frames de pause conservées en fin de plan */
+  holdOut?: number;
+}> = ({ children, durationFrames, holdIn = 24, holdOut = 20 }) => {
+  const frame = useCurrentFrame();
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [box, setBox] = React.useState<{ avail: number; content: number } | null>(null);
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    const parent = el?.parentElement;
+    if (!el || !parent) return;
+    const avail = parent.clientHeight;
+    const content = el.scrollHeight;
+    if (!avail || !content) return;
+    setBox((prev) => (prev && prev.avail === avail && prev.content === content ? prev : { avail, content }));
+  }, [children]);
+
+  const overflow = box ? Math.max(0, box.content - box.avail) : 0;
+  const window = Math.max(1, durationFrames - holdIn - holdOut);
+  // vitesse cible ~52 px/s, bornée pour ne jamais être ni figée ni illisible
+  const needed = overflow > 0 ? Math.min(window, Math.max(30, (overflow / 52) * 30)) : 0;
+  const travel = overflow > 0
+    ? interpolate(frame, [holdIn, holdIn + needed], [0, -overflow], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+        easing: Easing.inOut(Easing.ease),
+      })
+    : 0;
+
+  return (
+    <div style={{ width: "100%", height: box ? box.avail : "100%", overflow: "hidden", display: "flex", alignItems: overflow > 0 ? "flex-start" : "center" }}>
+      <div
+        ref={ref}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          width: "100%",
+          transform: `translateY(${travel}px)`,
+          willChange: "transform",
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+};
+
+
 
 
 // ===== Transitions entre les plans =====
