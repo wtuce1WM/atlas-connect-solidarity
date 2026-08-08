@@ -2870,10 +2870,16 @@ const BookOnlineSlidePanelInner = ({
                     );
                   })()}
 
-                  {/* Vidéos — grille 3x3 desktop / 2x2 mobile (même rendu que l'overlay Vidéos) */}
-                  {!descOverlayContent && nonExternalVideoDocs.length > 0 && (() => {
+                  {/* Vidéos — grille 3x3 desktop / 2x2 mobile (propriétaires + YouTube/externes) */}
+                  {!descOverlayContent && (nonExternalVideoDocs.length + externalVideoDocs.length) > 0 && (() => {
                     const urlOrder = new Map(allVideoUrls.map((u, i) => [u, i]));
-                    const sorted = [...nonExternalVideoDocs].sort(
+                    const seen = new Set<string>();
+                    const combined = [...nonExternalVideoDocs, ...externalVideoDocs].filter((d: any) => {
+                      if (!d?.url || seen.has(d.url)) return false;
+                      seen.add(d.url);
+                      return true;
+                    });
+                    const sorted = combined.sort(
                       (a, b) => (urlOrder.get(a.url) ?? 999) - (urlOrder.get(b.url) ?? 999)
                     );
                     const isMobileGrid = typeof window !== "undefined" && window.innerWidth < 768;
