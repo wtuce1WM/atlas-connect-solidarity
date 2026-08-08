@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, Users, Search, ArrowLeft, BarChart3, FlaskConical, BookOpen, Egg, Sparkles, Brain, LayoutDashboard, Monitor, ChevronRight, ShieldAlert, Hotel, DollarSign, FileText, Link as LinkIcon, MessageSquare } from "lucide-react";
+import { LogOut, Users, Search, ArrowLeft, BarChart3, FlaskConical, BookOpen, Egg, Sparkles, Brain, LayoutDashboard, Monitor, ChevronRight, ShieldAlert, Hotel, DollarSign, FileText, Link as LinkIcon, MessageSquare, Database } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import SearchConfigManagement from "@/components/staff/SearchConfigManagement";
 import UserManagement from "@/components/staff/UserManagement";
