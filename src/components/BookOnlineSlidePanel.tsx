@@ -2868,6 +2868,60 @@ const BookOnlineSlidePanelInner = ({
                     );
                   })()}
 
+                  {/* Vidéos — grille 3x3 desktop / 2x2 mobile (même rendu que l'overlay Vidéos) */}
+                  {!descOverlayContent && nonExternalVideoDocs.length > 0 && (() => {
+                    const urlOrder = new Map(allVideoUrls.map((u, i) => [u, i]));
+                    const sorted = [...nonExternalVideoDocs].sort(
+                      (a, b) => (urlOrder.get(a.url) ?? 999) - (urlOrder.get(b.url) ?? 999)
+                    );
+                    const isMobileGrid = typeof window !== "undefined" && window.innerWidth < 768;
+                    const items = sorted.slice(0, isMobileGrid ? 4 : 9);
+                    return (
+                      <div className="mt-8 pt-6 border-t border-white/10">
+                        <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">
+                          {language === "en" ? "Videos" : language === "ar" ? "فيديوهات" : "Vidéos"}
+                        </h2>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
+                          {items.map((vid, i) => {
+                            const ytMatch = vid.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
+                            const vimeoMatch = vid.url.match(/vimeo\.com\/(\d+)/);
+                            const thumb = vid.thumbnail_url
+                              || (ytMatch ? `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg` : null)
+                              || (vimeoMatch ? `https://vumbnail.com/${vimeoMatch[1]}.jpg` : null);
+                            const isHostedFile = !thumb && !ytMatch && !vimeoMatch;
+                            return (
+                              <div
+                                key={`desc-vid-${i}`}
+                                className="relative aspect-square rounded-lg overflow-hidden cursor-pointer"
+                                onClick={() => setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description })}
+                              >
+                                {thumb ? (
+                                  <img src={thumb} alt={vid.name || `${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+                                ) : isHostedFile ? (
+                                  <VideoThumbnail src={vid.url} alt={vid.name || undefined} className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className="w-full h-full bg-white/10 flex items-center justify-center">
+                                    <Play className="h-8 w-8 text-white/40" />
+                                  </div>
+                                )}
+                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                  <div className="h-10 w-10 rounded-full bg-black/50 flex items-center justify-center backdrop-blur-sm">
+                                    <Play className="h-5 w-5 text-white fill-white" />
+                                  </div>
+                                </div>
+                                {vid.name && (
+                                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent px-2 py-1">
+                                    <p className="text-[10px] text-white font-medium truncate font-['Montserrat',sans-serif]">{vid.name}</p>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   {/* Widget Assistant IA du Master — sous les blocs highlights */}
                   {!descOverlayContent && business?.slug && (
                     <div className="mt-8 pt-6 border-t border-white/10">
