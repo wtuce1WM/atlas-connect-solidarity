@@ -3365,7 +3365,8 @@ const BookOnlineSlidePanelInner = ({
                 </div>
 
 
-              </div>
+              </RevealScrollArea>
+
             )}
           </div>
           {/* Right sticky sidebar */}
