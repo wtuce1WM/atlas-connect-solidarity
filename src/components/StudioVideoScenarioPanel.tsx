@@ -805,6 +805,8 @@ export function StudioVideoScenarioPanel({
     onChangeScenarioEdits({
       order: orderTokens,
       durations,
+      manualOrder: hasOrder,
+      manualDurations: hasDurations,
       customScenes: hasCustom ? customScenes : undefined,
       textSplits: Object.keys(textSplits).length ? textSplits : undefined,
       textSegments: Object.keys(textSegments).length ? textSegments : undefined,
