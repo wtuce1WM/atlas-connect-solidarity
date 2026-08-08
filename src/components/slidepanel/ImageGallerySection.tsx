@@ -55,7 +55,7 @@ export default function ImageGallerySection({ images, language, onOpenImage }: I
     className: string;
   }) => (
     <div
-      className={`relative overflow-hidden cursor-zoom-in group ${className}`}
+      className={`relative overflow-hidden cursor-zoom-in rounded-lg group ${className}`}
       onClick={() => onOpenImage(url)}
     >
       <img
@@ -64,7 +64,7 @@ export default function ImageGallerySection({ images, language, onOpenImage }: I
         className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
         loading="lazy"
       />
-      <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-lg" />
     </div>
   );
 
