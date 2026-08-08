@@ -547,6 +547,10 @@ export type ScenarioEdits = {
    */
   useAssociatedMedia?: Record<string, boolean>;
   totalDuration?: number;
+  /** L'utilisateur a réellement réordonné les étapes dans l'aperçu. */
+  manualOrder?: boolean;
+  /** L'utilisateur a réellement modifié au moins une durée dans l'aperçu. */
+  manualDurations?: boolean;
 };
 
 export function StudioVideoScenarioPanel({
