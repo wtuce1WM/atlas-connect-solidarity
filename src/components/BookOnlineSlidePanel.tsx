@@ -3106,6 +3106,10 @@ const BookOnlineSlidePanelInner = ({
                       <div className="mt-8 flex flex-col gap-6">
                         {unique.map((c) => {
                           const w = findWidget(c.label);
+                          // Le widget par intention est déjà affiché en haut de l'overlay quand
+                          // aucun contenu de description ne le remplace : ne pas le dupliquer ici
+                          // (les codes tiers ciblent un id DOM unique → le 2e reste "Chargement en cours...").
+                          if (w && !descOverlayContent) return null;
                           if (w && !usedWidgets.has(w.id)) {
                             usedWidgets.add(w.id);
                             return (
@@ -3118,6 +3122,7 @@ const BookOnlineSlidePanelInner = ({
                             );
                           }
                           if (w) return null; // widget déjà affiché pour une autre intention identique
+
                           return (
                             <div key={c.url} className="w-full">
                               <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">{c.label}</h2>

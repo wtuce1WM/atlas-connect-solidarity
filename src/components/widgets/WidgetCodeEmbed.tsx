@@ -21,9 +21,17 @@ const WidgetCodeEmbed = ({ code, className }: Props) => {
     host.innerHTML = "";
     const template = document.createElement("template");
     template.innerHTML = code;
+
+    // Les codes tiers (Elloha, etc.) ciblent un id DOM unique : si ce conteneur existe
+    // déjà ailleurs dans la page, on n'injecte pas une 2e instance (elle resterait
+    // bloquée sur "Chargement en cours...").
+    const ids = Array.from(template.content.querySelectorAll("[id]")).map((el) => el.id).filter(Boolean);
+    if (ids.some((id) => !!document.getElementById(id))) return;
+
     const scripts: HTMLScriptElement[] = Array.from(template.content.querySelectorAll("script"));
     scripts.forEach((s) => s.remove());
     host.appendChild(template.content.cloneNode(true));
+
 
     const run = async () => {
       for (const original of scripts) {
