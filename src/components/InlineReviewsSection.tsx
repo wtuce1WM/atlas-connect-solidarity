@@ -38,10 +38,19 @@ interface Props {
   language: string;
 }
 
+function resolveLeaveReviewUrl(p: InlineReviewPlatform): string | null {
+  if (p.leaveReviewUrl) return p.leaveReviewUrl;
+  if (p.name === "TripAdvisor") {
+    return tripadvisorReviewUrl(p.listingUrl || p.url);
+  }
+  // Fallback: utiliser l'URL de la plateforme directement (ex. GetYourGuide, Viator, etc.)
+  return p.url || null;
+}
+
 /**
  * Section « Avis clients » affichée en ligne dans l'overlay Full Description.
- * - Widgets « Laisser un avis » uniquement pour les plateformes réellement
- *   renseignées (URL présente) : pas de TripAdvisor sans URL TripAdvisor.
+ * - Widgets « Laisser un avis » dynamiques par entreprise : une plateforme
+ *   n'apparaît que si une URL/listing est renseigné(e) pour cet établissement.
  * - Un seul avis visible par défaut (celui marqué par défaut, sinon le n°1),
  *   avec une incitation à déplier pour lire tous les avis.
  */
@@ -51,6 +60,14 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
 
   const activePlatforms = useMemo(
     () => platforms.filter((p) => !!p.rating && !!p.count && !!p.url),
+    [platforms]
+  );
+
+  const leaveReviewPlatforms = useMemo(
+    () => platforms.filter((p) => {
+      const hasUrl = !!p.listingUrl || !!p.url;
+      return hasUrl || !!p.leaveReviewUrl;
+    }),
     [platforms]
   );
 
@@ -72,19 +89,16 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
         ? r.text_en || r.text_fr || r.text || ""
         : r.text_fr || r.text || "";
 
-  if (!avgOn20 && activePlatforms.length === 0 && ordered.length === 0) return null;
+  if (!avgOn20 && activePlatforms.length === 0 && ordered.length === 0 && leaveReviewPlatforms.length === 0) return null;
 
   const visible = expanded ? ordered.slice(0, 10) : ordered.slice(0, 1);
   const hiddenCount = Math.max(0, Math.min(ordered.length, 10) - 1);
 
   const LeaveReviewWidgets = () => (
     <div className="flex flex-wrap gap-2 justify-center">
-      {activePlatforms.map((p) => {
+      {leaveReviewPlatforms.map((p) => {
         const logo = LOGO_MAP[p.name];
-        let leaveHref: string | null = p.leaveReviewUrl || null;
-        if (!leaveHref && p.name === "TripAdvisor") {
-          leaveHref = tripadvisorReviewUrl(p.listingUrl || p.url);
-        }
+        const leaveHref = resolveLeaveReviewUrl(p);
         if (!leaveHref) return null;
         return (
           <a
@@ -130,7 +144,7 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
         </div>
       )}
 
-      {activePlatforms.length > 0 && <LeaveReviewWidgets />}
+      {leaveReviewPlatforms.length > 0 && <LeaveReviewWidgets />}
 
       {ordered.length > 0 && (
         <div className="mt-5">
@@ -149,7 +163,7 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
                 </footer>
               </blockquote>
             ))}
-            {expanded && activePlatforms.length > 0 && (
+            {expanded && leaveReviewPlatforms.length > 0 && (
               <div className="pt-2">
                 <LeaveReviewWidgets />
               </div>
