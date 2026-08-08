@@ -29,6 +29,7 @@ const CityMap = lazy(() => import("./pages/CityMap"));
 const CategoryPage = lazy(() => import("./pages/CategoryPage"));
 const ServicePage = lazy(() => import("./pages/ServicePage"));
 const SearchPage = lazy(() => import("./pages/SearchPage"));
+const HashtagResolver = lazy(() => import("./pages/HashtagResolver"));
 const StaffLogin = lazy(() => import("./pages/StaffLogin"));
 const StaffBackoffice = lazy(() => import("./pages/StaffBackoffice"));
 const StaffHub = lazy(() => import("./pages/StaffHub"));
@@ -177,6 +178,8 @@ const LocalizedRoutes = () => {
               <Route path="/category/:categoryName" element={renderLazyRoute(<CategoryPage />)} />
               <Route path="/service/*" element={renderLazyRoute(<ServicePage />)} />
               <Route path="/search" element={renderLazyRoute(<SearchPage />)} />
+              <Route path="/hashtag/:label" element={renderLazyRoute(<HashtagResolver />)} />
+
               <Route path="/staff/login" element={renderLazyRoute(<StaffLogin />)} />
               <Route path="/staff/backoffice" element={renderLazyRoute(<StaffHub />)} />
               <Route path="/staff/catalogue" element={renderLazyRoute(<StaffBackoffice />)} />
