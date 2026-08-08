@@ -91,6 +91,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { buildReviewHtml } from "@/lib/reviewHtmlBuilder";
 
 import VideoThumbnail from "@/components/VideoThumbnail";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 
 const spotifyEmbedUrl = (raw: string): string | null => {
   const match = raw.match(/open\.spotify\.com\/(?:embed\/)?(playlist|album|track|episode|show|artist)\/([a-zA-Z0-9]+)/);
