@@ -1,0 +1,1 @@
+DELETE FROM public.video_scenario_steps WHERE scene_key = 'menu_doc';
