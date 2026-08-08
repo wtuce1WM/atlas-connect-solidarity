@@ -1462,7 +1462,7 @@ const BookOnlineSlidePanelInner = ({
     return n === "reservez" || n === "reserver en ligne" || n === "day pass"
       || n === "reserver une table" || n === "reserver une chambre";
   };
-  const bookingIntentWidgets = React.useMemo(() => {
+  const bookingIntentWidgets = useMemo(() => {
     const labels = [
       business?.reserve_now_cta,
       business?.online_shop_cta,
