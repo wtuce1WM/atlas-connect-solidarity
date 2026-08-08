@@ -2930,21 +2930,9 @@ const BookOnlineSlidePanelInner = ({
                     );
                   })()}
 
-                  {/* WhatsApp + widgets Réseaux & flux (Spotify / SoundCloud / Substack) */}
-                  {!descOverlayContent && (business?.whatsapp || business?.spotify_url || business?.soundcloud_url || (business as any)?.substack_url) && (
+                  {/* Widgets Réseaux & flux (Spotify / SoundCloud / Substack) — CTA WhatsApp uniquement dans la barre fixe du bas */}
+                  {!descOverlayContent && (business?.spotify_url || business?.soundcloud_url || (business as any)?.substack_url) && (
                     <div className="mt-8 pt-6 border-t border-white/10 space-y-6 text-center">
-                      {business?.whatsapp && (
-                        <a
-                          href={whatsappUrl(business.whatsapp, language === "en" ? `Hello ${business?.name || ""}, I found you on One World Morocco.` : language === "ar" ? `مرحبا ${business?.name || ""}` : `Bonjour ${business?.name || ""}, je vous ai trouvé sur One World Morocco.`)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mx-auto inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-black hover:brightness-110 transition"
-                          style={{ fontFamily: "'Montserrat', sans-serif" }}
-                        >
-                          <MessageCircle className="h-4 w-4" />
-                          {language === "en" ? "WhatsApp message" : language === "ar" ? "رسالة واتساب" : "Message WhatsApp"}
-                        </a>
-                      )}
                       {business?.slug && (business?.spotify_url || business?.soundcloud_url || (business as any)?.substack_url) && (
                         <div className="mx-auto w-full max-w-[720px] flex flex-col items-center gap-6">
                           {business?.spotify_url && (
