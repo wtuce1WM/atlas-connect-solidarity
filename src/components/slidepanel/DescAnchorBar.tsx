@@ -77,7 +77,6 @@ const DescAnchorBar = ({ containerId, deps }: DescAnchorBarProps) => {
     <div
       dir="ltr"
       ref={(el) => {
-        stripRef.current = el;
         if (!el) return;
         if ((el as any).__owmWheelSet) return;
         (el as any).__owmWheelSet = true;
