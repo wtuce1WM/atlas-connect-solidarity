@@ -92,6 +92,7 @@ import ImageGallerySection from "@/components/slidepanel/ImageGallerySection";
 import { useBusinessPromotions } from "@/hooks/useBusinessPromotions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { buildReviewHtml } from "@/lib/reviewHtmlBuilder";
+import InlineReviewsSection from "@/components/InlineReviewsSection";
 
 import VideoThumbnail from "@/components/VideoThumbnail";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
@@ -2870,6 +2871,17 @@ const BookOnlineSlidePanelInner = ({
                       </div>
                     );
                   })()}
+
+                  {/* Avis clients — détail texte + widgets « Laisser un avis » (sous les blocs highlights) */}
+                  {!descOverlayContent && (
+                    <InlineReviewsSection
+                      texts={reviewTexts}
+                      platforms={reviewPlatforms as any}
+                      avgOn20={avgOn20}
+                      totalReviewCount={totalReviewCount}
+                      language={language}
+                    />
+                  )}
 
                   {/* Vidéos — grille 3x3 desktop / 2x2 mobile (propriétaires + YouTube/externes) */}
                   {!descOverlayContent && (nonExternalVideoDocs.length + externalVideoDocs.length) > 0 && (() => {
