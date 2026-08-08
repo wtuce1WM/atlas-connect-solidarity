@@ -2549,7 +2549,7 @@ const BookOnlineSlidePanelInner = ({
             <h2 className="text-sm font-bold uppercase font-['Montserrat',sans-serif] truncate text-white flex-1">{business?.name}</h2>
           </div>
           )}
-          <div className="relative z-10 flex-1 min-h-0 order-[-1]" style={{ perspective: "1200px" }}>
+          <div className="relative z-[50] flex-1 min-h-0 order-[-1]" style={{ perspective: "1200px" }}>
             {descGridSection ? (() => {
               const isMobileGrid = typeof window !== "undefined" && window.innerWidth < 768;
               const GRID_PAGE_SIZE = isMobileGrid ? 8 : 9;
@@ -3386,6 +3386,7 @@ const BookOnlineSlidePanelInner = ({
 
             )}
           </div>
+          {!descGridSection && bottomBarEl}
           {/* Right sticky sidebar */}
           {!descGridSection && !descOverlayContent && (menuDocs.length > 0 || menuSummaries.length > 0 || externalLinks.length > 0 || hasReviewsCard) && (() => {
             const groups: { key: string; icon: React.ReactNode; directClick?: () => void; items: { label: string; logo?: string | null; onClick: () => void }[]; tooltip?: string }[] = [];
