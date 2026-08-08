@@ -2643,11 +2643,19 @@ const BookOnlineSlidePanelInner = ({
                   )}
                   {!descOverlayContent && hookText && (
                     <p
-                      className="text-xl md:text-3xl leading-snug tracking-[0.02em] text-white/90 mb-4 text-center"
+                      className="text-xl md:text-3xl leading-snug tracking-[0.02em] text-white/90 mb-2 text-center"
                       style={{ fontFamily: "'Montserrat', sans-serif" }}
                     >
                       {hookText}
                     </p>
+                  )}
+                  {!descOverlayContent && hookText && (business?.city || business?.neighborhood || business?.address) && (
+                    <div className="mb-4 flex items-center justify-center gap-1.5 text-xs md:text-sm text-white/80 text-center">
+                      <MapPin className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">
+                        {[business?.city, business?.neighborhood, business?.address].filter(Boolean).join(" • ")}
+                      </span>
+                    </div>
                   )}
                   {!descOverlayContent && avgOn20 != null && totalReviewCount > 0 && (
                     <div className="mb-5 flex justify-center">
