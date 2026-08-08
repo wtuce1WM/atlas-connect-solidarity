@@ -30,13 +30,14 @@ const H = layout.canvas.story.height;
 // ── Persistent backdrop (zellige + voile) ──────────────────────────────────
 const Backdrop: React.FC = () => (
   <AbsoluteFill style={{ background: layout.surfaces.agentBackdrop }}>
-    <AbsoluteFill style={{ opacity: 0.12 }}>
+    <AbsoluteFill style={{ opacity: 0.28 }}>
       <Img
         src={staticFile("images/koutoubia.webp")}
         style={{ width: "100%", height: "100%", objectFit: "cover", filter: "blur(8px) saturate(0.6)" }}
       />
     </AbsoluteFill>
-    <AbsoluteFill style={{ background: scrim("bottom", 0.55, 0.85) }} />
+    <AbsoluteFill style={{ background: scrim("bottom", 0.25, 0.6) }} />
+
   </AbsoluteFill>
 );
 
