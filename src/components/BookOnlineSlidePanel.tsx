@@ -2672,13 +2672,22 @@ const BookOnlineSlidePanelInner = ({
                       >
                         <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
                         <span aria-hidden="true" className="pointer-events-none absolute top-0 left-2 right-2 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
-                        <div className="flex items-center gap-1.5 md:gap-2.5">
+                        <span aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden rounded-full">
+                          <span
+                            className="absolute block h-full w-1/2 -skew-x-12"
+                            style={{
+                              background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)",
+                              animation: "shimmer 1.2s ease-in-out infinite",
+                            }}
+                          />
+                        </span>
+                        <div className="relative z-10 flex items-center gap-1.5 md:gap-2.5">
                           <Star className="h-5 w-5 md:h-7 md:w-7 text-gold fill-gold" />
                           <span className="text-2xl md:text-4xl font-black text-gold whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                             {avgOn20}<span className="text-sm md:text-xl font-semibold text-white/60">/20</span>
                           </span>
                         </div>
-                        <span className="text-[10px] md:text-sm text-white/60 font-medium whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                        <span className="relative z-10 text-[10px] md:text-sm text-white/60 font-medium whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                           · {totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : language === "ar" ? "آراء" : "avis"}
                         </span>
                       </div>
