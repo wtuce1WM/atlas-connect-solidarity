@@ -77,7 +77,19 @@ const DescAnchorBar = ({ containerId, deps }: DescAnchorBarProps) => {
   return (
     <div
       dir="ltr"
-      className="hidden lg:flex items-center gap-1 min-w-0 max-w-[62%] overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+      ref={(el) => {
+        stripRef.current = el;
+        if (!el) return;
+        if ((el as any).__owmWheelSet) return;
+        (el as any).__owmWheelSet = true;
+        el.addEventListener("wheel", (ev: WheelEvent) => {
+          if (el.scrollWidth <= el.clientWidth) return;
+          if (Math.abs(ev.deltaY) <= Math.abs(ev.deltaX)) return;
+          ev.preventDefault();
+          el.scrollLeft += ev.deltaY;
+        }, { passive: false });
+      }}
+      className="flex items-center gap-1.5 min-w-0 max-w-full overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden touch-pan-x"
     >
       {anchors.map((a) => (
         <button
