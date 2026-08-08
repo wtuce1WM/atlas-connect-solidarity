@@ -2928,6 +2928,120 @@ const RICH_CSS = `
 .rich-video-block ul > li::before { content: "◆ "; color: ${COLORS.gold}; white-space: pre; }
 `;
 
+/**
+ * Traitement typographique UNIQUE des cartes (Label / Titre / Texte).
+ * Toute carte (Offre, Carte manuelle / IA, Texte, Popup, Highlight) passe par
+ * `CardLabel` / `CardTitle` / `CardBody` : une seule autorité de style, pas de
+ * tailles ni d'ombres réinventées scène par scène.
+ */
+const CARD_TEXT = {
+  label: { size: 20, letterSpacing: 6 },
+  title: { size: 54, wideSize: 68, lineHeight: 1.12, marginTop: 14 },
+  body: { size: 26, wideSize: 34, lineHeight: 1.4, maxWidth: 640, marginTop: 20 },
+} as const;
+
+/** Texte brut normalisé (entités décodées, balises retirées, espaces compactés). */
+const plainText = (v?: string | null) =>
+  decodeEntities(String(v ?? "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+
+const hasRichMarkup = (html: string) => /<(b|strong|i|em|u|ul|ol|li|p|br|h1|h2|h3|h4)\b/i.test(html);
+
+const CardLabel: React.FC<{ children?: React.ReactNode; opacity?: number }> = ({ children, opacity = 1 }) => (
+  <div
+    style={{
+      opacity,
+      fontFamily: body,
+      color: COLORS.gold,
+      fontSize: CARD_TEXT.label.size,
+      letterSpacing: CARD_TEXT.label.letterSpacing,
+      textTransform: "uppercase",
+      textAlign: "center",
+      alignSelf: "center",
+    }}
+  >
+    {children}
+  </div>
+);
+
+const CardTitle: React.FC<{
+  children?: React.ReactNode;
+  wide?: boolean;
+  opacity?: number;
+  translateY?: number;
+  marginTop?: number;
+}> = ({ children, wide = false, opacity = 1, translateY = 0, marginTop }) => (
+  <div
+    style={{
+      display: "block",
+      width: "100%",
+      opacity,
+      marginTop: marginTop ?? CARD_TEXT.title.marginTop,
+      transform: translateY ? `translateY(${translateY}px)` : undefined,
+      fontFamily: display,
+      fontWeight: 800,
+      color: COLORS.cream,
+      fontSize: wide ? CARD_TEXT.title.wideSize : CARD_TEXT.title.size,
+      lineHeight: CARD_TEXT.title.lineHeight,
+      textAlign: "center",
+      padding: "0 20px",
+      textShadow: shadowOn(4, 20, "black", 0.7),
+    }}
+  >
+    {children}
+  </div>
+);
+
+/** Corps de carte : rich text prioritaire, puis lignes, puis texte brut. */
+const CardBody: React.FC<{
+  text?: string | null;
+  html?: string | null;
+  lines?: string[];
+  wide?: boolean;
+  opacity?: number;
+  marginTop?: number;
+  /** Apparition en cascade des lignes (facultatif) */
+  frame?: number;
+  lineStart?: number;
+}> = ({ text, html, lines, wide = false, opacity = 1, marginTop, frame, lineStart = 0 }) => {
+  const rich = sanitizeRich(html ?? "");
+  const items = (lines ?? []).filter(Boolean).slice(0, 6);
+  const plain = plainText(text);
+  const base: React.CSSProperties = {
+    marginTop: marginTop ?? CARD_TEXT.body.marginTop,
+    fontFamily: body,
+    color: alpha("white", 0.94),
+    fontSize: wide ? CARD_TEXT.body.wideSize : CARD_TEXT.body.size,
+    lineHeight: CARD_TEXT.body.lineHeight,
+    textShadow: shadowOn(2, 10, "black", 0.6),
+    maxWidth: wide ? undefined : CARD_TEXT.body.maxWidth,
+    opacity,
+  };
+  if (hasRichMarkup(rich)) {
+    return <RichBlock html={rich} style={{ ...base, alignSelf: wide ? "stretch" : "center", margin: wide ? undefined : `${base.marginTop}px auto 0` }} />;
+  }
+  if (items.length > 0) {
+    return (
+      <div style={{ ...base, display: "flex", flexDirection: "column", gap: 10, alignItems: "center", alignSelf: "center" }}>
+        {items.map((line, i) => (
+          <div
+            key={i}
+            style={{
+              opacity: frame != null ? ease(frame, lineStart + i * 8, lineStart + 22 + i * 8) : 1,
+              textAlign: "center",
+            }}
+          >
+            {plainText(line)}
+          </div>
+        ))}
+      </div>
+    );
+  }
+  if (plain) return <div style={{ ...base, textAlign: "center", alignSelf: "center" }}>{plain}</div>;
+  return null;
+};
+
+
+
 
 
 const SceneHighlight: React.FC<{ data: NonNullable<ShowcaseProps["highlights"]>[number]; background?: string | null; backgroundIsVideo?: boolean; durationFrames: number; textPosition?: TextPosition; effect?: TransitionEffect; motion?: MotionEffect | null }> = ({ data, background, backgroundIsVideo, durationFrames, textPosition = "middle", effect = "kenburns", motion = null }) => {
