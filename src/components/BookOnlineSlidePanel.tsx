@@ -4119,7 +4119,7 @@ const BookOnlineSlidePanelInner = ({
 
             <div
               key={`promo-slide-${safeSlide}`}
-              className="relative w-full max-w-md max-h-[90vh] sm:max-h-[80vh] rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-cover bg-no-repeat bg-center sm:aspect-[1333/1737] h-auto btn-flash-auto"
+              className="relative w-full max-w-md max-h-[90vh] sm:max-h-[84vh] rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-cover bg-no-repeat bg-center h-auto btn-flash-auto"
               style={{ backgroundImage: promoBg ? `url(${promoBg})` : undefined, backgroundColor: promoBg ? undefined : '#1a1a1a' }}
             >
               <div className="absolute inset-0 bg-black/55 pointer-events-none" />
