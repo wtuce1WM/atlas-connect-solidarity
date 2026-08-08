@@ -183,6 +183,7 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
       setMenus(map(all.filter((d) => d.type === "menu")));
       setFlipbooks(map(all.filter((d) => d.type === "flipbook")));
       setExternals(map(all.filter((d) => d.type === "external_link")));
+      setWidgets(map(all.filter((d) => d.type === "widget_code")));
       setInitialIds(all.map((d) => d.id));
       setLoading(false);
     };
