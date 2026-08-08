@@ -21,7 +21,6 @@ const MAX_LABEL = 22;
 const DescAnchorBar = ({ containerId, deps }: DescAnchorBarProps) => {
   const [anchors, setAnchors] = useState<Anchor[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const stripRef = useRef<HTMLDivElement | null>(null);
 
   const scan = useCallback(() => {
     const root = document.getElementById(containerId);
