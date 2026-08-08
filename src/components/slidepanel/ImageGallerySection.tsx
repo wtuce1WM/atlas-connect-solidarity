@@ -54,18 +54,18 @@ export default function ImageGallerySection({ images, language, onOpenImage }: I
     url: string;
     className: string;
   }) => (
-    <div
-      className={`relative overflow-hidden cursor-zoom-in group ${className}`}
-      onClick={() => onOpenImage(url)}
-    >
-      <img
-        src={url}
-        alt=""
-        className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-        loading="lazy"
-      />
-      <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-0 transition-opacity duration-500" />
-    </div>
+      <div
+        className={`relative overflow-hidden cursor-zoom-in group ${className}`}
+        onClick={() => onOpenImage(url)}
+      >
+        <img
+          src={url}
+          alt=""
+          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      </div>
   );
 
   // Desktop grid layout for a group of up to 5 images.
