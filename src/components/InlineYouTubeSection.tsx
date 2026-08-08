@@ -218,13 +218,7 @@ const InlineYouTubeSection = ({ businessId, language, className }: Props) => {
 
       {/* Sélecteur */}
       {list.length > 1 && (
-        <div
-          className={
-            tab === "shorts"
-              ? "mt-5 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-              : "mt-5 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-3 md:gap-3 md:overflow-visible md:pb-0"
-          }
-        >
+        <div className="mt-5 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {list.map((v) => {
             const isActive = active?.videoId === v.videoId;
             const dur = fmtDuration(v.durationSeconds);
@@ -233,7 +227,7 @@ const InlineYouTubeSection = ({ businessId, language, className }: Props) => {
                 key={v.videoId}
                 type="button"
                 onClick={() => setActiveId(v.videoId)}
-                className={`group text-left snap-start shrink-0 md:shrink ${tab === "shorts" ? "w-[118px]" : "w-[190px] md:w-full"}`}
+                className={`group text-left snap-start shrink-0 grow-0 basis-auto ${tab === "shorts" ? "w-[118px]" : "w-[190px] md:w-[260px]"}`}
               >
                 <div
                   className={`relative overflow-hidden rounded-lg border-2 transition-colors ${
