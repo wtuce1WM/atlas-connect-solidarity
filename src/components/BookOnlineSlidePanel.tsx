@@ -280,6 +280,38 @@ const BookOnlineSlidePanelInner = ({
     allVideoUrls, categoryIcon, showGoogleMap, kpRelated, kpSubcategoryItems, kpSubcategoryLabel, isKp1Only, liteApiHotelId, serpApiMapping, isHotelWithPrice,
   } = useBookOnlineData(businessId, !!embedMode);
 
+  // Codes de widgets (par intention) — servent de widget de réservation prioritaire
+  // sur l'iframe de l'URL quand le CTA de l'URL correspond à une intention du widget.
+  const [widgetCodes, setWidgetCodes] = useState<{ id: string; code: string; name: string | null; intents: string[] }[]>([]);
+  useEffect(() => {
+    if (!businessId) { setWidgetCodes([]); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("business_documents")
+        .select("id, url, name, description, sort_order")
+        .eq("business_id", businessId)
+        .eq("type", "widget_code")
+        .order("sort_order", { ascending: true });
+      if (cancelled) return;
+      setWidgetCodes(
+        ((data || []) as any[])
+          .filter((d) => typeof d.url === "string" && d.url.trim())
+          // Pas de widget YouTube dans l'overlay
+          .filter((d) => !/youtube\.com|youtu\.be/i.test(d.url))
+          .map((d) => ({
+            id: d.id,
+            code: d.url as string,
+            name: d.name || null,
+            intents: String(d.description || "").split("|").map((s) => s.trim()).filter(Boolean),
+          }))
+      );
+    })();
+    return () => { cancelled = true; };
+  }, [businessId]);
+
+
+
   // --- Extracted hooks ---
   // Fetch YouTube videos for this business to drive background ordering:
   // latest short first, then other YT videos by published_at desc.
