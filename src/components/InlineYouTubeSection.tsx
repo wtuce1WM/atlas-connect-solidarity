@@ -222,7 +222,7 @@ const InlineYouTubeSection = ({ businessId, language, className }: Props) => {
           className={
             tab === "shorts"
               ? "mt-5 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-              : "mt-5 grid grid-cols-2 md:grid-cols-3 gap-3"
+              : "mt-5 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-3 md:gap-3 md:overflow-visible md:pb-0"
           }
         >
           {list.map((v) => {
@@ -233,7 +233,7 @@ const InlineYouTubeSection = ({ businessId, language, className }: Props) => {
                 key={v.videoId}
                 type="button"
                 onClick={() => setActiveId(v.videoId)}
-                className={`group text-left snap-start shrink-0 ${tab === "shorts" ? "w-[118px]" : "w-full"}`}
+                className={`group text-left snap-start shrink-0 md:shrink ${tab === "shorts" ? "w-[118px]" : "w-[190px] md:w-full"}`}
               >
                 <div
                   className={`relative overflow-hidden rounded-lg border-2 transition-colors ${
