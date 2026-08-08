@@ -4004,14 +4004,14 @@ const BookOnlineSlidePanelInner = ({
               className={`relative w-full h-auto rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-cover bg-no-repeat bg-center ${
                 isPopupSlide && !hasMeta 
                   ? "w-[98vw] max-w-[98vw] md:max-w-2xl lg:max-w-4xl xl:max-w-[85vh] aspect-[1333/1737] max-h-[96vh] sm:max-h-[90vh] md:max-h-[88vh]" 
-                  : "max-w-md max-h-[90vh] sm:max-h-[80vh] sm:aspect-[1333/1737]"
+                  : "max-w-md max-h-[90vh] sm:max-h-[84vh]"
               }`}
               style={{ backgroundImage: `url(${isPopupSlide ? (business as any).popup_image_url : promoBg})` }}
             >
               {showOverlay && <div className="absolute inset-0 bg-black/55 pointer-events-none" />}
 
               {isPopupSlide && hasMeta && (
-                <div className="relative pt-12 px-6 pb-6 text-white">
+                <div className="relative pt-12 px-6 pb-6 text-white overflow-y-auto max-h-[calc(90vh-3rem)]">
                   {popupMeta.title && (
                     <h3 className="text-3xl md:text-4xl font-extrabold leading-tight mb-4 pr-12" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                       {popupMeta.title}
@@ -4026,7 +4026,7 @@ const BookOnlineSlidePanelInner = ({
               )}
 
               {!isPopupSlide && currentPromo && (
-                <div className="relative pt-20 px-6 pb-6 text-white flex-1">
+                <div className="relative pt-20 px-6 pb-6 text-white flex-1 overflow-y-auto min-h-0">
                   {promoAmount && (
                     <div
                       className="absolute top-3 left-6 flex items-center gap-2 justify-center z-10 text-white bg-black/65 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 shadow-xl min-w-max"
@@ -4119,7 +4119,7 @@ const BookOnlineSlidePanelInner = ({
 
             <div
               key={`promo-slide-${safeSlide}`}
-              className="relative w-full max-w-md max-h-[90vh] sm:max-h-[80vh] rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-cover bg-no-repeat bg-center sm:aspect-[1333/1737] h-auto btn-flash-auto"
+              className="relative w-full max-w-md max-h-[90vh] sm:max-h-[84vh] rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-cover bg-no-repeat bg-center h-auto btn-flash-auto"
               style={{ backgroundImage: promoBg ? `url(${promoBg})` : undefined, backgroundColor: promoBg ? undefined : '#1a1a1a' }}
             >
               <div className="absolute inset-0 bg-black/55 pointer-events-none" />
@@ -4127,7 +4127,7 @@ const BookOnlineSlidePanelInner = ({
               {(() => {
                 const hasMessage = !!currentPromo.promotion_message && currentPromo.promotion_message.replace(/<[^>]*>/g, '').trim() !== "";
                 return (
-                  <div className={`relative pt-28 px-6 pb-6 text-white flex-1 flex flex-col ${!hasMessage ? 'justify-center' : ''}`}>
+                  <div className={`relative pt-28 px-6 pb-6 text-white flex-1 flex flex-col overflow-y-auto min-h-0 ${!hasMessage ? 'justify-center' : ''}`}>
                     <div className={`flex items-start gap-3 ${!hasMessage ? 'justify-center mb-0' : 'justify-between mb-4'}`}>
                       <h3 
                         className={`text-3xl md:text-4xl font-extrabold ${!hasMessage ? 'text-center leading-[1.6] md:leading-[1.8]' : 'leading-tight'}`} 
