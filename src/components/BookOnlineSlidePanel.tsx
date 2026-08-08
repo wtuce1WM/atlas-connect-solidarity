@@ -1566,7 +1566,7 @@ const BookOnlineSlidePanelInner = ({
     [videoDocs]
   );
   const hasVideosCarousel = nonExternalVideoDocs.length > 0;
-  const hasYoutubeChannel = !!(business?.youtube_url && business?.show_youtube_tab);
+  const hasYoutubeChannel = !!(business?.youtube_url && ((business as any)?.n_tab ?? (business as any)?.show_youtube_tab));
   // External (YouTube/Vimeo/etc.) videos attached to this business or POI — used when the business has no YouTube channel
   const externalVideoDocs = useMemo(
     () => (videoDocs || []).filter((d: any) => isExternalVideoUrl(d.url)),
@@ -3248,7 +3248,7 @@ const BookOnlineSlidePanelInner = ({
 
 
                   {/* Chaîne YouTube (Shorts prioritaires) — au-dessus des widgets Horaires/Disponibilité */}
-                  {!descOverlayContent && business?.id && (
+                  {!descOverlayContent && business?.id && hasYoutubeChannel && (
                     <InlineYouTubeSection businessId={business.id} language={language} />
                   )}
 
