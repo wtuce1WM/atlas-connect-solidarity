@@ -6,6 +6,7 @@ import {
   OffthreadVideo,
   Audio,
   Loop,
+  Easing,
   interpolate,
   interpolateColors,
   spring,
@@ -97,8 +98,66 @@ const FitColumn: React.FC<{
     </div>
   );
 
-
 };
+
+/**
+ * Colonne à défilement vertical (cartes texte pleine largeur) : le contenu
+ * garde sa taille réelle et remonte lentement quand il dépasse la zone
+ * disponible. Vitesse bornée pour rester lisible (≈ 34→90 px/s).
+ */
+const ScrollColumn: React.FC<{
+  children: React.ReactNode;
+  durationFrames: number;
+  /** frames de pause avant le départ du défilement */
+  holdIn?: number;
+  /** frames de pause conservées en fin de plan */
+  holdOut?: number;
+}> = ({ children, durationFrames, holdIn = 24, holdOut = 20 }) => {
+  const frame = useCurrentFrame();
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [box, setBox] = React.useState<{ avail: number; content: number } | null>(null);
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    const parent = el?.parentElement;
+    if (!el || !parent) return;
+    const avail = parent.clientHeight;
+    const content = el.scrollHeight;
+    if (!avail || !content) return;
+    setBox((prev) => (prev && prev.avail === avail && prev.content === content ? prev : { avail, content }));
+  }, [children]);
+
+  const overflow = box ? Math.max(0, box.content - box.avail) : 0;
+  const window = Math.max(1, durationFrames - holdIn - holdOut);
+  // vitesse cible ~52 px/s, bornée pour ne jamais être ni figée ni illisible
+  const needed = overflow > 0 ? Math.min(window, Math.max(30, (overflow / 52) * 30)) : 0;
+  const travel = overflow > 0
+    ? interpolate(frame, [holdIn, holdIn + needed], [0, -overflow], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+        easing: Easing.inOut(Easing.ease),
+      })
+    : 0;
+
+  return (
+    <div style={{ width: "100%", height: box ? box.avail : "100%", overflow: "hidden", display: "flex", alignItems: overflow > 0 ? "flex-start" : "center" }}>
+      <div
+        ref={ref}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          width: "100%",
+          transform: `translateY(${travel}px)`,
+          willChange: "transform",
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+};
+
+
 
 
 // ===== Transitions entre les plans =====
@@ -3036,7 +3095,46 @@ const SceneInfoText: React.FC<{
   const hasRich = /<(b|strong|i|em|u|ul|ol|li|p|br|h1|h2|h3|h4)\b/i.test(richText);
   const safeLogo = typeof logoUrl === "string" && logoUrl.trim().startsWith("http") ? logoUrl : null;
   const textMarginTop = wide ? 44 : 20;
+  const cardContent = (
+    <>
+      {safeLogo && (
+        <div style={{ alignSelf: "center", marginBottom: 18, transform: `scale(${logoS})`, filter: `drop-shadow(${shadowOn(4, 16, "black", 0.5)})` }}>
+          <Img src={safeLogo} style={{ width: 120, height: 120, objectFit: "contain", borderRadius: 12, background: alpha("white", 0.08) }} />
+        </div>
+      )}
+      {label && <CardLabel>{clean(label).slice(0, 40)}</CardLabel>}
+      {title && <CardTitle wide={wide} translateY={titleY}>{clean(title)}</CardTitle>}
+      {hasRich ? (
+        <CardBody html={richText} wide={wide} marginTop={textMarginTop} />
+      ) : (
+        <CardBody text={text} wide={wide} marginTop={textMarginTop} />
+      )}
+      {ornament && (
+        <div style={{ marginTop: 26, alignSelf: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+          <div style={{ width: interpolate(ease(frame, 8, 34), [0, 1], [0, 300]), height: 2, background: `linear-gradient(90deg,transparent,${COLORS.gold},transparent)` }} />
+          <div style={{ display: "flex", gap: 14 }}>
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: 5,
+                  background: COLORS.gold,
+                  opacity: 0.35 + 0.65 * Math.abs(Math.sin((frame - i * 7) / 14)),
+                }}
+              />
+            ))}
+          </div>
+          <div style={{ fontFamily: body, color: alpha("white", 0.82), fontSize: 22, letterSpacing: 2, textTransform: "uppercase", textAlign: "center" }}>
+            À découvrir sur place
+          </div>
+        </div>
+      )}
+    </>
+  );
   return (
+
     <AbsoluteFill style={{ opacity: Math.min(inO, out) }}>
       <style>{RICH_CSS}</style>
       <AbsoluteFill
@@ -3046,47 +3144,19 @@ const SceneInfoText: React.FC<{
             : `linear-gradient(180deg,${alpha("black", 0.42)} 0%,${alpha("black", 0.78)} 100%)`,
         }}
       />
-      <AbsoluteFill style={{ padding: wide ? "80px 60px" : 60, ...textPositionStyle(textPosition) }}>
-        {/* 20% haut du viewport laissés libres quand le texte est trop volumineux */}
-        <FitColumn topSafeRatio={0.2}>
-        {safeLogo && (
-
-          <div style={{ alignSelf: "center", marginBottom: 18, transform: `scale(${logoS})`, filter: `drop-shadow(${shadowOn(4, 16, "black", 0.5)})` }}>
-            <Img src={safeLogo} style={{ width: 120, height: 120, objectFit: "contain", borderRadius: 12, background: alpha("white", 0.08) }} />
-          </div>
-        )}
-        {label && <CardLabel>{clean(label).slice(0, 40)}</CardLabel>}
-        {title && <CardTitle wide={wide} translateY={titleY}>{clean(title)}</CardTitle>}
-        {hasRich ? (
-          <CardBody html={richText} wide={wide} marginTop={textMarginTop} />
+      <AbsoluteFill style={{ padding: wide ? "60px 20px" : 60, ...textPositionStyle(textPosition) }}>
+        {/* Cartes pleine largeur (Texte IA) : défilement vertical du contenu.
+            Autres cartes : réduction d'échelle anti-débordement. */}
+        {wide ? (
+          <ScrollColumn durationFrames={durationFrames}>
+        {cardContent}
+          </ScrollColumn>
         ) : (
-          <CardBody text={text} wide={wide} marginTop={textMarginTop} />
-        )}
-        {ornament && (
-          <div style={{ marginTop: 26, alignSelf: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-            {/* filet doré qui se déploie */}
-            <div style={{ width: interpolate(ease(frame, 8, 34), [0, 1], [0, 300]), height: 2, background: `linear-gradient(90deg,transparent,${COLORS.gold},transparent)` }} />
-            {/* trois pastilles qui pulsent en décalé */}
-            <div style={{ display: "flex", gap: 14 }}>
-              {[0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  style={{
-                    width: 10,
-                    height: 10,
-                    borderRadius: 5,
-                    background: COLORS.gold,
-                    opacity: 0.35 + 0.65 * Math.abs(Math.sin((frame - i * 7) / 14)),
-                  }}
-                />
-              ))}
-            </div>
-            <div style={{ fontFamily: body, color: alpha("white", 0.82), fontSize: 22, letterSpacing: 2, textTransform: "uppercase", textAlign: "center" }}>
-              À découvrir sur place
-            </div>
-          </div>
-        )}
+        <FitColumn topSafeRatio={0.2}>
+          {cardContent}
         </FitColumn>
+        )}
+
       </AbsoluteFill>
 
     </AbsoluteFill>
