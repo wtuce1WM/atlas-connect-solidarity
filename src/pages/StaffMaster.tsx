@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, Users, Search, ArrowLeft, BarChart3, FlaskConical, BookOpen, Egg, Sparkles, Brain, LayoutDashboard, Monitor, ChevronRight, ShieldAlert, Hotel, DollarSign, FileText, Link as LinkIcon, MessageSquare } from "lucide-react";
+import { LogOut, Users, Search, ArrowLeft, BarChart3, FlaskConical, BookOpen, Egg, Sparkles, Brain, LayoutDashboard, Monitor, ChevronRight, ShieldAlert, Hotel, DollarSign, FileText, Link as LinkIcon, MessageSquare, Database } from "lucide-react";
 import logoGold from "@/assets/logoGOLDsimple.webp";
 import SearchConfigManagement from "@/components/staff/SearchConfigManagement";
 import UserManagement from "@/components/staff/UserManagement";
@@ -26,6 +26,7 @@ import HotelApiComparison from "@/components/staff/HotelApiComparison";
 import PricingManagement from "@/components/staff/PricingManagement";
 import BlogManagement from "@/components/staff/BlogManagement";
 import VanityUrlsManagement from "@/components/staff/VanityUrlsManagement";
+import StaffERDPanel from "@/components/staff/StaffERDPanel";
 
 
 const StaffMaster = () => {
@@ -148,6 +149,10 @@ const StaffMaster = () => {
               <LinkIcon className="h-4 w-4" />
               Alias URL
             </TabsTrigger>
+            <TabsTrigger value="schema" className="gap-2">
+              <Database className="h-4 w-4" />
+              Schéma
+            </TabsTrigger>
             {isAdmin && (
             <TabsTrigger value="users" className="gap-2">
               <Users className="h-4 w-4" />
@@ -205,6 +210,10 @@ const StaffMaster = () => {
 
           <TabsContent value="vanity-urls">
             <VanityUrlsManagement />
+          </TabsContent>
+
+          <TabsContent value="schema">
+            <StaffERDPanel />
           </TabsContent>
 
           {isAdmin && (

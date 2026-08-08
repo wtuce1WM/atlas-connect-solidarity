@@ -43555,7 +43555,7 @@
         "name": "Piscine O’Atlas",
         "url": "https://oneworldmorocco.com/piscine-o-atlas",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/2196bc38-b85a-49d5-a3c4-e907ddb87a79-1779833216039-nv4gxp.jpg",
-        "description": "Day Pass – Pool Party Marrakech La Piscine O’Atlas est le lieu idéal pour se détendre et profiter des journées ensoleillés de Marrakech. Situé à 22 minutes du centre de Marrakech, La Piscine O’atlas vous accueille dans un cadre paisible et chaleureux, de 320 m2 sertie de palmiers, le pool-hoose et le restaurant de spécialités marocaines et méditerranéennes. INFORMATIONS IMPORTANTES: Le paiement se fait sur place Dj chaque jour à partir de 14h les mois Juillet et Août Le déjeuner est à la carte T",
+        "description": "À 20 km de Marrakech, sur la route de l’Ourika , la Piscine O’Atlas est une adresse idéale pour s’échapper de l’agitation de la ville et passer une journée au bord de l’eau dans un cadre élégant et verdoyant. Installée au cœur du domaine O’Atlas, cette piscine de plus de 300 m² , bordée de palmiers et entourée d’un vaste parc, offre une véritable parenthèse de détente avec, en toile de fond, les sommets de l’Atlas. Accessible en Day Pass , O’Atlas permet de profiter de la piscine à la journée sa",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Km 20",
@@ -43572,7 +43572,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 49,
+          "reviewCount": 54,
           "bestRating": 5
         }
       }
