@@ -122,56 +122,57 @@ export default function ImageGallerySection({ images, language, onOpenImage }: I
         </h2>
 
         <div className="flex items-center gap-3">
-          {totalGroups > 1 && (
-            <div className="hidden md:flex items-center gap-2">
-              <button
-                onClick={() => goGroup(-1)}
-                disabled={groupIndex === 0}
-                className="h-9 w-9 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                aria-label="Groupe précédent"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <button
-                onClick={() => goGroup(1)}
-                disabled={groupIndex === totalGroups - 1}
-                className="h-9 w-9 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                aria-label="Groupe suivant"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            </div>
-          )}
-          <span className="text-sm font-medium text-white/80 font-['Montserrat',sans-serif] tabular-nums">
-            {String(groupIndex + 1).padStart(2, "0")} / {String(totalGroups).padStart(2, "0")}
-          </span>
-        </div>
-      </div>
+                          <div className="hidden md:flex items-center gap-2">
+                            <button
+                              onClick={() => goGroup(-1)}
+                              disabled={groupIndex === 0}
+                              className="h-9 w-9 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                              aria-label="Groupe précédent"
+                            >
+                              <ChevronLeft className="h-5 w-5" />
+                            </button>
+                            <button
+                              onClick={() => goGroup(1)}
+                              disabled={groupIndex === totalGroups - 1}
+                              className="h-9 w-9 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                              aria-label="Groupe suivant"
+                            >
+                              <ChevronRight className="h-5 w-5" />
+                            </button>
+                          </div>
+                          <span className="hidden md:inline text-sm font-medium text-white/80 font-['Montserrat',sans-serif] tabular-nums">
+                            {String(groupIndex + 1).padStart(2, "0")} / {String(totalGroups).padStart(2, "0")}
+                          </span>
+                          <span className="md:hidden text-sm font-medium text-white/80 font-['Montserrat',sans-serif] tabular-nums">
+                            {String(mobileIndex + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
+                          </span>
+                        </div>
+                      </div>
 
-      {/* Mobile : horizontal scroll, one image per slide, edge-to-edge */}
-      <div className="md:hidden -mx-4 px-4">
-        <div
-          ref={mobileScrollRef}
-          onScroll={handleMobileScroll}
-          className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-1"
-          style={{ scrollSnapType: "x mandatory" }}
-        >
-          {images.map((img, i) => (
-            <div
-              key={`img-mob-${i}`}
-              className="snap-center shrink-0 w-[85vw] h-[55vw] max-h-[60vh] relative overflow-hidden cursor-zoom-in"
-              onClick={() => onOpenImage(img)}
-            >
-              <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" />
-            </div>
-          ))}
-        </div>
-        <div className="flex justify-center mt-3">
-          <span className="text-xs font-medium text-white/60 font-['Montserrat',sans-serif] tabular-nums">
-            {String(mobileIndex + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
-          </span>
-        </div>
-      </div>
+                      {/* Mobile : horizontal scroll, one image per slide, edge-to-edge */}
+                      <div className="md:hidden -mx-4 px-4">
+                        <div
+                          ref={mobileScrollRef}
+                          onScroll={handleMobileScroll}
+                          className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-1"
+                          style={{ scrollSnapType: "x mandatory" }}
+                        >
+                          {images.map((img, i) => (
+                            <div
+                              key={`img-mob-${i}`}
+                              className="snap-center shrink-0 w-[85vw] h-[55vw] max-h-[60vh] relative overflow-hidden cursor-zoom-in"
+                              onClick={() => onOpenImage(img)}
+                            >
+                              <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" />
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex justify-center mt-3">
+                          <span className="text-xs font-medium text-white/60 font-['Montserrat',sans-serif] tabular-nums">
+                            {String(mobileIndex + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
+                          </span>
+                        </div>
+                      </div>
 
       {/* Desktop : cinematic masonry groups */}
       <div className="hidden md:block overflow-hidden">
