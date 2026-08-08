@@ -2689,10 +2689,10 @@ const BookOnlineSlidePanelInner = ({
                         )}
                         <div
                           key={`desc-promo-${safe}`}
-                          className="relative w-full max-w-md rounded-2xl overflow-hidden shadow-2xl flex flex-col bg-cover bg-no-repeat bg-center h-auto btn-flash-auto animate-scale-in"
-                          style={{ backgroundImage: bg ? `url(${bg})` : undefined, backgroundColor: bg ? undefined : "#1a1a1a" }}
+                          className="relative w-full max-w-md rounded-2xl overflow-hidden shadow-2xl flex flex-col h-auto btn-flash-auto animate-scale-in border border-white/10"
+                          style={{ backgroundColor: "#1a1a1a" }}
                         >
-                          {(!isPopup || hasMeta) && <div className="absolute inset-0 bg-black/55 pointer-events-none" />}
+
                           {isPopup ? (
                             hasMeta ? (
                               <div className="relative pt-6 px-6 pb-8 text-white">
