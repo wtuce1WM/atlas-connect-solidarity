@@ -1506,7 +1506,7 @@ const BookOnlineSlidePanelInner = ({
     return (
       <div key={keyPrefix} className="my-10 w-full flex flex-col items-center gap-4">
         {showAvail && (
-          <div className="w-full max-w-none md:max-w-[22rem] mx-auto text-[0.92em]">
+          <div className="w-full max-w-none md:max-w-[34rem] mx-auto text-[0.92em]">
             <AvailabilitySearchOverlay
 
               inline
@@ -1527,7 +1527,7 @@ const BookOnlineSlidePanelInner = ({
         )}
 
         {showHours && business && (
-          <div className="w-full bg-transparent border border-white/20 rounded-2xl p-5 text-white text-center">
+          <div className="w-auto max-w-full mx-auto inline-block bg-transparent border border-white/20 rounded-2xl p-5 text-white text-center">
             <p className="text-sm font-semibold text-gold uppercase tracking-wider flex items-center justify-center gap-1.5 mb-4">
               <Clock className="h-4 w-4" />
               {language === "en" ? "Opening hours" : language === "ar" ? "أوقات العمل" : "Horaires d'ouverture"}
@@ -2845,7 +2845,7 @@ const BookOnlineSlidePanelInner = ({
                     <div className="mt-8 pt-6 border-t border-white/10">
                       <h2 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">
                         {language === "en" ? "AI Assistant" : language === "ar" ? "المساعد الذكي" : "Assistant IA"}
-                      </h3>
+                      </h2>
                       <div className="w-full mx-auto max-w-[820px] rounded-xl overflow-hidden bg-black/30 border border-white/10">
                         <iframe
                           key={`ai-widget-${business.slug}`}
