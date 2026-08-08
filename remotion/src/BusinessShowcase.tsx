@@ -3105,9 +3105,16 @@ const SceneInfoText: React.FC<{
             : `linear-gradient(180deg,${alpha("black", 0.42)} 0%,${alpha("black", 0.78)} 100%)`,
         }}
       />
-      <AbsoluteFill style={{ padding: wide ? "80px 60px" : 60, ...textPositionStyle(textPosition) }}>
-        {/* 20% haut du viewport laissés libres quand le texte est trop volumineux */}
+      <AbsoluteFill style={{ padding: wide ? "60px 20px" : 60, ...textPositionStyle(textPosition) }}>
+        {/* Cartes pleine largeur (Texte IA) : défilement vertical du contenu.
+            Autres cartes : réduction d'échelle anti-débordement. */}
+        {wide ? (
+          <ScrollColumn durationFrames={durationFrames}>
+        {cardContent}
+          </ScrollColumn>
+        ) : (
         <FitColumn topSafeRatio={0.2}>
+
         {safeLogo && (
 
           <div style={{ alignSelf: "center", marginBottom: 18, transform: `scale(${logoS})`, filter: `drop-shadow(${shadowOn(4, 16, "black", 0.5)})` }}>
