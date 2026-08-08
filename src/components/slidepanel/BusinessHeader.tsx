@@ -63,12 +63,27 @@ const BusinessHeader = React.memo(function BusinessHeader({
         >
           {business.name}
         </h2>
-        {(business.city || business.neighborhood || business.address) && (
-          <p className={`text-xs md:text-sm text-white/80 flex items-center gap-1 mt-0.5 justify-center truncate${business.name.length > 18 ? " hidden lg:flex" : ""}`}>
-            <MapPin className="h-3.5 w-3.5 shrink-0" />
-            {[business.city, business.neighborhood, business.address].filter(Boolean).join(", ")}
+        {(business.city || business.neighborhood || (avgOn20 != null && totalReviewCount > 0)) && (
+          <p className={`text-xs md:text-sm text-white/80 flex items-center gap-1.5 mt-0.5 justify-center flex-wrap${business.name.length > 18 ? " hidden lg:flex" : ""}`}>
+            {(business.city || business.neighborhood) && (
+              <>
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{[business.city, business.neighborhood].filter(Boolean).join(", ")}</span>
+              </>
+            )}
+            {avgOn20 != null && totalReviewCount > 0 && (
+              <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                <span className="text-white/40">·</span>
+                <Star className="h-3.5 w-3.5 shrink-0 text-gold fill-gold" />
+                <span className="!font-extrabold text-gold" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                  {avgOn20}<span className="font-bold text-gold/80">/20</span>
+                </span>
+                <span className="!font-bold text-gold/90 tabular-nums">{totalReviewCount.toLocaleString("fr-FR")}</span>
+              </span>
+            )}
           </p>
         )}
+
       </div>
     </div>
   );
