@@ -3205,14 +3205,29 @@ const BookOnlineSlidePanelInner = ({
                       }, { passive: false });
                     };
                     const badgeClass = "shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-white/15 hover:bg-white/30 text-white transition-colors whitespace-nowrap";
+                    const waHref = business?.whatsapp
+                      ? whatsappUrl(business.whatsapp, language === "en" ? `Hello ${business?.name || ""}, I found you on One World Morocco.` : language === "ar" ? `مرحبا ${business?.name || ""}` : `Bonjour ${business?.name || ""}, je vous ai trouvé sur One World Morocco.`)
+                      : null;
                     return (
-                      <div className="mt-8 pt-6 border-t border-white/10 flex flex-col gap-2">
-                        {hasMenuBar && (
+                      <div className="sticky bottom-0 z-30 mt-8 pt-3 pb-3 border-t border-white/10 bg-black/80 backdrop-blur-md flex flex-col gap-2">
+                        {(hasMenuBar || waHref) && (
                           <div dir="ltr" ref={stripWheelRef} className={stripClass}>
                             {hasVideosBadge && (
                               <button onClick={() => { setDescGridSection("videos"); setDescGridPage(0); setDescOverlayDirect(false); setShowDescriptionOverlay(true); }} className={badgeClass}>
                                 <span className="text-[11px] font-medium uppercase font-['Montserrat',sans-serif] whitespace-nowrap">Vidéos</span>
                               </button>
+                            )}
+                            {waHref && (
+                              <a
+                                href={waHref}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="shrink-0 h-9 px-3 flex items-center gap-1.5 rounded-full bg-[#25D366] text-black hover:brightness-110 transition-colors whitespace-nowrap"
+                                title="WhatsApp"
+                              >
+                                <WhatsAppIcon className="h-4 w-4" />
+                                <span className="text-[11px] font-bold uppercase font-['Montserrat',sans-serif] whitespace-nowrap">WhatsApp</span>
+                              </a>
                             )}
                             {hasImagesBadge && (
                               <button onClick={() => { setDescGridSection("images"); setDescGridPage(0); setDescOverlayDirect(false); setShowDescriptionOverlay(true); }} className={badgeClass}>
