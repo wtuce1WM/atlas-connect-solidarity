@@ -1478,6 +1478,19 @@ const BookOnlineSlidePanelInner = ({
   }, [widgetCodes, business?.reserve_now_cta, business?.online_shop_cta, (business as any)?.url_4_cta, (business as any)?.url_5_cta]);
   const hasBookingIntentWidget = bookingIntentWidgets.length > 0;
 
+  // Un champ url 1 à 5 avec un CTA de réservation (Réservez, Réserver une chambre/table, Réserver en ligne…)
+  // signifie que l'établissement gère déjà sa réservation : on n'affiche pas notre widget de disponibilité.
+  const hasOwnBookingCtaUrl = useMemo(() => {
+    const pairs: Array<[any, any]> = [
+      [business?.reserve_now_cta, (business as any)?.reserve_now_url],
+      [business?.online_shop_cta, (business as any)?.online_shop_url],
+      [(business as any)?.url_4_cta, (business as any)?.url_4],
+      [(business as any)?.url_5_cta, (business as any)?.url_5],
+    ];
+    return pairs.some(([label, url]) => !!url && isBookingIntentLabel(label));
+  }, [business]);
+
+
   const renderIntentWidgets = (keyPrefix: string) => {
     if (!hasBookingIntentWidget) return null;
     return (
@@ -1499,7 +1512,7 @@ const BookOnlineSlidePanelInner = ({
     // Même logique exclusive que le CTA de gauche : Disponibilité sinon Horaires.
     // Si l'établissement expose son propre widget de réservation (code par intention),
     // on n'affiche pas notre widget de disponibilité — et pas de repli sur les horaires.
-    const showAvail = !!isHotelWithPrice && !hasBookingIntentWidget;
+    const showAvail = !!isHotelWithPrice && !hasBookingIntentWidget && !hasOwnBookingCtaUrl;
     const showHours = !isHotelWithPrice && !!hasOpeningHours && !business?.is_open_24h;
     if (!showAvail && !showHours) return null;
 
