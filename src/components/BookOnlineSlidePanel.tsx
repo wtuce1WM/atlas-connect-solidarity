@@ -55,6 +55,7 @@ import { isExternalVideoUrl } from "@/lib/videoSourceFilter";
 import DocumentOverlay from "@/components/overlays/DocumentOverlay";
 import FallbackHotelsPanel from "@/components/overlays/FallbackHotelsPanel";
 import OverlayShell from "@/components/overlays/OverlayShell";
+import RevealScrollArea from "@/components/slidepanel/RevealScrollArea";
 import WidgetCodeEmbed from "@/components/widgets/WidgetCodeEmbed";
 import SpotifyOverlay from "@/components/overlays/SpotifyOverlay";
 import SubstackArticlesOverlay from "@/components/overlays/SubstackArticlesOverlay";
@@ -2608,8 +2609,8 @@ const BookOnlineSlidePanelInner = ({
                 </div>
               );
             })() : (
-              <div className="w-full h-full overflow-y-auto overscroll-contain">
-                <div className="px-4 pt-4 pb-6 md:pl-6 md:pt-6 pr-4 md:pr-6">
+              <RevealScrollArea innerClassName="px-4 pt-4 pb-6 md:pl-6 md:pt-6 pr-4 md:pr-6">
+
                   {descOverlayContent && (
                     <>
                       {!(descOverlayContent.title?.toLowerCase().startsWith("avis") || descOverlayContent.title?.toLowerCase().startsWith("customer")) && (
@@ -3362,10 +3363,10 @@ const BookOnlineSlidePanelInner = ({
                       </div>
                     );
                   })()}
-                </div>
 
 
-              </div>
+              </RevealScrollArea>
+
             )}
           </div>
           {/* Right sticky sidebar */}
