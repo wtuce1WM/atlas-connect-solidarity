@@ -161,10 +161,10 @@ export default function ImageGallerySection({ images, language, onOpenImage }: I
           {images.map((img, i) => (
             <div
               key={`img-mob-${i}`}
-              className="snap-center shrink-0 w-[85vw] h-[55vw] max-h-[60vh] relative overflow-hidden cursor-zoom-in"
+              className="snap-center shrink-0 w-[85vw] h-[55vw] max-h-[60vh] relative overflow-hidden cursor-zoom-in rounded-lg"
               onClick={() => onOpenImage(img)}
             >
-              <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" />
+              <img src={img} alt="" className="w-full h-full object-cover rounded-lg" loading="lazy" />
             </div>
           ))}
         </div>
