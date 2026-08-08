@@ -29,8 +29,15 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Textarea } from "@/components/ui/textarea";
+import { CTA_SELECT_OPTIONS } from "@/components/affiliate/AffiliateCtasEditor";
 
-type DocType = "menu" | "flipbook" | "external_link";
+/** Intentions = libellés du menu déroulant CTA des URL 1 à 5, triés alphabétiquement. */
+const INTENT_OPTIONS = [...CTA_SELECT_OPTIONS].sort((a, b) =>
+  a.localeCompare(b, "fr", { sensitivity: "base" })
+);
+
+type DocType = "menu" | "flipbook" | "external_link" | "widget_code";
 
 interface DocEntry {
   _uid: string;
