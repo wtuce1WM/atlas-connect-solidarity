@@ -160,7 +160,7 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
           .from("business_documents")
           .select("*")
           .eq("business_id", businessId)
-          .in("type", ["menu", "flipbook", "external_link"])
+          .in("type", ["menu", "flipbook", "external_link", "widget_code"])
           .order("sort_order", { ascending: true }),
         supabase.from("businesses").select("matterport_url").eq("id", businessId).maybeSingle(),
       ]);
