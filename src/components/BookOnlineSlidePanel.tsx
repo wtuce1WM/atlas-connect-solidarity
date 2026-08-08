@@ -1522,7 +1522,7 @@ const BookOnlineSlidePanelInner = ({
     return (
       <div key={keyPrefix} className="my-10 w-full flex flex-col items-center gap-4">
         {showAvail && (
-          <div className="w-full max-w-none md:max-w-[34rem] mx-auto text-[0.92em]">
+          <div className="w-full max-w-none md:max-w-[27rem] mx-auto text-[0.88em]">
             <AvailabilitySearchOverlay
 
               inline
