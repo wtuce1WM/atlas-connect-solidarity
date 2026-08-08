@@ -37,6 +37,16 @@ const INTENT_OPTIONS = [...CTA_SELECT_OPTIONS].sort((a, b) =>
   a.localeCompare(b, "fr", { sensitivity: "base" })
 );
 
+/** Plusieurs intentions par entrée, stockées dans `description` séparées par « | ». */
+const parseIntents = (v: string | null | undefined): string[] =>
+  (v || "")
+    .split("|")
+    .map((s) => s.trim())
+    .filter(Boolean);
+const joinIntents = (list: string[]): string => list.join(" | ");
+
+
+
 type DocType = "menu" | "flipbook" | "external_link" | "widget_code";
 
 interface DocEntry {
