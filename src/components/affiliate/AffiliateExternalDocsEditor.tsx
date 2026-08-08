@@ -242,6 +242,7 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
         for (let i = 0; i < rows.length; i++) {
           const d = rows[i];
           const isExternal = type === "external_link";
+          const isWidget = type === "widget_code";
           if (isExternal ? !d.name.trim() : !d.url.trim()) continue;
           const payload: any = {
             business_id: businessId,
@@ -249,8 +250,8 @@ const AffiliateExternalDocsEditor = ({ businessId }: Props) => {
             url: d.url.trim(),
             name: d.name || null,
             language: d.language || null,
-            icon: isExternal ? d.image_url || null : d.icon || null,
-            description: isExternal ? d.description || "presse" : null,
+            icon: isExternal ? d.image_url || null : isWidget ? null : d.icon || null,
+            description: isExternal ? d.description || "presse" : isWidget ? d.description || null : null,
             force_external: d.force_external,
             sort_order: i,
           };
