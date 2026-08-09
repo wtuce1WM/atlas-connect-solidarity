@@ -173,6 +173,13 @@ export interface VideoDoc {
   is_poi_linked?: boolean;
   /** Account name from a generic video (not navigable) */
   generic_video_account?: string | null;
+  /** Social account attached to the video document */
+  instagram_account?: string | null;
+  instagram_url?: string | null;
+  tiktok_account?: string | null;
+  tiktok_url?: string | null;
+  youtube_account?: string | null;
+  youtube_url?: string | null;
 }
 
 // In-memory cache to avoid re-fetching data for previously viewed businesses
@@ -341,7 +348,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
           .order("sort_order"),
         supabase
           .from("business_documents")
-          .select("url, name, city, price, price_type, description, thumbnail_url, business_id, sort_order")
+          .select("url, name, city, price, price_type, description, thumbnail_url, business_id, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
           .eq("business_id", businessId)
           .eq("type", "video")
           .order("sort_order"),
@@ -393,14 +400,14 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       const [linkedVidsRes, poiVidsRes, gvLinksRes] = await Promise.all([
         supabase
           .from("business_documents")
-          .select("url, name, city, price, price_type, description, thumbnail_url, business_id")
+          .select("url, name, city, price, price_type, description, thumbnail_url, business_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
           .eq("linked_business_id", businessId)
           .eq("type", "video")
           .eq("business_is_active", true)
           .order("front_sort_order"),
         supabase
           .from("business_documents")
-          .select("url, name, city, price, price_type, description, thumbnail_url, business_id")
+          .select("url, name, city, price, price_type, description, thumbnail_url, business_id, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
           .eq("poi_id", businessId)
           .eq("type", "video")
           .eq("business_is_active", true)
@@ -446,6 +453,12 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
               owner_name: o?.name || null,
               owner_logo: o?.logo_url || null,
               owner_instagram: o?.instagram_url || null,
+              instagram_account: d.instagram_account || null,
+              instagram_url: d.instagram_url || null,
+              tiktok_account: d.tiktok_account || null,
+              tiktok_url: d.tiktok_url || null,
+              youtube_account: d.youtube_account || null,
+              youtube_url: d.youtube_url || null,
               ...(isPoi ? { is_poi_linked: true } : {}),
             } as VideoDoc;
           });
@@ -651,7 +664,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       const fetchLinkedVideos = async () => {
         const { data: linkedVids } = await supabase
           .from("business_documents")
-          .select("url, name, city, price, price_type, description, thumbnail_url, business_id, sort_order")
+          .select("url, name, city, price, price_type, description, thumbnail_url, business_id, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
           .eq("linked_business_id", businessId)
           .eq("type", "video")
           .eq("business_is_active", true)
@@ -685,6 +698,12 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
                 owner_name: owner?.name || null,
                 owner_logo: owner?.logo_url || null,
                 owner_instagram: owner?.instagram_url || null,
+                instagram_account: d.instagram_account || null,
+                instagram_url: d.instagram_url || null,
+                tiktok_account: d.tiktok_account || null,
+                tiktok_url: d.tiktok_url || null,
+                youtube_account: d.youtube_account || null,
+                youtube_url: d.youtube_url || null,
               } as VideoDoc;
             });
           setVideoDocs((prev) => {
@@ -699,7 +718,7 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
       const fetchPoiLinkedVideos = async () => {
         const { data: poiVids } = await supabase
           .from("business_documents")
-          .select("url, name, city, price, price_type, description, thumbnail_url, business_id, sort_order")
+          .select("url, name, city, price, price_type, description, thumbnail_url, business_id, sort_order, instagram_account, instagram_url, tiktok_account, tiktok_url, youtube_account, youtube_url")
           .eq("poi_id", businessId)
           .eq("type", "video")
           .eq("business_is_active", true)
@@ -737,6 +756,12 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
                 owner_name: owner?.name || null,
                 owner_logo: owner?.logo_url || null,
                 owner_instagram: owner?.instagram_url || null,
+                instagram_account: d.instagram_account || null,
+                instagram_url: d.instagram_url || null,
+                tiktok_account: d.tiktok_account || null,
+                tiktok_url: d.tiktok_url || null,
+                youtube_account: d.youtube_account || null,
+                youtube_url: d.youtube_url || null,
                 is_poi_linked: true,
               } as VideoDoc;
             });

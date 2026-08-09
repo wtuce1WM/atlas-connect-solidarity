@@ -82,6 +82,7 @@ import { withLangPrefix } from "@/lib/localizedPath";
 import { ToolbarPortals } from "@/components/slidepanel/ToolbarPortals";
 import ClubLoginPopup from "@/components/club/ClubLoginPopup";
 import { CtaBar, CTA_MODE_LABELS } from "@/components/slidepanel/CtaBar";
+import VideoSocialBadge, { getVideoSocial } from "@/components/slidepanel/VideoSocialBadge";
 import { HotelAvailabilityResult } from "@/components/slidepanel/HotelAvailabilityResult";
 import AvailabilitySearchOverlay from "@/components/overlays/AvailabilitySearchOverlay";
 
@@ -2328,6 +2329,14 @@ const BookOnlineSlidePanelInner = ({
 
         {/* Bottom carousel removed — all sections now accessible via description overlay grid */}
         </div>
+
+        {/* Badge social de la vidéo courante (logo plateforme + Follow @compte) */}
+        {cardsHidden && effectiveMedia?.kind === "video" && (
+          <VideoSocialBadge
+            social={getVideoSocial(videoDocs.find((d) => d.url === effectiveMedia?.url))}
+            animKey={`${currentMediaIndex}-${effectiveMedia?.url || ""}`}
+          />
+        )}
 
         {/* Availability result (cards hidden mode) */}
         <HotelAvailabilityResult
