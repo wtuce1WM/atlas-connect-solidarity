@@ -59,7 +59,7 @@ serve(async (req) => {
 
   const t0 = Date.now();
   try {
-    const { query, spokenText, businesses = [], language = "fr", vary, mode, history = [], nearbyContext, userCoords } = await req.json();
+    const { query, spokenText, businesses = [], language = "fr", vary, mode, history = [], nearbyContext, userCoords, curatedRoute = null, focus = null, chatId = null } = await req.json();
 
     // --- Geolocation intent detection ---
     // "près de moi", "autour de moi", "à moins de X km", "dans un rayon de Y m", etc.
