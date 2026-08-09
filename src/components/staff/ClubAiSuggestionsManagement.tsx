@@ -6,8 +6,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { Trash2, Plus, Save, MessageSquare, Sparkles, Loader2, CornerDownRight } from "lucide-react";
+import { Trash2, Plus, Save, MessageSquare, Sparkles, Loader2, CornerDownRight, ChevronDown, ChevronRight } from "lucide-react";
 import { detectRoute, RouteBadge } from "./aiRouteDetect";
+import { Chip } from "./AiParamChip";
+
 
 type Row = {
   id: string;
