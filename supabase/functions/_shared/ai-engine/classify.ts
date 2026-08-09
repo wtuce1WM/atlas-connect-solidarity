@@ -1,7 +1,8 @@
 // Moteur IA A/B/C — classifieur B (spec §2). Contrat strict : ni historique, ni fiches.
 import { AI_MODEL, getSurfaceConfig } from "./surfaces.ts";
-import { GATEWAY_URL } from "../ai-gateway.ts";
+import { GATEWAY_URL, normalizeGatewayBodyForModel } from "../ai-gateway.ts";
 import type { ClassifierOutput, EngineRequest, FocusContext, Surface } from "./types.ts";
+
 
 const SYSTEM = `Tu es un classifieur d'intention pour un annuaire d'établissements au Maroc.
 Tu ne réponds JAMAIS à l'utilisateur. Tu renvoies uniquement un objet JSON.
@@ -59,16 +60,19 @@ message: ${req.message}`;
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${lovableApiKey}`,
+        "Lovable-API-Key": lovableApiKey,
       },
-      body: JSON.stringify({
+      body: JSON.stringify(normalizeGatewayBodyForModel({
         model: AI_MODEL,
         messages: [
           { role: "system", content: SYSTEM },
           { role: "user", content: user },
         ],
         response_format: { type: "json_object" },
-      }),
+        max_tokens: 200,
+      })),
     });
+
 
     if (!resp.ok) {
       const text = (await resp.text()).slice(0, 300);
