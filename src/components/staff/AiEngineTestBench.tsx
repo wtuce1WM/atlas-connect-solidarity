@@ -222,8 +222,22 @@ const AiEngineTestBench = () => {
                 <div key={r.id} className="border rounded-lg p-4 space-y-3">
                   <div className="flex items-center gap-2">
                     <Badge variant="outline">{r.id}</Badge>
-                    <span className="font-medium text-sm">{r.phrase}</span>
+                    <span className="font-medium text-sm flex-1">{r.phrase}</span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => runOne(r.id, r.phrase)}
+                      disabled={running || !!busyId}
+                    >
+                      {busyId === r.id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <RotateCw className="h-3.5 w-3.5" />
+                      )}
+                      <span className="ml-1.5 text-xs">Relancer</span>
+                    </Button>
                   </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-sm font-medium">
