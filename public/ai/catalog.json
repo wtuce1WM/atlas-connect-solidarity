@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-09T04:52:14.301Z",
+    "generated_at": "2026-08-09T14:44:56.101Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
     "count": 1845
   },
@@ -11551,13 +11551,14 @@
       "slug": "base-nautique-jet-atlas",
       "url": "https://oneworldmorocco.com/base-nautique-jet-atlas",
       "name": "Base nautique Jet Atlas",
-      "hook": "Base nautique/Restaurant Piscine avec une vue féerique à Marrakech, situé au lac de Lalla Takerkoust.",
-      "description": "Vous êtes plutôt détente ou sensations fortes ? Ou les deux ? Chez Jet Atlas, il y a forcément une attraction pour vous ! Idéales pour se détendre autour de notre piscine à débordement en sirotant un délicieux cocktail maison et profiter de diverses activités de jet-ski, ski nautique, flyboard, banane, wake board, quad, buggy dans un environnement agréable : les montagnes de l'Atlas.",
+      "hook": "Piscine à débordement, restaurant au bord du lac et sensations fortes face aux montagnes de l’Atlas.",
+      "description": "À environ 30 minutes de Marrakech , au bord du lac Lalla Takerkoust , Jet Atlas réunit dans un même lieu base nautique, restaurant, piscine à débordement et activités de plein air. Face aux montagnes de l’Atlas, le site offre une expérience particulièrement complète : une journée peut commencer par un café ou un déjeuner au bord de l’eau, se poursuivre par une session de jet-ski ou de wakeboard et se terminer tranquillement au bord de la piscine en admirant le paysage. Le cœur de l’expérience es",
       "main_category": "Sport & Loisirs",
       "categories": [
         "Sports nautiques",
         "Sports mécaniques",
-        "Piscine"
+        "Piscine",
+        "Activités pour Enfants"
       ],
       "services": [
         "Bouée tractée",
@@ -11587,7 +11588,7 @@
       "website": "http://jet-atlas.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/c1f804bd-2a90-4095-8f79-000ca6e86887-1772243368071-3lo9j.jpg",
       "google_rating": 3.8,
-      "google_review_count": 732,
+      "google_review_count": 757,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -19147,7 +19148,8 @@
       "description": "Le Cinéma Le Colisée est une salle de cinéma emblématique située dans le quartier Guéliz à Marrakech. Il propose des films en version originale sous-titrée en français (VOSTFR), en version française et en arabe. Avec ses deux niveaux – Orchestre (40 Dh, 30 Dh le lundi) et Balcon (50 Dh) – il offre une expérience cinématographique authentique dans un cadre historique. Le Colisée accueille également des événements culturels comme les Semaines du Film Européen. Situé au cœur de Guéliz , le Cinéma L",
       "main_category": "Culture",
       "categories": [
-        "Cinéma"
+        "Cinéma",
+        "Spectacles"
       ],
       "services": [
         "Salles"
@@ -19164,7 +19166,7 @@
       "website": "https://www.lecolisee.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/719cfac5-4697-4f33-a673-7ea063688636-1770920077560-g1lhkd.jpg",
       "google_rating": 4.2,
-      "google_review_count": 888,
+      "google_review_count": 892,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -44683,8 +44685,8 @@
       "slug": "kidzville-marrakech",
       "url": "https://oneworldmorocco.com/kidzville-marrakech",
       "name": "Kidzville Marrakech",
-      "hook": null,
-      "description": "KidzVille est un parc de jeu sous forme d’une mini ville adaptée à la taille des enfants, et ce dès qu’ils apprennent à marcher. À KidzVille, les enfants peuvent venir jouer aux adultes, apprendre les métiers, laisser libre cours à leur imagination et reproduire les évènements qu’ils vivent dans leur environnement quotidien à leur manière. Par exemple, les enfants pourront faire leur courses au supermarché à leur taille et passer à la caisse, un hôpital pour soigner les bobos, un salon de c",
+      "hook": "Parc de jeu sous forme d’une mini ville adaptée à la taille des enfants, et ce dès qu’ils apprennent à marcher.",
+      "description": "À KidzVille, les enfants peuvent venir jouer aux adultes, apprendre les métiers, laisser libre cours à leur imagination et reproduire les évènements qu’ils vivent dans leur environnement quotidien à leur manière. Par exemple, les enfants pourront faire leur courses au supermarché à leur taille et passer à la caisse, un hôpital pour soigner les bobos, un salon de coiffure, restaurant, poste de police et plein d’autres espaces pour faire le plein de jeux et d’activités ludiques. Un atelier est é",
       "main_category": "Sport & Loisirs",
       "categories": [
         "Activités pour Enfants",
@@ -44706,7 +44708,7 @@
       "website": "https://kidzville.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/b57e1bfa-3aeb-4e05-afc2-bd26b49a7218-1771951062474-lkq1gb.png",
       "google_rating": 4.5,
-      "google_review_count": 180,
+      "google_review_count": 186,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -54588,12 +54590,12 @@
         "Plats végétariens"
       ],
       "city": "Marrakech",
-      "neighborhood": "Bab Doukkala",
+      "neighborhood": "Route de Ouarzazate",
       "region": "Marrakech-Safi",
       "country": "MA",
       "latitude": 31.6281097,
       "longitude": -7.9604652,
-      "address": "Derb Assehbe",
+      "address": null,
       "phone": "+212524387010",
       "whatsapp": null,
       "website": null,
@@ -61977,21 +61979,25 @@
         "Déjeuner",
         "Dîner",
         "Galerie d'art",
-        "Vue montagne"
+        "Vue montagne",
+        "Cave à vin",
+        "Champagne",
+        "Cocktails",
+        "Mocktails"
       ],
       "city": "Marrakech",
-      "neighborhood": "Medina",
+      "neighborhood": "Bab Doukkala",
       "region": "Marrakech-Safi",
       "country": "MA",
       "latitude": 31.6329231,
       "longitude": -7.9979875,
-      "address": "5 Derb L'Hôtel, Bab Doukkala",
+      "address": "5 Derb L'Hôtel",
       "phone": "+212 696 44 23 44",
       "whatsapp": null,
       "website": "https://www.lesterrassesdesarts.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/b4bde2b5-796d-421e-acd0-36eb20474069-1771734718540-heaj73.jpg",
       "google_rating": 4.7,
-      "google_review_count": 580,
+      "google_review_count": 628,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -62059,7 +62065,7 @@
       "social": {
         "instagram": "https://www.instagram.com/lesterrassesdesarts.ma/",
         "facebook": "https://www.facebook.com/TerrassesdesArts",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293734-d20177832-Reviews-Terrasses_Des_Arts-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -120041,8 +120047,8 @@
       "slug": "fora-wellness",
       "url": "https://oneworldmorocco.com/fora-wellness",
       "name": "Fora Wellness",
-      "hook": "MARRAKECH PILATES FITNESS YOGA 100% FEMMES",
-      "description": null,
+      "hook": "Rilates Reformer, Yoga et fitness féminin dans un espace élégant réservé aux femmes, serein et pensé pour le bien-être.",
+      "description": "Fora Wellness Marrakech est un espace de bien-être et de remise en forme exclusivement réservé aux femmes , situé en face du lycée Victor Hugo, au 2e étage du centre d’affaires Toudgha. Dans un cadre moderne, intimiste et apaisant, Fora Wellness propose une approche globale du bien-être où mouvement, renforcement musculaire et équilibre du corps et de l’esprit se rencontrent. L'activité phare du studio est le Pilates Reformer , pratiqué sur des machines premium et encadré par des instructrices e",
       "main_category": "Sport & Loisirs",
       "categories": [
         "Yoga"
@@ -120060,7 +120066,7 @@
       "address": "Centre d’affaires Toudgha",
       "phone": null,
       "whatsapp": "+212668573236",
-      "website": null,
+      "website": "https://fora-wellness.com/fr/accueil/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/2cb15656-3086-4074-ab97-601801dde581-1780847933694-pny1ue.jpg",
       "google_rating": 5,
       "google_review_count": 41,
@@ -140942,16 +140948,16 @@
       "address": null,
       "phone": null,
       "whatsapp": "+212 695 290460",
-      "website": null,
+      "website": "https://www.surftwinsessaouira.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/485a187a-aa41-4c52-a1fe-b429e4c3381b-1781240640749-t8slx.jpg",
       "google_rating": 4.9,
-      "google_review_count": 563,
+      "google_review_count": 570,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://www.surftwinsessaouira.com/",
+      "booking_url": "https://www.surftwinsessaouira.com/en/contact",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/surftwins_/",
@@ -145800,11 +145806,12 @@
       "slug": "ourika-oufla",
       "url": "https://oneworldmorocco.com/ourika-oufla",
       "name": "Ourika Oufla",
-      "hook": null,
-      "description": null,
+      "hook": "Lodge avec piscine et restaurant, perché dans la vallée de l’Ourika avec une vue spectaculaire sur l’Atlas.",
+      "description": "D ans les montagnes du Haut Atlas , Ourika Oufla est une adresse confidentielle qui combine hébergement, piscine extérieure, restaurant et panorama exceptionnel. Installé au douar Igueroufella , le lodge profite d'une position élevée qui offre de magnifiques vues sur la vallée, les montagnes et les paysages autour de Marrakech . L'une des grandes particularités d' Ourika Oufla est son cadre. Ici, l'expérience repose autant sur le paysage que sur le confort du lieu : terrasse, jardin, piscine ext",
       "main_category": "Hôtellerie",
       "categories": [
-        "Hôtel"
+        "Hôtel",
+        "Écolodge"
       ],
       "services": [
         "Piscine",
@@ -145812,7 +145819,8 @@
         "Parking privé",
         "Jardin",
         "Terrasse",
-        "Service de transport"
+        "Service de transport",
+        "Restauration sur place"
       ],
       "city": "Marrakech",
       "neighborhood": "Route de l’Ourika",
@@ -145820,13 +145828,13 @@
       "country": "MA",
       "latitude": 31.3444375,
       "longitude": -7.8088125,
-      "address": null,
+      "address": "Douar Igueroufella",
       "phone": null,
       "whatsapp": "+212667236718",
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/ca7651f6-df97-443b-a9ed-57bc38588d62-1781588887805-prhml.jpg",
       "google_rating": 4.9,
-      "google_review_count": 60,
+      "google_review_count": 65,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
