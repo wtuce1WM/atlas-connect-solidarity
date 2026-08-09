@@ -129,6 +129,8 @@ const ClubAiSuggestionsManagement = () => {
       .single();
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
     setRows((prev) => [...prev, { ...(data as any), blog_post_ids: [], destination_ids: [], subcategory_ids: [], badge_ids: [], disabled_followup_ids: [], mode: null } as Row]);
+    setExpanded((prev) => new Set(prev).add((data as any).id));
+
   };
 
   const remove = async (id: string) => {
