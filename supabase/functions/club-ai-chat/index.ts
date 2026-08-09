@@ -3387,11 +3387,12 @@ ${languageInstruction}`;
               returnedCount: top.length,
               totalCount,
             };
+            const catLabel = cat;
             const intro = lang === "en"
-              ? `No exact match, so here is a wider selection${rescueCity ? ` in ${rescueCity}` : ""}:`
+              ? `Here is a selection of ${catLabel}${rescueCity ? ` in ${rescueCity}` : ""}:`
               : lang === "ar"
-              ? `لا توجد نتيجة مطابقة تماماً، وهذه اختيارات أوسع${rescueCity ? ` في ${rescueCity}` : ""}:`
-              : `Aucune correspondance exacte, voici une sélection plus large${rescueCity ? ` à ${rescueCity}` : ""} :`;
+              ? `هذه مجموعة مختارة${rescueCity ? ` في ${rescueCity}` : ""}:`
+              : `Voici une sélection de ${catLabel}${rescueCity ? ` à ${rescueCity}` : ""} :`;
             finalAnswer = `${intro}\n\n${top.map((r: any) =>
               `- **${r.name}**${r.neighborhood ? ` — ${r.neighborhood}` : ""}${r[hookField] ? ` · ${String(r[hookField]).slice(0, 140)}` : ""}`
             ).join("\n")}\n\n**${top.length} résultats affichés sur ${totalCount} trouvés**`;
