@@ -1032,7 +1032,7 @@ Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact e
       route_taken: "search_answer",
       ai_class: "C",
       model,
-      fallback_reason: answer ? null : "no_results",
+      fallback_reason: answer ? null : "empty_response",
       results_count: effectiveBusinesses.length,
       language,
       latency_ms_total: Date.now() - t0,
