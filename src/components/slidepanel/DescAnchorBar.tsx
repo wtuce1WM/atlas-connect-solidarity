@@ -26,6 +26,9 @@ const DescAnchorBar = ({ containerId, deps, language = "fr" }: DescAnchorBarProp
   const [anchors, setAnchors] = useState<Anchor[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const wheelRef = useRef<HTMLDivElement | null>(null);
+  // Verrou : après un clic sur un badge, le scroll-spy est ignoré le temps
+  // du scroll fluide, sinon une autre section « gagne » l'état sélectionné.
+  const lockRef = useRef(0);
 
   // Molette (deltaY ou deltaX) + drag souris → scroll horizontal.
   // Ré-attaché quand la barre (dé)monte, car elle n'existe qu'à partir de 3 ancres.
