@@ -3378,7 +3378,7 @@ ${languageInstruction}`;
             finalAnswer = `${intro}\n\n${top.map((r: any) =>
               `- **${r.name}**${r.neighborhood ? ` — ${r.neighborhood}` : ""}${r[hookField] ? ` · ${String(r[hookField]).slice(0, 140)}` : ""}`
             ).join("\n")}\n\n**${top.length} résultats affichés sur ${totalCount} trouvés**`;
-            emit({ type: "chunk", delta: finalAnswer });
+            // pas d'emit ici : finalAnswer est diffusé plus bas (émission unique).
             turnLog.fallback_reason = "classifier_rescue";
             turnLog.results_count = totalCount;
             turnLog.results_shown = top.length;
