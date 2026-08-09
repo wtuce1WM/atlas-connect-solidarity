@@ -1382,6 +1382,11 @@ const BookOnlineSlidePanelInner = ({
       const muteBackground = () => {
         const v = videoRef.current;
         if (v) {
+          // Ce mute est technique (overlay ouvert) : il ne doit JAMAIS être interprété
+          // comme un choix utilisateur par le listener volumechange, sinon la préférence
+          // globale passe à OFF et tout panel monté ensuite (ex : sous-fiche POI/Map)
+          // démarre sans son.
+          v.dataset.owmAutoMute = "1";
           v.muted = true;
           v.volume = 0;
           v.pause();
@@ -1410,9 +1415,11 @@ const BookOnlineSlidePanelInner = ({
     const shouldBeMuted = !globalSoundOn;
     const v = videoRef.current;
     if (v) {
+      v.dataset.owmAutoMute = "1";
       v.muted = shouldBeMuted;
       v.volume = shouldBeMuted ? 0 : 1;
       if (v.paused) v.play().catch(() => {});
+      window.setTimeout(() => { delete v.dataset.owmAutoMute; }, 800);
     }
     setVideoMuted(shouldBeMuted);
     setYtBgMuted(shouldBeMuted);
@@ -1424,6 +1431,7 @@ const BookOnlineSlidePanelInner = ({
       ytPost("setVolume", [100]);
     }
     ytPost("playVideo");
+
 
   }, [mediaBlockingOverlayOpen, globalSoundOn]);
 
