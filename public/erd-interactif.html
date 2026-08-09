@@ -55,7 +55,7 @@ td.t{color:var(--muted);text-align:right;white-space:nowrap}
   <span class="legend" id="lvl">100%</span>
 </header>
 <main>
-  <div id="canvas"><svg id="svg"></svg><div class="hint">Molette = zoom · glisser = déplacer · clic sur une table = détails · double-clic = focus</div></div>
+  <div id="canvas"><svg id="svg"></svg><div class="hint">Molette = zoom · glisser = déplacer · clic = détails · re-clic = désélection · double-clic = focus voisins · badge = filtre domaine</div></div>
   <aside id="aside"><div class="empty">Sélectionne une table dans le graphe (ou cherche-la) pour voir ses colonnes et ses relations.<br><br><b id="cnt"></b></div></aside>
 </main></div>
 <script>// https://d3js.org v7.9.0 Copyright 2010-2023 Mike Bostock
@@ -74,13 +74,37 @@ links.forEach(l=>{neighbors.get(l.s).add(l.t);neighbors.get(l.t).add(l.s)});
 document.getElementById('cnt').textContent=DATA.nodes.length+' tables · '+links.length+' relations';
 
 const chips=d3.select('#chips');
+let allChip=null;
+function syncChips(){
+  const soloAll=active.size===groups.length;
+  if(allChip)allChip.classed('off',!soloAll);
+  chips.selectAll('.chip[data-g]').classed('off',function(){return !active.has(this.dataset.g)});
+}
+function setDomains(next){
+  active.clear();next.forEach(g=>active.add(g));
+  if(active.size===0)groups.forEach(g=>active.add(g));
+  // si la table sélectionnée n'est plus visible, on désélectionne
+  if(selected&&!active.has(nmap.get(selected).g))clearSelection(false);
+  syncChips();render();
+}
+allChip=chips.append('div').attr('class','chip').attr('data-all','1').style('font-weight','700')
+  .text('Tous les domaines').on('click',()=>setDomains(groups));
 groups.forEach(g=>{
-  const c=chips.append('div').attr('class','chip').on('click',function(){
-    active.has(g)?active.delete(g):active.add(g);
-    d3.select(this).classed('off',!active.has(g));render();
+  const c=chips.append('div').attr('class','chip').attr('data-g',g).on('click',e=>{
+    // clic simple = filtre exclusif (solo) ; re-clic sur le solo actif = tout afficher
+    // ctrl/cmd/shift + clic = ajouter / retirer ce domaine
+    if(e.metaKey||e.ctrlKey||e.shiftKey){
+      const next=new Set(active);next.has(g)?next.delete(g):next.add(g);setDomains([...next]);
+    }else if(active.size===1&&active.has(g)){
+      setDomains(groups);
+    }else{
+      setDomains([g]);
+    }
   });
   c.append('span').attr('class','dot').style('background',COLORS[g]||'#888');
   c.append('span').text(g);
+  c.append('span').style('color','var(--muted)').style('font-size','10.5px')
+    .text('('+DATA.nodes.filter(n=>n.g===g).length+')');
 });
 
 const svg=d3.select('#svg');
@@ -126,7 +150,7 @@ function render(){
   nodeSel=gNodes.selectAll('g.node').data(nd,d=>d.id);
   nodeSel.exit().remove();
   const en=nodeSel.enter().append('g').attr('class','node').style('cursor','pointer')
-    .on('click',(e,d)=>{select(d.id)})
+    .on('click',(e,d)=>{e.stopPropagation();if(selected===d.id&&!focusMode){clearSelection(true)}else{select(d.id)}})
     .on('dblclick',(e,d)=>{e.stopPropagation();selected=d.id;focusMode=true;document.getElementById('focus').classList.add('on');select(d.id)})
     .call(d3.drag()
       .on('start',(e,d)=>{if(!e.active)sim.alphaTarget(.15).restart();d.fx=d.x;d.fy=d.y})
@@ -166,7 +190,7 @@ function select(id){
   selected=id;paint();
   const n=nmap.get(id);
   const out=[];
-  out.push(`<h2>${id}</h2><div class="sub">${n.g} · ${n.c.length} colonnes</div>`);
+  out.push(`<div style="display:flex;align-items:flex-start;gap:8px"><div style="flex:1"><h2>${id}</h2><div class="sub">${n.g} · ${n.c.length} colonnes</div></div><button id="deselect" title="Désélectionner (Échap)">✕</button></div>`);
   const outFk=lks.filter(l=>l.source.id===id),inFk=lks.filter(l=>l.target.id===id);
   out.push('<h3>Colonnes</h3><table>');
   n.c.forEach(c=>{
@@ -180,6 +204,7 @@ function select(id){
     inFk.forEach(l=>out.push(`<div class="rel" data-go="${l.source.id}">← ${l.source.id} <code>${l.sc}</code></div>`));}
   const a=document.getElementById('aside');a.classList.remove('hide');a.innerHTML=out.join('');
   a.querySelectorAll('[data-go]').forEach(el=>el.onclick=()=>{const t=el.dataset.go;if(!active.has(nmap.get(t).g))active.add(t&&nmap.get(t).g),render();select(t);centerOn(t)});
+  const db=a.querySelector('#deselect');if(db)db.onclick=()=>clearSelection(true);
   a.scrollTop=0;
 }
 
@@ -189,7 +214,16 @@ const zoom=d3.zoom().scaleExtent([.08,6]).wheelDelta(e=>{
   return -dy*0.0022;
 }).on('zoom',e=>{gRoot.attr('transform',e.transform);document.getElementById('lvl').textContent=Math.round(e.transform.k*100)+'%'});
 svg.call(zoom).on('dblclick.zoom',null);
-svg.on('click',e=>{if(e.target.id==='svg'){selected=null;paint();document.getElementById('aside').innerHTML='<div class="empty">Sélectionne une table dans le graphe.</div>'}});
+function clearSelection(repaint){
+  selected=null;
+  if(focusMode){focusMode=false;document.getElementById('focus').classList.remove('on');render();}
+  else if(repaint!==false)paint();
+  const a=document.getElementById('aside');
+  a.innerHTML='<div class="empty">Sélectionne une table dans le graphe (ou cherche-la) pour voir ses colonnes et ses relations.<br><br><b>'+DATA.nodes.length+' tables · '+links.length+' relations</b></div>';
+  a.classList.add('hide');
+}
+svg.on('click',e=>{if(!e.target.closest||!e.target.closest('g.node'))clearSelection(true)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(selected||focusMode)clearSelection(true);else{q.value='';query='';paint()}}});
 
 function fit(){
   const vis=nodeSel.data();if(!vis.length)return;
