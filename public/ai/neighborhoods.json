@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/neighborhoods.json",
-    "generated_at": "2026-08-09T04:52:14.367Z",
+    "generated_at": "2026-08-09T14:44:56.215Z",
     "count": 104
   },
   "neighborhoods": [
@@ -1514,6 +1514,10 @@
         {
           "name": "La table d'hôtes du Domaine Sauvage",
           "url": "https://oneworldmorocco.com/la-table-d-hotes-du-domaine-sauvage"
+        },
+        {
+          "name": "Le Figuier",
+          "url": "https://oneworldmorocco.com/le-figuier"
         },
         {
           "name": "Oberoi Fitness Center",
@@ -3103,16 +3107,16 @@
           "url": "https://oneworldmorocco.com/la-maison-arabe"
         },
         {
-          "name": "Le Figuier",
-          "url": "https://oneworldmorocco.com/le-figuier"
-        },
-        {
           "name": "Le Spa de la Maison Arabe",
           "url": "https://oneworldmorocco.com/le-spa-de-la-maison-arab"
         },
         {
           "name": "Les Trois Saveurs",
           "url": "https://oneworldmorocco.com/les-trois-saveurs"
+        },
+        {
+          "name": "Les Terrasses des Arts",
+          "url": "https://oneworldmorocco.com/les-terrasses-des-arts"
         },
         {
           "name": "Marrakech Insiders",

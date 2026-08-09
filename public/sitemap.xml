@@ -1052,7 +1052,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/base-nautique-jet-atlas</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -2078,7 +2078,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/cinema-le-colisee</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -3416,7 +3416,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/fora-wellness</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -4268,7 +4268,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/jnane-rumi</loc>
-    <lastmod>2026-08-08</lastmod>
+    <lastmod>2026-08-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -4448,7 +4448,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/kidzville-marrakech</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -5354,7 +5354,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/le-figuier</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -5912,7 +5912,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/les-terrasses-des-arts</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -7130,7 +7130,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/n-a-r-complexe-sportif</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -7676,7 +7676,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/ourika-oufla</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9896,7 +9896,7 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/surftwins-essaouira</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -11656,6 +11656,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/neighborhood/Route%20d&apos;Amizmiz</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/neighborhood/Kasbah</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -11672,11 +11677,6 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/neighborhood/Hassi%20Labied</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://oneworldmorocco.com/neighborhood/Route%20d&apos;Amizmiz</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>

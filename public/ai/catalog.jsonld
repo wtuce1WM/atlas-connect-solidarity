@@ -4106,7 +4106,7 @@
         "name": "Base nautique Jet Atlas",
         "url": "https://oneworldmorocco.com/base-nautique-jet-atlas",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/c1f804bd-2a90-4095-8f79-000ca6e86887-1772243368071-3lo9j.jpg",
-        "description": "Vous êtes plutôt détente ou sensations fortes ? Ou les deux ? Chez Jet Atlas, il y a forcément une attraction pour vous ! Idéales pour se détendre autour de notre piscine à débordement en sirotant un délicieux cocktail maison et profiter de diverses activités de jet-ski, ski nautique, flyboard, banane, wake board, quad, buggy dans un environnement agréable : les montagnes de l'Atlas.",
+        "description": "À environ 30 minutes de Marrakech , au bord du lac Lalla Takerkoust , Jet Atlas réunit dans un même lieu base nautique, restaurant, piscine à débordement et activités de plein air. Face aux montagnes de l’Atlas, le site offre une expérience particulièrement complète : une journée peut commencer par un café ou un déjeuner au bord de l’eau, se poursuivre par une session de jet-ski ou de wakeboard et se terminer tranquillement au bord de la piscine en admirant le paysage. Le cœur de l’expérience es",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Lac Lalla Takarkoust",
@@ -4123,7 +4123,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 3.8,
-          "reviewCount": 732,
+          "reviewCount": 757,
           "bestRating": 5
         }
       }
@@ -6399,7 +6399,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.2,
-          "reviewCount": 888,
+          "reviewCount": 892,
           "bestRating": 5
         }
       }
@@ -15383,7 +15383,7 @@
         "name": "Kidzville Marrakech",
         "url": "https://oneworldmorocco.com/kidzville-marrakech",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/b57e1bfa-3aeb-4e05-afc2-bd26b49a7218-1771951062474-lkq1gb.png",
-        "description": "KidzVille est un parc de jeu sous forme d’une mini ville adaptée à la taille des enfants, et ce dès qu’ils apprennent à marcher. À KidzVille, les enfants peuvent venir jouer aux adultes, apprendre les métiers, laisser libre cours à leur imagination et reproduire les évènements qu’ils vivent dans leur environnement quotidien à leur manière. Par exemple, les enfants pourront faire leur courses au supermarché à leur taille et passer à la caisse, un hôpital pour soigner les bobos, un salon de c",
+        "description": "À KidzVille, les enfants peuvent venir jouer aux adultes, apprendre les métiers, laisser libre cours à leur imagination et reproduire les évènements qu’ils vivent dans leur environnement quotidien à leur manière. Par exemple, les enfants pourront faire leur courses au supermarché à leur taille et passer à la caisse, un hôpital pour soigner les bobos, un salon de coiffure, restaurant, poste de police et plein d’autres espaces pour faire le plein de jeux et d’activités ludiques. Un atelier est é",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Centre commercial Almazar",
@@ -15400,7 +15400,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 180,
+          "reviewCount": 186,
           "bestRating": 5
         }
       }
@@ -18885,13 +18885,6 @@
         "url": "https://oneworldmorocco.com/le-figuier",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/0b40582b-2b10-4d5f-bf10-afcac161aa9b-1774731356863-dd765e.jpg",
         "description": "Situé dans les jardins luxuriants du Country Club de La Maison Arabe, Le Figuier est une adresse incontournable pour profiter d’un moment de détente loin de l’agitation de Marrakech. Niché à quelques minutes du centre-ville, ce bar-restaurant de piscine offre une atmosphère élégante et apaisante, idéale pour une escapade en journée. Entouré de verdure, de palmiers et d’espaces ombragés, Le Figuier séduit par son cadre naturel et son ambiance exclusive. Au bord de la piscine, les visiteurs peuven",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "Derb Assehbe",
-          "addressLocality": "Bab Doukkala",
-          "addressRegion": "Marrakech",
-          "addressCountry": "MA"
-        },
         "geo": {
           "@type": "GeoCoordinates",
           "latitude": 31.6281097,
@@ -21654,8 +21647,8 @@
         "description": "Les Terrasses des Arts est un restaurant-galerie-musée situé dans le quartier Bab Doukkala de la médina de Marrakech. Depuis sa terrasse rooftop, les convives profitent d'un panorama exceptionnel sur la médina historique, les minarets et les sommets enneigés du Haut Atlas. La carte célèbre la cuisine marocaine traditionnelle (tajines, couscous) et les classiques internationaux, servie à la carte le midi et le soir. Le lieu abrite également une galerie photo (expositions de Youssef Bouskri) et un",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "5 Derb L'Hôtel, Bab Doukkala",
-          "addressLocality": "Medina",
+          "streetAddress": "5 Derb L'Hôtel",
+          "addressLocality": "Bab Doukkala",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
         },
@@ -21668,7 +21661,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 580,
+          "reviewCount": 628,
           "bestRating": 5
         }
       }
@@ -42301,6 +42294,7 @@
         "name": "Fora Wellness",
         "url": "https://oneworldmorocco.com/fora-wellness",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/2cb15656-3086-4074-ab97-601801dde581-1780847933694-pny1ue.jpg",
+        "description": "Fora Wellness Marrakech est un espace de bien-être et de remise en forme exclusivement réservé aux femmes , situé en face du lycée Victor Hugo, au 2e étage du centre d’affaires Toudgha. Dans un cadre moderne, intimiste et apaisant, Fora Wellness propose une approche globale du bien-être où mouvement, renforcement musculaire et équilibre du corps et de l’esprit se rencontrent. L'activité phare du studio est le Pilates Reformer , pratiqué sur des machines premium et encadré par des instructrices e",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Centre d’affaires Toudgha",
@@ -48871,7 +48865,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 563,
+          "reviewCount": 570,
           "bestRating": 5
         }
       }
@@ -50779,6 +50773,14 @@
         "name": "Ourika Oufla",
         "url": "https://oneworldmorocco.com/ourika-oufla",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/ca7651f6-df97-443b-a9ed-57bc38588d62-1781588887805-prhml.jpg",
+        "description": "D ans les montagnes du Haut Atlas , Ourika Oufla est une adresse confidentielle qui combine hébergement, piscine extérieure, restaurant et panorama exceptionnel. Installé au douar Igueroufella , le lodge profite d'une position élevée qui offre de magnifiques vues sur la vallée, les montagnes et les paysages autour de Marrakech . L'une des grandes particularités d' Ourika Oufla est son cadre. Ici, l'expérience repose autant sur le paysage que sur le confort du lieu : terrasse, jardin, piscine ext",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Douar Igueroufella",
+          "addressLocality": "Route de l’Ourika",
+          "addressRegion": "Marrakech",
+          "addressCountry": "MA"
+        },
         "geo": {
           "@type": "GeoCoordinates",
           "latitude": 31.3444375,
@@ -50787,7 +50789,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 60,
+          "reviewCount": 65,
           "bestRating": 5
         }
       }
