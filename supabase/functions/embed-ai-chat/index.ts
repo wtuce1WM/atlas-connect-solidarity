@@ -15,6 +15,7 @@ import {
 import { createLovableAiGatewayProvider, normalizeGatewayBodyForModel } from "../_shared/ai-gateway.ts";
 import { AI_MODEL, getSurfaceConfig } from "../_shared/ai-engine/surfaces.ts";
 import { classify, isConfident } from "../_shared/ai-engine/classify.ts";
+import { detectViewIntent } from "../_shared/ai-engine/view-targets.ts";
 
 import {
   pickLang, fmtHours, normalize, levenshtein, DAY_KEYS, DAY_LABELS,
@@ -1139,7 +1140,11 @@ Deno.serve(async (req) => {
               (Array.isArray(args.badges) ? args.badges : []).forEach((b: string) => qParts.push(String(b).replace(/^#/, "")));
               (Array.isArray(args.services) ? args.services : []).forEach((s: string) => qParts.push(String(s).replace(/^#/, "")));
               if (args.neighborhood) qParts.push(String(args.neighborhood));
-              const fullQuery = qParts.filter(Boolean).join(" ").trim();
+              const baseQuery = qParts.filter(Boolean).join(" ").trim();
+              // « vue atlas » ≡ « vue montagne » : on injecte le nom EXACT du
+              // service/badge en base (panorama = attribut, jamais une distance).
+              const viewHints = detectViewIntent(baseQuery).panoramas.map((p) => p.attributeNames[0]);
+              const fullQuery = viewHints.length ? `${baseQuery} ${viewHints.join(" ")}`.trim() : baseQuery;
               const city = args.city || host.city || "Marrakech";
               const subcategoryNames: string[] | undefined = Array.isArray(args._subcategoryNames) && args._subcategoryNames.length
                 ? args._subcategoryNames.map((s: any) => String(s)).filter(Boolean)

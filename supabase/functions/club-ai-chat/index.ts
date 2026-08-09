@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { fetchAiGateway, resolveCallerContext, normalizeGatewayBodyForModel } from "../_shared/ai-gateway.ts";
 import { AI_MODEL, getSurfaceConfig } from "../_shared/ai-engine/surfaces.ts";
 import { classify, isConfident, type ClassifyResult } from "../_shared/ai-engine/classify.ts";
+import { detectViewIntent, hasPanoramaAttribute, hasPanoramaProof, withinPointRadius } from "../_shared/ai-engine/view-targets.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -980,7 +981,14 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         .replace(/[?!.,;:()"“”«»]/g, " ")
         .replace(/\s+/g, " ")
         .trim();
-      const fullQuery = forcedQuery || (lastUserQuery.length >= 4 ? lastUserQuery : aiQuery);
+      const baseQuery = forcedQuery || (lastUserQuery.length >= 4 ? lastUserQuery : aiQuery);
+      // « vue atlas » / « vue montagne » / « vue mer » : on injecte le nom EXACT
+      // du service/badge existant en base pour que le moteur /search le capte.
+      const preViewIntent = detectViewIntent(`${ctx.lastUserMessage || ""} ${ctx.forceQuery || ""} ${args.query || ""}`);
+      const viewAttributeHints = preViewIntent.panoramas.map((p) => p.attributeNames[0]);
+      const fullQuery = viewAttributeHints.length
+        ? `${baseQuery} ${viewAttributeHints.join(" ")}`.trim()
+        : baseQuery;
 
       // Appel business-search (même moteur que /search) — direct fetch pour éviter
       // les aléas de `functions.invoke` depuis Deno (parfois body non transmis).
@@ -1066,37 +1074,64 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         return false;
       };
 
-      // Landmark proof (Koutoubia, Jemaa el-Fna, Menara, Bab Agnaou, Kasbah…)
-      const LANDMARKS: Array<{ tokens: RegExp; label: string }> = [
-        { tokens: /\bkoutoubia|kutubiyya\b/, label: "koutoubia" },
-        { tokens: /\bjemaa\s*el[- ]?fna|jamaa\s*el[- ]?fna|djemaa|place\s+jemaa\b/, label: "jemaa el fna" },
-        { tokens: /\bmenara\b/, label: "menara" },
-        { tokens: /\bbab\s+agnaou\b/, label: "bab agnaou" },
+      // ---- « Vue sur X » : deux natures, deux stratégies (source partagée) ---
+      //  · PANORAMA (Atlas/montagne, mer, ville, désert) → filtre DUR sur les
+      //    services/badges existants (« Vue montagne », « Vue sur mer »…). Le
+      //    rayon n'a aucun sens ici (l'Atlas est à 50 km et pourtant visible).
+      //  · POINT (Koutoubia, Jemaa el-Fna, Ménara…) → rayon ≈1 km autour du
+      //    repère, la preuve textuelle ne servant qu'à confirmer.
+      const viewIntent = detectViewIntent(intentSource);
+      const viewPanoramas = viewIntent.panoramas;
+      const viewPoints = viewIntent.points;
+      const requiredLandmarks: Array<{ label: string }> = [
+        ...viewPanoramas.map((p) => ({ label: p.label })),
+        ...viewPoints.map((p) => ({ label: p.label })),
       ];
-      const requiredLandmarks = LANDMARKS.filter((l) => l.tokens.test(intentSource));
 
-      // Need descriptions to check landmark proof and bar wording
+      // Need descriptions (preuve textuelle) + badges (attributs panorama)
       let descPre = new Map<string, string>();
+      let badgesPre = new Map<string, string[]>();
       if ((requiredLandmarks.length || requiresBar) && allBusinesses.length) {
         const preIds = allBusinesses.map((b: any) => b.id).filter(Boolean);
-        const { data: preDesc } = await ctx.supabase
-          .from("businesses")
-          .select("id,description")
-          .in("id", preIds);
-        (preDesc || []).forEach((r: any) => descPre.set(r.id, norm(r.description || "")));
+        const [preDescRes, preBadgeRes] = await Promise.all([
+          ctx.supabase.from("businesses").select("id,description").in("id", preIds),
+          viewPanoramas.length
+            ? ctx.supabase
+                .from("business_badges")
+                .select("business_id, badges(name_fr)")
+                .in("business_id", preIds)
+            : Promise.resolve({ data: [] as any[] }),
+        ]);
+        (preDescRes.data || []).forEach((r: any) => descPre.set(r.id, norm(r.description || "")));
+        (preBadgeRes.data || []).forEach((r: any) => {
+          const nameFr = r?.badges?.name_fr;
+          if (!nameFr) return;
+          const arr = badgesPre.get(r.business_id) || [];
+          arr.push(nameFr);
+          badgesPre.set(r.business_id, arr);
+        });
       }
 
-      const matchesLandmark = (b: any) => {
-        if (!requiredLandmarks.length) return true;
-        const text = [
-          norm(b.name),
-          norm(b.hook_fr),
-          norm(b.hook_en),
-          norm(b.hook_ar),
-          descPre.get(b.id) || "",
-        ].join(" ");
-        return requiredLandmarks.every((l) => l.tokens.test(text));
+      const bizText = (b: any) =>
+        [norm(b.name), norm(b.hook_fr), norm(b.hook_en), norm(b.hook_ar), descPre.get(b.id) || ""].join(" ");
+
+      // Panorama : attribut en base (déterministe) OU preuve textuelle (secours)
+      const matchesPanoramas = (b: any) => {
+        if (!viewPanoramas.length) return true;
+        return viewPanoramas.every(
+          (p) =>
+            hasPanoramaAttribute(p, { services: b.services, badgeNames: badgesPre.get(b.id) || [] }) ||
+            hasPanoramaProof(p, bizText(b)),
+        );
       };
+      // Repère ponctuel : dans le rayon OU cité explicitement
+      const matchesPoints = (b: any) => {
+        if (!viewPoints.length) return true;
+        return viewPoints.every(
+          (p) => withinPointRadius(p, b.latitude, b.longitude) || p.tokens.test(bizText(b)),
+        );
+      };
+      const matchesLandmark = (b: any) => matchesPanoramas(b) && matchesPoints(b);
       const barConfirmed = (b: any) => {
         if (!requiresBar) return true;
         if (hasBar(b)) return true;
@@ -1105,11 +1140,9 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       };
 
       const hasStrictRequirements = excludeHotel || requiresBar || requiredLandmarks.length > 0;
-      // Les critères DURS (catégorie requise / exclusion explicite) éliminent.
-      // Le repère géographique (« vue sur la Koutoubia ») n'est PAS documenté de
-      // façon fiable en base : il sert à classer, pas à éliminer. S'il vide la
-      // liste alors que les critères durs, eux, matchent, on garde les résultats
-      // durs (repère en tête) au lieu de renvoyer 0.
+      // Critères DURS (catégorie requise / exclusion explicite) → éliminent.
+      // Vue : éliminatoire aussi (attribut base / rayon), mais si ça vide tout
+      // alors que les critères durs matchent, on assouplit au lieu de rendre 0.
       const hardFiltered = allBusinesses.filter((b: any) => {
         if (excludeHotel && isHotelLike(b)) return false;
         if (!barConfirmed(b)) return false;
@@ -1125,7 +1158,9 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       if (droppedCount > 0 || landmarkSoftened) {
         console.log("club-ai-chat → post-filter", JSON.stringify({
           intentSource: intentSource.slice(0, 120),
-          excludeHotel, requiresBar, landmarks: requiredLandmarks.map((l) => l.label),
+          excludeHotel, requiresBar,
+          panoramas: viewPanoramas.map((p) => p.slug),
+          points: viewPoints.map((p) => p.slug),
           before: allBusinesses.length, hard: hardFiltered.length, landmark: landmarkFiltered.length,
           landmarkSoftened, after: filtered.length,
         }));
@@ -3110,11 +3145,11 @@ Outils disponibles : get_weather, search_businesses, get_business_details, searc
    (c) Pour trancher, appuie-toi sur les champs enrichis retournés par search_businesses : \`hook_fr/en/ar\`, \`description\`, et \`highlights\` (titre + description des blocs). Si aucun de ces champs ne confirme le caractère « restaurant public », n'inclus PAS l'établissement dans une réponse « où dîner ».
    (d) Quand le membre affine une liste précédente avec une intention qui change la catégorie requise (ex. rooftops → « lequel pour dîner ? », hôtels → « lequel a le meilleur spa ? »), **relance search_businesses** avec la nouvelle catégorie/service (ex. \`category: "restaurant"\` + \`services: ["Restaurant"]\` + le contexte rooftop/ville) au lieu de filtrer mentalement la liste précédente. Ne réutilise la liste précédente que si l'intention ne change pas de nature.
 
-14. **VUE SUR UN MONUMENT / LIEU SPÉCIFIQUE (« vue sur X », « face à X », « donnant sur X », « overlooking X », « view of X ») — filtre strict par preuve textuelle** : dès que le membre demande une vue sur un monument, une place ou un lieu identifiable (ex. Koutoubia, Jemaa el-Fna, Menara, Atlas, océan, port, médina, Bab Agnaou, kasbah…), tu dois :
-   (a) Appeler search_businesses en incluant le nom du monument/lieu dans le champ \`query\` (ex. \`query: "rooftop koutoubia"\`), en plus des services/badges pertinents (ex. \`services: ["Rooftop"]\`), ville, etc. N'utilise PAS uniquement un filtre générique « Rooftop » — la requête doit contenir le mot du monument.
-   (b) Après réception, ne conserve QUE les établissements dont **le nom, le \`hook_fr/en/ar\`, la \`description\` ou un \`highlights\` (title/description) contient explicitement le nom du monument/lieu** (insensible aux accents et à la casse, tolère les variantes courantes : « Koutoubia » ↔ « Kutubiyya », « Jemaa el-Fna » ↔ « Jamaa el Fna » ↔ « Place »…). Les autres, même s'ils sont des rooftops à Marrakech, ne prouvent PAS la vue demandée — **ne les cite pas** et ne les inclus pas dans la carte.
-   (c) Si après ce filtre il reste moins d'établissements que le membre a demandé (ex. « 15 résultats » mais seulement 4 confirmés), dis-le franchement : « Je n'ai que N établissements où la vue sur X est explicitement documentée. Je peux élargir aux rooftops de la zone (sans garantie de vue sur X) — veux-tu ? ». Ne complète JAMAIS avec des rooftops génériques en prétendant qu'ils ont la vue.
-   (d) Même règle pour show_on_map : ne passe QUE les slugs qui ont passé le filtre (b).
+14. **VUE SUR X (« vue sur X », « face à X », « donnant sur X », « overlooking X »)** : il y a DEUX natures de vue, ne les confonds pas.
+   (a) **Panorama** (Atlas / montagne / montagnes / mountains, mer / océan / Atlantique, ville / médina / toits, désert / palmeraie) : « vue atlas » et « vue montagne » sont STRICTEMENT la même demande. Appelle search_businesses avec le nom EXACT du service/badge en base : \`services: ["Vue montagne"]\` (Atlas & montagne), \`["Vue sur mer"]\` (mer & océan), \`["Vue sur la ville"]\` (ville & médina). Aucune notion de distance ici : l'Atlas est à 50 km de Marrakech et pourtant visible — ne rejette JAMAIS un établissement au motif qu'il est loin du repère.
+   (b) **Repère ponctuel géolocalisé** (Koutoubia, Jemaa el-Fna, Ménara, Bab Agnaou, Palais Bahia, Majorelle, Sqala, port d'Essaouira) : inclus le nom du repère dans \`query\` (ex. \`query: "rooftop koutoubia"\`) en plus des services pertinents. Le serveur applique un rayon d'environ 1 km autour du repère — ne conserve pas un établissement de l'autre bout de la ville.
+   (c) Le serveur applique déjà ces filtres avant de te livrer results[] : ne réintroduis JAMAIS un établissement absent de results[], et n'invente jamais une vue non documentée. Si \`landmark_softened\` est vrai, présente les résultats comme valides en précisant simplement, en une phrase, que la vue n'est pas documentée.
+   (d) Même règle pour show_on_map : ne passe QUE les slugs présents dans map_slugs.
 
 15. **INTENTION COMPOSÉE (ET STRICT) — « rooftop bar », « restaurant avec piscine », « spa avec hammam »…** : quand le membre combine deux attributs dans la même demande (ex. « rooftop bar », « bar avec terrasse », « restaurant piscine », « riad spa »), tu dois exiger la présence des DEUX conditions simultanément, jamais l'une OU l'autre.
    (a) Décompose la demande en attributs distincts (ex. « rooftop bar » → { rooftop, bar }, « restaurant avec piscine » → { restaurant, piscine }).
