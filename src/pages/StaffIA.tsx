@@ -3,10 +3,11 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, ArrowLeft, BarChart3, BookOpen, Sparkles, Brain, MessageSquare, LayoutDashboard, Zap, Code2, Search, Cpu } from "lucide-react";
+import { LogOut, ArrowLeft, BarChart3, BookOpen, Sparkles, Brain, MessageSquare, LayoutDashboard, Zap, Code2, Search, Cpu, FlaskConical } from "lucide-react";
 import IADashboard from "@/components/staff/IADashboard";
 import AiEngineGuide from "@/components/staff/AiEngineGuide";
 import AiRoutesManagement from "@/components/staff/AiRoutesManagement";
+import AiEngineTestMode from "@/components/staff/AiEngineTestMode";
 import AIConfigManagement from "@/components/staff/AIConfigManagement";
 import ClubAiSuggestionsManagement from "@/components/staff/ClubAiSuggestionsManagement";
 import ClubAiFollowupsManagement from "@/components/staff/ClubAiFollowupsManagement";
@@ -165,6 +166,10 @@ const StaffIA = () => {
                   <Cpu className="h-4 w-4" />
                   Routes
                 </TabsTrigger>
+                <TabsTrigger value="test" className="gap-2">
+                  <FlaskConical className="h-4 w-4" />
+                  Mode test
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="guide">
                 <AiEngineGuide onNavigateTab={setActiveTab} />
@@ -172,8 +177,12 @@ const StaffIA = () => {
               <TabsContent value="routes">
                 <AiRoutesManagement />
               </TabsContent>
+              <TabsContent value="test">
+                <AiEngineTestMode />
+              </TabsContent>
             </Tabs>
           </TabsContent>
+
 
           <TabsContent value="ai-config">
             <AIConfigManagement />
