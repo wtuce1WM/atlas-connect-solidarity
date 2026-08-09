@@ -18,7 +18,10 @@ interface MediaViewerInfoProps {
   onOpen: () => void;
   /** Drapeaux des langues (desktop) */
   flagsSlot?: React.ReactNode;
+  /** Sans fond/bordure : le fond est fourni par le conteneur parent */
+  bare?: boolean;
 }
+
 
 const MORE: Record<string, string> = { fr: "plus", en: "more", ar: "المزيد" };
 const REVIEWS: Record<string, string> = { fr: "avis", en: "reviews", ar: "آراء" };
