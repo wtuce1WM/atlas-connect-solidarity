@@ -1848,6 +1848,40 @@ const BookOnlineSlidePanelInner = ({
   const externalVideoInteractiveMode = cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type !== "file";
   const availabilityConfirmationShown = cardsHidden && (hotelSearchLoading || !!fallbackPanelData);
 
+  // Plein écran de la vidéo de fond :
+  // - fichier hébergé → lecteur natif (contrôles liquid glass iOS)
+  // - YouTube/Vimeo → overlay vidéo existant
+  const expandBackgroundVideo = useCallback(() => {
+    if (effectiveMedia?.kind !== "video") return;
+    if (videoInfo?.type === "file") {
+      const v = videoRef.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null;
+      if (!v) return;
+      v.controls = true;
+      if (typeof v.webkitEnterFullscreen === "function") {
+        const onEnd = () => { v.controls = false; v.removeEventListener("webkitendfullscreen", onEnd); };
+        v.addEventListener("webkitendfullscreen", onEnd);
+        v.webkitEnterFullscreen();
+        return;
+      }
+      if (typeof v.requestFullscreen === "function") {
+        const onFs = () => {
+          if (document.fullscreenElement) return;
+          v.controls = false;
+          document.removeEventListener("fullscreenchange", onFs);
+        };
+        document.addEventListener("fullscreenchange", onFs);
+        v.requestFullscreen().catch(() => { v.controls = false; });
+      }
+      return;
+    }
+    setActiveVideoOverlay({
+      url: effectiveMedia.url,
+      name: (effectiveMedia as any).name ?? null,
+      description: null,
+    });
+  }, [effectiveMedia, videoInfo?.type]);
+
+
   const goMedia = useCallback((dir: 1 | -1) => {
     if (totalMedia <= 1) return;
     if (cardsHidden && matterportPinnedInHiddenMode && matterportIndex >= 0) {
