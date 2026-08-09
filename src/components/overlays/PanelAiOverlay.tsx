@@ -230,17 +230,27 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
     setTimeout(() => { setClosing(false); onClose(); }, 200);
   }, [onClose, ttsStop]);
 
-  const sendChat = useCallback(async () => {
-    const text = chatInput.trim();
+  const sendChat = useCallback(async (opts?: { text?: string; curatedRoute?: string | null; fixedResponse?: string | null }) => {
+    const text = (opts?.text ?? chatInput).trim();
     if (!text || chatLoading) return;
     ttsStop();
-    setChatInput("");
+    if (!opts?.text) setChatInput("");
+    // Réponse fixe éditorialisée (classe A, zéro token) → rendu direct.
+    if (opts?.fixedResponse) {
+      setChatTurns((prev) => [
+        ...prev,
+        { role: "user", content: text },
+        { role: "assistant", content: opts.fixedResponse as string },
+      ]);
+      return;
+    }
     // Seed history with the initial AI suggestion so the model keeps context
     const history = answer
       ? [{ role: "assistant" as const, content: answer }, ...chatTurns]
       : [...chatTurns];
     setChatTurns((prev) => [...prev, { role: "user", content: text }]);
     setChatLoading(true);
+
     try {
       // For the server-side search, use ONLY the current turn's text so a new
       // intent (e.g. switching from "hébergement" to "artisans") isn't polluted
