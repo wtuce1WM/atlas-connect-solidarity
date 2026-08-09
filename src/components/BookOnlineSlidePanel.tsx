@@ -2498,7 +2498,7 @@ const BookOnlineSlidePanelInner = ({
       )}
 
       {/* Full Description Overlay */}
-      {showDescriptionOverlay && (woDescription || hasHighlights || descGridSection || descOverlayContent) && (
+      {showDescriptionOverlay && (woDescription || hasHighlights || descGridSection || descOverlayContent || !!hookText || (avgOn20 != null && totalReviewCount > 0) || images.length > 0 || (nonExternalVideoDocs.length + externalVideoDocs.length) > 0) && (
         <OverlayShell zClass="z-[80]" animClass="animate-zoom-out-center" className="flex flex-col">
           {images[0] && (
             <div
