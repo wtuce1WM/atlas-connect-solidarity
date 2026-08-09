@@ -1864,7 +1864,8 @@ const BookOnlineSlidePanelInner = ({
   const anyOverlay = showDirections || showBookingOverlay || !!docOverlay || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId || showPoiMapOverlay || !!activeVideoOverlay || isLightboxOpen || showMosaic || showYoutubeOverlay || showExternalVideosOverlay || !!availabilityOverlayCtx || !!serpApiOverlayCtx || showFallbackOverlay || !!externalOverlayActive;
 
   // Aucune barre liquid-glass du bas quand un overlay Google Map est ouvert (POI / Itinéraire / Carte)
-  const mapOverlayOpen = showPoiMapOverlay || showDirections;
+  // ...sauf quand une fiche est ouverte par-dessus la carte (sous-panneau POI / KP)
+  const mapOverlayOpen = (showPoiMapOverlay || showDirections) && !selectedPoiBusinessId && !selectedKpBusinessId;
   useEffect(() => {
     if (!mapOverlayOpen) return;
     document.body.dataset.mapOverlay = "1";
