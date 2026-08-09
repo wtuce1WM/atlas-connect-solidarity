@@ -2381,7 +2381,7 @@ const BookOnlineSlidePanelInner = ({
               teaser={viewerTeaser}
               language={language}
               bare
-              onOpen={(rect) => { console.log("[MORPH] open", rect?.top, rect?.height); descMorphRectRef.current = rect ?? null; setShowDescriptionOverlay(true); }}
+              onOpen={(rect) => { descMorphRectRef.current = rect ? { rect, t: Date.now() } : null; setShowDescriptionOverlay(true); }}
             />
           ) : undefined}
         />
