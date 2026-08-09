@@ -2749,7 +2749,7 @@ const BookOnlineSlidePanelInner = ({
                             className="absolute block h-full w-1/2"
                             style={{
                               background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)",
-                              animation: "owm-badge-sweep 0.5s linear 1 forwards",
+                              animation: "owm-badge-sweep 0.5s linear 0.5s 1 both",
                             }}
                           />
                         </span>

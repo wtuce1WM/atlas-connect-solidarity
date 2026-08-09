@@ -165,7 +165,7 @@ const DescAnchorBar = ({ containerId, deps, language = "fr" }: DescAnchorBarProp
     <div
       dir="ltr"
       ref={wheelRef}
-      className="flex items-center gap-1.5 min-w-0 max-w-full overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden touch-pan-x cursor-grab"
+      className="animate-fade-in flex items-center gap-1.5 min-w-0 max-w-full overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden touch-pan-x cursor-grab"
     >
 
       {anchors.map((a) => (
