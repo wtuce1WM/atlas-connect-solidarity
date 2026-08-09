@@ -2295,7 +2295,18 @@ const BookOnlineSlidePanelInner = ({
         onClick={(e) => {
           if (externalVideoInteractiveMode) return;
           if (e.target !== e.currentTarget) return;
+          // Mobile : tap au centre de la vidéo de fond → plein écran natif
+          if (effectiveMedia?.kind === "video" && window.matchMedia("(max-width: 767px)").matches) {
+            const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+            const x = (e.clientX - r.left) / r.width;
+            const y = (e.clientY - r.top) / r.height;
+            if (x > 0.3 && x < 0.7 && y > 0.3 && y < 0.7) {
+              expandBackgroundVideo();
+              return;
+            }
+          }
           if (cardsHidden) showCards(); else hideCards();
+
         }}
 
       >
