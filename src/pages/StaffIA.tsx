@@ -3,8 +3,10 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, ArrowLeft, BarChart3, BookOpen, Sparkles, Brain, MessageSquare, LayoutDashboard, Zap, Code2, Search } from "lucide-react";
+import { LogOut, ArrowLeft, BarChart3, BookOpen, Sparkles, Brain, MessageSquare, LayoutDashboard, Zap, Code2, Search, Cpu } from "lucide-react";
 import IADashboard from "@/components/staff/IADashboard";
+import AiEngineGuide from "@/components/staff/AiEngineGuide";
+import AiRoutesManagement from "@/components/staff/AiRoutesManagement";
 import AIConfigManagement from "@/components/staff/AIConfigManagement";
 import ClubAiSuggestionsManagement from "@/components/staff/ClubAiSuggestionsManagement";
 import ClubAiFollowupsManagement from "@/components/staff/ClubAiFollowupsManagement";
@@ -104,10 +106,15 @@ const StaffIA = () => {
               <LayoutDashboard className="h-4 w-4" />
               Dashboard
             </TabsTrigger>
+            <TabsTrigger value="engine" className="gap-2">
+              <Cpu className="h-4 w-4" />
+              Moteur IA
+            </TabsTrigger>
             <TabsTrigger value="ai-config" className="gap-2">
               <Sparkles className="h-4 w-4" />
               IA
             </TabsTrigger>
+
             <TabsTrigger value="club-ai-suggestions" className="gap-2">
               <MessageSquare className="h-4 w-4" />
               Suggestions Chat IA du Club
@@ -145,6 +152,27 @@ const StaffIA = () => {
 
           <TabsContent value="dashboard">
             <IADashboard onNavigateTab={setActiveTab} />
+          </TabsContent>
+
+          <TabsContent value="engine">
+            <Tabs defaultValue="guide">
+              <TabsList className="mb-4">
+                <TabsTrigger value="guide" className="gap-2">
+                  <BookOpen className="h-4 w-4" />
+                  Fonctionnement
+                </TabsTrigger>
+                <TabsTrigger value="routes" className="gap-2">
+                  <Cpu className="h-4 w-4" />
+                  Routes
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="guide">
+                <AiEngineGuide onNavigateTab={setActiveTab} />
+              </TabsContent>
+              <TabsContent value="routes">
+                <AiRoutesManagement />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
           <TabsContent value="ai-config">
