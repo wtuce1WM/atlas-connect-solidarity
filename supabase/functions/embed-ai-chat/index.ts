@@ -728,27 +728,6 @@ async function buildCityEngagementSearch(
 
 
 
-const FS_EMOJI: Record<string, string> = {
-  "Restauration": "🍽️", "Hébergement": "🏨", "Bien-être": "🌿", "Vie nocturne": "🌙",
-  "Culture": "🎭", "Artisanat marocain": "🧵", "Décoration": "🛋️", "Sport & Loisirs": "🏄",
-  "Shopping": "🛍️", "Alimentation": "🥖", "Transport": "🚕", "Informatique": "💻",
-  "Immobilier": "🏡", "Santé": "🩺", "Auto / Moto": "🚗",
-};
-
-const FS_I18N: Record<string, { en: string; ar: string }> = {
-  "Restauration": { en: "Restaurants", ar: "المطاعم" },
-  "Hébergement": { en: "Accommodation", ar: "الإقامة" },
-  "Bien-être": { en: "Wellness", ar: "العافية" },
-  "Vie nocturne": { en: "Nightlife", ar: "الحياة الليلية" },
-  "Culture": { en: "Culture", ar: "الثقافة" },
-  "Artisanat marocain": { en: "Moroccan crafts", ar: "الحرف المغربية" },
-  "Décoration": { en: "Decoration", ar: "الديكور" },
-  "Sport & Loisirs": { en: "Sports & Leisure", ar: "الرياضة والترفيه" },
-  "Shopping": { en: "Shopping", ar: "التسوق" },
-  "Alimentation": { en: "Food", ar: "الأغذية" },
-  "Transport": { en: "Transport", ar: "النقل" },
-  "Informatique": { en: "IT", ar: "المعلوماتية" },
-  "Immobilier": { en: "Real estate", ar: "العقارات" },
   "Santé": { en: "Health", ar: "الصحة" },
   "Auto / Moto": { en: "Auto / Moto", ar: "السيارات" },
 };

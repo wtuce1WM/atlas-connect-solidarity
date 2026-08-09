@@ -91,3 +91,25 @@ export function haversineKmLocal(lat1: number, lon1: number, lat2: number, lon2:
   const a = Math.sin(dLat / 2) ** 2 + Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
+
+export const FS_EMOJI: Record<string, string> = {
+  "Restauration": "🍽️", "Hébergement": "🏨", "Bien-être": "🌿", "Vie nocturne": "🌙",
+  "Culture": "🎭", "Artisanat marocain": "🧵", "Décoration": "🛋️", "Sport & Loisirs": "🏄",
+  "Shopping": "🛍️", "Alimentation": "🥖", "Transport": "🚕", "Informatique": "💻",
+  "Immobilier": "🏡", "Santé": "🩺", "Auto / Moto": "🚗",
+};
+
+export const FS_I18N: Record<string, { en: string; ar: string }> = {
+  "Restauration": { en: "Restaurants", ar: "المطاعم" },
+  "Hébergement": { en: "Accommodation", ar: "الإقامة" },
+  "Bien-être": { en: "Wellness", ar: "العافية" },
+  "Vie nocturne": { en: "Nightlife", ar: "الحياة الليلية" },
+  "Culture": { en: "Culture", ar: "الثقافة" },
+  "Artisanat marocain": { en: "Moroccan crafts", ar: "الحرف المغربية" },
+  "Décoration": { en: "Decoration", ar: "الديكور" },
+  "Sport & Loisirs": { en: "Sports & Leisure", ar: "الرياضة والترفيه" },
+  "Shopping": { en: "Shopping", ar: "التسوق" },
+  "Alimentation": { en: "Food", ar: "الأغذية" },
+  "Transport": { en: "Transport", ar: "النقل" },
+  "Informatique": { en: "IT", ar: "المعلوماتية" },
+  "Immobilier": { en: "Real estate", ar: "العقارات" },

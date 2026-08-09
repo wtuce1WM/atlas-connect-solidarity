@@ -1,7 +1,7 @@
 // Extrait verbatim de supabase/functions/embed-ai-chat/index.ts (moteur A/B/C, étape 3).
 // Aucune réécriture : le rendu est déjà validé en production.
 
-import { normalize, haversineKmLocal, toMapMarker, fmtKm } from "./shared.ts";
+import { normalize, haversineKmLocal, toMapMarker, fmtKm, FS_EMOJI, FS_I18N } from "./shared.ts";
 
 export function isNearbyOverviewIntent(text: string, hostName?: string): boolean {
   const q = String(text ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
