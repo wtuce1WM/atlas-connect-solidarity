@@ -8,6 +8,7 @@ import IADashboard from "@/components/staff/IADashboard";
 import AiEngineGuide from "@/components/staff/AiEngineGuide";
 import AiRoutesManagement from "@/components/staff/AiRoutesManagement";
 import AiEngineTestMode from "@/components/staff/AiEngineTestMode";
+import AiEngineTestBench from "@/components/staff/AiEngineTestBench";
 import AIConfigManagement from "@/components/staff/AIConfigManagement";
 import ClubAiSuggestionsManagement from "@/components/staff/ClubAiSuggestionsManagement";
 import ClubAiFollowupsManagement from "@/components/staff/ClubAiFollowupsManagement";
