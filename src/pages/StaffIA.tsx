@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, ArrowLeft, BarChart3, BookOpen, Sparkles, Brain, MessageSquare, LayoutDashboard, Zap, Code2, Search, Cpu, FlaskConical } from "lucide-react";
+import { LogOut, ArrowLeft, BarChart3, BookOpen, Sparkles, Brain, MessageSquare, LayoutDashboard, Zap, Code2, Search, Cpu, FlaskConical, Play } from "lucide-react";
 import IADashboard from "@/components/staff/IADashboard";
 import AiEngineGuide from "@/components/staff/AiEngineGuide";
 import AiRoutesManagement from "@/components/staff/AiRoutesManagement";
