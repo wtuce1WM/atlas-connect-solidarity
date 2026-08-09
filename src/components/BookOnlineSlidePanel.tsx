@@ -3898,7 +3898,7 @@ const BookOnlineSlidePanelInner = ({
                   label: translateSubcategory(name, language),
                   count,
                 }))}
-                selectedKey={poiSubcatFilter}
+                selectedKey={poiSubcatFilterEff}
                 allLabel={language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
                 onSelectAll={() => { resetWidgetMapView(); setPoiSubcatFilter(null); setPoiPillOverlay(null); }}
                 onSelect={(key) => { resetWidgetMapView(); setPoiCatFilter(null); setCatSubcatFilter(null); setPoiSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
