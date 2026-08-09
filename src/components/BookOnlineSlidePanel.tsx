@@ -1032,6 +1032,21 @@ const BookOnlineSlidePanelInner = ({
     return () => window.removeEventListener("keydown", onKey, true);
   }, [showDescriptionOverlay, descGridSection, descOverlayContent, descOverlayDirect]);
 
+  // À l'ouverture de l'overlay Full Description : toujours démarrer en haut
+  // (des sections comme "Réservez" / iframes peuvent forcer un scroll auto)
+  useEffect(() => {
+    if (!showDescriptionOverlay) return;
+    const timers: number[] = [];
+    const reset = () => {
+      const el = document.getElementById("owm-desc-scroll");
+      if (el) el.scrollTop = 0;
+    };
+    reset();
+    requestAnimationFrame(reset);
+    [50, 150, 300, 600, 1000].forEach((d) => timers.push(window.setTimeout(reset, d)));
+    return () => timers.forEach(clearTimeout);
+  }, [showDescriptionOverlay, descGridSection, descOverlayContent]);
+
   const hideCardsRef = useRef<() => void>(() => {});
   const hasSerpMapping = !!serpApiMapping || !!liteApiHotelId;
 
@@ -2731,10 +2746,10 @@ const BookOnlineSlidePanelInner = ({
                         <span aria-hidden="true" className="pointer-events-none absolute top-0 left-2 right-2 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
                         <span aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden rounded-full">
                           <span
-                            className="absolute block h-full w-1/2 -skew-x-12"
+                            className="absolute block h-full w-1/2"
                             style={{
                               background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)",
-                              animation: "shimmer 0.7s ease-out 1 forwards",
+                              animation: "owm-badge-sweep 0.5s linear 1 forwards",
                             }}
                           />
                         </span>

@@ -1111,3 +1111,9 @@ body[data-map-overlay="1"] .owm-panel-searchbar {
 @media (prefers-reduced-motion: reduce) {
   .owm-reveal { opacity: 1; transform: none; transition: none; }
 }
+
+/* Badge avis — sweep shimmer qui traverse entièrement le badge, une seule fois */
+@keyframes owm-badge-sweep {
+  0% { transform: translateX(-120%) skewX(-12deg); }
+  100% { transform: translateX(320%) skewX(-12deg); }
+}
