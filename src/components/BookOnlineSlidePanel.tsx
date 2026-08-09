@@ -1325,12 +1325,21 @@ const BookOnlineSlidePanelInner = ({
   }, [businessId, currentMediaIndex]);
 
   // Unified flag: true when any overlay or welcome popup is open on top of the slidepanel.
-  // Used both to mute background media and to disable swipe/wheel navigation.
+  // Used to disable swipe/wheel navigation and expose overlay state to ancestors.
   const anyOverlayOpen =
     showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
     !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
     !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
     showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || showDescriptionOverlay || !!forceMuted || showWelcomePopup || showPromosPopup;
+
+  // Same as anyOverlayOpen but excluding welcome/promo popups so the background video
+  // keeps playing and sound stays on while the popup is visible.
+  const mediaBlockingOverlayOpen =
+    showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
+    !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
+    !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
+    showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || showDescriptionOverlay || !!forceMuted;
+
 
   // Expose overlay state to ancestors (e.g. SearchPage wheel/swipe handlers)
   // so they can disable business navigation while an overlay is open above the panel.
