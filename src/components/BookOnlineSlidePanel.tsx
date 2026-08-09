@@ -1325,12 +1325,21 @@ const BookOnlineSlidePanelInner = ({
   }, [businessId, currentMediaIndex]);
 
   // Unified flag: true when any overlay or welcome popup is open on top of the slidepanel.
-  // Used both to mute background media and to disable swipe/wheel navigation.
+  // Used to disable swipe/wheel navigation and expose overlay state to ancestors.
   const anyOverlayOpen =
     showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
     !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
     !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
     showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || showDescriptionOverlay || !!forceMuted || showWelcomePopup || showPromosPopup;
+
+  // Same as anyOverlayOpen but excluding welcome/promo popups so the background video
+  // keeps playing and sound stays on while the popup is visible.
+  const mediaBlockingOverlayOpen =
+    showDirections || !!selectedDestinationId || !!selectedPoiBusinessId || !!selectedKpBusinessId ||
+    !!docOverlay || showBookingOverlay || showYoutubeOverlay || showExternalVideosOverlay || showMosaic ||
+    !!externalOverlayActive || showPoiMapOverlay || !!activeVideoOverlay ||
+    showFallbackOverlay || searchOverlayActive || hashtagsOverlayActive || aiOverlayActive || showDescriptionOverlay || !!forceMuted;
+
 
   // Expose overlay state to ancestors (e.g. SearchPage wheel/swipe handlers)
   // so they can disable business navigation while an overlay is open above the panel.
@@ -1354,10 +1363,11 @@ const BookOnlineSlidePanelInner = ({
   }, [showWelcomePopup, showPromosPopup]);
 
 
-  // Pause/mute background media when an overlay is open — same mute gate as the Search overlay.
+  // Pause/mute background media when a blocking overlay is open — same mute gate as the Search overlay.
   // The refs are read inside the retry loop because YouTube iframes can mount after the state flip.
   useEffect(() => {
-    const overlayOpen = anyOverlayOpen;
+    const overlayOpen = mediaBlockingOverlayOpen;
+
 
 
     const ytPost = (func: string, args: any[] = []) => {
@@ -1415,11 +1425,8 @@ const BookOnlineSlidePanelInner = ({
     }
     ytPost("playVideo");
 
-  }, [
-    forceMuted, showDirections, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId,
-    docOverlay, showBookingOverlay, showYoutubeOverlay, showExternalVideosOverlay, showMosaic, externalOverlayActive,
-    showPoiMapOverlay, activeVideoOverlay, showFallbackOverlay, searchOverlayActive, showDescriptionOverlay, showWelcomePopup, globalSoundOn,
-  ]);
+  }, [mediaBlockingOverlayOpen, globalSoundOn]);
+
 
   // ── External bridge: window events to control Play/Mute from an outer bar
   //   dispatch "book-panel:toggle-play"  → play/pause current media
@@ -1814,12 +1821,13 @@ const BookOnlineSlidePanelInner = ({
   // Video info via extracted hook
   // (globalSoundOn / setGlobalSoundOn hoisted earlier — see top of component)
   // Force sound ON at slide panel mount (overrides any stored "off" preference).
-  // Defer while a Popup/Offre overlay is open — sound activates only once the card is closed,
+  // Defer while a blocking overlay is open — sound activates only once the card is closed,
   // mirroring how video autoplay is neutralized during overlays.
   useEffect(() => {
-    if (anyOverlayOpen) return;
+    if (mediaBlockingOverlayOpen) return;
     setGlobalSoundOn(true);
-  }, [setGlobalSoundOn, anyOverlayOpen]);
+  }, [setGlobalSoundOn, mediaBlockingOverlayOpen]);
+
   const { videoInfo, isVerticalVideo, isSquareVideo, setIsFileVideoVertical, setIsFileVideoSquare } = useVideoInfo(effectiveMedia || null, globalSoundOn);
   const activeInternalVideoLikeId = activeVideoOverlay?.url || (
     effectiveMedia?.kind === "video" && videoInfo?.type !== "youtube" ? effectiveMedia.url : null
@@ -2107,8 +2115,9 @@ const BookOnlineSlidePanelInner = ({
             videoRef={videoRef as React.RefObject<HTMLVideoElement>}
             iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>}
             onLoadedMetadata={handleVideoLoadedMetadata}
-            anyOverlayOpen={anyOverlayOpen}
+            anyOverlayOpen={mediaBlockingOverlayOpen}
           />
+
           {effectiveMedia?.kind !== "video" && effectiveMedia?.kind !== "matterport" && (
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
           )}
