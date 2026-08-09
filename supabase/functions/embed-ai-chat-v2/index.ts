@@ -1,0 +1,492 @@
+// Moteur IA v2 — surface "embed" réécrite from scratch au-dessus du moteur A/B/C partagé.
+// Objectif : lisibilité et coût maîtrisé. Aucune dépendance à embed-ai-chat (v1) : les deux
+// fonctions coexistent, la surface loguée est "embed_v2" pour permettre la comparaison.
+//
+// Contrat d'entrée/sortie IDENTIQUE à embed-ai-chat :
+//   body: { messages: UIMessage[], businessSlug, language, sessionId, messageIndex,
+//           suggestionId, followupId, scope }
+//   sortie: UIMessageStream (AI SDK v5) + marqueurs texte (SHOW_ON_MAP, KNOWN_BUSINESSES,
+//           WEATHER_FORECAST) consommés par EmbedAsk.
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  createUIMessageStream,
+  createUIMessageStreamResponse,
+  streamText,
+  type UIMessage,
+} from "npm:ai@5";
+import { createLovableAiGatewayProvider } from "../_shared/ai-gateway.ts";
+import { AI_MODEL, getSurfaceConfig } from "../_shared/ai-engine/surfaces.ts";
+import { classify } from "../_shared/ai-engine/classify.ts";
+import { detectViewIntent } from "../_shared/ai-engine/view-targets.ts";
+import { pickLang, normalize, toMapMarker, fetchPriorFull } from "../_shared/ai-engine/routes/shared.ts";
+import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
+import { isHoursIntent, buildHoursAnswer, buildHoursForBusinesses } from "../_shared/ai-engine/routes/opening.ts";
+import { isBookingIntent, buildBookingAnswer, buildBookingForBusinesses } from "../_shared/ai-engine/routes/booking.ts";
+import {
+  isNearbyOverviewIntent, isProximityIntent, buildNearbyOverview, buildDisclosureFromCounts,
+} from "../_shared/ai-engine/routes/nearby.ts";
+import {
+  isRatingRankingIntent, isDistanceListIntent, isCountIntent, parseOrdinalIntent,
+  extractPriorOrderedBusinesses, buildRatingRanking, buildDistanceList, buildOrdinalPick,
+  buildCountAnswer,
+} from "../_shared/ai-engine/routes/ranking.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+const SURFACE_LOG = "embed_v2";
+const CFG = getSurfaceConfig("embed");
+
+type AiClass = "A" | "B" | "C";
+type Lang = "fr" | "en" | "ar";
+
+const HOST_FIELDS =
+  "id, slug, name, city, neighborhood, address, main_category, categories, hook_fr, hook_en, hook_ar, " +
+  "description, description_en, description_ar, min_price, manual_price_range, phone, whatsapp, website, " +
+  "opening_hours, show_opening_hours, reserve_now_url, reserve_now_cta, presentation_mode, online_shop_url, " +
+  "online_shop_cta, online_shop_presentation_mode, url_4, url_4_cta, url_4_presentation_mode, url_5, " +
+  "url_5_cta, url_5_presentation_mode, latitude, longitude, is_active";
+
+const CARD_FIELDS =
+  "id, name, slug, city, neighborhood, main_category, hook_fr, hook_en, hook_ar, latitude, longitude, " +
+  "min_price, manual_price_range, logo_url, images, google_rating, google_review_count, " +
+  "tripadvisor_rating, tripadvisor_review_count, computed_rating, total_review_count";
+
+function textOf(m: UIMessage): string {
+  const parts = (m as any)?.parts;
+  if (Array.isArray(parts)) {
+    return parts.filter((p: any) => p?.type === "text" && typeof p.text === "string").map((p: any) => p.text).join("");
+  }
+  return String((m as any)?.content ?? "");
+}
+
+/** Ids d'établissements déjà présentés dans le fil (marqueurs des tours précédents). */
+function priorBusinessIds(messages: UIMessage[]): string[] {
+  const ids: string[] = [];
+  for (const m of messages) {
+    if ((m as any)?.role !== "assistant") continue;
+    const c = textOf(m);
+    const known = c.match(/<!--KNOWN_BUSINESSES:(\[[\s\S]*?\])-->/);
+    const map = c.match(/<!--SHOW_ON_MAP:([\s\S]*?)-->/);
+    const raw = known?.[1] || map?.[1];
+    if (!raw) continue;
+    try {
+      const parsed = JSON.parse(raw);
+      const arr = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.businesses) ? parsed.businesses : [];
+      for (const b of arr) {
+        const id = typeof b === "string" ? b : b?.id;
+        if (id && !ids.includes(id)) ids.push(id);
+      }
+    } catch { /* marqueur illisible : ignoré */ }
+  }
+  return ids;
+}
+
+function hostContext(host: any, lang: Lang): string {
+  const hook = lang === "en" ? host.hook_en : lang === "ar" ? host.hook_ar : host.hook_fr;
+  const desc = lang === "en" ? host.description_en : lang === "ar" ? host.description_ar : host.description;
+  return [
+    `Établissement hôte: ${host.name} (${host.main_category || "-"}) — ${host.neighborhood || ""} ${host.city || ""}`.trim(),
+    hook ? `Accroche: ${hook}` : "",
+    desc ? `Description: ${String(desc).slice(0, 1200)}` : "",
+    host.phone ? `Téléphone: ${host.phone}` : "",
+    host.whatsapp ? `WhatsApp: ${host.whatsapp}` : "",
+    host.min_price ? `Prix indicatif: ${host.min_price}` : host.manual_price_range ? `Prix: ${host.manual_price_range}` : "",
+  ].filter(Boolean).join("\n");
+}
+
+function resultsContext(list: any[], lang: Lang): string {
+  return list.map((b, i) => {
+    const hook = lang === "en" ? b.hook_en : lang === "ar" ? b.hook_ar : b.hook_fr;
+    const rating = b.computed_rating || b.google_rating || b.tripadvisor_rating;
+    return `${i + 1}. ${b.name} — ${b.main_category || ""} ${b.neighborhood || b.city || ""}${rating ? ` — note ${rating}` : ""}${hook ? ` — ${String(hook).slice(0, 160)}` : ""}`;
+  }).join("\n");
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+  const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  if (!LOVABLE_API_KEY) {
+    return new Response(JSON.stringify({ error: "LOVABLE_API_KEY missing" }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+  const admin = createClient(SUPABASE_URL, SERVICE);
+
+  const body = await req.json().catch(() => ({} as any));
+  const uiMessages: UIMessage[] = Array.isArray(body.messages) ? body.messages.slice(-8) : [];
+  const slugOrId = String(body.businessSlug || body.businessId || "").trim();
+  const lang = pickLang(body.language) as Lang;
+  const sessionId: string | null = typeof body.sessionId === "string" ? body.sessionId : null;
+  const suggestionId: string | null = typeof body.suggestionId === "string" && body.suggestionId ? body.suggestionId : null;
+
+  if (!slugOrId) {
+    return new Response(JSON.stringify({ error: "businessSlug required" }), {
+      status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+  if (!uiMessages.length) {
+    return new Response(JSON.stringify({ error: "messages required" }), {
+      status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  const userMessage = textOf([...uiMessages].reverse().find((m: any) => m?.role === "user") as UIMessage) || "";
+  const priorIds = priorBusinessIds(uiMessages);
+
+  const stream = createUIMessageStream({
+    execute: async ({ writer }) => {
+      const t0 = Date.now();
+      let firstTokenAt: number | null = null;
+      const textId = crypto.randomUUID();
+      let started = false;
+      const start = () => { if (!started) { writer.write({ type: "text-start", id: textId }); started = true; } };
+      const emit = (d: string) => {
+        if (!d) return;
+        if (!firstTokenAt) firstTokenAt = Date.now();
+        start();
+        writer.write({ type: "text-delta", id: textId, delta: d });
+      };
+      const end = () => { if (started) { writer.write({ type: "text-end", id: textId }); started = false; } };
+      start(); // frame immédiate : évite une coupure côté iframe
+
+      let aiClass: AiClass = "A";
+      let route = "smalltalk";
+      let confidence: number | null = null;
+      let fallbackReason: string | null = null;
+      let tokensIn = 0;
+      let tokensOut = 0;
+      let resultsCount: number | null = null;
+      let hadError = false;
+      let cityDetected: string | null = null;
+
+      const finish = async (streamCompleted: boolean) => {
+        end();
+        try {
+          const chatId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(sessionId || ""))
+            ? sessionId
+            : null;
+          const { error: logErr } = await admin.from("ai_conversation_turns").insert({
+            chat_id: chatId,
+            user_message: userMessage.slice(0, 2000),
+            intent_classified: route,
+            route_taken: route,
+            ai_class: aiClass,
+            classifier_confidence: confidence,
+            fallback_reason: fallbackReason,
+            surface: SURFACE_LOG,
+            model: aiClass === "A" ? null : AI_MODEL,
+            tokens_in: tokensIn,
+            tokens_out: tokensOut,
+            latency_ms_total: Date.now() - t0,
+            latency_ms_first_token: firstTokenAt ? firstTokenAt - t0 : null,
+            results_count: resultsCount,
+            had_error: hadError,
+            stream_completed: streamCompleted,
+            city_active: null,
+            city_detected: cityDetected,
+            language: lang,
+          });
+        } catch (e) {
+          console.error("[embed-ai-chat-v2] log_failed", e);
+        }
+      };
+
+      try {
+        // ── Hôte ────────────────────────────────────────────────────────────
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
+        let hq = admin.from("businesses").select(HOST_FIELDS).eq("is_active", true).limit(1);
+        hq = isUuid ? hq.eq("id", slugOrId) : hq.eq("slug", slugOrId);
+        const { data: hostRows } = await hq;
+        if (!hostRows?.length) {
+          emit("Établissement introuvable.");
+          route = "out_of_scope";
+          await finish(true);
+          return;
+        }
+        const host = hostRows[0];
+        cityDetected = host.city || null;
+
+        // ── Classe A — routes déterministes (zéro token) ────────────────────
+        // 1. Météo
+        if (isWeatherIntent(userMessage)) {
+          route = "weather";
+          const city = host.city || "Marrakech";
+          const { data, error } = await admin.functions.invoke("get-weather", { body: { city } });
+          if (!error && data && !(data as any).error) {
+            const w = data as any;
+            const intro = {
+              fr: `Voici la météo à **${w.city_name || city}** et la tendance des 3 prochains jours. 👇`,
+              en: `Here's the weather in **${w.city_name || city}** and the 3-day trend. 👇`,
+              ar: `إليك حالة الطقس في **${w.city_name || city}** والتوقعات للأيام الثلاثة القادمة. 👇`,
+            }[lang];
+            const payload = {
+              city_name: w.city_name || city, temp: w.temp, feels_like: w.feels_like,
+              temp_min: w.temp_min, temp_max: w.temp_max, humidity: w.humidity,
+              wind_speed: w.wind_speed, description: w.description || "", icon: w.icon || "",
+              hourly: Array.isArray(w.hourly) ? w.hourly.slice(0, 8) : [],
+              daily: Array.isArray(w.daily) ? w.daily.slice(0, 3) : [],
+            };
+            emit(`${intro}\n\n<!--WEATHER_FORECAST:${JSON.stringify(payload)}-->`);
+            await finish(true);
+            return;
+          }
+          hadError = true;
+          fallbackReason = "route_failed";
+        }
+
+        // 2. Horaires
+        if (isHoursIntent(userMessage)) {
+          route = "opening";
+          const answer = priorIds.length
+            ? await buildHoursForBusinesses(admin, priorIds.slice(0, CFG.maxResults), lang)
+            : buildHoursAnswer(host, lang);
+          if (answer) {
+            resultsCount = priorIds.length ? Math.min(priorIds.length, CFG.maxResults) : 1;
+            emit(answer);
+            await finish(true);
+            return;
+          }
+          fallbackReason = "no_results";
+        }
+
+        // 3. Réservation
+        if (isBookingIntent(userMessage)) {
+          route = "booking";
+          const answer = priorIds.length
+            ? await buildBookingForBusinesses(admin, priorIds.slice(0, CFG.maxResults), lang)
+            : buildBookingAnswer(host, lang);
+          if (answer) {
+            resultsCount = priorIds.length ? Math.min(priorIds.length, CFG.maxResults) : 1;
+            emit(answer);
+            await finish(true);
+            return;
+          }
+          fallbackReason = "no_results";
+        }
+
+        // 4. Rappels sur les résultats déjà affichés (comptage, ordinal, classement)
+        if (priorIds.length) {
+          const prior = extractPriorOrderedBusinesses(uiMessages as any[], host.id);
+          if (isCountIntent(userMessage)) {
+            route = "discover";
+            resultsCount = priorIds.length;
+            emit(buildCountAnswer(priorIds.length, lang));
+            await finish(true);
+            return;
+          }
+          const ordinals = parseOrdinalIntent(userMessage, prior.length);
+          if (ordinals?.length && prior.length) {
+            route = "business_qa";
+            resultsCount = ordinals.length;
+            emit(buildOrdinalPick(prior, ordinals, lang));
+            await finish(true);
+            return;
+          }
+          const ratingMode = isRatingRankingIntent(userMessage);
+          if (ratingMode) {
+            route = "discover";
+            const answer = await buildRatingRanking(admin, priorIds, ratingMode, lang);
+            if (answer) {
+              resultsCount = priorIds.length;
+              emit(answer);
+              await finish(true);
+              return;
+            }
+          }
+          if (isDistanceListIntent(userMessage)) {
+            route = "nearby";
+            const answer = await buildDistanceList(admin, host, priorIds, lang);
+            if (answer) {
+              resultsCount = priorIds.length;
+              emit(answer);
+              await finish(true);
+              return;
+            }
+          }
+        }
+
+        // 5. Panorama « que faire à proximité ? » (déterministe, Structure du Front)
+        if (isNearbyOverviewIntent(userMessage, host.name) || (isProximityIntent(userMessage) && !suggestionId)) {
+          route = "nearby";
+          const hostCategoryNames = new Set<string>(
+            [...(Array.isArray(host.categories) ? host.categories : []), host.main_category]
+              .map(normalize).filter(Boolean),
+          );
+          const overview = await buildNearbyOverview(admin, host, hostCategoryNames, lang).catch((e) => {
+            console.error("[embed-ai-chat-v2] nearby_failed", e);
+            return "";
+          });
+          if (overview && overview.trim()) {
+            emit(overview);
+            await finish(true);
+            return;
+          }
+          fallbackReason = "no_results";
+        }
+
+
+        // ── Classe B — classifieur, puis recherche déterministe ─────────────
+        aiClass = "B";
+        route = "discover";
+        const cls = await classify(
+          {
+            message: userMessage,
+            surface: "embed",
+            focus: {
+              last_business_ids: priorIds.slice(0, 3),
+              active_city: host.city || null,
+            },
+          },
+          LOVABLE_API_KEY,
+        );
+        tokensIn += cls.tokensIn;
+        tokensOut += cls.tokensOut;
+        confidence = cls.output?.confidence ?? null;
+        if (cls.error || !cls.output) {
+          hadError = true;
+          fallbackReason = "route_failed";
+        }
+
+        const out = cls.output;
+        const confident = !!out && out.confidence >= CFG.confidenceThreshold;
+
+        if (out && confident && out.intent === "business_qa" && !priorIds.length) {
+          // Question sur l'hôte : contexte hôte seul, synthèse générative courte.
+          route = "business_qa";
+        }
+
+        let results: any[] = [];
+        let totalFound = 0;
+        if (out && confident && (out.intent === "search" || out.intent === "compare")) {
+          const queryParts = [out.category, ...(userMessage ? [userMessage] : [])].filter(Boolean) as string[];
+          const baseQuery = queryParts.join(" ").slice(0, 200);
+          const views = detectViewIntent(baseQuery);
+          const viewHints = views.panoramas.map((p) => p.attributeNames[0]);
+          const city = out.city || host.city || "Marrakech";
+          cityDetected = city;
+          try {
+            const r = await fetch(`${SUPABASE_URL}/functions/v1/business-search`, {
+              method: "POST",
+              headers: { Authorization: `Bearer ${SERVICE}`, apikey: SERVICE, "Content-Type": "application/json" },
+              body: JSON.stringify({
+                query: viewHints.length ? `${baseQuery} ${viewHints.join(" ")}` : baseQuery,
+                spoken: baseQuery,
+                language: lang,
+                pageSize: 30,
+                offset: 0,
+                compact: "card",
+                city,
+              }),
+            });
+            const json = await r.json().catch(() => null);
+            const all: any[] = Array.isArray(json?.businesses) ? json.businesses : [];
+            const excluded = (out.exclude || []).map(normalize).filter(Boolean);
+            const kept = all.filter((b: any) => {
+              if (b.id === host.id) return false;
+              if (!excluded.length) return true;
+              const hay = normalize(`${b.main_category || ""} ${(b.categories || []).join(" ")}`);
+              return !excluded.some((x) => hay.includes(x));
+            });
+            totalFound = kept.length;
+            results = kept.slice(0, CFG.maxResults);
+          } catch (e) {
+            console.error("[embed-ai-chat-v2] search_failed", e);
+            hadError = true;
+            fallbackReason = "route_failed";
+          }
+          resultsCount = results.length;
+          if (!results.length) fallbackReason = fallbackReason || "no_results";
+        }
+
+        if (!confident && !fallbackReason) fallbackReason = "confidence_low";
+
+        // ── Classe C — synthèse générative sur contexte déterministe ────────
+        aiClass = "C";
+        const gateway = createLovableAiGatewayProvider(LOVABLE_API_KEY);
+        const context = [
+          hostContext(host, lang),
+          results.length ? `Résultats trouvés (${results.length} sur ${totalFound}) :\n${resultsContext(results, lang)}` : "",
+          priorIds.length && !results.length
+            ? `Établissements déjà présentés dans la conversation : ${(await fetchPriorFull(admin, priorIds.slice(0, 6))).map((b: any) => b.name).join(", ")}`
+            : "",
+        ].filter(Boolean).join("\n\n");
+
+        const system = `Tu es le concierge IA de ${host.name}. Ton: ${CFG.ton}.
+Tu ne t'appuies QUE sur le contexte fourni. Si l'information n'y est pas, dis-le en une phrase et propose une reformulation.
+N'invente jamais un établissement, un prix, un horaire ou un avis.
+Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}, 120 mots maximum, sans liste brute si tu peux faire des phrases.`;
+
+        const history = uiMessages
+          .filter((m: any) => m?.role === "user" || m?.role === "assistant")
+          .slice(-CFG.historyTurns * 2)
+          .map((m: any) => ({
+            role: m.role as "user" | "assistant",
+            content: textOf(m).replace(/<!--[\s\S]*?-->/g, "").slice(0, 2000),
+          }))
+          .filter((m) => m.content.trim());
+
+        let finalText = "";
+        try {
+          const result = streamText({
+            model: gateway(AI_MODEL),
+            system,
+            messages: [
+              ...history.slice(0, -1),
+              { role: "user", content: context ? `Contexte:\n${context}\n\nQuestion: ${userMessage}` : userMessage },
+            ] as any,
+            providerOptions: { lovable: { reasoningEffort: "none" } },
+          });
+          for await (const delta of result.textStream) {
+            finalText += delta;
+            emit(delta);
+          }
+          const usage = await result.usage.catch(() => null);
+          if (usage) {
+            tokensIn += (usage as any).inputTokens ?? 0;
+            tokensOut += (usage as any).outputTokens ?? 0;
+          }
+        } catch (e) {
+          console.error("[embed-ai-chat-v2] generate_failed", e);
+          hadError = true;
+          fallbackReason = "empty_response";
+          const fb = {
+            fr: "Je n'ai pas pu produire de réponse pour cette demande. Peux-tu la reformuler ?",
+            en: "I couldn't produce an answer for that. Could you rephrase?",
+            ar: "لم أتمكن من الإجابة. هل يمكنك إعادة صياغة السؤال؟",
+          }[lang];
+          emit(fb);
+          finalText = fb;
+        }
+
+        // Marqueurs de fin : carte + mémoire du tour suivant.
+        if (results.length) {
+          const disclosure = totalFound > results.length
+            ? `\n\n${buildDisclosureFromCounts(results.length, totalFound, cityDetected || host.city || "")}`
+            : "";
+          if (disclosure && !/sur\s+\d+\s+trouv/i.test(finalText)) emit(disclosure);
+          emit(`\n\n${toMapMarker(results, null)}`);
+          emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(results.map((b) => ({ id: b.id, name: b.name })))}-->`);
+        }
+
+        await finish(true);
+      } catch (e) {
+        console.error("[embed-ai-chat-v2] fatal", e);
+        hadError = true;
+        emit("Une erreur est survenue. Réessaie dans un instant.");
+        await finish(false);
+      }
+    },
+    onError: (err) => {
+      console.error("[embed-ai-chat-v2] stream_error", err);
+      return String((err as Error)?.message || err);
+    },
+  });
+
+  return createUIMessageStreamResponse({ stream, headers: corsHeaders });
+});
