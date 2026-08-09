@@ -698,14 +698,14 @@ const BookOnlineSlidePanelInner = ({
   // réécrit className et supprime la classe ajoutée en DOM). Le ref ne fait que poser
   // les variables CSS du rectangle de départ.
   const [descMorphRect, setDescMorphRect] = useState<DOMRect | null>(null);
+  const [descMorphDone, setDescMorphDone] = useState(false);
   const startDescMorph = useCallback((rect?: DOMRect) => {
-    console.log("[MORPH] start", !!rect);
     setDescMorphRect(rect ?? null);
+    setDescMorphDone(false);
     setShowDescriptionOverlay(true);
-    if (rect) window.setTimeout(() => { console.log("[MORPH] clear"); setDescMorphRect(null); }, 700);
+    if (rect) window.setTimeout(() => { setDescMorphDone(true); setDescMorphRect(null); }, 700);
   }, []);
   const applyDescMorph = useCallback((el: HTMLDivElement | null) => {
-    console.log("[MORPH] cb", !!el, !!descMorphRect);
     if (!el || !descMorphRect) return;
     const r = descMorphRect;
     const o = el.getBoundingClientRect();
@@ -715,6 +715,7 @@ const BookOnlineSlidePanelInner = ({
     el.style.setProperty("--owm-mr", `${Math.max(0, o.right - r.right)}px`);
     el.style.setProperty("--owm-mb", `${Math.max(0, o.bottom - r.bottom)}px`);
   }, [descMorphRect]);
+
 
 
   const [descGridSection, setDescGridSection] = useState<"images" | "videos" | "poi" | "dest" | "kp" | "kp_subcat" | null>(null);
