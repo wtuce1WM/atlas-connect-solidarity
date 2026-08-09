@@ -3231,7 +3231,10 @@ Deno.serve(async (req) => {
                     parts: [{ type: "text", text: String(m.content || "") }],
                   })) as any,
               ),
-              temperature: hasForcedResults ? 0.4 : 0.7,
+              ...(IS_GPT5
+                ? { providerOptions: { lovable: { reasoningEffort: "none" } } }
+                : { temperature: hasForcedResults ? 0.4 : 0.7 }),
+
             });
             for await (const delta of result.textStream) {
               finalText += delta;
