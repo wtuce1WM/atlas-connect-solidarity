@@ -1,6 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { fetchAiGateway, resolveCallerContext } from "../_shared/ai-gateway.ts";
+import { loadRoutes, route as engineRoute } from "../_shared/ai-engine/index.ts";
+import type { RouteCode } from "../_shared/ai-engine/types.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,6 +19,9 @@ function svcClient() {
 type SearchTurnLog = {
   user_message: string;
   route_taken: string;
+  classifier_confidence?: number | null;
+  chat_id?: string | null;
+  city_detected?: string | null;
   ai_class: "A" | "B" | "C";
   model?: string | null;
   fallback_reason?: string | null;
@@ -54,7 +59,7 @@ serve(async (req) => {
 
   const t0 = Date.now();
   try {
-    const { query, spokenText, businesses = [], language = "fr", vary, mode, history = [], nearbyContext, userCoords } = await req.json();
+    const { query, spokenText, businesses = [], language = "fr", vary, mode, history = [], nearbyContext, userCoords, curatedRoute = null, focus = null, chatId = null } = await req.json();
 
     // --- Geolocation intent detection ---
     // "près de moi", "autour de moi", "à moins de X km", "dans un rayon de Y m", etc.
@@ -244,6 +249,47 @@ serve(async (req) => {
     const extraInstructions = cfg.extra_instructions || "";
     const noResultsCfg = cfg.no_results_instructions || "";
     const boostVerified = cfg.boost_verified !== "false";
+
+    // --- Moteur A/B/C (surface "search") ---
+    // Curated input (suggestion / relance cliquée) → route imposée, classe A, zéro token.
+    // Input libre → classifieur B en mode observation (la génération legacy reste l'autorité).
+    let engineRouteCode: string = "search_answer";
+    let engineClass: "A" | "B" | "C" = "C";
+    let engineConfidence: number | null = null;
+    let engineFallback: string | null = null;
+    let engineCityDetected: string | null = null;
+    let engineTokensIn = 0;
+    let engineTokensOut = 0;
+    try {
+      const engineRoutes = await loadRoutes(sb);
+      if (engineRoutes.length > 0) {
+        const outcome = await engineRoute(
+          {
+            message: String(query || ""),
+            surface: "search",
+            curatedRoute: (curatedRoute || null) as RouteCode | null,
+            focus: focus || undefined,
+            activeCity: defaultCity,
+            language,
+            chatId: chatId || null,
+          },
+          engineRoutes,
+          LOVABLE_API_KEY,
+        );
+        engineRouteCode = outcome.route;
+        engineClass = outcome.aiClass;
+        engineConfidence = outcome.confidence;
+        engineFallback = outcome.fallbackReason;
+        engineCityDetected = outcome.classifier?.city ?? null;
+        engineTokensIn = outcome.tokensIn;
+        engineTokensOut = outcome.tokensOut;
+        console.log(`[ai-search-answer] engine route=${engineRouteCode} class=${engineClass} conf=${engineConfidence} curated=${curatedRoute ?? "-"}`);
+      }
+    } catch (e) {
+      console.error("[ai-search-answer] engine decision failed", e);
+      engineFallback = "route_failed";
+    }
+
 
     // Keep enough businesses for the model to cite real DB results, especially when
     // the first visible page/ranking is broader than the user's text intent.
@@ -986,14 +1032,14 @@ Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact e
 
     if (!response.ok) {
       if (response.status === 429) {
-        await logSearchTurn({ user_message: String(query || ""), route_taken: "search_answer", ai_class: "C", model, fallback_reason: "route_failed", had_error: true, error_message: "rate_limited", language, results_count: effectiveBusinesses.length, latency_ms_total: Date.now() - t0, user_id: callerContext.userId, affiliate_id: callerContext.affiliateId }, sb);
+        await logSearchTurn({ user_message: String(query || ""), route_taken: engineRouteCode, ai_class: engineClass, classifier_confidence: engineConfidence, chat_id: chatId, city_detected: engineCityDetected, model, fallback_reason: "route_failed", had_error: true, error_message: "rate_limited", language, results_count: effectiveBusinesses.length, latency_ms_total: Date.now() - t0, user_id: callerContext.userId, affiliate_id: callerContext.affiliateId }, sb);
         return new Response(JSON.stringify({ error: "Rate limit exceeded", answer: "" }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (response.status === 402) {
-        await logSearchTurn({ user_message: String(query || ""), route_taken: "search_answer", ai_class: "C", model, fallback_reason: "route_failed", had_error: true, error_message: "payment_required", language, results_count: effectiveBusinesses.length, latency_ms_total: Date.now() - t0, user_id: callerContext.userId, affiliate_id: callerContext.affiliateId }, sb);
+        await logSearchTurn({ user_message: String(query || ""), route_taken: engineRouteCode, ai_class: engineClass, classifier_confidence: engineConfidence, chat_id: chatId, city_detected: engineCityDetected, model, fallback_reason: "route_failed", had_error: true, error_message: "payment_required", language, results_count: effectiveBusinesses.length, latency_ms_total: Date.now() - t0, user_id: callerContext.userId, affiliate_id: callerContext.affiliateId }, sb);
         return new Response(JSON.stringify({ error: "Payment required", answer: "" }), {
           status: 402,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -1001,7 +1047,7 @@ Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact e
       }
       const errorText = await response.text();
       console.error(`AI gateway error [${response.status}]:`, errorText);
-      await logSearchTurn({ user_message: String(query || ""), route_taken: "search_answer", ai_class: "C", model, fallback_reason: "route_failed", had_error: true, error_message: `gateway_${response.status}`, language, results_count: effectiveBusinesses.length, latency_ms_total: Date.now() - t0, user_id: callerContext.userId, affiliate_id: callerContext.affiliateId }, sb);
+      await logSearchTurn({ user_message: String(query || ""), route_taken: engineRouteCode, ai_class: engineClass, classifier_confidence: engineConfidence, chat_id: chatId, city_detected: engineCityDetected, model, fallback_reason: "route_failed", had_error: true, error_message: `gateway_${response.status}`, language, results_count: effectiveBusinesses.length, latency_ms_total: Date.now() - t0, user_id: callerContext.userId, affiliate_id: callerContext.affiliateId }, sb);
       return new Response(JSON.stringify({ answer: "" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -1029,18 +1075,23 @@ Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact e
 
     await logSearchTurn({
       user_message: String(query || ""),
-      route_taken: "search_answer",
-      ai_class: "C",
+      route_taken: engineRouteCode,
+      ai_class: engineClass,
+      classifier_confidence: engineConfidence,
+      chat_id: chatId,
+      city_detected: engineCityDetected,
       model,
-      fallback_reason: answer ? null : "empty_response",
+      fallback_reason: engineFallback ?? (answer ? null : "empty_response"),
       results_count: effectiveBusinesses.length,
       language,
+      city_active: defaultCity,
       latency_ms_total: Date.now() - t0,
-      tokens_in: data?.usage?.prompt_tokens ?? null,
-      tokens_out: data?.usage?.completion_tokens ?? null,
+      tokens_in: (data?.usage?.prompt_tokens ?? 0) + engineTokensIn,
+      tokens_out: (data?.usage?.completion_tokens ?? 0) + engineTokensOut,
       user_id: callerContext.userId,
       affiliate_id: callerContext.affiliateId,
     }, sb);
+
 
     return new Response(JSON.stringify({ answer, citedBusinesses: hotelAvailabilityBusinesses }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
