@@ -59,13 +59,20 @@ const DescAnchorBar = ({ containerId, deps }: DescAnchorBarProps) => {
     const onPointerUp = () => { down = false; };
     const onClickCapture = (e: MouseEvent) => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } };
 
-    el.addEventListener("wheel", onWheel, { passive: false, capture: true });
+    // La molette est écoutée sur la barre ET sur la ligne de header parente,
+    // pour que le survol de toute la zone (au-dessus/à côté des pills) scrolle.
+    const wheelTargets: HTMLElement[] = [el];
+    const parent = el.parentElement;
+    const headerRow = parent?.parentElement;
+    if (parent) wheelTargets.push(parent);
+    if (headerRow) wheelTargets.push(headerRow);
+    wheelTargets.forEach((t) => t.addEventListener("wheel", onWheel, { passive: false, capture: true }));
     el.addEventListener("pointerdown", onPointerDown);
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", onPointerUp);
     el.addEventListener("click", onClickCapture, true);
     return () => {
-      el.removeEventListener("wheel", onWheel, { capture: true } as any);
+      wheelTargets.forEach((t) => t.removeEventListener("wheel", onWheel, { capture: true } as any));
       el.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", onPointerUp);
