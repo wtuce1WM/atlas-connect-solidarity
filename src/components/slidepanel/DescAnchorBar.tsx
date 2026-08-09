@@ -93,6 +93,9 @@ const DescAnchorBar = ({ containerId, deps }: DescAnchorBarProps) => {
       const label = raw.length > MAX_LABEL ? `${raw.slice(0, MAX_LABEL - 1)}…` : raw;
       next.push({ id: h.id, label });
     });
+    // Le badge de réservation passe toujours en première position.
+    const isBooking = (l: string) => /r[ée]serv|billet|day pass/i.test(l);
+    next.sort((a, b) => Number(isBooking(b.label)) - Number(isBooking(a.label)));
     setAnchors((prev) =>
       prev.length === next.length && prev.every((p, i) => p.id === next[i].id && p.label === next[i].label)
         ? prev

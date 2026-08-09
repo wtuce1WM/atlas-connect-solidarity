@@ -1897,7 +1897,7 @@ const BookOnlineSlidePanelInner = ({
     ].filter(Boolean) as { name: string; url: string; icon: React.ReactNode; label?: boolean }[];
     const hasSocialBar = socialItems.length > 0 || bookingItems.length > 0;
     if (!(hasSocialBar || business?.whatsapp)) return null;
-    const stripClass = "flex items-center gap-2 py-1 overflow-x-auto overflow-y-hidden flex-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden";
+    const stripClass = "flex items-center gap-2 py-1 pl-2.5 overflow-x-auto overflow-y-hidden flex-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden";
     const stripWheelRef = (el: HTMLDivElement | null) => {
       if (!el || (el as any).__owmWheelX) return;
       (el as any).__owmWheelX = true;
