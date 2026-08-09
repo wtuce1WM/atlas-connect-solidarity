@@ -475,15 +475,19 @@ Deno.serve(async (req) => {
         const gateway = createLovableAiGatewayProvider(LOVABLE_API_KEY);
         const context = [
           hostContext(host, lang),
-          results.length ? `Résultats trouvés (${results.length} sur ${totalFound}) :\n${resultsContext(results, lang)}` : "",
+          results.length
+            ? `Résultats trouvés (${results.length} sur ${totalFound}) — ce sont les seules adresses à présenter, présente-les toutes :\n${resultsContext(results, lang)}`
+            : "",
           priorIds.length && !results.length
             ? `Établissements déjà présentés dans la conversation : ${(await fetchPriorFull(admin, priorIds.slice(0, 6))).map((b: any) => b.name).join(", ")}`
             : "",
         ].filter(Boolean).join("\n\n");
 
         const system = `Tu es le concierge IA de ${host.name}. Ton: ${CFG.ton}.
-Tu ne t'appuies QUE sur le contexte fourni. Si l'information n'y est pas, dis-le en une phrase et propose une reformulation.
-N'invente jamais un établissement, un prix, un horaire ou un avis.
+Tu ne t'appuies QUE sur le contexte fourni. N'invente jamais un établissement, un prix, un horaire ou un avis.
+Quand le contexte contient des résultats, tu les présentes TOUJOURS, même s'ils ne correspondent pas exactement à la demande : dans ce cas, une phrase d'introduction honnête ("pas de correspondance exacte, voici une sélection proche") puis les adresses. Ne réponds jamais que tu n'as rien trouvé alors que des résultats sont fournis.
+Si le contexte ne contient aucun résultat, dis-le en une phrase et propose une reformulation.
+
 Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}, 120 mots maximum, sans liste brute si tu peux faire des phrases.`;
 
         const history = uiMessages
