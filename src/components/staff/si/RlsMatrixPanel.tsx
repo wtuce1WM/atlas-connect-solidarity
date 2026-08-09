@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader, ShieldAlert, ShieldCheck, Search } from "lucide-react";
 
@@ -93,9 +93,8 @@ const RlsMatrixPanel = () => {
         </thead>
         <tbody>
           {filtered.map((r) => (
-            <>
+            <Fragment key={r.t}>
               <tr
-                key={r.t}
                 onClick={() => setOpen(open === r.t ? null : r.t)}
                 className={`border-b border-border/50 cursor-pointer hover:bg-muted/50 ${isRisky(r) ? "bg-destructive/5" : ""}`}
               >
@@ -131,7 +130,7 @@ const RlsMatrixPanel = () => {
                   </td>
                 </tr>
               )}
-            </>
+            </Fragment>
           ))}
         </tbody>
       </table>
