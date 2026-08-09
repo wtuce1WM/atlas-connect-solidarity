@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { Loader2, Maximize2, Minimize2, Plus, Minus } from "lucide-react";
 import goldPinUrl from "@/assets/location-pin-gold.webp";
 import { trackBusinessImpressions } from "@/lib/businessAnalytics";
+import { haversineKm } from "@/lib/haversine";
 
 export interface PoiMapItem {
   id: string;
