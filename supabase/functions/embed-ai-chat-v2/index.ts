@@ -17,7 +17,7 @@ import {
 import { createLovableAiGatewayProvider } from "../_shared/ai-gateway.ts";
 import { AI_MODEL, getSurfaceConfig } from "../_shared/ai-engine/surfaces.ts";
 import { classify } from "../_shared/ai-engine/classify.ts";
-import { detectViewIntent } from "../_shared/ai-engine/view-targets.ts";
+import { detectViewIntent, withinPointRadius, hasVantage, hasPointViewProof, hasPanoramaAttribute, hasPanoramaProof } from "../_shared/ai-engine/view-targets.ts";
 import { pickLang, normalize, toMapMarker, fetchPriorFull } from "../_shared/ai-engine/routes/shared.ts";
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
 import { isHoursIntent, buildHoursAnswer, buildHoursForBusinesses } from "../_shared/ai-engine/routes/opening.ts";
