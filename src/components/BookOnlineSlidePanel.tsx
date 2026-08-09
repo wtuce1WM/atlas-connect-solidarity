@@ -699,11 +699,13 @@ const BookOnlineSlidePanelInner = ({
   // les variables CSS du rectangle de départ.
   const [descMorphRect, setDescMorphRect] = useState<DOMRect | null>(null);
   const startDescMorph = useCallback((rect?: DOMRect) => {
+    console.log("[MORPH] start", !!rect);
     setDescMorphRect(rect ?? null);
     setShowDescriptionOverlay(true);
-    if (rect) window.setTimeout(() => setDescMorphRect(null), 700);
+    if (rect) window.setTimeout(() => { console.log("[MORPH] clear"); setDescMorphRect(null); }, 700);
   }, []);
   const applyDescMorph = useCallback((el: HTMLDivElement | null) => {
+    console.log("[MORPH] cb", !!el, !!descMorphRect);
     if (!el || !descMorphRect) return;
     const r = descMorphRect;
     const o = el.getBoundingClientRect();
