@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, Play, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Loader2, Play, AlertCircle, CheckCircle2, RotateCw } from "lucide-react";
 
 const PHRASES = [
   { id: "exclusion", phrase: "un bar avec vue sur la Koutoubia, pas un hotel" },
@@ -94,17 +94,36 @@ function resultSummary(text: string) {
   return { hasMap, count };
 }
 
+type ResultRow = {
+  id: string;
+  phrase: string;
+  v1: { text: string; latency: number; error: string | null };
+  v2: { text: string; latency: number; error: string | null };
+};
+
 const AiEngineTestBench = () => {
   const [slug, setSlug] = useState("");
+  const [custom, setCustom] = useState("");
   const [running, setRunning] = useState(false);
-  const [results, setResults] = useState<
-    Array<{
-      id: string;
-      phrase: string;
-      v1: { text: string; latency: number; error: string | null };
-      v2: { text: string; latency: number; error: string | null };
-    }>
-  >([]);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [results, setResults] = useState<ResultRow[]>([]);
+
+  const runOne = async (id: string, phrase: string) => {
+    if (!slug.trim()) {
+      toast.error("Renseigne le slug de l'établissement hôte");
+      return;
+    }
+    setBusyId(id);
+    const [v1, v2] = await Promise.all([
+      callEngine(slug.trim(), "v1", phrase),
+      callEngine(slug.trim(), "v2", phrase),
+    ]);
+    setResults((prev) => {
+      const next = prev.filter((r) => r.id !== id);
+      return [{ id, phrase, v1, v2 }, ...next];
+    });
+    setBusyId(null);
+  };
 
   const run = async () => {
     if (!slug.trim()) {
@@ -113,7 +132,7 @@ const AiEngineTestBench = () => {
     }
     setRunning(true);
     setResults([]);
-    const out: typeof results = [];
+    const out: ResultRow[] = [];
     for (const item of PHRASES) {
       const [v1, v2] = await Promise.all([
         callEngine(slug.trim(), "v1", item.phrase),
@@ -125,6 +144,7 @@ const AiEngineTestBench = () => {
     setRunning(false);
     toast.success("Batterie de test terminée");
   };
+
 
   return (
     <div className="space-y-4">
@@ -156,9 +176,36 @@ const AiEngineTestBench = () => {
               Lancer la batterie
             </Button>
           </div>
+          <div className="flex flex-col sm:flex-row gap-3 items-end border-t pt-4">
+            <div className="flex-1 w-full space-y-1.5">
+              <Label htmlFor="test-custom">Phrase libre (test immédiat V1 + V2)</Label>
+              <Input
+                id="test-custom"
+                placeholder="ex: un bar avec vue sur la Koutoubia, pas un hotel"
+                value={custom}
+                onChange={(e) => setCustom(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && custom.trim() && slug.trim() && !busyId && !running) {
+                    runOne(`libre · ${new Date().toLocaleTimeString()}`, custom.trim());
+                  }
+                }}
+                disabled={running}
+              />
+            </div>
+            <Button
+              variant="secondary"
+              onClick={() => runOne(`libre · ${new Date().toLocaleTimeString()}`, custom.trim())}
+              disabled={running || !!busyId || !slug.trim() || !custom.trim()}
+              className="w-full sm:w-auto"
+            >
+              {busyId ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Play className="h-4 w-4 mr-2" />}
+              Tester cette phrase
+            </Button>
+          </div>
           <p className="text-xs text-muted-foreground">
             Plan de test : <code>docs/ai/plan-test-v1v2.md</code>
           </p>
+
         </CardContent>
       </Card>
 
@@ -175,8 +222,22 @@ const AiEngineTestBench = () => {
                 <div key={r.id} className="border rounded-lg p-4 space-y-3">
                   <div className="flex items-center gap-2">
                     <Badge variant="outline">{r.id}</Badge>
-                    <span className="font-medium text-sm">{r.phrase}</span>
+                    <span className="font-medium text-sm flex-1">{r.phrase}</span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => runOne(r.id, r.phrase)}
+                      disabled={running || !!busyId}
+                    >
+                      {busyId === r.id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <RotateCw className="h-3.5 w-3.5" />
+                      )}
+                      <span className="ml-1.5 text-xs">Relancer</span>
+                    </Button>
                   </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-sm font-medium">
