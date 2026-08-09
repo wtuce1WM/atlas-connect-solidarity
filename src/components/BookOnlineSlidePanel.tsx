@@ -2226,35 +2226,9 @@ const BookOnlineSlidePanelInner = ({
           <div className="slidepanel-center-short relative flex flex-col items-center justify-center pointer-events-auto gap-6 md:gap-8 flex-1">
 
 
-            {/* Conteneur 1 : bouton + (Description / Highlights) */}
-            <div className="flex items-center justify-center pointer-events-auto">
-              {woDescription || hasHighlights ? (
-                <div className="slidepanel-plus-short relative z-[40]">
-                  <button
-                    type="button"
-                    className="cursor-pointer group flex flex-col items-center gap-2 bg-transparent border-0 p-0"
-                    onClick={(e) => { e.stopPropagation(); setShowDescriptionOverlay(true); }}
-                    onTouchEnd={(e) => { e.stopPropagation(); e.preventDefault(); setShowDescriptionOverlay(true); }}
-                    onTouchStart={(e) => e.stopPropagation()}
-                    onTouchMove={(e) => e.stopPropagation()}
-                    aria-label="Ouvrir la description"
-                  >
-                    <div
-                      className="btn-shimmer relative w-12 h-12 rounded-full border border-white/30 flex items-center justify-center overflow-hidden backdrop-blur-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)] transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
-                      style={{ backgroundColor: 'rgba(37, 211, 102, 0.55)' }}
-                    >
-                      <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
-                      <span aria-hidden="true" className="pointer-events-none absolute top-0 left-1.5 right-1.5 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
-                      <span className="relative text-2xl text-white font-light leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">+</span>
-                    </div>
-                  </button>
-                </div>
-              ) : (
-                <div className="slidepanel-plus-short invisible pointer-events-none" aria-hidden="true">
-                  <div className="w-12 h-12" />
-                </div>
-              )}
-            </div>
+            {/* Bouton « + » retiré : l'ouverture de la Full Description se fait
+                désormais via la zone d'information posée sur le média. */}
+
 
 
             {/* Conteneur 2 : flipbooks OU badge Avis clients */}
