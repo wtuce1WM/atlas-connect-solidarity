@@ -1425,11 +1425,8 @@ const BookOnlineSlidePanelInner = ({
     }
     ytPost("playVideo");
 
-  }, [
-    forceMuted, showDirections, selectedDestinationId, selectedPoiBusinessId, selectedKpBusinessId,
-    docOverlay, showBookingOverlay, showYoutubeOverlay, showExternalVideosOverlay, showMosaic, externalOverlayActive,
-    showPoiMapOverlay, activeVideoOverlay, showFallbackOverlay, searchOverlayActive, showDescriptionOverlay, showWelcomePopup, globalSoundOn,
-  ]);
+  }, [mediaBlockingOverlayOpen, globalSoundOn]);
+
 
   // ── External bridge: window events to control Play/Mute from an outer bar
   //   dispatch "book-panel:toggle-play"  → play/pause current media
