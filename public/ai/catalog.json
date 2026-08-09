@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-09T03:03:18.194Z",
+    "generated_at": "2026-08-09T04:52:14.301Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
     "count": 1845
   },
@@ -150217,7 +150217,12 @@
         "Cuisine marocaine",
         "Dîner",
         "Déjeuner",
-        "Rooftop"
+        "Rooftop",
+        "Salades",
+        "Cave à vin",
+        "Champagne",
+        "Viande",
+        "Poisson"
       ],
       "city": "Marrakech",
       "neighborhood": "Bab Doukkala",
@@ -150231,7 +150236,7 @@
       "website": "https://www.laterrassedujardin.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/cf46f291-b56f-4bda-9df5-6cae13b6c7f8-1782893153747-80lvi9.webp",
       "google_rating": 4.9,
-      "google_review_count": 7160,
+      "google_review_count": 7173,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],

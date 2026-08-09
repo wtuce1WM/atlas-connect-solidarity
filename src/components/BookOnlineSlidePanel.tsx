@@ -1617,6 +1617,18 @@ const BookOnlineSlidePanelInner = ({
     [videoDocs]
   );
   const hasExternalVideos = externalVideoDocs.length > 0;
+  // Vidéos annonces Location / Vente (immobilier) — prioritaires sous Avis Clients
+  const rentalSaleVideos = useMemo(
+    () => (videoDocs || [])
+      .filter((d: any) => {
+        const pt = (d.price_type || "").toString().toLowerCase();
+        return (pt === "location" || pt === "vente") && typeof d.url === "string" && d.url.length > 0 && (!d.business_id || d.business_id === businessId);
+      })
+      .sort((a: any, b: any) => (a.sort_order ?? 9999) - (b.sort_order ?? 9999))
+      .slice(0, 4),
+    [videoDocs, businessId]
+  );
+  const hasRentalSaleVideos = rentalSaleVideos.length > 0;
   // Single YouTube button: opens channel overlay if channel exists, else external videos overlay
   const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
   const hasYoutubeBottomCarousel = hasYoutubeReady || hasYoutubeChannel || hasExternalVideos;
@@ -2955,8 +2967,56 @@ const BookOnlineSlidePanelInner = ({
                     />
                   )}
 
-                  {/* Vidéos — grille 3x3 desktop / 2x2 mobile (propriétaires + YouTube/externes) */}
-                  {!descOverlayContent && (nonExternalVideoDocs.length + externalVideoDocs.length) > 0 && (() => {
+                  {/* Vidéos annonces Location / Vente — sous Avis Clients, pleine largeur */}
+                  {!descOverlayContent && hasRentalSaleVideos && (() => {
+                    return (
+                      <div className="mt-8 flex flex-col gap-6">
+                        {rentalSaleVideos.map((d: any) => {
+                          const pt = (d.price_type || "").toString().toLowerCase();
+                          const ptLabel = pt === "location"
+                            ? (language === "en" ? "For rent" : "Location")
+                            : (language === "en" ? "For sale" : "Vente");
+                          return (
+                            <div key={d.url} className="w-full">
+                              <h3 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">
+                                {[d.name, ptLabel].filter(Boolean).join(" — ")}
+                                {d.price ? ` · ${d.price}` : ""}
+                              </h3>
+                              <div className="w-full flex justify-center">
+                                <PhoneMockupFrame frameColor="dark" screenAspect="9 / 16">
+                                  {isExternalVideoUrl(d.url) ? (
+                                    <iframe
+                                      src={getVideoEmbed(d.url, window.location.origin, { autoplay: false, muted: true } as any).embedUrl}
+                                      title={d.name || ptLabel}
+                                      allow="encrypted-media; fullscreen; picture-in-picture"
+                                      allowFullScreen
+                                      className="w-full h-full block border-0"
+                                    />
+                                  ) : (
+                                    <video
+                                      src={d.url}
+                                      poster={d.thumbnail_url || undefined}
+                                      controls
+                                      muted
+                                      playsInline
+                                      preload="metadata"
+                                      className="w-full h-full block object-cover"
+                                    />
+                                  )}
+                                </PhoneMockupFrame>
+                              </div>
+                              {d.description && (
+                                <p className="mt-2 text-sm text-white/80 leading-relaxed whitespace-pre-line">{htmlToPlainText(d.description)}</p>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
+
+                  {/* Vidéos — grille 3x3 desktop / 2x2 mobile (propriétaires + YouTube/externes) — masquée quand les vidéos Location/Vente sont présentes */}
+                  {!descOverlayContent && !hasRentalSaleVideos && (nonExternalVideoDocs.length + externalVideoDocs.length) > 0 && (() => {
                     const urlOrder = new Map(allVideoUrls.map((u, i) => [u, i]));
                     const seen = new Set<string>();
                     const combined = [...nonExternalVideoDocs, ...externalVideoDocs].filter((d: any) => {
@@ -3228,61 +3288,6 @@ const BookOnlineSlidePanelInner = ({
                   })()}
 
 
-                  {/* Vidéos propriétaires Location / Vente — 4 premières, pleine largeur */}
-                  {!descOverlayContent && (() => {
-                    const rentalSaleVideos = (videoDocs || [])
-                      .filter((d: any) => {
-                        const pt = (d.price_type || "").toString().toLowerCase();
-                        return (pt === "location" || pt === "vente") && typeof d.url === "string" && d.url.length > 0 && (!d.business_id || d.business_id === businessId);
-                      })
-                      .sort((a: any, b: any) => (a.sort_order ?? 9999) - (b.sort_order ?? 9999))
-                      .slice(0, 4);
-                    if (rentalSaleVideos.length === 0) return null;
-                    return (
-                      <div className="mt-8 flex flex-col gap-6">
-                        {rentalSaleVideos.map((d: any) => {
-                          const pt = (d.price_type || "").toString().toLowerCase();
-                          const ptLabel = pt === "location"
-                            ? (language === "en" ? "For rent" : "Location")
-                            : (language === "en" ? "For sale" : "Vente");
-                          return (
-                            <div key={d.url} className="w-full">
-                              <h3 className="text-sm font-bold uppercase mb-2 text-white font-['Montserrat',sans-serif]">
-                                {[d.name, ptLabel].filter(Boolean).join(" — ")}
-                                {d.price ? ` · ${d.price}` : ""}
-                              </h3>
-                              <div className="w-full flex justify-center">
-                                <PhoneMockupFrame frameColor="dark" screenAspect="9 / 16">
-                                  {isExternalVideoUrl(d.url) ? (
-                                    <iframe
-                                      src={getVideoEmbed(d.url, window.location.origin, { autoplay: false, muted: true } as any).embedUrl}
-                                      title={d.name || ptLabel}
-                                      allow="encrypted-media; fullscreen; picture-in-picture"
-                                      allowFullScreen
-                                      className="w-full h-full block border-0"
-                                    />
-                                  ) : (
-                                    <video
-                                      src={d.url}
-                                      poster={d.thumbnail_url || undefined}
-                                      controls
-                                      muted
-                                      playsInline
-                                      preload="metadata"
-                                      className="w-full h-full block object-cover"
-                                    />
-                                  )}
-                                </PhoneMockupFrame>
-                              </div>
-                              {d.description && (
-                                <p className="mt-2 text-sm text-white/80 leading-relaxed whitespace-pre-line">{htmlToPlainText(d.description)}</p>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    );
-                  })()}
 
                   {/* Visite virtuelle 3D (Matterport) affichée pleine largeur */}
 
