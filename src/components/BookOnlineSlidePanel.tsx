@@ -6,7 +6,7 @@ import { YoutubeScrubBar } from "@/components/video/YoutubeScrubBar";
 import { createPortal } from "react-dom";
 import { MapPin, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Clock, Play, Pause, Volume2, VolumeX, Building2, Compass, ShoppingCart, SlidersHorizontal, CheckCircle2, Circle, Navigation, Heart } from "lucide-react";
 import { GiWalkingBoot } from "react-icons/gi";
-import { BsCalendarDay } from "react-icons/bs";
+import { BsCalendarDay, BsCarFrontFill } from "react-icons/bs";
 import ShareButton from "@/components/ShareButton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
@@ -2036,7 +2036,7 @@ const BookOnlineSlidePanelInner = ({
                     onClick={(e) => e.stopPropagation()}
                     aria-label={`Current language ${currentLang.label}`}
                     title={currentLang.label}
-                    className="relative inline-flex items-center justify-center text-[22px] leading-none shrink-0 opacity-100 scale-110 transition-all duration-200"
+                    className="relative inline-flex items-center justify-center h-[22px] w-[22px] text-[19px] leading-none shrink-0 opacity-100 transition-all duration-200"
                   >
                     {currentLang.flag}
                   </button>
@@ -2096,13 +2096,18 @@ const BookOnlineSlidePanelInner = ({
               <MapPin className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
             </div>
           )}
-          {showGoogleMap && !hideDirections && business?.latitude && business?.longitude && (
-            <div data-cta-tap onClick={handleCtaTap('itin', () => setShowDirections(true))} className={`group cta-peek ${peekItin || tappedCta === 'itin' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 bg-gold text-gold-foreground hover:bg-gold/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
-              <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
-              <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{language === "en" ? "Directions" : language === "ar" ? "طريق" : "Itinéraire"}</span>
-              <GiWalkingBoot className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
-            </div>
-          )}
+          {showGoogleMap && !hideDirections && business?.latitude && business?.longitude && (() => {
+            const radiusKm = Number((business as any)?.poi_radius_km);
+            const isFar = Number.isFinite(radiusKm) && radiusKm > 10;
+            const ItinIcon = isFar ? BsCarFrontFill : GiWalkingBoot;
+            return (
+              <div data-cta-tap onClick={handleCtaTap('itin', () => setShowDirections(true))} className={`group cta-peek ${peekItin || tappedCta === 'itin' ? 'is-peek' : ''} relative overflow-hidden flex items-center h-10 rounded-r-full border border-l-0 border-white/10 text-white backdrop-blur-md bg-black/80 hover:bg-black/90 shadow-[8px_4px_12px_rgba(0,0,0,0.3)] pr-3 transition-all duration-300 ease-out cursor-pointer pl-3 group-hover:pl-4`}>
+                <span className="absolute inset-0 -translate-x-full group-hover:animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
+                <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-300 ease-out text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{language === "en" ? "Directions" : language === "ar" ? "طريق" : "Itinéraire"}</span>
+                <ItinIcon className="h-[22px] w-[22px] shrink-0 group-hover:ml-2 transition-[margin] duration-300" />
+              </div>
+            );
+          })()}
 
         </div>
 
