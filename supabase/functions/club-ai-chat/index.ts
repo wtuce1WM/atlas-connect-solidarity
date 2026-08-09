@@ -986,9 +986,13 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       // du service/badge existant en base pour que le moteur /search le capte.
       const preViewIntent = detectViewIntent(`${ctx.lastUserMessage || ""} ${ctx.forceQuery || ""} ${args.query || ""}`);
       const viewAttributeHints = preViewIntent.panoramas.map((p) => p.attributeNames[0]);
+      // Repère ponctuel (Koutoubia…) : on aide la récupération avec « Rooftop »,
+      // la vue depuis un point exigeant une hauteur, pas juste une adresse proche.
+      if (preViewIntent.points.length) viewAttributeHints.push("Rooftop");
       const fullQuery = viewAttributeHints.length
         ? `${baseQuery} ${viewAttributeHints.join(" ")}`.trim()
         : baseQuery;
+
 
       // Appel business-search (même moteur que /search) — direct fetch pour éviter
       // les aléas de `functions.invoke` depuis Deno (parfois body non transmis).
