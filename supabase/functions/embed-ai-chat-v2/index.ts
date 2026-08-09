@@ -365,10 +365,18 @@ Deno.serve(async (req) => {
         let results: any[] = [];
         let totalFound = 0;
         if (out && confident && (out.intent === "search" || out.intent === "compare")) {
-          const queryParts = [out.category, ...(userMessage ? [userMessage] : [])].filter(Boolean) as string[];
-          const baseQuery = queryParts.join(" ").slice(0, 200);
-          const views = detectViewIntent(baseQuery);
-          const viewHints = views.panoramas.map((p) => p.attributeNames[0]);
+          // Autorité du classifieur : la requête est construite à partir des champs
+          // structurés, jamais du message brut (une négation « pas un hôtel »
+          // polluait la récupération et vidait les résultats).
+          const views = detectViewIntent(userMessage);
+          const panoramaHints = views.panoramas.map((p) => p.attributeNames[0]);
+          const excluded = (out.exclude || []).map(normalize).filter(Boolean);
+          const excludesLodging = excluded.some((x) => /hotel|riad|hebergement|maison\s?d/.test(x));
+          // Un repère ponctuel (Koutoubia) se traite par rayon + preuve de point de
+          // vue, pas par mot-clé : n'injecter aucun indice « rooftop » ici.
+          const hintParts = views.points.length && !excludesLodging ? [] : panoramaHints;
+          const baseQuery = [out.category, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
+            || userMessage.slice(0, 200);
           const city = out.city || host.city || "Marrakech";
           cityDetected = city;
           try {
@@ -376,7 +384,7 @@ Deno.serve(async (req) => {
               method: "POST",
               headers: { Authorization: `Bearer ${SERVICE}`, apikey: SERVICE, "Content-Type": "application/json" },
               body: JSON.stringify({
-                query: viewHints.length ? `${baseQuery} ${viewHints.join(" ")}` : baseQuery,
+                query: baseQuery,
                 spoken: baseQuery,
                 language: lang,
                 pageSize: 30,
@@ -387,13 +395,46 @@ Deno.serve(async (req) => {
             });
             const json = await r.json().catch(() => null);
             const all: any[] = Array.isArray(json?.businesses) ? json.businesses : [];
-            const excluded = (out.exclude || []).map(normalize).filter(Boolean);
-            const kept = all.filter((b: any) => {
+            let kept = all.filter((b: any) => {
               if (b.id === host.id) return false;
               if (!excluded.length) return true;
               const hay = normalize(`${b.main_category || ""} ${(b.categories || []).join(" ")}`);
               return !excluded.some((x) => hay.includes(x));
             });
+
+            // Filtre de vue : élimination stricte quand une vue est demandée.
+            if (views.hasViewIntent && kept.length && (views.points.length || views.panoramas.length)) {
+              const ids = kept.map((b: any) => b.id);
+              const [{ data: coords }, { data: bb }] = await Promise.all([
+                admin.from("businesses").select("id, latitude, longitude, services, description, name").in("id", ids),
+                admin.from("business_badges").select("business_id, badges(name)").in("business_id", ids),
+              ]);
+              const coordById = new Map((coords || []).map((c: any) => [c.id, c]));
+              const badgesById = new Map<string, string[]>();
+              for (const row of (bb as any[]) || []) {
+                const name = (row as any).badges?.name;
+                if (!name) continue;
+                const arr = badgesById.get(row.business_id) || [];
+                arr.push(name);
+                badgesById.set(row.business_id, arr);
+              }
+              kept = kept.filter((b: any) => {
+                const c: any = coordById.get(b.id) || {};
+                const badgeNames = badgesById.get(b.id) || [];
+                const text = `${b.name || ""} ${b.hook_fr || ""} ${c.description || ""}`;
+                const attrs = { services: c.services, badgeNames };
+                const pointOk = views.points.length
+                  ? views.points.some((p) =>
+                      (withinPointRadius(p, c.latitude, c.longitude) && hasVantage(attrs, text)) ||
+                      hasPointViewProof(p, text))
+                  : true;
+                const panoOk = views.panoramas.length
+                  ? views.panoramas.some((p) => hasPanoramaAttribute(p, attrs) || hasPanoramaProof(p, text))
+                  : true;
+                return pointOk && panoOk;
+              });
+            }
+
             totalFound = kept.length;
             results = kept.slice(0, CFG.maxResults);
           } catch (e) {
