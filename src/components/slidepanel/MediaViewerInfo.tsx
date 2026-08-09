@@ -18,7 +18,10 @@ interface MediaViewerInfoProps {
   onOpen: () => void;
   /** Drapeaux des langues (desktop) */
   flagsSlot?: React.ReactNode;
+  /** Sans fond/bordure : le fond est fourni par le conteneur parent */
+  bare?: boolean;
 }
+
 
 const MORE: Record<string, string> = { fr: "plus", en: "more", ar: "المزيد" };
 const REVIEWS: Record<string, string> = { fr: "avis", en: "reviews", ar: "آراء" };
@@ -38,6 +41,7 @@ const MediaViewerInfo = ({
   language = "fr",
   onOpen,
   flagsSlot,
+  bare = false,
 }: MediaViewerInfoProps) => {
   const lang = (language in MORE ? language : "fr") as keyof typeof MORE;
   const place = [city, neighborhood].filter(Boolean).join(", ");
@@ -56,12 +60,15 @@ const MediaViewerInfo = ({
         onTouchStart={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}
         onTouchEnd={(e) => { e.stopPropagation(); e.preventDefault(); onOpen(); }}
-        className="group w-full max-w-[680px] mx-auto cursor-pointer select-none rounded-2xl px-3 py-2.5 md:px-4 md:py-3 bg-gradient-to-b from-black/25 to-black/55 backdrop-blur-[2px] border border-white/10 transition-colors hover:from-black/35 hover:to-black/65 text-left"
+        /* text-transform/letter-spacing forcés en inline : index.css impose uppercase sur [role="button"] */
+        style={{ textTransform: "none", letterSpacing: "normal" }}
+        className={`group w-full mx-auto cursor-pointer select-none px-3 py-2.5 md:px-4 md:py-3 text-left ${bare ? "" : "rounded-2xl bg-gradient-to-b from-black/25 to-black/55 backdrop-blur-[2px] border border-white/10 transition-colors hover:from-black/35 hover:to-black/65"}`}
       >
         <div
-          className="text-[15px] md:text-lg !font-bold normal-case text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.6)] truncate"
-          style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: "normal" }}
+          className="text-[15px] md:text-lg !font-bold text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.6)] truncate"
+          style={{ fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
         >
+
           {name}
         </div>
 
