@@ -2136,6 +2136,13 @@ const BookOnlineSlidePanelInner = ({
         onTouchStart={externalVideoInteractiveMode ? undefined : handleMediaTouchStart}
         onTouchMove={externalVideoInteractiveMode ? undefined : handleMediaTouchMove}
         onTouchEnd={externalVideoInteractiveMode ? undefined : handleMediaTouchEnd}
+        // Tap sur la zone média vide → masquer / afficher (remplace le Toggle)
+        onClick={(e) => {
+          if (externalVideoInteractiveMode) return;
+          if (e.target !== e.currentTarget) return;
+          if (cardsHidden) showCards(); else hideCards();
+        }}
+
       >
 
         {/* Block 1 : en-tête rectangle — conservé uniquement quand la zone
