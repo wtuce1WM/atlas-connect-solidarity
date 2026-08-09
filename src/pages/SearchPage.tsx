@@ -1785,6 +1785,22 @@ const SearchPage = () => {
           const style = window.getComputedStyle(node);
           return /(auto|scroll)/.test(style.overflowY) && node.scrollHeight > node.clientHeight + 1;
         };
+        // Barres horizontales (filtres du header, barre fixe du bas, rails
+        // d'images/vidéos) : elles gèrent elles-mêmes la molette → on ne doit
+        // jamais couper la propagation au-dessus d'elles.
+        const isScrollableX = (node: HTMLElement) => {
+          const style = window.getComputedStyle(node);
+          return /(auto|scroll)/.test(style.overflowX) && node.scrollWidth > node.clientWidth + 1;
+        };
+        const isOverHorizontalRail = (target: EventTarget | null) => {
+          let node = target instanceof HTMLElement ? target : null;
+          while (node) {
+            if (isScrollableX(node)) return true;
+            if (isScrollableY(node)) return false;
+            node = node.parentElement;
+          }
+          return false;
+        };
         const getScrollable = (target: EventTarget | null) => {
           const mainPanelScroller = el.querySelector<HTMLElement>('[data-slidepanel-scroll="true"]');
           if (mainPanelScroller && isScrollableY(mainPanelScroller)) return mainPanelScroller;
