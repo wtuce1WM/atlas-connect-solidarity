@@ -1,5 +1,6 @@
 import { useState, useRef, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import HScroll from "@/components/HScroll";
 
 interface ImageGallerySectionProps {
   images: string[];
@@ -32,10 +33,9 @@ export default function ImageGallerySection({ images, language, onOpenImage }: I
     desktopScrollRef.current?.scrollTo({ left: next * (desktopScrollRef.current.clientWidth || 0), behavior: "smooth" });
   };
 
-  const handleMobileScroll = () => {
-    const el = mobileScrollRef.current;
-    if (!el) return;
-    const slideWidth = el.firstElementChild?.clientWidth || el.clientWidth * 0.85;
+  const handleMobileScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const slideWidth = (el.firstElementChild as HTMLElement | null)?.clientWidth || el.clientWidth * 0.85;
     const next = Math.max(0, Math.round(el.scrollLeft / slideWidth));
     if (next !== mobileIndex && next < images.length) setMobileIndex(next);
   };
@@ -152,10 +152,9 @@ export default function ImageGallerySection({ images, language, onOpenImage }: I
 
       {/* Mobile : horizontal scroll, one image per slide, edge-to-edge */}
       <div className="md:hidden -mx-4 px-4">
-        <div
-          ref={mobileScrollRef}
+        <HScroll
           onScroll={handleMobileScroll}
-          className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-1"
+          className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-1 cursor-grab"
           style={{ scrollSnapType: "x mandatory" }}
         >
           {images.map((img, i) => (
@@ -167,7 +166,8 @@ export default function ImageGallerySection({ images, language, onOpenImage }: I
               <img src={img} alt="" className="w-full h-full object-cover rounded-lg" loading="lazy" />
             </div>
           ))}
-        </div>
+        </HScroll>
+
         <div className="flex justify-center mt-3">
           <span className="text-xs font-medium text-white/60 font-['Montserrat',sans-serif] tabular-nums">
             {String(mobileIndex + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}

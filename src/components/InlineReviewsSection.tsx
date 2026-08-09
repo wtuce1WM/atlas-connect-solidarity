@@ -95,7 +95,7 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
   const hiddenCount = Math.max(0, Math.min(ordered.length, 10) - 1);
 
   const LeaveReviewWidgets = () => (
-    <div className="flex flex-col gap-2 items-stretch">
+    <div className="flex flex-col gap-2 items-start">
       {leaveReviewPlatforms.map((p) => {
         const logo = LOGO_MAP[p.name];
         const leaveHref = resolveLeaveReviewUrl(p);
@@ -106,7 +106,7 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
             href={leaveHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg bg-primary text-primary-foreground no-underline hover:brightness-110 font-['Montserrat',sans-serif] whitespace-nowrap"
+            className="inline-flex w-auto max-w-full items-center justify-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg bg-primary text-primary-foreground no-underline hover:brightness-110 font-['Montserrat',sans-serif] whitespace-nowrap"
           >
             {logo && (
               <img
