@@ -60,16 +60,19 @@ message: ${req.message}`;
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${lovableApiKey}`,
+        "Lovable-API-Key": lovableApiKey,
       },
-      body: JSON.stringify({
+      body: JSON.stringify(normalizeGatewayBodyForModel({
         model: AI_MODEL,
         messages: [
           { role: "system", content: SYSTEM },
           { role: "user", content: user },
         ],
         response_format: { type: "json_object" },
-      }),
+        max_tokens: 200,
+      })),
     });
+
 
     if (!resp.ok) {
       const text = (await resp.text()).slice(0, 300);
