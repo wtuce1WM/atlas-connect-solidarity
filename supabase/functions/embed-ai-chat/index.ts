@@ -1556,32 +1556,66 @@ Deno.serve(async (req) => {
         const logTurn = async (opts: { finalText: string; streamCompleted: boolean }) => {
           try {
             const t_end = Date.now();
+            // Sortie du classifieur B (null si route déterministe A).
+            const clf = await classifierPromise;
+            const clfOut = clf?.output ?? null;
+            const clfConfident = isConfident(clfOut, "embed");
+            const intentToRoute: Record<string, string> = {
+              search: "discover",
+              business_qa: "business_qa",
+              compare: "compare",
+              itinerary: "itinerary",
+              other: "smalltalk",
+            };
+            const routeTaken = clfOut && clfConfident
+              ? (intentToRoute[clfOut.intent] || "discover")
+              : deterministicRoute;
+            // Classe : A si aucun LLM génératif ; sinon C. B seul = classifieur
+            // exploité sans génération (cas rare sur embed, mais tracé fidèlement).
+            const aiClass = llmUsed ? "C" : (clfOut && clfConfident ? "B" : "A");
             await admin.from("ai_conversation_turns").insert({
               chat_id: null,
               user_id: null,
               affiliate_id: null,
               user_message: userMessage,
-              intent_classified: inferEmbedRoute(userMessage),
-              route_taken: inferEmbedRoute(userMessage),
+              intent_classified: clfOut ? `classifier:${clfOut.intent}` : deterministicRoute,
+              route_taken: routeTaken,
               surface: "embed",
-              ai_class: llmUsed ? "C" : "A",
-              model: llmUsed ? MODEL : null,
-              fallback_reason: hadError ? "route_failed" : null,
+              ai_class: aiClass,
+              model: llmUsed || clfOut ? MODEL : null,
+              classifier_confidence: clfOut ? clfOut.confidence : null,
+              fallback_reason: hadError
+                ? "route_failed"
+                : (clfOut && !clfConfident ? "confidence_low" : null),
               tools_called: {
                 business_id: host.id,
                 business_slug: host.slug,
                 business_name: host.name,
                 session_id: sessionId,
                 tools: toolsCalledLog,
+                classifier: clfOut
+                  ? {
+                      intent: clfOut.intent,
+                      category: clfOut.category,
+                      exclude: clfOut.exclude,
+                      city: clfOut.city,
+                      confidence: clfOut.confidence,
+                      threshold: getSurfaceConfig("embed").confidenceThreshold,
+                      tokens_in: clf?.tokensIn ?? null,
+                      tokens_out: clf?.tokensOut ?? null,
+                      error: clf?.error ?? null,
+                    }
+                  : null,
               },
               latency_ms_total: t_end - t0,
               latency_ms_first_token: firstTokenAt ? firstTokenAt - t0 : null,
               latency_ms_synth: null,
-              tokens_in: null,
-              tokens_out: null,
+              tokens_in: clf?.tokensIn ?? null,
+              tokens_out: clf?.tokensOut ?? null,
               cost_usd: null,
               city_active: host.city || null,
-              city_detected: null,
+              city_detected: clfOut?.city ?? null,
+
               results_count: knownBusinesses.length,
               results_shown: (lastMapPayload?.businesses?.length ?? 0) + (lastEventsPayload?.events?.length ?? 0),
               had_error: hadError,
