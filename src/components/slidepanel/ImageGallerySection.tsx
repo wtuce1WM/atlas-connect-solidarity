@@ -1,5 +1,6 @@
 import { useState, useRef, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import HScroll from "@/components/HScroll";
 
 interface ImageGallerySectionProps {
   images: string[];
