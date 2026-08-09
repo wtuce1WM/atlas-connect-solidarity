@@ -3013,12 +3013,20 @@ serve(async (req) => {
             authCategory = String(clf.category || "").trim() || undefined;
             authCity = String(clf.city || "").trim() || undefined;
             authExcludes = Array.isArray(clf.exclude) ? clf.exclude.map((e: any) => String(e)).filter(Boolean) : [];
+            // Garde-fou : une intention de VUE (Koutoubia, Atlas, mer…) est portée par
+            // la requête texte (rayon géométrique + preuve de point de vue). Passer
+            // `category` écraserait ce filtrage et rendrait une liste générique.
+            const vi = detectViewIntent(fusedQuery);
+            if (vi.hasViewIntent && (vi.points.length > 0 || vi.panoramas.length > 0)) {
+              authCategory = undefined;
+              turnLog.fallback_reason = turnLog.fallback_reason || "authority_view_intent";
+            }
             turnLog.ai_class = "B";
             turnLog.route_taken = "search";
             turnLog.classifier_confidence = conf;
             if (authCity) turnLog.city_detected = authCity;
           }
-          console.log("club classifier authority:", JSON.stringify({ conf, threshold, clfIntent, authCategory, authCity, authExcludes, applied: classifierAuthority }));
+          console.log("club classifier authority:", JSON.stringify({ conf, threshold, clfIntent, authCategory, authCity, authExcludes, applied: classifierAuthority, viewIntent: (() => { const v = detectViewIntent(fusedQuery); return { hasViewIntent: v.hasViewIntent, points: v.points.map((x) => x.slug), panoramas: v.panoramas.map((x) => x.slug) }; })() }));
         } catch (e) {
           console.warn("club classifier authority failed", e);
         }
