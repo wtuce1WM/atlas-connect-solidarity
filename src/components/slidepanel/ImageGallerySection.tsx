@@ -152,10 +152,9 @@ export default function ImageGallerySection({ images, language, onOpenImage }: I
 
       {/* Mobile : horizontal scroll, one image per slide, edge-to-edge */}
       <div className="md:hidden -mx-4 px-4">
-        <div
-          ref={mobileScrollRef}
+        <HScroll
           onScroll={handleMobileScroll}
-          className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-1"
+          className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-1 cursor-grab"
           style={{ scrollSnapType: "x mandatory" }}
         >
           {images.map((img, i) => (
@@ -167,7 +166,8 @@ export default function ImageGallerySection({ images, language, onOpenImage }: I
               <img src={img} alt="" className="w-full h-full object-cover rounded-lg" loading="lazy" />
             </div>
           ))}
-        </div>
+        </HScroll>
+
         <div className="flex justify-center mt-3">
           <span className="text-xs font-medium text-white/60 font-['Montserrat',sans-serif] tabular-nums">
             {String(mobileIndex + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
