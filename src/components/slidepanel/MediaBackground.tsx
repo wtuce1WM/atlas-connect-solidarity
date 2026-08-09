@@ -45,10 +45,19 @@ const MediaBackground = React.memo(function MediaBackground({
     const tryPlay = v.play();
     if (tryPlay && typeof tryPlay.catch === "function") {
       tryPlay.catch(() => {
+        // Only fall back to muted playback when the browser really blocked playback.
+        // If the video is already playing, re-muting here would silently override the
+        // user's explicit Mute/Sound choice (single source of truth = soundOn).
+        if (!v.paused) return;
+        v.dataset.owmAutoMute = "1";
         v.muted = true;
         v.play().catch(() => {});
+        // volumechange est asynchrone : on garde le drapeau assez longtemps
+        // pour que les listeners ne prennent pas ce mute automatique pour un choix utilisateur.
+        window.setTimeout(() => { delete v.dataset.owmAutoMute; }, 800);
       });
     }
+
 
     // If the browser forced mute (autoplay policy), unmute on the next user gesture.
     if (!soundOn) return;

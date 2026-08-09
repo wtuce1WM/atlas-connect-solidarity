@@ -1241,7 +1241,13 @@ const BookOnlineSlidePanelInner = ({
       if (!v) return;
       const onPlay = () => setVideoPaused(false);
       const onPause = () => setVideoPaused(true);
-      const onVolChange = () => { setVideoMuted(v.muted); setGlobalSoundOn(!v.muted); };
+      const onVolChange = () => {
+        setVideoMuted(v.muted);
+        // Ne pas écraser la préférence utilisateur avec un mute automatique
+        // (fallback autoplay bloqué par le navigateur).
+        if (v.dataset.owmAutoMute) return;
+        setGlobalSoundOn(!v.muted);
+      };
       v.addEventListener("play", onPlay);
       v.addEventListener("pause", onPause);
       v.addEventListener("volumechange", onVolChange);
@@ -4267,6 +4273,7 @@ const BookOnlineSlidePanelInner = ({
                   videoRef: videoRef as React.RefObject<HTMLVideoElement>,
                   paused: videoPaused,
                   muted: videoMuted,
+                  onMutedChange: (m: boolean) => { setVideoMuted(m); setGlobalSoundOn(!m); },
                 } :
                 effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" ? {
                   type: "youtube",
