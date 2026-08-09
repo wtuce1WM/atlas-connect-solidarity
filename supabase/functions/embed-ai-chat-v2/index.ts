@@ -364,20 +364,11 @@ Deno.serve(async (req) => {
 
         let results: any[] = [];
         let totalFound = 0;
-        if (out && confident && (out.intent === "search" || out.intent === "compare")) {
-          // Autorité du classifieur : la requête est construite à partir des champs
-          // structurés, jamais du message brut (une négation « pas un hôtel »
-          // polluait la récupération et vidait les résultats).
+
+        // Recherche déterministe partagée : appelée avec les champs structurés du
+        // classifieur, ou en secours avec le message brut quand il n'est pas confiant.
+        const runSearch = async (baseQuery: string, city: string, excluded: string[]) => {
           const views = detectViewIntent(userMessage);
-          const panoramaHints = views.panoramas.map((p) => p.attributeNames[0]);
-          const excluded = (out.exclude || []).map(normalize).filter(Boolean);
-          const excludesLodging = excluded.some((x) => /hotel|riad|hebergement|maison\s?d/.test(x));
-          // Un repère ponctuel (Koutoubia) se traite par rayon + preuve de point de
-          // vue, pas par mot-clé : n'injecter aucun indice « rooftop » ici.
-          const hintParts = views.points.length && !excludesLodging ? [] : panoramaHints;
-          const baseQuery = [out.category, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
-            || userMessage.slice(0, 200);
-          const city = out.city || host.city || "Marrakech";
           cityDetected = city;
           try {
             const r = await fetch(`${SUPABASE_URL}/functions/v1/business-search`, {
@@ -443,8 +434,39 @@ Deno.serve(async (req) => {
             fallbackReason = "route_failed";
           }
           resultsCount = results.length;
-          if (!results.length) fallbackReason = fallbackReason || "no_results";
+        };
+
+        if (out && confident && (out.intent === "search" || out.intent === "compare")) {
+          // Autorité du classifieur : la requête est construite à partir des champs
+          // structurés, jamais du message brut (une négation « pas un hôtel »
+          // polluait la récupération et vidait les résultats).
+          const views = detectViewIntent(userMessage);
+          const panoramaHints = views.panoramas.map((p) => p.attributeNames[0]);
+          const excluded = (out.exclude || []).map(normalize).filter(Boolean);
+          const excludesLodging = excluded.some((x) => /hotel|riad|hebergement|maison\s?d/.test(x));
+          // Un repère ponctuel (Koutoubia) se traite par rayon + preuve de point de
+          // vue, pas par mot-clé : n'injecter aucun indice « rooftop » ici.
+          const hintParts = views.points.length && !excludesLodging ? [] : panoramaHints;
+          const baseQuery = [out.category, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
+            || userMessage.slice(0, 200);
+          await runSearch(baseQuery, out.city || host.city || "Marrakech", excluded);
         }
+
+        // Filet de secours : le classifieur n'a pas tranché (ou sa requête structurée
+        // n'a rien donné) → recherche sur le message brut, comme la v1. Sans ça, la
+        // classe C n'a aucun contexte et répond « je n'ai pas de … ».
+        if (!results.length && route !== "business_qa") {
+          const rawExcluded = ((out?.exclude || []) as string[]).map(normalize).filter(Boolean);
+          await runSearch(
+            userMessage.slice(0, 200),
+            out?.city || host.city || "Marrakech",
+            rawExcluded,
+          );
+          if (results.length) fallbackReason = fallbackReason || "confidence_low";
+        }
+
+        if (!results.length) fallbackReason = fallbackReason || "no_results";
+
 
         if (!confident && !fallbackReason) fallbackReason = "confidence_low";
 
@@ -453,15 +475,19 @@ Deno.serve(async (req) => {
         const gateway = createLovableAiGatewayProvider(LOVABLE_API_KEY);
         const context = [
           hostContext(host, lang),
-          results.length ? `Résultats trouvés (${results.length} sur ${totalFound}) :\n${resultsContext(results, lang)}` : "",
+          results.length
+            ? `Résultats trouvés (${results.length} sur ${totalFound}) — ce sont les seules adresses à présenter, présente-les toutes :\n${resultsContext(results, lang)}`
+            : "",
           priorIds.length && !results.length
             ? `Établissements déjà présentés dans la conversation : ${(await fetchPriorFull(admin, priorIds.slice(0, 6))).map((b: any) => b.name).join(", ")}`
             : "",
         ].filter(Boolean).join("\n\n");
 
         const system = `Tu es le concierge IA de ${host.name}. Ton: ${CFG.ton}.
-Tu ne t'appuies QUE sur le contexte fourni. Si l'information n'y est pas, dis-le en une phrase et propose une reformulation.
-N'invente jamais un établissement, un prix, un horaire ou un avis.
+Tu ne t'appuies QUE sur le contexte fourni. N'invente jamais un établissement, un prix, un horaire ou un avis.
+Quand le contexte contient des résultats, tu les présentes TOUJOURS, même s'ils ne correspondent pas exactement à la demande : dans ce cas, une phrase d'introduction honnête ("pas de correspondance exacte, voici une sélection proche") puis les adresses. Ne réponds jamais que tu n'as rien trouvé alors que des résultats sont fournis.
+Si le contexte ne contient aucun résultat, dis-le en une phrase et propose une reformulation.
+
 Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}, 120 mots maximum, sans liste brute si tu peux faire des phrases.`;
 
         const history = uiMessages
