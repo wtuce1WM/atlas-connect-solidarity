@@ -76,6 +76,8 @@ interface CtaBarProps {
   hideDirections?: boolean;
   /** Whether to hide secondary CTAs (URLs 2-5, shopCta, etc.) */
   hideSecondaryCtas?: boolean;
+  /** Slot placed between the primary CTA and the remaining liquid-glass CTAs */
+  infoSlot?: React.ReactNode;
 }
 
 export function CtaBar({
