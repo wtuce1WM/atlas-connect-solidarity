@@ -515,8 +515,11 @@ const ClubAiSuggestionsManagement = () => {
                     <Textarea value={r.fixed_response_ar || ""} onChange={(e) => update(r.id, { fixed_response_ar: e.target.value || null })} placeholder="الرد الثابت AR (Markdown)" rows={8} dir="rtl" />
                   </div>
                 </details>
+                </>)}
               </div>
-            ))}
+              );
+            })}
+
             {rows.length === 0 && <div className="text-sm text-muted-foreground">Aucune suggestion.</div>}
           </div>
         )}
