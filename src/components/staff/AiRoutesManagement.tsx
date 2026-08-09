@@ -22,7 +22,7 @@ type Route = {
 };
 
 const SURFACES = ["club", "embed", "search"] as const;
-const CLASSES = ["A", "B", "C"] as const;
+
 
 const classColor = (c: string) =>
   c === "A" ? "bg-emerald-100 text-emerald-800" : c === "B" ? "bg-amber-100 text-amber-800" : "bg-rose-100 text-rose-800";
