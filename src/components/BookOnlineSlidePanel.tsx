@@ -700,6 +700,7 @@ const BookOnlineSlidePanelInner = ({
   const descMorphRectRef = useRef<{ rect: DOMRect; t: number } | null>(null);
   const applyDescMorph = useCallback((el: HTMLDivElement | null) => {
     const pending = descMorphRectRef.current;
+    console.log("[MORPH] cb", !!el, !!pending, pending ? Date.now()-pending.t : -1);
     if (!el || !pending) return;
     if (Date.now() - pending.t > 900) { descMorphRectRef.current = null; return; }
     const r = pending.rect;
@@ -713,6 +714,7 @@ const BookOnlineSlidePanelInner = ({
     // reflow pour permettre le redémarrage de l'animation
     void el.offsetWidth;
     el.classList.add("owm-desc-morph");
+    console.log("[MORPH] applied", el.className.slice(0,60), getComputedStyle(el).animationName);
     // animationend bubble depuis les enfants : ne réagir qu'à l'animation de l'élément lui-même
     const onEnd = (e: AnimationEvent) => {
       if (e.target !== el || e.animationName !== "owm-desc-morph") return;
