@@ -3326,9 +3326,12 @@ ${languageInstruction}`;
     // (category / city / exclude) au lieu de laisser une réponse « 0 résultat ».
     if (!lastSearchSlugs.length) {
       try {
-        const clf = clubClassifierPromise ? await clubClassifierPromise : null;
+        const clfRes = clubClassifierPromise ? await clubClassifierPromise : null;
+        // classify() renvoie { output, tokensIn, ... } : la classification est dans .output
+        const clf: any = (clfRes as any)?.output ?? clfRes ?? null;
         const conf = Number(clf?.confidence ?? 0);
         const cat = String((clf as any)?.category || "").trim();
+        console.log("club classifier rescue gate:", JSON.stringify({ intent: clf?.intent ?? null, cat, conf, city: clf?.city ?? null, exclude: clf?.exclude ?? [] }));
         if (clf && clf.intent === "search" && conf >= 0.8 && cat) {
           const excludes: string[] = Array.isArray((clf as any).exclude)
             ? (clf as any).exclude.map((e: any) => String(e || "").trim()).filter(Boolean)
