@@ -4,7 +4,7 @@ import remarkGfm from "remark-gfm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, BookMarked } from "lucide-react";
+import { Search, BookMarked, Calendar } from "lucide-react";
 
 import architectureMd from "@/content/kb/architecture.md?raw";
 import glossaireMd from "@/content/kb/glossaire.md?raw";
@@ -24,25 +24,36 @@ import lovableSkillsMd from "@/content/kb/lovable-skills.md?raw";
 import connecteurMcpClaudeMd from "@/content/kb/connecteur-mcp-claude.md?raw";
 import processusChangementClasseAbcMd from "@/content/kb/processus-changement-classe-abc.md?raw";
 
-const SECTIONS = [
-  { id: "architecture", label: "Règles d'architecture", icon: BookMarked, content: architectureMd },
-  { id: "glossaire", label: "Glossaire projet", icon: BookMarked, content: glossaireMd },
-  { id: "decisions", label: "Décisions techniques", icon: BookMarked, content: decisionsMd },
-  { id: "conventions", label: "Conventions UI", icon: BookMarked, content: conventionsMd },
-  { id: "recherche-vocale", label: "Recherche vocale", icon: BookMarked, content: rechercheVocaleMd },
-  { id: "mode-pinids", label: "Mode pinIds (Search)", icon: BookMarked, content: modePinIdsMd },
-  { id: "collaboration-multi-postes", label: "Multi-postes", icon: BookMarked, content: collaborationMultiPostesMd },
-  { id: "domaine-dns", label: "Domaine & DNS", icon: BookMarked, content: domaineDnsMd },
-  { id: "seo-meta-tags-lovable", label: "SEO & balises meta", icon: BookMarked, content: seoMetaTagsLovableMd },
-  { id: "previews-sociales-bots", label: "Previews sociales /b/", icon: BookMarked, content: previewsSocialesBotsMd },
-  { id: "cout-generation-videos", label: "Coût génération vidéos", icon: BookMarked, content: coutGenerationVideosMd },
-  { id: "cout-tokens-ia-runtime", label: "Coût tokens IA runtime", icon: BookMarked, content: coutTokensIaRuntimeMd },
-  { id: "methode-prompts-economie-credits", label: "Méthode prompts & crédits", icon: BookMarked, content: methodePromptsMd },
-  { id: "contexte-et-historique", label: "Contexte & historique", icon: BookMarked, content: contexteHistoriqueMd },
-  { id: "lovable-skills", label: "Skills Lovable", icon: BookMarked, content: lovableSkillsMd },
-  { id: "connecteur-mcp-claude", label: "Connecteur MCP / Claude", icon: BookMarked, content: connecteurMcpClaudeMd },
-  { id: "processus-changement-classe-abc", label: "Classes A/B/C", icon: BookMarked, content: processusChangementClasseAbcMd },
-];
+type Section = {
+  id: string;
+  label: string;
+  icon: typeof BookMarked;
+  content: string;
+  createdAt: string;
+};
+
+const SECTIONS: Section[] = [
+  { id: "processus-changement-classe-abc", label: "Classes A/B/C", icon: BookMarked, content: processusChangementClasseAbcMd, createdAt: "2026-08-09" },
+  { id: "connecteur-mcp-claude", label: "Connecteur MCP / Claude", icon: BookMarked, content: connecteurMcpClaudeMd, createdAt: "2026-08-01" },
+  { id: "lovable-skills", label: "Skills Lovable", icon: BookMarked, content: lovableSkillsMd, createdAt: "2026-07-25" },
+  { id: "contexte-et-historique", label: "Contexte & historique", icon: BookMarked, content: contexteHistoriqueMd, createdAt: "2026-07-20" },
+  { id: "methode-prompts-economie-credits", label: "Méthode prompts & crédits", icon: BookMarked, content: methodePromptsMd, createdAt: "2026-07-15" },
+  { id: "cout-tokens-ia-runtime", label: "Coût tokens IA runtime", icon: BookMarked, content: coutTokensIaRuntimeMd, createdAt: "2026-07-10" },
+  { id: "cout-generation-videos", label: "Coût génération vidéos", icon: BookMarked, content: coutGenerationVideosMd, createdAt: "2026-07-05" },
+  { id: "previews-sociales-bots", label: "Previews sociales /b/", icon: BookMarked, content: previewsSocialesBotsMd, createdAt: "2026-07-01" },
+  { id: "seo-meta-tags-lovable", label: "SEO & balises meta", icon: BookMarked, content: seoMetaTagsLovableMd, createdAt: "2026-06-25" },
+  { id: "domaine-dns", label: "Domaine & DNS", icon: BookMarked, content: domaineDnsMd, createdAt: "2026-06-20" },
+  { id: "collaboration-multi-postes", label: "Multi-postes", icon: BookMarked, content: collaborationMultiPostesMd, createdAt: "2026-06-15" },
+  { id: "mode-pinids", label: "Mode pinIds (Search)", icon: BookMarked, content: modePinIdsMd, createdAt: "2026-06-10" },
+  { id: "recherche-vocale", label: "Recherche vocale", icon: BookMarked, content: rechercheVocaleMd, createdAt: "2026-06-05" },
+  { id: "conventions-ui", label: "Conventions UI", icon: BookMarked, content: conventionsMd, createdAt: "2026-06-01" },
+  { id: "decisions", label: "Décisions techniques", icon: BookMarked, content: decisionsMd, createdAt: "2026-05-25" },
+  { id: "glossaire", label: "Glossaire projet", icon: BookMarked, content: glossaireMd, createdAt: "2026-05-20" },
+  { id: "architecture", label: "Règles d'architecture", icon: BookMarked, content: architectureMd, createdAt: "2026-05-15" },
+].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
 
 const KBViewer = () => {
   const [selectedId, setSelectedId] = useState<string>(SECTIONS[0].id);
@@ -73,12 +84,12 @@ const KBViewer = () => {
           Base de connaissance partagée (KB)
         </CardTitle>
         <p className="text-sm text-muted-foreground mt-1">
-          Lecture seule — c'est exactement la base que l'IA doit consulter avant chaque action sur le projet.
+          Lecture seule — tri par date de création, la plus récente en premier.
         </p>
       </CardHeader>
       <CardContent className="p-0">
         <div className="flex flex-col lg:flex-row min-h-[60vh] max-h-[80vh]">
-          <div className="w-full lg:w-72 border-b lg:border-b-0 lg:border-r bg-muted/30 flex flex-col">
+          <div className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r bg-muted/30 flex flex-col">
             <div className="p-3">
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -96,14 +107,19 @@ const KBViewer = () => {
                   <button
                     key={s.id}
                     onClick={() => setSelectedId(s.id)}
-                    className={`w-full text-left px-3 py-2.5 rounded-md text-sm transition-colors flex items-center gap-2 ${
+                    className={`w-full text-left px-3 py-2.5 rounded-md text-sm transition-colors flex flex-col gap-0.5 ${
                       selected.id === s.id
                         ? "bg-primary text-primary-foreground"
                         : "hover:bg-muted text-foreground"
                     }`}
                   >
-                    <s.icon className="h-4 w-4 shrink-0" />
-                    <span className="truncate">{s.label}</span>
+                    <span className="flex items-center gap-2">
+                      <s.icon className="h-4 w-4 shrink-0" />
+                      <span className="truncate font-medium">{s.label}</span>
+                    </span>
+                    <span className={`text-xs pl-6 ${selected.id === s.id ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                      {formatDate(s.createdAt)}
+                    </span>
                   </button>
                 ))}
                 {filtered.length === 0 && (
@@ -114,8 +130,12 @@ const KBViewer = () => {
           </div>
 
           <div className="flex-1 flex flex-col min-h-0">
-            <div className="px-4 py-3 border-b bg-muted/20 lg:hidden">
+            <div className="px-4 py-3 border-b bg-muted/20 flex items-center justify-between gap-4">
               <p className="text-sm font-medium truncate">{selected.label}</p>
+              <span className="text-xs text-muted-foreground shrink-0 flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                {formatDate(selected.createdAt)}
+              </span>
             </div>
             <ScrollArea className="flex-1 p-4 lg:p-6">
               <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:font-serif prose-headings:text-foreground prose-a:text-primary prose-table:w-full prose-th:text-left prose-th:border prose-th:border-border prose-th:p-2 prose-td:border prose-td:border-border prose-td:p-2">
