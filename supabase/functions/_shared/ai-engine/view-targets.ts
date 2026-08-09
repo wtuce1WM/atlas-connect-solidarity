@@ -146,7 +146,9 @@ export function withinPointRadius(point: ViewPoint, lat: unknown, lng: unknown):
 export const VANTAGE_ATTRIBUTE_NAMES = [
   "Rooftop",
   "Roof top",
+  "Rooftop Restaurant & Bars",
   "Terrasse",
+  "Terrasse privative",
   "Terrasse panoramique",
   "Terrasse sur le toit",
   "Vue sur la ville",
