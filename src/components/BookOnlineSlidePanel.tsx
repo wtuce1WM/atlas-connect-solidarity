@@ -3039,7 +3039,7 @@ const BookOnlineSlidePanelInner = ({
                             return (
                               <div
                                 key={`desc-vid-${i}`}
-                                className="relative aspect-square rounded-lg overflow-hidden cursor-pointer"
+                                className="relative aspect-square rounded-lg overflow-hidden cursor-pointer shrink-0 w-[46%] snap-start md:w-auto md:shrink"
                                 onClick={() => setActiveVideoOverlay({ url: vid.url, name: vid.name, description: vid.description })}
                               >
                                 {thumb ? (
