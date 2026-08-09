@@ -15,7 +15,8 @@ interface MediaViewerInfoProps {
   /** Hook, sinon début de description en texte brut */
   teaser?: string | null;
   language?: string;
-  onOpen: () => void;
+  /** Reçoit le rectangle de la barre pour l'animation morphée */
+  onOpen: (rect?: DOMRect) => void;
   /** Drapeaux des langues (desktop) */
   flagsSlot?: React.ReactNode;
   /** Sans fond/bordure : le fond est fourni par le conteneur parent */
@@ -48,17 +49,20 @@ const MediaViewerInfo = ({
   // Tap = ouvrir ; swipe vertical = laissé au panneau (aucun stopPropagation)
   const touchStart = React.useRef<{ x: number; y: number } | null>(null);
   const moved = React.useRef(false);
+  const cardRef = React.useRef<HTMLDivElement>(null);
+  const open = () => onOpen(cardRef.current?.getBoundingClientRect());
 
   return (
     <div className="w-full shrink-0 pointer-events-auto relative z-30">
       {flagsSlot}
       <div
+        ref={cardRef}
         role="button"
         tabIndex={0}
         aria-label={OPEN_ARIA[lang]}
-        onClick={(e) => { e.stopPropagation(); onOpen(); }}
+        onClick={(e) => { e.stopPropagation(); open(); }}
         onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); onOpen(); }
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); open(); }
         }}
         onTouchStart={(e) => {
           const t = e.touches[0];
@@ -76,7 +80,7 @@ const MediaViewerInfo = ({
           if (moved.current) return; // swipe : ne rien intercepter
           e.stopPropagation();
           e.preventDefault();
-          onOpen();
+          open();
         }}
 
         /* text-transform/letter-spacing forcés en inline : index.css impose uppercase sur [role="button"] */
