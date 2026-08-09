@@ -544,16 +544,50 @@ const CLUB_ROUTE_MAP: Record<string, { route: string; aiClass: "A" | "B" | "C" }
   tool_loop: { route: "discover", aiClass: "C" },
 };
 
-function classifyTurn(log: any, model: string): void {
+function classifyTurn(log: any, model: string, clf?: ClassifyResult | null): void {
   const m = CLUB_ROUTE_MAP[String(log.route_taken || "")] ?? { route: "discover", aiClass: "C" as const };
   log.ai_class = m.aiClass;
   log.model = m.aiClass === "A" ? null : model;
   if (m.aiClass === "C" && !log.fallback_reason && log.route_taken === "tool_loop") {
     log.fallback_reason = null; // C nominal (discover flou / tool loop), pas un fallback
   }
+  // ── Classifieur B (observation) ────────────────────────────────────────────
+  // Sur les tours fourre-tout (router_direct / tool_loop), on trace la sortie du
+  // classifieur SANS lui donner autorité sur le routage : on mesure d'abord sa
+  // qualité en SQL avant de câbler category/exclude/city dans search_businesses.
+  const clfOut = clf?.output ?? null;
+  if (clfOut) {
+    const confident = isConfident(clfOut, "club");
+    log.classifier_confidence = clfOut.confidence;
+    log.intent_classified = `classifier:${clfOut.intent}|legacy:${log.intent_classified ?? "none"}`;
+    if (!log.city_detected && clfOut.city) log.city_detected = clfOut.city;
+    if (!confident && !log.fallback_reason) log.fallback_reason = "confidence_low";
+    const tools = Array.isArray(log.tools_called) ? log.tools_called : [];
+    log.tools_called = {
+      tools,
+      classifier: {
+        intent: clfOut.intent,
+        category: clfOut.category,
+        exclude: clfOut.exclude,
+        city: clfOut.city,
+        confidence: clfOut.confidence,
+        threshold: getSurfaceConfig("club").confidenceThreshold,
+        legacy_route: log.route_taken,
+        authority: false,
+        tokens_in: clf?.tokensIn ?? null,
+        tokens_out: clf?.tokensOut ?? null,
+        error: clf?.error ?? null,
+      },
+    };
+    log.tokens_in = (log.tokens_in ?? 0) + (clf?.tokensIn ?? 0);
+    log.tokens_out = (log.tokens_out ?? 0) + (clf?.tokensOut ?? 0);
+  } else if (clf?.error) {
+    log.fallback_reason = log.fallback_reason || "classifier_error";
+  }
   if (log.had_error) log.fallback_reason = log.fallback_reason || "route_failed";
   if (log.results_count === 0) log.fallback_reason = log.fallback_reason || "no_results";
 }
+
 
 function buildSessionMemory(messages: Msg[], activeCity?: string | null): SessionMemory {
   const mem: SessionMemory = { city: null, topic: null, landmark: null, exclusions: [], keywords: [] };
