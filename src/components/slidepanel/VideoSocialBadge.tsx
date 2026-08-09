@@ -45,15 +45,15 @@ const VideoSocialBadge = ({ social, animKey }: Props) => {
           href={social.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5 pointer-events-auto hover:bg-black/80 transition-colors"
+          className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-2.5 py-1 pointer-events-auto hover:bg-black/80 transition-colors"
         >
-          <span className="text-xs font-medium text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          <span className="text-[11px] font-medium text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Follow @{social.account}
           </span>
         </a>
       ) : (
-        <div className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-3 py-1.5">
-          <span className="text-xs font-medium text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+        <div className="animate-cta-zoom-in flex items-center gap-2 rounded-full bg-black border border-white/15 px-2.5 py-1">
+          <span className="text-[11px] font-medium text-white" style={{ fontFamily: "'Montserrat', sans-serif" }}>
             Follow @{social.account}
           </span>
         </div>
