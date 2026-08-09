@@ -167,20 +167,27 @@ const StaffIA = () => {
                   <Cpu className="h-4 w-4" />
                   Routes
                 </TabsTrigger>
-                <TabsTrigger value="test" className="gap-2">
-                  <FlaskConical className="h-4 w-4" />
-                  Mode test
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="guide">
-                <AiEngineGuide onNavigateTab={setActiveTab} />
-              </TabsContent>
-              <TabsContent value="routes">
-                <AiRoutesManagement />
-              </TabsContent>
-              <TabsContent value="test">
-                <AiEngineTestMode />
-              </TabsContent>
+              <TabsTrigger value="test" className="gap-2">
+                <FlaskConical className="h-4 w-4" />
+                Mode test
+              </TabsTrigger>
+              <TabsTrigger value="test-bench" className="gap-2">
+                <Play className="h-4 w-4" />
+                Test bench
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="guide">
+              <AiEngineGuide onNavigateTab={setActiveTab} />
+            </TabsContent>
+            <TabsContent value="routes">
+              <AiRoutesManagement />
+            </TabsContent>
+            <TabsContent value="test">
+              <AiEngineTestMode />
+            </TabsContent>
+            <TabsContent value="test-bench">
+              <AiEngineTestBench />
+            </TabsContent>
             </Tabs>
           </TabsContent>
 
