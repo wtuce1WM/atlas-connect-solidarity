@@ -104,10 +104,15 @@ const StaffIA = () => {
               <LayoutDashboard className="h-4 w-4" />
               Dashboard
             </TabsTrigger>
+            <TabsTrigger value="engine" className="gap-2">
+              <Cpu className="h-4 w-4" />
+              Moteur IA
+            </TabsTrigger>
             <TabsTrigger value="ai-config" className="gap-2">
               <Sparkles className="h-4 w-4" />
               IA
             </TabsTrigger>
+
             <TabsTrigger value="club-ai-suggestions" className="gap-2">
               <MessageSquare className="h-4 w-4" />
               Suggestions Chat IA du Club
