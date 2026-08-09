@@ -314,21 +314,28 @@ export function CtaBar({
         </div>
       )}
 
-      {/* Info slot placed between the primary CTA and the liquid-glass CTAs */}
-      {infoSlot && (
-        <div className="w-full max-w-[min(680px,92%)] mx-auto pointer-events-auto px-2 md:px-0">
+      {/* Zone info + CTAs liquid glass : un seul fond continu jusqu'en bas */}
+      {infoSlot ? (
+        <div className="w-[95%] md:w-[92%] mx-auto pointer-events-auto rounded-t-2xl bg-gradient-to-b from-black/25 to-black/60 backdrop-blur-[2px] border border-b-0 border-white/10 pb-2">
           {infoSlot}
+          {restCtas.length > 0 && (
+            <div className={`w-full px-3 md:px-4 ${restCtas.length === 4 ? 'grid grid-cols-2 gap-2' : 'flex justify-center gap-2'}`}>
+              {restCtas.map((item, i) => (
+                <div key={i} className={restCtas.length === 4 || restCtas.length === 1 ? '' : 'flex-1'}>{item}</div>
+              ))}
+            </div>
+          )}
         </div>
+      ) : (
+        restCtas.length > 0 && (
+          <div className={`${restCtas.length === 1 ? 'w-auto max-w-[95%] md:max-w-[92%] [&_a]:!w-auto [&_button]:!w-auto [&_a]:px-4 [&_button]:px-4' : `${restCtas.length === 2 || restCtas.length === 3 ? 'w-[95%]' : 'w-4/5'} md:w-[92%]`} md:px-0 pointer-events-auto ${restCtas.length === 4 ? 'grid grid-cols-2 gap-2' : 'flex justify-center gap-2'}`}>
+            {restCtas.map((item, i) => (
+              <div key={i} className={restCtas.length === 4 || restCtas.length === 1 ? '' : 'flex-1'}>{item}</div>
+            ))}
+          </div>
+        )
       )}
 
-      {/* Remaining liquid-glass CTAs (directions, URL 3-5, etc.) */}
-      {restCtas.length > 0 && (
-        <div className={`${restCtas.length === 1 ? 'w-auto max-w-[95%] md:max-w-[92%] [&_a]:!w-auto [&_button]:!w-auto [&_a]:px-4 [&_button]:px-4' : `${restCtas.length === 2 || restCtas.length === 3 ? 'w-[95%]' : 'w-4/5'} md:w-[92%]`} md:px-0 pointer-events-auto ${restCtas.length === 4 ? 'grid grid-cols-2 gap-2' : 'flex justify-center gap-2'}`}>
-          {restCtas.map((item, i) => (
-            <div key={i} className={restCtas.length === 4 || restCtas.length === 1 ? '' : 'flex-1'}>{item}</div>
-          ))}
-        </div>
-      )}
 
       {/* Owner logo + badge */}
       <OwnerLogoOverlay
