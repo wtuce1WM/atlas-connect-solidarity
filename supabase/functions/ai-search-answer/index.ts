@@ -250,6 +250,47 @@ serve(async (req) => {
     const noResultsCfg = cfg.no_results_instructions || "";
     const boostVerified = cfg.boost_verified !== "false";
 
+    // --- Moteur A/B/C (surface "search") ---
+    // Curated input (suggestion / relance cliquée) → route imposée, classe A, zéro token.
+    // Input libre → classifieur B en mode observation (la génération legacy reste l'autorité).
+    let engineRouteCode: string = "search_answer";
+    let engineClass: "A" | "B" | "C" = "C";
+    let engineConfidence: number | null = null;
+    let engineFallback: string | null = null;
+    let engineCityDetected: string | null = null;
+    let engineTokensIn = 0;
+    let engineTokensOut = 0;
+    try {
+      const engineRoutes = await loadRoutes(sb);
+      if (engineRoutes.length > 0) {
+        const outcome = await engineRoute(
+          {
+            message: String(query || ""),
+            surface: "search",
+            curatedRoute: (curatedRoute || null) as RouteCode | null,
+            focus: focus || undefined,
+            activeCity: defaultCity,
+            language,
+            chatId: chatId || null,
+          },
+          engineRoutes,
+          LOVABLE_API_KEY,
+        );
+        engineRouteCode = outcome.route;
+        engineClass = outcome.aiClass;
+        engineConfidence = outcome.confidence;
+        engineFallback = outcome.fallbackReason;
+        engineCityDetected = outcome.classifier?.city ?? null;
+        engineTokensIn = outcome.tokensIn;
+        engineTokensOut = outcome.tokensOut;
+        console.log(`[ai-search-answer] engine route=${engineRouteCode} class=${engineClass} conf=${engineConfidence} curated=${curatedRoute ?? "-"}`);
+      }
+    } catch (e) {
+      console.error("[ai-search-answer] engine decision failed", e);
+      engineFallback = "route_failed";
+    }
+
+
     // Keep enough businesses for the model to cite real DB results, especially when
     // the first visible page/ranking is broader than the user's text intent.
     const isRefinement = Array.isArray(history) && history.length > 0;
