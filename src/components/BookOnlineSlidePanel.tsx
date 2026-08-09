@@ -3021,7 +3021,6 @@ const BookOnlineSlidePanelInner = ({
                     const sorted = combined.sort(
                       (a, b) => (urlOrder.get(a.url) ?? 999) - (urlOrder.get(b.url) ?? 999)
                     );
-                    const isMobileGrid = typeof window !== "undefined" && window.innerWidth < 768;
                     const items = sorted.slice(0, 9);
                     return (
                       <div className="mt-8 pt-6 border-t border-white/10">
