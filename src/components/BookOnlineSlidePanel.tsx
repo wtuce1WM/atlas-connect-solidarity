@@ -2967,8 +2967,8 @@ const BookOnlineSlidePanelInner = ({
                     />
                   )}
 
-                  {/* Vidéos — grille 3x3 desktop / 2x2 mobile (propriétaires + YouTube/externes) */}
-                  {!descOverlayContent && (nonExternalVideoDocs.length + externalVideoDocs.length) > 0 && (() => {
+                  {/* Vidéos — grille 3x3 desktop / 2x2 mobile (propriétaires + YouTube/externes) — masquée quand les vidéos Location/Vente sont présentes */}
+                  {!descOverlayContent && !hasRentalSaleVideos && (nonExternalVideoDocs.length + externalVideoDocs.length) > 0 && (() => {
                     const urlOrder = new Map(allVideoUrls.map((u, i) => [u, i]));
                     const seen = new Set<string>();
                     const combined = [...nonExternalVideoDocs, ...externalVideoDocs].filter((d: any) => {
