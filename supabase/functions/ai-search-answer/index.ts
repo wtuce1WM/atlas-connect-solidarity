@@ -1075,18 +1075,23 @@ Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact e
 
     await logSearchTurn({
       user_message: String(query || ""),
-      route_taken: "search_answer",
-      ai_class: "C",
+      route_taken: engineRouteCode,
+      ai_class: engineClass,
+      classifier_confidence: engineConfidence,
+      chat_id: chatId,
+      city_detected: engineCityDetected,
       model,
-      fallback_reason: answer ? null : "empty_response",
+      fallback_reason: engineFallback ?? (answer ? null : "empty_response"),
       results_count: effectiveBusinesses.length,
       language,
+      city_active: defaultCity,
       latency_ms_total: Date.now() - t0,
-      tokens_in: data?.usage?.prompt_tokens ?? null,
-      tokens_out: data?.usage?.completion_tokens ?? null,
+      tokens_in: (data?.usage?.prompt_tokens ?? 0) + engineTokensIn,
+      tokens_out: (data?.usage?.completion_tokens ?? 0) + engineTokensOut,
       user_id: callerContext.userId,
       affiliate_id: callerContext.affiliateId,
     }, sb);
+
 
     return new Response(JSON.stringify({ answer, citedBusinesses: hotelAvailabilityBusinesses }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
