@@ -2320,6 +2320,7 @@ const BookOnlineSlidePanelInner = ({
               totalReviewCount={totalReviewCount}
               teaser={viewerTeaser}
               language={language}
+              bare
               onOpen={() => setShowDescriptionOverlay(true)}
             />
           ) : undefined}
