@@ -33,10 +33,9 @@ export default function ImageGallerySection({ images, language, onOpenImage }: I
     desktopScrollRef.current?.scrollTo({ left: next * (desktopScrollRef.current.clientWidth || 0), behavior: "smooth" });
   };
 
-  const handleMobileScroll = () => {
-    const el = mobileScrollRef.current;
-    if (!el) return;
-    const slideWidth = el.firstElementChild?.clientWidth || el.clientWidth * 0.85;
+  const handleMobileScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const slideWidth = (el.firstElementChild as HTMLElement | null)?.clientWidth || el.clientWidth * 0.85;
     const next = Math.max(0, Math.round(el.scrollLeft / slideWidth));
     if (next !== mobileIndex && next < images.length) setMobileIndex(next);
   };
