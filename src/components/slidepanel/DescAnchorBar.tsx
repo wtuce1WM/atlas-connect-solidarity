@@ -165,8 +165,9 @@ const DescAnchorBar = ({ containerId, deps, language = "fr" }: DescAnchorBarProp
           key={a.id}
           onClick={() => {
             const el = document.getElementById(a.id);
-            el?.scrollIntoView({ behavior: "smooth", block: "start" });
+            lockRef.current = Date.now() + 900;
             setActiveId(a.id);
+            el?.scrollIntoView({ behavior: "smooth", block: "start" });
           }}
           className={`shrink-0 h-7 px-2.5 rounded-full text-[10px] font-semibold uppercase tracking-wide font-['Montserrat',sans-serif] whitespace-nowrap transition-colors border ${
             activeId === a.id
