@@ -19,6 +19,9 @@ function svcClient() {
 type SearchTurnLog = {
   user_message: string;
   route_taken: string;
+  classifier_confidence?: number | null;
+  chat_id?: string | null;
+  city_detected?: string | null;
   ai_class: "A" | "B" | "C";
   model?: string | null;
   fallback_reason?: string | null;
