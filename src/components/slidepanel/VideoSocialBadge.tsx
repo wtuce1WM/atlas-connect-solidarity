@@ -37,9 +37,9 @@ const VideoSocialBadge = ({ social, animKey }: Props) => {
       key={`credit-social-${animKey || social.account}`}
       className="shrink-0 flex flex-col items-center justify-center gap-2 px-4 pb-3 pointer-events-none"
     >
-      {social.platform === "instagram" && <InstagramIcon className="w-14 h-14 md:w-16 md:h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
-      {social.platform === "tiktok" && <SiTiktok className="w-14 h-14 md:w-16 md:h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
-      {social.platform === "youtube" && <Youtube className="w-14 h-14 md:w-16 md:h-16 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+      {social.platform === "instagram" && <InstagramIcon className="w-10 h-10 md:w-12 md:h-12 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+      {social.platform === "tiktok" && <SiTiktok className="w-10 h-10 md:w-12 md:h-12 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
+      {social.platform === "youtube" && <Youtube className="w-10 h-10 md:w-12 md:h-12 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" />}
       {social.url ? (
         <a
           href={social.url}
