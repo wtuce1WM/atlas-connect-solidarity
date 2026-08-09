@@ -13,7 +13,9 @@ import {
   type UIMessage,
 } from "npm:ai@5";
 import { createLovableAiGatewayProvider, normalizeGatewayBodyForModel } from "../_shared/ai-gateway.ts";
-import { AI_MODEL } from "../_shared/ai-engine/surfaces.ts";
+import { AI_MODEL, getSurfaceConfig } from "../_shared/ai-engine/surfaces.ts";
+import { classify, isConfident } from "../_shared/ai-engine/classify.ts";
+
 import {
   pickLang, fmtHours, normalize, levenshtein, DAY_KEYS, DAY_LABELS,
   fetchPriorFull, orderByIds, fmtKm, toMapMarker, haversineKmLocal,
