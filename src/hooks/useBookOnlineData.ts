@@ -522,7 +522,9 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
           return;
         }
 
-        const RADIUS_KM = 100;
+        // Rayon = champ "Rayon" de l'établissement (businesses.poi_radius_km), 10 km par défaut
+        const rawRadius = Number((biz as any)?.poi_radius_km);
+        const RADIUS_KM = Number.isFinite(rawRadius) && rawRadius > 0 ? rawRadius : 10;
         const latDelta = RADIUS_KM / 111;
         const lngDelta = RADIUS_KM / (111 * Math.cos((lat * Math.PI) / 180) || 1);
 
