@@ -2913,8 +2913,7 @@ serve(async (req) => {
           surface: "club",
           focus: {
             active_city: activeCityClean || null,
-            last_category: sessionMem?.topic || null,
-            last_business_names: previousSearchSnapshot?.names?.slice(0, 3),
+            last_business_names: previousSearchSnapshot?.slugs?.slice(0, 3),
           } as any,
         },
         LOVABLE_API_KEY,
