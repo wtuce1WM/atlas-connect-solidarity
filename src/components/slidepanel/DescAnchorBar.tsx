@@ -142,6 +142,7 @@ const DescAnchorBar = ({ containerId, deps, language = "fr" }: DescAnchorBarProp
         const visible = entries
           .filter((e) => e.isIntersecting)
           .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+        if (Date.now() < lockRef.current) return;
         if (visible) setActiveId((visible.target as HTMLElement).id);
       },
       { root, rootMargin: "-10% 0px -70% 0px", threshold: 0 }
