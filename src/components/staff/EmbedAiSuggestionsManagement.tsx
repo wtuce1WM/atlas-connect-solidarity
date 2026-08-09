@@ -889,6 +889,8 @@ const EmbedAiSuggestionsManagement = () => {
                   </p>
                 </div>
               </CardContent>
+              )}
+
             </Card>
           );
         })}
