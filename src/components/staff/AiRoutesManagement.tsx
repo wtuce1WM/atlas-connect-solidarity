@@ -57,7 +57,6 @@ const AiRoutesManagement = () => {
       .update({
         label: r.label,
         description: r.description,
-        default_class: r.default_class,
         enabled: r.enabled,
         surfaces: r.surfaces,
         confidence_threshold: r.confidence_threshold,
