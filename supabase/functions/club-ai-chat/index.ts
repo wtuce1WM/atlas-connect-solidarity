@@ -3319,6 +3319,78 @@ ${languageInstruction}`;
       break;
     }
 
+    // ── Filet de sécurité classifieur B ──────────────────────────────────────
+    // Le classifieur reste SANS autorité sur le routage. Il n'intervient qu'ici,
+    // quand la boucle d'outils a terminé avec ZÉRO établissement : il n'y a donc
+    // rien à dégrader. On relance une recherche déterministe avec ses champs
+    // (category / city / exclude) au lieu de laisser une réponse « 0 résultat ».
+    if (!lastSearchSlugs.length) {
+      try {
+        const clf = clubClassifierPromise ? await clubClassifierPromise : null;
+        const conf = Number(clf?.confidence ?? 0);
+        const cat = String((clf as any)?.category || "").trim();
+        if (clf && clf.intent === "search" && conf >= 0.8 && cat) {
+          const excludes: string[] = Array.isArray((clf as any).exclude)
+            ? (clf as any).exclude.map((e: any) => String(e || "").trim()).filter(Boolean)
+            : [];
+          const rescueCity = String((clf as any).city || activeCityClean || "").trim();
+          const rescueQuery = [cat, rescueCity].filter(Boolean).join(" ");
+          const rescue = await runTool(
+            "search_businesses",
+            { query: cat, category: cat, city: rescueCity || undefined, limit: 30 },
+            { userId: user.id, supabase: admin, lastUserMessage: rescueQuery, language: lang, forceQuery: rescueQuery },
+          ) as any;
+
+          const norm = (s: any) => String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+          const excludeTokens = excludes.flatMap((e) => {
+            const n = norm(e);
+            return n.startsWith("hotel") ? ["hotel", "riad", "maison d hotes", "guest house"] : [n];
+          });
+          let rescued: any[] = Array.isArray(rescue?.results) ? rescue.results : [];
+          if (excludeTokens.length) {
+            rescued = rescued.filter((r: any) => {
+              const hay = norm([r.main_category, ...(Array.isArray(r.categories) ? r.categories : []), r.name].join(" | "));
+              return !excludeTokens.some((t) => t && hay.includes(t));
+            });
+          }
+
+          console.log("club classifier rescue:", JSON.stringify({ cat, rescueCity, excludes, raw: Array.isArray(rescue?.results) ? rescue.results.length : 0, kept: rescued.length, conf }));
+
+          if (rescued.length >= 1) {
+            const top = rescued.slice(0, 5);
+            const hookField = lang === "en" ? "hook_en" : lang === "ar" ? "hook_ar" : "hook_fr";
+            const totalCount = rescued.length;
+            for (const b of rescued) addKnown(b);
+            lastSearchNames = rescued.map((r: any) => r.name).filter(Boolean);
+            lastSearchSlugs = rescued.map((r: any) => r.slug).filter(Boolean);
+            lastSearchTitle = rescueQuery.slice(0, 120);
+            lastSearchSnapshot = {
+              title: lastSearchTitle,
+              slugs: lastSearchSlugs.slice(0, SEARCH_RESULT_LIMIT),
+              returnedCount: top.length,
+              totalCount,
+            };
+            const intro = lang === "en"
+              ? `No exact match, so here is a wider selection${rescueCity ? ` in ${rescueCity}` : ""}:`
+              : lang === "ar"
+              ? `لا توجد نتيجة مطابقة تماماً، وهذه اختيارات أوسع${rescueCity ? ` في ${rescueCity}` : ""}:`
+              : `Aucune correspondance exacte, voici une sélection plus large${rescueCity ? ` à ${rescueCity}` : ""} :`;
+            finalAnswer = `${intro}\n\n${top.map((r: any) =>
+              `- **${r.name}**${r.neighborhood ? ` — ${r.neighborhood}` : ""}${r[hookField] ? ` · ${String(r[hookField]).slice(0, 140)}` : ""}`
+            ).join("\n")}\n\n**${top.length} résultats affichés sur ${totalCount} trouvés**`;
+            emit({ type: "chunk", delta: finalAnswer });
+            turnLog.fallback_reason = "classifier_rescue";
+            turnLog.results_count = totalCount;
+            turnLog.results_shown = top.length;
+          }
+        }
+      } catch (e) {
+        console.warn("club classifier rescue failed", e);
+      }
+    }
+
+
+
 
     // Safety net: si l'utilisateur a explicitement demandé une carte mais le modèle
     // n'a pas appelé show_on_map, on l'injecte automatiquement à partir des derniers
