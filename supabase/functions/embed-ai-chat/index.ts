@@ -50,7 +50,7 @@ function inferEmbedRoute(text: string): string {
   const t = String(text || "");
   if (!t.trim()) return "smalltalk";
   if (isWeatherIntent(t)) return "weather";
-  if (isBookingIntent(t) || isReserveCta(t)) return "booking";
+  if (isBookingIntent(t)) return "booking";
   if (isHoursIntent(t) || isOpensFirstIntent(t) || isClosesLastIntent(t)) return "opening";
   if (isNearbyOverviewIntent(t) || isProximityIntent(t)) return "nearby";
   if (isDescribeIntent(t)) return "business_qa";
