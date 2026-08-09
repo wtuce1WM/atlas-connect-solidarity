@@ -94,17 +94,36 @@ function resultSummary(text: string) {
   return { hasMap, count };
 }
 
+type ResultRow = {
+  id: string;
+  phrase: string;
+  v1: { text: string; latency: number; error: string | null };
+  v2: { text: string; latency: number; error: string | null };
+};
+
 const AiEngineTestBench = () => {
   const [slug, setSlug] = useState("");
+  const [custom, setCustom] = useState("");
   const [running, setRunning] = useState(false);
-  const [results, setResults] = useState<
-    Array<{
-      id: string;
-      phrase: string;
-      v1: { text: string; latency: number; error: string | null };
-      v2: { text: string; latency: number; error: string | null };
-    }>
-  >([]);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [results, setResults] = useState<ResultRow[]>([]);
+
+  const runOne = async (id: string, phrase: string) => {
+    if (!slug.trim()) {
+      toast.error("Renseigne le slug de l'établissement hôte");
+      return;
+    }
+    setBusyId(id);
+    const [v1, v2] = await Promise.all([
+      callEngine(slug.trim(), "v1", phrase),
+      callEngine(slug.trim(), "v2", phrase),
+    ]);
+    setResults((prev) => {
+      const next = prev.filter((r) => r.id !== id);
+      return [{ id, phrase, v1, v2 }, ...next];
+    });
+    setBusyId(null);
+  };
 
   const run = async () => {
     if (!slug.trim()) {
@@ -113,7 +132,7 @@ const AiEngineTestBench = () => {
     }
     setRunning(true);
     setResults([]);
-    const out: typeof results = [];
+    const out: ResultRow[] = [];
     for (const item of PHRASES) {
       const [v1, v2] = await Promise.all([
         callEngine(slug.trim(), "v1", item.phrase),
@@ -125,6 +144,7 @@ const AiEngineTestBench = () => {
     setRunning(false);
     toast.success("Batterie de test terminée");
   };
+
 
   return (
     <div className="space-y-4">
