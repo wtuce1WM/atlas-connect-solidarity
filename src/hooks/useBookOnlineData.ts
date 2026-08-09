@@ -453,6 +453,12 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
               owner_name: o?.name || null,
               owner_logo: o?.logo_url || null,
               owner_instagram: o?.instagram_url || null,
+              instagram_account: d.instagram_account || null,
+              instagram_url: d.instagram_url || null,
+              tiktok_account: d.tiktok_account || null,
+              tiktok_url: d.tiktok_url || null,
+              youtube_account: d.youtube_account || null,
+              youtube_url: d.youtube_url || null,
               ...(isPoi ? { is_poi_linked: true } : {}),
             } as VideoDoc;
           });
@@ -692,6 +698,12 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
                 owner_name: owner?.name || null,
                 owner_logo: owner?.logo_url || null,
                 owner_instagram: owner?.instagram_url || null,
+                instagram_account: d.instagram_account || null,
+                instagram_url: d.instagram_url || null,
+                tiktok_account: d.tiktok_account || null,
+                tiktok_url: d.tiktok_url || null,
+                youtube_account: d.youtube_account || null,
+                youtube_url: d.youtube_url || null,
               } as VideoDoc;
             });
           setVideoDocs((prev) => {
@@ -744,6 +756,12 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
                 owner_name: owner?.name || null,
                 owner_logo: owner?.logo_url || null,
                 owner_instagram: owner?.instagram_url || null,
+                instagram_account: d.instagram_account || null,
+                instagram_url: d.instagram_url || null,
+                tiktok_account: d.tiktok_account || null,
+                tiktok_url: d.tiktok_url || null,
+                youtube_account: d.youtube_account || null,
+                youtube_url: d.youtube_url || null,
                 is_poi_linked: true,
               } as VideoDoc;
             });
