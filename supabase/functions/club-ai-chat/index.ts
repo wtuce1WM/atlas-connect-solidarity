@@ -981,7 +981,14 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         .replace(/[?!.,;:()"“”«»]/g, " ")
         .replace(/\s+/g, " ")
         .trim();
-      const fullQuery = forcedQuery || (lastUserQuery.length >= 4 ? lastUserQuery : aiQuery);
+      const baseQuery = forcedQuery || (lastUserQuery.length >= 4 ? lastUserQuery : aiQuery);
+      // « vue atlas » / « vue montagne » / « vue mer » : on injecte le nom EXACT
+      // du service/badge existant en base pour que le moteur /search le capte.
+      const preViewIntent = detectViewIntent(`${ctx.lastUserMessage || ""} ${ctx.forceQuery || ""} ${args.query || ""}`);
+      const viewAttributeHints = preViewIntent.panoramas.map((p) => p.attributeNames[0]);
+      const fullQuery = viewAttributeHints.length
+        ? `${baseQuery} ${viewAttributeHints.join(" ")}`.trim()
+        : baseQuery;
 
       // Appel business-search (même moteur que /search) — direct fetch pour éviter
       // les aléas de `functions.invoke` depuis Deno (parfois body non transmis).
