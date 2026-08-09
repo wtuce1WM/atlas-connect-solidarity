@@ -41,7 +41,7 @@ const SECTIONS = [
   { id: "contexte-et-historique", label: "Contexte & historique", icon: History, content: contexteHistoriqueMd },
   { id: "lovable-skills", label: "Skills Lovable", icon: Bot, content: lovableSkillsMd },
   { id: "connecteur-mcp-claude", label: "Connecteur MCP / Claude", icon: Plug, content: connecteurMcpClaudeMd },
-  
+  { id: "processus-changement-classe-abc", label: "Classes A/B/C", icon: Route, content: processusChangementClasseAbcMd },
 ];
 
 
