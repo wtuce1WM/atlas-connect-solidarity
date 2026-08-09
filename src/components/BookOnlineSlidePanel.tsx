@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/components/CardsVisibilityToggle";
+import { DesktopMediaArrows, useOwnerLogo } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import { YoutubeScrubBar } from "@/components/video/YoutubeScrubBar";
