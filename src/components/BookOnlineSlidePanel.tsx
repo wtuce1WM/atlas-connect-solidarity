@@ -697,6 +697,7 @@ const BookOnlineSlidePanelInner = ({
   const descMorphRectRef = useRef<DOMRect | null>(null);
   const applyDescMorph = useCallback((el: HTMLDivElement | null) => {
     const r = descMorphRectRef.current;
+    console.log("[MORPH] ref cb", !!el, !!r);
     if (!el || !r) return;
     descMorphRectRef.current = null;
     const o = el.getBoundingClientRect();
@@ -2370,7 +2371,7 @@ const BookOnlineSlidePanelInner = ({
               teaser={viewerTeaser}
               language={language}
               bare
-              onOpen={(rect) => { descMorphRectRef.current = rect ?? null; setShowDescriptionOverlay(true); }}
+              onOpen={(rect) => { console.log("[MORPH] open", rect?.top, rect?.height); descMorphRectRef.current = rect ?? null; setShowDescriptionOverlay(true); }}
             />
           ) : undefined}
         />
