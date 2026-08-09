@@ -8,11 +8,51 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+
+// --- Moteur A/B/C : journalisation des tours (surface "search") ---
+function svcClient() {
+  return createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+}
+
+type SearchTurnLog = {
+  user_message: string;
+  route_taken: string;
+  ai_class: "A" | "B" | "C";
+  model?: string | null;
+  fallback_reason?: string | null;
+  results_count?: number | null;
+  language?: string | null;
+  city_active?: string | null;
+  had_error?: boolean;
+  error_message?: string | null;
+  latency_ms_total?: number | null;
+  tokens_in?: number | null;
+  tokens_out?: number | null;
+  user_id?: string | null;
+  affiliate_id?: string | null;
+};
+
+async function logSearchTurn(log: SearchTurnLog, sb?: any) {
+  try {
+    const client = sb ?? svcClient();
+    const { error } = await client.from("ai_conversation_turns").insert({
+      surface: "search",
+      intent_classified: log.route_taken,
+      stream_completed: true,
+      ...log,
+    });
+    if (error) console.error("[ai-search-answer] logTurn error", error.message);
+  } catch (e) {
+    console.error("[ai-search-answer] logTurn threw", e);
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const t0 = Date.now();
   try {
     const { query, spokenText, businesses = [], language = "fr", vary, mode, history = [], nearbyContext, userCoords } = await req.json();
 
@@ -58,6 +98,15 @@ serve(async (req) => {
     // n'est pas connue → on demande l'autorisation de géolocalisation côté UI.
     if (geoIntent && !hasUserCoords) {
       const isEn = language === "en";
+      await logSearchTurn({
+        user_message: String(query || ""),
+        route_taken: "clarify_geolocate",
+        ai_class: "A",
+        model: null,
+        fallback_reason: "clarify_needed",
+        language,
+        latency_ms_total: Date.now() - t0,
+      });
       return new Response(
         JSON.stringify({
           answer: "",
@@ -101,6 +150,15 @@ serve(async (req) => {
       const REFERENT_RE = /\b(r[ée]sultats?\s+pr[ée]c[ée]dents?|d[ée]j[àa]\s+cit[ée]s?|de\s+moi|près\s+de\s+moi|pres\s+de\s+moi|ma\s+position|near\s+me|previous\s+results?|de\s+(la\s+|l[' ’]|le\s+)?[A-ZÉÈÀÂÎÔÛÇ][\wÀ-ÿ'’\- ]{2,})/i;
       if (PROX_RE.test(query) && !REFERENT_RE.test(query)) {
         const isEn = language === "en";
+        await logSearchTurn({
+          user_message: String(query || ""),
+          route_taken: "clarify_proximity",
+          ai_class: "A",
+          model: null,
+          fallback_reason: "clarify_needed",
+          language,
+          latency_ms_total: Date.now() - t0,
+        });
         return new Response(
           JSON.stringify({
             answer: "",
@@ -914,12 +972,14 @@ Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact e
 
     if (!response.ok) {
       if (response.status === 429) {
+        await logSearchTurn({ user_message: String(query || ""), route_taken: "search_answer", ai_class: "C", model, fallback_reason: "route_failed", had_error: true, error_message: "rate_limited", language, results_count: effectiveBusinesses.length, latency_ms_total: Date.now() - t0, user_id: callerContext.userId, affiliate_id: callerContext.affiliateId }, sb);
         return new Response(JSON.stringify({ error: "Rate limit exceeded", answer: "" }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (response.status === 402) {
+        await logSearchTurn({ user_message: String(query || ""), route_taken: "search_answer", ai_class: "C", model, fallback_reason: "route_failed", had_error: true, error_message: "payment_required", language, results_count: effectiveBusinesses.length, latency_ms_total: Date.now() - t0, user_id: callerContext.userId, affiliate_id: callerContext.affiliateId }, sb);
         return new Response(JSON.stringify({ error: "Payment required", answer: "" }), {
           status: 402,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -927,6 +987,7 @@ Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact e
       }
       const errorText = await response.text();
       console.error(`AI gateway error [${response.status}]:`, errorText);
+      await logSearchTurn({ user_message: String(query || ""), route_taken: "search_answer", ai_class: "C", model, fallback_reason: "route_failed", had_error: true, error_message: `gateway_${response.status}`, language, results_count: effectiveBusinesses.length, latency_ms_total: Date.now() - t0, user_id: callerContext.userId, affiliate_id: callerContext.affiliateId }, sb);
       return new Response(JSON.stringify({ answer: "" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -951,6 +1012,21 @@ Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact e
       .trim();
 
     console.log(`AI answer for "${query}": ${answer.substring(0, 100)}...`);
+
+    await logSearchTurn({
+      user_message: String(query || ""),
+      route_taken: "search_answer",
+      ai_class: "C",
+      model,
+      fallback_reason: answer ? null : "no_results",
+      results_count: effectiveBusinesses.length,
+      language,
+      latency_ms_total: Date.now() - t0,
+      tokens_in: data?.usage?.prompt_tokens ?? null,
+      tokens_out: data?.usage?.completion_tokens ?? null,
+      user_id: callerContext.userId,
+      affiliate_id: callerContext.affiliateId,
+    }, sb);
 
     return new Response(JSON.stringify({ answer, citedBusinesses: hotelAvailabilityBusinesses }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
