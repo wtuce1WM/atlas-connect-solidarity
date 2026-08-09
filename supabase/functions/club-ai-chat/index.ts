@@ -986,12 +986,20 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       // du service/badge existant en base pour que le moteur /search le capte.
       const preViewIntent = detectViewIntent(`${ctx.lastUserMessage || ""} ${ctx.forceQuery || ""} ${args.query || ""}`);
       const viewAttributeHints = preViewIntent.panoramas.map((p) => p.attributeNames[0]);
-      // Repère ponctuel (Koutoubia…) : on aide la récupération avec « Rooftop »,
-      // la vue depuis un point exigeant une hauteur, pas juste une adresse proche.
-      if (preViewIntent.points.length) viewAttributeHints.push("Rooftop");
+      // Repère ponctuel (Koutoubia…) : on N'INJECTE PAS « Rooftop » dans la
+      // requête de récupération — ce mot oriente le moteur /search vers la
+      // catégorie Hôtellerie (rooftops = hôtels/riads), ce qui vide ensuite
+      // tout quand l'utilisateur a dit « pas un hôtel ». La preuve de point de
+      // vue reste vérifiée en post-filtre (hasVantage), sauf si aucune
+      // exclusion d'hébergement n'est demandée.
+      const preExcludeHotel =
+        /\b(pas|sans|no|not|exclu[re]?|autre que)\s+(un\s+|une\s+|d[e']?\s+|of\s+)?(hotel|hôtel|hotels|hôtels|riad|riads|maison\s+d.?hote|maison\s+d.?hotes|guesthouse|guest\s*house|hebergement|hébergement)/i
+          .test(`${ctx.lastUserMessage || ""} ${ctx.forceQuery || ""} ${args.query || ""}`);
+      if (preViewIntent.points.length && !preExcludeHotel) viewAttributeHints.push("Rooftop");
       const fullQuery = viewAttributeHints.length
         ? `${baseQuery} ${viewAttributeHints.join(" ")}`.trim()
         : baseQuery;
+
 
 
       // Appel business-search (même moteur que /search) — direct fetch pour éviter
