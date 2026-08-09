@@ -41,6 +41,24 @@ import {
   extractEngagementQueryTerm, resolveCityEngagementTerm, buildCityEngagementSearch,
 } from "../_shared/ai-engine/routes/engagement.ts";
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Moteur A/B/C (docs/ai/spec-moteur-abc.md §4) — route canonique inférée depuis
+// les détecteurs déterministes déjà utilisés par le routage. Instrumentation
+// uniquement : aucun impact sur le routage lui-même.
+// ─────────────────────────────────────────────────────────────────────────────
+function inferEmbedRoute(text: string): string {
+  const t = String(text || "");
+  if (!t.trim()) return "smalltalk";
+  if (isWeatherIntent(t)) return "weather";
+  if (isBookingIntent(t) || isReserveCta(t)) return "booking";
+  if (isHoursIntent(t) || isOpensFirstIntent(t) || isClosesLastIntent(t)) return "opening";
+  if (isNearbyOverviewIntent(t) || isProximityIntent(t)) return "nearby";
+  if (isDescribeIntent(t)) return "business_qa";
+  if (isCityEngagementSearchIntent(t)) return "discover";
+  if (isDistanceRankingIntent(t) || isDistanceListIntent(t) || isRatingRankingIntent(t) || isCountIntent(t) || parseOrdinalIntent(t)) return "ranking";
+  return "discover";
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -1516,8 +1534,12 @@ Deno.serve(async (req) => {
               user_id: null,
               affiliate_id: null,
               user_message: userMessage,
-              intent_classified: null,
-              route_taken: "embed",
+              intent_classified: inferEmbedRoute(userMessage),
+              route_taken: inferEmbedRoute(userMessage),
+              surface: "embed",
+              ai_class: (!firstTokenAt && !toolsCalledLog.length) ? "A" : "C",
+              model: (!firstTokenAt && !toolsCalledLog.length) ? null : MODEL,
+              fallback_reason: hadError ? "route_failed" : (knownBusinesses.length === 0 ? "no_results" : null),
               tools_called: {
                 business_id: host.id,
                 business_slug: host.slug,
