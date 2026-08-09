@@ -190,7 +190,7 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
   const renderVideoCells = (): ReactNode => {
     if (!videoControls) return null;
     if (videoControls.type === "file") {
-      const { videoRef, paused, muted } = videoControls;
+      const { videoRef, paused, muted, onMutedChange } = videoControls;
       return (
         <>
           <Cell
@@ -211,10 +211,13 @@ const PanelSearchBar = ({ onSearch: onSearchRaw, onBusinessSelect, onHotelSearch
             ariaLabel={muted ? "Unmute" : "Mute"}
             onClick={() => {
               const v = videoRef.current;
-              if (!v) return;
-              const next = !v.muted;
-              if (!next && v.volume === 0) v.volume = 1;
-              v.muted = next;
+              const next = v ? !v.muted : !muted;
+              if (v) {
+                if (!next && v.volume === 0) v.volume = 1;
+                v.muted = next;
+              }
+              // Source de vérité : la préférence son globale
+              onMutedChange?.(next);
             }}
           />
         </>
