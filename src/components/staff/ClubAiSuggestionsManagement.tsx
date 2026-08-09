@@ -244,21 +244,75 @@ const ClubAiSuggestionsManagement = () => {
           <div className="text-sm text-muted-foreground">Chargement…</div>
         ) : (
           <div className="space-y-3">
-            {rows.map((r) => (
+            {rows.map((r) => {
+              const isOpen = expanded.has(r.id);
+              return (
               <div key={r.id} className={`p-3 rounded-lg border space-y-3 ${dirty.has(r.id) ? "border-primary/50 bg-primary/5" : "border-border"}`}>
-                <div className="grid grid-cols-1 lg:grid-cols-[70px_1fr_1fr_1fr_100px_60px] gap-2 items-start">
-                  <Input type="number" value={r.sort_order} onChange={(e) => update(r.id, { sort_order: parseInt(e.target.value) || 0 })} className="w-full" title="Ordre" />
+                {/* EN-TÊTE PLIABLE */}
+                <div className="flex items-start gap-2">
+                  <button
+                    type="button"
+                    onClick={() => toggleExpanded(r.id)}
+                    className="h-8 w-8 shrink-0 flex items-center justify-center rounded-md hover:bg-muted"
+                    title={isOpen ? "Replier" : "Déplier"}
+                  >
+                    {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                  </button>
+                  <Input type="number" value={r.sort_order} onChange={(e) => update(r.id, { sort_order: parseInt(e.target.value) || 0 })} className="w-20 h-8 shrink-0" title="Ordre" />
+                  <div className="flex-1 min-w-0">
+                    <div
+                      className="text-sm font-semibold truncate cursor-pointer"
+                      onClick={() => toggleExpanded(r.id)}
+                      title={r.label_fr || ""}
+                    >
+                      {r.label_fr || <em className="text-muted-foreground">(sans libellé FR)</em>}
+                    </div>
+                    {/* Résumé des paramètres */}
+                    <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                      {(() => {
+                        const effectiveMode = r.mode || ((r.subcategory_ids.length > 0 || r.badge_ids.length > 0) ? "structure_front" : "");
+                        const MODE_LABELS: Record<string, string> = {
+                          events: "📅 search_events",
+                          structure_front: "🔍 search_businesses",
+                          weather: "🌤 météo",
+                          map: "🗺 show_on_map",
+                          llm: "💬 LLM direct",
+                        };
+                        return effectiveMode
+                          ? <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium bg-primary/15 text-primary">{MODE_LABELS[effectiveMode] || effectiveMode}</span>
+                          : <RouteBadge label={r.label_fr || ""} />;
+                      })()}
+                      <Chip label="Ville" value={r.city || "Toutes"} />
+                      <Chip label="Catégorie" value={r.category || "—"} />
+                      <Chip label="Destinations" value={r.destination_ids.length === 0 ? "—" : String(r.destination_ids.length)} />
+                      <Chip label="Sous-cat." value={r.subcategory_ids.length === 0 ? "—" : String(r.subcategory_ids.length)} />
+                      <Chip label="Badges" value={r.badge_ids.length === 0 ? "—" : String(r.badge_ids.length)} />
+                      <Chip label="Blog" value={(r.blog_post_ids?.length ?? 0) === 0 ? "—" : String(r.blog_post_ids.length)} />
+                      <Chip label="EN" value={r.label_en ? "✓" : "—"} />
+                      <Chip label="AR" value={r.label_ar ? "✓" : "—"} />
+                      <Chip label="Réponse figée" value={(r.fixed_response_fr || r.fixed_response_en || r.fixed_response_ar) ? "✓" : "—"} />
+                      <Chip
+                        label="Relances"
+                        value={`${globalFollowups.length - (r.disabled_followup_ids?.length || 0)}/${globalFollowups.length}`}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Switch checked={r.is_active} onCheckedChange={(v) => update(r.id, { is_active: v })} />
+                    <span className="text-xs">{r.is_active ? "Actif" : "Off"}</span>
+                    <Button variant="ghost" size="icon" onClick={() => remove(r.id)} title="Supprimer">
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                </div>
+
+                {isOpen && (<>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 items-start">
                   <Textarea value={r.label_fr} onChange={(e) => update(r.id, { label_fr: e.target.value })} placeholder="Libellé FR" rows={2} />
                   <Textarea value={r.label_en || ""} onChange={(e) => update(r.id, { label_en: e.target.value })} placeholder="Libellé EN" rows={2} />
                   <Textarea value={r.label_ar || ""} onChange={(e) => update(r.id, { label_ar: e.target.value })} placeholder="Libellé AR" rows={2} dir="rtl" />
-                  <div className="flex items-center gap-2 pt-2">
-                    <Switch checked={r.is_active} onCheckedChange={(v) => update(r.id, { is_active: v })} />
-                    <span className="text-xs">{r.is_active ? "Actif" : "Off"}</span>
-                  </div>
-                  <Button variant="ghost" size="icon" onClick={() => remove(r.id)} title="Supprimer">
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
                 </div>
+
 
                 {/* VILLE CIBLÉE */}
                 <div className="max-w-xs">
