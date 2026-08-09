@@ -7,19 +7,19 @@ const LABELS = {
     speakNow: "Parlez maintenant",
     waitSignal: "Attendez le signal sonore avant de parler",
     hintLine1: "Cliquez sur le micro",
-    hintLine2: "ou attendez pour lancer la recherche",
+    hintLine2: "ou attendez 2s pour lancer la recherche",
   },
   en: {
     speakNow: "Speak now",
     waitSignal: "Wait for the beep before speaking",
     hintLine1: "Tap the mic",
-    hintLine2: "or wait to launch the search",
+    hintLine2: "or wait 2s to launch the search",
   },
   ar: {
     speakNow: "تحدث الآن",
     waitSignal: "انتظر الإشارة الصوتية قبل التحدث",
     hintLine1: "اضغط على الميكروفون",
-    hintLine2: "أو انتظر لبدء البحث",
+    hintLine2: "أو انتظر 2 ثانية لبدء البحث",
   },
 } as const;
 
