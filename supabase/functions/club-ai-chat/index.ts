@@ -1105,19 +1105,29 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       };
 
       const hasStrictRequirements = excludeHotel || requiresBar || requiredLandmarks.length > 0;
-      const filtered = allBusinesses.filter((b: any) => {
+      // Les critères DURS (catégorie requise / exclusion explicite) éliminent.
+      // Le repère géographique (« vue sur la Koutoubia ») n'est PAS documenté de
+      // façon fiable en base : il sert à classer, pas à éliminer. S'il vide la
+      // liste alors que les critères durs, eux, matchent, on garde les résultats
+      // durs (repère en tête) au lieu de renvoyer 0.
+      const hardFiltered = allBusinesses.filter((b: any) => {
         if (excludeHotel && isHotelLike(b)) return false;
         if (!barConfirmed(b)) return false;
-        if (!matchesLandmark(b)) return false;
         return true;
       });
+      const landmarkFiltered = hardFiltered.filter((b: any) => matchesLandmark(b));
+      const landmarkSoftened = requiredLandmarks.length > 0 && !landmarkFiltered.length && hardFiltered.length > 0;
+      const filtered = landmarkSoftened
+        ? hardFiltered
+        : (requiredLandmarks.length ? [...landmarkFiltered, ...hardFiltered.filter((b: any) => !matchesLandmark(b))] : hardFiltered);
 
       const droppedCount = allBusinesses.length - filtered.length;
-      if (droppedCount > 0) {
+      if (droppedCount > 0 || landmarkSoftened) {
         console.log("club-ai-chat → post-filter", JSON.stringify({
           intentSource: intentSource.slice(0, 120),
           excludeHotel, requiresBar, landmarks: requiredLandmarks.map((l) => l.label),
-          before: allBusinesses.length, after: filtered.length,
+          before: allBusinesses.length, hard: hardFiltered.length, landmark: landmarkFiltered.length,
+          landmarkSoftened, after: filtered.length,
         }));
       }
 
