@@ -224,8 +224,8 @@ serve(async (req) => {
     const persona = cfg.persona || "Tu es un concierge expert du Maroc, chaleureux et passionné. Tu aides les utilisateurs à trouver les meilleurs établissements.";
     const tone = cfg.tone || "Sois naturel et enthousiaste, comme un ami local passionné qui partage ses meilleures adresses.";
     const responseLength = cfg.response_length || "5-8";
-    const baseModel = cfg.model || "google/gemini-3-flash-preview";
-    const proModel = cfg.pro_model || "google/gemini-3-pro-preview";
+    const baseModel = cfg.model || "openai/gpt-5.6-sol";
+    const proModel = cfg.pro_model || "openai/gpt-5.6-sol";
 
     // --- Hybrid model routing ---
     // Promote to Pro on complex / open-ended requests where reasoning quality
@@ -940,27 +940,41 @@ Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact e
 
     const effectiveTemperature = vary ? Math.min(temperature + 0.3, 1.5) : temperature;
 
+    // Les modèles GPT-5 refusent `max_tokens` et toute `temperature` non par défaut.
+    // On adapte le corps de requête au modèle sélectionné (cf. politique modèle projet).
+    const isGpt5 = model.startsWith("openai/gpt-5");
+    const chatMessages = [
+      { role: "system", content: systemPrompt },
+      ...(Array.isArray(history)
+        ? history
+            .filter((m: any) => m && typeof m.content === "string" && (m.role === "user" || m.role === "assistant"))
+            .slice(-10)
+            .map((m: any) => ({ role: m.role, content: m.content }))
+        : []),
+      { role: "user", content: query },
+    ];
+
     const response = await fetchAiGateway("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...(Array.isArray(history)
-            ? history
-                .filter((m: any) => m && typeof m.content === "string" && (m.role === "user" || m.role === "assistant"))
-                .slice(-10)
-                .map((m: any) => ({ role: m.role, content: m.content }))
-            : []),
-          { role: "user", content: query },
-        ],
-        max_tokens: maxTokens,
-        temperature: effectiveTemperature,
-      }),
+      body: JSON.stringify(
+        isGpt5
+          ? {
+              model,
+              messages: chatMessages,
+              max_completion_tokens: maxTokens,
+              reasoning_effort: "none",
+            }
+          : {
+              model,
+              messages: chatMessages,
+              max_tokens: maxTokens,
+              temperature: effectiveTemperature,
+            },
+      ),
     }, {
       supabase: sb,
       userId: callerContext.userId,
@@ -1018,7 +1032,7 @@ Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact e
       route_taken: "search_answer",
       ai_class: "C",
       model,
-      fallback_reason: answer ? null : "no_results",
+      fallback_reason: answer ? null : "empty_response",
       results_count: effectiveBusinesses.length,
       language,
       latency_ms_total: Date.now() - t0,
