@@ -28,6 +28,7 @@ export type FallbackReason =
   | "route_failed"
   | "route_disabled"
   | "no_results"
+  | "empty_response"
   | "cache_hit";
 
 export interface AiRouteRow {
