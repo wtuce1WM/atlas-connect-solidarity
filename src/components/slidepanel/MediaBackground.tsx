@@ -45,10 +45,16 @@ const MediaBackground = React.memo(function MediaBackground({
     const tryPlay = v.play();
     if (tryPlay && typeof tryPlay.catch === "function") {
       tryPlay.catch(() => {
+        // Only fall back to muted playback when the browser really blocked playback.
+        // If the video is already playing, re-muting here would silently override the
+        // user's explicit Mute/Sound choice (single source of truth = soundOn).
+        if (!v.paused) return;
+        v.dataset.owmAutoMute = "1";
         v.muted = true;
-        v.play().catch(() => {});
+        v.play().catch(() => {}).finally(() => { delete v.dataset.owmAutoMute; });
       });
     }
+
 
     // If the browser forced mute (autoplay policy), unmute on the next user gesture.
     if (!soundOn) return;
