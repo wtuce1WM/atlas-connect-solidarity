@@ -2731,10 +2731,10 @@ const BookOnlineSlidePanelInner = ({
                         <span aria-hidden="true" className="pointer-events-none absolute top-0 left-2 right-2 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
                         <span aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden rounded-full">
                           <span
-                            className="absolute block h-full w-1/2 -skew-x-12"
+                            className="absolute block h-full w-1/2"
                             style={{
                               background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)",
-                              animation: "shimmer 0.7s ease-out 1 forwards",
+                              animation: "owm-badge-sweep 0.5s linear 1 forwards",
                             }}
                           />
                         </span>
