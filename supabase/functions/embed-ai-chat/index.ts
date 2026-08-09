@@ -727,9 +727,6 @@ async function buildCityEngagementSearch(
 
 
 
-
-  "Santé": { en: "Health", ar: "الصحة" },
-  "Auto / Moto": { en: "Auto / Moto", ar: "السيارات" },
 };
 
 
