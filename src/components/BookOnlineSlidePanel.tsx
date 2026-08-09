@@ -1617,6 +1617,18 @@ const BookOnlineSlidePanelInner = ({
     [videoDocs]
   );
   const hasExternalVideos = externalVideoDocs.length > 0;
+  // Vidéos annonces Location / Vente (immobilier) — prioritaires sous Avis Clients
+  const rentalSaleVideos = useMemo(
+    () => (videoDocs || [])
+      .filter((d: any) => {
+        const pt = (d.price_type || "").toString().toLowerCase();
+        return (pt === "location" || pt === "vente") && typeof d.url === "string" && d.url.length > 0 && (!d.business_id || d.business_id === businessId);
+      })
+      .sort((a: any, b: any) => (a.sort_order ?? 9999) - (b.sort_order ?? 9999))
+      .slice(0, 4),
+    [videoDocs, businessId]
+  );
+  const hasRentalSaleVideos = rentalSaleVideos.length > 0;
   // Single YouTube button: opens channel overlay if channel exists, else external videos overlay
   const hasYoutubeReady = !!(youtubeVideoCount && youtubeVideoCount > 0);
   const hasYoutubeBottomCarousel = hasYoutubeReady || hasYoutubeChannel || hasExternalVideos;
