@@ -522,11 +522,13 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
           return;
         }
 
-        // Rayon = champ "Rayon" de l'établissement (businesses.poi_radius_km), 10 km par défaut
+        // Rayon "par défaut" de l'établissement (businesses.poi_radius_km) = rayon initial affiché,
+        // mais on charge un pool plus large (>= 100 km) pour que les pills de rayon puissent filtrer côté client.
         const rawRadius = Number((biz as any)?.poi_radius_km);
-        const RADIUS_KM = Number.isFinite(rawRadius) && rawRadius > 0 ? rawRadius : 10;
-        const latDelta = RADIUS_KM / 111;
-        const lngDelta = RADIUS_KM / (111 * Math.cos((lat * Math.PI) / 180) || 1);
+        const DEFAULT_RADIUS_KM = Number.isFinite(rawRadius) && rawRadius > 0 ? rawRadius : 10;
+        const POOL_RADIUS_KM = Math.max(DEFAULT_RADIUS_KM, 100);
+        const latDelta = POOL_RADIUS_KM / 111;
+        const lngDelta = POOL_RADIUS_KM / (111 * Math.cos((lat * Math.PI) / 180) || 1);
 
         const { data: poiData } = await supabase
           .from("businesses")
@@ -538,12 +540,13 @@ export function useBookOnlineData(businessId: string, allowInactive = false) {
           .lte("latitude", lat + latDelta)
           .gte("longitude", lng - lngDelta)
           .lte("longitude", lng + lngDelta)
-          .limit(1000);
+          .limit(2000);
 
         const nearby = ((poiData || []) as PoiBusiness[]).filter((p) => {
           if (p.latitude == null || p.longitude == null) return false;
-          return haversineKm(lat, lng, Number(p.latitude), Number(p.longitude)) <= RADIUS_KM;
+          return haversineKm(lat, lng, Number(p.latitude), Number(p.longitude)) <= POOL_RADIUS_KM;
         });
+
 
         if (!isCancelled) setPoiBusinesses(nearby);
       };
