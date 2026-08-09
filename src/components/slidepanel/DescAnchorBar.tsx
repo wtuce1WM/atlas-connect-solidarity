@@ -26,6 +26,9 @@ const DescAnchorBar = ({ containerId, deps, language = "fr" }: DescAnchorBarProp
   const [anchors, setAnchors] = useState<Anchor[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const wheelRef = useRef<HTMLDivElement | null>(null);
+  // Verrou : après un clic sur un badge, le scroll-spy est ignoré le temps
+  // du scroll fluide, sinon une autre section « gagne » l'état sélectionné.
+  const lockRef = useRef(0);
 
   // Molette (deltaY ou deltaX) + drag souris → scroll horizontal.
   // Ré-attaché quand la barre (dé)monte, car elle n'existe qu'à partir de 3 ancres.
@@ -139,6 +142,7 @@ const DescAnchorBar = ({ containerId, deps, language = "fr" }: DescAnchorBarProp
         const visible = entries
           .filter((e) => e.isIntersecting)
           .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+        if (Date.now() < lockRef.current) return;
         if (visible) setActiveId((visible.target as HTMLElement).id);
       },
       { root, rootMargin: "-10% 0px -70% 0px", threshold: 0 }
@@ -161,8 +165,9 @@ const DescAnchorBar = ({ containerId, deps, language = "fr" }: DescAnchorBarProp
           key={a.id}
           onClick={() => {
             const el = document.getElementById(a.id);
-            el?.scrollIntoView({ behavior: "smooth", block: "start" });
+            lockRef.current = Date.now() + 900;
             setActiveId(a.id);
+            el?.scrollIntoView({ behavior: "smooth", block: "start" });
           }}
           className={`shrink-0 h-7 px-2.5 rounded-full text-[10px] font-semibold uppercase tracking-wide font-['Montserrat',sans-serif] whitespace-nowrap transition-colors border ${
             activeId === a.id
