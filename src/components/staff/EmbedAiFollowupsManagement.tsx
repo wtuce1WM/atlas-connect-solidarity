@@ -16,9 +16,17 @@ type Row = {
   is_active: boolean;
   radius_km: number | null;
   mode: string | null;
+  category: string | null;
+  city: string | null;
+  subcategory_ids: string[];
+  badge_ids: string[];
 };
 
+type Option = { id: string; name_fr: string };
+
 type Route = { key: "weather" | "events" | "search" | "map" | "hours" | "booking" | "rating" | "distance" | "opennow" | "ordinal" | "count" | "llm"; label: string; emoji: string; className: string };
+
+const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
 function detectRoute(label: string): Route {
   const q = (label || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -60,18 +68,28 @@ const RouteBadge = ({ label }: { label: string }) => {
 
 const EmbedAiFollowupsManagement = () => {
   const [rows, setRows] = useState<Row[]>([]);
+  const [subcategories, setSubcategories] = useState<Option[]>([]);
+  const [badges, setBadges] = useState<Option[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
+  const [subcategorySearch, setSubcategorySearch] = useState<Record<string, string>>({});
+  const [badgeSearch, setBadgeSearch] = useState<Record<string, string>>({});
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("embed_ai_followups")
-      .select("id,label_fr,label_en,label_ar,sort_order,is_active,radius_km,mode")
-      .order("sort_order", { ascending: true });
+    const [{ data, error }, { data: subs }, { data: bdgs }] = await Promise.all([
+      (supabase as any)
+        .from("embed_ai_followups")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,radius_km,mode,category,city,subcategory_ids,badge_ids")
+        .order("sort_order", { ascending: true }),
+      supabase.from("subcategories").select("id,name_fr").order("name_fr", { ascending: true }),
+      supabase.from("badges").select("id,name_fr").order("name_fr", { ascending: true }),
+    ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((data as Row[]) || []);
+    setRows(((data as any[]) || []).map((r) => ({ ...r, subcategory_ids: Array.isArray(r.subcategory_ids) ? r.subcategory_ids : [], badge_ids: Array.isArray(r.badge_ids) ? r.badge_ids : [] })) as Row[]);
+    setSubcategories(((subs as any[]) || []).map((s) => ({ id: s.id, name_fr: s.name_fr || "(sans nom)" })));
+    setBadges(((bdgs as any[]) || []).map((b) => ({ id: b.id, name_fr: b.name_fr || "(sans nom)" })));
     setDirty(new Set());
     setLoading(false);
   };
@@ -85,13 +103,13 @@ const EmbedAiFollowupsManagement = () => {
 
   const add = async () => {
     const nextOrder = (rows.reduce((m, r) => Math.max(m, r.sort_order), 0) || 0) + 10;
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("embed_ai_followups")
       .insert({ label_fr: "Nouvelle relance", sort_order: nextOrder, is_active: true })
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, data as Row]);
+    setRows((prev) => [...prev, { ...(data as any), subcategory_ids: [], badge_ids: [] } as Row]);
   };
 
   const remove = async (id: string) => {
@@ -105,7 +123,7 @@ const EmbedAiFollowupsManagement = () => {
     setSaving(true);
     const changed = rows.filter((r) => dirty.has(r.id));
     for (const r of changed) {
-      const { error } = await supabase.from("embed_ai_followups").update({
+      const { error } = await (supabase as any).from("embed_ai_followups").update({
         label_fr: r.label_fr,
         label_en: r.label_en,
         label_ar: r.label_ar,
@@ -113,12 +131,77 @@ const EmbedAiFollowupsManagement = () => {
         is_active: r.is_active,
         radius_km: r.radius_km,
         mode: r.mode,
+        category: r.category,
+        city: r.city,
+        subcategory_ids: r.subcategory_ids ?? [],
+        badge_ids: r.badge_ids ?? [],
       }).eq("id", r.id);
       if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); setSaving(false); return; }
     }
     toast({ title: "Enregistré", description: `${changed.length} relance(s) mise(s) à jour.` });
     setDirty(new Set());
     setSaving(false);
+  };
+
+  const Picker = ({
+    row, field, options, search, setSearch, label, placeholder, empty, chipClass,
+  }: {
+    row: Row;
+    field: "subcategory_ids" | "badge_ids";
+    options: Option[];
+    search: Record<string, string>;
+    setSearch: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+    label: string;
+    placeholder: string;
+    empty: string;
+    chipClass: string;
+  }) => {
+    const ids = row[field] as string[];
+    return (
+      <div className="space-y-1.5">
+        <label className="text-xs text-muted-foreground">{label} {ids.length === 0 ? "(aucune)" : `(${ids.length})`}</label>
+        {ids.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {ids.map((id) => {
+              const o = options.find((x) => x.id === id);
+              return (
+                <span key={id} className={`inline-flex items-center gap-1 rounded-md text-xs px-2 py-1 ${chipClass}`}>
+                  {o?.name_fr || id}
+                  <button type="button" onClick={() => update(row.id, { [field]: ids.filter((x) => x !== id) } as any)} className="hover:text-destructive" title="Retirer">×</button>
+                </span>
+              );
+            })}
+          </div>
+        )}
+        <div className="relative max-w-xs">
+          <Input
+            placeholder={placeholder}
+            value={search[row.id] || ""}
+            onChange={(e) => setSearch((prev) => ({ ...prev, [row.id]: e.target.value }))}
+            onKeyDown={(e) => { if (e.key === "Escape") setSearch((prev) => ({ ...prev, [row.id]: "" })); }}
+          />
+          {search[row.id]?.trim() && (
+            <div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg max-h-60 overflow-auto">
+              {(() => {
+                const q = norm(search[row.id]);
+                const matches = options.filter((o) => !ids.includes(o.id)).filter((o) => norm(o.name_fr).includes(q));
+                if (matches.length === 0) return <div className="px-3 py-2 text-sm text-muted-foreground">{empty}</div>;
+                return matches.slice(0, 8).map((o) => (
+                  <button
+                    key={o.id}
+                    type="button"
+                    onClick={() => { update(row.id, { [field]: [...ids, o.id] } as any); setSearch((prev) => ({ ...prev, [row.id]: "" })); }}
+                    className="w-full px-3 py-2 text-left text-sm hover:bg-muted truncate"
+                  >
+                    {o.name_fr}
+                  </button>
+                ));
+              })()}
+            </div>
+          )}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -139,6 +222,8 @@ const EmbedAiFollowupsManagement = () => {
           Ces relances apparaissent après chaque réponse de l'IA dans <code>/embed/ask/:slug</code>, quelle que soit la suggestion cliquée.
           Le libellé <b>FR</b> est obligatoire ; EN et AR sont utilisés selon la langue. Le placeholder <code>{"{businessName}"}</code> est remplacé dynamiquement par le nom de l'établissement.
           <br />
+          <b>Ville / Catégorie / Sous-catégories / Badges</b> : filtres de contexte. Si renseignés, ils forcent les contraintes de la relance au lieu de compter uniquement sur la détection du libellé.
+          <br />
           <b>Rayon (km)</b> : si renseigné, la relance déclenche une route déterministe « aperçu à proximité » bornée à ce rayon autour de l'établissement (500 m = 0,5). Laisser vide pour la route auto.
           <br />
           <b>Mode</b> : <code>Auto</code> = établissements 1WM à proximité (par défaut). <code>POI seulement</code> = liste uniquement les Points d'intérêt (base <code>points_of_interest</code>) dans le rayon, sans passer par les POIs liés à l'établissement.
@@ -156,13 +241,13 @@ const EmbedAiFollowupsManagement = () => {
               <RouteBadge label="" />
             </div>
             {rows.map((r) => (
-              <div key={r.id} className={`p-3 rounded-lg border ${dirty.has(r.id) ? "border-primary/50 bg-primary/5" : "border-border"}`}>
-                <div className="grid grid-cols-1 lg:grid-cols-[70px_1fr_1fr_1fr_140px_90px_120px_100px_40px] gap-2 items-center">
+              <div key={r.id} className={`p-3 rounded-lg border ${dirty.has(r.id) ? "border-primary/50 bg-primary/5" : "border-border"} space-y-3`}>
+                <div className="grid grid-cols-1 lg:grid-cols-[70px_1fr_1fr_1fr_140px_90px_120px_100px_40px] gap-2 items-start">
                   <Input type="number" value={r.sort_order} onChange={(e) => update(r.id, { sort_order: parseInt(e.target.value) || 0 })} title="Ordre" />
                   <Input value={r.label_fr} onChange={(e) => update(r.id, { label_fr: e.target.value })} placeholder="Relance FR" />
                   <Input value={r.label_en || ""} onChange={(e) => update(r.id, { label_en: e.target.value })} placeholder="EN" />
                   <Input value={r.label_ar || ""} onChange={(e) => update(r.id, { label_ar: e.target.value })} placeholder="AR" dir="rtl" />
-                  <div className="flex justify-start"><RouteBadge label={r.label_fr || ""} /></div>
+                  <div className="flex justify-start pt-1"><RouteBadge label={r.label_fr || ""} /></div>
                   <Input
                     type="number"
                     step="0.1"
@@ -185,13 +270,58 @@ const EmbedAiFollowupsManagement = () => {
                     <option value="poi_nearby">POI seulement</option>
                     <option value="weather">Météo (widget)</option>
                   </select>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 pt-1">
                     <Switch checked={r.is_active} onCheckedChange={(v) => update(r.id, { is_active: v })} />
                     <span className="text-xs">{r.is_active ? "Actif" : "Off"}</span>
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => remove(r.id)} title="Supprimer">
+                  <Button variant="ghost" size="icon" onClick={() => remove(r.id)} title="Supprimer" className="mt-0.5">
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-xs text-muted-foreground">Ville ciblée</label>
+                    <select
+                      value={r.city || ""}
+                      onChange={(e) => update(r.id, { city: e.target.value || null })}
+                      className="h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
+                    >
+                      <option value="">Toutes</option>
+                      <option value="Marrakech">Marrakech</option>
+                      <option value="Essaouira">Essaouira</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground">Catégorie</label>
+                    <Input value={r.category || ""} onChange={(e) => update(r.id, { category: e.target.value || null })} placeholder="ex: restaurant, bar…" />
+                  </div>
+                  <div className="hidden lg:block" />
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <Picker
+                    row={r}
+                    field="subcategory_ids"
+                    options={subcategories}
+                    search={subcategorySearch}
+                    setSearch={setSubcategorySearch}
+                    label="Sous-catégories ciblées"
+                    placeholder="Rechercher une sous-catégorie…"
+                    empty="Aucune sous-catégorie trouvée"
+                    chipClass="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                  />
+                  <Picker
+                    row={r}
+                    field="badge_ids"
+                    options={badges}
+                    search={badgeSearch}
+                    setSearch={setBadgeSearch}
+                    label="Badges ciblés"
+                    placeholder="Rechercher un badge…"
+                    empty="Aucun badge trouvé"
+                    chipClass="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                  />
                 </div>
               </div>
             ))}
