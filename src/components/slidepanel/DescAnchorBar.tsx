@@ -12,13 +12,17 @@ interface DescAnchorBarProps {
   containerId: string;
   /** re-scan trigger (content changes) */
   deps?: unknown;
+  /** UI language for generic labels */
+  language?: string;
 }
 
 type Anchor = { id: string; label: string };
 
 const MAX_LABEL = 22;
 
-const DescAnchorBar = ({ containerId, deps }: DescAnchorBarProps) => {
+const DESC_LABEL: Record<string, string> = { fr: "À propos", en: "About", ar: "نبذة" };
+
+const DescAnchorBar = ({ containerId, deps, language = "fr" }: DescAnchorBarProps) => {
   const [anchors, setAnchors] = useState<Anchor[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const wheelRef = useRef<HTMLDivElement | null>(null);
@@ -86,9 +90,19 @@ const DescAnchorBar = ({ containerId, deps }: DescAnchorBarProps) => {
     if (!root) return;
     const heads = Array.from(root.querySelectorAll("h2")) as HTMLElement[];
     const next: Anchor[] = [];
+    let descDone = false;
     heads.forEach((h, i) => {
       const raw = (h.textContent || "").replace(/\s+/g, " ").trim();
       if (!raw) return;
+      // Les H2 issus du corps de la Description ne produisent qu'un seul badge « À propos ».
+      const inDescBody = !!h.closest("[data-owm-desc-body]");
+      if (inDescBody) {
+        if (descDone) return;
+        descDone = true;
+        if (!h.id) h.id = `owm-anchor-${i}`;
+        next.push({ id: h.id, label: DESC_LABEL[language] || DESC_LABEL.fr });
+        return;
+      }
       if (!h.id) h.id = `owm-anchor-${i}`;
       const label = raw.length > MAX_LABEL ? `${raw.slice(0, MAX_LABEL - 1)}…` : raw;
       next.push({ id: h.id, label });
@@ -101,7 +115,7 @@ const DescAnchorBar = ({ containerId, deps }: DescAnchorBarProps) => {
         ? prev
         : next
     );
-  }, [containerId]);
+  }, [containerId, language]);
 
   useEffect(() => {
     const t = window.setTimeout(scan, 250);
