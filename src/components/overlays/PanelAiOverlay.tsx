@@ -585,6 +585,28 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
       {/* Sticky chat composer */}
       {!loading && (
         <div className="shrink-0 border-t border-border bg-background px-4 sm:px-6 py-3">
+          {suggestions.length > 0 && chatTurns.length === 0 && (
+            <div className="max-w-3xl mx-auto mb-2 flex gap-2 overflow-x-auto scrollbar-hide">
+              {suggestions.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  disabled={chatLoading}
+                  onClick={() =>
+                    sendChat({
+                      text: s.prompt || s.label,
+                      curatedRoute: s.mode ? (MODE_TO_ROUTE[s.mode] ?? null) : null,
+                      fixedResponse: s.fixed || null,
+                    })
+                  }
+                  className="shrink-0 whitespace-nowrap rounded-full border border-border px-3 py-1.5 text-xs text-foreground/80 hover:border-gold hover:text-foreground transition-colors disabled:opacity-40"
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          )}
+
           <form
             onSubmit={(e) => { e.preventDefault(); sendChat(); }}
             className="max-w-3xl mx-auto flex items-end gap-2"
