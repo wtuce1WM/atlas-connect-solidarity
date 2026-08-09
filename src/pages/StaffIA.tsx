@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, ArrowLeft, BarChart3, BookOpen, Sparkles, Brain, MessageSquare, LayoutDashboard, Zap, Code2 } from "lucide-react";
+import { LogOut, ArrowLeft, BarChart3, BookOpen, Sparkles, Brain, MessageSquare, LayoutDashboard, Zap, Code2, Search } from "lucide-react";
 import IADashboard from "@/components/staff/IADashboard";
 import AIConfigManagement from "@/components/staff/AIConfigManagement";
 import ClubAiSuggestionsManagement from "@/components/staff/ClubAiSuggestionsManagement";
@@ -18,7 +18,10 @@ import EmbedAiFollowupsManagement from "@/components/staff/EmbedAiFollowupsManag
 import EmbedAiHowItWorks from "@/components/staff/EmbedAiHowItWorks";
 import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement";
 import KBViewer from "@/components/staff/KBViewer";
+import SearchAiSuggestionsManagement from "@/components/staff/SearchAiSuggestionsManagement";
+import SearchAiFollowupsManagement from "@/components/staff/SearchAiFollowupsManagement";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
+
 
 const StaffIA = () => {
   const [user, setUser] = useState<any>(null);
@@ -113,10 +116,15 @@ const StaffIA = () => {
               <Code2 className="h-4 w-4" />
               Suggestions Embed IA
             </TabsTrigger>
+            <TabsTrigger value="search-ai" className="gap-2">
+              <Search className="h-4 w-4" />
+              Search IA
+            </TabsTrigger>
             <TabsTrigger value="ai-usage" className="gap-2">
               <Zap className="h-4 w-4" />
               Utilisation IA
             </TabsTrigger>
+
             <TabsTrigger value="ai-perf" className="gap-2">
               <BarChart3 className="h-4 w-4" />
               Perf IA
@@ -201,6 +209,24 @@ const StaffIA = () => {
 
 
 
+          <TabsContent value="search-ai">
+            <Tabs defaultValue="suggestions">
+              <TabsList className="mb-4">
+                <TabsTrigger value="suggestions">Suggestions Search</TabsTrigger>
+                <TabsTrigger value="followups" className="gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  Relances Search
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="suggestions">
+                <SearchAiSuggestionsManagement />
+              </TabsContent>
+              <TabsContent value="followups">
+                <SearchAiFollowupsManagement />
+              </TabsContent>
+            </Tabs>
+          </TabsContent>
+
           <TabsContent value="ai-usage">
             <AiUsageManagement />
           </TabsContent>
@@ -208,6 +234,7 @@ const StaffIA = () => {
           <TabsContent value="ai-perf">
             <AiConversationPerf />
           </TabsContent>
+
 
           <TabsContent value="embed-usage">
             <EmbedUsageManagement />

@@ -3463,6 +3463,9 @@ export type Database = {
       }
       club_ai_followups: {
         Row: {
+          badge_ids: string[]
+          category: string | null
+          city: string | null
           created_at: string
           id: string
           is_active: boolean
@@ -3472,9 +3475,13 @@ export type Database = {
           mode: string | null
           radius_km: number | null
           sort_order: number
+          subcategory_ids: string[]
           updated_at: string
         }
         Insert: {
+          badge_ids?: string[]
+          category?: string | null
+          city?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
@@ -3484,9 +3491,13 @@ export type Database = {
           mode?: string | null
           radius_km?: number | null
           sort_order?: number
+          subcategory_ids?: string[]
           updated_at?: string
         }
         Update: {
+          badge_ids?: string[]
+          category?: string | null
+          city?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
@@ -3496,6 +3507,7 @@ export type Database = {
           mode?: string | null
           radius_km?: number | null
           sort_order?: number
+          subcategory_ids?: string[]
           updated_at?: string
         }
         Relationships: []
@@ -4151,6 +4163,9 @@ export type Database = {
       }
       embed_ai_followups: {
         Row: {
+          badge_ids: string[]
+          category: string | null
+          city: string | null
           created_at: string
           id: string
           is_active: boolean
@@ -4160,9 +4175,13 @@ export type Database = {
           mode: string | null
           radius_km: number | null
           sort_order: number
+          subcategory_ids: string[]
           updated_at: string
         }
         Insert: {
+          badge_ids?: string[]
+          category?: string | null
+          city?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
@@ -4172,9 +4191,13 @@ export type Database = {
           mode?: string | null
           radius_km?: number | null
           sort_order?: number
+          subcategory_ids?: string[]
           updated_at?: string
         }
         Update: {
+          badge_ids?: string[]
+          category?: string | null
+          city?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
@@ -4184,6 +4207,7 @@ export type Database = {
           mode?: string | null
           radius_km?: number | null
           sort_order?: number
+          subcategory_ids?: string[]
           updated_at?: string
         }
         Relationships: []
@@ -6820,6 +6844,138 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      search_ai_followups: {
+        Row: {
+          badge_ids: string[]
+          category: string | null
+          city: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          label_ar: string | null
+          label_en: string | null
+          label_fr: string
+          mode: string | null
+          radius_km: number | null
+          sort_order: number
+          subcategory_ids: string[]
+          updated_at: string
+        }
+        Insert: {
+          badge_ids?: string[]
+          category?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label_ar?: string | null
+          label_en?: string | null
+          label_fr: string
+          mode?: string | null
+          radius_km?: number | null
+          sort_order?: number
+          subcategory_ids?: string[]
+          updated_at?: string
+        }
+        Update: {
+          badge_ids?: string[]
+          category?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label_ar?: string | null
+          label_en?: string | null
+          label_fr?: string
+          mode?: string | null
+          radius_km?: number | null
+          sort_order?: number
+          subcategory_ids?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      search_ai_suggestions: {
+        Row: {
+          badge_ids: string[]
+          blog_post_ids: string[]
+          business_ids: string[]
+          category: string | null
+          city: string | null
+          created_at: string
+          destination_ids: string[]
+          disabled_followup_ids: string[]
+          fixed_response_ar: string | null
+          fixed_response_en: string | null
+          fixed_response_fr: string | null
+          followups: Json
+          id: string
+          is_active: boolean
+          label_ar: string | null
+          label_en: string | null
+          label_fr: string
+          mode: string | null
+          prompt_ar: string | null
+          prompt_en: string | null
+          prompt_fr: string | null
+          sort_order: number
+          subcategory_ids: string[]
+          updated_at: string
+        }
+        Insert: {
+          badge_ids?: string[]
+          blog_post_ids?: string[]
+          business_ids?: string[]
+          category?: string | null
+          city?: string | null
+          created_at?: string
+          destination_ids?: string[]
+          disabled_followup_ids?: string[]
+          fixed_response_ar?: string | null
+          fixed_response_en?: string | null
+          fixed_response_fr?: string | null
+          followups?: Json
+          id?: string
+          is_active?: boolean
+          label_ar?: string | null
+          label_en?: string | null
+          label_fr: string
+          mode?: string | null
+          prompt_ar?: string | null
+          prompt_en?: string | null
+          prompt_fr?: string | null
+          sort_order?: number
+          subcategory_ids?: string[]
+          updated_at?: string
+        }
+        Update: {
+          badge_ids?: string[]
+          blog_post_ids?: string[]
+          business_ids?: string[]
+          category?: string | null
+          city?: string | null
+          created_at?: string
+          destination_ids?: string[]
+          disabled_followup_ids?: string[]
+          fixed_response_ar?: string | null
+          fixed_response_en?: string | null
+          fixed_response_fr?: string | null
+          followups?: Json
+          id?: string
+          is_active?: boolean
+          label_ar?: string | null
+          label_en?: string | null
+          label_fr?: string
+          mode?: string | null
+          prompt_ar?: string | null
+          prompt_en?: string | null
+          prompt_fr?: string | null
+          sort_order?: number
+          subcategory_ids?: string[]
+          updated_at?: string
+        }
+        Relationships: []
       }
       search_bundles: {
         Row: {
