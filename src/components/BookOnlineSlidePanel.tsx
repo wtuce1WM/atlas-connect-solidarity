@@ -2124,89 +2124,63 @@ const BookOnlineSlidePanelInner = ({
         onTouchEnd={externalVideoInteractiveMode ? undefined : handleMediaTouchEnd}
       >
 
-        {/* Block 1: Logo + name — extracted component */}
-        <BusinessHeader
-          business={business}
-          businessId={businessId}
-          hookText={hookText}
-          showHook={showHook}
-          hasReviewsCard={hasReviewsCard}
-          avgOn20={avgOn20}
-          totalReviewCount={totalReviewCount}
-          onOpenReviews={handleOpenReviews}
-          openBadgeInfo={openBadgeInfo}
-          language={language}
-        />
+        {/* Block 1 : en-tête rectangle — conservé uniquement quand la zone
+            d'information « viewer » n'est pas affichée (description masquée) */}
+        {business?.hide_description && (
+          <BusinessHeader
+            business={business}
+            businessId={businessId}
+            hookText={hookText}
+            showHook={showHook}
+            hasReviewsCard={hasReviewsCard}
+            avgOn20={avgOn20}
+            totalReviewCount={totalReviewCount}
+            onOpenReviews={handleOpenReviews}
+            openBadgeInfo={openBadgeInfo}
+            language={language}
+          />
+        )}
 
-        {/* Top bar: toggle, flags, rating — below BusinessHeader */}
+        {/* Zone d'information « viewer vidéo » — remplace Toggle + bouton « + ».
+            Toute la zone ouvre l'overlay Full Description. */}
         {!business?.hide_description && (
-        <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pt-3 pb-1 pointer-events-auto">
-          {cardsHidden ? (
-            <div className="w-full shrink-0 pointer-events-auto relative z-20">
-              <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center h-[32px] mb-2">
-                <div className="min-w-0" />
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 rounded-full px-3 h-[32px] text-black shadow-lg backdrop-blur-sm hover:opacity-90 transition-colors"
-                  style={{ backgroundColor: '#25D366' }}
-                  title={language === "ar" ? "ورّي الكارط" : "Afficher les cartes"}
-                  aria-label={language === "ar" ? "ورّي الكارط" : "Afficher les cartes"}
-                  onClick={(e) => { e.stopPropagation(); showCards(); }}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onTouchStart={(e) => e.stopPropagation()}
-                >
-                  <ChevronUp className="h-3.5 w-3.5" />
-                  <span className="text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{language === "ar" ? "ورّي" : "Afficher"}</span>
-                  <span className="hidden md:block h-1.5 w-8 rounded-full bg-black/60" />
-                </button>
-                <div className="min-w-0" />
-              </div>
-            </div>
-          ) : (
-            <CardsToggleButton
-              cardsHidden={cardsHidden}
-              showCards={showCards}
-              hideCards={hideCards}
-              onMouseDownDrag={onMouseDownDrag}
-              openBadgeInfo={openBadgeInfo}
-              leftSlot={languages.length > 0 ? (
-                <div className={`hidden md:flex items-center flex-wrap justify-center gap-1 md:gap-2 py-1.5 px-3 md:px-3 shrink-0 ${languages.length > 5 ? 'md:max-w-none' : ''}`}>
-                  {languages.map((lang, i) => {
-                    const langAlt = getLangAlt(lang);
-                    return (
-                      <span
-                        key={i}
-                        className="group relative inline-flex items-center justify-center text-xl md:text-2xl leading-none cursor-help shrink-0"
-                        title={langAlt}
-                        aria-label={langAlt}
-                        role="img"
-                        tabIndex={0}
-                        style={{ filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))" }}
-                      >
-                        {getLangFlag(lang)}
-                        <span role="tooltip" className="pointer-events-none absolute left-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[10px] text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 md:block md:text-xs">
-                          {langAlt}
-                        </span>
+        <div key={businessId + '-viewerinfo'} className="relative z-40 overflow-visible flex flex-col items-center pt-1 pb-1 pointer-events-auto">
+          <MediaViewerInfo
+            name={business.name}
+            city={business.city}
+            neighborhood={business.neighborhood}
+            avgOn20={avgOn20}
+            totalReviewCount={totalReviewCount}
+            teaser={viewerTeaser}
+            language={language}
+            onOpen={() => setShowDescriptionOverlay(true)}
+            flagsSlot={languages.length > 0 ? (
+              <div className="hidden md:flex items-center flex-wrap justify-center gap-1 md:gap-2 pb-2 px-3 shrink-0">
+                {languages.map((lang, i) => {
+                  const langAlt = getLangAlt(lang);
+                  return (
+                    <span
+                      key={i}
+                      className="group relative inline-flex items-center justify-center text-xl md:text-2xl leading-none cursor-help shrink-0"
+                      title={langAlt}
+                      aria-label={langAlt}
+                      role="img"
+                      tabIndex={0}
+                      style={{ filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7))" }}
+                    >
+                      {getLangFlag(lang)}
+                      <span role="tooltip" className="pointer-events-none absolute left-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[10px] text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 md:block md:text-xs">
+                        {langAlt}
                       </span>
-                    );
-                  })}
-                </div>
-              ) : undefined}
-              middleSlot={hookText ? (
-                <div className="md:hidden rounded-xl bg-black/45 backdrop-blur-[2px] border border-white/5 py-1.5 px-4 max-w-[95%] mx-auto shadow-[0_4px_16px_rgba(0,0,0,0.25)] pointer-events-none">
-                  <p
-                    className="text-xs sm:text-sm text-white/95 font-semibold text-center leading-relaxed [text-shadow:0_1px_2px_rgba(0,0,0,0.3)]"
-                    style={{ fontFamily: "'Montserrat', sans-serif" }}
-                  >
-                    {hookText}
-                  </p>
-                </div>
-              ) : undefined}
-              rightSlot={undefined}
-            />
-          )}
+                    </span>
+                  );
+                })}
+              </div>
+            ) : undefined}
+          />
         </div>
         )}
+
 
         <div
           className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${cardsHidden ? 'translate-x-full opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'translate-x-0 opacity-100'}`}
