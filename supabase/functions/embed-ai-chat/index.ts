@@ -24,6 +24,17 @@ import {
 } from "../_shared/ai-engine/routes/opening.ts";
 import { isBookingIntent, isReserveCta, buildBookingAnswer, buildBookingForBusinesses } from "../_shared/ai-engine/routes/booking.ts";
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
+import {
+  isDistanceRankingIntent, isDistanceListIntent, isRatingRankingIntent, parseOrdinalIntent,
+  isCountIntent, extractPriorOrderedBusinesses, buildDistanceRanking, buildDistanceList,
+  buildRatingRanking, buildOrdinalPick, buildCountAnswer,
+} from "../_shared/ai-engine/routes/ranking.ts";
+import { buildEventsWeekendAnswer } from "../_shared/ai-engine/routes/events.ts";
+import {
+  isNearbyOverviewIntent, isProximityIntent, isSuggestionRefinement, parseInlineRadiusKm,
+  fetchEntityPoolFromCurated, buildTwoEntityProximityCurated, buildNearbyOverview, buildPoiNearby,
+  buildDisclosureFromCounts, stripText, type TwoEntityIntent,
+} from "../_shared/ai-engine/routes/nearby.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -298,222 +309,20 @@ function extractPriorKnownBusinessIds(messages: any[], hostId: string): string[]
 // Deterministic ranking / filter / pick on prior results
 // ============================================================
 
-function isDistanceRankingIntent(text: string): "closest" | "farthest" | null {
-  const n = normalize(text);
-  if (!n) return null;
-  if (/\b(le plus proche|la plus proche|les plus proches|plus pres|le plus pres)\b/.test(n)) return "closest";
-  if (/\b(closest|nearest)\b/i.test(text)) return "closest";
-  if (/(الأقرب|أقرب واحد)/.test(text)) return "closest";
-  if (/\b(le plus loin|la plus loin|les plus loins|plus eloigne|le plus eloigne)\b/.test(n)) return "farthest";
-  if (/\b(farthest|furthest)\b/i.test(text)) return "farthest";
-  if (/(الأبعد)/.test(text)) return "farthest";
-  return null;
-}
-
-function isDistanceListIntent(text: string): boolean {
-  const n = normalize(text);
-  if (!n) return false;
-  if (/\b(quelles?\s+sont\s+les\s+distances?|distances?\s+(depuis|par\s+rapport|de\s+chaque)|liste\s+des\s+distances?|donne[- ]?moi\s+les\s+distances?|a\s+quelle\s+distance)\b/.test(n)) return true;
-  if (/\b(what\s+are\s+the\s+distances?|list\s+the\s+distances?|how\s+far\s+(is|are)\s+each|distances?\s+from)\b/i.test(text)) return true;
-  if (/(ما\s+هي\s+المسافات|المسافات\s+من|كم\s+تبعد)/.test(text)) return true;
-  return false;
-}
-
-function isRatingRankingIntent(text: string): "best_rated" | "most_reviewed" | null {
-  const n = normalize(text);
-  if (!n) return null;
-  if (/\b(le plus d['\s]?avis|le plus commente|les plus commentes|le plus populaire|les plus populaires)\b/.test(n)) return "most_reviewed";
-  if (/\b(most reviews?|most reviewed|most popular)\b/i.test(text)) return "most_reviewed";
-  if (/(الأكثر تقييما|الأكثر شعبية|الأكثر مراجعة)/.test(text)) return "most_reviewed";
-  if (/\b(le mieux note|la mieux notee|le meilleur note|meilleure note|top note|le mieux classe)\b/.test(n)) return "best_rated";
-  if (/\b(highest[- ]?rated|best[- ]?rated|top[- ]?rated)\b/i.test(text)) return "best_rated";
-  if (/(الأعلى تقييما|الأفضل تقييما)/.test(text)) return "best_rated";
-  return null;
-}
 
 
-function parseOrdinalIntent(text: string, priorCount: number): number[] | null {
-  if (priorCount <= 0) return null;
-  const n = normalize(text);
-  const firstK = /\b(?:les?\s+)?(\d+)\s+premiers?\b/.exec(n) || /\b(?:the\s+)?(?:first|top)\s+(\d+)\b/i.exec(text);
-  if (firstK) {
-    const k = Math.max(1, Math.min(priorCount, parseInt(firstK[1], 10)));
-    return Array.from({ length: k }, (_, i) => i);
-  }
-  const lastK = /\b(?:les?\s+)?(\d+)\s+derniers?\b/.exec(n) || /\b(?:the\s+)?last\s+(\d+)\b/i.exec(text);
-  if (lastK) {
-    const k = Math.max(1, Math.min(priorCount, parseInt(lastK[1], 10)));
-    return Array.from({ length: k }, (_, i) => priorCount - k + i);
-  }
-  if (/\b(le\s+premier|la\s+premiere|the\s+first|1er|1ere)\b/i.test(text)) return [0];
-  if (/\b(le\s+dernier|la\s+derniere|the\s+last)\b/i.test(text)) return [priorCount - 1];
-  const nth = /\ble\s+(\d+)(?:e|eme|er|ere)?\b/.exec(n) || /\b(?:the\s+)?(\d+)(?:st|nd|rd|th)\b/i.exec(text);
-  if (nth) {
-    const i = parseInt(nth[1], 10) - 1;
-    if (i >= 0 && i < priorCount) return [i];
-  }
-  return null;
-}
-
-function isCountIntent(text: string): boolean {
-  const n = normalize(text);
-  if (!n) return false;
-  if (/\b(combien|combien y en a|combien il y en a|combien sont)\b/.test(n)) return true;
-  if (/\bhow many\b/i.test(text)) return true;
-  if (/(كم عدد|كم واحد|كم منها)/.test(text)) return true;
-  return false;
-}
-
-function extractPriorOrderedBusinesses(messages: any[], hostId: string): Array<{ id: string; slug?: string; name: string }> {
-  for (let i = messages.length - 1; i >= 0; i--) {
-    const m = messages[i];
-    if (m.role !== "assistant") continue;
-    const content = String(m.content ?? "");
-    const mapMatch = content.match(/<!--SHOW_ON_MAP:(\{[\s\S]*?\})-->/);
-    if (mapMatch) {
-      try {
-        const parsed = JSON.parse(mapMatch[1]);
-        if (parsed && Array.isArray(parsed.businesses)) {
-          const arr = parsed.businesses.filter((b: any) => b?.id && b.id !== hostId).map((b: any) => ({ id: b.id, slug: b.slug, name: b.name }));
-          if (arr.length) return arr;
-        }
-      } catch { /* ignore */ }
-    }
-    const knownMatch = content.match(/<!--KNOWN_BUSINESSES:(\[[\s\S]*?\])-->/);
-    if (knownMatch) {
-      try {
-        const arr = JSON.parse(knownMatch[1]);
-        if (Array.isArray(arr) && arr.length) {
-          return arr.filter((b: any) => b?.id && b.id !== hostId).map((b: any) => ({ id: b.id, slug: b.slug, name: b.name }));
-        }
-      } catch { /* ignore */ }
-    }
-  }
-  return [];
-}
 
 
-async function buildDistanceRanking(admin: any, host: any, ids: string[], mode: "closest" | "farthest", lang: "fr" | "en" | "ar"): Promise<string | null> {
-  if (!ids.length) return null;
-  const hLat = Number(host.latitude), hLng = Number(host.longitude);
-  if (!Number.isFinite(hLat) || !Number.isFinite(hLng)) return null;
-  const rows = await fetchPriorFull(admin, ids);
-  const withDist = rows
-    .filter((r: any) => Number.isFinite(Number(r.latitude)) && Number.isFinite(Number(r.longitude)))
-    .map((r: any) => ({ ...r, _dist_km: haversineKmLocal(hLat, hLng, Number(r.latitude), Number(r.longitude)) }));
-  if (!withDist.length) return null;
-  withDist.sort((a: any, b: any) => (mode === "closest" ? a._dist_km - b._dist_km : b._dist_km - a._dist_km));
-  const top = withDist.slice(0, 5);
-  const lines = top.map((r: any) => {
-    const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
-    return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${fmtKm(r._dist_km)}`;
-  });
-  const intro = mode === "closest"
-    ? (lang === "en" ? `Among the previous results, **${top[0].name}** is the closest to **${host.name}**:`
-      : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** هو الأقرب إلى **${host.name}**:`
-      : `Parmi les précédents, c'est **${top[0].name}** le plus proche de **${host.name}** :`)
-    : (lang === "en" ? `Among the previous results, **${top[0].name}** is the farthest from **${host.name}**:`
-      : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** هو الأبعد عن **${host.name}**:`
-      : `Parmi les précédents, c'est **${top[0].name}** le plus loin de **${host.name}** :`);
-  return `${intro}\n\n${lines.join("\n")}${toMapMarker(top)}`;
-}
-
-async function buildDistanceList(admin: any, host: any, ids: string[], lang: "fr" | "en" | "ar"): Promise<string | null> {
-  if (!ids.length) return null;
-  const hLat = Number(host.latitude), hLng = Number(host.longitude);
-  if (!Number.isFinite(hLat) || !Number.isFinite(hLng)) return null;
-  const rows = await fetchPriorFull(admin, ids);
-  const withDist = rows
-    .filter((r: any) => Number.isFinite(Number(r.latitude)) && Number.isFinite(Number(r.longitude)))
-    .map((r: any) => ({ ...r, _dist_km: haversineKmLocal(hLat, hLng, Number(r.latitude), Number(r.longitude)) }));
-  if (!withDist.length) return null;
-  withDist.sort((a: any, b: any) => a._dist_km - b._dist_km);
-  const lines = withDist.map((r: any) => {
-    const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
-    return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${fmtKm(r._dist_km)}`;
-  });
-  const intro = lang === "en"
-    ? `Distances from **${host.name}** for the previous results:`
-    : lang === "ar"
-      ? `المسافات من **${host.name}** للنتائج السابقة:`
-      : `Distances depuis **${host.name}** pour les résultats précédents :`;
-  return `${intro}\n\n${lines.join("\n")}${toMapMarker(withDist)}`;
-}
 
 
-async function buildRatingRanking(admin: any, ids: string[], mode: "best_rated" | "most_reviewed", lang: "fr" | "en" | "ar"): Promise<string | null> {
-  if (!ids.length) return null;
-  const rows = await fetchPriorFull(admin, ids);
-  if (!rows.length) return null;
-  const scored = rows.map((r: any) => ({
-    ...r,
-    _rating: r.computed_rating != null ? Number(r.computed_rating) : (r.rating != null ? Number(r.rating) : null),
-    _count: r.total_review_count != null ? Number(r.total_review_count) : 0,
-  }));
-  if (mode === "best_rated") {
-    const eligible = scored.filter((r: any) => r._rating != null && r._count >= 10);
-    if (!eligible.length) {
-      if (lang === "en") return `I don't have enough public reviews on those results to rank them by rating. Want another angle?`;
-      if (lang === "ar") return `لا توجد مراجعات كافية لتصنيف هذه النتائج حسب التقييم. زاوية أخرى؟`;
-      return `Je n'ai pas assez d'avis publics sur ces adresses pour les classer par note. Un autre angle ?`;
-    }
-    eligible.sort((a: any, b: any) => (b._rating - a._rating) || (b._count - a._count));
-    const top = eligible.slice(0, 5);
-    const lines = top.map((r: any) => {
-      const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
-      return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ⭐ ${r._rating.toFixed(1)}/20 (${r._count} avis)`;
-    });
-    const intro = lang === "en" ? `Among the previous results, **${top[0].name}** has the highest overall rating:`
-      : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** لديه أعلى تقييم عام:`
-      : `Parmi les précédents, c'est **${top[0].name}** qui a la meilleure note globale :`;
-    return `${intro}\n\n${lines.join("\n")}${toMapMarker(top)}`;
-  }
-  scored.sort((a: any, b: any) => b._count - a._count);
-  const top = scored.filter((r: any) => r._count > 0).slice(0, 5);
-  if (!top.length) {
-    if (lang === "en") return `I don't have public review counts on those results.`;
-    if (lang === "ar") return `لا توجد أعداد مراجعات علنية لهذه النتائج.`;
-    return `Je n'ai pas de nombre d'avis publics sur ces adresses.`;
-  }
-  const lines = top.map((r: any) => {
-    const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
-    return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${r._count} avis`;
-  });
-  const intro = lang === "en" ? `Among the previous results, **${top[0].name}** has the most reviews:`
-    : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** لديه أكبر عدد من المراجعات:`
-    : `Parmi les précédents, c'est **${top[0].name}** qui a le plus d'avis :`;
-  return `${intro}\n\n${lines.join("\n")}${toMapMarker(top)}`;
-}
 
 
-function buildOrdinalPick(prior: Array<{ id: string; slug?: string; name: string }>, indices: number[], lang: "fr" | "en" | "ar"): string {
-  const picks = indices.map((i) => prior[i]).filter(Boolean);
-  if (!picks.length) {
-    if (lang === "en") return `That position isn't in the previous list.`;
-    if (lang === "ar") return `هذا الموقع ليس في القائمة السابقة.`;
-    return `Cette position n'est pas dans la liste précédente.`;
-  }
-  const names = picks.map((p) => `**${p.name}**`).join(lang === "ar" ? "، " : ", ");
-  if (picks.length === 1) {
-    if (lang === "en") return `That's ${names} — want more detail, hours, or a booking link?`;
-    if (lang === "ar") return `هذا ${names} — هل تريد تفاصيل، ساعات، أو رابط حجز؟`;
-    return `C'est ${names} — tu veux plus de détails, les horaires, ou un lien de réservation ?`;
-  }
-  if (lang === "en") return `Those are ${names}. Want me to compare them?`;
-  if (lang === "ar") return `هؤلاء هم ${names}. هل تريد المقارنة بينهم؟`;
-  return `Ce sont ${names}. Je te les compare ?`;
-}
 
-function buildCountAnswer(count: number, lang: "fr" | "en" | "ar"): string {
-  if (count === 0) {
-    if (lang === "en") return `There are no previous results to count.`;
-    if (lang === "ar") return `لا توجد نتائج سابقة للعد.`;
-    return `Il n'y a pas de résultats précédents à compter.`;
-  }
-  if (lang === "en") return `There ${count > 1 ? "are" : "is"} **${count}** result${count > 1 ? "s" : ""} in the previous selection. Want me to rank them or filter them?`;
-  if (lang === "ar") return `يوجد **${count}** نتيجة في الاختيار السابق. هل تريد ترتيبها أو تصفيتها؟`;
-  return `Il y a **${count}** résultat${count > 1 ? "s" : ""} dans la sélection précédente. Tu veux que je les classe ou les filtre ?`;
-}
+
+
+
+
+
 
 
 /**
@@ -883,36 +692,9 @@ async function buildCityEngagementSearch(
 
 
 
-function isNearbyOverviewIntent(text: string, hostName?: string): boolean {
-  const q = String(text ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-  if (!q) return false;
-  if (/que faire.*(proximite|autour)/.test(q)) return true;
-  if (/what to do.*(nearby|around|near me)/.test(q)) return true;
-  if (/ما(ذا)?.*(قرب|حول)/.test(q)) return true;
-  // Generic "à proximité de / près de / autour de / near / around / close to <lieu>"
-  if (/\b(a\s+proximite\s+de|pres\s+de|proche\s+de|autour\s+de|a\s+cote\s+de|aux\s+alentours\s+de|near|around|close\s+to|next\s+to)\b/.test(q)) return true;
-  if (hostName) {
-    const hn = normalize(hostName);
-    if (hn && q.includes(hn)) {
-      // "à proximité", "autour", "nearby" mentioned near host name
-      if (/(proximite|autour|pres|nearby|around|close|near)/.test(q)) return true;
-    }
-  }
-  return false;
-}
 
 // Detect any "à proximité / autour de / near / around / قرب" phrasing,
 // independent of the nearby-overview route (which requires no other filter).
-function isProximityIntent(text: string): boolean {
-  const q = String(text ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-  if (!q) return false;
-  if (/\b(a\s+proximite|proximite|pres\s+de|proche\s+de|autour\s+de|autour|a\s+cote\s+de|aux\s+alentours|nearby|near\s+me|near\s+by|close\s+to|around|next\s+to|walking\s+distance)\b/.test(q)) return true;
-  if (/(قرب|بالقرب|حول|بجوار|بجانب)/.test(text || "")) return true;
-  // An explicit inline radius ("500 m", "à moins de 1 km", "within 2 km") implies
-  // a proximity refinement on the current thread.
-  if (parseInlineRadiusKm(text) != null) return true;
-  return false;
-}
 
 // A free-text message keeps the previous suggestion's deterministic context
 // (badges / subcategories / pinned ids) only when it looks like a refinement
@@ -920,37 +702,11 @@ function isProximityIntent(text: string): boolean {
 // modifier ("à Marrakech", "moins cher", "500 m"). A longer free-text message
 // without those signals is treated as a NEW topic and the suggestion force is
 // dropped so we don't hijack the search with the previous badges.
-function isSuggestionRefinement(text: string): boolean {
-  const raw = String(text ?? "").trim();
-  if (!raw) return true;
-  if (isProximityIntent(raw)) return true;
-  if (parseInlineRadiusKm(raw) != null) return true;
-  const words = raw.split(/\s+/).filter(Boolean);
-  if (words.length <= 4) return true;
-  return false;
-}
 
 // Parse an explicit radius the user typed inline (FR/EN/AR).
 // Recognizes forms like "500 m", "500m", "à moins de 500 m", "0.5 km", "2 km",
 // "within 500 m", "within 2 km", "أقل من 500 م", "ضمن 2 كم".
 // Returns kilometres, or null if not found.
-function parseInlineRadiusKm(text: string): number | null {
-  const raw = String(text ?? "");
-  if (!raw.trim()) return null;
-  const q = raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-  // km first (avoids "m" of "km" being caught as metres)
-  const km = q.match(/(\d+(?:[.,]\d+)?)\s*(?:km|kilom[eè]tres?|kilomet(?:er|re)s?|كم|كيلومتر)\b/);
-  if (km) {
-    const v = Number(km[1].replace(",", "."));
-    if (Number.isFinite(v) && v > 0 && v <= 50) return v;
-  }
-  const m = q.match(/(\d{2,4})\s*(?:m|metres?|meters?|م)\b/);
-  if (m) {
-    const v = Number(m[1]);
-    if (Number.isFinite(v) && v >= 50 && v <= 20000) return v / 1000;
-  }
-  return null;
-}
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -960,424 +716,21 @@ function parseInlineRadiusKm(text: string): number | null {
 // LLM via search_businesses.
 // ─────────────────────────────────────────────────────────────────────────────
 
-type TwoEntityIntent = {
-  aTerms: string[];
-  bTerm: string;
-  radiusKm?: number;
-};
 
 
 
 
 // Curated variant: uses staff-picked subcatIds/badgeIds for A and B directly,
 // skipping resolveEntityTerm. Any match on subcategory OR badge is trusted.
-async function fetchEntityPoolFromCurated(
-  admin: any,
-  city: string,
-  side: { subcatIds: string[]; badgeIds: string[]; subcatNames: string[] },
-  excludeId?: string,
-): Promise<any[]> {
-  const cols = "id, slug, name, city, neighborhood, hook_fr, hook_en, hook_ar, description, description_en, description_ar, latitude, longitude, main_category, categories, services, badge_id, images, logo_url, priority_score, computed_rating, total_review_count, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, restaurant_guru_rating, restaurant_guru_review_count, getyourguide_rating, getyourguide_review_count, viator_rating, viator_review_count, avis_verifies_rating, avis_verifies_review_count, trustpilot_rating, trustpilot_review_count, kayak_rating, kayak_review_count, tourradar_rating, tourradar_review_count";
-  const base = () => {
-    let q = admin
-      .from("businesses")
-      .select(cols)
-      .eq("is_active", true)
-      .is("closure_message", null)
-      .eq("city", city)
-      .not("latitude", "is", null)
-      .not("longitude", "is", null)
-      .limit(200);
-    if (excludeId) q = q.neq("id", excludeId);
-    return q;
-  };
-  const runs: Promise<{ data: any[] | null }>[] = [];
-  if (side.subcatNames.length) {
-    runs.push(base().overlaps("categories", side.subcatNames));
-    runs.push(base().in("main_category", side.subcatNames));
-  }
-  if (side.badgeIds.length) {
-    runs.push(base().in("badge_id", side.badgeIds));
-  }
-  const out = new Map<string, any>();
-  if (runs.length) {
-    const results = await Promise.all(runs);
-    for (const r of results) for (const b of r.data || []) if (b?.id) out.set(b.id, b);
-  }
-  return [...out.values()];
-}
-
-async function buildTwoEntityProximityCurated(
-  admin: any,
-  host: any,
-  intent: TwoEntityIntent,
-  lang: "fr" | "en" | "ar",
-  strictRadius: boolean,
-  curated: {
-    a: { subcatIds: string[]; badgeIds: string[]; subcatNames: string[] };
-    b: { subcatIds: string[]; badgeIds: string[]; subcatNames: string[] };
-  },
-): Promise<{ text: string; results: any[]; radiusUsed: number; radiusExpanded: boolean; bTerm: string; aTerms: string[] } | null> {
-  const city = host.city || "Marrakech";
-  const [poolA, poolB] = await Promise.all([
-    fetchEntityPoolFromCurated(admin, city, curated.a, host?.id),
-    fetchEntityPoolFromCurated(admin, city, curated.b, host?.id),
-  ]);
-  if (!poolA.length || !poolB.length) return null;
-
-  const initial = intent.radiusKm ?? 1;
-  const ladder = strictRadius ? [initial] : [initial, Math.max(initial, 2), Math.max(initial, 3)];
-  let kept: any[] = [];
-  let radiusUsed = initial;
-  for (const r of ladder) {
-    kept = poolA
-      .map((a) => {
-        let bestKm = Infinity;
-        let bestB: any = null;
-        for (const b of poolB) {
-          if (b.id === a.id) continue;
-          if (a.latitude == null || a.longitude == null || b.latitude == null || b.longitude == null) continue;
-          const d = haversineKmLocal(a.latitude, a.longitude, b.latitude, b.longitude);
-          if (d < bestKm) { bestKm = d; bestB = b; }
-        }
-        return bestKm <= r ? { ...a, _nearest_b_km: bestKm, _nearest_b_name: bestB?.name || null } : null;
-      })
-      .filter(Boolean) as any[];
-    if (kept.length) { radiusUsed = r; break; }
-  }
-  if (!kept.length) return null;
-
-  kept.sort((x, y) => (Number(y.priority_score ?? 0) - Number(x.priority_score ?? 0)) || (Number(y.computed_rating ?? 0) - Number(x.computed_rating ?? 0)));
-  const top = kept.slice(0, 12);
-
-  // Collect the B references actually used (nearest B for each kept A within radius).
-  const usedBIds = new Set<string>();
-  const bReferences: any[] = [];
-  for (const a of top) {
-    let bestKm = Infinity;
-    let bestB: any = null;
-    for (const b of poolB) {
-      if (b.id === a.id) continue;
-      if (a.latitude == null || a.longitude == null || b.latitude == null || b.longitude == null) continue;
-      const d = haversineKmLocal(a.latitude, a.longitude, b.latitude, b.longitude);
-      if (d < bestKm) { bestKm = d; bestB = b; }
-    }
-    if (bestB && !usedBIds.has(bestB.id)) {
-      usedBIds.add(bestB.id);
-      bReferences.push({ ...bestB, _is_reference: true });
-    }
-  }
-
-  const radiusExpanded = radiusUsed > (intent.radiusKm ?? 1);
-  const fmt = (r: number) => (r < 1 ? `${Math.round(r * 1000)} m` : Number.isInteger(r) ? `${r} km` : `${r.toFixed(1)} km`);
-  const aLabel = intent.aTerms[0] || (lang === "en" ? "matching places" : lang === "ar" ? "الأماكن المطابقة" : "les adresses");
-  const bLabel = intent.bTerm || (lang === "en" ? "reference" : lang === "ar" ? "المرجع" : "référence");
-
-  const intro = lang === "en"
-    ? `Curated cross-search in ${city} — I kept only places matching the selection with at least one reference within **${fmt(radiusUsed)}**. Here is the short list, One World Morocco selection only.`
-    : lang === "ar"
-      ? `تقاطع مُنسَّق في ${city} — احتفظت فقط بالأماكن التي تطابق الاختيار مع مرجع ضمن **${fmt(radiusUsed)}**. هذه القائمة المختصرة، من اختيار One World Morocco.`
-      : `Croisement curé à ${city} — je n'ai gardé que les adresses correspondant à la sélection avec au moins une référence à moins de **${fmt(radiusUsed)}**. Voici la sélection courte, uniquement des adresses One World Morocco.`;
-
-  const body = top.map((b) => {
-    const hook = String(
-      lang === "en" ? (b.hook_en || b.hook_fr || b.description_en || b.description || "") :
-      lang === "ar" ? (b.hook_ar || b.hook_fr || b.description_ar || b.description || "") :
-                      (b.hook_fr || b.hook_en || b.description || b.description_en || "")
-    ).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-    const area = [b.neighborhood, b.city].filter(Boolean).join(lang === "ar" ? "، " : ", ");
-    const km = Number(b._nearest_b_km);
-    const distStr = Number.isFinite(km) ? fmt(km) : null;
-    const nearestLabel = b._nearest_b_name
-      ? (lang === "en" ? ` — closest reference: **${b._nearest_b_name}**${distStr ? ` (${distStr})` : ""}` :
-         lang === "ar" ? ` — أقرب مرجع: **${b._nearest_b_name}**${distStr ? ` (${distStr})` : ""}` :
-                         ` — référence la plus proche : **${b._nearest_b_name}**${distStr ? ` (${distStr})` : ""}`)
-      : "";
-    const detail = hook || (Array.isArray(b.categories) ? b.categories.join(", ") : b.main_category || "");
-    return `**${b.name}**${area ? `, ${area}` : ""}. ${detail}${nearestLabel}`;
-  }).join("\n\n");
-
-  const expansionNote = radiusExpanded
-    ? (lang === "en" ? `\n\n> Not enough matches within ${fmt(intent.radiusKm ?? 1)} — expanded to **${fmt(radiusUsed)}**.`
-      : lang === "ar" ? `\n\n> لا توجد نتائج كافية ضمن ${fmt(intent.radiusKm ?? 1)} — تم التوسيع إلى **${fmt(radiusUsed)}**.`
-      : `\n\n> Pas assez de résultats à ${fmt(intent.radiusKm ?? 1)} — périmètre élargi à **${fmt(radiusUsed)}**.`)
-    : "";
-
-  const closing = lang === "en"
-    ? `\n\nWant me to **narrow to ${fmt(Math.max(0.5, radiusUsed / 2))}** or **widen to ${fmt(radiusUsed * 2)}** — or filter by vibe or neighborhood?`
-    : lang === "ar"
-      ? `\n\nهل تريد **تضييق النطاق إلى ${fmt(Math.max(0.5, radiusUsed / 2))}** أو **توسيعه إلى ${fmt(radiusUsed * 2)}** — أو تصفية حسب الحي أو الأجواء؟`
-      : `\n\nTu veux que je **resserre à ${fmt(Math.max(0.5, radiusUsed / 2))}** ou **élargisse à ${fmt(radiusUsed * 2)}** — ou que je filtre par quartier ou ambiance ?`;
-
-  const text = `${intro}\n\n${body}${expansionNote}${closing}`;
-  // Append B references (e.g. golfs) so they appear in the carousel + map markers.
-  const combinedResults = [...top, ...bReferences];
-  return { text, results: combinedResults, radiusUsed, radiusExpanded, bTerm: bLabel, aTerms: [aLabel] };
-}
 
 
 
 
 
-const FS_EMOJI: Record<string, string> = {
-  "Restauration": "🍽️", "Hébergement": "🏨", "Bien-être": "🌿", "Vie nocturne": "🌙",
-  "Culture": "🎭", "Artisanat marocain": "🧵", "Décoration": "🛋️", "Sport & Loisirs": "🏄",
-  "Shopping": "🛍️", "Alimentation": "🥖", "Transport": "🚕", "Informatique": "💻",
-  "Immobilier": "🏡", "Santé": "🩺", "Auto / Moto": "🚗",
-};
 
-const FS_I18N: Record<string, { en: string; ar: string }> = {
-  "Restauration": { en: "Restaurants", ar: "المطاعم" },
-  "Hébergement": { en: "Accommodation", ar: "الإقامة" },
-  "Bien-être": { en: "Wellness", ar: "العافية" },
-  "Vie nocturne": { en: "Nightlife", ar: "الحياة الليلية" },
-  "Culture": { en: "Culture", ar: "الثقافة" },
-  "Artisanat marocain": { en: "Moroccan crafts", ar: "الحرف المغربية" },
-  "Décoration": { en: "Decoration", ar: "الديكور" },
-  "Sport & Loisirs": { en: "Sports & Leisure", ar: "الرياضة والترفيه" },
-  "Shopping": { en: "Shopping", ar: "التسوق" },
-  "Alimentation": { en: "Food", ar: "الأغذية" },
-  "Transport": { en: "Transport", ar: "النقل" },
-  "Informatique": { en: "IT", ar: "المعلوماتية" },
-  "Immobilier": { en: "Real estate", ar: "العقارات" },
-  "Santé": { en: "Health", ar: "الصحة" },
-  "Auto / Moto": { en: "Auto / Moto", ar: "السيارات" },
-};
 
-async function buildNearbyOverview(
-  admin: any,
-  host: any,
-  hostCategoryNames: Set<string>,
-  lang: "fr" | "en" | "ar",
-  radiusKm: number = 1,
-): Promise<string> {
-  if (host.latitude == null || host.longitude == null) return "";
-  const RADIUS_KM = radiusKm > 0 ? radiusKm : 1;
-  const dLat = RADIUS_KM / 111;
-  const dLng = RADIUS_KM / (111 * Math.max(Math.cos((host.latitude * Math.PI) / 180), 0.1));
-  const { data: biz } = await admin
-    .from("businesses")
-    .select("id, latitude, longitude, categories, main_category")
-    .eq("is_active", true)
-    .is("closure_message", null)
-    .neq("id", host.id)
-    .gte("latitude", host.latitude - dLat)
-    .lte("latitude", host.latitude + dLat)
-    .gte("longitude", host.longitude - dLng)
-    .lte("longitude", host.longitude + dLng);
-  const nearby = (biz || []).filter((b: any) =>
-    b.latitude != null && b.longitude != null &&
-    haversineKmLocal(host.latitude, host.longitude, b.latitude, b.longitude) <= RADIUS_KM,
-  );
-  if (!nearby.length) return "";
 
-  const bizCategories = new Map<string, Set<string>>();
-  for (const b of nearby) {
-    const names = Array.isArray(b.categories) ? b.categories : [];
-    const normalized = names.map(normalize).filter(Boolean);
-    if (b.main_category) normalized.push(normalize(b.main_category));
-    if (normalized.length) bizCategories.set(b.id, new Set(normalized));
-  }
 
-  const [fsRes, fssRes] = await Promise.all([
-    admin.from("front_structure").select("id, name, sort_order").order("sort_order"),
-    admin.from("front_structure_subcategories").select("front_structure_id, subcategory_id"),
-  ]);
-  const fsEntries: any[] = fsRes.data || [];
-  const subIds = [...new Set((fssRes.data || []).map((l: any) => l.subcategory_id).filter(Boolean))];
-  const { data: subRows } = subIds.length
-    ? await admin.from("subcategories").select("id, name_fr").in("id", subIds)
-    : { data: [] };
-  const subNameById = new Map<string, string>();
-  for (const s of subRows || []) {
-    const n = normalize(s.name_fr);
-    if (s.id && n) subNameById.set(s.id, n);
-  }
-
-  const fsSubs = new Map<string, Set<string>>();
-  const excludedFsIds = new Set<string>();
-  for (const fs of fsEntries) {
-    if (fs?.id && hostCategoryNames.has(normalize(fs.name))) excludedFsIds.add(fs.id);
-  }
-  for (const l of fssRes.data || []) {
-    if (!l.front_structure_id || !l.subcategory_id) continue;
-    const subName = subNameById.get(l.subcategory_id);
-    if (!subName) continue;
-    if (hostCategoryNames.has(subName)) {
-      excludedFsIds.add(l.front_structure_id);
-      continue;
-    }
-    if (!fsSubs.has(l.front_structure_id)) fsSubs.set(l.front_structure_id, new Set());
-    fsSubs.get(l.front_structure_id)!.add(subName);
-  }
-
-  const rows: Array<{ name: string; count: number }> = [];
-  for (const fs of fsEntries) {
-    if (excludedFsIds.has(fs.id)) continue;
-    const sset = fsSubs.get(fs.id);
-    if (!sset || !sset.size) continue;
-    let count = 0;
-    for (const cats of bizCategories.values()) {
-      for (const c of cats) { if (sset.has(c)) { count++; break; } }
-    }
-    if (count > 0) rows.push({ name: fs.name, count });
-  }
-  rows.sort((a, b) => b.count - a.count);
-  if (!rows.length) return "";
-
-  const translate = (n: string) => lang === "fr" ? n : (FS_I18N[n]?.[lang] || n);
-  const wordPlace = (n: number) => lang === "en" ? (n > 1 ? "places" : "place") : lang === "ar" ? "مكان" : (n > 1 ? "adresses" : "adresse");
-  const radiusLabel = RADIUS_KM < 1 ? `${Math.round(RADIUS_KM * 1000)} m` : `${RADIUS_KM % 1 === 0 ? RADIUS_KM.toFixed(0) : RADIUS_KM} km`;
-
-  const header = lang === "en"
-    ? `I scanned **${nearby.length} active places** within **${radiusLabel}** of ${host.name}${host.city ? ` (${host.city})` : ""}, grouped by the One World Morocco taxonomy${hostCategoryNames.size ? ` (categories overlapping ${host.name}'s own offer are excluded)` : ""}:`
-    : lang === "ar"
-      ? `مررت على **${nearby.length} مكانًا نشطًا** ضمن **${radiusLabel}** من ${host.name}${host.city ? ` (${host.city})` : ""} وفق تصنيف One World Morocco${hostCategoryNames.size ? ` (تُستثنى الفئات التي تتداخل مع عرض ${host.name})` : ""}:`
-      : `J'ai passé au crible **${nearby.length} adresses actives** à moins de **${radiusLabel}** de ${host.name}${host.city ? ` (${host.city})` : ""}, réparties dans la catégorisation One World Morocco${hostCategoryNames.size ? ` (les catégories qui recoupent l'offre de ${host.name} sont exclues)` : ""} :`;
-
-  const bullets = rows
-    .map((r) => `- ${FS_EMOJI[r.name] || "•"} **${translate(r.name)}** — ${r.count} ${wordPlace(r.count)}`)
-    .join("\n");
-
-  const footer = lang === "en"
-    ? `\n\nSome places may appear in several categories. Tell me what you'd like — a table for dinner, a spa, a cultural walk, some shopping? — and I'll curate a shortlist.`
-    : lang === "ar"
-      ? `\n\nقد تظهر بعض الأماكن في أكثر من فئة. أخبرني بما تريد — عشاء، سبا، ثقافة، تسوق؟ — وسأقترح قائمة.`
-      : `\n\nCertaines adresses peuvent relever de plusieurs catégories. Dis-moi ce qui te tente — une table pour dîner, un spa, une balade culturelle, du shopping ? — et je te propose une sélection ciblée.`;
-
-  const radiusLine = lang === "en"
-    ? `\n\n> Search radius: **${radiusLabel}** around ${host.name}. Want to **narrow it** or **expand it**?`
-    : lang === "ar"
-      ? `\n\n> نطاق البحث: **${radiusLabel}** حول ${host.name}. هل تريد **تضييقه** أو **توسيعه**؟`
-      : `\n\n> Rayon de recherche : **${radiusLabel}** autour de ${host.name}. Tu veux le **resserrer** ou l'**étendre** ?`;
-
-  return `${header}\n\n${bullets}${footer}${radiusLine}`;
-}
-
-async function buildPoiNearby(
-  admin: any,
-  host: any,
-  lang: "fr" | "en" | "ar",
-  radiusKm: number = 1,
-): Promise<string> {
-  if (host.latitude == null || host.longitude == null) return "";
-  const RADIUS_KM = radiusKm > 0 ? radiusKm : 1;
-  const dLat = RADIUS_KM / 111;
-  const dLng = RADIUS_KM / (111 * Math.max(Math.cos((host.latitude * Math.PI) / 180), 0.1));
-  const stripHtml = (s: string) => String(s || "")
-    .replace(/<br\s*\/?>/gi, " ")
-    .replace(/<\/(p|div|li)>/gi, " ")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  // Source: businesses flagged is_poi=true (curated POIs from the catalog)
-  const { data: pois } = await admin
-    .from("businesses")
-    .select("id, slug, name, hook_fr, hook_en, hook_ar, description, description_en, description_ar, latitude, longitude, city, neighborhood, address, main_category, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, engagements")
-    .eq("is_poi", true)
-    .is("closure_message", null)
-    .neq("id", host.id)
-    .gte("latitude", host.latitude - dLat)
-    .lte("latitude", host.latitude + dLat)
-    .gte("longitude", host.longitude - dLng)
-    .lte("longitude", host.longitude + dLng);
-
-  const nearby = (pois || [])
-    .filter((p: any) => p.latitude != null && p.longitude != null)
-    .map((p: any) => ({
-      ...p,
-      distance_km: haversineKmLocal(host.latitude, host.longitude, p.latitude, p.longitude),
-    }))
-    .filter((p: any) => p.distance_km <= RADIUS_KM)
-    .sort((a: any, b: any) => a.distance_km - b.distance_km);
-
-  const radiusLabel = RADIUS_KM < 1 ? `${Math.round(RADIUS_KM * 1000)} m` : `${RADIUS_KM % 1 === 0 ? RADIUS_KM.toFixed(0) : RADIUS_KM} km`;
-
-  if (!nearby.length) {
-    return lang === "en"
-      ? `I couldn't find any point of interest within **${radiusLabel}** of ${host.name}. Want me to widen the radius?`
-      : lang === "ar"
-        ? `لم أجد أي نقطة اهتمام ضمن **${radiusLabel}** من ${host.name}. هل توسّع النطاق؟`
-        : `Je ne trouve aucun point d'intérêt dans un rayon de **${radiusLabel}** autour de ${host.name}. Tu veux que j'élargisse le rayon ?`;
-  }
-
-  const header = lang === "en"
-    ? `Here are the **${nearby.length} points of interest** within **${radiusLabel}** of ${host.name}${host.city ? ` (${host.city})` : ""}, sorted by distance:`
-    : lang === "ar"
-      ? `إليك **${nearby.length} نقاط اهتمام** ضمن **${radiusLabel}** من ${host.name}${host.city ? ` (${host.city})` : ""}، مرتبة حسب المسافة:`
-      : `Voici les **${nearby.length} points d'intérêt** dans un rayon de **${radiusLabel}** autour de ${host.name}${host.city ? ` (${host.city})` : ""}, classés par distance :`;
-
-  const bullets = nearby.slice(0, 20).map((p: any) => {
-    const rawDesc = (lang === "en" && p.hook_en) ? p.hook_en
-      : (lang === "ar" && p.hook_ar) ? p.hook_ar
-      : (p.hook_fr || (lang === "en" ? p.description_en : lang === "ar" ? p.description_ar : p.description) || "");
-    const desc = stripHtml(rawDesc);
-    const distLabel = p.distance_km < 1 ? `${Math.round(p.distance_km * 1000)} m` : `${p.distance_km.toFixed(1)} km`;
-    const short = desc ? ` — ${desc.slice(0, 180)}${desc.length > 180 ? "…" : ""}` : "";
-    return `- 📍 **${p.name}** _(${distLabel})_${short}`;
-  }).join("\n");
-
-  const radiusLine = lang === "en"
-    ? `\n\n> Radius: **${radiusLabel}** around ${host.name}. Want to **narrow** or **expand** it?`
-    : lang === "ar"
-      ? `\n\n> النطاق: **${radiusLabel}** حول ${host.name}. هل تريد **تضييقه** أو **توسيعه**؟`
-      : `\n\n> Rayon : **${radiusLabel}** autour de ${host.name}. Tu veux le **resserrer** ou l'**étendre** ?`;
-
-  // Emit a SHOW_ON_MAP-compatible payload so the frontend renders the horizontal thumbnails carousel + "View on map".
-  const mapBusinesses = nearby.slice(0, 20).map((p: any) => ({
-    id: p.id,
-    slug: p.slug,
-    name: p.name,
-    city: p.city,
-    neighborhood: p.neighborhood,
-    address: p.address,
-    main_category: p.main_category || "Point d'intérêt",
-    categories: [p.main_category || "Point d'intérêt"],
-    latitude: p.latitude,
-    longitude: p.longitude,
-    logo_url: p.logo_url,
-    images: Array.isArray(p.images) ? p.images : [],
-    google_rating: p.google_rating,
-    google_review_count: p.google_review_count,
-    tripadvisor_rating: p.tripadvisor_rating,
-    tripadvisor_review_count: p.tripadvisor_review_count,
-    engagements: p.engagements,
-  }));
-  const mapMarker = `\n\n<!--SHOW_ON_MAP:${JSON.stringify({ title: null, businesses: mapBusinesses })}-->`;
-
-  return `${header}\n\n${bullets}${radiusLine}${mapMarker}`;
-}
-
-function buildDisclosureFromCounts(shown: number, found: number, city: string): string {
-  if (shown <= 0) return `📍 Aucun résultat trouvé à ${city} pour cette recherche — dis-moi si tu veux que je reformule ou que j'élargisse autour de ${city}.`;
-  const hasMore = found > shown;
-  const tail = hasMore
-    ? `dis-moi si tu veux que je te **montre les autres** ou que j'affine par quartier, ambiance ou envie.`
-    : `dis-moi si tu veux que j'affine par quartier, ambiance ou envie.`;
-  return `📍 Je te présente ${shown} adresse${shown > 1 ? "s" : ""} sur ${found} trouvée${found > 1 ? "s" : ""} à ${city} — ${tail}`;
-}
-
-function stripText(value: unknown): string {
-  return String(value || "")
-    .replace(/<br\s*\/?>/gi, " ")
-    .replace(/<\/(p|div|li)>/gi, " ")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/\s+/g, " ")
-    .trim();
-}
 
 function buildContextualIntro(userMessage: string, host: any, city: string, lang: "fr" | "en" | "ar", proximityActive: boolean, radiusUsed: number | null): string {
   const q = normalize(userMessage);
@@ -1655,62 +1008,6 @@ function buildImmersiveBusinessAnswer(
   return `${intro}\n\n${body}\n\n${disclosure}${rl ? `\n\n${rl}` : ""}\n\n${closing}${radiusCta("fr")}`;
 }
 
-function buildEventsWeekendAnswer(
-  events: any[],
-  host: any,
-  city: string,
-  from: string,
-  to: string,
-  lang: "fr" | "en" | "ar",
-): string {
-  const hostName = host?.name || "";
-  const fmtDate = (iso: string | null) => {
-    if (!iso) return "";
-    try {
-      const d = new Date(iso);
-      const locale = lang === "en" ? "en-GB" : lang === "ar" ? "ar-MA" : "fr-FR";
-      return d.toLocaleDateString(locale, { day: "numeric", month: "long" });
-    } catch { return ""; }
-  };
-  const fmtWhen = (e: any) => {
-    if (e.recurrence) {
-      const days = Array.isArray(e.days_of_week) ? e.days_of_week.join(", ") : "";
-      return days || (lang === "en" ? "recurring" : lang === "ar" ? "متكرر" : "récurrent");
-    }
-    const a = fmtDate(e.start_date);
-    const b = fmtDate(e.end_date);
-    if (a && b && a !== b) return lang === "en" ? `${a} → ${b}` : lang === "ar" ? `${a} ← ${b}` : `du ${a} au ${b}`;
-    return a || b;
-  };
-
-  if (!events?.length) {
-    if (lang === "en") return `No events found in **${city}** between **${from}** and **${to}**. Want me to widen the window or try another city?`;
-    if (lang === "ar") return `لا توجد فعاليات في **${city}** بين **${from}** و **${to}**. هل توسّع النطاق الزمني أو أجرّب مدينة أخرى؟`;
-    return `Aucun événement trouvé à **${city}** entre **${from}** et **${to}**. Tu veux que j'élargisse la période ou que je regarde une autre ville ?`;
-  }
-
-  const intro = lang === "en"
-    ? `From **${hostName}**, the ${city} scene this weekend offers a compact selection worth stepping out for — here is what stands out in the One World Morocco agenda.`
-    : lang === "ar"
-      ? `انطلاقًا من **${hostName}**، تقدّم أجواء ${city} هذا الأسبوع مجموعة مختارة من الفعاليات ضمن أجندة One World Morocco.`
-      : `Depuis **${hostName}**, la scène de ${city} propose ce week-end une sélection resserrée qui vaut le déplacement — voici ce qui se détache dans l'agenda One World Morocco.`;
-
-  const body = events.map((e: any) => {
-    const when = fmtWhen(e);
-    const where = [e.neighborhood, e.city].filter(Boolean).join(", ");
-    const hook = String(e.hook || "").trim();
-    const bits = [when, where].filter(Boolean).join(" · ");
-    return `**${e.name}**${bits ? `. ${bits}` : ""}${hook ? `. ${hook}` : ""}`;
-  }).join("\n\n");
-
-  const closing = lang === "en"
-    ? `\n\nWant me to filter by evening, family-friendly, or a specific neighborhood?`
-    : lang === "ar"
-      ? `\n\nهل أُصفّي حسب المساء، للعائلات، أو حسب حي محدّد؟`
-      : `\n\nTu veux que je filtre par soirée, en famille, ou par quartier précis ?`;
-
-  return `${intro}\n\n${body}${closing}`;
-}
 
 
 
