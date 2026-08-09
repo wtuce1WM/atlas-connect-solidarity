@@ -365,8 +365,16 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
           businesses: refinedBusinesses,
           language,
           history,
+          curatedRoute: opts?.curatedRoute ?? null,
+          focus: {
+            last_business_ids: businesses.slice(0, 3).map((b) => b.id),
+            last_business_names: businesses.slice(0, 3).map((b) => b.name),
+            last_category: category ?? null,
+            active_city: city ?? null,
+          },
         },
       });
+
       if (error) throw error;
       const reply = (data?.answer || "").trim() || T.noAnswer;
       setChatTurns((prev) => [...prev, { role: "assistant", content: reply }]);
