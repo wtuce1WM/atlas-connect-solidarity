@@ -175,8 +175,14 @@ const DescAnchorBar = ({ containerId, deps, language = "fr" }: DescAnchorBarProp
             const el = document.getElementById(a.id);
             lockRef.current = Date.now() + 900;
             setActiveId(a.id);
+            // « À propos » remonte tout en haut de l'overlay (avant le hook)
+            if (a.label === (DESC_LABEL[language] || DESC_LABEL.fr)) {
+              const root = document.getElementById(containerId);
+              if (root) { root.scrollTo({ top: 0, behavior: "smooth" }); return; }
+            }
             el?.scrollIntoView({ behavior: "smooth", block: "start" });
           }}
+
           className={`shrink-0 h-7 px-2.5 rounded-full text-[10px] font-semibold uppercase tracking-wide font-['Montserrat',sans-serif] whitespace-nowrap transition-colors border ${
             activeId === a.id
               ? "bg-white text-black border-white"
