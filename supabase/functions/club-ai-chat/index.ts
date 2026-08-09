@@ -2901,6 +2901,25 @@ serve(async (req) => {
     const isMapTrigger = MAP_TRIGGER_RE.test(lastUserMsg || "");
     const routedIntent = classifyIntent(lastUserMsg, !!previousUserQuery);
     turnLog.intent_classified = routedIntent;
+    // ── Classifieur B (observation) ──────────────────────────────────────────
+    // On arrive ici uniquement quand AUCUN raccourci déterministe (classe A) n'a
+    // capté le tour : c'est le fourre-tout (router_direct / tool_loop). Le
+    // classifieur est lancé EN PARALLÈLE du reste du tour — il n'influence pas
+    // le routage, il est seulement lu au moment du log.
+    if (lastUserMsg && lastUserMsg.trim()) {
+      clubClassifierPromise = classify(
+        {
+          message: lastUserMsg.slice(0, 2000),
+          surface: "club",
+          focus: {
+            active_city: activeCityClean || null,
+            last_category: sessionMem?.topic || null,
+            last_business_names: previousSearchSnapshot?.names?.slice(0, 3),
+          } as any,
+        },
+        LOVABLE_API_KEY,
+      ).catch(() => null);
+    }
     console.log("club-ai-chat router:", JSON.stringify({ intent: routedIntent, isMapTrigger, msg: lastUserMsg.slice(0, 100), hasPrev: !!previousUserQuery, snapSlugs: previousSearchSnapshot?.slugs?.length ?? 0, msgsCount: messages.length, openNowMatch: isOpenNowIntent(lastUserMsg), activeCityRaw: clientContext.activeCity, activeCityClean }));
 
     if (!isMapTrigger && !affirmativeMapTrigger && (routedIntent === "search" || routedIntent === "refinement")) {
