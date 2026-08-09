@@ -292,6 +292,9 @@ export function CtaBar({
     );
   }
 
+  const firstCta = ctaItems[0];
+  const restCtas = ctaItems.slice(1);
+
   return (
     <div
       dir="ltr"
@@ -303,10 +306,26 @@ export function CtaBar({
           <AppStoreCard links={appStoreLinks} />
         </div>
       )}
-      {ctaItems.length > 0 && (
-        <div className={`${ctaItems.length === 1 ? 'w-auto max-w-[95%] md:max-w-[92%] [&_a]:!w-auto [&_button]:!w-auto [&_a]:px-4 [&_button]:px-4' : `${ctaItems.length === 2 || ctaItems.length === 3 ? 'w-[95%]' : 'w-4/5'} md:w-[92%]`} md:px-0 pointer-events-auto ${ctaItems.length === 4 ? 'grid grid-cols-2 gap-2' : 'flex justify-center gap-2'}`}>
-          {ctaItems.map((item, i) => (
-            <div key={i} className={ctaItems.length === 4 || ctaItems.length === 1 ? '' : 'flex-1'}>{item}</div>
+
+      {/* Primary CTA rectangle (URL 2 / booking) */}
+      {firstCta && (
+        <div className="w-[95%] md:w-[92%] md:px-0 pointer-events-auto">
+          {firstCta}
+        </div>
+      )}
+
+      {/* Info slot placed between the primary CTA and the liquid-glass CTAs */}
+      {infoSlot && (
+        <div className="w-full max-w-[min(680px,92%)] mx-auto pointer-events-auto px-2 md:px-0">
+          {infoSlot}
+        </div>
+      )}
+
+      {/* Remaining liquid-glass CTAs (directions, URL 3-5, etc.) */}
+      {restCtas.length > 0 && (
+        <div className={`${restCtas.length === 1 ? 'w-auto max-w-[95%] md:max-w-[92%] [&_a]:!w-auto [&_button]:!w-auto [&_a]:px-4 [&_button]:px-4' : `${restCtas.length === 2 || restCtas.length === 3 ? 'w-[95%]' : 'w-4/5'} md:w-[92%]`} md:px-0 pointer-events-auto ${restCtas.length === 4 ? 'grid grid-cols-2 gap-2' : 'flex justify-center gap-2'}`}>
+          {restCtas.map((item, i) => (
+            <div key={i} className={restCtas.length === 4 || restCtas.length === 1 ? '' : 'flex-1'}>{item}</div>
           ))}
         </div>
       )}
