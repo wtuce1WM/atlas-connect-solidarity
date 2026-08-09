@@ -2847,8 +2847,8 @@ const BookOnlineSlidePanelInner = ({
                         )}
                         <div
                           key={`desc-promo-${safe}`}
-                          className="relative w-full max-w-md rounded-2xl overflow-hidden shadow-2xl flex flex-col h-auto btn-flash-auto animate-scale-in border border-white/10"
-                          style={{ backgroundColor: "#1a1a1a" }}
+                          className="relative w-full max-w-md rounded-2xl overflow-hidden shadow-2xl flex flex-col h-auto btn-flash-auto animate-scale-in border border-white/10 bg-white/5 backdrop-blur-sm"
+
                         >
 
                           {isPopup ? (
