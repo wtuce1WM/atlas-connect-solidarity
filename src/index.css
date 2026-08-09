@@ -1117,3 +1117,34 @@ body[data-map-overlay="1"] .owm-panel-searchbar {
   0% { transform: translateX(-120%) skewX(-12deg); }
   100% { transform: translateX(320%) skewX(-12deg); }
 }
+
+/* ==========================================================================
+   Transition morphée : barre info viewer → overlay Full Description
+   La barre info sert de « graine » : l'overlay s'ouvre depuis son rectangle
+   exact (clip-path inset + coins arrondis en haut) puis s'étend au panneau.
+   ========================================================================== */
+@keyframes owm-desc-morph {
+  0% {
+    clip-path: inset(var(--owm-mt, 60%) var(--owm-mr, 0px) var(--owm-mb, 0px) var(--owm-ml, 0px) round 16px 16px 0 0);
+    opacity: 0.55;
+  }
+  60% { opacity: 1; }
+  100% {
+    clip-path: inset(0px 0px 0px 0px round 0 0 0 0);
+    opacity: 1;
+  }
+}
+.owm-desc-morph {
+  animation: owm-desc-morph 0.44s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: clip-path, opacity;
+}
+@keyframes owm-desc-morph-content {
+  0% { opacity: 0; transform: translateY(10px) scale(0.985); }
+  100% { opacity: 1; transform: none; }
+}
+.owm-desc-morph > * {
+  animation: owm-desc-morph-content 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.06s both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .owm-desc-morph, .owm-desc-morph > * { animation: none; }
+}

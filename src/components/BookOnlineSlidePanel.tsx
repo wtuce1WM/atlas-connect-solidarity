@@ -693,6 +693,21 @@ const BookOnlineSlidePanelInner = ({
   
   const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
   const [descOverlayDirect, setDescOverlayDirect] = useState(false);
+  // Transition morphée : la barre info viewer sert de « graine » à l'overlay Full Description
+  const descMorphRectRef = useRef<DOMRect | null>(null);
+  const applyDescMorph = useCallback((el: HTMLDivElement | null) => {
+    const r = descMorphRectRef.current;
+    if (!el || !r) return;
+    descMorphRectRef.current = null;
+    const o = el.getBoundingClientRect();
+    if (!o.width || !o.height) return;
+    el.style.setProperty("--owm-mt", `${Math.max(0, r.top - o.top)}px`);
+    el.style.setProperty("--owm-ml", `${Math.max(0, r.left - o.left)}px`);
+    el.style.setProperty("--owm-mr", `${Math.max(0, o.right - r.right)}px`);
+    el.style.setProperty("--owm-mb", `${Math.max(0, o.bottom - r.bottom)}px`);
+    el.classList.add("owm-desc-morph");
+    el.addEventListener("animationend", () => el.classList.remove("owm-desc-morph"), { once: true });
+  }, []);
   const [descGridSection, setDescGridSection] = useState<"images" | "videos" | "poi" | "dest" | "kp" | "kp_subcat" | null>(null);
    const [descGridPage, setDescGridPage] = useState(0);
    const [sidebarOpenGroup, setSidebarOpenGroup] = useState<string | null>(null);
@@ -2355,7 +2370,7 @@ const BookOnlineSlidePanelInner = ({
               teaser={viewerTeaser}
               language={language}
               bare
-              onOpen={() => setShowDescriptionOverlay(true)}
+              onOpen={(rect) => { descMorphRectRef.current = rect ?? null; setShowDescriptionOverlay(true); }}
             />
           ) : undefined}
         />
@@ -2506,7 +2521,7 @@ const BookOnlineSlidePanelInner = ({
 
       {/* Full Description Overlay */}
       {showDescriptionOverlay && (woDescription || hasHighlights || descGridSection || descOverlayContent || !!hookText || (avgOn20 != null && totalReviewCount > 0) || images.length > 0 || (nonExternalVideoDocs.length + externalVideoDocs.length) > 0) && (
-        <OverlayShell zClass="z-[80]" animClass="animate-zoom-out-center" className="flex flex-col">
+        <OverlayShell zClass="z-[80]" animClass={descMorphRectRef.current ? "" : "animate-zoom-out-center"} outerRef={applyDescMorph} className="flex flex-col">
           {images[0] && (
             <div
               className="absolute inset-0 bg-cover bg-center"

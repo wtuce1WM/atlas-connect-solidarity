@@ -35,6 +35,8 @@ interface OverlayShellProps {
   bg?: string;
   /** Additional classes on outer wrapper */
   className?: string;
+  /** Ref sur le conteneur externe (utilisé pour l'animation morphée) */
+  outerRef?: React.Ref<HTMLDivElement>;
 }
 
 const TOOLBAR_H = "3.3rem";
@@ -47,11 +49,12 @@ const OverlayShell = ({
   desktopOnly = true,
   bg = "",
   className = "",
+  outerRef,
 }: OverlayShellProps) => {
   // When NOT covering toolbar, simple absolute inset-0
   if (!coverToolbar) {
     return (
-      <div className={`absolute inset-0 ${zClass} overflow-hidden ${animClass} ${bg} ${className}`}>
+      <div ref={outerRef} className={`absolute inset-0 ${zClass} overflow-hidden ${animClass} ${bg} ${className}`}>
         {children}
       </div>
     );
@@ -65,6 +68,7 @@ const OverlayShell = ({
 
   return (
     <div
+      ref={outerRef}
       className={`absolute inset-0 ${topOffset} ${zClass} overflow-hidden ${animClass} ${bg} ${className}`}
     >
       <div className={`w-full h-full ${topPad} flex flex-col`}>
