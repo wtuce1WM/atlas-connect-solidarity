@@ -1032,6 +1032,21 @@ const BookOnlineSlidePanelInner = ({
     return () => window.removeEventListener("keydown", onKey, true);
   }, [showDescriptionOverlay, descGridSection, descOverlayContent, descOverlayDirect]);
 
+  // À l'ouverture de l'overlay Full Description : toujours démarrer en haut
+  // (des sections comme "Réservez" / iframes peuvent forcer un scroll auto)
+  useEffect(() => {
+    if (!showDescriptionOverlay) return;
+    const timers: number[] = [];
+    const reset = () => {
+      const el = document.getElementById("owm-desc-scroll");
+      if (el) el.scrollTop = 0;
+    };
+    reset();
+    requestAnimationFrame(reset);
+    [50, 150, 300, 600, 1000].forEach((d) => timers.push(window.setTimeout(reset, d)));
+    return () => timers.forEach(clearTimeout);
+  }, [showDescriptionOverlay, descGridSection, descOverlayContent]);
+
   const hideCardsRef = useRef<() => void>(() => {});
   const hasSerpMapping = !!serpApiMapping || !!liteApiHotelId;
 
