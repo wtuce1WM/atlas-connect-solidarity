@@ -2734,7 +2734,7 @@ const BookOnlineSlidePanelInner = ({
                             className="absolute block h-full w-1/2 -skew-x-12"
                             style={{
                               background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)",
-                              animation: "shimmer 1.2s ease-in-out infinite",
+                              animation: "shimmer 0.7s ease-out 1 forwards",
                             }}
                           />
                         </span>
