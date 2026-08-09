@@ -115,7 +115,7 @@ const DescAnchorBar = ({ containerId, deps, language = "fr" }: DescAnchorBarProp
         ? prev
         : next
     );
-  }, [containerId]);
+  }, [containerId, language]);
 
   useEffect(() => {
     const t = window.setTimeout(scan, 250);

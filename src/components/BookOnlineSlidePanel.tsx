@@ -2560,7 +2560,7 @@ const BookOnlineSlidePanelInner = ({
             </div>
             {!descGridSection && !descOverlayContent && (
               <div className="w-full min-w-0">
-                <DescAnchorBar containerId="owm-desc-scroll" deps={business?.id} />
+                <DescAnchorBar containerId="owm-desc-scroll" deps={business?.id} language={language} />
               </div>
             )}
           </div>
