@@ -1,7 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { fetchAiGateway, resolveCallerContext, normalizeGatewayBodyForModel } from "../_shared/ai-gateway.ts";
-import { AI_MODEL } from "../_shared/ai-engine/surfaces.ts";
+import { AI_MODEL, getSurfaceConfig } from "../_shared/ai-engine/surfaces.ts";
+import { classify, isConfident, type ClassifyResult } from "../_shared/ai-engine/classify.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -543,16 +544,50 @@ const CLUB_ROUTE_MAP: Record<string, { route: string; aiClass: "A" | "B" | "C" }
   tool_loop: { route: "discover", aiClass: "C" },
 };
 
-function classifyTurn(log: any, model: string): void {
+function classifyTurn(log: any, model: string, clf?: ClassifyResult | null): void {
   const m = CLUB_ROUTE_MAP[String(log.route_taken || "")] ?? { route: "discover", aiClass: "C" as const };
   log.ai_class = m.aiClass;
   log.model = m.aiClass === "A" ? null : model;
   if (m.aiClass === "C" && !log.fallback_reason && log.route_taken === "tool_loop") {
     log.fallback_reason = null; // C nominal (discover flou / tool loop), pas un fallback
   }
+  // ── Classifieur B (observation) ────────────────────────────────────────────
+  // Sur les tours fourre-tout (router_direct / tool_loop), on trace la sortie du
+  // classifieur SANS lui donner autorité sur le routage : on mesure d'abord sa
+  // qualité en SQL avant de câbler category/exclude/city dans search_businesses.
+  const clfOut = clf?.output ?? null;
+  if (clfOut) {
+    const confident = isConfident(clfOut, "club");
+    log.classifier_confidence = clfOut.confidence;
+    log.intent_classified = `classifier:${clfOut.intent}|legacy:${log.intent_classified ?? "none"}`;
+    if (!log.city_detected && clfOut.city) log.city_detected = clfOut.city;
+    if (!confident && !log.fallback_reason) log.fallback_reason = "confidence_low";
+    const tools = Array.isArray(log.tools_called) ? log.tools_called : [];
+    log.tools_called = {
+      tools,
+      classifier: {
+        intent: clfOut.intent,
+        category: clfOut.category,
+        exclude: clfOut.exclude,
+        city: clfOut.city,
+        confidence: clfOut.confidence,
+        threshold: getSurfaceConfig("club").confidenceThreshold,
+        legacy_route: log.route_taken,
+        authority: false,
+        tokens_in: clf?.tokensIn ?? null,
+        tokens_out: clf?.tokensOut ?? null,
+        error: clf?.error ?? null,
+      },
+    };
+    log.tokens_in = (log.tokens_in ?? 0) + (clf?.tokensIn ?? 0);
+    log.tokens_out = (log.tokens_out ?? 0) + (clf?.tokensOut ?? 0);
+  } else if (clf?.error) {
+    log.fallback_reason = log.fallback_reason || "classifier_error";
+  }
   if (log.had_error) log.fallback_reason = log.fallback_reason || "route_failed";
   if (log.results_count === 0) log.fallback_reason = log.fallback_reason || "no_results";
 }
+
 
 function buildSessionMemory(messages: Msg[], activeCity?: string | null): SessionMemory {
   const mem: SessionMemory = { city: null, topic: null, landmark: null, exclusions: [], keywords: [] };
@@ -1602,6 +1637,8 @@ serve(async (req) => {
     model: null,
   };
   let adminForLog: any = null;
+  // Classifieur B lancé en parallèle (observation seule) sur les tours fourre-tout.
+  let clubClassifierPromise: Promise<ClassifyResult | null> | null = null;
 
   // Fire-and-forget async worker: streams events to the client.
   const work = (async () => {
@@ -2864,6 +2901,24 @@ serve(async (req) => {
     const isMapTrigger = MAP_TRIGGER_RE.test(lastUserMsg || "");
     const routedIntent = classifyIntent(lastUserMsg, !!previousUserQuery);
     turnLog.intent_classified = routedIntent;
+    // ── Classifieur B (observation) ──────────────────────────────────────────
+    // On arrive ici uniquement quand AUCUN raccourci déterministe (classe A) n'a
+    // capté le tour : c'est le fourre-tout (router_direct / tool_loop). Le
+    // classifieur est lancé EN PARALLÈLE du reste du tour — il n'influence pas
+    // le routage, il est seulement lu au moment du log.
+    if (lastUserMsg && lastUserMsg.trim()) {
+      clubClassifierPromise = classify(
+        {
+          message: lastUserMsg.slice(0, 2000),
+          surface: "club",
+          focus: {
+            active_city: activeCityClean || null,
+            last_business_names: previousSearchSnapshot?.slugs?.slice(0, 3),
+          } as any,
+        },
+        LOVABLE_API_KEY,
+      ).catch(() => null);
+    }
     console.log("club-ai-chat router:", JSON.stringify({ intent: routedIntent, isMapTrigger, msg: lastUserMsg.slice(0, 100), hasPrev: !!previousUserQuery, snapSlugs: previousSearchSnapshot?.slugs?.length ?? 0, msgsCount: messages.length, openNowMatch: isOpenNowIntent(lastUserMsg), activeCityRaw: clientContext.activeCity, activeCityClean }));
 
     if (!isMapTrigger && !affirmativeMapTrigger && (routedIntent === "search" || routedIntent === "refinement")) {
@@ -3505,7 +3560,17 @@ The user will click ONE of these as a new turn and prior constraints must be re-
     try {
       if (adminForLog) {
         turnLog.latency_ms_total = Date.now() - turnStartMs;
-        try { classifyTurn(turnLog, MODEL); } catch (e) { console.error("classifyTurn failed", e); }
+        // Le classifieur tourne en parallèle depuis le début du fourre-tout : il
+        // est en principe déjà résolu. Garde-fou 2 s pour ne jamais retarder la
+        // fermeture du flux si le gateway traîne.
+        let clf: ClassifyResult | null = null;
+        if (clubClassifierPromise) {
+          clf = await Promise.race([
+            clubClassifierPromise,
+            new Promise<null>((r) => setTimeout(() => r(null), 2000)),
+          ]).catch(() => null);
+        }
+        try { classifyTurn(turnLog, MODEL, clf); } catch (e) { console.error("classifyTurn failed", e); }
         // Fire-and-forget — never block the response on log persistence
         adminForLog.from("ai_conversation_turns").insert(turnLog).then(
           ({ error }: any) => { if (error) console.error("turnLog insert failed", error.message); },
