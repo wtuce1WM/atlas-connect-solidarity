@@ -12,7 +12,8 @@ import {
   convertToModelMessages,
   type UIMessage,
 } from "npm:ai@5";
-import { createLovableAiGatewayProvider } from "../_shared/ai-gateway.ts";
+import { createLovableAiGatewayProvider, normalizeGatewayBodyForModel } from "../_shared/ai-gateway.ts";
+import { AI_MODEL } from "../_shared/ai-engine/surfaces.ts";
 import {
   pickLang, fmtHours, normalize, levenshtein, DAY_KEYS, DAY_LABELS,
   fetchPriorFull, orderByIds, fmtKm, toMapMarker, haversineKmLocal,
@@ -65,7 +66,8 @@ const corsHeaders = {
 };
 
 const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const MODEL = "google/gemini-3.6-flash";
+const MODEL = AI_MODEL;
+const IS_GPT5 = /^openai\/gpt-5/.test(MODEL);
 const MAX_ROUNDS = 4;
 const SEARCH_LIMIT_HARD = 30;
 
@@ -3069,7 +3071,9 @@ Deno.serve(async (req) => {
                     parts: [{ type: "text", text: String(m.content || "") }],
                   })) as any,
               ),
-              temperature: 0.4,
+              ...(IS_GPT5
+                ? { providerOptions: { lovable: { reasoningEffort: "none" } } }
+                : { temperature: 0.4 }),
             });
             for await (const delta of result.textStream) {
               finalText += delta;
@@ -3113,14 +3117,14 @@ Deno.serve(async (req) => {
           const resp = await fetch(GATEWAY, {
             method: "POST",
             headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-            body: JSON.stringify({
+            body: JSON.stringify(normalizeGatewayBodyForModel({
               model: MODEL,
               messages: convo,
               tools: isLast ? undefined : TOOLS,
               tool_choice: isLast ? undefined : "auto",
               temperature: 0.7,
               stream: false,
-            }),
+            })),
           });
           if (!resp.ok) {
             const errTxt = await resp.text().catch(() => "");
@@ -3227,7 +3231,10 @@ Deno.serve(async (req) => {
                     parts: [{ type: "text", text: String(m.content || "") }],
                   })) as any,
               ),
-              temperature: hasForcedResults ? 0.4 : 0.7,
+              ...(IS_GPT5
+                ? { providerOptions: { lovable: { reasoningEffort: "none" } } }
+                : { temperature: hasForcedResults ? 0.4 : 0.7 }),
+
             });
             for await (const delta of result.textStream) {
               finalText += delta;
