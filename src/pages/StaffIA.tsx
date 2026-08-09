@@ -116,10 +116,15 @@ const StaffIA = () => {
               <Code2 className="h-4 w-4" />
               Suggestions Embed IA
             </TabsTrigger>
+            <TabsTrigger value="search-ai" className="gap-2">
+              <Search className="h-4 w-4" />
+              Search IA
+            </TabsTrigger>
             <TabsTrigger value="ai-usage" className="gap-2">
               <Zap className="h-4 w-4" />
               Utilisation IA
             </TabsTrigger>
+
             <TabsTrigger value="ai-perf" className="gap-2">
               <BarChart3 className="h-4 w-4" />
               Perf IA
