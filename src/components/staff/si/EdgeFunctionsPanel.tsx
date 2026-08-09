@@ -48,10 +48,10 @@ const EdgeFunctionsPanel = () => {
             <button onClick={() => setOpen(open === f.name ? null : f.name)} className="w-full text-left">
               <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="font-mono font-bold text-sm">{f.name}</span>
-                {f.ai && <Sparkles className="h-3.5 w-3.5 text-gold" title="Lovable AI Gateway" />}
-                {!f.verify_jwt && <Unlock className="h-3.5 w-3.5 text-amber-500" title="Publique (verify_jwt = false)" />}
-                {f.service_role && <KeyRound className="h-3.5 w-3.5 text-destructive" title="Utilise service_role" />}
-                {f.ext.length > 0 && <Globe className="h-3.5 w-3.5 text-sky-500" title={f.ext.join(", ")} />}
+                {f.ai && <span title="Lovable AI Gateway"><Sparkles className="h-3.5 w-3.5 text-gold" /></span>}
+                {!f.verify_jwt && <span title="Publique (verify_jwt = false)"><Unlock className="h-3.5 w-3.5 text-amber-500" /></span>}
+                {f.service_role && <span title="Utilise service_role"><KeyRound className="h-3.5 w-3.5 text-destructive" /></span>}
+                {f.ext.length > 0 && <span title={f.ext.join(", ")}><Globe className="h-3.5 w-3.5 text-sky-500" /></span>}
               </div>
               <div className="mt-1 flex items-center gap-3 text-muted-foreground">
                 <span className="inline-flex items-center gap-1"><Database className="h-3 w-3" /> {f.tables.length} tables</span>
