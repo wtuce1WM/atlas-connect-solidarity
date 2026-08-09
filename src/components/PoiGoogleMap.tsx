@@ -972,7 +972,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
             }
           }, 300);
         },
-        poi.markerColor,
+        markerColor,
         highlightColor,
       );
 
