@@ -1032,14 +1032,14 @@ Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact e
 
     if (!response.ok) {
       if (response.status === 429) {
-        await logSearchTurn({ user_message: String(query || ""), route_taken: "search_answer", ai_class: "C", model, fallback_reason: "route_failed", had_error: true, error_message: "rate_limited", language, results_count: effectiveBusinesses.length, latency_ms_total: Date.now() - t0, user_id: callerContext.userId, affiliate_id: callerContext.affiliateId }, sb);
+        await logSearchTurn({ user_message: String(query || ""), route_taken: engineRouteCode, ai_class: engineClass, classifier_confidence: engineConfidence, chat_id: chatId, city_detected: engineCityDetected, model, fallback_reason: "route_failed", had_error: true, error_message: "rate_limited", language, results_count: effectiveBusinesses.length, latency_ms_total: Date.now() - t0, user_id: callerContext.userId, affiliate_id: callerContext.affiliateId }, sb);
         return new Response(JSON.stringify({ error: "Rate limit exceeded", answer: "" }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       if (response.status === 402) {
-        await logSearchTurn({ user_message: String(query || ""), route_taken: "search_answer", ai_class: "C", model, fallback_reason: "route_failed", had_error: true, error_message: "payment_required", language, results_count: effectiveBusinesses.length, latency_ms_total: Date.now() - t0, user_id: callerContext.userId, affiliate_id: callerContext.affiliateId }, sb);
+        await logSearchTurn({ user_message: String(query || ""), route_taken: engineRouteCode, ai_class: engineClass, classifier_confidence: engineConfidence, chat_id: chatId, city_detected: engineCityDetected, model, fallback_reason: "route_failed", had_error: true, error_message: "payment_required", language, results_count: effectiveBusinesses.length, latency_ms_total: Date.now() - t0, user_id: callerContext.userId, affiliate_id: callerContext.affiliateId }, sb);
         return new Response(JSON.stringify({ error: "Payment required", answer: "" }), {
           status: 402,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -1047,7 +1047,7 @@ Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact e
       }
       const errorText = await response.text();
       console.error(`AI gateway error [${response.status}]:`, errorText);
-      await logSearchTurn({ user_message: String(query || ""), route_taken: "search_answer", ai_class: "C", model, fallback_reason: "route_failed", had_error: true, error_message: `gateway_${response.status}`, language, results_count: effectiveBusinesses.length, latency_ms_total: Date.now() - t0, user_id: callerContext.userId, affiliate_id: callerContext.affiliateId }, sb);
+      await logSearchTurn({ user_message: String(query || ""), route_taken: engineRouteCode, ai_class: engineClass, classifier_confidence: engineConfidence, chat_id: chatId, city_detected: engineCityDetected, model, fallback_reason: "route_failed", had_error: true, error_message: `gateway_${response.status}`, language, results_count: effectiveBusinesses.length, latency_ms_total: Date.now() - t0, user_id: callerContext.userId, affiliate_id: callerContext.affiliateId }, sb);
       return new Response(JSON.stringify({ answer: "" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
