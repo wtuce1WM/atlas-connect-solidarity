@@ -110,6 +110,14 @@ const DescAnchorBar = ({ containerId, deps, language = "fr" }: DescAnchorBarProp
       const label = raw.length > MAX_LABEL ? `${raw.slice(0, MAX_LABEL - 1)}…` : raw;
       next.push({ id: h.id, label });
     });
+    // Fallback : description sans aucun H2 → on ancre sur le corps de la description.
+    if (!descDone) {
+      const body = root.querySelector("[data-owm-desc-body]") as HTMLElement | null;
+      if (body && (body.textContent || "").trim()) {
+        if (!body.id) body.id = "owm-anchor-desc";
+        next.unshift({ id: body.id, label: DESC_LABEL[language] || DESC_LABEL.fr });
+      }
+    }
     // Le badge de réservation passe toujours en première position.
     const isBooking = (l: string) => /r[ée]serv|billet|day pass/i.test(l);
     next.sort((a, b) => Number(isBooking(b.label)) - Number(isBooking(a.label)));
