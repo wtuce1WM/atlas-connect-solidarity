@@ -693,22 +693,32 @@ const BookOnlineSlidePanelInner = ({
   
   const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
   const [descOverlayDirect, setDescOverlayDirect] = useState(false);
-  // Transition morphée : la barre info viewer sert de « graine » à l'overlay Full Description
-  const descMorphRectRef = useRef<DOMRect | null>(null);
+  // Transition morphée : la barre info viewer sert de « graine » à l'overlay Full Description.
+  // L'overlay peut être démonté/remonté juste après l'ouverture (re-render du panneau) :
+  // on garde donc le rectangle « en attente » pendant une courte fenêtre et on réapplique
+  // l'animation à chaque montage tant qu'elle est fraîche.
+  const descMorphRectRef = useRef<{ rect: DOMRect; t: number } | null>(null);
   const applyDescMorph = useCallback((el: HTMLDivElement | null) => {
-    const r = descMorphRectRef.current;
-    console.log("[MORPH] ref cb", !!el, !!r);
-    if (!el || !r) return;
-    descMorphRectRef.current = null;
+    const pending = descMorphRectRef.current;
+    if (!el || !pending) return;
+    if (Date.now() - pending.t > 900) { descMorphRectRef.current = null; return; }
+    const r = pending.rect;
     const o = el.getBoundingClientRect();
     if (!o.width || !o.height) return;
     el.style.setProperty("--owm-mt", `${Math.max(0, r.top - o.top)}px`);
     el.style.setProperty("--owm-ml", `${Math.max(0, r.left - o.left)}px`);
     el.style.setProperty("--owm-mr", `${Math.max(0, o.right - r.right)}px`);
     el.style.setProperty("--owm-mb", `${Math.max(0, o.bottom - r.bottom)}px`);
+    el.classList.remove("owm-desc-morph");
+    // reflow pour permettre le redémarrage de l'animation
+    void el.offsetWidth;
     el.classList.add("owm-desc-morph");
-    el.addEventListener("animationend", () => el.classList.remove("owm-desc-morph"), { once: true });
+    el.addEventListener("animationend", () => {
+      el.classList.remove("owm-desc-morph");
+      descMorphRectRef.current = null;
+    }, { once: true });
   }, []);
+
   const [descGridSection, setDescGridSection] = useState<"images" | "videos" | "poi" | "dest" | "kp" | "kp_subcat" | null>(null);
    const [descGridPage, setDescGridPage] = useState(0);
    const [sidebarOpenGroup, setSidebarOpenGroup] = useState<string | null>(null);
