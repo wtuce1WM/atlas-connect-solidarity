@@ -90,9 +90,19 @@ const DescAnchorBar = ({ containerId, deps, language = "fr" }: DescAnchorBarProp
     if (!root) return;
     const heads = Array.from(root.querySelectorAll("h2")) as HTMLElement[];
     const next: Anchor[] = [];
+    let descDone = false;
     heads.forEach((h, i) => {
       const raw = (h.textContent || "").replace(/\s+/g, " ").trim();
       if (!raw) return;
+      // Les H2 issus du corps de la Description ne produisent qu'un seul badge « À propos ».
+      const inDescBody = !!h.closest("[data-owm-desc-body]");
+      if (inDescBody) {
+        if (descDone) return;
+        descDone = true;
+        if (!h.id) h.id = `owm-anchor-${i}`;
+        next.push({ id: h.id, label: DESC_LABEL[language] || DESC_LABEL.fr });
+        return;
+      }
       if (!h.id) h.id = `owm-anchor-${i}`;
       const label = raw.length > MAX_LABEL ? `${raw.slice(0, MAX_LABEL - 1)}…` : raw;
       next.push({ id: h.id, label });
