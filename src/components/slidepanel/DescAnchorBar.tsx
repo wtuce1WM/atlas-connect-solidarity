@@ -12,13 +12,17 @@ interface DescAnchorBarProps {
   containerId: string;
   /** re-scan trigger (content changes) */
   deps?: unknown;
+  /** UI language for generic labels */
+  language?: string;
 }
 
 type Anchor = { id: string; label: string };
 
 const MAX_LABEL = 22;
 
-const DescAnchorBar = ({ containerId, deps }: DescAnchorBarProps) => {
+const DESC_LABEL: Record<string, string> = { fr: "À propos", en: "About", ar: "نبذة" };
+
+const DescAnchorBar = ({ containerId, deps, language = "fr" }: DescAnchorBarProps) => {
   const [anchors, setAnchors] = useState<Anchor[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const wheelRef = useRef<HTMLDivElement | null>(null);
