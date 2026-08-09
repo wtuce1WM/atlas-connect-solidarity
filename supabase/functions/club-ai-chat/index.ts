@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { fetchAiGateway, resolveCallerContext, normalizeGatewayBodyForModel } from "../_shared/ai-gateway.ts";
 import { AI_MODEL, getSurfaceConfig } from "../_shared/ai-engine/surfaces.ts";
 import { classify, isConfident, type ClassifyResult } from "../_shared/ai-engine/classify.ts";
-import { detectViewIntent, hasPanoramaAttribute, hasPanoramaProof, withinPointRadius } from "../_shared/ai-engine/view-targets.ts";
+import { detectViewIntent, hasPanoramaAttribute, hasPanoramaProof, withinPointRadius, hasVantage, hasPointViewProof } from "../_shared/ai-engine/view-targets.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -986,9 +986,13 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       // du service/badge existant en base pour que le moteur /search le capte.
       const preViewIntent = detectViewIntent(`${ctx.lastUserMessage || ""} ${ctx.forceQuery || ""} ${args.query || ""}`);
       const viewAttributeHints = preViewIntent.panoramas.map((p) => p.attributeNames[0]);
+      // Repère ponctuel (Koutoubia…) : on aide la récupération avec « Rooftop »,
+      // la vue depuis un point exigeant une hauteur, pas juste une adresse proche.
+      if (preViewIntent.points.length) viewAttributeHints.push("Rooftop");
       const fullQuery = viewAttributeHints.length
         ? `${baseQuery} ${viewAttributeHints.join(" ")}`.trim()
         : baseQuery;
+
 
       // Appel business-search (même moteur que /search) — direct fetch pour éviter
       // les aléas de `functions.invoke` depuis Deno (parfois body non transmis).
@@ -1124,13 +1128,18 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
             hasPanoramaProof(p, bizText(b)),
         );
       };
-      // Repère ponctuel : dans le rayon OU cité explicitement
+      // Repère ponctuel : « vue sur la Koutoubia » ≠ « à côté de la Koutoubia ».
+      // On exige la proximité ET une preuve de point de vue (rooftop / terrasse
+      // panoramique / vue dégagée), sauf si le texte cite explicitement la vue.
       const matchesPoints = (b: any) => {
         if (!viewPoints.length) return true;
+        const text = bizText(b);
+        const vantage = hasVantage({ services: b.services, badgeNames: badgesPre.get(b.id) || [] }, text);
         return viewPoints.every(
-          (p) => withinPointRadius(p, b.latitude, b.longitude) || p.tokens.test(bizText(b)),
+          (p) => hasPointViewProof(p, text) || (withinPointRadius(p, b.latitude, b.longitude) && vantage),
         );
       };
+
       const matchesLandmark = (b: any) => matchesPanoramas(b) && matchesPoints(b);
       const barConfirmed = (b: any) => {
         if (!requiresBar) return true;

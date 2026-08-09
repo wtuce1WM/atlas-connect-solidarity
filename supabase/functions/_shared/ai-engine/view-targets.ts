@@ -136,3 +136,42 @@ export function withinPointRadius(point: ViewPoint, lat: unknown, lng: unknown):
   if (typeof lat !== "number" || typeof lng !== "number") return false;
   return distanceKm(point.lat, point.lng, lat, lng) <= point.radiusKm;
 }
+
+/* ------------------------------------------------------------------------- *
+ *  Point de vue (« vantage ») : être à 300 m de la Koutoubia ne donne pas
+ *  une vue dessus. Un repère ponctuel exige donc, en plus de la proximité,
+ *  une preuve de surélévation / panorama (attribut en base ou texte).
+ * ------------------------------------------------------------------------- */
+
+export const VANTAGE_ATTRIBUTE_NAMES = [
+  "Rooftop",
+  "Roof top",
+  "Terrasse",
+  "Terrasse panoramique",
+  "Terrasse sur le toit",
+  "Vue sur la ville",
+  "Vue panoramique",
+  "Panorama",
+];
+
+const VANTAGE_PROOF_RE =
+  /\b(rooftop|roof\s?top|sur\s+le\s+toit|sur\s+les\s+toits|terrasse\s+panoramique|terrasse\s+sur\s+le\s+toit|panoramique|panorama|vue\s+imprenable|vue\s+degagee|vue\s+plongeante|dernier\s+etage|belvedere)\b/;
+
+/** Preuve d'un vrai point de vue : attribut en base OU texte. */
+export function hasVantage(
+  opts: { services?: unknown; badgeNames?: string[] },
+  text: string,
+): boolean {
+  const wanted = VANTAGE_ATTRIBUTE_NAMES.map(normView);
+  const services = Array.isArray(opts.services) ? opts.services.map(normView) : [];
+  const badges = (opts.badgeNames || []).map(normView);
+  if ([...services, ...badges].some((v) => wanted.includes(v))) return true;
+  return VANTAGE_PROOF_RE.test(normView(text));
+}
+
+/** Le repère est-il explicitement cité comme vue dans le texte ? */
+export function hasPointViewProof(point: ViewPoint, text: string): boolean {
+  const t = normView(text);
+  if (!point.tokens.test(t)) return false;
+  return /\b(vue|vues|donnant\s+sur|face\s+(?:a|au|aux)|overlooking|view)\b/.test(t);
+}
