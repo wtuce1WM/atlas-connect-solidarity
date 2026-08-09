@@ -94,13 +94,18 @@ function scheduleFlush() {
   flushTimer = window.setTimeout(() => { void flush(); }, FLUSH_DELAY);
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function isValidUuid(id: string): boolean {
+  return UUID_RE.test(id);
+}
+
 /** Track an event tied to a specific business. Non-blocking, batched. */
 export function trackBusinessEvent(
   businessId: string | null | undefined,
   type: BusinessEventType,
   opts: { subtype?: string; meta?: Record<string, unknown> } = {},
 ) {
-  if (!businessId) return;
+  if (!businessId || !isValidUuid(businessId)) return;
   if (type === "view" && shouldDedupeView(businessId)) return;
   queue.push({
     business_id: businessId,
@@ -152,7 +157,7 @@ export function trackBusinessImpression(
   surface: ImpressionSurface = "list",
   meta?: Record<string, unknown>,
 ) {
-  if (!businessId) return;
+  if (!businessId || !isValidUuid(businessId)) return;
   if (shouldDedupeImpression(businessId, surface)) return;
   queue.push({
     business_id: businessId,

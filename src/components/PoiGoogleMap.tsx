@@ -824,12 +824,19 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
 
     const bounds = new gmaps.LatLngBounds();
     let hasPoints = false;
+    let firstMarkerDone = false;
 
     pois.forEach((poi) => {
       if (!poi.latitude || !poi.longitude) return;
       hasPoints = true;
       const position = { lat: poi.latitude, lng: poi.longitude };
       bounds.extend(position);
+
+      // First displayed marker gets a black pin instead of the default white
+      const markerColor = !poi.markerColor && !firstMarkerDone
+        ? { bg: "#000000", fg: "#ffffff", border: "#000000" }
+        : poi.markerColor;
+      firstMarkerDone = true;
 
       // Skip if marker already exists
       if (overlaysRef.current.has(poi.id)) return;
@@ -965,7 +972,7 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
             }
           }, 300);
         },
-        poi.markerColor,
+        markerColor,
         highlightColor,
       );
 
