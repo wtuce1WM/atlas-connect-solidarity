@@ -1695,6 +1695,19 @@ const BookOnlineSlidePanelInner = ({
     return raw?.trim() || null;
   }, [business, language]);
 
+  // Teaser de la zone viewer : hook, sinon début de la description en texte brut
+  const viewerTeaser = useMemo(() => {
+    if (hookText) return hookText;
+    const plain = (woDescription || "")
+      .replace(/<[^>]*>/g, " ")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/\s+/g, " ")
+      .trim();
+    return plain ? plain.slice(0, 300) : null;
+  }, [hookText, woDescription]);
+
+
   useEffect(() => {
     if (!hookText) { setShowHook(false); return; }
     setShowHook(false);
