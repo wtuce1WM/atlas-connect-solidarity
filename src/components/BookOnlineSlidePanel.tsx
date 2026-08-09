@@ -713,10 +713,14 @@ const BookOnlineSlidePanelInner = ({
     // reflow pour permettre le redémarrage de l'animation
     void el.offsetWidth;
     el.classList.add("owm-desc-morph");
-    el.addEventListener("animationend", () => {
+    // animationend bubble depuis les enfants : ne réagir qu'à l'animation de l'élément lui-même
+    const onEnd = (e: AnimationEvent) => {
+      if (e.target !== el || e.animationName !== "owm-desc-morph") return;
+      el.removeEventListener("animationend", onEnd);
       el.classList.remove("owm-desc-morph");
       descMorphRectRef.current = null;
-    }, { once: true });
+    };
+    el.addEventListener("animationend", onEnd);
   }, []);
 
   const [descGridSection, setDescGridSection] = useState<"images" | "videos" | "poi" | "dest" | "kp" | "kp_subcat" | null>(null);
