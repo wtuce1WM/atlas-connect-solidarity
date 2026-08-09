@@ -1148,3 +1148,20 @@ body[data-map-overlay="1"] .owm-panel-searchbar {
 @media (prefers-reduced-motion: reduce) {
   .owm-desc-morph, .owm-desc-morph > * { animation: none; }
 }
+
+/* ==========================================================================
+   Apparition retardée du popup/offre après le début de la vidéo
+   Scale-in + fade doux, avec le contenu qui monte légèrement.
+   ========================================================================== */
+@keyframes owm-popup-appear {
+  0% { opacity: 0; transform: scale(0.94) translateY(12px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.owm-popup-appear {
+  animation: owm-popup-appear 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: opacity, transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .owm-popup-appear { animation: fade-in 0.2s ease-out both; }
+}
+
