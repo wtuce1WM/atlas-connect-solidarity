@@ -1819,6 +1819,8 @@ const SearchPage = () => {
           const deltaY = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
           // Let Google Maps handle its own wheel zoom (gestureHandling: greedy)
           if (e.target instanceof Element && e.target.closest('.gm-style')) return;
+          // Rails horizontaux : laisser passer (ils gèrent la molette eux-mêmes)
+          if (isOverHorizontalRail(e.target)) return;
           if (document.body.dataset.slidepanelOverlayOpen === "1") {
             // While an overlay is open above the slidepanel, allow its own
             // scrollable area to receive wheel events, but block scroll bleed
