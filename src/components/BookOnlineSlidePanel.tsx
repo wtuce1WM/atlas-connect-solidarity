@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import { MapPin, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Clock, Play, Pause, Volume2, VolumeX, Building2, Compass, ShoppingCart, SlidersHorizontal, CheckCircle2, Circle, Navigation, Heart } from "lucide-react";
 import { GiWalkingBoot } from "react-icons/gi";
 import { BsCalendarDay, BsCarFrontFill } from "react-icons/bs";
+import HScroll from "@/components/HScroll";
 import ShareButton from "@/components/ShareButton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
@@ -3063,7 +3064,8 @@ const BookOnlineSlidePanelInner = ({
                               </div>
                             );
                           })}
-                        </div>
+                        </HScroll>
+
                       </div>
                     );
                   })()}
