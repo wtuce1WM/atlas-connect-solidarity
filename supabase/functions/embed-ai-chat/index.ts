@@ -869,6 +869,7 @@ Deno.serve(async (req) => {
       execute: async ({ writer }) => {
         const t0 = Date.now();
         let firstTokenAt: number | null = null;
+        let llmUsed = false; // Moteur A/B/C : true dès qu'un appel générateur est fait
         const textId = crypto.randomUUID();
         let textStarted = false;
         const startText = () => {
@@ -1537,9 +1538,9 @@ Deno.serve(async (req) => {
               intent_classified: inferEmbedRoute(userMessage),
               route_taken: inferEmbedRoute(userMessage),
               surface: "embed",
-              ai_class: (!firstTokenAt && !toolsCalledLog.length) ? "A" : "C",
-              model: (!firstTokenAt && !toolsCalledLog.length) ? null : MODEL,
-              fallback_reason: hadError ? "route_failed" : (knownBusinesses.length === 0 ? "no_results" : null),
+              ai_class: llmUsed ? "C" : "A",
+              model: llmUsed ? MODEL : null,
+              fallback_reason: hadError ? "route_failed" : null,
               tools_called: {
                 business_id: host.id,
                 business_slug: host.slug,
@@ -3051,6 +3052,7 @@ Deno.serve(async (req) => {
         if (hasForcedResults) {
           try {
             const gateway = createLovableAiGatewayProvider(LOVABLE_API_KEY);
+            llmUsed = true;
             const model = gateway(MODEL);
             const systemText = convo
               .filter((m) => m.role === "system")
@@ -3204,6 +3206,7 @@ Deno.serve(async (req) => {
           // Final round → stream via AI SDK
           try {
             const gateway = createLovableAiGatewayProvider(LOVABLE_API_KEY);
+            llmUsed = true;
             const model = gateway(MODEL);
             // IMPORTANT: pass system messages via the `system` option, not inside `messages`.
             // The AI SDK does not reliably forward system messages nested in `messages`,
