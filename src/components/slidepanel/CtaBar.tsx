@@ -317,8 +317,9 @@ export function CtaBar({
 
       {/* Barre info viewer (+ CTAs liquid glass si présents) : fond continu jusqu'au bas du panneau */}
       {infoSlot ? (
-        <div className="relative w-screen max-w-[100vw] -mx-4 md:mx-0 md:w-[72%] md:max-w-[460px] pointer-events-auto md:rounded-t-2xl bg-gradient-to-b from-black/25 to-black/60 backdrop-blur-[2px] border-t border-white/10 md:border md:border-b-0 pb-4 -mb-2 lg:-mb-2 after:content-[''] after:absolute after:inset-x-0 after:top-full after:h-[180px] after:bg-black/60 after:backdrop-blur-[2px] after:pointer-events-none md:after:border-x md:after:border-white/10">
+        <div className="relative w-screen max-w-[100vw] -mx-4 md:mx-0 md:w-[72%] md:max-w-[460px] pointer-events-auto md:rounded-t-2xl bg-gradient-to-b from-black/25 to-black/60 backdrop-blur-[2px] border-t border-white/10 md:border md:border-b-0 pb-2 -mb-2 lg:-mb-2 shadow-[0_180px_0_0_rgba(0,0,0,0.6)]">
           {infoSlot}
+
           {restCtas.length > 0 && (
             <div className={`w-full px-3 md:px-4 ${restCtas.length === 4 ? 'grid grid-cols-2 gap-2' : 'flex justify-center gap-2'}`}>
               {restCtas.map((item, i) => (
