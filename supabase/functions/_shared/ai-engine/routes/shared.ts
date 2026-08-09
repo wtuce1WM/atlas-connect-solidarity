@@ -113,6 +113,6 @@ export const FS_I18N: Record<string, { en: string; ar: string }> = {
   "Transport": { en: "Transport", ar: "النقل" },
   "Informatique": { en: "IT", ar: "المعلوماتية" },
   "Immobilier": { en: "Real estate", ar: "العقارات" },
-
   "Santé": { en: "Health", ar: "الصحة" },
   "Auto / Moto": { en: "Auto / Moto", ar: "السيارات" },
+};
