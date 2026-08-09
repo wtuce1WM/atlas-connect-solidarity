@@ -3632,7 +3632,10 @@ const BookOnlineSlidePanelInner = ({
           }
         }
         const poiSubcatList: [string, number][] = Array.from(poiSubcatCounts.entries())
+          .filter(([, c]) => c > 0)
           .sort((a, b) => a[0].localeCompare(b[0]));
+        // Le filtre POI retenu est ignoré s'il n'a plus d'entrée dans le rayon actif
+        const poiSubcatFilterEff = poiSubcatFilter && poiSubcatCounts.has(poiSubcatFilter) ? poiSubcatFilter : null;
 
         // Pill Catégories : niveau 2 = sous-catégories (par défaut) de la catégorie choisie
         const catSubcatList: [string, number][] = activeFrontTab
@@ -3648,7 +3651,7 @@ const BookOnlineSlidePanelInner = ({
 
         const afterSubcat = (() => {
           let list = afterCat;
-          if (poiSubcatFilter) list = list.filter((p) => subcatsOf(p).includes(poiSubcatFilter));
+          if (poiSubcatFilterEff) list = list.filter((p) => subcatsOf(p).includes(poiSubcatFilterEff));
           if (catSubcatFilter) list = list.filter((p) => subcatsOf(p).includes(catSubcatFilter));
           return list;
         })();
@@ -3656,8 +3659,8 @@ const BookOnlineSlidePanelInner = ({
         const afterProx = afterSubcat.filter(inRadius);
         const total = afterProx.length;
         const displayedPoi = (poiShowAll || total <= TOP_LIMIT) ? afterProx : afterProx.slice(0, TOP_LIMIT);
-        // Le toggle reste visible dès que le vivier dépasse 20, indépendamment des filtres actifs
-        const showAllToggle = poiMapMode === "poi" && (afterSubcat.length > TOP_LIMIT || poiShowAll);
+        // Pas de bascule Top 20 / Tous si le résultat courant tient sous la limite
+        const showAllToggle = poiMapMode === "poi" && total > TOP_LIMIT;
         const showCatPill = poiMapMode === "poi" && catPillTabs.length >= 2;
         const showSubcatPill = poiMapMode === "poi" && poiSubcatList.length >= 2;
         const showProxPill = poiMapMode === "poi";
@@ -3777,14 +3780,14 @@ const BookOnlineSlidePanelInner = ({
                       <DropdownMenuTrigger asChild>
                         <button
                           type="button"
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilterEff ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                         >
                           <MapPin className="h-3.5 w-3.5" />
-                          {poiSubcatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
+                          {poiSubcatFilterEff ? translateSubcategory(poiSubcatFilterEff, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="z-[260] max-h-[70vh] min-w-[15rem] overflow-y-auto">
-                        {poiSubcatFilter && (
+                        {poiSubcatFilterEff && (
                           <DropdownMenuItem onSelect={() => { resetWidgetMapView(); setPoiSubcatFilter(null); }}>
                             {language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
                           </DropdownMenuItem>
@@ -3800,10 +3803,10 @@ const BookOnlineSlidePanelInner = ({
                     <button
                       type="button"
                       onClick={() => setPoiPillOverlay("poi")}
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilter ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${poiSubcatFilterEff ? "bg-[#F1F1F1] text-black" : "text-white/80 hover:text-white"}`}
                     >
                       <MapPin className="h-3.5 w-3.5" />
-                      {poiSubcatFilter ? translateSubcategory(poiSubcatFilter, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
+                      {poiSubcatFilterEff ? translateSubcategory(poiSubcatFilterEff, language) : (language === "en" ? "Points of interest" : language === "ar" ? "نقاط الاهتمام" : "Points d'intérêt")}
                     </button>
 
                   )}
@@ -3895,7 +3898,7 @@ const BookOnlineSlidePanelInner = ({
                   label: translateSubcategory(name, language),
                   count,
                 }))}
-                selectedKey={poiSubcatFilter}
+                selectedKey={poiSubcatFilterEff}
                 allLabel={language === "en" ? "All" : language === "ar" ? "الكل" : "Tous"}
                 onSelectAll={() => { resetWidgetMapView(); setPoiSubcatFilter(null); setPoiPillOverlay(null); }}
                 onSelect={(key) => { resetWidgetMapView(); setPoiCatFilter(null); setCatSubcatFilter(null); setPoiSubcatFilter(key); setPoiShowAll(false); setPoiPillOverlay(null); }}
