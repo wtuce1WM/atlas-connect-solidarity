@@ -317,7 +317,7 @@ export function CtaBar({
 
       {/* Barre info viewer (+ CTAs liquid glass si présents) : fond continu jusqu'au bas du panneau */}
       {infoSlot ? (
-        <div className="relative w-screen max-w-[100vw] -mx-4 md:mx-0 md:w-[72%] md:max-w-[460px] pointer-events-auto md:rounded-t-2xl bg-gradient-to-b from-black/25 to-black/60 backdrop-blur-[2px] border-t border-white/10 md:border md:border-b-0 pb-2 -mb-2 lg:-mb-2 shadow-[0_180px_0_0_rgba(0,0,0,0.6)]">
+        <div className={`relative w-screen max-w-[100vw] -mx-4 md:mx-0 md:w-[72%] md:max-w-[460px] pointer-events-auto md:rounded-t-2xl bg-gradient-to-b from-black/25 to-black/60 backdrop-blur-[2px] border-t border-white/10 md:border md:border-b-0 ${showSearchBar ? 'pb-[calc(104px+env(safe-area-inset-bottom))] -mb-[calc(104px+env(safe-area-inset-bottom))] md:pb-[103px] md:-mb-[103px]' : 'pb-[40px] -mb-[40px]'}`}>
           {infoSlot}
 
           {restCtas.length > 0 && (
