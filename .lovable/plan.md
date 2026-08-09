@@ -1,118 +1,71 @@
-Plan : finaliser la matrice IA (club / embed / search)
+# Matrice IA — Plan de mise en œuvre
 
-## État de départ
+Objectif : unifier le moteur conversationnel des 3 surfaces IA (Club `/club`, Embed `/embed/ask`, Search IA `/search`) autour de la matrice A/B/C déjà formalisée, avec gestion centralisée des suggestions et relances en back-office.
 
-Les 3 surfaces IA existent mais ne sont pas sur un moteur unique :
+## Phase 1 — Données et back-office (cette itération)
 
-| Surface | Backend | Moteur A/B/C | Suggestions curées | Taxonomie | Transport |
-|---|---|---|---|---|---|
-| /club | club-ai-chat | partiel (classifier rescue) | club_ai_suggestions + club_ai_followups | oui | custom SSE |
-| /embed/ask | embed-ai-chat | partiel (classifier route) | embed_ai_suggestions + embed_ai_followups | oui | AI SDK useChat |
-| /search IA | ai-search-answer | non | aucune table dédiée | non | functions.invoke non-streaming |
+1. Créer `search_ai_suggestions` et `search_ai_followups`
+   - Mêmes champs que `club_ai_suggestions` / `club_ai_followups` : `label_fr/en/ar`, `sort_order`, `is_active`, `mode`, `category`, `city`, `subcategory_ids`, `badge_ids`, `business_ids`, `destination_ids`, `blog_post_ids`, `followups`, `disabled_followup_ids`, `fixed_response_fr/en/ar`, `prompt_fr/en/ar`.
+   - `surface` = `'search'` par défaut pour permettre un éventuel réusage cross-surface plus tard.
 
-Le moteur A/B/C (`_shared/ai-engine/router.ts`, `respond.ts`, `routes/*.ts`) est prêt mais importé par aucune fonction live. `surfaces.ts` définit déjà `search` mais il est inutilisé.
+2. Ajouter les colonnes de taxonomie manquantes aux relances existantes
+   - `club_ai_followups` : `category`, `city`, `subcategory_ids`, `badge_ids`.
+   - `embed_ai_followups` : `category`, `city`, `subcategory_ids`, `badge_ids`.
+   - Ces champs permettent au classifieur B de filtrer les relances affichées selon le contexte de la conversation.
 
-## Direction
+3. RLS & GRANT
+   - Tables staff-only via `public.is_staff(auth.uid())`.
+   - GRANT `SELECT/INSERT/UPDATE/DELETE` à `authenticated` + `ALL` à `service_role`.
 
-1. Uniformiser d'abord les données et le backoffice.
-2. Brancher le moteur sur la surface la plus simple : Search IA.
-3. Migrer progressivement Embed et Club vers le moteur, route par route, sans casser les flux actuels.
+4. Back-office `StaffIA.tsx`
+   - Transformer l'onglet actuel `club-ai-suggestions` en `ai-suggestions`.
+   - Sous-onglets : `Search`, `Club`, `Embed`, `Relances Club`, `Relances Embed`, `Prompt follow-ups`.
+   - Créer `SearchAiSuggestionsManagement.tsx` et `SearchAiFollowupsManagement.tsx` calqués sur les managers Club/Embed existants.
 
-Les 3 livrables sont indépendants : on peut s'arrêter après chaque validation.
+## Phase 2 — Intégration du moteur unifié sur Search IA (priority)
 
-## Livrable 1 : données + backoffice
+1. Auditer `ai-search-answer` edge function
+   - Identifier les routes `COMPLEX_RE` et la logique `ai_config` qui divergent du moteur A/B/C.
+   - Conserver les outils métier existants (search, ranking, etc.) mais les appeler via `router.ts`.
 
-### Schéma
-- Créer `search_ai_suggestions` et `search_ai_followups` en miroir de `club_ai_suggestions` / `club_ai_followups` avec colonnes de taxonomie :
-  - `category`, `city`, `badge_ids`, `subcategory_ids`, `destination_ids`, `business_ids`, `blog_post_ids`
-  - `fixed_response_fr/en/ar` pour les réponses de classe A sans appel LLM
-  - `mode`, `radius_km`, `enabled`, `order_index`
-- Ajouter les colonnes de taxonomie manquantes à `club_ai_followups` et `embed_ai_followups` (aujourd'hui ils n'ont que `label`, `mode`, `radius_km`).
-- Migration de données : copier les suggestions existantes avec `category` hérité de `club_ai_suggestions.category` quand elle est renseignée ; `embed_ai_followups` restent génériques tant qu'ils n'ont pas été re-tagués.
+2. Câbler `router.ts` pour la surface `search`
+   - Ajouter la surface `search` dans `_shared/ai-engine/surfaces.ts` (déjà présente mais inactive).
+   - Mapper les suggestions `search_ai_suggestions` : si l'utilisateur clique une suggestion, exécuter la route associée en Class A.
+   - Si input libre, passer par le classifieur B (`classify.ts`) puis route déterministe ou Class C.
 
-### Backoffice
-- Dans `StaffIA.tsx`, ajouter un onglet "Search" à côté de "Club" et "Embed" avec :
-  - `SearchAiSuggestionsManagement` (CRUD + filtres catégorie/ville)
-  - `SearchAiFollowupsManagement` (CRUD + filtres catégorie/ville)
-- Étendre `ClubAiFollowupsManagement` et `EmbedAiFollowupsManagement` pour éditer les champs de taxonomie.
-- Ajouter un sélecteur de catégorie/badge/sous-catégorie/destination dans les formulaires de suggestion et de relance pour les 3 surfaces.
+3. Instrumentation
+   - Logguer chaque turn dans `ai_conversation_turns` avec `surface='search'`, `ai_class`, `route_taken`, `classifier_confidence`.
 
-### Validation
-- Les 3 tables de suggestions ont la même structure taxonomique.
-- Les 3 tables de followups ont la même structure taxonomique.
-- Le backoffice permet de gérer Search et de taguer les relances par catégorie.
+4. Suggestions dans l'UI Search IA
+   - Remplacer les 4 suggestions codées en dur de l'onglet IA par celles de `search_ai_suggestions` (actives + matching `category`/`city` si applicable).
 
-## Livrable 2 : moteur A/B/C sur Search IA
+## Phase 3 — Harmonisation Club et Embed (itération suivante)
 
-### Refactor de `ai-search-answer`
-- Remplacer la logique `ai_config.model` / `pro_model` et `COMPLEX_RE` par le moteur :
-  - `EngineRequest.surface = "search"`
-  - `curatedRoute` = code de la suggestion cliquée (classe A, zéro token)
-  - sinon appel à `route()` puis `routes/*.ts` ou `generate()` classe C
-- Supprimer le double mécanisme de sélection de modèle : un seul modèle (`AI_MODEL` via `surfaces.ts`), le levier de coût est la classe A/B/C.
-- Conserver le rendu Markdown actuel de `AISuggestionCard` ; le résultat du moteur reste du texte.
+1. Migrer `club-ai-chat` vers `router.ts`
+   - Conserver le système de rescue/classifieur actuel comme fallback temporaire.
+   - Faire remonter les suggestions `club_ai_suggestions` dans le classifieur B.
 
-### Routes utiles pour Search
-- `discover` → recherche d'établissements (reprendre la logique existante, refactorée dans `routes/discover.ts` si absente, ou utiliser `routes/nearby.ts` avec scope national)
-- `weather` → météo de la ville active
-- `opening` → horaires
-- `business_qa` → réponse sur un établissement précis
-- `events` → événements
-- `out_of_scope` / `smalltalk` → classe C avec contexte minimal
+2. Migrer `embed-ai-chat` vers `router.ts`
+   - Même principe : suggestions `embed_ai_suggestions` en Class A, input libre via classifieur B.
 
-### Logging
-- Insérer un tour dans `ai_conversation_turns` avec `surface: "search"`, `ai_class`, `route`, `confidence`, `fallback_reason`, `tokens`, `model`, `results_count`.
-- Permettre au dashboard `AiConversationPerf` de filtrer par surface.
+3. Relances unifiées
+   - `*_ai_followups` filtrées par `category`, `city`, `subcategory_ids`, `badge_ids` selon le contexte courant.
+   - Éviter les doublons de relances entre les 3 surfaces.
 
-### Suggestions UI
-- Dans `SearchPage.tsx`, remplacer l'affichage actuel (aucune puce) par les `search_ai_suggestions` filtrées par ville active et catégorie de recherche.
-- Afficher les followups cliquables sous la réponse, filtrés par route/catégorie résolue.
+4. Tests et métriques
+   - Comparer les taux de `route_taken` legacy vs unifié sur 30 jours.
+   - Vérifier que les suggestions de Search/Club/Embed restent distinctes et contextuelles.
 
-### Validation
-- Une suggestion cliquée en Search ne déclenche aucun appel LLM (classe A).
-- Une requête libre passe par le classifier, puis route déterministe ou classe C.
-- Les logs Search apparaissent dans `AiConversationPerf`.
+## Livrables de cette itération
 
-## Livrable 3 : harmonisation Embed et Club
+- Migration SQL Phase 1 (tables + colonnes + RLS).
+- `src/components/staff/SearchAiSuggestionsManagement.tsx`.
+- `src/components/staff/SearchAiFollowupsManagement.tsx`.
+- `src/pages/StaffIA.tsx` restructuré avec onglet Search.
+- Mise à jour des types Supabase générés.
 
-### Stratégie
-Ne pas remplacer toutes les routes d'un coup. Migrer les routes déterministes les plus simples d'abord, puis les complexes.
+## Non-objectifs
 
-### Ordre de migration
-1. **weather** → `routes/weather.ts` existe déjà
-2. **opening** → `routes/opening.ts` existe déjà
-3. **events** → `routes/events.ts` existe déjà
-4. **discover** → utiliser `routes/nearby.ts` avec `scope: "national"` pour Club, `scope: "host_business"` pour Embed
-5. **booking** → adapter `routes/booking.ts` aux deux surfaces
-6. **business_qa** / **reviews** / **compare** / **itinerary** → dernière phase
-
-### Adaptations nécessaires
-- `club-ai-chat` et `embed-ai-chat` doivent pouvoir appeler `router.ts` et interpréter le `RouteResult` tout en conservant leurs formats de réponse (SEARCH_RESULTS, MAP_FOCUS, etc.) pour le client.
-- Déplacer les logiques actuelles `deterministicRoute` et `inferEmbedRoute` dans les fichiers `routes/*.ts` correspondants, ou les fusionner.
-- Conserver le transport actuel de chaque surface (custom SSE pour Club, AI SDK pour Embed) : le moteur change le contenu, pas le protocole.
-
-### Suggestions/follow-ups
-- Faire consommer à Club et Embed les mêmes champs de taxonomie (catégorie, badges, sous-catégories, villes) pour le filtrage client.
-- Les relances peuvent désormais imposer un `curatedRoute` (classe A) au lieu de juste un `mode`.
-
-### Validation
-- Club et Embed continuent de fonctionner avec les routes non migrées.
-- Les routes migrées (weather, opening, events) passent par le moteur et loguent correctement.
-- Aucune régression sur les Class A curated responses existantes.
-
-## Points techniques
-
-- Pas de changement de modèle : `AI_MODEL = "openai/gpt-5.6-sol"` reste le seul modèle.
-- Pas de changement de schéma de `ai_conversation_turns` ; on remplit les champs déjà existants (`surface`, `ai_class`, `route`, `confidence`, etc.).
-- Les tables de suggestions/followups sont gérées par RLS + GRANT comme les autres tables `public`.
-- Le moteur continue de fonctionner si une table `ai_routes` est vide : `router.ts` retombe en classe C sur `discover`.
-
-## Estimation
-
-| Livrable | Lignes de code | Fichiers principaux | Complexité |
-|---|---|---|---|
-| 1 - données + backoffice | ~400 | migrations, `StaffIA.tsx`, managers | moyenne |
-| 2 - moteur Search | ~300 | `ai-search-answer/index.ts`, `SearchPage.tsx`, `routes/*` | moyenne-haute |
-| 3 - harmonisation Embed/Club | ~600 | `club-ai-chat/index.ts`, `embed-ai-chat/index.ts`, `routes/*` | haute |
-
-On commence par le livrable 1 ?
+- Ne pas toucher aux modèles de données de `ai_conversation_turns` ni `ai_routes` (déjà suffisants).
+- Ne pas réécrire les outils de recherche eux-mêmes, seulement leur orchestration.
+- Ne pas migrer Club/Embed dans cette itération.
