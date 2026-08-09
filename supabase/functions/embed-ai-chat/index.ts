@@ -1503,6 +1503,28 @@ Deno.serve(async (req) => {
           return "";
         })();
 
+        // ── Classifieur B (spec §2) ────────────────────────────────────────
+        // Le routage déterministe (classe A) renvoie "discover" comme fourre-tout :
+        // tout message qu'aucun détecteur ne reconnaît y tombe. On lance alors le
+        // classifieur B EN PARALLÈLE du tour (aucune latence ajoutée sur la
+        // réponse) et on l'exploite au moment du log pour distinguer
+        // search / business_qa / compare / itinerary / other.
+        const deterministicRoute = inferEmbedRoute(userMessage);
+        const classifierPromise = deterministicRoute === "discover" && userMessage.trim()
+          ? classify(
+              {
+                message: userMessage,
+                surface: "embed",
+                focus: {
+                  active_city: host.city || null,
+                  last_business_names: inMessages.length > 1 ? [host.name] : undefined,
+                } as any,
+              },
+              LOVABLE_API_KEY,
+            ).catch(() => null)
+          : Promise.resolve(null);
+
+
         const rememberSearchResult = (fname: string, fargs: any, result: any) => {
           const resCount = Array.isArray(result?.results)
             ? result.results.length
