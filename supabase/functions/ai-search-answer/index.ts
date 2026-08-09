@@ -224,8 +224,8 @@ serve(async (req) => {
     const persona = cfg.persona || "Tu es un concierge expert du Maroc, chaleureux et passionné. Tu aides les utilisateurs à trouver les meilleurs établissements.";
     const tone = cfg.tone || "Sois naturel et enthousiaste, comme un ami local passionné qui partage ses meilleures adresses.";
     const responseLength = cfg.response_length || "5-8";
-    const baseModel = cfg.model || "google/gemini-3-flash-preview";
-    const proModel = cfg.pro_model || "google/gemini-3-pro-preview";
+    const baseModel = cfg.model || "openai/gpt-5.6-sol";
+    const proModel = cfg.pro_model || "openai/gpt-5.6-sol";
 
     // --- Hybrid model routing ---
     // Promote to Pro on complex / open-ended requests where reasoning quality
