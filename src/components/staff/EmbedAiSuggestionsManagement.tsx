@@ -6,6 +6,8 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { Trash2, Plus, Save, Code2, Loader2, ChevronDown, ChevronRight, CornerDownRight } from "lucide-react";
+import { Chip } from "./AiParamChip";
+
 
 type Followup = { label_fr: string; label_en: string | null; label_ar: string | null };
 
