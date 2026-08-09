@@ -1848,6 +1848,40 @@ const BookOnlineSlidePanelInner = ({
   const externalVideoInteractiveMode = cardsHidden && effectiveMedia?.kind === "video" && videoInfo?.type !== "file";
   const availabilityConfirmationShown = cardsHidden && (hotelSearchLoading || !!fallbackPanelData);
 
+  // Plein écran de la vidéo de fond :
+  // - fichier hébergé → lecteur natif (contrôles liquid glass iOS)
+  // - YouTube/Vimeo → overlay vidéo existant
+  const expandBackgroundVideo = useCallback(() => {
+    if (effectiveMedia?.kind !== "video") return;
+    if (videoInfo?.type === "file") {
+      const v = videoRef.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null;
+      if (!v) return;
+      v.controls = true;
+      if (typeof v.webkitEnterFullscreen === "function") {
+        const onEnd = () => { v.controls = false; v.removeEventListener("webkitendfullscreen", onEnd); };
+        v.addEventListener("webkitendfullscreen", onEnd);
+        v.webkitEnterFullscreen();
+        return;
+      }
+      if (typeof v.requestFullscreen === "function") {
+        const onFs = () => {
+          if (document.fullscreenElement) return;
+          v.controls = false;
+          document.removeEventListener("fullscreenchange", onFs);
+        };
+        document.addEventListener("fullscreenchange", onFs);
+        v.requestFullscreen().catch(() => { v.controls = false; });
+      }
+      return;
+    }
+    setActiveVideoOverlay({
+      url: effectiveMedia.url,
+      name: (effectiveMedia as any).name ?? null,
+      description: null,
+    });
+  }, [effectiveMedia, videoInfo?.type]);
+
+
   const goMedia = useCallback((dir: 1 | -1) => {
     if (totalMedia <= 1) return;
     if (cardsHidden && matterportPinnedInHiddenMode && matterportIndex >= 0) {
@@ -2130,8 +2164,22 @@ const BookOnlineSlidePanelInner = ({
           {effectiveMedia?.kind !== "video" && effectiveMedia?.kind !== "matterport" && (
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
           )}
+
+          {/* Desktop : bouton plein écran explicite sur la vidéo de fond */}
+          {effectiveMedia?.kind === "video" && !mediaBlockingOverlayOpen && (
+            <button
+              type="button"
+              onClick={expandBackgroundVideo}
+              className="hidden md:flex absolute bottom-4 right-4 z-30 h-10 w-10 items-center justify-center rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white hover:bg-white/25 transition-colors pointer-events-auto"
+              aria-label={language === "en" ? "Fullscreen" : "Plein écran"}
+              title={language === "en" ? "Fullscreen" : "Plein écran"}
+            >
+              <Expand className="h-4 w-4" />
+            </button>
+          )}
         </div>
       )}
+
 
 
 
@@ -2247,7 +2295,18 @@ const BookOnlineSlidePanelInner = ({
         onClick={(e) => {
           if (externalVideoInteractiveMode) return;
           if (e.target !== e.currentTarget) return;
+          // Mobile : tap au centre de la vidéo de fond → plein écran natif
+          if (effectiveMedia?.kind === "video" && window.matchMedia("(max-width: 767px)").matches) {
+            const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+            const x = (e.clientX - r.left) / r.width;
+            const y = (e.clientY - r.top) / r.height;
+            if (x > 0.3 && x < 0.7 && y > 0.3 && y < 0.7) {
+              expandBackgroundVideo();
+              return;
+            }
+          }
           if (cardsHidden) showCards(); else hideCards();
+
         }}
 
       >
