@@ -2329,6 +2329,14 @@ const BookOnlineSlidePanelInner = ({
         {/* Bottom carousel removed — all sections now accessible via description overlay grid */}
         </div>
 
+        {/* Badge social de la vidéo courante (logo plateforme + Follow @compte) */}
+        {cardsHidden && effectiveMedia?.kind === "video" && (
+          <VideoSocialBadge
+            social={getVideoSocial(videoDocs.find((d) => d.url === effectiveMedia?.url))}
+            animKey={`${currentMediaIndex}-${effectiveMedia?.url || ""}`}
+          />
+        )}
+
         {/* Availability result (cards hidden mode) */}
         <HotelAvailabilityResult
           business={business}
