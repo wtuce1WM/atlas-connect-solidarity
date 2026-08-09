@@ -176,9 +176,36 @@ const AiEngineTestBench = () => {
               Lancer la batterie
             </Button>
           </div>
+          <div className="flex flex-col sm:flex-row gap-3 items-end border-t pt-4">
+            <div className="flex-1 w-full space-y-1.5">
+              <Label htmlFor="test-custom">Phrase libre (test immédiat V1 + V2)</Label>
+              <Input
+                id="test-custom"
+                placeholder="ex: un bar avec vue sur la Koutoubia, pas un hotel"
+                value={custom}
+                onChange={(e) => setCustom(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && custom.trim() && slug.trim() && !busyId && !running) {
+                    runOne(`libre · ${new Date().toLocaleTimeString()}`, custom.trim());
+                  }
+                }}
+                disabled={running}
+              />
+            </div>
+            <Button
+              variant="secondary"
+              onClick={() => runOne(`libre · ${new Date().toLocaleTimeString()}`, custom.trim())}
+              disabled={running || !!busyId || !slug.trim() || !custom.trim()}
+              className="w-full sm:w-auto"
+            >
+              {busyId ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Play className="h-4 w-4 mr-2" />}
+              Tester cette phrase
+            </Button>
+          </div>
           <p className="text-xs text-muted-foreground">
             Plan de test : <code>docs/ai/plan-test-v1v2.md</code>
           </p>
+
         </CardContent>
       </Card>
 
