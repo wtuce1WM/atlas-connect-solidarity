@@ -22,7 +22,7 @@ type Route = {
 };
 
 const SURFACES = ["club", "embed", "search"] as const;
-const CLASSES = ["A", "B", "C"] as const;
+
 
 const classColor = (c: string) =>
   c === "A" ? "bg-emerald-100 text-emerald-800" : c === "B" ? "bg-amber-100 text-amber-800" : "bg-rose-100 text-rose-800";
@@ -57,7 +57,6 @@ const AiRoutesManagement = () => {
       .update({
         label: r.label,
         description: r.description,
-        default_class: r.default_class,
         enabled: r.enabled,
         surfaces: r.surfaces,
         confidence_threshold: r.confidence_threshold,
@@ -112,22 +111,13 @@ const AiRoutesManagement = () => {
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
-              <div>
-                <Label className="text-xs">Classe par défaut</Label>
-                <div className="flex gap-1 mt-1">
-                  {CLASSES.map((c) => (
-                    <Button
-                      key={c}
-                      type="button"
-                      size="sm"
-                      variant={r.default_class === c ? "default" : "outline"}
-                      onClick={() => patch(r.id, { default_class: c })}
-                    >
-                      {c}
-                    </Button>
-                  ))}
-                </div>
+            <div>
+              <Label className="text-xs">Classe par défaut</Label>
+              <div className="mt-1 flex items-center gap-2">
+                <Badge className={classColor(r.default_class)}>Classe {r.default_class}</Badge>
+                <span className="text-xs text-muted-foreground">Fixée dans le code (spec §2).</span>
               </div>
+            </div>
 
               <div>
                 <Label className="text-xs">Surfaces</Label>
