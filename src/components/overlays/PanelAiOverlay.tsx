@@ -384,7 +384,63 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
     } finally {
       setChatLoading(false);
     }
-  }, [chatInput, chatLoading, chatTurns, answer, businesses, language, city, ttsStop]);
+  }, [chatInput, chatLoading, chatTurns, answer, businesses, language, city, category, ttsStop]);
+
+  // --- Suggestions Search IA (back-office : search_ai_suggestions) ---
+  type SearchSuggestion = {
+    id: string;
+    label: string;
+    prompt: string | null;
+    fixed: string | null;
+    mode: string | null;
+    category: string | null;
+  };
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+
+  const MODE_TO_ROUTE: Record<string, string> = {
+    nearby: "nearby",
+    booking: "booking",
+    opening: "opening",
+    reviews: "reviews",
+    events: "events",
+    weather: "weather",
+    pricing: "pricing",
+    map: "map",
+    compare: "compare",
+    itinerary: "itinerary",
+    business: "business_qa",
+    discover: "discover",
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from("search_ai_suggestions")
+        .select("id, label_fr, label_en, label_ar, prompt_fr, prompt_en, prompt_ar, fixed_response_fr, fixed_response_en, fixed_response_ar, mode, category, city, sort_order")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      if (cancelled) return;
+      if (error) { console.warn("[PanelAiOverlay] suggestions load failed", error.message); return; }
+      const pick = (fr: string | null, en: string | null, ar: string | null) =>
+        (language === "en" ? en : language === "ar" ? ar : fr) || fr || en || ar || null;
+      const rows = (data || [])
+        .filter((r: any) => !r.city || !city || String(r.city).toLowerCase() === String(city).toLowerCase())
+        .map((r: any) => ({
+          id: r.id,
+          label: pick(r.label_fr, r.label_en, r.label_ar) || "",
+          prompt: pick(r.prompt_fr, r.prompt_en, r.prompt_ar),
+          fixed: pick(r.fixed_response_fr, r.fixed_response_en, r.fixed_response_ar),
+          mode: r.mode ?? null,
+          category: r.category ?? null,
+        }))
+        .filter((r: SearchSuggestion) => r.label);
+      setSuggestions(rows.slice(0, 8));
+    })();
+    return () => { cancelled = true; };
+  }, [open, language, city]);
+
 
   const handleSaveToClub = useCallback(async () => {
     if (!businesses.length) return;
