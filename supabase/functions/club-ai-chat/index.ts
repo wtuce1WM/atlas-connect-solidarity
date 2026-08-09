@@ -1124,13 +1124,18 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
             hasPanoramaProof(p, bizText(b)),
         );
       };
-      // Repère ponctuel : dans le rayon OU cité explicitement
+      // Repère ponctuel : « vue sur la Koutoubia » ≠ « à côté de la Koutoubia ».
+      // On exige la proximité ET une preuve de point de vue (rooftop / terrasse
+      // panoramique / vue dégagée), sauf si le texte cite explicitement la vue.
       const matchesPoints = (b: any) => {
         if (!viewPoints.length) return true;
+        const text = bizText(b);
+        const vantage = hasVantage({ services: b.services, badgeNames: badgesPre.get(b.id) || [] }, text);
         return viewPoints.every(
-          (p) => withinPointRadius(p, b.latitude, b.longitude) || p.tokens.test(bizText(b)),
+          (p) => hasPointViewProof(p, text) || (withinPointRadius(p, b.latitude, b.longitude) && vantage),
         );
       };
+
       const matchesLandmark = (b: any) => matchesPanoramas(b) && matchesPoints(b);
       const barConfirmed = (b: any) => {
         if (!requiresBar) return true;
