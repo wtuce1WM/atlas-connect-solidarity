@@ -371,12 +371,15 @@ export type Database = {
       ai_conversation_turns: {
         Row: {
           affiliate_id: string | null
+          ai_class: string | null
           chat_id: string | null
           city_active: string | null
           city_detected: string | null
+          classifier_confidence: number | null
           cost_usd: number | null
           created_at: string
           error_message: string | null
+          fallback_reason: string | null
           feedback_comment: string | null
           feedback_score: number | null
           had_error: boolean | null
@@ -387,10 +390,12 @@ export type Database = {
           latency_ms_synth: number | null
           latency_ms_total: number | null
           message_index: number | null
+          model: string | null
           results_count: number | null
           results_shown: number | null
           route_taken: string | null
           stream_completed: boolean | null
+          surface: string | null
           tokens_in: number | null
           tokens_out: number | null
           tools_called: Json | null
@@ -399,12 +404,15 @@ export type Database = {
         }
         Insert: {
           affiliate_id?: string | null
+          ai_class?: string | null
           chat_id?: string | null
           city_active?: string | null
           city_detected?: string | null
+          classifier_confidence?: number | null
           cost_usd?: number | null
           created_at?: string
           error_message?: string | null
+          fallback_reason?: string | null
           feedback_comment?: string | null
           feedback_score?: number | null
           had_error?: boolean | null
@@ -415,10 +423,12 @@ export type Database = {
           latency_ms_synth?: number | null
           latency_ms_total?: number | null
           message_index?: number | null
+          model?: string | null
           results_count?: number | null
           results_shown?: number | null
           route_taken?: string | null
           stream_completed?: boolean | null
+          surface?: string | null
           tokens_in?: number | null
           tokens_out?: number | null
           tools_called?: Json | null
@@ -427,12 +437,15 @@ export type Database = {
         }
         Update: {
           affiliate_id?: string | null
+          ai_class?: string | null
           chat_id?: string | null
           city_active?: string | null
           city_detected?: string | null
+          classifier_confidence?: number | null
           cost_usd?: number | null
           created_at?: string
           error_message?: string | null
+          fallback_reason?: string | null
           feedback_comment?: string | null
           feedback_score?: number | null
           had_error?: boolean | null
@@ -443,15 +456,62 @@ export type Database = {
           latency_ms_synth?: number | null
           latency_ms_total?: number | null
           message_index?: number | null
+          model?: string | null
           results_count?: number | null
           results_shown?: number | null
           route_taken?: string | null
           stream_completed?: boolean | null
+          surface?: string | null
           tokens_in?: number | null
           tokens_out?: number | null
           tools_called?: Json | null
           user_id?: string | null
           user_message?: string | null
+        }
+        Relationships: []
+      }
+      ai_routes: {
+        Row: {
+          code: string
+          confidence_threshold: number | null
+          created_at: string
+          default_class: string
+          description: string | null
+          editorial: Json
+          enabled: boolean
+          id: string
+          label: string
+          sort_order: number
+          surfaces: string[]
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          confidence_threshold?: number | null
+          created_at?: string
+          default_class: string
+          description?: string | null
+          editorial?: Json
+          enabled?: boolean
+          id?: string
+          label: string
+          sort_order?: number
+          surfaces?: string[]
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          confidence_threshold?: number | null
+          created_at?: string
+          default_class?: string
+          description?: string | null
+          editorial?: Json
+          enabled?: boolean
+          id?: string
+          label?: string
+          sort_order?: number
+          surfaces?: string[]
+          updated_at?: string
         }
         Relationships: []
       }
