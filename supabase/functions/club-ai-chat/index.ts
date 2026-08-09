@@ -1066,37 +1066,64 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         return false;
       };
 
-      // Landmark proof (Koutoubia, Jemaa el-Fna, Menara, Bab Agnaou, Kasbah…)
-      const LANDMARKS: Array<{ tokens: RegExp; label: string }> = [
-        { tokens: /\bkoutoubia|kutubiyya\b/, label: "koutoubia" },
-        { tokens: /\bjemaa\s*el[- ]?fna|jamaa\s*el[- ]?fna|djemaa|place\s+jemaa\b/, label: "jemaa el fna" },
-        { tokens: /\bmenara\b/, label: "menara" },
-        { tokens: /\bbab\s+agnaou\b/, label: "bab agnaou" },
+      // ---- « Vue sur X » : deux natures, deux stratégies (source partagée) ---
+      //  · PANORAMA (Atlas/montagne, mer, ville, désert) → filtre DUR sur les
+      //    services/badges existants (« Vue montagne », « Vue sur mer »…). Le
+      //    rayon n'a aucun sens ici (l'Atlas est à 50 km et pourtant visible).
+      //  · POINT (Koutoubia, Jemaa el-Fna, Ménara…) → rayon ≈1 km autour du
+      //    repère, la preuve textuelle ne servant qu'à confirmer.
+      const viewIntent = detectViewIntent(intentSource);
+      const viewPanoramas = viewIntent.panoramas;
+      const viewPoints = viewIntent.points;
+      const requiredLandmarks: Array<{ label: string }> = [
+        ...viewPanoramas.map((p) => ({ label: p.label })),
+        ...viewPoints.map((p) => ({ label: p.label })),
       ];
-      const requiredLandmarks = LANDMARKS.filter((l) => l.tokens.test(intentSource));
 
-      // Need descriptions to check landmark proof and bar wording
+      // Need descriptions (preuve textuelle) + badges (attributs panorama)
       let descPre = new Map<string, string>();
+      let badgesPre = new Map<string, string[]>();
       if ((requiredLandmarks.length || requiresBar) && allBusinesses.length) {
         const preIds = allBusinesses.map((b: any) => b.id).filter(Boolean);
-        const { data: preDesc } = await ctx.supabase
-          .from("businesses")
-          .select("id,description")
-          .in("id", preIds);
-        (preDesc || []).forEach((r: any) => descPre.set(r.id, norm(r.description || "")));
+        const [preDescRes, preBadgeRes] = await Promise.all([
+          ctx.supabase.from("businesses").select("id,description").in("id", preIds),
+          viewPanoramas.length
+            ? ctx.supabase
+                .from("business_badges")
+                .select("business_id, badges(name_fr)")
+                .in("business_id", preIds)
+            : Promise.resolve({ data: [] as any[] }),
+        ]);
+        (preDescRes.data || []).forEach((r: any) => descPre.set(r.id, norm(r.description || "")));
+        (preBadgeRes.data || []).forEach((r: any) => {
+          const nameFr = r?.badges?.name_fr;
+          if (!nameFr) return;
+          const arr = badgesPre.get(r.business_id) || [];
+          arr.push(nameFr);
+          badgesPre.set(r.business_id, arr);
+        });
       }
 
-      const matchesLandmark = (b: any) => {
-        if (!requiredLandmarks.length) return true;
-        const text = [
-          norm(b.name),
-          norm(b.hook_fr),
-          norm(b.hook_en),
-          norm(b.hook_ar),
-          descPre.get(b.id) || "",
-        ].join(" ");
-        return requiredLandmarks.every((l) => l.tokens.test(text));
+      const bizText = (b: any) =>
+        [norm(b.name), norm(b.hook_fr), norm(b.hook_en), norm(b.hook_ar), descPre.get(b.id) || ""].join(" ");
+
+      // Panorama : attribut en base (déterministe) OU preuve textuelle (secours)
+      const matchesPanoramas = (b: any) => {
+        if (!viewPanoramas.length) return true;
+        return viewPanoramas.every(
+          (p) =>
+            hasPanoramaAttribute(p, { services: b.services, badgeNames: badgesPre.get(b.id) || [] }) ||
+            hasPanoramaProof(p, bizText(b)),
+        );
       };
+      // Repère ponctuel : dans le rayon OU cité explicitement
+      const matchesPoints = (b: any) => {
+        if (!viewPoints.length) return true;
+        return viewPoints.every(
+          (p) => withinPointRadius(p, b.latitude, b.longitude) || p.tokens.test(bizText(b)),
+        );
+      };
+      const matchesLandmark = (b: any) => matchesPanoramas(b) && matchesPoints(b);
       const barConfirmed = (b: any) => {
         if (!requiresBar) return true;
         if (hasBar(b)) return true;
@@ -1105,11 +1132,9 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       };
 
       const hasStrictRequirements = excludeHotel || requiresBar || requiredLandmarks.length > 0;
-      // Les critères DURS (catégorie requise / exclusion explicite) éliminent.
-      // Le repère géographique (« vue sur la Koutoubia ») n'est PAS documenté de
-      // façon fiable en base : il sert à classer, pas à éliminer. S'il vide la
-      // liste alors que les critères durs, eux, matchent, on garde les résultats
-      // durs (repère en tête) au lieu de renvoyer 0.
+      // Critères DURS (catégorie requise / exclusion explicite) → éliminent.
+      // Vue : éliminatoire aussi (attribut base / rayon), mais si ça vide tout
+      // alors que les critères durs matchent, on assouplit au lieu de rendre 0.
       const hardFiltered = allBusinesses.filter((b: any) => {
         if (excludeHotel && isHotelLike(b)) return false;
         if (!barConfirmed(b)) return false;
@@ -1125,7 +1150,9 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       if (droppedCount > 0 || landmarkSoftened) {
         console.log("club-ai-chat → post-filter", JSON.stringify({
           intentSource: intentSource.slice(0, 120),
-          excludeHotel, requiresBar, landmarks: requiredLandmarks.map((l) => l.label),
+          excludeHotel, requiresBar,
+          panoramas: viewPanoramas.map((p) => p.slug),
+          points: viewPoints.map((p) => p.slug),
           before: allBusinesses.length, hard: hardFiltered.length, landmark: landmarkFiltered.length,
           landmarkSoftened, after: filtered.length,
         }));
