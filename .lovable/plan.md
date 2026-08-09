@@ -1,61 +1,118 @@
-## Diagnostic — cause racine
+Plan : finaliser la matrice IA (club / embed / search)
 
-Les 5 options sont bien envoyées par le client `StudioVideo.tsx` et parfois traduites en props par `video-scenario-generate/index.ts`, mais **la template Remotion `BusinessShowcase.tsx` ne connaît pas ces scènes**. Résultat : le serveur pose `showPopup`, `highlights`, `showGoogleReviews`, etc. dans `template_props`, mais Remotion les ignore silencieusement au rendu.
+## État de départ
 
-Détail par point :
+Les 3 surfaces IA existent mais ne sont pas sur un moteur unique :
 
-| Défaillance | Où ça casse |
-|---|---|
-| Média de fond « Ouverture logo » | `ALLOWED_KINDS` (edge fn L.476) exclut `"logo"` → `scene_media.logo` filtré côté serveur. `SceneLogo` (Remotion L.972) ne prend même pas de prop `background`. |
-| Découper le texte en X étapes | Client envoie `text_splits`. Serveur ne lit jamais cette clé. Aucun prop `splitCount` côté Remotion. |
-| Popup ignoré | Serveur pose `showPopup` + `popupImageUrl` mais aucune `SceneKind = "popup"` dans Remotion. |
-| Blocs highlights ignorés | Serveur pose `template_props.highlights` mais aucune scène côté Remotion. |
-| Avis Google / TripAdvisor / Témoignage client ignorés | Serveur pose `showGoogleReviews`, `showTripAdvisor`, `showCustomerReview` et leurs payloads, mais aucune scène dédiée dans Remotion (seule la scène `reviews` générique existe). |
+| Surface | Backend | Moteur A/B/C | Suggestions curées | Taxonomie | Transport |
+|---|---|---|---|---|---|
+| /club | club-ai-chat | partiel (classifier rescue) | club_ai_suggestions + club_ai_followups | oui | custom SSE |
+| /embed/ask | embed-ai-chat | partiel (classifier route) | embed_ai_suggestions + embed_ai_followups | oui | AI SDK useChat |
+| /search IA | ai-search-answer | non | aucune table dédiée | non | functions.invoke non-streaming |
 
-## Plan d'implémentation
+Le moteur A/B/C (`_shared/ai-engine/router.ts`, `respond.ts`, `routes/*.ts`) est prêt mais importé par aucune fonction live. `surfaces.ts` définit déjà `search` mais il est inutilisé.
 
-### 1. `remotion/src/BusinessShowcase.tsx` — ajouter les scènes manquantes
-- Étendre `SceneKind` avec : `popup`, `highlight`, `google_reviews`, `tripadvisor`, `restaurant_guru`, `customer_review`, `whatsapp`.
-- Ajouter les props correspondantes (`showPopup`, `popupImageUrl`, `highlights[]`, `googleReview`, `tripAdvisor`, `restaurantGuru`, `customerReview`, `showWhatsapp`, `whatsappNumber`).
-- Créer les composants scènes :
-  - `ScenePopup` : image popup plein cadre + overlay titre/texte.
-  - `SceneHighlight` : une scène par bloc (title, description, image_url, metric).
-  - `SceneGoogleReviews` / `SceneTripAdvisor` / `SceneRestaurantGuru` : logo plateforme + note + nombre d'avis.
-  - `SceneCustomerReview` : témoignage encadré (auteur, note, texte highlight).
-  - `SceneWhatsapp` : logo #25D366 + numéro cliquable animé.
-- Étendre `isSceneActive`, `defaultSceneFrames`, `DEFAULT_SCENE_ORDER` et `buildScenePlan` pour émettre une entrée par highlight (comme les offres multiples).
-- **Média de fond logo** : `SceneLogo` accepte un `background?: { url; kind }` optionnel tiré de `scene_media.logo?.[0]`.
-- **Découpage texte** : ajouter prop `splitCount` — la scène `media` (montage vidéos/images) découpe la description du hook / tagline en `splitCount` cartons synchronisés avec le nombre de clips.
+## Direction
 
-### 2. `supabase/functions/video-scenario-generate/index.ts` — brancher les options
-- Ajouter `"logo"` à `ALLOWED_KINDS` (L.476) pour laisser passer `scene_media.logo`.
-- Lire `options.text_splits` (entier 1–10) → `template_props.splitCount`.
-- Ajouter aux `ALLOWED_SCENE_KINDS` (L.551) : `popup`, `highlight`, `google_reviews`, `tripadvisor`, `restaurant_guru`, `customer_review`.
-- Auto-injection dans `scene_order` par défaut quand :
-  - `showPopup` → insérer `popup` après `logo`
-  - `highlights.length > 0` → insérer autant d'entrées `highlight` après `media`
-  - `showGoogleReviews` / `showTripAdvisor` / `showRestaurantGuru` / `showCustomerReview` → insérer avant `hours`
-  - `showWhatsapp` → insérer avant `cta`
-- Ne pas casser un `scene_order` explicite envoyé par le client (l'utilisateur peut ré-ordonner dans l'aperçu).
+1. Uniformiser d'abord les données et le backoffice.
+2. Brancher le moteur sur la surface la plus simple : Search IA.
+3. Migrer progressivement Embed et Club vers le moteur, route par route, sans casser les flux actuels.
 
-### 3. `src/pages/StudioVideo.tsx` + `StudioVideoScenarioPanel.tsx` — refléter dans l'aperçu
-- Injecter les nouvelles scènes dans la prévisualisation client (le tableau `scenes` construit avant `Prévisualiser le scénario`).
-- Ajouter les icônes/labels correspondants.
-- S'assurer que la signature de staleness inclut `optPopup`, `selectedHighlightIds`, `optGoogleReviews`, etc. (probablement déjà OK, à vérifier).
+Les 3 livrables sont indépendants : on peut s'arrêter après chaque validation.
 
-### 4. Vérification
-- Rendre un job avec toutes les options cochées sur Riad Dar Najat (popup + 2 highlights + Google + TripAdvisor + témoignage + logo transparent avec vidéo de fond + `text_splits=3`).
-- Contrôler dans `template_props` (via `video_jobs`) que tous les champs remontent.
-- Vérifier le rendu final MP4 : logo avec fond vidéo, popup, 2 scènes highlights, 3 scènes plateformes d'avis, témoignage.
+## Livrable 1 : données + backoffice
+
+### Schéma
+- Créer `search_ai_suggestions` et `search_ai_followups` en miroir de `club_ai_suggestions` / `club_ai_followups` avec colonnes de taxonomie :
+  - `category`, `city`, `badge_ids`, `subcategory_ids`, `destination_ids`, `business_ids`, `blog_post_ids`
+  - `fixed_response_fr/en/ar` pour les réponses de classe A sans appel LLM
+  - `mode`, `radius_km`, `enabled`, `order_index`
+- Ajouter les colonnes de taxonomie manquantes à `club_ai_followups` et `embed_ai_followups` (aujourd'hui ils n'ont que `label`, `mode`, `radius_km`).
+- Migration de données : copier les suggestions existantes avec `category` hérité de `club_ai_suggestions.category` quand elle est renseignée ; `embed_ai_followups` restent génériques tant qu'ils n'ont pas été re-tagués.
+
+### Backoffice
+- Dans `StaffIA.tsx`, ajouter un onglet "Search" à côté de "Club" et "Embed" avec :
+  - `SearchAiSuggestionsManagement` (CRUD + filtres catégorie/ville)
+  - `SearchAiFollowupsManagement` (CRUD + filtres catégorie/ville)
+- Étendre `ClubAiFollowupsManagement` et `EmbedAiFollowupsManagement` pour éditer les champs de taxonomie.
+- Ajouter un sélecteur de catégorie/badge/sous-catégorie/destination dans les formulaires de suggestion et de relance pour les 3 surfaces.
+
+### Validation
+- Les 3 tables de suggestions ont la même structure taxonomique.
+- Les 3 tables de followups ont la même structure taxonomique.
+- Le backoffice permet de gérer Search et de taguer les relances par catégorie.
+
+## Livrable 2 : moteur A/B/C sur Search IA
+
+### Refactor de `ai-search-answer`
+- Remplacer la logique `ai_config.model` / `pro_model` et `COMPLEX_RE` par le moteur :
+  - `EngineRequest.surface = "search"`
+  - `curatedRoute` = code de la suggestion cliquée (classe A, zéro token)
+  - sinon appel à `route()` puis `routes/*.ts` ou `generate()` classe C
+- Supprimer le double mécanisme de sélection de modèle : un seul modèle (`AI_MODEL` via `surfaces.ts`), le levier de coût est la classe A/B/C.
+- Conserver le rendu Markdown actuel de `AISuggestionCard` ; le résultat du moteur reste du texte.
+
+### Routes utiles pour Search
+- `discover` → recherche d'établissements (reprendre la logique existante, refactorée dans `routes/discover.ts` si absente, ou utiliser `routes/nearby.ts` avec scope national)
+- `weather` → météo de la ville active
+- `opening` → horaires
+- `business_qa` → réponse sur un établissement précis
+- `events` → événements
+- `out_of_scope` / `smalltalk` → classe C avec contexte minimal
+
+### Logging
+- Insérer un tour dans `ai_conversation_turns` avec `surface: "search"`, `ai_class`, `route`, `confidence`, `fallback_reason`, `tokens`, `model`, `results_count`.
+- Permettre au dashboard `AiConversationPerf` de filtrer par surface.
+
+### Suggestions UI
+- Dans `SearchPage.tsx`, remplacer l'affichage actuel (aucune puce) par les `search_ai_suggestions` filtrées par ville active et catégorie de recherche.
+- Afficher les followups cliquables sous la réponse, filtrés par route/catégorie résolue.
+
+### Validation
+- Une suggestion cliquée en Search ne déclenche aucun appel LLM (classe A).
+- Une requête libre passe par le classifier, puis route déterministe ou classe C.
+- Les logs Search apparaissent dans `AiConversationPerf`.
+
+## Livrable 3 : harmonisation Embed et Club
+
+### Stratégie
+Ne pas remplacer toutes les routes d'un coup. Migrer les routes déterministes les plus simples d'abord, puis les complexes.
+
+### Ordre de migration
+1. **weather** → `routes/weather.ts` existe déjà
+2. **opening** → `routes/opening.ts` existe déjà
+3. **events** → `routes/events.ts` existe déjà
+4. **discover** → utiliser `routes/nearby.ts` avec `scope: "national"` pour Club, `scope: "host_business"` pour Embed
+5. **booking** → adapter `routes/booking.ts` aux deux surfaces
+6. **business_qa** / **reviews** / **compare** / **itinerary** → dernière phase
+
+### Adaptations nécessaires
+- `club-ai-chat` et `embed-ai-chat` doivent pouvoir appeler `router.ts` et interpréter le `RouteResult` tout en conservant leurs formats de réponse (SEARCH_RESULTS, MAP_FOCUS, etc.) pour le client.
+- Déplacer les logiques actuelles `deterministicRoute` et `inferEmbedRoute` dans les fichiers `routes/*.ts` correspondants, ou les fusionner.
+- Conserver le transport actuel de chaque surface (custom SSE pour Club, AI SDK pour Embed) : le moteur change le contenu, pas le protocole.
+
+### Suggestions/follow-ups
+- Faire consommer à Club et Embed les mêmes champs de taxonomie (catégorie, badges, sous-catégories, villes) pour le filtrage client.
+- Les relances peuvent désormais imposer un `curatedRoute` (classe A) au lieu de juste un `mode`.
+
+### Validation
+- Club et Embed continuent de fonctionner avec les routes non migrées.
+- Les routes migrées (weather, opening, events) passent par le moteur et loguent correctement.
+- Aucune régression sur les Class A curated responses existantes.
 
 ## Points techniques
 
-- **Ordre par défaut proposé** : `logo → popup → hook → name → media → highlight×N → offer×N → reviews → google_reviews → tripadvisor → restaurant_guru → customer_review → hours → map → digital → whatsapp → cta → outro`.
-- **Durées par défaut** : `popup` = 120f, `highlight` = 140f, plateformes d'avis = 120f, `customer_review` = 180f, `whatsapp` = 120f.
-- **Découpage texte** : si `splitCount=N` et la scène `media` a M clips, on répartit le hook/description en N segments et on affiche 1 segment par tranche de `duration/N` frames, indépendamment du nombre de clips.
-- **Fallback logo background** : si `scene_media.logo[0]` est une vidéo → `<Video>` en fond avec overlay ; sinon image ; sinon fond de marque actuel.
-- Aucun changement de schéma DB.
+- Pas de changement de modèle : `AI_MODEL = "openai/gpt-5.6-sol"` reste le seul modèle.
+- Pas de changement de schéma de `ai_conversation_turns` ; on remplit les champs déjà existants (`surface`, `ai_class`, `route`, `confidence`, etc.).
+- Les tables de suggestions/followups sont gérées par RLS + GRANT comme les autres tables `public`.
+- Le moteur continue de fonctionner si une table `ai_routes` est vide : `router.ts` retombe en classe C sur `discover`.
 
-Ampleur estimée : ~600 lignes de code Remotion (nouvelles scènes), ~40 lignes serveur, ~80 lignes client. Pas de dépendance externe.
+## Estimation
 
-Je pars là-dessus ?
+| Livrable | Lignes de code | Fichiers principaux | Complexité |
+|---|---|---|---|
+| 1 - données + backoffice | ~400 | migrations, `StaffIA.tsx`, managers | moyenne |
+| 2 - moteur Search | ~300 | `ai-search-answer/index.ts`, `SearchPage.tsx`, `routes/*` | moyenne-haute |
+| 3 - harmonisation Embed/Club | ~600 | `club-ai-chat/index.ts`, `embed-ai-chat/index.ts`, `routes/*` | haute |
+
+On commence par le livrable 1 ?
