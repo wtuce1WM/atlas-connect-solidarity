@@ -2988,12 +2988,70 @@ serve(async (req) => {
           ? `${previousUserQuery} ${lastUserMsg}`.replace(/\s+/g, " ").slice(0, 400)
           : lastUserMsg;
 
-        const routerCtx = { userId: user.id, supabase: admin, lastUserMessage: fusedQuery, language: lang, forceQuery: fusedQuery };
-        const search = await runTool("search_businesses", { query: fusedQuery, limit: 30, city: activeCityClean || undefined }, routerCtx) as any;
+        // ── Autorité du classifieur B (phase 3) ──────────────────────────────
+        // Le classifieur n'est plus en simple observation : au-dessus du seuil de
+        // surface, ses champs (category / city / exclude) pilotent réellement les
+        // paramètres de la recherche déterministe. La requête texte d'origine est
+        // conservée (elle porte les nuances type « vue Koutoubia »).
+        let authCategory: string | undefined;
+        let authCity: string | undefined;
+        let authExcludes: string[] = [];
+        let classifierAuthority = false;
+        try {
+          const clfRes: any = clubClassifierPromise
+            ? await Promise.race([
+                clubClassifierPromise,
+                new Promise((res) => setTimeout(() => res(null), 3000)),
+              ])
+            : null;
+          const clf: any = clfRes?.output ?? clfRes ?? null;
+          const conf = Number(clf?.confidence ?? 0);
+          const threshold = getSurfaceConfig("club").confidenceThreshold;
+          const clfIntent = String(clf?.intent || "");
+          if (clf && conf >= threshold && (clfIntent === "search" || clfIntent === "compare")) {
+            classifierAuthority = true;
+            authCategory = String(clf.category || "").trim() || undefined;
+            authCity = String(clf.city || "").trim() || undefined;
+            authExcludes = Array.isArray(clf.exclude) ? clf.exclude.map((e: any) => String(e)).filter(Boolean) : [];
+            turnLog.ai_class = "B";
+            turnLog.route_taken = "search";
+            turnLog.classifier_confidence = conf;
+            if (authCity) turnLog.city_detected = authCity;
+          }
+          console.log("club classifier authority:", JSON.stringify({ conf, threshold, clfIntent, authCategory, authCity, authExcludes, applied: classifierAuthority }));
+        } catch (e) {
+          console.warn("club classifier authority failed", e);
+        }
 
-        const results: any[] = Array.isArray(search?.results) ? search.results : [];
-        const totalCount = Number(search?.total_count) || results.length;
-        console.log("router direct search:", JSON.stringify({ intent: routedIntent, fusedQuery: fusedQuery.slice(0, 120), returned: results.length, total: totalCount, strict: !!search?.strict_filter_applied }));
+        const searchCity = authCity || activeCityClean || undefined;
+        const routerCtx = { userId: user.id, supabase: admin, lastUserMessage: fusedQuery, language: lang, forceQuery: fusedQuery };
+        const search = await runTool(
+          "search_businesses",
+          { query: fusedQuery, limit: 30, city: searchCity, ...(authCategory ? { category: authCategory } : {}) },
+          routerCtx,
+        ) as any;
+
+        let results: any[] = Array.isArray(search?.results) ? search.results : [];
+        // Exclusions explicites du classifieur (« pas un hôtel »).
+        if (authExcludes.length) {
+          const normEx = (s: any) => String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+          const excludeTokens = authExcludes.flatMap((e) => {
+            const n = normEx(e);
+            return n.startsWith("hotel") ? ["hotel", "riad", "maison d hotes", "guest house"] : [n];
+          });
+          const before = results.length;
+          const filtered = results.filter((r: any) => {
+            const hay = normEx([r.main_category, ...(Array.isArray(r.categories) ? r.categories : []), r.name].join(" | "));
+            return !excludeTokens.some((t) => t && hay.includes(t));
+          });
+          // On n'applique le filtre que s'il laisse au moins un résultat.
+          if (filtered.length >= 1) results = filtered;
+          console.log("club authority excludes:", JSON.stringify({ excludeTokens, before, kept: results.length }));
+        }
+        const totalCount = results.length < (Number(search?.total_count) || 0) && authExcludes.length
+          ? results.length
+          : (Number(search?.total_count) || results.length);
+        console.log("router direct search:", JSON.stringify({ intent: routedIntent, authority: classifierAuthority, fusedQuery: fusedQuery.slice(0, 120), returned: results.length, total: totalCount, strict: !!search?.strict_filter_applied }));
 
         if (results.length >= 1) {
           const top = results.slice(0, 5);
