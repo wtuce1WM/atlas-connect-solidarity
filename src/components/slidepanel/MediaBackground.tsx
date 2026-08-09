@@ -51,7 +51,10 @@ const MediaBackground = React.memo(function MediaBackground({
         if (!v.paused) return;
         v.dataset.owmAutoMute = "1";
         v.muted = true;
-        v.play().catch(() => {}).finally(() => { delete v.dataset.owmAutoMute; });
+        v.play().catch(() => {});
+        // volumechange est asynchrone : on garde le drapeau assez longtemps
+        // pour que les listeners ne prennent pas ce mute automatique pour un choix utilisateur.
+        window.setTimeout(() => { delete v.dataset.owmAutoMute; }, 800);
       });
     }
 
