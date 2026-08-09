@@ -1659,14 +1659,16 @@ const SearchPage = () => {
           setSwipeOffsetY(0);
           return;
         }
+        // Once the gesture has started in the panel header, it belongs to the
+        // panel. In particular, do not let iOS scroll the results page below.
+        e.preventDefault();
         const dy = e.touches[0].clientY - swipeStartYRef.current;
         setSwipeOffsetY(dy);
       }, []);
 
       // Navigate to the prev/next item in the result list (dir = -1 or 1).
-      // The augmented sequence interleaves an injected hashtag video at every
-      // virtual position 3, 7, 11, … (0-indexed) → i.e. after every 3 businesses.
-      // Sequence: B B B V B B B V B B B V …
+      // Swipe navigation is deliberately business-only. Injected hashtag
+      // videos belong to the results feed, not between two business panels.
       const filteredBusinessesRef = useRef<Business[]>([]);
       const injectedVideos = useHashtagInjectedVideos(selectedCity);
       const injectedVideosRef = useRef<InjectedHashtagVideo[]>([]);
@@ -1695,38 +1697,17 @@ const SearchPage = () => {
 
       const goToBusinessOffset = useCallback((dir: number) => {
         const list = filteredBusinessesRef.current;
-        const videos = injectedVideosRef.current;
         if (!list.length) return;
-        const total = augmentedLength(list.length, videos.length);
-        // Resolve current virtual position if unknown (e.g. opened from grid).
-        let curPos = virtualPos;
-        if (curPos == null) {
-          const currentId = compactPanelBusiness?.id;
-          const idx = currentId ? list.findIndex(b => b.id === currentId) : -1;
-          if (idx === -1) return;
-          curPos = businessIdxToPos(idx);
-        }
-        const nextPos = curPos + dir;
-        if (nextPos < 0 || nextPos >= total) return;
-        const slot = posToSlot(nextPos, list.length, videos.length);
-        if (!slot) return;
-        if (slot.kind === "video") {
-          const v = videos[slot.idx];
-          setCurrentInjectedVideo(v);
-          setVirtualPos(nextPos);
-          // Anchor compactPanelBusiness on the video's parent business so
-          // existing rendering / URL logic stays consistent. Fallback: keep
-          // the prior business id as a sentinel.
-          if (v.pageBusinessId) {
-            setCompactPanelBusiness({ id: v.pageBusinessId, name: v.pageBusinessName || "" } as any);
-          }
-        } else {
-          const next = list[slot.idx];
-          setCurrentInjectedVideo(null);
-          setVirtualPos(nextPos);
-          openCompactPanel({ id: next.id, name: next.name || "" } as any);
-        }
-      }, [virtualPos, compactPanelBusiness?.id, openCompactPanel, posToSlot, businessIdxToPos, augmentedLength]);
+        const currentId = compactPanelBusiness?.id;
+        const currentIndex = currentId ? list.findIndex(b => b.id === currentId) : -1;
+        if (currentIndex === -1) return;
+        const nextIndex = currentIndex + dir;
+        if (nextIndex < 0 || nextIndex >= list.length) return;
+        const next = list[nextIndex];
+        setCurrentInjectedVideo(null);
+        setVirtualPos(businessIdxToPos(nextIndex));
+        openCompactPanel({ id: next.id, name: next.name || "" } as any);
+      }, [compactPanelBusiness?.id, openCompactPanel, businessIdxToPos]);
 
       // When the panel opens via direct grid click (no injected video active),
       // sync virtualPos from the business id. We do nothing while an injected
@@ -1746,20 +1727,13 @@ const SearchPage = () => {
       const [navTick, setNavTick] = useState(0);
       const businessNavInfo = useMemo(() => {
         const list = filteredBusinessesRef.current;
-        const videos = injectedVideosRef.current;
-        const total = augmentedLength(list.length, videos.length);
-        let pos = virtualPos;
-        if (pos == null) {
-          const currentId = compactPanelBusiness?.id;
-          const idx = currentId ? list.findIndex(b => b.id === currentId) : -1;
-          if (idx === -1) return { hasPrev: false, hasNext: false };
-          pos = businessIdxToPos(idx);
-        }
+        const currentId = compactPanelBusiness?.id;
+        const pos = currentId ? list.findIndex(b => b.id === currentId) : -1;
         return {
           hasPrev: pos > 0,
-          hasNext: pos >= 0 && pos < total - 1,
+          hasNext: pos >= 0 && pos < list.length - 1,
         };
-      }, [compactPanelBusiness?.id, virtualPos, navTick, augmentedLength, businessIdxToPos, injectedVideos.length]);
+      }, [compactPanelBusiness?.id, navTick]);
       const onPanelTouchEnd = useCallback(() => {
         if (!swipeActiveRef.current) return;
         const dy = swipeOffsetY;
@@ -1959,15 +1933,32 @@ const SearchPage = () => {
       setHotelSearchPanel(null);
     }, [searchQuery, urlT]);
 
-    // Hide page-level scrollbar when slide panel is open (all viewports)
+    // Lock the results page while the slide panel is open. Hiding only the
+    // scrollbar is insufficient on iOS: touch gestures can still scroll the
+    // document behind the fixed panel.
     useEffect(() => {
-      if (compactPanelBusiness) {
-        document.documentElement.classList.add('hide-scrollbar-panel-open');
-      } else {
+      if (!compactPanelBusiness) return;
+      const scrollY = window.scrollY;
+      const previous = {
+        overflow: document.body.style.overflow,
+        position: document.body.style.position,
+        top: document.body.style.top,
+        width: document.body.style.width,
+      };
+      document.documentElement.classList.add('hide-scrollbar-panel-open');
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      return () => {
         document.documentElement.classList.remove('hide-scrollbar-panel-open');
-      }
-      return () => { document.documentElement.classList.remove('hide-scrollbar-panel-open'); };
-    }, [compactPanelBusiness]);
+        document.body.style.overflow = previous.overflow;
+        document.body.style.position = previous.position;
+        document.body.style.top = previous.top;
+        document.body.style.width = previous.width;
+        window.scrollTo(0, scrollY);
+      };
+    }, [Boolean(compactPanelBusiness)]);
 
     // Note: BookOnlineSlidePanel is allowed to stay open over the AI tab so
     // clicking an AI thumbnail opens the business detail panel on top.
