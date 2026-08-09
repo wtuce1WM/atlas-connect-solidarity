@@ -1107,7 +1107,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         const preIds = allBusinesses.map((b: any) => b.id).filter(Boolean);
         const [preDescRes, preBadgeRes] = await Promise.all([
           ctx.supabase.from("businesses").select("id,description").in("id", preIds),
-          viewPanoramas.length
+          requiredLandmarks.length
             ? ctx.supabase
                 .from("business_badges")
                 .select("business_id, badges(name_fr)")
@@ -1169,7 +1169,7 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       const landmarkSoftened = requiredLandmarks.length > 0 && !landmarkFiltered.length && hardFiltered.length > 0;
       const filtered = landmarkSoftened
         ? hardFiltered
-        : (requiredLandmarks.length ? [...landmarkFiltered, ...hardFiltered.filter((b: any) => !matchesLandmark(b))] : hardFiltered);
+        : (requiredLandmarks.length ? landmarkFiltered : hardFiltered);
 
       const droppedCount = allBusinesses.length - filtered.length;
       if (droppedCount > 0 || landmarkSoftened) {
