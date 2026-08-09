@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { fetchAiGateway, resolveCallerContext } from "../_shared/ai-gateway.ts";
+import { fetchAiGateway, resolveCallerContext, normalizeGatewayBodyForModel } from "../_shared/ai-gateway.ts";
+import { AI_MODEL } from "../_shared/ai-engine/surfaces.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -10,8 +11,8 @@ const corsHeaders = {
 
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 // Modèle Flash pour latence/cout ; Pro en fallback si dégénérescence.
-const MODEL = "google/gemini-3.6-flash";
-const FALLBACK_MODEL = "google/gemini-3.6-flash";
+const MODEL = AI_MODEL;
+const FALLBACK_MODEL = AI_MODEL;
 const SEARCH_RESULT_LIMIT = 50;
 
 // ------------------------------------------------------------------
@@ -1505,7 +1506,7 @@ async function streamGatewayText(
   onFirstToken?: () => void,
   signal?: AbortSignal,
 ): Promise<{ text: string; ok: boolean; status: number }> {
-  const bodyObj = JSON.parse((init.body as string) || "{}");
+  const bodyObj = normalizeGatewayBodyForModel(JSON.parse((init.body as string) || "{}"));
   bodyObj.stream = true;
   const patched: RequestInit = { ...init, body: JSON.stringify(bodyObj), signal };
   const resp = await fetch(url, patched);
