@@ -364,20 +364,11 @@ Deno.serve(async (req) => {
 
         let results: any[] = [];
         let totalFound = 0;
-        if (out && confident && (out.intent === "search" || out.intent === "compare")) {
-          // Autorité du classifieur : la requête est construite à partir des champs
-          // structurés, jamais du message brut (une négation « pas un hôtel »
-          // polluait la récupération et vidait les résultats).
+
+        // Recherche déterministe partagée : appelée avec les champs structurés du
+        // classifieur, ou en secours avec le message brut quand il n'est pas confiant.
+        const runSearch = async (baseQuery: string, city: string, excluded: string[]) => {
           const views = detectViewIntent(userMessage);
-          const panoramaHints = views.panoramas.map((p) => p.attributeNames[0]);
-          const excluded = (out.exclude || []).map(normalize).filter(Boolean);
-          const excludesLodging = excluded.some((x) => /hotel|riad|hebergement|maison\s?d/.test(x));
-          // Un repère ponctuel (Koutoubia) se traite par rayon + preuve de point de
-          // vue, pas par mot-clé : n'injecter aucun indice « rooftop » ici.
-          const hintParts = views.points.length && !excludesLodging ? [] : panoramaHints;
-          const baseQuery = [out.category, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
-            || userMessage.slice(0, 200);
-          const city = out.city || host.city || "Marrakech";
           cityDetected = city;
           try {
             const r = await fetch(`${SUPABASE_URL}/functions/v1/business-search`, {
@@ -443,8 +434,39 @@ Deno.serve(async (req) => {
             fallbackReason = "route_failed";
           }
           resultsCount = results.length;
-          if (!results.length) fallbackReason = fallbackReason || "no_results";
+        };
+
+        if (out && confident && (out.intent === "search" || out.intent === "compare")) {
+          // Autorité du classifieur : la requête est construite à partir des champs
+          // structurés, jamais du message brut (une négation « pas un hôtel »
+          // polluait la récupération et vidait les résultats).
+          const views = detectViewIntent(userMessage);
+          const panoramaHints = views.panoramas.map((p) => p.attributeNames[0]);
+          const excluded = (out.exclude || []).map(normalize).filter(Boolean);
+          const excludesLodging = excluded.some((x) => /hotel|riad|hebergement|maison\s?d/.test(x));
+          // Un repère ponctuel (Koutoubia) se traite par rayon + preuve de point de
+          // vue, pas par mot-clé : n'injecter aucun indice « rooftop » ici.
+          const hintParts = views.points.length && !excludesLodging ? [] : panoramaHints;
+          const baseQuery = [out.category, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
+            || userMessage.slice(0, 200);
+          await runSearch(baseQuery, out.city || host.city || "Marrakech", excluded);
         }
+
+        // Filet de secours : le classifieur n'a pas tranché (ou sa requête structurée
+        // n'a rien donné) → recherche sur le message brut, comme la v1. Sans ça, la
+        // classe C n'a aucun contexte et répond « je n'ai pas de … ».
+        if (!results.length && route !== "business_qa") {
+          const rawExcluded = ((out?.exclude || []) as string[]).map(normalize).filter(Boolean);
+          await runSearch(
+            userMessage.slice(0, 200),
+            out?.city || host.city || "Marrakech",
+            rawExcluded,
+          );
+          if (results.length) fallbackReason = fallbackReason || "confidence_low";
+        }
+
+        if (!results.length) fallbackReason = fallbackReason || "no_results";
+
 
         if (!confident && !fallbackReason) fallbackReason = "confidence_low";
 
