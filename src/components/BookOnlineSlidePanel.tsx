@@ -2082,7 +2082,7 @@ const BookOnlineSlidePanelInner = ({
                   >
                     {currentLang.flag}
                   </button>
-                  <span className="flex items-center gap-1.5 opacity-0 max-w-0 overflow-hidden group-hover:opacity-100 group-hover:max-w-[120px] transition-all duration-300 ease-out">
+                  <span className="flex items-center gap-1.5 opacity-0 max-w-0 overflow-hidden group-hover:opacity-100 group-hover:max-w-[120px] transition-all duration-300 ease-out shrink-0">
                     {otherLangs.map((opt) => (
                       <button
                         key={opt.code}
