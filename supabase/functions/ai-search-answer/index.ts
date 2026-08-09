@@ -940,27 +940,41 @@ Cite OBLIGATOIREMENT chacun de ces "${nearbyContext.entity}" par son nom exact e
 
     const effectiveTemperature = vary ? Math.min(temperature + 0.3, 1.5) : temperature;
 
+    // Les modèles GPT-5 refusent `max_tokens` et toute `temperature` non par défaut.
+    // On adapte le corps de requête au modèle sélectionné (cf. politique modèle projet).
+    const isGpt5 = model.startsWith("openai/gpt-5");
+    const chatMessages = [
+      { role: "system", content: systemPrompt },
+      ...(Array.isArray(history)
+        ? history
+            .filter((m: any) => m && typeof m.content === "string" && (m.role === "user" || m.role === "assistant"))
+            .slice(-10)
+            .map((m: any) => ({ role: m.role, content: m.content }))
+        : []),
+      { role: "user", content: query },
+    ];
+
     const response = await fetchAiGateway("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...(Array.isArray(history)
-            ? history
-                .filter((m: any) => m && typeof m.content === "string" && (m.role === "user" || m.role === "assistant"))
-                .slice(-10)
-                .map((m: any) => ({ role: m.role, content: m.content }))
-            : []),
-          { role: "user", content: query },
-        ],
-        max_tokens: maxTokens,
-        temperature: effectiveTemperature,
-      }),
+      body: JSON.stringify(
+        isGpt5
+          ? {
+              model,
+              messages: chatMessages,
+              max_completion_tokens: maxTokens,
+              reasoning_effort: "none",
+            }
+          : {
+              model,
+              messages: chatMessages,
+              max_tokens: maxTokens,
+              temperature: effectiveTemperature,
+            },
+      ),
     }, {
       supabase: sb,
       userId: callerContext.userId,
