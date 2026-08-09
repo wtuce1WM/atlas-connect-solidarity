@@ -1,7 +1,8 @@
 // Moteur IA A/B/C — classifieur B (spec §2). Contrat strict : ni historique, ni fiches.
 import { AI_MODEL, getSurfaceConfig } from "./surfaces.ts";
-import { GATEWAY_URL } from "../ai-gateway.ts";
+import { GATEWAY_URL, normalizeGatewayBodyForModel } from "../ai-gateway.ts";
 import type { ClassifierOutput, EngineRequest, FocusContext, Surface } from "./types.ts";
+
 
 const SYSTEM = `Tu es un classifieur d'intention pour un annuaire d'établissements au Maroc.
 Tu ne réponds JAMAIS à l'utilisateur. Tu renvoies uniquement un objet JSON.
