@@ -1105,19 +1105,29 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
       };
 
       const hasStrictRequirements = excludeHotel || requiresBar || requiredLandmarks.length > 0;
-      const filtered = allBusinesses.filter((b: any) => {
+      // Les critères DURS (catégorie requise / exclusion explicite) éliminent.
+      // Le repère géographique (« vue sur la Koutoubia ») n'est PAS documenté de
+      // façon fiable en base : il sert à classer, pas à éliminer. S'il vide la
+      // liste alors que les critères durs, eux, matchent, on garde les résultats
+      // durs (repère en tête) au lieu de renvoyer 0.
+      const hardFiltered = allBusinesses.filter((b: any) => {
         if (excludeHotel && isHotelLike(b)) return false;
         if (!barConfirmed(b)) return false;
-        if (!matchesLandmark(b)) return false;
         return true;
       });
+      const landmarkFiltered = hardFiltered.filter((b: any) => matchesLandmark(b));
+      const landmarkSoftened = requiredLandmarks.length > 0 && !landmarkFiltered.length && hardFiltered.length > 0;
+      const filtered = landmarkSoftened
+        ? hardFiltered
+        : (requiredLandmarks.length ? [...landmarkFiltered, ...hardFiltered.filter((b: any) => !matchesLandmark(b))] : hardFiltered);
 
       const droppedCount = allBusinesses.length - filtered.length;
-      if (droppedCount > 0) {
+      if (droppedCount > 0 || landmarkSoftened) {
         console.log("club-ai-chat → post-filter", JSON.stringify({
           intentSource: intentSource.slice(0, 120),
           excludeHotel, requiresBar, landmarks: requiredLandmarks.map((l) => l.label),
-          before: allBusinesses.length, after: filtered.length,
+          before: allBusinesses.length, hard: hardFiltered.length, landmark: landmarkFiltered.length,
+          landmarkSoftened, after: filtered.length,
         }));
       }
 
@@ -1211,9 +1221,13 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         has_more: (strictFilterApplied ? filtered.length : total) > results.length,
         map_slugs: effectiveList.map((b: any) => b.slug).filter(Boolean).slice(0, SEARCH_RESULT_LIMIT),
         map_count: Math.min(effectiveList.length, SEARCH_RESULT_LIMIT),
+        landmark_softened: landmarkSoftened,
         answer_guidance:
           (strictFilterApplied
             ? `IMPORTANT — un filtre strict serveur a déjà retiré ${droppedCount} établissement(s) qui ne remplissent pas les conditions (${excludeHotel ? "exclusion hôtel " : ""}${requiresBar ? "· doit avoir un bar " : ""}${requiredLandmarks.length ? "· vue prouvée sur " + requiredLandmarks.map((l) => l.label).join(", ") : ""}). Utilise total_count = ${filtered.length} et NE réintroduis JAMAIS les résultats retirés. `
+            : "") +
+          (landmarkSoftened
+            ? `Les résultats respectent bien les critères principaux (${excludeHotel ? "hors hôtellerie, " : ""}${requiresBar ? "bar, " : ""}ville). Présente-les comme des correspondances valides — n'écris PAS "aucune correspondance exacte". Précise seulement, en une courte phrase, que la vue sur ${requiredLandmarks.map((l) => l.label).join(", ")} n'est pas documentée pour chacun. `
             : "") +
           "Dans le texte visible, cite 3 à 5 établissements maximum. La ligne 'N résultats affichés sur M trouvés' doit utiliser N = nombre de noms que tu listes réellement dans ton texte, pas returned_count. Les slugs complets pour la carte sont dans map_slugs.",
         detected: {
@@ -3373,11 +3387,12 @@ ${languageInstruction}`;
               returnedCount: top.length,
               totalCount,
             };
+            const catLabel = cat;
             const intro = lang === "en"
-              ? `No exact match, so here is a wider selection${rescueCity ? ` in ${rescueCity}` : ""}:`
+              ? `Here is a selection of ${catLabel}${rescueCity ? ` in ${rescueCity}` : ""}:`
               : lang === "ar"
-              ? `لا توجد نتيجة مطابقة تماماً، وهذه اختيارات أوسع${rescueCity ? ` في ${rescueCity}` : ""}:`
-              : `Aucune correspondance exacte, voici une sélection plus large${rescueCity ? ` à ${rescueCity}` : ""} :`;
+              ? `هذه مجموعة مختارة${rescueCity ? ` في ${rescueCity}` : ""}:`
+              : `Voici une sélection de ${catLabel}${rescueCity ? ` à ${rescueCity}` : ""} :`;
             finalAnswer = `${intro}\n\n${top.map((r: any) =>
               `- **${r.name}**${r.neighborhood ? ` — ${r.neighborhood}` : ""}${r[hookField] ? ` · ${String(r[hookField]).slice(0, 140)}` : ""}`
             ).join("\n")}\n\n**${top.length} résultats affichés sur ${totalCount} trouvés**`;
