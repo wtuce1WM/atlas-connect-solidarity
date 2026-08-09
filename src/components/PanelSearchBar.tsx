@@ -54,7 +54,7 @@ interface PanelSearchBarProps {
   leadingControls?: ReactNode;
   /** Inline video play/mute controls rendered as labelled cells inside the unified dock pill */
   videoControls?:
-    | { type: "file"; videoRef: RefObject<HTMLVideoElement>; paused: boolean; muted: boolean }
+    | { type: "file"; videoRef: RefObject<HTMLVideoElement>; paused: boolean; muted: boolean; onMutedChange?: (m: boolean) => void }
     | { type: "youtube"; iframeRef: RefObject<HTMLIFrameElement>; playing: boolean; muted: boolean; onPlayingChange: (p: boolean) => void; onMutedChange: (m: boolean) => void };
   /** When true, hides the Sparkles (Suggestion IA) button from the floating bar */
   hideAiButton?: boolean;
