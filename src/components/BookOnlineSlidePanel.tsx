@@ -4039,7 +4039,7 @@ const BookOnlineSlidePanelInner = ({
                 }
               }}
               fitToMarkers={!!overridePois && widgetFitKm == null}
-              centerAtBottomRatio={0.4}
+              centerAtBottomRatio={0.5}
               mapTypeId={poiMapTypeId}
               fitRadiusKm={overridePois ? widgetFitKm : (poiMapMode === "destinations" ? null : poiProximityKm)}
               connector={widgetConnector}

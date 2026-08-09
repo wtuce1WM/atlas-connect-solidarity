@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { Loader2, Maximize2, Minimize2, Plus, Minus } from "lucide-react";
 import goldPinUrl from "@/assets/location-pin-gold.webp";
 import { trackBusinessImpressions } from "@/lib/businessAnalytics";
+import { haversineKm } from "@/lib/haversine";
 
 export interface PoiMapItem {
   id: string;
@@ -1001,9 +1002,45 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
       const width = containerRef.current?.clientWidth || 0;
       const startZ = map.getZoom() ?? 13;
       let z = startZ;
-      // Le rayon du pill « À proximité » pilote le zoom : le cercle doit tenir
-      // dans le viewport, au-dessus et autour du marqueur Master.
-      if (fitRadiusKm && fitRadiusKm > 0 && height > 0 && width > 0 && center) {
+
+      // Cadrage sur le contenu réel : l'échelle suit la dispersion des marqueurs
+      // (percentile 90 = « la masse », un marqueur isolé ne fait pas dézoomer),
+      // et le point d'ancrage peut glisser du Master vers le centre géométrique
+      // des marqueurs quand ils sont tous d'un même côté.
+      let anchor = center!;
+      const pts = pois
+        .filter((p) => p.latitude != null && p.longitude != null)
+        .map((p) => ({ lat: Number(p.latitude), lng: Number(p.longitude) }));
+      const pct90 = (arr: number[]) => {
+        if (!arr.length) return 0;
+        const s = [...arr].sort((a, b) => a - b);
+        return s[Math.min(s.length - 1, Math.floor(s.length * 0.9))];
+      };
+
+      if (center && pts.length && height > 0 && width > 0) {
+        const cLat = pts.reduce((s, p) => s + p.lat, 0) / pts.length;
+        const cLng = pts.reduce((s, p) => s + p.lng, 0) / pts.length;
+        const spreadFromMaster = pct90(pts.map((p) => haversineKm(center.lat, center.lng, p.lat, p.lng)));
+        const offCentroid = haversineKm(center.lat, center.lng, cLat, cLng);
+        // Marqueurs majoritairement d'un même côté → on glisse à mi-chemin.
+        if (spreadFromMaster > 0.2 && offCentroid > spreadFromMaster * 0.35) {
+          anchor = { lat: (center.lat + cLat) / 2, lng: (center.lng + cLng) / 2 };
+        }
+        let spreadKm = pct90([
+          ...pts.map((p) => haversineKm(anchor.lat, anchor.lng, p.lat, p.lng)),
+          haversineKm(anchor.lat, anchor.lng, center.lat, center.lng),
+        ]);
+        if (fitRadiusKm && fitRadiusKm > 0) spreadKm = Math.min(spreadKm, fitRadiusKm);
+        spreadKm = Math.max(spreadKm, 0.3);
+        const availablePx = Math.max(
+          40,
+          Math.min(width / 2, height * Math.max(centerAtBottomRatio!, 0.15)) - 24,
+        );
+        const metersPerPixelAtZ0 = 156543.03392 * Math.cos((anchor.lat * Math.PI) / 180);
+        const target = Math.log2((metersPerPixelAtZ0 * availablePx) / (spreadKm * 1000));
+        z = Math.max(4, Math.min(18, Math.round(target * 2) / 2));
+      } else if (fitRadiusKm && fitRadiusKm > 0 && height > 0 && width > 0 && center) {
+        // Aucun marqueur : on retombe sur le rayon du pill « À proximité ».
         const availablePx = Math.max(
           40,
           Math.min(width / 2, height * Math.max(centerAtBottomRatio!, 0.15)) - 24,
@@ -1017,8 +1054,8 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
         if (height > 0 && center) {
           const markerOffsetFromCenterPx = (0.5 - centerAtBottomRatio!) * height;
           map.setCenter({
-            lat: centerLatForMarkerPosition(center.lat, zoom, markerOffsetFromCenterPx),
-            lng: center.lng,
+            lat: centerLatForMarkerPosition(anchor.lat, zoom, markerOffsetFromCenterPx),
+            lng: anchor.lng,
           });
         }
       };
