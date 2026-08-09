@@ -234,6 +234,40 @@ export async function logAiUsageEvent(
 }
 
 /**
+ * Adapte le body /chat/completions au modèle ciblé.
+ * Les modèles openai/gpt-5* refusent `temperature`, `max_tokens` et les
+ * penalties, et doivent recevoir `reasoning_effort: "none"` (sinon 400 avec
+ * des function tools). No-op pour les autres modèles.
+ */
+export function normalizeGatewayBodyForModel(body: any): any {
+  if (!body || typeof body !== "object") return body;
+  const model = String(body.model || "");
+  if (!/^openai\/gpt-5/.test(model)) return body;
+  const out: any = { ...body };
+  if (out.max_tokens != null && out.max_completion_tokens == null) {
+    out.max_completion_tokens = out.max_tokens;
+  }
+  delete out.max_tokens;
+  delete out.temperature;
+  delete out.top_p;
+  delete out.frequency_penalty;
+  delete out.presence_penalty;
+  if (out.reasoning_effort == null) out.reasoning_effort = "none";
+  return out;
+}
+
+/** Applique normalizeGatewayBodyForModel() sur un RequestInit dont le body est du JSON. */
+export function normalizeGatewayInit(init: RequestInit): RequestInit {
+  if (typeof init?.body !== "string") return init;
+  try {
+    const parsed = JSON.parse(init.body);
+    return { ...init, body: JSON.stringify(normalizeGatewayBodyForModel(parsed)) };
+  } catch {
+    return init;
+  }
+}
+
+/**
  * Wrapper around fetch() to the Lovable AI Gateway that logs token usage.
  * Returns the original Response (so callers can still read it once).
  */
@@ -243,7 +277,8 @@ export async function fetchAiGateway(
   logOptions: AiGatewayLogOptions,
 ): Promise<Response> {
   const requestStart = Date.now();
-  const resp = await fetch(url, init);
+  const resp = await fetch(url, normalizeGatewayInit(init));
+
 
   let usage: AiUsage | null = null;
   let status: "success" | "error" = resp.ok ? "success" : "error";
