@@ -700,6 +700,7 @@ const BookOnlineSlidePanelInner = ({
   const descMorphRectRef = useRef<{ rect: DOMRect; t: number } | null>(null);
   const applyDescMorph = useCallback((el: HTMLDivElement | null) => {
     const pending = descMorphRectRef.current;
+    console.log("[MORPH] cb", !!el, !!pending, pending?Date.now()-pending.t:-1);
     if (!el || !pending) return;
     if (Date.now() - pending.t > 900) { descMorphRectRef.current = null; return; }
     const r = pending.rect;
