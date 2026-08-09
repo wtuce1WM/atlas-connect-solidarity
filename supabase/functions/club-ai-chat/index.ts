@@ -1637,6 +1637,8 @@ serve(async (req) => {
     model: null,
   };
   let adminForLog: any = null;
+  // Classifieur B lancé en parallèle (observation seule) sur les tours fourre-tout.
+  let clubClassifierPromise: Promise<ClassifyResult | null> | null = null;
 
   // Fire-and-forget async worker: streams events to the client.
   const work = (async () => {
