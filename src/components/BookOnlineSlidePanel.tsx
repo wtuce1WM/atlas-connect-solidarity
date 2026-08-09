@@ -3513,7 +3513,7 @@ const BookOnlineSlidePanelInner = ({
             <BookOnlineSlidePanel
               businessId={selectedPoiBusinessId}
               onClose={() => { setSelectedPoiBusinessId(null); setShowDescriptionOverlay(false); setDescGridSection(null); setDescGridPage(0); onMosaicStateChange?.(false); if (poiOpenedFromMapRef.current) poiOpenedFromMapRef.current = false; }}
-              showSearchBar={false}
+              showSearchBar={showSearchBar}
               onSearch={onSearch}
               onSearchBusinessSelect={onSearchBusinessSelect}
               onHotelSearch={onHotelSearch}
