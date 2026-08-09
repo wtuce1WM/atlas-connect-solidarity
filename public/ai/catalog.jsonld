@@ -16311,7 +16311,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 1521,
+          "reviewCount": 1572,
           "bestRating": 5
         }
       }
@@ -21725,8 +21725,8 @@
         "telephone": "+212 524 359 570",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 3.9,
-          "reviewCount": 352,
+          "ratingValue": 3.8,
+          "reviewCount": 365,
           "bestRating": 5
         }
       }
@@ -48729,7 +48729,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 2182,
+          "reviewCount": 2202,
           "bestRating": 5
         }
       }
