@@ -3021,13 +3021,13 @@ const BookOnlineSlidePanelInner = ({
                       (a, b) => (urlOrder.get(a.url) ?? 999) - (urlOrder.get(b.url) ?? 999)
                     );
                     const isMobileGrid = typeof window !== "undefined" && window.innerWidth < 768;
-                    const items = sorted.slice(0, isMobileGrid ? 4 : 9);
+                    const items = sorted.slice(0, 9);
                     return (
                       <div className="mt-8 pt-6 border-t border-white/10">
                         <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">
                           {language === "en" ? "Videos" : language === "ar" ? "فيديوهات" : "Vidéos"}
                         </h2>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
+                        <HScroll className="flex md:grid md:grid-cols-3 gap-1.5 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory md:snap-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden cursor-grab md:cursor-auto">
                           {items.map((vid, i) => {
                             const ytMatch = vid.url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
                             const vimeoMatch = vid.url.match(/vimeo\.com\/(\d+)/);
