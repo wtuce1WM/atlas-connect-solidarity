@@ -45,6 +45,9 @@ const MediaViewerInfo = ({
 }: MediaViewerInfoProps) => {
   const lang = (language in MORE ? language : "fr") as keyof typeof MORE;
   const place = [city, neighborhood].filter(Boolean).join(", ");
+  // Tap = ouvrir ; swipe vertical = laissé au panneau (aucun stopPropagation)
+  const touchStart = React.useRef<{ x: number; y: number } | null>(null);
+  const moved = React.useRef(false);
 
   return (
     <div className="w-full shrink-0 pointer-events-auto relative z-30">
@@ -57,9 +60,25 @@ const MediaViewerInfo = ({
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); onOpen(); }
         }}
-        onTouchStart={(e) => e.stopPropagation()}
-        onTouchMove={(e) => e.stopPropagation()}
-        onTouchEnd={(e) => { e.stopPropagation(); e.preventDefault(); onOpen(); }}
+        onTouchStart={(e) => {
+          const t = e.touches[0];
+          touchStart.current = t ? { x: t.clientX, y: t.clientY } : null;
+          moved.current = false;
+        }}
+        onTouchMove={(e) => {
+          const t = e.touches[0];
+          if (!t || !touchStart.current) return;
+          if (Math.abs(t.clientY - touchStart.current.y) > 8 || Math.abs(t.clientX - touchStart.current.x) > 8) {
+            moved.current = true;
+          }
+        }}
+        onTouchEnd={(e) => {
+          if (moved.current) return; // swipe : ne rien intercepter
+          e.stopPropagation();
+          e.preventDefault();
+          onOpen();
+        }}
+
         /* text-transform/letter-spacing forcés en inline : index.css impose uppercase sur [role="button"] */
         style={{ textTransform: "none", letterSpacing: "normal" }}
         className={`group w-full mx-auto cursor-pointer select-none px-3 py-2.5 md:px-4 md:py-3 text-left ${bare ? "" : "rounded-2xl bg-gradient-to-b from-black/25 to-black/55 backdrop-blur-[2px] border border-white/10 transition-colors hover:from-black/35 hover:to-black/65"}`}
