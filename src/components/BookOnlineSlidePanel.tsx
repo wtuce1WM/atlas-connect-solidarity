@@ -422,6 +422,10 @@ const BookOnlineSlidePanelInner = ({
   const [bookingOverlayHideContact, setBookingOverlayHideContact] = useState(false);
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
   const [showPromosPopup, setShowPromosPopup] = useState(false);
+  // Delayed reveal after video playback starts (2s) to avoid hitting the user too early.
+  const [videoPlaybackStartedAt, setVideoPlaybackStartedAt] = useState<number | null>(null);
+  const [pendingPopup, setPendingPopup] = useState<"welcome" | "promos" | null>(null);
+
   const [popupSlide, setPopupSlide] = useState(0);
   const [descPromoSlide, setDescPromoSlide] = useState(0);
 
@@ -437,9 +441,9 @@ const BookOnlineSlidePanelInner = ({
     if (embedMode) return; // widget embarqué : pas de popup d'accueil par-dessus l'overlay
     if (business?.id && stillValid && welcomePopupShownRef.current !== business.id) {
       welcomePopupShownRef.current = business.id;
-      setShowWelcomePopup(true);
       setPopupSlide(0);
       setPopupMeta({ title: null, description: null });
+      setPendingPopup("welcome");
       supabase
         .from("business_image_titles")
         .select("title, description, title_fr, title_en, title_ar, description_fr, description_en, description_ar")
@@ -461,6 +465,27 @@ const BookOnlineSlidePanelInner = ({
     }
   }, [business?.id, (business as any)?.popup_image_url, (business as any)?.images, language]);
 
+  // Schedule the actual reveal 2s after video playback starts (or 2s after mount if no video).
+  useEffect(() => {
+    if (!pendingPopup) return;
+    const start = videoPlaybackStartedAt ?? performance.now();
+    const delay = Math.max(0, 2000 - (performance.now() - start));
+    const id = setTimeout(() => {
+      if (pendingPopup === "welcome") setShowWelcomePopup(true);
+      else if (pendingPopup === "promos") setShowPromosPopup(true);
+      setPendingPopup(null);
+    }, delay);
+    return () => clearTimeout(id);
+  }, [pendingPopup, videoPlaybackStartedAt]);
+
+  // Reset playback timer when switching business so the popup delay is tied to the current video.
+  useEffect(() => {
+    setVideoPlaybackStartedAt(null);
+    setPendingPopup(null);
+    setShowWelcomePopup(false);
+    setShowPromosPopup(false);
+  }, [businessId]);
+
   // Auto-open the promotions popup when a business has offers but no welcome popup image.
   // Mirrors the welcome popup behavior: shown once per business, mutes background video.
   useEffect(() => {
@@ -473,8 +498,9 @@ const BookOnlineSlidePanelInner = ({
     if (promosPopupShownRef.current === business.id) return;
     promosPopupShownRef.current = business.id;
     setPopupSlide(0);
-    setShowPromosPopup(true);
+    setPendingPopup("promos");
   }, [business?.id, businessPromotions.length, (business as any)?.popup_image_url, (business as any)?.images]);
+
 
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
   const [selectedPoiBusinessId, setSelectedPoiBusinessId] = useState<string | null>(null);
@@ -1264,8 +1290,12 @@ const BookOnlineSlidePanelInner = ({
       cleanup = null;
       lastEl = v;
       if (!v) return;
-      const onPlay = () => setVideoPaused(false);
+      const onPlay = () => {
+        setVideoPaused(false);
+        setVideoPlaybackStartedAt((prev) => prev ?? performance.now());
+      };
       const onPause = () => setVideoPaused(true);
+
       const onVolChange = () => {
         setVideoMuted(v.muted);
         // Ne pas écraser la préférence utilisateur avec un mute automatique
@@ -4335,10 +4365,11 @@ const BookOnlineSlidePanelInner = ({
 
         return (
         <div
-          className="absolute inset-0 z-[150] flex items-center justify-center p-1 sm:p-4 animate-fade-in bg-black/75 backdrop-blur-sm"
+          className="absolute inset-0 z-[150] flex items-center justify-center p-1 sm:p-4 bg-black/75 backdrop-blur-sm"
           onClick={() => setShowWelcomePopup(false)}
         >
-          <div className={`relative flex items-center justify-center w-full px-1 sm:px-16 ${isPopupSlide && !hasMeta ? "max-w-3xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl" : "max-w-lg md:max-w-xl"}`} onClick={(e) => e.stopPropagation()}>
+          <div className={`relative flex items-center justify-center w-full px-1 sm:px-16 ${isPopupSlide && !hasMeta ? "max-w-3xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl" : "max-w-lg md:max-w-xl"} owm-popup-appear`} onClick={(e) => e.stopPropagation()}>
+
             {totalSlides > 1 && (
               <button
                 onClick={(e) => { e.stopPropagation(); goPrev(); }}
@@ -4350,13 +4381,14 @@ const BookOnlineSlidePanelInner = ({
             )}
 
             <div
-              className={`relative w-full h-auto rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-cover bg-no-repeat bg-center ${
+              className={`relative w-full h-auto rounded-2xl overflow-hidden shadow-2xl flex flex-col bg-cover bg-no-repeat bg-center ${
                 isPopupSlide && !hasMeta 
                   ? "w-[98vw] max-w-[98vw] md:max-w-2xl lg:max-w-4xl xl:max-w-[85vh] aspect-[1333/1737] max-h-[96vh] sm:max-h-[90vh] md:max-h-[88vh]" 
                   : "max-w-md max-h-[90vh] sm:max-h-[84vh]"
               }`}
               style={{ backgroundImage: `url(${isPopupSlide ? (business as any).popup_image_url : promoBg})` }}
             >
+
               {showOverlay && <div className="absolute inset-0 bg-black/55 pointer-events-none" />}
 
               {isPopupSlide && hasMeta && (
@@ -4452,10 +4484,10 @@ const BookOnlineSlidePanelInner = ({
 
         return (
         <div
-          className="absolute inset-0 z-[150] flex items-center justify-center p-4 animate-fade-in bg-black/75 backdrop-blur-sm"
+          className="absolute inset-0 z-[150] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm"
           onClick={() => setShowPromosPopup(false)}
         >
-          <div className="relative flex items-center justify-center w-full max-w-lg md:max-w-xl px-10 sm:px-16" onClick={(e) => e.stopPropagation()}>
+          <div className="relative flex items-center justify-center w-full max-w-lg md:max-w-xl px-10 sm:px-16 owm-popup-appear" onClick={(e) => e.stopPropagation()}>
             {totalSlides > 1 && (
               <button
                 onClick={(e) => { e.stopPropagation(); goPrev(); }}
@@ -4468,9 +4500,10 @@ const BookOnlineSlidePanelInner = ({
 
             <div
               key={`promo-slide-${safeSlide}`}
-              className="relative w-full max-w-md max-h-[90vh] sm:max-h-[84vh] rounded-2xl overflow-hidden shadow-2xl animate-scale-in flex flex-col bg-cover bg-no-repeat bg-center h-auto btn-flash-auto"
+              className="relative w-full max-w-md max-h-[90vh] sm:max-h-[84vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col bg-cover bg-no-repeat bg-center h-auto btn-flash-auto"
               style={{ backgroundImage: promoBg ? `url(${promoBg})` : undefined, backgroundColor: promoBg ? undefined : '#1a1a1a' }}
             >
+
               <div className="absolute inset-0 bg-black/55 pointer-events-none" />
 
               {(() => {
