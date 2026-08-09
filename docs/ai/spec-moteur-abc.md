@@ -26,23 +26,46 @@ Le staff ne peut jamais passer `weather` en C ni `booking` en B. Il agit sur l'a
 
 ## 2. Classifieur B — contrat strict
 
-Entrée : `message` + `surface` + contexte minimal (ville active, `business_id` hôte). **Jamais** d'historique, **jamais** de fiches d'établissements.
+Entrée : `message` + `surface` + **focus context** compact. **Jamais** d'historique de conversation, **jamais** de fiches d'établissements.
+
+Le focus context résout l'anaphore sans dégrader B (≈ 30 tokens, pas de fiches) :
+
+```json
+{ "last_business_ids": ["uuid1","uuid2"], "last_business_names": ["Riad Dar Najat"], "last_route": "reviews", "last_category": "restaurant", "active_city": "Marrakech" }
+```
+
+Ainsi « et lui, il fait quoi comme cuisine ? » reste traitable : détection de reprise pronominale → le focus fournit la cible → route `business_qa` sur un ID connu, sans remonter en C par défaut d'information. Escalade en C seulement si le focus est vide **et** la reprise est ambiguë (`fallback_reason = ambiguous`).
 
 Sortie unique :
 
 ```json
-{ "intent": "search", "category": "restaurant", "exclude": ["hotel"], "city": "Marrakech", "confidence": 0.91 }
+{ "intent": "search", "category": "restaurant", "exclude": ["hotel"], "city": "Marrakech", "target_business_id": null, "confidence": 0.91 }
 ```
 
 Le code fait le reste (résolution catégorie → subcategories, géo, ranking, rendu). Garde-fou explicite : si on est tenté d'envoyer des fiches au classifieur pour qu'il choisisse, c'est que la question relève de C — on ne dégrade pas B en « C déguisé ».
 
-`confidence < 0.6` → escalade en C, avec `fallback_reason = confidence_low`.
+### Seuil de confiance : paramètre de surface, pas constante
+
+`confidence_threshold` vit dans la surface config, pas en dur dans le classifieur :
+
+| surface | seuil | raison |
+|---|---|---|
+| `embed` | 0.45 | contexte étroit (un établissement + rayon), peu d'ambiguïté possible |
+| `club` | 0.60 | périmètre national, ambiguïté fréquente |
+| `search` | 0.60 | périmètre large, filtres concurrents |
+
+Sous le seuil → C, `fallback_reason = confidence_low`.
+
+### Cache du classifieur
+
+Décision : **oui, mais après la première mesure.** Table `ai_classify_cache` (`hash(message normalisé + surface + active_city + host_business_id)` → sortie JSON, TTL 30 j). Un hit = zéro token. À brancher à l'étape 4bis, une fois que les logs montrent le taux de répétition réel des formulations — pas avant, pour ne pas ajouter une autorité de vérité non mesurée. Un hit se logue avec `ai_class = 'B'` et `fallback_reason = 'cache_hit'`, tokens à 0.
 
 ## 3. Historique
 
 - Classe A : aucun historique envoyé au LLM (aucun appel LLM).
-- Classe B : aucun historique (stateless).
+- Classe B : aucun historique — seulement le focus context (§2).
 - Classe C : 6 derniers tours max + contexte pertinent uniquement.
+
 
 Le thread reste stocké en base intégralement (`ai_chats`, `ai_conversation_turns`) ; c'est l'**envoi au modèle** qui est restreint, pas le stockage.
 
