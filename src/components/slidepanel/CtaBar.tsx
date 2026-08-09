@@ -123,6 +123,7 @@ export function CtaBar({
   hideVideoControls,
   hideDirections = false,
   hideSecondaryCtas = false,
+  infoSlot,
 }: CtaBarProps) {
   const hasBottomActionCtas = (!cardsHidden && (!!bookingCta || (!hideSecondaryCtas && (!!shopCta || !!url4Cta || !!url5Cta)))) || (!cardsHidden && showGoogleMap && !hideDirections && business?.latitude && business?.longitude);
 
