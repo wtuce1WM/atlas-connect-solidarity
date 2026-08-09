@@ -51,6 +51,14 @@ const ClubAiSuggestionsManagement = () => {
   const [dirty, setDirty] = useState<Set<string>>(new Set());
   const [embedding, setEmbedding] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const toggleExpanded = (id: string) =>
+    setExpanded((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id); else n.add(id);
+      return n;
+    });
+
   const [destinationSearch, setDestinationSearch] = useState<Record<string, string>>({});
   const [subcategorySearch, setSubcategorySearch] = useState<Record<string, string>>({});
   const [badgeSearch, setBadgeSearch] = useState<Record<string, string>>({});
