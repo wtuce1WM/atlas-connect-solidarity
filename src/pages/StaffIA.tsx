@@ -209,6 +209,24 @@ const StaffIA = () => {
 
 
 
+          <TabsContent value="search-ai">
+            <Tabs defaultValue="suggestions">
+              <TabsList className="mb-4">
+                <TabsTrigger value="suggestions">Suggestions Search</TabsTrigger>
+                <TabsTrigger value="followups" className="gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  Relances Search
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="suggestions">
+                <SearchAiSuggestionsManagement />
+              </TabsContent>
+              <TabsContent value="followups">
+                <SearchAiFollowupsManagement />
+              </TabsContent>
+            </Tabs>
+          </TabsContent>
+
           <TabsContent value="ai-usage">
             <AiUsageManagement />
           </TabsContent>
@@ -216,6 +234,7 @@ const StaffIA = () => {
           <TabsContent value="ai-perf">
             <AiConversationPerf />
           </TabsContent>
+
 
           <TabsContent value="embed-usage">
             <EmbedUsageManagement />
