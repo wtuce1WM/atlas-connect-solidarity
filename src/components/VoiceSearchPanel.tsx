@@ -7,19 +7,19 @@ const LABELS = {
     waitSignal: "Attendez le signal sonore avant de parler",
     speakNow: "Parlez maintenant",
     hintLine1: "Cliquez sur le micro",
-    hintLine2: "ou attendez pour lancer la recherche",
+    hintLine2: "ou attendez 2s pour lancer la recherche",
   },
   en: {
     waitSignal: "Wait for the beep before speaking",
     speakNow: "Speak now",
     hintLine1: "Tap the mic",
-    hintLine2: "or wait to launch the search",
+    hintLine2: "or wait 2s to launch the search",
   },
   ar: {
     waitSignal: "انتظر الإشارة الصوتية قبل التحدث",
     speakNow: "تحدث الآن",
     hintLine1: "اضغط على الميكروفون",
-    hintLine2: "أو انتظر لبدء البحث",
+    hintLine2: "أو انتظر 2 ثانية لبدء البحث",
   },
 } as const;
 
@@ -147,7 +147,7 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
       </div>
 
 
-      <p className={`text-base md:text-lg text-black md:text-white font-semibold px-4 ${isStart ? "text-left" : "text-center"}`}>
+      <p className={`text-base md:text-lg text-black md:text-white font-bold px-4 ${isStart ? "text-left" : "text-center"}`}>
         {L.hintLine1}<br />{L.hintLine2}
       </p>
     </div>
