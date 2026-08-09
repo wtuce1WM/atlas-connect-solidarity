@@ -3016,8 +3016,8 @@ serve(async (req) => {
             // Garde-fou : une intention de VUE (Koutoubia, Atlas, mer…) est portée par
             // la requête texte (rayon géométrique + preuve de point de vue). Passer
             // `category` écraserait ce filtrage et rendrait une liste générique.
-            const viewIntent = detectViewIntent(fusedQuery);
-            if (viewIntent?.point || viewIntent?.panorama) {
+            const vi = detectViewIntent(fusedQuery);
+            if (vi.hasViewIntent && (vi.points.length > 0 || vi.panoramas.length > 0)) {
               authCategory = undefined;
               turnLog.fallback_reason = turnLog.fallback_reason || "authority_view_intent";
             }
@@ -3026,7 +3026,7 @@ serve(async (req) => {
             turnLog.classifier_confidence = conf;
             if (authCity) turnLog.city_detected = authCity;
           }
-          console.log("club classifier authority:", JSON.stringify({ conf, threshold, clfIntent, authCategory, authCity, authExcludes, applied: classifierAuthority, viewIntent: detectViewIntent(fusedQuery) }));
+          console.log("club classifier authority:", JSON.stringify({ conf, threshold, clfIntent, authCategory, authCity, authExcludes, applied: classifierAuthority, viewIntent: (() => { const v = detectViewIntent(fusedQuery); return { hasViewIntent: v.hasViewIntent, points: v.points.map((x) => x.slug), panoramas: v.panoramas.map((x) => x.slug) }; })() }));
         } catch (e) {
           console.warn("club classifier authority failed", e);
         }
