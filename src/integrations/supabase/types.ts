@@ -9116,6 +9116,7 @@ export type Database = {
       show_trgm: { Args: { "": string }; Returns: string[] }
       slugify: { Args: { input: string }; Returns: string }
       staff_get_member_details: { Args: { p_member_id: string }; Returns: Json }
+      staff_rls_matrix: { Args: never; Returns: Json }
       staff_update_club_member: {
         Args: { p_member_id: string; p_payload: Json }
         Returns: {
