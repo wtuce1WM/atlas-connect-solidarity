@@ -1,6 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { fetchAiGateway, resolveCallerContext } from "../_shared/ai-gateway.ts";
+import { loadRoutes, route as engineRoute } from "../_shared/ai-engine/index.ts";
+import type { RouteCode } from "../_shared/ai-engine/types.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
