@@ -55,7 +55,7 @@ function inferEmbedRoute(text: string): string {
   if (isNearbyOverviewIntent(t) || isProximityIntent(t)) return "nearby";
   if (isDescribeIntent(t)) return "business_qa";
   if (isCityEngagementSearchIntent(t)) return "discover";
-  if (isDistanceRankingIntent(t) || isDistanceListIntent(t) || isRatingRankingIntent(t) || isCountIntent(t) || parseOrdinalIntent(t)) return "ranking";
+  if (isDistanceRankingIntent(t) || isDistanceListIntent(t) || isRatingRankingIntent(t) || isCountIntent(t)) return "discover";
   return "discover";
 }
 
