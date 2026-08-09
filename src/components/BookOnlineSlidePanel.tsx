@@ -2513,7 +2513,7 @@ const BookOnlineSlidePanelInner = ({
               <h2 className="text-sm font-bold uppercase font-['Montserrat',sans-serif] truncate text-white flex-1">{business?.name}</h2>
             </div>
             {!descGridSection && !descOverlayContent && (
-              <div className="w-full min-w-0">
+              <div className="w-full min-w-0 h-7">
                 <DescAnchorBar containerId="owm-desc-scroll" deps={business?.id} language={language} />
               </div>
             )}
