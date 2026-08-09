@@ -157,7 +157,7 @@ export function trackBusinessImpression(
   surface: ImpressionSurface = "list",
   meta?: Record<string, unknown>,
 ) {
-  if (!businessId) return;
+  if (!businessId || !isValidUuid(businessId)) return;
   if (shouldDedupeImpression(businessId, surface)) return;
   queue.push({
     business_id: businessId,
