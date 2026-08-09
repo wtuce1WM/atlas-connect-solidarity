@@ -3560,7 +3560,17 @@ The user will click ONE of these as a new turn and prior constraints must be re-
     try {
       if (adminForLog) {
         turnLog.latency_ms_total = Date.now() - turnStartMs;
-        try { classifyTurn(turnLog, MODEL); } catch (e) { console.error("classifyTurn failed", e); }
+        // Le classifieur tourne en parallèle depuis le début du fourre-tout : il
+        // est en principe déjà résolu. Garde-fou 2 s pour ne jamais retarder la
+        // fermeture du flux si le gateway traîne.
+        let clf: ClassifyResult | null = null;
+        if (clubClassifierPromise) {
+          clf = await Promise.race([
+            clubClassifierPromise,
+            new Promise<null>((r) => setTimeout(() => r(null), 2000)),
+          ]).catch(() => null);
+        }
+        try { classifyTurn(turnLog, MODEL, clf); } catch (e) { console.error("classifyTurn failed", e); }
         // Fire-and-forget — never block the response on log persistence
         adminForLog.from("ai_conversation_turns").insert(turnLog).then(
           ({ error }: any) => { if (error) console.error("turnLog insert failed", error.message); },
