@@ -13,6 +13,17 @@ import {
   type UIMessage,
 } from "npm:ai@5";
 import { createLovableAiGatewayProvider } from "../_shared/ai-gateway.ts";
+import {
+  pickLang, fmtHours, normalize, levenshtein, DAY_KEYS, DAY_LABELS,
+  fetchPriorFull, orderByIds, fmtKm, toMapMarker, haversineKmLocal,
+} from "../_shared/ai-engine/routes/shared.ts";
+import {
+  isHoursIntent, buildHoursAnswer, buildHoursForBusinesses, isOpensFirstIntent,
+  isClosesLastIntent, buildHoursRanking, parseOpenFilterIntent, buildOpenFilter,
+  type OpenFilterIntent,
+} from "../_shared/ai-engine/routes/opening.ts";
+import { isBookingIntent, isReserveCta, buildBookingAnswer, buildBookingForBusinesses } from "../_shared/ai-engine/routes/booking.ts";
+import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -100,46 +111,10 @@ function matchBlogArticle(userText: string, lang: "fr" | "en" | "ar", posts: Blo
   return best ? best.row : null;
 }
 
-function pickLang(v: unknown): "fr" | "en" | "ar" {
-  return v === "en" || v === "ar" ? v : "fr";
-}
 
-function fmtHours(oh: any): string {
-  if (!oh || typeof oh !== "object") return "";
-  const days = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
-  const keys = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
-  const lines: string[] = [];
-  keys.forEach((k, i) => {
-    const d = oh[k]; if (!d) return;
-    if (d.closed) { lines.push(`${days[i]}: fermé`); return; }
-    const slots = Array.isArray(d.slots) ? d.slots : [];
-    const parts = slots.filter((s: any) => s?.open && s?.close).map((s: any) => `${s.open}–${s.close}`);
-    if (parts.length) lines.push(`${days[i]}: ${parts.join(", ")}`);
-  });
-  return lines.join(" · ");
-}
 
-const normalize = (s: any) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
 // Damerau-Levenshtein-lite (Levenshtein). Used for neighborhood typo tolerance.
-function levenshtein(a: string, b: string): number {
-  if (a === b) return 0;
-  const al = a.length, bl = b.length;
-  if (!al) return bl;
-  if (!bl) return al;
-  const v0 = new Array(bl + 1);
-  const v1 = new Array(bl + 1);
-  for (let i = 0; i <= bl; i++) v0[i] = i;
-  for (let i = 0; i < al; i++) {
-    v1[0] = i + 1;
-    for (let j = 0; j < bl; j++) {
-      const cost = a.charCodeAt(i) === b.charCodeAt(j) ? 0 : 1;
-      v1[j + 1] = Math.min(v1[j] + 1, v0[j + 1] + 1, v0[j] + cost);
-    }
-    for (let j = 0; j <= bl; j++) v0[j] = v1[j];
-  }
-  return v0[bl];
-}
 
 // Try to spot a neighborhood name in free text, tolerant to typos and aliases.
 // Aliases come from neighborhoods.{name,name_en,name_ar,keywords,keywords_en,keywords_ar}.
@@ -227,76 +202,10 @@ function shouldForceDirectorySearch(text: string): boolean {
   return /\b(que faire|proximite|autour|pres de|ou |où |restaurant|dejeuner|diner|manger|boire|bar|cafe|the|rooftop|terrasse|visiter|activite|sortie|agenda|week[- ]?end|nearby|around|where|eat|drink|visit|activity|event)\b/i.test(q);
 }
 
-function isHoursIntent(text: string): boolean {
-  const n = normalize(text);
-  if (!n) return false;
-  if (/\b(horaires?|heures? d['\s]?ouverture|ouvert|ouverture|ferme|fermeture|jours? d['\s]?ouverture)\b/i.test(n)) return true;
-  if (/\b(opening hours?|open hours?|hours of operation|when (?:are you |is it )?open|what time|closing time)\b/i.test(n)) return true;
-  if (/(ساعات|مواعيد|أوقات).*(العمل|الفتح|الدوام)/.test(text)) return true;
-  return false;
-}
 
-function isBookingIntent(text: string): boolean {
-  const n = normalize(text);
-  if (!n) return false;
-  if (/\b(reserv|reservation|booker|reserver)\b/i.test(n)) return true;
-  if (/\b(book(?:ing)?|reserve|make a reservation)\b/i.test(n)) return true;
-  if (/(حجز|احجز|يحجز)/.test(text)) return true;
-  return false;
-}
 
-function isWeatherIntent(text: string): boolean {
-  const n = normalize(text);
-  if (!n) return false;
-  if (/\b(meteo|temps qu[' ]?il fait|quel temps|previsions?|temperature|degres?|il fait chaud|il fait froid|climat)\b/i.test(n)) return true;
-  if (/\b(weather|forecast|how (?:hot|cold|warm) is it|what[' ]?s the weather|temperature)\b/i.test(n)) return true;
-  if (/(الطقس|الجو|درجة الحرارة|توقعات)/.test(text)) return true;
-  return false;
-}
 
-const DAY_LABELS = {
-  fr: ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"],
-  en: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-  ar: ["الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد"],
-};
-const DAY_KEYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 
-function buildHoursAnswer(host: any, lang: "fr" | "en" | "ar"): string | null {
-  if (host?.show_opening_hours !== true) {
-    if (lang === "en") return `The opening hours of **${host.name}** are not published here. The easiest way is to contact the team directly — ${host.phone ? `by phone at ${host.phone}` : host.whatsapp ? `on WhatsApp at ${host.whatsapp}` : "via the contact details on the site"}. Would you like me to help you with something else — a table nearby, a rooftop, an activity?`;
-    if (lang === "ar") return `ساعات عمل **${host.name}** غير منشورة هنا. الأفضل التواصل مباشرة مع الفريق${host.phone ? ` عبر الهاتف ${host.phone}` : host.whatsapp ? ` عبر واتساب ${host.whatsapp}` : ""}. هل تريد مساعدة في شيء آخر — مطعم قريب، سطح، أو نشاط؟`;
-    return `Les horaires de **${host.name}** ne sont pas publiés ici. Le plus simple est de contacter l'équipe directement${host.phone ? ` au ${host.phone}` : host.whatsapp ? ` sur WhatsApp au ${host.whatsapp}` : " via les coordonnées du site"}. Je peux t'aider sur autre chose — une table à proximité, un rooftop, une activité ?`;
-  }
-  const oh = host.opening_hours;
-  if (!oh || typeof oh !== "object") {
-    if (lang === "en") return `The hours of **${host.name}** haven't been filled in yet. Feel free to contact the team directly for the latest.`;
-    if (lang === "ar") return `لم تُعبأ ساعات عمل **${host.name}** بعد. يرجى الاتصال بالفريق مباشرة.`;
-    return `Les horaires de **${host.name}** ne sont pas encore renseignés. N'hésite pas à contacter l'équipe directement.`;
-  }
-  const labels = DAY_LABELS[lang];
-  const closedWord = lang === "en" ? "Closed" : lang === "ar" ? "مغلق" : "Fermé";
-  const lines: string[] = [];
-  DAY_KEYS.forEach((k, i) => {
-    const d = oh[k];
-    if (!d) { lines.push(`- ${labels[i]} — —`); return; }
-    if (d.closed) { lines.push(`- ${labels[i]} — ${closedWord}`); return; }
-    if (!d.open || !d.close) { lines.push(`- ${labels[i]} — —`); return; }
-    let s = `${d.open} – ${d.close}`;
-    if (d.open2 && d.close2 && !d.continuous) s += ` / ${d.open2} – ${d.close2}`;
-    lines.push(`- ${labels[i]} — ${s}`);
-  });
-  const intro = lang === "en"
-    ? `Here are the opening hours of **${host.name}**:`
-    : lang === "ar"
-      ? `إليك ساعات عمل **${host.name}**:`
-      : `Voici les horaires de **${host.name}** :`;
-  const outro = lang === "en"
-    ? `\n\nWant me to suggest something to do around **${host.name}** at a specific time of day?`
-    : lang === "ar"
-      ? `\n\nهل تريد اقتراحات لأنشطة قريبة من **${host.name}** في وقت معين؟`
-      : `\n\nJe peux te suggérer une activité autour de **${host.name}** à un moment précis de la journée ?`;
-  return `${intro}\n\n${lines.join("\n")}${outro}`;
-}
 
 /**
  * Parse prior assistant messages for the `<!--KNOWN_BUSINESSES:[...]-->` marker
@@ -377,232 +286,13 @@ function extractPriorKnownBusinessIds(messages: any[], hostId: string): string[]
  * Only lists businesses that have `show_opening_hours = true`.
  * For each, shows today's slot (Morocco time) + a compact weekly line.
  */
-async function buildHoursForBusinesses(admin: any, ids: string[], lang: "fr" | "en" | "ar"): Promise<string | null> {
-  if (!ids.length) return null;
-  const { data, error } = await admin
-    .from("businesses")
-    .select("id, name, slug, city, neighborhood, show_opening_hours, opening_hours, is_open_24h, phone, whatsapp")
-    .in("id", ids.slice(0, 20));
-  if (error || !Array.isArray(data) || !data.length) return null;
 
-  // Preserve the order of the incoming ids.
-  const byId = new Map<string, any>(data.map((b: any) => [b.id, b]));
-  const ordered = ids.map((id) => byId.get(id)).filter(Boolean);
-
-  const withHours = ordered.filter((b: any) => b.show_opening_hours === true && (b.is_open_24h || (b.opening_hours && typeof b.opening_hours === "object")));
-  const withoutHours = ordered.filter((b: any) => !(b.show_opening_hours === true));
-
-  if (!withHours.length && !withoutHours.length) return null;
-
-  const labels = DAY_LABELS[lang];
-  const closedWord = lang === "en" ? "Closed" : lang === "ar" ? "مغلق" : "Fermé";
-  const open24Word = lang === "en" ? "Open 24/7" : lang === "ar" ? "مفتوح 24/24" : "Ouvert 24h/24";
-
-  // Morocco day-of-week index into DAY_KEYS (which starts Monday).
-  const parts = new Intl.DateTimeFormat("en-US", { timeZone: "Africa/Casablanca", weekday: "short" }).formatToParts(new Date());
-  const wd = parts.find((p) => p.type === "weekday")?.value || "";
-  const wdMap: Record<string, number> = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
-  const todayIdx = wdMap[wd] ?? 0;
-  const todayKey = DAY_KEYS[todayIdx];
-  const todayLabel = labels[todayIdx];
-
-  const formatSlot = (d: any): string => {
-    if (!d) return "—";
-    if (d.closed) return closedWord;
-    if (!d.open || !d.close) return "—";
-    let s = `${d.open}–${d.close}`;
-    if (d.open2 && d.close2 && !d.continuous) s += ` / ${d.open2}–${d.close2}`;
-    return s;
-  };
-
-  const formatWeek = (oh: any): string => {
-    const chunks: string[] = [];
-    DAY_KEYS.forEach((k, i) => {
-      const short = labels[i].slice(0, 3);
-      chunks.push(`${short} ${formatSlot(oh?.[k])}`);
-    });
-    return chunks.join(" · ");
-  };
-
-  const intro = lang === "en"
-    ? `Here are the opening hours for the results above (${todayLabel} first):`
-    : lang === "ar"
-      ? `إليك ساعات العمل للنتائج السابقة (${todayLabel} أولًا):`
-      : `Voici les horaires des résultats ci-dessus (${todayLabel} en premier) :`;
-
-  const blocks: string[] = [];
-  for (const b of withHours) {
-    const loc = [b.neighborhood, b.city].filter(Boolean).join(", ");
-    const header = `**${b.name}**${loc ? ` — ${loc}` : ""}`;
-    if (b.is_open_24h) {
-      blocks.push(`- ${header} — ${open24Word}`);
-      continue;
-    }
-    const today = formatSlot(b.opening_hours?.[todayKey]);
-    const week = formatWeek(b.opening_hours);
-    blocks.push(`- ${header}\n  · ${todayLabel} : ${today}\n  · ${week}`);
-  }
-
-  let out = `${intro}\n\n${blocks.join("\n")}`;
-
-  if (withoutHours.length) {
-    const names = withoutHours.map((b: any) => `**${b.name}**`).join(", ");
-    const line = lang === "en"
-      ? `\n\nHours are not published here for ${names} — best to contact them directly.`
-      : lang === "ar"
-        ? `\n\nساعات العمل غير منشورة لـ ${names} — يُفضّل التواصل معهم مباشرة.`
-        : `\n\nHoraires non publiés ici pour ${names} — le mieux est de les contacter directement.`;
-    out += line;
-  }
-
-  const outro = lang === "en"
-    ? `\n\nWant me to filter by "open now" or suggest one for a specific time slot?`
-    : lang === "ar"
-      ? `\n\nهل تريد التصفية حسب "مفتوح الآن" أو اقتراح واحد لوقت معين؟`
-      : `\n\nJe filtre sur « ouvert maintenant » ou je t'en propose un pour un créneau précis ?`;
-  return out + outro;
-}
-
-function isOpensFirstIntent(text: string): boolean {
-  const n = normalize(text);
-  if (!n) return false;
-  if (/\b(premier|premiere|1er|1ere).{0,20}(ouvr|ouverture)/.test(n)) return true;
-  if (/\bqui ouvre.{0,15}(tot|premier|en premier|le plus tot)/.test(n)) return true;
-  if (/\bouvre.{0,10}le plus tot/.test(n)) return true;
-  if (/\b(opens? (?:the )?(?:first|earliest)|earliest to open|which .* opens first)\b/i.test(text)) return true;
-  if (/(الأول|أول).{0,15}(يفتح|فتح)/.test(text)) return true;
-  return false;
-}
-
-function isClosesLastIntent(text: string): boolean {
-  const n = normalize(text);
-  if (!n) return false;
-  if (/\b(dernier|derniere).{0,20}(ferm)/.test(n)) return true;
-  if (/\bqui ferme.{0,15}(tard|dernier|en dernier|le plus tard)/.test(n)) return true;
-  if (/\bferme.{0,10}le plus tard/.test(n)) return true;
-  if (/\b(closes? (?:the )?(?:last|latest)|latest to close|stays open (?:the )?latest)\b/i.test(text)) return true;
-  if (/(الأخير|آخر).{0,15}(يغلق|يقفل|إغلاق)/.test(text)) return true;
-  return false;
-}
 
 /**
  * Rank previous results by earliest opening time or latest closing time today (Morocco).
  * Uses opening_hours (both slots) and is_open_24h. Excludes businesses whose hours
  * are hidden (show_opening_hours != true) or closed today / on vacation.
  */
-async function buildHoursRanking(
-  admin: any,
-  ids: string[],
-  mode: "opens_first" | "closes_last",
-  lang: "fr" | "en" | "ar",
-): Promise<string | null> {
-  if (!ids.length) return null;
-  const { data, error } = await admin
-    .from("businesses")
-    .select("id, name, slug, city, neighborhood, show_opening_hours, opening_hours, is_open_24h, vacation_dates")
-    .in("id", ids.slice(0, 30));
-  if (error || !Array.isArray(data) || !data.length) return null;
-
-  // Morocco day + date
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Africa/Casablanca", year: "numeric", month: "2-digit", day: "2-digit", weekday: "short",
-  }).formatToParts(new Date());
-  const wd = parts.find((p) => p.type === "weekday")?.value || "";
-  const wdMap: Record<string, number> = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
-  const todayIdx = wdMap[wd] ?? 0;
-  const todayKey = DAY_KEYS[todayIdx];
-  const y = parts.find((p) => p.type === "year")?.value || "";
-  const mo = parts.find((p) => p.type === "month")?.value || "";
-  const da = parts.find((p) => p.type === "day")?.value || "";
-  const todayStr = `${y}-${mo}-${da}`;
-
-  const toMin = (s: string): number | null => {
-    const m = /^(\d{1,2}):(\d{2})$/.exec(s || "");
-    if (!m) return null;
-    return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
-  };
-
-  type Row = { id: string; name: string; slug: string; city?: string; neighborhood?: string; opens: number; closes: number; is24: boolean };
-  const rows: Row[] = [];
-
-  for (const b of data) {
-    if (b.show_opening_hours !== true) continue;
-    // Vacation check
-    if (Array.isArray(b.vacation_dates)) {
-      const onVac = b.vacation_dates.some((v: any) => v?.start_date && v?.end_date && todayStr >= v.start_date && todayStr <= v.end_date);
-      if (onVac) continue;
-    }
-    if (b.is_open_24h) {
-      rows.push({ id: b.id, name: b.name, slug: b.slug, city: b.city, neighborhood: b.neighborhood, opens: 0, closes: 1440, is24: true });
-      continue;
-    }
-    const oh = b.opening_hours;
-    const d = oh?.[todayKey];
-    if (!d || d.closed || !d.open || !d.close) continue;
-    const o1 = toMin(d.open); const c1 = toMin(d.close);
-    if (o1 == null || c1 == null) continue;
-    const opens = o1;
-    let closes = c1 <= o1 ? c1 + 1440 : c1;
-    if (d.open2 && d.close2 && !d.continuous) {
-      const c2 = toMin(d.close2);
-      if (c2 != null) {
-        const c2Adj = c2 <= (toMin(d.open2) ?? 0) ? c2 + 1440 : c2;
-        if (c2Adj > closes) closes = c2Adj;
-      }
-    }
-    rows.push({ id: b.id, name: b.name, slug: b.slug, city: b.city, neighborhood: b.neighborhood, opens, closes, is24: false });
-  }
-
-  if (!rows.length) {
-    if (lang === "en") return `I don't have public hours for the previous results — hard to rank them. Want me to try something else?`;
-    if (lang === "ar") return `ليست لديّ ساعات عمل منشورة للنتائج السابقة — يصعب ترتيبها. هل تريد شيئًا آخر؟`;
-    return `Je n'ai pas d'horaires publics sur les précédentes adresses — difficile de les classer. Je peux t'aider autrement ?`;
-  }
-
-  const sorted = mode === "opens_first"
-    ? [...rows].sort((a, b) => (a.is24 ? -1 : b.is24 ? 1 : a.opens - b.opens))
-    : [...rows].sort((a, b) => (a.is24 ? -1 : b.is24 ? 1 : b.closes - a.closes));
-
-  const top = sorted.slice(0, Math.min(5, sorted.length));
-  const fmt = (m: number) => {
-    const mm = ((m % 1440) + 1440) % 1440;
-    const h = Math.floor(mm / 60); const min = mm % 60;
-    return `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
-  };
-  const dayLabel = DAY_LABELS[lang][todayIdx];
-
-  const lines = top.map((r) => {
-    const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
-    if (r.is24) {
-      const w = lang === "en" ? "Open 24/7" : lang === "ar" ? "مفتوح 24/24" : "Ouvert 24h/24";
-      return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${w}`;
-    }
-    if (mode === "opens_first") {
-      const w = lang === "en" ? "opens at" : lang === "ar" ? "يفتح في" : "ouvre à";
-      return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${w} ${fmt(r.opens)}`;
-    }
-    const w = lang === "en" ? "closes at" : lang === "ar" ? "يغلق في" : "ferme à";
-    return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${w} ${fmt(r.closes)}`;
-
-  });
-
-  const intro = mode === "opens_first"
-    ? (lang === "en" ? `Among the previous results, **${top[0].name}** opens the earliest today (${dayLabel}):`
-      : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** يفتح أبكر اليوم (${dayLabel}):`
-      : `Parmi les précédents, c'est **${top[0].name}** qui ouvre le plus tôt aujourd'hui (${dayLabel}) :`)
-    : (lang === "en" ? `Among the previous results, **${top[0].name}** closes the latest today (${dayLabel}):`
-      : lang === "ar" ? `من بين النتائج السابقة، **${top[0].name}** يغلق متأخرًا اليوم (${dayLabel}):`
-      : `Parmi les précédents, c'est **${top[0].name}** qui ferme le plus tard aujourd'hui (${dayLabel}) :`);
-
-  const skipped = ids.length - rows.length;
-  const outro = skipped > 0
-    ? (lang === "en" ? `\n\n_(${skipped} result${skipped > 1 ? "s" : ""} excluded: hours not published or closed today.)_`
-      : lang === "ar" ? `\n\n_(${skipped} نتيجة مستبعدة: الساعات غير منشورة أو مغلقة اليوم.)_`
-      : `\n\n_(${skipped} résultat${skipped > 1 ? "s" : ""} exclu${skipped > 1 ? "s" : ""} : horaires non publiés ou fermé aujourd'hui.)_`)
-    : "";
-
-  return `${intro}\n\n${lines.join("\n")}${outro}`;
-}
 
 // ============================================================
 // Deterministic ranking / filter / pick on prior results
@@ -641,27 +331,6 @@ function isRatingRankingIntent(text: string): "best_rated" | "most_reviewed" | n
   return null;
 }
 
-type OpenFilterIntent = { kind: "now" | "slot"; startH?: number; endH?: number; label: string; dayOffset?: number };
-
-function parseOpenFilterIntent(text: string): OpenFilterIntent | null {
-  const n = normalize(text);
-  if (!n) return null;
-  const filterHint = /\b(lesquels|lesquelles|quels|quelles|which|lequel|laquelle|filtre|filtrer|only|seulement|garde|ouverts?|open|مفتوح|أي(?:ها)?)\b/i.test(text);
-  if (!filterHint) return null;
-  if (/\b(demain\s+soir|tomorrow\s+(?:evening|night))\b/i.test(text)) return { kind: "slot", startH: 19, endH: 23, label: "tomorrow evening", dayOffset: 1 };
-  if (/\b(demain\s+midi|tomorrow\s+(?:noon|lunch))\b/i.test(text)) return { kind: "slot", startH: 12, endH: 14, label: "tomorrow lunch", dayOffset: 1 };
-  if (/\b(demain\s+matin|tomorrow\s+morning)\b/i.test(text)) return { kind: "slot", startH: 8, endH: 12, label: "tomorrow morning", dayOffset: 1 };
-  if (/\b(demain|tomorrow|غدا)\b/i.test(text)) return { kind: "slot", startH: 10, endH: 22, label: "tomorrow", dayOffset: 1 };
-  if (/\b(maintenant|actuellement|now|right now|الآن)\b/i.test(text)) return { kind: "now", label: "now" };
-  if (/\b(ce soir|soiree|tonight|this evening|الليلة)\b/i.test(text)) return { kind: "slot", startH: 19, endH: 23, label: "evening", dayOffset: 0 };
-  if (/\b(matin|morning|صباح)\b/i.test(text)) return { kind: "slot", startH: 8, endH: 12, label: "morning", dayOffset: 0 };
-  if (/\b(midi|dejeuner|lunch|غداء)\b/i.test(text)) return { kind: "slot", startH: 12, endH: 14, label: "lunch", dayOffset: 0 };
-  if (/\b(apres[- ]?midi|after ?noon|بعد الظهر)\b/i.test(text)) return { kind: "slot", startH: 14, endH: 18, label: "afternoon", dayOffset: 0 };
-  if (/\b(diner|dinner|عشاء)\b/i.test(text)) return { kind: "slot", startH: 19, endH: 23, label: "dinner", dayOffset: 0 };
-  if (/\b(nuit|night|nocturne|ليل)\b/i.test(text)) return { kind: "slot", startH: 22, endH: 26, label: "night", dayOffset: 0 };
-  if (/\b(ouverts?|open|مفتوح)\b/i.test(text)) return { kind: "now", label: "now" };
-  return null;
-}
 
 function parseOrdinalIntent(text: string, priorCount: number): number[] | null {
   if (priorCount <= 0) return null;
@@ -723,40 +392,6 @@ function extractPriorOrderedBusinesses(messages: any[], hostId: string): Array<{
   return [];
 }
 
-async function fetchPriorFull(admin: any, ids: string[]): Promise<any[]> {
-  if (!ids.length) return [];
-  const { data } = await admin.from("businesses").select(
-    "id, name, slug, city, neighborhood, address, main_category, latitude, longitude, logo_url, images, computed_rating, rating, total_review_count, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, engagements, opening_hours, is_open_24h, vacation_dates, show_opening_hours"
-  ).in("id", ids.slice(0, 30));
-  return Array.isArray(data) ? data : [];
-}
-
-function orderByIds<T extends { id: string }>(arr: T[], ids: string[]): T[] {
-  const map = new Map(arr.map((x) => [x.id, x]));
-  const out: T[] = [];
-  for (const id of ids) { const v = map.get(id); if (v) out.push(v); }
-  return out;
-}
-
-function fmtKm(km: number): string {
-  return km < 1 ? `${Math.round(km * 1000)} m` : Number.isInteger(km) ? `${km} km` : `${km.toFixed(1)} km`;
-}
-
-function toMapMarker(businesses: any[], title: string | null = null): string {
-  const mapBusinesses = businesses.slice(0, 20).map((p: any) => ({
-    id: p.id, slug: p.slug, name: p.name,
-    city: p.city, neighborhood: p.neighborhood, address: p.address,
-    main_category: p.main_category || "",
-    categories: p.main_category ? [p.main_category] : [],
-    latitude: p.latitude, longitude: p.longitude,
-    logo_url: p.logo_url,
-    images: Array.isArray(p.images) ? p.images : [],
-    google_rating: p.google_rating, google_review_count: p.google_review_count,
-    tripadvisor_rating: p.tripadvisor_rating, tripadvisor_review_count: p.tripadvisor_review_count,
-    engagements: p.engagements,
-  }));
-  return `\n\n<!--SHOW_ON_MAP:${JSON.stringify({ title, businesses: mapBusinesses })}-->`;
-}
 
 async function buildDistanceRanking(admin: any, host: any, ids: string[], mode: "closest" | "farthest", lang: "fr" | "en" | "ar"): Promise<string | null> {
   if (!ids.length) return null;
@@ -850,88 +485,6 @@ async function buildRatingRanking(admin: any, ids: string[], mode: "best_rated" 
   return `${intro}\n\n${lines.join("\n")}${toMapMarker(top)}`;
 }
 
-async function buildOpenFilter(admin: any, ids: string[], intent: OpenFilterIntent, lang: "fr" | "en" | "ar"): Promise<string | null> {
-  if (!ids.length) return null;
-  const rows = await fetchPriorFull(admin, ids);
-  if (!rows.length) return null;
-
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Africa/Casablanca", year: "numeric", month: "2-digit", day: "2-digit", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false,
-  }).formatToParts(new Date());
-  const get = (t: string) => parts.find((p) => p.type === t)?.value || "";
-  const wdMap: Record<string, number> = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
-  const todayIdx = wdMap[get("weekday")] ?? 0;
-  const nowMin = parseInt(get("hour"), 10) * 60 + parseInt(get("minute"), 10);
-  const dayOffset = intent.kind === "now" ? 0 : (intent.dayOffset ?? 0);
-  const dayIdx = (todayIdx + dayOffset) % 7;
-  const dayKey = DAY_KEYS[dayIdx];
-
-  const slotStart = intent.kind === "now" ? nowMin : (intent.startH ?? 0) * 60;
-  const slotEnd = intent.kind === "now" ? nowMin + 1 : (intent.endH ?? 24) * 60;
-
-  const toMin = (s: string): number | null => { const m = /^(\d{1,2}):(\d{2})$/.exec(s || ""); return m ? parseInt(m[1], 10) * 60 + parseInt(m[2], 10) : null; };
-  const overlaps = (openStr?: string, closeStr?: string): boolean => {
-    if (!openStr || !closeStr) return false;
-    const o = toMin(openStr), c = toMin(closeStr); if (o == null || c == null) return false;
-    const cAdj = c <= o ? c + 1440 : c;
-    const sEnd = slotEnd <= slotStart ? slotEnd + 1440 : slotEnd;
-    return slotStart < cAdj && sEnd > o;
-  };
-
-  const y = get("year"), mo = get("month"), da = get("day");
-  const target = new Date(`${y}-${mo}-${da}T00:00:00Z`); target.setUTCDate(target.getUTCDate() + dayOffset);
-  const targetStr = target.toISOString().slice(0, 10);
-
-  const kept: any[] = [];
-  for (const b of rows) {
-    if (b.is_open_24h) { kept.push(b); continue; }
-    if (b.show_opening_hours !== true) continue;
-    if (Array.isArray(b.vacation_dates)) {
-      const onVac = b.vacation_dates.some((v: any) => v?.start_date && v?.end_date && targetStr >= v.start_date && targetStr <= v.end_date);
-      if (onVac) continue;
-    }
-    const d = b.opening_hours?.[dayKey];
-    if (!d || d.closed) continue;
-    if (overlaps(d.open, d.close) || (!d.continuous && overlaps(d.open2, d.close2))) kept.push(b);
-  }
-
-  const ordered = orderByIds(kept, ids);
-  const labelMap: Record<string, Record<string, string>> = {
-    now: { fr: "ouverts maintenant", en: "open now", ar: "مفتوحة الآن" },
-    evening: { fr: "ouverts ce soir", en: "open this evening", ar: "مفتوحة هذا المساء" },
-    dinner: { fr: "ouverts pour le dîner", en: "open for dinner", ar: "مفتوحة للعشاء" },
-    morning: { fr: "ouverts ce matin", en: "open this morning", ar: "مفتوحة هذا الصباح" },
-    lunch: { fr: "ouverts pour le déjeuner", en: "open for lunch", ar: "مفتوحة للغداء" },
-    afternoon: { fr: "ouverts cet après-midi", en: "open this afternoon", ar: "مفتوحة بعد الظهر" },
-    night: { fr: "ouverts en soirée tardive", en: "open late", ar: "مفتوحة ليلاً" },
-    tomorrow: { fr: "ouverts demain", en: "open tomorrow", ar: "مفتوحة غدًا" },
-    "tomorrow evening": { fr: "ouverts demain soir", en: "open tomorrow evening", ar: "مفتوحة غدًا مساءً" },
-    "tomorrow lunch": { fr: "ouverts demain midi", en: "open tomorrow at lunch", ar: "مفتوحة غدًا للغداء" },
-    "tomorrow morning": { fr: "ouverts demain matin", en: "open tomorrow morning", ar: "مفتوحة غدًا صباحًا" },
-  };
-  const label = labelMap[intent.label]?.[lang] || labelMap.now[lang];
-
-  if (!ordered.length) {
-    if (lang === "en") return `None of the previous results are **${label}** based on published hours.`;
-    if (lang === "ar") return `لا توجد من النتائج السابقة **${label}** حسب الساعات المنشورة.`;
-    return `Aucun des résultats précédents n'est **${label}** selon les horaires publiés.`;
-  }
-
-  const lines = ordered.slice(0, 10).map((r: any) => {
-    const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
-    return `- **${r.name}**${loc ? ` — ${loc}` : ""}`;
-  });
-  const skipped = ids.length - ordered.length;
-  const intro = lang === "en" ? `Filtered to **${ordered.length}** result${ordered.length > 1 ? "s" : ""} ${label}:`
-    : lang === "ar" ? `تم التصفية إلى **${ordered.length}** نتيجة ${label}:`
-    : `Filtré : **${ordered.length}** résultat${ordered.length > 1 ? "s" : ""} ${label} :`;
-  const outro = skipped > 0
-    ? (lang === "en" ? `\n\n_(${skipped} excluded: hours not published or closed.)_`
-      : lang === "ar" ? `\n\n_(${skipped} مستبعدة: الساعات غير منشورة أو مغلقة.)_`
-      : `\n\n_(${skipped} exclu${skipped > 1 ? "s" : ""} : horaires non publiés ou fermé.)_`)
-    : "";
-  return `${intro}\n\n${lines.join("\n")}${outro}${toMapMarker(ordered)}`;
-}
 
 function buildOrdinalPick(prior: Array<{ id: string; slug?: string; name: string }>, indices: number[], lang: "fr" | "en" | "ar"): string {
   const picks = indices.map((i) => prior[i]).filter(Boolean);
@@ -1320,158 +873,12 @@ async function buildCityEngagementSearch(
   return { text, markers: toMapMarker(shown) };
 }
 
-function isReserveCta(cta: string | null | undefined, mode: string | null | undefined): boolean {
-  const raw = `${cta || ""} ${mode || ""}`;
-  const n = normalize(raw);
-  if (!n) return false;
-  if (/reserv/.test(n)) return true; // reserve / reservez / reserver_en_ligne / reservation
-  if (/\bbook(?:ing)?\b/.test(n)) return true;
-  if (/billet/.test(n)) return true; // billetterie / billet en ligne / tickets
-  if (/\btickets?\b/.test(n)) return true;
-  return false;
-}
-
-function buildBookingAnswer(host: any, lang: "fr" | "en" | "ar"): string {
-  const candidates: { url: string; label: string }[] = [];
-  const push = (url: any, cta: any, mode: any) => {
-    if (!url || typeof url !== "string") return;
-    if (!isReserveCta(cta, mode)) return;
-    const fullUrl = url.startsWith("http") ? url : `https://${url}`;
-    const label = (cta && String(cta).trim()) || (lang === "en" ? "Book online" : lang === "ar" ? "احجز عبر الإنترنت" : "Réserver en ligne");
-    candidates.push({ url: fullUrl, label });
-  };
-  push(host.reserve_now_url, host.reserve_now_cta, host.presentation_mode);
-  push(host.online_shop_url, host.online_shop_cta, host.online_shop_presentation_mode);
-  push(host.url_4, host.url_4_cta, host.url_4_presentation_mode);
-  push(host.url_5, host.url_5_cta, host.url_5_presentation_mode);
-
-  if (candidates.length) {
-    const first = candidates[0];
-    const linksLine = candidates.map((c) => `[${c.label}](${c.url})`).join(" · ");
-    if (lang === "en") {
-      return `Yes — you can book **${host.name}** online right now. ${linksLine}\n\nWould you like me to suggest a great table or activity to combine with your stay?`;
-    }
-    if (lang === "ar") {
-      return `نعم — يمكنك حجز **${host.name}** مباشرة عبر الإنترنت. ${linksLine}\n\nهل تريد اقتراح مطعم أو نشاط لتكمل إقامتك؟`;
-    }
-    return `Oui — tu peux réserver **${host.name}** en ligne dès maintenant. ${linksLine}\n\nJe peux te suggérer une belle table ou une activité à combiner avec ton séjour ?`;
-  }
-
-  // No online reservation URL — fallback to phone/WhatsApp
-  const contacts: string[] = [];
-  if (host.whatsapp) contacts.push(lang === "en" ? `WhatsApp: ${host.whatsapp}` : lang === "ar" ? `واتساب: ${host.whatsapp}` : `WhatsApp : ${host.whatsapp}`);
-  if (host.phone) contacts.push(lang === "en" ? `phone: ${host.phone}` : lang === "ar" ? `هاتف: ${host.phone}` : `téléphone : ${host.phone}`);
-  const contactLine = contacts.length ? contacts.join(" · ") : (host.website || "");
-  if (lang === "en") {
-    return `**${host.name}** doesn't offer online booking on this page. The team handles reservations directly${contactLine ? ` — ${contactLine}` : ""}. Would you like me to suggest something to do nearby?`;
-  }
-  if (lang === "ar") {
-    return `**${host.name}** لا يوفر الحجز عبر الإنترنت على هذه الصفحة. يتولى الفريق الحجوزات مباشرة${contactLine ? ` — ${contactLine}` : ""}. هل تريد اقتراحات قريبة؟`;
-  }
-  return `**${host.name}** ne propose pas de réservation en ligne sur cette page. L'équipe s'occupe des réservations directement${contactLine ? ` — ${contactLine}` : ""}. Je peux te suggérer quelque chose à faire à proximité ?`;
-}
 
 /**
  * Build a multi-business booking summary for the previous search results.
  * Scans reserve_now_url + online_shop_url + url_4 + url_5 with a Reserve/Book CTA.
  * Businesses without an online booking URL fall back to phone/WhatsApp.
  */
-async function buildBookingForBusinesses(admin: any, ids: string[], lang: "fr" | "en" | "ar"): Promise<string | null> {
-  if (!ids.length) return null;
-  const { data, error } = await admin
-    .from("businesses")
-    .select("id, name, city, neighborhood, phone, whatsapp, hook_fr, hook_en, hook_ar, description, description_en, description_ar, reserve_now_url, reserve_now_cta, presentation_mode, online_shop_url, online_shop_cta, online_shop_presentation_mode, url_4, url_4_cta, url_4_presentation_mode, url_5, url_5_cta, url_5_presentation_mode, website, website_cta")
-    .in("id", ids.slice(0, 20));
-  if (error || !Array.isArray(data) || !data.length) return null;
-
-  const byId = new Map<string, any>(data.map((b: any) => [b.id, b]));
-  const ordered = ids.map((id) => byId.get(id)).filter(Boolean);
-
-  const defaultLabel = lang === "en" ? "Book online" : lang === "ar" ? "احجز عبر الإنترنت" : "Réserver en ligne";
-  const stripHtml = (s: string): string =>
-    s
-      .replace(/<br\s*\/?>/gi, " ")
-      .replace(/<\/(p|div|li|h[1-6])>/gi, " ")
-      .replace(/<[^>]+>/g, "")
-      .replace(/&nbsp;/gi, " ")
-      .replace(/&amp;/gi, "&")
-      .replace(/&quot;/gi, '"')
-      .replace(/&#39;|&apos;/gi, "'")
-      .replace(/&lt;/gi, "<")
-      .replace(/&gt;/gi, ">");
-  const pickHook = (b: any): string => {
-    const raw = lang === "en" ? (b.hook_en || b.hook_fr || b.description_en || b.description || "")
-      : lang === "ar" ? (b.hook_ar || b.hook_fr || b.description_ar || b.description || "")
-      : (b.hook_fr || b.hook_en || b.description || b.description_en || "");
-    return stripHtml(String(raw || "")).replace(/\s+/g, " ").trim();
-  };
-  const collectLinks = (b: any): { url: string; label: string }[] => {
-    const out: { url: string; label: string }[] = [];
-    const push = (url: any, cta: any, mode: any) => {
-      if (!url || typeof url !== "string") return;
-      if (!isReserveCta(cta, mode)) return;
-      const fullUrl = url.startsWith("http") ? url : `https://${url}`;
-      const label = (cta && String(cta).trim()) || defaultLabel;
-      out.push({ url: fullUrl, label });
-    };
-    push(b.reserve_now_url, b.reserve_now_cta, b.presentation_mode);
-    push(b.online_shop_url, b.online_shop_cta, b.online_shop_presentation_mode);
-    push(b.url_4, b.url_4_cta, b.url_4_presentation_mode);
-    push(b.url_5, b.url_5_cta, b.url_5_presentation_mode);
-    return out;
-  };
-
-  const intro = lang === "en"
-    ? `Here's which of these places let you book online right now, and how to reach the others directly:`
-    : lang === "ar"
-      ? `إليك أي من هذه الأماكن يتيح الحجز عبر الإنترنت الآن، وكيفية التواصل مع الآخرين مباشرة:`
-      : `Voici lesquels de ces établissements permettent de réserver en ligne dès maintenant, et comment joindre les autres directement :`;
-
-  const yesOnline = lang === "en" ? "✅ Yes, you can book online" : lang === "ar" ? "✅ نعم، يمكنك الحجز عبر الإنترنت" : "✅ Oui, vous pouvez réserver en ligne";
-  const noOnline = lang === "en" ? "❌ No online booking — contact directly" : lang === "ar" ? "❌ لا حجز عبر الإنترنت — تواصل مباشرة" : "❌ Pas de réservation en ligne — contactez directement";
-  const phoneLbl = lang === "en" ? "Phone" : lang === "ar" ? "هاتف" : "Tél";
-  const waLbl = "WhatsApp";
-
-  const blocks: string[] = [];
-  for (const b of ordered) {
-    const links = collectLinks(b);
-    const loc = [b.neighborhood, b.city].filter(Boolean).join(", ");
-    const header = `**${b.name}**${loc ? ` — ${loc}` : ""}`;
-    const hook = pickHook(b);
-    const status = links.length ? yesOnline : noOnline;
-
-    const parts: string[] = [];
-    parts.push(header);
-    if (hook) parts.push(hook);
-    parts.push(status);
-
-    if (links.length) {
-      const linksLine = links.map((c) => `[${c.label}](${c.url})`).join(" · ");
-      parts.push(linksLine);
-    }
-
-    const contacts: string[] = [];
-    if (b.phone) {
-      const digits = String(b.phone).replace(/[^\d+]/g, "");
-      contacts.push(`📞 [${phoneLbl} ${b.phone}](tel:${digits})`);
-    }
-    if (b.whatsapp) {
-      const wa = String(b.whatsapp).replace(/\D/g, "");
-      contacts.push(`💬 [${waLbl} ${b.whatsapp}](https://wa.me/${wa})`);
-    }
-    if (contacts.length) parts.push(contacts.join(" · "));
-
-    blocks.push(parts.join("\n\n"));
-  }
-
-  const outro = lang === "en"
-    ? `\n\nWant me to focus on the ones you can book right now?`
-    : lang === "ar"
-      ? `\n\nهل تريد أن أركز على الأماكن التي يمكنك حجزها الآن؟`
-      : `\n\nJe me concentre sur ceux que tu peux réserver directement en ligne ?`;
-
-  return `${intro}\n\n${blocks.join("\n\n---\n\n")}${outro}`;
-}
 
 
 
@@ -1545,13 +952,6 @@ function parseInlineRadiusKm(text: string): number | null {
   return null;
 }
 
-function haversineKmLocal(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a = Math.sin(dLat / 2) ** 2 + Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TWO-ENTITY PROXIMITY (curated only): "A à côté d'un B" where A and B are
