@@ -2377,7 +2377,7 @@ const BookOnlineSlidePanelInner = ({
               teaser={viewerTeaser}
               language={language}
               bare
-              onOpen={(rect) => { descMorphRectRef.current = rect ? { rect, t: Date.now() } : null; setShowDescriptionOverlay(true); }}
+              onOpen={startDescMorph}
             />
           ) : undefined}
         />
@@ -2528,7 +2528,7 @@ const BookOnlineSlidePanelInner = ({
 
       {/* Full Description Overlay */}
       {showDescriptionOverlay && (woDescription || hasHighlights || descGridSection || descOverlayContent || !!hookText || (avgOn20 != null && totalReviewCount > 0) || images.length > 0 || (nonExternalVideoDocs.length + externalVideoDocs.length) > 0) && (
-        <OverlayShell zClass="z-[80]" animClass={descMorphRectRef.current ? "" : "animate-zoom-out-center"} outerRef={applyDescMorph} className="flex flex-col">
+        <OverlayShell zClass="z-[80]" animClass={descMorphRect ? "owm-desc-morph" : "animate-zoom-out-center"} outerRef={applyDescMorph} className="flex flex-col">
           {images[0] && (
             <div
               className="absolute inset-0 bg-cover bg-center"
