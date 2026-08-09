@@ -95,7 +95,7 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
   const hiddenCount = Math.max(0, Math.min(ordered.length, 10) - 1);
 
   const LeaveReviewWidgets = () => (
-    <div className="flex flex-col gap-2 items-stretch">
+    <div className="flex flex-col gap-2 items-start">
       {leaveReviewPlatforms.map((p) => {
         const logo = LOGO_MAP[p.name];
         const leaveHref = resolveLeaveReviewUrl(p);
