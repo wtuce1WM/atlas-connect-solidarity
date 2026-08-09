@@ -3632,7 +3632,10 @@ const BookOnlineSlidePanelInner = ({
           }
         }
         const poiSubcatList: [string, number][] = Array.from(poiSubcatCounts.entries())
+          .filter(([, c]) => c > 0)
           .sort((a, b) => a[0].localeCompare(b[0]));
+        // Le filtre POI retenu est ignoré s'il n'a plus d'entrée dans le rayon actif
+        const poiSubcatFilterEff = poiSubcatFilter && poiSubcatCounts.has(poiSubcatFilter) ? poiSubcatFilter : null;
 
         // Pill Catégories : niveau 2 = sous-catégories (par défaut) de la catégorie choisie
         const catSubcatList: [string, number][] = activeFrontTab
