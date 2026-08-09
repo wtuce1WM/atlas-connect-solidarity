@@ -147,7 +147,7 @@ const VoiceSearchPanel = ({ liveTranscript, onClose, onFinish, align = "center",
       </div>
 
 
-      <p className={`text-base md:text-lg text-black md:text-white font-semibold px-4 ${isStart ? "text-left" : "text-center"}`}>
+      <p className={`text-base md:text-lg text-black md:text-white font-bold px-4 ${isStart ? "text-left" : "text-center"}`}>
         {L.hintLine1}<br />{L.hintLine2}
       </p>
     </div>

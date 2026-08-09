@@ -154,7 +154,7 @@ const VoiceSearchOverlay = ({ isOpen, liveTranscript, audioLevel = 0, micReady =
 
       {/* Hint (positioned in the bottom area) */}
       <div className="absolute bottom-[12%] left-0 right-0 px-6 text-center z-10">
-        <p className="text-base md:text-lg text-black/80 font-medium leading-relaxed max-w-sm mx-auto">
+        <p className="text-lg md:text-xl text-black font-bold leading-relaxed max-w-sm mx-auto">
           {L.hintLine1}<br />{L.hintLine2}
         </p>
       </div>
