@@ -41,6 +41,24 @@ import {
   extractEngagementQueryTerm, resolveCityEngagementTerm, buildCityEngagementSearch,
 } from "../_shared/ai-engine/routes/engagement.ts";
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Moteur A/B/C (docs/ai/spec-moteur-abc.md §4) — route canonique inférée depuis
+// les détecteurs déterministes déjà utilisés par le routage. Instrumentation
+// uniquement : aucun impact sur le routage lui-même.
+// ─────────────────────────────────────────────────────────────────────────────
+function inferEmbedRoute(text: string): string {
+  const t = String(text || "");
+  if (!t.trim()) return "smalltalk";
+  if (isWeatherIntent(t)) return "weather";
+  if (isBookingIntent(t)) return "booking";
+  if (isHoursIntent(t) || isOpensFirstIntent(t) || isClosesLastIntent(t)) return "opening";
+  if (isNearbyOverviewIntent(t) || isProximityIntent(t)) return "nearby";
+  if (isDescribeIntent(t)) return "business_qa";
+  if (isCityEngagementSearchIntent(t)) return "discover";
+  if (isDistanceRankingIntent(t) || isDistanceListIntent(t) || isRatingRankingIntent(t) || isCountIntent(t)) return "discover";
+  return "discover";
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -851,6 +869,7 @@ Deno.serve(async (req) => {
       execute: async ({ writer }) => {
         const t0 = Date.now();
         let firstTokenAt: number | null = null;
+        let llmUsed = false; // Moteur A/B/C : true dès qu'un appel générateur est fait
         const textId = crypto.randomUUID();
         let textStarted = false;
         const startText = () => {
@@ -1516,8 +1535,12 @@ Deno.serve(async (req) => {
               user_id: null,
               affiliate_id: null,
               user_message: userMessage,
-              intent_classified: null,
-              route_taken: "embed",
+              intent_classified: inferEmbedRoute(userMessage),
+              route_taken: inferEmbedRoute(userMessage),
+              surface: "embed",
+              ai_class: llmUsed ? "C" : "A",
+              model: llmUsed ? MODEL : null,
+              fallback_reason: hadError ? "route_failed" : null,
               tools_called: {
                 business_id: host.id,
                 business_slug: host.slug,
@@ -3029,6 +3052,7 @@ Deno.serve(async (req) => {
         if (hasForcedResults) {
           try {
             const gateway = createLovableAiGatewayProvider(LOVABLE_API_KEY);
+            llmUsed = true;
             const model = gateway(MODEL);
             const systemText = convo
               .filter((m) => m.role === "system")
@@ -3182,6 +3206,7 @@ Deno.serve(async (req) => {
           // Final round → stream via AI SDK
           try {
             const gateway = createLovableAiGatewayProvider(LOVABLE_API_KEY);
+            llmUsed = true;
             const model = gateway(MODEL);
             // IMPORTANT: pass system messages via the `system` option, not inside `messages`.
             // The AI SDK does not reliably forward system messages nested in `messages`,

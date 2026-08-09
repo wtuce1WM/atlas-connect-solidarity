@@ -519,6 +519,40 @@ async function fetchBlogEnrichment(
 }
 
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Moteur A/B/C (docs/ai/spec-moteur-abc.md §4) — dérive la classe et la route
+// canonique depuis la route legacy de club-ai-chat, sans changer le routage.
+// ─────────────────────────────────────────────────────────────────────────────
+const CLUB_ROUTE_MAP: Record<string, { route: string; aiClass: "A" | "B" | "C" }> = {
+  out_of_scope_guard: { route: "out_of_scope", aiClass: "A" },
+  fixed_response: { route: "smalltalk", aiClass: "A" },
+  fixed_response_semantic: { route: "smalltalk", aiClass: "B" },
+  agenda_shortcut: { route: "events", aiClass: "A" },
+  affirmative_map: { route: "map", aiClass: "A" },
+  map_shortcut_fallback: { route: "map", aiClass: "A" },
+  bookmarks_shortcut: { route: "discover", aiClass: "A" },
+  anaphora_shortcut: { route: "business_qa", aiClass: "A" },
+  details_shortcut: { route: "business_qa", aiClass: "A" },
+  open_now_shortcut: { route: "opening", aiClass: "A" },
+  weather_shortcut: { route: "weather", aiClass: "A" },
+  booking_shortcut: { route: "booking", aiClass: "A" },
+  nearby_shortcut: { route: "nearby", aiClass: "A" },
+  price_shortcut: { route: "pricing", aiClass: "A" },
+  router_direct: { route: "discover", aiClass: "A" },
+  tool_loop: { route: "discover", aiClass: "C" },
+};
+
+function classifyTurn(log: any, model: string): void {
+  const m = CLUB_ROUTE_MAP[String(log.route_taken || "")] ?? { route: "discover", aiClass: "C" as const };
+  log.ai_class = m.aiClass;
+  log.model = m.aiClass === "A" ? null : model;
+  if (m.aiClass === "C" && !log.fallback_reason && log.route_taken === "tool_loop") {
+    log.fallback_reason = null; // C nominal (discover flou / tool loop), pas un fallback
+  }
+  if (log.had_error) log.fallback_reason = log.fallback_reason || "route_failed";
+  if (log.results_count === 0) log.fallback_reason = log.fallback_reason || "no_results";
+}
+
 function buildSessionMemory(messages: Msg[], activeCity?: string | null): SessionMemory {
   const mem: SessionMemory = { city: null, topic: null, landmark: null, exclusions: [], keywords: [] };
   const users = messages
@@ -1559,6 +1593,12 @@ serve(async (req) => {
     stream_completed: true,
     language: null,
     message_index: null,
+    // Moteur A/B/C (spec §4) — renseignés dans le finally via classifyTurn()
+    surface: "club",
+    ai_class: null,
+    classifier_confidence: null,
+    fallback_reason: null,
+    model: null,
   };
   let adminForLog: any = null;
 
@@ -3464,6 +3504,7 @@ The user will click ONE of these as a new turn and prior constraints must be re-
     try {
       if (adminForLog) {
         turnLog.latency_ms_total = Date.now() - turnStartMs;
+        try { classifyTurn(turnLog, MODEL); } catch (e) { console.error("classifyTurn failed", e); }
         // Fire-and-forget — never block the response on log persistence
         adminForLog.from("ai_conversation_turns").insert(turnLog).then(
           ({ error }: any) => { if (error) console.error("turnLog insert failed", error.message); },
