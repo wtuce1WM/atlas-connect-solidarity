@@ -2212,14 +2212,8 @@ const BookOnlineSlidePanelInner = ({
           className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${cardsHidden ? 'translate-x-full opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'translate-x-0 opacity-100'}`}
         >
 
-        {/* Hook desktop — toujours visible si présent */}
-        {hookText && (
-          <div className="hidden md:flex justify-center pt-4 pb-2 pointer-events-none">
-            <div className="pointer-events-auto">
-              <TypewriterHook text={hookText} key={businessId + '-hook'} />
-            </div>
-          </div>
-        )}
+        {/* Hook desktop retiré : il est désormais dans la zone d'information (MediaViewerInfo) */}
+
 
         {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
         {(avgOn20 != null && totalReviewCount > 0) || woDescription || hasHighlights || (menuDocs || []).some((d: any) => d.type === 'flipbook' && typeof d.icon === 'string' && /^https?:\/\//i.test(d.icon)) ? (
