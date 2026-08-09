@@ -34,11 +34,19 @@ async function render(name){
     const {svg}=await mermaid.render("d"+Math.random().toString(36).slice(2), DIAGRAMS.diagrams[name]);
     canvas.innerHTML=svg;
   }catch(e){canvas.textContent="Erreur de rendu : "+e.message;}
-  z=1;x=0;y=0;apply();
+  fit();
+}
+function fit(){
+  const svg=canvas.querySelector("svg");
+  if(!svg){z=1;x=0;y=0;return apply();}
+  const bb=svg.getBoundingClientRect(), r=stage.getBoundingClientRect();
+  const w=bb.width/ (z||1), h=bb.height/(z||1);
+  z=Math.min(1,Math.min((r.width-30)/w,(r.height-30)/h));
+  x=0;y=0;apply();
 }
 names.forEach(n=>{const b=document.createElement("button");b.dataset.n=n;b.textContent=`${n} (${DIAGRAMS.meta[n].tables})`;b.onclick=()=>render(n);tabs.appendChild(b);});
 const tools=document.createElement("div");tools.className="tools";
-const reset=document.createElement("button");reset.textContent="Réinitialiser";reset.onclick=()=>{z=1;x=0;y=0;apply();};
+const reset=document.createElement("button");reset.textContent="Réinitialiser";reset.onclick=()=>fit();
 const dl=document.createElement("button");dl.textContent="Télécharger le SVG";dl.onclick=()=>{
   const svg=canvas.querySelector("svg");if(!svg)return;
   const blob=new Blob([svg.outerHTML],{type:"image/svg+xml"});
