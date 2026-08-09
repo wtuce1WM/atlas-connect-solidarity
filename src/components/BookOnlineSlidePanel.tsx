@@ -1363,10 +1363,11 @@ const BookOnlineSlidePanelInner = ({
   }, [showWelcomePopup, showPromosPopup]);
 
 
-  // Pause/mute background media when an overlay is open — same mute gate as the Search overlay.
+  // Pause/mute background media when a blocking overlay is open — same mute gate as the Search overlay.
   // The refs are read inside the retry loop because YouTube iframes can mount after the state flip.
   useEffect(() => {
-    const overlayOpen = anyOverlayOpen;
+    const overlayOpen = mediaBlockingOverlayOpen;
+
 
 
     const ytPost = (func: string, args: any[] = []) => {
@@ -1823,12 +1824,13 @@ const BookOnlineSlidePanelInner = ({
   // Video info via extracted hook
   // (globalSoundOn / setGlobalSoundOn hoisted earlier — see top of component)
   // Force sound ON at slide panel mount (overrides any stored "off" preference).
-  // Defer while a Popup/Offre overlay is open — sound activates only once the card is closed,
+  // Defer while a blocking overlay is open — sound activates only once the card is closed,
   // mirroring how video autoplay is neutralized during overlays.
   useEffect(() => {
-    if (anyOverlayOpen) return;
+    if (mediaBlockingOverlayOpen) return;
     setGlobalSoundOn(true);
-  }, [setGlobalSoundOn, anyOverlayOpen]);
+  }, [setGlobalSoundOn, mediaBlockingOverlayOpen]);
+
   const { videoInfo, isVerticalVideo, isSquareVideo, setIsFileVideoVertical, setIsFileVideoSquare } = useVideoInfo(effectiveMedia || null, globalSoundOn);
   const activeInternalVideoLikeId = activeVideoOverlay?.url || (
     effectiveMedia?.kind === "video" && videoInfo?.type !== "youtube" ? effectiveMedia.url : null
@@ -2116,8 +2118,9 @@ const BookOnlineSlidePanelInner = ({
             videoRef={videoRef as React.RefObject<HTMLVideoElement>}
             iframeRef={iframeRef as React.RefObject<HTMLIFrameElement>}
             onLoadedMetadata={handleVideoLoadedMetadata}
-            anyOverlayOpen={anyOverlayOpen}
+            anyOverlayOpen={mediaBlockingOverlayOpen}
           />
+
           {effectiveMedia?.kind !== "video" && effectiveMedia?.kind !== "matterport" && (
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
           )}
