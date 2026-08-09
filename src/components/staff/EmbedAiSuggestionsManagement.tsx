@@ -335,33 +335,28 @@ const EmbedAiSuggestionsManagement = () => {
             <Card key={r.id} className={dirty.has(r.id) ? "border-primary/50" : ""}>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between gap-3">
-                  <CardTitle className="text-sm flex items-center gap-2">
+                  <CardTitle className="text-sm flex items-center gap-2 min-w-0 flex-1">
+                    <button
+                      type="button"
+                      onClick={() => toggleExpanded(r.id)}
+                      className="h-7 w-7 shrink-0 flex items-center justify-center rounded-md hover:bg-muted"
+                      title={isOpen ? "Replier" : "Déplier"}
+                    >
+                      {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                    </button>
                     <Input
                       type="number"
                       value={r.sort_order}
                       onChange={(e) => update(r.id, { sort_order: parseInt(e.target.value) || 0 })}
                       className="w-20 h-8"
                     />
-                    <span className="text-muted-foreground">Ordre</span>
-                    {r.mode === "events" ? (
-                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-amber-500/15 text-amber-700" title={`Route déterministe search_events (ville hôte${r.badge_ids.length ? `, ${r.badge_ids.length} badge(s)` : ", badge #Agenda"})`}>
-                        <span>📅</span>
-                        <span>search_events</span>
-                        {r.badge_ids.length > 0 && <span className="opacity-70">· badge({r.badge_ids.length})</span>}
-                      </span>
-                    ) : r.subcategory_ids.length > 0 || r.badge_ids.length > 0 ? (
-                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-primary/15 text-primary" title={`Route déterministe search_businesses — ${r.subcategory_ids.length} sous-catégorie(s), ${r.badge_ids.length} badge(s)`}>
-                        <span>🔍</span>
-                        <span>search_businesses</span>
-                        <span className="opacity-70">
-                          · {r.subcategory_ids.length > 0 ? `subcat(${r.subcategory_ids.length})` : ""}
-                          {r.subcategory_ids.length > 0 && r.badge_ids.length > 0 ? " + " : ""}
-                          {r.badge_ids.length > 0 ? `badge(${r.badge_ids.length})` : ""}
-                        </span>
-                      </span>
-                    ) : (
-                      <RouteBadge label={r.label_fr || ""} />
-                    )}
+                    <span
+                      className="truncate font-semibold cursor-pointer"
+                      onClick={() => toggleExpanded(r.id)}
+                      title={r.label_fr || ""}
+                    >
+                      {r.label_fr || <em className="text-muted-foreground">(sans libellé FR)</em>}
+                    </span>
                   </CardTitle>
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
@@ -376,8 +371,41 @@ const EmbedAiSuggestionsManagement = () => {
                     </Button>
                   </div>
                 </div>
+
+                {/* Résumé des paramètres (toujours visible) */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-2 text-[11px]">
+                  {r.mode === "events" ? (
+                    <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium bg-amber-500/15 text-amber-700">📅 search_events</span>
+                  ) : r.mode === "structure_front" || r.subcategory_ids.length > 0 || r.badge_ids.length > 0 ? (
+                    <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium bg-primary/15 text-primary">🔍 search_businesses</span>
+                  ) : r.mode === "direct_viewer" ? (
+                    <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium bg-slate-500/15 text-slate-700">📌 direct_viewer</span>
+                  ) : (
+                    <RouteBadge label={r.label_fr || ""} />
+                  )}
+                  <Chip label="Ville" value={r.city || "Toutes"} />
+                  <Chip label="Établissements" value={r.business_ids.length === 0 ? "tous" : String(r.business_ids.length)} />
+                  <Chip label="Destinations" value={r.destination_ids.length === 0 ? "—" : String(r.destination_ids.length)} />
+                  <Chip label="Blog" value={r.blog_post_ids.length === 0 ? "auto" : String(r.blog_post_ids.length)} />
+                  <Chip label="Sous-cat." value={r.subcategory_ids.length === 0 ? "—" : String(r.subcategory_ids.length)} />
+                  <Chip label="Badges" value={r.badge_ids.length === 0 ? "—" : String(r.badge_ids.length)} />
+                  {(r.proximity_a_subcategory_ids.length > 0 || r.proximity_a_badge_ids.length > 0 || r.proximity_b_subcategory_ids.length > 0 || r.proximity_b_badge_ids.length > 0) && (
+                    <Chip
+                      label="Proximité A/B"
+                      value={`A ${r.proximity_a_subcategory_ids.length + r.proximity_a_badge_ids.length} · B ${r.proximity_b_subcategory_ids.length + r.proximity_b_badge_ids.length}`}
+                    />
+                  )}
+                  <Chip label="EN" value={r.label_en ? "✓" : "—"} />
+                  <Chip label="AR" value={r.label_ar ? "✓" : "—"} />
+                  <Chip
+                    label="Relances"
+                    value={`${globalFollowups.length - (r.disabled_followup_ids?.length || 0)}/${globalFollowups.length}`}
+                  />
+                </div>
               </CardHeader>
+              {isOpen && (
               <CardContent className="space-y-3">
+
                 <div className="grid gap-2 md:grid-cols-3">
                   <div>
                     <label className="text-xs text-muted-foreground">FR</label>
