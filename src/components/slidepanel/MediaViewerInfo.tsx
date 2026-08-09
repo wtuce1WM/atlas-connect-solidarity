@@ -59,8 +59,8 @@ const MediaViewerInfo = ({
         className="group w-full max-w-[680px] mx-auto cursor-pointer select-none rounded-2xl px-3 py-2.5 md:px-4 md:py-3 bg-gradient-to-b from-black/25 to-black/55 backdrop-blur-[2px] border border-white/10 transition-colors hover:from-black/35 hover:to-black/65 text-left"
       >
         <div
-          className="text-[15px] md:text-lg !font-bold uppercase text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.6)] truncate"
-          style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: "0.08em" }}
+          className="text-[15px] md:text-lg !font-bold normal-case text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.6)] truncate"
+          style={{ fontFamily: "'Montserrat', sans-serif", letterSpacing: "normal" }}
         >
           {name}
         </div>

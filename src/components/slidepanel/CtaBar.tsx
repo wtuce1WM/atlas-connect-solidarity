@@ -307,9 +307,9 @@ export function CtaBar({
         </div>
       )}
 
-      {/* Primary CTA rectangle (URL 2 / booking) */}
+      {/* Primary CTA rectangle (URL 2 / booking) — largeur adaptée au contenu */}
       {firstCta && (
-        <div className="w-[95%] md:w-[92%] md:px-0 pointer-events-auto">
+        <div className="w-auto max-w-[95%] md:max-w-[92%] md:px-0 pointer-events-auto [&_a]:!w-auto [&_button]:!w-auto [&_a]:px-5 [&_button]:px-5">
           {firstCta}
         </div>
       )}
