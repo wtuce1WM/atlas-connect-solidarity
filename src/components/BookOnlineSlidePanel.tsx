@@ -3651,7 +3651,7 @@ const BookOnlineSlidePanelInner = ({
 
         const afterSubcat = (() => {
           let list = afterCat;
-          if (poiSubcatFilter) list = list.filter((p) => subcatsOf(p).includes(poiSubcatFilter));
+          if (poiSubcatFilterEff) list = list.filter((p) => subcatsOf(p).includes(poiSubcatFilterEff));
           if (catSubcatFilter) list = list.filter((p) => subcatsOf(p).includes(catSubcatFilter));
           return list;
         })();
@@ -3659,8 +3659,8 @@ const BookOnlineSlidePanelInner = ({
         const afterProx = afterSubcat.filter(inRadius);
         const total = afterProx.length;
         const displayedPoi = (poiShowAll || total <= TOP_LIMIT) ? afterProx : afterProx.slice(0, TOP_LIMIT);
-        // Le toggle reste visible dès que le vivier dépasse 20, indépendamment des filtres actifs
-        const showAllToggle = poiMapMode === "poi" && (afterSubcat.length > TOP_LIMIT || poiShowAll);
+        // Pas de bascule Top 20 / Tous si le résultat courant tient sous la limite
+        const showAllToggle = poiMapMode === "poi" && total > TOP_LIMIT;
         const showCatPill = poiMapMode === "poi" && catPillTabs.length >= 2;
         const showSubcatPill = poiMapMode === "poi" && poiSubcatList.length >= 2;
         const showProxPill = poiMapMode === "poi";
