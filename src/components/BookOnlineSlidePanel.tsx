@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { DesktopMediaArrows, CardsToggleButton, useOwnerLogo } from "@/components/CardsVisibilityToggle";
+import { DesktopMediaArrows, useOwnerLogo } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import { YoutubeScrubBar } from "@/components/video/YoutubeScrubBar";
@@ -91,6 +91,7 @@ import { getVideoEmbed } from "@/lib/videoEmbed";
 import { useMediaItems, useVideoInfo } from "@/hooks/useMediaItems";
 import MediaBackground from "@/components/slidepanel/MediaBackground";
 import BusinessHeader from "@/components/slidepanel/BusinessHeader";
+import MediaViewerInfo from "@/components/slidepanel/MediaViewerInfo";
 import BusinessPromotionsList from "@/components/slidepanel/BusinessPromotionsList";
 import ImageGallerySection from "@/components/slidepanel/ImageGallerySection";
 import { useBusinessPromotions } from "@/hooks/useBusinessPromotions";
@@ -1695,6 +1696,19 @@ const BookOnlineSlidePanelInner = ({
     return raw?.trim() || null;
   }, [business, language]);
 
+  // Teaser de la zone viewer : hook, sinon début de la description en texte brut
+  const viewerTeaser = useMemo(() => {
+    if (hookText) return hookText;
+    const plain = (woDescription || "")
+      .replace(/<[^>]*>/g, " ")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/\s+/g, " ")
+      .trim();
+    return plain ? plain.slice(0, 300) : null;
+  }, [hookText, woDescription]);
+
+
   useEffect(() => {
     if (!hookText) { setShowHook(false); return; }
     setShowHook(false);
@@ -2122,139 +2136,88 @@ const BookOnlineSlidePanelInner = ({
         onTouchStart={externalVideoInteractiveMode ? undefined : handleMediaTouchStart}
         onTouchMove={externalVideoInteractiveMode ? undefined : handleMediaTouchMove}
         onTouchEnd={externalVideoInteractiveMode ? undefined : handleMediaTouchEnd}
+        // Tap sur la zone média vide → masquer / afficher (remplace le Toggle)
+        onClick={(e) => {
+          if (externalVideoInteractiveMode) return;
+          if (e.target !== e.currentTarget) return;
+          if (cardsHidden) showCards(); else hideCards();
+        }}
+
       >
 
-        {/* Block 1: Logo + name — extracted component */}
-        <BusinessHeader
-          business={business}
-          businessId={businessId}
-          hookText={hookText}
-          showHook={showHook}
-          hasReviewsCard={hasReviewsCard}
-          avgOn20={avgOn20}
-          totalReviewCount={totalReviewCount}
-          onOpenReviews={handleOpenReviews}
-          openBadgeInfo={openBadgeInfo}
-          language={language}
-        />
+        {/* Block 1 : en-tête rectangle — conservé uniquement quand la zone
+            d'information « viewer » n'est pas affichée (description masquée) */}
+        {business?.hide_description && (
+          <BusinessHeader
+            business={business}
+            businessId={businessId}
+            hookText={hookText}
+            showHook={showHook}
+            hasReviewsCard={hasReviewsCard}
+            avgOn20={avgOn20}
+            totalReviewCount={totalReviewCount}
+            onOpenReviews={handleOpenReviews}
+            openBadgeInfo={openBadgeInfo}
+            language={language}
+          />
+        )}
 
-        {/* Top bar: toggle, flags, rating — below BusinessHeader */}
+        {/* Zone d'information « viewer vidéo » — remplace Toggle + bouton « + ».
+            Toute la zone ouvre l'overlay Full Description. */}
         {!business?.hide_description && (
-        <div key={businessId + '-topbar'} className="relative z-40 overflow-visible flex flex-col items-center pt-3 pb-1 pointer-events-auto">
-          {cardsHidden ? (
-            <div className="w-full shrink-0 pointer-events-auto relative z-20">
-              <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center h-[32px] mb-2">
-                <div className="min-w-0" />
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 rounded-full px-3 h-[32px] text-black shadow-lg backdrop-blur-sm hover:opacity-90 transition-colors"
-                  style={{ backgroundColor: '#25D366' }}
-                  title={language === "ar" ? "ورّي الكارط" : "Afficher les cartes"}
-                  aria-label={language === "ar" ? "ورّي الكارط" : "Afficher les cartes"}
-                  onClick={(e) => { e.stopPropagation(); showCards(); }}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onTouchStart={(e) => e.stopPropagation()}
-                >
-                  <ChevronUp className="h-3.5 w-3.5" />
-                  <span className="text-[11px] !font-extrabold uppercase whitespace-nowrap font-['Montserrat',sans-serif]">{language === "ar" ? "ورّي" : "Afficher"}</span>
-                  <span className="hidden md:block h-1.5 w-8 rounded-full bg-black/60" />
-                </button>
-                <div className="min-w-0" />
-              </div>
-            </div>
-          ) : (
-            <CardsToggleButton
-              cardsHidden={cardsHidden}
-              showCards={showCards}
-              hideCards={hideCards}
-              onMouseDownDrag={onMouseDownDrag}
-              openBadgeInfo={openBadgeInfo}
-              leftSlot={languages.length > 0 ? (
-                <div className={`hidden md:flex items-center flex-wrap justify-center gap-1 md:gap-2 py-1.5 px-3 md:px-3 shrink-0 ${languages.length > 5 ? 'md:max-w-none' : ''}`}>
-                  {languages.map((lang, i) => {
-                    const langAlt = getLangAlt(lang);
-                    return (
-                      <span
-                        key={i}
-                        className="group relative inline-flex items-center justify-center text-xl md:text-2xl leading-none cursor-help shrink-0"
-                        title={langAlt}
-                        aria-label={langAlt}
-                        role="img"
-                        tabIndex={0}
-                        style={{ filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7)) drop-shadow(0 4px 24px hsla(0,0%,0%,0.4))" }}
-                      >
-                        {getLangFlag(lang)}
-                        <span role="tooltip" className="pointer-events-none absolute left-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[10px] text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 md:block md:text-xs">
-                          {langAlt}
-                        </span>
+        <div key={businessId + '-viewerinfo'} className="relative z-40 overflow-visible flex flex-col items-center pt-1 pb-1 pointer-events-auto">
+          <MediaViewerInfo
+            name={business.name}
+            city={business.city}
+            neighborhood={business.neighborhood}
+            avgOn20={avgOn20}
+            totalReviewCount={totalReviewCount}
+            teaser={viewerTeaser}
+            language={language}
+            onOpen={() => setShowDescriptionOverlay(true)}
+            flagsSlot={languages.length > 0 ? (
+              <div className="hidden md:flex items-center flex-wrap justify-center gap-1 md:gap-2 pb-2 px-3 shrink-0">
+                {languages.map((lang, i) => {
+                  const langAlt = getLangAlt(lang);
+                  return (
+                    <span
+                      key={i}
+                      className="group relative inline-flex items-center justify-center text-xl md:text-2xl leading-none cursor-help shrink-0"
+                      title={langAlt}
+                      aria-label={langAlt}
+                      role="img"
+                      tabIndex={0}
+                      style={{ filter: "drop-shadow(0 0 2px hsla(0,0%,0%,1)) drop-shadow(0 0 6px hsla(0,0%,0%,0.9)) drop-shadow(0 2px 12px hsla(0,0%,0%,0.7))" }}
+                    >
+                      {getLangFlag(lang)}
+                      <span role="tooltip" className="pointer-events-none absolute left-0 top-full z-50 mt-2 hidden whitespace-nowrap rounded-md bg-black/90 px-2 py-1 text-[10px] text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100 md:block md:text-xs">
+                        {langAlt}
                       </span>
-                    );
-                  })}
-                </div>
-              ) : undefined}
-              middleSlot={hookText ? (
-                <div className="md:hidden rounded-xl bg-black/45 backdrop-blur-[2px] border border-white/5 py-1.5 px-4 max-w-[95%] mx-auto shadow-[0_4px_16px_rgba(0,0,0,0.25)] pointer-events-none">
-                  <p
-                    className="text-xs sm:text-sm text-white/95 font-semibold text-center leading-relaxed [text-shadow:0_1px_2px_rgba(0,0,0,0.3)]"
-                    style={{ fontFamily: "'Montserrat', sans-serif" }}
-                  >
-                    {hookText}
-                  </p>
-                </div>
-              ) : undefined}
-              rightSlot={undefined}
-            />
-          )}
+                    </span>
+                  );
+                })}
+              </div>
+            ) : undefined}
+          />
         </div>
         )}
+
 
         <div
           className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${cardsHidden ? 'translate-x-full opacity-0 pointer-events-none max-h-0 overflow-hidden' : 'translate-x-0 opacity-100'}`}
         >
 
-        {/* Hook desktop — toujours visible si présent */}
-        {hookText && (
-          <div className="hidden md:flex justify-center pt-4 pb-2 pointer-events-none">
-            <div className="pointer-events-auto">
-              <TypewriterHook text={hookText} key={businessId + '-hook'} />
-            </div>
-          </div>
-        )}
+        {/* Hook desktop retiré : il est désormais dans la zone d'information (MediaViewerInfo) */}
+
 
         {/* Note /20 + bouton + : centrés entre carrousel info et tabs */}
         {(avgOn20 != null && totalReviewCount > 0) || woDescription || hasHighlights || (menuDocs || []).some((d: any) => d.type === 'flipbook' && typeof d.icon === 'string' && /^https?:\/\//i.test(d.icon)) ? (
           <div className="slidepanel-center-short relative flex flex-col items-center justify-center pointer-events-auto gap-6 md:gap-8 flex-1">
 
 
-            {/* Conteneur 1 : bouton + (Description / Highlights) */}
-            <div className="flex items-center justify-center pointer-events-auto">
-              {woDescription || hasHighlights ? (
-                <div className="slidepanel-plus-short relative z-[40]">
-                  <button
-                    type="button"
-                    className="cursor-pointer group flex flex-col items-center gap-2 bg-transparent border-0 p-0"
-                    onClick={(e) => { e.stopPropagation(); setShowDescriptionOverlay(true); }}
-                    onTouchEnd={(e) => { e.stopPropagation(); e.preventDefault(); setShowDescriptionOverlay(true); }}
-                    onTouchStart={(e) => e.stopPropagation()}
-                    onTouchMove={(e) => e.stopPropagation()}
-                    aria-label="Ouvrir la description"
-                  >
-                    <div
-                      className="btn-shimmer relative w-12 h-12 rounded-full border border-white/30 flex items-center justify-center overflow-hidden backdrop-blur-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)] transform-gpu transition-transform duration-200 ease-out will-change-transform group-hover:scale-150"
-                      style={{ backgroundColor: 'rgba(37, 211, 102, 0.55)' }}
-                    >
-                      <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
-                      <span aria-hidden="true" className="pointer-events-none absolute top-0 left-1.5 right-1.5 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
-                      <span className="relative text-2xl text-white font-light leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">+</span>
-                    </div>
-                  </button>
-                </div>
-              ) : (
-                <div className="slidepanel-plus-short invisible pointer-events-none" aria-hidden="true">
-                  <div className="w-12 h-12" />
-                </div>
-              )}
-            </div>
+            {/* Bouton « + » retiré : l'ouverture de la Full Description se fait
+                désormais via la zone d'information posée sur le média. */}
+
 
 
             {/* Conteneur 2 : flipbooks OU badge Avis clients */}
