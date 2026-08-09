@@ -4273,6 +4273,7 @@ const BookOnlineSlidePanelInner = ({
                   videoRef: videoRef as React.RefObject<HTMLVideoElement>,
                   paused: videoPaused,
                   muted: videoMuted,
+                  onMutedChange: (m: boolean) => { setVideoMuted(m); setGlobalSoundOn(!m); },
                 } :
                 effectiveMedia?.kind === "video" && videoInfo?.type === "youtube" ? {
                   type: "youtube",
