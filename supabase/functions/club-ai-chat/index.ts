@@ -1221,9 +1221,13 @@ async function runTool(name: string, args: any, ctx: { userId: string; supabase:
         has_more: (strictFilterApplied ? filtered.length : total) > results.length,
         map_slugs: effectiveList.map((b: any) => b.slug).filter(Boolean).slice(0, SEARCH_RESULT_LIMIT),
         map_count: Math.min(effectiveList.length, SEARCH_RESULT_LIMIT),
+        landmark_softened: landmarkSoftened,
         answer_guidance:
           (strictFilterApplied
             ? `IMPORTANT — un filtre strict serveur a déjà retiré ${droppedCount} établissement(s) qui ne remplissent pas les conditions (${excludeHotel ? "exclusion hôtel " : ""}${requiresBar ? "· doit avoir un bar " : ""}${requiredLandmarks.length ? "· vue prouvée sur " + requiredLandmarks.map((l) => l.label).join(", ") : ""}). Utilise total_count = ${filtered.length} et NE réintroduis JAMAIS les résultats retirés. `
+            : "") +
+          (landmarkSoftened
+            ? `Les résultats respectent bien les critères principaux (${excludeHotel ? "hors hôtellerie, " : ""}${requiresBar ? "bar, " : ""}ville). Présente-les comme des correspondances valides — n'écris PAS "aucune correspondance exacte". Précise seulement, en une courte phrase, que la vue sur ${requiredLandmarks.map((l) => l.label).join(", ")} n'est pas documentée pour chacun. `
             : "") +
           "Dans le texte visible, cite 3 à 5 établissements maximum. La ligne 'N résultats affichés sur M trouvés' doit utiliser N = nombre de noms que tu listes réellement dans ton texte, pas returned_count. Les slugs complets pour la carte sont dans map_slugs.",
         detected: {
