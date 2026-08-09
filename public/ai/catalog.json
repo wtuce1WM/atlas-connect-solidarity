@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-08T23:41:07.991Z",
+    "generated_at": "2026-08-09T03:03:18.194Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
     "count": 1845
   },
@@ -47081,7 +47081,11 @@
         "Salades",
         "Mocktails",
         "Accessible aux personnes à mobilité réduite",
-        "Bar à Chicha"
+        "Bar à Chicha",
+        "Musique live",
+        "Musique Live",
+        "Cave à vin",
+        "Lounge"
       ],
       "city": "Marrakech",
       "neighborhood": "Hivernage",
@@ -47095,7 +47099,7 @@
       "website": "https://kissko.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/43ea360d-a789-4191-ac1c-5ea2a258b8b7-1771176198552-ezuw2.jpg",
       "google_rating": 4.9,
-      "google_review_count": 1521,
+      "google_review_count": 1572,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -47135,7 +47139,7 @@
       "social": {
         "instagram": "https://www.instagram.com/kisskomarrakech/",
         "facebook": null,
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293734-d26494734-Reviews-Kiss_Ko-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -62183,7 +62187,8 @@
         "Sandwichs",
         "DJ résidents",
         "Dîner",
-        "Déjeuner"
+        "Déjeuner",
+        "DJ's"
       ],
       "city": "Marrakech",
       "neighborhood": "Hivernage",
@@ -62196,8 +62201,8 @@
       "whatsapp": null,
       "website": "https://lolaskylounge.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/d13811c2-720a-4d60-a675-6e9c0d212d80-1776492712301-ckdlc.jpg",
-      "google_rating": 3.9,
-      "google_review_count": 352,
+      "google_rating": 3.8,
+      "google_review_count": 365,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -140506,7 +140511,9 @@
         "Piscine privative",
         "Terrasse",
         "Transfert Aéroport",
-        "Vue montagne"
+        "Vue montagne",
+        "Aire de jeux",
+        "Bungalows"
       ],
       "city": "Marrakech",
       "neighborhood": "Hivernage",
@@ -140520,7 +140527,7 @@
       "website": "https://www.fourseasons.com/marrakech/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/2e4237a7-c6f8-43ab-98ca-fd6eccc80dc3-1781350458719-rrop09.jpg",
       "google_rating": 4.6,
-      "google_review_count": 2182,
+      "google_review_count": 2202,
       "price_range": "$$$",
       "min_price_mad": 432,
       "languages": [],
@@ -140583,7 +140590,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.opentable.co.uk/r/zest-rooftop-bar-reservations-marrakech?restref=370974",
+      "booking_url": "https://www.fourseasons.com/marrakech/accommodations/",
       "menu_url": "https://www.fourseasons.com/marrakech/dining/lounges/zest/main-menu/",
       "social": {
         "instagram": "https://www.instagram.com/fsmarrakech/",
@@ -151664,8 +151671,8 @@
       "description": "L'expérience Elevate Elevate Cycle propose bien plus qu'une simple séance de sport : nous offrons une expérience immersive de cyclisme en salle de 45 minutes, unique en son genre. Notre séance signature allie musique, rythme et mouvement pour créer une atmosphère où vous pouvez vous évader tout en repoussant vos limites. Mais nous ne nous arrêtons pas au cyclisme. Nous proposons également : Des séances de renforcement musculaire fonctionnel pour gagner en puissance et en endurance Des cours de P",
       "main_category": "Sport & Loisirs",
       "categories": [
-        "Deux-roues",
-        "Fitness"
+        "Fitness",
+        "Deux-roues"
       ],
       "services": [
         "Salle de sport",
