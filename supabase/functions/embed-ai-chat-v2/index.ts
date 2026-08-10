@@ -212,7 +212,7 @@ Deno.serve(async (req) => {
             city_active: null,
             city_detected: cityDetected,
             language: lang,
-            tools_called: { session_id: sessionId, category: lastCategory },
+            tools_called: { session_id: sessionId, category: lastCategory, resolution_authority: resolutionAuthority },
             ...resolutionLog,
           });
           if (logErr) console.error("[embed-ai-chat-v2] log_failed", logErr.message);
