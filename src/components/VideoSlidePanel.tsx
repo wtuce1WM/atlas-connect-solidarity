@@ -574,14 +574,14 @@ const VideoSlidePanel = ({
   }
 
   return createPortal(
-    <div className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[220]"
+    <div className="fixed inset-y-0 right-0 w-full lg:w-1/2 z-[220] bg-black h-[100dvh]"
       onClick={(e) => {
         if (panelRef.current && !panelRef.current.contains(e.target as Node)) onClose();
       }}
     >
       <div
         ref={panelRef}
-        className="absolute right-0 top-0 h-full w-full bg-background border-l border-border shadow-2xl overflow-hidden"
+        className="absolute right-0 top-0 h-full w-full bg-black lg:bg-background border-l border-border shadow-2xl overflow-hidden"
         style={swipeNavigationEnabled ? { touchAction: "none", overscrollBehavior: "contain" } : undefined}
         onTouchStart={swipeNavigationEnabled ? (e) => {
           if (e.touches.length !== 1) return;
