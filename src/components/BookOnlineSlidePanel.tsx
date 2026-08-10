@@ -46,6 +46,7 @@ import YouTubeShortsCarousel, { type YouTubeVideo } from "@/components/YouTubeSh
 import { useDragToHide } from "@/hooks/useDragToHide";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 import PoiFilterChoiceOverlay from "@/components/PoiFilterChoiceOverlay";
 
@@ -254,6 +255,9 @@ const BookOnlineSlidePanelInner = ({
 }: BookOnlineSlidePanelProps) => {
   // Aliases: callers from SlidePanelHome migration use onPrev/onNext naming.
   const effectiveOnPrev = onPrevBusiness ?? onPrev;
+  // Chrome navigateur (barres iOS) en noir tant que le panneau est monté hors embed
+  useDarkBrowserChrome(!embedMode);
+
   const effectiveOnNext = onNextBusiness ?? onNext;
   const effectiveHasPrev = hasPrevBusiness ?? hasPrev;
   const effectiveHasNext = hasNextBusiness ?? hasNext;

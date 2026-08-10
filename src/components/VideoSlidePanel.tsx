@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, Suspense } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { X, ChevronUp, ChevronDown, Youtube, MapPin, ExternalLink } from "lucide-react";
@@ -153,6 +155,9 @@ const VideoSlidePanel = ({
   const navigate = useLocalizedNavigate();
   const isMobile = useIsMobile();
   const { language } = useLanguage();
+  // Chrome navigateur en noir tant que le panneau plein écran est ouvert (supprime les bandes beiges iOS)
+  useDarkBrowserChrome(true);
+
 
   // Analytics: overlay_open lorsque le panel s'ouvre
   useEffect(() => {
