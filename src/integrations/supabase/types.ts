@@ -4178,6 +4178,7 @@ export type Database = {
           badge_ids: string[]
           category: string | null
           city: string | null
+          commodity_filters: string[]
           created_at: string
           id: string
           is_active: boolean
@@ -4194,6 +4195,7 @@ export type Database = {
           badge_ids?: string[]
           category?: string | null
           city?: string | null
+          commodity_filters?: string[]
           created_at?: string
           id?: string
           is_active?: boolean
@@ -4210,6 +4212,7 @@ export type Database = {
           badge_ids?: string[]
           category?: string | null
           city?: string | null
+          commodity_filters?: string[]
           created_at?: string
           id?: string
           is_active?: boolean
@@ -4230,6 +4233,7 @@ export type Database = {
           blog_post_ids: string[]
           business_ids: string[]
           city: string | null
+          commodity_filters: string[]
           created_at: string
           destination_ids: string[]
           disabled_followup_ids: string[]
@@ -4254,6 +4258,7 @@ export type Database = {
           blog_post_ids?: string[]
           business_ids?: string[]
           city?: string | null
+          commodity_filters?: string[]
           created_at?: string
           destination_ids?: string[]
           disabled_followup_ids?: string[]
@@ -4278,6 +4283,7 @@ export type Database = {
           blog_post_ids?: string[]
           business_ids?: string[]
           city?: string | null
+          commodity_filters?: string[]
           created_at?: string
           destination_ids?: string[]
           disabled_followup_ids?: string[]

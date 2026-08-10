@@ -88,6 +88,8 @@ export type CuratedTargets = {
   pinnedBusinessIds: string[];
   subcategoryNames: string[];
   badgeIds: string[];
+  /** Valeurs de commodités (sans le préfixe « Logistique: ») → filtre dur sur businesses.engagements */
+  commodities: string[];
   destinationIds: string[];
   mode: string | null;
   label: string | null;
@@ -95,9 +97,10 @@ export type CuratedTargets = {
 };
 
 const EMPTY_TARGETS: CuratedTargets = {
-  blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], badgeIds: [],
+  blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], badgeIds: [], commodities: [],
   destinationIds: [], mode: null, label: null, aiTexts: [],
 };
+
 
 /** Lit les cibles curatées d'une suggestion / relance + les liens propres à l'établissement. */
 export async function loadCuratedTargets(
@@ -113,18 +116,20 @@ export async function loadCuratedTargets(
     try {
       const { data: sugg } = await admin
         .from("embed_ai_suggestions")
-        .select("subcategory_ids, badge_ids, business_ids, destination_ids, blog_post_ids, mode, label_fr, label_en, label_ar")
+        .select("subcategory_ids, badge_ids, commodity_filters, business_ids, destination_ids, blog_post_ids, mode, label_fr, label_en, label_ar")
         .eq("id", suggestionId)
         .maybeSingle();
       if (sugg) {
         out.mode = (sugg.mode as string | null) || null;
         out.label = (sugg.label_fr || sugg.label_en || sugg.label_ar || null) as string | null;
         out.badgeIds = Array.isArray(sugg.badge_ids) ? sugg.badge_ids.filter(Boolean) : [];
+        out.commodities = Array.isArray(sugg.commodity_filters) ? sugg.commodity_filters.filter(Boolean) : [];
         out.destinationIds = Array.isArray(sugg.destination_ids) ? sugg.destination_ids.filter(Boolean) : [];
         if (!followupId) {
           out.pinnedBusinessIds = Array.isArray(sugg.business_ids) ? sugg.business_ids.filter(Boolean) : [];
           out.blogPostIds = Array.isArray(sugg.blog_post_ids) ? sugg.blog_post_ids.filter(Boolean) : [];
         }
+
         const subIds: string[] = Array.isArray(sugg.subcategory_ids) ? sugg.subcategory_ids.filter(Boolean) : [];
         if (subIds.length) {
           const { data: subs } = await admin.from("subcategories").select("name_fr").in("id", subIds);
@@ -371,6 +376,7 @@ export async function buildBlogArticleAnswer(
  */
 export async function buildPinnedAnswer(
   admin: any, ids: string[], host: any, lang: Lang, label?: string | null,
+  overrides?: { route?: string; heading?: string; outro?: string; total?: number },
 ): Promise<CuratedAnswer | null> {
   const wanted = ids.filter(Boolean).slice(0, 20);
   if (!wanted.length) return null;
@@ -412,21 +418,123 @@ export async function buildPinnedAnswer(
     return `${idx + 1}. **${biz.name}**${area ? ` — _${area}_` : ""}\n\n${hook || fallback}${ratingLine}${revLine}`;
   }).join("\n\n---\n\n");
 
-  const heading = label
+  const heading = overrides?.heading ?? (label
     ? (lang === "en" ? `**${label}** — hand-picked selection:` : lang === "ar" ? `**${label}** — اختيار مُنتقى:` : `**${label}** — sélection choisie à la main :`)
-    : (lang === "en" ? "Hand-picked selection:" : lang === "ar" ? "اختيار مُنتقى:" : "Sélection choisie à la main :");
-  const outro = lang === "en"
+    : (lang === "en" ? "Hand-picked selection:" : lang === "ar" ? "اختيار مُنتقى:" : "Sélection choisie à la main :"));
+  const outro = overrides?.outro ?? (lang === "en"
     ? `📍 That's the full curated shortlist${host?.city ? ` in ${host.city}` : ""} — want the map view, opening hours, or booking links?`
     : lang === "ar"
       ? `📍 هذه هي القائمة المختارة كاملة${host?.city ? ` في ${host.city}` : ""} — تريد الخريطة أو أوقات العمل أو روابط الحجز؟`
-      : `📍 C'est la sélection curatée complète${host?.city ? ` à ${host.city}` : ""} — tu veux la carte, les horaires, ou les liens de réservation ?`;
+      : `📍 C'est la sélection curatée complète${host?.city ? ` à ${host.city}` : ""} — tu veux la carte, les horaires, ou les liens de réservation ?`);
 
   return {
     text: `${heading}\n\n${body}\n\n${outro}`,
     knownBusinesses: ordered.map((b: any) => ({ id: b.id, slug: b.slug || null, name: b.name })),
     mapPayload: { title: label || null, businesses: mapBusinessesOf(ordered) },
     shown: ordered.length,
-    total: ordered.length,
-    route: "curated_pinned",
+    total: overrides?.total ?? ordered.length,
+    route: overrides?.route ?? "curated_pinned",
   };
+}
+
+/**
+ * Filtre déterministe curaté (parité V1 `_badgeIds` / `_subcategoryNames`) :
+ * une suggestion liée à des badges (commodités) ou sous-catégories fait loi.
+ * On interroge `business-search` avec ces filtres DURS — jamais le message libre —
+ * puis on rend la liste sans aucun appel génératif (classe A, zéro token).
+ */
+export async function buildFilteredAnswer(
+  admin: any,
+  host: any,
+  lang: Lang,
+  opts: {
+    badgeIds?: string[];
+    subcategoryNames?: string[];
+    label?: string | null;
+    city?: string | null;
+    maxResults?: number;
+    supabaseUrl: string;
+    serviceKey: string;
+  },
+): Promise<CuratedAnswer | null> {
+  const badgeIds = (opts.badgeIds || []).filter(Boolean);
+  const subcategoryNames = (opts.subcategoryNames || []).filter(Boolean);
+  const commodities = (opts.commodities || []).filter(Boolean);
+  if (!badgeIds.length && !subcategoryNames.length && !commodities.length) return null;
+  const city = opts.city || host?.city || "Marrakech";
+  const max = opts.maxResults ?? 6;
+
+  let all: any[] = [];
+  if (commodities.length) {
+    // Commodités (Structure du Front → Commodités / Logistique) : filtre dur sur
+    // `businesses.engagements`, aucune recherche sémantique, aucun LLM.
+    const variants = commodities.flatMap((c) => [c, `Logistique:${c}`]);
+    try {
+      const { data, error } = await admin
+        .from("businesses")
+        .select("id, is_featured, computed_rating, total_review_count")
+        .eq("is_active", true)
+        .eq("city", city)
+        .overlaps("engagements", variants)
+        .order("is_featured", { ascending: false })
+        .order("computed_rating", { ascending: false, nullsFirst: false })
+        .limit(60);
+      if (error) throw error;
+      all = data || [];
+    } catch (e) {
+      console.error("[curated] commodity_filter_failed", String(e));
+      return null;
+    }
+  } else {
+    try {
+      const r = await fetch(`${opts.supabaseUrl}/functions/v1/business-search`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${opts.serviceKey}`,
+          apikey: opts.serviceKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          language: lang,
+          pageSize: 30,
+          offset: 0,
+          compact: "card",
+          city,
+          badgeIds: badgeIds.length ? badgeIds : undefined,
+          subcategoryNames: subcategoryNames.length ? subcategoryNames : undefined,
+        }),
+      });
+      const json = await r.json().catch(() => null);
+      all = Array.isArray(json?.businesses) ? json.businesses : [];
+    } catch (e) {
+      console.error("[curated] filtered_search_failed", String(e));
+      return null;
+    }
+  }
+
+
+  const ids = all.map((b: any) => b?.id).filter((id: string) => id && id !== host?.id);
+  if (!ids.length) return null;
+  const total = ids.length;
+  const shownIds = ids.slice(0, max);
+
+  const heading = opts.label
+    ? (lang === "en" ? `**${opts.label}** — matching addresses in ${city}:`
+      : lang === "ar" ? `**${opts.label}** — عناوين مطابقة في ${city}:`
+      : `**${opts.label}** — les adresses qui correspondent à ${city} :`)
+    : (lang === "en" ? `Matching addresses in ${city}:` : lang === "ar" ? `عناوين مطابقة في ${city}:` : `Les adresses qui correspondent à ${city} :`);
+  const rest = total - shownIds.length;
+  const outro = lang === "en"
+    ? `📍 ${shownIds.length} of ${total} matching addresses${rest > 0 ? " — want me to show the others" : " — want the map view"}, opening hours, or booking links?`
+    : lang === "ar"
+      ? `📍 ${shownIds.length} من ${total} عنوانًا مطابقًا${rest > 0 ? " — أعرض الباقي؟" : " — تريد الخريطة؟"}`
+      : `📍 ${shownIds.length} adresses sur ${total} qui correspondent${rest > 0 ? " — je te montre les autres" : " — tu veux la carte"}, les horaires, ou les liens de réservation ?`;
+
+  const built = await buildPinnedAnswer(admin, shownIds, host, lang, opts.label, {
+    route: "curated_filter",
+    heading,
+    outro,
+    total,
+  });
+  return built;
 }
