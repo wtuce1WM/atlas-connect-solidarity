@@ -7,6 +7,7 @@ import {
   matchCuratedByText, loadCuratedTargets, fetchBlogPostsCached,
   buildBlogArticleAnswer, buildPinnedAnswer,
 } from "../_shared/ai-engine/routes/curated.ts";
+import { loadEditorialTexts, formatEditorialContext } from "../_shared/ai-engine/editorial.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -627,50 +628,19 @@ serve(async (req) => {
       });
     }
 
-    // Fetch knowledge entries to enrich AI context
-    const queryTerms = query.toLowerCase().split(/\s+/).filter((w: string) => w.length > 2);
+    // Contexte éditorial : TXT IA uniquement (business_ai_texts).
+    // Les notes de connaissances (knowledge_entries) sont internes/techniques → jamais injectées.
     let knowledgeContext = "";
-    const knowledgeEntries: any[] = [];
-
-    // 1. Fetch by business_id link
     if (businessIds.length > 0) {
-      const { data: linkedRows } = await sb
-        .from("knowledge_entries")
-        .select("title, content, category, tags, business_id")
-        .in("business_id", businessIds)
-        .eq("is_active", true)
-        .limit(10);
-      if (linkedRows) knowledgeEntries.push(...linkedRows);
-    }
-
-    // 2. Fetch by text matching (existing logic)
-    if (queryTerms.length > 0) {
-      const aiCategories = ["general", "tourisme", "culture", "gastronomie"];
-      const orFilters = queryTerms.map((t: string) => `title.ilike.%${t}%,content.ilike.%${t}%,tags.cs.{${t}}`).join(",");
-      const { data: knowledgeRows } = await sb
-        .from("knowledge_entries")
-        .select("title, content, category, tags, business_id")
-        .in("category", aiCategories)
-        .eq("is_active", true)
-        .or(orFilters)
-        .limit(5);
-      if (knowledgeRows) {
-        const existingTitles = new Set(knowledgeEntries.map((k: any) => k.title));
-        for (const row of knowledgeRows) {
-          if (!existingTitles.has((row as any).title)) knowledgeEntries.push(row);
-        }
+      const nameById: Record<string, string> = {};
+      for (const b of effectiveBusinesses) if (b?.id) nameById[b.id] = b.name || "";
+      const editorialTexts = await loadEditorialTexts(sb, { businessIds, perBusiness: 2, limit: 12 });
+      knowledgeContext = formatEditorialContext(editorialTexts, nameById);
+      if (knowledgeContext) {
+        console.log(`Found ${editorialTexts.length} TXT IA for query "${query}" (${businessIds.length} businesses)`);
       }
     }
 
-    if (knowledgeEntries.length > 0) {
-      knowledgeContext = knowledgeEntries
-        .map((k: any) => {
-          const truncated = k.content.length > 300 ? k.content.substring(0, 300) + "…" : k.content;
-          return `[${k.category}] ${k.title}: ${truncated}`;
-        })
-        .join("\n");
-      console.log(`Found ${knowledgeEntries.length} knowledge entries for query "${query}" (${businessIds.length} by business link)`);
-    }
 
     // Compute distance (km) from user to each business when geolocated.
     const distanceFromUser: Record<string, number> = {};
@@ -1023,7 +993,7 @@ RÈGLES :
 ${mode === "poi" ? "LIEUX D'INTÉRÊT" : mode === "destinations" ? "DESTINATIONS" : "ÉTABLISSEMENTS TROUVÉS"} :
 ${businessContext}${knowledgeContext ? `
 
-CONNAISSANCES COMPLÉMENTAIRES (si pertinent, intègre ces informations de manière naturelle pour enrichir tes recommandations — ne mets pas en avant un établissement uniquement parce qu'il a une entrée ici) :
+TEXTES ÉDITORIAUX DES ÉTABLISSEMENTS (TXT IA — rédigés par l'établissement/affilié ; intègre-les naturellement pour enrichir la description, ne mets pas en avant un établissement uniquement parce qu'il a un texte ici) :
 ${knowledgeContext}` : ''}${
   nearbyContext && Array.isArray(nearbyContext.items) && nearbyContext.items.length > 0 ? `
 
