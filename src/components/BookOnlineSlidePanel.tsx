@@ -3245,17 +3245,18 @@ const BookOnlineSlidePanelInner = ({
                       <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">
                         {language === "en" ? "AI Assistant" : language === "ar" ? "المساعد الذكي" : "Assistant IA"}
                       </h2>
-                      <div className="w-full mx-auto max-w-[820px] rounded-xl overflow-hidden bg-black/30 border border-white/10">
+                      <div className="w-full mx-auto max-w-[820px] rounded-xl overflow-hidden bg-transparent border border-white/10">
                         <iframe
                           key={`ai-widget-${business.slug}`}
-                          src={`/embed/ask/${business.slug}?theme=${(business as any)?.widget_theme === "light" ? "light" : "dark"}&lang=${language}`}
+                          src={`/embed/ask/${business.slug}?theme=${(business as any)?.widget_theme === "light" ? "light" : "dark"}&lang=${language}&bg=transparent`}
                           title={language === "en" ? "AI Assistant" : "Assistant IA"}
                           allow="clipboard-write; microphone; fullscreen"
-                          className="w-full block border-0"
-                          style={{ height: 640 }}
+                          className="w-full block border-0 bg-transparent"
+                          style={{ height: 640, background: "transparent" }}
                           loading="lazy"
                         />
                       </div>
+
                     </div>
                   )}
 
@@ -3269,7 +3270,7 @@ const BookOnlineSlidePanelInner = ({
                       <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
                         <iframe
                           key={`nearby-widget-${business.slug}`}
-                          src={`/embed/nearby/${business.slug}?lang=${language}`}
+                          src={`/embed/nearby/${business.slug}?lang=${language}&bg=ECD6B8`}
                           title={language === "en" ? "Nearby" : "À proximité"}
                           allow="geolocation; fullscreen"
                           className="w-full block border-0"
@@ -3277,6 +3278,7 @@ const BookOnlineSlidePanelInner = ({
                           loading="lazy"
                         />
                       </div>
+
                     </div>
                   )}
 
