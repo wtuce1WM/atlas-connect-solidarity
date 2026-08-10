@@ -5,7 +5,7 @@ import { AI_MODEL, getSurfaceConfig } from "../_shared/ai-engine/surfaces.ts";
 import { classify, isConfident, type ClassifyResult } from "../_shared/ai-engine/classify.ts";
 import { detectViewIntent, hasPanoramaAttribute, hasPanoramaProof, withinPointRadius, hasVantage, hasPointViewProof } from "../_shared/ai-engine/view-targets.ts";
 import {
-  loadCuratedTargets, fetchBlogPostsCached,
+  loadCuratedTargets, fetchBlogPostsCached, matchCuratedByText,
   buildBlogArticleAnswer, buildPinnedAnswer, buildFilteredAnswer,
 } from "../_shared/ai-engine/routes/curated.ts";
 
@@ -1786,9 +1786,18 @@ serve(async (req) => {
           .select("id,label_fr,label_en,label_ar,mode,destination_ids,subcategory_ids,badge_ids,disabled_followup_ids,city")
           .eq("surface", "club")
           .eq("is_active", true);
-        const sug: any = (sugRows || []).find((r: any) =>
+        let sug: any = (sugRows || []).find((r: any) =>
           normLbl(r.label_fr) === key || normLbl(r.label_en) === key || normLbl(r.label_ar) === key
         );
+        // Texte libre : recouvrement de tokens sur les libellés staff (matcher partagé)
+        // → taper la phrase équivaut à cliquer la suggestion.
+        if (!sug) {
+          const m = await matchCuratedByText(admin, { text: lastUserLabel, surface: "club" }).catch(() => null);
+          if (m) {
+            sug = (sugRows || []).find((r: any) => r.id === m.id) || null;
+            if (sug) console.log("club-ai-chat → curated_text_match", JSON.stringify(m));
+          }
+        }
         if (sug) {
           matchedSuggestionId = sug.id;
           const subIds: string[] = Array.isArray(sug.subcategory_ids) ? sug.subcategory_ids : [];

@@ -3,6 +3,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { fetchAiGateway, resolveCallerContext } from "../_shared/ai-gateway.ts";
 import { loadRoutes, route as engineRoute } from "../_shared/ai-engine/index.ts";
 import type { RouteCode } from "../_shared/ai-engine/types.ts";
+import {
+  matchCuratedByText, loadCuratedTargets, fetchBlogPostsCached,
+  buildBlogArticleAnswer, buildPinnedAnswer,
+} from "../_shared/ai-engine/routes/curated.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -249,6 +253,57 @@ serve(async (req) => {
     const extraInstructions = cfg.extra_instructions || "";
     const noResultsCfg = cfg.no_results_instructions || "";
     const boostVerified = cfg.boost_verified !== "false";
+
+    // --- AUTORITÉ CURATÉE (classe A, zéro token) ---
+    // Texte libre rapproché d'un libellé de suggestion staff (matcher partagé) :
+    // si la suggestion pointe vers un article de blog ou des établissements
+    // épinglés, on rend le contenu éditorial tel quel, sans génération.
+    if (!mode && (!Array.isArray(history) || history.length === 0)) {
+      try {
+        const m = await matchCuratedByText(sb, { text: String(query || ""), surface: "search" });
+        if (m) {
+          const curated = await loadCuratedTargets(sb, { suggestionId: m.id });
+          const pseudoHost: any = { id: null, city: defaultCity, name: null };
+          const lang: "fr" | "en" | "ar" = language === "en" ? "en" : language === "ar" ? "ar" : "fr";
+          let built: any = null;
+          if (curated.blogPostIds.length) {
+            const posts = await fetchBlogPostsCached(sb);
+            const post = curated.blogPostIds.map((id) => posts.find((p) => p.id === id)).filter(Boolean)[0];
+            if (post) built = await buildBlogArticleAnswer(sb, post, pseudoHost, lang);
+          }
+          if (!built && curated.pinnedBusinessIds.length) {
+            built = await buildPinnedAnswer(sb, curated.pinnedBusinessIds, pseudoHost, lang, curated.label);
+          }
+          if (built?.text) {
+            // Les marqueurs de rendu (ARTICLE_CARD…) ne sont pas interprétés par /search.
+            const answer = String(built.text).replace(/<!--[A-Z_]+:[\s\S]*?-->/g, "").replace(/\n{3,}/g, "\n\n").trim();
+            if (answer) {
+              await logSearchTurn({
+                user_message: String(query || ""),
+                route_taken: built.route || "curated",
+                ai_class: "A",
+                model: null,
+                fallback_reason: null,
+                results_count: built.shown ?? null,
+                language,
+                city_active: defaultCity,
+                chat_id: chatId,
+                latency_ms_total: Date.now() - t0,
+                tokens_in: 0,
+                tokens_out: 0,
+              }, sb);
+              console.log(`[ai-search-answer] curated_text_match ${JSON.stringify(m)} route=${built.route}`);
+              return new Response(
+                JSON.stringify({ answer, citedBusinesses: built.knownBusinesses || [] }),
+                { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+              );
+            }
+          }
+        }
+      } catch (e) {
+        console.error("[ai-search-answer] curated_text_match_failed", String(e));
+      }
+    }
 
     // --- Moteur A/B/C (surface "search") ---
     // Curated input (suggestion / relance cliquée) → route imposée, classe A, zéro token.

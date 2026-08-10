@@ -540,3 +540,97 @@ export async function buildFilteredAnswer(
   });
   return built;
 }
+
+// ============ Matcher texte libre → entrée curatée (partagé 3 surfaces) ============
+// Aujourd'hui l'autorité curatée ne se déclenche que sur CLIC d'une suggestion
+// (suggestionId transmis). En texte libre, la même phrase tapée à la main
+// retombait sur la recherche générique. Ce matcher rapproche la phrase tapée du
+// libellé d'une suggestion staff : match normalisé exact, sinon recouvrement de
+// tokens (≥ 2 mots communs et ≥ 0.7 de similarité). Zéro token de génération.
+
+export type CuratedMatch = {
+  id: string;
+  label: string;
+  score: number;
+  /** Surface de l'entrée matchée (peut différer de la surface courante). */
+  surface: string;
+};
+
+const normLabel = (s: unknown) =>
+  String(s ?? "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[?!.…]+$/g, "")
+    .replace(/\s+/g, " ");
+
+export async function matchCuratedByText(
+  admin: any,
+  opts: {
+    text: string;
+    surface: "club" | "embed" | "search";
+    minScore?: number;
+    /**
+     * Autorise le repli sur une entrée d'une autre surface (les cibles éditoriales
+     * — article de blog, établissements épinglés — ne dépendent pas de la surface).
+     * La surface courante garde toujours la priorité.
+     */
+    crossSurface?: boolean;
+  },
+): Promise<CuratedMatch | null> {
+  const raw = String(opts.text || "").trim();
+  if (raw.length < 6) return null;
+  const minScore = opts.minScore ?? 0.7;
+
+  let rows: any[] = [];
+  try {
+    let q = admin
+      .from("ai_suggestions")
+      .select("id, label_fr, label_en, label_ar, surface")
+      .eq("is_active", true);
+    if (!opts.crossSurface) q = q.eq("surface", opts.surface);
+    const { data } = await q;
+    rows = data || [];
+  } catch (e) {
+    console.error("[curated] match_by_text_lookup_failed", String(e));
+    return null;
+  }
+  if (!rows.length) return null;
+
+  const key = normLabel(raw);
+  const qTokens = new Set(tokenizeForBlog(raw));
+
+  let best: CuratedMatch | null = null;
+  for (const r of rows) {
+    const labels = [r.label_fr, r.label_en, r.label_ar].filter(Boolean) as string[];
+    if (!labels.length) continue;
+    const primary = (r.label_fr || r.label_en || r.label_ar) as string;
+    // La surface courante fait autorité : bonus de départage.
+    const bonus = r.surface === opts.surface ? 0.15 : 0;
+
+    // 1. Match exact normalisé (le clic d'origine, ou une recopie fidèle).
+    if (labels.some((l) => normLabel(l) === key)) {
+      const cand = { id: r.id, label: primary, score: 1 + bonus, surface: String(r.surface) };
+      if (r.surface === opts.surface) return cand;
+      if (!best || cand.score > best.score) best = cand;
+      continue;
+    }
+
+    // 2. Recouvrement de tokens.
+    if (qTokens.size < 2) continue;
+    for (const l of labels) {
+      const lTokens = new Set(tokenizeForBlog(l));
+      if (lTokens.size < 2) continue;
+      let overlap = 0;
+      for (const w of qTokens) if (lTokens.has(w)) overlap++;
+      if (overlap < 2) continue;
+      const score = overlap / Math.min(qTokens.size, lTokens.size);
+      if (score >= minScore && (!best || score + bonus > best.score)) {
+        best = { id: r.id, label: primary, score: score + bonus, surface: String(r.surface) };
+      }
+    }
+  }
+  return best;
+}
+
