@@ -678,6 +678,21 @@ const EmbedAiSuggestionsManagement = () => {
                   <label className="text-xs text-muted-foreground">
                     Articles de blog liés {r.blog_post_ids.length === 0 ? "(aucun — détection auto par l'IA)" : `(${r.blog_post_ids.length} — lien explicite prioritaire)`}
                   </label>
+                  <select
+                    value=""
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (!v) return;
+                      if (!r.blog_post_ids.includes(v)) update(r.id, { blog_post_ids: [...r.blog_post_ids, v] });
+                    }}
+                    className="h-9 rounded-md border border-input bg-background px-2 text-sm w-full max-w-md"
+                    title="Ajouter un article de blog"
+                  >
+                    <option value="">— Ajouter un article —</option>
+                    {blogPosts.filter((p) => !r.blog_post_ids.includes(p.id)).map((p) => (
+                      <option key={p.id} value={p.id}>{p.title}</option>
+                    ))}
+                  </select>
                   {r.blog_post_ids.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
                       {r.blog_post_ids.map((pid) => {
@@ -696,22 +711,8 @@ const EmbedAiSuggestionsManagement = () => {
                       })}
                     </div>
                   )}
-                  <select
-                    value=""
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      if (!v) return;
-                      if (!r.blog_post_ids.includes(v)) update(r.id, { blog_post_ids: [...r.blog_post_ids, v] });
-                    }}
-                    className="h-9 rounded-md border border-input bg-background px-2 text-sm w-full max-w-md"
-                    title="Ajouter un article de blog"
-                  >
-                    <option value="">— Ajouter un article —</option>
-                    {blogPosts.filter((p) => !r.blog_post_ids.includes(p.id)).map((p) => (
-                      <option key={p.id} value={p.id}>{p.title}</option>
-                    ))}
-                  </select>
                 </div>
+
 
                 <div className="space-y-2">
                   <label className="text-xs text-muted-foreground">
