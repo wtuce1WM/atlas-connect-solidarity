@@ -450,7 +450,9 @@ export async function buildFilteredAnswer(
   opts: {
     badgeIds?: string[];
     subcategoryNames?: string[];
+    commodities?: string[];
     label?: string | null;
+
     city?: string | null;
     maxResults?: number;
     supabaseUrl: string;
