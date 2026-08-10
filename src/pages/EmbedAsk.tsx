@@ -645,8 +645,9 @@ const EmbedAsk = () => {
     let cancelled = false;
     (async () => {
       const { data } = await supabase
-        .from("embed_ai_suggestions")
+        .from("ai_suggestions")
         .select("id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids")
+        .eq("surface", "embed")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (cancelled || !data) return;
@@ -678,8 +679,9 @@ const EmbedAsk = () => {
     let cancelled = false;
     (async () => {
       const { data } = await supabase
-        .from("embed_ai_followups")
+        .from("ai_followups")
         .select("id,label_fr,label_en,label_ar")
+        .eq("surface", "embed")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (cancelled || !data) return;

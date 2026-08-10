@@ -315,7 +315,6 @@ import RegenerateHomepageSnapshotButton from "@/components/staff/RegenerateHomep
 import HomepageFrontStructurePreview from "@/components/staff/HomepageFrontStructurePreview";
 import HomepageCardsFront from "@/components/HomepageCardsFront";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
-import ClubAiSuggestionsManagement from "@/components/staff/ClubAiSuggestionsManagement";
 import DisplayPanel from "@/components/staff/DisplayPanel";
 import CountryVideosPanel from "@/components/staff/CountryVideosPanel";
 import ServiceVideosPanel from "@/components/staff/ServiceVideosPanel";
