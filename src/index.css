@@ -636,10 +636,14 @@ html.hide-scrollbar-search::-webkit-scrollbar {
      on annule les paddings safe-area du body pour que le média occupe
      toute la hauteur de l'écran, sans bandes en haut ni en bas.
      Les contrôles internes gèrent eux-mêmes leur padding safe-area. */
-  body.owm-fullbleed {
-    padding: 0;
-    background-color: #000;
+  html:has(body.owm-fullbleed) {
+    background-color: #000 !important;
   }
+  body.owm-fullbleed {
+    padding: 0 !important;
+    background-color: #000 !important;
+  }
+
 
 }
 
