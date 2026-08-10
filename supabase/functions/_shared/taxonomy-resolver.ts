@@ -284,16 +284,30 @@ export function resolveTaxonomy(query: string, vocab: TaxonomyVocabulary): Resol
   collect(vocab.entries);
   collect(vocab.synonymEntries, "synonym");
 
+  // Expansion par mot : tout mot significatif de la requête qui apparaît dans un libellé
+  // de service remonte ce service. C'est ce qui rattrape « quad marrakech » (Quad,
+  // Excursions en quad) et « vélo électrique » (Vélos électriques, Balades en vélo électrique).
+  for (const w of contentWords(normalized)) {
+    const services = vocab.wordToServices.get(stemKey(w));
+    if (!services) continue;
+    for (const value of services) {
+      out.push({ type: "service", value, strength: "word", source: "services.name(word)", matched: w });
+    }
+  }
+
   // Dédoublonnage type+value en gardant la meilleure force, puis tri :
   // force → priorité de type → longueur du terme matché (le plus spécifique d'abord).
   const best = new Map<string, ResolvedTarget>();
   for (const t of out) {
     const key = `${t.type}::${t.value}`;
     const prev = best.get(key);
-    if (!prev || STRENGTH_PRIORITY[t.strength] < STRENGTH_PRIORITY[prev.strength] || t.matched.length > prev.matched.length) {
-      if (!prev || STRENGTH_PRIORITY[t.strength] <= STRENGTH_PRIORITY[prev.strength]) best.set(key, t);
-    }
+    if (!prev) { best.set(key, t); continue; }
+    const better =
+      STRENGTH_PRIORITY[t.strength] < STRENGTH_PRIORITY[prev.strength] ||
+      (STRENGTH_PRIORITY[t.strength] === STRENGTH_PRIORITY[prev.strength] && t.matched.length > prev.matched.length);
+    if (better) best.set(key, t);
   }
+
 
   const targets = [...best.values()].sort((a, b) => {
     const s = STRENGTH_PRIORITY[a.strength] - STRENGTH_PRIORITY[b.strength];
