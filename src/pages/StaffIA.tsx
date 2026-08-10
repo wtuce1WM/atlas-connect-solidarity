@@ -157,7 +157,12 @@ const StaffIA = () => {
                   <Cpu className="h-4 w-4" />
                   Routes
                 </TabsTrigger>
+                <TabsTrigger value="suggestions" className="gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  Suggestions & relances
+                </TabsTrigger>
               <TabsTrigger value="test" className="gap-2">
+
                 <FlaskConical className="h-4 w-4" />
                 Mode test
               </TabsTrigger>
