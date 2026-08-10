@@ -289,11 +289,13 @@ const AiEngineTestBench = () => {
         supabase
           .from("ai_suggestions")
           .select("id,label_fr,mode,is_active,sort_order")
+          .eq("surface", "embed")
           .eq("is_active", true)
           .order("sort_order", { ascending: true }),
         supabase
           .from("ai_followups")
           .select("id,label_fr,mode,is_active,sort_order")
+          .eq("surface", "embed")
           .eq("is_active", true)
           .order("sort_order", { ascending: true }),
       ]);
