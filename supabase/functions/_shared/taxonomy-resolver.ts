@@ -39,9 +39,16 @@ export interface TaxonomyVocabulary {
   entries: Map<string, ResolvedTarget[]>;
   /** Synonymes : terme normalisé → cibles (mappings de search_synonyms). */
   synonymEntries: Map<string, ResolvedTarget[]>;
+  /**
+   * Expansion par mot : mot au singulier → services dont le libellé contient ce mot.
+   * Indispensable pour « quad », qui doit remonter `Quad` ET `Excursions en quad` —
+   * filtrer sur le seul libellé exact raterait la majorité des 32 établissements concernés.
+   */
+  wordToServices: Map<string, Set<string>>;
   loadedAt: number;
   counts: Record<string, number>;
 }
+
 
 const VOCAB_TTL_MS = 5 * 60 * 1000;
 let cachedVocab: TaxonomyVocabulary | null = null;
