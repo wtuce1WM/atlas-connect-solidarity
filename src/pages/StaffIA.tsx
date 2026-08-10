@@ -181,6 +181,10 @@ const StaffIA = () => {
             <TabsContent value="routes">
               <AiRoutesManagement />
             </TabsContent>
+            <TabsContent value="suggestions">
+              <AiSuggestionsHub />
+            </TabsContent>
+
             <TabsContent value="test">
               <AiEngineTestMode />
             </TabsContent>
