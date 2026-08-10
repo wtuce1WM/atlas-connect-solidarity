@@ -17,7 +17,13 @@ import {
 import { createLovableAiGatewayProvider } from "../_shared/ai-gateway.ts";
 import { AI_MODEL, getSurfaceConfig } from "../_shared/ai-engine/surfaces.ts";
 import { classify } from "../_shared/ai-engine/classify.ts";
-import { resolveWithAdmin, resolutionMetric } from "../_shared/taxonomy-resolver.ts";
+import {
+  resolveWithAdmin,
+  resolutionMetric,
+  strongTargetsOfType,
+  targetsOfType,
+  type ResolveResult,
+} from "../_shared/taxonomy-resolver.ts";
 import { detectViewIntent, withinPointRadius, hasVantage, hasPointViewProof, hasPanoramaAttribute, hasPanoramaProof } from "../_shared/ai-engine/view-targets.ts";
 import { pickLang, normalize, toMapMarker, fetchPriorFull } from "../_shared/ai-engine/routes/shared.ts";
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
@@ -171,13 +177,16 @@ Deno.serve(async (req) => {
       let cityDetected: string | null = null;
       // Continuité de tour : catégorie retenue par le classifieur, réinjectée au tour suivant.
       let lastCategory: string | null = null;
-      // Observation seule : mesure de la couverture du vocabulaire, sans effet sur les résultats.
+      // Résolveur taxonomique = autorité du vocabulaire. Il ne décide pas du filtrage,
+      // il tranche « ce terme existe-t-il vraiment en base, et sous quel type ».
       let resolutionLog: Record<string, unknown> = {};
+      let resolution: ResolveResult | null = null;
+      let resolutionAuthority: string | null = null;
       try {
-        const res = await resolveWithAdmin(admin, userMessage);
-        resolutionLog = resolutionMetric(res);
+        resolution = await resolveWithAdmin(admin, userMessage);
+        resolutionLog = resolutionMetric(resolution);
       } catch (e) {
-        console.warn("[embed-ai-chat-v2] resolver observation failed", String(e));
+        console.warn("[embed-ai-chat-v2] resolver failed", String(e));
       }
 
 
@@ -204,7 +213,7 @@ Deno.serve(async (req) => {
             city_active: null,
             city_detected: cityDetected,
             language: lang,
-            tools_called: { session_id: sessionId, category: lastCategory },
+            tools_called: { session_id: sessionId, category: lastCategory, resolution_authority: resolutionAuthority },
             ...resolutionLog,
           });
           if (logErr) console.error("[embed-ai-chat-v2] log_failed", logErr.message);
@@ -329,7 +338,15 @@ Deno.serve(async (req) => {
         }
 
         // 5. Panorama « que faire à proximité ? » (déterministe, Structure du Front)
-        if (isNearbyOverviewIntent(userMessage, host.name) || (isProximityIntent(userMessage) && !suggestionId)) {
+        // Autorité du résolveur : si la requête contient une cible taxonomique réelle
+        // (« piscine à proximité »), ce n'est plus un panorama générique → recherche ciblée.
+        const hasResolvedIntent = !!resolution && resolution.targets.some(
+          (t) => t.type === "category" || t.type === "subcategory" || t.type === "service" || t.type === "badge",
+        );
+        if (
+          (isNearbyOverviewIntent(userMessage, host.name) && !hasResolvedIntent) ||
+          (isProximityIntent(userMessage) && !suggestionId && !hasResolvedIntent)
+        ) {
           route = "nearby";
           const hostCategoryNames = new Set<string>(
             [...(Array.isArray(host.categories) ? host.categories : []), host.main_category]
@@ -477,34 +494,117 @@ Deno.serve(async (req) => {
           resultsCount = results.length;
         };
 
+        // ── Autorité du résolveur : le classifieur propose, le vocabulaire réel tranche ──
+        // Exclusions du classifieur appliquées AU RÉSOLVEUR : sans ça « pas un hôtel »
+        // faisait résoudre « hotel » en sous-catégorie Hôtel et polluait la requête.
+        const excludedTerms = ((out?.exclude || []) as string[]).map(normalize).filter(Boolean);
+        const isExcluded = (value: string) => {
+          const v = normalize(value);
+          return excludedTerms.some((x) => v.includes(x) || x.includes(v));
+        };
+        // Cibles fortes (exact / phrase / synonyme curé) issues du message utilisateur,
+        // ordonnées par proximité lexicale avec le terme réellement tapé : « piscine »
+        // doit sortir « Piscine » avant « Beach club » (même sous-catégorie déclenchée).
+        const lexicalRank = (t: { value: string; matched: string }) => {
+          const v = normalize(t.value);
+          const m = normalize(t.matched);
+          if (v === m) return 0;
+          if (v.startsWith(m)) return 1;
+          if (v.includes(m)) return 2;
+          return 3;
+        };
+        const strongTargets = resolution
+          ? resolution.targets
+              .filter(
+                (t) =>
+                  t.strength !== "expansion" &&
+                  (t.type === "subcategory" || t.type === "category" || t.type === "service") &&
+                  !isExcluded(t.value),
+              )
+              .sort((a, b) => lexicalRank(a) - lexicalRank(b))
+          : [];
+        // On ne garde que les cibles aussi proches que la meilleure : mélanger « Piscine »
+        // et « Beach club » dans la même requête ramène des adresses hors sujet.
+        const bestRank = strongTargets.length ? lexicalRank(strongTargets[0]) : 9;
+        const strongTerms = [
+          ...new Set(strongTargets.filter((t) => lexicalRank(t) === bestRank).map((t) => t.value)),
+        ].slice(0, 2);
+        // Expansion par mot : bruyante, donc utilisée seulement quand rien de fort ne sort
+        // (c'est ce qui rattrape « piscine », absent des catégories mais présent en service).
+        const expansionTerms = resolution
+          ? resolution.targets
+              .filter((t) => t.type === "service" && t.strength === "expansion" && !isExcluded(t.value))
+              .map((t) => t.value)
+              .slice(0, 2)
+          : [];
+        const resolvedCity = resolution
+          ? (strongTargetsOfType(resolution, "city")[0] ?? targetsOfType(resolution, "city")[0] ?? null)
+          : null;
+
+        // La catégorie du classifieur n'est retenue que si elle existe vraiment en base.
+        let classifierCategoryValid = false;
+        let validatedCategory: string | null = null;
+        const proposed = out?.category || null;
+        if (proposed) {
+          try {
+            const chk = await resolveWithAdmin(admin, proposed);
+            const hit = chk.targets.find(
+              (t) => (t.type === "category" || t.type === "subcategory" || t.type === "service") && t.strength !== "expansion",
+            );
+            if (hit) { classifierCategoryValid = true; validatedCategory = hit.value; }
+          } catch (e) {
+            console.warn("[embed-ai-chat-v2] category validation failed", String(e));
+          }
+        }
+        const authoritySource = strongTerms.length
+          ? "resolver_strong"
+          : classifierCategoryValid
+            ? "classifier_validated"
+            : expansionTerms.length
+              ? "resolver_expansion"
+              : priorCategory
+                ? "prior_category"
+                : "raw_message";
+        // Continuité : on mémorise un terme réel, jamais une invention du classifieur.
+        lastCategory = strongTerms[0] || validatedCategory || expansionTerms[0] || priorCategory;
+
         if (out && confident && (out.intent === "search" || out.intent === "compare")) {
-          // Autorité du classifieur : la requête est construite à partir des champs
-          // structurés, jamais du message brut (une négation « pas un hôtel »
-          // polluait la récupération et vidait les résultats).
           const views = detectViewIntent(userMessage);
           const panoramaHints = views.panoramas.map((p) => p.attributeNames[0]);
-          const excluded = (out.exclude || []).map(normalize).filter(Boolean);
+          const excluded = excludedTerms;
           const excludesLodging = excluded.some((x) => /hotel|riad|hebergement|maison\s?d/.test(x));
           // Un repère ponctuel (Koutoubia) se traite par rayon + preuve de point de
           // vue, pas par mot-clé : n'injecter aucun indice « rooftop » ici.
           const hintParts = views.points.length && !excludesLodging ? [] : panoramaHints;
-          const baseQuery = [out.category || priorCategory, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
+          const coreTerms = strongTerms.length
+            ? strongTerms
+            : classifierCategoryValid
+              ? [validatedCategory as string]
+              : expansionTerms.length
+                ? expansionTerms
+                : [priorCategory].filter(Boolean) as string[];
+          const baseQuery = [...coreTerms, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
             || userMessage.slice(0, 200);
-          await runSearch(baseQuery, out.city || host.city || "Marrakech", excluded);
+          await runSearch(baseQuery, resolvedCity || out.city || host.city || "Marrakech", excluded);
         }
 
         // Filet de secours : le classifieur n'a pas tranché (ou sa requête structurée
-        // n'a rien donné) → recherche sur le message brut, comme la v1. Sans ça, la
-        // classe C n'a aucun contexte et répond « je n'ai pas de … ».
+        // n'a rien donné) → termes résolus, sinon message brut comme la v1.
         if (!results.length && route !== "business_qa") {
           const rawExcluded = ((out?.exclude || []) as string[]).map(normalize).filter(Boolean);
+          const rescueQuery = strongTerms.length
+            ? strongTerms.join(" ")
+            : expansionTerms.length
+              ? expansionTerms.join(" ")
+              : userMessage.slice(0, 200);
           await runSearch(
-            userMessage.slice(0, 200),
-            out?.city || host.city || "Marrakech",
+            rescueQuery,
+            resolvedCity || out?.city || host.city || "Marrakech",
             rawExcluded,
           );
           if (results.length) fallbackReason = fallbackReason || "confidence_low";
         }
+        resolutionAuthority = authoritySource;
 
         if (!results.length) fallbackReason = fallbackReason || "no_results";
 
