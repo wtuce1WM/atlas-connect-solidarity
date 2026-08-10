@@ -1690,20 +1690,49 @@ const EmbedAsk = () => {
         </div>
       </form>
 
-      <MapSlidePanel
-        open={!!openMap}
-        onClose={() => setOpenMap(null)}
-        title={openMap?.title || undefined}
-        businesses={openMap?.businesses || []}
-        isMobile={isMobile}
-        fullWidth
-        panelBg={activeWidgetBg || undefined}
-        disableUserLocation
-        hostLocation={hostLocation}
-        hostLabel={businessName}
-        mapTheme={theme === "dark" ? "default-dark" : "default-light"}
-        showLayerControls
-      />
+      {openMap && businessId ? (
+        // Overlay POI du slidepanel réutilisé tel quel (carte + rail de cartes + pastilles + clic marqueur → fiche),
+        // en corpus fermé : uniquement les établissements de la réponse, dans l'ordre donné.
+        <div className="fixed inset-0 z-[220]">
+          <Suspense fallback={null}>
+            <BookOnlineSlidePanel
+              key={(openMap.businesses || []).map((b) => b.id).join(",")}
+              businessId={businessId}
+              initialOverlay="poi"
+              embedMode
+              hideDirections
+              mapTheme={theme === "dark" ? "default-dark" : "default-light"}
+              mapBaseColor={activeWidgetBg || null}
+              poiOverrideIds={(openMap.businesses || []).map((b) => b.id)}
+              poiOverrideTitle={openMap.title || null}
+              onClose={() => setOpenMap(null)}
+            />
+          </Suspense>
+          <button
+            type="button"
+            onClick={() => setOpenMap(null)}
+            aria-label="Fermer"
+            className="fixed top-3 left-3 z-[300] h-9 w-9 flex items-center justify-center rounded-full bg-black text-white shadow-lg"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      ) : (
+        <MapSlidePanel
+          open={!!openMap}
+          onClose={() => setOpenMap(null)}
+          title={openMap?.title || undefined}
+          businesses={openMap?.businesses || []}
+          isMobile={isMobile}
+          fullWidth
+          panelBg={activeWidgetBg || undefined}
+          disableUserLocation
+          hostLocation={hostLocation}
+          hostLabel={businessName}
+          mapTheme={theme === "dark" ? "default-dark" : "default-light"}
+          showLayerControls
+        />
+      )}
 
 
       <EventsSlidePanel
