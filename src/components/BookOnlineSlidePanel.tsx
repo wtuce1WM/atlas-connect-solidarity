@@ -46,6 +46,7 @@ import YouTubeShortsCarousel, { type YouTubeVideo } from "@/components/YouTubeSh
 import { useDragToHide } from "@/hooks/useDragToHide";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 import PoiGoogleMap, { type PoiMapItem } from "@/components/PoiGoogleMap";
 import PoiFilterChoiceOverlay from "@/components/PoiFilterChoiceOverlay";
 
