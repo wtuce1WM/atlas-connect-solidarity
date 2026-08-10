@@ -184,15 +184,16 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
     return CITY_CENTERS[dominant];
   }, [mapBusinesses]);
 
-  // Top 20 sorted by rating, then "Tous" toggle
+  // Top 20 sorted by rating, then "Tous" toggle — sauf ordre imposé (article de blog)
   const rankedPois = useMemo(() => {
+    if (preserveOrder) return pois;
     return [...pois].sort((a, b) => {
       const ra = a.rating ?? 0;
       const rb = b.rating ?? 0;
       if (rb !== ra) return rb - ra;
       return (b.totalReviews ?? 0) - (a.totalReviews ?? 0);
     });
-  }, [pois]);
+  }, [pois, preserveOrder]);
 
   const proximityCountsByKm = useMemo(() => {
     const out: Record<number, number> = { 0.5: 0, 1: 0, 5: 0, 10: 0 };
