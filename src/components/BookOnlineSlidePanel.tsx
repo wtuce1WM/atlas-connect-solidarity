@@ -3270,7 +3270,7 @@ const BookOnlineSlidePanelInner = ({
                       <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
                         <iframe
                           key={`nearby-widget-${business.slug}`}
-                          src={`/embed/nearby/${business.slug}?lang=${language}`}
+                          src={`/embed/nearby/${business.slug}?lang=${language}&bg=ECD6B8`}
                           title={language === "en" ? "Nearby" : "À proximité"}
                           allow="geolocation; fullscreen"
                           className="w-full block border-0"
@@ -3278,6 +3278,7 @@ const BookOnlineSlidePanelInner = ({
                           loading="lazy"
                         />
                       </div>
+
                     </div>
                   )}
 
