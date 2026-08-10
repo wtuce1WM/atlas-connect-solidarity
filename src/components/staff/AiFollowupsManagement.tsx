@@ -205,133 +205,201 @@ const AiFollowupsManagement = ({ surface = "embed" }: { surface?: "club" | "embe
     );
   };
 
+  const SURFACE_LABEL = surface === "club" ? "club" : surface === "search" ? "search" : "embed";
+
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-2">
-          <CornerDownRight className="h-5 w-5" /> Relances après la réponse IA (embed)
-        </CardTitle>
-        <div className="flex gap-2">
+    <div className="space-y-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <CornerDownRight className="h-6 w-6 text-gold" />
+          <div>
+            <h2 className="text-xl font-bold">Relances après la réponse IA ({SURFACE_LABEL})</h2>
+            <p className="text-sm text-muted-foreground">
+              Ces relances apparaissent après chaque réponse de l'IA, quelle que soit la suggestion cliquée.
+              Le libellé <b>FR</b> est obligatoire ; EN et AR sont utilisés selon la langue. <code>{"{businessName}"}</code> est remplacé dynamiquement.
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-2 shrink-0">
           <Button variant="outline" size="sm" onClick={add}><Plus className="h-4 w-4 mr-1" /> Ajouter</Button>
           <Button size="sm" onClick={saveAll} disabled={saving || dirty.size === 0}>
             <Save className="h-4 w-4 mr-1" /> Enregistrer ({dirty.size})
           </Button>
         </div>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm text-muted-foreground mb-4">
-          Ces relances apparaissent après chaque réponse de l'IA dans <code>/embed/ask/:slug</code>, quelle que soit la suggestion cliquée.
-          Le libellé <b>FR</b> est obligatoire ; EN et AR sont utilisés selon la langue. Le placeholder <code>{"{businessName}"}</code> est remplacé dynamiquement par le nom de l'établissement.
-          <br />
-          <b>Ville / Catégorie / Sous-catégories / Badges</b> : filtres de contexte. Si renseignés, ils forcent les contraintes de la relance au lieu de compter uniquement sur la détection du libellé.
-          <br />
-          <b>Rayon (km)</b> : si renseigné, la relance déclenche une route déterministe « aperçu à proximité » bornée à ce rayon autour de l'établissement (500 m = 0,5). Laisser vide pour la route auto.
-          <br />
-          <b>Mode</b> : <code>Auto</code> = établissements 1WM à proximité (par défaut). <code>POI seulement</code> = liste uniquement les Points d'intérêt (base <code>points_of_interest</code>) dans le rayon, sans passer par les POIs liés à l'établissement.
-        </p>
-        {loading ? (
-          <div className="text-sm text-muted-foreground">Chargement…</div>
-        ) : (
-          <div className="space-y-2">
-            <div className="flex flex-wrap items-center gap-2 rounded-md border bg-muted/30 px-3 py-2 text-xs">
-              <span className="text-muted-foreground">Route détectée automatiquement selon le libellé FR :</span>
-              <RouteBadge label="météo" />
-              <RouteBadge label="ce week-end" />
-              <RouteBadge label="à proximité" />
-              <RouteBadge label="montre sur la carte" />
-              <RouteBadge label="" />
-            </div>
-            {rows.map((r) => (
-              <div key={r.id} className={`p-3 rounded-lg border ${dirty.has(r.id) ? "border-primary/50 bg-primary/5" : "border-border"} space-y-3`}>
-                <div className="grid grid-cols-1 lg:grid-cols-[70px_1fr_1fr_1fr_140px_90px_120px_100px_40px] gap-2 items-start">
-                  <Input type="number" value={r.sort_order} onChange={(e) => update(r.id, { sort_order: parseInt(e.target.value) || 0 })} title="Ordre" />
-                  <Input value={r.label_fr} onChange={(e) => update(r.id, { label_fr: e.target.value })} placeholder="Relance FR" />
-                  <Input value={r.label_en || ""} onChange={(e) => update(r.id, { label_en: e.target.value })} placeholder="EN" />
-                  <Input value={r.label_ar || ""} onChange={(e) => update(r.id, { label_ar: e.target.value })} placeholder="AR" dir="rtl" />
-                  <div className="flex justify-start pt-1"><RouteBadge label={r.label_fr || ""} /></div>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    value={r.radius_km ?? ""}
-                    placeholder="Rayon km"
-                    title="Rayon en km (ex: 0.5, 1, 2, 5). Vide = route auto."
-                    onChange={(e) => {
-                      const v = e.target.value.trim();
-                      update(r.id, { radius_km: v === "" ? null : parseFloat(v) });
-                    }}
-                  />
-                  <select
-                    className="h-10 rounded-md border border-input bg-background px-2 text-sm"
-                    value={r.mode ?? ""}
-                    title="Mode de la relance à proximité"
-                    onChange={(e) => update(r.id, { mode: e.target.value || null })}
-                  >
-                    <option value="">Auto</option>
-                    <option value="poi_nearby">POI seulement</option>
-                    <option value="weather">Météo (widget)</option>
-                  </select>
-                  <div className="flex items-center gap-2 pt-1">
-                    <Switch checked={r.is_active} onCheckedChange={(v) => update(r.id, { is_active: v })} />
-                    <span className="text-xs">{r.is_active ? "Actif" : "Off"}</span>
-                  </div>
-                  <Button variant="ghost" size="icon" onClick={() => remove(r.id)} title="Supprimer" className="mt-0.5">
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
+      </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                  <div>
-                    <label className="text-xs text-muted-foreground">Ville ciblée</label>
-                    <select
-                      value={r.city || ""}
-                      onChange={(e) => update(r.id, { city: e.target.value || null })}
-                      className="h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
-                    >
-                      <option value="">Toutes</option>
-                      <option value="Marrakech">Marrakech</option>
-                      <option value="Essaouira">Essaouira</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground">Catégorie</label>
-                    <Input value={r.category || ""} onChange={(e) => update(r.id, { category: e.target.value || null })} placeholder="ex: restaurant, bar…" />
-                  </div>
-                  <div className="hidden lg:block" />
-                </div>
+      <div className="rounded-md border bg-muted/30 px-3 py-2 text-xs text-muted-foreground space-y-1">
+        <div><b>Ville / Catégorie / Sous-catégories / Badges</b> : filtres de contexte. Si renseignés, ils forcent les contraintes de la relance au lieu de compter uniquement sur la détection du libellé.</div>
+        <div><b>Rayon (km)</b> : si renseigné, la relance déclenche une route déterministe « aperçu à proximité » bornée à ce rayon (500 m = 0,5). Vide = route auto.</div>
+        <div><b>Mode</b> : <code>Auto</code> = établissements 1WM à proximité. <code>POI seulement</code> = uniquement les Points d'intérêt dans le rayon. <code>Météo</code> = widget météo.</div>
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          <span>Route détectée automatiquement selon le libellé FR :</span>
+          <RouteBadge label="météo" />
+          <RouteBadge label="ce week-end" />
+          <RouteBadge label="à proximité" />
+          <RouteBadge label="montre sur la carte" />
+          <RouteBadge label="" />
+        </div>
+      </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  <Picker
-                    row={r}
-                    field="subcategory_ids"
-                    options={subcategories}
-                    search={subcategorySearch}
-                    setSearch={setSubcategorySearch}
-                    label="Sous-catégories ciblées"
-                    placeholder="Rechercher une sous-catégorie…"
-                    empty="Aucune sous-catégorie trouvée"
-                    chipClass="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
-                  />
-                  <Picker
-                    row={r}
-                    field="badge_ids"
-                    options={badges}
-                    search={badgeSearch}
-                    setSearch={setBadgeSearch}
-                    label="Badges ciblés"
-                    placeholder="Rechercher un badge…"
-                    empty="Aucun badge trouvé"
-                    chipClass="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
-                  />
-                </div>
-              </div>
-            ))}
-            {rows.length === 0 && <div className="text-sm text-muted-foreground">Aucune relance.</div>}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      {loading ? (
+        <div className="text-sm text-muted-foreground">Chargement…</div>
+      ) : (
+        <div className="space-y-3">
+          {rows.map((r) => {
+            const isOpen = expanded.has(r.id);
+            return (
+              <Card key={r.id} className={dirty.has(r.id) ? "border-primary/50" : ""}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <CardTitle className="text-sm flex items-center gap-2 min-w-0 flex-1">
+                      <button
+                        type="button"
+                        onClick={() => toggleExpanded(r.id)}
+                        className="h-7 w-7 shrink-0 flex items-center justify-center rounded-md hover:bg-muted"
+                        title={isOpen ? "Replier" : "Déplier"}
+                      >
+                        {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                      </button>
+                      <Input
+                        type="number"
+                        value={r.sort_order}
+                        onChange={(e) => update(r.id, { sort_order: parseInt(e.target.value) || 0 })}
+                        className="w-20 h-8"
+                      />
+                      <span className="truncate font-semibold cursor-pointer" onClick={() => toggleExpanded(r.id)} title={r.label_fr || ""}>
+                        {r.label_fr || <em className="text-muted-foreground">(sans libellé FR)</em>}
+                      </span>
+                    </CardTitle>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <Switch checked={r.is_active} onCheckedChange={(v) => update(r.id, { is_active: v })} />
+                        <span className="text-xs text-muted-foreground">{r.is_active ? "Actif" : "Inactif"}</span>
+                      </div>
+                      <Button variant="ghost" size="icon" onClick={() => remove(r.id)} title="Supprimer">
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Résumé des paramètres (toujours visible) */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-2 text-[11px]">
+                    {r.mode === "weather" ? (
+                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium bg-sky-500/15 text-sky-700 dark:text-sky-300">🌤 get_weather</span>
+                    ) : r.mode === "poi_nearby" ? (
+                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">📍 poi_nearby</span>
+                    ) : (
+                      <RouteBadge label={r.label_fr || ""} />
+                    )}
+                    <Chip label="Mode" value={r.mode ? (r.mode === "poi_nearby" ? "POI seulement" : r.mode === "weather" ? "Météo" : r.mode) : "Auto"} alert={!!r.mode} />
+                    <Chip label="Rayon" value={r.radius_km == null ? "auto" : `${r.radius_km} km`} alert={r.radius_km != null} />
+                    <Chip label="Ville" value={r.city || "Toutes"} alert={!!r.city} />
+                    <Chip label="Catégorie" value={r.category || "—"} alert={!!r.category} />
+                    <Chip label="Sous-cat." value={r.subcategory_ids.length === 0 ? "—" : String(r.subcategory_ids.length)} alert={r.subcategory_ids.length > 0} />
+                    <Chip label="Badges" value={r.badge_ids.length === 0 ? "—" : String(r.badge_ids.length)} alert={r.badge_ids.length > 0} />
+                    <Chip label="EN" value={r.label_en ? "✓" : "—"} alert={!r.label_en} />
+                    <Chip label="AR" value={r.label_ar ? "✓" : "—"} alert={!r.label_ar} />
+                  </div>
+                </CardHeader>
+
+                {isOpen && (
+                  <CardContent className="space-y-3">
+                    <div className="grid gap-2 md:grid-cols-3">
+                      <div>
+                        <label className="text-xs text-muted-foreground block mb-1">FR</label>
+                        <Input value={r.label_fr} onChange={(e) => update(r.id, { label_fr: e.target.value })} placeholder="Relance FR" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-muted-foreground block mb-1">EN</label>
+                        <Input value={r.label_en || ""} onChange={(e) => update(r.id, { label_en: e.target.value })} placeholder="EN" />
+                      </div>
+                      <div>
+                        <label className="text-xs text-muted-foreground block mb-1">AR</label>
+                        <Input value={r.label_ar || ""} onChange={(e) => update(r.id, { label_ar: e.target.value })} placeholder="AR" dir="rtl" />
+                      </div>
+                    </div>
+
+                    <div className="grid gap-2 md:grid-cols-4">
+                      <div>
+                        <label className="text-xs text-muted-foreground block mb-1">Rayon (km)</label>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          value={r.radius_km ?? ""}
+                          placeholder="auto"
+                          title="Rayon en km (ex: 0.5, 1, 2, 5). Vide = route auto."
+                          onChange={(e) => {
+                            const v = e.target.value.trim();
+                            update(r.id, { radius_km: v === "" ? null : parseFloat(v) });
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-muted-foreground block mb-1">Mode</label>
+                        <select
+                          className="h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
+                          value={r.mode ?? ""}
+                          onChange={(e) => update(r.id, { mode: e.target.value || null })}
+                        >
+                          <option value="">Auto</option>
+                          <option value="poi_nearby">POI seulement</option>
+                          <option value="weather">Météo (widget)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-xs text-muted-foreground block mb-1">Ville ciblée</label>
+                        <select
+                          value={r.city || ""}
+                          onChange={(e) => update(r.id, { city: e.target.value || null })}
+                          className="h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
+                        >
+                          <option value="">Toutes</option>
+                          <option value="Marrakech">Marrakech</option>
+                          <option value="Essaouira">Essaouira</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-xs text-muted-foreground block mb-1">Catégorie</label>
+                        <Input value={r.category || ""} onChange={(e) => update(r.id, { category: e.target.value || null })} placeholder="ex: restaurant, bar…" />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <Picker
+                        row={r}
+                        field="subcategory_ids"
+                        options={subcategories}
+                        search={subcategorySearch}
+                        setSearch={setSubcategorySearch}
+                        label="Sous-catégories ciblées"
+                        placeholder="Rechercher une sous-catégorie…"
+                        empty="Aucune sous-catégorie trouvée"
+                        chipClass="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                      />
+                      <Picker
+                        row={r}
+                        field="badge_ids"
+                        options={badges}
+                        search={badgeSearch}
+                        setSearch={setBadgeSearch}
+                        label="Badges ciblés"
+                        placeholder="Rechercher un badge…"
+                        empty="Aucun badge trouvé"
+                        chipClass="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                      />
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
+            );
+          })}
+          {rows.length === 0 && <div className="text-sm text-muted-foreground">Aucune relance.</div>}
+        </div>
+      )}
+    </div>
   );
 };
+
 
 export default AiFollowupsManagement;
