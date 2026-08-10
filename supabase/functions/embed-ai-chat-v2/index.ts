@@ -363,14 +363,16 @@ Deno.serve(async (req) => {
             fallbackReason = "no_results";
           }
 
-          // Filtre déterministe curaté : badges (commodités) / sous-catégories liés
-          // à la suggestion en backoffice → filtre DUR sur business-search, parité V1
-          // (`_badgeIds` / `_subcategoryNames`). Aucun classifieur, aucun générateur.
-          if (curated && keepCurated && (curated.badgeIds.length || curated.subcategoryNames.length)) {
+          // Filtre déterministe curaté : commodités / badges / sous-catégories liés
+          // à la suggestion en backoffice → filtre DUR (engagements ou business-search),
+          // parité V1. Aucun classifieur, aucun générateur.
+          if (curated && keepCurated && (curated.commodities.length || curated.badgeIds.length || curated.subcategoryNames.length)) {
             const built = await buildFilteredAnswer(admin, host, lang, {
               badgeIds: curated.badgeIds,
               subcategoryNames: curated.subcategoryNames,
+              commodities: curated.commodities,
               label: curated.label,
+
               city: host.city,
               maxResults: CFG.maxResults,
               supabaseUrl: SUPABASE_URL,
