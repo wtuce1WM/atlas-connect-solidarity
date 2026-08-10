@@ -224,6 +224,8 @@ type ResultRow = {
   v2: EngineCall;
 };
 
+type SlugOption = { id: string; name: string; slug: string | null; city: string | null };
+
 const AiEngineTestBench = () => {
   const [slug, setSlug] = useState("");
   const [custom, setCustom] = useState("");
@@ -231,6 +233,29 @@ const AiEngineTestBench = () => {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [results, setResults] = useState<ResultRow[]>([]);
   const [curated, setCurated] = useState<CuratedEntry[]>([]);
+  const [slugOptions, setSlugOptions] = useState<SlugOption[]>([]);
+  const [slugOpen, setSlugOpen] = useState(false);
+
+  // Auto-complete du slug hôte (nom ou slug)
+  useEffect(() => {
+    const term = slug.trim();
+    if (term.length < 2) {
+      setSlugOptions([]);
+      return;
+    }
+    const t = setTimeout(async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id,name,slug,city")
+        .or(`name.ilike.%${term}%,slug.ilike.%${term}%`)
+        .eq("is_active", true)
+        .order("name", { ascending: true })
+        .limit(8);
+      setSlugOptions(((data as any[]) || []).map((b) => ({ id: b.id, name: b.name, slug: b.slug, city: b.city })));
+    }, 250);
+    return () => clearTimeout(t);
+  }, [slug]);
+
 
   useEffect(() => {
     (async () => {
@@ -260,6 +285,7 @@ const AiEngineTestBench = () => {
           mode: f.mode ?? null,
         })),
       ];
+      list.sort((a, b) => (a.label || "").localeCompare(b.label || "", "fr", { sensitivity: "base" }));
       setCurated(list);
     })();
   }, []);
@@ -316,16 +342,44 @@ const AiEngineTestBench = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-3 items-end">
-            <div className="flex-1 w-full space-y-1.5">
+            <div className="flex-1 w-full space-y-1.5 relative">
               <Label htmlFor="test-slug">Slug de l'établissement hôte</Label>
               <Input
                 id="test-slug"
                 placeholder="ex: riad-dar-najat"
                 value={slug}
-                onChange={(e) => setSlug(e.target.value)}
+                autoComplete="off"
+                onChange={(e) => {
+                  setSlug(e.target.value);
+                  setSlugOpen(true);
+                }}
+                onFocus={() => setSlugOpen(true)}
+                onBlur={() => setTimeout(() => setSlugOpen(false), 120)}
                 disabled={running}
               />
+              {slugOpen && slugOptions.length > 0 && (
+                <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-popover text-popover-foreground rounded-md border shadow-lg max-h-64 overflow-y-auto">
+                  {slugOptions.map((o) => (
+                    <button
+                      key={o.id}
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setSlug(o.slug || "");
+                        setSlugOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2 hover:bg-muted/60 transition-colors"
+                    >
+                      <p className="text-sm font-medium truncate">{o.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {[o.slug, o.city].filter(Boolean).join(" · ")}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
+
             <Button onClick={run} disabled={running || !slug.trim()} className="w-full sm:w-auto">
               {running ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Play className="h-4 w-4 mr-2" />}
               Lancer la batterie
@@ -359,37 +413,6 @@ const AiEngineTestBench = () => {
             </Button>
           </div>
 
-          <div className="border-t pt-4 space-y-2">
-            <Label className="flex items-center gap-2">
-              <MousePointerClick className="h-4 w-4" />
-              Entrées curatées réelles (suggestions & relances du widget)
-            </Label>
-            <p className="text-xs text-muted-foreground">
-              Un clic simule le clic dans le widget : l'<code>id</code> est envoyé au moteur, la route est donc imposée
-              (pas de détection par mots-clés). Compare avec la même phrase tapée en texte libre ci-dessus pour mettre
-              en évidence Route vs Suggestion.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {curated.length === 0 && <span className="text-xs text-muted-foreground">Aucune entrée active.</span>}
-              {curated.map((c) => (
-                <Button
-                  key={`${c.kind}-${c.id}`}
-                  size="sm"
-                  variant="outline"
-                  disabled={running || !!busyId || !slug.trim()}
-                  onClick={() => runOne(`${c.kind} · ${c.label}`, c.label, c)}
-                  className="h-auto py-1.5 text-xs"
-                >
-                  {busyId === `${c.kind} · ${c.label}` ? (
-                    <Loader2 className="h-3 w-3 animate-spin mr-1.5" />
-                  ) : null}
-                  <span className="mr-1.5 opacity-60">{c.kind === "suggestion" ? "sugg." : "relance"}</span>
-                  {c.label}
-                  <span className="ml-1.5 opacity-60">{c.mode ? `→ ${c.mode}` : "→ auto"}</span>
-                </Button>
-              ))}
-            </div>
-          </div>
 
           <p className="text-xs text-muted-foreground">
             Plan de test : <code>docs/ai/plan-test-v1v2.md</code>
@@ -481,6 +504,42 @@ const AiEngineTestBench = () => {
           </CardContent>
         </Card>
       )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <MousePointerClick className="h-4 w-4" />
+            Entrées curatées réelles (suggestions & relances du widget)
+          </CardTitle>
+          <CardDescription>
+            Un clic simule le clic dans le widget : l'<code>id</code> est envoyé au moteur, la route est donc imposée
+            (pas de détection par mots-clés). Compare avec la même phrase tapée en texte libre pour mettre en évidence
+            Route vs Suggestion.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            {curated.length === 0 && <span className="text-xs text-muted-foreground">Aucune entrée active.</span>}
+            {curated.map((c) => (
+              <Button
+                key={`${c.kind}-${c.id}`}
+                size="sm"
+                variant="outline"
+                disabled={running || !!busyId || !slug.trim()}
+                onClick={() => runOne(`${c.kind} · ${c.label}`, c.label, c)}
+                className="h-auto py-1.5 text-xs"
+              >
+                {busyId === `${c.kind} · ${c.label}` ? (
+                  <Loader2 className="h-3 w-3 animate-spin mr-1.5" />
+                ) : null}
+                <span className="mr-1.5 opacity-60">{c.kind === "suggestion" ? "sugg." : "relance"}</span>
+                {c.label}
+                <span className="ml-1.5 opacity-60">{c.mode ? `→ ${c.mode}` : "→ auto"}</span>
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
