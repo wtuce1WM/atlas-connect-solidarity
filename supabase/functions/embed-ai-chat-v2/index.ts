@@ -533,7 +533,7 @@ Deno.serve(async (req) => {
         // (c'est ce qui rattrape « piscine », absent des catégories mais présent en service).
         const expansionTerms = resolution
           ? resolution.targets
-              .filter((t) => t.type === "service" && t.strength === "expansion")
+              .filter((t) => t.type === "service" && t.strength === "expansion" && !isExcluded(t.value))
               .map((t) => t.value)
               .slice(0, 2)
           : [];
