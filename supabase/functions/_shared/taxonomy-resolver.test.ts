@@ -5,6 +5,8 @@ import {
   normalizeTerm,
   containsOnWordBoundary,
   targetsOfType,
+  strongTargetsOfType,
+
   resolutionMetric,
 } from "./taxonomy-resolver.ts";
 
