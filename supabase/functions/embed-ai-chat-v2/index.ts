@@ -17,7 +17,13 @@ import {
 import { createLovableAiGatewayProvider } from "../_shared/ai-gateway.ts";
 import { AI_MODEL, getSurfaceConfig } from "../_shared/ai-engine/surfaces.ts";
 import { classify } from "../_shared/ai-engine/classify.ts";
-import { resolveWithAdmin, resolutionMetric } from "../_shared/taxonomy-resolver.ts";
+import {
+  resolveWithAdmin,
+  resolutionMetric,
+  strongTargetsOfType,
+  targetsOfType,
+  type ResolveResult,
+} from "../_shared/taxonomy-resolver.ts";
 import { detectViewIntent, withinPointRadius, hasVantage, hasPointViewProof, hasPanoramaAttribute, hasPanoramaProof } from "../_shared/ai-engine/view-targets.ts";
 import { pickLang, normalize, toMapMarker, fetchPriorFull } from "../_shared/ai-engine/routes/shared.ts";
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
