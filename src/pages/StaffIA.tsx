@@ -15,6 +15,7 @@ import ClubAiFollowupsManagement from "@/components/staff/ClubAiFollowupsManagem
 import ClubFollowupPromptEditor from "@/components/staff/ClubFollowupPromptEditor";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import AiUsageManagement from "@/components/staff/AiUsageManagement";
+import AiResolutionMetrics from "@/components/staff/AiResolutionMetrics";
 import AiConversationPerf from "@/components/staff/AiConversationPerf";
 import EmbedUsageManagement from "@/components/staff/EmbedUsageManagement";
 import EmbedAiSuggestionsManagement from "@/components/staff/EmbedAiSuggestionsManagement";
