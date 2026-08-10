@@ -31,6 +31,8 @@ export function useDarkBrowserChrome(active: boolean, color = "#000000") {
     const prevBodyBg = body.style.backgroundColor;
     html.style.backgroundColor = color;
     body.style.backgroundColor = color;
+    // Annule les paddings safe-area du body → média plein cadre (style Instagram/TikTok)
+    body.classList.add("owm-fullbleed");
 
     return () => {
       metas.forEach((m, i) => {
@@ -39,6 +41,8 @@ export function useDarkBrowserChrome(active: boolean, color = "#000000") {
       });
       html.style.backgroundColor = prevHtmlBg;
       body.style.backgroundColor = prevBodyBg;
+      body.classList.remove("owm-fullbleed");
     };
   }, [active, color]);
 }
+
