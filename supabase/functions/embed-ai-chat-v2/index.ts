@@ -181,6 +181,7 @@ Deno.serve(async (req) => {
       // il tranche « ce terme existe-t-il vraiment en base, et sous quel type ».
       let resolutionLog: Record<string, unknown> = {};
       let resolution: ResolveResult | null = null;
+      let resolutionAuthority: string | null = null;
       try {
         resolution = await resolveWithAdmin(admin, userMessage);
         resolutionLog = resolutionMetric(resolution);
