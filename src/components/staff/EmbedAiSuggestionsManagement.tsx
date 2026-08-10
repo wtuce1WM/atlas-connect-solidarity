@@ -461,6 +461,39 @@ const EmbedAiSuggestionsManagement = () => {
                   <p className="text-[11px] text-muted-foreground mt-1">Vide = affichée pour tous les établissements. Sinon uniquement pour ceux de cette ville.</p>
                 </div>
 
+                <div>
+                  <label className="text-xs text-muted-foreground">Catégories principales ciblées</label>
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    {mainCategories.map((c) => {
+                      const on = (r.main_categories || []).includes(c);
+                      return (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() =>
+                            update(r.id, {
+                              main_categories: on
+                                ? (r.main_categories || []).filter((x) => x !== c)
+                                : [...(r.main_categories || []), c],
+                            })
+                          }
+                          className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
+                            on
+                              ? "border-primary bg-primary/15 text-primary font-medium"
+                              : "border-input text-muted-foreground hover:bg-muted"
+                          }`}
+                        >
+                          {c}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    Vide = suggestion affichée pour tous les établissements. Sinon uniquement pour les établissements
+                    dont la catégorie principale est sélectionnée.
+                  </p>
+                </div>
+
                 <div className="max-w-md">
                   <label className="text-xs text-muted-foreground">Route</label>
                   {(() => {
