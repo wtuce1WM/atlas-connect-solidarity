@@ -646,7 +646,7 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,followups,business_ids,city,disabled_followup_ids")
+        .select("id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (cancelled || !data) return;
@@ -654,10 +654,13 @@ const EmbedAsk = () => {
       const normCity = (s: string | null | undefined) =>
         (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
       const bizCity = normCity(businessCity);
+      const bizCat = normCity(businessMainCategory);
       const list: SuggestionRow[] = (data as any[])
         .filter((r) => {
           const c = normCity(r.city);
           if (c && c !== bizCity) return false;
+          const cats = Array.isArray(r.main_categories) ? r.main_categories : [];
+          if (cats.length > 0 && (!bizCat || !cats.some((x: string) => normCity(x) === bizCat))) return false;
           return true;
         })
         .map((r) => ({
@@ -669,7 +672,7 @@ const EmbedAsk = () => {
       if (list.length > 0) setDbSuggestions(list);
     })();
     return () => { cancelled = true; };
-  }, [lang, businessId, businessCity]);
+  }, [lang, businessId, businessCity, businessMainCategory]);
 
   useEffect(() => {
     let cancelled = false;
