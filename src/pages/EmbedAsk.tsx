@@ -374,6 +374,9 @@ const EmbedAsk = () => {
   // Le paramètre `theme` explicite est toujours prioritaire (cohérence clair/sombre
   // entre l'iframe simple et la variante « panneau flottant »).
   const themeParam = params.get("theme") === "light" ? "light" : params.get("theme") === "dark" ? "dark" : null;
+  // `?theme=none` → mode clair/sombre désactivé : aucune couleur d'affilié appliquée,
+  // pas de sélecteur, le fond de l'hôte reste visible (overlay Full Description).
+  const noTheme = /^(none|off|0)$/i.test(params.get("theme") || "");
   // Panneau flottant : l'hôte demande une croix de fermeture dans le widget.
   const inFloatingPanel = /^(1|true)$/i.test(params.get("panel") || "");
   // Nom personnalisé de l'assistant (champ éditable côté /affiliates/presence).
