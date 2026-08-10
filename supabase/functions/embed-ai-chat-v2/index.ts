@@ -515,7 +515,12 @@ Deno.serve(async (req) => {
               )
               .sort((a, b) => lexicalRank(a) - lexicalRank(b))
           : [];
-        const strongTerms = [...new Set(strongTargets.map((t) => t.value))].slice(0, 2);
+        // On ne garde que les cibles aussi proches que la meilleure : mélanger « Piscine »
+        // et « Beach club » dans la même requête ramène des adresses hors sujet.
+        const bestRank = strongTargets.length ? lexicalRank(strongTargets[0]) : 9;
+        const strongTerms = [
+          ...new Set(strongTargets.filter((t) => lexicalRank(t) === bestRank).map((t) => t.value)),
+        ].slice(0, 2);
         // Expansion par mot : bruyante, donc utilisée seulement quand rien de fort ne sort
         // (c'est ce qui rattrape « piscine », absent des catégories mais présent en service).
         const expansionTerms = resolution
