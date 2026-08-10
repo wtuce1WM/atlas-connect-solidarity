@@ -74,6 +74,7 @@ type Row = {
   blog_post_ids: string[];
   subcategory_ids: string[];
   badge_ids: string[];
+  commodity_filters: string[];
   city: string | null;
   main_categories: string[];
   disabled_followup_ids: string[];
@@ -108,6 +109,8 @@ const EmbedAiSuggestionsManagement = () => {
   const [destinationSearch, setDestinationSearch] = useState<Record<string, string>>({});
   const [subcategorySearch, setSubcategorySearch] = useState<Record<string, string>>({});
   const [badgeSearch, setBadgeSearch] = useState<Record<string, string>>({});
+  const [commodities, setCommodities] = useState<string[]>([]);
+  const [commoditySearch, setCommoditySearch] = useState<Record<string, string>>({});
   const [proxSearch, setProxSearch] = useState<Record<string, string>>({}); // key: `${rowId}:${side}:${kind}`
 
 
@@ -121,7 +124,7 @@ const EmbedAiSuggestionsManagement = () => {
       while (true) {
         const { data, error } = await supabase
           .from("businesses")
-          .select("id,name,slug")
+          .select("id,name,slug,engagements")
           .eq("is_active", true)
           .order("name", { ascending: true })
           .range(from, from + pageSize - 1);
@@ -137,7 +140,7 @@ const EmbedAiSuggestionsManagement = () => {
     const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }, { data: posts }, { data: cats }] = await Promise.all([
       supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,badge_ids,city,main_categories,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,badge_ids,commodity_filters,city,main_categories,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids")
         .order("sort_order", { ascending: true }),
       fetchAllBusinesses(),
       supabase
@@ -175,6 +178,7 @@ const EmbedAiSuggestionsManagement = () => {
         blog_post_ids: Array.isArray(r.blog_post_ids) ? r.blog_post_ids : [],
         subcategory_ids: Array.isArray(r.subcategory_ids) ? r.subcategory_ids : [],
         badge_ids: Array.isArray(r.badge_ids) ? r.badge_ids : [],
+        commodity_filters: Array.isArray(r.commodity_filters) ? r.commodity_filters : [],
         main_categories: Array.isArray(r.main_categories) ? r.main_categories : [],
         disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
         proximity_a_subcategory_ids: Array.isArray(r.proximity_a_subcategory_ids) ? r.proximity_a_subcategory_ids : [],
@@ -184,6 +188,15 @@ const EmbedAiSuggestionsManagement = () => {
       }))
     );
     setBusinesses((bizs || []).map((b: any) => ({ id: b.id, name: b.name || "(sans nom)", slug: b.slug })));
+    // Commodités disponibles = valeurs « Logistique: » réellement présentes en base
+    const commSet = new Set<string>();
+    for (const b of (bizs || []) as any[]) {
+      for (const e of (Array.isArray(b.engagements) ? b.engagements : [])) {
+        const v = String(e || "");
+        if (v.startsWith("Logistique:")) commSet.add(v.slice("Logistique:".length).trim());
+      }
+    }
+    setCommodities([...commSet].filter(Boolean).sort((a, b) => a.localeCompare(b, "fr")));
     setDestinations(((dests as any[]) || []).map((d) => ({ id: d.id, name_fr: d.name_fr || "(sans nom)", name_en: d.name_en || null, name_ar: d.name_ar || null })));
     setSubcategories(((subs as any[]) || []).map((s) => ({ id: s.id, name_fr: s.name_fr || "(sans nom)" })));
     setBadges(((bdgs as any[]) || []).map((b) => ({ id: b.id, name_fr: b.name_fr || "(sans nom)" })));
@@ -257,7 +270,7 @@ const EmbedAiSuggestionsManagement = () => {
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], blog_post_ids: [], subcategory_ids: [], badge_ids: [], city: null, main_categories: [], disabled_followup_ids: [], mode: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [] } as Row]);
+    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], blog_post_ids: [], subcategory_ids: [], badge_ids: [], commodity_filters: [], city: null, main_categories: [], disabled_followup_ids: [], mode: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [] } as Row]);
     setExpanded((prev) => new Set(prev).add((data as any).id));
 
   };
@@ -287,6 +300,7 @@ const EmbedAiSuggestionsManagement = () => {
           blog_post_ids: r.blog_post_ids || [],
           subcategory_ids: r.subcategory_ids || [],
           badge_ids: r.badge_ids || [],
+          commodity_filters: r.commodity_filters || [],
           city: r.city || null,
           main_categories: r.main_categories || [],
           disabled_followup_ids: r.disabled_followup_ids || [],
