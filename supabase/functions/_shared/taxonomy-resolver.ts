@@ -227,6 +227,8 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
   cachedVocab = {
     entries,
     synonymEntries,
+    wordToServices,
+
     loadedAt: Date.now(),
     counts: {
       subcategories: subcats.length,
