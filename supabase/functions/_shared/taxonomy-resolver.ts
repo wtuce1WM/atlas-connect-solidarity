@@ -89,9 +89,10 @@ function push(map: Map<string, ResolvedTarget[]>, term: string, target: Omit<Res
 async function selectAll(admin: any, table: string, columns: string, apply?: (q: any) => any) {
   const rows: any[] = [];
   for (let page = 0; page < 6; page++) {
-    let q = admin.from(table).select(columns).range(page * 1000, page * 1000 + 999);
+    let q = admin.from(table).select(columns);
     if (apply) q = apply(q);
-    const { data, error } = await q;
+    const { data, error } = await q.range(page * 1000, page * 1000 + 999);
+
     if (error) {
       console.error(`[taxonomy-resolver] load_error table=${table}`, error.message);
       break;
