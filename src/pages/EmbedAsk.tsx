@@ -422,6 +422,7 @@ const EmbedAsk = () => {
   const [assistantTitle, setAssistantTitle] = useState<string>("");
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [businessCity, setBusinessCity] = useState<string | null>(null);
+  const [businessMainCategory, setBusinessMainCategory] = useState<string | null>(null);
   const [hostLocation, setHostLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -577,7 +578,7 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("id, name, latitude, longitude, city, url_6_title, widget_bg_color, widget_bg_color_dark")
+        .select("id, name, latitude, longitude, city, main_category, url_6_title, widget_bg_color, widget_bg_color_dark")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
@@ -588,6 +589,7 @@ const EmbedAsk = () => {
       setAssistantTitle((row?.url_6_title as string) || "");
       setBusinessId((row?.id as string) || null);
       setBusinessCity((row?.city as string) || null);
+      setBusinessMainCategory((row?.main_category as string) || null);
       const hex = (v: any) => (typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v.trim()) ? v.trim() : null);
       setWidgetColors(noTheme ? { light: null, dark: null } : { light: hex(row?.widget_bg_color), dark: hex(row?.widget_bg_color_dark) });
       if (row?.latitude != null && row?.longitude != null) {
