@@ -7,6 +7,7 @@ import {
   matchCuratedByText, loadCuratedTargets, fetchBlogPostsCached,
   buildBlogArticleAnswer, buildPinnedAnswer,
 } from "../_shared/ai-engine/routes/curated.ts";
+import { loadEditorialTexts, formatEditorialContext } from "../_shared/ai-engine/editorial.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
