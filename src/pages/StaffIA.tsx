@@ -10,21 +10,17 @@ import AiRoutesManagement from "@/components/staff/AiRoutesManagement";
 import AiEngineTestMode from "@/components/staff/AiEngineTestMode";
 import AiEngineTestBench from "@/components/staff/AiEngineTestBench";
 import AIConfigManagement from "@/components/staff/AIConfigManagement";
-import ClubAiSuggestionsManagement from "@/components/staff/ClubAiSuggestionsManagement";
-import ClubAiFollowupsManagement from "@/components/staff/ClubAiFollowupsManagement";
+import AiSuggestionsManagement from "@/components/staff/AiSuggestionsManagement";
+import AiFollowupsManagement from "@/components/staff/AiFollowupsManagement";
 import ClubFollowupPromptEditor from "@/components/staff/ClubFollowupPromptEditor";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import AiUsageManagement from "@/components/staff/AiUsageManagement";
 import AiResolutionMetrics from "@/components/staff/AiResolutionMetrics";
 import AiConversationPerf from "@/components/staff/AiConversationPerf";
 import EmbedUsageManagement from "@/components/staff/EmbedUsageManagement";
-import EmbedAiSuggestionsManagement from "@/components/staff/EmbedAiSuggestionsManagement";
-import EmbedAiFollowupsManagement from "@/components/staff/EmbedAiFollowupsManagement";
 import EmbedAiHowItWorks from "@/components/staff/EmbedAiHowItWorks";
 import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement";
 import KBViewer from "@/components/staff/KBViewer";
-import SearchAiSuggestionsManagement from "@/components/staff/SearchAiSuggestionsManagement";
-import SearchAiFollowupsManagement from "@/components/staff/SearchAiFollowupsManagement";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 
 
@@ -225,10 +221,10 @@ const StaffIA = () => {
                 <PopularSearchesManagement />
               </TabsContent>
               <TabsContent value="club">
-                <ClubAiSuggestionsManagement />
+                <AiSuggestionsManagement surface="club" />
               </TabsContent>
               <TabsContent value="club-followups">
-                <ClubAiFollowupsManagement />
+                <AiFollowupsManagement surface="club" />
               </TabsContent>
               <TabsContent value="followups-prompt">
                 <ClubFollowupPromptEditor />
@@ -249,10 +245,10 @@ const StaffIA = () => {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="suggestions">
-                <EmbedAiSuggestionsManagement />
+                <AiSuggestionsManagement surface="embed" />
               </TabsContent>
               <TabsContent value="followups">
-                <EmbedAiFollowupsManagement />
+                <AiFollowupsManagement surface="embed" />
               </TabsContent>
               <TabsContent value="how-it-works">
                 <EmbedAiHowItWorks />
@@ -272,10 +268,10 @@ const StaffIA = () => {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="suggestions">
-                <SearchAiSuggestionsManagement />
+                <AiSuggestionsManagement surface="search" />
               </TabsContent>
               <TabsContent value="followups">
-                <SearchAiFollowupsManagement />
+                <AiFollowupsManagement surface="search" />
               </TabsContent>
             </Tabs>
           </TabsContent>
