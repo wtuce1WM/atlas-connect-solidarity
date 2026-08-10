@@ -391,6 +391,10 @@ export type Database = {
           latency_ms_total: number | null
           message_index: number | null
           model: string | null
+          resolution_service_only: boolean | null
+          resolution_unresolved: boolean | null
+          resolved_targets: Json | null
+          resolved_types: string[] | null
           results_count: number | null
           results_shown: number | null
           route_taken: string | null
@@ -424,6 +428,10 @@ export type Database = {
           latency_ms_total?: number | null
           message_index?: number | null
           model?: string | null
+          resolution_service_only?: boolean | null
+          resolution_unresolved?: boolean | null
+          resolved_targets?: Json | null
+          resolved_types?: string[] | null
           results_count?: number | null
           results_shown?: number | null
           route_taken?: string | null
@@ -457,6 +465,10 @@ export type Database = {
           latency_ms_total?: number | null
           message_index?: number | null
           model?: string | null
+          resolution_service_only?: boolean | null
+          resolution_unresolved?: boolean | null
+          resolved_targets?: Json | null
+          resolved_types?: string[] | null
           results_count?: number | null
           results_shown?: number | null
           route_taken?: string | null
@@ -7101,6 +7113,10 @@ export type Database = {
           query: string
           rerank_applied: boolean | null
           rerank_latency_ms: number | null
+          resolution_service_only: boolean | null
+          resolution_unresolved: boolean | null
+          resolved_targets: Json | null
+          resolved_types: string[] | null
           results_after: Json | null
           results_before: Json | null
           search_level: string | null
@@ -7121,6 +7137,10 @@ export type Database = {
           query: string
           rerank_applied?: boolean | null
           rerank_latency_ms?: number | null
+          resolution_service_only?: boolean | null
+          resolution_unresolved?: boolean | null
+          resolved_targets?: Json | null
+          resolved_types?: string[] | null
           results_after?: Json | null
           results_before?: Json | null
           search_level?: string | null
@@ -7141,6 +7161,10 @@ export type Database = {
           query?: string
           rerank_applied?: boolean | null
           rerank_latency_ms?: number | null
+          resolution_service_only?: boolean | null
+          resolution_unresolved?: boolean | null
+          resolved_targets?: Json | null
+          resolved_types?: string[] | null
           results_after?: Json | null
           results_before?: Json | null
           search_level?: string | null
