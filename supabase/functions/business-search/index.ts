@@ -5639,7 +5639,16 @@ serve(async (req) => {
     // Async log to search_logs table (fire-and-forget, don't block response)
     const _totalLatencyMs = Date.now() - _searchStartMs;
     if (!isAutocomplete && effectiveQuery && offset === 0) {
+      // Observation seule : le résolveur ne modifie aucun résultat, il mesure la couverture.
+      let _resolution: Record<string, unknown> = {};
+      try {
+        const _res = await resolveWithAdmin(supabase, effectiveQuery);
+        _resolution = resolutionMetric(_res);
+      } catch (e) {
+        console.warn("[taxonomy-resolver] observation failed:", String(e));
+      }
       supabase.from("search_logs").insert({
+        ..._resolution,
         query: query || "",
         effective_query: effectiveQuery,
         detected_city: effectiveCity || null,
