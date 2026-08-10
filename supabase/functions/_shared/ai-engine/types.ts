@@ -105,4 +105,9 @@ export interface TurnLog extends EngineDecision {
   chatId?: string | null;
   userId?: string | null;
   message?: string | null;
+  /** Métriques de résolution taxonomique (observation seule). */
+  resolvedTargets?: unknown;
+  resolvedTypes?: string[] | null;
+  resolutionUnresolved?: boolean | null;
+  resolutionServiceOnly?: boolean | null;
 }
