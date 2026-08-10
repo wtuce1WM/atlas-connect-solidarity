@@ -1776,6 +1776,7 @@ serve(async (req) => {
         const { data: sugRows } = await admin
           .from("ai_suggestions")
           .select("id,label_fr,label_en,label_ar,mode,destination_ids,subcategory_ids,badge_ids,disabled_followup_ids,city")
+          .eq("surface", "club")
           .eq("is_active", true);
         const sug: any = (sugRows || []).find((r: any) =>
           normLbl(r.label_fr) === key || normLbl(r.label_en) === key || normLbl(r.label_ar) === key
@@ -1814,6 +1815,7 @@ serve(async (req) => {
             const { data: fups } = await admin
               .from("ai_followups")
               .select("id,label_fr,label_en,label_ar,is_active,sort_order")
+              .eq("surface", "club")
               .eq("is_active", true)
               .order("sort_order", { ascending: true });
             const list = ((fups as any[]) || [])
@@ -1841,6 +1843,7 @@ serve(async (req) => {
         const { data: fupRows } = await admin
           .from("ai_followups")
           .select("id,label_fr,label_en,label_ar,mode,radius_km")
+          .eq("surface", "club")
           .eq("is_active", true);
         const fup: any = (fupRows || []).find((r: any) =>
           normLbl2(r.label_fr) === key2 || normLbl2(r.label_en) === key2 || normLbl2(r.label_ar) === key2
@@ -1926,6 +1929,7 @@ serve(async (req) => {
         const { data: fixedRows } = await admin
           .from("ai_suggestions")
           .select(`id,label_fr,label_en,label_ar,blog_post_ids,${col}`)
+          .eq("surface", "club")
           .eq("is_active", true);
         const match = (fixedRows || []).find((r: any) => {
           const hasFixed = !!String(r[col] || "").trim();

@@ -479,6 +479,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
       const { data } = await (supabase as any)
         .from("ai_suggestions")
         .select("label_fr,label_en,label_ar,city")
+        .eq("surface", "club")
         .eq("is_active", true)
         .or(`city.is.null,city.eq.${activeCity}`)
         .order("sort_order", { ascending: true });

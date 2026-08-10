@@ -419,6 +419,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
       const { data, error } = await supabase
         .from("ai_suggestions")
         .select("id, label_fr, label_en, label_ar, prompt_fr, prompt_en, prompt_ar, fixed_response_fr, fixed_response_en, fixed_response_ar, mode, category, city, sort_order")
+        .eq("surface", "search")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (cancelled) return;

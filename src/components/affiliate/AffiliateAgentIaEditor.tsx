@@ -43,11 +43,13 @@ const AffiliateAgentIaEditor = ({ businessId, businessCity }: Props) => {
         supabase
           .from("ai_suggestions")
           .select("id,label_fr,city,main_categories")
+          .eq("surface", "embed")
           .eq("is_active", true)
           .order("sort_order", { ascending: true }),
         supabase
           .from("ai_followups")
           .select("id,label_fr")
+          .eq("surface", "embed")
           .eq("is_active", true)
           .order("sort_order", { ascending: true }),
         (supabase as any)

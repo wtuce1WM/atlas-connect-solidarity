@@ -38,6 +38,7 @@ Deno.serve(async (req) => {
     const { data: rows, error } = await admin
       .from("ai_suggestions")
       .select("id, label_fr, label_en, label_ar, label_embedded_source")
+      .eq("surface", "club")
       .eq("is_active", true);
     if (error) throw error;
 
