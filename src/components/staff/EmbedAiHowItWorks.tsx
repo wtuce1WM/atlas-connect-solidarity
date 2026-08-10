@@ -27,7 +27,9 @@ export default function EmbedAiHowItWorks() {
             L'assistant embed est <b>hébergé chez l'établissement affilié</b> (ex. Riad Dar Najat) mais interroge le catalogue complet One World Morocco. Il ne pousse pas l'établissement hôte : il répond au visiteur avec des <b>adresses One World Morocco</b>, en donnant priorité, quand c'est pertinent, à ce que le partenaire a ciblé (suggestions/relances) ou à sa proximité géographique.
           </p>
           <p>
-            La règle d'or : <b>route déterministe d'abord, LLM ensuite</b>. Chaque fois qu'on peut répondre en interrogeant directement la base (SQL + code figé), on le fait. Le LLM (Google Gemini via Lovable AI Gateway) n'intervient qu'en dernier recours, pour reformuler ou traiter une demande libre imprévue.
+            La règle d'or : <b>route déterministe d'abord, classifieur ensuite, génération en dernier</b> — c'est la matrice <b>A / B / C</b> partagée par les 3 surfaces (<code>/club</code>, <code>/embed/ask</code>, onglet IA de <code>/search</code>) :
+            <b>Classe A</b> = 0 token (routes déterministes, réponses figées, contenus curatés) ; <b>Classe B</b> = un appel classifieur court qui choisit une route déterministe pour une intention ambiguë ; <b>Classe C</b> = synthèse générative, uniquement quand A et B échouent.
+            Le modèle unique est <b>openai/gpt-5.6-sol</b> via Lovable AI Gateway (aucun modèle par route).
           </p>
         </CardContent>
       </Card>
@@ -42,13 +44,13 @@ export default function EmbedAiHowItWorks() {
         <CardContent className="space-y-3 text-sm leading-relaxed">
           <ol className="list-decimal pl-5 space-y-2">
             <li>
-              <b>Ouverture</b> : à l'arrivée sur <code>/embed/ask/:slug</code>, le front charge l'établissement hôte (nom, coordonnées, ville, url_6_title éventuel) et les <b>suggestions Embed IA</b> associées à sa ville. Les articles de blog propriétaires puis les articles génériques récents s'affichent en dessous.
+              <b>Ouverture</b> : à l'arrivée sur <code>/embed/ask/:slug</code>, le front charge l'établissement hôte (nom, coordonnées, ville, url_6_title éventuel) et les <b>suggestions</b> (table unifiée <code>ai_suggestions</code>, <code>surface = 'embed'</code>) filtrées par ville hôte <b>et par catégorie principale de l'hôte</b>. Les articles de blog propriétaires puis les articles génériques récents s'affichent en dessous.
             </li>
             <li>
-              <b>Clic sur suggestion</b> ou saisie libre → un POST est envoyé à l'edge function <code>embed-ai-chat</code> avec : le message, l'ID de la suggestion, l'ID de la relance éventuelle, l'ID de l'hôte, la langue détectée, le thread persisté (localStorage + table <code>ai_chats</code>).
+              <b>Clic sur suggestion</b> ou saisie libre → un POST est envoyé à l'edge function <code>embed-ai-chat</code> (V1) ou <code>embed-ai-chat-v2</code> (moteur unifié A/B/C, forçable par <code>?engine=v2</code>) avec : le message, l'ID de la suggestion, l'ID de la relance éventuelle, l'ID de l'hôte, la langue détectée, le thread persisté (localStorage + table <code>ai_chats</code>).
             </li>
             <li>
-              <b>Routage</b> côté edge function : détection d'intention (regex FR/EN/AR) + mode forcé de la suggestion. La 1ère route qui match gagne. Le résultat est <b>streamé en SSE</b> (delta par delta) vers le navigateur.
+              <b>Routage</b> côté edge function : d'abord l'<b>autorité curatée</b> (article de blog lié, réponse figée, commodités ciblées → Classe A), puis la détection d'intention (regex FR/EN/AR) + mode forcé de la suggestion, puis le <b>classifieur</b> (Classe B) pour les intentions ambiguës. La 1ère autorité qui match gagne, le générateur (Classe C) reste le dernier recours. Le résultat est <b>streamé en SSE</b> (delta par delta) vers le navigateur.
             </li>
             <li>
               <b>Rendu</b> : texte markdown + marqueurs cachés (<code>{`<!--SHOW_ON_MAP-->`}</code>, <code>{`<!--KNOWN_BUSINESSES-->`}</code>, <code>{`<!--EVENTS_SNAPSHOT-->`}</code>, <code>{`<!--PINNED_BUSINESS_CARDS-->`}</code>, <code>{`<!--WEATHER_FORECAST-->`}</code>, <code>{`<!--DESTINATION_CARDS-->`}</code>, <code>{`<!--ARTICLE_CARD-->`}</code>) que le front transforme en carousel, carte Google, cartes météo, cartes destinations, etc.
@@ -72,6 +74,7 @@ export default function EmbedAiHowItWorks() {
         </CardHeader>
         <CardContent className="space-y-3 text-sm leading-relaxed">
           <ul className="space-y-2">
+            <RouteItem name="Autorité curatée (Classe A)" desc="Articles de blog liés explicitement, réponses figées FR/EN/AR, commodity_filters (champ engagements, préfixe Logistique:) — corpus fermé, ordre éditorial préservé (order: given), zéro token." />
             <RouteItem name="Mode forcé — Events" desc="Force search_events sur la ville hôte + prochain week-end. Filtre par badges de la suggestion ou fallback #Agenda." />
             <RouteItem name="Mode forcé — Structure du Front" desc="Force search_businesses ville hôte avec sous-catégories + badges de la suggestion. Bypass LLM." />
             <RouteItem name="Mode forcé — Direct viewer" desc="Affiche uniquement les business_ids ciblés, dans l'ordre défini, en carousel figé." />
@@ -118,10 +121,10 @@ export default function EmbedAiHowItWorks() {
         </CardHeader>
         <CardContent className="space-y-2 text-sm leading-relaxed">
           <p>
-            Une <b>Suggestion Embed IA</b> = un pill cliquable en haut de l'assistant. Elle porte : label (FR/EN/AR), villes de diffusion, sous-catégories, badges, business_ids ciblés (pinned), destinations ciblées, mode forcé (Auto / Events / Structure du Front / Direct viewer / Proximity A-B).
+            Une <b>Suggestion</b> (table unifiée <code>ai_suggestions</code>, colonne <code>surface</code>) = un pill cliquable en haut de l'assistant. Elle porte : label (FR/EN/AR), ville de diffusion, <b>catégories principales ciblées</b>, sous-catégories, badges, <b>commodités ciblées</b>, business_ids ciblés (pinned), destinations ciblées, articles de blog liés, prompt personnalisé, réponse figée, mode forcé (Auto / Events / Structure du Front / Direct viewer / Proximité A-B). Le backoffice est unique : <i>Moteur IA → Suggestions & relances</i>, avec un sélecteur de surface.
           </p>
           <p>
-            Une <b>Relance</b> = un pill affiché après la 1ère réponse IA. Elle porte : label multilingue, rayon en km (optionnel, pour forcer un périmètre), mode forcé. Chaque suggestion peut désactiver certaines relances via <code>disabled_followup_ids</code>. Les relances communes (météo, horaires, carte, réserver, nouvelle conversation) sont activées par défaut.
+            Une <b>Relance</b> (table unifiée <code>ai_followups</code>) = un pill affiché après la 1ère réponse IA. Elle porte : label multilingue, rayon en km (optionnel), mode forcé (Auto / POI seulement / Météo), ville, catégorie, sous-catégories et badges ciblés. Chaque suggestion peut désactiver certaines relances via <code>disabled_followup_ids</code>. Les relances communes (météo, horaires, carte, réserver, nouvelle conversation) sont activées par défaut.
           </p>
           <p>
             Les <b>business_ids ciblés</b> ne sont mis en avant que sur la 1ère réponse (pinned cards + carousel prioritaire). Dès qu'une relance est cliquée ou qu'un follow-up libre est saisi, la mise en avant disparaît pour éviter de re-pousser le même établissement en boucle.
@@ -138,7 +141,7 @@ export default function EmbedAiHowItWorks() {
         </CardHeader>
         <CardContent className="space-y-2 text-sm leading-relaxed">
           <p>
-            Le modèle (Google Gemini via Lovable AI Gateway, streaming SSE) est appelé <b>uniquement</b> quand aucune route déterministe ne match. Il reçoit :
+            Le modèle (<b>openai/gpt-5.6-sol</b> via Lovable AI Gateway, streaming SSE) est appelé <b>uniquement</b> quand ni la Classe A ni la Classe B ne résolvent la demande. Il reçoit :
           </p>
           <ul className="list-disc pl-5 space-y-1">
             <li>un system prompt qui décrit l'hôte, la ville, la langue, le périmètre One World Morocco et les tools disponibles ;</li>
