@@ -83,6 +83,9 @@ const normalize = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u03
 const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, onBookmark, isBookmarked, disableUserLocation, hostLocation, hostLabel, mapTheme, showLayerControls, fullWidth, panelBg }: MapSlidePanelProps) => {
   const { language } = useLanguage();
   const mt = MT[language as keyof typeof MT] || MT.fr;
+  // Plein cadre mobile : chrome navigateur noir + suppression des paddings safe-area
+  useDarkBrowserChrome(open);
+
 
   const geo = useGeolocation();
   const [browserPos, setBrowserPos] = useState<{ lat: number; lng: number } | null>(null);
