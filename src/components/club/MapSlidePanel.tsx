@@ -62,6 +62,8 @@ interface MapSlidePanelProps {
   fullWidth?: boolean;
   /** Background color of the panel shell (widget light/dark color). */
   panelBg?: string;
+  /** Conserve l'ordre fourni (réponse IA issue d'un article de blog) au lieu du tri par note. */
+  preserveOrder?: boolean;
 }
 
 
@@ -80,7 +82,7 @@ const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
 };
 const normalize = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
-const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, onBookmark, isBookmarked, disableUserLocation, hostLocation, hostLabel, mapTheme, showLayerControls, fullWidth, panelBg }: MapSlidePanelProps) => {
+const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, onBookmark, isBookmarked, disableUserLocation, hostLocation, hostLabel, mapTheme, showLayerControls, fullWidth, panelBg, preserveOrder }: MapSlidePanelProps) => {
   const { language } = useLanguage();
   const mt = MT[language as keyof typeof MT] || MT.fr;
   // Plein cadre mobile : chrome navigateur noir + suppression des paddings safe-area
