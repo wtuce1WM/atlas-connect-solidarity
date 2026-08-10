@@ -193,6 +193,9 @@ const EmbedAiSuggestionsManagement = () => {
         .map((p) => ({ id: p.id, slug: p.slug, title: (p.title_fr || p.title_en || p.slug || "(sans titre)").trim() }))
         .sort((a, b) => a.title.localeCompare(b.title, "fr", { sensitivity: "base" }))
     );
+    setMainCategories(((cats as any[]) || []).map((c) => (c.name_fr || "").trim()).filter(Boolean));
+
+
 
     setDirty(new Set());
     setLoading(false);
