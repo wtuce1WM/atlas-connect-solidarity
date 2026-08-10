@@ -175,6 +175,10 @@ const StaffIA = () => {
                 <Play className="h-4 w-4" />
                 Test bench
               </TabsTrigger>
+              <TabsTrigger value="resolution" className="gap-2">
+                <Cpu className="h-4 w-4" />
+                Résolution
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="guide">
               <AiEngineGuide onNavigateTab={setActiveTab} />
@@ -187,6 +191,9 @@ const StaffIA = () => {
             </TabsContent>
             <TabsContent value="test-bench">
               <AiEngineTestBench />
+            </TabsContent>
+            <TabsContent value="resolution">
+              <AiResolutionMetrics />
             </TabsContent>
             </Tabs>
           </TabsContent>
