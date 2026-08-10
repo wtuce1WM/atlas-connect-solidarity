@@ -1,0 +1,1 @@
+ALTER TABLE public.embed_ai_suggestions ADD COLUMN IF NOT EXISTS main_categories text[] NOT NULL DEFAULT '{}'::text[];
