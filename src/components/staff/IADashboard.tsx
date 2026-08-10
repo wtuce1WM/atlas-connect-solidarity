@@ -498,7 +498,7 @@ export default function IADashboard({ onNavigateTab }: Props) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {[
                 { label: "Config IA", tab: "ai-config", icon: Sparkles, count: `${counts.aiConfig} clés` },
-                { label: "Suggestions Club", tab: "club-ai-suggestions", icon: MessageSquare, count: `${counts.suggestions} suggestions` },
+                { label: "Suggestions Club", tab: "engine", icon: MessageSquare, count: `${counts.suggestions} suggestions` },
                 { label: "Utilisation IA", tab: "ai-usage", icon: Zap, count: `${fmtNum(kpis.calls)} appels · ${fmtUsd(kpis.cost)}` },
                 { label: "Perf IA", tab: "ai-perf", icon: BarChart3, count: `${fmtNum(kpis.turns)} tours · P95 ${(kpis.p95 / 1000).toFixed(1)}s` },
                 { label: "KB IA", tab: "kb", icon: BookOpen, count: `${counts.kb} notes` },
