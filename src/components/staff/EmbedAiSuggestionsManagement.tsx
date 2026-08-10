@@ -798,6 +798,62 @@ const EmbedAiSuggestionsManagement = () => {
                   </p>
                 </div>
 
+                <div className="space-y-2">
+                  <label className="text-xs text-muted-foreground">
+                    Commodités ciblées {r.commodity_filters.length === 0 ? "(aucune)" : `(${r.commodity_filters.length} — route déterministe)`}
+                  </label>
+                  {r.commodity_filters.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {r.commodity_filters.map((c) => (
+                        <span key={c} className="inline-flex items-center gap-1 rounded-md bg-sky-500/15 text-sky-700 dark:text-sky-300 text-xs px-2 py-1">
+                          {c}
+                          <button
+                            type="button"
+                            onClick={() => update(r.id, { commodity_filters: r.commodity_filters.filter((x) => x !== c) })}
+                            className="hover:text-destructive"
+                            title="Retirer"
+                          >×</button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <div className="relative max-w-md">
+                    <Input
+                      placeholder="Rechercher une commodité (Logistique)…"
+                      value={commoditySearch[r.id] || ""}
+                      onChange={(e) => setCommoditySearch((prev) => ({ ...prev, [r.id]: e.target.value }))}
+                      onKeyDown={(e) => { if (e.key === "Escape") setCommoditySearch((prev) => ({ ...prev, [r.id]: "" })); }}
+                    />
+                    {commoditySearch[r.id]?.trim() && (
+                      <div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg max-h-60 overflow-auto">
+                        {(() => {
+                          const norm = (v: string) => v.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                          const q = norm(commoditySearch[r.id]);
+                          const matches = commodities
+                            .filter((c) => !r.commodity_filters.includes(c))
+                            .filter((c) => norm(c).includes(q));
+                          if (matches.length === 0) return <div className="px-3 py-2 text-sm text-muted-foreground">Aucune commodité trouvée</div>;
+                          return matches.slice(0, 8).map((c) => (
+                            <button
+                              key={c}
+                              type="button"
+                              onClick={() => { update(r.id, { commodity_filters: [...r.commodity_filters, c] }); setCommoditySearch((prev) => ({ ...prev, [r.id]: "" })); }}
+                              className="w-full px-3 py-2 text-left text-sm hover:bg-muted truncate"
+                            >
+                              {c}
+                            </button>
+                          ));
+                        })()}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    💡 Commodités de la Structure du Front (ex. « Livraison internationale ») : quand une commodité est liée, l'IA filtre en dur sur les établissements qui la portent, sans passer par le LLM.
+                  </p>
+                </div>
+
+
+
                 {/* PROXIMITÉ DEUX ENTITÉS (A à côté d'un B) */}
                 {(() => {
                   const sides: Array<{ key: "a" | "b"; label: string; subField: "proximity_a_subcategory_ids" | "proximity_b_subcategory_ids"; badgeField: "proximity_a_badge_ids" | "proximity_b_badge_ids" }> = [
