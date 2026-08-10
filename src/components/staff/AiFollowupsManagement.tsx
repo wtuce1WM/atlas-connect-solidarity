@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { Trash2, Plus, Save, CornerDownRight } from "lucide-react";
+import { Trash2, Plus, Save, CornerDownRight, ChevronDown, ChevronRight } from "lucide-react";
+import { Chip } from "./AiParamChip";
 
 type Row = {
   id: string;
@@ -75,6 +76,10 @@ const AiFollowupsManagement = ({ surface = "embed" }: { surface?: "club" | "embe
   const [dirty, setDirty] = useState<Set<string>>(new Set());
   const [subcategorySearch, setSubcategorySearch] = useState<Record<string, string>>({});
   const [badgeSearch, setBadgeSearch] = useState<Record<string, string>>({});
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
+  const toggleExpanded = (id: string) =>
+    setExpanded((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
 
   const load = async () => {
     setLoading(true);

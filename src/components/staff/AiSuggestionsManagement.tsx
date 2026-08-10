@@ -741,7 +741,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
 
 
                 <div className="space-y-2">
-                  <label className="text-xs text-muted-foreground">
+                  <label className="text-xs text-muted-foreground block mb-1">
                     Articles de blog liés {r.blog_post_ids.length === 0 ? "(aucun — détection auto par l'IA)" : `(${r.blog_post_ids.length} — lien explicite prioritaire)`}
                   </label>
                   <select
