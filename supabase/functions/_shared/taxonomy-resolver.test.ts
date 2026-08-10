@@ -68,10 +68,12 @@ Deno.test("piscine à proximité → service + sous-catégorie Piscine", () => {
   assertEquals(targetsOfType(r, "service").includes("Piscine"), true);
 });
 
-Deno.test("piscine ne remonte PAS 'Lunettes de piscine' (entrée plus longue que la requête)", () => {
+Deno.test("'Lunettes de piscine' n'est jamais une cible forte (expansion par mot = ranking seulement)", () => {
   const r = resolveTaxonomy("piscine à proximité", vocab);
-  assertEquals(targetsOfType(r, "service").includes("Lunettes de piscine"), false);
+  assertEquals(strongTargetsOfType(r, "service").includes("Lunettes de piscine"), false);
+  assertEquals(strongTargetsOfType(r, "service").includes("Piscine"), true);
 });
+
 
 Deno.test("quad marrakech → services Quad + ville (0 résultat en prod avant le résolveur)", () => {
   const r = resolveTaxonomy("quad marrakech", vocab);
