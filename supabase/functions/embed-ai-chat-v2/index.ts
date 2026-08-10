@@ -29,7 +29,7 @@ import { pickLang, normalize, toMapMarker, fetchPriorFull } from "../_shared/ai-
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
 import {
   loadCuratedTargets, fetchBlogPostsCached, matchBlogArticle,
-  buildBlogArticleAnswer, buildPinnedAnswer,
+  buildBlogArticleAnswer, buildPinnedAnswer, buildFilteredAnswer,
 } from "../_shared/ai-engine/routes/curated.ts";
 import { isHoursIntent, buildHoursAnswer, buildHoursForBusinesses } from "../_shared/ai-engine/routes/opening.ts";
 import { isBookingIntent, buildBookingAnswer, buildBookingForBusinesses } from "../_shared/ai-engine/routes/booking.ts";
@@ -347,6 +347,38 @@ Deno.serve(async (req) => {
               admin, curated.pinnedBusinessIds, host, lang, curated.label,
             ).catch((e) => {
               console.error("[embed-ai-chat-v2] pinned_route_failed", String(e));
+              return null;
+            });
+            if (built) {
+              route = built.route;
+              resultsCount = built.shown;
+              emit(built.text);
+              if (built.mapPayload?.businesses?.length) {
+                emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
+              }
+              emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
+              await finish(true);
+              return;
+            }
+            fallbackReason = "no_results";
+          }
+
+          // Filtre déterministe curaté : commodités / badges / sous-catégories liés
+          // à la suggestion en backoffice → filtre DUR (engagements ou business-search),
+          // parité V1. Aucun classifieur, aucun générateur.
+          if (curated && keepCurated && (curated.commodities.length || curated.badgeIds.length || curated.subcategoryNames.length)) {
+            const built = await buildFilteredAnswer(admin, host, lang, {
+              badgeIds: curated.badgeIds,
+              subcategoryNames: curated.subcategoryNames,
+              commodities: curated.commodities,
+              label: curated.label,
+
+              city: host.city,
+              maxResults: CFG.maxResults,
+              supabaseUrl: SUPABASE_URL,
+              serviceKey: SERVICE,
+            }).catch((e) => {
+              console.error("[embed-ai-chat-v2] curated_filter_failed", String(e));
               return null;
             });
             if (built) {

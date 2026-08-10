@@ -74,6 +74,7 @@ type Row = {
   blog_post_ids: string[];
   subcategory_ids: string[];
   badge_ids: string[];
+  commodity_filters: string[];
   city: string | null;
   main_categories: string[];
   disabled_followup_ids: string[];
@@ -108,6 +109,8 @@ const EmbedAiSuggestionsManagement = () => {
   const [destinationSearch, setDestinationSearch] = useState<Record<string, string>>({});
   const [subcategorySearch, setSubcategorySearch] = useState<Record<string, string>>({});
   const [badgeSearch, setBadgeSearch] = useState<Record<string, string>>({});
+  const [commodities, setCommodities] = useState<string[]>([]);
+  const [commoditySearch, setCommoditySearch] = useState<Record<string, string>>({});
   const [proxSearch, setProxSearch] = useState<Record<string, string>>({}); // key: `${rowId}:${side}:${kind}`
 
 
@@ -121,7 +124,7 @@ const EmbedAiSuggestionsManagement = () => {
       while (true) {
         const { data, error } = await supabase
           .from("businesses")
-          .select("id,name,slug")
+          .select("id,name,slug,engagements")
           .eq("is_active", true)
           .order("name", { ascending: true })
           .range(from, from + pageSize - 1);
@@ -137,7 +140,7 @@ const EmbedAiSuggestionsManagement = () => {
     const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }, { data: posts }, { data: cats }] = await Promise.all([
       supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,badge_ids,city,main_categories,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,badge_ids,commodity_filters,city,main_categories,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids")
         .order("sort_order", { ascending: true }),
       fetchAllBusinesses(),
       supabase
@@ -175,6 +178,7 @@ const EmbedAiSuggestionsManagement = () => {
         blog_post_ids: Array.isArray(r.blog_post_ids) ? r.blog_post_ids : [],
         subcategory_ids: Array.isArray(r.subcategory_ids) ? r.subcategory_ids : [],
         badge_ids: Array.isArray(r.badge_ids) ? r.badge_ids : [],
+        commodity_filters: Array.isArray(r.commodity_filters) ? r.commodity_filters : [],
         main_categories: Array.isArray(r.main_categories) ? r.main_categories : [],
         disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
         proximity_a_subcategory_ids: Array.isArray(r.proximity_a_subcategory_ids) ? r.proximity_a_subcategory_ids : [],
@@ -184,6 +188,15 @@ const EmbedAiSuggestionsManagement = () => {
       }))
     );
     setBusinesses((bizs || []).map((b: any) => ({ id: b.id, name: b.name || "(sans nom)", slug: b.slug })));
+    // Commodités disponibles = valeurs « Logistique: » réellement présentes en base
+    const commSet = new Set<string>();
+    for (const b of (bizs || []) as any[]) {
+      for (const e of (Array.isArray(b.engagements) ? b.engagements : [])) {
+        const v = String(e || "");
+        if (v.startsWith("Logistique:")) commSet.add(v.slice("Logistique:".length).trim());
+      }
+    }
+    setCommodities([...commSet].filter(Boolean).sort((a, b) => a.localeCompare(b, "fr")));
     setDestinations(((dests as any[]) || []).map((d) => ({ id: d.id, name_fr: d.name_fr || "(sans nom)", name_en: d.name_en || null, name_ar: d.name_ar || null })));
     setSubcategories(((subs as any[]) || []).map((s) => ({ id: s.id, name_fr: s.name_fr || "(sans nom)" })));
     setBadges(((bdgs as any[]) || []).map((b) => ({ id: b.id, name_fr: b.name_fr || "(sans nom)" })));
@@ -257,7 +270,7 @@ const EmbedAiSuggestionsManagement = () => {
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], blog_post_ids: [], subcategory_ids: [], badge_ids: [], city: null, main_categories: [], disabled_followup_ids: [], mode: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [] } as Row]);
+    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], blog_post_ids: [], subcategory_ids: [], badge_ids: [], commodity_filters: [], city: null, main_categories: [], disabled_followup_ids: [], mode: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [] } as Row]);
     setExpanded((prev) => new Set(prev).add((data as any).id));
 
   };
@@ -287,6 +300,7 @@ const EmbedAiSuggestionsManagement = () => {
           blog_post_ids: r.blog_post_ids || [],
           subcategory_ids: r.subcategory_ids || [],
           badge_ids: r.badge_ids || [],
+          commodity_filters: r.commodity_filters || [],
           city: r.city || null,
           main_categories: r.main_categories || [],
           disabled_followup_ids: r.disabled_followup_ids || [],
@@ -783,6 +797,62 @@ const EmbedAiSuggestionsManagement = () => {
                     💡 Quand un ou plusieurs badges sont liés, l'IA court-circuite le LLM et affiche uniquement les établissements portant ces badges (croisé avec les sous-catégories si présentes).
                   </p>
                 </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs text-muted-foreground">
+                    Commodités ciblées {r.commodity_filters.length === 0 ? "(aucune)" : `(${r.commodity_filters.length} — route déterministe)`}
+                  </label>
+                  {r.commodity_filters.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {r.commodity_filters.map((c) => (
+                        <span key={c} className="inline-flex items-center gap-1 rounded-md bg-sky-500/15 text-sky-700 dark:text-sky-300 text-xs px-2 py-1">
+                          {c}
+                          <button
+                            type="button"
+                            onClick={() => update(r.id, { commodity_filters: r.commodity_filters.filter((x) => x !== c) })}
+                            className="hover:text-destructive"
+                            title="Retirer"
+                          >×</button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <div className="relative max-w-md">
+                    <Input
+                      placeholder="Rechercher une commodité (Logistique)…"
+                      value={commoditySearch[r.id] || ""}
+                      onChange={(e) => setCommoditySearch((prev) => ({ ...prev, [r.id]: e.target.value }))}
+                      onKeyDown={(e) => { if (e.key === "Escape") setCommoditySearch((prev) => ({ ...prev, [r.id]: "" })); }}
+                    />
+                    {commoditySearch[r.id]?.trim() && (
+                      <div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg max-h-60 overflow-auto">
+                        {(() => {
+                          const norm = (v: string) => v.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                          const q = norm(commoditySearch[r.id]);
+                          const matches = commodities
+                            .filter((c) => !r.commodity_filters.includes(c))
+                            .filter((c) => norm(c).includes(q));
+                          if (matches.length === 0) return <div className="px-3 py-2 text-sm text-muted-foreground">Aucune commodité trouvée</div>;
+                          return matches.slice(0, 8).map((c) => (
+                            <button
+                              key={c}
+                              type="button"
+                              onClick={() => { update(r.id, { commodity_filters: [...r.commodity_filters, c] }); setCommoditySearch((prev) => ({ ...prev, [r.id]: "" })); }}
+                              className="w-full px-3 py-2 text-left text-sm hover:bg-muted truncate"
+                            >
+                              {c}
+                            </button>
+                          ));
+                        })()}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    💡 Commodités de la Structure du Front (ex. « Livraison internationale ») : quand une commodité est liée, l'IA filtre en dur sur les établissements qui la portent, sans passer par le LLM.
+                  </p>
+                </div>
+
+
 
                 {/* PROXIMITÉ DEUX ENTITÉS (A à côté d'un B) */}
                 {(() => {
