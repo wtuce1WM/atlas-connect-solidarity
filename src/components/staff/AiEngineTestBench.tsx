@@ -226,15 +226,41 @@ type ResultRow = {
 
 type SlugOption = { id: string; name: string; slug: string | null; city: string | null };
 
+const STORAGE_KEY = "owm.ai-test-bench.v1";
+
+/** Restaure la dernière session de comparaison (survit aux changements d'écran). */
+function loadPersisted(): { slug: string; custom: string; results: ResultRow[] } | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || !Array.isArray(parsed.results)) return null;
+    return { slug: parsed.slug || "", custom: parsed.custom || "", results: parsed.results as ResultRow[] };
+  } catch {
+    return null;
+  }
+}
+
 const AiEngineTestBench = () => {
-  const [slug, setSlug] = useState("");
-  const [custom, setCustom] = useState("");
+  const persisted = React.useRef(loadPersisted()).current;
+  const [slug, setSlug] = useState(persisted?.slug || "");
+  const [custom, setCustom] = useState(persisted?.custom || "");
   const [running, setRunning] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [results, setResults] = useState<ResultRow[]>([]);
+  const [results, setResults] = useState<ResultRow[]>(persisted?.results || []);
   const [curated, setCurated] = useState<CuratedEntry[]>([]);
   const [slugOptions, setSlugOptions] = useState<SlugOption[]>([]);
   const [slugOpen, setSlugOpen] = useState(false);
+
+  // Persistance locale : les résultats ne disparaissent plus quand on change d'écran.
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ slug, custom, results }));
+    } catch {
+      /* quota dépassé : la persistance est best-effort */
+    }
+  }, [slug, custom, results]);
+
 
   // Auto-complete du slug hôte (nom ou slug)
   useEffect(() => {
@@ -422,9 +448,16 @@ const AiEngineTestBench = () => {
 
       {results.length > 0 && (
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Résultats</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between gap-2">
+            <div>
+              <CardTitle className="text-base">Résultats</CardTitle>
+              <CardDescription>Conservés localement, même après changement d'écran.</CardDescription>
+            </div>
+            <Button size="sm" variant="outline" onClick={() => setResults([])} disabled={running || !!busyId}>
+              Effacer
+            </Button>
           </CardHeader>
+
           <CardContent className="space-y-6">
             {results.map((r) => {
               const v1summary = resultSummary(r.v1.text);
