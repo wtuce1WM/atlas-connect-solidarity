@@ -10,15 +10,12 @@ import AiRoutesManagement from "@/components/staff/AiRoutesManagement";
 import AiEngineTestMode from "@/components/staff/AiEngineTestMode";
 import AiEngineTestBench from "@/components/staff/AiEngineTestBench";
 import AIConfigManagement from "@/components/staff/AIConfigManagement";
-import AiSuggestionsManagement from "@/components/staff/AiSuggestionsManagement";
-import AiFollowupsManagement from "@/components/staff/AiFollowupsManagement";
-import ClubFollowupPromptEditor from "@/components/staff/ClubFollowupPromptEditor";
+import AiSuggestionsHub from "@/components/staff/AiSuggestionsHub";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
 import AiUsageManagement from "@/components/staff/AiUsageManagement";
 import AiResolutionMetrics from "@/components/staff/AiResolutionMetrics";
 import AiConversationPerf from "@/components/staff/AiConversationPerf";
 import EmbedUsageManagement from "@/components/staff/EmbedUsageManagement";
-import EmbedAiHowItWorks from "@/components/staff/EmbedAiHowItWorks";
 import KnowledgeBaseManagement from "@/components/staff/KnowledgeBaseManagement";
 import KBViewer from "@/components/staff/KBViewer";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
@@ -114,22 +111,15 @@ const StaffIA = () => {
               IA
             </TabsTrigger>
 
-            <TabsTrigger value="club-ai-suggestions" className="gap-2">
-              <MessageSquare className="h-4 w-4" />
-              Suggestions Chat IA du Club
-            </TabsTrigger>
-            <TabsTrigger value="embed-ai-suggestions" className="gap-2">
-              <Code2 className="h-4 w-4" />
-              Suggestions Embed IA
-            </TabsTrigger>
-            <TabsTrigger value="search-ai" className="gap-2">
+            <TabsTrigger value="popular-searches" className="gap-2">
               <Search className="h-4 w-4" />
-              Search IA
+              Recherches populaires
             </TabsTrigger>
             <TabsTrigger value="ai-usage" className="gap-2">
               <Zap className="h-4 w-4" />
               Utilisation IA
             </TabsTrigger>
+
 
             <TabsTrigger value="ai-perf" className="gap-2">
               <BarChart3 className="h-4 w-4" />
@@ -164,7 +154,12 @@ const StaffIA = () => {
                   <Cpu className="h-4 w-4" />
                   Routes
                 </TabsTrigger>
+                <TabsTrigger value="suggestions" className="gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  Suggestions & relances
+                </TabsTrigger>
               <TabsTrigger value="test" className="gap-2">
+
                 <FlaskConical className="h-4 w-4" />
                 Mode test
               </TabsTrigger>
@@ -183,6 +178,10 @@ const StaffIA = () => {
             <TabsContent value="routes">
               <AiRoutesManagement />
             </TabsContent>
+            <TabsContent value="suggestions">
+              <AiSuggestionsHub />
+            </TabsContent>
+
             <TabsContent value="test">
               <AiEngineTestMode />
             </TabsContent>
@@ -200,81 +199,10 @@ const StaffIA = () => {
             <AIConfigManagement />
           </TabsContent>
 
-          <TabsContent value="club-ai-suggestions">
-            <Tabs defaultValue="search">
-              <TabsList className="mb-4">
-                <TabsTrigger value="search">Search</TabsTrigger>
-                <TabsTrigger value="club" className="gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  Suggestions Club
-                </TabsTrigger>
-                <TabsTrigger value="club-followups" className="gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  Relances Club
-                </TabsTrigger>
-                <TabsTrigger value="followups-prompt" className="gap-2">
-                  <Brain className="h-4 w-4" />
-                  Prompt follow-ups
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="search">
-                <PopularSearchesManagement />
-              </TabsContent>
-              <TabsContent value="club">
-                <AiSuggestionsManagement surface="club" />
-              </TabsContent>
-              <TabsContent value="club-followups">
-                <AiFollowupsManagement surface="club" />
-              </TabsContent>
-              <TabsContent value="followups-prompt">
-                <ClubFollowupPromptEditor />
-              </TabsContent>
-            </Tabs>
-          </TabsContent>
-          <TabsContent value="embed-ai-suggestions">
-            <Tabs defaultValue="suggestions">
-              <TabsList className="mb-4">
-                <TabsTrigger value="suggestions">Suggestions</TabsTrigger>
-                <TabsTrigger value="followups" className="gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  Relances
-                </TabsTrigger>
-                <TabsTrigger value="how-it-works" className="gap-2">
-                  <BookOpen className="h-4 w-4" />
-                  Fonctionnement
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="suggestions">
-                <AiSuggestionsManagement surface="embed" />
-              </TabsContent>
-              <TabsContent value="followups">
-                <AiFollowupsManagement surface="embed" />
-              </TabsContent>
-              <TabsContent value="how-it-works">
-                <EmbedAiHowItWorks />
-              </TabsContent>
-            </Tabs>
+          <TabsContent value="popular-searches">
+            <PopularSearchesManagement />
           </TabsContent>
 
-
-
-          <TabsContent value="search-ai">
-            <Tabs defaultValue="suggestions">
-              <TabsList className="mb-4">
-                <TabsTrigger value="suggestions">Suggestions Search</TabsTrigger>
-                <TabsTrigger value="followups" className="gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  Relances Search
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="suggestions">
-                <AiSuggestionsManagement surface="search" />
-              </TabsContent>
-              <TabsContent value="followups">
-                <AiFollowupsManagement surface="search" />
-              </TabsContent>
-            </Tabs>
-          </TabsContent>
 
           <TabsContent value="ai-usage">
             <AiUsageManagement />
