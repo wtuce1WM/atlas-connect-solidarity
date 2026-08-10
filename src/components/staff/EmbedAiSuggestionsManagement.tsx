@@ -75,6 +75,7 @@ type Row = {
   subcategory_ids: string[];
   badge_ids: string[];
   city: string | null;
+  main_categories: string[];
   disabled_followup_ids: string[];
   mode: string | null;
   proximity_a_subcategory_ids: string[];
@@ -97,6 +98,7 @@ const EmbedAiSuggestionsManagement = () => {
   const [destinations, setDestinations] = useState<DestinationOption[]>([]);
   const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
   const [badges, setBadges] = useState<BadgeOption[]>([]);
+  const [mainCategories, setMainCategories] = useState<string[]>([]);
   const [globalFollowups, setGlobalFollowups] = useState<GlobalFollowup[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -132,10 +134,10 @@ const EmbedAiSuggestionsManagement = () => {
       }
       return all;
     };
-    const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }, { data: posts }] = await Promise.all([
+    const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }, { data: posts }, { data: cats }] = await Promise.all([
       supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,badge_ids,city,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,badge_ids,city,main_categories,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids")
         .order("sort_order", { ascending: true }),
       fetchAllBusinesses(),
       supabase
@@ -158,6 +160,10 @@ const EmbedAiSuggestionsManagement = () => {
         .from("blog_posts")
         .select("id,title_fr,title_en,slug")
         .order("title_fr", { ascending: true }),
+      supabase
+        .from("categories")
+        .select("name_fr")
+        .order("name_fr", { ascending: true }),
     ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows(
@@ -169,6 +175,7 @@ const EmbedAiSuggestionsManagement = () => {
         blog_post_ids: Array.isArray(r.blog_post_ids) ? r.blog_post_ids : [],
         subcategory_ids: Array.isArray(r.subcategory_ids) ? r.subcategory_ids : [],
         badge_ids: Array.isArray(r.badge_ids) ? r.badge_ids : [],
+        main_categories: Array.isArray(r.main_categories) ? r.main_categories : [],
         disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
         proximity_a_subcategory_ids: Array.isArray(r.proximity_a_subcategory_ids) ? r.proximity_a_subcategory_ids : [],
         proximity_a_badge_ids: Array.isArray(r.proximity_a_badge_ids) ? r.proximity_a_badge_ids : [],
@@ -186,6 +193,9 @@ const EmbedAiSuggestionsManagement = () => {
         .map((p) => ({ id: p.id, slug: p.slug, title: (p.title_fr || p.title_en || p.slug || "(sans titre)").trim() }))
         .sort((a, b) => a.title.localeCompare(b.title, "fr", { sensitivity: "base" }))
     );
+    setMainCategories(((cats as any[]) || []).map((c) => (c.name_fr || "").trim()).filter(Boolean));
+
+
 
     setDirty(new Set());
     setLoading(false);
@@ -247,7 +257,7 @@ const EmbedAiSuggestionsManagement = () => {
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], blog_post_ids: [], subcategory_ids: [], badge_ids: [], city: null, disabled_followup_ids: [], mode: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [] } as Row]);
+    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], blog_post_ids: [], subcategory_ids: [], badge_ids: [], city: null, main_categories: [], disabled_followup_ids: [], mode: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [] } as Row]);
     setExpanded((prev) => new Set(prev).add((data as any).id));
 
   };
@@ -278,6 +288,7 @@ const EmbedAiSuggestionsManagement = () => {
           subcategory_ids: r.subcategory_ids || [],
           badge_ids: r.badge_ids || [],
           city: r.city || null,
+          main_categories: r.main_categories || [],
           disabled_followup_ids: r.disabled_followup_ids || [],
           mode: r.mode || null,
           proximity_a_subcategory_ids: r.proximity_a_subcategory_ids || [],
@@ -388,6 +399,16 @@ const EmbedAiSuggestionsManagement = () => {
                     <RouteBadge label={r.label_fr || ""} />
                   )}
                   <Chip label="Ville" value={r.city || "Toutes"} />
+                  <Chip
+                    label="Catégories"
+                    value={
+                      (r.main_categories?.length ?? 0) === 0
+                        ? "Toutes"
+                        : r.main_categories.length <= 2
+                          ? r.main_categories.join(", ")
+                          : `${r.main_categories.length} sélectionnées`
+                    }
+                  />
                   <Chip label="Établissements" value={r.business_ids.length === 0 ? "tous" : String(r.business_ids.length)} />
                   <Chip label="Destinations" value={r.destination_ids.length === 0 ? "—" : String(r.destination_ids.length)} />
                   <Chip label="Blog" value={r.blog_post_ids.length === 0 ? "auto" : String(r.blog_post_ids.length)} />
@@ -438,6 +459,39 @@ const EmbedAiSuggestionsManagement = () => {
                     <option value="Essaouira">Essaouira</option>
                   </select>
                   <p className="text-[11px] text-muted-foreground mt-1">Vide = affichée pour tous les établissements. Sinon uniquement pour ceux de cette ville.</p>
+                </div>
+
+                <div>
+                  <label className="text-xs text-muted-foreground">Catégories principales ciblées</label>
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    {mainCategories.map((c) => {
+                      const on = (r.main_categories || []).includes(c);
+                      return (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() =>
+                            update(r.id, {
+                              main_categories: on
+                                ? (r.main_categories || []).filter((x) => x !== c)
+                                : [...(r.main_categories || []), c],
+                            })
+                          }
+                          className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
+                            on
+                              ? "border-primary bg-primary/15 text-primary font-medium"
+                              : "border-input text-muted-foreground hover:bg-muted"
+                          }`}
+                        >
+                          {c}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    Vide = suggestion affichée pour tous les établissements. Sinon uniquement pour les établissements
+                    dont la catégorie principale est sélectionnée.
+                  </p>
                 </div>
 
                 <div className="max-w-md">

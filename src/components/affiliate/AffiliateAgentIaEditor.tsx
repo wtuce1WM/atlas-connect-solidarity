@@ -39,10 +39,10 @@ const AffiliateAgentIaEditor = ({ businessId, businessCity }: Props) => {
     let cancelled = false;
     (async () => {
       setIsLoading(true);
-      const [sRes, fRes, pRes, blogRes, txtRes, lnkRes] = await Promise.all([
+      const [sRes, fRes, pRes, blogRes, txtRes, lnkRes, bizRes] = await Promise.all([
         supabase
           .from("embed_ai_suggestions")
-          .select("id,label_fr,city")
+          .select("id,label_fr,city,main_categories")
           .eq("is_active", true)
           .order("sort_order", { ascending: true }),
         supabase
@@ -69,14 +69,23 @@ const AffiliateAgentIaEditor = ({ businessId, businessCity }: Props) => {
           .from("business_embed_ai_item_links")
           .select("item_kind,item_id,blog_post_ids,ai_text_ids")
           .eq("business_id", businessId),
+        (supabase as any)
+          .from("businesses")
+          .select("main_category")
+          .eq("id", businessId)
+          .maybeSingle(),
       ]);
       if (cancelled) return;
 
       const bizCity = normCity(businessCity);
+      const bizCat = normCity((bizRes as any)?.data?.main_category as string | null);
       const sList: Row[] = ((sRes.data as any[]) ?? [])
         .filter((r) => {
           const c = normCity(r.city);
-          return !c || !bizCity || c === bizCity;
+          if (c && bizCity && c !== bizCity) return false;
+          const cats: string[] = Array.isArray(r.main_categories) ? r.main_categories : [];
+          if (cats.length > 0 && (!bizCat || !cats.some((x) => normCity(x) === bizCat))) return false;
+          return true;
         })
         .map((r) => ({ id: r.id as string, label: (r.label_fr || "").trim() }))
         .filter((r) => r.label);

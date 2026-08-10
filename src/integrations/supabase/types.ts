@@ -4239,6 +4239,7 @@ export type Database = {
           label_ar: string | null
           label_en: string | null
           label_fr: string
+          main_categories: string[]
           mode: string | null
           proximity_a_badge_ids: string[]
           proximity_a_subcategory_ids: string[]
@@ -4262,6 +4263,7 @@ export type Database = {
           label_ar?: string | null
           label_en?: string | null
           label_fr: string
+          main_categories?: string[]
           mode?: string | null
           proximity_a_badge_ids?: string[]
           proximity_a_subcategory_ids?: string[]
@@ -4285,6 +4287,7 @@ export type Database = {
           label_ar?: string | null
           label_en?: string | null
           label_fr?: string
+          main_categories?: string[]
           mode?: string | null
           proximity_a_badge_ids?: string[]
           proximity_a_subcategory_ids?: string[]

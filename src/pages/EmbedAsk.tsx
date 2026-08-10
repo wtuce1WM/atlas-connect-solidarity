@@ -422,6 +422,7 @@ const EmbedAsk = () => {
   const [assistantTitle, setAssistantTitle] = useState<string>("");
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [businessCity, setBusinessCity] = useState<string | null>(null);
+  const [businessMainCategory, setBusinessMainCategory] = useState<string | null>(null);
   const [hostLocation, setHostLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -577,7 +578,7 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("id, name, latitude, longitude, city, url_6_title, widget_bg_color, widget_bg_color_dark")
+        .select("id, name, latitude, longitude, city, main_category, url_6_title, widget_bg_color, widget_bg_color_dark")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
@@ -588,6 +589,7 @@ const EmbedAsk = () => {
       setAssistantTitle((row?.url_6_title as string) || "");
       setBusinessId((row?.id as string) || null);
       setBusinessCity((row?.city as string) || null);
+      setBusinessMainCategory((row?.main_category as string) || null);
       const hex = (v: any) => (typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v.trim()) ? v.trim() : null);
       setWidgetColors(noTheme ? { light: null, dark: null } : { light: hex(row?.widget_bg_color), dark: hex(row?.widget_bg_color_dark) });
       if (row?.latitude != null && row?.longitude != null) {
@@ -644,7 +646,7 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,followups,business_ids,city,disabled_followup_ids")
+        .select("id,label_fr,label_en,label_ar,followups,business_ids,city,main_categories,disabled_followup_ids")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (cancelled || !data) return;
@@ -652,10 +654,13 @@ const EmbedAsk = () => {
       const normCity = (s: string | null | undefined) =>
         (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
       const bizCity = normCity(businessCity);
+      const bizCat = normCity(businessMainCategory);
       const list: SuggestionRow[] = (data as any[])
         .filter((r) => {
           const c = normCity(r.city);
           if (c && c !== bizCity) return false;
+          const cats = Array.isArray(r.main_categories) ? r.main_categories : [];
+          if (cats.length > 0 && (!bizCat || !cats.some((x: string) => normCity(x) === bizCat))) return false;
           return true;
         })
         .map((r) => ({
@@ -667,7 +672,7 @@ const EmbedAsk = () => {
       if (list.length > 0) setDbSuggestions(list);
     })();
     return () => { cancelled = true; };
-  }, [lang, businessId, businessCity]);
+  }, [lang, businessId, businessCity, businessMainCategory]);
 
   useEffect(() => {
     let cancelled = false;
