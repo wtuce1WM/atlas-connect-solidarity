@@ -164,6 +164,15 @@ Deno.serve(async (req) => {
       let resultsCount: number | null = null;
       let hadError = false;
       let cityDetected: string | null = null;
+      // Observation seule : mesure de la couverture du vocabulaire, sans effet sur les résultats.
+      let resolutionLog: Record<string, unknown> = {};
+      try {
+        const res = await resolveWithAdmin(admin, userMessage);
+        resolutionLog = resolutionMetric(res);
+      } catch (e) {
+        console.warn("[embed-ai-chat-v2] resolver observation failed", String(e));
+      }
+
 
       const finish = async (streamCompleted: boolean) => {
         end();
