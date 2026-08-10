@@ -2053,8 +2053,11 @@ serve(async (req) => {
           if (built) { await deliverCurated(built); return; }
         }
 
-        // 3. Filtre déterministe (commodités / badges / sous-catégories)
-        if (curated.commodities.length || curated.badgeIds.length || curated.subcategoryNames.length) {
+        // 3. Filtre déterministe (commodités / badges / sous-catégories).
+        // Une suggestion qui force déjà une route (`mode` = events / weather / map…)
+        // garde SA route : on ne la détourne pas en liste filtrée.
+        const hasForcedMode = !!String(curated.mode || "").trim();
+        if (!hasForcedMode && (curated.commodities.length || curated.badgeIds.length || curated.subcategoryNames.length)) {
           const built = await buildFilteredAnswer(admin, pseudoHost, lang as any, {
             badgeIds: curated.badgeIds,
             subcategoryNames: curated.subcategoryNames,
