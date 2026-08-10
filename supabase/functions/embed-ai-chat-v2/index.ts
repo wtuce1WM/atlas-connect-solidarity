@@ -28,7 +28,7 @@ import { detectViewIntent, withinPointRadius, hasVantage, hasPointViewProof, has
 import { pickLang, normalize, toMapMarker, fetchPriorFull } from "../_shared/ai-engine/routes/shared.ts";
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
 import {
-  loadCuratedTargets, fetchBlogPostsCached, matchBlogArticle,
+  loadCuratedTargets, fetchBlogPostsCached, matchBlogArticle, matchCuratedByText,
   buildBlogArticleAnswer, buildPinnedAnswer, buildFilteredAnswer,
 } from "../_shared/ai-engine/routes/curated.ts";
 import { isHoursIntent, buildHoursAnswer, buildHoursForBusinesses } from "../_shared/ai-engine/routes/opening.ts";
@@ -134,7 +134,9 @@ Deno.serve(async (req) => {
   const slugOrId = String(body.businessSlug || body.businessId || "").trim();
   const lang = pickLang(body.language) as Lang;
   const sessionId: string | null = typeof body.sessionId === "string" ? body.sessionId : null;
-  const suggestionId: string | null = typeof body.suggestionId === "string" && body.suggestionId ? body.suggestionId : null;
+  let suggestionId: string | null = typeof body.suggestionId === "string" && body.suggestionId ? body.suggestionId : null;
+  /** true quand la suggestion a été retrouvée depuis le texte libre (pas un clic). */
+  let suggestionFromText = false;
   const followupId: string | null = typeof body.followupId === "string" && body.followupId ? body.followupId : null;
 
   if (!slugOrId) {
@@ -305,6 +307,17 @@ Deno.serve(async (req) => {
         // un article de blog ou des établissements épinglés fait loi : ni le
         // classifieur ni le résolveur taxonomique ne peuvent la remplacer ou la
         // « compléter » avec des résultats de recherche.
+        // Texte libre : on rapproche d'abord la phrase tapée d'un libellé de
+        // suggestion staff (matcher partagé) → taper la phrase == cliquer la suggestion.
+        if (!suggestionId && !followupId) {
+          const m = await matchCuratedByText(admin, { text: userMessage, surface: "embed", crossSurface: true })
+            .catch(() => null);
+          if (m) {
+            suggestionId = m.id;
+            suggestionFromText = true;
+            console.log("[embed-ai-chat-v2] curated_text_match", JSON.stringify(m));
+          }
+        }
         if (suggestionId || followupId) {
           const curated = await loadCuratedTargets(admin, {
             suggestionId, followupId, businessId: host.id,
@@ -315,7 +328,7 @@ Deno.serve(async (req) => {
           // Le clic initial (message == libellé) ou une relance explicite gardent la cible.
           const norm = (s: string) => normalize(s).replace(/[?!.\s]+$/g, "").trim();
           const isInitialClick = !!(curated?.label && norm(userMessage) === norm(curated.label));
-          const keepCurated = !!curated && (!!followupId || isInitialClick || !priorIds.length);
+          const keepCurated = !!curated && (!!followupId || isInitialClick || suggestionFromText || !priorIds.length);
 
           if (curated && keepCurated && curated.blogPostIds.length) {
             const posts = await fetchBlogPostsCached(admin).catch(() => []);
