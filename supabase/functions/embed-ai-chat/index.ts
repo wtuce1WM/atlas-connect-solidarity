@@ -1832,7 +1832,7 @@ Deno.serve(async (req) => {
 
         // Deterministic WEATHER (early) — runs before blog grounding so a followup
         // like "Quelle est la météo prévue ?" always renders the immersive widget.
-        if (isWeatherIntent(userMessage) || followupMode === "weather") {
+        if (isWeatherIntent(userMessage) || followupMode === "weather" || suggestionMode === "weather") {
           try {
             const city = host.city || "Marrakech";
             const { data, error } = await admin.functions.invoke("get-weather", { body: { city } });
@@ -1860,7 +1860,7 @@ Deno.serve(async (req) => {
               const marker = `\n\n<!--WEATHER_FORECAST:${JSON.stringify(weatherJson)}-->`;
               emitDelta(L + marker);
               finalText = L + marker;
-              toolsCalledLog.push({ name: "get_weather", args: { city, source: followupMode === "weather" ? "followup" : "intent" }, ok: true });
+              toolsCalledLog.push({ name: "get_weather", args: { city, source: suggestionMode === "weather" ? "suggestion" : followupMode === "weather" ? "followup" : "intent" }, ok: true });
               endText();
               await logTurn({ finalText, streamCompleted: true });
               return;

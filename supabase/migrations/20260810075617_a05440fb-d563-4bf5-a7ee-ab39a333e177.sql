@@ -1,0 +1,2 @@
+update public.embed_ai_suggestions set mode = 'weather' where label_fr = 'Quelle météo les 3 prochains jours ?' and mode is null;
+update public.embed_ai_followups set mode = 'weather' where label_fr = 'Quelle est la météo prévue ?' and mode is null;
