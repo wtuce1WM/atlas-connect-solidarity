@@ -429,6 +429,11 @@ const EmbedAiSuggestionsManagement = () => {
                   <Chip label="Blog" value={r.blog_post_ids.length === 0 ? "auto" : String(r.blog_post_ids.length)} alert={r.blog_post_ids.length > 0} />
                   <Chip label="Sous-cat." value={r.subcategory_ids.length === 0 ? "—" : String(r.subcategory_ids.length)} alert={r.subcategory_ids.length > 0} />
                   <Chip label="Badges" value={r.badge_ids.length === 0 ? "—" : String(r.badge_ids.length)} alert={r.badge_ids.length > 0} />
+                  <Chip
+                    label="Commodités"
+                    value={(r.commodity_filters?.length ?? 0) === 0 ? "—" : String(r.commodity_filters.length)}
+                    alert={(r.commodity_filters?.length ?? 0) > 0}
+                  />
                   {(r.proximity_a_subcategory_ids.length > 0 || r.proximity_a_badge_ids.length > 0 || r.proximity_b_subcategory_ids.length > 0 || r.proximity_b_badge_ids.length > 0) && (
                     <Chip
                       label="Proximité A/B"
