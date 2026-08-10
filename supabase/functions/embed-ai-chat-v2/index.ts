@@ -577,7 +577,7 @@ Deno.serve(async (req) => {
           );
           if (results.length) fallbackReason = fallbackReason || "confidence_low";
         }
-        resolutionLog = { ...resolutionLog, resolution_authority: authoritySource };
+        resolutionAuthority = authoritySource;
 
         if (!results.length) fallbackReason = fallbackReason || "no_results";
 
