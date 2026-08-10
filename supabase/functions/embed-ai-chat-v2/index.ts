@@ -337,7 +337,15 @@ Deno.serve(async (req) => {
         }
 
         // 5. Panorama « que faire à proximité ? » (déterministe, Structure du Front)
-        if (isNearbyOverviewIntent(userMessage, host.name) || (isProximityIntent(userMessage) && !suggestionId)) {
+        // Autorité du résolveur : si la requête contient une cible taxonomique réelle
+        // (« piscine à proximité »), ce n'est plus un panorama générique → recherche ciblée.
+        const hasResolvedIntent = !!resolution && resolution.targets.some(
+          (t) => t.type === "category" || t.type === "subcategory" || t.type === "service" || t.type === "badge",
+        );
+        if (
+          (isNearbyOverviewIntent(userMessage, host.name) && !hasResolvedIntent) ||
+          (isProximityIntent(userMessage) && !suggestionId && !hasResolvedIntent)
+        ) {
           route = "nearby";
           const hostCategoryNames = new Set<string>(
             [...(Array.isArray(host.categories) ? host.categories : []), host.main_category]
