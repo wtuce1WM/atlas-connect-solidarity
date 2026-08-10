@@ -174,7 +174,15 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
     for (const k of sv.keywords ?? []) {
       if (k) push(entries, k, { type: "service", value, source: "services.keywords" });
     }
+    // Index par mot : « quad » doit atteindre `Quad` et `Excursions en quad`.
+    for (const w of contentWords(value)) {
+      const key = stemKey(w);
+      const set = wordToServices.get(key) ?? new Set<string>();
+      set.add(value);
+      wordToServices.set(key, set);
+    }
   }
+
 
   // 6. Catégories.
   for (const c of categories) {
