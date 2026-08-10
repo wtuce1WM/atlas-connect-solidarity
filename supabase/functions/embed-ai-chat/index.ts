@@ -1860,7 +1860,7 @@ Deno.serve(async (req) => {
               const marker = `\n\n<!--WEATHER_FORECAST:${JSON.stringify(weatherJson)}-->`;
               emitDelta(L + marker);
               finalText = L + marker;
-              toolsCalledLog.push({ name: "get_weather", args: { city, source: followupMode === "weather" ? "followup" : "intent" }, ok: true });
+              toolsCalledLog.push({ name: "get_weather", args: { city, source: suggestionMode === "weather" ? "suggestion" : followupMode === "weather" ? "followup" : "intent" }, ok: true });
               endText();
               await logTurn({ finalText, streamCompleted: true });
               return;
