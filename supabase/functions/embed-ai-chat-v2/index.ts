@@ -139,6 +139,10 @@ Deno.serve(async (req) => {
 
   const userMessage = textOf([...uiMessages].reverse().find((m: any) => m?.role === "user") as UIMessage) || "";
   const priorIds = priorBusinessIds(uiMessages);
+  const chatId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(sessionId || ""))
+    ? sessionId
+    : null;
+
 
   const stream = createUIMessageStream({
     execute: async ({ writer }) => {
@@ -165,6 +169,8 @@ Deno.serve(async (req) => {
       let resultsCount: number | null = null;
       let hadError = false;
       let cityDetected: string | null = null;
+      // Continuité de tour : catégorie retenue par le classifieur, réinjectée au tour suivant.
+      let lastCategory: string | null = null;
       // Observation seule : mesure de la couverture du vocabulaire, sans effet sur les résultats.
       let resolutionLog: Record<string, unknown> = {};
       try {
@@ -178,9 +184,6 @@ Deno.serve(async (req) => {
       const finish = async (streamCompleted: boolean) => {
         end();
         try {
-          const chatId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(sessionId || ""))
-            ? sessionId
-            : null;
           const { error: logErr } = await admin.from("ai_conversation_turns").insert({
             chat_id: chatId,
             user_message: userMessage.slice(0, 2000),
@@ -201,6 +204,7 @@ Deno.serve(async (req) => {
             city_active: null,
             city_detected: cityDetected,
             language: lang,
+            tools_called: { session_id: sessionId, category: lastCategory },
             ...resolutionLog,
           });
           if (logErr) console.error("[embed-ai-chat-v2] log_failed", logErr.message);
@@ -208,6 +212,7 @@ Deno.serve(async (req) => {
           console.error("[embed-ai-chat-v2] log_failed", e);
         }
       };
+
 
       try {
         // ── Hôte ────────────────────────────────────────────────────────────
@@ -346,12 +351,35 @@ Deno.serve(async (req) => {
         // ── Classe B — classifieur, puis recherche déterministe ─────────────
         aiClass = "B";
         route = "discover";
+        // Continuité : route + catégorie du tour précédent (une lecture DB, zéro token).
+        let priorRoute: string | null = null;
+        let priorCategory: string | null = null;
+        if (chatId) {
+          const { data: lastTurn } = await admin
+            .from("ai_conversation_turns")
+            .select("route_taken, tools_called")
+            .eq("chat_id", chatId)
+            .order("created_at", { ascending: false })
+            .limit(1);
+          const t: any = lastTurn?.[0];
+          if (t) {
+            priorRoute = t.route_taken || null;
+            const c = (t.tools_called as any)?.category;
+            priorCategory = typeof c === "string" && c ? c : null;
+          }
+        }
+        const priorNames = priorIds.length
+          ? (await fetchPriorFull(admin, priorIds.slice(0, 3))).map((b: any) => b.name).filter(Boolean)
+          : [];
         const cls = await classify(
           {
             message: userMessage,
             surface: "embed",
             focus: {
-              last_business_ids: priorIds.slice(0, 3),
+              last_business_ids: priorIds.length ? priorIds.slice(0, 3) : [host.id],
+              last_business_names: priorNames.length ? priorNames : [host.name],
+              last_route: priorRoute as any,
+              last_category: priorCategory,
               active_city: host.city || null,
             },
           },
@@ -360,6 +388,8 @@ Deno.serve(async (req) => {
         tokensIn += cls.tokensIn;
         tokensOut += cls.tokensOut;
         confidence = cls.output?.confidence ?? null;
+        lastCategory = cls.output?.category ?? priorCategory;
+
         if (cls.error || !cls.output) {
           hadError = true;
           fallbackReason = "route_failed";
@@ -458,7 +488,7 @@ Deno.serve(async (req) => {
           // Un repère ponctuel (Koutoubia) se traite par rayon + preuve de point de
           // vue, pas par mot-clé : n'injecter aucun indice « rooftop » ici.
           const hintParts = views.points.length && !excludesLodging ? [] : panoramaHints;
-          const baseQuery = [out.category, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
+          const baseQuery = [out.category || priorCategory, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
             || userMessage.slice(0, 200);
           await runSearch(baseQuery, out.city || host.city || "Marrakech", excluded);
         }
