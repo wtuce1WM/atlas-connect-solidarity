@@ -398,7 +398,7 @@ const EmbedAiSuggestionsManagement = () => {
                   ) : (
                     <RouteBadge label={r.label_fr || ""} />
                   )}
-                  <Chip label="Ville" value={r.city || "Toutes"} />
+                  <Chip label="Ville" value={r.city || "Toutes"} alert={!!r.city} />
                   <Chip
                     label="Catégories"
                     value={
@@ -408,20 +408,22 @@ const EmbedAiSuggestionsManagement = () => {
                           ? r.main_categories.join(", ")
                           : `${r.main_categories.length} sélectionnées`
                     }
+                    alert={(r.main_categories?.length ?? 0) > 0}
                   />
-                  <Chip label="Établissements" value={r.business_ids.length === 0 ? "tous" : String(r.business_ids.length)} />
-                  <Chip label="Destinations" value={r.destination_ids.length === 0 ? "—" : String(r.destination_ids.length)} />
-                  <Chip label="Blog" value={r.blog_post_ids.length === 0 ? "auto" : String(r.blog_post_ids.length)} />
-                  <Chip label="Sous-cat." value={r.subcategory_ids.length === 0 ? "—" : String(r.subcategory_ids.length)} />
-                  <Chip label="Badges" value={r.badge_ids.length === 0 ? "—" : String(r.badge_ids.length)} />
+                  <Chip label="Établissements" value={r.business_ids.length === 0 ? "tous" : String(r.business_ids.length)} alert={r.business_ids.length > 0} />
+                  <Chip label="Destinations" value={r.destination_ids.length === 0 ? "—" : String(r.destination_ids.length)} alert={r.destination_ids.length > 0} />
+                  <Chip label="Blog" value={r.blog_post_ids.length === 0 ? "auto" : String(r.blog_post_ids.length)} alert={r.blog_post_ids.length > 0} />
+                  <Chip label="Sous-cat." value={r.subcategory_ids.length === 0 ? "—" : String(r.subcategory_ids.length)} alert={r.subcategory_ids.length > 0} />
+                  <Chip label="Badges" value={r.badge_ids.length === 0 ? "—" : String(r.badge_ids.length)} alert={r.badge_ids.length > 0} />
                   {(r.proximity_a_subcategory_ids.length > 0 || r.proximity_a_badge_ids.length > 0 || r.proximity_b_subcategory_ids.length > 0 || r.proximity_b_badge_ids.length > 0) && (
                     <Chip
                       label="Proximité A/B"
                       value={`A ${r.proximity_a_subcategory_ids.length + r.proximity_a_badge_ids.length} · B ${r.proximity_b_subcategory_ids.length + r.proximity_b_badge_ids.length}`}
+                      alert
                     />
                   )}
-                  <Chip label="EN" value={r.label_en ? "✓" : "—"} />
-                  <Chip label="AR" value={r.label_ar ? "✓" : "—"} />
+                  <Chip label="EN" value={r.label_en ? "✓" : "—"} alert={!r.label_en} />
+                  <Chip label="AR" value={r.label_ar ? "✓" : "—"} alert={!r.label_ar} />
                   <Chip
                     label="Relances"
                     value={`${globalFollowups.length - (r.disabled_followup_ids?.length || 0)}/${globalFollowups.length}`}
