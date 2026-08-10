@@ -81,6 +81,25 @@ export function containsOnWordBoundary(haystack: string, needle: string): boolea
   }
 }
 
+/** Mots-outils écartés de l'index par mot (ils ne discriminent rien). */
+const STOP_WORDS = new Set([
+  "de", "des", "du", "la", "le", "les", "en", "et", "aux", "au", "un", "une", "dans", "sur", "pour",
+  "avec", "par", "chez", "sans", "plus", "the", "of", "and", "for", "with", "near", "salle",
+]);
+
+/** Pluriel simple rabattu au singulier, pour que « vélos » et « vélo » partagent une clé. */
+export function stemKey(word: string): string {
+  return word.length > 4 && word.endsWith("s") ? word.slice(0, -1) : word;
+}
+
+/** Mots significatifs d'un libellé. */
+export function contentWords(text: string): string[] {
+  return normalizeTerm(text)
+    .split(" ")
+    .filter((w) => w.length >= 4 && !STOP_WORDS.has(w));
+}
+
+
 function push(map: Map<string, ResolvedTarget[]>, term: string, target: Omit<ResolvedTarget, "matched">) {
   const key = normalizeTerm(term);
   // Un terme d'un seul caractère ou vide n'est jamais discriminant.
