@@ -241,6 +241,10 @@ interface BookOnlineSlidePanelProps {
   mapBaseColor?: string | null;
   /** Widget only: map theme override (default-light = native Google Maps colors) */
   mapTheme?: "light" | "dark" | "default-light" | "default-dark";
+  /** Corpus fermé imposé (réponse IA) : ids d'établissements, dans l'ordre exact à afficher */
+  poiOverrideIds?: string[] | null;
+  /** Titre de l'overlay POI quand un corpus fermé est imposé */
+  poiOverrideTitle?: string | null;
 }
 
 
@@ -252,6 +256,7 @@ const BookOnlineSlidePanelInner = ({
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
   onPrev, onNext, hasPrev, hasNext,
   hideDirections, hideSecondaryCtas, initialOverlay, embedMode, mapBaseColor, mapTheme,
+  poiOverrideIds, poiOverrideTitle,
 }: BookOnlineSlidePanelProps) => {
   // Aliases: callers from SlidePanelHome migration use onPrev/onNext naming.
   const effectiveOnPrev = onPrevBusiness ?? onPrev;
@@ -607,6 +612,25 @@ const BookOnlineSlidePanelInner = ({
   // Vivier ville complet (toutes catégories) : sert au calcul des compteurs
   // catégories / sous-catégories dans le rayon du Pill "À proximité".
   const [poiCityBusinesses, setPoiCityBusinesses] = useState<PoiBusiness[]>([]);
+  // Corpus fermé imposé par une réponse IA : mêmes champs que les POI, ordre conservé.
+  const poiOverrideKey = (poiOverrideIds || []).join(",");
+  const [poiOverrideRows, setPoiOverrideRows] = useState<PoiBusiness[]>([]);
+  useEffect(() => {
+    const ids = poiOverrideKey ? poiOverrideKey.split(",").filter(Boolean) : [];
+    if (!ids.length) { setPoiOverrideRows([]); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, images, logo_url, latitude, longitude, city, neighborhood, categories, default_service, main_category, computed_rating, total_review_count")
+        .in("id", ids)
+        .eq("is_active", true);
+      if (cancelled) return;
+      const byId = new Map(((data || []) as any[]).map((r) => [r.id, r]));
+      setPoiOverrideRows(ids.map((id) => byId.get(id)).filter(Boolean) as PoiBusiness[]);
+    })();
+    return () => { cancelled = true; };
+  }, [poiOverrideKey]);
   const poiOpenedFromMapRef = useRef(false);
   // Embed: auto-open the "À proximité" overlay once the business is resolved.
   const autoPoiOpenedRef = useRef(false);
@@ -3743,8 +3767,10 @@ const BookOnlineSlidePanelInner = ({
           if (p.main_category && names.has(p.main_category)) return true;
           return Array.isArray(p.categories) && p.categories.some((c: string) => names.has(c));
         };
+        // Corpus fermé imposé (réponse IA) : pas de vivier ville, pas de rayon, ordre conservé
+        const overridePool: any[] | null = poiOverrideRows.length ? (poiOverrideRows as any[]) : null;
         // Vivier ville restreint au rayon actif → base des compteurs catégories
-        const cityInRadius = (poiCityBusinesses as any[]).filter(inRadius);
+        const cityInRadius = overridePool ?? (poiCityBusinesses as any[]).filter(inRadius);
         const catCounts = new Map<string, number>();
         for (const ft of catPillTabs) {
           catCounts.set(ft.id, cityInRadius.filter((p) => matchesNames(p, ft.subcategoryNames)).length);
@@ -3752,7 +3778,7 @@ const BookOnlineSlidePanelInner = ({
 
         const afterCat = activeFrontTab
           ? cityInRadius.filter((p) => matchesNames(p, activeFrontTab.subcategoryNames))
-          : (poiBusinesses as any[]);
+          : (overridePool ?? (poiBusinesses as any[]));
 
         // Pill POI / sous-catégories — le MENU ne liste que les sous-catégories
         // "par défaut" (1ère sous-catégorie de la fiche), mais le FILTRE retenu
@@ -3782,7 +3808,7 @@ const BookOnlineSlidePanelInner = ({
 
         // Pill POI : totalement indépendant du Pill Catégories.
         // Base = POI de proximité de l'établissement Master, entrées = sous-catégories par défaut.
-        const poiPillBase = (poiBusinesses as any[]).filter(inRadius);
+        const poiPillBase = overridePool ?? (poiBusinesses as any[]).filter(inRadius);
         const poiPillDefaults = defaultSubcatsOf(poiPillBase);
         const poiSubcatCounts = new Map<string, number>();
         for (const p of poiPillBase) {
@@ -3815,14 +3841,16 @@ const BookOnlineSlidePanelInner = ({
           return list;
         })();
 
-        const afterProx = afterSubcat.filter(inRadius);
+        const afterProx = overridePool ? afterSubcat : afterSubcat.filter(inRadius);
         const total = afterProx.length;
-        const displayedPoi = (poiShowAll || total <= TOP_LIMIT) ? afterProx : afterProx.slice(0, TOP_LIMIT);
+        const displayedPoi = overridePool
+          ? afterProx
+          : (poiShowAll || total <= TOP_LIMIT) ? afterProx : afterProx.slice(0, TOP_LIMIT);
         // Pas de bascule Top 20 / Tous si le résultat courant tient sous la limite
-        const showAllToggle = poiMapMode === "poi" && total > TOP_LIMIT;
-        const showCatPill = poiMapMode === "poi" && catPillTabs.length >= 2;
+        const showAllToggle = poiMapMode === "poi" && !overridePool && total > TOP_LIMIT;
+        const showCatPill = poiMapMode === "poi" && !overridePool && catPillTabs.length >= 2;
         const showSubcatPill = poiMapMode === "poi" && poiSubcatList.length >= 2;
-        const showProxPill = poiMapMode === "poi";
+        const showProxPill = poiMapMode === "poi" && !overridePool;
         const proxOpts: { km: number; label: string }[] = [
           { km: 0.5, label: "- 500 m" },
           { km: 1, label: "- 1 km" },
@@ -3889,10 +3917,12 @@ const BookOnlineSlidePanelInner = ({
                 );
               })()}
             </div>
-            {(business?.name || activeFrontTab) && (
+            {(business?.name || activeFrontTab || (overridePool && poiOverrideTitle)) && (
               <div className="absolute top-[calc(3.3rem+0.75rem)] left-14 right-3 z-[10] pointer-events-none flex justify-center">
                 <div className="px-3 py-1 rounded-full bg-white/30 backdrop-blur-md text-black text-sm font-semibold truncate" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                  {activeFrontTab ? (
+                  {overridePool && poiOverrideTitle ? (
+                    poiOverrideTitle
+                  ) : activeFrontTab ? (
                     <>
                       {translateFrontStructure(activeFrontTab.name, language)}
                       {catSubcatFilter ? <span className="opacity-60"> / {translateSubcategory(catSubcatFilter, language)}</span> : null}
@@ -4190,7 +4220,7 @@ const BookOnlineSlidePanelInner = ({
                   setSelectedKpBusinessId(poiId);
                 } else if (poiMapMode === "destinations") {
                   setSelectedDestinationId(poiId);
-                } else if (poiBusinesses.length > 0) {
+                } else if (poiBusinesses.length > 0 || poiOverrideRows.length > 0) {
                   poiOpenedFromMapRef.current = true;
                   setSelectedPoiBusinessId(poiId);
                 } else {
