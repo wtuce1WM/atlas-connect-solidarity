@@ -27,6 +27,10 @@ import {
 import { detectViewIntent, withinPointRadius, hasVantage, hasPointViewProof, hasPanoramaAttribute, hasPanoramaProof } from "../_shared/ai-engine/view-targets.ts";
 import { pickLang, normalize, toMapMarker, fetchPriorFull } from "../_shared/ai-engine/routes/shared.ts";
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
+import {
+  loadCuratedTargets, fetchBlogPostsCached, matchBlogArticle,
+  buildBlogArticleAnswer, buildPinnedAnswer,
+} from "../_shared/ai-engine/routes/curated.ts";
 import { isHoursIntent, buildHoursAnswer, buildHoursForBusinesses } from "../_shared/ai-engine/routes/opening.ts";
 import { isBookingIntent, buildBookingAnswer, buildBookingForBusinesses } from "../_shared/ai-engine/routes/booking.ts";
 import {
@@ -131,6 +135,7 @@ Deno.serve(async (req) => {
   const lang = pickLang(body.language) as Lang;
   const sessionId: string | null = typeof body.sessionId === "string" ? body.sessionId : null;
   const suggestionId: string | null = typeof body.suggestionId === "string" && body.suggestionId ? body.suggestionId : null;
+  const followupId: string | null = typeof body.followupId === "string" && body.followupId ? body.followupId : null;
 
   if (!slugOrId) {
     return new Response(JSON.stringify({ error: "businessSlug required" }), {
@@ -296,6 +301,71 @@ Deno.serve(async (req) => {
           fallbackReason = "no_results";
         }
 
+        // 3bis. AUTORITÉ CURATÉE (zéro token) — une suggestion/relance pointant vers
+        // un article de blog ou des établissements épinglés fait loi : ni le
+        // classifieur ni le résolveur taxonomique ne peuvent la remplacer ou la
+        // « compléter » avec des résultats de recherche.
+        if (suggestionId || followupId) {
+          const curated = await loadCuratedTargets(admin, {
+            suggestionId, followupId, businessId: host.id,
+          }).catch((e) => {
+            console.error("[embed-ai-chat-v2] curated_lookup_failed", String(e));
+            return null;
+          });
+          // Le clic initial (message == libellé) ou une relance explicite gardent la cible.
+          const norm = (s: string) => normalize(s).replace(/[?!.\s]+$/g, "").trim();
+          const isInitialClick = !!(curated?.label && norm(userMessage) === norm(curated.label));
+          const keepCurated = !!curated && (!!followupId || isInitialClick || !priorIds.length);
+
+          if (curated && keepCurated && curated.blogPostIds.length) {
+            const posts = await fetchBlogPostsCached(admin).catch(() => []);
+            const post = curated.blogPostIds.map((id) => posts.find((p) => p.id === id)).filter(Boolean)[0];
+            if (post) {
+              const built = await buildBlogArticleAnswer(admin, post, host, lang).catch((e) => {
+                console.error("[embed-ai-chat-v2] blog_route_failed", String(e));
+                return null;
+              });
+              if (built) {
+                route = built.route;
+                resultsCount = built.shown;
+                emit(built.text);
+                if (built.mapPayload?.businesses?.length) {
+                  emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
+                }
+                if (built.knownBusinesses.length) {
+                  emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
+                }
+                await finish(true);
+                return;
+              }
+              fallbackReason = "route_failed";
+            }
+          }
+
+          if (curated && keepCurated && curated.pinnedBusinessIds.length) {
+            const built = await buildPinnedAnswer(
+              admin, curated.pinnedBusinessIds, host, lang, curated.label,
+            ).catch((e) => {
+              console.error("[embed-ai-chat-v2] pinned_route_failed", String(e));
+              return null;
+            });
+            if (built) {
+              route = built.route;
+              resultsCount = built.shown;
+              emit(built.text);
+              if (built.mapPayload?.businesses?.length) {
+                emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
+              }
+              emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
+              await finish(true);
+              return;
+            }
+            fallbackReason = "no_results";
+          }
+        }
+
+
+
         // 4. Rappels sur les résultats déjà affichés (comptage, ordinal, classement)
         if (priorIds.length) {
           const prior = extractPriorOrderedBusinesses(uiMessages as any[], host.id);
@@ -362,6 +432,30 @@ Deno.serve(async (req) => {
             return;
           }
           fallbackReason = "no_results";
+        }
+
+        // 6. Article de blog détecté en texte libre (titre publié) — même rendu
+        // éditorial que la route curatée, corpus clos.
+        if (userMessage.trim().length >= 6) {
+          const posts = await fetchBlogPostsCached(admin).catch(() => []);
+          const match = matchBlogArticle(userMessage, lang, posts, host.id, host.name);
+          if (match) {
+            const built = await buildBlogArticleAnswer(admin, match, host, lang).catch((e) => {
+              console.error("[embed-ai-chat-v2] blog_freetext_failed", String(e));
+              return null;
+            });
+            if (built && built.shown >= 3) {
+              route = built.route;
+              resultsCount = built.shown;
+              emit(built.text);
+              if (built.mapPayload?.businesses?.length) {
+                emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
+              }
+              emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
+              await finish(true);
+              return;
+            }
+          }
         }
 
 
