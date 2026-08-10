@@ -485,10 +485,55 @@ Deno.serve(async (req) => {
           resultsCount = results.length;
         };
 
+        // ── Autorité du résolveur : le classifieur propose, le vocabulaire réel tranche ──
+        // Cibles fortes (exact / phrase / synonyme curé) issues du message utilisateur.
+        const strongTerms = resolution
+          ? [
+              ...strongTargetsOfType(resolution, "subcategory"),
+              ...strongTargetsOfType(resolution, "category"),
+              ...strongTargetsOfType(resolution, "service"),
+            ].slice(0, 2)
+          : [];
+        // Expansion par mot : bruyante, donc utilisée seulement quand rien de fort ne sort
+        // (c'est ce qui rattrape « piscine », absent des catégories mais présent en service).
+        const expansionTerms = resolution
+          ? resolution.targets
+              .filter((t) => t.type === "service" && t.strength === "expansion")
+              .map((t) => t.value)
+              .slice(0, 2)
+          : [];
+        const resolvedCity = resolution
+          ? (strongTargetsOfType(resolution, "city")[0] ?? targetsOfType(resolution, "city")[0] ?? null)
+          : null;
+
+        // La catégorie du classifieur n'est retenue que si elle existe vraiment en base.
+        let classifierCategoryValid = false;
+        let validatedCategory: string | null = null;
+        const proposed = out?.category || null;
+        if (proposed) {
+          try {
+            const chk = await resolveWithAdmin(admin, proposed);
+            const hit = chk.targets.find(
+              (t) => (t.type === "category" || t.type === "subcategory" || t.type === "service") && t.strength !== "expansion",
+            );
+            if (hit) { classifierCategoryValid = true; validatedCategory = hit.value; }
+          } catch (e) {
+            console.warn("[embed-ai-chat-v2] category validation failed", String(e));
+          }
+        }
+        const authoritySource = strongTerms.length
+          ? "resolver_strong"
+          : classifierCategoryValid
+            ? "classifier_validated"
+            : expansionTerms.length
+              ? "resolver_expansion"
+              : priorCategory
+                ? "prior_category"
+                : "raw_message";
+        // Continuité : on mémorise un terme réel, jamais une invention du classifieur.
+        lastCategory = strongTerms[0] || validatedCategory || expansionTerms[0] || priorCategory;
+
         if (out && confident && (out.intent === "search" || out.intent === "compare")) {
-          // Autorité du classifieur : la requête est construite à partir des champs
-          // structurés, jamais du message brut (une négation « pas un hôtel »
-          // polluait la récupération et vidait les résultats).
           const views = detectViewIntent(userMessage);
           const panoramaHints = views.panoramas.map((p) => p.attributeNames[0]);
           const excluded = (out.exclude || []).map(normalize).filter(Boolean);
@@ -496,23 +541,35 @@ Deno.serve(async (req) => {
           // Un repère ponctuel (Koutoubia) se traite par rayon + preuve de point de
           // vue, pas par mot-clé : n'injecter aucun indice « rooftop » ici.
           const hintParts = views.points.length && !excludesLodging ? [] : panoramaHints;
-          const baseQuery = [out.category || priorCategory, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
+          const coreTerms = strongTerms.length
+            ? strongTerms
+            : classifierCategoryValid
+              ? [validatedCategory as string]
+              : expansionTerms.length
+                ? expansionTerms
+                : [priorCategory].filter(Boolean) as string[];
+          const baseQuery = [...coreTerms, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
             || userMessage.slice(0, 200);
-          await runSearch(baseQuery, out.city || host.city || "Marrakech", excluded);
+          await runSearch(baseQuery, resolvedCity || out.city || host.city || "Marrakech", excluded);
         }
 
         // Filet de secours : le classifieur n'a pas tranché (ou sa requête structurée
-        // n'a rien donné) → recherche sur le message brut, comme la v1. Sans ça, la
-        // classe C n'a aucun contexte et répond « je n'ai pas de … ».
+        // n'a rien donné) → termes résolus, sinon message brut comme la v1.
         if (!results.length && route !== "business_qa") {
           const rawExcluded = ((out?.exclude || []) as string[]).map(normalize).filter(Boolean);
+          const rescueQuery = strongTerms.length
+            ? strongTerms.join(" ")
+            : expansionTerms.length
+              ? expansionTerms.join(" ")
+              : userMessage.slice(0, 200);
           await runSearch(
-            userMessage.slice(0, 200),
-            out?.city || host.city || "Marrakech",
+            rescueQuery,
+            resolvedCity || out?.city || host.city || "Marrakech",
             rawExcluded,
           );
           if (results.length) fallbackReason = fallbackReason || "confidence_low";
         }
+        resolutionLog = { ...resolutionLog, resolution_authority: authoritySource };
 
         if (!results.length) fallbackReason = fallbackReason || "no_results";
 
