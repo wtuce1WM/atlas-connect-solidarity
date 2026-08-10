@@ -338,7 +338,7 @@ const KNOWN_RE = /<!--KNOWN_BUSINESSES:([\s\S]*?)-->/g;
 const BLOG_CARDS_RE = /<!--BLOG_CARDS:([\s\S]*?)-->/g;
 const BLOG_CTX_RE = /<!--BLOG_CTX:[\s\S]*?-->/g;
 const WEATHER_RE = /<!--WEATHER_FORECAST:([\s\S]*?)-->/g;
-type MapPayload = { title?: string; businesses: MapPanelBusiness[] };
+type MapPayload = { title?: string; businesses: MapPanelBusiness[]; order?: string | null };
 export type BlogCardItem = { id: string; slug: string; title: string; cover: string | null; tldr: string | null };
 export type EventPanelItem = {
   id: string;
@@ -371,7 +371,7 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     try {
       const parsed = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
       if (parsed && Array.isArray(parsed.businesses) && parsed.businesses.length) {
-        maps.push({ title: parsed.title, businesses: parsed.businesses });
+        maps.push({ title: parsed.title, businesses: parsed.businesses, order: parsed.order ?? null });
       }
     } catch { /* ignore */ }
     return "";
@@ -1708,6 +1708,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
         onClose={() => setOpenMap(null)}
         title={openMap?.title}
         businesses={openMap?.businesses || []}
+        preserveOrder={openMap?.order === "given"}
         isMobile={isMobile}
         isBookmarked={!!activeChat?.is_bookmarked}
         onBookmark={activeChat ? toggleBookmark : undefined}

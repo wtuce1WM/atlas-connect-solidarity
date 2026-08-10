@@ -212,7 +212,7 @@ const DEST_RE = /<!--DESTINATION_CARDS:([\s\S]*?)-->/g;
 const PINNED_RE = /<!--PINNED_BUSINESS_CARDS:([\s\S]*?)-->/g;
 const WEATHER_RE = /<!--WEATHER_FORECAST:([\s\S]*?)-->/g;
 
-type MapPayload = { title?: string | null; businesses: MapPanelBusiness[] };
+type MapPayload = { title?: string | null; businesses: MapPanelBusiness[]; order?: string | null };
 type EventsPayload = { title?: string | null; city?: string | null; events: EventPanelItem[] };
 type KnownBusiness = { id: string; slug: string | null; name: string };
 type ArticleCardPayload = { id: string; slug: string; title: string; image: string | null; hero?: string | null; tldr?: string | null; hook?: string | null; intro?: string | null; inline?: boolean; isOwner?: boolean };
@@ -244,7 +244,7 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
-      if (p && Array.isArray(p.businesses) && p.businesses.length) maps.push({ title: p.title ?? null, businesses: p.businesses });
+      if (p && Array.isArray(p.businesses) && p.businesses.length) maps.push({ title: p.title ?? null, businesses: p.businesses, order: p.order ?? null });
     } catch { /* */ }
     return "";
   }).replace(EVENTS_RE, (_m, raw) => {
