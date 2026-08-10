@@ -62,6 +62,8 @@ interface MapSlidePanelProps {
   fullWidth?: boolean;
   /** Background color of the panel shell (widget light/dark color). */
   panelBg?: string;
+  /** Conserve l'ordre fourni (réponse IA issue d'un article de blog) au lieu du tri par note. */
+  preserveOrder?: boolean;
 }
 
 
@@ -80,7 +82,7 @@ const CITY_CENTERS: Record<string, { lat: number; lng: number }> = {
 };
 const normalize = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
-const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, onBookmark, isBookmarked, disableUserLocation, hostLocation, hostLabel, mapTheme, showLayerControls, fullWidth, panelBg }: MapSlidePanelProps) => {
+const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, onBookmark, isBookmarked, disableUserLocation, hostLocation, hostLabel, mapTheme, showLayerControls, fullWidth, panelBg, preserveOrder }: MapSlidePanelProps) => {
   const { language } = useLanguage();
   const mt = MT[language as keyof typeof MT] || MT.fr;
   // Plein cadre mobile : chrome navigateur noir + suppression des paddings safe-area
@@ -184,15 +186,16 @@ const MapSlidePanel = ({ open, onClose, title, businesses, isMobile, onShare, on
     return CITY_CENTERS[dominant];
   }, [mapBusinesses]);
 
-  // Top 20 sorted by rating, then "Tous" toggle
+  // Top 20 sorted by rating, then "Tous" toggle — sauf ordre imposé (article de blog)
   const rankedPois = useMemo(() => {
+    if (preserveOrder) return pois;
     return [...pois].sort((a, b) => {
       const ra = a.rating ?? 0;
       const rb = b.rating ?? 0;
       if (rb !== ra) return rb - ra;
       return (b.totalReviews ?? 0) - (a.totalReviews ?? 0);
     });
-  }, [pois]);
+  }, [pois, preserveOrder]);
 
   const proximityCountsByKm = useMemo(() => {
     const out: Record<number, number> = { 0.5: 0, 1: 0, 5: 0, 10: 0 };

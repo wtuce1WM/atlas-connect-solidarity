@@ -182,7 +182,7 @@ const BIZ_FIELDS =
 export type CuratedAnswer = {
   text: string;
   knownBusinesses: Array<{ id: string; slug: string | null; name: string }>;
-  mapPayload: { title: string | null; businesses: any[] } | null;
+  mapPayload: { title: string | null; businesses: any[]; order?: "given" } | null;
   shown: number;
   total: number;
   route: string;
@@ -197,6 +197,7 @@ function mapBusinessesOf(list: any[]) {
     images: Array.isArray(b.images) ? b.images : [],
     google_rating: b.google_rating, google_review_count: b.google_review_count,
     tripadvisor_rating: b.tripadvisor_rating, tripadvisor_review_count: b.tripadvisor_review_count,
+    computed_rating: b.computed_rating ?? null, total_review_count: b.total_review_count ?? null,
     engagements: b.engagements,
   }));
 }
@@ -357,7 +358,7 @@ export async function buildBlogArticleAnswer(
   return {
     text,
     knownBusinesses: shown.filter((b: any) => b?.id && b?.name).map((b: any) => ({ id: b.id, slug: b.slug || null, name: b.name })),
-    mapPayload: { title, businesses: mapBusinessesOf(shown) },
+    mapPayload: { title, businesses: mapBusinessesOf(shown), order: "given" },
     shown: shown.length,
     total,
     route: "blog_article",
