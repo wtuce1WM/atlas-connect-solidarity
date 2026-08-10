@@ -191,6 +191,7 @@ Deno.serve(async (req) => {
             city_active: null,
             city_detected: cityDetected,
             language: lang,
+            ...resolutionLog,
           });
           if (logErr) console.error("[embed-ai-chat-v2] log_failed", logErr.message);
         } catch (e) {
