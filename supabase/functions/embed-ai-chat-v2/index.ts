@@ -177,13 +177,15 @@ Deno.serve(async (req) => {
       let cityDetected: string | null = null;
       // Continuité de tour : catégorie retenue par le classifieur, réinjectée au tour suivant.
       let lastCategory: string | null = null;
-      // Observation seule : mesure de la couverture du vocabulaire, sans effet sur les résultats.
+      // Résolveur taxonomique = autorité du vocabulaire. Il ne décide pas du filtrage,
+      // il tranche « ce terme existe-t-il vraiment en base, et sous quel type ».
       let resolutionLog: Record<string, unknown> = {};
+      let resolution: ResolveResult | null = null;
       try {
-        const res = await resolveWithAdmin(admin, userMessage);
-        resolutionLog = resolutionMetric(res);
+        resolution = await resolveWithAdmin(admin, userMessage);
+        resolutionLog = resolutionMetric(resolution);
       } catch (e) {
-        console.warn("[embed-ai-chat-v2] resolver observation failed", String(e));
+        console.warn("[embed-ai-chat-v2] resolver failed", String(e));
       }
 
 
