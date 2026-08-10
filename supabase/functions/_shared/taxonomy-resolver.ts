@@ -21,7 +21,7 @@ export type TargetType =
   | "neighborhood";
 
 /** Force de la correspondance, du plus fort au plus faible. */
-export type MatchStrength = "exact" | "phrase" | "word" | "synonym";
+export type MatchStrength = "exact" | "phrase" | "word" | "synonym" | "expansion";
 
 export interface ResolvedTarget {
   type: TargetType;
@@ -253,7 +253,7 @@ const TYPE_PRIORITY: Record<TargetType, number> = {
   neighborhood: 7,
 };
 
-const STRENGTH_PRIORITY: Record<MatchStrength, number> = { exact: 0, phrase: 1, word: 2, synonym: 3 };
+const STRENGTH_PRIORITY: Record<MatchStrength, number> = { exact: 0, phrase: 1, word: 2, synonym: 3, expansion: 4 };
 
 export interface ResolveResult {
   query: string;
@@ -291,7 +291,7 @@ export function resolveTaxonomy(query: string, vocab: TaxonomyVocabulary): Resol
     const services = vocab.wordToServices.get(stemKey(w));
     if (!services) continue;
     for (const value of services) {
-      out.push({ type: "service", value, strength: "word", source: "services.name(word)", matched: w });
+      out.push({ type: "service", value, strength: "expansion", source: "services.name(word)", matched: w });
     }
   }
 
@@ -339,7 +339,7 @@ export function targetsOfType(result: ResolveResult, type: TargetType): string[]
  */
 export function strongTargetsOfType(result: ResolveResult, type: TargetType): string[] {
   return result.targets
-    .filter((t) => t.type === type && t.strength !== "word")
+    .filter((t) => t.type === type && t.strength !== "expansion")
     .map((t) => t.value);
 }
 
