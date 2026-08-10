@@ -135,6 +135,7 @@ Deno.serve(async (req) => {
   const lang = pickLang(body.language) as Lang;
   const sessionId: string | null = typeof body.sessionId === "string" ? body.sessionId : null;
   const suggestionId: string | null = typeof body.suggestionId === "string" && body.suggestionId ? body.suggestionId : null;
+  const followupId: string | null = typeof body.followupId === "string" && body.followupId ? body.followupId : null;
 
   if (!slugOrId) {
     return new Response(JSON.stringify({ error: "businessSlug required" }), {
