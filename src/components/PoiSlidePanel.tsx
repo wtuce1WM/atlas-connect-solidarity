@@ -21,6 +21,7 @@ import { LazyDirectionsOverlay, LazyMosaicOverlay, LazyFullscreenLightbox } from
 import { CTA_MODE_LABELS } from "@/components/slidepanel/CtaBar";
 import type { PoiMapItem } from "@/components/PoiGoogleMap";
 import { businessUrl } from "@/lib/businessUrl";
+import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 
 interface PoiSlidePanelProps {
   /** Either businessId (POI business) OR destinationId (destinations table). businessId takes precedence if both set. */
@@ -78,6 +79,8 @@ interface PoiFull {
 }
 
 const PoiSlidePanel = ({ businessId, destinationId, onClose, slideFrom = "bottom", showSearchBar, onSearch, onSearchBusinessSelect, onPrevDestination, onNextDestination }: PoiSlidePanelProps) => {
+  // Chrome navigateur en noir + suppression des paddings safe-area (plein cadre)
+  useDarkBrowserChrome(true);
   // Analytics: overlay_open au mount
   useEffect(() => {
     import("@/lib/analytics").then(({ trackEvent }) =>

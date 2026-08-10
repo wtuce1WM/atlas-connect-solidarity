@@ -6,6 +6,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { haversineKm } from "@/lib/haversine";
 import { mapLabel } from "@/lib/mapLabels";
+import { useDarkBrowserChrome } from "@/hooks/useDarkBrowserChrome";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
