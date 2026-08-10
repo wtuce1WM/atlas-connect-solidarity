@@ -27,6 +27,10 @@ import {
 import { detectViewIntent, withinPointRadius, hasVantage, hasPointViewProof, hasPanoramaAttribute, hasPanoramaProof } from "../_shared/ai-engine/view-targets.ts";
 import { pickLang, normalize, toMapMarker, fetchPriorFull } from "../_shared/ai-engine/routes/shared.ts";
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
+import {
+  loadCuratedTargets, fetchBlogPostsCached, matchBlogArticle,
+  buildBlogArticleAnswer, buildPinnedAnswer,
+} from "../_shared/ai-engine/routes/curated.ts";
 import { isHoursIntent, buildHoursAnswer, buildHoursForBusinesses } from "../_shared/ai-engine/routes/opening.ts";
 import { isBookingIntent, buildBookingAnswer, buildBookingForBusinesses } from "../_shared/ai-engine/routes/booking.ts";
 import {
