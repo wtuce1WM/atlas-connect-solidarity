@@ -342,16 +342,44 @@ const AiEngineTestBench = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-3 items-end">
-            <div className="flex-1 w-full space-y-1.5">
+            <div className="flex-1 w-full space-y-1.5 relative">
               <Label htmlFor="test-slug">Slug de l'établissement hôte</Label>
               <Input
                 id="test-slug"
                 placeholder="ex: riad-dar-najat"
                 value={slug}
-                onChange={(e) => setSlug(e.target.value)}
+                autoComplete="off"
+                onChange={(e) => {
+                  setSlug(e.target.value);
+                  setSlugOpen(true);
+                }}
+                onFocus={() => setSlugOpen(true)}
+                onBlur={() => setTimeout(() => setSlugOpen(false), 120)}
                 disabled={running}
               />
+              {slugOpen && slugOptions.length > 0 && (
+                <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-popover text-popover-foreground rounded-md border shadow-lg max-h-64 overflow-y-auto">
+                  {slugOptions.map((o) => (
+                    <button
+                      key={o.id}
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        setSlug(o.slug || "");
+                        setSlugOpen(false);
+                      }}
+                      className="w-full text-left px-3 py-2 hover:bg-muted/60 transition-colors"
+                    >
+                      <p className="text-sm font-medium truncate">{o.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {[o.slug, o.city].filter(Boolean).join(" · ")}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
+
             <Button onClick={run} disabled={running || !slug.trim()} className="w-full sm:w-auto">
               {running ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Play className="h-4 w-4 mr-2" />}
               Lancer la batterie
