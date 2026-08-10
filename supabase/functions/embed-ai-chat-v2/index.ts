@@ -495,6 +495,13 @@ Deno.serve(async (req) => {
         };
 
         // ── Autorité du résolveur : le classifieur propose, le vocabulaire réel tranche ──
+        // Exclusions du classifieur appliquées AU RÉSOLVEUR : sans ça « pas un hôtel »
+        // faisait résoudre « hotel » en sous-catégorie Hôtel et polluait la requête.
+        const excludedTerms = ((out?.exclude || []) as string[]).map(normalize).filter(Boolean);
+        const isExcluded = (value: string) => {
+          const v = normalize(value);
+          return excludedTerms.some((x) => v.includes(x) || x.includes(v));
+        };
         // Cibles fortes (exact / phrase / synonyme curé) issues du message utilisateur,
         // ordonnées par proximité lexicale avec le terme réellement tapé : « piscine »
         // doit sortir « Piscine » avant « Beach club » (même sous-catégorie déclenchée).
@@ -511,7 +518,8 @@ Deno.serve(async (req) => {
               .filter(
                 (t) =>
                   t.strength !== "expansion" &&
-                  (t.type === "subcategory" || t.type === "category" || t.type === "service"),
+                  (t.type === "subcategory" || t.type === "category" || t.type === "service") &&
+                  !isExcluded(t.value),
               )
               .sort((a, b) => lexicalRank(a) - lexicalRank(b))
           : [];
