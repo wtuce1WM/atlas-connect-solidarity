@@ -98,6 +98,7 @@ const EmbedAiSuggestionsManagement = () => {
   const [destinations, setDestinations] = useState<DestinationOption[]>([]);
   const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
   const [badges, setBadges] = useState<BadgeOption[]>([]);
+  const [mainCategories, setMainCategories] = useState<string[]>([]);
   const [globalFollowups, setGlobalFollowups] = useState<GlobalFollowup[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -159,6 +160,10 @@ const EmbedAiSuggestionsManagement = () => {
         .from("blog_posts")
         .select("id,title_fr,title_en,slug")
         .order("title_fr", { ascending: true }),
+      supabase
+        .from("categories")
+        .select("name_fr")
+        .order("name_fr", { ascending: true }),
     ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows(
