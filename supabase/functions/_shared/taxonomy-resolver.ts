@@ -143,8 +143,8 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
       (q) => q.eq("is_active", true),
     ),
     selectAll(admin, "categories", "name_fr, name_en, name_ar"),
-    selectAll(admin, "cities", "name"),
-    selectAll(admin, "neighborhoods", "name"),
+    selectAll(admin, "cities", "name_fr, name_en, name_ar"),
+    selectAll(admin, "neighborhoods", "name, name_en, name_ar"),
   ]);
 
   const entries = new Map<string, ResolvedTarget[]>();
