@@ -260,7 +260,7 @@ serve(async (req) => {
     // épinglés, on rend le contenu éditorial tel quel, sans génération.
     if (!mode && (!Array.isArray(history) || history.length === 0)) {
       try {
-        const m = await matchCuratedByText(sb, { text: String(query || ""), surface: "search" });
+        const m = await matchCuratedByText(sb, { text: String(query || ""), surface: "search", crossSurface: true });
         if (m) {
           const curated = await loadCuratedTargets(sb, { suggestionId: m.id });
           const pseudoHost: any = { id: null, city: defaultCity, name: null };

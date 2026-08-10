@@ -310,7 +310,7 @@ Deno.serve(async (req) => {
         // Texte libre : on rapproche d'abord la phrase tapée d'un libellé de
         // suggestion staff (matcher partagé) → taper la phrase == cliquer la suggestion.
         if (!suggestionId && !followupId) {
-          const m = await matchCuratedByText(admin, { text: userMessage, surface: "embed" })
+          const m = await matchCuratedByText(admin, { text: userMessage, surface: "embed", crossSurface: true })
             .catch(() => null);
           if (m) {
             suggestionId = m.id;
