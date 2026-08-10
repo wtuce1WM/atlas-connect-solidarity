@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { resolveWithAdmin, resolutionMetric } from "../_shared/taxonomy-resolver.ts";
 
 // Global accent-stripping helper — used everywhere for consistent normalization
 const stripAccentsGlobal = (s: string): string => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
