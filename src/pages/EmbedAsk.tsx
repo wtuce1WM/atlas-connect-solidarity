@@ -374,6 +374,9 @@ const EmbedAsk = () => {
   // Le paramètre `theme` explicite est toujours prioritaire (cohérence clair/sombre
   // entre l'iframe simple et la variante « panneau flottant »).
   const themeParam = params.get("theme") === "light" ? "light" : params.get("theme") === "dark" ? "dark" : null;
+  // `?theme=none` → mode clair/sombre désactivé : aucune couleur d'affilié appliquée,
+  // pas de sélecteur, le fond de l'hôte reste visible (overlay Full Description).
+  const noTheme = /^(none|off|0)$/i.test(params.get("theme") || "");
   // Panneau flottant : l'hôte demande une croix de fermeture dans le widget.
   const inFloatingPanel = /^(1|true)$/i.test(params.get("panel") || "");
   // Nom personnalisé de l'assistant (champ éditable côté /affiliates/presence).
@@ -586,7 +589,7 @@ const EmbedAsk = () => {
       setBusinessId((row?.id as string) || null);
       setBusinessCity((row?.city as string) || null);
       const hex = (v: any) => (typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v.trim()) ? v.trim() : null);
-      setWidgetColors({ light: hex(row?.widget_bg_color), dark: hex(row?.widget_bg_color_dark) });
+      setWidgetColors(noTheme ? { light: null, dark: null } : { light: hex(row?.widget_bg_color), dark: hex(row?.widget_bg_color_dark) });
       if (row?.latitude != null && row?.longitude != null) {
         setHostLocation({ lat: Number(row.latitude), lng: Number(row.longitude) });
       }
@@ -1056,14 +1059,16 @@ const EmbedAsk = () => {
         >
           <MessageSquarePlus className="w-4 h-4" />
         </button>
-        <button
-          type="button"
-          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-          aria-label={theme === "light" ? "Dark mode" : "Light mode"}
-          className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border ${border} opacity-70 hover:opacity-100 transition-opacity`}
-        >
-          {theme === "light" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-        </button>
+        {!noTheme && (
+          <button
+            type="button"
+            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+            aria-label={theme === "light" ? "Dark mode" : "Light mode"}
+            className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border ${border} opacity-70 hover:opacity-100 transition-opacity`}
+          >
+            {theme === "light" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+          </button>
+        )}
       </header>
 
       <div ref={scrollRef} className={`flex-1 overflow-y-auto px-4 py-4 space-y-3 ${bg} relative`}>
