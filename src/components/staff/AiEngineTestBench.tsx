@@ -224,6 +224,8 @@ type ResultRow = {
   v2: EngineCall;
 };
 
+type SlugOption = { id: string; name: string; slug: string | null; city: string | null };
+
 const AiEngineTestBench = () => {
   const [slug, setSlug] = useState("");
   const [custom, setCustom] = useState("");
@@ -231,6 +233,29 @@ const AiEngineTestBench = () => {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [results, setResults] = useState<ResultRow[]>([]);
   const [curated, setCurated] = useState<CuratedEntry[]>([]);
+  const [slugOptions, setSlugOptions] = useState<SlugOption[]>([]);
+  const [slugOpen, setSlugOpen] = useState(false);
+
+  // Auto-complete du slug hôte (nom ou slug)
+  useEffect(() => {
+    const term = slug.trim();
+    if (term.length < 2) {
+      setSlugOptions([]);
+      return;
+    }
+    const t = setTimeout(async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id,name,slug,city")
+        .or(`name.ilike.%${term}%,slug.ilike.%${term}%`)
+        .eq("is_active", true)
+        .order("name", { ascending: true })
+        .limit(8);
+      setSlugOptions(((data as any[]) || []).map((b) => ({ id: b.id, name: b.name, slug: b.slug, city: b.city })));
+    }, 250);
+    return () => clearTimeout(t);
+  }, [slug]);
+
 
   useEffect(() => {
     (async () => {
