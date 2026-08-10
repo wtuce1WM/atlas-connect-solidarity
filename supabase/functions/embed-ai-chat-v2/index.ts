@@ -528,8 +528,9 @@ Deno.serve(async (req) => {
 Tu ne t'appuies QUE sur le contexte fourni. N'invente jamais un établissement, un prix, un horaire ou un avis.
 Quand le contexte contient des résultats, tu les présentes TOUJOURS, même s'ils ne correspondent pas exactement à la demande : dans ce cas, une phrase d'introduction honnête ("pas de correspondance exacte, voici une sélection proche") puis les adresses. Ne réponds jamais que tu n'as rien trouvé alors que des résultats sont fournis.
 Si le contexte ne contient aucun résultat, dis-le en une phrase et propose une reformulation.
+Termine TOUJOURS par une seule question de relance courte, ancrée uniquement dans le contexte fourni (une précision, une alternative ou une étape suivante concrète : réserver, horaires, proximité). Deux options maximum dans la question, jamais d'invention.
 
-Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}, 120 mots maximum, sans liste brute si tu peux faire des phrases.`;
+Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}, 120 mots maximum (relance incluse), sans liste brute si tu peux faire des phrases.`;
 
         const history = uiMessages
           .filter((m: any) => m?.role === "user" || m?.role === "assistant")
