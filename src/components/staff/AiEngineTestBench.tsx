@@ -285,6 +285,7 @@ const AiEngineTestBench = () => {
           mode: f.mode ?? null,
         })),
       ];
+      list.sort((a, b) => (a.label || "").localeCompare(b.label || "", "fr", { sensitivity: "base" }));
       setCurated(list);
     })();
   }, []);
