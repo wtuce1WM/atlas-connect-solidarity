@@ -1998,7 +1998,7 @@ serve(async (req) => {
           suggestionId: matchedSuggestionId,
           followupId: matchedFollowupId,
         });
-        const pseudoHost: any = { id: null, city: cleanActiveCity(clientContext?.activeCity) || null, name: null };
+        const pseudoHost: any = { id: null, city: cleanActiveCityTop(clientContext?.activeCity) || null, name: null };
 
         const deliverCurated = async (built: any) => {
           let answer = built.text;
