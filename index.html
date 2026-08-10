@@ -11,7 +11,10 @@
     <meta name="theme-color" content="#3B3B3B" />
     <meta name="color-scheme" content="dark" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <!-- black-translucent : en PWA standalone, la webview s'étend SOUS la barre d'état.
+         Les pages normales gardent leur marge via body { padding-top: env(safe-area-inset-top) },
+         et le mode plein cadre (.owm-fullbleed) l'annule → média/carte jusqu'en haut de l'écran. -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="OneWorld" />
     <meta name="google-site-verification" content="Iwacaf2KeMCQhYFDoOvqpNq4ANQ6ik4g86vRi7NOc4o" />
     <link rel="canonical" href="https://oneworldmorocco.com/" />
