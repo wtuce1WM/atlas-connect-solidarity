@@ -993,7 +993,7 @@ RÈGLES :
 ${mode === "poi" ? "LIEUX D'INTÉRÊT" : mode === "destinations" ? "DESTINATIONS" : "ÉTABLISSEMENTS TROUVÉS"} :
 ${businessContext}${knowledgeContext ? `
 
-CONNAISSANCES COMPLÉMENTAIRES (si pertinent, intègre ces informations de manière naturelle pour enrichir tes recommandations — ne mets pas en avant un établissement uniquement parce qu'il a une entrée ici) :
+TEXTES ÉDITORIAUX DES ÉTABLISSEMENTS (TXT IA — rédigés par l'établissement/affilié ; intègre-les naturellement pour enrichir la description, ne mets pas en avant un établissement uniquement parce qu'il a un texte ici) :
 ${knowledgeContext}` : ''}${
   nearbyContext && Array.isArray(nearbyContext.items) && nearbyContext.items.length > 0 ? `
 
