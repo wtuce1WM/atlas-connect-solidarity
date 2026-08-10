@@ -4,6 +4,10 @@ import { fetchAiGateway, resolveCallerContext, normalizeGatewayBodyForModel } fr
 import { AI_MODEL, getSurfaceConfig } from "../_shared/ai-engine/surfaces.ts";
 import { classify, isConfident, type ClassifyResult } from "../_shared/ai-engine/classify.ts";
 import { detectViewIntent, hasPanoramaAttribute, hasPanoramaProof, withinPointRadius, hasVantage, hasPointViewProof } from "../_shared/ai-engine/view-targets.ts";
+import {
+  loadCuratedTargets, fetchBlogPostsCached,
+  buildBlogArticleAnswer, buildPinnedAnswer, buildFilteredAnswer,
+} from "../_shared/ai-engine/routes/curated.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
