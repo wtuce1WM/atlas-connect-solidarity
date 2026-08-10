@@ -75,6 +75,7 @@ type Row = {
   subcategory_ids: string[];
   badge_ids: string[];
   city: string | null;
+  main_categories: string[];
   disabled_followup_ids: string[];
   mode: string | null;
   proximity_a_subcategory_ids: string[];
@@ -135,7 +136,7 @@ const EmbedAiSuggestionsManagement = () => {
     const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }, { data: posts }] = await Promise.all([
       supabase
         .from("embed_ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,badge_ids,city,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,badge_ids,city,main_categories,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids")
         .order("sort_order", { ascending: true }),
       fetchAllBusinesses(),
       supabase
@@ -169,6 +170,7 @@ const EmbedAiSuggestionsManagement = () => {
         blog_post_ids: Array.isArray(r.blog_post_ids) ? r.blog_post_ids : [],
         subcategory_ids: Array.isArray(r.subcategory_ids) ? r.subcategory_ids : [],
         badge_ids: Array.isArray(r.badge_ids) ? r.badge_ids : [],
+        main_categories: Array.isArray(r.main_categories) ? r.main_categories : [],
         disabled_followup_ids: Array.isArray(r.disabled_followup_ids) ? r.disabled_followup_ids : [],
         proximity_a_subcategory_ids: Array.isArray(r.proximity_a_subcategory_ids) ? r.proximity_a_subcategory_ids : [],
         proximity_a_badge_ids: Array.isArray(r.proximity_a_badge_ids) ? r.proximity_a_badge_ids : [],
