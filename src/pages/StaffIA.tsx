@@ -193,81 +193,10 @@ const StaffIA = () => {
             <AIConfigManagement />
           </TabsContent>
 
-          <TabsContent value="club-ai-suggestions">
-            <Tabs defaultValue="search">
-              <TabsList className="mb-4">
-                <TabsTrigger value="search">Search</TabsTrigger>
-                <TabsTrigger value="club" className="gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  Suggestions Club
-                </TabsTrigger>
-                <TabsTrigger value="club-followups" className="gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  Relances Club
-                </TabsTrigger>
-                <TabsTrigger value="followups-prompt" className="gap-2">
-                  <Brain className="h-4 w-4" />
-                  Prompt follow-ups
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="search">
-                <PopularSearchesManagement />
-              </TabsContent>
-              <TabsContent value="club">
-                <AiSuggestionsManagement surface="club" />
-              </TabsContent>
-              <TabsContent value="club-followups">
-                <AiFollowupsManagement surface="club" />
-              </TabsContent>
-              <TabsContent value="followups-prompt">
-                <ClubFollowupPromptEditor />
-              </TabsContent>
-            </Tabs>
-          </TabsContent>
-          <TabsContent value="embed-ai-suggestions">
-            <Tabs defaultValue="suggestions">
-              <TabsList className="mb-4">
-                <TabsTrigger value="suggestions">Suggestions</TabsTrigger>
-                <TabsTrigger value="followups" className="gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  Relances
-                </TabsTrigger>
-                <TabsTrigger value="how-it-works" className="gap-2">
-                  <BookOpen className="h-4 w-4" />
-                  Fonctionnement
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="suggestions">
-                <AiSuggestionsManagement surface="embed" />
-              </TabsContent>
-              <TabsContent value="followups">
-                <AiFollowupsManagement surface="embed" />
-              </TabsContent>
-              <TabsContent value="how-it-works">
-                <EmbedAiHowItWorks />
-              </TabsContent>
-            </Tabs>
+          <TabsContent value="popular-searches">
+            <PopularSearchesManagement />
           </TabsContent>
 
-
-
-          <TabsContent value="search-ai">
-            <Tabs defaultValue="suggestions">
-              <TabsList className="mb-4">
-                <TabsTrigger value="suggestions">Suggestions Search</TabsTrigger>
-                <TabsTrigger value="followups" className="gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  Relances Search
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="suggestions">
-                <AiSuggestionsManagement surface="search" />
-              </TabsContent>
-              <TabsContent value="followups">
-                <AiFollowupsManagement surface="search" />
-              </TabsContent>
-            </Tabs>
-          </TabsContent>
 
           <TabsContent value="ai-usage">
             <AiUsageManagement />
