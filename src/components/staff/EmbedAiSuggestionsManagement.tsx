@@ -399,6 +399,16 @@ const EmbedAiSuggestionsManagement = () => {
                     <RouteBadge label={r.label_fr || ""} />
                   )}
                   <Chip label="Ville" value={r.city || "Toutes"} />
+                  <Chip
+                    label="Catégories"
+                    value={
+                      (r.main_categories?.length ?? 0) === 0
+                        ? "Toutes"
+                        : r.main_categories.length <= 2
+                          ? r.main_categories.join(", ")
+                          : `${r.main_categories.length} sélectionnées`
+                    }
+                  />
                   <Chip label="Établissements" value={r.business_ids.length === 0 ? "tous" : String(r.business_ids.length)} />
                   <Chip label="Destinations" value={r.destination_ids.length === 0 ? "—" : String(r.destination_ids.length)} />
                   <Chip label="Blog" value={r.blog_post_ids.length === 0 ? "auto" : String(r.blog_post_ids.length)} />
