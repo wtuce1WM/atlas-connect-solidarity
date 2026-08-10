@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
@@ -83,6 +84,30 @@ type Row = {
   proximity_a_badge_ids: string[];
   proximity_b_subcategory_ids: string[];
   proximity_b_badge_ids: string[];
+  category: string | null;
+  prompt_fr: string | null;
+  prompt_en: string | null;
+  prompt_ar: string | null;
+  fixed_response_fr: string | null;
+  fixed_response_en: string | null;
+  fixed_response_ar: string | null;
+};
+
+export type AiSurface = "club" | "embed" | "search";
+
+const SURFACE_META: Record<AiSurface, { title: string; desc: string }> = {
+  club: {
+    title: "Suggestions Chat IA du Club",
+    desc: "Suggestions affichées dans l'assistant IA de /club.",
+  },
+  embed: {
+    title: "Suggestions Embed IA",
+    desc: "Suggestions affichées dans les assistants embarqués /embed/ask/:slug.",
+  },
+  search: {
+    title: "Suggestions IA de /search",
+    desc: "Suggestions affichées dans l'onglet IA de la recherche.",
+  },
 };
 
 type BusinessOption = { id: string; name: string; slug: string | null };
@@ -92,7 +117,7 @@ type SubcategoryOption = { id: string; name_fr: string };
 type BadgeOption = { id: string; name_fr: string };
 type GlobalFollowup = { id: string; label_fr: string; is_active: boolean; sort_order: number };
 
-const EmbedAiSuggestionsManagement = () => {
+const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface }) => {
   const [rows, setRows] = useState<Row[]>([]);
   const [businesses, setBusinesses] = useState<BusinessOption[]>([]);
   const [blogPosts, setBlogPosts] = useState<BlogOption[]>([]);
@@ -140,7 +165,8 @@ const EmbedAiSuggestionsManagement = () => {
     const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }, { data: posts }, { data: cats }] = await Promise.all([
       supabase
         .from("ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,badge_ids,commodity_filters,city,main_categories,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,badge_ids,commodity_filters,city,main_categories,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids,category,prompt_fr,prompt_en,prompt_ar,fixed_response_fr,fixed_response_en,fixed_response_ar")
+        .eq("surface", surface)
         .order("sort_order", { ascending: true }),
       fetchAllBusinesses(),
       supabase
@@ -158,6 +184,7 @@ const EmbedAiSuggestionsManagement = () => {
       supabase
         .from("ai_followups")
         .select("id,label_fr,is_active,sort_order")
+        .eq("surface", surface)
         .order("sort_order", { ascending: true }),
       supabase
         .from("blog_posts")
@@ -214,7 +241,7 @@ const EmbedAiSuggestionsManagement = () => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [surface]);
 
   const update = (id: string, patch: Partial<Row>) => {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
@@ -266,11 +293,11 @@ const EmbedAiSuggestionsManagement = () => {
     const nextOrder = rows.reduce((m, r) => Math.max(m, r.sort_order), 0) + 1;
     const { data, error } = await supabase
       .from("ai_suggestions")
-      .insert({ label_fr: "Nouvelle suggestion", sort_order: nextOrder })
+      .insert({ label_fr: "Nouvelle suggestion", sort_order: nextOrder, surface })
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], blog_post_ids: [], subcategory_ids: [], badge_ids: [], commodity_filters: [], city: null, main_categories: [], disabled_followup_ids: [], mode: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [] } as Row]);
+    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], blog_post_ids: [], subcategory_ids: [], badge_ids: [], commodity_filters: [], city: null, main_categories: [], disabled_followup_ids: [], mode: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [], category: null, prompt_fr: null, prompt_en: null, prompt_ar: null, fixed_response_fr: null, fixed_response_en: null, fixed_response_ar: null } as Row]);
     setExpanded((prev) => new Set(prev).add((data as any).id));
 
   };
@@ -309,6 +336,13 @@ const EmbedAiSuggestionsManagement = () => {
           proximity_a_badge_ids: r.proximity_a_badge_ids || [],
           proximity_b_subcategory_ids: r.proximity_b_subcategory_ids || [],
           proximity_b_badge_ids: r.proximity_b_badge_ids || [],
+          category: r.category || null,
+          prompt_fr: r.prompt_fr || null,
+          prompt_en: r.prompt_en || null,
+          prompt_ar: r.prompt_ar || null,
+          fixed_response_fr: r.fixed_response_fr || null,
+          fixed_response_en: r.fixed_response_en || null,
+          fixed_response_ar: r.fixed_response_ar || null,
         }).eq("id", r.id)
       )
     );
@@ -333,9 +367,9 @@ const EmbedAiSuggestionsManagement = () => {
         <div className="flex items-center gap-3">
           <Code2 className="h-6 w-6 text-gold" />
           <div>
-            <h2 className="text-xl font-bold">Suggestions Embed IA</h2>
+            <h2 className="text-xl font-bold">{SURFACE_META[surface].title}</h2>
             <p className="text-sm text-muted-foreground">
-              Suggestions affichées dans les assistants embarqués <code>/embed/ask/:slug</code>.
+              {SURFACE_META[surface].desc}{" "}
               Chaque suggestion peut avoir ses propres <b>relances</b> affichées après la réponse IA.
               Utilisez <code>{"{businessName}"}</code> dans un libellé pour insérer le nom de l'établissement.
             </p>
@@ -441,6 +475,8 @@ const EmbedAiSuggestionsManagement = () => {
                       alert
                     />
                   )}
+                  <Chip label="Réponse figée" value={(r.fixed_response_fr || r.fixed_response_en || r.fixed_response_ar) ? "✓" : "—"} alert={!!(r.fixed_response_fr || r.fixed_response_en || r.fixed_response_ar)} />
+                  <Chip label="Prompt" value={(r.prompt_fr || r.prompt_en || r.prompt_ar) ? "✓" : "—"} alert={!!(r.prompt_fr || r.prompt_en || r.prompt_ar)} />
                   <Chip label="EN" value={r.label_en ? "✓" : "—"} alert={!r.label_en} />
                   <Chip label="AR" value={r.label_ar ? "✓" : "—"} alert={!r.label_ar} />
                   <Chip
@@ -465,6 +501,36 @@ const EmbedAiSuggestionsManagement = () => {
                     <label className="text-xs text-muted-foreground">AR</label>
                     <Input value={r.label_ar || ""} onChange={(e) => update(r.id, { label_ar: e.target.value })} dir="rtl" />
                   </div>
+                </div>
+
+                <div className="pt-2 border-t space-y-2">
+                  <label className="text-xs font-semibold">
+                    Réponse figée (optionnel)
+                    {(r.fixed_response_fr || r.fixed_response_en || r.fixed_response_ar) && <span className="ml-2 text-primary">● configurée</span>}
+                  </label>
+                  <div className="grid gap-2 md:grid-cols-3">
+                    <Textarea value={r.fixed_response_fr || ""} onChange={(e) => update(r.id, { fixed_response_fr: e.target.value || null })} placeholder="Réponse figée FR (Markdown)" rows={6} />
+                    <Textarea value={r.fixed_response_en || ""} onChange={(e) => update(r.id, { fixed_response_en: e.target.value || null })} placeholder="Fixed response EN (Markdown)" rows={6} />
+                    <Textarea value={r.fixed_response_ar || ""} onChange={(e) => update(r.id, { fixed_response_ar: e.target.value || null })} placeholder="الرد الثابت AR (Markdown)" rows={6} dir="rtl" />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">Si renseignée, la réponse est servie telle quelle (classe A, aucun token LLM).</p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold">
+                    Prompt LLM (optionnel)
+                    {(r.prompt_fr || r.prompt_en || r.prompt_ar) && <span className="ml-2 text-primary">● configuré</span>}
+                  </label>
+                  <div className="grid gap-2 md:grid-cols-3">
+                    <Textarea value={r.prompt_fr || ""} onChange={(e) => update(r.id, { prompt_fr: e.target.value || null })} placeholder="Prompt system FR" rows={4} />
+                    <Textarea value={r.prompt_en || ""} onChange={(e) => update(r.id, { prompt_en: e.target.value || null })} placeholder="System prompt EN" rows={4} />
+                    <Textarea value={r.prompt_ar || ""} onChange={(e) => update(r.id, { prompt_ar: e.target.value || null })} placeholder="Prompt system AR" rows={4} dir="rtl" />
+                  </div>
+                </div>
+
+                <div className="max-w-xs">
+                  <label className="text-xs text-muted-foreground">Catégorie (regroupement)</label>
+                  <Input value={r.category || ""} onChange={(e) => update(r.id, { category: e.target.value || null })} placeholder="ex. gastronomie" />
                 </div>
 
                 <div className="max-w-xs">
@@ -1060,4 +1126,4 @@ const EmbedAiSuggestionsManagement = () => {
   );
 };
 
-export default EmbedAiSuggestionsManagement;
+export default AiSuggestionsManagement;

@@ -66,7 +66,7 @@ const RouteBadge = ({ label }: { label: string }) => {
   );
 };
 
-const EmbedAiFollowupsManagement = () => {
+const AiFollowupsManagement = ({ surface = "embed" }: { surface?: "club" | "embed" | "search" }) => {
   const [rows, setRows] = useState<Row[]>([]);
   const [subcategories, setSubcategories] = useState<Option[]>([]);
   const [badges, setBadges] = useState<Option[]>([]);
@@ -82,6 +82,7 @@ const EmbedAiFollowupsManagement = () => {
       (supabase as any)
         .from("ai_followups")
         .select("id,label_fr,label_en,label_ar,sort_order,is_active,radius_km,mode,category,city,subcategory_ids,badge_ids")
+        .eq("surface", surface)
         .order("sort_order", { ascending: true }),
       supabase.from("subcategories").select("id,name_fr").order("name_fr", { ascending: true }),
       supabase.from("badges").select("id,name_fr").order("name_fr", { ascending: true }),
@@ -94,7 +95,7 @@ const EmbedAiFollowupsManagement = () => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [surface]);
 
   const update = (id: string, patch: Partial<Row>) => {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
@@ -105,7 +106,7 @@ const EmbedAiFollowupsManagement = () => {
     const nextOrder = (rows.reduce((m, r) => Math.max(m, r.sort_order), 0) || 0) + 10;
     const { data, error } = await (supabase as any)
       .from("ai_followups")
-      .insert({ label_fr: "Nouvelle relance", sort_order: nextOrder, is_active: true })
+      .insert({ label_fr: "Nouvelle relance", sort_order: nextOrder, is_active: true, surface })
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
@@ -333,4 +334,4 @@ const EmbedAiFollowupsManagement = () => {
   );
 };
 
-export default EmbedAiFollowupsManagement;
+export default AiFollowupsManagement;
