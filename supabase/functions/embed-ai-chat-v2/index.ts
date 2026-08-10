@@ -488,7 +488,7 @@ Deno.serve(async (req) => {
           // Un repère ponctuel (Koutoubia) se traite par rayon + preuve de point de
           // vue, pas par mot-clé : n'injecter aucun indice « rooftop » ici.
           const hintParts = views.points.length && !excludesLodging ? [] : panoramaHints;
-          const baseQuery = [out.category, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
+          const baseQuery = [out.category || priorCategory, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
             || userMessage.slice(0, 200);
           await runSearch(baseQuery, out.city || host.city || "Marrakech", excluded);
         }
