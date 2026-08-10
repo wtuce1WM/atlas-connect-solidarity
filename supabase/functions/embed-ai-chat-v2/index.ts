@@ -169,6 +169,8 @@ Deno.serve(async (req) => {
       let resultsCount: number | null = null;
       let hadError = false;
       let cityDetected: string | null = null;
+      // Continuité de tour : catégorie retenue par le classifieur, réinjectée au tour suivant.
+      let lastCategory: string | null = null;
       // Observation seule : mesure de la couverture du vocabulaire, sans effet sur les résultats.
       let resolutionLog: Record<string, unknown> = {};
       try {
@@ -182,9 +184,6 @@ Deno.serve(async (req) => {
       const finish = async (streamCompleted: boolean) => {
         end();
         try {
-          const chatId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(sessionId || ""))
-            ? sessionId
-            : null;
           const { error: logErr } = await admin.from("ai_conversation_turns").insert({
             chat_id: chatId,
             user_message: userMessage.slice(0, 2000),
@@ -205,6 +204,7 @@ Deno.serve(async (req) => {
             city_active: null,
             city_detected: cityDetected,
             language: lang,
+            tools_called: { session_id: sessionId, category: lastCategory },
             ...resolutionLog,
           });
           if (logErr) console.error("[embed-ai-chat-v2] log_failed", logErr.message);
@@ -212,6 +212,7 @@ Deno.serve(async (req) => {
           console.error("[embed-ai-chat-v2] log_failed", e);
         }
       };
+
 
       try {
         // ── Hôte ────────────────────────────────────────────────────────────
