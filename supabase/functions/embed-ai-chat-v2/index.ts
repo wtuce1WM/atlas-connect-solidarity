@@ -17,6 +17,7 @@ import {
 import { createLovableAiGatewayProvider } from "../_shared/ai-gateway.ts";
 import { AI_MODEL, getSurfaceConfig } from "../_shared/ai-engine/surfaces.ts";
 import { classify } from "../_shared/ai-engine/classify.ts";
+import { resolveWithAdmin, resolutionMetric } from "../_shared/taxonomy-resolver.ts";
 import { detectViewIntent, withinPointRadius, hasVantage, hasPointViewProof, hasPanoramaAttribute, hasPanoramaProof } from "../_shared/ai-engine/view-targets.ts";
 import { pickLang, normalize, toMapMarker, fetchPriorFull } from "../_shared/ai-engine/routes/shared.ts";
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
@@ -164,6 +165,15 @@ Deno.serve(async (req) => {
       let resultsCount: number | null = null;
       let hadError = false;
       let cityDetected: string | null = null;
+      // Observation seule : mesure de la couverture du vocabulaire, sans effet sur les résultats.
+      let resolutionLog: Record<string, unknown> = {};
+      try {
+        const res = await resolveWithAdmin(admin, userMessage);
+        resolutionLog = resolutionMetric(res);
+      } catch (e) {
+        console.warn("[embed-ai-chat-v2] resolver observation failed", String(e));
+      }
+
 
       const finish = async (streamCompleted: boolean) => {
         end();
@@ -191,6 +201,7 @@ Deno.serve(async (req) => {
             city_active: null,
             city_detected: cityDetected,
             language: lang,
+            ...resolutionLog,
           });
           if (logErr) console.error("[embed-ai-chat-v2] log_failed", logErr.message);
         } catch (e) {

@@ -24,6 +24,10 @@ export async function logTurn(supabase: any, turn: TurnLog): Promise<void> {
     city_active: turn.cityActive ?? null,
     city_detected: turn.cityDetected ?? null,
     language: turn.language ?? null,
+    resolved_targets: turn.resolvedTargets ?? null,
+    resolved_types: turn.resolvedTypes ?? null,
+    resolution_unresolved: turn.resolutionUnresolved ?? null,
+    resolution_service_only: turn.resolutionServiceOnly ?? null,
   };
 
   try {

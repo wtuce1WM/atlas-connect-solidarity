@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { resolveWithAdmin, resolutionMetric } from "../_shared/taxonomy-resolver.ts";
 
 // Global accent-stripping helper — used everywhere for consistent normalization
 const stripAccentsGlobal = (s: string): string => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -5639,7 +5640,16 @@ serve(async (req) => {
     // Async log to search_logs table (fire-and-forget, don't block response)
     const _totalLatencyMs = Date.now() - _searchStartMs;
     if (!isAutocomplete && effectiveQuery && offset === 0) {
+      // Observation seule : le résolveur ne modifie aucun résultat, il mesure la couverture.
+      let _resolution: Record<string, unknown> = {};
+      try {
+        const _res = await resolveWithAdmin(supabase, effectiveQuery);
+        _resolution = resolutionMetric(_res);
+      } catch (e) {
+        console.warn("[taxonomy-resolver] observation failed:", String(e));
+      }
       supabase.from("search_logs").insert({
+        ..._resolution,
         query: query || "",
         effective_query: effectiveQuery,
         detected_city: effectiveCity || null,

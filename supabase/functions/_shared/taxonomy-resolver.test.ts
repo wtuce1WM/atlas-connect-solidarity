@@ -34,7 +34,7 @@ const FIXTURES: Record<string, any[]> = {
     { key_word: "location quad", synonyms: ["louer un quad"], subcategory_names: [], service_names: ["Quad", "Excursions en quad"], badge_id: null, engagement_filters: [], commodity_filters: [] },
   ],
   categories: [{ name_fr: "Restauration", name_en: "Food & drink", name_ar: null }],
-  cities: [{ name: "Marrakech" }, { name: "Essaouira" }],
+  cities: [{ name_fr: "Marrakech" }, { name_fr: "Essaouira" }],
   neighborhoods: [{ name: "Guéliz" }, { name: "Sidi Ghanem" }],
 };
 

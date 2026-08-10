@@ -143,8 +143,8 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
       (q) => q.eq("is_active", true),
     ),
     selectAll(admin, "categories", "name_fr, name_en, name_ar"),
-    selectAll(admin, "cities", "name"),
-    selectAll(admin, "neighborhoods", "name"),
+    selectAll(admin, "cities", "name_fr, name_en, name_ar"),
+    selectAll(admin, "neighborhoods", "name, name_en, name_ar"),
   ]);
 
   const entries = new Map<string, ResolvedTarget[]>();
@@ -194,9 +194,19 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
   }
 
   // Géo.
-  for (const c of cities) if (c.name) push(entries, c.name, { type: "city", value: c.name, source: "cities.name" });
+  for (const c of cities) {
+    const value = c.name_fr;
+    if (!value) continue;
+    for (const name of [c.name_fr, c.name_en, c.name_ar]) {
+      if (name) push(entries, name, { type: "city", value, source: "cities.name" });
+    }
+  }
   for (const n of neighborhoods) {
-    if (n.name) push(entries, n.name, { type: "neighborhood", value: n.name, source: "neighborhoods.name" });
+    const value = n.name;
+    if (!value) continue;
+    for (const name of [n.name, n.name_en, n.name_ar]) {
+      if (name) push(entries, name, { type: "neighborhood", value, source: "neighborhoods.name" });
+    }
   }
 
   // 5. Synonymes : chaque clé/variante pointe vers les mappings curés.
