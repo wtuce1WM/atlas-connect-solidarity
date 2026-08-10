@@ -429,6 +429,11 @@ const EmbedAiSuggestionsManagement = () => {
                   <Chip label="Blog" value={r.blog_post_ids.length === 0 ? "auto" : String(r.blog_post_ids.length)} alert={r.blog_post_ids.length > 0} />
                   <Chip label="Sous-cat." value={r.subcategory_ids.length === 0 ? "—" : String(r.subcategory_ids.length)} alert={r.subcategory_ids.length > 0} />
                   <Chip label="Badges" value={r.badge_ids.length === 0 ? "—" : String(r.badge_ids.length)} alert={r.badge_ids.length > 0} />
+                  <Chip
+                    label="Commodités"
+                    value={(r.commodity_filters?.length ?? 0) === 0 ? "—" : String(r.commodity_filters.length)}
+                    alert={(r.commodity_filters?.length ?? 0) > 0}
+                  />
                   {(r.proximity_a_subcategory_ids.length > 0 || r.proximity_a_badge_ids.length > 0 || r.proximity_b_subcategory_ids.length > 0 || r.proximity_b_badge_ids.length > 0) && (
                     <Chip
                       label="Proximité A/B"
@@ -478,7 +483,29 @@ const EmbedAiSuggestionsManagement = () => {
                 </div>
 
                 <div>
-                  <label className="text-xs text-muted-foreground">Catégories principales ciblées</label>
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="text-xs text-muted-foreground">Catégories principales ciblées</label>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-6 px-2 text-[11px]"
+                        onClick={() => update(r.id, { main_categories: [...mainCategories] })}
+                      >
+                        Tout sélectionner
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-6 px-2 text-[11px]"
+                        onClick={() => update(r.id, { main_categories: [] })}
+                      >
+                        Aucune
+                      </Button>
+                    </div>
+                  </div>
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     {mainCategories.map((c) => {
                       const on = (r.main_categories || []).includes(c);
@@ -651,6 +678,21 @@ const EmbedAiSuggestionsManagement = () => {
                   <label className="text-xs text-muted-foreground">
                     Articles de blog liés {r.blog_post_ids.length === 0 ? "(aucun — détection auto par l'IA)" : `(${r.blog_post_ids.length} — lien explicite prioritaire)`}
                   </label>
+                  <select
+                    value=""
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (!v) return;
+                      if (!r.blog_post_ids.includes(v)) update(r.id, { blog_post_ids: [...r.blog_post_ids, v] });
+                    }}
+                    className="h-9 rounded-md border border-input bg-background px-2 text-sm w-full max-w-md"
+                    title="Ajouter un article de blog"
+                  >
+                    <option value="">— Ajouter un article —</option>
+                    {blogPosts.filter((p) => !r.blog_post_ids.includes(p.id)).map((p) => (
+                      <option key={p.id} value={p.id}>{p.title}</option>
+                    ))}
+                  </select>
                   {r.blog_post_ids.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
                       {r.blog_post_ids.map((pid) => {
@@ -669,22 +711,8 @@ const EmbedAiSuggestionsManagement = () => {
                       })}
                     </div>
                   )}
-                  <select
-                    value=""
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      if (!v) return;
-                      if (!r.blog_post_ids.includes(v)) update(r.id, { blog_post_ids: [...r.blog_post_ids, v] });
-                    }}
-                    className="h-9 rounded-md border border-input bg-background px-2 text-sm w-full max-w-md"
-                    title="Ajouter un article de blog"
-                  >
-                    <option value="">— Ajouter un article —</option>
-                    {blogPosts.filter((p) => !r.blog_post_ids.includes(p.id)).map((p) => (
-                      <option key={p.id} value={p.id}>{p.title}</option>
-                    ))}
-                  </select>
                 </div>
+
 
                 <div className="space-y-2">
                   <label className="text-xs text-muted-foreground">
