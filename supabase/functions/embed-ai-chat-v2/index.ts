@@ -571,7 +571,7 @@ Deno.serve(async (req) => {
         if (out && confident && (out.intent === "search" || out.intent === "compare")) {
           const views = detectViewIntent(userMessage);
           const panoramaHints = views.panoramas.map((p) => p.attributeNames[0]);
-          const excluded = (out.exclude || []).map(normalize).filter(Boolean);
+          const excluded = excludedTerms;
           const excludesLodging = excluded.some((x) => /hotel|riad|hebergement|maison\s?d/.test(x));
           // Un repère ponctuel (Koutoubia) se traite par rayon + preuve de point de
           // vue, pas par mot-clé : n'injecter aucun indice « rooftop » ici.
