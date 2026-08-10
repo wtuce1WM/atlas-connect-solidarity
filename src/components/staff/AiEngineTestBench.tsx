@@ -385,37 +385,6 @@ const AiEngineTestBench = () => {
             </Button>
           </div>
 
-          <div className="border-t pt-4 space-y-2">
-            <Label className="flex items-center gap-2">
-              <MousePointerClick className="h-4 w-4" />
-              Entrées curatées réelles (suggestions & relances du widget)
-            </Label>
-            <p className="text-xs text-muted-foreground">
-              Un clic simule le clic dans le widget : l'<code>id</code> est envoyé au moteur, la route est donc imposée
-              (pas de détection par mots-clés). Compare avec la même phrase tapée en texte libre ci-dessus pour mettre
-              en évidence Route vs Suggestion.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {curated.length === 0 && <span className="text-xs text-muted-foreground">Aucune entrée active.</span>}
-              {curated.map((c) => (
-                <Button
-                  key={`${c.kind}-${c.id}`}
-                  size="sm"
-                  variant="outline"
-                  disabled={running || !!busyId || !slug.trim()}
-                  onClick={() => runOne(`${c.kind} · ${c.label}`, c.label, c)}
-                  className="h-auto py-1.5 text-xs"
-                >
-                  {busyId === `${c.kind} · ${c.label}` ? (
-                    <Loader2 className="h-3 w-3 animate-spin mr-1.5" />
-                  ) : null}
-                  <span className="mr-1.5 opacity-60">{c.kind === "suggestion" ? "sugg." : "relance"}</span>
-                  {c.label}
-                  <span className="ml-1.5 opacity-60">{c.mode ? `→ ${c.mode}` : "→ auto"}</span>
-                </Button>
-              ))}
-            </div>
-          </div>
 
           <p className="text-xs text-muted-foreground">
             Plan de test : <code>docs/ai/plan-test-v1v2.md</code>
