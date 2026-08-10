@@ -130,6 +130,8 @@ export async function loadTaxonomyVocabulary(admin: any, force = false): Promise
 
   const entries = new Map<string, ResolvedTarget[]>();
   const synonymEntries = new Map<string, ResolvedTarget[]>();
+  const wordToServices = new Map<string, Set<string>>();
+
 
   // 1-2. Sous-catégories : noms puis keywords.
   for (const sc of subcats) {
