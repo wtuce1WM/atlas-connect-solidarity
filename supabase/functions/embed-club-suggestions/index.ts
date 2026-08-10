@@ -1,4 +1,4 @@
-// Embeddings backfill for club_ai_suggestions.
+// Embeddings backfill for ai_suggestions.
 // - Admin/staff only.
 // - Embeds label_fr (fallback label_en/label_ar) with openai/text-embedding-3-small (1536-dim).
 // - Only (re)embeds rows whose composite source text changed since last embed.
@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
     const force = !!body.force;
 
     const { data: rows, error } = await admin
-      .from("club_ai_suggestions")
+      .from("ai_suggestions")
       .select("id, label_fr, label_en, label_ar, label_embedded_source")
       .eq("is_active", true);
     if (error) throw error;
@@ -71,7 +71,7 @@ Deno.serve(async (req) => {
       }));
       for (const u of updates) {
         const { error: upErr } = await admin
-          .from("club_ai_suggestions")
+          .from("ai_suggestions")
           .update({
             label_embedding: u.embedding as any,
             label_embedded_source: u.source,

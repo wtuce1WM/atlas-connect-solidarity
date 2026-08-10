@@ -386,7 +386,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
     }
   }, [chatInput, chatLoading, chatTurns, answer, businesses, language, city, category, ttsStop]);
 
-  // --- Suggestions Search IA (back-office : search_ai_suggestions) ---
+  // --- Suggestions Search IA (back-office : ai_suggestions) ---
   type SearchSuggestion = {
     id: string;
     label: string;
@@ -417,7 +417,7 @@ const PanelAiOverlay = ({ open, onClose, city, category, businessName, onAskAssi
     let cancelled = false;
     (async () => {
       const { data, error } = await supabase
-        .from("search_ai_suggestions")
+        .from("ai_suggestions")
         .select("id, label_fr, label_en, label_ar, prompt_fr, prompt_en, prompt_ar, fixed_response_fr, fixed_response_en, fixed_response_ar, mode, category, city, sort_order")
         .eq("is_active", true)
         .order("sort_order", { ascending: true });

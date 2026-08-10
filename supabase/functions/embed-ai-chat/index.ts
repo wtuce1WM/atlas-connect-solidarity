@@ -988,7 +988,7 @@ Deno.serve(async (req) => {
         if (suggestionId) {
           try {
             const { data: sugg } = await admin
-              .from("embed_ai_suggestions")
+              .from("ai_suggestions")
               .select("subcategory_ids, badge_ids, business_ids, destination_ids, blog_post_ids, mode, label_fr, label_en, label_ar, proximity_a_subcategory_ids, proximity_a_badge_ids, proximity_b_subcategory_ids, proximity_b_badge_ids")
               .eq("id", suggestionId)
               .maybeSingle();
@@ -1750,7 +1750,7 @@ Deno.serve(async (req) => {
         if (followupId) {
           try {
             const { data: fu } = await admin
-              .from("embed_ai_followups")
+              .from("ai_followups")
               .select("radius_km, mode")
               .eq("id", followupId)
               .maybeSingle();

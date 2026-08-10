@@ -52,7 +52,7 @@ const ClubAiFollowupsManagement = () => {
     setLoading(true);
     const [{ data, error }, { data: subs }, { data: bdgs }] = await Promise.all([
       (supabase as any)
-        .from("club_ai_followups")
+        .from("ai_followups")
         .select("id,label_fr,label_en,label_ar,sort_order,is_active,mode,radius_km,category,city,subcategory_ids,badge_ids")
         .order("sort_order", { ascending: true }),
       supabase.from("subcategories").select("id,name_fr").order("name_fr", { ascending: true }),
@@ -76,7 +76,7 @@ const ClubAiFollowupsManagement = () => {
   const add = async () => {
     const nextOrder = (rows.reduce((m, r) => Math.max(m, r.sort_order), 0) || 0) + 10;
     const { data, error } = await (supabase as any)
-      .from("club_ai_followups")
+      .from("ai_followups")
       .insert({ label_fr: "Nouvelle relance", sort_order: nextOrder, is_active: true })
       .select()
       .single();
@@ -86,7 +86,7 @@ const ClubAiFollowupsManagement = () => {
 
   const remove = async (id: string) => {
     if (!confirm("Supprimer cette relance ?")) return;
-    const { error } = await (supabase as any).from("club_ai_followups").delete().eq("id", id);
+    const { error } = await (supabase as any).from("ai_followups").delete().eq("id", id);
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows((prev) => prev.filter((r) => r.id !== id));
   };
@@ -95,7 +95,7 @@ const ClubAiFollowupsManagement = () => {
     setSaving(true);
     const changed = rows.filter((r) => dirty.has(r.id));
     for (const r of changed) {
-      const { error } = await (supabase as any).from("club_ai_followups").update({
+      const { error } = await (supabase as any).from("ai_followups").update({
         label_fr: r.label_fr,
         label_en: r.label_en,
         label_ar: r.label_ar,

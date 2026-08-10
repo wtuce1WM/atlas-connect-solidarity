@@ -81,14 +81,14 @@ const ClubAiSuggestionsManagement = () => {
     setLoading(true);
     const [{ data, error }, { data: posts }, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }] = await Promise.all([
       (supabase as any)
-        .from("club_ai_suggestions")
+        .from("ai_suggestions")
         .select("id,label_fr,label_en,label_ar,category,city,sort_order,is_active,fixed_response_fr,fixed_response_en,fixed_response_ar,blog_post_id,blog_post_ids,mode,destination_ids,subcategory_ids,badge_ids,disabled_followup_ids")
         .order("sort_order", { ascending: true }),
       supabase.from("blog_posts").select("id,title_fr,title_en,slug").order("title_fr", { ascending: true }),
       supabase.from("destinations").select("id,name_fr").order("name_fr", { ascending: true }),
       supabase.from("subcategories").select("id,name_fr").order("name_fr", { ascending: true }),
       supabase.from("badges").select("id,name_fr").order("name_fr", { ascending: true }),
-      (supabase as any).from("club_ai_followups").select("id,label_fr,is_active,sort_order").order("sort_order", { ascending: true }),
+      (supabase as any).from("ai_followups").select("id,label_fr,is_active,sort_order").order("sort_order", { ascending: true }),
     ]);
     if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows(
@@ -123,7 +123,7 @@ const ClubAiSuggestionsManagement = () => {
   const add = async () => {
     const nextOrder = (rows.reduce((m, r) => Math.max(m, r.sort_order), 0) || 0) + 10;
     const { data, error } = await (supabase as any)
-      .from("club_ai_suggestions")
+      .from("ai_suggestions")
       .insert({ label_fr: "Nouvelle suggestion", sort_order: nextOrder, is_active: true })
       .select()
       .single();
@@ -135,7 +135,7 @@ const ClubAiSuggestionsManagement = () => {
 
   const remove = async (id: string) => {
     if (!confirm("Supprimer cette suggestion ?")) return;
-    const { error } = await supabase.from("club_ai_suggestions").delete().eq("id", id);
+    const { error } = await supabase.from("ai_suggestions").delete().eq("id", id);
     if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
     setRows((prev) => prev.filter((r) => r.id !== id));
   };
@@ -144,7 +144,7 @@ const ClubAiSuggestionsManagement = () => {
     setSaving(true);
     const changed = rows.filter((r) => dirty.has(r.id));
     for (const r of changed) {
-      const { error } = await (supabase as any).from("club_ai_suggestions").update({
+      const { error } = await (supabase as any).from("ai_suggestions").update({
         label_fr: r.label_fr, label_en: r.label_en, label_ar: r.label_ar,
         category: r.category, city: r.city, sort_order: r.sort_order, is_active: r.is_active,
         fixed_response_fr: r.fixed_response_fr, fixed_response_en: r.fixed_response_en, fixed_response_ar: r.fixed_response_ar,

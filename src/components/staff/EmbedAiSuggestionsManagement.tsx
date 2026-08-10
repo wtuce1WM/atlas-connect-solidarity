@@ -139,7 +139,7 @@ const EmbedAiSuggestionsManagement = () => {
     };
     const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }, { data: posts }, { data: cats }] = await Promise.all([
       supabase
-        .from("embed_ai_suggestions")
+        .from("ai_suggestions")
         .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,badge_ids,commodity_filters,city,main_categories,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids")
         .order("sort_order", { ascending: true }),
       fetchAllBusinesses(),
@@ -156,7 +156,7 @@ const EmbedAiSuggestionsManagement = () => {
         .select("id,name_fr")
         .order("name_fr", { ascending: true }),
       supabase
-        .from("embed_ai_followups")
+        .from("ai_followups")
         .select("id,label_fr,is_active,sort_order")
         .order("sort_order", { ascending: true }),
       supabase
@@ -265,7 +265,7 @@ const EmbedAiSuggestionsManagement = () => {
   const addRow = async () => {
     const nextOrder = rows.reduce((m, r) => Math.max(m, r.sort_order), 0) + 1;
     const { data, error } = await supabase
-      .from("embed_ai_suggestions")
+      .from("ai_suggestions")
       .insert({ label_fr: "Nouvelle suggestion", sort_order: nextOrder })
       .select()
       .single();
@@ -278,7 +278,7 @@ const EmbedAiSuggestionsManagement = () => {
 
   const removeRow = async (id: string) => {
     if (!confirm("Supprimer cette suggestion ?")) return;
-    const { error } = await supabase.from("embed_ai_suggestions").delete().eq("id", id);
+    const { error } = await supabase.from("ai_suggestions").delete().eq("id", id);
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
     setRows((prev) => prev.filter((r) => r.id !== id));
   };
@@ -288,7 +288,7 @@ const EmbedAiSuggestionsManagement = () => {
     const toSave = rows.filter((r) => dirty.has(r.id));
     const results = await Promise.all(
       toSave.map((r) =>
-        supabase.from("embed_ai_suggestions").update({
+        supabase.from("ai_suggestions").update({
           label_fr: r.label_fr,
           label_en: r.label_en,
           label_ar: r.label_ar,

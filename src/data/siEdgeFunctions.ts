@@ -247,8 +247,8 @@ export const SI_EDGE_FUNCTIONS: SiEdgeFunction[] = [
       "blog_posts",
       "bookmarks",
       "businesses",
-      "club_ai_followups",
-      "club_ai_suggestions",
+      "ai_followups",
+      "ai_suggestions",
       "club_member_personas",
       "club_members",
       "club_trip_businesses",
@@ -421,8 +421,8 @@ export const SI_EDGE_FUNCTIONS: SiEdgeFunction[] = [
       "businesses",
       "cities",
       "destinations",
-      "embed_ai_followups",
-      "embed_ai_suggestions",
+      "ai_followups",
+      "ai_suggestions",
       "event_badges",
       "event_businesses",
       "events",
@@ -452,11 +452,11 @@ export const SI_EDGE_FUNCTIONS: SiEdgeFunction[] = [
   {
     "name": "embed-club-suggestions",
     "tables": [
-      "club_ai_suggestions",
+      "ai_suggestions",
       "user_roles"
     ],
     "writes": [
-      "club_ai_suggestions"
+      "ai_suggestions"
     ],
     "rpc": [],
     "secrets": [

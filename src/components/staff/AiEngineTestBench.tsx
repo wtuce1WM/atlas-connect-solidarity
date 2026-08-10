@@ -287,12 +287,12 @@ const AiEngineTestBench = () => {
     (async () => {
       const [{ data: sugg }, { data: fups }] = await Promise.all([
         supabase
-          .from("embed_ai_suggestions")
+          .from("ai_suggestions")
           .select("id,label_fr,mode,is_active,sort_order")
           .eq("is_active", true)
           .order("sort_order", { ascending: true }),
         supabase
-          .from("embed_ai_followups")
+          .from("ai_followups")
           .select("id,label_fr,mode,is_active,sort_order")
           .eq("is_active", true)
           .order("sort_order", { ascending: true }),

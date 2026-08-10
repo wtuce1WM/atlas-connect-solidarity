@@ -115,7 +115,7 @@ export async function loadCuratedTargets(
   if (suggestionId) {
     try {
       const { data: sugg } = await admin
-        .from("embed_ai_suggestions")
+        .from("ai_suggestions")
         .select("subcategory_ids, badge_ids, commodity_filters, business_ids, destination_ids, blog_post_ids, mode, label_fr, label_en, label_ar")
         .eq("id", suggestionId)
         .maybeSingle();

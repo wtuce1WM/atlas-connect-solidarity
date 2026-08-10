@@ -87,7 +87,7 @@ export default function IADashboard({ onNavigateTab }: Props) {
           .select("id,created_at,surface,ai_class,route_taken,intent_classified,classifier_confidence,latency_ms_total,latency_ms_first_token,tokens_in,tokens_out,cost_usd,had_error,stream_completed,user_message")
           .gte("created_at", since).order("created_at", { ascending: false }).limit(5000),
         supabase.from("ai_config").select("id", { count: "exact", head: true }),
-        supabase.from("club_ai_suggestions").select("id", { count: "exact", head: true }),
+        supabase.from("ai_suggestions").select("id", { count: "exact", head: true }),
         supabase.from("knowledge_entries").select("id", { count: "exact", head: true })
           .in("category", ["search-engine", "voice-search", "opening-hours", "UI", "architecture", "business-rules", "bug-fix", "tech"]),
         supabase.from("knowledge_entries").select("id", { count: "exact", head: true })

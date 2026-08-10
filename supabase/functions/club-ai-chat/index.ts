@@ -1655,7 +1655,7 @@ serve(async (req) => {
   // matched and staff curated a list, it overrides the generated follow-ups on
   // EVERY terminal `done` event, whatever route was taken.
   let curatedFollowups: string[] | null = null;
-  // Rayon (km) forcé par une relance staff (club_ai_followups.radius_km)
+  // Rayon (km) forcé par une relance staff (ai_followups.radius_km)
   let followupRadiusKm: number | null = null;
   const emit: EmitFn = (obj: any) => {
     if (!controllerRef) return;
@@ -1759,7 +1759,7 @@ serve(async (req) => {
     turnLog.user_message = String([...messages].reverse().find((m: any) => m.role === "user")?.content || "").slice(0, 500);
 
     // ============= Staff-curated suggestion targeting (Backoffice / IA) =============
-    // If the last user message is EXACTLY a club_ai_suggestions label, apply the
+    // If the last user message is EXACTLY a ai_suggestions label, apply the
     // staff targeting configured in the back-office:
     //   • mode                → forces a deterministic route (events / weather / map / structure_front)
     //   • subcategory_ids     → injects the subcategory names into the search query
@@ -1774,7 +1774,7 @@ serve(async (req) => {
       const key = normLbl(lastUserLabel);
       if (key) {
         const { data: sugRows } = await admin
-          .from("club_ai_suggestions")
+          .from("ai_suggestions")
           .select("id,label_fr,label_en,label_ar,mode,destination_ids,subcategory_ids,badge_ids,disabled_followup_ids,city")
           .eq("is_active", true);
         const sug: any = (sugRows || []).find((r: any) =>
@@ -1812,7 +1812,7 @@ serve(async (req) => {
           try {
             const disabled = new Set<string>(Array.isArray(sug.disabled_followup_ids) ? sug.disabled_followup_ids : []);
             const { data: fups } = await admin
-              .from("club_ai_followups")
+              .from("ai_followups")
               .select("id,label_fr,label_en,label_ar,is_active,sort_order")
               .eq("is_active", true)
               .order("sort_order", { ascending: true });
@@ -1829,7 +1829,7 @@ serve(async (req) => {
 
     // ============= Staff-curated FOLLOW-UP targeting (Backoffice / IA → Relances Club) =============
     // Même taxonomie que les relances embed : si le dernier message utilisateur est
-    // EXACTEMENT un libellé de club_ai_followups, on applique `mode` (route forcée)
+    // EXACTEMENT un libellé de ai_followups, on applique `mode` (route forcée)
     // et `radius_km` (borne de proximité). Ancre proximité = géoloc utilisateur,
     // sinon ville détectée. On réécrit le message pour alimenter le MÊME routeur.
     try {
@@ -1839,7 +1839,7 @@ serve(async (req) => {
       const key2 = normLbl2(lastLabel2);
       if (key2) {
         const { data: fupRows } = await admin
-          .from("club_ai_followups")
+          .from("ai_followups")
           .select("id,label_fr,label_en,label_ar,mode,radius_km")
           .eq("is_active", true);
         const fup: any = (fupRows || []).find((r: any) =>
@@ -1915,7 +1915,7 @@ serve(async (req) => {
 
     // ----- Fixed-response shortcut -----
     // If the last user message matches (case-insensitive, trimmed) a suggestion
-    // label in club_ai_suggestions AND a fixed_response_<lang> is set, return it
+    // label in ai_suggestions AND a fixed_response_<lang> is set, return it
     // verbatim — no AI call, no tokens, deterministic content maintained by staff.
     try {
       const lastUserMsgRaw = [...messages].reverse().find((m) => m.role === "user")?.content || "";
@@ -1924,7 +1924,7 @@ serve(async (req) => {
       if (key) {
         const col = lang === "en" ? "fixed_response_en" : lang === "ar" ? "fixed_response_ar" : "fixed_response_fr";
         const { data: fixedRows } = await admin
-          .from("club_ai_suggestions")
+          .from("ai_suggestions")
           .select(`id,label_fr,label_en,label_ar,blog_post_ids,${col}`)
           .eq("is_active", true);
         const match = (fixedRows || []).find((r: any) => {
@@ -1974,7 +1974,7 @@ serve(async (req) => {
 
     // ============= #12 Semantic match on staff-validated suggestions =============
     // Embed the user question (openai/text-embedding-3-small, 1536-dim) and try
-    // to match a club_ai_suggestions row that has a fixed_response for the
+    // to match a ai_suggestions row that has a fixed_response for the
     // active language. Skips entirely if the question is short (< 3 words),
     // has already been matched exactly above, or if no active suggestion has
     // a fixed_response in this language.
