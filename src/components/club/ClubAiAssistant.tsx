@@ -336,6 +336,9 @@ const SEARCH_RESULTS_RE = /<!--SEARCH_RESULTS:[\s\S]*?-->/g;
 const EVENTS_RE = /<!--EVENTS_SNAPSHOT:([\s\S]*?)-->/g;
 const KNOWN_RE = /<!--KNOWN_BUSINESSES:([\s\S]*?)-->/g;
 const BLOG_CARDS_RE = /<!--BLOG_CARDS:([\s\S]*?)-->/g;
+// Route curatée partagée (_shared/ai-engine/routes/curated.ts) : article de blog
+// rendu en carte éditoriale. On le mappe sur les cartes blog existantes.
+const ARTICLE_CARD_RE = /<!--ARTICLE_CARD:([\s\S]*?)-->/g;
 const BLOG_CTX_RE = /<!--BLOG_CTX:[\s\S]*?-->/g;
 const WEATHER_RE = /<!--WEATHER_FORECAST:([\s\S]*?)-->/g;
 type MapPayload = { title?: string; businesses: MapPanelBusiness[]; order?: string | null };
@@ -403,6 +406,20 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
       }
     } catch { /* ignore */ }
     return "";
+  }).replace(ARTICLE_CARD_RE, (_m, raw) => {
+    try {
+      const parsed = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (parsed?.id && parsed?.slug && parsed?.title) {
+        blogs.push({
+          id: parsed.id,
+          slug: parsed.slug,
+          title: parsed.title,
+          cover: parsed.image ?? parsed.hero ?? null,
+          tldr: parsed.tldr ?? parsed.hook ?? null,
+        });
+      }
+    } catch { /* ignore */ }
+    return "";
   }).replace(WEATHER_RE, (_m, raw) => {
     try {
       const parsed = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -421,6 +438,8 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--OPEN_BOOKING:[\s\S]*?-->/g, "")
     .replace(/<!--OPEN_BOOKING:[\s\S]*$/g, "")
     .replace(/<!--BLOG_CARDS:[\s\S]*$/g, "")
+    .replace(/<!--ARTICLE_CARD:[\s\S]*?-->/g, "")
+    .replace(/<!--ARTICLE_CARD:[\s\S]*$/g, "")
     .replace(/<!--BLOG_CTX:[\s\S]*$/g, "")
     .replace(/<!--WEATHER_FORECAST:[\s\S]*$/g, "")
     .trim();
