@@ -1762,6 +1762,10 @@ serve(async (req) => {
     turnLog.message_index = Array.isArray(messages) ? messages.length : null;
     turnLog.user_message = String([...messages].reverse().find((m: any) => m.role === "user")?.content || "").slice(0, 500);
 
+    // IDs curatés matchés (autorité de classe A partagée avec /embed/ask)
+    let matchedSuggestionId: string | null = null;
+    let matchedFollowupId: string | null = null;
+
     // ============= Staff-curated suggestion targeting (Backoffice / IA) =============
     // If the last user message is EXACTLY a ai_suggestions label, apply the
     // staff targeting configured in the back-office:
@@ -1786,6 +1790,7 @@ serve(async (req) => {
           normLbl(r.label_fr) === key || normLbl(r.label_en) === key || normLbl(r.label_ar) === key
         );
         if (sug) {
+          matchedSuggestionId = sug.id;
           const subIds: string[] = Array.isArray(sug.subcategory_ids) ? sug.subcategory_ids : [];
           const badgeIds: string[] = Array.isArray(sug.badge_ids) ? sug.badge_ids : [];
           const destIds: string[] = Array.isArray(sug.destination_ids) ? sug.destination_ids : [];
@@ -1852,6 +1857,7 @@ serve(async (req) => {
         const fup: any = (fupRows || []).find((r: any) =>
           normLbl2(r.label_fr) === key2 || normLbl2(r.label_en) === key2 || normLbl2(r.label_ar) === key2
         );
+        if (fup) matchedFollowupId = fup.id;
         if (fup && (fup.mode || fup.radius_km != null)) {
           const m = String(fup.mode || "").trim();
           const modeHint2 =
@@ -1936,9 +1942,10 @@ serve(async (req) => {
           .eq("surface", "club")
           .eq("is_active", true);
         const match = (fixedRows || []).find((r: any) => {
-          const hasFixed = !!String(r[col] || "").trim();
-          const hasBlogs = Array.isArray(r.blog_post_ids) && r.blog_post_ids.length > 0;
-          if (!hasFixed && !hasBlogs) return false;
+          // Seul un texte figé rédigé par le staff court-circuite ici. Une suggestion
+          // qui ne porte QUE des articles liés passe par l'autorité curatée
+          // (rendu éditorial complet, corpus clos) juste en dessous.
+          if (!String(r[col] || "").trim()) return false;
           return norm(r.label_fr) === key || norm(r.label_en) === key || norm(r.label_ar) === key;
         });
         const baseAnswer = match ? String((match as any)[col] || "").trim() : "";
