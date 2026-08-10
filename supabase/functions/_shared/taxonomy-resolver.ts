@@ -331,6 +331,19 @@ export function targetsOfType(result: ResolveResult, type: TargetType): string[]
   return result.targets.filter((t) => t.type === type).map((t) => t.value);
 }
 
+/**
+ * Cibles fortes uniquement (exact / phrase / synonyme curé).
+ * L'expansion par mot (`word`) est volontairement bruyante — « piscine » remonte aussi
+ * « Lunettes de piscine ». Elle sert de facteur de ranking, jamais de filtre.
+ * Un appelant qui veut restreindre doit passer par ici.
+ */
+export function strongTargetsOfType(result: ResolveResult, type: TargetType): string[] {
+  return result.targets
+    .filter((t) => t.type === type && t.strength !== "word")
+    .map((t) => t.value);
+}
+
+
 /** Payload compact pour les métriques de résolution (search_logs / ai_conversation_turns). */
 export function resolutionMetric(result: ResolveResult) {
   const byType: Record<string, string[]> = {};
