@@ -631,6 +631,16 @@ html.hide-scrollbar-search::-webkit-scrollbar {
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
   }
+
+  /* Mode plein cadre (slidepanel vidéo, overlay POI/Google Map) :
+     on annule les paddings safe-area du body pour que le média occupe
+     toute la hauteur de l'écran, sans bandes en haut ni en bas.
+     Les contrôles internes gèrent eux-mêmes leur padding safe-area. */
+  body.owm-fullbleed {
+    padding: 0;
+    background-color: #000;
+  }
+
 }
 
 @layer utilities {
