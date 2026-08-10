@@ -483,7 +483,29 @@ const EmbedAiSuggestionsManagement = () => {
                 </div>
 
                 <div>
-                  <label className="text-xs text-muted-foreground">Catégories principales ciblées</label>
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="text-xs text-muted-foreground">Catégories principales ciblées</label>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-6 px-2 text-[11px]"
+                        onClick={() => update(r.id, { main_categories: [...mainCategories] })}
+                      >
+                        Tout sélectionner
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-6 px-2 text-[11px]"
+                        onClick={() => update(r.id, { main_categories: [] })}
+                      >
+                        Aucune
+                      </Button>
+                    </div>
+                  </div>
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     {mainCategories.map((c) => {
                       const on = (r.main_categories || []).includes(c);
