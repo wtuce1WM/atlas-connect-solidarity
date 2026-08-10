@@ -448,9 +448,16 @@ const AiEngineTestBench = () => {
 
       {results.length > 0 && (
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Résultats</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between gap-2">
+            <div>
+              <CardTitle className="text-base">Résultats</CardTitle>
+              <CardDescription>Conservés localement, même après changement d'écran.</CardDescription>
+            </div>
+            <Button size="sm" variant="outline" onClick={() => setResults([])} disabled={running || !!busyId}>
+              Effacer
+            </Button>
           </CardHeader>
+
           <CardContent className="space-y-6">
             {results.map((r) => {
               const v1summary = resultSummary(r.v1.text);
