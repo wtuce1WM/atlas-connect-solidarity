@@ -1987,6 +1987,92 @@ serve(async (req) => {
       console.error("fixed-response lookup error", e);
     }
 
+    // ============= AUTORITÉ CURATÉE (classe A, zéro token) =============
+    // Même résolveur que /embed/ask (`_shared/ai-engine/routes/curated.ts`) :
+    // une suggestion / relance staff qui pointe vers un article de blog, des
+    // établissements épinglés ou des commodités/badges/sous-catégories FAIT LOI.
+    // Ni le classifieur ni le LLM ne peuvent la remplacer ou la « compléter ».
+    if (matchedSuggestionId || matchedFollowupId) {
+      try {
+        const curated = await loadCuratedTargets(admin, {
+          suggestionId: matchedSuggestionId,
+          followupId: matchedFollowupId,
+        });
+        const pseudoHost: any = { id: null, city: cleanActiveCity(clientContext?.activeCity) || null, name: null };
+
+        const deliverCurated = async (built: any) => {
+          let answer = built.text;
+          if (built.mapPayload?.businesses?.length) {
+            answer += `\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`;
+          }
+          if (built.knownBusinesses?.length) {
+            answer += `\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`;
+          }
+          const lastUserMsg = String([...messages].reverse().find((m: any) => m.role === "user")?.content || "");
+          const newMessages = [...messages, { role: "assistant", content: answer }];
+          let resultChatId: string | null = null;
+          if (chatId) {
+            const { data: existing } = await admin
+              .from("ai_chats").select("id").eq("id", chatId).eq("user_id", user.id).maybeSingle();
+            if (existing?.id) {
+              await admin.from("ai_chats")
+                .update({ messages: newMessages, updated_at: new Date().toISOString() })
+                .eq("id", chatId).eq("user_id", user.id);
+              resultChatId = chatId;
+            }
+          }
+          if (!resultChatId) {
+            const { data: inserted } = await admin.from("ai_chats")
+              .insert({ user_id: user.id, kind: "club", title: lastUserMsg.slice(0, 200) || "Nouvelle conversation", messages: newMessages })
+              .select("id").single();
+            resultChatId = inserted?.id ?? null;
+          }
+          turnLog.route_taken = built.route;
+          turnLog.ai_class = "A";
+          turnLog.results_count = built.total ?? built.shown ?? null;
+          turnLog.results_shown = built.shown ?? null;
+          emit({ type: "chunk", delta: answer });
+          emit({ type: "done", answer, chatId: resultChatId, followups: [] });
+        };
+
+        // 1. Article de blog lié → rendu éditorial, corpus clos, ordre donné
+        if (curated.blogPostIds.length) {
+          const posts = await fetchBlogPostsCached(admin).catch(() => []);
+          const post = curated.blogPostIds.map((id) => posts.find((p: any) => p.id === id)).filter(Boolean)[0];
+          if (post) {
+            const built = await buildBlogArticleAnswer(admin, post as any, pseudoHost, lang as any)
+              .catch((e) => { console.error("club-ai-chat → blog_route_failed", String(e)); return null; });
+            if (built) { await deliverCurated(built); return; }
+          }
+        }
+
+        // 2. Établissements épinglés → corpus clos, ordre staff
+        if (curated.pinnedBusinessIds.length) {
+          const built = await buildPinnedAnswer(admin, curated.pinnedBusinessIds, pseudoHost, lang as any, curated.label)
+            .catch((e) => { console.error("club-ai-chat → pinned_route_failed", String(e)); return null; });
+          if (built) { await deliverCurated(built); return; }
+        }
+
+        // 3. Filtre déterministe (commodités / badges / sous-catégories)
+        if (curated.commodities.length || curated.badgeIds.length || curated.subcategoryNames.length) {
+          const built = await buildFilteredAnswer(admin, pseudoHost, lang as any, {
+            badgeIds: curated.badgeIds,
+            subcategoryNames: curated.subcategoryNames,
+            commodities: curated.commodities,
+            label: curated.label,
+            city: pseudoHost.city,
+            maxResults: 6,
+            supabaseUrl,
+            serviceKey,
+          }).catch((e) => { console.error("club-ai-chat → curated_filter_failed", String(e)); return null; });
+          if (built) { await deliverCurated(built); return; }
+        }
+      } catch (e) {
+        console.error("club-ai-chat → curated authority error", e);
+      }
+    }
+
+
     // ============= #12 Semantic match on staff-validated suggestions =============
     // Embed the user question (openai/text-embedding-3-small, 1536-dim) and try
     // to match a ai_suggestions row that has a fixed_response for the
