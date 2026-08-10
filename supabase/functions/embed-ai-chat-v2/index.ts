@@ -495,14 +495,27 @@ Deno.serve(async (req) => {
         };
 
         // ── Autorité du résolveur : le classifieur propose, le vocabulaire réel tranche ──
-        // Cibles fortes (exact / phrase / synonyme curé) issues du message utilisateur.
-        const strongTerms = resolution
-          ? [
-              ...strongTargetsOfType(resolution, "subcategory"),
-              ...strongTargetsOfType(resolution, "category"),
-              ...strongTargetsOfType(resolution, "service"),
-            ].slice(0, 2)
+        // Cibles fortes (exact / phrase / synonyme curé) issues du message utilisateur,
+        // ordonnées par proximité lexicale avec le terme réellement tapé : « piscine »
+        // doit sortir « Piscine » avant « Beach club » (même sous-catégorie déclenchée).
+        const lexicalRank = (t: { value: string; matched: string }) => {
+          const v = normalize(t.value);
+          const m = normalize(t.matched);
+          if (v === m) return 0;
+          if (v.startsWith(m)) return 1;
+          if (v.includes(m)) return 2;
+          return 3;
+        };
+        const strongTargets = resolution
+          ? resolution.targets
+              .filter(
+                (t) =>
+                  t.strength !== "expansion" &&
+                  (t.type === "subcategory" || t.type === "category" || t.type === "service"),
+              )
+              .sort((a, b) => lexicalRank(a) - lexicalRank(b))
           : [];
+        const strongTerms = [...new Set(strongTargets.map((t) => t.value))].slice(0, 2);
         // Expansion par mot : bruyante, donc utilisée seulement quand rien de fort ne sort
         // (c'est ce qui rattrape « piscine », absent des catégories mais présent en service).
         const expansionTerms = resolution
