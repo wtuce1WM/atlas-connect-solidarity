@@ -351,12 +351,35 @@ Deno.serve(async (req) => {
         // ── Classe B — classifieur, puis recherche déterministe ─────────────
         aiClass = "B";
         route = "discover";
+        // Continuité : route + catégorie du tour précédent (une lecture DB, zéro token).
+        let priorRoute: string | null = null;
+        let priorCategory: string | null = null;
+        if (chatId) {
+          const { data: lastTurn } = await admin
+            .from("ai_conversation_turns")
+            .select("route_taken, tools_called")
+            .eq("chat_id", chatId)
+            .order("created_at", { ascending: false })
+            .limit(1);
+          const t: any = lastTurn?.[0];
+          if (t) {
+            priorRoute = t.route_taken || null;
+            const c = (t.tools_called as any)?.category;
+            priorCategory = typeof c === "string" && c ? c : null;
+          }
+        }
+        const priorNames = priorIds.length
+          ? (await fetchPriorFull(admin, priorIds.slice(0, 3))).map((b: any) => b.name).filter(Boolean)
+          : [];
         const cls = await classify(
           {
             message: userMessage,
             surface: "embed",
             focus: {
-              last_business_ids: priorIds.slice(0, 3),
+              last_business_ids: priorIds.length ? priorIds.slice(0, 3) : [host.id],
+              last_business_names: priorNames.length ? priorNames : [host.name],
+              last_route: priorRoute as any,
+              last_category: priorCategory,
               active_city: host.city || null,
             },
           },
@@ -365,6 +388,8 @@ Deno.serve(async (req) => {
         tokensIn += cls.tokensIn;
         tokensOut += cls.tokensOut;
         confidence = cls.output?.confidence ?? null;
+        lastCategory = cls.output?.category ?? priorCategory;
+
         if (cls.error || !cls.output) {
           hadError = true;
           fallbackReason = "route_failed";
