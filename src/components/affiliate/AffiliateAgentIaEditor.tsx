@@ -39,10 +39,10 @@ const AffiliateAgentIaEditor = ({ businessId, businessCity }: Props) => {
     let cancelled = false;
     (async () => {
       setIsLoading(true);
-      const [sRes, fRes, pRes, blogRes, txtRes, lnkRes] = await Promise.all([
+      const [sRes, fRes, pRes, blogRes, txtRes, lnkRes, bizRes] = await Promise.all([
         supabase
           .from("embed_ai_suggestions")
-          .select("id,label_fr,city")
+          .select("id,label_fr,city,main_categories")
           .eq("is_active", true)
           .order("sort_order", { ascending: true }),
         supabase
