@@ -105,7 +105,7 @@ const EMPTY_TARGETS: CuratedTargets = {
 /** Lit les cibles curatées d'une suggestion / relance + les liens propres à l'établissement. */
 export async function loadCuratedTargets(
   admin: any,
-  opts: { suggestionId?: string | null; followupId?: string | null; businessId: string },
+  opts: { suggestionId?: string | null; followupId?: string | null; businessId?: string | null },
 ): Promise<CuratedTargets> {
   const suggestionId = opts.suggestionId || null;
   const followupId = opts.followupId || null;
@@ -146,7 +146,7 @@ export async function loadCuratedTargets(
   try {
     const linkKind = followupId ? "followup" : "suggestion";
     const linkItemId = followupId || suggestionId;
-    if (linkItemId) {
+    if (linkItemId && opts.businessId) {
       const { data: link } = await admin
         .from("business_embed_ai_item_links")
         .select("blog_post_ids, ai_text_ids")
