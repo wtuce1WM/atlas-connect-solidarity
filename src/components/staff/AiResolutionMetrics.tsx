@@ -70,6 +70,15 @@ export default function AiResolutionMetrics() {
   const globalStats = useMemo(() => stats(all), [all]);
   const searchStats = useMemo(() => stats(search), [search]);
   const aiStats = useMemo(() => stats(ai), [ai]);
+  const bySurface = (s: string) => stats(ai.filter((r) => (r.surface || "") === s));
+  const clubStats = useMemo(() => bySurface("club"), [ai]);
+  const embedStats = useMemo(() => bySurface("embed"), [ai]);
+  const searchAiStats = useMemo(() => bySurface("search"), [ai]);
+  const unknownAiStats = useMemo(
+    () => stats(ai.filter((r) => !["club", "embed", "search"].includes(r.surface || ""))),
+    [ai],
+  );
+
 
   const topUnresolved = useMemo(() => {
     const map = new Map<string, number>();
