@@ -17,6 +17,7 @@ import { AI_MODEL, getSurfaceConfig } from "../_shared/ai-engine/surfaces.ts";
 import { classify, isConfident } from "../_shared/ai-engine/classify.ts";
 import { detectViewIntent } from "../_shared/ai-engine/view-targets.ts";
 import { buildArticleTeaser } from "../_shared/ai-engine/routes/curated.ts";
+import { buildVideoFeedAnswer, videoFeedMarker } from "../_shared/ai-engine/routes/videoFeed.ts";
 
 import {
   pickLang, fmtHours, normalize, levenshtein, DAY_KEYS, DAY_LABELS,
