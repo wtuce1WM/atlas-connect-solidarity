@@ -110,7 +110,36 @@ export default function AiResolutionMetrics() {
           <p className="text-sm text-muted-foreground">
             Observation seule : le résolveur mesure la couverture « terme → cible », il ne modifie aucun résultat.
           </p>
+          <div className="mt-3 rounded-md border border-border bg-muted/40 p-3 text-xs leading-relaxed text-muted-foreground space-y-2 max-w-3xl">
+            <p>
+              <strong className="text-foreground">Comment lire ces chiffres.</strong> Pour chaque requête, le résolveur
+              tente de rattacher les mots saisis à une <em>cible typée</em> de notre taxonomie réelle : catégorie,
+              sous-catégorie, service, badge, engagement, commodité, ville ou quartier. Le dénominateur est le nombre de
+              requêtes mesurées sur la période (hors autocomplete).
+            </p>
+            <p>
+              <strong className="text-foreground">« Non résolues » (ex. 7 %)</strong> = part des requêtes pour lesquelles
+              aucune cible n'a été reconnue. L'utilisateur a bien eu une réponse (recherche floue ou LLM), mais elle n'a
+              été appuyée sur <em>aucun</em> élément de notre taxonomie. C'est le vrai indicateur de trou de vocabulaire :
+              soit le terme n'existe nulle part en base, soit il manque un synonyme. Le tableau « Top termes non résolus »
+              donne la liste à traiter en priorité (remplissage de <code>search_synonyms</code> ou de mots-clés).
+            </p>
+            <p>
+              <strong className="text-foreground">« Service seul » — trou silencieux</strong> = requêtes résolues
+              uniquement via un libellé de <em>service</em> (ex. « piscine », « vue montagne »), sans aucune catégorie ni
+              sous-catégorie correspondante. On les appelle « silencieuses » parce qu'elles renvoient des résultats et
+              ne déclenchent donc aucune alerte, alors que le filtrage historique ne portait que sur les catégories : la
+              recherche était en réalité approximative sans que rien ne le signale. Les suivre permet de mesurer combien
+              d'intentions passent exclusivement par les services et de décider si un terme mérite d'être promu en
+              sous-catégorie, badge ou synonyme.
+            </p>
+            <p>
+              Un pourcentage bas de « non résolues » et un « service seul » stable indiquent une taxonomie qui couvre le
+              langage réel des visiteurs. Une hausse signale un vocabulaire nouveau à intégrer, pas un bug du moteur.
+            </p>
+          </div>
         </div>
+
         <Select value={String(days)} onValueChange={(v) => setDays(Number(v))}>
           <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
           <SelectContent>
