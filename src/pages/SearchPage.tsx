@@ -10,6 +10,8 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { extractTimeSlot, isOpenDuringSlot, getCurrentTimePeriod, type TimeSlot, type TimePeriod } from "@/lib/timeSlots";
 import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
 import { haversineKm } from "@/lib/haversine";
+import { callAiEngine } from "@/lib/aiEngineClient";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { withLangPrefix, getLangFromPath } from "@/lib/localizedPath";
