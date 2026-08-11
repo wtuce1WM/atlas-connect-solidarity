@@ -2070,6 +2070,27 @@ serve(async (req) => {
         }
 
 
+        // 1bis. Feed vidéo curaté (mode = 'video_feed') : vidéos, pas de fiches.
+        if (String(curated.mode || "").trim() === "video_feed") {
+          const builtV = await buildVideoFeedAnswer(admin, {
+            badgeIds: curated.badgeIds,
+            pinnedBusinessIds: curated.pinnedBusinessIds,
+            label: curated.label,
+            lang: lang as any,
+          }).catch((e) => { console.error("club-ai-chat → video_feed_failed", String(e)); return null; });
+          if (builtV) {
+            await deliverCurated({
+              text: builtV.text + videoFeedMarker(builtV.payload),
+              route: builtV.route,
+              shown: builtV.count,
+              total: builtV.count,
+              mapPayload: null,
+              knownBusinesses: [],
+            });
+            return;
+          }
+        }
+
         // 2. Établissements épinglés → corpus clos, ordre staff
         if (curated.pinnedBusinessIds.length) {
           const built = await buildPinnedAnswer(admin, curated.pinnedBusinessIds, pseudoHost, lang as any, curated.label)
