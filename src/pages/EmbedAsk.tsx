@@ -159,11 +159,41 @@ const SCOPE_LABELS: Record<string, { newConversation: string }> = {
   ar: { newConversation: "محادثة جديدة" },
 };
 
-const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
+// ============= Rayon de proximité =============
+// Valeurs autorisées = celles du champ « Rayon de proximité » (/affiliates → Tools).
+const RADIUS_OPTIONS = [0.5, 1, 5, 10, 20, 50, 100] as const;
+const radiusLabel = (km: number, lang: string): string =>
+  km < 1 ? `${Math.round(km * 1000)} m` : `${km} km`;
+
+/** Détecte une demande de changement de rayon (texte ou vocal) et renvoie la valeur autorisée la plus proche. */
+function parseRadiusCommand(text: string): number | null {
+  const q = (text || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  if (!/(rayon|perimetre|proximite|autour|radius|within|distance|نطاق|محيط)/.test(q)) return null;
+  const km = q.match(/(\d+(?:[.,]\d+)?)\s*(?:km|kilometres?|kilometers?|كم|كيلومتر)/);
+  const m = q.match(/(\d{2,4})\s*(?:m|metres?|meters?|م)\b/);
+  let value: number | null = null;
+  if (km) value = Number(km[1].replace(",", "."));
+  else if (m) value = Number(m[1]) / 1000;
+  else {
+    const bare = q.match(/(\d+(?:[.,]\d+)?)/);
+    if (bare) value = Number(bare[1].replace(",", "."));
+  }
+  if (value == null || !Number.isFinite(value) || value <= 0) return null;
+  let best = RADIUS_OPTIONS[0] as number;
+  for (const opt of RADIUS_OPTIONS) {
+    if (Math.abs(opt - value) < Math.abs(best - value)) best = opt;
+  }
+  return best;
+}
+
+const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string, radius: string) => string; radiusLabel: string; radiusChanged: (r: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
   fr: {
     placeholder: "Posez votre question…",
     hint: "Assistant IA propulsé par One World Morocco",
-    opener: (n) => `Bonjour 👋 Je suis l'assistant de **${n}**. Comment puis-je vous aider ?`,
+    opener: (n, r) =>
+      `Bonjour 👋 Je suis l'assistant de **${n}**. Mes recherches de proximité et de distance se calculent dans un rayon de **${r}** autour de **${n}** — vous pouvez changer ce rayon ci-dessous ou à la voix. Comment puis-je vous aider ?`,
+    radiusLabel: "Rayon de proximité",
+    radiusChanged: (r) => `D'accord 👍 Rayon de proximité réglé sur **${r}**. Les recherches de proximité et de distance utiliseront ce périmètre.`,
     viewMap: "Voir sur la carte",
     events: "Événements",
     nearby: "À proximité",
@@ -177,7 +207,10 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
   en: {
     placeholder: "Ask a question…",
     hint: "AI assistant powered by One World Morocco",
-    opener: (n) => `Hi 👋 I'm the assistant for **${n}**. How can I help?`,
+    opener: (n, r) =>
+      `Hi 👋 I'm the assistant for **${n}**. Nearby and distance searches are calculated within a **${r}** radius around **${n}** — you can change this radius below or by voice. How can I help?`,
+    radiusLabel: "Proximity radius",
+    radiusChanged: (r) => `Got it 👍 Proximity radius set to **${r}**. Nearby and distance searches will use this perimeter.`,
     viewMap: "View on map",
     events: "Events",
     nearby: "Nearby",
@@ -191,7 +224,10 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
   ar: {
     placeholder: "اطرح سؤالك…",
     hint: "مساعد ذكي بواسطة One World Morocco",
-    opener: (n) => `مرحبًا 👋 أنا مساعد **${n}**. كيف يمكنني مساعدتك؟`,
+    opener: (n, r) =>
+      `مرحبًا 👋 أنا مساعد **${n}**. تُحسب نتائج القرب والمسافات داخل نطاق **${r}** حول **${n}** — يمكنك تغيير هذا النطاق أدناه أو بالصوت. كيف يمكنني مساعدتك؟`,
+    radiusLabel: "نطاق القرب",
+    radiusChanged: (r) => `تم 👍 تم ضبط نطاق القرب على **${r}**.`,
     viewMap: "عرض على الخريطة",
     events: "الفعاليات",
     nearby: "القريبة",
@@ -203,6 +239,7 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
     ],
   },
 };
+
 
 // ============= Marker extraction =============
 const MAP_RE = /<!--SHOW_ON_MAP:([\s\S]*?)-->/g;
