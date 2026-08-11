@@ -608,7 +608,7 @@ Deno.serve(async (req) => {
             const json = await r.json().catch(() => null);
             const all: any[] = Array.isArray(json?.businesses) ? json.businesses : [];
             let kept = all.filter((b: any) => {
-              if (b.id === host.id) return false;
+              if (host && b.id === host.id) return false;
               if (!excluded.length) return true;
               const hay = normalize(`${b.main_category || ""} ${(b.categories || []).join(" ")}`);
               return !excluded.some((x) => hay.includes(x));
@@ -769,7 +769,7 @@ Deno.serve(async (req) => {
                 : [priorCategory].filter(Boolean) as string[];
           const baseQuery = [...coreTerms, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
             || userMessage.slice(0, 200);
-          await runSearch(baseQuery, resolvedCity || out.city || host.city || "Marrakech", excluded);
+          await runSearch(baseQuery, resolvedCity || out.city || scopeCity, excluded);
         }
 
         // Filet de secours : le classifieur n'a pas tranché (ou sa requête structurée
@@ -783,7 +783,7 @@ Deno.serve(async (req) => {
               : userMessage.slice(0, 200);
           await runSearch(
             rescueQuery,
-            resolvedCity || out?.city || host.city || "Marrakech",
+            resolvedCity || out?.city || scopeCity,
             rawExcluded,
           );
           if (results.length) fallbackReason = fallbackReason || "confidence_low";
@@ -837,7 +837,7 @@ Deno.serve(async (req) => {
         }
 
         const context = [
-          hostContext(host, lang),
+          host ? hostContext(host, lang) : (activeCity ? `Ville active: ${activeCity}` : ""),
           results.length
             ? `Résultats trouvés (${results.length} sur ${totalFound}) — ce sont les seules adresses à présenter, présente-les toutes :\n${resultsContext(results, lang)}`
             : "",
@@ -849,7 +849,7 @@ Deno.serve(async (req) => {
             : "",
         ].filter(Boolean).join("\n\n");
 
-        const system = `Tu es le concierge IA de ${host.name}. Ton: ${CFG.ton}.
+        const system = `Tu es ${host ? `le concierge IA de ${host.name}` : "l'assistant IA One World Morocco"}. Ton: ${CFG.ton}.
 Tu ne t'appuies QUE sur le contexte fourni. N'invente jamais un établissement, un prix, un horaire ou un avis.
 Quand le contexte contient des résultats, tu les présentes TOUJOURS, même s'ils ne correspondent pas exactement à la demande : dans ce cas, une phrase d'introduction honnête ("pas de correspondance exacte, voici une sélection proche") puis les adresses. Ne réponds jamais que tu n'as rien trouvé alors que des résultats sont fournis.
 Si le contexte ne contient aucun résultat, dis-le en une phrase et propose une reformulation.
@@ -903,7 +903,7 @@ Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}
         // Marqueurs de fin : carte + mémoire du tour suivant.
         if (results.length) {
           const disclosure = totalFound > results.length
-            ? `\n\n${buildDisclosureFromCounts(results.length, totalFound, cityDetected || host.city || "")}`
+            ? `\n\n${buildDisclosureFromCounts(results.length, totalFound, cityDetected || scopeCity || "")}`
             : "";
           if (disclosure && !/sur\s+\d+\s+trouv/i.test(finalText)) emit(disclosure);
           emit(`\n\n${toMapMarker(results, null)}`);
