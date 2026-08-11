@@ -25,7 +25,7 @@ export interface EditorialItem {
 
 interface LoadOptions {
   businessIds: string[];
-  /** Nombre max d'éléments par établissement, toutes sources confondues (défaut 2). */
+  /** Nombre max d'éléments par établissement, toutes sources confondues (défaut 5 : desc, hook, popup, services, offres). */
   perBusiness?: number;
   /** Nombre max d'éléments au total (défaut 12). */
   limit?: number;

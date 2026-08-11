@@ -769,7 +769,7 @@ Deno.serve(async (req) => {
             for (const b of results as any[]) if (b?.id) nameById[String(b.id)] = b.name || "";
             const bundle = await loadEditorialBundle(admin, {
               businessIds: editorialIds,
-              perBusiness: 2,
+              perBusiness: 5,
               limit: 12,
               lang,
             });

@@ -634,7 +634,7 @@ serve(async (req) => {
     if (businessIds.length > 0) {
       const nameById: Record<string, string> = {};
       for (const b of effectiveBusinesses) if (b?.id) nameById[b.id] = b.name || "";
-      const bundle = await loadEditorialBundle(sb, { businessIds, perBusiness: 2, limit: 12 });
+      const bundle = await loadEditorialBundle(sb, { businessIds, perBusiness: 5, limit: 12 });
       knowledgeContext = formatEditorialBundle(bundle, nameById);
       if (knowledgeContext) {
         const counts = (type: string) => bundle.items.filter((i: any) => i.type === type).length;
