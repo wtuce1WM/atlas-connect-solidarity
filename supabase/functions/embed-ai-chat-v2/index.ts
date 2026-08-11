@@ -381,6 +381,28 @@ Deno.serve(async (req) => {
           }
 
 
+          // Feed vidéo curaté (mode = 'video_feed') : le tour renvoie des vidéos,
+          // pas des fiches. Route déterministe partagée (parité V1 / club).
+          if (curated && keepCurated && String(curated.mode || "").trim() === "video_feed") {
+            const built = await buildVideoFeedAnswer(admin, {
+              badgeIds: curated.badgeIds,
+              pinnedBusinessIds: curated.pinnedBusinessIds,
+              label: curated.label,
+              lang: lang as any,
+            }).catch((e) => {
+              console.error("[embed-ai-chat-v2] video_feed_failed", String(e));
+              return null;
+            });
+            if (built) {
+              route = built.route;
+              resultsCount = built.count;
+              emit(built.text);
+              emit(videoFeedMarker(built.payload));
+              await finish(true);
+              return;
+            }
+          }
+
           if (curated && keepCurated && curated.pinnedBusinessIds.length) {
             const built = await buildPinnedAnswer(
               admin, curated.pinnedBusinessIds, host, lang, curated.label,
