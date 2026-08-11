@@ -5,12 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Loader2, Check, Bot, MessageSquareReply, Sparkles, X, Newspaper, FileText } from "lucide-react";
+import { Loader2, Check, Bot, MessageSquareReply, Sparkles, X, Newspaper, FileText, Building2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 interface Props {
   businessId: string;
   businessCity?: string | null;
+  /** Tous les établissements de l'affilié (pour appliquer une entrée à plusieurs fiches). */
+  siblings?: Array<{ id: string; name: string }>;
 }
 
 type Row = { id: string; label: string };
@@ -23,7 +27,208 @@ const normCity = (s: string | null | undefined) =>
 
 const keyOf = (kind: Kind, id: string) => `${kind}:${id}`;
 
-const AffiliateAgentIaEditor = ({ businessId, businessCity }: Props) => {
+type LinkEditorProps = {
+  kind: Kind;
+  itemId: string;
+  links: Record<string, LinkValue>;
+  posts: BlogRow[];
+  aiTexts: Row[];
+  search: string;
+  onSearch: (v: string) => void;
+  saveLink: (kind: Kind, itemId: string, next: LinkValue) => void;
+};
+
+/**
+ * Hissé au niveau module : défini à l'intérieur du parent, il était recréé à
+ * chaque frappe et l'Input de recherche perdait le focus (auto-complete cassée).
+ */
+const LinkEditor = ({ kind, itemId, links, posts, aiTexts, search, onSearch, saveLink }: LinkEditorProps) => {
+    const current = links[keyOf(kind, itemId)] ?? { blog: [], ai: [] };
+    const add = (field: "blog" | "ai", id: string) => {
+      if (current[field].includes(id)) return;
+      saveLink(kind, itemId, { ...current, [field]: [...current[field], id] });
+    };
+    const remove = (field: "blog" | "ai", id: string) => {
+      saveLink(kind, itemId, { ...current, [field]: current[field].filter((x) => x !== id) });
+  };
+
+    return (
+      <div className="mt-2 space-y-2 rounded-lg border border-white/10 bg-black/20 p-3">
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium text-white/60 flex items-center gap-1.5">
+            <Newspaper className="h-3.5 w-3.5 text-primary" /> Articles de blog liés
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {current.blog.map((id) => {
+              const p = posts.find((x) => x.id === id);
+              return (
+                <span key={id} className="inline-flex items-center gap-1 rounded bg-primary/15 px-2 py-0.5 text-xs text-primary">
+                  {p?.title ?? id.slice(0, 8)}
+                  <button type="button" onClick={() => remove("blog", id)} aria-label="Retirer l'article">
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              );
+            })}
+          </div>
+          <Input
+            value={search}
+            onChange={(e) => onSearch(e.target.value)}
+            placeholder="Rechercher dans le titre des articles…"
+            className="h-9 text-xs text-white placeholder:text-white/40"
+          />
+          <Select value="" onValueChange={(v) => add("blog", v)}>
+            <SelectTrigger className="h-9 text-xs text-white">
+              <SelectValue placeholder="Ajouter un article…" />
+            </SelectTrigger>
+            <SelectContent className="z-[90] max-h-72">
+              {(() => {
+                const q = normCity(search);
+                const list = posts.filter(
+                  (p) => !current.blog.includes(p.id) && (!q || normCity(p.title).includes(q)),
+                );
+                if (!list.length) {
+                  return <div className="px-2 py-3 text-xs text-muted-foreground">Aucun article trouvé</div>;
+                }
+                return list.map((p) => (
+                  <SelectItem key={p.id} value={p.id} className="text-xs">
+                    {p.isOwner ? "★ " : ""}{p.title}
+                  </SelectItem>
+                ));
+              })()}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium text-white/60 flex items-center gap-1.5">
+            <FileText className="h-3.5 w-3.5 text-primary" /> Textes IA liés
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {current.ai.map((id) => {
+              const t = aiTexts.find((x) => x.id === id);
+              return (
+                <span key={id} className="inline-flex items-center gap-1 rounded bg-emerald-500/15 px-2 py-0.5 text-xs text-emerald-300">
+                  {t?.label ?? id.slice(0, 8)}
+                  <button type="button" onClick={() => remove("ai", id)} aria-label="Retirer le texte IA">
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              );
+            })}
+          </div>
+          {aiTexts.length === 0 ? (
+            <p className="text-xs text-white/40">Aucun texte IA — créez-en dans l'onglet TXT IA.</p>
+          ) : (
+            <Select value="" onValueChange={(v) => add("ai", v)}>
+              <SelectTrigger className="h-9 text-xs text-white">
+                <SelectValue placeholder="Ajouter un texte IA…" />
+              </SelectTrigger>
+              <SelectContent className="z-[90] max-h-72">
+                {aiTexts
+                  .filter((t) => !current.ai.includes(t.id))
+                  .map((t) => (
+                    <SelectItem key={t.id} value={t.id} className="text-xs">{t.label}</SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+
+
+
+type ApplyTarget = { kind: Kind; itemId: string; label: string };
+
+/**
+ * Applique une suggestion / relance à un ou plusieurs autres établissements
+ * de l'affilié : l'entrée est ajoutée à leurs préférences (business_embed_ai_prefs).
+ */
+const ApplyToBusinessesDialog = ({
+  target,
+  siblings,
+  currentBusinessId,
+  onClose,
+}: {
+  target: ApplyTarget;
+  siblings: Array<{ id: string; name: string }>;
+  currentBusinessId: string;
+  onClose: () => void;
+}) => {
+  const others = siblings.filter((b) => b.id !== currentBusinessId);
+  const [sel, setSel] = useState<string[]>([]);
+  const [busy, setBusy] = useState(false);
+
+  const apply = async () => {
+    if (sel.length === 0) return;
+    setBusy(true);
+    const field = target.kind === "suggestion" ? "enabled_suggestion_ids" : "enabled_followup_ids";
+    const { data: existing } = await (supabase as any)
+      .from("business_embed_ai_prefs")
+      .select("business_id,enabled_suggestion_ids,enabled_followup_ids")
+      .in("business_id", sel);
+    const byId = new Map<string, any>(((existing as any[]) ?? []).map((r) => [r.business_id, r]));
+    const rows = sel.map((id) => {
+      const prev = byId.get(id) || {};
+      const list: string[] = Array.isArray(prev[field]) ? prev[field] : [];
+      return {
+        business_id: id,
+        enabled_suggestion_ids: field === "enabled_suggestion_ids"
+          ? Array.from(new Set([...list, target.itemId]))
+          : (Array.isArray(prev.enabled_suggestion_ids) ? prev.enabled_suggestion_ids : []),
+        enabled_followup_ids: field === "enabled_followup_ids"
+          ? Array.from(new Set([...list, target.itemId]))
+          : (Array.isArray(prev.enabled_followup_ids) ? prev.enabled_followup_ids : []),
+      };
+    });
+    const { error } = await (supabase as any)
+      .from("business_embed_ai_prefs")
+      .upsert(rows, { onConflict: "business_id" });
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`Appliqué à ${sel.length} établissement${sel.length > 1 ? "s" : ""}`);
+    onClose();
+  };
+
+  return (
+    <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Associer à d'autres établissements</DialogTitle>
+          <DialogDescription>« {target.label} » sera activée pour les établissements cochés.</DialogDescription>
+        </DialogHeader>
+        <div className="max-h-[50vh] overflow-y-auto space-y-1.5 py-1">
+          {others.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Vous n'avez qu'un seul établissement.</p>
+          ) : (
+            others.map((b) => (
+              <label key={b.id} className="flex items-center gap-3 rounded-md border p-2.5 cursor-pointer text-sm">
+                <Checkbox
+                  checked={sel.includes(b.id)}
+                  onCheckedChange={() =>
+                    setSel((prev) => (prev.includes(b.id) ? prev.filter((x) => x !== b.id) : [...prev, b.id]))
+                  }
+                />
+                <span>{b.name}</span>
+              </label>
+            ))
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" size="sm" onClick={onClose} disabled={busy}>Annuler</Button>
+          <Button size="sm" onClick={apply} disabled={busy || sel.length === 0}>
+            {busy && <Loader2 className="h-4 w-4 mr-1 animate-spin" />} Appliquer
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const AffiliateAgentIaEditor = ({ businessId, businessCity, siblings = [] }: Props) => {
   const [isLoading, setIsLoading] = useState(true);
   const [blogSearch, setBlogSearch] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -34,6 +239,7 @@ const AffiliateAgentIaEditor = ({ businessId, businessCity }: Props) => {
   const [posts, setPosts] = useState<BlogRow[]>([]);
   const [aiTexts, setAiTexts] = useState<Row[]>([]);
   const [links, setLinks] = useState<Record<string, LinkValue>>({});
+  const [applyTarget, setApplyTarget] = useState<ApplyTarget | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -198,102 +404,6 @@ const AffiliateAgentIaEditor = ({ businessId, businessCity }: Props) => {
     [selSugg, selFu, suggestions, followups],
   );
 
-  const LinkEditor = ({ kind, itemId }: { kind: Kind; itemId: string }) => {
-    const current = links[keyOf(kind, itemId)] ?? { blog: [], ai: [] };
-    const add = (field: "blog" | "ai", id: string) => {
-      if (current[field].includes(id)) return;
-      saveLink(kind, itemId, { ...current, [field]: [...current[field], id] });
-    };
-    const remove = (field: "blog" | "ai", id: string) => {
-      saveLink(kind, itemId, { ...current, [field]: current[field].filter((x) => x !== id) });
-    };
-
-    return (
-      <div className="mt-2 space-y-2 rounded-lg border border-white/10 bg-black/20 p-3">
-        <div className="space-y-1.5">
-          <p className="text-xs font-medium text-white/60 flex items-center gap-1.5">
-            <Newspaper className="h-3.5 w-3.5 text-primary" /> Articles de blog liés
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {current.blog.map((id) => {
-              const p = posts.find((x) => x.id === id);
-              return (
-                <span key={id} className="inline-flex items-center gap-1 rounded bg-primary/15 px-2 py-0.5 text-xs text-primary">
-                  {p?.title ?? id.slice(0, 8)}
-                  <button type="button" onClick={() => remove("blog", id)} aria-label="Retirer l'article">
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              );
-            })}
-          </div>
-          <Input
-            value={blogSearch[keyOf(kind, itemId)] ?? ""}
-            onChange={(e) => setBlogSearch((p) => ({ ...p, [keyOf(kind, itemId)]: e.target.value }))}
-            placeholder="Rechercher dans le titre des articles…"
-            className="h-9 text-xs text-white placeholder:text-white/40"
-          />
-          <Select value="" onValueChange={(v) => add("blog", v)}>
-            <SelectTrigger className="h-9 text-xs text-white">
-              <SelectValue placeholder="Ajouter un article…" />
-            </SelectTrigger>
-            <SelectContent className="z-[90] max-h-72">
-              {(() => {
-                const q = normCity(blogSearch[keyOf(kind, itemId)] ?? "");
-                const list = posts.filter(
-                  (p) => !current.blog.includes(p.id) && (!q || normCity(p.title).includes(q)),
-                );
-                if (!list.length) {
-                  return <div className="px-2 py-3 text-xs text-muted-foreground">Aucun article trouvé</div>;
-                }
-                return list.map((p) => (
-                  <SelectItem key={p.id} value={p.id} className="text-xs">
-                    {p.isOwner ? "★ " : ""}{p.title}
-                  </SelectItem>
-                ));
-              })()}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-1.5">
-          <p className="text-xs font-medium text-white/60 flex items-center gap-1.5">
-            <FileText className="h-3.5 w-3.5 text-primary" /> Textes IA liés
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {current.ai.map((id) => {
-              const t = aiTexts.find((x) => x.id === id);
-              return (
-                <span key={id} className="inline-flex items-center gap-1 rounded bg-emerald-500/15 px-2 py-0.5 text-xs text-emerald-300">
-                  {t?.label ?? id.slice(0, 8)}
-                  <button type="button" onClick={() => remove("ai", id)} aria-label="Retirer le texte IA">
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              );
-            })}
-          </div>
-          {aiTexts.length === 0 ? (
-            <p className="text-xs text-white/40">Aucun texte IA — créez-en dans l'onglet TXT IA.</p>
-          ) : (
-            <Select value="" onValueChange={(v) => add("ai", v)}>
-              <SelectTrigger className="h-9 text-xs text-white">
-                <SelectValue placeholder="Ajouter un texte IA…" />
-              </SelectTrigger>
-              <SelectContent className="z-[90] max-h-72">
-                {aiTexts
-                  .filter((t) => !current.ai.includes(t.id))
-                  .map((t) => (
-                    <SelectItem key={t.id} value={t.id} className="text-xs">{t.label}</SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-      </div>
-    );
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -364,9 +474,18 @@ const AffiliateAgentIaEditor = ({ businessId, businessCity }: Props) => {
                       onCheckedChange={() => toggle(selSugg, setSelSugg, s.id)}
                       className="mt-0.5"
                     />
-                    <span className="text-sm text-white/80">{s.label}</span>
+                    <span className="text-sm text-white/80 flex-1">{s.label}</span>
                   </label>
-                  {selSugg.includes(s.id) && <LinkEditor kind="suggestion" itemId={s.id} />}
+                  {siblings.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setApplyTarget({ kind: "suggestion", itemId: s.id, label: s.label })}
+                      className="mt-1 inline-flex items-center gap-1 text-xs text-white/50 hover:text-white"
+                    >
+                      <Building2 className="h-3.5 w-3.5" /> Associer à d'autres établissements
+                    </button>
+                  )}
+                  {selSugg.includes(s.id) && <LinkEditor kind="suggestion" itemId={s.id} links={links} posts={posts} aiTexts={aiTexts} saveLink={saveLink} search={blogSearch[keyOf("suggestion", s.id)] ?? ""} onSearch={(v) => setBlogSearch((p) => ({ ...p, [keyOf("suggestion", s.id)]: v }))} />}
                 </div>
               ))}
             </CardContent>
@@ -394,15 +513,33 @@ const AffiliateAgentIaEditor = ({ businessId, businessCity }: Props) => {
                       onCheckedChange={() => toggle(selFu, setSelFu, f.id)}
                       className="mt-0.5"
                     />
-                    <span className="text-sm text-white/80">{f.label}</span>
+                    <span className="text-sm text-white/80 flex-1">{f.label}</span>
                   </label>
-                  {selFu.includes(f.id) && <LinkEditor kind="followup" itemId={f.id} />}
+                  {siblings.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setApplyTarget({ kind: "followup", itemId: f.id, label: f.label })}
+                      className="mt-1 inline-flex items-center gap-1 text-xs text-white/50 hover:text-white"
+                    >
+                      <Building2 className="h-3.5 w-3.5" /> Associer à d'autres établissements
+                    </button>
+                  )}
+                  {selFu.includes(f.id) && <LinkEditor kind="followup" itemId={f.id} links={links} posts={posts} aiTexts={aiTexts} saveLink={saveLink} search={blogSearch[keyOf("followup", f.id)] ?? ""} onSearch={(v) => setBlogSearch((p) => ({ ...p, [keyOf("followup", f.id)]: v }))} />}
                 </div>
               ))}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {applyTarget && (
+        <ApplyToBusinessesDialog
+          target={applyTarget}
+          siblings={siblings}
+          currentBusinessId={businessId}
+          onClose={() => setApplyTarget(null)}
+        />
+      )}
     </div>
   );
 };
