@@ -708,7 +708,24 @@ Deno.serve(async (req) => {
         // Continuité : on mémorise un terme réel, jamais une invention du classifieur.
         lastCategory = strongTerms[0] || validatedCategory || expansionTerms[0] || priorCategory;
 
-        if (out && confident && (out.intent === "search" || out.intent === "compare")) {
+        // ── Relance contextuelle : on répond SUR le corpus déjà présenté ─────
+        // Aucune cible taxonomique réelle, aucune ville citée, mais des adresses
+        // déjà affichées au tour précédent (« Que faire sur place ? »).
+        // Une nouvelle recherche est alors structurellement hors sujet : elle
+        // repartait du message brut et ramenait 30 adresses de la ville hôte.
+        const contextualFollowUp =
+          priorIds.length > 0 &&
+          !strongTerms.length &&
+          !expansionTerms.length &&
+          !classifierCategoryValid &&
+          !resolvedCity &&
+          !out?.city;
+        if (contextualFollowUp) {
+          route = "business_qa";
+          fallbackReason = fallbackReason || "contextual_followup";
+        }
+
+        if (!contextualFollowUp && out && confident && (out.intent === "search" || out.intent === "compare")) {
           const views = detectViewIntent(userMessage);
           const panoramaHints = views.panoramas.map((p) => p.attributeNames[0]);
           const excluded = excludedTerms;
