@@ -3208,10 +3208,10 @@ serve(async (req) => {
             if (edIds.length) {
               const nameById: Record<string, string> = {};
               for (const r of top as any[]) if (r?.id) nameById[String(r.id)] = r.name || "";
-              const bundle = await loadEditorialBundle(admin, { businessIds: edIds, perBusiness: 2, limit: 12, lang });
+              const bundle = await loadEditorialBundle(admin, { businessIds: edIds, perBusiness: 5, limit: 12, lang });
               const ctxTxt = formatEditorialBundle(bundle, nameById);
               if (ctxTxt) {
-                editorialBlock = `\n\nCONTEXTE ÉDITORIAL ([DESCRIPTION] description de l'établissement, [HOOK] accroche, [IMAGE POPUP] titres et textes des photos, [OFFRE] offres et promotions, [SERVICE] services, [TXT IA] textes rédigés par l'établissement/affilié — utilise-le pour enrichir la ligne de chaque établissement, sans rien inventer) :\n${ctxTxt}`;
+                editorialBlock = `\n\nCONTEXTE ÉDITORIAL ([DESCRIPTION] description de l'établissement, [HOOK] accroche, [IMAGE POPUP] titres et textes des photos, [SERVICE] services, [OFFRE] offres et promotions, [TXT IA] textes rédigés par l'établissement/affilié — utilise-le pour enrichir la ligne de chaque établissement, sans rien inventer) :\n${ctxTxt}`;
                 const counts = (type: string) => bundle.items.filter((i: any) => i.type === type).length;
                 console.log(
                   `[club] Editorial ctx: ${counts("description")} desc, ${counts("hook")} hooks, ${counts("popup")} popups, ${counts("offer")} offres, ${counts("service")} services, ${counts("text")} TXT IA (${edIds.length} businesses)`,
@@ -3585,7 +3585,7 @@ ${languageInstruction}`;
             for (const b of known) nameById[b.id] = b.name;
             const bundle = await loadEditorialBundle(admin, {
               businessIds: known.map((b) => b.id),
-              perBusiness: 2,
+              perBusiness: 5,
               limit: 12,
               lang,
             });

@@ -7,10 +7,10 @@
 // 1. Description  (businesses.description)
 // 2. Hook        (businesses.hook_*)
 // 3. Popup       (business_image_titles)
-// 4. Offres      (affiliate_business_promotions)
-// 5. Services    (businesses.services)
-// 6. TXT IA      (business_ai_texts)
-const PRIORITY_ORDER = ["description", "hook", "popup", "offer", "service", "text"] as const;
+// 4. Services    (businesses.services)
+// 5. Offres      (affiliate_business_promotions)
+// 6. TXT IA      (business_ai_texts) — dernier recours, textes générés moins prioritaires
+const PRIORITY_ORDER = ["description", "hook", "popup", "service", "offer", "text"] as const;
 type EditorialType = typeof PRIORITY_ORDER[number];
 const PRIORITY_RANK: Record<EditorialType, number> = Object.fromEntries(
   PRIORITY_ORDER.map((t, i) => [t, i + 1]),
@@ -25,7 +25,7 @@ export interface EditorialItem {
 
 interface LoadOptions {
   businessIds: string[];
-  /** Nombre max d'éléments par établissement, toutes sources confondues (défaut 2). */
+  /** Nombre max d'éléments par établissement, toutes sources confondues (défaut 5 : desc, hook, popup, services, offres). */
   perBusiness?: number;
   /** Nombre max d'éléments au total (défaut 12). */
   limit?: number;
@@ -271,7 +271,7 @@ export async function loadEditorialBundle(
   admin: any,
   opts: LoadOptions,
 ): Promise<EditorialBundle> {
-  const { businessIds, perBusiness = 2, limit = 12, maxChars = 600, lang = "fr" } = opts;
+  const { businessIds, perBusiness = 5, limit = 12, maxChars = 600, lang = "fr" } = opts;
   const ids = [...new Set((businessIds || []).filter(Boolean))];
   if (ids.length === 0) return { items: [] };
 

@@ -634,7 +634,7 @@ serve(async (req) => {
     if (businessIds.length > 0) {
       const nameById: Record<string, string> = {};
       for (const b of effectiveBusinesses) if (b?.id) nameById[b.id] = b.name || "";
-      const bundle = await loadEditorialBundle(sb, { businessIds, perBusiness: 2, limit: 12 });
+      const bundle = await loadEditorialBundle(sb, { businessIds, perBusiness: 5, limit: 12 });
       knowledgeContext = formatEditorialBundle(bundle, nameById);
       if (knowledgeContext) {
         const counts = (type: string) => bundle.items.filter((i: any) => i.type === type).length;
@@ -996,7 +996,7 @@ RÈGLES :
 ${mode === "poi" ? "LIEUX D'INTÉRÊT" : mode === "destinations" ? "DESTINATIONS" : "ÉTABLISSEMENTS TROUVÉS"} :
 ${businessContext}${knowledgeContext ? `
 
-CONTEXTE ÉDITORIAL DES ÉTABLISSEMENTS ([TXT IA] textes rédigés par l'établissement/affilié, [IMAGE POPUP] titres et textes des photos, [OFFRE] offres et promotions ; intègre-les naturellement pour enrichir la description, ne mets pas en avant un établissement uniquement parce qu'il a du contenu ici) :
+CONTEXTE ÉDITORIAL DES ÉTABLISSEMENTS ([DESCRIPTION] description de l'établissement, [HOOK] accroche, [IMAGE POPUP] titres et textes des photos, [SERVICE] services, [OFFRE] offres et promotions, [TXT IA] textes rédigés par l'établissement/affilié ; intègre-les naturellement pour enrichir la description, ne mets pas en avant un établissement uniquement parce qu'il a du contenu ici) :
 ${knowledgeContext}` : ''}${
   nearbyContext && Array.isArray(nearbyContext.items) && nearbyContext.items.length > 0 ? `
 
