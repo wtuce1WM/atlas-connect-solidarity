@@ -18,6 +18,8 @@ export type BlogRow = {
   title_fr: string | null; title_en: string | null; title_ar: string | null;
   custom_hero_image_url: string | null; cover_image_url: string | null;
   anchor_business_id: string | null;
+  /** "video_feed" = page vidéo éditoriale (/videos/:slug), sinon article de blog. */
+  kind?: "blog" | "video_feed";
 };
 
 let BLOG_CACHE: { at: number; items: BlogRow[] } | null = null;
@@ -29,7 +31,18 @@ export async function fetchBlogPostsCached(admin: any): Promise<BlogRow[]> {
     .select("id, slug, title_fr, title_en, title_ar, custom_hero_image_url, cover_image_url, anchor_business_id")
     .eq("is_published", true)
     .limit(300);
-  BLOG_CACHE = { at: now, items: (data as BlogRow[]) || [] };
+  const { data: vfeeds } = await admin
+    .from("video_feed_pages")
+    .select("id, slug, hero_title_bottom_fr, hero_title_bottom_en, hero_title_bottom_ar, cover_image_url, custom_hero_image_url")
+    .eq("is_published", true)
+    .limit(200);
+  const videoRows: BlogRow[] = ((vfeeds as any[]) || []).map((v) => ({
+    id: v.id, slug: v.slug,
+    title_fr: v.hero_title_bottom_fr, title_en: v.hero_title_bottom_en, title_ar: v.hero_title_bottom_ar,
+    custom_hero_image_url: v.custom_hero_image_url, cover_image_url: v.cover_image_url,
+    anchor_business_id: null, kind: "video_feed",
+  }));
+  BLOG_CACHE = { at: now, items: [...(((data as BlogRow[]) || []).map((r) => ({ ...r, kind: "blog" as const }))), ...videoRows] };
   return BLOG_CACHE.items;
 }
 
@@ -248,7 +261,12 @@ export function buildArticleTeaser(post: BlogRow, lang: Lang): string {
     post.title_fr || post.title_en || post.title_ar || "";
   if (!post.slug || !title) return "";
   const image = post.custom_hero_image_url || post.cover_image_url || null;
-  const payload = { id: post.id, slug: post.slug, title, image, hero: image, inline: false };
+  const isVideoFeed = post.kind === "video_feed";
+  const payload = {
+    id: post.id, slug: post.slug, title, image, hero: image, inline: false,
+    kind: isVideoFeed ? "video_feed" : "blog",
+    url: isVideoFeed ? `/videos/${post.slug}` : null,
+  };
   const line = lang === "en"
     ? `📖 Want to go further? Our article **${title}** covers this in detail — open it below.`
     : lang === "ar"
