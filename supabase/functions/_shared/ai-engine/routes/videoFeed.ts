@@ -134,13 +134,14 @@ export async function loadVideoFeed(
       if (cityFilter) {
         const { data: links } = await admin
           .from("generic_video_cities")
-          .select("generic_video_id, cities(name)")
+          .select("generic_video_id, cities(name_fr, name_en)")
           .in("generic_video_id", genIds);
         for (const l of links || []) {
           const k = String(l.generic_video_id);
           const arr = linkedCities.get(k) || [];
-          const nm = normCity((l as any)?.cities?.name);
-          if (nm) arr.push(nm);
+          for (const nm of [normCity((l as any)?.cities?.name_fr), normCity((l as any)?.cities?.name_en)]) {
+            if (nm) arr.push(nm);
+          }
           linkedCities.set(k, arr);
         }
       }
