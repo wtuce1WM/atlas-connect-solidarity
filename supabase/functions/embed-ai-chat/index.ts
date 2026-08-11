@@ -2738,7 +2738,10 @@ Deno.serve(async (req) => {
 
         // Deterministic: DIRECT VIEWER (suggestion mode = 'direct_viewer').
         // Show only the pinned business_ids in the defined order — no search, no LLM.
-        if (suggestionMode === "direct_viewer") {
+        // Si aucun établissement n'est épinglé mais que la suggestion porte des
+        // badges / sous-catégories, on ne renvoie PAS « aucun établissement ciblé » :
+        // on laisse le filtre taxonomique déterministe faire son travail.
+        if (suggestionMode === "direct_viewer" && (suggestionPinnedIds.length || !curatedTaxonomyForced)) {
           try {
             const ids = suggestionPinnedIds.length ? suggestionPinnedIds : [];
             if (!ids.length) {
