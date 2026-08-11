@@ -628,16 +628,18 @@ serve(async (req) => {
       });
     }
 
-    // Contexte éditorial : TXT IA uniquement (business_ai_texts).
+    // Contexte éditorial : TXT IA + titres/textes des popups d'images + offres.
     // Les notes de connaissances (knowledge_entries) sont internes/techniques → jamais injectées.
     let knowledgeContext = "";
     if (businessIds.length > 0) {
       const nameById: Record<string, string> = {};
       for (const b of effectiveBusinesses) if (b?.id) nameById[b.id] = b.name || "";
-      const editorialTexts = await loadEditorialTexts(sb, { businessIds, perBusiness: 2, limit: 12 });
-      knowledgeContext = formatEditorialContext(editorialTexts, nameById);
+      const bundle = await loadEditorialBundle(sb, { businessIds, perBusiness: 2, limit: 12 });
+      knowledgeContext = formatEditorialBundle(bundle, nameById);
       if (knowledgeContext) {
-        console.log(`Found ${editorialTexts.length} TXT IA for query "${query}" (${businessIds.length} businesses)`);
+        console.log(
+          `Editorial ctx for "${query}": ${bundle.texts.length} TXT IA, ${bundle.images.length} popups image, ${bundle.offers.length} offres (${businessIds.length} businesses)`,
+        );
       }
     }
 
