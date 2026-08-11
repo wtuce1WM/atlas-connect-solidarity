@@ -3550,6 +3550,37 @@ ${languageInstruction}`;
           }
           convo.push({ role: "tool", tool_call_id: tc.id, name: tc.function?.name, content: JSON.stringify(result) });
         }
+
+        // Contexte éditorial partagé (TXT IA + popups d'images + offres), injecté
+        // une seule fois par tour dès que des établissements réels sont connus.
+        if (!editorialInjected && knownBusinessesMap.size) {
+          editorialInjected = true;
+          try {
+            const known = [...knownBusinessesMap.values()].slice(0, 12);
+            const nameById: Record<string, string> = {};
+            for (const b of known) nameById[b.id] = b.name;
+            const bundle = await loadEditorialBundle(admin, {
+              businessIds: known.map((b) => b.id),
+              perBusiness: 2,
+              limit: 12,
+              lang,
+            });
+            const editorialCtx = formatEditorialBundle(bundle, nameById);
+            if (editorialCtx) {
+              convo.push({
+                role: "system",
+                content:
+                  "CONTEXTE ÉDITORIAL DES ÉTABLISSEMENTS ([TXT IA] textes rédigés par l'établissement/affilié, [IMAGE POPUP] titres et textes des photos, [OFFRE] offres et promotions ; intègre-les naturellement pour enrichir tes descriptions, n'invente rien, et ne mets pas en avant un établissement uniquement parce qu'il a du contenu ici) :\n" +
+                  editorialCtx,
+              });
+              console.log(
+                `[club] Editorial ctx: ${bundle.texts.length} TXT IA, ${bundle.images.length} popups image, ${bundle.offers.length} offres (${known.length} businesses)`,
+              );
+            }
+          } catch (e) {
+            console.error("[club] editorial_ctx_error", String(e));
+          }
+        }
         continue;
       }
 
