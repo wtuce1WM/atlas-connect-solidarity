@@ -10,6 +10,7 @@ import {
   buildArticleTeaser, buildPinnedAnswer, buildFilteredAnswer,
 
 } from "../_shared/ai-engine/routes/curated.ts";
+import { buildVideoFeedAnswer, videoFeedMarker } from "../_shared/ai-engine/routes/videoFeed.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
