@@ -271,8 +271,13 @@ export async function loadEditorialBundle(
   admin: any,
   opts: LoadOptions,
 ): Promise<EditorialBundle> {
-  const { businessIds, perBusiness = 5, limit = 12, maxChars = 600, lang = "fr" } = opts;
+  const { businessIds, perBusiness = 5, maxChars = 600, lang = "fr" } = opts;
   const ids = [...new Set((businessIds || []).filter(Boolean))];
+  // Plafond global proportionnel au corpus : un plafond fixe (12) faisait manger
+  // toute la place par les descriptions (rang 1) dès 6 établissements, si bien que
+  // Services / Offres n'atteignaient JAMAIS le prompt. On réserve donc perBusiness
+  // slots par établissement, borné à 30 éléments pour maîtriser les tokens.
+  const limit = Math.min(Math.max(opts.limit ?? 12, ids.length * perBusiness), 30);
   if (ids.length === 0) return { items: [] };
 
   const [descriptions, hooks, popups, offers, services, texts] = await Promise.all([
