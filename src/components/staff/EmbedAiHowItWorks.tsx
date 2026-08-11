@@ -47,7 +47,7 @@ export default function EmbedAiHowItWorks() {
               <b>Ouverture</b> : à l'arrivée sur <code>/embed/ask/:slug</code>, le front charge l'établissement hôte (nom, coordonnées, ville, url_6_title éventuel) et les <b>suggestions</b> (table unifiée <code>ai_suggestions</code>, <code>surface = 'embed'</code>) filtrées par ville hôte <b>et par catégorie principale de l'hôte</b>. Les articles de blog propriétaires puis les articles génériques récents s'affichent en dessous.
             </li>
             <li>
-              <b>Clic sur suggestion</b> ou saisie libre → un POST est envoyé à l'edge function <code>embed-ai-chat</code> (V1) ou <code>embed-ai-chat-v2</code> (moteur unifié A/B/C, forçable par <code>?engine=v2</code>) avec : le message, l'ID de la suggestion, l'ID de la relance éventuelle, l'ID de l'hôte, la langue détectée, le thread persisté (localStorage + table <code>ai_chats</code>).
+              <b>Clic sur suggestion</b> ou saisie libre → un POST est envoyé à l'edge function <code>embed-ai-chat-v2</code> (moteur unifié A/B/C, seul moteur en service) avec : le message, l'ID de la suggestion, l'ID de la relance éventuelle, l'ID de l'hôte, la langue détectée, le thread persisté (localStorage + table <code>ai_chats</code>).
             </li>
             <li>
               <b>Routage</b> côté edge function : d'abord l'<b>autorité curatée</b> (article de blog lié, réponse figée, commodités ciblées → Classe A), puis la détection d'intention (regex FR/EN/AR) + mode forcé de la suggestion, puis le <b>classifieur</b> (Classe B) pour les intentions ambiguës. La 1ère autorité qui match gagne, le générateur (Classe C) reste le dernier recours. Le résultat est <b>streamé en SSE</b> (delta par delta) vers le navigateur.
@@ -208,7 +208,7 @@ export default function EmbedAiHowItWorks() {
 
       <div className="pt-2">
         <Badge variant="outline" className="text-xs">
-          Source : <code className="ml-1">supabase/functions/embed-ai-chat/index.ts</code> · <code>src/pages/EmbedAsk.tsx</code>
+          Source : <code className="ml-1">supabase/functions/embed-ai-chat-v2/index.ts</code> · <code>src/pages/EmbedAsk.tsx</code>
         </Badge>
       </div>
     </div>

@@ -544,11 +544,6 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                 </div>
 
                 <div className="max-w-xs">
-                  <label className="text-xs text-muted-foreground">Catégorie (regroupement)</label>
-                  <Input value={r.category || ""} onChange={(e) => update(r.id, { category: e.target.value || null })} placeholder="ex. gastronomie" />
-                </div>
-
-                <div className="max-w-xs">
                   <label className="text-xs text-muted-foreground">Ville ciblée</label>
                   <select
                     value={r.city || ""}
