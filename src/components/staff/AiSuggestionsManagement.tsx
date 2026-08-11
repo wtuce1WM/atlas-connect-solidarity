@@ -75,7 +75,7 @@ const SURFACE_META: Record<AiSurface, { title: string; desc: string }> = {
   },
 };
 
-type BusinessOption = { id: string; name: string; slug: string | null };
+type BusinessOption = { id: string; name: string; slug: string | null; is_active?: boolean };
 type BlogOption = { id: string; title: string; slug: string | null };
 type DestinationOption = { id: string; name_fr: string; name_en: string | null; name_ar: string | null };
 type SubcategoryOption = { id: string; name_fr: string };
