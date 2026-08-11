@@ -30,7 +30,8 @@ import { loadEditorialBundle, formatEditorialBundle } from "../_shared/ai-engine
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
 import {
   loadCuratedTargets, fetchBlogPostsCached, matchBlogArticle, matchCuratedByText,
-  buildBlogArticleAnswer, buildPinnedAnswer, buildFilteredAnswer,
+  buildArticleTeaser, buildPinnedAnswer, buildFilteredAnswer,
+
 } from "../_shared/ai-engine/routes/curated.ts";
 import { isHoursIntent, buildHoursAnswer, buildHoursForBusinesses } from "../_shared/ai-engine/routes/opening.ts";
 import { isBookingIntent, buildBookingAnswer, buildBookingForBusinesses } from "../_shared/ai-engine/routes/booking.ts";
