@@ -661,7 +661,7 @@ const VideoScenarioConfigPanel = () => {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between gap-3 flex-wrap">
         <div>
-          <CardTitle className="text-black">Scénarios vidéo : étapes, textes et format</CardTitle>
+          <CardTitle className="text-black">Scénarios vidéo : étapes et textes</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
             Cet ordre est appliqué dans « Aperçu du scénario » de Studio Vidéo IA et au rendu. Durée 0 = durée
             automatique.
@@ -681,7 +681,7 @@ const VideoScenarioConfigPanel = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Réglages globaux du mode : établissement source + format de rendu */}
+        {/* Réglages globaux du mode : établissement source */}
         {config && (
           <div className="rounded-lg border p-3 grid gap-3 md:grid-cols-4">
             <div className="grid gap-1 md:col-span-2">
