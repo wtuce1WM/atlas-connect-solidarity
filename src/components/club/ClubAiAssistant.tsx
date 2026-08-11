@@ -1728,27 +1728,40 @@ const ClubAiAssistant = ({ userId }: Props) => {
         />
       </section>
 
-      <MapSlidePanel
-        open={!!openMap}
-        onClose={() => setOpenMap(null)}
-        title={openMap?.title}
-        businesses={openMap?.businesses || []}
-        preserveOrder={openMap?.order === "given"}
-        isMobile={isMobile}
-        isBookmarked={!!activeChat?.is_bookmarked}
-        onBookmark={activeChat ? toggleBookmark : undefined}
-        onShare={async () => {
-          const url = window.location.href;
-          try {
-            if (navigator.share) {
-              await navigator.share({ title: activeChat?.title || at.myClubSpace, url });
-            } else {
-              await navigator.clipboard.writeText(url);
-              toast({ title: at.linkCopied, description: at.linkCopiedDesc });
-            }
-          } catch { /* user cancelled */ }
-        }}
-      />
+      {(() => {
+        // Overlay POI/MAP du slidepanel réutilisé tel quel (aucun fork) :
+        // le 1er résultat géolocalisé joue le rôle du marqueur Master (pin noir + centrage),
+        // les autres résultats forment le corpus fermé de la carte, dans l'ordre donné.
+        const geoList = (openMap?.businesses || []).filter((b) => b.latitude != null && b.longitude != null);
+        const master = geoList[0];
+        if (!openMap || !master) return null;
+        const others = geoList.slice(1).map((b) => b.id);
+        return (
+          <div className="fixed inset-0 z-[220]">
+            <Suspense fallback={null}>
+              <BookOnlineSlidePanel
+                key={`map-${master.id}-${others.join(",")}`}
+                businessId={master.id}
+                initialOverlay="poi"
+                embedMode
+                hideDirections
+                poiOverrideIds={others}
+                poiOverrideTitle={openMap.title || null}
+                onClose={() => setOpenMap(null)}
+              />
+            </Suspense>
+            <button
+              type="button"
+              onClick={() => setOpenMap(null)}
+              aria-label={at.close ?? "Fermer"}
+              className="fixed top-3 left-3 z-[300] h-9 w-9 flex items-center justify-center rounded-full bg-black text-white shadow-lg"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        );
+      })()}
+
 
       <EventsSlidePanel
         open={!!openEvents}
