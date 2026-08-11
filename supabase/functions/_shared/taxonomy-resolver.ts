@@ -85,7 +85,14 @@ export function containsOnWordBoundary(haystack: string, needle: string): boolea
 const STOP_WORDS = new Set([
   "de", "des", "du", "la", "le", "les", "en", "et", "aux", "au", "un", "une", "dans", "sur", "pour",
   "avec", "par", "chez", "sans", "plus", "the", "of", "and", "for", "with", "near", "salle",
+  // Mots de conversation : ils apparaissent dans des libellés de services
+  // (« Restauration sur place », « Place publique ») mais ne portent aucune
+  // intention de recherche. Sans ça « Que faire sur place ? » déclenchait une
+  // recherche restauration.
+  "place", "places", "faire", "chose", "choses", "endroit", "endroits", "truc", "trucs",
+  "there", "place", "thing", "things",
 ]);
+
 
 /** Pluriel simple rabattu au singulier, pour que « vélos » et « vélo » partagent une clé. */
 export function stemKey(word: string): string {
