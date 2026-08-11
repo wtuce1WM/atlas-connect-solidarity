@@ -462,7 +462,7 @@ Deno.serve(async (req) => {
               return;
             }
           }
-          if (isDistanceListIntent(userMessage)) {
+          if (isDistanceListIntent(userMessage) && host) {
             route = "nearby";
             const answer = await buildDistanceList(admin, host, priorIds, lang);
             if (answer) {
@@ -477,12 +477,14 @@ Deno.serve(async (req) => {
         // 5. Panorama « que faire à proximité ? » (déterministe, Structure du Front)
         // Autorité du résolveur : si la requête contient une cible taxonomique réelle
         // (« piscine à proximité »), ce n'est plus un panorama générique → recherche ciblée.
+        // Sans hôte (/search, /club) il n'y a pas de point d'ancrage : route ignorée.
         const hasResolvedIntent = !!resolution && resolution.targets.some(
           (t) => t.type === "category" || t.type === "subcategory" || t.type === "service" || t.type === "badge",
         );
         if (
-          (isNearbyOverviewIntent(userMessage, host.name) && !hasResolvedIntent) ||
-          (isProximityIntent(userMessage) && !suggestionId && !hasResolvedIntent)
+          host &&
+          ((isNearbyOverviewIntent(userMessage, host.name) && !hasResolvedIntent) ||
+          (isProximityIntent(userMessage) && !suggestionId && !hasResolvedIntent))
         ) {
           route = "nearby";
           const hostCategoryNames = new Set<string>(
@@ -505,7 +507,7 @@ Deno.serve(async (req) => {
         // éditorial que la route curatée, corpus clos.
         if (userMessage.trim().length >= 6) {
           const posts = await fetchBlogPostsCached(admin).catch(() => []);
-          const match = matchBlogArticle(userMessage, lang, posts, host.id, host.name);
+          const match = matchBlogArticle(userMessage, lang, posts, host?.id ?? "", host?.name ?? null);
           if (match) {
             const built = await buildBlogArticleAnswer(admin, match, host, lang).catch((e) => {
               console.error("[embed-ai-chat-v2] blog_freetext_failed", String(e));
