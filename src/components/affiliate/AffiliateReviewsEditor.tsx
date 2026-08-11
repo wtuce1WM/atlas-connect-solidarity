@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,7 @@ import {
   computeWeightedRatingOn20,
   getTotalReviewCount,
 } from "@/lib/ratingUtils";
-import ReviewsEditor from "@/components/staff/ReviewsEditor";
+import ReviewsEditor, { type ReviewsEditorRef } from "@/components/staff/ReviewsEditor";
 import ReviewExcerptDialog from "@/components/affiliate/ReviewExcerptDialog";
 
 export interface ReviewsData {
@@ -112,6 +112,7 @@ const AffiliateReviewsEditor = ({ businessId, data, onFieldChange, onDataRefresh
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [excerptOpen, setExcerptOpen] = useState(false);
+  const reviewsRef = useRef<ReviewsEditorRef>(null);
 
   const { avg, total } = computeAvg(data);
 
@@ -201,11 +202,11 @@ const AffiliateReviewsEditor = ({ businessId, data, onFieldChange, onDataRefresh
               <Quote className="h-3.5 w-3.5 mr-1" /> Extrait par défaut
             </Button>
           </div>
-          <ReviewsEditor businessId={businessId} />
+          <ReviewsEditor ref={reviewsRef} businessId={businessId} />
         </div>
 
         {excerptOpen && (
-          <ReviewExcerptDialog businessId={businessId} onClose={() => setExcerptOpen(false)} />
+          <ReviewExcerptDialog businessId={businessId} onClose={() => { setExcerptOpen(false); reviewsRef.current?.refresh(); }} />
         )}
       </TabsContent>
 
