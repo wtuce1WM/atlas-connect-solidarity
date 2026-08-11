@@ -5,6 +5,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
+import { callAiEngine } from "@/lib/aiEngineClient";
+
 
 interface BusinessData {
   id: string;
