@@ -3211,9 +3211,10 @@ serve(async (req) => {
               const bundle = await loadEditorialBundle(admin, { businessIds: edIds, perBusiness: 2, limit: 12, lang });
               const ctxTxt = formatEditorialBundle(bundle, nameById);
               if (ctxTxt) {
-                editorialBlock = `\n\nCONTEXTE ÉDITORIAL ([TXT IA] textes rédigés par l'établissement/affilié, [IMAGE POPUP] titres et textes des photos, [OFFRE] offres et promotions) — utilise-le pour enrichir la ligne de chaque établissement, sans rien inventer :\n${ctxTxt}`;
+                editorialBlock = `\n\nCONTEXTE ÉDITORIAL ([DESCRIPTION] description de l'établissement, [HOOK] accroche, [IMAGE POPUP] titres et textes des photos, [OFFRE] offres et promotions, [SERVICE] services, [TXT IA] textes rédigés par l'établissement/affilié — utilise-le pour enrichir la ligne de chaque établissement, sans rien inventer) :\n${ctxTxt}`;
+                const counts = (type: string) => bundle.items.filter((i: any) => i.type === type).length;
                 console.log(
-                  `[club] Editorial ctx: ${bundle.texts.length} TXT IA, ${bundle.images.length} popups image, ${bundle.offers.length} offres (${edIds.length} businesses)`,
+                  `[club] Editorial ctx: ${counts("description")} desc, ${counts("hook")} hooks, ${counts("popup")} popups, ${counts("offer")} offres, ${counts("service")} services, ${counts("text")} TXT IA (${edIds.length} businesses)`,
                 );
               }
             }
@@ -3593,11 +3594,12 @@ ${languageInstruction}`;
               convo.push({
                 role: "system",
                 content:
-                  "CONTEXTE ÉDITORIAL DES ÉTABLISSEMENTS ([TXT IA] textes rédigés par l'établissement/affilié, [IMAGE POPUP] titres et textes des photos, [OFFRE] offres et promotions ; intègre-les naturellement pour enrichir tes descriptions, n'invente rien, et ne mets pas en avant un établissement uniquement parce qu'il a du contenu ici) :\n" +
+                  "CONTEXTE ÉDITORIAL DES ÉTABLISSEMENTS ([DESCRIPTION] description de l'établissement, [HOOK] accroche, [IMAGE POPUP] titres et textes des photos, [OFFRE] offres et promotions, [SERVICE] services, [TXT IA] textes rédigés par l'établissement/affilié ; intègre-les naturellement pour enrichir tes descriptions, n'invente rien, et ne mets pas en avant un établissement uniquement parce qu'il a du contenu ici) :\n" +
                   editorialCtx,
               });
+              const counts = (type: string) => bundle.items.filter((i: any) => i.type === type).length;
               console.log(
-                `[club] Editorial ctx: ${bundle.texts.length} TXT IA, ${bundle.images.length} popups image, ${bundle.offers.length} offres (${known.length} businesses)`,
+                `[club] Editorial ctx: ${counts("description")} desc, ${counts("hook")} hooks, ${counts("popup")} popups, ${counts("offer")} offres, ${counts("service")} services, ${counts("text")} TXT IA (${known.length} businesses)`,
               );
             }
           } catch (e) {

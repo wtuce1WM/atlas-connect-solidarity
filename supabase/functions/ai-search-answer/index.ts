@@ -637,8 +637,9 @@ serve(async (req) => {
       const bundle = await loadEditorialBundle(sb, { businessIds, perBusiness: 2, limit: 12 });
       knowledgeContext = formatEditorialBundle(bundle, nameById);
       if (knowledgeContext) {
+        const counts = (type: string) => bundle.items.filter((i: any) => i.type === type).length;
         console.log(
-          `Editorial ctx for "${query}": ${bundle.texts.length} TXT IA, ${bundle.images.length} popups image, ${bundle.offers.length} offres (${businessIds.length} businesses)`,
+          `Editorial ctx for "${query}": ${counts("description")} desc, ${counts("hook")} hooks, ${counts("popup")} popups, ${counts("offer")} offres, ${counts("service")} services, ${counts("text")} TXT IA (${businessIds.length} businesses)`,
         );
       }
     }
