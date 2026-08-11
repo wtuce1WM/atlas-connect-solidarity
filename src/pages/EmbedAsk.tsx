@@ -1202,7 +1202,7 @@ const EmbedAsk = () => {
             );
           }
           const raw = messageText(m);
-          const { clean, maps, events, articles, destinations, pinned, weather, videoFeeds } = extractPayloads(raw);
+          const { clean, maps, events, articles, destinations, pinned, weather, videoFeeds, tides } = extractPayloads(raw);
           const mapPayload = maps[maps.length - 1] || null;
           const eventsPayload = events[events.length - 1] || null;
           const articleCard = articles[articles.length - 1] || null;
@@ -1210,6 +1210,7 @@ const EmbedAsk = () => {
           const pinnedCards = pinned;
           const weatherPayload = weather[weather.length - 1] || null;
           const videoFeedPayload = videoFeeds[videoFeeds.length - 1] || null;
+          const tidesCity = tides[tides.length - 1] || null;
           const isLast = i === messages.length - 1;
           const citedFallback =
             !mapPayload || mapPayload.businesses.length === 0
@@ -1362,6 +1363,12 @@ const EmbedAsk = () => {
 
               {weatherPayload && (
                 <EmbedWeatherWidget data={weatherPayload} lang={lang} />
+              )}
+
+              {tidesCity && (
+                <div className="w-full max-w-[85%]">
+                  <AiTidesWidget city={tidesCity} lang={lang} />
+                </div>
               )}
 
               {pinnedCards.length > 0 && (
