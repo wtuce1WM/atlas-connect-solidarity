@@ -3,12 +3,10 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, ArrowLeft, BarChart3, BookOpen, Sparkles, Brain, MessageSquare, LayoutDashboard, Zap, Code2, Search, Cpu, FlaskConical, Play } from "lucide-react";
+import { LogOut, ArrowLeft, BarChart3, BookOpen, Sparkles, Brain, MessageSquare, LayoutDashboard, Zap, Code2, Search, Cpu } from "lucide-react";
 import IADashboard from "@/components/staff/IADashboard";
 import AiEngineGuide from "@/components/staff/AiEngineGuide";
 import AiRoutesManagement from "@/components/staff/AiRoutesManagement";
-import AiEngineTestMode from "@/components/staff/AiEngineTestMode";
-import AiEngineTestBench from "@/components/staff/AiEngineTestBench";
 import AIConfigManagement from "@/components/staff/AIConfigManagement";
 import AiSuggestionsHub from "@/components/staff/AiSuggestionsHub";
 import PopularSearchesManagement from "@/components/staff/PopularSearchesManagement";
@@ -158,15 +156,6 @@ const StaffIA = () => {
                   <Sparkles className="h-4 w-4" />
                   Suggestions & relances
                 </TabsTrigger>
-              <TabsTrigger value="test" className="gap-2">
-
-                <FlaskConical className="h-4 w-4" />
-                Mode test
-              </TabsTrigger>
-              <TabsTrigger value="test-bench" className="gap-2">
-                <Play className="h-4 w-4" />
-                Test bench
-              </TabsTrigger>
               <TabsTrigger value="resolution" className="gap-2">
                 <Cpu className="h-4 w-4" />
                 Résolution
@@ -182,12 +171,6 @@ const StaffIA = () => {
               <AiSuggestionsHub />
             </TabsContent>
 
-            <TabsContent value="test">
-              <AiEngineTestMode />
-            </TabsContent>
-            <TabsContent value="test-bench">
-              <AiEngineTestBench />
-            </TabsContent>
             <TabsContent value="resolution">
               <AiResolutionMetrics />
             </TabsContent>

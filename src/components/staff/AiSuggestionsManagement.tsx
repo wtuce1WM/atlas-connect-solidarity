@@ -166,7 +166,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
       }
       return all;
     };
-    const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: svcs }, { data: bdgs }, { data: fups }, { data: posts }, { data: cats }] = await Promise.all([
+    const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: svcs }, { data: bdgs }, { data: fups }, { data: posts }, { data: vfeeds }, { data: cats }] = await Promise.all([
       supabase
         .from("ai_suggestions")
         .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,service_ids,badge_ids,commodity_filters,city,main_categories,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids,category,prompt_fr,prompt_en,prompt_ar,fixed_response_fr,fixed_response_en,fixed_response_ar")
@@ -199,6 +199,10 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
         .from("blog_posts")
         .select("id,title_fr,title_en,slug")
         .order("title_fr", { ascending: true }),
+      supabase
+        .from("video_feed_pages")
+        .select("id,slug,hero_title_bottom_fr,hero_title_bottom_en,seo_title_fr")
+        .order("slug", { ascending: true }),
       supabase
         .from("categories")
         .select("name_fr")
@@ -240,9 +244,21 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
     setBadges(((bdgs as any[]) || []).map((b) => ({ id: b.id, name_fr: b.name_fr || "(sans nom)" })));
     setGlobalFollowups(((fups as any[]) || []).map((f) => ({ id: f.id, label_fr: f.label_fr || "", is_active: !!f.is_active, sort_order: f.sort_order || 0 })));
     setBlogPosts(
-      ((posts as any[]) || [])
-        .map((p) => ({ id: p.id, slug: p.slug, title: (p.title_fr || p.title_en || p.slug || "(sans titre)").trim() }))
-        .sort((a, b) => a.title.localeCompare(b.title, "fr", { sensitivity: "base" }))
+      [
+        ...((posts as any[]) || []).map((p) => ({
+          id: p.id,
+          slug: p.slug,
+          title: (p.title_fr || p.title_en || p.slug || "(sans titre)").trim(),
+        })),
+        // Pages vidéo éditoriales (/videos/:slug) : mêmes liens explicites que les articles.
+        ...((vfeeds as any[]) || []).map((v) => ({
+          id: v.id,
+          slug: v.slug,
+          title: `🎬 ${(v.hero_title_bottom_fr || v.hero_title_bottom_en || v.seo_title_fr || v.slug || "(sans titre)").replace(/\s*\|.*$/, "").trim()}`,
+        })),
+      ].sort((a, b) =>
+        a.title.replace(/^🎬\s*/, "").localeCompare(b.title.replace(/^🎬\s*/, ""), "fr", { sensitivity: "base" }),
+      )
     );
     setMainCategories(((cats as any[]) || []).map((c) => (c.name_fr || "").trim()).filter(Boolean));
 
@@ -541,11 +557,6 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                     <Textarea value={r.prompt_en || ""} onChange={(e) => update(r.id, { prompt_en: e.target.value || null })} placeholder="System prompt EN" rows={4} />
                     <Textarea value={r.prompt_ar || ""} onChange={(e) => update(r.id, { prompt_ar: e.target.value || null })} placeholder="Prompt system AR" rows={4} dir="rtl" />
                   </div>
-                </div>
-
-                <div className="max-w-xs">
-                  <label className="text-xs text-muted-foreground">Catégorie (regroupement)</label>
-                  <Input value={r.category || ""} onChange={(e) => update(r.id, { category: e.target.value || null })} placeholder="ex. gastronomie" />
                 </div>
 
                 <div className="max-w-xs">

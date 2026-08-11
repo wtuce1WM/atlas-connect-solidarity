@@ -217,7 +217,7 @@ const VIDEOFEED_RE = /<!--VIDEO_FEED:([\s\S]*?)-->/g;
 type MapPayload = { title?: string | null; businesses: MapPanelBusiness[]; order?: string | null };
 type EventsPayload = { title?: string | null; city?: string | null; events: EventPanelItem[] };
 type KnownBusiness = { id: string; slug: string | null; name: string };
-type ArticleCardPayload = { id: string; slug: string; title: string; image: string | null; hero?: string | null; tldr?: string | null; hook?: string | null; intro?: string | null; inline?: boolean; isOwner?: boolean };
+type ArticleCardPayload = { id: string; slug: string; title: string; image: string | null; hero?: string | null; tldr?: string | null; hook?: string | null; intro?: string | null; inline?: boolean; isOwner?: boolean; kind?: "blog" | "video_feed"; url?: string | null };
 type DestinationCard = { id: string; name: string; hook?: string | null; image?: string | null; latitude?: number | null; longitude?: number | null; distKm?: number | null };
 type DestinationsPayload = { title?: string | null; destinations: DestinationCard[] };
 type VideoFeedItem = {
@@ -404,23 +404,7 @@ const EmbedAsk = () => {
   const inFloatingPanel = /^(1|true)$/i.test(params.get("panel") || "");
   // Nom personnalisé de l'assistant (champ éditable côté /affiliates/presence).
   const assistantNameParam = (params.get("name") || "").trim().slice(0, 60);
-  // Moteur IA : `?engine=v1|v2` force la version, sinon on suit le réglage
-  // global (Backoffice → IA → Moteur IA → Mode test).
-  const engineParam = params.get("engine") === "v2" ? "v2" : params.get("engine") === "v1" ? "v1" : null;
-  const [engine, setEngine] = useState<"v1" | "v2">(engineParam || "v1");
-  useEffect(() => {
-    if (engineParam) return;
-    let cancelled = false;
-    supabase
-      .from("site_settings")
-      .select("value")
-      .eq("key", "embed_ai_engine")
-      .maybeSingle()
-      .then(({ data }) => {
-        if (!cancelled && data?.value === "v2") setEngine("v2");
-      });
-    return () => { cancelled = true; };
-  }, [engineParam]);
+  // Moteur IA : V2 uniquement (V1 retiré).
   const initialTheme = themeParam
     ? themeParam
     : customBg
@@ -512,7 +496,7 @@ const EmbedAsk = () => {
 
   // --- AI SDK useChat wiring ---
   const transport = useMemo(() => new DefaultChatTransport({
-    api: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${engine === "v2" ? "embed-ai-chat-v2" : "embed-ai-chat"}`,
+    api: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/embed-ai-chat-v2`,
     headers: () => ({
       Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
       apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
@@ -529,7 +513,7 @@ const EmbedAsk = () => {
         scope: (body as any)?.scope ?? null,
       },
     }),
-  }), [slug, lang, engine]);
+  }), [slug, lang]);
 
   const { messages, sendMessage, status, setMessages } = useChat({
     id: `embed-${slug}-${chatKey}`,
@@ -1156,7 +1140,9 @@ const EmbedAsk = () => {
               {articleCard && articleCard.inline ? (
                 <div className={`w-full max-w-[85%] rounded-2xl overflow-hidden ${cardBg}`} style={cardStyle}>
                   <a
-                    href={`/embed/ask/${slug}/article/${articleCard.slug}`}
+                    href={articleCard.kind === "video_feed" ? (articleCard.url || `/videos/${articleCard.slug}`) : `/embed/ask/${slug}/article/${articleCard.slug}`}
+                    target={articleCard.kind === "video_feed" ? "_blank" : undefined}
+                    rel={articleCard.kind === "video_feed" ? "noopener noreferrer" : undefined}
                     className="block relative w-full aspect-[16/7] bg-neutral-800 group"
                   >
                     {articleCard.hero || articleCard.image ? (
@@ -1531,7 +1517,9 @@ const EmbedAsk = () => {
                   affichée APRÈS le carrousel de miniatures des résultats. */}
               {articleCard && !articleCard.inline && (
                 <a
-                  href={`/embed/ask/${slug}/article/${articleCard.slug}`}
+                  href={articleCard.kind === "video_feed" ? (articleCard.url || `/videos/${articleCard.slug}`) : `/embed/ask/${slug}/article/${articleCard.slug}`}
+                  target={articleCard.kind === "video_feed" ? "_blank" : undefined}
+                  rel={articleCard.kind === "video_feed" ? "noopener noreferrer" : undefined}
                   className={`relative flex w-full max-w-[85%] gap-3 rounded-2xl overflow-hidden ${cardBg} hover:opacity-95 transition-opacity`}
                   style={cardStyle}
                 >
@@ -1542,7 +1530,9 @@ const EmbedAsk = () => {
                   )}
                   <div className="flex-1 py-2 pr-3 flex flex-col justify-center gap-1">
                     <span className="text-[10px] uppercase tracking-wide text-[#D4AF37] font-semibold">
-                      {lang === "en" ? "Recommended article" : lang === "ar" ? "مقال موصى به" : "Article recommandé"}
+                      {articleCard.kind === "video_feed"
+                        ? (lang === "en" ? "Recommended video page" : lang === "ar" ? "صفحة فيديو موصى بها" : "Page vidéo recommandée")
+                        : (lang === "en" ? "Recommended article" : lang === "ar" ? "مقال موصى به" : "Article recommandé")}
                     </span>
                     <div className={`text-sm font-semibold leading-snug line-clamp-3 ${cardInk}`}>{articleCard.title}</div>
                   </div>
