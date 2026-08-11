@@ -55,12 +55,12 @@ export const ExpProfil: React.FC = () => {
           }}
         >
           {/* Mosaïque de photos réelles : chaque tuile apparaît en cascade */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4, height: 380 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4, height: 340 }}>
             {PHOTOS.map((p, i) => {
               const t = spring({ frame: frame - 26 - i * 7, fps, config: { damping: 20, stiffness: 120 } });
               const zoom = interpolate(frame, [30, PROFIL_FRAMES], [1.04, 1.14]);
               return (
-                <div key={p} style={{ overflow: "hidden", opacity: t, gridRow: i === 0 ? "span 2" : undefined }}>
+                <div key={p} style={{ overflow: "hidden", opacity: t }}>
                   <Img
                     src={staticFile(`explainer/lola/${p}`)}
                     style={{

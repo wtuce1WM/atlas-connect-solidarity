@@ -21,7 +21,7 @@ export const ExpAssistant: React.FC = () => {
 
   const frameIn = spring({ frame: frame - 12, fps, config: { damping: 18, stiffness: 80 } });
   // Scroll lent de la capture pour dérouler la réponse réelle.
-  const scroll = interpolate(frame, [55, 250], [0, -560], {
+  const scroll = interpolate(frame, [55, 250], [-30, -520], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -46,6 +46,7 @@ export const ExpAssistant: React.FC = () => {
           height={820}
           label="oneworldmorocco.com/embed/ask"
           offsetY={scroll}
+          imageScale={1.3}
         />
       </div>
 
