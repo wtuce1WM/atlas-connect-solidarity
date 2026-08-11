@@ -1,0 +1,1 @@
+update public.ai_suggestions set business_ids = '{}'::uuid[] where id = '568a4980-2622-4f5a-b474-0051cd37a285';

@@ -651,23 +651,43 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                       onKeyDown={(e) => { if (e.key === "Escape") setBusinessSearch((prev) => ({ ...prev, [r.id]: "" })); }}
                     />
                     {businessSearch[r.id]?.trim() && (
-                      <div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg max-h-60 overflow-auto">
+                      <div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg max-h-72 overflow-auto">
                         {(() => {
-                          const q = businessSearch[r.id].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                          const matches = businesses
+                          const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                          const q = norm(businessSearch[r.id].trim());
+                          const tokens = q.split(/\s+/).filter(Boolean);
+                          const scored = businesses
                             .filter((b) => !r.business_ids.includes(b.id))
-                            .filter((b) => b.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q));
-                          if (matches.length === 0) return <div className="px-3 py-2 text-sm text-muted-foreground">Aucun établissement trouvé</div>;
-                          return matches.slice(0, 8).map((b) => (
-                            <button
-                              key={b.id}
-                              type="button"
-                              onClick={() => { update(r.id, { business_ids: [...r.business_ids, b.id] }); setBusinessSearch((prev) => ({ ...prev, [r.id]: "" })); }}
-                              className="w-full px-3 py-2 text-left text-sm hover:bg-muted truncate"
-                            >
-                              {b.name}
-                            </button>
-                          ));
+                            .map((b) => {
+                              const n = norm(b.name);
+                              if (!tokens.every((t) => n.includes(t))) return null;
+                              // Ranking : commence par la requête > début de mot > contient
+                              const rank = n.startsWith(q) ? 0 : new RegExp(`\\b${q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`).test(n) ? 1 : 2;
+                              return { b, rank, len: n.length };
+                            })
+                            .filter(Boolean) as { b: BusinessOption; rank: number; len: number }[];
+                          scored.sort((a, b) => a.rank - b.rank || a.len - b.len || a.b.name.localeCompare(b.b.name, "fr"));
+                          if (scored.length === 0) return <div className="px-3 py-2 text-sm text-muted-foreground">Aucun établissement trouvé</div>;
+                          return (
+                            <>
+                              {scored.slice(0, 40).map(({ b }) => (
+                                <button
+                                  key={b.id}
+                                  type="button"
+                                  onMouseDown={(e) => e.preventDefault()}
+                                  onClick={() => { update(r.id, { business_ids: [...r.business_ids, b.id] }); setBusinessSearch((prev) => ({ ...prev, [r.id]: "" })); }}
+                                  className="w-full px-3 py-2 text-left text-sm hover:bg-muted truncate"
+                                >
+                                  {b.name}
+                                </button>
+                              ))}
+                              {scored.length > 40 && (
+                                <div className="px-3 py-2 text-xs text-muted-foreground border-t border-border">
+                                  {scored.length} résultats — affinez la recherche
+                                </div>
+                              )}
+                            </>
+                          );
                         })()}
                       </div>
                     )}
