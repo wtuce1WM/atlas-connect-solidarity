@@ -217,7 +217,7 @@ const VIDEOFEED_RE = /<!--VIDEO_FEED:([\s\S]*?)-->/g;
 type MapPayload = { title?: string | null; businesses: MapPanelBusiness[]; order?: string | null };
 type EventsPayload = { title?: string | null; city?: string | null; events: EventPanelItem[] };
 type KnownBusiness = { id: string; slug: string | null; name: string };
-type ArticleCardPayload = { id: string; slug: string; title: string; image: string | null; hero?: string | null; tldr?: string | null; hook?: string | null; intro?: string | null; inline?: boolean; isOwner?: boolean };
+type ArticleCardPayload = { id: string; slug: string; title: string; image: string | null; hero?: string | null; tldr?: string | null; hook?: string | null; intro?: string | null; inline?: boolean; isOwner?: boolean; kind?: "blog" | "video_feed"; url?: string | null };
 type DestinationCard = { id: string; name: string; hook?: string | null; image?: string | null; latitude?: number | null; longitude?: number | null; distKm?: number | null };
 type DestinationsPayload = { title?: string | null; destinations: DestinationCard[] };
 type VideoFeedItem = {
@@ -1140,7 +1140,9 @@ const EmbedAsk = () => {
               {articleCard && articleCard.inline ? (
                 <div className={`w-full max-w-[85%] rounded-2xl overflow-hidden ${cardBg}`} style={cardStyle}>
                   <a
-                    href={`/embed/ask/${slug}/article/${articleCard.slug}`}
+                    href={articleCard.kind === "video_feed" ? (articleCard.url || `/videos/${articleCard.slug}`) : `/embed/ask/${slug}/article/${articleCard.slug}`}
+                    target={articleCard.kind === "video_feed" ? "_blank" : undefined}
+                    rel={articleCard.kind === "video_feed" ? "noopener noreferrer" : undefined}
                     className="block relative w-full aspect-[16/7] bg-neutral-800 group"
                   >
                     {articleCard.hero || articleCard.image ? (
@@ -1515,7 +1517,9 @@ const EmbedAsk = () => {
                   affichée APRÈS le carrousel de miniatures des résultats. */}
               {articleCard && !articleCard.inline && (
                 <a
-                  href={`/embed/ask/${slug}/article/${articleCard.slug}`}
+                  href={articleCard.kind === "video_feed" ? (articleCard.url || `/videos/${articleCard.slug}`) : `/embed/ask/${slug}/article/${articleCard.slug}`}
+                  target={articleCard.kind === "video_feed" ? "_blank" : undefined}
+                  rel={articleCard.kind === "video_feed" ? "noopener noreferrer" : undefined}
                   className={`relative flex w-full max-w-[85%] gap-3 rounded-2xl overflow-hidden ${cardBg} hover:opacity-95 transition-opacity`}
                   style={cardStyle}
                 >
@@ -1526,7 +1530,9 @@ const EmbedAsk = () => {
                   )}
                   <div className="flex-1 py-2 pr-3 flex flex-col justify-center gap-1">
                     <span className="text-[10px] uppercase tracking-wide text-[#D4AF37] font-semibold">
-                      {lang === "en" ? "Recommended article" : lang === "ar" ? "مقال موصى به" : "Article recommandé"}
+                      {articleCard.kind === "video_feed"
+                        ? (lang === "en" ? "Recommended video page" : lang === "ar" ? "صفحة فيديو موصى بها" : "Page vidéo recommandée")
+                        : (lang === "en" ? "Recommended article" : lang === "ar" ? "مقال موصى به" : "Article recommandé")}
                     </span>
                     <div className={`text-sm font-semibold leading-snug line-clamp-3 ${cardInk}`}>{articleCard.title}</div>
                   </div>

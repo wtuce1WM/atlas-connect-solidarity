@@ -416,6 +416,7 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
           title: parsed.title,
           cover: parsed.image ?? parsed.hero ?? null,
           tldr: parsed.tldr ?? parsed.hook ?? null,
+          kind: parsed.kind === "video_feed" ? "video_feed" : "blog",
         });
       }
     } catch { /* ignore */ }
