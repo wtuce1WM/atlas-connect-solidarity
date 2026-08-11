@@ -188,7 +188,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
         proximity_b_badge_ids: Array.isArray(r.proximity_b_badge_ids) ? r.proximity_b_badge_ids : [],
       }))
     );
-    setBusinesses((bizs || []).map((b: any) => ({ id: b.id, name: b.name || "(sans nom)", slug: b.slug })));
+    setBusinesses((bizs || []).map((b: any) => ({ id: b.id, name: b.name || "(sans nom)", slug: b.slug, is_active: b.is_active !== false })));
     // Commodités disponibles = valeurs « Logistique: » réellement présentes en base
     const commSet = new Set<string>();
     for (const b of (bizs || []) as any[]) {
