@@ -517,6 +517,35 @@ export async function buildFilteredAnswer(
       console.error("[curated] commodity_filter_failed", String(e));
       return null;
     }
+  } else if (badgeIds.length) {
+    // Badges curatés : filtre DUR en base (business_badges), jamais via
+    // `business-search` — celui-ci n'applique `badgeIds` que si `city` est fourni,
+    // ce qui casserait les cibles éditoriales trans-villes (ex. badge « Agafay »).
+    try {
+      const { data: links, error: linkErr } = await admin
+        .from("business_badges")
+        .select("business_id")
+        .in("badge_id", badgeIds)
+        .limit(2000);
+      if (linkErr) throw linkErr;
+      const bizIds = [...new Set((links || []).map((l: any) => l.business_id).filter(Boolean))];
+      if (!bizIds.length) return null;
+      let q = admin
+        .from("businesses")
+        .select("id, is_featured, computed_rating, total_review_count")
+        .eq("is_active", true)
+        .in("id", bizIds)
+        .order("is_featured", { ascending: false })
+        .order("computed_rating", { ascending: false, nullsFirst: false })
+        .limit(60);
+      if (city) q = q.eq("city", city);
+      const { data, error } = await q;
+      if (error) throw error;
+      all = data || [];
+    } catch (e) {
+      console.error("[curated] badge_filter_failed", String(e));
+      return null;
+    }
   } else {
     try {
       const r = await fetch(`${opts.supabaseUrl}/functions/v1/business-search`, {
@@ -531,8 +560,9 @@ export async function buildFilteredAnswer(
           pageSize: 30,
           offset: 0,
           compact: "card",
-          ...(city ? { city } : {}),
-          badgeIds: badgeIds.length ? badgeIds : undefined,
+          // `business-search` n'applique les filtres taxonomiques que si `city`
+          // est présent → on retombe sur la ville de l'hôte si l'entrée n'en fixe pas.
+          city: city || host?.city || "Marrakech",
           subcategoryNames: subcategoryNames.length ? subcategoryNames : undefined,
         }),
       });
