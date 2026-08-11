@@ -2263,7 +2263,7 @@ const Home = () => {
                               ? ((v.business as any)?.hook_fr || null)
                               : null;
                             const topText = isGeneric ? v.videoName : (v.videoTitle || internalFallbackHook);
-                            const hasOrderBadge = showSubcategoryOverlay && v.business?.engagements?.includes("Logistique:Commandez en ligne et recevez votre colis chez vous");
+                            const hasOrderBadge = showSubcategoryOverlay && v.business?.engagements?.includes("Logistique:Vente en ligne");
                            return topText ? (
                              <div className={`absolute inset-x-0 ${hasOrderBadge ? "top-[20%]" : "top-[12%]"} z-[10] flex flex-col items-center gap-2 px-3 pointer-events-none text-center`}>
                                <p
@@ -2279,13 +2279,13 @@ const Home = () => {
                              </div>
                           ) : null;
                           })()}
-                         {showSubcategoryOverlay && v.business?.engagements?.includes("Logistique:Commandez en ligne et recevez votre colis chez vous") && (
+                         {showSubcategoryOverlay && v.business?.engagements?.includes("Logistique:Vente en ligne") && (
                           <div className="absolute inset-x-0 top-[10%] z-20 flex items-center justify-center px-2 pointer-events-none">
                             <span
                               className="px-2.5 py-1 rounded-md text-white text-xs font-bold uppercase tracking-wide text-center line-clamp-2 shadow-lg border-2 border-black"
                               style={{ backgroundColor: "#C04F17" }}
                             >
-                              Commandez en ligne
+                              Vente en ligne
                             </span>
                           </div>
                         )}
