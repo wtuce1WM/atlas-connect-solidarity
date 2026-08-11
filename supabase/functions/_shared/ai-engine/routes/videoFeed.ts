@@ -31,15 +31,28 @@ export type VideoFeedAnswer = {
   route: string;
 };
 
+function normCity(v: any): string {
+  return String(v ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
 /**
  * Charge les vidéos ciblées par badges (et, à défaut, par établissements épinglés).
  * Ordre : vidéos internes puis génériques, dans l'ordre des badges fournis.
  */
 export async function loadVideoFeed(
   admin: any,
-  opts: { badgeIds: string[]; pinnedBusinessIds?: string[]; max?: number },
+  opts: { badgeIds: string[]; pinnedBusinessIds?: string[]; max?: number; city?: string | null },
 ): Promise<VideoFeedItem[]> {
   const max = opts.max ?? 30;
+  // Périmètre géographique : la ville de l'établissement master (hôte) fait loi.
+  // Vidéo interne → ville de la vidéo, à défaut ville de la fiche liée.
+  // Vidéo générique → `generic_videos.city` ou liaison `generic_video_cities`.
+  const cityFilter = normCity(opts.city);
   const badgeIds = (opts.badgeIds || []).filter(Boolean);
   const pinned = (opts.pinnedBusinessIds || []).filter(Boolean);
 
@@ -60,14 +73,14 @@ export async function loadVideoFeed(
   if (docIds.length) {
     docQuery = admin
       .from("business_documents")
-      .select("id, business_id, name, description, price, url, youtube_video_url, instagram_video_url, tiktok_video_url, thumbnail_url, business_is_active")
+      .select("id, business_id, name, description, price, url, youtube_video_url, instagram_video_url, tiktok_video_url, thumbnail_url, business_is_active, city")
       .in("id", docIds)
       .eq("type", "video");
   } else if (pinned.length) {
     // Aucun badge : on retombe sur les vidéos des établissements épinglés.
     docQuery = admin
       .from("business_documents")
-      .select("id, business_id, name, description, price, url, youtube_video_url, instagram_video_url, tiktok_video_url, thumbnail_url, business_is_active")
+      .select("id, business_id, name, description, price, url, youtube_video_url, instagram_video_url, tiktok_video_url, thumbnail_url, business_is_active, city")
       .in("business_id", pinned)
       .eq("type", "video");
   }
@@ -77,11 +90,21 @@ export async function loadVideoFeed(
     const rows = (docs || []).filter((d: any) => d.business_is_active !== false);
     const bizIds = [...new Set(rows.map((d: any) => d.business_id).filter(Boolean))] as string[];
     const bizMap = new Map<string, string>();
+    const bizCity = new Map<string, string>();
     if (bizIds.length) {
-      const { data: bizs } = await admin.from("businesses").select("id, name").in("id", bizIds);
-      for (const b of bizs || []) bizMap.set(String(b.id), String(b.name));
+      const { data: bizs } = await admin.from("businesses").select("id, name, city").in("id", bizIds);
+      for (const b of bizs || []) {
+        bizMap.set(String(b.id), String(b.name));
+        bizCity.set(String(b.id), normCity(b.city));
+      }
     }
     for (const d of rows) {
+      if (cityFilter) {
+        const own = normCity(d.city);
+        const linked = d.business_id ? bizCity.get(String(d.business_id)) || "" : "";
+        const vidCity = own || linked;
+        if (vidCity && vidCity !== cityFilter) continue;
+      }
       const url = d.youtube_video_url || d.instagram_video_url || d.tiktok_video_url || d.url || "";
       if (!url) continue;
       internal.push({
@@ -106,12 +129,33 @@ export async function loadVideoFeed(
       .in("badge_id", badgeIds);
     const genIds = [...new Set((badgedGen || []).map((g: any) => String(g.generic_video_id)))];
     if (genIds.length) {
+      // Villes liées (table de liaison) pour les génériques.
+      const linkedCities = new Map<string, string[]>();
+      if (cityFilter) {
+        const { data: links } = await admin
+          .from("generic_video_cities")
+          .select("generic_video_id, cities(name)")
+          .in("generic_video_id", genIds);
+        for (const l of links || []) {
+          const k = String(l.generic_video_id);
+          const arr = linkedCities.get(k) || [];
+          const nm = normCity((l as any)?.cities?.name);
+          if (nm) arr.push(nm);
+          linkedCities.set(k, arr);
+        }
+      }
       const { data: gens } = await admin
         .from("generic_videos")
-        .select("id, title, name, description, url, thumbnail_url")
+        .select("id, title, name, description, url, thumbnail_url, city")
         .in("id", genIds);
       for (const g of gens || []) {
         if (!g?.url) continue;
+        if (cityFilter) {
+          const own = normCity(g.city);
+          const linked = linkedCities.get(String(g.id)) || [];
+          const known = [own, ...linked].filter(Boolean);
+          if (known.length && !known.includes(cityFilter)) continue;
+        }
         generic.push({
           id: String(g.id),
           url: String(g.url),
@@ -142,12 +186,13 @@ export async function loadVideoFeed(
 /** Construit la réponse déterministe (texte court + payload marqueur). */
 export async function buildVideoFeedAnswer(
   admin: any,
-  opts: { badgeIds: string[]; pinnedBusinessIds?: string[]; label?: string | null; lang: Lang; max?: number },
+  opts: { badgeIds: string[]; pinnedBusinessIds?: string[]; label?: string | null; lang: Lang; max?: number; city?: string | null },
 ): Promise<VideoFeedAnswer | null> {
   const videos = await loadVideoFeed(admin, {
     badgeIds: opts.badgeIds,
     pinnedBusinessIds: opts.pinnedBusinessIds,
     max: opts.max ?? 30,
+    city: opts.city ?? null,
   });
   if (!videos.length) return null;
 

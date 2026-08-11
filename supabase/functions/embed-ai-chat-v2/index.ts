@@ -390,6 +390,7 @@ Deno.serve(async (req) => {
               pinnedBusinessIds: curated.pinnedBusinessIds,
               label: curated.label,
               lang: lang as any,
+              city: curated.city || host?.city || null,
             }).catch((e) => {
               console.error("[embed-ai-chat-v2] video_feed_failed", String(e));
               return null;

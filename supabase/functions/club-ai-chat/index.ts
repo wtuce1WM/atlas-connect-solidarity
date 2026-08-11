@@ -2078,6 +2078,7 @@ serve(async (req) => {
             pinnedBusinessIds: curated.pinnedBusinessIds,
             label: curated.label,
             lang: lang as any,
+            city: curated.city || null,
           }).catch((e) => { console.error("club-ai-chat → video_feed_failed", String(e)); return null; });
           if (builtV) {
             await deliverCurated({
