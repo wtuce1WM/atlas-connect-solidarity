@@ -288,64 +288,6 @@ Deno.serve(async (req) => {
         }
 
 
-        // ── Classe A — routes déterministes (zéro token) ────────────────────
-        // 1. Météo
-        if (isWeatherIntent(userMessage)) {
-          route = "weather";
-          const city = scopeCity;
-          const { data, error } = await admin.functions.invoke("get-weather", { body: { city } });
-          if (!error && data && !(data as any).error) {
-            const w = data as any;
-            const intro = {
-              fr: `Voici la météo à **${w.city_name || city}** et la tendance des 3 prochains jours. 👇`,
-              en: `Here's the weather in **${w.city_name || city}** and the 3-day trend. 👇`,
-              ar: `إليك حالة الطقس في **${w.city_name || city}** والتوقعات للأيام الثلاثة القادمة. 👇`,
-            }[lang];
-            const payload = {
-              city_name: w.city_name || city, temp: w.temp, feels_like: w.feels_like,
-              temp_min: w.temp_min, temp_max: w.temp_max, humidity: w.humidity,
-              wind_speed: w.wind_speed, description: w.description || "", icon: w.icon || "",
-              hourly: Array.isArray(w.hourly) ? w.hourly.slice(0, 8) : [],
-              daily: Array.isArray(w.daily) ? w.daily.slice(0, 3) : [],
-            };
-            emit(`${intro}\n\n<!--WEATHER_FORECAST:${JSON.stringify(payload)}-->`);
-            await finish(true);
-            return;
-          }
-          hadError = true;
-          fallbackReason = "route_failed";
-        }
-
-        // 2. Horaires — sans hôte, seuls les établissements déjà présentés répondent.
-        if (isHoursIntent(userMessage) && (priorIds.length || host)) {
-          route = "opening";
-          const answer = priorIds.length
-            ? await buildHoursForBusinesses(admin, priorIds.slice(0, CFG.maxResults), lang)
-            : buildHoursAnswer(host, lang);
-          if (answer) {
-            resultsCount = priorIds.length ? Math.min(priorIds.length, CFG.maxResults) : 1;
-            emit(answer);
-            await finish(true);
-            return;
-          }
-          fallbackReason = "no_results";
-        }
-
-        // 3. Réservation
-        if (isBookingIntent(userMessage) && (priorIds.length || host)) {
-          route = "booking";
-          const answer = priorIds.length
-            ? await buildBookingForBusinesses(admin, priorIds.slice(0, CFG.maxResults), lang)
-            : buildBookingAnswer(host, lang);
-          if (answer) {
-            resultsCount = priorIds.length ? Math.min(priorIds.length, CFG.maxResults) : 1;
-            emit(answer);
-            await finish(true);
-            return;
-          }
-          fallbackReason = "no_results";
-        }
-
         // 3bis. AUTORITÉ CURATÉE (zéro token) — une suggestion/relance pointant vers
         // un article de blog ou des établissements épinglés fait loi : ni le
         // classifieur ni le résolveur taxonomique ne peuvent la remplacer ou la
@@ -465,6 +407,64 @@ Deno.serve(async (req) => {
             fallbackReason = "no_results";
           }
         }
+        // ── Classe A — routes déterministes (zéro token) ────────────────────
+        // 1. Météo
+        if (isWeatherIntent(userMessage)) {
+          route = "weather";
+          const city = scopeCity;
+          const { data, error } = await admin.functions.invoke("get-weather", { body: { city } });
+          if (!error && data && !(data as any).error) {
+            const w = data as any;
+            const intro = {
+              fr: `Voici la météo à **${w.city_name || city}** et la tendance des 3 prochains jours. 👇`,
+              en: `Here's the weather in **${w.city_name || city}** and the 3-day trend. 👇`,
+              ar: `إليك حالة الطقس في **${w.city_name || city}** والتوقعات للأيام الثلاثة القادمة. 👇`,
+            }[lang];
+            const payload = {
+              city_name: w.city_name || city, temp: w.temp, feels_like: w.feels_like,
+              temp_min: w.temp_min, temp_max: w.temp_max, humidity: w.humidity,
+              wind_speed: w.wind_speed, description: w.description || "", icon: w.icon || "",
+              hourly: Array.isArray(w.hourly) ? w.hourly.slice(0, 8) : [],
+              daily: Array.isArray(w.daily) ? w.daily.slice(0, 3) : [],
+            };
+            emit(`${intro}\n\n<!--WEATHER_FORECAST:${JSON.stringify(payload)}-->`);
+            await finish(true);
+            return;
+          }
+          hadError = true;
+          fallbackReason = "route_failed";
+        }
+
+        // 2. Horaires — sans hôte, seuls les établissements déjà présentés répondent.
+        if (isHoursIntent(userMessage) && (priorIds.length || host)) {
+          route = "opening";
+          const answer = priorIds.length
+            ? await buildHoursForBusinesses(admin, priorIds.slice(0, CFG.maxResults), lang)
+            : buildHoursAnswer(host, lang);
+          if (answer) {
+            resultsCount = priorIds.length ? Math.min(priorIds.length, CFG.maxResults) : 1;
+            emit(answer);
+            await finish(true);
+            return;
+          }
+          fallbackReason = "no_results";
+        }
+
+        // 3. Réservation
+        if (isBookingIntent(userMessage) && (priorIds.length || host)) {
+          route = "booking";
+          const answer = priorIds.length
+            ? await buildBookingForBusinesses(admin, priorIds.slice(0, CFG.maxResults), lang)
+            : buildBookingAnswer(host, lang);
+          if (answer) {
+            resultsCount = priorIds.length ? Math.min(priorIds.length, CFG.maxResults) : 1;
+            emit(answer);
+            await finish(true);
+            return;
+          }
+          fallbackReason = "no_results";
+        }
+
 
 
 
