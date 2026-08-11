@@ -1326,13 +1326,13 @@ const EmbedAsk = () => {
                             >
                               {p.name}
                             </button>
-                            {loc && <div className="text-[11px] opacity-70 truncate">{loc}</div>}
+                            {loc && <div className={`text-[11px] truncate ${cardInk || "opacity-70"}`}>{loc}</div>}
                             {p.rating20 != null && (
-                              <div className="flex items-center gap-1.5 text-[12px]">
+                              <div className={`flex items-center gap-1.5 text-[12px] ${cardInk}`}>
                                 <span className="font-bold">{p.rating20.toFixed(1)}/20</span>
-                                {stars && <span className="opacity-60">· ★ {stars}/5</span>}
+                                {stars && <span className={cardInk || "opacity-60"}>· ★ {stars}/5</span>}
                                 {p.review_count != null && p.review_count > 0 && (
-                                  <span className="opacity-60">· {p.review_count} {lang === "en" ? "reviews" : lang === "ar" ? "مراجعة" : "avis"}</span>
+                                  <span className={cardInk || "opacity-60"}>· {p.review_count} {lang === "en" ? "reviews" : lang === "ar" ? "مراجعة" : "avis"}</span>
                                 )}
                               </div>
                             )}
