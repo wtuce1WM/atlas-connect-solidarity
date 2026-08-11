@@ -166,10 +166,10 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
       }
       return all;
     };
-    const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }, { data: posts }, { data: cats }] = await Promise.all([
+    const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: svcs }, { data: bdgs }, { data: fups }, { data: posts }, { data: cats }] = await Promise.all([
       supabase
         .from("ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,badge_ids,commodity_filters,city,main_categories,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids,category,prompt_fr,prompt_en,prompt_ar,fixed_response_fr,fixed_response_en,fixed_response_ar")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,service_ids,badge_ids,commodity_filters,city,main_categories,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids,category,prompt_fr,prompt_en,prompt_ar,fixed_response_fr,fixed_response_en,fixed_response_ar")
         .eq("surface", surface)
         .order("sort_order", { ascending: true }),
       fetchAllBusinesses(),
@@ -181,6 +181,11 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
         .from("subcategories")
         .select("id,name_fr")
         .order("name_fr", { ascending: true }),
+      supabase
+        .from("services")
+        .select("id,name_fr")
+        .order("name_fr", { ascending: true })
+        .range(0, 4999),
       supabase
         .from("badges")
         .select("id,name_fr")
