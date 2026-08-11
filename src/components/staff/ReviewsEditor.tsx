@@ -26,7 +26,24 @@ interface Review {
   published_at: string | null;
   is_default: boolean;
   is_hidden: boolean;
+  highlight?: string | null;
 }
+
+/** Surligne en jaune l'extrait choisi (reviews.highlight) dans le texte de l'avis. */
+const withHighlight = (text: string, highlight?: string | null) => {
+  const h = (highlight || "").trim();
+  if (!h) return text;
+  const i = text.toLowerCase().indexOf(h.toLowerCase());
+  if (i < 0) return text;
+  return (
+    <>
+      {text.slice(0, i)}
+      <mark className="bg-yellow-300 text-black rounded px-0.5">{text.slice(i, i + h.length)}</mark>
+      {text.slice(i + h.length)}
+    </>
+  );
+};
+
 
 interface ReviewsEditorProps {
   businessId: string;
