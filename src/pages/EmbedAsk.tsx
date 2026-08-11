@@ -443,7 +443,6 @@ const EmbedAsk = () => {
   const [agentPrefs, setAgentPrefs] = useState<{ sugg: string[] | null; fu: string[] | null }>({ sugg: null, fu: null });
 
   const [activeSuggestionId, setActiveSuggestionId] = useState<string | null>(null);
-  const [scope, setScope] = useState<"filter" | "broaden" | null>("filter");
 
   type BlogArticle = { id: string; slug: string; title: string; image: string | null; isOwner: boolean };
   const [blogArticles, setBlogArticles] = useState<BlogArticle[]>([]);
