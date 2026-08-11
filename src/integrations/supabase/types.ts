@@ -7959,41 +7959,119 @@ export type Database = {
         }
         Relationships: []
       }
+      video_scenario_configs: {
+        Row: {
+          business_id: string | null
+          created_at: string
+          format_key: string
+          fps: number
+          height: number
+          mode: string
+          updated_at: string
+          width: number
+        }
+        Insert: {
+          business_id?: string | null
+          created_at?: string
+          format_key?: string
+          fps?: number
+          height?: number
+          mode: string
+          updated_at?: string
+          width?: number
+        }
+        Update: {
+          business_id?: string | null
+          created_at?: string
+          format_key?: string
+          fps?: number
+          height?: number
+          mode?: string
+          updated_at?: string
+          width?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_scenario_configs_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_scenario_configs_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       video_scenario_steps: {
         Row: {
+          body: string | null
+          business_id: string | null
           created_at: string
           duration_sec: number
           enabled: boolean
           id: string
+          key_message: string | null
+          kicker: string | null
           label: string | null
           mode: string
           position: number
           scene_key: string
+          title: string | null
           updated_at: string
         }
         Insert: {
+          body?: string | null
+          business_id?: string | null
           created_at?: string
           duration_sec?: number
           enabled?: boolean
           id?: string
+          key_message?: string | null
+          kicker?: string | null
           label?: string | null
           mode: string
           position?: number
           scene_key: string
+          title?: string | null
           updated_at?: string
         }
         Update: {
+          body?: string | null
+          business_id?: string | null
           created_at?: string
           duration_sec?: number
           enabled?: boolean
           id?: string
+          key_message?: string | null
+          kicker?: string | null
           label?: string | null
           mode?: string
           position?: number
           scene_key?: string
+          title?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "video_scenario_steps_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_scenario_steps_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       video_views: {
         Row: {
