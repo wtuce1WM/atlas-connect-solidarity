@@ -74,30 +74,32 @@ const LinkEditor = ({ kind, itemId, links, posts, aiTexts, search, onSearch, sav
           <Input
             value={search}
             onChange={(e) => onSearch(e.target.value)}
-            placeholder="Rechercher dans le titre des articles…"
+            placeholder="Rechercher un article (ordre alphabétique)…"
             className="h-9 text-xs text-white placeholder:text-white/40"
           />
-          <Select value="" onValueChange={(v) => add("blog", v)}>
-            <SelectTrigger className="h-9 text-xs text-white">
-              <SelectValue placeholder="Ajouter un article…" />
-            </SelectTrigger>
-            <SelectContent className="z-[90] max-h-72">
-              {(() => {
-                const q = normCity(search);
-                const list = posts.filter(
-                  (p) => !current.blog.includes(p.id) && (!q || normCity(p.title).includes(q)),
-                );
-                if (!list.length) {
-                  return <div className="px-2 py-3 text-xs text-muted-foreground">Aucun article trouvé</div>;
-                }
-                return list.map((p) => (
-                  <SelectItem key={p.id} value={p.id} className="text-xs">
+          {(() => {
+            const q = normCity(search);
+            const list = posts
+              .filter((p) => !current.blog.includes(p.id) && (!q || normCity(p.title).includes(q)))
+              .sort((a, b) => a.title.localeCompare(b.title, "fr"));
+            if (!list.length) {
+              return <p className="text-xs text-white/40 px-1">Aucun article trouvé</p>;
+            }
+            return (
+              <div className="max-h-48 overflow-y-auto rounded-md border border-white/10 divide-y divide-white/5">
+                {list.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => add("blog", p.id)}
+                    className="w-full text-left px-2 py-1.5 text-xs text-white/80 hover:bg-white/10"
+                  >
                     {p.isOwner ? "★ " : ""}{p.title}
-                  </SelectItem>
-                ));
-              })()}
-            </SelectContent>
-          </Select>
+                  </button>
+                ))}
+              </div>
+            );
+          })()}
         </div>
 
         <div className="space-y-1.5">
@@ -476,7 +478,7 @@ const AffiliateAgentIaEditor = ({ businessId, businessCity, siblings = [] }: Pro
                     />
                     <span className="text-sm text-white/80 flex-1">{s.label}</span>
                   </label>
-                  {siblings.length > 1 && (
+                  {true && (
                     <button
                       type="button"
                       onClick={() => setApplyTarget({ kind: "suggestion", itemId: s.id, label: s.label })}
@@ -515,7 +517,7 @@ const AffiliateAgentIaEditor = ({ businessId, businessCity, siblings = [] }: Pro
                     />
                     <span className="text-sm text-white/80 flex-1">{f.label}</span>
                   </label>
-                  {siblings.length > 1 && (
+                  {true && (
                     <button
                       type="button"
                       onClick={() => setApplyTarget({ kind: "followup", itemId: f.id, label: f.label })}
