@@ -620,6 +620,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                           <option value="events">📅 Events (search_events ville hôte, badge_ids ou #Agenda)</option>
                           <option value="structure_front">🧭 Structure du Front (search_businesses + sous-catégories/badges)</option>
                           <option value="direct_viewer">📌 Direct viewer (carousel figé des business_ids)</option>
+                          <option value="video_feed">🎬 Feed vidéo (vidéos internes + génériques des badges)</option>
                         </select>
                         <p className="text-[11px] text-muted-foreground mt-1">
                           <b>Auto</b> : le runtime choisit la route (météo, événements, proximité, carte, recherche…) à partir du libellé FR et du message utilisateur.<br />
