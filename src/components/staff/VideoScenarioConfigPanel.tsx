@@ -706,58 +706,10 @@ const VideoScenarioConfigPanel = () => {
                 }}
               />
             </div>
-            <label className="grid gap-1 text-xs text-muted-foreground">
-              Format
-              <select
-                value={config.format_key}
-                onChange={(e) => applyFormat(e.target.value)}
-                className="h-8 rounded-md border bg-background px-2 text-xs"
-              >
-                {FORMATS.map((f) => (
-                  <option key={f.key} value={f.key}>
-                    {f.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              <label className="grid gap-1 text-xs text-muted-foreground">
-                Largeur
-                <Input
-                  type="number"
-                  value={config.width}
-                  onChange={(e) => {
-                    setConfig((prev) => (prev ? { ...prev, width: Number(e.target.value), format_key: "custom" } : prev));
-                    setDirty(true);
-                  }}
-                  className="h-8 text-xs"
-                />
-              </label>
-              <label className="grid gap-1 text-xs text-muted-foreground">
-                Hauteur
-                <Input
-                  type="number"
-                  value={config.height}
-                  onChange={(e) => {
-                    setConfig((prev) => (prev ? { ...prev, height: Number(e.target.value), format_key: "custom" } : prev));
-                    setDirty(true);
-                  }}
-                  className="h-8 text-xs"
-                />
-              </label>
-              <label className="grid gap-1 text-xs text-muted-foreground">
-                FPS
-                <Input
-                  type="number"
-                  value={config.fps}
-                  onChange={(e) => {
-                    setConfig((prev) => (prev ? { ...prev, fps: Number(e.target.value) } : prev));
-                    setDirty(true);
-                  }}
-                  className="h-8 text-xs"
-                />
-              </label>
+            <div className="md:col-span-2 self-end text-xs text-muted-foreground">
+              Le format et les dimensions sont gérés dans Studio Vidéo IA.
             </div>
+
           </div>
         )}
 
