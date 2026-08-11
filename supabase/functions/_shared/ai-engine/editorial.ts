@@ -278,7 +278,6 @@ export async function loadEditorialBundle(
   // Services / Offres n'atteignaient JAMAIS le prompt. On réserve donc perBusiness
   // slots par établissement, borné à 30 éléments pour maîtriser les tokens.
   const limit = Math.min(Math.max(opts.limit ?? 12, ids.length * perBusiness), 30);
-  const ids = [...new Set((businessIds || []).filter(Boolean))];
   if (ids.length === 0) return { items: [] };
 
   const [descriptions, hooks, popups, offers, services, texts] = await Promise.all([
