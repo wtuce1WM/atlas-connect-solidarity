@@ -138,6 +138,15 @@ Deno.serve(async (req) => {
   const body = await req.json().catch(() => ({} as any));
   const uiMessages: UIMessage[] = Array.isArray(body.messages) ? body.messages.slice(-8) : [];
   const slugOrId = String(body.businessSlug || body.businessId || "").trim();
+  const surface: EngineSurface = ["embed", "search", "club"].includes(String(body.surface))
+    ? (String(body.surface) as EngineSurface)
+    : "embed";
+  const CFG = getSurfaceConfig(surface);
+  const SURFACE_LOG = SURFACE_LOG_BY_SURFACE[surface];
+  /** Ville active de la surface sans hôte (/search, /club). */
+  const activeCity: string | null = typeof body.activeCity === "string" && body.activeCity.trim()
+    ? body.activeCity.trim()
+    : null;
   const lang = pickLang(body.language) as Lang;
   const sessionId: string | null = typeof body.sessionId === "string" ? body.sessionId : null;
   let suggestionId: string | null = typeof body.suggestionId === "string" && body.suggestionId ? body.suggestionId : null;
@@ -145,7 +154,9 @@ Deno.serve(async (req) => {
   let suggestionFromText = false;
   const followupId: string | null = typeof body.followupId === "string" && body.followupId ? body.followupId : null;
 
-  if (!slugOrId) {
+  // Seule la surface embed exige un établissement hôte : /search et /club
+  // travaillent sur une ville active, sans fiche d'ancrage.
+  if (!slugOrId && surface === "embed") {
     return new Response(JSON.stringify({ error: "businessSlug required" }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
