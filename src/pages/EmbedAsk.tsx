@@ -1645,7 +1645,7 @@ const EmbedAsk = () => {
             <button
               type="button"
               onClick={startNewConversation}
-              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${cardBg} ${border} hover:opacity-90`}
+              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${cardBg} ${border} ${cardInk} hover:opacity-90`}
             >
               {SCOPE_LABELS[lang]?.newConversation ?? SCOPE_LABELS.fr.newConversation}
             </button>
