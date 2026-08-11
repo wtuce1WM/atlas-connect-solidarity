@@ -772,6 +772,11 @@ Deno.serve(async (req) => {
         aiClass = "C";
         const gateway = createLovableAiGatewayProvider(LOVABLE_API_KEY);
 
+        // Corpus de la relance contextuelle : les fiches déjà présentées.
+        const priorFull = (contextualFollowUp || (priorIds.length && !results.length))
+          ? await fetchPriorFull(admin, priorIds.slice(0, 6)).catch(() => [])
+          : [];
+
         // Contexte éditorial partagé (TXT IA + popups d'images + offres) — même
         // module que /search et /club pour éviter toute divergence de richesse.
         let editorialCtx = "";
@@ -779,13 +784,15 @@ Deno.serve(async (req) => {
           const editorialIds = [
             ...(host?.id ? [String(host.id)] : []),
             ...results.map((b: any) => b?.id).filter(Boolean).map(String),
+            ...priorFull.map((b: any) => b?.id).filter(Boolean).map(String),
           ];
           if (editorialIds.length) {
             const nameById: Record<string, string> = {};
             if (host?.id) nameById[String(host.id)] = host.name || "";
             for (const b of results as any[]) if (b?.id) nameById[String(b.id)] = b.name || "";
+            for (const b of priorFull as any[]) if (b?.id) nameById[String(b.id)] = b.name || "";
             const bundle = await loadEditorialBundle(admin, {
-              businessIds: editorialIds,
+              businessIds: [...new Set(editorialIds)],
               perBusiness: 5,
               limit: 12,
               lang,
@@ -810,8 +817,8 @@ Deno.serve(async (req) => {
           editorialCtx
             ? `CONTEXTE ÉDITORIAL ([DESCRIPTION] description de l'établissement, [HOOK] accroche, [IMAGE POPUP] titres et textes des photos, [SERVICE] services, [OFFRE] offres et promotions, [TXT IA] textes rédigés par l'établissement/affilié ; intègre-les naturellement, ne mets pas en avant un établissement uniquement parce qu'il a du contenu ici) :\n${editorialCtx}`
             : "",
-          priorIds.length && !results.length
-            ? `Établissements déjà présentés dans la conversation : ${(await fetchPriorFull(admin, priorIds.slice(0, 6))).map((b: any) => b.name).join(", ")}`
+          !results.length && priorFull.length
+            ? `${contextualFollowUp ? "RELANCE CONTEXTUELLE — la question porte sur ce qui a déjà été présenté ci-dessous. Ne propose AUCUNE autre adresse et ne lance aucune nouvelle sélection.\n" : ""}Établissements déjà présentés dans la conversation :\n${resultsContext(priorFull as any[], lang)}`
             : "",
         ].filter(Boolean).join("\n\n");
 
