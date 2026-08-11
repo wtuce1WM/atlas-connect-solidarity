@@ -9,10 +9,12 @@ import { Badge } from "@/components/ui/badge";
 type Row = {
   query: string | null;
   effective_query?: string | null;
+  surface?: string | null;
   resolved_types: string[] | null;
   resolution_unresolved: boolean | null;
   resolution_service_only: boolean | null;
 };
+
 
 const PERIODS = [7, 14, 30, 90];
 
