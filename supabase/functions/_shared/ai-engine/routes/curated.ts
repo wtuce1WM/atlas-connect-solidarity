@@ -679,7 +679,7 @@ export async function buildFilteredAnswer(
   const shownIds = ids.slice(0, Math.max(max, pinned.length));
 
 
-  const inCity = city ? (lang === "en" ? ` in ${city}` : lang === "ar" ? ` في ${city}` : ` à ${city}`) : "";
+  const inCity = effCity ? (lang === "en" ? ` in ${effCity}` : lang === "ar" ? ` في ${effCity}` : ` à ${effCity}`) : "";
   const heading = opts.label
     ? (lang === "en" ? `**${opts.label}** — matching addresses${inCity}:`
       : lang === "ar" ? `**${opts.label}** — عناوين مطابقة${inCity}:`
