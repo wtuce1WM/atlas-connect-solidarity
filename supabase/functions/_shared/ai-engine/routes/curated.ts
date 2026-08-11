@@ -661,9 +661,10 @@ export async function buildFilteredAnswer(
   };
 
   let all = await runQuery(city);
+  let effCity = city;
   if (relaxable && (all || []).length < 2) {
     const relaxed = await runQuery(null);
-    if ((relaxed || []).length > (all || []).length) all = relaxed;
+    if ((relaxed || []).length > (all || []).length) { all = relaxed; effCity = null; }
   }
   if (!all) return null;
 
