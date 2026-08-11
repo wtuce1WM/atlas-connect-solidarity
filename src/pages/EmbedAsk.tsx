@@ -850,6 +850,8 @@ const EmbedAsk = () => {
   const cardBg = theme === "light" ? "bg-white border border-neutral-200" : "bg-neutral-900 border border-neutral-800";
   // Encre réellement lisible : avec un fond personnalisé, elle dépend de la couleur du fond.
   const lightInk = customBg ? activeBgInk === "dark" : theme === "light";
+  // Sur fond noir / transparent sombre : tous les textes en blanc pur (jamais de gris).
+  const whiteInk = lightInk ? "" : "text-white";
   // Puces (suggestions / relances) : contraste explicite, jamais de texte clair sur fond clair.
   const chipBg = lightInk
     ? "bg-neutral-100 border border-neutral-300 text-neutral-900"
@@ -867,6 +869,8 @@ const EmbedAsk = () => {
     hasAffiliateColors && theme === "dark"
       ? { background: widgetColors.light!, color: widgetColors.dark!, borderColor: "transparent" }
       : undefined;
+  // Intérieur des cartes : blanc uniquement si la carte n'a pas un fond clair affilié.
+  const cardInk = cardStyle ? "" : whiteInk;
 
   // Build conversation-wide dictionaries of businesses cited across all assistant messages.
   // - richByName: full rich data (images, coords, ratings) coming from a SHOW_ON_MAP payload.
@@ -1045,8 +1049,8 @@ const EmbedAsk = () => {
           {((assistantNameParam || assistantTitle || businessName) || "?").slice(0, 1).toUpperCase()}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="font-semibold truncate text-sm">{assistantNameParam || assistantTitle || businessName || "…"}</div>
-          <div className="text-[11px] opacity-60 truncate">{L.hint}</div>
+          <div className={`font-semibold truncate text-sm ${whiteInk}`}>{assistantNameParam || assistantTitle || businessName || "…"}</div>
+          <div className={`text-[11px] truncate ${whiteInk || "opacity-60"}`}>{L.hint}</div>
         </div>
         <button
           type="button"
@@ -1054,7 +1058,7 @@ const EmbedAsk = () => {
           disabled={streaming}
           title={lang === "en" ? "New conversation" : lang === "ar" ? "محادثة جديدة" : "Nouvelle conversation"}
           aria-label={lang === "en" ? "New conversation" : lang === "ar" ? "محادثة جديدة" : "Nouvelle conversation"}
-          className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border ${border} opacity-70 hover:opacity-100 transition-opacity disabled:opacity-40`}
+          className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center border ${border} ${whiteInk} hover:opacity-100 transition-opacity disabled:opacity-40`}
         >
           <MessageSquarePlus className="w-4 h-4" />
         </button>
@@ -1085,13 +1089,13 @@ const EmbedAsk = () => {
           return (
             <div className="sticky top-0 z-20 flex justify-end pointer-events-none -mt-2 mb-1">
               <div
-                className={`pointer-events-auto max-w-[70%] rounded-full px-3 py-1.5 text-[11px] font-medium shadow-md border ${border} backdrop-blur-md truncate`}
+                className={`pointer-events-auto max-w-[70%] rounded-full px-3 py-1.5 text-[11px] font-medium shadow-md border ${border} backdrop-blur-md truncate ${theme === "light" ? "" : "text-white"}`}
                 style={{
                   background: theme === "light" ? "rgba(255,255,255,0.85)" : "rgba(20,20,20,0.75)",
                 }}
                 title={txt}
               >
-                <span className="opacity-60 mr-1">↳</span>{txt}
+                <span className={`mr-1 ${theme === "light" ? "opacity-60" : "text-white"}`}>↳</span>{txt}
               </div>
             </div>
           );
@@ -1157,11 +1161,11 @@ const EmbedAsk = () => {
                           <div className="text-[10px] uppercase tracking-wide font-bold mb-1" style={{ color: "#D4AF37" }}>
                             {lang === "en" ? "In brief" : lang === "ar" ? "باختصار" : "En bref"}
                           </div>
-                          <div className="text-sm leading-relaxed">{articleCard.tldr}</div>
+                          <div className={`text-sm leading-relaxed ${cardInk}`}>{articleCard.tldr}</div>
                         </div>
                       )}
                       {articleCard.intro && (
-                        <div className="text-sm leading-relaxed opacity-90 whitespace-pre-line">
+                        <div className={`text-sm leading-relaxed whitespace-pre-line ${cardInk || "opacity-90"}`}>
                           {articleCard.intro}
                         </div>
                       )}
@@ -1199,8 +1203,9 @@ const EmbedAsk = () => {
                     images: Array.isArray(b.images) ? (b.images as string[]) : [],
                     city: b.city ?? null,
                     neighborhood: b.neighborhood ?? null,
-                    rating: (b as any).google_rating ?? null,
-                    totalReviews: (b as any).google_review_count ?? 0,
+                    // Mêmes signaux que l'overlay POI du slidepanel (note /20 + total avis).
+                    avgOn20: (b as any).computed_rating ?? null,
+                    totalReviews: (b as any).total_review_count ?? (b as any).google_review_count ?? 0,
                   }));
                 const hostPoi = hostLocation && businessId
                   ? [{
@@ -1211,7 +1216,7 @@ const EmbedAsk = () => {
                       images: [] as string[],
                       city: businessCity,
                       neighborhood: null as string | null,
-                      rating: null as number | null,
+                      avgOn20: null as number | null,
                       totalReviews: 0,
                       markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
                     }]
@@ -1225,9 +1230,11 @@ const EmbedAsk = () => {
                         pois={pois as any}
                         selectedPoiId={null}
                         center={hostLocation || undefined}
+                        distanceOrigin={hostLocation || null}
                         onPoiClick={(id) => { setOpenSiblings(pois.map((p) => p.id)); setOpenBusinessId(id); }}
                         fitToMarkers
                         mapTheme={theme === "dark" ? "default-dark" : "default-light"}
+                        baseColor={activeWidgetBg || null}
                         showLayerControls
                       />
                     </Suspense>
@@ -1319,13 +1326,13 @@ const EmbedAsk = () => {
                             >
                               {p.name}
                             </button>
-                            {loc && <div className="text-[11px] opacity-70 truncate">{loc}</div>}
+                            {loc && <div className={`text-[11px] truncate ${cardInk || "opacity-70"}`}>{loc}</div>}
                             {p.rating20 != null && (
-                              <div className="flex items-center gap-1.5 text-[12px]">
+                              <div className={`flex items-center gap-1.5 text-[12px] ${cardInk}`}>
                                 <span className="font-bold">{p.rating20.toFixed(1)}/20</span>
-                                {stars && <span className="opacity-60">· ★ {stars}/5</span>}
+                                {stars && <span className={cardInk || "opacity-60"}>· ★ {stars}/5</span>}
                                 {p.review_count != null && p.review_count > 0 && (
-                                  <span className="opacity-60">· {p.review_count} {lang === "en" ? "reviews" : lang === "ar" ? "مراجعة" : "avis"}</span>
+                                  <span className={cardInk || "opacity-60"}>· {p.review_count} {lang === "en" ? "reviews" : lang === "ar" ? "مراجعة" : "avis"}</span>
                                 )}
                               </div>
                             )}
@@ -1638,7 +1645,7 @@ const EmbedAsk = () => {
             <button
               type="button"
               onClick={startNewConversation}
-              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${cardBg} ${border} hover:opacity-90`}
+              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${cardBg} ${border} ${cardInk} hover:opacity-90`}
             >
               {SCOPE_LABELS[lang]?.newConversation ?? SCOPE_LABELS.fr.newConversation}
             </button>
@@ -1653,7 +1660,7 @@ const EmbedAsk = () => {
             rows={1}
             placeholder={L.placeholder}
             disabled={streaming || !businessName}
-            className={`flex-1 resize-none bg-transparent outline-none text-sm max-h-32 ${theme === "light" ? "placeholder:text-neutral-400" : "placeholder:text-neutral-500"}`}
+            className={`flex-1 resize-none bg-transparent outline-none text-sm max-h-32 ${theme === "light" ? "placeholder:text-neutral-400" : "text-white placeholder:text-white"}`}
           />
           <button
             type="submit"
