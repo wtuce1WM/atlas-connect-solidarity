@@ -709,21 +709,25 @@ Deno.serve(async (req) => {
         lastCategory = strongTerms[0] || validatedCategory || expansionTerms[0] || priorCategory;
 
         // ── Relance contextuelle : on répond SUR le corpus déjà présenté ─────
-        // Aucune cible taxonomique réelle, aucune ville citée, mais des adresses
-        // déjà affichées au tour précédent (« Que faire sur place ? »).
-        // Une nouvelle recherche est alors structurellement hors sujet : elle
-        // repartait du message brut et ramenait 30 adresses de la ville hôte.
+        // Le résolveur est l'autorité du vocabulaire : si le message de l'utilisateur
+        // ne contient AUCUNE cible réelle (catégorie / sous-catégorie / service) ni
+        // ville, il n'y a pas de nouvelle demande de recherche — c'est une question
+        // sur ce qui vient d'être présenté (« Que faire sur place ? »).
+        // Une catégorie inventée par le classifieur (« activite ») ne suffit pas :
+        // c'est elle qui déclenchait une recherche ville entière hors sujet.
         const contextualFollowUp =
           priorIds.length > 0 &&
           !strongTerms.length &&
           !expansionTerms.length &&
-          !classifierCategoryValid &&
-          !resolvedCity &&
-          !out?.city;
+          !resolvedCity;
         if (contextualFollowUp) {
           route = "business_qa";
           fallbackReason = fallbackReason || "contextual_followup";
+          console.log("[embed-ai-chat-v2] contextual_followup", JSON.stringify({
+            priorIds: priorIds.length, classifierCategory: out?.category ?? null, city: out?.city ?? null,
+          }));
         }
+
 
         if (!contextualFollowUp && out && confident && (out.intent === "search" || out.intent === "compare")) {
           const views = detectViewIntent(userMessage);
