@@ -16,6 +16,7 @@ import { createLovableAiGatewayProvider, normalizeGatewayBodyForModel } from "..
 import { AI_MODEL, getSurfaceConfig } from "../_shared/ai-engine/surfaces.ts";
 import { classify, isConfident } from "../_shared/ai-engine/classify.ts";
 import { detectViewIntent } from "../_shared/ai-engine/view-targets.ts";
+import { buildArticleTeaser } from "../_shared/ai-engine/routes/curated.ts";
 
 import {
   pickLang, fmtHours, normalize, levenshtein, DAY_KEYS, DAY_LABELS,
@@ -1714,6 +1715,10 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Article de blog détecté : proposé en fin de tour comme carte cliquable,
+        // jamais en remplacement des résultats calculés par le moteur.
+        let pendingArticleTeaser: string | null = null;
+
         const emitTrailingMarkers = (): string => {
           const markers: string[] = [];
           if (lastMapPayload) {
@@ -1738,10 +1743,13 @@ Deno.serve(async (req) => {
             const safe = JSON.stringify({ ids: lastPoolIds, city: lastPoolCity }).replace(/-->/g, "--&gt;");
             markers.push(`<!--POOL_BUSINESS_IDS:${safe}-->`);
           }
-          if (!markers.length) return "";
+          const teaser = pendingArticleTeaser || "";
+          pendingArticleTeaser = null;
+          if (teaser) emitDelta(teaser);
+          if (!markers.length) return teaser;
           const chunk = "\n\n" + markers.join("\n");
           emitDelta(chunk);
-          return chunk;
+          return teaser + chunk;
         };
 
         // Followup with radius / mode
@@ -1871,259 +1879,30 @@ Deno.serve(async (req) => {
           }
         }
 
-        // ============= Blog grounding (hybrid) =============
-
-        // If the last user message maps to a published blog article (by title
-        // similarity), emit an ARTICLE_CARD marker AND — when no suggestion-forced
-        // route is active — build a full immersive answer from the article's
-        // curated entries (up to 10), so the user gets a real editorial listing
-        // instead of a laconic "3 sur 3 trouvées" disclosure.
-        {
-          let blogRouteHandled = false;
-          try {
-            const lastUserMsg = uiMessages[uiMessages.length - 1];
-            const lastUserText = lastUserMsg?.role === "user" ? extractTextFromUIMessage(lastUserMsg) : "";
-            if (lastUserText && lastUserText.trim().length >= 6) {
-              const posts = await fetchBlogPostsCached(admin);
-              // Explicit staff link first (suggestion → blog_post_ids), semantic
-              // detection only as a fallback for free-text follow-ups.
-              const pinnedPosts = suggestionBlogIds
-                .map((id) => posts.find((p) => p.id === id))
-                .filter(Boolean) as BlogRow[];
-              const match = pinnedPosts[0] || matchBlogArticle(lastUserText, language, posts, host.id, host.name);
-              const extraPinned = pinnedPosts.slice(1);
-              const emitExtraArticleCards = () => {
-                for (const p of extraPinned) {
-                  const t =
-                    (language === "en" && p.title_en) ||
-                    (language === "ar" && p.title_ar) ||
-                    p.title_fr || p.title_en || p.title_ar || "";
-                  const img = p.custom_hero_image_url || p.cover_image_url || null;
-                  const payload = { id: p.id, slug: p.slug, title: t, image: img, hero: img, tldr: null, hook: null, intro: null, inline: false, isOwner: p.anchor_business_id === host.id };
-                  emitDelta(`\n\n<!--ARTICLE_CARD:${JSON.stringify(payload)}-->\n\n`);
-                }
-              };
-              if (match) {
-                const title =
-                  (language === "en" && match.title_en) ||
-                  (language === "ar" && match.title_ar) ||
-                  match.title_fr || match.title_en || match.title_ar || "";
-                const image = match.custom_hero_image_url || match.cover_image_url || null;
-                const tldr =
-                  (language === "en" && ((match as any).tldr_en || (match as any).excerpt_en)) ||
-                  (language === "ar" && ((match as any).tldr_ar || (match as any).excerpt_ar)) ||
-                  (match as any).tldr_fr || (match as any).tldr_en || (match as any).tldr_ar ||
-                  (match as any).excerpt_fr || (match as any).excerpt_en || (match as any).excerpt_ar || null;
-                const hookText =
-                  (language === "en" && (match as any).hero_subtitle_en) ||
-                  (language === "ar" && (match as any).hero_subtitle_ar) ||
-                  (match as any).hero_subtitle_fr || (match as any).hero_subtitle_en || (match as any).hero_subtitle_ar || null;
-                const introText =
-                  (language === "en" && (match as any).intro_en) ||
-                  (language === "ar" && (match as any).intro_ar) ||
-                  (match as any).intro_fr || (match as any).intro_en || (match as any).intro_ar || null;
-                const articlePayload: any = {
-                  id: match.id,
-                  slug: match.slug,
-                  title,
-                  image,
-                  hero: image,
-                  tldr,
-                  hook: hookText,
-                  intro: introText,
-                  inline: false,
-                  isOwner: match.anchor_business_id === host.id,
-                };
-
-                // Blog editorial listing wins over the LLM narration whenever a
-                // published article title clearly matches the user's message,
-                // even if the suggestion click also forced badges/subcats — the
-                // curated podium is what the user is actually after.
-                // Curated proximity ("X à côté de Y") is still preserved
-                // because it delivers its own two-entity carousel.
-                if (!curatedProximity) {
-                  const { data: full } = await admin
-                    .from("blog_posts")
-                    .select("entries_fr, entries_en, entries_ar, hero_subtitle_fr, hero_subtitle_en, hero_subtitle_ar, tldr_fr, tldr_en, tldr_ar, intro_fr, intro_en, intro_ar, excerpt_fr, excerpt_en, excerpt_ar")
-                    .eq("id", match.id)
-                    .maybeSingle();
-                  if (full) {
-                    for (const k of ["hero_subtitle_fr","hero_subtitle_en","hero_subtitle_ar","tldr_fr","tldr_en","tldr_ar","intro_fr","intro_en","intro_ar","excerpt_fr","excerpt_en","excerpt_ar"]) {
-                      (match as any)[k] = (full as any)[k];
-                    }
-                    // Recompute payload fields from full row
-                    articlePayload.tldr =
-                      (language === "en" && ((full as any).tldr_en || (full as any).excerpt_en)) ||
-                      (language === "ar" && ((full as any).tldr_ar || (full as any).excerpt_ar)) ||
-                      (full as any).tldr_fr || (full as any).tldr_en || (full as any).tldr_ar ||
-                      (full as any).excerpt_fr || (full as any).excerpt_en || (full as any).excerpt_ar || null;
-                    articlePayload.hook =
-                      (language === "en" && (full as any).hero_subtitle_en) ||
-                      (language === "ar" && (full as any).hero_subtitle_ar) ||
-                      (full as any).hero_subtitle_fr || (full as any).hero_subtitle_en || (full as any).hero_subtitle_ar || null;
-                    articlePayload.intro =
-                      (language === "en" && (full as any).intro_en) ||
-                      (language === "ar" && (full as any).intro_ar) ||
-                      (full as any).intro_fr || (full as any).intro_en || (full as any).intro_ar || null;
-                  }
-                  const entriesRaw: any[] =
-                    (language === "en" && Array.isArray(full?.entries_en) && full!.entries_en.length ? full!.entries_en : null) ||
-                    (language === "ar" && Array.isArray(full?.entries_ar) && full!.entries_ar.length ? full!.entries_ar : null) ||
-                    (Array.isArray(full?.entries_fr) ? full!.entries_fr : []) as any[];
-                  const entries = Array.isArray(entriesRaw) ? entriesRaw : [];
-                  const businessIds = entries.map((e: any) => e?.id).filter(Boolean).slice(0, 12);
-
-                  if (businessIds.length >= 3) {
-                    const { data: bizRows } = await admin
-                      .from("businesses")
-                      .select("id, name, slug, city, neighborhood, main_category, categories, hook_fr, hook_en, hook_ar, latitude, longitude, logo_url, images, google_rating, google_review_count, tripadvisor_rating, tripadvisor_review_count, computed_rating, total_review_count, engagements, closure_message, is_active, is_featured, rating")
-                      .in("id", businessIds)
-                      .eq("is_active", true)
-                      .is("closure_message", null);
-                    const byId = new Map<string, any>((bizRows || []).map((b: any) => [b.id, b]));
-                    // Pair each entry with its business, then sort the same way BlogArticleTemplate does:
-                    // featured first, then rating desc, then review count desc, then name — keeping the
-                    // article's original order as the stable fallback.
-                    const paired = entries
-                      .map((entry: any, originalIdx: number) => ({ entry, originalIdx, biz: byId.get(entry?.id) }))
-                      .filter((p: any) => p.biz);
-                    paired.sort((a: any, b: any) => {
-                      const fa = a.biz?.is_featured ? 1 : 0;
-                      const fb = b.biz?.is_featured ? 1 : 0;
-                      if (fb !== fa) return fb - fa;
-                      const ra = a.biz?.computed_rating ?? a.biz?.rating ?? -1;
-                      const rb = b.biz?.computed_rating ?? b.biz?.rating ?? -1;
-                      if (rb !== ra) return rb - ra;
-                      const ca = a.biz?.total_review_count ?? 0;
-                      const cb = b.biz?.total_review_count ?? 0;
-                      if (cb !== ca) return cb - ca;
-                      return a.originalIdx - b.originalIdx;
-                    });
-                    const orderedBiz = paired.map((p: any) => p.biz);
-                    const orderedEntries = paired.map((p: any) => p.entry);
-
-                    if (orderedBiz.length >= 3) {
-                      const shown = orderedBiz.slice(0, Math.min(orderedBiz.length, 10));
-                      const shownEntries = orderedEntries.slice(0, shown.length);
-                      const shownIds = shown.map((b: any) => b.id);
-
-                      // Fetch reviews: prefer is_default; fall back to first review per business.
-                      const revByBiz = new Map<string, any>();
-                      try {
-                        const { data: defRevs } = await admin
-                          .from("reviews")
-                          .select("business_id, author_name, rating, text, text_fr, text_en, text_ar, source, is_default")
-                          .in("business_id", shownIds)
-                          .neq("is_hidden", true)
-                          .order("is_default", { ascending: false });
-                        for (const r of defRevs || []) {
-                          const bid = String((r as any).business_id);
-                          if (!revByBiz.has(bid)) revByBiz.set(bid, r);
-                        }
-                      } catch (_) { /* noop */ }
-
-                      articlePayload.inline = true;
-                      emitDelta(`\n\n<!--ARTICLE_CARD:${JSON.stringify(articlePayload)}-->\n\n`);
-
-                      const cityForCopy = host.city || "Marrakech";
-                      // Intro/hook/tldr are rendered by the frontend from the ARTICLE_CARD payload
-                      // (hero + hook + En bref + intro). The streamed text bubble contains only the
-                      // ranked entries + disclosure so the map can be inserted between the intro
-                      // and the first result on the client.
-
-                      const reviewsLabel = language === "en" ? "reviews" : language === "ar" ? "مراجعة" : "avis";
-                      const anonLabel = language === "en" ? "Anonymous" : language === "ar" ? "مجهول" : "Anonyme";
-
-                      const body = shown.map((biz: any, idx: number) => {
-                        const entry = shownEntries[idx] || {};
-                        const pretitle = stripText(entry.pretitle || "");
-                        const rank = Number(entry.rank) || idx + 1;
-                        const hook = stripText(entry.hook || "") ||
-                          stripText(
-                            language === "en" ? (biz.hook_en || biz.hook_fr || "") :
-                            language === "ar" ? (biz.hook_ar || biz.hook_fr || "") :
-                            (biz.hook_fr || biz.hook_en || "")
-                          );
-                        const paragraphs = Array.isArray(entry.paragraphs) && entry.paragraphs.length
-                          ? entry.paragraphs.map((p: any) => stripText(String(p || ""))).filter(Boolean).join("\n\n")
-                          : "";
-                        const hours = stripText(entry.hours || "");
-                        const area = pretitle || [biz.neighborhood, biz.city].filter(Boolean).join(" · ");
-                        const detail = [hook, paragraphs].filter(Boolean).join("\n\n");
-                        const hoursLine = hours ? `\n\n_${hours}_` : "";
-                        const fallback = language === "en" ? "A curated One World Morocco address."
-                          : language === "ar" ? "عنوان مختار ضمن دليل One World Morocco."
-                          : "Une adresse sélectionnée dans le guide One World Morocco.";
-                        // Rating + review count line
-                        const rating20 = biz.computed_rating != null ? Number(biz.computed_rating) : null;
-                        const revCount = biz.total_review_count ?? null;
-                        const ratingLine = rating20 != null
-                          ? `\n\n⭐ **${rating20.toFixed(1)}/20**${revCount ? ` · ${revCount.toLocaleString(language === "en" ? "en-US" : "fr-FR")} ${reviewsLabel}` : ""}`
-                          : "";
-                        // First review (default preferred)
-                        const rev = revByBiz.get(String(biz.id));
-                        const revText = rev
-                          ? (language === "en" ? (rev.text_en || rev.text || rev.text_fr)
-                            : language === "ar" ? (rev.text_ar || rev.text || rev.text_fr)
-                            : (rev.text_fr || rev.text))
-                          : null;
-                        const revLine = revText
-                          ? `\n\n> « ${stripText(String(revText))} »\n> — _${rev.author_name || anonLabel}${rev.source ? ` · ${rev.source}` : ""}_`
-                          : "";
-                        return `${rank}. **${biz.name}**${area ? ` — _${area}_` : ""}\n\n${detail || fallback}${ratingLine}${revLine}${hoursLine}`;
-                      }).join("\n\n---\n\n");
-
-                      const total = orderedBiz.length;
-                      const disclosure = shown.length < total
-                        ? (language === "en"
-                            ? `📍 Showing **${shown.length}** of **${total}** picks from **${title}** in ${cityForCopy} — want me to keep going, focus on the top 3, or refine by neighborhood / vibe / budget?`
-                            : language === "ar"
-                              ? `📍 أعرض **${shown.length}** من **${total}** اختيارًا من **${title}** في ${cityForCopy} — هل أواصل، أو أركّز على أفضل 3، أو أُضيّق حسب الحي / الأجواء / الميزانية؟`
-                              : `📍 Je te déroule **${shown.length}** adresses sur **${total}** issues de **${title}** à ${cityForCopy} — tu veux la suite, le podium en zoom, ou qu'on affine par quartier / ambiance / budget ?`)
-                        : (language === "en"
-                            ? `📍 That's the full **${title}** shortlist in ${cityForCopy} — say the word for the podium detailed, an alternative neighborhood, or the map view.`
-                            : language === "ar"
-                              ? `📍 هذه هي القائمة الكاملة **${title}** في ${cityForCopy} — أخبرني إن أردت تفصيل المنصة أو حيًا آخر أو عرض الخريطة.`
-                              : `📍 Voici la sélection complète **${title}** à ${cityForCopy} — dis-moi si tu veux le podium détaillé, un autre quartier, ou la vue carte.`);
-
-                      for (const b of shown) {
-                        if (b?.id && b?.name) knownBusinesses.push({ id: b.id, slug: b.slug || null, name: b.name });
-                      }
-                      const mapBusinesses = shown.map((b: any) => ({
-                        id: b.id, slug: b.slug, name: b.name, city: b.city, neighborhood: b.neighborhood,
-                        address: null, main_category: b.main_category,
-                        categories: Array.isArray(b.categories) ? b.categories : [],
-                        latitude: b.latitude, longitude: b.longitude, logo_url: b.logo_url,
-                        images: Array.isArray(b.images) ? b.images : [],
-                        google_rating: b.google_rating, google_review_count: b.google_review_count,
-                        tripadvisor_rating: b.tripadvisor_rating, tripadvisor_review_count: b.tripadvisor_review_count,
-                        computed_rating: b.computed_rating ?? null, total_review_count: b.total_review_count ?? null,
-                        engagements: b.engagements,
-                      }));
-                      // Ordre imposé = ordre des entrées de l'article (pas de re-tri côté carte)
-                      lastMapPayload = { title, businesses: mapBusinesses, order: "given" };
-
-                      const answer = `${body}\n\n${disclosure}`;
-                      emitDelta(answer);
-                      const trailing = emitTrailingMarkers();
-                      toolsCalledLog.push({ name: "blog_article_route", args: { slug: match.slug, shown: shown.length, total }, ok: true });
-                      endText();
-                      await logTurn({ finalText: answer + trailing, streamCompleted: true });
-                      blogRouteHandled = true;
-                    }
-                  }
-                }
-
-                if (!blogRouteHandled) {
-                  emitDelta(`\n\n<!--ARTICLE_CARD:${JSON.stringify(articlePayload)}-->\n\n`);
-                  emitExtraArticleCards();
-                }
-              }
-            }
-          } catch (e) {
-            console.error("[embed-ai-chat] blog_grounding_error", e);
+        // ============= Blog grounding (teaser uniquement) =============
+        // Un article n'est JAMAIS la réponse : le moteur calcule ses propres
+        // résultats et l'article est proposé en fin de tour sous forme de carte
+        // cliquable (ARTICLE_CARD inline:false), qu'il vienne d'un lien staff
+        // (suggestion) ou d'une détection sur texte libre / vocal.
+        try {
+          const lastUserMsg = uiMessages[uiMessages.length - 1];
+          const lastUserText = lastUserMsg?.role === "user" ? extractTextFromUIMessage(lastUserMsg) : "";
+          if (lastUserText && lastUserText.trim().length >= 6) {
+            const posts = await fetchBlogPostsCached(admin);
+            const pinnedPosts = suggestionBlogIds
+              .map((id) => posts.find((p) => p.id === id))
+              .filter(Boolean) as BlogRow[];
+            const candidates: BlogRow[] = pinnedPosts.length
+              ? pinnedPosts
+              : ([matchBlogArticle(lastUserText, language, posts, host.id, host.name)].filter(Boolean) as BlogRow[]);
+            const teasers = candidates
+              .slice(0, 2)
+              .map((p) => buildArticleTeaser(p as any, language as any))
+              .filter(Boolean);
+            if (teasers.length) pendingArticleTeaser = teasers.join("");
           }
-          if (blogRouteHandled) return;
+        } catch (e) {
+          console.error("[embed-ai-chat] blog_grounding_error", e);
         }
 
 
