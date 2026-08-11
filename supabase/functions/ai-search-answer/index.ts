@@ -272,9 +272,25 @@ serve(async (req) => {
             const post = curated.blogPostIds.map((id) => posts.find((p) => p.id === id)).filter(Boolean)[0];
             if (post) built = await buildBlogArticleAnswer(sb, post, pseudoHost, lang);
           }
+          const curatedHasTaxo = (curated.commodities.length || curated.badgeIds.length || curated.subcategoryNames.length || curated.serviceNames.length) > 0;
+          if (!built && curatedHasTaxo) {
+            built = await buildFilteredAnswer(sb, pseudoHost, lang, {
+              badgeIds: curated.badgeIds,
+              subcategoryNames: curated.subcategoryNames,
+              serviceNames: curated.serviceNames,
+              commodities: curated.commodities,
+              label: curated.label,
+              pinnedIds: curated.pinnedBusinessIds,
+              city: curated.city,
+              maxResults: 6,
+              supabaseUrl: SUPABASE_URL,
+              serviceKey: SERVICE_KEY,
+            }).catch(() => null);
+          }
           if (!built && curated.pinnedBusinessIds.length) {
             built = await buildPinnedAnswer(sb, curated.pinnedBusinessIds, pseudoHost, lang, curated.label);
           }
+
           if (built?.text) {
             // Les marqueurs de rendu (ARTICLE_CARD…) ne sont pas interprétés par /search.
             const answer = String(built.text).replace(/<!--[A-Z_]+:[\s\S]*?-->/g, "").replace(/\n{3,}/g, "\n\n").trim();
