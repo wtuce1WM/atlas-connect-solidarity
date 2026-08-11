@@ -352,30 +352,14 @@ Deno.serve(async (req) => {
           const isInitialClick = !!(curated?.label && norm(userMessage) === norm(curated.label));
           const keepCurated = !!curated && (!!followupId || isInitialClick || suggestionFromText || !priorIds.length);
 
-          if (curated && keepCurated && curated.blogPostIds.length) {
+          // Article de blog lié : il ne remplace PAS les résultats. Le moteur
+          // calcule ses propres résultats et propose de consulter l'article.
+          if (curated && keepCurated && curated.blogPostIds.length && !articleTeaser) {
             const posts = await fetchBlogPostsCached(admin).catch(() => []);
             const post = curated.blogPostIds.map((id) => posts.find((p) => p.id === id)).filter(Boolean)[0];
-            if (post) {
-              const built = await buildBlogArticleAnswer(admin, post, host ?? { id: null, city: scopeCity }, lang).catch((e) => {
-                console.error("[embed-ai-chat-v2] blog_route_failed", String(e));
-                return null;
-              });
-              if (built) {
-                route = built.route;
-                resultsCount = built.shown;
-                emit(built.text);
-                if (built.mapPayload?.businesses?.length) {
-                  emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
-                }
-                if (built.knownBusinesses.length) {
-                  emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
-                }
-                await finish(true);
-                return;
-              }
-              fallbackReason = "route_failed";
-            }
+            if (post) articleTeaser = buildArticleTeaser(post, lang) || null;
           }
+
 
           if (curated && keepCurated && curated.pinnedBusinessIds.length) {
             const built = await buildPinnedAnswer(
