@@ -506,6 +506,9 @@ export async function buildFilteredAnswer(
     serviceNames?: string[];
     commodities?: string[];
     label?: string | null;
+    /** Établissements épinglés sur l'entrée curatée → mis en avant en tête. */
+    pinnedIds?: string[];
+
 
     city?: string | null;
     maxResults?: number;
