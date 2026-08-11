@@ -10,6 +10,8 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { extractTimeSlot, isOpenDuringSlot, getCurrentTimePeriod, type TimeSlot, type TimePeriod } from "@/lib/timeSlots";
 import { isCurrentlyOpen as isCurrentlyOpenCheck } from "@/lib/formatOpeningHours";
 import { haversineKm } from "@/lib/haversine";
+import { callAiEngine } from "@/lib/aiEngineClient";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { withLangPrefix, getLangFromPath } from "@/lib/localizedPath";
@@ -693,6 +695,56 @@ const SearchPage = () => {
     setAiChat((prev) => [...prev, { role: "user", content: q }]);
     if (explicitText === undefined) setAiChatInput("");
     try {
+      // Moteur unifié A/B/C (`?engine=v2`) : la surface n'envoie plus de pool de fiches,
+      // seulement la question, l'historique et la ville active. Les ids cités arrivent
+      // par les marqueurs KNOWN_BUSINESSES / SHOW_ON_MAP.
+      if (searchParams.get("engine") === "v2") {
+        try {
+          const res = await callAiEngine({
+            surface: "search",
+            message: q,
+            history: nextHistory
+              .filter((m) => m.content)
+              .map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
+            activeCity: cityFromUrl || null,
+            language,
+            userCoords: geo.isEnabled && geo.coords ? { lat: geo.coords.lat, lng: geo.coords.lng } : null,
+          });
+          if (res.text) {
+            const byId = new globalThis.Map<string, Business>();
+            for (const b of aiInlineBusinessPool as unknown as Business[]) byId.set(b.id, b);
+            for (const m of res.maps) {
+              for (const b of m.businesses as unknown as Business[]) if (b?.id) byId.set(b.id, b);
+            }
+            const cited = res.known
+              .map((k) => byId.get(k.id))
+              .filter((b): b is Business => !!b) as unknown as AIBusinessData[];
+            if (cited.length > 0) {
+              setAiRefinementBusinessPool((prev) => {
+                const merged = new globalThis.Map<string, Business>();
+                for (const b of prev) merged.set(b.id, b);
+                for (const b of cited) merged.set((b as any).id, b as unknown as Business);
+                return Array.from(merged.values());
+              });
+            }
+            setAiChat((prev) => [...prev, { role: "assistant", content: res.text, citedBusinesses: cited }]);
+            setTimeout(() => {
+              const bubbles = document.querySelectorAll<HTMLElement>("[data-ai-user-bubble]");
+              const last = bubbles[bubbles.length - 1];
+              if (last) {
+                const top = last.getBoundingClientRect().top + window.scrollY - 16;
+                window.scrollTo({ top, behavior: "smooth" });
+              }
+            }, 50);
+            setAiChatLoading(false);
+            return;
+          }
+          console.warn("ai-engine v2 empty answer — fallback ai-search-answer");
+        } catch (e) {
+          console.warn("ai-engine v2 failed — fallback ai-search-answer", e);
+        }
+      }
+
       let refinementPool: Business[] = allBusinesses || [];
       let dedicatedRefinementSearchSucceeded = false;
       if (refinementPool.length === 0) {
@@ -1123,7 +1175,7 @@ const SearchPage = () => {
     } finally {
       setAiChatLoading(false);
     }
-  }, [aiChatInput, aiChatLoading, aiChat, aiAnswerText, allBusinesses, language, subcategoryNamesFromUrl, cityFromUrl, pinIdsParam, totalCount, searchQuery, categoryFromUrl, aiRefinementSpokenText, aiInlineBusinessPool, geo.isEnabled, geo.coords]);
+  }, [aiChatInput, aiChatLoading, aiChat, aiAnswerText, allBusinesses, language, subcategoryNamesFromUrl, cityFromUrl, pinIdsParam, totalCount, searchQuery, categoryFromUrl, aiRefinementSpokenText, aiInlineBusinessPool, geo.isEnabled, geo.coords, searchParams]);
 
   // Demo mode: when ?demo=<followup> is present, wait for the initial AI answer,
   // then auto-submit the follow-up question once as a refinement turn.

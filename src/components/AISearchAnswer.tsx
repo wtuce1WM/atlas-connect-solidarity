@@ -5,6 +5,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { collectRatingSources, computeWeightedRatingOn20 } from "@/lib/ratingUtils";
+import { callAiEngine } from "@/lib/aiEngineClient";
+
 
 interface BusinessData {
   id: string;
@@ -360,6 +362,40 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
         const userCoordsPayload = geo.isEnabled && geo.coords
           ? { lat: geo.coords.lat, lng: geo.coords.lng }
           : undefined;
+
+        // Moteur unifié A/B/C (`?engine=v2`) : aucun pool de fiches envoyé,
+        // la surface fournit seulement la ville active et la question.
+        const engineV2 = typeof window !== "undefined"
+          && new URLSearchParams(window.location.search).get("engine") === "v2";
+        if (engineV2) {
+          try {
+            const res = await callAiEngine({
+              surface: "search",
+              message: spokenText || query,
+              activeCity: topCity || null,
+              language,
+              userCoords: userCoordsPayload ?? null,
+              onDelta: (t) => {
+                if (currentFetchId !== fetchIdRef.current) return;
+                if (t) setAnswer(t);
+              },
+            });
+            if (currentFetchId !== fetchIdRef.current) return;
+            if (res.text) {
+              const byId = new Map(businesses.map((b) => [b.id, b]));
+              const cited = res.known
+                .map((k) => byId.get(k.id))
+                .filter((b): b is BusinessData => !!b);
+              setAnswer(res.text);
+              onAnswerReady?.(res.text, cited.length ? cited : undefined);
+              return;
+            }
+            console.warn("ai-engine v2 empty answer — fallback ai-search-answer");
+          } catch (e) {
+            console.warn("ai-engine v2 failed — fallback ai-search-answer", e);
+          }
+        }
+
 
         const { data, error: fnError } = await supabase.functions.invoke("ai-search-answer", {
           body: {
