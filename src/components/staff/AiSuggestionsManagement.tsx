@@ -308,7 +308,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], blog_post_ids: [], subcategory_ids: [], badge_ids: [], commodity_filters: [], city: null, main_categories: [], disabled_followup_ids: [], mode: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [], category: null, prompt_fr: null, prompt_en: null, prompt_ar: null, fixed_response_fr: null, fixed_response_en: null, fixed_response_ar: null } as Row]);
+    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], blog_post_ids: [], subcategory_ids: [], service_ids: [], badge_ids: [], commodity_filters: [], city: null, main_categories: [], disabled_followup_ids: [], mode: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [], category: null, prompt_fr: null, prompt_en: null, prompt_ar: null, fixed_response_fr: null, fixed_response_en: null, fixed_response_ar: null } as Row]);
     setExpanded((prev) => new Set(prev).add((data as any).id));
 
   };
@@ -337,6 +337,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
           destination_ids: r.destination_ids || [],
           blog_post_ids: r.blog_post_ids || [],
           subcategory_ids: r.subcategory_ids || [],
+          service_ids: r.service_ids || [],
           badge_ids: r.badge_ids || [],
           commodity_filters: r.commodity_filters || [],
           city: r.city || null,
@@ -475,6 +476,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                   <Chip label="Destinations" value={r.destination_ids.length === 0 ? "—" : String(r.destination_ids.length)} alert={r.destination_ids.length > 0} />
                   <Chip label="Blog" value={r.blog_post_ids.length === 0 ? "auto" : String(r.blog_post_ids.length)} alert={r.blog_post_ids.length > 0} />
                   <Chip label="Sous-cat." value={r.subcategory_ids.length === 0 ? "—" : String(r.subcategory_ids.length)} alert={r.subcategory_ids.length > 0} />
+                  <Chip label="Services" value={(r.service_ids?.length ?? 0) === 0 ? "—" : String(r.service_ids.length)} alert={(r.service_ids?.length ?? 0) > 0} />
                   <Chip label="Badges" value={r.badge_ids.length === 0 ? "—" : String(r.badge_ids.length)} alert={r.badge_ids.length > 0} />
                   <Chip
                     label="Commodités"
