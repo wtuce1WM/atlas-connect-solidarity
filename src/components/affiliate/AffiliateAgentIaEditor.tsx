@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Loader2, Check, Bot, MessageSquareReply, Sparkles, X, Newspaper, FileText } from "lucide-react";
+import { Loader2, Check, Bot, MessageSquareReply, Sparkles, X, Newspaper, FileText, Building2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 interface Props {
@@ -138,6 +140,94 @@ const LinkEditor = ({ kind, itemId, links, posts, aiTexts, search, onSearch, sav
 
 
 
+
+type ApplyTarget = { kind: Kind; itemId: string; label: string };
+
+/**
+ * Applique une suggestion / relance à un ou plusieurs autres établissements
+ * de l'affilié : l'entrée est ajoutée à leurs préférences (business_embed_ai_prefs).
+ */
+const ApplyToBusinessesDialog = ({
+  target,
+  siblings,
+  currentBusinessId,
+  onClose,
+}: {
+  target: ApplyTarget;
+  siblings: Array<{ id: string; name: string }>;
+  currentBusinessId: string;
+  onClose: () => void;
+}) => {
+  const others = siblings.filter((b) => b.id !== currentBusinessId);
+  const [sel, setSel] = useState<string[]>([]);
+  const [busy, setBusy] = useState(false);
+
+  const apply = async () => {
+    if (sel.length === 0) return;
+    setBusy(true);
+    const field = target.kind === "suggestion" ? "enabled_suggestion_ids" : "enabled_followup_ids";
+    const { data: existing } = await (supabase as any)
+      .from("business_embed_ai_prefs")
+      .select("business_id,enabled_suggestion_ids,enabled_followup_ids")
+      .in("business_id", sel);
+    const byId = new Map<string, any>(((existing as any[]) ?? []).map((r) => [r.business_id, r]));
+    const rows = sel.map((id) => {
+      const prev = byId.get(id) || {};
+      const list: string[] = Array.isArray(prev[field]) ? prev[field] : [];
+      return {
+        business_id: id,
+        enabled_suggestion_ids: field === "enabled_suggestion_ids"
+          ? Array.from(new Set([...list, target.itemId]))
+          : (Array.isArray(prev.enabled_suggestion_ids) ? prev.enabled_suggestion_ids : []),
+        enabled_followup_ids: field === "enabled_followup_ids"
+          ? Array.from(new Set([...list, target.itemId]))
+          : (Array.isArray(prev.enabled_followup_ids) ? prev.enabled_followup_ids : []),
+      };
+    });
+    const { error } = await (supabase as any)
+      .from("business_embed_ai_prefs")
+      .upsert(rows, { onConflict: "business_id" });
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`Appliqué à ${sel.length} établissement${sel.length > 1 ? "s" : ""}`);
+    onClose();
+  };
+
+  return (
+    <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Associer à d'autres établissements</DialogTitle>
+          <DialogDescription>« {target.label} » sera activée pour les établissements cochés.</DialogDescription>
+        </DialogHeader>
+        <div className="max-h-[50vh] overflow-y-auto space-y-1.5 py-1">
+          {others.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Vous n'avez qu'un seul établissement.</p>
+          ) : (
+            others.map((b) => (
+              <label key={b.id} className="flex items-center gap-3 rounded-md border p-2.5 cursor-pointer text-sm">
+                <Checkbox
+                  checked={sel.includes(b.id)}
+                  onCheckedChange={() =>
+                    setSel((prev) => (prev.includes(b.id) ? prev.filter((x) => x !== b.id) : [...prev, b.id]))
+                  }
+                />
+                <span>{b.name}</span>
+              </label>
+            ))
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" size="sm" onClick={onClose} disabled={busy}>Annuler</Button>
+          <Button size="sm" onClick={apply} disabled={busy || sel.length === 0}>
+            {busy && <Loader2 className="h-4 w-4 mr-1 animate-spin" />} Appliquer
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const AffiliateAgentIaEditor = ({ businessId, businessCity, siblings = [] }: Props) => {
   const [isLoading, setIsLoading] = useState(true);
   const [blogSearch, setBlogSearch] = useState<Record<string, string>>({});
@@ -149,6 +239,7 @@ const AffiliateAgentIaEditor = ({ businessId, businessCity, siblings = [] }: Pro
   const [posts, setPosts] = useState<BlogRow[]>([]);
   const [aiTexts, setAiTexts] = useState<Row[]>([]);
   const [links, setLinks] = useState<Record<string, LinkValue>>({});
+  const [applyTarget, setApplyTarget] = useState<ApplyTarget | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -383,8 +474,17 @@ const AffiliateAgentIaEditor = ({ businessId, businessCity, siblings = [] }: Pro
                       onCheckedChange={() => toggle(selSugg, setSelSugg, s.id)}
                       className="mt-0.5"
                     />
-                    <span className="text-sm text-white/80">{s.label}</span>
+                    <span className="text-sm text-white/80 flex-1">{s.label}</span>
                   </label>
+                  {siblings.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setApplyTarget({ kind: "suggestion", itemId: s.id, label: s.label })}
+                      className="mt-1 inline-flex items-center gap-1 text-xs text-white/50 hover:text-white"
+                    >
+                      <Building2 className="h-3.5 w-3.5" /> Associer à d'autres établissements
+                    </button>
+                  )}
                   {selSugg.includes(s.id) && <LinkEditor kind="suggestion" itemId={s.id} links={links} posts={posts} aiTexts={aiTexts} saveLink={saveLink} search={blogSearch[keyOf("suggestion", s.id)] ?? ""} onSearch={(v) => setBlogSearch((p) => ({ ...p, [keyOf("suggestion", s.id)]: v }))} />}
                 </div>
               ))}
@@ -413,8 +513,17 @@ const AffiliateAgentIaEditor = ({ businessId, businessCity, siblings = [] }: Pro
                       onCheckedChange={() => toggle(selFu, setSelFu, f.id)}
                       className="mt-0.5"
                     />
-                    <span className="text-sm text-white/80">{f.label}</span>
+                    <span className="text-sm text-white/80 flex-1">{f.label}</span>
                   </label>
+                  {siblings.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setApplyTarget({ kind: "followup", itemId: f.id, label: f.label })}
+                      className="mt-1 inline-flex items-center gap-1 text-xs text-white/50 hover:text-white"
+                    >
+                      <Building2 className="h-3.5 w-3.5" /> Associer à d'autres établissements
+                    </button>
+                  )}
                   {selFu.includes(f.id) && <LinkEditor kind="followup" itemId={f.id} links={links} posts={posts} aiTexts={aiTexts} saveLink={saveLink} search={blogSearch[keyOf("followup", f.id)] ?? ""} onSearch={(v) => setBlogSearch((p) => ({ ...p, [keyOf("followup", f.id)]: v }))} />}
                 </div>
               ))}
@@ -422,6 +531,15 @@ const AffiliateAgentIaEditor = ({ businessId, businessCity, siblings = [] }: Pro
           </Card>
         </TabsContent>
       </Tabs>
+
+      {applyTarget && (
+        <ApplyToBusinessesDialog
+          target={applyTarget}
+          siblings={siblings}
+          currentBusinessId={businessId}
+          onClose={() => setApplyTarget(null)}
+        />
+      )}
     </div>
   );
 };
