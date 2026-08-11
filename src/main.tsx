@@ -143,6 +143,15 @@ interface RootErrorBoundaryState {
 
 const RELOAD_FLAG = "__owm_chunk_reload__";
 
+// If the app stayed alive 15s after boot, the previous recovery worked:
+// clear the guard so a future stale deploy can auto-recover again.
+if (typeof window !== "undefined") {
+  window.setTimeout(() => {
+    try { sessionStorage.removeItem(RELOAD_FLAG); } catch { /* ignore */ }
+  }, 15000);
+}
+
+
 const isChunkLoadError = (error: unknown): boolean => {
   if (!error) return false;
   const msg = (error as Error)?.message ?? String(error);
