@@ -66,7 +66,7 @@ const HOST_FIELDS =
   "description, description_en, description_ar, min_price, manual_price_range, phone, whatsapp, website, " +
   "opening_hours, show_opening_hours, reserve_now_url, reserve_now_cta, presentation_mode, online_shop_url, " +
   "online_shop_cta, online_shop_presentation_mode, url_4, url_4_cta, url_4_presentation_mode, url_5, " +
-  "url_5_cta, url_5_presentation_mode, latitude, longitude, is_active";
+  "url_5_cta, url_5_presentation_mode, latitude, longitude, is_active, poi_radius_km";
 
 const CARD_FIELDS =
   "id, name, slug, city, neighborhood, main_category, hook_fr, hook_en, hook_ar, latitude, longitude, " +
@@ -155,6 +155,11 @@ Deno.serve(async (req) => {
   /** true quand la suggestion a été retrouvée depuis le texte libre (pas un clic). */
   let suggestionFromText = false;
   const followupId: string | null = typeof body.followupId === "string" && body.followupId ? body.followupId : null;
+  /** Rayon de proximité demandé par l'utilisateur, borné aux valeurs du champ « Rayon de proximité ». */
+  const RADIUS_OPTIONS = [0.5, 1, 5, 10, 20, 50, 100];
+  const requestedRadiusKm: number | null = RADIUS_OPTIONS.includes(Number(body.radiusKm))
+    ? Number(body.radiusKm)
+    : null;
 
   // Seule la surface embed exige un établissement hôte : /search et /club
   // travaillent sur une ville active, sans fiche d'ancrage.
@@ -526,7 +531,9 @@ Deno.serve(async (req) => {
             [...(Array.isArray(host.categories) ? host.categories : []), host.main_category]
               .map(normalize).filter(Boolean),
           );
-          const overview = await buildNearbyOverview(admin, host, hostCategoryNames, lang).catch((e) => {
+          const hostRadiusKm = RADIUS_OPTIONS.includes(Number(host.poi_radius_km)) ? Number(host.poi_radius_km) : 1;
+          const effectiveRadiusKm = requestedRadiusKm ?? hostRadiusKm;
+          const overview = await buildNearbyOverview(admin, host, hostCategoryNames, lang, effectiveRadiusKm).catch((e) => {
             console.error("[embed-ai-chat-v2] nearby_failed", e);
             return "";
           });
