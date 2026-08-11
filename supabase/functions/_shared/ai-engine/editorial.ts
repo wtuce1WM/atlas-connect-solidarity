@@ -1,30 +1,149 @@
 // Contexte éditorial partagé pour le moteur IA A/B/C.
-// Source d'autorité unique : les TXT IA (business_ai_texts).
+// Source d'autorité unique : les contenus éditoriaux voyageur.
 // Les notes de connaissances (knowledge_entries) sont INTERNES (technique / staff)
 // et ne doivent JAMAIS être injectées dans un prompt voyageur.
 
-export interface EditorialText {
+// Priorité explicite du contexte éditorial, du plus au moins important :
+// 1. Description  (businesses.description)
+// 2. Hook        (businesses.hook_*)
+// 3. Popup       (business_image_titles)
+// 4. Offres      (affiliate_business_promotions)
+// 5. Services    (businesses.services)
+// 6. TXT IA      (business_ai_texts)
+const PRIORITY_ORDER = ["description", "hook", "popup", "offer", "service", "text"] as const;
+type EditorialType = typeof PRIORITY_ORDER[number];
+const PRIORITY_RANK: Record<EditorialType, number> = Object.fromEntries(
+  PRIORITY_ORDER.map((t, i) => [t, i + 1]),
+) as Record<EditorialType, number>;
+
+export interface EditorialItem {
   business_id: string;
+  type: EditorialType;
   title: string;
-  hook: string;
   content: string;
 }
 
 interface LoadOptions {
   businessIds: string[];
-  /** Nombre max de textes par établissement (défaut 2). */
+  /** Nombre max d'éléments par établissement, toutes sources confondues (défaut 2). */
   perBusiness?: number;
-  /** Nombre max de textes au total (défaut 12). */
+  /** Nombre max d'éléments au total (défaut 12). */
   limit?: number;
   /** Longueur max de chaque extrait (défaut 600). */
   maxChars?: number;
+  lang?: string;
 }
 
-/** Charge les TXT IA actifs des établissements donnés, triés par position. */
+const stripHtml = (html: string): string => {
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
+const truncate = (text: string, maxChars: number): string => {
+  if (!text) return "";
+  const clean = text.trim();
+  return clean.length > maxChars ? clean.slice(0, maxChars) + "…" : clean;
+};
+
+const pickLang = (row: any, base: string, lang: string): string => {
+  const suffixed = row?.[`${base}_${lang}`];
+  return String(suffixed || row?.[`${base}_fr`] || row?.[base] || "").trim();
+};
+
+/** Description principale de l'établissement (businesses.description). */
+export async function loadDescriptions(
+  admin: any,
+  { businessIds, maxChars = 600 }: Pick<LoadOptions, "businessIds" | "maxChars">,
+): Promise<EditorialItem[]> {
+  const ids = [...new Set((businessIds || []).filter(Boolean))];
+  if (ids.length === 0) return [];
+  try {
+    const { data } = await admin
+      .from("businesses")
+      .select("id, description")
+      .in("id", ids);
+
+    const out: EditorialItem[] = [];
+    for (const row of (data || []) as any[]) {
+      const raw = String(row?.description || "").trim();
+      if (!raw) continue;
+      const text = truncate(stripHtml(raw), maxChars);
+      if (!text) continue;
+      out.push({ business_id: String(row.id), type: "description", title: "", content: text });
+    }
+    return out;
+  } catch (e) {
+    console.error("[editorial] description_error", String(e));
+    return [];
+  }
+}
+
+/** Hook de l'établissement (businesses.hook_fr / hook_en / hook_ar). */
+export async function loadHooks(
+  admin: any,
+  { businessIds, lang = "fr", maxChars = 300 }: Pick<LoadOptions, "businessIds" | "lang" | "maxChars">,
+): Promise<EditorialItem[]> {
+  const ids = [...new Set((businessIds || []).filter(Boolean))];
+  if (ids.length === 0) return [];
+  try {
+    const { data } = await admin
+      .from("businesses")
+      .select("id, hook_fr, hook_en, hook_ar")
+      .in("id", ids);
+
+    const out: EditorialItem[] = [];
+    for (const row of (data || []) as any[]) {
+      const text = truncate(pickLang(row, "hook", lang), maxChars);
+      if (!text) continue;
+      out.push({ business_id: String(row.id), type: "hook", title: "", content: text });
+    }
+    return out;
+  } catch (e) {
+    console.error("[editorial] hook_error", String(e));
+    return [];
+  }
+}
+
+/** Services de l'établissement (businesses.services), regroupés en un seul élément par business. */
+export async function loadBusinessServices(
+  admin: any,
+  { businessIds }: Pick<LoadOptions, "businessIds">,
+): Promise<EditorialItem[]> {
+  const ids = [...new Set((businessIds || []).filter(Boolean))];
+  if (ids.length === 0) return [];
+  try {
+    const { data } = await admin
+      .from("businesses")
+      .select("id, services")
+      .in("id", ids);
+
+    const out: EditorialItem[] = [];
+    for (const row of (data || []) as any[]) {
+      const services = (row?.services || []).filter((s: any) => s && String(s).trim()).map((s: any) => String(s).trim());
+      if (!services.length) continue;
+      out.push({
+        business_id: String(row.id),
+        type: "service",
+        title: "",
+        content: services.join(", "),
+      });
+    }
+    return out;
+  } catch (e) {
+    console.error("[editorial] services_error", String(e));
+    return [];
+  }
+}
+
+/** TXT IA actifs des établissements (business_ai_texts), triés par position. */
 export async function loadEditorialTexts(
   admin: any,
-  { businessIds, perBusiness = 2, limit = 12, maxChars = 600 }: LoadOptions,
-): Promise<EditorialText[]> {
+  { businessIds, maxChars = 600 }: Pick<LoadOptions, "businessIds" | "maxChars">,
+): Promise<EditorialItem[]> {
   const ids = [...new Set((businessIds || []).filter(Boolean))];
   if (ids.length === 0) return [];
   try {
@@ -35,96 +154,55 @@ export async function loadEditorialTexts(
       .eq("is_active", true)
       .order("position", { ascending: true });
 
-    const perCount: Record<string, number> = {};
-    const out: EditorialText[] = [];
+    const out: EditorialItem[] = [];
     for (const row of (data || []) as any[]) {
       const content = String(row?.content || "").trim();
       if (!content) continue;
-      const bid = String(row.business_id);
-      perCount[bid] = (perCount[bid] || 0) + 1;
-      if (perCount[bid] > perBusiness) continue;
       out.push({
-        business_id: bid,
+        business_id: String(row.business_id),
+        type: "text",
         title: String(row?.title || "").trim(),
-        hook: String(row?.hook || "").trim(),
-        content: content.length > maxChars ? content.slice(0, maxChars) + "…" : content,
+        content: truncate(content, maxChars),
       });
-      if (out.length >= limit) break;
     }
     return out;
   } catch (e) {
-    console.error("[editorial] load_error", String(e));
+    console.error("[editorial] text_error", String(e));
     return [];
   }
 }
 
-/** Rend un bloc texte prêt à injecter dans un prompt, ou "" si rien. */
-export function formatEditorialContext(
-  texts: EditorialText[],
-  nameById: Record<string, string> = {},
-): string {
-  if (!texts.length) return "";
-  return texts
-    .map((t) => {
-      const name = nameById[t.business_id] || "";
-      const head = [name, t.title].filter(Boolean).join(" — ");
-      const hook = t.hook ? ` (${t.hook})` : "";
-      return `[TXT IA] ${head}${hook}: ${t.content}`;
-    })
-    .join("\n");
-}
-
-// ---------------------------------------------------------------------------
-// Sources éditoriales complémentaires : titres/textes des images (popup)
-// et offres de l'établissement (promotions affiliées).
-// ---------------------------------------------------------------------------
-
-export interface EditorialImageText {
-  business_id: string;
-  title: string;
-  description: string;
-}
-
-export interface EditorialOffer {
-  business_id: string;
-  title: string;
-  message: string;
-}
-
-const pickLang = (row: any, base: string, lang: string): string => {
-  const suffixed = row?.[`${base}_${lang}`];
-  return String(suffixed || row?.[`${base}_fr`] || row?.[base] || "").trim();
-};
-
 /** Titre + texte des popups d'images (business_image_titles). */
 export async function loadImagePopupTexts(
   admin: any,
-  { businessIds, perBusiness = 3, limit = 18, maxChars = 400, lang = "fr" }: LoadOptions & { lang?: string },
-): Promise<EditorialImageText[]> {
+  { businessIds, lang = "fr", maxChars = 400 }: Pick<LoadOptions, "businessIds" | "lang" | "maxChars">,
+): Promise<EditorialItem[]> {
   const ids = [...new Set((businessIds || []).filter(Boolean))];
   if (ids.length === 0) return [];
   try {
     const { data } = await admin
       .from("business_image_titles")
-      .select("business_id, title, description, title_fr, title_en, title_ar, description_fr, description_en, description_ar")
-      .in("business_id", ids);
+      .select(
+        "business_id, title, description, title_fr, title_en, title_ar, description_fr, description_en, description_ar, sort_order",
+      )
+      .in("business_id", ids)
+      .order("sort_order", { ascending: true });
 
-    const perCount: Record<string, number> = {};
-    const out: EditorialImageText[] = [];
+    const out: EditorialItem[] = [];
     for (const row of (data || []) as any[]) {
       const title = pickLang(row, "title", lang);
-      let description = pickLang(row, "description", lang);
+      const description = truncate(pickLang(row, "description", lang), maxChars);
       if (!title && !description) continue;
-      const bid = String(row.business_id);
-      perCount[bid] = (perCount[bid] || 0) + 1;
-      if (perCount[bid] > perBusiness) continue;
-      if (description.length > maxChars) description = description.slice(0, maxChars) + "…";
-      out.push({ business_id: bid, title, description });
-      if (out.length >= limit) break;
+      out.push({
+        business_id: String(row.business_id),
+        type: "popup",
+        title,
+        content: description,
+      });
     }
     return out;
   } catch (e) {
-    console.error("[editorial] image_popup_error", String(e));
+    console.error("[editorial] popup_error", String(e));
     return [];
   }
 }
@@ -132,8 +210,8 @@ export async function loadImagePopupTexts(
 /** Offres / promotions de l'établissement (affiliate_business_promotions). */
 export async function loadOffers(
   admin: any,
-  { businessIds, perBusiness = 5, limit = 20, maxChars = 400, lang = "fr" }: LoadOptions & { lang?: string },
-): Promise<EditorialOffer[]> {
+  { businessIds, lang = "fr", maxChars = 400 }: Pick<LoadOptions, "businessIds" | "lang" | "maxChars">,
+): Promise<EditorialItem[]> {
   const ids = [...new Set((businessIds || []).filter(Boolean))];
   if (ids.length === 0) return [];
   try {
@@ -145,8 +223,7 @@ export async function loadOffers(
       .in("business_id", ids)
       .order("sort_order", { ascending: true });
 
-    const perCount: Record<string, number> = {};
-    const out: EditorialOffer[] = [];
+    const out: EditorialItem[] = [];
     for (const row of (data || []) as any[]) {
       const title = pickLang(row, "title", lang);
       let message = pickLang(row, "promotion_message", lang);
@@ -155,13 +232,9 @@ export async function loadOffers(
         : "";
       const savings = row?.savings_amount != null ? `économie ${row.savings_amount} ${row?.promotion_currency || ""}`.trim() : "";
       if (!title && !message && !value) continue;
-      const bid = String(row.business_id);
-      perCount[bid] = (perCount[bid] || 0) + 1;
-      if (perCount[bid] > perBusiness) continue;
-      if (message.length > maxChars) message = message.slice(0, maxChars) + "…";
       const extra = [value, savings].filter(Boolean).join(" · ");
-      out.push({ business_id: bid, title, message: [message, extra].filter(Boolean).join(" — ") });
-      if (out.length >= limit) break;
+      const content = [truncate(message, maxChars), extra].filter(Boolean).join(" — ");
+      out.push({ business_id: String(row.business_id), type: "offer", title, content });
     }
     return out;
   } catch (e) {
@@ -170,42 +243,81 @@ export async function loadOffers(
   }
 }
 
-export interface EditorialBundle {
-  texts: EditorialText[];
-  images: EditorialImageText[];
-  offers: EditorialOffer[];
+/** Applique la priorité globale et les limites par établissement / globale. */
+function applyPriorityLimits(
+  items: EditorialItem[],
+  businessIds: string[],
+  perBusiness: number,
+  limit: number,
+): EditorialItem[] {
+  const ordered = [...items].sort((a, b) => PRIORITY_RANK[a.type] - PRIORITY_RANK[b.type]);
+  const perCount: Record<string, number> = {};
+  const out: EditorialItem[] = [];
+  for (const item of ordered) {
+    perCount[item.business_id] = (perCount[item.business_id] || 0) + 1;
+    if (perCount[item.business_id] > perBusiness) continue;
+    out.push(item);
+    if (out.length >= limit) break;
+  }
+  return out;
 }
 
-/** Charge en parallèle TXT IA + popups d'images + offres. */
+export interface EditorialBundle {
+  items: EditorialItem[];
+}
+
+/** Charge en parallèle toutes les sources éditoriales, puis applique priorité + limites. */
 export async function loadEditorialBundle(
   admin: any,
-  opts: LoadOptions & { lang?: string },
+  opts: LoadOptions,
 ): Promise<EditorialBundle> {
-  const [texts, images, offers] = await Promise.all([
-    loadEditorialTexts(admin, opts),
-    loadImagePopupTexts(admin, opts),
-    loadOffers(admin, opts),
+  const { businessIds, perBusiness = 2, limit = 12, maxChars = 600, lang = "fr" } = opts;
+  const ids = [...new Set((businessIds || []).filter(Boolean))];
+  if (ids.length === 0) return { items: [] };
+
+  const [descriptions, hooks, popups, offers, services, texts] = await Promise.all([
+    loadDescriptions(admin, { businessIds: ids, maxChars }),
+    loadHooks(admin, { businessIds: ids, lang, maxChars: 300 }),
+    loadImagePopupTexts(admin, { businessIds: ids, lang, maxChars }),
+    loadOffers(admin, { businessIds: ids, lang, maxChars }),
+    loadBusinessServices(admin, { businessIds: ids }),
+    loadEditorialTexts(admin, { businessIds: ids, maxChars }),
   ]);
-  return { texts, images, offers };
+
+  const all = [...descriptions, ...hooks, ...popups, ...offers, ...services, ...texts];
+  const items = applyPriorityLimits(all, ids, perBusiness, limit);
+
+  console.log(
+    `[editorial] bundle: ${descriptions.length} desc, ${hooks.length} hooks, ${popups.length} popups, ${offers.length} offers, ${services.length} services, ${texts.length} txtia → ${items.length} retenus (perBusiness=${perBusiness}, limit=${limit})`,
+  );
+
+  return { items };
 }
+
+const LABEL_BY_TYPE: Record<EditorialType, string> = {
+  description: "[DESCRIPTION]",
+  hook: "[HOOK]",
+  popup: "[IMAGE POPUP]",
+  offer: "[OFFRE]",
+  service: "[SERVICE]",
+  text: "[TXT IA]",
+};
 
 /** Rend le bundle complet en bloc injectable dans un prompt, ou "" si vide. */
 export function formatEditorialBundle(
   bundle: EditorialBundle,
   nameById: Record<string, string> = {},
 ): string {
-  const lines: string[] = [];
-  const base = formatEditorialContext(bundle.texts || [], nameById);
-  if (base) lines.push(base);
-  for (const img of bundle.images || []) {
-    const name = nameById[img.business_id] || "";
-    const head = [name, img.title].filter(Boolean).join(" — ");
-    lines.push(`[IMAGE POPUP] ${head}${img.description ? `: ${img.description}` : ""}`);
-  }
-  for (const off of bundle.offers || []) {
-    const name = nameById[off.business_id] || "";
-    const head = [name, off.title].filter(Boolean).join(" — ");
-    lines.push(`[OFFRE] ${head}${off.message ? `: ${off.message}` : ""}`);
-  }
-  return lines.join("\n");
+  const items = (bundle?.items || []).sort((a, b) => PRIORITY_RANK[a.type] - PRIORITY_RANK[b.type]);
+  if (!items.length) return "";
+
+  return items
+    .map((item) => {
+      const name = nameById[item.business_id] || "";
+      const label = LABEL_BY_TYPE[item.type];
+      const head = [name, item.title].filter(Boolean).join(" — ");
+      const body = item.content ? `: ${item.content}` : "";
+      return `${label} ${head}${body}`;
+    })
+    .join("\n");
 }

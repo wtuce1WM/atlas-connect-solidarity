@@ -775,8 +775,9 @@ Deno.serve(async (req) => {
             });
             editorialCtx = formatEditorialBundle(bundle, nameById);
             if (editorialCtx) {
+              const counts = (type: string) => bundle.items.filter((i: any) => i.type === type).length;
               console.log(
-                `[embed-v2] Editorial ctx: ${bundle.texts.length} TXT IA, ${bundle.images.length} popups image, ${bundle.offers.length} offres (${editorialIds.length} businesses)`,
+                `[embed-v2] Editorial ctx: ${counts("description")} desc, ${counts("hook")} hooks, ${counts("popup")} popups, ${counts("offer")} offres, ${counts("service")} services, ${counts("text")} TXT IA (${editorialIds.length} businesses)`,
               );
             }
           }
@@ -790,7 +791,7 @@ Deno.serve(async (req) => {
             ? `Résultats trouvés (${results.length} sur ${totalFound}) — ce sont les seules adresses à présenter, présente-les toutes :\n${resultsContext(results, lang)}`
             : "",
           editorialCtx
-            ? `CONTEXTE ÉDITORIAL ([TXT IA] textes rédigés par l'établissement/affilié, [IMAGE POPUP] titres et textes des photos, [OFFRE] offres et promotions ; intègre-les naturellement, ne mets pas en avant un établissement uniquement parce qu'il a du contenu ici) :\n${editorialCtx}`
+            ? `CONTEXTE ÉDITORIAL ([DESCRIPTION] description de l'établissement, [HOOK] accroche, [IMAGE POPUP] titres et textes des photos, [OFFRE] offres et promotions, [SERVICE] services, [TXT IA] textes rédigés par l'établissement/affilié ; intègre-les naturellement, ne mets pas en avant un établissement uniquement parce qu'il a du contenu ici) :\n${editorialCtx}`
             : "",
           priorIds.length && !results.length
             ? `Établissements déjà présentés dans la conversation : ${(await fetchPriorFull(admin, priorIds.slice(0, 6))).map((b: any) => b.name).join(", ")}`
