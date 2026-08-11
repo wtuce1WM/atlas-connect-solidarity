@@ -295,8 +295,8 @@ Deno.serve(async (req) => {
           fallbackReason = "route_failed";
         }
 
-        // 2. Horaires
-        if (isHoursIntent(userMessage)) {
+        // 2. Horaires — sans hôte, seuls les établissements déjà présentés répondent.
+        if (isHoursIntent(userMessage) && (priorIds.length || host)) {
           route = "opening";
           const answer = priorIds.length
             ? await buildHoursForBusinesses(admin, priorIds.slice(0, CFG.maxResults), lang)
@@ -311,7 +311,7 @@ Deno.serve(async (req) => {
         }
 
         // 3. Réservation
-        if (isBookingIntent(userMessage)) {
+        if (isBookingIntent(userMessage) && (priorIds.length || host)) {
           route = "booking";
           const answer = priorIds.length
             ? await buildBookingForBusinesses(admin, priorIds.slice(0, CFG.maxResults), lang)
@@ -332,7 +332,7 @@ Deno.serve(async (req) => {
         // Texte libre : on rapproche d'abord la phrase tapée d'un libellé de
         // suggestion staff (matcher partagé) → taper la phrase == cliquer la suggestion.
         if (!suggestionId && !followupId) {
-          const m = await matchCuratedByText(admin, { text: userMessage, surface: "embed", crossSurface: true })
+          const m = await matchCuratedByText(admin, { text: userMessage, surface, crossSurface: true })
             .catch(() => null);
           if (m) {
             suggestionId = m.id;
@@ -342,7 +342,7 @@ Deno.serve(async (req) => {
         }
         if (suggestionId || followupId) {
           const curated = await loadCuratedTargets(admin, {
-            suggestionId, followupId, businessId: host.id,
+            suggestionId, followupId, businessId: host?.id ?? null,
           }).catch((e) => {
             console.error("[embed-ai-chat-v2] curated_lookup_failed", String(e));
             return null;
