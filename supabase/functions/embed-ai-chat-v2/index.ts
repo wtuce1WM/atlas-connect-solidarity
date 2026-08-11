@@ -495,13 +495,6 @@ Deno.serve(async (req) => {
           fallbackReason = "no_results";
         }
 
-        // 6. Article de blog détecté en texte libre (titre publié) : simple
-        // proposition de lecture, jamais un remplacement des résultats.
-        if (!articleTeaser && userMessage.trim().length >= 6) {
-          const posts = await fetchBlogPostsCached(admin).catch(() => []);
-          const match = matchBlogArticle(userMessage, lang, posts, host?.id ?? "", host?.name ?? null);
-          if (match) articleTeaser = buildArticleTeaser(match, lang) || null;
-        }
 
 
 
