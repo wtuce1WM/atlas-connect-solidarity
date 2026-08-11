@@ -152,10 +152,10 @@ const EmbedBookPanelWrapper = ({
   );
 };
 
-const SCOPE_LABELS: Record<string, { filter: string; broaden: string; newConversation: string }> = {
-  fr: { filter: "Filtrer parmi ces résultats", broaden: "Élargir la recherche", newConversation: "Nouvelle conversation" },
-  en: { filter: "Filter these results", broaden: "Broaden the search", newConversation: "New conversation" },
-  ar: { filter: "تصفية هذه النتائج", broaden: "توسيع البحث", newConversation: "محادثة جديدة" },
+const SCOPE_LABELS: Record<string, { newConversation: string }> = {
+  fr: { newConversation: "Nouvelle conversation" },
+  en: { newConversation: "New conversation" },
+  ar: { newConversation: "محادثة جديدة" },
 };
 
 const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
@@ -443,7 +443,6 @@ const EmbedAsk = () => {
   const [agentPrefs, setAgentPrefs] = useState<{ sugg: string[] | null; fu: string[] | null }>({ sugg: null, fu: null });
 
   const [activeSuggestionId, setActiveSuggestionId] = useState<string | null>(null);
-  const [scope, setScope] = useState<"filter" | "broaden" | null>("filter");
 
   type BlogArticle = { id: string; slug: string; title: string; image: string | null; isOwner: boolean };
   const [blogArticles, setBlogArticles] = useState<BlogArticle[]>([]);
@@ -761,21 +760,11 @@ const EmbedAsk = () => {
     if (suggestionId && !suggestionId.startsWith("default-")) setActiveSuggestionId(suggestionId);
     setError(null);
     messageIndexRef.current += 1;
-    // Scope is only meaningful for free-text follow-ups (no suggestion/followup click).
-    const isFreeText = !suggestionId && !followupId;
-    const effectiveScope = isFreeText ? scope : null;
-    // Broaden explicitly drops the current suggestion thread so previous filters don't hijack the new query.
-    let effectiveSuggestionId: string | null = suggestionId || activeSuggestionId || null;
-    if (effectiveScope === "broaden") {
-      effectiveSuggestionId = null;
-      setActiveSuggestionId(null);
-    }
+    const effectiveSuggestionId: string | null = suggestionId || activeSuggestionId || null;
     sendMessage(
       { text },
-      { body: { suggestionId: effectiveSuggestionId, followupId: followupId || null, scope: effectiveScope } },
+      { body: { suggestionId: effectiveSuggestionId, followupId: followupId || null, scope: null } },
     );
-    // Reset scope to its default after each free-text send so "Filter" remains selected.
-    if (isFreeText) setScope("filter");
   };
 
   const findLastMapPayload = (): MapPayload | null => {
@@ -1643,24 +1632,6 @@ const EmbedAsk = () => {
       <form onSubmit={(e) => { e.preventDefault(); send(); }} className={`p-3 border-t ${border} ${bg}`}>
         {messages.length > 1 && !streaming && (
           <div className="flex flex-wrap gap-2 pb-2">
-            {(["filter", "broaden"] as const).map((mode) => {
-              const active = scope === mode;
-              return (
-                <button
-                  key={`scope-${mode}`}
-                  type="button"
-                  onClick={() => setScope(active ? null : mode)}
-                  className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
-                    active
-                      ? "bg-[#C24B3F] text-white border-[#C24B3F]"
-                      : `${cardBg} ${border} hover:opacity-90`
-                  }`}
-                  aria-pressed={active}
-                >
-                  {SCOPE_LABELS[lang]?.[mode] ?? SCOPE_LABELS.fr[mode]}
-                </button>
-              );
-            })}
             <button
               type="button"
               onClick={startNewConversation}
