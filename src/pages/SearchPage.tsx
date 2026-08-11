@@ -695,10 +695,10 @@ const SearchPage = () => {
     setAiChat((prev) => [...prev, { role: "user", content: q }]);
     if (explicitText === undefined) setAiChatInput("");
     try {
-      // Moteur unifié A/B/C (`?engine=v2`) : la surface n'envoie plus de pool de fiches,
-      // seulement la question, l'historique et la ville active. Les ids cités arrivent
-      // par les marqueurs KNOWN_BUSINESSES / SHOW_ON_MAP.
-      if (searchParams.get("engine") === "v2") {
+      // Moteur unifié V2 (branchement par défaut) : la surface n'envoie plus de pool de
+      // fiches, seulement la question, l'historique et la ville active. Les ids cités
+      // arrivent par les marqueurs KNOWN_BUSINESSES / SHOW_ON_MAP.
+      {
         try {
           const res = await callAiEngine({
             surface: "search",

@@ -15,6 +15,7 @@ import SlidePanelHeader from "@/components/SlidePanelHeader";
 import EventsSlidePanel from "@/components/club/EventsSlidePanel";
 import BlogSlidePanel from "@/components/club/BlogSlidePanel";
 import VideoThumbnail from "@/components/VideoThumbnail";
+import { callAiEngine } from "@/lib/aiEngineClient";
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
 const AT = {
@@ -479,6 +480,15 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const messagesRef = useRef<Msg[]>([]);
   const deletedChatIdsRef = useRef<Set<string>>(new Set());
   const [dbSuggestions, setDbSuggestions] = useState<string[] | null>(null);
+  // Libellé de suggestion → id (table `ai_suggestions`, surface club) : permet
+  // d'envoyer l'id curaté au moteur V2 quand l'utilisateur clique une suggestion.
+  const [suggestionIds, setSuggestionIds] = useState<Record<string, string>>({});
+  // Relances curatées du Club (table `ai_followups`, surface club) — même source que /embed.
+  const [clubFollowups, setClubFollowups] = useState<string[]>([]);
+  const suggestionIdByLabel = (label: string): string | null => {
+    const norm = (x: string) => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[?!.\s]+$/g, "").trim();
+    return suggestionIds[norm(label)] ?? null;
+  };
   const [followups, setFollowups] = useState<string[]>([]);
   const [skeletonCount, setSkeletonCount] = useState<number>(0);
   const [feedbackByTurn, setFeedbackByTurn] = useState<Record<string, 1 | -1>>({});
@@ -498,7 +508,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
       } catch {/* noop */}
       const { data } = await (supabase as any)
         .from("ai_suggestions")
-        .select("label_fr,label_en,label_ar,city")
+        .select("id,label_fr,label_en,label_ar,city")
         .eq("surface", "club")
         .eq("is_active", true)
         .or(`city.is.null,city.eq.${activeCity}`)
@@ -506,7 +516,28 @@ const ClubAiAssistant = ({ userId }: Props) => {
       if (!data || data.length === 0) { setDbSuggestions(null); return; }
       const key = language === "en" ? "label_en" : language === "ar" ? "label_ar" : "label_fr";
       const list = data.map((r: any) => r[key] || r.label_fr).filter(Boolean) as string[];
+      const norm = (x: string) => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[?!.\s]+$/g, "").trim();
+      const idMap: Record<string, string> = {};
+      for (const r of data as any[]) {
+        const label = (r[key] || r.label_fr || "").trim();
+        if (label && r.id) idMap[norm(label)] = String(r.id);
+      }
+      setSuggestionIds(idMap);
       setDbSuggestions(list.length ? list : null);
+    })();
+  }, [language]);
+
+  // Relances curatées (surface club), identiques au mécanisme de /embed.
+  useEffect(() => {
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("ai_followups")
+        .select("label_fr,label_en,label_ar")
+        .eq("surface", "club")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      const key = language === "en" ? "label_en" : language === "ar" ? "label_ar" : "label_fr";
+      setClubFollowups(((data as any[]) || []).map((r) => (r[key] || r.label_fr || "").trim()).filter(Boolean));
     })();
   }, [language]);
 
@@ -974,73 +1005,43 @@ const ClubAiAssistant = ({ userId }: Props) => {
     setMessages(withAssistant);
     const assistantIdx = withAssistant.length - 1;
     let streamedText = "";
-    let finalPayload: any = null;
     let firstTokenAt: number | null = null;
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/club-ai-chat`;
-      const resp = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        },
-        body: JSON.stringify({ chatId: safeChatId, messages: newMsgs, clientContext, language }),
-      });
-      if (!resp.ok || !resp.body) {
-        throw new Error(`HTTP ${resp.status}`);
-      }
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const parts = buffer.split("\n\n");
-        buffer = parts.pop() || "";
-        for (const part of parts) {
-          const line = part.split("\n").find((l) => l.startsWith("data:"));
-          if (!line) continue;
-          const payload = line.slice(5).trim();
-          if (!payload) continue;
-          try {
-            const evt = JSON.parse(payload);
-            if (evt.type === "chunk" && typeof evt.delta === "string") {
-              if (firstTokenAt == null) {
-                firstTokenAt = performance.now();
-                setStreaming(true);
-              }
-              // First real token clears the skeleton placeholders.
-              if (skeletonCount) setSkeletonCount(0);
-              streamedText += evt.delta;
-              const next = [...messagesRef.current];
-              next[assistantIdx] = { role: "assistant", content: streamedText };
-              messagesRef.current = next;
-              setMessages(next);
-            } else if (evt.type === "skeleton" && typeof evt.count === "number") {
-              setSkeletonCount(Math.min(8, Math.max(1, evt.count)));
-            } else if (evt.type === "done") {
-              finalPayload = evt;
-              if (evt.turnId) {
-                lastTurnIdRef.current = String(evt.turnId);
-                setTurnIdByIdx((s) => ({ ...s, [assistantIdx]: String(evt.turnId) }));
-              }
-              setSkeletonCount(0);
-            } else if (evt.type === "error") {
-              throw new Error(evt.message || "stream_error");
-            }
-          } catch (parseErr) {
-            // partial JSON; skip
+      // Moteur unifié V2 (`embed-ai-chat-v2`, surface "club") : mêmes routes
+      // déterministes, mêmes entrées curatées et mêmes marqueurs que /embed et /search.
+      // La persistance de la conversation (ai_chats) reste côté client (RLS owner).
+      const historyTurns = newMsgs
+        .slice(0, -1)
+        .filter((m) => m.content)
+        .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
+      const res = await callAiEngine({
+        surface: "club",
+        message: text,
+        history: historyTurns,
+        activeCity: clientContext.activeCity || null,
+        language,
+        userCoords: clientContext.coords || null,
+        sessionId: safeChatId,
+        suggestionId: suggestionIdByLabel(text),
+        onDelta: (clean) => {
+          if (firstTokenAt == null) {
+            firstTokenAt = performance.now();
+            setStreaming(true);
           }
-        }
-      }
+          if (skeletonCount) setSkeletonCount(0);
+          streamedText = clean;
+          const next = [...messagesRef.current];
+          next[assistantIdx] = { role: "assistant", content: clean };
+          messagesRef.current = next;
+          setMessages(next);
+        },
+      });
+      setSkeletonCount(0);
 
-      const answer = (finalPayload?.answer as string) || streamedText;
-      const newId = (finalPayload?.chatId as string | null) ?? null;
+      // Le texte brut conserve les marqueurs (SHOW_ON_MAP, KNOWN_BUSINESSES,
+      // OPEN_BOOKING, …) exploités par le rendu et les panneaux du Club.
+      const answer = res.raw || res.text || streamedText;
       import("@/lib/analytics").then(({ trackEvent }) =>
         trackEvent("ai_response_received", {
           latency_ms: Math.round(performance.now() - aiStartedAt),
@@ -1062,8 +1063,28 @@ const ClubAiAssistant = ({ userId }: Props) => {
           if (parsed?.id) setTimeout(() => setOpenBusinessId(String(parsed.id)), 60);
         }
       } catch { /* ignore malformed booking marker */ }
-      const fu = Array.isArray(finalPayload?.followups) ? (finalPayload.followups as string[]).filter((s) => typeof s === "string" && s.trim()).slice(0, 3) : [];
-      setFollowups(fu);
+      // Relances : mêmes libellés curatés que /embed (table `ai_followups`, surface club).
+      setFollowups(clubFollowups.slice(0, 3));
+
+      // Persistance de la conversation (insert au 1er tour, update ensuite).
+      let newId: string | null = safeChatId;
+      if (userId) {
+        try {
+          if (safeChatId) {
+            await supabase.from("ai_chats")
+              .update({ messages: fullMessages as any, updated_at: new Date().toISOString() })
+              .eq("id", safeChatId).eq("user_id", userId);
+          } else {
+            const { data: inserted } = await supabase.from("ai_chats")
+              .insert({ user_id: userId, kind: "club" as any, title: text.slice(0, 200) || at.newChat, messages: fullMessages as any })
+              .select("id").single();
+            newId = (inserted as any)?.id ?? null;
+          }
+        } catch (persistErr) {
+          console.error("[club] chat_persist_failed", persistErr);
+        }
+      }
+
       if (newId) {
         deletedChatIdsRef.current.delete(newId);
         activeChatIdRef.current = newId;
