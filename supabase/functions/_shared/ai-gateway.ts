@@ -252,7 +252,12 @@ export function normalizeGatewayBodyForModel(body: any): any {
   delete out.top_p;
   delete out.frequency_penalty;
   delete out.presence_penalty;
-  if (out.reasoning_effort == null) out.reasoning_effort = "none";
+  // Certains gpt-5.x (ex. gpt-5.6-sol) refusent `reasoning_effort` DÈS QU'il y a
+  // des function tools sur /v1/chat/completions → 400. On ne l'envoie donc que
+  // pour les tours sans outils.
+  const hasTools = Array.isArray(out.tools) && out.tools.length > 0;
+  if (hasTools) delete out.reasoning_effort;
+  else if (out.reasoning_effort == null) out.reasoning_effort = "none";
   return out;
 }
 
