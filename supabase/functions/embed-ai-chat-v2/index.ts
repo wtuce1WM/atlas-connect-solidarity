@@ -578,7 +578,7 @@ Deno.serve(async (req) => {
         const out = cls.output;
         const confident = !!out && out.confidence >= CFG.confidenceThreshold;
 
-        if (out && confident && out.intent === "business_qa" && !priorIds.length) {
+        if (host && out && confident && out.intent === "business_qa" && !priorIds.length) {
           // Question sur l'hôte : contexte hôte seul, synthèse générative courte.
           route = "business_qa";
         }
