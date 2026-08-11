@@ -1660,7 +1660,7 @@ const EmbedAsk = () => {
             rows={1}
             placeholder={L.placeholder}
             disabled={streaming || !businessName}
-            className={`flex-1 resize-none bg-transparent outline-none text-sm max-h-32 ${theme === "light" ? "placeholder:text-neutral-400" : "placeholder:text-neutral-500"}`}
+            className={`flex-1 resize-none bg-transparent outline-none text-sm max-h-32 ${theme === "light" ? "placeholder:text-neutral-400" : "text-white placeholder:text-white"}`}
           />
           <button
             type="submit"
