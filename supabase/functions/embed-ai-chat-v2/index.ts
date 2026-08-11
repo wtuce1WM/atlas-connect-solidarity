@@ -248,25 +248,30 @@ Deno.serve(async (req) => {
 
 
       try {
-        // ── Hôte ────────────────────────────────────────────────────────────
-        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
-        let hq = admin.from("businesses").select(HOST_FIELDS).eq("is_active", true).limit(1);
-        hq = isUuid ? hq.eq("id", slugOrId) : hq.eq("slug", slugOrId);
-        const { data: hostRows } = await hq;
-        if (!hostRows?.length) {
-          emit("Établissement introuvable.");
-          route = "out_of_scope";
-          await finish(true);
-          return;
+        // ── Hôte (optionnel hors surface embed) ─────────────────────────────
+        let host: any = null;
+        if (slugOrId) {
+          const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
+          let hq = admin.from("businesses").select(HOST_FIELDS).eq("is_active", true).limit(1);
+          hq = isUuid ? hq.eq("id", slugOrId) : hq.eq("slug", slugOrId);
+          const { data: hostRows } = await hq;
+          if (!hostRows?.length) {
+            emit("Établissement introuvable.");
+            route = "out_of_scope";
+            await finish(true);
+            return;
+          }
+          host = hostRows[0];
         }
-        const host = hostRows[0];
-        cityDetected = host.city || null;
+        /** Ville de travail : hôte si présent, sinon ville active de la surface. */
+        const scopeCity = host?.city || activeCity || "Marrakech";
+        cityDetected = host?.city || activeCity || null;
 
         // ── Classe A — routes déterministes (zéro token) ────────────────────
         // 1. Météo
         if (isWeatherIntent(userMessage)) {
           route = "weather";
-          const city = host.city || "Marrakech";
+          const city = scopeCity;
           const { data, error } = await admin.functions.invoke("get-weather", { body: { city } });
           if (!error && data && !(data as any).error) {
             const w = data as any;
