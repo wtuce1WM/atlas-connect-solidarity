@@ -48,8 +48,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SURFACE_LOG = "embed_v2";
-const CFG = getSurfaceConfig("embed");
+/** Surfaces servies par ce moteur. La surface arrive dans le body (défaut: embed). */
+type EngineSurface = "embed" | "search" | "club";
+const SURFACE_LOG_BY_SURFACE: Record<EngineSurface, string> = {
+  embed: "embed_v2",
+  search: "search_v2",
+  club: "club_v2",
+};
 
 type AiClass = "A" | "B" | "C";
 type Lang = "fr" | "en" | "ar";
@@ -133,6 +138,15 @@ Deno.serve(async (req) => {
   const body = await req.json().catch(() => ({} as any));
   const uiMessages: UIMessage[] = Array.isArray(body.messages) ? body.messages.slice(-8) : [];
   const slugOrId = String(body.businessSlug || body.businessId || "").trim();
+  const surface: EngineSurface = ["embed", "search", "club"].includes(String(body.surface))
+    ? (String(body.surface) as EngineSurface)
+    : "embed";
+  const CFG = getSurfaceConfig(surface);
+  const SURFACE_LOG = SURFACE_LOG_BY_SURFACE[surface];
+  /** Ville active de la surface sans hôte (/search, /club). */
+  const activeCity: string | null = typeof body.activeCity === "string" && body.activeCity.trim()
+    ? body.activeCity.trim()
+    : null;
   const lang = pickLang(body.language) as Lang;
   const sessionId: string | null = typeof body.sessionId === "string" ? body.sessionId : null;
   let suggestionId: string | null = typeof body.suggestionId === "string" && body.suggestionId ? body.suggestionId : null;
@@ -140,7 +154,9 @@ Deno.serve(async (req) => {
   let suggestionFromText = false;
   const followupId: string | null = typeof body.followupId === "string" && body.followupId ? body.followupId : null;
 
-  if (!slugOrId) {
+  // Seule la surface embed exige un établissement hôte : /search et /club
+  // travaillent sur une ville active, sans fiche d'ancrage.
+  if (!slugOrId && surface === "embed") {
     return new Response(JSON.stringify({ error: "businessSlug required" }), {
       status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -232,25 +248,30 @@ Deno.serve(async (req) => {
 
 
       try {
-        // ── Hôte ────────────────────────────────────────────────────────────
-        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
-        let hq = admin.from("businesses").select(HOST_FIELDS).eq("is_active", true).limit(1);
-        hq = isUuid ? hq.eq("id", slugOrId) : hq.eq("slug", slugOrId);
-        const { data: hostRows } = await hq;
-        if (!hostRows?.length) {
-          emit("Établissement introuvable.");
-          route = "out_of_scope";
-          await finish(true);
-          return;
+        // ── Hôte (optionnel hors surface embed) ─────────────────────────────
+        let host: any = null;
+        if (slugOrId) {
+          const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
+          let hq = admin.from("businesses").select(HOST_FIELDS).eq("is_active", true).limit(1);
+          hq = isUuid ? hq.eq("id", slugOrId) : hq.eq("slug", slugOrId);
+          const { data: hostRows } = await hq;
+          if (!hostRows?.length) {
+            emit("Établissement introuvable.");
+            route = "out_of_scope";
+            await finish(true);
+            return;
+          }
+          host = hostRows[0];
         }
-        const host = hostRows[0];
-        cityDetected = host.city || null;
+        /** Ville de travail : hôte si présent, sinon ville active de la surface. */
+        const scopeCity = host?.city || activeCity || "Marrakech";
+        cityDetected = host?.city || activeCity || null;
 
         // ── Classe A — routes déterministes (zéro token) ────────────────────
         // 1. Météo
         if (isWeatherIntent(userMessage)) {
           route = "weather";
-          const city = host.city || "Marrakech";
+          const city = scopeCity;
           const { data, error } = await admin.functions.invoke("get-weather", { body: { city } });
           if (!error && data && !(data as any).error) {
             const w = data as any;
@@ -274,8 +295,8 @@ Deno.serve(async (req) => {
           fallbackReason = "route_failed";
         }
 
-        // 2. Horaires
-        if (isHoursIntent(userMessage)) {
+        // 2. Horaires — sans hôte, seuls les établissements déjà présentés répondent.
+        if (isHoursIntent(userMessage) && (priorIds.length || host)) {
           route = "opening";
           const answer = priorIds.length
             ? await buildHoursForBusinesses(admin, priorIds.slice(0, CFG.maxResults), lang)
@@ -290,7 +311,7 @@ Deno.serve(async (req) => {
         }
 
         // 3. Réservation
-        if (isBookingIntent(userMessage)) {
+        if (isBookingIntent(userMessage) && (priorIds.length || host)) {
           route = "booking";
           const answer = priorIds.length
             ? await buildBookingForBusinesses(admin, priorIds.slice(0, CFG.maxResults), lang)
@@ -311,7 +332,7 @@ Deno.serve(async (req) => {
         // Texte libre : on rapproche d'abord la phrase tapée d'un libellé de
         // suggestion staff (matcher partagé) → taper la phrase == cliquer la suggestion.
         if (!suggestionId && !followupId) {
-          const m = await matchCuratedByText(admin, { text: userMessage, surface: "embed", crossSurface: true })
+          const m = await matchCuratedByText(admin, { text: userMessage, surface, crossSurface: true })
             .catch(() => null);
           if (m) {
             suggestionId = m.id;
@@ -321,7 +342,7 @@ Deno.serve(async (req) => {
         }
         if (suggestionId || followupId) {
           const curated = await loadCuratedTargets(admin, {
-            suggestionId, followupId, businessId: host.id,
+            suggestionId, followupId, businessId: host?.id ?? null,
           }).catch((e) => {
             console.error("[embed-ai-chat-v2] curated_lookup_failed", String(e));
             return null;
@@ -387,7 +408,7 @@ Deno.serve(async (req) => {
               commodities: curated.commodities,
               label: curated.label,
 
-              city: host.city,
+              city: scopeCity,
               maxResults: CFG.maxResults,
               supabaseUrl: SUPABASE_URL,
               serviceKey: SERVICE,
@@ -414,7 +435,7 @@ Deno.serve(async (req) => {
 
         // 4. Rappels sur les résultats déjà affichés (comptage, ordinal, classement)
         if (priorIds.length) {
-          const prior = extractPriorOrderedBusinesses(uiMessages as any[], host.id);
+          const prior = extractPriorOrderedBusinesses(uiMessages as any[], host?.id ?? "");
           if (isCountIntent(userMessage)) {
             route = "discover";
             resultsCount = priorIds.length;
@@ -441,7 +462,7 @@ Deno.serve(async (req) => {
               return;
             }
           }
-          if (isDistanceListIntent(userMessage)) {
+          if (isDistanceListIntent(userMessage) && host) {
             route = "nearby";
             const answer = await buildDistanceList(admin, host, priorIds, lang);
             if (answer) {
@@ -456,12 +477,14 @@ Deno.serve(async (req) => {
         // 5. Panorama « que faire à proximité ? » (déterministe, Structure du Front)
         // Autorité du résolveur : si la requête contient une cible taxonomique réelle
         // (« piscine à proximité »), ce n'est plus un panorama générique → recherche ciblée.
+        // Sans hôte (/search, /club) il n'y a pas de point d'ancrage : route ignorée.
         const hasResolvedIntent = !!resolution && resolution.targets.some(
           (t) => t.type === "category" || t.type === "subcategory" || t.type === "service" || t.type === "badge",
         );
         if (
-          (isNearbyOverviewIntent(userMessage, host.name) && !hasResolvedIntent) ||
-          (isProximityIntent(userMessage) && !suggestionId && !hasResolvedIntent)
+          host &&
+          ((isNearbyOverviewIntent(userMessage, host.name) && !hasResolvedIntent) ||
+          (isProximityIntent(userMessage) && !suggestionId && !hasResolvedIntent))
         ) {
           route = "nearby";
           const hostCategoryNames = new Set<string>(
@@ -484,7 +507,7 @@ Deno.serve(async (req) => {
         // éditorial que la route curatée, corpus clos.
         if (userMessage.trim().length >= 6) {
           const posts = await fetchBlogPostsCached(admin).catch(() => []);
-          const match = matchBlogArticle(userMessage, lang, posts, host.id, host.name);
+          const match = matchBlogArticle(userMessage, lang, posts, host?.id ?? "", host?.name ?? null);
           if (match) {
             const built = await buildBlogArticleAnswer(admin, match, host, lang).catch((e) => {
               console.error("[embed-ai-chat-v2] blog_freetext_failed", String(e));
@@ -531,13 +554,13 @@ Deno.serve(async (req) => {
         const cls = await classify(
           {
             message: userMessage,
-            surface: "embed",
+            surface,
             focus: {
-              last_business_ids: priorIds.length ? priorIds.slice(0, 3) : [host.id],
-              last_business_names: priorNames.length ? priorNames : [host.name],
+              last_business_ids: priorIds.length ? priorIds.slice(0, 3) : host ? [host.id] : [],
+              last_business_names: priorNames.length ? priorNames : host ? [host.name] : [],
               last_route: priorRoute as any,
               last_category: priorCategory,
-              active_city: host.city || null,
+              active_city: host?.city || activeCity || null,
             },
           },
           LOVABLE_API_KEY,
@@ -555,7 +578,7 @@ Deno.serve(async (req) => {
         const out = cls.output;
         const confident = !!out && out.confidence >= CFG.confidenceThreshold;
 
-        if (out && confident && out.intent === "business_qa" && !priorIds.length) {
+        if (host && out && confident && out.intent === "business_qa" && !priorIds.length) {
           // Question sur l'hôte : contexte hôte seul, synthèse générative courte.
           route = "business_qa";
         }
@@ -585,7 +608,7 @@ Deno.serve(async (req) => {
             const json = await r.json().catch(() => null);
             const all: any[] = Array.isArray(json?.businesses) ? json.businesses : [];
             let kept = all.filter((b: any) => {
-              if (b.id === host.id) return false;
+              if (host && b.id === host.id) return false;
               if (!excluded.length) return true;
               const hay = normalize(`${b.main_category || ""} ${(b.categories || []).join(" ")}`);
               return !excluded.some((x) => hay.includes(x));
@@ -746,7 +769,7 @@ Deno.serve(async (req) => {
                 : [priorCategory].filter(Boolean) as string[];
           const baseQuery = [...coreTerms, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
             || userMessage.slice(0, 200);
-          await runSearch(baseQuery, resolvedCity || out.city || host.city || "Marrakech", excluded);
+          await runSearch(baseQuery, resolvedCity || out.city || scopeCity, excluded);
         }
 
         // Filet de secours : le classifieur n'a pas tranché (ou sa requête structurée
@@ -760,7 +783,7 @@ Deno.serve(async (req) => {
               : userMessage.slice(0, 200);
           await runSearch(
             rescueQuery,
-            resolvedCity || out?.city || host.city || "Marrakech",
+            resolvedCity || out?.city || scopeCity,
             rawExcluded,
           );
           if (results.length) fallbackReason = fallbackReason || "confidence_low";
@@ -814,7 +837,7 @@ Deno.serve(async (req) => {
         }
 
         const context = [
-          hostContext(host, lang),
+          host ? hostContext(host, lang) : (activeCity ? `Ville active: ${activeCity}` : ""),
           results.length
             ? `Résultats trouvés (${results.length} sur ${totalFound}) — ce sont les seules adresses à présenter, présente-les toutes :\n${resultsContext(results, lang)}`
             : "",
@@ -826,7 +849,7 @@ Deno.serve(async (req) => {
             : "",
         ].filter(Boolean).join("\n\n");
 
-        const system = `Tu es le concierge IA de ${host.name}. Ton: ${CFG.ton}.
+        const system = `Tu es ${host ? `le concierge IA de ${host.name}` : "l'assistant IA One World Morocco"}. Ton: ${CFG.ton}.
 Tu ne t'appuies QUE sur le contexte fourni. N'invente jamais un établissement, un prix, un horaire ou un avis.
 Quand le contexte contient des résultats, tu les présentes TOUJOURS, même s'ils ne correspondent pas exactement à la demande : dans ce cas, une phrase d'introduction honnête ("pas de correspondance exacte, voici une sélection proche") puis les adresses. Ne réponds jamais que tu n'as rien trouvé alors que des résultats sont fournis.
 Si le contexte ne contient aucun résultat, dis-le en une phrase et propose une reformulation.
@@ -880,7 +903,7 @@ Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}
         // Marqueurs de fin : carte + mémoire du tour suivant.
         if (results.length) {
           const disclosure = totalFound > results.length
-            ? `\n\n${buildDisclosureFromCounts(results.length, totalFound, cityDetected || host.city || "")}`
+            ? `\n\n${buildDisclosureFromCounts(results.length, totalFound, cityDetected || scopeCity || "")}`
             : "";
           if (disclosure && !/sur\s+\d+\s+trouv/i.test(finalText)) emit(disclosure);
           emit(`\n\n${toMapMarker(results, null)}`);
