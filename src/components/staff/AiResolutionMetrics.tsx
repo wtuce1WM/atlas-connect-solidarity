@@ -9,10 +9,12 @@ import { Badge } from "@/components/ui/badge";
 type Row = {
   query: string | null;
   effective_query?: string | null;
+  surface?: string | null;
   resolved_types: string[] | null;
   resolution_unresolved: boolean | null;
   resolution_service_only: boolean | null;
 };
+
 
 const PERIODS = [7, 14, 30, 90];
 
@@ -39,7 +41,8 @@ export default function AiResolutionMetrics() {
           .limit(5000),
         supabase
           .from("ai_conversation_turns")
-          .select("message,resolved_types,resolution_unresolved,resolution_service_only")
+          .select("message,surface,resolved_types,resolution_unresolved,resolution_service_only")
+
           .gte("created_at", since)
           .not("resolved_types", "is", null)
           .order("created_at", { ascending: false })
@@ -67,6 +70,18 @@ export default function AiResolutionMetrics() {
   const globalStats = useMemo(() => stats(all), [all]);
   const searchStats = useMemo(() => stats(search), [search]);
   const aiStats = useMemo(() => stats(ai), [ai]);
+  // Les surfaces sont loggées avec un suffixe de version (embed_v2, search_v2…).
+  const normSurface = (v?: string | null) => (v || "").toLowerCase().replace(/_v\d+$/, "");
+  const bySurface = (s: string) => stats(ai.filter((r) => normSurface(r.surface) === s));
+  const clubStats = useMemo(() => bySurface("club"), [ai]);
+  const embedStats = useMemo(() => bySurface("embed"), [ai]);
+  const searchAiStats = useMemo(() => bySurface("search"), [ai]);
+  const unknownAiStats = useMemo(
+    () => stats(ai.filter((r) => !["club", "embed", "search"].includes(normSurface(r.surface)))),
+    [ai],
+  );
+
+
 
   const topUnresolved = useMemo(() => {
     const map = new Map<string, number>();
@@ -98,7 +113,36 @@ export default function AiResolutionMetrics() {
           <p className="text-sm text-muted-foreground">
             Observation seule : le résolveur mesure la couverture « terme → cible », il ne modifie aucun résultat.
           </p>
+          <div className="mt-3 rounded-md border border-border bg-muted/40 p-3 text-xs leading-relaxed text-muted-foreground space-y-2 max-w-3xl">
+            <p>
+              <strong className="text-foreground">Comment lire ces chiffres.</strong> Pour chaque requête, le résolveur
+              tente de rattacher les mots saisis à une <em>cible typée</em> de notre taxonomie réelle : catégorie,
+              sous-catégorie, service, badge, engagement, commodité, ville ou quartier. Le dénominateur est le nombre de
+              requêtes mesurées sur la période (hors autocomplete).
+            </p>
+            <p>
+              <strong className="text-foreground">« Non résolues » (ex. 7 %)</strong> = part des requêtes pour lesquelles
+              aucune cible n'a été reconnue. L'utilisateur a bien eu une réponse (recherche floue ou LLM), mais elle n'a
+              été appuyée sur <em>aucun</em> élément de notre taxonomie. C'est le vrai indicateur de trou de vocabulaire :
+              soit le terme n'existe nulle part en base, soit il manque un synonyme. Le tableau « Top termes non résolus »
+              donne la liste à traiter en priorité (remplissage de <code>search_synonyms</code> ou de mots-clés).
+            </p>
+            <p>
+              <strong className="text-foreground">« Service seul » — trou silencieux</strong> = requêtes résolues
+              uniquement via un libellé de <em>service</em> (ex. « piscine », « vue montagne »), sans aucune catégorie ni
+              sous-catégorie correspondante. On les appelle « silencieuses » parce qu'elles renvoient des résultats et
+              ne déclenchent donc aucune alerte, alors que le filtrage historique ne portait que sur les catégories : la
+              recherche était en réalité approximative sans que rien ne le signale. Les suivre permet de mesurer combien
+              d'intentions passent exclusivement par les services et de décider si un terme mérite d'être promu en
+              sous-catégorie, badge ou synonyme.
+            </p>
+            <p>
+              Un pourcentage bas de « non résolues » et un « service seul » stable indiquent une taxonomie qui couvre le
+              langage réel des visiteurs. Une hausse signale un vocabulaire nouveau à intégrer, pas un bug du moteur.
+            </p>
+          </div>
         </div>
+
         <Select value={String(days)} onValueChange={(v) => setDays(Number(v))}>
           <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -159,7 +203,13 @@ export default function AiResolutionMetrics() {
                   <TableHead className="text-right">Service seul</TableHead>
                 </TableRow></TableHeader>
                 <TableBody>
-                  {[["Recherche (business-search)", searchStats], ["Moteur IA (turns)", aiStats]].map(([label, st]: any) => (
+                  {[
+                    ["Recherche (business-search)", searchStats],
+                    ["Moteur IA — /club", clubStats],
+                    ["Moteur IA — /embed (widget)", embedStats],
+                    ["Moteur IA — onglet IA de /search", searchAiStats],
+                    ["Moteur IA — surface non renseignée", unknownAiStats],
+                  ].map(([label, st]: any) => (
                     <TableRow key={label}>
                       <TableCell className="font-medium">{label}</TableCell>
                       <TableCell className="text-right">{st.total.toLocaleString("fr-FR")}</TableCell>
@@ -167,6 +217,7 @@ export default function AiResolutionMetrics() {
                       <TableCell className="text-right">{pct(st.serviceOnly, st.total)}</TableCell>
                     </TableRow>
                   ))}
+
                 </TableBody>
               </Table>
             </CardContent>
