@@ -76,7 +76,7 @@ export default function SearchResultCard({ business, index, labelLogos, distance
   const hasEngagements = standards.length > 0 || logistics.length > 0 || certifications.length > 0;
   const { isBookmarked, isLoggedIn: isBookmarkLoggedIn, toggle: toggleBookmark } = useBookmark(business.id);
 
-  const orderOnlineLabel = language === "en" ? "Order online" : language === "ar" ? "اطلب عبر الإنترنت" : "Commandez en ligne";
+  const orderOnlineLabel = language === "en" ? "Online store" : language === "ar" ? "متجر أونلاين" : "Vente en ligne";
   const reviewsLabel = language === "en" ? "reviews" : language === "ar" ? "تقييم" : "avis";
   const removeBookmarkLabel = language === "en" ? "Remove from favorites" : language === "ar" ? "إزالة من المفضلة" : "Retirer des favoris";
 
@@ -134,7 +134,7 @@ export default function SearchResultCard({ business, index, labelLogos, distance
         {subcat && (
           <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-gold text-gold-foreground">{subcat}</span>
         )}
-        {engs.includes("Logistique:Commandez en ligne et recevez votre colis chez vous") && (
+        {engs.includes("Logistique:Vente en ligne") && (
           <span className="px-1.5 py-0.5 rounded text-[10px] font-medium text-white" style={{ backgroundColor: "#C04F17" }}>
             {orderOnlineLabel}
           </span>

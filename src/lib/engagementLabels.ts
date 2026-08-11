@@ -48,7 +48,7 @@ const MAP: Record<string, { en: string; ar: string }> = {
   "Cliquez et retirez": { en: "Click & collect", ar: "اطلب واستلم" },
   "Coffre-fort": { en: "Safe", ar: "خزنة" },
   "Commandez 24h à l'avance": { en: "Order 24h in advance", ar: "اطلب قبل 24 ساعة" },
-  "Commandez en ligne et recevez votre colis chez vous": { en: "Order online, home delivery", ar: "اطلب أونلاين وتوصيل للمنزل" },
+  "Vente en ligne": { en: "Online store", ar: "متجر أونلاين" },
   "Devis gratuit": { en: "Free quote", ar: "عرض سعر مجاني" },
   "Disponible 24h/24": { en: "Available 24/7", ar: "متاح 24/7" },
   "Disponible en ligne et en magasin": { en: "Online & in-store", ar: "متاح أونلاين وفي المتجر" },
