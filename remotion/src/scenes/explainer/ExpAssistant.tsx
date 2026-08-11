@@ -42,11 +42,11 @@ export const ExpAssistant: React.FC = () => {
       >
         <ExpBrowserFrame
           src={staticFile("explainer/shots/ask.png")}
-          width={780}
+          width={840}
           height={820}
           label="oneworldmorocco.com/embed/ask"
           offsetY={scroll}
-          imageScale={1.3}
+          imageScale={1.12}
         />
       </div>
 
