@@ -8709,10 +8709,16 @@ export type Database = {
         Args: { _ids: string[] }
         Returns: undefined
       }
-      replace_business_documents: {
-        Args: { p_business_id: string; p_docs: Json }
-        Returns: Json
-      }
+      replace_business_documents:
+        | { Args: { p_business_id: string; p_docs: Json }; Returns: Json }
+        | {
+            Args: {
+              p_business_id: string
+              p_docs: Json
+              p_managed_types?: string[]
+            }
+            Returns: Json
+          }
       resolve_affiliate_id: { Args: { _user_id: string }; Returns: string }
       search_businesses_with_rank:
         | {
