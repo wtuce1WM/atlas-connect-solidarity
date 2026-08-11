@@ -405,7 +405,10 @@ Deno.serve(async (req) => {
             }
           }
 
-          if (curated && keepCurated && curated.pinnedBusinessIds.length) {
+          // Corpus clos SEULEMENT si l'entrée n'a aucun filtre taxonomique : sinon
+          // les épinglés sont mis en avant en tête des résultats filtrés.
+          const curatedHasTaxo = !!curated && (curated.commodities.length || curated.badgeIds.length || curated.subcategoryNames.length || curated.serviceNames.length) > 0;
+          if (curated && keepCurated && curated.pinnedBusinessIds.length && !curatedHasTaxo) {
             const built = await buildPinnedAnswer(
               admin, curated.pinnedBusinessIds, host, lang, curated.label,
             ).catch((e) => {
