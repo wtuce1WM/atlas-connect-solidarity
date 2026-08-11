@@ -26,6 +26,7 @@ import {
 } from "../_shared/taxonomy-resolver.ts";
 import { detectViewIntent, withinPointRadius, hasVantage, hasPointViewProof, hasPanoramaAttribute, hasPanoramaProof } from "../_shared/ai-engine/view-targets.ts";
 import { pickLang, normalize, toMapMarker, fetchPriorFull } from "../_shared/ai-engine/routes/shared.ts";
+import { loadEditorialBundle, formatEditorialBundle } from "../_shared/ai-engine/editorial.ts";
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
 import {
   loadCuratedTargets, fetchBlogPostsCached, matchBlogArticle, matchCuratedByText,
@@ -753,10 +754,43 @@ Deno.serve(async (req) => {
         // ── Classe C — synthèse générative sur contexte déterministe ────────
         aiClass = "C";
         const gateway = createLovableAiGatewayProvider(LOVABLE_API_KEY);
+
+        // Contexte éditorial partagé (TXT IA + popups d'images + offres) — même
+        // module que /search et /club pour éviter toute divergence de richesse.
+        let editorialCtx = "";
+        try {
+          const editorialIds = [
+            ...(host?.id ? [String(host.id)] : []),
+            ...results.map((b: any) => b?.id).filter(Boolean).map(String),
+          ];
+          if (editorialIds.length) {
+            const nameById: Record<string, string> = {};
+            if (host?.id) nameById[String(host.id)] = host.name || "";
+            for (const b of results as any[]) if (b?.id) nameById[String(b.id)] = b.name || "";
+            const bundle = await loadEditorialBundle(admin, {
+              businessIds: editorialIds,
+              perBusiness: 2,
+              limit: 12,
+              lang,
+            });
+            editorialCtx = formatEditorialBundle(bundle, nameById);
+            if (editorialCtx) {
+              console.log(
+                `[embed-v2] Editorial ctx: ${bundle.texts.length} TXT IA, ${bundle.images.length} popups image, ${bundle.offers.length} offres (${editorialIds.length} businesses)`,
+              );
+            }
+          }
+        } catch (e) {
+          console.error("[embed-v2] editorial_ctx_error", String(e));
+        }
+
         const context = [
           hostContext(host, lang),
           results.length
             ? `Résultats trouvés (${results.length} sur ${totalFound}) — ce sont les seules adresses à présenter, présente-les toutes :\n${resultsContext(results, lang)}`
+            : "",
+          editorialCtx
+            ? `CONTEXTE ÉDITORIAL ([TXT IA] textes rédigés par l'établissement/affilié, [IMAGE POPUP] titres et textes des photos, [OFFRE] offres et promotions ; intègre-les naturellement, ne mets pas en avant un établissement uniquement parce qu'il a du contenu ici) :\n${editorialCtx}`
             : "",
           priorIds.length && !results.length
             ? `Établissements déjà présentés dans la conversation : ${(await fetchPriorFull(admin, priorIds.slice(0, 6))).map((b: any) => b.name).join(", ")}`

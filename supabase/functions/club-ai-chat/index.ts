@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { fetchAiGateway, resolveCallerContext, normalizeGatewayBodyForModel } from "../_shared/ai-gateway.ts";
 import { AI_MODEL, getSurfaceConfig } from "../_shared/ai-engine/surfaces.ts";
+import { loadEditorialBundle, formatEditorialBundle } from "../_shared/ai-engine/editorial.ts";
 import { classify, isConfident, type ClassifyResult } from "../_shared/ai-engine/classify.ts";
 import { detectViewIntent, hasPanoramaAttribute, hasPanoramaProof, withinPointRadius, hasVantage, hasPointViewProof } from "../_shared/ai-engine/view-targets.ts";
 import {
@@ -3198,14 +3199,36 @@ serve(async (req) => {
           const shownCount = top.length;
           const filterLine = search?.strict_filter_applied ? `\nFiltre strict appliqué côté serveur : ${search.strict_filter_reason}. Ne mentionne PAS d'établissement absent de la liste ci-dessus.` : "";
           const refineNote = routedIntent === "refinement" ? ` (raffinement de : "${previousUserQuery}")` : "";
+
+          // Contexte éditorial partagé (TXT IA + popups d'images + offres) — même
+          // module que /search et /embed pour une richesse identique.
+          let editorialBlock = "";
+          try {
+            const edIds = top.map((r: any) => r?.id).filter(Boolean).map(String);
+            if (edIds.length) {
+              const nameById: Record<string, string> = {};
+              for (const r of top as any[]) if (r?.id) nameById[String(r.id)] = r.name || "";
+              const bundle = await loadEditorialBundle(admin, { businessIds: edIds, perBusiness: 2, limit: 12, lang });
+              const ctxTxt = formatEditorialBundle(bundle, nameById);
+              if (ctxTxt) {
+                editorialBlock = `\n\nCONTEXTE ÉDITORIAL ([TXT IA] textes rédigés par l'établissement/affilié, [IMAGE POPUP] titres et textes des photos, [OFFRE] offres et promotions) — utilise-le pour enrichir la ligne de chaque établissement, sans rien inventer :\n${ctxTxt}`;
+                console.log(
+                  `[club] Editorial ctx: ${bundle.texts.length} TXT IA, ${bundle.images.length} popups image, ${bundle.offers.length} offres (${edIds.length} businesses)`,
+                );
+              }
+            }
+          } catch (e) {
+            console.error("[club] editorial_ctx_error", String(e));
+          }
+
           const synthUser = `Requête du membre : "${lastUserMsg}"${refineNote}
 
 Établissements sélectionnés (${totalCount} au total, ${shownCount} présentés) :
-${listBlock}${filterLine}
+${listBlock}${filterLine}${editorialBlock}
 
 Consignes :
 - 1 phrase d'intro chaleureuse en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}.
-- Liste chaque établissement : **Nom** puis une ligne courte tirée du hook.
+- Liste chaque établissement : **Nom** puis une ligne courte tirée du hook ou du contexte éditorial.
 - Termine EXACTEMENT par cette ligne : **${shownCount} résultats affichés sur ${totalCount} trouvés**
 ${totalCount > shownCount ? "- Puis propose : « je peux les afficher tous sur la carte »." : ""}`;
 
@@ -3456,6 +3479,7 @@ ${languageInstruction}`;
     // Accumulate businesses seen during the tool loop → seed client's lookup map
     // and remove the client-side fuzzy DB roundtrips on `**Name**` clicks.
     const knownBusinessesMap = new Map<string, { id: string; slug: string | null; name: string }>();
+    let editorialInjected = false;
     const addKnown = (b: any) => {
       if (!b?.id || !b?.name) return;
       const key = String(b.name).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
@@ -3548,6 +3572,37 @@ ${languageInstruction}`;
             };
           }
           convo.push({ role: "tool", tool_call_id: tc.id, name: tc.function?.name, content: JSON.stringify(result) });
+        }
+
+        // Contexte éditorial partagé (TXT IA + popups d'images + offres), injecté
+        // une seule fois par tour dès que des établissements réels sont connus.
+        if (!editorialInjected && knownBusinessesMap.size) {
+          editorialInjected = true;
+          try {
+            const known = [...knownBusinessesMap.values()].slice(0, 12);
+            const nameById: Record<string, string> = {};
+            for (const b of known) nameById[b.id] = b.name;
+            const bundle = await loadEditorialBundle(admin, {
+              businessIds: known.map((b) => b.id),
+              perBusiness: 2,
+              limit: 12,
+              lang,
+            });
+            const editorialCtx = formatEditorialBundle(bundle, nameById);
+            if (editorialCtx) {
+              convo.push({
+                role: "system",
+                content:
+                  "CONTEXTE ÉDITORIAL DES ÉTABLISSEMENTS ([TXT IA] textes rédigés par l'établissement/affilié, [IMAGE POPUP] titres et textes des photos, [OFFRE] offres et promotions ; intègre-les naturellement pour enrichir tes descriptions, n'invente rien, et ne mets pas en avant un établissement uniquement parce qu'il a du contenu ici) :\n" +
+                  editorialCtx,
+              });
+              console.log(
+                `[club] Editorial ctx: ${bundle.texts.length} TXT IA, ${bundle.images.length} popups image, ${bundle.offers.length} offres (${known.length} businesses)`,
+              );
+            }
+          } catch (e) {
+            console.error("[club] editorial_ctx_error", String(e));
+          }
         }
         continue;
       }
