@@ -439,6 +439,8 @@ Deno.serve(async (req) => {
               serviceNames: curated.serviceNames,
               commodities: curated.commodities,
               label: curated.label,
+              pinnedIds: curated.pinnedBusinessIds,
+
 
               // Périmètre défini par l'entrée curatée (vide = trans-ville)
               city: curated.city,
