@@ -633,7 +633,7 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("id, name, latitude, longitude, city, main_category, url_6_title, widget_bg_color, widget_bg_color_dark")
+        .select("id, name, latitude, longitude, city, main_category, url_6_title, widget_bg_color, widget_bg_color_dark, poi_radius_km")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
@@ -645,6 +645,9 @@ const EmbedAsk = () => {
       setBusinessId((row?.id as string) || null);
       setBusinessCity((row?.city as string) || null);
       setBusinessMainCategory((row?.main_category as string) || null);
+      const rawRadius = Number(row?.poi_radius_km);
+      const hostRadius = RADIUS_OPTIONS.includes(rawRadius as any) ? rawRadius : 1;
+      applyRadius(hostRadius);
       const hex = (v: any) => (typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v.trim()) ? v.trim() : null);
       setWidgetColors(noTheme ? { light: null, dark: null } : { light: hex(row?.widget_bg_color), dark: hex(row?.widget_bg_color_dark) });
       if (row?.latitude != null && row?.longitude != null) {
@@ -670,10 +673,11 @@ const EmbedAsk = () => {
     setMessages([{
       id: "opener",
       role: "assistant",
-      parts: [{ type: "text", text: L.opener(businessName) }],
+      parts: [{ type: "text", text: L.opener(businessName, radiusLabel(radiusKm, lang)) }],
     } as any]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [businessName, chatKey]);
+  }, [businessName, chatKey, radiusKm]);
+
 
   // Persist thread to localStorage on every change (skip while streaming to avoid spam).
   useEffect(() => {
