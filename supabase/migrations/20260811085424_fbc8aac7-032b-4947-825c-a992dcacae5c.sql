@@ -1,0 +1,1 @@
+ALTER TABLE public.ai_suggestions ADD COLUMN IF NOT EXISTS service_ids uuid[] NOT NULL DEFAULT '{}';

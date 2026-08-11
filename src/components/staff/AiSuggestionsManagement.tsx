@@ -74,6 +74,7 @@ type Row = {
   destination_ids: string[];
   blog_post_ids: string[];
   subcategory_ids: string[];
+  service_ids: string[];
   badge_ids: string[];
   commodity_filters: string[];
   city: string | null;
@@ -114,6 +115,7 @@ type BusinessOption = { id: string; name: string; slug: string | null };
 type BlogOption = { id: string; title: string; slug: string | null };
 type DestinationOption = { id: string; name_fr: string; name_en: string | null; name_ar: string | null };
 type SubcategoryOption = { id: string; name_fr: string };
+type ServiceOption = { id: string; name_fr: string };
 type BadgeOption = { id: string; name_fr: string };
 type GlobalFollowup = { id: string; label_fr: string; is_active: boolean; sort_order: number };
 
@@ -123,6 +125,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
   const [blogPosts, setBlogPosts] = useState<BlogOption[]>([]);
   const [destinations, setDestinations] = useState<DestinationOption[]>([]);
   const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
+  const [services, setServices] = useState<ServiceOption[]>([]);
   const [badges, setBadges] = useState<BadgeOption[]>([]);
   const [mainCategories, setMainCategories] = useState<string[]>([]);
   const [globalFollowups, setGlobalFollowups] = useState<GlobalFollowup[]>([]);
@@ -133,6 +136,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
   const [businessSearch, setBusinessSearch] = useState<Record<string, string>>({});
   const [destinationSearch, setDestinationSearch] = useState<Record<string, string>>({});
   const [subcategorySearch, setSubcategorySearch] = useState<Record<string, string>>({});
+  const [serviceSearch, setServiceSearch] = useState<Record<string, string>>({});
   const [badgeSearch, setBadgeSearch] = useState<Record<string, string>>({});
   const [commodities, setCommodities] = useState<string[]>([]);
   const [commoditySearch, setCommoditySearch] = useState<Record<string, string>>({});
@@ -162,10 +166,10 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
       }
       return all;
     };
-    const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: bdgs }, { data: fups }, { data: posts }, { data: cats }] = await Promise.all([
+    const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: svcs }, { data: bdgs }, { data: fups }, { data: posts }, { data: cats }] = await Promise.all([
       supabase
         .from("ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,badge_ids,commodity_filters,city,main_categories,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids,category,prompt_fr,prompt_en,prompt_ar,fixed_response_fr,fixed_response_en,fixed_response_ar")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,service_ids,badge_ids,commodity_filters,city,main_categories,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids,category,prompt_fr,prompt_en,prompt_ar,fixed_response_fr,fixed_response_en,fixed_response_ar")
         .eq("surface", surface)
         .order("sort_order", { ascending: true }),
       fetchAllBusinesses(),
@@ -177,6 +181,11 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
         .from("subcategories")
         .select("id,name_fr")
         .order("name_fr", { ascending: true }),
+      supabase
+        .from("services")
+        .select("id,name_fr")
+        .order("name_fr", { ascending: true })
+        .range(0, 4999),
       supabase
         .from("badges")
         .select("id,name_fr")
@@ -204,6 +213,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
         destination_ids: Array.isArray(r.destination_ids) ? r.destination_ids : [],
         blog_post_ids: Array.isArray(r.blog_post_ids) ? r.blog_post_ids : [],
         subcategory_ids: Array.isArray(r.subcategory_ids) ? r.subcategory_ids : [],
+        service_ids: Array.isArray(r.service_ids) ? r.service_ids : [],
         badge_ids: Array.isArray(r.badge_ids) ? r.badge_ids : [],
         commodity_filters: Array.isArray(r.commodity_filters) ? r.commodity_filters : [],
         main_categories: Array.isArray(r.main_categories) ? r.main_categories : [],
@@ -226,6 +236,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
     setCommodities([...commSet].filter(Boolean).sort((a, b) => a.localeCompare(b, "fr")));
     setDestinations(((dests as any[]) || []).map((d) => ({ id: d.id, name_fr: d.name_fr || "(sans nom)", name_en: d.name_en || null, name_ar: d.name_ar || null })));
     setSubcategories(((subs as any[]) || []).map((s) => ({ id: s.id, name_fr: s.name_fr || "(sans nom)" })));
+    setServices(((svcs as any[]) || []).map((s) => ({ id: s.id, name_fr: s.name_fr || "(sans nom)" })));
     setBadges(((bdgs as any[]) || []).map((b) => ({ id: b.id, name_fr: b.name_fr || "(sans nom)" })));
     setGlobalFollowups(((fups as any[]) || []).map((f) => ({ id: f.id, label_fr: f.label_fr || "", is_active: !!f.is_active, sort_order: f.sort_order || 0 })));
     setBlogPosts(
@@ -297,7 +308,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], blog_post_ids: [], subcategory_ids: [], badge_ids: [], commodity_filters: [], city: null, main_categories: [], disabled_followup_ids: [], mode: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [], category: null, prompt_fr: null, prompt_en: null, prompt_ar: null, fixed_response_fr: null, fixed_response_en: null, fixed_response_ar: null } as Row]);
+    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], blog_post_ids: [], subcategory_ids: [], service_ids: [], badge_ids: [], commodity_filters: [], city: null, main_categories: [], disabled_followup_ids: [], mode: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [], category: null, prompt_fr: null, prompt_en: null, prompt_ar: null, fixed_response_fr: null, fixed_response_en: null, fixed_response_ar: null } as Row]);
     setExpanded((prev) => new Set(prev).add((data as any).id));
 
   };
@@ -326,6 +337,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
           destination_ids: r.destination_ids || [],
           blog_post_ids: r.blog_post_ids || [],
           subcategory_ids: r.subcategory_ids || [],
+          service_ids: r.service_ids || [],
           badge_ids: r.badge_ids || [],
           commodity_filters: r.commodity_filters || [],
           city: r.city || null,
@@ -464,6 +476,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                   <Chip label="Destinations" value={r.destination_ids.length === 0 ? "—" : String(r.destination_ids.length)} alert={r.destination_ids.length > 0} />
                   <Chip label="Blog" value={r.blog_post_ids.length === 0 ? "auto" : String(r.blog_post_ids.length)} alert={r.blog_post_ids.length > 0} />
                   <Chip label="Sous-cat." value={r.subcategory_ids.length === 0 ? "—" : String(r.subcategory_ids.length)} alert={r.subcategory_ids.length > 0} />
+                  <Chip label="Services" value={(r.service_ids?.length ?? 0) === 0 ? "—" : String(r.service_ids.length)} alert={(r.service_ids?.length ?? 0) > 0} />
                   <Chip label="Badges" value={r.badge_ids.length === 0 ? "—" : String(r.badge_ids.length)} alert={r.badge_ids.length > 0} />
                   <Chip
                     label="Commodités"
@@ -838,6 +851,64 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                     💡 Quand une ou plusieurs sous-catégories sont liées, l'IA court-circuite le LLM et affiche directement les établissements de ces sous-catégories (résultats déterministes).
                   </p>
                 </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs text-muted-foreground">
+                    Services ciblés {(r.service_ids?.length ?? 0) === 0 ? "(aucun — recherche libre par l'IA)" : `(${r.service_ids.length} — route déterministe)`}
+                  </label>
+                  {(r.service_ids?.length ?? 0) > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {r.service_ids.map((sid) => {
+                        const s = services.find((x) => x.id === sid);
+                        return (
+                          <span key={sid} className="inline-flex items-center gap-1 rounded-md bg-sky-500/15 text-sky-700 dark:text-sky-300 text-xs px-2 py-1">
+                            {s?.name_fr || sid}
+                            <button
+                              type="button"
+                              onClick={() => update(r.id, { service_ids: r.service_ids.filter((x) => x !== sid) })}
+                              className="hover:text-destructive"
+                              title="Retirer"
+                            >×</button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div className="relative max-w-md">
+                    <Input
+                      placeholder="Rechercher un service…"
+                      value={serviceSearch[r.id] || ""}
+                      onChange={(e) => setServiceSearch((prev) => ({ ...prev, [r.id]: e.target.value }))}
+                      onKeyDown={(e) => { if (e.key === "Escape") setServiceSearch((prev) => ({ ...prev, [r.id]: "" })); }}
+                    />
+                    {serviceSearch[r.id]?.trim() && (
+                      <div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg max-h-60 overflow-auto">
+                        {(() => {
+                          const q = serviceSearch[r.id].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                          const matches = services
+                            .filter((s) => !(r.service_ids || []).includes(s.id))
+                            .filter((s) => s.name_fr.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q));
+                          if (matches.length === 0) return <div className="px-3 py-2 text-sm text-muted-foreground">Aucun service trouvé</div>;
+                          return matches.slice(0, 8).map((s) => (
+                            <button
+                              key={s.id}
+                              type="button"
+                              onClick={() => { update(r.id, { service_ids: [...(r.service_ids || []), s.id] }); setServiceSearch((prev) => ({ ...prev, [r.id]: "" })); }}
+                              className="w-full px-3 py-2 text-left text-sm hover:bg-muted truncate"
+                            >
+                              {s.name_fr}
+                            </button>
+                          ));
+                        })()}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    💡 Filtre dur sur le champ « services » des fiches : seuls les établissements proposant l'un de ces services sont retenus (classe A, zéro token).
+                  </p>
+                </div>
+
+
 
                 <div className="space-y-2">
                   <label className="text-xs text-muted-foreground">

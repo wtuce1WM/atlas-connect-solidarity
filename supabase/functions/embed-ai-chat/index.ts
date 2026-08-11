@@ -972,6 +972,7 @@ Deno.serve(async (req) => {
 
         // Deterministic route context (suggestion pins / subcategories / badges / mode)
         let deterministicSubcategoryNames: string[] | null = null;
+        let deterministicServiceNames: string[] | null = null;
         let deterministicBadgeIds: string[] | null = null;
         let suggestionPinnedIds: string[] = [];
         let suggestionMode: string | null = null;
@@ -991,7 +992,7 @@ Deno.serve(async (req) => {
           try {
             const { data: sugg } = await admin
               .from("ai_suggestions")
-              .select("subcategory_ids, badge_ids, business_ids, destination_ids, blog_post_ids, mode, label_fr, label_en, label_ar, proximity_a_subcategory_ids, proximity_a_badge_ids, proximity_b_subcategory_ids, proximity_b_badge_ids")
+              .select("subcategory_ids, service_ids, badge_ids, business_ids, destination_ids, blog_post_ids, mode, label_fr, label_en, label_ar, proximity_a_subcategory_ids, proximity_a_badge_ids, proximity_b_subcategory_ids, proximity_b_badge_ids")
               .eq("id", suggestionId)
               .maybeSingle();
             const subIds: string[] = Array.isArray(sugg?.subcategory_ids) ? sugg!.subcategory_ids : [];
@@ -1002,6 +1003,15 @@ Deno.serve(async (req) => {
                 .in("id", subIds);
               const names = (subs || []).map((s: any) => s.name_fr).filter(Boolean);
               if (names.length) deterministicSubcategoryNames = names;
+            }
+            const svcIds: string[] = Array.isArray(sugg?.service_ids) ? sugg!.service_ids.filter(Boolean) : [];
+            if (svcIds.length) {
+              const { data: svcs } = await admin
+                .from("services")
+                .select("name_fr")
+                .in("id", svcIds);
+              const svcNames = (svcs || []).map((s: any) => s.name_fr).filter(Boolean);
+              if (svcNames.length) deterministicServiceNames = svcNames;
             }
             const bIds: string[] = Array.isArray(sugg?.badge_ids) ? sugg!.badge_ids : [];
             if (bIds.length) deterministicBadgeIds = bIds;
@@ -1118,6 +1128,7 @@ Deno.serve(async (req) => {
                 : !isInitialClick && !isSuggestionRefinement(lastUserText);
           if (shouldDrop) {
             deterministicSubcategoryNames = null;
+            deterministicServiceNames = null;
             deterministicBadgeIds = null;
             curatedProximity = null;
           }
@@ -1128,7 +1139,7 @@ Deno.serve(async (req) => {
         // requête (ex. libellé « Comment venir depuis l'aéroport ? » → quartier
         // « Aéroport » alors que la cible réelle est la sous-catégorie Taxi).
         const curatedTaxonomyForced = !!(
-          (suggestionId || followupId) && (deterministicSubcategoryNames || deterministicBadgeIds)
+          (suggestionId || followupId) && (deterministicSubcategoryNames || deterministicServiceNames || deterministicBadgeIds)
         );
 
         // Blog article route runs later, once emitTrailingMarkers / knownBusinesses
@@ -1159,6 +1170,9 @@ Deno.serve(async (req) => {
               const subcategoryNames: string[] | undefined = Array.isArray(args._subcategoryNames) && args._subcategoryNames.length
                 ? args._subcategoryNames.map((s: any) => String(s)).filter(Boolean)
                 : undefined;
+              const serviceNamesFilter: string[] = Array.isArray(args._serviceNames)
+                ? args._serviceNames.map((s: any) => String(s)).filter(Boolean)
+                : [];
               const badgeIds: string[] | undefined = Array.isArray(args._badgeIds) && args._badgeIds.length
                 ? args._badgeIds.map((s: any) => String(s)).filter(Boolean)
                 : undefined;
@@ -1180,7 +1194,22 @@ Deno.serve(async (req) => {
               });
               const text = await r.text();
               let sres: any = null; try { sres = JSON.parse(text); } catch { /* */ }
-              const all: any[] = Array.isArray(sres?.businesses) ? sres.businesses : [];
+              let all: any[] = Array.isArray(sres?.businesses) ? sres.businesses : [];
+              // Services curatés : filtre DUR sur businesses.services (jamais sémantique).
+              if (serviceNamesFilter.length && all.length) {
+                const wantedSvc = new Set(serviceNamesFilter.map((s) => s.toLowerCase().trim()));
+                const { data: svcRows } = await admin
+                  .from("businesses")
+                  .select("id, services")
+                  .in("id", all.map((b: any) => b?.id).filter(Boolean));
+                const keepSvc = new Set(
+                  (svcRows || [])
+                    .filter((r2: any) => (Array.isArray(r2?.services) ? r2.services : []).some((s: any) => wantedSvc.has(String(s || "").toLowerCase().trim())))
+                    .map((r2: any) => r2.id),
+                );
+                const filteredSvc = all.filter((b: any) => keepSvc.has(b?.id));
+                if (filteredSvc.length) all = filteredSvc;
+              }
               const pinnedSet = new Set(suggestionPinnedIds);
               const nonPinned = all.filter((b: any) => !pinnedSet.has(b.id));
               const pinnedFromAll = all.filter((b: any) => pinnedSet.has(b.id));
@@ -1188,7 +1217,7 @@ Deno.serve(async (req) => {
               // explicitly asking for a different vertical than the host — skip the
               // "competitor" filter so results aren't dropped for sharing generic
               // subcategories (e.g. a rooftop restaurant hosted inside a riad).
-              const skipCompetitorFilter = !!(subcategoryNames?.length || badgeIds?.length);
+              const skipCompetitorFilter = !!(subcategoryNames?.length || badgeIds?.length || serviceNamesFilter.length);
               const nonPinnedFiltered = skipCompetitorFilter ? nonPinned : await filterOutCompetitors(nonPinned);
               let filtered = await filterOutClosed([...pinnedFromAll, ...nonPinnedFiltered]);
 
@@ -2389,7 +2418,7 @@ Deno.serve(async (req) => {
 
               const hostHoodN = normalize(host.neighborhood || "");
               const isDifferentFromHost = hostHoodN && nn !== hostHoodN;
-              const hasRootScope = !!(deterministicSubcategoryNames?.length || deterministicBadgeIds?.length);
+              const hasRootScope = !!(deterministicSubcategoryNames?.length || deterministicServiceNames?.length || deterministicBadgeIds?.length);
 
               // (B) SCOPE BROADEN: different neighborhood + root suggestion scope,
               // OR prior filter yielded nothing but we can rerun the root scope.
@@ -2401,6 +2430,7 @@ Deno.serve(async (req) => {
                   limit: 12,
                 };
                 if (deterministicSubcategoryNames) forcedArgs._subcategoryNames = deterministicSubcategoryNames;
+                if (deterministicServiceNames) forcedArgs._serviceNames = deterministicServiceNames;
                 if (deterministicBadgeIds) forcedArgs._badgeIds = deterministicBadgeIds;
                 // Explicitly: no proximity anchor → we widen the scope.
                 const forcedResult = await runTool("search_businesses", forcedArgs);
@@ -2574,7 +2604,7 @@ Deno.serve(async (req) => {
         // Skip when the suggestion carries a deterministic filter (badge/subcategory)
         // — those must route through search_businesses with an immersive intro + carousel.
         const forcedNearby = followupRadiusKm != null;
-        const hasDeterministicFilter = !!(deterministicBadgeIds?.length || deterministicSubcategoryNames?.length);
+        const hasDeterministicFilter = !!(deterministicBadgeIds?.length || deterministicSubcategoryNames?.length || deterministicServiceNames?.length);
         if ((forcedNearby || isNearbyOverviewIntent(userMessage, host.name)) && !hasDeterministicFilter) {
           // If the thread already has prior results, treat "à proximité de {host}" as a
           // FILTER on those priors, sorted closest → farthest — not a fresh nearby search.
@@ -2846,9 +2876,10 @@ Deno.serve(async (req) => {
           return;
         }
 
-        if (deterministicSubcategoryNames || deterministicBadgeIds) {
+        if (deterministicSubcategoryNames || deterministicServiceNames || deterministicBadgeIds) {
           const forcedArgs: any = { query: userMessage, city: host.city || "Marrakech", limit: 12 };
           if (deterministicSubcategoryNames) forcedArgs._subcategoryNames = deterministicSubcategoryNames;
+                if (deterministicServiceNames) forcedArgs._serviceNames = deterministicServiceNames;
           if (deterministicBadgeIds) forcedArgs._badgeIds = deterministicBadgeIds;
           if (isProximityIntent(userMessage) && Number.isFinite(Number(host.latitude)) && Number.isFinite(Number(host.longitude))) {
             const inlineR = parseInlineRadiusKm(userMessage);
@@ -2864,6 +2895,7 @@ Deno.serve(async (req) => {
             .filter(Boolean);
           const routeDesc = [
             deterministicSubcategoryNames ? `sous-catégories ${deterministicSubcategoryNames.join(", ")}` : null,
+            deterministicServiceNames ? `services ${deterministicServiceNames.join(", ")}` : null,
             deterministicBadgeIds ? `${deterministicBadgeIds.length} badge(s)` : null,
           ].filter(Boolean).join(" + ");
           if (Array.isArray(forcedResult?.results) && forcedResult.results.length) {
@@ -2931,7 +2963,7 @@ Deno.serve(async (req) => {
         // loop otherwise gave the LLM room to skip the immersive intro and only echo the
         // disclosure_note.
         const hasForcedResults =
-          !!(deterministicSubcategoryNames || deterministicBadgeIds) ||
+          !!(deterministicSubcategoryNames || deterministicServiceNames || deterministicBadgeIds) ||
           shouldForceDirectorySearch(userMessage);
 
         if (hasForcedResults) {

@@ -2104,10 +2104,11 @@ serve(async (req) => {
         // Une suggestion qui force déjà une route (`mode` = events / weather / map…)
         // garde SA route : on ne la détourne pas en liste filtrée.
         const hasForcedMode = !!String(curated.mode || "").trim();
-        if (!hasForcedMode && (curated.commodities.length || curated.badgeIds.length || curated.subcategoryNames.length)) {
+        if (!hasForcedMode && (curated.commodities.length || curated.badgeIds.length || curated.subcategoryNames.length || curated.serviceNames.length)) {
           const built = await buildFilteredAnswer(admin, pseudoHost, lang as any, {
             badgeIds: curated.badgeIds,
             subcategoryNames: curated.subcategoryNames,
+            serviceNames: curated.serviceNames,
             commodities: curated.commodities,
             label: curated.label,
             city: curated.city,

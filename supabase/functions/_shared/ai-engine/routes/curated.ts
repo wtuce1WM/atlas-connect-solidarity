@@ -87,6 +87,8 @@ export type CuratedTargets = {
   blogPostIds: string[];
   pinnedBusinessIds: string[];
   subcategoryNames: string[];
+  /** Noms de services curatés → filtre dur sur businesses.services */
+  serviceNames: string[];
   badgeIds: string[];
   /** Valeurs de commodités (sans le préfixe « Logistique: ») → filtre dur sur businesses.engagements */
   commodities: string[];
@@ -99,7 +101,7 @@ export type CuratedTargets = {
 };
 
 const EMPTY_TARGETS: CuratedTargets = {
-  blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], badgeIds: [], commodities: [],
+  blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], serviceNames: [], badgeIds: [], commodities: [],
   destinationIds: [], city: null, mode: null, label: null, aiTexts: [],
 };
 
@@ -112,13 +114,13 @@ export async function loadCuratedTargets(
   const suggestionId = opts.suggestionId || null;
   const followupId = opts.followupId || null;
   if (!suggestionId && !followupId) return { ...EMPTY_TARGETS };
-  const out: CuratedTargets = { ...EMPTY_TARGETS, blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], badgeIds: [], destinationIds: [], city: null, aiTexts: [] };
+  const out: CuratedTargets = { ...EMPTY_TARGETS, blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], serviceNames: [], badgeIds: [], destinationIds: [], city: null, aiTexts: [] };
 
   if (suggestionId) {
     try {
       const { data: sugg } = await admin
         .from("ai_suggestions")
-        .select("subcategory_ids, badge_ids, commodity_filters, business_ids, destination_ids, blog_post_ids, city, mode, label_fr, label_en, label_ar")
+        .select("subcategory_ids, service_ids, badge_ids, commodity_filters, business_ids, destination_ids, blog_post_ids, city, mode, label_fr, label_en, label_ar")
         .eq("id", suggestionId)
         .maybeSingle();
       if (sugg) {
@@ -137,6 +139,12 @@ export async function loadCuratedTargets(
         if (subIds.length) {
           const { data: subs } = await admin.from("subcategories").select("name_fr").in("id", subIds);
           out.subcategoryNames = (subs || []).map((s: any) => s.name_fr).filter(Boolean);
+        }
+
+        const svcIds: string[] = Array.isArray(sugg.service_ids) ? sugg.service_ids.filter(Boolean) : [];
+        if (svcIds.length) {
+          const { data: svcs } = await admin.from("services").select("name_fr").in("id", svcIds);
+          out.serviceNames = (svcs || []).map((s: any) => s.name_fr).filter(Boolean);
         }
       }
     } catch (e) {
@@ -477,6 +485,7 @@ export async function buildFilteredAnswer(
   opts: {
     badgeIds?: string[];
     subcategoryNames?: string[];
+    serviceNames?: string[];
     commodities?: string[];
     label?: string | null;
 
@@ -489,7 +498,8 @@ export async function buildFilteredAnswer(
   const badgeIds = (opts.badgeIds || []).filter(Boolean);
   const subcategoryNames = (opts.subcategoryNames || []).filter(Boolean);
   const commodities = (opts.commodities || []).filter(Boolean);
-  if (!badgeIds.length && !subcategoryNames.length && !commodities.length) return null;
+  const serviceNames = (opts.serviceNames || []).filter(Boolean);
+  if (!badgeIds.length && !subcategoryNames.length && !commodities.length && !serviceNames.length) return null;
   // Règle : le périmètre vient de l'entrée curatée (ai_suggestions.city). Vide =
   // cible éditoriale trans-ville (ex. badge « Agafay ») → AUCUN filtre ville.
   const city = String(opts.city || "").trim() || null;
@@ -510,6 +520,7 @@ export async function buildFilteredAnswer(
         .order("computed_rating", { ascending: false, nullsFirst: false })
         .limit(60);
       if (city) q = q.eq("city", city);
+      if (serviceNames.length) q = q.overlaps("services", serviceNames);
       const { data, error } = await q;
       if (error) throw error;
       all = data || [];
@@ -539,11 +550,31 @@ export async function buildFilteredAnswer(
         .order("computed_rating", { ascending: false, nullsFirst: false })
         .limit(60);
       if (city) q = q.eq("city", city);
+      if (serviceNames.length) q = q.overlaps("services", serviceNames);
       const { data, error } = await q;
       if (error) throw error;
       all = data || [];
     } catch (e) {
       console.error("[curated] badge_filter_failed", String(e));
+      return null;
+    }
+  } else if (!subcategoryNames.length && serviceNames.length) {
+    // Services curatés seuls : filtre DUR sur businesses.services, zéro LLM.
+    try {
+      let q = admin
+        .from("businesses")
+        .select("id, is_featured, computed_rating, total_review_count")
+        .eq("is_active", true)
+        .overlaps("services", serviceNames)
+        .order("is_featured", { ascending: false })
+        .order("computed_rating", { ascending: false, nullsFirst: false })
+        .limit(60);
+      if (city) q = q.eq("city", city);
+      const { data, error } = await q;
+      if (error) throw error;
+      all = data || [];
+    } catch (e) {
+      console.error("[curated] service_filter_failed", String(e));
       return null;
     }
   } else {
@@ -568,6 +599,21 @@ export async function buildFilteredAnswer(
       });
       const json = await r.json().catch(() => null);
       all = Array.isArray(json?.businesses) ? json.businesses : [];
+      // Sous-catégories + services : le service reste un filtre DUR appliqué après coup.
+      if (serviceNames.length && all.length) {
+        const wanted = new Set(serviceNames.map((s) => s.toLowerCase().trim()));
+        const { data: svcRows } = await admin
+          .from("businesses")
+          .select("id, services")
+          .in("id", all.map((b: any) => b?.id).filter(Boolean));
+        const keep = new Set(
+          (svcRows || [])
+            .filter((r2: any) => (Array.isArray(r2?.services) ? r2.services : []).some((s: any) => wanted.has(String(s || "").toLowerCase().trim())))
+            .map((r2: any) => r2.id),
+        );
+        const filtered = all.filter((b: any) => keep.has(b?.id));
+        if (filtered.length) all = filtered;
+      }
     } catch (e) {
       console.error("[curated] filtered_search_failed", String(e));
       return null;

@@ -429,10 +429,11 @@ Deno.serve(async (req) => {
           // Filtre déterministe curaté : commodités / badges / sous-catégories liés
           // à la suggestion en backoffice → filtre DUR (engagements ou business-search),
           // parité V1. Aucun classifieur, aucun générateur.
-          if (curated && keepCurated && (curated.commodities.length || curated.badgeIds.length || curated.subcategoryNames.length)) {
+          if (curated && keepCurated && (curated.commodities.length || curated.badgeIds.length || curated.subcategoryNames.length || curated.serviceNames.length)) {
             const built = await buildFilteredAnswer(admin, host, lang, {
               badgeIds: curated.badgeIds,
               subcategoryNames: curated.subcategoryNames,
+              serviceNames: curated.serviceNames,
               commodities: curated.commodities,
               label: curated.label,
 
