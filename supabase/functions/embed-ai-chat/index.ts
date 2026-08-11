@@ -1742,10 +1742,13 @@ Deno.serve(async (req) => {
             const safe = JSON.stringify({ ids: lastPoolIds, city: lastPoolCity }).replace(/-->/g, "--&gt;");
             markers.push(`<!--POOL_BUSINESS_IDS:${safe}-->`);
           }
-          if (!markers.length) return "";
+          const teaser = pendingArticleTeaser || "";
+          pendingArticleTeaser = null;
+          if (teaser) emitDelta(teaser);
+          if (!markers.length) return teaser;
           const chunk = "\n\n" + markers.join("\n");
           emitDelta(chunk);
-          return chunk;
+          return teaser + chunk;
         };
 
         // Followup with radius / mode
