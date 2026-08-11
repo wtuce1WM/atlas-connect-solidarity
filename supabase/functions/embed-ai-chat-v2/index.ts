@@ -220,7 +220,9 @@ Deno.serve(async (req) => {
 
 
       const finish = async (streamCompleted: boolean) => {
+        if (articleTeaser) { emit(articleTeaser); articleTeaser = null; }
         end();
+
         try {
           const { error: logErr } = await admin.from("ai_conversation_turns").insert({
             chat_id: chatId,
