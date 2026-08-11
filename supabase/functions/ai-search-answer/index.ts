@@ -5,7 +5,7 @@ import { loadRoutes, route as engineRoute } from "../_shared/ai-engine/index.ts"
 import type { RouteCode } from "../_shared/ai-engine/types.ts";
 import {
   matchCuratedByText, loadCuratedTargets, fetchBlogPostsCached,
-  buildBlogArticleAnswer, buildPinnedAnswer,
+  buildBlogArticleAnswer, buildPinnedAnswer, buildFilteredAnswer,
 } from "../_shared/ai-engine/routes/curated.ts";
 import { loadEditorialBundle, formatEditorialBundle } from "../_shared/ai-engine/editorial.ts";
 
