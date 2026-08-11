@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.replace_business_documents(uuid, jsonb);
