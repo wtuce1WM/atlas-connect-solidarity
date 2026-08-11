@@ -869,6 +869,8 @@ const EmbedAsk = () => {
     hasAffiliateColors && theme === "dark"
       ? { background: widgetColors.light!, color: widgetColors.dark!, borderColor: "transparent" }
       : undefined;
+  // Intérieur des cartes : blanc uniquement si la carte n'a pas un fond clair affilié.
+  const cardInk = cardStyle ? "" : whiteInk;
 
   // Build conversation-wide dictionaries of businesses cited across all assistant messages.
   // - richByName: full rich data (images, coords, ratings) coming from a SHOW_ON_MAP payload.
