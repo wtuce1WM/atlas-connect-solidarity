@@ -256,7 +256,8 @@ export async function buildBlogArticleAnswer(
       (lang === "en" && f.intro_en) || (lang === "ar" && f.intro_ar) ||
       f.intro_fr || f.intro_en || f.intro_ar || null,
     inline: false,
-    isOwner: post.anchor_business_id === host.id,
+    // Surfaces sans hôte (/search, /club) : jamais de propriétaire.
+    isOwner: !!host?.id && post.anchor_business_id === host.id,
   };
 
   const entriesRaw: any[] =
@@ -306,7 +307,8 @@ export async function buildBlogArticleAnswer(
   const revByBiz = await defaultReviews(admin, shown.map((b: any) => b.id));
 
   articlePayload.inline = true;
-  const cityForCopy = host.city || "Marrakech";
+  // Surfaces sans hôte : la ville vient du pseudo-hôte, sinon des fiches de l'article.
+  const cityForCopy = host?.city || shown.find((b: any) => b?.city)?.city || "Marrakech";
   const reviewsLabel = lang === "en" ? "reviews" : lang === "ar" ? "مراجعة" : "avis";
   const anonLabel = lang === "en" ? "Anonymous" : lang === "ar" ? "مجهول" : "Anonyme";
 

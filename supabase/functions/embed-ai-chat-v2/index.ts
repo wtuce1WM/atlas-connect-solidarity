@@ -356,7 +356,7 @@ Deno.serve(async (req) => {
             const posts = await fetchBlogPostsCached(admin).catch(() => []);
             const post = curated.blogPostIds.map((id) => posts.find((p) => p.id === id)).filter(Boolean)[0];
             if (post) {
-              const built = await buildBlogArticleAnswer(admin, post, host, lang).catch((e) => {
+              const built = await buildBlogArticleAnswer(admin, post, host ?? { id: null, city: scopeCity }, lang).catch((e) => {
                 console.error("[embed-ai-chat-v2] blog_route_failed", String(e));
                 return null;
               });
@@ -509,7 +509,7 @@ Deno.serve(async (req) => {
           const posts = await fetchBlogPostsCached(admin).catch(() => []);
           const match = matchBlogArticle(userMessage, lang, posts, host?.id ?? "", host?.name ?? null);
           if (match) {
-            const built = await buildBlogArticleAnswer(admin, match, host, lang).catch((e) => {
+            const built = await buildBlogArticleAnswer(admin, match, host ?? { id: null, city: scopeCity }, lang).catch((e) => {
               console.error("[embed-ai-chat-v2] blog_freetext_failed", String(e));
               return null;
             });
