@@ -548,9 +548,11 @@ const EmbedAsk = () => {
         suggestionId: (body as any)?.suggestionId ?? null,
         followupId: (body as any)?.followupId ?? null,
         scope: (body as any)?.scope ?? null,
+        radiusKm: radiusRef.current,
       },
     }),
   }), [slug, lang]);
+
 
   const { messages, sendMessage, status, setMessages } = useChat({
     id: `embed-${slug}-${chatKey}`,
