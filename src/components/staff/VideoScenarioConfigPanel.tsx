@@ -590,20 +590,8 @@ const VideoScenarioConfigPanel = () => {
     setDirty(true);
   };
 
-  const applyFormat = (key: string) => {
-    const f = FORMATS.find((x) => x.key === key);
-    setConfig((prev) =>
-      prev
-        ? {
-            ...prev,
-            format_key: key,
-            width: f && f.width ? f.width : prev.width,
-            height: f && f.height ? f.height : prev.height,
-          }
-        : prev,
-    );
-    setDirty(true);
-  };
+
+
 
   const save = async () => {
     if (!config) return;
