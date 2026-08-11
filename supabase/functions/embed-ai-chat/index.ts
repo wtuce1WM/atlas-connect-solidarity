@@ -1714,6 +1714,10 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Article de blog détecté : proposé en fin de tour comme carte cliquable,
+        // jamais en remplacement des résultats calculés par le moteur.
+        let pendingArticleTeaser: string | null = null;
+
         const emitTrailingMarkers = (): string => {
           const markers: string[] = [];
           if (lastMapPayload) {
