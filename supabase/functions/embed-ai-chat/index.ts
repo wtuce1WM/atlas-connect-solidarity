@@ -1122,6 +1122,14 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Autorité curatée : une suggestion/relance qui porte des sous-catégories
+        // ou des badges fait loi. Aucun détecteur de quartier ne doit détourner la
+        // requête (ex. libellé « Comment venir depuis l'aéroport ? » → quartier
+        // « Aéroport » alors que la cible réelle est la sous-catégorie Taxi).
+        const curatedTaxonomyForced = !!(
+          (suggestionId || followupId) && (deterministicSubcategoryNames || deterministicBadgeIds)
+        );
+
         // Blog article route runs later, once emitTrailingMarkers / knownBusinesses
         // / lastMapPayload are in scope. Placeholder kept here to preserve context.
 
@@ -2359,7 +2367,7 @@ Deno.serve(async (req) => {
           const words = nq.split(/\s+/).filter(Boolean);
           const looksLikeRefinement = words.length <= 6 || /\b(quartier|dans|a|en|sur|au|aux|vers|cote|coté|neighborhood|district|in|at|near)\b/.test(nq);
 
-          if (looksLikeRefinement) {
+          if (looksLikeRefinement && !curatedTaxonomyForced) {
             const detected = await detectNeighborhoodInText(admin, host.city, userMessage);
             if (detected) {
               const matchedHood = detected.name;
@@ -2730,7 +2738,10 @@ Deno.serve(async (req) => {
 
         // Deterministic: DIRECT VIEWER (suggestion mode = 'direct_viewer').
         // Show only the pinned business_ids in the defined order — no search, no LLM.
-        if (suggestionMode === "direct_viewer") {
+        // Si aucun établissement n'est épinglé mais que la suggestion porte des
+        // badges / sous-catégories, on ne renvoie PAS « aucun établissement ciblé » :
+        // on laisse le filtre taxonomique déterministe faire son travail.
+        if (suggestionMode === "direct_viewer" && (suggestionPinnedIds.length || !curatedTaxonomyForced)) {
           try {
             const ids = suggestionPinnedIds.length ? suggestionPinnedIds : [];
             if (!ids.length) {

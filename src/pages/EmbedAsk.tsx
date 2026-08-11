@@ -1019,7 +1019,7 @@ const EmbedAsk = () => {
   return (
     <div
       dir={dir}
-      className={`fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""}`}
+      className={`fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""} transition-[right] duration-300 ease-out ${openBusinessId ? "lg:right-1/2" : ""}`}
       style={
         bgTransparent && !activeWidgetBg
           ? undefined
@@ -1172,25 +1172,8 @@ const EmbedAsk = () => {
                     </div>
                   )}
                 </div>
-              ) : articleCard ? (
-                <a
-                  href={`/embed/ask/${slug}/article/${articleCard.slug}`}
-                  className={`relative flex w-full max-w-[85%] gap-3 rounded-2xl overflow-hidden ${cardBg} hover:opacity-95 transition-opacity`}
-                  style={cardStyle}
-                >
-                  {articleCard.image ? (
-                    <img src={articleCard.image} alt={articleCard.title} className="w-24 h-24 object-cover flex-shrink-0" loading="lazy" />
-                  ) : (
-                    <div className="w-24 h-24 bg-neutral-800 flex-shrink-0" />
-                  )}
-                  <div className="flex-1 py-2 pr-3 flex flex-col justify-center gap-1">
-                    <span className="text-[10px] uppercase tracking-wide text-[#D4AF37] font-semibold">
-                      {lang === "en" ? "Recommended article" : lang === "ar" ? "مقال موصى به" : "Article recommandé"}
-                    </span>
-                    <div className="text-sm font-semibold leading-snug line-clamp-3">{articleCard.title}</div>
-                  </div>
-                </a>
               ) : null}
+
 
               {articleCard?.inline && mapPayload && mapPayload.businesses.length > 0 && (() => {
                 const resultPois = mapPayload.businesses
@@ -1498,6 +1481,28 @@ const EmbedAsk = () => {
                 );
               })()}
 
+              {/* Article recommandé : jamais une réponse — simple option cliquable,
+                  affichée APRÈS le carrousel de miniatures des résultats. */}
+              {articleCard && !articleCard.inline && (
+                <a
+                  href={`/embed/ask/${slug}/article/${articleCard.slug}`}
+                  className={`relative flex w-full max-w-[85%] gap-3 rounded-2xl overflow-hidden ${cardBg} hover:opacity-95 transition-opacity`}
+                  style={cardStyle}
+                >
+                  {articleCard.image ? (
+                    <img src={articleCard.image} alt={articleCard.title} className="w-24 h-24 object-cover flex-shrink-0" loading="lazy" />
+                  ) : (
+                    <div className="w-24 h-24 bg-neutral-800 flex-shrink-0" />
+                  )}
+                  <div className="flex-1 py-2 pr-3 flex flex-col justify-center gap-1">
+                    <span className="text-[10px] uppercase tracking-wide text-[#D4AF37] font-semibold">
+                      {lang === "en" ? "Recommended article" : lang === "ar" ? "مقال موصى به" : "Article recommandé"}
+                    </span>
+                    <div className={`text-sm font-semibold leading-snug line-clamp-3 ${cardInk}`}>{articleCard.title}</div>
+                  </div>
+                </a>
+              )}
+
 
               {(() => {
                 if (!(i > 0 && !streaming && activeFollowups.length > 0)) return null;
@@ -1528,6 +1533,10 @@ const EmbedAsk = () => {
                   </div>
                 );
               })()}
+
+
+
+
 
             </div>
           );
