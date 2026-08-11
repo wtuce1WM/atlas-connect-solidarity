@@ -33,6 +33,7 @@ import {
   buildArticleTeaser, buildPinnedAnswer, buildFilteredAnswer,
 
 } from "../_shared/ai-engine/routes/curated.ts";
+import { buildVideoFeedAnswer, videoFeedMarker } from "../_shared/ai-engine/routes/videoFeed.ts";
 import { isHoursIntent, buildHoursAnswer, buildHoursForBusinesses } from "../_shared/ai-engine/routes/opening.ts";
 import { isBookingIntent, buildBookingAnswer, buildBookingForBusinesses } from "../_shared/ai-engine/routes/booking.ts";
 import {
