@@ -2367,7 +2367,7 @@ Deno.serve(async (req) => {
           const words = nq.split(/\s+/).filter(Boolean);
           const looksLikeRefinement = words.length <= 6 || /\b(quartier|dans|a|en|sur|au|aux|vers|cote|coté|neighborhood|district|in|at|near)\b/.test(nq);
 
-          if (looksLikeRefinement) {
+          if (looksLikeRefinement && !curatedTaxonomyForced) {
             const detected = await detectNeighborhoodInText(admin, host.city, userMessage);
             if (detected) {
               const matchedHood = detected.name;
