@@ -1765,7 +1765,26 @@ const EmbedAsk = () => {
             </button>
           </div>
         )}
+        <div className="flex items-center gap-2 pb-2">
+          <label
+            htmlFor="owm-embed-radius"
+            className={`text-[11px] ${theme === "light" ? "text-neutral-500" : "text-white/70"}`}
+          >
+            {L.radiusLabel}
+          </label>
+          <select
+            id="owm-embed-radius"
+            value={String(radiusKm)}
+            onChange={(e) => applyRadius(Number(e.target.value))}
+            className={`text-[11px] rounded-full border px-2 py-1 outline-none ${border} ${inputBg} ${theme === "light" ? "text-neutral-800" : "text-white"}`}
+          >
+            {RADIUS_OPTIONS.map((r) => (
+              <option key={r} value={String(r)}>{radiusLabel(r, lang)}</option>
+            ))}
+          </select>
+        </div>
         <div className={`flex items-end gap-2 rounded-2xl border ${border} ${inputBg} px-3 py-2`}>
+
           <textarea
             ref={inputRef}
             value={input}
