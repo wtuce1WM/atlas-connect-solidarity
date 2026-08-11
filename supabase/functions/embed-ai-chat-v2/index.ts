@@ -435,7 +435,7 @@ Deno.serve(async (req) => {
 
         // 4. Rappels sur les résultats déjà affichés (comptage, ordinal, classement)
         if (priorIds.length) {
-          const prior = extractPriorOrderedBusinesses(uiMessages as any[], host.id);
+          const prior = extractPriorOrderedBusinesses(uiMessages as any[], host?.id ?? "");
           if (isCountIntent(userMessage)) {
             route = "discover";
             resultsCount = priorIds.length;
