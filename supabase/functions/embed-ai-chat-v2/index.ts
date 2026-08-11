@@ -218,14 +218,6 @@ Deno.serve(async (req) => {
         console.warn("[embed-ai-chat-v2] resolver failed", String(e));
       }
 
-      // Article de blog pertinent (clic suggestion, texte libre ou vocal) : détecté
-      // AVANT toute route déterministe, car celles-ci sortent en `return`. Il n'est
-      // jamais un résultat : il est émis en fin de tour comme option cliquable.
-      if (userMessage.trim().length >= 6) {
-        const posts = await fetchBlogPostsCached(admin).catch(() => []);
-        const match = matchBlogArticle(userMessage, lang, posts, host?.id ?? "", host?.name ?? null);
-        if (match) articleTeaser = buildArticleTeaser(match, lang) || null;
-      }
 
 
 
