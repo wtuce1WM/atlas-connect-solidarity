@@ -1122,6 +1122,14 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Autorité curatée : une suggestion/relance qui porte des sous-catégories
+        // ou des badges fait loi. Aucun détecteur de quartier ne doit détourner la
+        // requête (ex. libellé « Comment venir depuis l'aéroport ? » → quartier
+        // « Aéroport » alors que la cible réelle est la sous-catégorie Taxi).
+        const curatedTaxonomyForced = !!(
+          (suggestionId || followupId) && (deterministicSubcategoryNames || deterministicBadgeIds)
+        );
+
         // Blog article route runs later, once emitTrailingMarkers / knownBusinesses
         // / lastMapPayload are in scope. Placeholder kept here to preserve context.
 
