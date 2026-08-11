@@ -708,7 +708,28 @@ Deno.serve(async (req) => {
         // Continuité : on mémorise un terme réel, jamais une invention du classifieur.
         lastCategory = strongTerms[0] || validatedCategory || expansionTerms[0] || priorCategory;
 
-        if (out && confident && (out.intent === "search" || out.intent === "compare")) {
+        // ── Relance contextuelle : on répond SUR le corpus déjà présenté ─────
+        // Le résolveur est l'autorité du vocabulaire : si le message de l'utilisateur
+        // ne contient AUCUNE cible réelle (catégorie / sous-catégorie / service) ni
+        // ville, il n'y a pas de nouvelle demande de recherche — c'est une question
+        // sur ce qui vient d'être présenté (« Que faire sur place ? »).
+        // Une catégorie inventée par le classifieur (« activite ») ne suffit pas :
+        // c'est elle qui déclenchait une recherche ville entière hors sujet.
+        const contextualFollowUp =
+          priorIds.length > 0 &&
+          !strongTerms.length &&
+          !expansionTerms.length &&
+          !resolvedCity;
+        if (contextualFollowUp) {
+          route = "business_qa";
+          fallbackReason = fallbackReason || "contextual_followup";
+          console.log("[embed-ai-chat-v2] contextual_followup", JSON.stringify({
+            priorIds: priorIds.length, classifierCategory: out?.category ?? null, city: out?.city ?? null,
+          }));
+        }
+
+
+        if (!contextualFollowUp && out && confident && (out.intent === "search" || out.intent === "compare")) {
           const views = detectViewIntent(userMessage);
           const panoramaHints = views.panoramas.map((p) => p.attributeNames[0]);
           const excluded = excludedTerms;
@@ -755,6 +776,11 @@ Deno.serve(async (req) => {
         aiClass = "C";
         const gateway = createLovableAiGatewayProvider(LOVABLE_API_KEY);
 
+        // Corpus de la relance contextuelle : les fiches déjà présentées.
+        const priorFull = (contextualFollowUp || (priorIds.length && !results.length))
+          ? await fetchPriorFull(admin, priorIds.slice(0, 6)).catch(() => [])
+          : [];
+
         // Contexte éditorial partagé (TXT IA + popups d'images + offres) — même
         // module que /search et /club pour éviter toute divergence de richesse.
         let editorialCtx = "";
@@ -762,13 +788,15 @@ Deno.serve(async (req) => {
           const editorialIds = [
             ...(host?.id ? [String(host.id)] : []),
             ...results.map((b: any) => b?.id).filter(Boolean).map(String),
+            ...priorFull.map((b: any) => b?.id).filter(Boolean).map(String),
           ];
           if (editorialIds.length) {
             const nameById: Record<string, string> = {};
             if (host?.id) nameById[String(host.id)] = host.name || "";
             for (const b of results as any[]) if (b?.id) nameById[String(b.id)] = b.name || "";
+            for (const b of priorFull as any[]) if (b?.id) nameById[String(b.id)] = b.name || "";
             const bundle = await loadEditorialBundle(admin, {
-              businessIds: editorialIds,
+              businessIds: [...new Set(editorialIds)],
               perBusiness: 5,
               limit: 12,
               lang,
@@ -793,8 +821,8 @@ Deno.serve(async (req) => {
           editorialCtx
             ? `CONTEXTE ÉDITORIAL ([DESCRIPTION] description de l'établissement, [HOOK] accroche, [IMAGE POPUP] titres et textes des photos, [SERVICE] services, [OFFRE] offres et promotions, [TXT IA] textes rédigés par l'établissement/affilié ; intègre-les naturellement, ne mets pas en avant un établissement uniquement parce qu'il a du contenu ici) :\n${editorialCtx}`
             : "",
-          priorIds.length && !results.length
-            ? `Établissements déjà présentés dans la conversation : ${(await fetchPriorFull(admin, priorIds.slice(0, 6))).map((b: any) => b.name).join(", ")}`
+          !results.length && priorFull.length
+            ? `${contextualFollowUp ? "RELANCE CONTEXTUELLE — la question porte sur ce qui a déjà été présenté ci-dessous. Ne propose AUCUNE autre adresse et ne lance aucune nouvelle sélection.\n" : ""}Établissements déjà présentés dans la conversation :\n${resultsContext(priorFull as any[], lang)}`
             : "",
         ].filter(Boolean).join("\n\n");
 
