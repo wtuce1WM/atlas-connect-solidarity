@@ -22,6 +22,7 @@ import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 const DestinationSlidePanel = lazy(() => import("@/components/DestinationSlidePanel"));
 const PoiGoogleMap = lazy(() => import("@/components/PoiGoogleMap"));
+const HomeVideoSlidePanel = lazy(() => import("@/components/home/HomeVideoSlidePanel"));
 const LocationPickerDialog = lazy(() => import("@/components/LocationPickerDialog"));
 import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedCardCarousel";
 import { Maximize2, X } from "lucide-react";
@@ -211,6 +212,7 @@ const ARTICLE_RE = /<!--ARTICLE_CARD:([\s\S]*?)-->/g;
 const DEST_RE = /<!--DESTINATION_CARDS:([\s\S]*?)-->/g;
 const PINNED_RE = /<!--PINNED_BUSINESS_CARDS:([\s\S]*?)-->/g;
 const WEATHER_RE = /<!--WEATHER_FORECAST:([\s\S]*?)-->/g;
+const VIDEOFEED_RE = /<!--VIDEO_FEED:([\s\S]*?)-->/g;
 
 type MapPayload = { title?: string | null; businesses: MapPanelBusiness[]; order?: string | null };
 type EventsPayload = { title?: string | null; city?: string | null; events: EventPanelItem[] };
@@ -218,6 +220,18 @@ type KnownBusiness = { id: string; slug: string | null; name: string };
 type ArticleCardPayload = { id: string; slug: string; title: string; image: string | null; hero?: string | null; tldr?: string | null; hook?: string | null; intro?: string | null; inline?: boolean; isOwner?: boolean };
 type DestinationCard = { id: string; name: string; hook?: string | null; image?: string | null; latitude?: number | null; longitude?: number | null; distKm?: number | null };
 type DestinationsPayload = { title?: string | null; destinations: DestinationCard[] };
+type VideoFeedItem = {
+  id: string;
+  url: string;
+  title?: string | null;
+  description?: string | null;
+  price?: string | null;
+  thumbnailUrl?: string | null;
+  isGeneric?: boolean;
+  businessId?: string | null;
+  businessName?: string | null;
+};
+type VideoFeedPayload = { title?: string | null; videos: VideoFeedItem[] };
 type PinnedBusinessCard = {
   id: string;
   name: string;
@@ -232,7 +246,7 @@ type PinnedBusinessCard = {
   review?: { author?: string | null; rating?: number | null; text?: string | null; source?: string | null } | null;
 };
 
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[] } {
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[] } {
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
@@ -240,7 +254,8 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
   const destinations: DestinationsPayload[] = [];
   const pinned: PinnedBusinessCard[] = [];
   const weather: WeatherPayload[] = [];
-  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather };
+  const videoFeeds: VideoFeedPayload[] = [];
+  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds };
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -283,6 +298,12 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
       if (p && typeof p.temp === "number") weather.push(p as WeatherPayload);
     } catch { /* */ }
     return "";
+  }).replace(VIDEOFEED_RE, (_m, raw) => {
+    try {
+      const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (p && Array.isArray(p.videos) && p.videos.length) videoFeeds.push({ title: p.title ?? null, videos: p.videos });
+    } catch { /* */ }
+    return "";
   });
   clean = clean
     .replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "")
@@ -292,11 +313,13 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--DESTINATION_CARDS:[\s\S]*$/g, "")
     .replace(/<!--PINNED_BUSINESS_CARDS:[\s\S]*$/g, "")
     .replace(/<!--WEATHER_FORECAST:[\s\S]*$/g, "")
+    .replace(/<!--VIDEO_FEED:[\s\S]*?-->/g, "")
+    .replace(/<!--VIDEO_FEED:[\s\S]*$/g, "")
     .replace(/<!--POOL_BUSINESS_IDS:[\s\S]*?-->/g, "")
     .replace(/<!--POOL_BUSINESS_IDS:[\s\S]*$/g, "")
     .trim();
   clean = linkifyPhones(clean);
-  return { clean, maps, events, known, articles, destinations, pinned, weather };
+  return { clean, maps, events, known, articles, destinations, pinned, weather, videoFeeds };
 }
 
 // Convert bare phone / WhatsApp numbers found in AI markdown into clickable links.
@@ -541,6 +564,10 @@ const EmbedAsk = () => {
   const [openEvents, setOpenEvents] = useState<{ list: EventPanelItem[]; index: number } | null>(null);
   const [openBusinessId, setOpenBusinessId] = useState<string | null>(null);
   const [openDestinationId, setOpenDestinationId] = useState<string | null>(null);
+  // Feed vidéo (mode curaté `video_feed`) : liste active + vidéo ouverte.
+  const [videoFeedList, setVideoFeedList] = useState<VideoFeedItem[]>([]);
+  const [activeFeedVideoId, setActiveFeedVideoId] = useState<string | null>(null);
+  const [feedVideoTime, setFeedVideoTime] = useState(0);
   const [openSiblings, setOpenSiblings] = useState<string[]>([]);
 
   const isMobile = useMemo(() => typeof window !== "undefined" && window.innerWidth < 768, []);
@@ -1111,13 +1138,14 @@ const EmbedAsk = () => {
             );
           }
           const raw = messageText(m);
-          const { clean, maps, events, articles, destinations, pinned, weather } = extractPayloads(raw);
+          const { clean, maps, events, articles, destinations, pinned, weather, videoFeeds } = extractPayloads(raw);
           const mapPayload = maps[maps.length - 1] || null;
           const eventsPayload = events[events.length - 1] || null;
           const articleCard = articles[articles.length - 1] || null;
           const destinationsPayload = destinations[destinations.length - 1] || null;
           const pinnedCards = pinned;
           const weatherPayload = weather[weather.length - 1] || null;
+          const videoFeedPayload = videoFeeds[videoFeeds.length - 1] || null;
           const isLast = i === messages.length - 1;
           const citedFallback =
             !mapPayload || mapPayload.businesses.length === 0
@@ -1481,6 +1509,24 @@ const EmbedAsk = () => {
                 );
               })()}
 
+              {/* Feed vidéo curaté : miniatures 9/16, ouverture du slidepanel vidéo
+                  (swipe vertical) — même composant que /videos/:slug. */}
+              {videoFeedPayload && videoFeedPayload.videos.length > 0 && (
+                <EmbedCardCarousel
+                  items={videoFeedPayload.videos.map((v) => ({
+                    key: v.id,
+                    image: v.thumbnailUrl || null,
+                    title: v.title || v.businessName || "Vidéo",
+                    badge: v.businessName || null,
+                    onClick: () => {
+                      setVideoFeedList(videoFeedPayload.videos);
+                      setFeedVideoTime(0);
+                      setActiveFeedVideoId(v.id);
+                    },
+                  }))}
+                />
+              )}
+
               {/* Article recommandé : jamais une réponse — simple option cliquable,
                   affichée APRÈS le carrousel de miniatures des résultats. */}
               {articleCard && !articleCard.inline && (
@@ -1752,6 +1798,46 @@ const EmbedAsk = () => {
             hasPrev={hasPrev}
             hasNext={hasNext}
           />
+        );
+      })()}
+
+      {/* Slidepanel vidéo du feed curaté : swipe vertical natif de BookOnlineSlidePanel */}
+      {activeFeedVideoId && (() => {
+        const list = videoFeedList.map((v) => ({
+          id: v.id,
+          url: v.url,
+          business_name: v.businessName || v.title || "",
+          pageBusinessName: v.businessName ?? null,
+          pageBusinessId: v.businessId ?? null,
+          owner: v.businessId && v.businessName
+            ? { id: v.businessId, name: v.businessName, logo_url: null, logo_bg: null }
+            : null,
+          social: null,
+          showSocialBadge: false,
+          description: v.description ?? null,
+          manualCard: null,
+          title: v.title ?? null,
+          _isGeneric: !!v.isGeneric,
+          price: v.price ?? null,
+        }));
+        const active = list.find((v) => v.id === activeFeedVideoId) || null;
+        if (!active) return null;
+        return (
+          <Suspense fallback={null}>
+            <HomeVideoSlidePanel
+              open
+              onClose={() => setActiveFeedVideoId(null)}
+              activeVideo={active as any}
+              activeList={list as any}
+              onActiveVideoChange={(v: any) => { setActiveFeedVideoId(v.id); setFeedVideoTime(0); }}
+              isActiveGeneric={!!(active as any)._isGeneric}
+              currentTime={feedVideoTime}
+              onTimeUpdate={setFeedVideoTime}
+              returnContext={null}
+              hideDirections
+              hideSecondaryCtas
+            />
+          </Suspense>
         );
       })()}
 

@@ -33,6 +33,7 @@ import {
   buildArticleTeaser, buildPinnedAnswer, buildFilteredAnswer,
 
 } from "../_shared/ai-engine/routes/curated.ts";
+import { buildVideoFeedAnswer, videoFeedMarker } from "../_shared/ai-engine/routes/videoFeed.ts";
 import { isHoursIntent, buildHoursAnswer, buildHoursForBusinesses } from "../_shared/ai-engine/routes/opening.ts";
 import { isBookingIntent, buildBookingAnswer, buildBookingForBusinesses } from "../_shared/ai-engine/routes/booking.ts";
 import {
@@ -380,6 +381,28 @@ Deno.serve(async (req) => {
             if (post) articleTeaser = buildArticleTeaser(post, lang) || null;
           }
 
+
+          // Feed vidéo curaté (mode = 'video_feed') : le tour renvoie des vidéos,
+          // pas des fiches. Route déterministe partagée (parité V1 / club).
+          if (curated && keepCurated && String(curated.mode || "").trim() === "video_feed") {
+            const built = await buildVideoFeedAnswer(admin, {
+              badgeIds: curated.badgeIds,
+              pinnedBusinessIds: curated.pinnedBusinessIds,
+              label: curated.label,
+              lang: lang as any,
+            }).catch((e) => {
+              console.error("[embed-ai-chat-v2] video_feed_failed", String(e));
+              return null;
+            });
+            if (built) {
+              route = built.route;
+              resultsCount = built.count;
+              emit(built.text);
+              emit(videoFeedMarker(built.payload));
+              await finish(true);
+              return;
+            }
+          }
 
           if (curated && keepCurated && curated.pinnedBusinessIds.length) {
             const built = await buildPinnedAnswer(

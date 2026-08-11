@@ -17,6 +17,7 @@ import { AI_MODEL, getSurfaceConfig } from "../_shared/ai-engine/surfaces.ts";
 import { classify, isConfident } from "../_shared/ai-engine/classify.ts";
 import { detectViewIntent } from "../_shared/ai-engine/view-targets.ts";
 import { buildArticleTeaser } from "../_shared/ai-engine/routes/curated.ts";
+import { buildVideoFeedAnswer, videoFeedMarker } from "../_shared/ai-engine/routes/videoFeed.ts";
 
 import {
   pickLang, fmtHours, normalize, levenshtein, DAY_KEYS, DAY_LABELS,
@@ -2733,6 +2734,32 @@ Deno.serve(async (req) => {
           } catch (e) {
             console.error("[embed-ai-chat] destinations_route_error", e);
             // fall through to other routes
+          }
+        }
+
+        // Deterministic: VIDEO FEED (suggestion mode = 'video_feed').
+        // Feed de vidéos (internes + génériques) ciblées par les badges de la
+        // suggestion → marqueur VIDEO_FEED, slidepanel vidéo à swipe vertical.
+        // Aucune recherche d'établissement, aucun LLM.
+        if (suggestionMode === "video_feed") {
+          try {
+            const built = await buildVideoFeedAnswer(admin, {
+              badgeIds: deterministicBadgeIds || [],
+              pinnedBusinessIds: suggestionPinnedIds,
+              label: suggestionLabel,
+              lang: language as any,
+            });
+            if (built) {
+              const marker = videoFeedMarker(built.payload);
+              emitDelta(built.text);
+              emitDelta(marker);
+              toolsCalledLog.push({ name: "video_feed", args: { count: built.count }, ok: true });
+              endText();
+              await logTurn({ finalText: built.text + marker, streamCompleted: true });
+              return;
+            }
+          } catch (e) {
+            console.error("[embed-ai-chat] video_feed_error", e);
           }
         }
 
