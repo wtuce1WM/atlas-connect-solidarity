@@ -283,8 +283,8 @@ serve(async (req) => {
               pinnedIds: curated.pinnedBusinessIds,
               city: curated.city,
               maxResults: 6,
-              supabaseUrl: SUPABASE_URL,
-              serviceKey: SERVICE_KEY,
+              supabaseUrl: Deno.env.get("SUPABASE_URL")!,
+              serviceKey: Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
             }).catch(() => null);
           }
           if (!built && curated.pinnedBusinessIds.length) {
