@@ -1663,15 +1663,30 @@ serve(async (req) => {
   let curatedFollowups: string[] | null = null;
   // Rayon (km) forcé par une relance staff (ai_followups.radius_km)
   let followupRadiusKm: number | null = null;
+  // Article pertinent détecté : proposé en carte cliquable à la fin de la
+  // réponse, jamais en remplacement des résultats calculés par le moteur.
+  let pendingArticleCard: string | null = null;
   const emit: EmitFn = (obj: any) => {
     if (!controllerRef) return;
     // Auto-inject turnId in every terminal `done` event so the client can
     // attach 👍/👎 feedback to the exact row inserted into ai_conversation_turns.
-    const payload = obj && obj.type === "done"
-      ? { ...obj, turnId, ...(curatedFollowups && curatedFollowups.length ? { followups: curatedFollowups } : {}) }
-      : obj;
+    let payload = obj;
+    if (obj && obj.type === "done") {
+      const teaser = pendingArticleCard;
+      pendingArticleCard = null;
+      if (teaser) {
+        try { controllerRef.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "chunk", delta: teaser })}\n\n`)); } catch {/* client aborted */}
+      }
+      payload = {
+        ...obj,
+        ...(teaser ? { answer: `${obj.answer || ""}${teaser}` } : {}),
+        turnId,
+        ...(curatedFollowups && curatedFollowups.length ? { followups: curatedFollowups } : {}),
+      };
+    }
     try { controllerRef.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)); } catch {/* client aborted */}
   };
+
   const closeStream = () => { try { controllerRef?.close(); } catch {} controllerRef = null; };
   const clientAbort = req.signal;
 
