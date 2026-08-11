@@ -271,7 +271,7 @@ export async function loadEditorialBundle(
   admin: any,
   opts: LoadOptions,
 ): Promise<EditorialBundle> {
-  const { businessIds, perBusiness = 2, limit = 12, maxChars = 600, lang = "fr" } = opts;
+  const { businessIds, perBusiness = 5, limit = 12, maxChars = 600, lang = "fr" } = opts;
   const ids = [...new Set((businessIds || []).filter(Boolean))];
   if (ids.length === 0) return { items: [] };
 
