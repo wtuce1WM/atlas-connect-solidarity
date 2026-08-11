@@ -922,13 +922,21 @@ Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}
 
         // Marqueurs de fin : carte + mémoire du tour suivant.
         if (results.length) {
-          const disclosure = totalFound > results.length
-            ? `\n\n${buildDisclosureFromCounts(results.length, totalFound, cityDetected || scopeCity || "")}`
+          // La ligne de décompte ("X adresses sur Y trouvées à …") n'est légitime que si la
+          // réponse a réellement énuméré ces adresses. Sur une question méta / hors-liste,
+          // elle mélangeait des noms sans rapport : dans ce cas on ne met rien.
+          const normFinal = normalize(finalText);
+          const cited = results.filter((b) => b?.name && normFinal.includes(normalize(String(b.name)))).length;
+          const answerListsResults = cited >= 2 && cited >= Math.ceil(results.length / 2);
+          const city = cityDetected || scopeCity || "";
+          const disclosure = answerListsResults && city && totalFound > results.length
+            ? `\n\n${buildDisclosureFromCounts(results.length, totalFound, city)}`
             : "";
           if (disclosure && !/sur\s+\d+\s+trouv/i.test(finalText)) emit(disclosure);
           emit(`\n\n${toMapMarker(results, null)}`);
           emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(results.map((b) => ({ id: b.id, name: b.name })))}-->`);
         }
+
 
         await finish(true);
       } catch (e) {
