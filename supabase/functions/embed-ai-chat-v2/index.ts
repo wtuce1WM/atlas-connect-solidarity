@@ -408,7 +408,7 @@ Deno.serve(async (req) => {
               commodities: curated.commodities,
               label: curated.label,
 
-              city: host.city,
+              city: scopeCity,
               maxResults: CFG.maxResults,
               supabaseUrl: SUPABASE_URL,
               serviceKey: SERVICE,
