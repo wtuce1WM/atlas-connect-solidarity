@@ -219,6 +219,9 @@ Deno.serve(async (req) => {
       }
 
 
+
+
+
       const finish = async (streamCompleted: boolean) => {
         if (articleTeaser) { emit(articleTeaser); articleTeaser = null; }
         end();
@@ -273,6 +276,16 @@ Deno.serve(async (req) => {
         /** Ville de travail : hôte si présent, sinon ville active de la surface. */
         const scopeCity = host?.city || activeCity || "Marrakech";
         cityDetected = host?.city || activeCity || null;
+
+        // Article de blog pertinent (clic suggestion, texte libre ou vocal) : détecté
+        // AVANT toute route déterministe (celles-ci sortent en `return`). Il n'est
+        // jamais un résultat : émis en fin de tour comme simple option cliquable.
+        if (userMessage.trim().length >= 6) {
+          const posts = await fetchBlogPostsCached(admin).catch(() => []);
+          const match = matchBlogArticle(userMessage, lang, posts, host?.id ?? "", host?.name ?? null);
+          if (match) articleTeaser = buildArticleTeaser(match, lang) || null;
+        }
+
 
         // ── Classe A — routes déterministes (zéro token) ────────────────────
         // 1. Météo
@@ -495,13 +508,6 @@ Deno.serve(async (req) => {
           fallbackReason = "no_results";
         }
 
-        // 6. Article de blog détecté en texte libre (titre publié) : simple
-        // proposition de lecture, jamais un remplacement des résultats.
-        if (!articleTeaser && userMessage.trim().length >= 6) {
-          const posts = await fetchBlogPostsCached(admin).catch(() => []);
-          const match = matchBlogArticle(userMessage, lang, posts, host?.id ?? "", host?.name ?? null);
-          if (match) articleTeaser = buildArticleTeaser(match, lang) || null;
-        }
 
 
 
