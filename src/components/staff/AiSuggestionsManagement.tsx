@@ -181,11 +181,8 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
         .from("subcategories")
         .select("id,name_fr")
         .order("name_fr", { ascending: true }),
-      supabase
-        .from("services")
-        .select("id,name_fr")
-        .order("name_fr", { ascending: true })
-        .range(0, 4999),
+      fetchAllRows<{ id: string; name_fr: string }>("services", "id,name_fr", "name_fr").then((rows) => ({ data: rows })),
+
       supabase
         .from("badges")
         .select("id,name_fr")
