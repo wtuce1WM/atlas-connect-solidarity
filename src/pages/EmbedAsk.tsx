@@ -159,11 +159,41 @@ const SCOPE_LABELS: Record<string, { newConversation: string }> = {
   ar: { newConversation: "محادثة جديدة" },
 };
 
-const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
+// ============= Rayon de proximité =============
+// Valeurs autorisées = celles du champ « Rayon de proximité » (/affiliates → Tools).
+const RADIUS_OPTIONS = [0.5, 1, 5, 10, 20, 50, 100] as const;
+const radiusLabel = (km: number, lang: string): string =>
+  km < 1 ? `${Math.round(km * 1000)} m` : `${km} km`;
+
+/** Détecte une demande de changement de rayon (texte ou vocal) et renvoie la valeur autorisée la plus proche. */
+function parseRadiusCommand(text: string): number | null {
+  const q = (text || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  if (!/(rayon|perimetre|proximite|autour|radius|within|distance|نطاق|محيط)/.test(q)) return null;
+  const km = q.match(/(\d+(?:[.,]\d+)?)\s*(?:km|kilometres?|kilometers?|كم|كيلومتر)/);
+  const m = q.match(/(\d{2,4})\s*(?:m|metres?|meters?|م)\b/);
+  let value: number | null = null;
+  if (km) value = Number(km[1].replace(",", "."));
+  else if (m) value = Number(m[1]) / 1000;
+  else {
+    const bare = q.match(/(\d+(?:[.,]\d+)?)/);
+    if (bare) value = Number(bare[1].replace(",", "."));
+  }
+  if (value == null || !Number.isFinite(value) || value <= 0) return null;
+  let best = RADIUS_OPTIONS[0] as number;
+  for (const opt of RADIUS_OPTIONS) {
+    if (Math.abs(opt - value) < Math.abs(best - value)) best = opt;
+  }
+  return best;
+}
+
+const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string, radius: string) => string; radiusLabel: string; radiusChanged: (r: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
   fr: {
     placeholder: "Posez votre question…",
     hint: "Assistant IA propulsé par One World Morocco",
-    opener: (n) => `Bonjour 👋 Je suis l'assistant de **${n}**. Comment puis-je vous aider ?`,
+    opener: (n, r) =>
+      `Bonjour 👋 Je suis l'assistant de **${n}**. Mes recherches de proximité et de distance se calculent dans un rayon de **${r}** autour de **${n}** — vous pouvez changer ce rayon ci-dessous ou à la voix. Comment puis-je vous aider ?`,
+    radiusLabel: "Rayon de proximité",
+    radiusChanged: (r) => `D'accord 👍 Rayon de proximité réglé sur **${r}**. Les recherches de proximité et de distance utiliseront ce périmètre.`,
     viewMap: "Voir sur la carte",
     events: "Événements",
     nearby: "À proximité",
@@ -177,7 +207,10 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
   en: {
     placeholder: "Ask a question…",
     hint: "AI assistant powered by One World Morocco",
-    opener: (n) => `Hi 👋 I'm the assistant for **${n}**. How can I help?`,
+    opener: (n, r) =>
+      `Hi 👋 I'm the assistant for **${n}**. Nearby and distance searches are calculated within a **${r}** radius around **${n}** — you can change this radius below or by voice. How can I help?`,
+    radiusLabel: "Proximity radius",
+    radiusChanged: (r) => `Got it 👍 Proximity radius set to **${r}**. Nearby and distance searches will use this perimeter.`,
     viewMap: "View on map",
     events: "Events",
     nearby: "Nearby",
@@ -191,7 +224,10 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
   ar: {
     placeholder: "اطرح سؤالك…",
     hint: "مساعد ذكي بواسطة One World Morocco",
-    opener: (n) => `مرحبًا 👋 أنا مساعد **${n}**. كيف يمكنني مساعدتك؟`,
+    opener: (n, r) =>
+      `مرحبًا 👋 أنا مساعد **${n}**. تُحسب نتائج القرب والمسافات داخل نطاق **${r}** حول **${n}** — يمكنك تغيير هذا النطاق أدناه أو بالصوت. كيف يمكنني مساعدتك؟`,
+    radiusLabel: "نطاق القرب",
+    radiusChanged: (r) => `تم 👍 تم ضبط نطاق القرب على **${r}**.`,
     viewMap: "عرض على الخريطة",
     events: "الفعاليات",
     nearby: "القريبة",
@@ -203,6 +239,7 @@ const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (
     ],
   },
 };
+
 
 // ============= Marker extraction =============
 const MAP_RE = /<!--SHOW_ON_MAP:([\s\S]*?)-->/g;
@@ -494,6 +531,12 @@ const EmbedAsk = () => {
   const [chatKey, setChatKey] = useState(0);
   const restoredRef = useRef<boolean>(!!initialPersisted);
 
+  // Rayon de proximité : valeur de l'hôte (/affiliates → Tools), modifiable par l'utilisateur.
+  const [radiusKm, setRadiusKm] = useState<number>(1);
+  const radiusRef = useRef<number>(1);
+  const applyRadius = (km: number) => { radiusRef.current = km; setRadiusKm(km); };
+
+
   // --- AI SDK useChat wiring ---
   const transport = useMemo(() => new DefaultChatTransport({
     api: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/embed-ai-chat-v2`,
@@ -511,9 +554,11 @@ const EmbedAsk = () => {
         suggestionId: (body as any)?.suggestionId ?? null,
         followupId: (body as any)?.followupId ?? null,
         scope: (body as any)?.scope ?? null,
+        radiusKm: radiusRef.current,
       },
     }),
   }), [slug, lang]);
+
 
   const { messages, sendMessage, status, setMessages } = useChat({
     id: `embed-${slug}-${chatKey}`,
@@ -588,7 +633,7 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("id, name, latitude, longitude, city, main_category, url_6_title, widget_bg_color, widget_bg_color_dark")
+        .select("id, name, latitude, longitude, city, main_category, url_6_title, widget_bg_color, widget_bg_color_dark, poi_radius_km")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
@@ -600,6 +645,9 @@ const EmbedAsk = () => {
       setBusinessId((row?.id as string) || null);
       setBusinessCity((row?.city as string) || null);
       setBusinessMainCategory((row?.main_category as string) || null);
+      const rawRadius = Number(row?.poi_radius_km);
+      const hostRadius = RADIUS_OPTIONS.includes(rawRadius as any) ? rawRadius : 1;
+      applyRadius(hostRadius);
       const hex = (v: any) => (typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v.trim()) ? v.trim() : null);
       setWidgetColors(noTheme ? { light: null, dark: null } : { light: hex(row?.widget_bg_color), dark: hex(row?.widget_bg_color_dark) });
       if (row?.latitude != null && row?.longitude != null) {
@@ -625,10 +673,11 @@ const EmbedAsk = () => {
     setMessages([{
       id: "opener",
       role: "assistant",
-      parts: [{ type: "text", text: L.opener(businessName) }],
+      parts: [{ type: "text", text: L.opener(businessName, radiusLabel(radiusKm, lang)) }],
     } as any]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [businessName, chatKey]);
+  }, [businessName, chatKey, radiusKm]);
+
 
   // Persist thread to localStorage on every change (skip while streaming to avoid spam).
   useEffect(() => {
@@ -768,6 +817,25 @@ const EmbedAsk = () => {
     const text = (overrideText ?? input).trim();
     if (!text || streaming || !businessName) return;
     if (!overrideText) setInput("");
+    // Commande (tapée ou vocale) de changement de rayon : traitée localement,
+    // la valeur reste bornée aux options du champ « Rayon de proximité ».
+    if (!suggestionId && !followupId) {
+      const asked = parseRadiusCommand(text);
+      if (asked != null) {
+        applyRadius(asked);
+        setError(null);
+        setMessages((prev) => [
+          ...prev,
+          { id: `u-radius-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
+          {
+            id: `a-radius-${Date.now()}`,
+            role: "assistant",
+            parts: [{ type: "text", text: L.radiusChanged(radiusLabel(asked, lang)) }],
+          } as any,
+        ]);
+        return;
+      }
+    }
     if (suggestionId && !suggestionId.startsWith("default-")) setActiveSuggestionId(suggestionId);
     // Une recherche libre doit toujours être résolue depuis son propre texte.
     // L'ancienne suggestion active ne sert que de contexte à une relance explicite.
@@ -780,6 +848,7 @@ const EmbedAsk = () => {
       { body: { suggestionId: effectiveSuggestionId, followupId: followupId || null, scope: null } },
     );
   };
+
 
   const findLastMapPayload = (): MapPayload | null => {
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -1696,7 +1765,26 @@ const EmbedAsk = () => {
             </button>
           </div>
         )}
+        <div className="flex items-center gap-2 pb-2">
+          <label
+            htmlFor="owm-embed-radius"
+            className={`text-[11px] ${theme === "light" ? "text-neutral-500" : "text-white/70"}`}
+          >
+            {L.radiusLabel}
+          </label>
+          <select
+            id="owm-embed-radius"
+            value={String(radiusKm)}
+            onChange={(e) => applyRadius(Number(e.target.value))}
+            className={`text-[11px] rounded-full border px-2 py-1 outline-none ${border} ${inputBg} ${theme === "light" ? "text-neutral-800" : "text-white"}`}
+          >
+            {RADIUS_OPTIONS.map((r) => (
+              <option key={r} value={String(r)}>{radiusLabel(r, lang)}</option>
+            ))}
+          </select>
+        </div>
         <div className={`flex items-end gap-2 rounded-2xl border ${border} ${inputBg} px-3 py-2`}>
+
           <textarea
             ref={inputRef}
             value={input}
