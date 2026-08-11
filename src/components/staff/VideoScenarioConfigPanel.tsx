@@ -65,15 +65,8 @@ const MODES: Array<{ value: VideoScenarioMode; label: string }> = [
   { value: "explainer", label: "Explicative (affiliés)" },
 ];
 
-/** Formats de rendu proposés (dimensions envoyées au moteur Remotion). */
-const FORMATS: Array<{ key: string; label: string; width: number; height: number }> = [
-  { key: "landscape_1080", label: "Paysage 16:9 · 1920×1080", width: 1920, height: 1080 },
-  { key: "landscape_720", label: "Paysage 16:9 · 1280×720", width: 1280, height: 720 },
-  { key: "square_1080", label: "Carré 1:1 · 1080×1080", width: 1080, height: 1080 },
-  { key: "vertical_1080", label: "Vertical 9:16 · 1080×1920", width: 1080, height: 1920 },
-  { key: "vertical_720", label: "Vertical 9:16 · 720×1280", width: 720, height: 1280 },
-  { key: "custom", label: "Personnalisé", width: 0, height: 0 },
-];
+
+
 
 /** Scènes disponibles pour la vidéo explicative (composition Remotion « explainer-affiliates »). */
 const EXPLAINER_TEMPLATES: Array<{ key: string; label: string }> = [
@@ -597,20 +590,8 @@ const VideoScenarioConfigPanel = () => {
     setDirty(true);
   };
 
-  const applyFormat = (key: string) => {
-    const f = FORMATS.find((x) => x.key === key);
-    setConfig((prev) =>
-      prev
-        ? {
-            ...prev,
-            format_key: key,
-            width: f && f.width ? f.width : prev.width,
-            height: f && f.height ? f.height : prev.height,
-          }
-        : prev,
-    );
-    setDirty(true);
-  };
+
+
 
   const save = async () => {
     if (!config) return;
@@ -680,7 +661,7 @@ const VideoScenarioConfigPanel = () => {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between gap-3 flex-wrap">
         <div>
-          <CardTitle className="text-black">Scénarios vidéo : étapes, textes et format</CardTitle>
+          <CardTitle className="text-black">Scénarios vidéo : étapes et textes</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
             Cet ordre est appliqué dans « Aperçu du scénario » de Studio Vidéo IA et au rendu. Durée 0 = durée
             automatique.
@@ -700,7 +681,7 @@ const VideoScenarioConfigPanel = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Réglages globaux du mode : établissement source + format de rendu */}
+        {/* Réglages globaux du mode : établissement source */}
         {config && (
           <div className="rounded-lg border p-3 grid gap-3 md:grid-cols-4">
             <div className="grid gap-1 md:col-span-2">
@@ -713,58 +694,10 @@ const VideoScenarioConfigPanel = () => {
                 }}
               />
             </div>
-            <label className="grid gap-1 text-xs text-muted-foreground">
-              Format
-              <select
-                value={config.format_key}
-                onChange={(e) => applyFormat(e.target.value)}
-                className="h-8 rounded-md border bg-background px-2 text-xs"
-              >
-                {FORMATS.map((f) => (
-                  <option key={f.key} value={f.key}>
-                    {f.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              <label className="grid gap-1 text-xs text-muted-foreground">
-                Largeur
-                <Input
-                  type="number"
-                  value={config.width}
-                  onChange={(e) => {
-                    setConfig((prev) => (prev ? { ...prev, width: Number(e.target.value), format_key: "custom" } : prev));
-                    setDirty(true);
-                  }}
-                  className="h-8 text-xs"
-                />
-              </label>
-              <label className="grid gap-1 text-xs text-muted-foreground">
-                Hauteur
-                <Input
-                  type="number"
-                  value={config.height}
-                  onChange={(e) => {
-                    setConfig((prev) => (prev ? { ...prev, height: Number(e.target.value), format_key: "custom" } : prev));
-                    setDirty(true);
-                  }}
-                  className="h-8 text-xs"
-                />
-              </label>
-              <label className="grid gap-1 text-xs text-muted-foreground">
-                FPS
-                <Input
-                  type="number"
-                  value={config.fps}
-                  onChange={(e) => {
-                    setConfig((prev) => (prev ? { ...prev, fps: Number(e.target.value) } : prev));
-                    setDirty(true);
-                  }}
-                  className="h-8 text-xs"
-                />
-              </label>
+            <div className="md:col-span-2 self-end text-xs text-muted-foreground">
+              Le format et les dimensions sont gérés dans Studio Vidéo IA.
             </div>
+
           </div>
         )}
 
