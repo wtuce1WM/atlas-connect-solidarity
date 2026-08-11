@@ -2093,8 +2093,9 @@ serve(async (req) => {
           }
         }
 
-        // 2. Établissements épinglés → corpus clos, ordre staff
-        if (curated.pinnedBusinessIds.length) {
+        // 2. Établissements épinglés → corpus clos UNIQUEMENT sans filtre taxonomique.
+        const curatedHasTaxo = (curated.commodities.length || curated.badgeIds.length || curated.subcategoryNames.length || curated.serviceNames.length) > 0;
+        if (curated.pinnedBusinessIds.length && !curatedHasTaxo) {
           const built = await buildPinnedAnswer(admin, curated.pinnedBusinessIds, pseudoHost, lang as any, curated.label)
             .catch((e) => { console.error("club-ai-chat → pinned_route_failed", String(e)); return null; });
           if (built) { await deliverCurated(built); return; }
@@ -2104,13 +2105,14 @@ serve(async (req) => {
         // Une suggestion qui force déjà une route (`mode` = events / weather / map…)
         // garde SA route : on ne la détourne pas en liste filtrée.
         const hasForcedMode = !!String(curated.mode || "").trim();
-        if (!hasForcedMode && (curated.commodities.length || curated.badgeIds.length || curated.subcategoryNames.length || curated.serviceNames.length)) {
+        if (!hasForcedMode && curatedHasTaxo) {
           const built = await buildFilteredAnswer(admin, pseudoHost, lang as any, {
             badgeIds: curated.badgeIds,
             subcategoryNames: curated.subcategoryNames,
             serviceNames: curated.serviceNames,
             commodities: curated.commodities,
             label: curated.label,
+            pinnedIds: curated.pinnedBusinessIds,
             city: curated.city,
             maxResults: 6,
             supabaseUrl,
@@ -2118,6 +2120,7 @@ serve(async (req) => {
           }).catch((e) => { console.error("club-ai-chat → curated_filter_failed", String(e)); return null; });
           if (built) { await deliverCurated(built); return; }
         }
+
       } catch (e) {
         console.error("club-ai-chat → curated authority error", e);
       }
