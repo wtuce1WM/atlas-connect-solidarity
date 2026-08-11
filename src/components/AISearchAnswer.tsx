@@ -363,11 +363,9 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
           ? { lat: geo.coords.lat, lng: geo.coords.lng }
           : undefined;
 
-        // Moteur unifié A/B/C (`?engine=v2`) : aucun pool de fiches envoyé,
+        // Moteur unifié V2 (branchement par défaut) : aucun pool de fiches envoyé,
         // la surface fournit seulement la ville active et la question.
-        const engineV2 = typeof window !== "undefined"
-          && new URLSearchParams(window.location.search).get("engine") === "v2";
-        if (engineV2) {
+        {
           try {
             const res = await callAiEngine({
               surface: "search",
