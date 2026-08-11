@@ -854,6 +854,64 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
 
                 <div className="space-y-2">
                   <label className="text-xs text-muted-foreground">
+                    Services ciblés {(r.service_ids?.length ?? 0) === 0 ? "(aucun — recherche libre par l'IA)" : `(${r.service_ids.length} — route déterministe)`}
+                  </label>
+                  {(r.service_ids?.length ?? 0) > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {r.service_ids.map((sid) => {
+                        const s = services.find((x) => x.id === sid);
+                        return (
+                          <span key={sid} className="inline-flex items-center gap-1 rounded-md bg-sky-500/15 text-sky-700 dark:text-sky-300 text-xs px-2 py-1">
+                            {s?.name_fr || sid}
+                            <button
+                              type="button"
+                              onClick={() => update(r.id, { service_ids: r.service_ids.filter((x) => x !== sid) })}
+                              className="hover:text-destructive"
+                              title="Retirer"
+                            >×</button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div className="relative max-w-md">
+                    <Input
+                      placeholder="Rechercher un service…"
+                      value={serviceSearch[r.id] || ""}
+                      onChange={(e) => setServiceSearch((prev) => ({ ...prev, [r.id]: e.target.value }))}
+                      onKeyDown={(e) => { if (e.key === "Escape") setServiceSearch((prev) => ({ ...prev, [r.id]: "" })); }}
+                    />
+                    {serviceSearch[r.id]?.trim() && (
+                      <div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg max-h-60 overflow-auto">
+                        {(() => {
+                          const q = serviceSearch[r.id].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                          const matches = services
+                            .filter((s) => !(r.service_ids || []).includes(s.id))
+                            .filter((s) => s.name_fr.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q));
+                          if (matches.length === 0) return <div className="px-3 py-2 text-sm text-muted-foreground">Aucun service trouvé</div>;
+                          return matches.slice(0, 8).map((s) => (
+                            <button
+                              key={s.id}
+                              type="button"
+                              onClick={() => { update(r.id, { service_ids: [...(r.service_ids || []), s.id] }); setServiceSearch((prev) => ({ ...prev, [r.id]: "" })); }}
+                              className="w-full px-3 py-2 text-left text-sm hover:bg-muted truncate"
+                            >
+                              {s.name_fr}
+                            </button>
+                          ));
+                        })()}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    💡 Filtre dur sur le champ « services » des fiches : seuls les établissements proposant l'un de ces services sont retenus (classe A, zéro token).
+                  </p>
+                </div>
+
+
+
+                <div className="space-y-2">
+                  <label className="text-xs text-muted-foreground">
                     Badges ciblés {r.badge_ids.length === 0 ? "(aucun)" : `(${r.badge_ids.length} — route déterministe)`}
                   </label>
                   {r.badge_ids.length > 0 && (
