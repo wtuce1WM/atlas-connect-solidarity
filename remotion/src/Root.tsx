@@ -11,6 +11,7 @@ import { AgentIaDemoV2, AGENT_IA_V2_TOTAL_FRAMES } from "./AgentIaDemoV2";
 import { NarComplexe, NAR_TOTAL_FRAMES } from "./NarComplexe";
 import { Farasha, FARASHA_TOTAL_FRAMES } from "./Farasha";
 import { BoZin, BOZIN_TOTAL_FRAMES } from "./BoZin";
+import { ExplainerAffiliates, EXPLAINER_TOTAL_FRAMES } from "./ExplainerAffiliates";
 import { BusinessShowcase, SHOWCASE_TOTAL_FRAMES, computeShowcaseFrames, type ShowcaseProps } from "./BusinessShowcase";
 
 export const RemotionRoot: React.FC = () => (
@@ -19,6 +20,14 @@ export const RemotionRoot: React.FC = () => (
       id="main"
       component={MainVideo}
       durationInFrames={TOTAL_FRAMES}
+      fps={30}
+      width={1920}
+      height={1080}
+    />
+    <Composition
+      id="explainer-affiliates"
+      component={ExplainerAffiliates}
+      durationInFrames={EXPLAINER_TOTAL_FRAMES}
       fps={30}
       width={1920}
       height={1080}
