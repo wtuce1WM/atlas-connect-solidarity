@@ -1522,7 +1522,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                             onClick={() => {
                               // Page vidéo éditoriale → route dédiée /videos/:slug.
                               if (bp.kind === "video_feed") { window.open(`/videos/${bp.slug}`, "_blank", "noopener"); return; }
-                              setOpenBlogs({ list: blogPayloads.filter((b) => b.kind !== "video_feed"), index: bi });
+                              setOpenBlogs({ list: blogPayloads, index: bi });
                             }}
                             className="flex items-stretch gap-3 p-2 rounded-xl bg-white/85 hover:bg-white border border-[#C04F17]/25 transition-colors text-left group/blog overflow-hidden"
                           >
