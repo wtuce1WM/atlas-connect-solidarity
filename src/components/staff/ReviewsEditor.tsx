@@ -68,7 +68,7 @@ const ReviewsEditor = forwardRef<ReviewsEditorRef, ReviewsEditorProps>(({ busine
     setLoading(true);
     const { data } = await supabase
       .from("reviews")
-      .select("id, source, author_name, rating, text, text_fr, language, relative_time, published_at, is_default, is_hidden")
+      .select("id, source, author_name, rating, text, text_fr, language, relative_time, published_at, is_default, is_hidden, highlight")
       .eq("business_id", businessId)
       .order("is_default", { ascending: false })
       .order("rating", { ascending: false, nullsFirst: false });
@@ -182,7 +182,7 @@ const ReviewsEditor = forwardRef<ReviewsEditorRef, ReviewsEditorProps>(({ busine
                 </span>
               </div>
               <p className="text-sm font-medium mb-2 leading-relaxed">
-                {defaultReview.text_fr || defaultReview.text || "Aucun texte"}
+                {withHighlight(defaultReview.text_fr || defaultReview.text || "Aucun texte", defaultReview.highlight)}
               </p>
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
                 <span className="font-medium">{defaultReview.author_name || "Anonyme"}</span>
@@ -235,7 +235,7 @@ const ReviewsEditor = forwardRef<ReviewsEditorRef, ReviewsEditorProps>(({ busine
               </div>
               {(review.text_fr || review.text) && (
                 <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
-                  {review.text_fr || review.text}
+                  {withHighlight(review.text_fr || review.text || "", review.highlight)}
                 </p>
               )}
             </div>
