@@ -21,7 +21,7 @@ export const ExpAssistant: React.FC = () => {
 
   const frameIn = spring({ frame: frame - 12, fps, config: { damping: 18, stiffness: 80 } });
   // Scroll lent de la capture pour dérouler la réponse réelle.
-  const scroll = interpolate(frame, [55, 250], [-30, -520], {
+  const scroll = interpolate(frame, [55, 250], [-20, -430], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -34,7 +34,7 @@ export const ExpAssistant: React.FC = () => {
       <div
         style={{
           position: "absolute",
-          right: 120,
+          right: 90,
           top: 130,
           opacity: frameIn,
           transform: `translateY(${(1 - frameIn) * 60}px) scale(${0.96 + frameIn * 0.04})`,
@@ -42,7 +42,7 @@ export const ExpAssistant: React.FC = () => {
       >
         <ExpBrowserFrame
           src={staticFile("explainer/shots/ask.png")}
-          width={840}
+          width={760}
           height={820}
           label="oneworldmorocco.com/embed/ask"
           offsetY={scroll}
