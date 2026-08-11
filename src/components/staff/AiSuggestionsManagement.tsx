@@ -117,8 +117,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
       while (true) {
         const { data, error } = await supabase
           .from("businesses")
-          .select("id,name,slug,engagements")
-          .eq("is_active", true)
+          .select("id,name,slug,engagements,is_active")
           .order("name", { ascending: true })
           .range(from, from + pageSize - 1);
         if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); break; }
