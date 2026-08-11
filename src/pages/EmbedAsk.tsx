@@ -152,10 +152,10 @@ const EmbedBookPanelWrapper = ({
   );
 };
 
-const SCOPE_LABELS: Record<string, { filter: string; broaden: string; newConversation: string }> = {
-  fr: { filter: "Filtrer parmi ces résultats", broaden: "Élargir la recherche", newConversation: "Nouvelle conversation" },
-  en: { filter: "Filter these results", broaden: "Broaden the search", newConversation: "New conversation" },
-  ar: { filter: "تصفية هذه النتائج", broaden: "توسيع البحث", newConversation: "محادثة جديدة" },
+const SCOPE_LABELS: Record<string, { newConversation: string }> = {
+  fr: { newConversation: "Nouvelle conversation" },
+  en: { newConversation: "New conversation" },
+  ar: { newConversation: "محادثة جديدة" },
 };
 
 const LANG_LABELS: Record<string, { placeholder: string; hint: string; opener: (name: string) => string; viewMap: string; events: string; nearby: string; suggestions: string[] }> = {
