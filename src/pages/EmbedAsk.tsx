@@ -1203,8 +1203,9 @@ const EmbedAsk = () => {
                     images: Array.isArray(b.images) ? (b.images as string[]) : [],
                     city: b.city ?? null,
                     neighborhood: b.neighborhood ?? null,
-                    rating: (b as any).google_rating ?? null,
-                    totalReviews: (b as any).google_review_count ?? 0,
+                    // Mêmes signaux que l'overlay POI du slidepanel (note /20 + total avis).
+                    avgOn20: (b as any).computed_rating ?? null,
+                    totalReviews: (b as any).total_review_count ?? (b as any).google_review_count ?? 0,
                   }));
                 const hostPoi = hostLocation && businessId
                   ? [{
@@ -1215,7 +1216,7 @@ const EmbedAsk = () => {
                       images: [] as string[],
                       city: businessCity,
                       neighborhood: null as string | null,
-                      rating: null as number | null,
+                      avgOn20: null as number | null,
                       totalReviews: 0,
                       markerColor: { bg: "#000000", fg: "#ffffff", border: "#000000" },
                     }]
@@ -1229,9 +1230,11 @@ const EmbedAsk = () => {
                         pois={pois as any}
                         selectedPoiId={null}
                         center={hostLocation || undefined}
+                        distanceOrigin={hostLocation || null}
                         onPoiClick={(id) => { setOpenSiblings(pois.map((p) => p.id)); setOpenBusinessId(id); }}
                         fitToMarkers
                         mapTheme={theme === "dark" ? "default-dark" : "default-light"}
+                        baseColor={activeWidgetBg || null}
                         showLayerControls
                       />
                     </Suspense>
