@@ -850,6 +850,8 @@ const EmbedAsk = () => {
   const cardBg = theme === "light" ? "bg-white border border-neutral-200" : "bg-neutral-900 border border-neutral-800";
   // Encre réellement lisible : avec un fond personnalisé, elle dépend de la couleur du fond.
   const lightInk = customBg ? activeBgInk === "dark" : theme === "light";
+  // Sur fond noir / transparent sombre : tous les textes en blanc pur (jamais de gris).
+  const whiteInk = lightInk ? "" : "text-white";
   // Puces (suggestions / relances) : contraste explicite, jamais de texte clair sur fond clair.
   const chipBg = lightInk
     ? "bg-neutral-100 border border-neutral-300 text-neutral-900"
