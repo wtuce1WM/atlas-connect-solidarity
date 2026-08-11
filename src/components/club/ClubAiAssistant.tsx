@@ -342,7 +342,7 @@ const ARTICLE_CARD_RE = /<!--ARTICLE_CARD:([\s\S]*?)-->/g;
 const BLOG_CTX_RE = /<!--BLOG_CTX:[\s\S]*?-->/g;
 const WEATHER_RE = /<!--WEATHER_FORECAST:([\s\S]*?)-->/g;
 type MapPayload = { title?: string; businesses: MapPanelBusiness[]; order?: string | null };
-export type BlogCardItem = { id: string; slug: string; title: string; cover: string | null; tldr: string | null };
+export type BlogCardItem = { id: string; slug: string; title: string; cover: string | null; tldr: string | null; kind?: "blog" | "video_feed" };
 export type EventPanelItem = {
   id: string;
   name: string;
@@ -1519,7 +1519,11 @@ const ClubAiAssistant = ({ userId }: Props) => {
                           <button
                             key={`blog-${bp.id}`}
                             type="button"
-                            onClick={() => setOpenBlogs({ list: blogPayloads, index: bi })}
+                            onClick={() => {
+                              // Page vidéo éditoriale → route dédiée /videos/:slug.
+                              if (bp.kind === "video_feed") { window.open(`/videos/${bp.slug}`, "_blank", "noopener"); return; }
+                              setOpenBlogs({ list: blogPayloads.filter((b) => b.kind !== "video_feed"), index: bi });
+                            }}
                             className="flex items-stretch gap-3 p-2 rounded-xl bg-white/85 hover:bg-white border border-[#C04F17]/25 transition-colors text-left group/blog overflow-hidden"
                           >
                             <div className="relative h-20 w-24 shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-[#C04F17]/15 to-[#D4AF37]/25 flex items-center justify-center">
@@ -1531,7 +1535,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
                             </div>
                             <div className="min-w-0 flex-1 flex flex-col justify-between py-0.5">
                               <div className="text-sm font-semibold text-[#0a1d6b] line-clamp-2 leading-tight">{bp.title}</div>
-                              <div className="text-[11px] text-[#C04F17] mt-1 font-medium group-hover/blog:underline">Lire l'article →</div>
+                              <div className="text-[11px] text-[#C04F17] mt-1 font-medium group-hover/blog:underline">{bp.kind === "video_feed" ? "Voir les vidéos →" : "Lire l'article →"}</div>
                             </div>
                           </button>
                         ))}
