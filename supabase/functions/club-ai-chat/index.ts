@@ -3199,14 +3199,36 @@ serve(async (req) => {
           const shownCount = top.length;
           const filterLine = search?.strict_filter_applied ? `\nFiltre strict appliqué côté serveur : ${search.strict_filter_reason}. Ne mentionne PAS d'établissement absent de la liste ci-dessus.` : "";
           const refineNote = routedIntent === "refinement" ? ` (raffinement de : "${previousUserQuery}")` : "";
+
+          // Contexte éditorial partagé (TXT IA + popups d'images + offres) — même
+          // module que /search et /embed pour une richesse identique.
+          let editorialBlock = "";
+          try {
+            const edIds = top.map((r: any) => r?.id).filter(Boolean).map(String);
+            if (edIds.length) {
+              const nameById: Record<string, string> = {};
+              for (const r of top as any[]) if (r?.id) nameById[String(r.id)] = r.name || "";
+              const bundle = await loadEditorialBundle(admin, { businessIds: edIds, perBusiness: 2, limit: 12, lang });
+              const ctxTxt = formatEditorialBundle(bundle, nameById);
+              if (ctxTxt) {
+                editorialBlock = `\n\nCONTEXTE ÉDITORIAL ([TXT IA] textes rédigés par l'établissement/affilié, [IMAGE POPUP] titres et textes des photos, [OFFRE] offres et promotions) — utilise-le pour enrichir la ligne de chaque établissement, sans rien inventer :\n${ctxTxt}`;
+                console.log(
+                  `[club] Editorial ctx: ${bundle.texts.length} TXT IA, ${bundle.images.length} popups image, ${bundle.offers.length} offres (${edIds.length} businesses)`,
+                );
+              }
+            }
+          } catch (e) {
+            console.error("[club] editorial_ctx_error", String(e));
+          }
+
           const synthUser = `Requête du membre : "${lastUserMsg}"${refineNote}
 
 Établissements sélectionnés (${totalCount} au total, ${shownCount} présentés) :
-${listBlock}${filterLine}
+${listBlock}${filterLine}${editorialBlock}
 
 Consignes :
 - 1 phrase d'intro chaleureuse en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}.
-- Liste chaque établissement : **Nom** puis une ligne courte tirée du hook.
+- Liste chaque établissement : **Nom** puis une ligne courte tirée du hook ou du contexte éditorial.
 - Termine EXACTEMENT par cette ligne : **${shownCount} résultats affichés sur ${totalCount} trouvés**
 ${totalCount > shownCount ? "- Puis propose : « je peux les afficher tous sur la carte »." : ""}`;
 
