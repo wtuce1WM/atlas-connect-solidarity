@@ -629,6 +629,7 @@ export type Database = {
           proximity_b_badge_ids: string[]
           proximity_b_subcategory_ids: string[]
           radius_km: number | null
+          service_ids: string[]
           sort_order: number
           subcategory_ids: string[]
           surface: string
@@ -666,6 +667,7 @@ export type Database = {
           proximity_b_badge_ids?: string[]
           proximity_b_subcategory_ids?: string[]
           radius_km?: number | null
+          service_ids?: string[]
           sort_order?: number
           subcategory_ids?: string[]
           surface: string
@@ -703,6 +705,7 @@ export type Database = {
           proximity_b_badge_ids?: string[]
           proximity_b_subcategory_ids?: string[]
           radius_km?: number | null
+          service_ids?: string[]
           sort_order?: number
           subcategory_ids?: string[]
           surface?: string
