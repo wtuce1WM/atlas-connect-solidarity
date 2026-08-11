@@ -7,7 +7,8 @@ import { classify, isConfident, type ClassifyResult } from "../_shared/ai-engine
 import { detectViewIntent, hasPanoramaAttribute, hasPanoramaProof, withinPointRadius, hasVantage, hasPointViewProof } from "../_shared/ai-engine/view-targets.ts";
 import {
   loadCuratedTargets, fetchBlogPostsCached, matchCuratedByText,
-  buildBlogArticleAnswer, buildPinnedAnswer, buildFilteredAnswer,
+  buildArticleTeaser, buildPinnedAnswer, buildFilteredAnswer,
+
 } from "../_shared/ai-engine/routes/curated.ts";
 
 const corsHeaders = {
