@@ -91,6 +91,8 @@ export type CuratedTargets = {
   /** Valeurs de commodités (sans le préfixe « Logistique: ») → filtre dur sur businesses.engagements */
   commodities: string[];
   destinationIds: string[];
+  /** Périmètre géo défini par l'entrée curatée elle-même (null = aucun filtre ville) */
+  city: string | null;
   mode: string | null;
   label: string | null;
   aiTexts: Array<{ title: string; hook: string; content: string }>;
@@ -98,7 +100,7 @@ export type CuratedTargets = {
 
 const EMPTY_TARGETS: CuratedTargets = {
   blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], badgeIds: [], commodities: [],
-  destinationIds: [], mode: null, label: null, aiTexts: [],
+  destinationIds: [], city: null, mode: null, label: null, aiTexts: [],
 };
 
 
@@ -110,17 +112,18 @@ export async function loadCuratedTargets(
   const suggestionId = opts.suggestionId || null;
   const followupId = opts.followupId || null;
   if (!suggestionId && !followupId) return { ...EMPTY_TARGETS };
-  const out: CuratedTargets = { ...EMPTY_TARGETS, blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], badgeIds: [], destinationIds: [], aiTexts: [] };
+  const out: CuratedTargets = { ...EMPTY_TARGETS, blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], badgeIds: [], destinationIds: [], city: null, aiTexts: [] };
 
   if (suggestionId) {
     try {
       const { data: sugg } = await admin
         .from("ai_suggestions")
-        .select("subcategory_ids, badge_ids, commodity_filters, business_ids, destination_ids, blog_post_ids, mode, label_fr, label_en, label_ar")
+        .select("subcategory_ids, badge_ids, commodity_filters, business_ids, destination_ids, blog_post_ids, city, mode, label_fr, label_en, label_ar")
         .eq("id", suggestionId)
         .maybeSingle();
       if (sugg) {
         out.mode = (sugg.mode as string | null) || null;
+        out.city = (String(sugg.city || "").trim() || null);
         out.label = (sugg.label_fr || sugg.label_en || sugg.label_ar || null) as string | null;
         out.badgeIds = Array.isArray(sugg.badge_ids) ? sugg.badge_ids.filter(Boolean) : [];
         out.commodities = Array.isArray(sugg.commodity_filters) ? sugg.commodity_filters.filter(Boolean) : [];
@@ -487,7 +490,9 @@ export async function buildFilteredAnswer(
   const subcategoryNames = (opts.subcategoryNames || []).filter(Boolean);
   const commodities = (opts.commodities || []).filter(Boolean);
   if (!badgeIds.length && !subcategoryNames.length && !commodities.length) return null;
-  const city = opts.city || host?.city || "Marrakech";
+  // Règle : le périmètre vient de l'entrée curatée (ai_suggestions.city). Vide =
+  // cible éditoriale trans-ville (ex. badge « Agafay ») → AUCUN filtre ville.
+  const city = String(opts.city || "").trim() || null;
   const max = opts.maxResults ?? 6;
 
   let all: any[] = [];
@@ -496,15 +501,16 @@ export async function buildFilteredAnswer(
     // `businesses.engagements`, aucune recherche sémantique, aucun LLM.
     const variants = commodities.flatMap((c) => [c, `Logistique:${c}`]);
     try {
-      const { data, error } = await admin
+      let q = admin
         .from("businesses")
         .select("id, is_featured, computed_rating, total_review_count")
         .eq("is_active", true)
-        .eq("city", city)
         .overlaps("engagements", variants)
         .order("is_featured", { ascending: false })
         .order("computed_rating", { ascending: false, nullsFirst: false })
         .limit(60);
+      if (city) q = q.eq("city", city);
+      const { data, error } = await q;
       if (error) throw error;
       all = data || [];
     } catch (e) {
@@ -525,7 +531,7 @@ export async function buildFilteredAnswer(
           pageSize: 30,
           offset: 0,
           compact: "card",
-          city,
+          ...(city ? { city } : {}),
           badgeIds: badgeIds.length ? badgeIds : undefined,
           subcategoryNames: subcategoryNames.length ? subcategoryNames : undefined,
         }),
@@ -544,11 +550,12 @@ export async function buildFilteredAnswer(
   const total = ids.length;
   const shownIds = ids.slice(0, max);
 
+  const inCity = city ? (lang === "en" ? ` in ${city}` : lang === "ar" ? ` في ${city}` : ` à ${city}`) : "";
   const heading = opts.label
-    ? (lang === "en" ? `**${opts.label}** — matching addresses in ${city}:`
-      : lang === "ar" ? `**${opts.label}** — عناوين مطابقة في ${city}:`
-      : `**${opts.label}** — les adresses qui correspondent à ${city} :`)
-    : (lang === "en" ? `Matching addresses in ${city}:` : lang === "ar" ? `عناوين مطابقة في ${city}:` : `Les adresses qui correspondent à ${city} :`);
+    ? (lang === "en" ? `**${opts.label}** — matching addresses${inCity}:`
+      : lang === "ar" ? `**${opts.label}** — عناوين مطابقة${inCity}:`
+      : `**${opts.label}** — les adresses qui correspondent${inCity} :`)
+    : (lang === "en" ? `Matching addresses${inCity}:` : lang === "ar" ? `عناوين مطابقة${inCity}:` : `Les adresses qui correspondent${inCity} :`);
   const rest = total - shownIds.length;
   const outro = lang === "en"
     ? `📍 ${shownIds.length} of ${total} matching addresses${rest > 0 ? " — want me to show the others" : " — want the map view"}, opening hours, or booking links?`

@@ -399,7 +399,8 @@ Deno.serve(async (req) => {
               commodities: curated.commodities,
               label: curated.label,
 
-              city: scopeCity,
+              // Périmètre défini par l'entrée curatée (vide = trans-ville)
+              city: curated.city,
               maxResults: CFG.maxResults,
               supabaseUrl: SUPABASE_URL,
               serviceKey: SERVICE,
