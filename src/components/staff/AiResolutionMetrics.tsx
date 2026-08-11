@@ -41,7 +41,8 @@ export default function AiResolutionMetrics() {
           .limit(5000),
         supabase
           .from("ai_conversation_turns")
-          .select("message,resolved_types,resolution_unresolved,resolution_service_only")
+          .select("message,surface,resolved_types,resolution_unresolved,resolution_service_only")
+
           .gte("created_at", since)
           .not("resolved_types", "is", null)
           .order("created_at", { ascending: false })
