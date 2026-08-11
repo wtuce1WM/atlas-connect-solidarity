@@ -28,6 +28,7 @@ import { detectViewIntent, withinPointRadius, hasVantage, hasPointViewProof, has
 import { pickLang, normalize, toMapMarker, fetchPriorFull } from "../_shared/ai-engine/routes/shared.ts";
 import { loadEditorialBundle, formatEditorialBundle } from "../_shared/ai-engine/editorial.ts";
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
+import { isTidesIntent, resolveTidesCity, tidesIntro } from "../_shared/ai-engine/routes/tides.ts";
 import {
   loadCuratedTargets, fetchBlogPostsCached, matchBlogArticle, matchCuratedByText,
   buildArticleTeaser, buildPinnedAnswer, buildFilteredAnswer,
@@ -413,6 +414,15 @@ Deno.serve(async (req) => {
           }
         }
         // ── Classe A — routes déterministes (zéro token) ────────────────────
+        // 0. Marées (widget marées/houle/vent) — prioritaire sur la météo.
+        if (isTidesIntent(userMessage)) {
+          route = "tides";
+          const coast = resolveTidesCity(userMessage, scopeCity);
+          emit(`${tidesIntro(coast.name, lang)}\n\n<!--TIDES_FORECAST:${JSON.stringify({ city: coast.slug, city_name: coast.name })}-->`);
+          await finish(true);
+          return;
+        }
+
         // 1. Météo
         if (isWeatherIntent(userMessage)) {
           route = "weather";
