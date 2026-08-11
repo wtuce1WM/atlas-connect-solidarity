@@ -65,12 +65,34 @@ const ReviewExcerptDialog = ({ businessId, onClose }: Props) => {
 
   const textOf = (r: Row) => (r.text_fr || r.text || "").trim();
 
+  const splitSentences = (t: string) =>
+    t.split(/(?<=[.!?…])\s+/).map((s) => s.trim()).filter(Boolean);
+
   const pick = (r: Row) => {
     setSelectedId(r.id);
-    const t = textOf(r);
-    const existing = r.highlight || "";
-    setHighlight(existing || (t.split(/(?<=[.!?])\s+/)[0] || t).slice(0, 240));
+    setHighlight(r.highlight || "");
   };
+
+  /** Sélection libre à la souris : dès qu'on relâche, l'extrait est rempli. */
+  const useSelection = (r: Row) => {
+    const sel = window.getSelection?.();
+    const t = (sel?.toString() || "").trim();
+    if (!t) return;
+    setSelectedId(r.id);
+    setHighlight(t.slice(0, 240));
+  };
+
+  /** Clic sur une phrase : l'ajoute / la retire de l'extrait. */
+  const toggleSentence = (r: Row, sentence: string) => {
+    setSelectedId(r.id);
+    const base = r.id === selectedId ? highlight : "";
+    const parts = splitSentences(base);
+    const next = parts.includes(sentence)
+      ? parts.filter((p) => p !== sentence)
+      : [...splitSentences(textOf(r)).filter((s) => parts.includes(s) || s === sentence)];
+    setHighlight(next.join(" ").slice(0, 240));
+  };
+
 
   const save = async () => {
     if (!selectedId) return;
