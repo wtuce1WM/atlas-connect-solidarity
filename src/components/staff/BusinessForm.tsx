@@ -3554,26 +3554,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   ))}
                 </SelectContent>
               </Select>
-              <Select
-                value={(formData as any).website_presentation_mode || "plus_informations"}
-                onValueChange={(value) => handleChange("website_presentation_mode", value)}
-              >
-                <SelectTrigger className="w-64 shrink-0">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-background z-50">
-                  <SelectItem value="acheter_en_ligne">Acheter en ligne</SelectItem>
-                  <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
-                  <SelectItem value="reserver_une_table">Réserver une table</SelectItem>
-                  <SelectItem value="reserver_une_chambre">Réserver une chambre</SelectItem>
-                  <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
-                  <SelectItem value="plus_informations">Plus d'informations</SelectItem>
-                  <SelectItem value="contactez_nous">Contactez nous</SelectItem>
-                  <SelectItem value="la_carte">La carte</SelectItem>
-                  <SelectItem value="les_boissons">Les boissons</SelectItem>
-                  <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
             {(formData as any).website_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
             <BrokenUrlBadge url={formData.website} />
@@ -3630,26 +3610,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   {getCtaOptions((formData as any).reserve_now_cta).map((option) => (
                     <SelectItem key={option} value={option}>{option}</SelectItem>
                   ))}
-                </SelectContent>
-              </Select>
-              <Select
-                value={(formData as any).presentation_mode || "reserver_en_ligne"}
-                onValueChange={(value) => handleChange("presentation_mode", value)}
-              >
-                <SelectTrigger className="w-64 shrink-0">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-background z-50">
-                  <SelectItem value="acheter_en_ligne">Acheter en ligne</SelectItem>
-                  <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
-                  <SelectItem value="reserver_une_table">Réserver une table</SelectItem>
-                  <SelectItem value="reserver_une_chambre">Réserver une chambre</SelectItem>
-                  <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
-                  <SelectItem value="plus_informations">Plus d'informations</SelectItem>
-                  <SelectItem value="contactez_nous">Contactez nous</SelectItem>
-                  <SelectItem value="la_carte">La carte</SelectItem>
-                  <SelectItem value="les_boissons">Les boissons</SelectItem>
-                  <SelectItem value="whatsapp">WhatsApp</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -3710,26 +3670,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   ))}
                 </SelectContent>
               </Select>
-              <Select
-                value={(formData as any).online_shop_presentation_mode || "acheter_en_ligne"}
-                onValueChange={(value) => handleChange("online_shop_presentation_mode", value)}
-              >
-                <SelectTrigger className="w-64 shrink-0">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-background z-50">
-                  <SelectItem value="acheter_en_ligne">Acheter en ligne</SelectItem>
-                  <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
-                  <SelectItem value="reserver_une_table">Réserver une table</SelectItem>
-                  <SelectItem value="reserver_une_chambre">Réserver une chambre</SelectItem>
-                  <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
-                  <SelectItem value="plus_informations">Plus d'informations</SelectItem>
-                  <SelectItem value="contactez_nous">Contactez nous</SelectItem>
-                  <SelectItem value="la_carte">La carte</SelectItem>
-                  <SelectItem value="les_boissons">Les boissons</SelectItem>
-                  <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
             {(formData as any).online_shop_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
             <BrokenUrlBadge url={formData.online_shop_url} />
@@ -3773,26 +3713,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   ))}
                 </SelectContent>
               </Select>
-              <Select
-                value={(formData as any).url_4_presentation_mode || "acheter_en_ligne"}
-                onValueChange={(value) => handleChange("url_4_presentation_mode", value)}
-              >
-                <SelectTrigger className="w-64 shrink-0">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-background z-50">
-                  <SelectItem value="acheter_en_ligne">Acheter en ligne</SelectItem>
-                  <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
-                  <SelectItem value="reserver_une_table">Réserver une table</SelectItem>
-                  <SelectItem value="reserver_une_chambre">Réserver une chambre</SelectItem>
-                  <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
-                  <SelectItem value="plus_informations">Plus d'informations</SelectItem>
-                  <SelectItem value="contactez_nous">Contactez nous</SelectItem>
-                  <SelectItem value="la_carte">La carte</SelectItem>
-                  <SelectItem value="les_boissons">Les boissons</SelectItem>
-                  <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
             {(formData as any).url_4_force_external && <span className="text-xs text-orange-600">⚡ Lien externe activé</span>}
             <BrokenUrlBadge url={(formData as any).url_4} />
@@ -3834,26 +3754,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
                   {getCtaOptions((formData as any).url_5_cta).map((option) => (
                     <SelectItem key={option} value={option}>{option}</SelectItem>
                   ))}
-                </SelectContent>
-              </Select>
-              <Select
-                value={(formData as any).url_5_presentation_mode || "acheter_en_ligne"}
-                onValueChange={(value) => handleChange("url_5_presentation_mode", value)}
-              >
-                <SelectTrigger className="w-64 shrink-0">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-background z-50">
-                  <SelectItem value="acheter_en_ligne">Acheter en ligne</SelectItem>
-                  <SelectItem value="reserver_en_ligne">Réserver en ligne</SelectItem>
-                  <SelectItem value="reserver_une_table">Réserver une table</SelectItem>
-                  <SelectItem value="reserver_une_chambre">Réserver une chambre</SelectItem>
-                  <SelectItem value="consulter_offre">Consulter notre offre</SelectItem>
-                  <SelectItem value="plus_informations">Plus d'informations</SelectItem>
-                  <SelectItem value="contactez_nous">Contactez nous</SelectItem>
-                  <SelectItem value="la_carte">La carte</SelectItem>
-                  <SelectItem value="les_boissons">Les boissons</SelectItem>
-                  <SelectItem value="whatsapp">WhatsApp</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -4773,99 +4673,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </DndContext>
           {menuDocs.length === 0 && <p className="text-xs text-muted-foreground">Aucun menu ajouté.</p>}
 
-          {/* Menu Summaries - Multiple */}
-          <div className="mt-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-base font-semibold">📝 Résumés du menu <span className="text-muted-foreground font-normal text-sm">(pour l'IA)</span></Label>
-              <Button type="button" variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => setMenuSummaries(prev => [...prev, { title: "", content: "", avg_price_range: null, price_details: "" }])}>
-                <Plus className="h-3 w-3" /> Ajouter un résumé
-              </Button>
-            </div>
-
-            {menuSummaries.map((summary, idx) => (
-              <div key={idx} className="p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-3 relative">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-amber-800">Résumé #{idx + 1}</span>
-                  <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive h-7 px-2" onClick={() => setMenuSummaries(prev => prev.filter((_, i) => i !== idx))}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                <div className="space-y-1">
-                  <Label className="text-sm">Titre</Label>
-                  <Input
-                    value={summary.title}
-                    onChange={(e) => setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, title: e.target.value } : s))}
-                    placeholder="Ex: La carte de La Grande Brasserie"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <Label className="text-sm">Contenu</Label>
-                  <RichTextEditor
-                    content={summary.content}
-                    onChange={(html) => setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, content: html } : s))}
-                    placeholder="Cuisine fusion méditerranéenne, entrées à partager, plats signatures, desserts..."
-                    maxHeight="300px"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-4">
-                  <div className="space-y-1">
-                    <Label className="text-sm font-medium">💰 Budget moyen par personne</Label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        value={summary.avg_price_range?.min ?? ""}
-                        onChange={(e) => {
-                          const val = e.target.value ? Number(e.target.value) : undefined;
-                          setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, avg_price_range: { ...(s.avg_price_range || {}), min: val } } : s));
-                        }}
-                        placeholder="Min"
-                        className="w-24"
-                      />
-                      <span className="text-muted-foreground">—</span>
-                      <Input
-                        type="number"
-                        value={summary.avg_price_range?.max ?? ""}
-                        onChange={(e) => {
-                          const val = e.target.value ? Number(e.target.value) : undefined;
-                          setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, avg_price_range: { ...(s.avg_price_range || {}), max: val } } : s));
-                        }}
-                        placeholder="Max"
-                        className="w-24"
-                      />
-                      <select
-                        value={summary.avg_price_range?.currency || "MAD"}
-                        onChange={(e) => setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, avg_price_range: { ...(s.avg_price_range || {}), currency: e.target.value } } : s))}
-                        className="h-9 rounded-md border border-input bg-background px-3 text-sm w-24"
-                      >
-                        <option value="MAD">MAD</option>
-                        <option value="EUR">EUR</option>
-                        <option value="USD">USD</option>
-                      </select>
-                    </div>
-                    {summary.avg_price_range?.min != null && summary.avg_price_range?.max != null && (
-                      <p className="text-xs text-muted-foreground">
-                        Affiché : {summary.avg_price_range.min}–{summary.avg_price_range.max} {summary.avg_price_range.currency || "MAD"} / personne
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="space-y-1">
-                    <Label className="text-sm font-medium">📊 Détail des prix</Label>
-                    <RichTextEditor
-                      content={summary.price_details || ""}
-                      onChange={(html) => setMenuSummaries(prev => prev.map((s, i) => i === idx ? { ...s, price_details: html } : s))}
-                      placeholder="Entrées 220–450 MAD · Plats 290–970 MAD · Desserts 200–250 MAD..."
-                      maxHeight="180px"
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-            {menuSummaries.length === 0 && <p className="text-xs text-muted-foreground">Aucun résumé ajouté.</p>}
-          </div>
         </div>
 
         {/* Flipbook / Issuu */}
@@ -5534,29 +5341,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
           </AlertDialog>
         </div>
 
-        {/* Labels */}
-        <Accordion type="single" collapsible>
-          <AccordionItem value="labels" className="border-none">
-            <div className="p-4 bg-muted rounded-lg">
-              <AccordionTrigger className="py-0 hover:no-underline">
-                <Label className="text-base font-semibold flex items-center gap-2 cursor-pointer">
-                  <Award className="h-4 w-4" />
-                  Labels / Certifications
-                  {businessLabels.length > 0 && (
-                    <span className="ml-1.5 bg-primary text-primary-foreground rounded-full px-1.5 py-0 text-[10px] font-semibold">{businessLabels.length}</span>
-                  )}
-                </Label>
-              </AccordionTrigger>
-              <AccordionContent className="pt-3 pb-0">
-                <BusinessLabelsEditor
-                  businessId={business?.id}
-                  value={businessLabels}
-                  onChange={setBusinessLabels}
-                />
-              </AccordionContent>
-            </div>
-          </AccordionItem>
-        </Accordion>
 
         {/* ═══════ Réseaux sociaux ═══════ */}
         <div id="section-social" className="p-4 bg-indigo-50 border border-indigo-200 rounded-lg space-y-4" style={{ scrollMarginTop: '160px' }}>
@@ -5604,7 +5388,6 @@ const LiteApiMappingField = ({ businessId }: { businessId: string }) => {
               </div>
             ))}
           </div>
-          <SocialPostsEditor businessId={business?.id || ""} />
         </div>
 
         {/* ═══════ Plateformes de réservation ═══════ */}
