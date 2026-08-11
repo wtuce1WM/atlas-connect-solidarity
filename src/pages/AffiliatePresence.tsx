@@ -1030,7 +1030,9 @@ const AffiliatePresence = () => {
                           key={currentBusiness.id}
                           businessId={currentBusiness.id}
                           businessCity={(currentBusiness as any).city}
+                          siblings={businesses.map((b) => ({ id: b.id, name: b.name }))}
                         />
+
                       </TabsContent>
                     )}
 
