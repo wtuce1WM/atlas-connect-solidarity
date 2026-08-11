@@ -791,7 +791,7 @@ Deno.serve(async (req) => {
             ? `Résultats trouvés (${results.length} sur ${totalFound}) — ce sont les seules adresses à présenter, présente-les toutes :\n${resultsContext(results, lang)}`
             : "",
           editorialCtx
-            ? `CONTEXTE ÉDITORIAL ([DESCRIPTION] description de l'établissement, [HOOK] accroche, [IMAGE POPUP] titres et textes des photos, [OFFRE] offres et promotions, [SERVICE] services, [TXT IA] textes rédigés par l'établissement/affilié ; intègre-les naturellement, ne mets pas en avant un établissement uniquement parce qu'il a du contenu ici) :\n${editorialCtx}`
+            ? `CONTEXTE ÉDITORIAL ([DESCRIPTION] description de l'établissement, [HOOK] accroche, [IMAGE POPUP] titres et textes des photos, [SERVICE] services, [OFFRE] offres et promotions, [TXT IA] textes rédigés par l'établissement/affilié ; intègre-les naturellement, ne mets pas en avant un établissement uniquement parce qu'il a du contenu ici) :\n${editorialCtx}`
             : "",
           priorIds.length && !results.length
             ? `Établissements déjà présentés dans la conversation : ${(await fetchPriorFull(admin, priorIds.slice(0, 6))).map((b: any) => b.name).join(", ")}`
