@@ -531,6 +531,12 @@ const EmbedAsk = () => {
   const [chatKey, setChatKey] = useState(0);
   const restoredRef = useRef<boolean>(!!initialPersisted);
 
+  // Rayon de proximité : valeur de l'hôte (/affiliates → Tools), modifiable par l'utilisateur.
+  const [radiusKm, setRadiusKm] = useState<number>(1);
+  const radiusRef = useRef<number>(1);
+  const applyRadius = (km: number) => { radiusRef.current = km; setRadiusKm(km); };
+
+
   // --- AI SDK useChat wiring ---
   const transport = useMemo(() => new DefaultChatTransport({
     api: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/embed-ai-chat-v2`,
