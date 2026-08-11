@@ -48,8 +48,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SURFACE_LOG = "embed_v2";
-const CFG = getSurfaceConfig("embed");
+/** Surfaces servies par ce moteur. La surface arrive dans le body (défaut: embed). */
+type EngineSurface = "embed" | "search" | "club";
+const SURFACE_LOG_BY_SURFACE: Record<EngineSurface, string> = {
+  embed: "embed_v2",
+  search: "search_v2",
+  club: "club_v2",
+};
 
 type AiClass = "A" | "B" | "C";
 type Lang = "fr" | "en" | "ar";
