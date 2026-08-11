@@ -256,7 +256,8 @@ export async function buildBlogArticleAnswer(
       (lang === "en" && f.intro_en) || (lang === "ar" && f.intro_ar) ||
       f.intro_fr || f.intro_en || f.intro_ar || null,
     inline: false,
-    isOwner: post.anchor_business_id === host.id,
+    // Surfaces sans hôte (/search, /club) : jamais de propriétaire.
+    isOwner: !!host?.id && post.anchor_business_id === host.id,
   };
 
   const entriesRaw: any[] =

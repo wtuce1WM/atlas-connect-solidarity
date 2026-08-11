@@ -390,11 +390,21 @@ const AISearchAnswer = ({ query, spokenText, businesses, isSearchLoading, onAnsw
               onAnswerReady?.(res.text, cited.length ? cited : undefined);
               return;
             }
-            console.warn("ai-engine v2 empty answer — fallback ai-search-answer");
+            console.warn("[search_v2] empty_response — aucune réponse rendue");
           } catch (e) {
-            console.warn("ai-engine v2 failed — fallback ai-search-answer", e);
+            console.error("[search_v2] had_error — aucune réponse rendue", e);
           }
+          // Pas de repli sur `ai-search-answer` : aucun résultat plutôt qu'un
+          // résultat issu de l'ancien contrat (pool client + prompt 2025).
+          if (currentFetchId !== fetchIdRef.current) return;
+          const msg = language === "en"
+            ? "I don't have a reliable answer for this question. Try rephrasing it or narrowing the city."
+            : "Je n'ai pas de réponse fiable pour cette question. Reformule-la ou précise la ville.";
+          setAnswer(msg);
+          onAnswerReady?.(msg);
+          return;
         }
+
 
 
         const { data, error: fnError } = await supabase.functions.invoke("ai-search-answer", {

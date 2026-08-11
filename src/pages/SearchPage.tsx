@@ -739,11 +739,22 @@ const SearchPage = () => {
             setAiChatLoading(false);
             return;
           }
-          console.warn("ai-engine v2 empty answer — fallback ai-search-answer");
+          console.warn("[search_v2] empty_response — aucune réponse rendue");
         } catch (e) {
-          console.warn("ai-engine v2 failed — fallback ai-search-answer", e);
+          console.error("[search_v2] had_error — aucune réponse rendue", e);
         }
+        // Pas de repli sur le moteur 2025 : mieux vaut aucun résultat qu'un
+        // mauvais résultat produit par un autre contrat.
+        setAiChat((prev) => [...prev, {
+          role: "assistant",
+          content: language === "en"
+            ? "I don't have a reliable answer for this question. Try rephrasing it or narrowing the city."
+            : "Je n'ai pas de réponse fiable pour cette question. Reformule-la ou précise la ville.",
+        }]);
+        setAiChatLoading(false);
+        return;
       }
+
 
       let refinementPool: Business[] = allBusinesses || [];
       let dedicatedRefinementSearchSucceeded = false;
