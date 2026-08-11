@@ -7,10 +7,10 @@
 // 1. Description  (businesses.description)
 // 2. Hook        (businesses.hook_*)
 // 3. Popup       (business_image_titles)
-// 4. Offres      (affiliate_business_promotions)
-// 5. Services    (businesses.services)
-// 6. TXT IA      (business_ai_texts)
-const PRIORITY_ORDER = ["description", "hook", "popup", "offer", "service", "text"] as const;
+// 4. Services    (businesses.services)
+// 5. Offres      (affiliate_business_promotions)
+// 6. TXT IA      (business_ai_texts) — dernier recours, textes générés moins prioritaires
+const PRIORITY_ORDER = ["description", "hook", "popup", "service", "offer", "text"] as const;
 type EditorialType = typeof PRIORITY_ORDER[number];
 const PRIORITY_RANK: Record<EditorialType, number> = Object.fromEntries(
   PRIORITY_ORDER.map((t, i) => [t, i + 1]),
