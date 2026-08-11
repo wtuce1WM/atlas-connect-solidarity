@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { Trash2, Plus, Save, Code2, Loader2, ChevronDown, ChevronRight, CornerDownRight } from "lucide-react";
 import { Chip } from "./AiParamChip";
+import { fetchAllRows } from "@/lib/fetchAllRows";
+
 
 
 type Followup = { label_fr: string; label_en: string | null; label_ar: string | null };
