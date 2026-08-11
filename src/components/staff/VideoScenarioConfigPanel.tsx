@@ -3,11 +3,33 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { ArrowDown, ArrowUp, Save, RotateCcw } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+  ChevronDown,
+  ChevronRight,
+  GripVertical,
+  Plus,
+  RotateCcw,
+  Save,
+  Search,
+  Trash2,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
-export type VideoScenarioMode = "business" | "corporate";
+export type VideoScenarioMode = "business" | "corporate" | "explainer";
 
 export type VideoScenarioStep = {
   id: string;
@@ -17,11 +39,52 @@ export type VideoScenarioStep = {
   position: number;
   duration_sec: number;
   enabled: boolean;
+  kicker: string | null;
+  title: string | null;
+  body: string | null;
+  key_message: string | null;
+  business_id: string | null;
+  /** Étape créée localement, pas encore en base. */
+  _new?: boolean;
 };
+
+type ScenarioConfig = {
+  mode: VideoScenarioMode;
+  business_id: string | null;
+  format_key: string;
+  width: number;
+  height: number;
+  fps: number;
+};
+
+type BusinessLite = { id: string; name: string; slug: string | null; city: string | null };
 
 const MODES: Array<{ value: VideoScenarioMode; label: string }> = [
   { value: "business", label: "Établissement" },
   { value: "corporate", label: "Corporate" },
+  { value: "explainer", label: "Explicative (affiliés)" },
+];
+
+/** Formats de rendu proposés (dimensions envoyées au moteur Remotion). */
+const FORMATS: Array<{ key: string; label: string; width: number; height: number }> = [
+  { key: "landscape_1080", label: "Paysage 16:9 · 1920×1080", width: 1920, height: 1080 },
+  { key: "landscape_720", label: "Paysage 16:9 · 1280×720", width: 1280, height: 720 },
+  { key: "square_1080", label: "Carré 1:1 · 1080×1080", width: 1080, height: 1080 },
+  { key: "vertical_1080", label: "Vertical 9:16 · 1080×1920", width: 1080, height: 1920 },
+  { key: "vertical_720", label: "Vertical 9:16 · 720×1280", width: 720, height: 1280 },
+  { key: "custom", label: "Personnalisé", width: 0, height: 0 },
+];
+
+/** Scènes disponibles pour la vidéo explicative (composition Remotion « explainer-affiliates »). */
+const EXPLAINER_TEMPLATES: Array<{ key: string; label: string }> = [
+  { key: "exp_profil", label: "Profil digital enrichi" },
+  { key: "exp_widgets", label: "Widgets embarqués" },
+  { key: "exp_assistant", label: "Assistant IA" },
+  { key: "exp_seo", label: "Visibilité SEO + GEO" },
+  { key: "exp_studio", label: "Studio Vidéo IA" },
+  { key: "exp_push", label: "Notifications push" },
+  { key: "exp_automation", label: "Automatisation" },
+  { key: "exp_backoffice", label: "Back-office affilié" },
 ];
 
 /**
@@ -162,25 +225,309 @@ const STEP_DOCS: Record<string, { what: string; filter: string; notes?: string }
     notes: "Toujours en tout dernier plan ; fond de marque (sans photo d'établissement), logo One World Morocco et signature oneworldmorocco.com.",
   },
 
+  exp_profil: {
+    what: "Scène « Profil digital enrichi » : mosaïque des photos réelles de l'établissement lié, logo, note /20 et attributs de la fiche.",
+    filter: "Nécessite un établissement lié avec au moins une photo.",
+    notes: "Le corps de texte liste les attributs affichés, un par ligne (ou séparés par « | »).",
+  },
+  exp_widgets: {
+    what: "Scène « Widgets embarqués » : captures réelles des widgets Météo, Marées et Avis dans des cadres navigateur.",
+    filter: "Toujours disponible.",
+    notes: "Le corps de texte liste les destinations d'intégration affichées à droite.",
+  },
+  exp_assistant: {
+    what: "Scène « Assistant IA » : capture réelle de /embed/ask de l'établissement lié, déroulée par un scroll lent.",
+    filter: "Nécessite un établissement lié.",
+    notes: "Chaque ligne du corps de texte devient un argument (format « clé · légende »).",
+  },
+};
+
+/** Sélecteur d'établissement : recherche serveur sur nom / slug / ville. */
+const BusinessSelect = ({
+  value,
+  onChange,
+  placeholder = "Aucun établissement lié",
+}: {
+  value: string | null;
+  onChange: (id: string | null) => void;
+  placeholder?: string;
+}) => {
+  const [open, setOpen] = useState(false);
+  const [term, setTerm] = useState("");
+  const [rows, setRows] = useState<BusinessLite[]>([]);
+  const [current, setCurrent] = useState<BusinessLite | null>(null);
+
+  useEffect(() => {
+    if (!value) {
+      setCurrent(null);
+      return;
+    }
+    let cancelled = false;
+    supabase
+      .from("businesses")
+      .select("id, name, slug, city")
+      .eq("id", value)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!cancelled) setCurrent((data as BusinessLite) ?? null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [value]);
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      const q = term.trim();
+      let query = supabase.from("businesses").select("id, name, slug, city").order("name").limit(30);
+      if (q) query = query.or(`name.ilike.%${q}%,slug.ilike.%${q}%,city.ilike.%${q}%`);
+      const { data } = await query;
+      if (!cancelled) setRows((data ?? []) as BusinessLite[]);
+    }, 200);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [term, open]);
+
+  return (
+    <div className="relative">
+      <div className="flex items-center gap-1">
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          className="h-8 justify-start max-w-[260px] truncate"
+          onClick={() => setOpen((v) => !v)}
+        >
+          <Search className="h-3.5 w-3.5 mr-1 shrink-0" />
+          <span className="truncate">{current ? current.name : placeholder}</span>
+        </Button>
+        {value && (
+          <Button type="button" size="icon" variant="ghost" className="h-8 w-8" onClick={() => onChange(null)}>
+            <X className="h-3.5 w-3.5" />
+          </Button>
+        )}
+      </div>
+      {open && (
+        <div className="absolute z-50 mt-1 w-[320px] rounded-md border bg-background shadow-lg p-2">
+          <Input
+            autoFocus
+            value={term}
+            onChange={(e) => setTerm(e.target.value)}
+            placeholder="Nom, slug ou ville…"
+            className="h-8 text-xs mb-2"
+          />
+          <div className="max-h-64 overflow-auto">
+            {rows.length === 0 ? (
+              <p className="text-xs text-muted-foreground px-1 py-2">Aucun résultat</p>
+            ) : (
+              rows.map((b) => (
+                <button
+                  key={b.id}
+                  type="button"
+                  className="w-full text-left px-2 py-1.5 rounded hover:bg-muted text-xs"
+                  onClick={() => {
+                    onChange(b.id);
+                    setOpen(false);
+                  }}
+                >
+                  <span className="font-medium">{b.name}</span>
+                  {b.city && <span className="text-muted-foreground"> · {b.city}</span>}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const SortableStep = ({
+  step,
+  index,
+  expanded,
+  onToggle,
+  patch,
+  remove,
+}: {
+  step: VideoScenarioStep;
+  index: number;
+  expanded: boolean;
+  onToggle: () => void;
+  patch: (values: Partial<VideoScenarioStep>) => void;
+  remove: () => void;
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: step.id });
+  const doc = STEP_DOCS[step.scene_key];
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={`p-3 bg-background ${isDragging ? "opacity-60 shadow-lg relative z-10" : ""}`}
+    >
+      <div className="flex items-center gap-3 flex-wrap">
+        <button
+          type="button"
+          className="text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing"
+          {...attributes}
+          {...listeners}
+          aria-label="Déplacer l'étape"
+        >
+          <GripVertical className="h-4 w-4" />
+        </button>
+        <span className="w-6 text-xs font-bold tabular-nums text-muted-foreground">{index + 1}</span>
+        <button type="button" className="flex items-center gap-2 text-left" onClick={onToggle}>
+          {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          <span className="flex flex-col">
+            <span className="text-sm font-semibold text-black">{step.label || step.scene_key}</span>
+            <span className="text-[11px] text-muted-foreground font-mono">{step.scene_key}</span>
+          </span>
+        </button>
+        {step._new && (
+          <Badge variant="outline" className="text-[10px]">
+            nouvelle
+          </Badge>
+        )}
+        <div className="ml-auto flex items-center gap-3">
+          <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            Durée
+            <Input
+              type="number"
+              min={0}
+              max={60}
+              value={step.duration_sec}
+              onChange={(e) => patch({ duration_sec: Number(e.target.value) })}
+              className="w-16 h-8 text-xs"
+            />
+            s
+          </label>
+          <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            Actif
+            <Switch checked={step.enabled} onCheckedChange={(v) => patch({ enabled: v })} />
+          </label>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8 text-destructive"
+            onClick={remove}
+            aria-label="Supprimer l'étape"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </div>
+
+      {expanded && (
+        <div className="mt-3 ml-9 grid gap-3 max-w-4xl">
+          <div className="grid gap-3 md:grid-cols-2">
+            <label className="text-xs text-muted-foreground grid gap-1">
+              Nom de l'étape (back-office)
+              <Input
+                value={step.label ?? ""}
+                onChange={(e) => patch({ label: e.target.value })}
+                className="h-8 text-xs"
+              />
+            </label>
+            <label className="text-xs text-muted-foreground grid gap-1">
+              Sur-titre affiché
+              <Input
+                value={step.kicker ?? ""}
+                onChange={(e) => patch({ kicker: e.target.value })}
+                className="h-8 text-xs"
+              />
+            </label>
+          </div>
+          <label className="text-xs text-muted-foreground grid gap-1">
+            Titre affiché
+            <Input value={step.title ?? ""} onChange={(e) => patch({ title: e.target.value })} className="h-8 text-xs" />
+          </label>
+          <label className="text-xs text-muted-foreground grid gap-1">
+            Texte / éléments listés (une ligne par élément, ou séparés par « | »)
+            <Textarea
+              value={step.body ?? ""}
+              onChange={(e) => patch({ body: e.target.value })}
+              rows={3}
+              className="text-xs"
+            />
+          </label>
+          <label className="text-xs text-muted-foreground grid gap-1">
+            Message clé (bas d'écran)
+            <Textarea
+              value={step.key_message ?? ""}
+              onChange={(e) => patch({ key_message: e.target.value })}
+              rows={2}
+              className="text-xs"
+            />
+          </label>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            Établissement lié à cette étape
+            <BusinessSelect
+              value={step.business_id}
+              onChange={(id) => patch({ business_id: id })}
+              placeholder="Établissement global"
+            />
+          </div>
+          {doc && (
+            <div className="space-y-0.5 text-[11px] leading-snug text-muted-foreground border-t pt-2">
+              <p className="text-black/80">{doc.what}</p>
+              <p>
+                <span className="font-semibold">Filtre :</span> {doc.filter}
+              </p>
+              {doc.notes && (
+                <p>
+                  <span className="font-semibold">Montage :</span> {doc.notes}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 };
 
 const VideoScenarioConfigPanel = () => {
   const [mode, setMode] = useState<VideoScenarioMode>("business");
   const [steps, setSteps] = useState<VideoScenarioStep[]>([]);
+  const [config, setConfig] = useState<ScenarioConfig | null>(null);
+  const [removed, setRemoved] = useState<string[]>([]);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [newKey, setNewKey] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
 
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+
   const load = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("video_scenario_steps")
-      .select("id, mode, scene_key, label, position, duration_sec, enabled")
-      .eq("mode", mode)
-      .order("position", { ascending: true });
-    if (error) toast.error("Chargement impossible");
+    const [stepsRes, configRes] = await Promise.all([
+      supabase
+        .from("video_scenario_steps")
+        .select("id, mode, scene_key, label, position, duration_sec, enabled, kicker, title, body, key_message, business_id")
+        .eq("mode", mode)
+        .order("position", { ascending: true }),
+      supabase.from("video_scenario_configs").select("*").eq("mode", mode).maybeSingle(),
+    ]);
+    if (stepsRes.error) toast.error("Chargement impossible");
     // Étape « Menus » abandonnée : on ne l'affiche plus.
-    setSteps(((data ?? []) as VideoScenarioStep[]).filter((s) => s.scene_key !== "menu_doc"));
+    setSteps(((stepsRes.data ?? []) as VideoScenarioStep[]).filter((s) => s.scene_key !== "menu_doc"));
+    setConfig(
+      (configRes.data as ScenarioConfig | null) ?? {
+        mode,
+        business_id: null,
+        format_key: "landscape_1080",
+        width: 1920,
+        height: 1080,
+        fps: 30,
+      },
+    );
+    setRemoved([]);
     setDirty(false);
     setLoading(false);
   }, [mode]);
@@ -189,22 +536,97 @@ const VideoScenarioConfigPanel = () => {
     load();
   }, [load]);
 
-  const move = (index: number, dir: -1 | 1) => {
-    const j = index + dir;
-    if (j < 0 || j >= steps.length) return;
-    const next = steps.slice();
-    [next[index], next[j]] = [next[j], next[index]];
-    setSteps(next);
-    setDirty(true);
-  };
-
   const patch = (id: string, values: Partial<VideoScenarioStep>) => {
     setSteps((prev) => prev.map((s) => (s.id === id ? { ...s, ...values } : s)));
     setDirty(true);
   };
 
+  const onDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    setSteps((prev) => {
+      const from = prev.findIndex((s) => s.id === active.id);
+      const to = prev.findIndex((s) => s.id === over.id);
+      if (from === -1 || to === -1) return prev;
+      const next = prev.slice();
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return next;
+    });
+    setDirty(true);
+  };
+
+  const addStep = () => {
+    const key = newKey.trim();
+    if (!key) {
+      toast.error("Choisis une scène à ajouter");
+      return;
+    }
+    if (steps.some((s) => s.scene_key === key)) {
+      toast.error("Cette scène est déjà dans le scénario");
+      return;
+    }
+    const template = EXPLAINER_TEMPLATES.find((t) => t.key === key);
+    const id = crypto.randomUUID();
+    setSteps((prev) => [
+      ...prev,
+      {
+        id,
+        mode,
+        scene_key: key,
+        label: template?.label ?? key,
+        position: (prev.length + 1) * 10,
+        duration_sec: 8,
+        enabled: true,
+        kicker: template?.label ?? null,
+        title: null,
+        body: null,
+        key_message: null,
+        business_id: null,
+        _new: true,
+      },
+    ]);
+    setExpanded(id);
+    setNewKey("");
+    setDirty(true);
+  };
+
+  const removeStep = (id: string) => {
+    setSteps((prev) => prev.filter((s) => s.id !== id));
+    setRemoved((prev) => (id.length === 36 ? [...prev, id] : prev));
+    setDirty(true);
+  };
+
+  const applyFormat = (key: string) => {
+    const f = FORMATS.find((x) => x.key === key);
+    setConfig((prev) =>
+      prev
+        ? {
+            ...prev,
+            format_key: key,
+            width: f && f.width ? f.width : prev.width,
+            height: f && f.height ? f.height : prev.height,
+          }
+        : prev,
+    );
+    setDirty(true);
+  };
+
   const save = async () => {
+    if (!config) return;
     setSaving(true);
+
+    // Les étapes supprimées sont retirées avant réécriture des positions.
+    const toDelete = removed.filter((id) => !steps.some((s) => s.id === id));
+    if (toDelete.length > 0) {
+      const { error } = await supabase.from("video_scenario_steps").delete().in("id", toDelete);
+      if (error) {
+        setSaving(false);
+        toast.error("Suppression échouée");
+        return;
+      }
+    }
+
     const rows = steps.map((s, i) => ({
       id: s.id,
       mode: s.mode,
@@ -213,10 +635,30 @@ const VideoScenarioConfigPanel = () => {
       position: (i + 1) * 10,
       duration_sec: Math.max(0, Math.min(60, Number(s.duration_sec) || 0)),
       enabled: s.enabled,
+      kicker: s.kicker,
+      title: s.title,
+      body: s.body,
+      key_message: s.key_message,
+      business_id: s.business_id,
     }));
-    const { error } = await supabase.from("video_scenario_steps").upsert(rows, { onConflict: "id" });
+
+    const stepsRes = rows.length
+      ? await supabase.from("video_scenario_steps").upsert(rows, { onConflict: "id" })
+      : { error: null };
+    const configRes = await supabase.from("video_scenario_configs").upsert(
+      {
+        mode,
+        business_id: config.business_id,
+        format_key: config.format_key,
+        width: Math.max(320, Math.min(3840, Number(config.width) || 1920)),
+        height: Math.max(320, Math.min(3840, Number(config.height) || 1080)),
+        fps: Math.max(12, Math.min(60, Number(config.fps) || 30)),
+      },
+      { onConflict: "mode" },
+    );
+
     setSaving(false);
-    if (error) {
+    if (stepsRes.error || configRes.error) {
       toast.error("Enregistrement échoué");
       return;
     }
@@ -229,13 +671,19 @@ const VideoScenarioConfigPanel = () => {
     [steps],
   );
 
+  const availableTemplates = useMemo(
+    () => EXPLAINER_TEMPLATES.filter((t) => !steps.some((s) => s.scene_key === t.key)),
+    [steps],
+  );
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between gap-3 flex-wrap">
         <div>
-          <CardTitle className="text-black">Ordre et durées des étapes</CardTitle>
+          <CardTitle className="text-black">Scénarios vidéo : étapes, textes et format</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            Cet ordre est appliqué dans « Aperçu du scénario » de Studio Vidéo IA. Durée 0 = durée automatique.
+            Cet ordre est appliqué dans « Aperçu du scénario » de Studio Vidéo IA et au rendu. Durée 0 = durée
+            automatique.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -251,12 +699,95 @@ const VideoScenarioConfigPanel = () => {
           ))}
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-4">
+        {/* Réglages globaux du mode : établissement source + format de rendu */}
+        {config && (
+          <div className="rounded-lg border p-3 grid gap-3 md:grid-cols-4">
+            <div className="grid gap-1 md:col-span-2">
+              <span className="text-xs text-muted-foreground">Établissement lié (source des visuels réels)</span>
+              <BusinessSelect
+                value={config.business_id}
+                onChange={(id) => {
+                  setConfig((prev) => (prev ? { ...prev, business_id: id } : prev));
+                  setDirty(true);
+                }}
+              />
+            </div>
+            <label className="grid gap-1 text-xs text-muted-foreground">
+              Format
+              <select
+                value={config.format_key}
+                onChange={(e) => applyFormat(e.target.value)}
+                className="h-8 rounded-md border bg-background px-2 text-xs"
+              >
+                {FORMATS.map((f) => (
+                  <option key={f.key} value={f.key}>
+                    {f.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <label className="grid gap-1 text-xs text-muted-foreground">
+                Largeur
+                <Input
+                  type="number"
+                  value={config.width}
+                  onChange={(e) => {
+                    setConfig((prev) => (prev ? { ...prev, width: Number(e.target.value), format_key: "custom" } : prev));
+                    setDirty(true);
+                  }}
+                  className="h-8 text-xs"
+                />
+              </label>
+              <label className="grid gap-1 text-xs text-muted-foreground">
+                Hauteur
+                <Input
+                  type="number"
+                  value={config.height}
+                  onChange={(e) => {
+                    setConfig((prev) => (prev ? { ...prev, height: Number(e.target.value), format_key: "custom" } : prev));
+                    setDirty(true);
+                  }}
+                  className="h-8 text-xs"
+                />
+              </label>
+              <label className="grid gap-1 text-xs text-muted-foreground">
+                FPS
+                <Input
+                  type="number"
+                  value={config.fps}
+                  onChange={(e) => {
+                    setConfig((prev) => (prev ? { ...prev, fps: Number(e.target.value) } : prev));
+                    setDirty(true);
+                  }}
+                  className="h-8 text-xs"
+                />
+              </label>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="text-xs text-muted-foreground">
             {steps.filter((s) => s.enabled).length} étape(s) active(s) · durées fixes cumulées : {totalFixed}s
           </div>
           <div className="flex items-center gap-2">
+            <select
+              value={newKey}
+              onChange={(e) => setNewKey(e.target.value)}
+              className="h-8 rounded-md border bg-background px-2 text-xs"
+            >
+              <option value="">Ajouter une scène…</option>
+              {availableTemplates.map((t) => (
+                <option key={t.key} value={t.key}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+            <Button size="sm" variant="outline" onClick={addStep}>
+              <Plus className="h-4 w-4 mr-1" /> Ajouter
+            </Button>
             <Button size="sm" variant="outline" onClick={load} disabled={loading || saving}>
               <RotateCcw className="h-4 w-4 mr-1" /> Recharger
             </Button>
@@ -271,64 +802,23 @@ const VideoScenarioConfigPanel = () => {
         ) : steps.length === 0 ? (
           <p className="text-sm text-muted-foreground">Aucune étape configurée pour ce mode.</p>
         ) : (
-          <div className="divide-y rounded-lg border">
-            {steps.map((s, i) => (
-              <div key={s.id} className="p-3">
-              <div className="flex items-center gap-3 flex-wrap">
-                <span className="w-8 text-xs font-bold tabular-nums text-muted-foreground">{i + 1}</span>
-                <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-black">{s.label || s.scene_key}</span>
-                  <span className="text-[11px] text-muted-foreground font-mono">{s.scene_key}</span>
-                </div>
-                <div className="ml-auto flex items-center gap-3">
-                  <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    Durée
-                    <Input
-                      type="number"
-                      min={0}
-                      max={60}
-                      value={s.duration_sec}
-                      onChange={(e) => patch(s.id, { duration_sec: Number(e.target.value) })}
-                      className="w-16 h-8 text-xs"
-                    />
-                    s
-                  </label>
-                  <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    Actif
-                    <Switch checked={s.enabled} onCheckedChange={(v) => patch(s.id, { enabled: v })} />
-                  </label>
-                  <div className="flex items-center gap-1">
-                    <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => move(i, -1)} disabled={i === 0}>
-                      <ArrowUp className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className="h-8 w-8"
-                      onClick={() => move(i, 1)}
-                      disabled={i === steps.length - 1}
-                    >
-                      <ArrowDown className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                </div>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+            <SortableContext items={steps.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+              <div className="divide-y rounded-lg border">
+                {steps.map((s, i) => (
+                  <SortableStep
+                    key={s.id}
+                    step={s}
+                    index={i}
+                    expanded={expanded === s.id}
+                    onToggle={() => setExpanded((prev) => (prev === s.id ? null : s.id))}
+                    patch={(values) => patch(s.id, values)}
+                    remove={() => removeStep(s.id)}
+                  />
+                ))}
               </div>
-              {STEP_DOCS[s.scene_key] && (
-                <div className="mt-2 ml-11 space-y-0.5 text-[11px] leading-snug text-muted-foreground max-w-3xl">
-                  <p className="text-black/80">{STEP_DOCS[s.scene_key].what}</p>
-                  <p>
-                    <span className="font-semibold">Filtre :</span> {STEP_DOCS[s.scene_key].filter}
-                  </p>
-                  {STEP_DOCS[s.scene_key].notes && (
-                    <p>
-                      <span className="font-semibold">Montage :</span> {STEP_DOCS[s.scene_key].notes}
-                    </p>
-                  )}
-                </div>
-              )}
-              </div>
-            ))}
-          </div>
+            </SortableContext>
+          </DndContext>
         )}
       </CardContent>
     </Card>
