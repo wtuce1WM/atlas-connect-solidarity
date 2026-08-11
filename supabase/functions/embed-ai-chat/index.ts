@@ -2748,6 +2748,7 @@ Deno.serve(async (req) => {
               pinnedBusinessIds: suggestionPinnedIds,
               label: suggestionLabel,
               lang: language as any,
+              city: host?.city || null,
             });
             if (built) {
               const marker = videoFeedMarker(built.payload);
