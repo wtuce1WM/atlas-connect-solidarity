@@ -1019,7 +1019,7 @@ const EmbedAsk = () => {
   return (
     <div
       dir={dir}
-      className={`fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""}`}
+      className={`fixed inset-0 flex flex-col ${surface} ${theme === "dark" ? "dark" : ""} transition-[right] duration-300 ease-out ${openBusinessId ? "lg:right-1/2" : ""}`}
       style={
         bgTransparent && !activeWidgetBg
           ? undefined
