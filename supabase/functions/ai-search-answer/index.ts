@@ -995,7 +995,7 @@ RÈGLES :
 ${mode === "poi" ? "LIEUX D'INTÉRÊT" : mode === "destinations" ? "DESTINATIONS" : "ÉTABLISSEMENTS TROUVÉS"} :
 ${businessContext}${knowledgeContext ? `
 
-TEXTES ÉDITORIAUX DES ÉTABLISSEMENTS (TXT IA — rédigés par l'établissement/affilié ; intègre-les naturellement pour enrichir la description, ne mets pas en avant un établissement uniquement parce qu'il a un texte ici) :
+CONTEXTE ÉDITORIAL DES ÉTABLISSEMENTS ([TXT IA] textes rédigés par l'établissement/affilié, [IMAGE POPUP] titres et textes des photos, [OFFRE] offres et promotions ; intègre-les naturellement pour enrichir la description, ne mets pas en avant un établissement uniquement parce qu'il a du contenu ici) :
 ${knowledgeContext}` : ''}${
   nearbyContext && Array.isArray(nearbyContext.items) && nearbyContext.items.length > 0 ? `
 
