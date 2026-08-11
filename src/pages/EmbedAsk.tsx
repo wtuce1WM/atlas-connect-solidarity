@@ -1089,13 +1089,13 @@ const EmbedAsk = () => {
           return (
             <div className="sticky top-0 z-20 flex justify-end pointer-events-none -mt-2 mb-1">
               <div
-                className={`pointer-events-auto max-w-[70%] rounded-full px-3 py-1.5 text-[11px] font-medium shadow-md border ${border} backdrop-blur-md truncate`}
+                className={`pointer-events-auto max-w-[70%] rounded-full px-3 py-1.5 text-[11px] font-medium shadow-md border ${border} backdrop-blur-md truncate ${theme === "light" ? "" : "text-white"}`}
                 style={{
                   background: theme === "light" ? "rgba(255,255,255,0.85)" : "rgba(20,20,20,0.75)",
                 }}
                 title={txt}
               >
-                <span className="opacity-60 mr-1">↳</span>{txt}
+                <span className={`mr-1 ${theme === "light" ? "opacity-60" : "text-white"}`}>↳</span>{txt}
               </div>
             </div>
           );
