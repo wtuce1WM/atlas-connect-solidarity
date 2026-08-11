@@ -652,14 +652,16 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                     {businessSearch[r.id]?.trim() && (
                       <div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg max-h-72 overflow-auto">
                         {(() => {
-                          const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                          const norm = (s: string) => (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/['’`-]/g, " ").replace(/\s+/g, " ").trim();
                           const q = norm(businessSearch[r.id].trim());
                           const tokens = q.split(/\s+/).filter(Boolean);
                           const scored = businesses
                             .filter((b) => !r.business_ids.includes(b.id))
                             .map((b) => {
                               const n = norm(b.name);
-                              if (!tokens.every((t) => n.includes(t))) return null;
+                              const sl = norm(b.slug || "");
+                              const hay = `${n} ${sl}`;
+                              if (!tokens.every((t) => hay.includes(t))) return null;
                               // Ranking : commence par la requête > début de mot > contient
                               const rank = n.startsWith(q) ? 0 : new RegExp(`\\b${q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`).test(n) ? 1 : 2;
                               return { b, rank, len: n.length };
@@ -678,6 +680,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                                   className="w-full px-3 py-2 text-left text-sm hover:bg-muted truncate"
                                 >
                                   {b.name}
+                                  {b.is_active === false && <span className="ml-2 text-xs text-muted-foreground">(inactif)</span>}
                                 </button>
                               ))}
                               {scored.length > 40 && (
