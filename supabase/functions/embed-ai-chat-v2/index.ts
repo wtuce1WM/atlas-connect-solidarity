@@ -207,6 +207,10 @@ Deno.serve(async (req) => {
       let resolutionLog: Record<string, unknown> = {};
       let resolution: ResolveResult | null = null;
       let resolutionAuthority: string | null = null;
+      // Article pertinent détecté (curaté ou texte libre) : proposé en fin de
+      // réponse sous forme de carte cliquable, jamais en remplacement des résultats.
+      let articleTeaser: string | null = null;
+
       try {
         resolution = await resolveWithAdmin(admin, userMessage);
         resolutionLog = resolutionMetric(resolution);
