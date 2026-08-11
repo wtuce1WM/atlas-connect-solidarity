@@ -11,6 +11,7 @@ export const palette = {
   white: "#FFFFFF",
   black: "#000000",
   slate: "#3B3B3B",
+  majorelle: "#4C6FE0",
 
   // Teintes de fond dérivées (dégradés de scène)
   emberDeep: "#2a1a0e",
