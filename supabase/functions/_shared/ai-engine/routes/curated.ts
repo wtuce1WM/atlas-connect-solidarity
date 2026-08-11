@@ -307,7 +307,8 @@ export async function buildBlogArticleAnswer(
   const revByBiz = await defaultReviews(admin, shown.map((b: any) => b.id));
 
   articlePayload.inline = true;
-  const cityForCopy = host.city || "Marrakech";
+  // Surfaces sans hôte : la ville vient du pseudo-hôte, sinon des fiches de l'article.
+  const cityForCopy = host?.city || shown.find((b: any) => b?.city)?.city || "Marrakech";
   const reviewsLabel = lang === "en" ? "reviews" : lang === "ar" ? "مراجعة" : "avis";
   const anonLabel = lang === "en" ? "Anonymous" : lang === "ar" ? "مجهول" : "Anonyme";
 
