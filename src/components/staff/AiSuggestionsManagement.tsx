@@ -912,7 +912,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                       <div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg max-h-60 overflow-auto">
                         {(() => {
                           const nrm = (v: string) => v.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-                          const q = nrm(serviceSearch[r.id]);
+                          const tokens = nrm(serviceSearch[r.id]).split(/\s+/).filter(Boolean);
                           const selectedNames = new Set(
                             (r.service_ids || []).map((sid) => nrm(services.find((x) => x.id === sid)?.name_fr || sid)),
                           );
@@ -921,11 +921,13 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                             .filter((s) => {
                               const nm = nrm(s.name_fr);
                               if (!nm || selectedNames.has(nm) || seen.has(nm)) return false;
-                              if (!nm.includes(q)) return false;
+                              // tous les mots saisis doivent être présents (ordre libre)
+                              if (!tokens.every((t) => nm.includes(t))) return false;
                               seen.add(nm);
                               return true;
                             });
                           if (matches.length === 0) return <div className="px-3 py-2 text-sm text-muted-foreground">Aucun service trouvé</div>;
+
                           return matches.slice(0, 8).map((s) => (
                             <button
                               key={s.id}
