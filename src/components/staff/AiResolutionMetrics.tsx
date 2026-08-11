@@ -162,7 +162,13 @@ export default function AiResolutionMetrics() {
                   <TableHead className="text-right">Service seul</TableHead>
                 </TableRow></TableHeader>
                 <TableBody>
-                  {[["Recherche (business-search)", searchStats], ["Moteur IA (turns)", aiStats]].map(([label, st]: any) => (
+                  {[
+                    ["Recherche (business-search)", searchStats],
+                    ["Moteur IA — /club", clubStats],
+                    ["Moteur IA — /embed (widget)", embedStats],
+                    ["Moteur IA — onglet IA de /search", searchAiStats],
+                    ["Moteur IA — surface non renseignée", unknownAiStats],
+                  ].map(([label, st]: any) => (
                     <TableRow key={label}>
                       <TableCell className="font-medium">{label}</TableCell>
                       <TableCell className="text-right">{st.total.toLocaleString("fr-FR")}</TableCell>
@@ -170,6 +176,7 @@ export default function AiResolutionMetrics() {
                       <TableCell className="text-right">{pct(st.serviceOnly, st.total)}</TableCell>
                     </TableRow>
                   ))}
+
                 </TableBody>
               </Table>
             </CardContent>
