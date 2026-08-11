@@ -532,11 +532,18 @@ export async function buildFilteredAnswer(
   const commodities = (opts.commodities || []).filter(Boolean);
   const serviceNames = (opts.serviceNames || []).filter(Boolean);
   if (!badgeIds.length && !subcategoryNames.length && !commodities.length && !serviceNames.length) return null;
-  // Règle : le périmètre vient de l'entrée curatée (ai_suggestions.city). Vide =
-  // cible éditoriale trans-ville (ex. badge « Agafay ») → AUCUN filtre ville.
-  const city = String(opts.city || "").trim() || null;
+  // Règle unique : `ai_suggestions.city` pilote la VISIBILITÉ de la suggestion.
+  // Vide (« Toutes ») = la suggestion s'affiche pour tous les business master, mais
+  // les RÉSULTATS sont filtrés sur la ville du business master (host).
+  const curatedCity = String(opts.city || "").trim() || null;
+  const hostCity = String(host?.city || "").trim() || null;
+  const city = curatedCity || hostCity;
+  // Cible éditoriale trans-ville (ex. badge « Agafay ») : si la ville de l'hôte ne
+  // rend (presque) rien, on relâche le filtre ville plutôt que de renvoyer 1 adresse.
+  const relaxable = !curatedCity && !!hostCity;
   const max = opts.maxResults ?? 6;
 
+  const runQuery = async (cityFilter: string | null): Promise<any[] | null> => {
   let all: any[] = [];
   if (commodities.length) {
     // Commodités (Structure du Front → Commodités / Logistique) : filtre dur sur
@@ -551,7 +558,7 @@ export async function buildFilteredAnswer(
         .order("is_featured", { ascending: false })
         .order("computed_rating", { ascending: false, nullsFirst: false })
         .limit(60);
-      if (city) q = q.eq("city", city);
+      if (cityFilter) q = q.eq("city", cityFilter);
       if (serviceNames.length) q = q.overlaps("services", serviceNames);
       const { data, error } = await q;
       if (error) throw error;
@@ -562,8 +569,7 @@ export async function buildFilteredAnswer(
     }
   } else if (badgeIds.length) {
     // Badges curatés : filtre DUR en base (business_badges), jamais via
-    // `business-search` — celui-ci n'applique `badgeIds` que si `city` est fourni,
-    // ce qui casserait les cibles éditoriales trans-villes (ex. badge « Agafay »).
+    // `business-search` — celui-ci n'applique `badgeIds` que si `city` est fourni.
     try {
       const { data: links, error: linkErr } = await admin
         .from("business_badges")
@@ -581,7 +587,7 @@ export async function buildFilteredAnswer(
         .order("is_featured", { ascending: false })
         .order("computed_rating", { ascending: false, nullsFirst: false })
         .limit(60);
-      if (city) q = q.eq("city", city);
+      if (cityFilter) q = q.eq("city", cityFilter);
       if (serviceNames.length) q = q.overlaps("services", serviceNames);
       const { data, error } = await q;
       if (error) throw error;
@@ -601,7 +607,7 @@ export async function buildFilteredAnswer(
         .order("is_featured", { ascending: false })
         .order("computed_rating", { ascending: false, nullsFirst: false })
         .limit(60);
-      if (city) q = q.eq("city", city);
+      if (cityFilter) q = q.eq("city", cityFilter);
       const { data, error } = await q;
       if (error) throw error;
       all = data || [];
@@ -624,8 +630,8 @@ export async function buildFilteredAnswer(
           offset: 0,
           compact: "card",
           // `business-search` n'applique les filtres taxonomiques que si `city`
-          // est présent → on retombe sur la ville de l'hôte si l'entrée n'en fixe pas.
-          city: city || host?.city || "Marrakech",
+          // est présent → ville de l'hôte par défaut.
+          city: cityFilter || host?.city || "Marrakech",
           subcategoryNames: subcategoryNames.length ? subcategoryNames : undefined,
         }),
       });
@@ -651,6 +657,16 @@ export async function buildFilteredAnswer(
       return null;
     }
   }
+    return all;
+  };
+
+  let all = await runQuery(city);
+  let effCity = city;
+  if (relaxable && (all || []).length < 2) {
+    const relaxed = await runQuery(null);
+    if ((relaxed || []).length > (all || []).length) { all = relaxed; effCity = null; }
+  }
+  if (!all) return null;
 
 
   const found = all.map((b: any) => b?.id).filter((id: string) => id && id !== host?.id);
@@ -663,7 +679,7 @@ export async function buildFilteredAnswer(
   const shownIds = ids.slice(0, Math.max(max, pinned.length));
 
 
-  const inCity = city ? (lang === "en" ? ` in ${city}` : lang === "ar" ? ` في ${city}` : ` à ${city}`) : "";
+  const inCity = effCity ? (lang === "en" ? ` in ${effCity}` : lang === "ar" ? ` في ${effCity}` : ` à ${effCity}`) : "";
   const heading = opts.label
     ? (lang === "en" ? `**${opts.label}** — matching addresses${inCity}:`
       : lang === "ar" ? `**${opts.label}** — عناوين مطابقة${inCity}:`
