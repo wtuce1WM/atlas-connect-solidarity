@@ -153,9 +153,15 @@ const isChunkLoadError = (error: unknown): boolean => {
     /Failed to fetch dynamically imported module/i.test(msg) ||
     /Importing a module script failed/i.test(msg) ||
     /error loading dynamically imported module/i.test(msg) ||
-    /Minified React error #(418|423|425|426)/i.test(msg)
+    /Minified React error #(418|423|425|426)/i.test(msg) ||
+    // Stale chunk after a deploy: an old lazy chunk references a minified binding
+    // (e.g. "scope is not defined") that no longer exists in the new shared chunk.
+    // Same class of failure as a chunk load error → purge caches and reload once.
+    (name === "ReferenceError" && /is not defined/i.test(msg)) ||
+    /Cannot access '[^']+' before initialization/i.test(msg)
   );
 };
+
 
 const hardReload = async () => {
   try {
