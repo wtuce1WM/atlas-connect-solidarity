@@ -1049,8 +1049,8 @@ const EmbedAsk = () => {
           {((assistantNameParam || assistantTitle || businessName) || "?").slice(0, 1).toUpperCase()}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="font-semibold truncate text-sm">{assistantNameParam || assistantTitle || businessName || "…"}</div>
-          <div className="text-[11px] opacity-60 truncate">{L.hint}</div>
+          <div className={`font-semibold truncate text-sm ${whiteInk}`}>{assistantNameParam || assistantTitle || businessName || "…"}</div>
+          <div className={`text-[11px] truncate ${whiteInk || "opacity-60"}`}>{L.hint}</div>
         </div>
         <button
           type="button"
