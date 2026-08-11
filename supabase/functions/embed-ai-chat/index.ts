@@ -2737,6 +2737,32 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Deterministic: VIDEO FEED (suggestion mode = 'video_feed').
+        // Feed de vidéos (internes + génériques) ciblées par les badges de la
+        // suggestion → marqueur VIDEO_FEED, slidepanel vidéo à swipe vertical.
+        // Aucune recherche d'établissement, aucun LLM.
+        if (suggestionMode === "video_feed") {
+          try {
+            const built = await buildVideoFeedAnswer(admin, {
+              badgeIds: deterministicBadgeIds || [],
+              pinnedBusinessIds: suggestionPinnedIds,
+              label: suggestionLabel,
+              lang: language as any,
+            });
+            if (built) {
+              const marker = videoFeedMarker(built.payload);
+              emitDelta(built.text);
+              emitDelta(marker);
+              toolsCalledLog.push({ name: "video_feed", args: { count: built.count }, ok: true });
+              endText();
+              await logTurn({ finalText: built.text + marker, streamCompleted: true });
+              return;
+            }
+          } catch (e) {
+            console.error("[embed-ai-chat] video_feed_error", e);
+          }
+        }
+
         // Deterministic: DIRECT VIEWER (suggestion mode = 'direct_viewer').
         // Show only the pinned business_ids in the defined order — no search, no LLM.
         // Si aucun établissement n'est épinglé mais que la suggestion porte des
