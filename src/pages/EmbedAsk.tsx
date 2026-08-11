@@ -1801,6 +1801,46 @@ const EmbedAsk = () => {
         );
       })()}
 
+      {/* Slidepanel vidéo du feed curaté : swipe vertical natif de BookOnlineSlidePanel */}
+      {activeFeedVideoId && (() => {
+        const list = videoFeedList.map((v) => ({
+          id: v.id,
+          url: v.url,
+          business_name: v.businessName || v.title || "",
+          pageBusinessName: v.businessName ?? null,
+          pageBusinessId: v.businessId ?? null,
+          owner: v.businessId && v.businessName
+            ? { id: v.businessId, name: v.businessName, logo_url: null, logo_bg: null }
+            : null,
+          social: null,
+          showSocialBadge: false,
+          description: v.description ?? null,
+          manualCard: null,
+          title: v.title ?? null,
+          _isGeneric: !!v.isGeneric,
+          price: v.price ?? null,
+        }));
+        const active = list.find((v) => v.id === activeFeedVideoId) || null;
+        if (!active) return null;
+        return (
+          <Suspense fallback={null}>
+            <HomeVideoSlidePanel
+              open
+              onClose={() => setActiveFeedVideoId(null)}
+              activeVideo={active as any}
+              activeList={list as any}
+              onActiveVideoChange={(v: any) => { setActiveFeedVideoId(v.id); setFeedVideoTime(0); }}
+              isActiveGeneric={!!(active as any)._isGeneric}
+              currentTime={feedVideoTime}
+              onTimeUpdate={setFeedVideoTime}
+              returnContext={null}
+              hideDirections
+              hideSecondaryCtas
+            />
+          </Suspense>
+        );
+      })()}
+
       {openDestinationId && (
         <div
           className="fixed top-0 left-0 right-0 z-[230] bg-background shadow-2xl overflow-hidden flex flex-col animate-slide-in-right lg:left-auto lg:w-1/2 lg:border-l lg:border-border"
