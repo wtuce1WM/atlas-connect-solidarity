@@ -817,6 +817,25 @@ const EmbedAsk = () => {
     const text = (overrideText ?? input).trim();
     if (!text || streaming || !businessName) return;
     if (!overrideText) setInput("");
+    // Commande (tapée ou vocale) de changement de rayon : traitée localement,
+    // la valeur reste bornée aux options du champ « Rayon de proximité ».
+    if (!suggestionId && !followupId) {
+      const asked = parseRadiusCommand(text);
+      if (asked != null) {
+        applyRadius(asked);
+        setError(null);
+        setMessages((prev) => [
+          ...prev,
+          { id: `u-radius-${Date.now()}`, role: "user", parts: [{ type: "text", text }] } as any,
+          {
+            id: `a-radius-${Date.now()}`,
+            role: "assistant",
+            parts: [{ type: "text", text: L.radiusChanged(radiusLabel(asked, lang)) }],
+          } as any,
+        ]);
+        return;
+      }
+    }
     if (suggestionId && !suggestionId.startsWith("default-")) setActiveSuggestionId(suggestionId);
     // Une recherche libre doit toujours être résolue depuis son propre texte.
     // L'ancienne suggestion active ne sert que de contexte à une relance explicite.
@@ -829,6 +848,7 @@ const EmbedAsk = () => {
       { body: { suggestionId: effectiveSuggestionId, followupId: followupId || null, scope: null } },
     );
   };
+
 
   const findLastMapPayload = (): MapPayload | null => {
     for (let i = messages.length - 1; i >= 0; i--) {
