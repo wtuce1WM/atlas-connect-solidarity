@@ -213,6 +213,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
         destination_ids: Array.isArray(r.destination_ids) ? r.destination_ids : [],
         blog_post_ids: Array.isArray(r.blog_post_ids) ? r.blog_post_ids : [],
         subcategory_ids: Array.isArray(r.subcategory_ids) ? r.subcategory_ids : [],
+        service_ids: Array.isArray(r.service_ids) ? r.service_ids : [],
         badge_ids: Array.isArray(r.badge_ids) ? r.badge_ids : [],
         commodity_filters: Array.isArray(r.commodity_filters) ? r.commodity_filters : [],
         main_categories: Array.isArray(r.main_categories) ? r.main_categories : [],
@@ -235,6 +236,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
     setCommodities([...commSet].filter(Boolean).sort((a, b) => a.localeCompare(b, "fr")));
     setDestinations(((dests as any[]) || []).map((d) => ({ id: d.id, name_fr: d.name_fr || "(sans nom)", name_en: d.name_en || null, name_ar: d.name_ar || null })));
     setSubcategories(((subs as any[]) || []).map((s) => ({ id: s.id, name_fr: s.name_fr || "(sans nom)" })));
+    setServices(((svcs as any[]) || []).map((s) => ({ id: s.id, name_fr: s.name_fr || "(sans nom)" })));
     setBadges(((bdgs as any[]) || []).map((b) => ({ id: b.id, name_fr: b.name_fr || "(sans nom)" })));
     setGlobalFollowups(((fups as any[]) || []).map((f) => ({ id: f.id, label_fr: f.label_fr || "", is_active: !!f.is_active, sort_order: f.sort_order || 0 })));
     setBlogPosts(
