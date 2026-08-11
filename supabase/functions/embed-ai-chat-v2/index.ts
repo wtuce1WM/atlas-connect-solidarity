@@ -554,13 +554,13 @@ Deno.serve(async (req) => {
         const cls = await classify(
           {
             message: userMessage,
-            surface: "embed",
+            surface,
             focus: {
-              last_business_ids: priorIds.length ? priorIds.slice(0, 3) : [host.id],
-              last_business_names: priorNames.length ? priorNames : [host.name],
+              last_business_ids: priorIds.length ? priorIds.slice(0, 3) : host ? [host.id] : [],
+              last_business_names: priorNames.length ? priorNames : host ? [host.name] : [],
               last_route: priorRoute as any,
               last_category: priorCategory,
-              active_city: host.city || null,
+              active_city: host?.city || activeCity || null,
             },
           },
           LOVABLE_API_KEY,
