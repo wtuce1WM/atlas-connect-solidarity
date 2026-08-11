@@ -39,7 +39,7 @@ const FALLBACK_COMMODITES = [
   "Cliquez et retirez",
   "Coffre-fort",
   "Commandez 24h à l'avance",
-  "Commandez en ligne et recevez votre colis chez vous",
+  "Vente en ligne",
   "Devis gratuit",
   "Disponible 24h/24",
   "Disponible en ligne et en magasin",
