@@ -65,15 +65,8 @@ const MODES: Array<{ value: VideoScenarioMode; label: string }> = [
   { value: "explainer", label: "Explicative (affiliés)" },
 ];
 
-/** Formats de rendu proposés (dimensions envoyées au moteur Remotion). */
-const FORMATS: Array<{ key: string; label: string; width: number; height: number }> = [
-  { key: "landscape_1080", label: "Paysage 16:9 · 1920×1080", width: 1920, height: 1080 },
-  { key: "landscape_720", label: "Paysage 16:9 · 1280×720", width: 1280, height: 720 },
-  { key: "square_1080", label: "Carré 1:1 · 1080×1080", width: 1080, height: 1080 },
-  { key: "vertical_1080", label: "Vertical 9:16 · 1080×1920", width: 1080, height: 1920 },
-  { key: "vertical_720", label: "Vertical 9:16 · 720×1280", width: 720, height: 1280 },
-  { key: "custom", label: "Personnalisé", width: 0, height: 0 },
-];
+
+
 
 /** Scènes disponibles pour la vidéo explicative (composition Remotion « explainer-affiliates »). */
 const EXPLAINER_TEMPLATES: Array<{ key: string; label: string }> = [
