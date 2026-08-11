@@ -15,6 +15,7 @@ import SlidePanelHeader from "@/components/SlidePanelHeader";
 import EventsSlidePanel from "@/components/club/EventsSlidePanel";
 import BlogSlidePanel from "@/components/club/BlogSlidePanel";
 import VideoThumbnail from "@/components/VideoThumbnail";
+import { callAiEngine } from "@/lib/aiEngineClient";
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
 const AT = {
@@ -479,6 +480,15 @@ const ClubAiAssistant = ({ userId }: Props) => {
   const messagesRef = useRef<Msg[]>([]);
   const deletedChatIdsRef = useRef<Set<string>>(new Set());
   const [dbSuggestions, setDbSuggestions] = useState<string[] | null>(null);
+  // Libellé de suggestion → id (table `ai_suggestions`, surface club) : permet
+  // d'envoyer l'id curaté au moteur V2 quand l'utilisateur clique une suggestion.
+  const [suggestionIds, setSuggestionIds] = useState<Record<string, string>>({});
+  // Relances curatées du Club (table `ai_followups`, surface club) — même source que /embed.
+  const [clubFollowups, setClubFollowups] = useState<string[]>([]);
+  const suggestionIdByLabel = (label: string): string | null => {
+    const norm = (x: string) => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[?!.\s]+$/g, "").trim();
+    return suggestionIds[norm(label)] ?? null;
+  };
   const [followups, setFollowups] = useState<string[]>([]);
   const [skeletonCount, setSkeletonCount] = useState<number>(0);
   const [feedbackByTurn, setFeedbackByTurn] = useState<Record<string, 1 | -1>>({});
@@ -498,7 +508,7 @@ const ClubAiAssistant = ({ userId }: Props) => {
       } catch {/* noop */}
       const { data } = await (supabase as any)
         .from("ai_suggestions")
-        .select("label_fr,label_en,label_ar,city")
+        .select("id,label_fr,label_en,label_ar,city")
         .eq("surface", "club")
         .eq("is_active", true)
         .or(`city.is.null,city.eq.${activeCity}`)
@@ -506,7 +516,28 @@ const ClubAiAssistant = ({ userId }: Props) => {
       if (!data || data.length === 0) { setDbSuggestions(null); return; }
       const key = language === "en" ? "label_en" : language === "ar" ? "label_ar" : "label_fr";
       const list = data.map((r: any) => r[key] || r.label_fr).filter(Boolean) as string[];
+      const norm = (x: string) => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[?!.\s]+$/g, "").trim();
+      const idMap: Record<string, string> = {};
+      for (const r of data as any[]) {
+        const label = (r[key] || r.label_fr || "").trim();
+        if (label && r.id) idMap[norm(label)] = String(r.id);
+      }
+      setSuggestionIds(idMap);
       setDbSuggestions(list.length ? list : null);
+    })();
+  }, [language]);
+
+  // Relances curatées (surface club), identiques au mécanisme de /embed.
+  useEffect(() => {
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("ai_followups")
+        .select("label_fr,label_en,label_ar")
+        .eq("surface", "club")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      const key = language === "en" ? "label_en" : language === "ar" ? "label_ar" : "label_fr";
+      setClubFollowups(((data as any[]) || []).map((r) => (r[key] || r.label_fr || "").trim()).filter(Boolean));
     })();
   }, [language]);
 
@@ -974,7 +1005,6 @@ const ClubAiAssistant = ({ userId }: Props) => {
     setMessages(withAssistant);
     const assistantIdx = withAssistant.length - 1;
     let streamedText = "";
-    let finalPayload: any = null;
     let firstTokenAt: number | null = null;
 
     try {
