@@ -487,29 +487,14 @@ Deno.serve(async (req) => {
           fallbackReason = "no_results";
         }
 
-        // 6. Article de blog détecté en texte libre (titre publié) — même rendu
-        // éditorial que la route curatée, corpus clos.
-        if (userMessage.trim().length >= 6) {
+        // 6. Article de blog détecté en texte libre (titre publié) : simple
+        // proposition de lecture, jamais un remplacement des résultats.
+        if (!articleTeaser && userMessage.trim().length >= 6) {
           const posts = await fetchBlogPostsCached(admin).catch(() => []);
           const match = matchBlogArticle(userMessage, lang, posts, host?.id ?? "", host?.name ?? null);
-          if (match) {
-            const built = await buildBlogArticleAnswer(admin, match, host ?? { id: null, city: scopeCity }, lang).catch((e) => {
-              console.error("[embed-ai-chat-v2] blog_freetext_failed", String(e));
-              return null;
-            });
-            if (built && built.shown >= 3) {
-              route = built.route;
-              resultsCount = built.shown;
-              emit(built.text);
-              if (built.mapPayload?.businesses?.length) {
-                emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
-              }
-              emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
-              await finish(true);
-              return;
-            }
-          }
+          if (match) articleTeaser = buildArticleTeaser(match, lang) || null;
         }
+
 
 
         // ── Classe B — classifieur, puis recherche déterministe ─────────────
