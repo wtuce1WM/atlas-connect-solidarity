@@ -157,7 +157,18 @@ export async function loadCuratedTargets(
         const svcIds: string[] = Array.isArray(sugg.service_ids) ? sugg.service_ids.filter(Boolean) : [];
         if (svcIds.length) {
           const { data: svcs } = await admin.from("services").select("name_fr").in("id", svcIds);
-          out.serviceNames = (svcs || []).map((s: any) => s.name_fr).filter(Boolean);
+          // Dédup par nom : la table `services` contient des doublons de nom (1 ligne par sous-catégorie).
+          const seenSvc = new Set<string>();
+          out.serviceNames = (svcs || [])
+            .map((s: any) => String(s?.name_fr || "").trim())
+            .filter((n: string) => {
+              if (!n) return false;
+              const k = n.toLowerCase();
+              if (seenSvc.has(k)) return false;
+              seenSvc.add(k);
+              return true;
+            });
+
         }
       }
     } catch (e) {

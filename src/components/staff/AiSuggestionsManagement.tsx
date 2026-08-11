@@ -869,14 +869,31 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                   </label>
                   {(r.service_ids?.length ?? 0) > 0 && (
                     <div className="flex flex-wrap gap-1.5">
-                      {r.service_ids.map((sid) => {
+                      {(() => {
+                        const nrm = (v: string) => v.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+                        const seen = new Set<string>();
+                        // Une entrée service ne doit apparaître qu'une seule fois (la table
+                        // `services` contient des doublons de nom par sous-catégorie).
+                        return r.service_ids.filter((sid) => {
+                          const nm = nrm(services.find((x) => x.id === sid)?.name_fr || sid);
+                          if (seen.has(nm)) return false;
+                          seen.add(nm);
+                          return true;
+                        });
+                      })().map((sid) => {
                         const s = services.find((x) => x.id === sid);
+                        const nrm = (v: string) => v.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+                        const nm = nrm(s?.name_fr || sid);
+                        // Retirer = retirer tous les ids partageant ce nom.
+                        const sameName = (r.service_ids || []).filter(
+                          (x) => nrm(services.find((y) => y.id === x)?.name_fr || x) === nm,
+                        );
                         return (
                           <span key={sid} className="inline-flex items-center gap-1 rounded-md bg-sky-500/15 text-sky-700 dark:text-sky-300 text-xs px-2 py-1">
                             {s?.name_fr || sid}
                             <button
                               type="button"
-                              onClick={() => update(r.id, { service_ids: r.service_ids.filter((x) => x !== sid) })}
+                              onClick={() => update(r.id, { service_ids: r.service_ids.filter((x) => !sameName.includes(x)) })}
                               className="hover:text-destructive"
                               title="Retirer"
                             >×</button>
@@ -895,10 +912,20 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                     {serviceSearch[r.id]?.trim() && (
                       <div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-background shadow-lg max-h-60 overflow-auto">
                         {(() => {
-                          const q = serviceSearch[r.id].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                          const nrm = (v: string) => v.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+                          const q = nrm(serviceSearch[r.id]);
+                          const selectedNames = new Set(
+                            (r.service_ids || []).map((sid) => nrm(services.find((x) => x.id === sid)?.name_fr || sid)),
+                          );
+                          const seen = new Set<string>();
                           const matches = services
-                            .filter((s) => !(r.service_ids || []).includes(s.id))
-                            .filter((s) => s.name_fr.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q));
+                            .filter((s) => {
+                              const nm = nrm(s.name_fr);
+                              if (!nm || selectedNames.has(nm) || seen.has(nm)) return false;
+                              if (!nm.includes(q)) return false;
+                              seen.add(nm);
+                              return true;
+                            });
                           if (matches.length === 0) return <div className="px-3 py-2 text-sm text-muted-foreground">Aucun service trouvé</div>;
                           return matches.slice(0, 8).map((s) => (
                             <button
@@ -914,6 +941,8 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                       </div>
                     )}
                   </div>
+
+
                   <p className="text-[11px] text-muted-foreground">
                     💡 Filtre dur sur le champ « services » des fiches : seuls les établissements proposant l'un de ces services sont retenus (classe A, zéro token).
                   </p>
