@@ -404,23 +404,7 @@ const EmbedAsk = () => {
   const inFloatingPanel = /^(1|true)$/i.test(params.get("panel") || "");
   // Nom personnalisé de l'assistant (champ éditable côté /affiliates/presence).
   const assistantNameParam = (params.get("name") || "").trim().slice(0, 60);
-  // Moteur IA : `?engine=v1|v2` force la version, sinon on suit le réglage
-  // global (Backoffice → IA → Moteur IA → Mode test).
-  const engineParam = params.get("engine") === "v2" ? "v2" : params.get("engine") === "v1" ? "v1" : null;
-  const [engine, setEngine] = useState<"v1" | "v2">(engineParam || "v1");
-  useEffect(() => {
-    if (engineParam) return;
-    let cancelled = false;
-    supabase
-      .from("site_settings")
-      .select("value")
-      .eq("key", "embed_ai_engine")
-      .maybeSingle()
-      .then(({ data }) => {
-        if (!cancelled && data?.value === "v2") setEngine("v2");
-      });
-    return () => { cancelled = true; };
-  }, [engineParam]);
+  // Moteur IA : V2 uniquement (V1 retiré).
   const initialTheme = themeParam
     ? themeParam
     : customBg
@@ -512,7 +496,7 @@ const EmbedAsk = () => {
 
   // --- AI SDK useChat wiring ---
   const transport = useMemo(() => new DefaultChatTransport({
-    api: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${engine === "v2" ? "embed-ai-chat-v2" : "embed-ai-chat"}`,
+    api: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/embed-ai-chat-v2`,
     headers: () => ({
       Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
       apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
@@ -529,7 +513,7 @@ const EmbedAsk = () => {
         scope: (body as any)?.scope ?? null,
       },
     }),
-  }), [slug, lang, engine]);
+  }), [slug, lang]);
 
   const { messages, sendMessage, status, setMessages } = useChat({
     id: `embed-${slug}-${chatKey}`,
