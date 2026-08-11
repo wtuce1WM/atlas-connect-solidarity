@@ -1161,11 +1161,11 @@ const EmbedAsk = () => {
                           <div className="text-[10px] uppercase tracking-wide font-bold mb-1" style={{ color: "#D4AF37" }}>
                             {lang === "en" ? "In brief" : lang === "ar" ? "باختصار" : "En bref"}
                           </div>
-                          <div className="text-sm leading-relaxed">{articleCard.tldr}</div>
+                          <div className={`text-sm leading-relaxed ${cardInk}`}>{articleCard.tldr}</div>
                         </div>
                       )}
                       {articleCard.intro && (
-                        <div className="text-sm leading-relaxed opacity-90 whitespace-pre-line">
+                        <div className={`text-sm leading-relaxed whitespace-pre-line ${cardInk || "opacity-90"}`}>
                           {articleCard.intro}
                         </div>
                       )}
