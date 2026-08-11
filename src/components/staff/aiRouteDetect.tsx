@@ -1,6 +1,6 @@
 // Shared route detection used by the AI back-office tabs (Club + Embed).
 export type Route = {
-  key: "weather" | "events" | "search" | "map" | "hours" | "booking" | "rating" | "distance" | "opennow" | "ordinal" | "count" | "llm";
+  key: "weather" | "tides" | "events" | "search" | "map" | "hours" | "booking" | "rating" | "distance" | "opennow" | "ordinal" | "count" | "llm";
   label: string;
   emoji: string;
   className: string;
@@ -11,6 +11,8 @@ export function detectRoute(label: string): Route {
   if (!q.trim()) return { key: "llm", label: "LLM direct", emoji: "💬", className: "bg-muted text-muted-foreground" };
   if (/\b(meteo|weather|forecast|temps|temperature|degres?|previsions?|il fait|quel temps)\b/.test(q))
     return { key: "weather", label: "get_weather", emoji: "🌤", className: "bg-sky-500/15 text-sky-700 dark:text-sky-300" };
+  if (/\b(maree|marees|marnage|houle|vague|vagues|surf|basse mer|pleine mer|tide|tides|tidal|swell|sea level)\b/.test(q))
+    return { key: "tides", label: "get_tides", emoji: "🌊", className: "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300" };
   if (/\b(event|events|evenement|agenda|week[- ]?end|ce soir|festival|concert|expo|spectacle|whats on)\b/.test(q))
     return { key: "events", label: "search_events", emoji: "📅", className: "bg-amber-500/15 text-amber-700 dark:text-amber-300" };
   if (/\b(horaire|horaires|ouvert|ouverts|ouverte|ouvertes|ouverture|ouvrir|ouvre|ouvrent|fermeture|fermer|ferme|ferment|tard|tot|early|late|open|close|closing|hours)\b/.test(q))

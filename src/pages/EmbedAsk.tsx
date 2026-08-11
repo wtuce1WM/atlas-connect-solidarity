@@ -27,6 +27,7 @@ const LocationPickerDialog = lazy(() => import("@/components/LocationPickerDialo
 import EmbedCardCarousel, { type EmbedCardItem } from "@/components/embed/EmbedCardCarousel";
 import { Maximize2, X } from "lucide-react";
 import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/EmbedWeatherWidget";
+import AiTidesWidget from "@/components/embed/AiTidesWidget";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { applyEmbedBg, parseBg, resolveEmbedInk } from "@/lib/embedFit";
 
@@ -250,6 +251,7 @@ const DEST_RE = /<!--DESTINATION_CARDS:([\s\S]*?)-->/g;
 const PINNED_RE = /<!--PINNED_BUSINESS_CARDS:([\s\S]*?)-->/g;
 const WEATHER_RE = /<!--WEATHER_FORECAST:([\s\S]*?)-->/g;
 const VIDEOFEED_RE = /<!--VIDEO_FEED:([\s\S]*?)-->/g;
+const TIDES_RE = /<!--TIDES_FORECAST:([\s\S]*?)-->/g;
 
 type MapPayload = { title?: string | null; businesses: MapPanelBusiness[]; order?: string | null };
 type EventsPayload = { title?: string | null; city?: string | null; events: EventPanelItem[] };
@@ -283,7 +285,7 @@ type PinnedBusinessCard = {
   review?: { author?: string | null; rating?: number | null; text?: string | null; source?: string | null } | null;
 };
 
-function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[] } {
+function extractPayloads(text: string): { clean: string; maps: MapPayload[]; events: EventsPayload[]; known: KnownBusiness[]; articles: ArticleCardPayload[]; destinations: DestinationsPayload[]; pinned: PinnedBusinessCard[]; weather: WeatherPayload[]; videoFeeds: VideoFeedPayload[]; tides: string[] } {
   const maps: MapPayload[] = [];
   const events: EventsPayload[] = [];
   const known: KnownBusiness[] = [];
@@ -292,7 +294,8 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
   const pinned: PinnedBusinessCard[] = [];
   const weather: WeatherPayload[] = [];
   const videoFeeds: VideoFeedPayload[] = [];
-  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds };
+  const tides: string[] = [];
+  if (!text) return { clean: text, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides };
   let clean = text.replace(MAP_RE, (_m, raw) => {
     try {
       const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
@@ -341,6 +344,13 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
       if (p && Array.isArray(p.videos) && p.videos.length) videoFeeds.push({ title: p.title ?? null, videos: p.videos });
     } catch { /* */ }
     return "";
+  
+  }).replace(TIDES_RE, (_m, raw) => {
+    try {
+      const p = JSON.parse(String(raw).replace(/--&gt;/g, "-->"));
+      if (p && (p.city || p.city_name)) tides.push(String(p.city || p.city_name));
+    } catch { /* */ }
+    return "";
   });
   clean = clean
     .replace(/<!--SHOW_ON_MAP:[\s\S]*$/g, "")
@@ -350,13 +360,14 @@ function extractPayloads(text: string): { clean: string; maps: MapPayload[]; eve
     .replace(/<!--DESTINATION_CARDS:[\s\S]*$/g, "")
     .replace(/<!--PINNED_BUSINESS_CARDS:[\s\S]*$/g, "")
     .replace(/<!--WEATHER_FORECAST:[\s\S]*$/g, "")
+    .replace(/<!--TIDES_FORECAST:[\s\S]*$/g, "")
     .replace(/<!--VIDEO_FEED:[\s\S]*?-->/g, "")
     .replace(/<!--VIDEO_FEED:[\s\S]*$/g, "")
     .replace(/<!--POOL_BUSINESS_IDS:[\s\S]*?-->/g, "")
     .replace(/<!--POOL_BUSINESS_IDS:[\s\S]*$/g, "")
     .trim();
   clean = linkifyPhones(clean);
-  return { clean, maps, events, known, articles, destinations, pinned, weather, videoFeeds };
+  return { clean, maps, events, known, articles, destinations, pinned, weather, videoFeeds, tides };
 }
 
 // Convert bare phone / WhatsApp numbers found in AI markdown into clickable links.
@@ -1191,7 +1202,7 @@ const EmbedAsk = () => {
             );
           }
           const raw = messageText(m);
-          const { clean, maps, events, articles, destinations, pinned, weather, videoFeeds } = extractPayloads(raw);
+          const { clean, maps, events, articles, destinations, pinned, weather, videoFeeds, tides } = extractPayloads(raw);
           const mapPayload = maps[maps.length - 1] || null;
           const eventsPayload = events[events.length - 1] || null;
           const articleCard = articles[articles.length - 1] || null;
@@ -1199,6 +1210,7 @@ const EmbedAsk = () => {
           const pinnedCards = pinned;
           const weatherPayload = weather[weather.length - 1] || null;
           const videoFeedPayload = videoFeeds[videoFeeds.length - 1] || null;
+          const tidesCity = tides[tides.length - 1] || null;
           const isLast = i === messages.length - 1;
           const citedFallback =
             !mapPayload || mapPayload.businesses.length === 0
@@ -1351,6 +1363,12 @@ const EmbedAsk = () => {
 
               {weatherPayload && (
                 <EmbedWeatherWidget data={weatherPayload} lang={lang} />
+              )}
+
+              {tidesCity && (
+                <div className="w-full max-w-[85%]">
+                  <AiTidesWidget city={tidesCity} lang={lang} />
+                </div>
               )}
 
               {pinnedCards.length > 0 && (
