@@ -74,6 +74,7 @@ type Row = {
   destination_ids: string[];
   blog_post_ids: string[];
   subcategory_ids: string[];
+  service_ids: string[];
   badge_ids: string[];
   commodity_filters: string[];
   city: string | null;
@@ -114,6 +115,7 @@ type BusinessOption = { id: string; name: string; slug: string | null };
 type BlogOption = { id: string; title: string; slug: string | null };
 type DestinationOption = { id: string; name_fr: string; name_en: string | null; name_ar: string | null };
 type SubcategoryOption = { id: string; name_fr: string };
+type ServiceOption = { id: string; name_fr: string };
 type BadgeOption = { id: string; name_fr: string };
 type GlobalFollowup = { id: string; label_fr: string; is_active: boolean; sort_order: number };
 
@@ -123,6 +125,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
   const [blogPosts, setBlogPosts] = useState<BlogOption[]>([]);
   const [destinations, setDestinations] = useState<DestinationOption[]>([]);
   const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
+  const [services, setServices] = useState<ServiceOption[]>([]);
   const [badges, setBadges] = useState<BadgeOption[]>([]);
   const [mainCategories, setMainCategories] = useState<string[]>([]);
   const [globalFollowups, setGlobalFollowups] = useState<GlobalFollowup[]>([]);
@@ -133,6 +136,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
   const [businessSearch, setBusinessSearch] = useState<Record<string, string>>({});
   const [destinationSearch, setDestinationSearch] = useState<Record<string, string>>({});
   const [subcategorySearch, setSubcategorySearch] = useState<Record<string, string>>({});
+  const [serviceSearch, setServiceSearch] = useState<Record<string, string>>({});
   const [badgeSearch, setBadgeSearch] = useState<Record<string, string>>({});
   const [commodities, setCommodities] = useState<string[]>([]);
   const [commoditySearch, setCommoditySearch] = useState<Record<string, string>>({});
