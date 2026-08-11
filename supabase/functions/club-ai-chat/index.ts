@@ -2087,7 +2087,7 @@ serve(async (req) => {
             subcategoryNames: curated.subcategoryNames,
             commodities: curated.commodities,
             label: curated.label,
-            city: pseudoHost.city,
+            city: curated.city,
             maxResults: 6,
             supabaseUrl,
             serviceKey,
