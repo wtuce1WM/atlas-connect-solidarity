@@ -3457,6 +3457,7 @@ ${languageInstruction}`;
     // Accumulate businesses seen during the tool loop → seed client's lookup map
     // and remove the client-side fuzzy DB roundtrips on `**Name**` clicks.
     const knownBusinessesMap = new Map<string, { id: string; slug: string | null; name: string }>();
+    let editorialInjected = false;
     const addKnown = (b: any) => {
       if (!b?.id || !b?.name) return;
       const key = String(b.name).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
