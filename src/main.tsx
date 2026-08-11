@@ -143,6 +143,15 @@ interface RootErrorBoundaryState {
 
 const RELOAD_FLAG = "__owm_chunk_reload__";
 
+// If the app stayed alive 15s after boot, the previous recovery worked:
+// clear the guard so a future stale deploy can auto-recover again.
+if (typeof window !== "undefined") {
+  window.setTimeout(() => {
+    try { sessionStorage.removeItem(RELOAD_FLAG); } catch { /* ignore */ }
+  }, 15000);
+}
+
+
 const isChunkLoadError = (error: unknown): boolean => {
   if (!error) return false;
   const msg = (error as Error)?.message ?? String(error);
@@ -153,9 +162,15 @@ const isChunkLoadError = (error: unknown): boolean => {
     /Failed to fetch dynamically imported module/i.test(msg) ||
     /Importing a module script failed/i.test(msg) ||
     /error loading dynamically imported module/i.test(msg) ||
-    /Minified React error #(418|423|425|426)/i.test(msg)
+    /Minified React error #(418|423|425|426)/i.test(msg) ||
+    // Stale chunk after a deploy: an old lazy chunk references a minified binding
+    // (e.g. "scope is not defined") that no longer exists in the new shared chunk.
+    // Same class of failure as a chunk load error → purge caches and reload once.
+    (name === "ReferenceError" && /is not defined/i.test(msg)) ||
+    /Cannot access '[^']+' before initialization/i.test(msg)
   );
 };
+
 
 const hardReload = async () => {
   try {
