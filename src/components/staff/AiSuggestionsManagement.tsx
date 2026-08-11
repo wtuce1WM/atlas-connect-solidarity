@@ -439,6 +439,8 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                 <div className="flex flex-wrap items-center gap-1.5 pt-2 text-[11px]">
                   {r.mode === "events" ? (
                     <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium bg-amber-500/15 text-amber-700">📅 search_events</span>
+                  ) : r.mode === "video_feed" ? (
+                    <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium bg-fuchsia-500/15 text-fuchsia-700">🎬 video_feed</span>
                   ) : r.mode === "structure_front" || r.subcategory_ids.length > 0 || r.badge_ids.length > 0 ? (
                     <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium bg-primary/15 text-primary">🔍 search_businesses</span>
                   ) : r.mode === "direct_viewer" ? (
