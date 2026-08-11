@@ -758,9 +758,12 @@ const EmbedAsk = () => {
     if (!text || streaming || !businessName) return;
     if (!overrideText) setInput("");
     if (suggestionId && !suggestionId.startsWith("default-")) setActiveSuggestionId(suggestionId);
+    // Une recherche libre doit toujours être résolue depuis son propre texte.
+    // L'ancienne suggestion active ne sert que de contexte à une relance explicite.
+    if (!suggestionId && !followupId) setActiveSuggestionId(null);
     setError(null);
     messageIndexRef.current += 1;
-    const effectiveSuggestionId: string | null = suggestionId || activeSuggestionId || null;
+    const effectiveSuggestionId: string | null = suggestionId || (followupId ? activeSuggestionId : null) || null;
     sendMessage(
       { text },
       { body: { suggestionId: effectiveSuggestionId, followupId: followupId || null, scope: null } },
