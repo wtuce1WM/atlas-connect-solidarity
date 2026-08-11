@@ -9,6 +9,8 @@ import { toast } from "@/hooks/use-toast";
 import { Trash2, Plus, Save, CornerDownRight, ChevronDown, ChevronRight } from "lucide-react";
 import { Chip } from "./AiParamChip";
 
+const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
 type Row = {
   id: string;
   label_fr: string;
