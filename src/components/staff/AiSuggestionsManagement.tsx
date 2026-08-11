@@ -942,9 +942,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                     )}
                   </div>
 
-                      </div>
-                    )}
-                  </div>
+
                   <p className="text-[11px] text-muted-foreground">
                     💡 Filtre dur sur le champ « services » des fiches : seuls les établissements proposant l'un de ces services sont retenus (classe A, zéro token).
                   </p>
