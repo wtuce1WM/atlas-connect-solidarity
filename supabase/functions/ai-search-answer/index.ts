@@ -7,7 +7,7 @@ import {
   matchCuratedByText, loadCuratedTargets, fetchBlogPostsCached,
   buildBlogArticleAnswer, buildPinnedAnswer,
 } from "../_shared/ai-engine/routes/curated.ts";
-import { loadEditorialTexts, formatEditorialContext } from "../_shared/ai-engine/editorial.ts";
+import { loadEditorialBundle, formatEditorialBundle } from "../_shared/ai-engine/editorial.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -628,16 +628,18 @@ serve(async (req) => {
       });
     }
 
-    // Contexte éditorial : TXT IA uniquement (business_ai_texts).
+    // Contexte éditorial : TXT IA + titres/textes des popups d'images + offres.
     // Les notes de connaissances (knowledge_entries) sont internes/techniques → jamais injectées.
     let knowledgeContext = "";
     if (businessIds.length > 0) {
       const nameById: Record<string, string> = {};
       for (const b of effectiveBusinesses) if (b?.id) nameById[b.id] = b.name || "";
-      const editorialTexts = await loadEditorialTexts(sb, { businessIds, perBusiness: 2, limit: 12 });
-      knowledgeContext = formatEditorialContext(editorialTexts, nameById);
+      const bundle = await loadEditorialBundle(sb, { businessIds, perBusiness: 2, limit: 12 });
+      knowledgeContext = formatEditorialBundle(bundle, nameById);
       if (knowledgeContext) {
-        console.log(`Found ${editorialTexts.length} TXT IA for query "${query}" (${businessIds.length} businesses)`);
+        console.log(
+          `Editorial ctx for "${query}": ${bundle.texts.length} TXT IA, ${bundle.images.length} popups image, ${bundle.offers.length} offres (${businessIds.length} businesses)`,
+        );
       }
     }
 
@@ -993,7 +995,7 @@ RÈGLES :
 ${mode === "poi" ? "LIEUX D'INTÉRÊT" : mode === "destinations" ? "DESTINATIONS" : "ÉTABLISSEMENTS TROUVÉS"} :
 ${businessContext}${knowledgeContext ? `
 
-TEXTES ÉDITORIAUX DES ÉTABLISSEMENTS (TXT IA — rédigés par l'établissement/affilié ; intègre-les naturellement pour enrichir la description, ne mets pas en avant un établissement uniquement parce qu'il a un texte ici) :
+CONTEXTE ÉDITORIAL DES ÉTABLISSEMENTS ([TXT IA] textes rédigés par l'établissement/affilié, [IMAGE POPUP] titres et textes des photos, [OFFRE] offres et promotions ; intègre-les naturellement pour enrichir la description, ne mets pas en avant un établissement uniquement parce qu'il a du contenu ici) :
 ${knowledgeContext}` : ''}${
   nearbyContext && Array.isArray(nearbyContext.items) && nearbyContext.items.length > 0 ? `
 
