@@ -87,6 +87,8 @@ export type CuratedTargets = {
   blogPostIds: string[];
   pinnedBusinessIds: string[];
   subcategoryNames: string[];
+  /** Noms de services curatés → filtre dur sur businesses.services */
+  serviceNames: string[];
   badgeIds: string[];
   /** Valeurs de commodités (sans le préfixe « Logistique: ») → filtre dur sur businesses.engagements */
   commodities: string[];
@@ -99,7 +101,7 @@ export type CuratedTargets = {
 };
 
 const EMPTY_TARGETS: CuratedTargets = {
-  blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], badgeIds: [], commodities: [],
+  blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], serviceNames: [], badgeIds: [], commodities: [],
   destinationIds: [], city: null, mode: null, label: null, aiTexts: [],
 };
 
@@ -112,13 +114,13 @@ export async function loadCuratedTargets(
   const suggestionId = opts.suggestionId || null;
   const followupId = opts.followupId || null;
   if (!suggestionId && !followupId) return { ...EMPTY_TARGETS };
-  const out: CuratedTargets = { ...EMPTY_TARGETS, blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], badgeIds: [], destinationIds: [], city: null, aiTexts: [] };
+  const out: CuratedTargets = { ...EMPTY_TARGETS, blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], serviceNames: [], badgeIds: [], destinationIds: [], city: null, aiTexts: [] };
 
   if (suggestionId) {
     try {
       const { data: sugg } = await admin
         .from("ai_suggestions")
-        .select("subcategory_ids, badge_ids, commodity_filters, business_ids, destination_ids, blog_post_ids, city, mode, label_fr, label_en, label_ar")
+        .select("subcategory_ids, service_ids, badge_ids, commodity_filters, business_ids, destination_ids, blog_post_ids, city, mode, label_fr, label_en, label_ar")
         .eq("id", suggestionId)
         .maybeSingle();
       if (sugg) {
@@ -137,6 +139,12 @@ export async function loadCuratedTargets(
         if (subIds.length) {
           const { data: subs } = await admin.from("subcategories").select("name_fr").in("id", subIds);
           out.subcategoryNames = (subs || []).map((s: any) => s.name_fr).filter(Boolean);
+        }
+
+        const svcIds: string[] = Array.isArray(sugg.service_ids) ? sugg.service_ids.filter(Boolean) : [];
+        if (svcIds.length) {
+          const { data: svcs } = await admin.from("services").select("name_fr").in("id", svcIds);
+          out.serviceNames = (svcs || []).map((s: any) => s.name_fr).filter(Boolean);
         }
       }
     } catch (e) {
