@@ -65,12 +65,34 @@ const ReviewExcerptDialog = ({ businessId, onClose }: Props) => {
 
   const textOf = (r: Row) => (r.text_fr || r.text || "").trim();
 
+  const splitSentences = (t: string) =>
+    t.split(/(?<=[.!?…])\s+/).map((s) => s.trim()).filter(Boolean);
+
   const pick = (r: Row) => {
     setSelectedId(r.id);
-    const t = textOf(r);
-    const existing = r.highlight || "";
-    setHighlight(existing || (t.split(/(?<=[.!?])\s+/)[0] || t).slice(0, 240));
+    setHighlight(r.highlight || "");
   };
+
+  /** Sélection libre à la souris : dès qu'on relâche, l'extrait est rempli. */
+  const useSelection = (r: Row) => {
+    const sel = window.getSelection?.();
+    const t = (sel?.toString() || "").trim();
+    if (!t) return;
+    setSelectedId(r.id);
+    setHighlight(t.slice(0, 240));
+  };
+
+  /** Clic sur une phrase : l'ajoute / la retire de l'extrait. */
+  const toggleSentence = (r: Row, sentence: string) => {
+    setSelectedId(r.id);
+    const base = r.id === selectedId ? highlight : "";
+    const parts = splitSentences(base);
+    const next = parts.includes(sentence)
+      ? parts.filter((p) => p !== sentence)
+      : [...splitSentences(textOf(r)).filter((s) => parts.includes(s) || s === sentence)];
+    setHighlight(next.join(" ").slice(0, 240));
+  };
+
 
   const save = async () => {
     if (!selectedId) return;
@@ -123,14 +145,17 @@ const ReviewExcerptDialog = ({ businessId, onClose }: Props) => {
         ) : (
           <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-0">
             <div className="min-h-0 overflow-y-auto p-4 space-y-2 lg:border-r lg:border-white/10">
+              <p className="text-[11px] text-white/45 mb-1">
+                Cliquez une phrase pour l'ajouter/retirer de l'extrait, ou sélectionnez librement du texte à la souris.
+              </p>
               {rows.map((r) => {
                 const isSel = selectedId === r.id;
+                const chosen = isSel ? splitSentences(highlight) : [];
                 return (
-                  <button
+                  <div
                     key={r.id}
-                    type="button"
-                    onClick={() => pick(r)}
-                    className={`w-full text-left rounded-lg border p-3 transition ${
+                    onClick={() => { if (!isSel) pick(r); }}
+                    className={`w-full text-left rounded-lg border p-3 transition cursor-pointer ${
                       isSel ? "border-primary bg-primary/10" : "border-white/10 hover:bg-white/5"
                     }`}
                   >
@@ -140,8 +165,31 @@ const ReviewExcerptDialog = ({ businessId, onClose }: Props) => {
                       {r.source && <span className="text-white/50">· {SOURCE_LABELS[r.source] || r.source}</span>}
                       {r.is_default && <span className="text-emerald-400">· actuel</span>}
                     </div>
-                    <div className="mt-1 text-xs text-white/60 whitespace-pre-wrap">{textOf(r)}</div>
-                  </button>
+                    <div
+                      className="mt-1 text-xs text-white/60 select-text leading-relaxed"
+                      onMouseUp={() => useSelection(r)}
+                    >
+                      {splitSentences(textOf(r)).map((s, i) => {
+                        const on = chosen.includes(s);
+                        return (
+                          <span
+                            key={i}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const sel = window.getSelection?.();
+                              if ((sel?.toString() || "").trim()) return; // sélection libre prioritaire
+                              toggleSentence(r, s);
+                            }}
+                            className={`cursor-pointer rounded px-0.5 transition ${
+                              on ? "bg-primary/40 text-white" : "hover:bg-white/10"
+                            }`}
+                          >
+                            {s}{" "}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
                 );
               })}
             </div>
@@ -160,9 +208,19 @@ const ReviewExcerptDialog = ({ businessId, onClose }: Props) => {
                     rows={6}
                     maxLength={240}
                     className="w-full text-sm rounded-md border border-white/15 bg-white/5 text-white p-3 outline-none focus:border-primary"
-                    placeholder="Colle ici la portion de l'avis à mettre en avant"
+                    placeholder="Cliquez des phrases à gauche ou sélectionnez le texte à la souris"
                   />
-                  <div className="text-[11px] text-white/40 text-right">{highlight.length}/240</div>
+                  <div className="flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setHighlight("")}
+                      className="text-[11px] text-white/50 hover:text-white underline"
+                    >
+                      Vider l'extrait
+                    </button>
+                    <div className="text-[11px] text-white/40">{highlight.length}/240</div>
+                  </div>
+
                   <div className="rounded-lg border border-white/10 bg-white/5 p-3">
                     <div className="text-[11px] uppercase tracking-wide text-white/40 mb-1">Aperçu</div>
                     <p className="text-sm italic text-white/90">« {highlight || "…"} »</p>
