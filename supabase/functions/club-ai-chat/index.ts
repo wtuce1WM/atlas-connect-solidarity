@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { fetchAiGateway, resolveCallerContext, normalizeGatewayBodyForModel } from "../_shared/ai-gateway.ts";
 import { AI_MODEL, getSurfaceConfig } from "../_shared/ai-engine/surfaces.ts";
+import { loadEditorialBundle, formatEditorialBundle } from "../_shared/ai-engine/editorial.ts";
 import { classify, isConfident, type ClassifyResult } from "../_shared/ai-engine/classify.ts";
 import { detectViewIntent, hasPanoramaAttribute, hasPanoramaProof, withinPointRadius, hasVantage, hasPointViewProof } from "../_shared/ai-engine/view-targets.ts";
 import {
