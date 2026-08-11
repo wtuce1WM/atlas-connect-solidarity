@@ -1632,24 +1632,6 @@ const EmbedAsk = () => {
       <form onSubmit={(e) => { e.preventDefault(); send(); }} className={`p-3 border-t ${border} ${bg}`}>
         {messages.length > 1 && !streaming && (
           <div className="flex flex-wrap gap-2 pb-2">
-            {(["filter", "broaden"] as const).map((mode) => {
-              const active = scope === mode;
-              return (
-                <button
-                  key={`scope-${mode}`}
-                  type="button"
-                  onClick={() => setScope(active ? null : mode)}
-                  className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
-                    active
-                      ? "bg-[#C24B3F] text-white border-[#C24B3F]"
-                      : `${cardBg} ${border} hover:opacity-90`
-                  }`}
-                  aria-pressed={active}
-                >
-                  {SCOPE_LABELS[lang]?.[mode] ?? SCOPE_LABELS.fr[mode]}
-                </button>
-              );
-            })}
             <button
               type="button"
               onClick={startNewConversation}
