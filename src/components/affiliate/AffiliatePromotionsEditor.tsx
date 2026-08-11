@@ -13,7 +13,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Trash2, Tag } from "lucide-react";
+import { Loader2, Plus, Trash2, Tag, Pencil } from "lucide-react";
 
 interface Props {
   businessId: string;
@@ -57,6 +57,7 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -71,15 +72,29 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
 
   useEffect(() => { load(); }, [businessId]);
 
-  const handleCreate = async () => {
+  const openEdit = (p: Promotion) => {
+    setEditingId(p.id);
+    setForm({
+      title_fr: p.title_fr || p.title || "",
+      promotion_message_fr: p.promotion_message_fr || p.promotion_message || "",
+      promotion_type: (p.promotion_type === "fixed" ? "fixed" : "percentage"),
+      promotion_percent: p.promotion_type === "percentage" && p.promotion_value != null ? String(p.promotion_value) : "",
+      promotion_value: p.promotion_type === "percentage"
+        ? (p.savings_amount != null ? String(p.savings_amount) : "")
+        : (p.promotion_value != null ? String(p.promotion_value) : ""),
+      promotion_currency: (p.promotion_currency === "EUR" ? "EUR" : "MAD"),
+      promotion_note: p.promotion_note || "",
+    });
+    setDialogOpen(true);
+  };
+
+  const handleSave = async () => {
     if (!form.title_fr.trim()) {
       toast({ title: "Titre requis (FR)", variant: "destructive" });
       return;
     }
     setSaving(true);
-    const { error } = await supabase.from("affiliate_business_promotions").insert([{
-      business_id: businessId,
-      affiliate_id: affiliateId,
+    const payload: any = {
       title: form.title_fr.trim(),
       title_fr: form.title_fr.trim() || null,
       promotion_message: form.promotion_message_fr || null,
@@ -91,18 +106,25 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
       savings_amount: form.promotion_type === "percentage" && form.promotion_value
         ? Number(String(form.promotion_value).replace(",", "."))
         : null,
-
       promotion_currency: form.promotion_currency,
       promotion_note: form.promotion_note.trim() || null,
-      sort_order: items.length,
-    } as any]);
+    };
+    const { error } = editingId
+      ? await supabase.from("affiliate_business_promotions").update(payload).eq("id", editingId)
+      : await supabase.from("affiliate_business_promotions").insert([{
+          ...payload,
+          business_id: businessId,
+          affiliate_id: affiliateId,
+          sort_order: items.length,
+        }]);
     setSaving(false);
     if (error) {
       toast({ title: "Erreur", description: error.message, variant: "destructive" });
       return;
     }
-    toast({ title: "Offre créée ✓" });
+    toast({ title: editingId ? "Offre mise a jour" : "Offre creee" });
     setForm(emptyForm);
+    setEditingId(null);
     setDialogOpen(false);
     load();
   };
@@ -133,7 +155,7 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
         <div className="text-sm text-muted-foreground">
           {items.length} offre{items.length > 1 ? "s" : ""} liée{items.length > 1 ? "s" : ""} à cet établissement
         </div>
-        <Button size="sm" onClick={() => setDialogOpen(true)}>
+        <Button size="sm" onClick={() => { setEditingId(null); setForm(emptyForm); setDialogOpen(true); }}>
           <Plus className="h-4 w-4 mr-1" /> Nouvelle offre
         </Button>
       </div>
@@ -164,26 +186,31 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
                     />
                   )}
                 </div>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="shrink-0 text-destructive hover:text-destructive"
-                  onClick={() => setDeleteId(p.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button size="icon" variant="ghost" onClick={() => openEdit(p)} aria-label="Modifier l offre">
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => setDeleteId(p.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             );
           })}
         </div>
       )}
 
-      {/* Create dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      {/* Create / edit dialog */}
+      <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) { setEditingId(null); setForm(emptyForm); } }}>
         <DialogContent className="max-w-2xl md:max-w-4xl lg:max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Nouvelle offre</DialogTitle>
-            <DialogDescription>Créez une offre promotionnelle pour cet établissement.</DialogDescription>
+            <DialogTitle>{editingId ? "Modifier l’offre" : "Nouvelle offre"}</DialogTitle>
+            <DialogDescription>{editingId ? "Modifiez cette offre promotionnelle." : "Créez une offre promotionnelle pour cet établissement."}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
@@ -275,9 +302,9 @@ const AffiliatePromotionsEditor = ({ businessId, affiliateId }: Props) => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={saving}>Annuler</Button>
-            <Button onClick={handleCreate} disabled={saving}>
+            <Button onClick={handleSave} disabled={saving}>
               {saving && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
-              Créer l'offre
+              {editingId ? "Enregistrer" : "Créer l’offre"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -78,6 +78,8 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
   const [bg, setBg] = useState<string>("");
   const [defaultPoiId, setDefaultPoiId] = useState<string>("");
   const [defaultPoiIsMaster, setDefaultPoiIsMaster] = useState(false);
+  const [radiusInput, setRadiusInputRaw] = useState<number | null>(null);
+  const setRadiusInput = (v: string) => setRadiusInputRaw(parseFloat(v));
   const [kpGroups, setKpGroups] = useState<KpGroup[]>([]);
   const [kpActive, setKpActive] = useState(false);
   const [kpActive2, setKpActive2] = useState(false);
@@ -107,6 +109,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setBg((b?.map_bg_color || "").toUpperCase());
       setDefaultPoiId(b?.default_poi_business_id || "");
       setDefaultPoiIsMaster(!!b?.default_poi_is_master);
+      setRadiusInputRaw(null);
       setKpActive(!!b?.kp_active);
       setKpActive2(!!b?.kp_active_2);
       setKpCity(b?.kp_city || "");
@@ -180,7 +183,9 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
   const bgValid = /^#[0-9A-F]{6}$/i.test(bg);
   /** Couleur forcée, sinon null → fond transparent (le widget prend le fond du site hôte). */
   const bgEffective = bgValid ? bg.toUpperCase() : null;
-  const radiusKm = Number(biz?.poi_radius_km) > 0 ? Number(biz!.poi_radius_km) : 10;
+  const radiusKm = radiusInput !== null
+    ? radiusInput
+    : (Number(biz?.poi_radius_km) > 0 ? Number(biz!.poi_radius_km) : 10);
 
   // Auto-save (debounce 1s)
   useEffect(() => {
@@ -194,6 +199,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
           map_bg_color: bgValid ? bg.toUpperCase() : null,
           default_poi_business_id: defaultPoiId || null,
           default_poi_is_master: !!defaultPoiId && defaultPoiIsMaster,
+          poi_radius_km: radiusKm,
           kp_active: kpActive,
           kp_active_2: kpActive2,
           kp_city: kpCity || null,
@@ -205,7 +211,8 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
       setSavedAt(Date.now());
     }, 1000);
     return () => clearTimeout(t);
-  }, [bg, bgValid, defaultPoiId, defaultPoiIsMaster, kpActive, kpActive2, kpCity, kpCity2, businessId, isLoading]);
+  }, [bg, bgValid, defaultPoiId, defaultPoiIsMaster, radiusKm, kpActive, kpActive2, kpCity, kpCity2, businessId, isLoading]);
+
 
 
   const nearbyPois = useMemo(() => {
@@ -346,7 +353,7 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
           <p className="text-sm text-white/60 max-w-2xl">
             Réglez la couleur de fond de votre carte et le lieu d'intérêt affiché par défaut.
             L'aperçu reprend exactement la carte de l'overlay « À proximité » : votre établissement
-            reste fixé à 40 % du bas, le rayon utilisé est celui de l'onglet Tools ({radiusKm} km).
+            reste fixé à 40 % du bas, le rayon de proximité réglé ci-dessous ({radiusKm} km) est utilisé.
             Enregistrement automatique.
           </p>
         </div>
@@ -375,22 +382,39 @@ const AffiliateMapEditor = ({ businessId }: Props) => {
 
       <Card className="bg-white/5 border-white/10">
         <CardHeader className="pb-3">
+          <CardTitle className="text-base text-white flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-primary" /> Rayon de proximité
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <Select value={String(radiusKm)} onValueChange={(v) => setRadiusInput(v)}>
+            <SelectTrigger className="h-10 w-44 text-sm text-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="z-[90]">
+              {["0.5", "1", "5", "10", "20", "50", "100"].map((km) => (
+                <SelectItem key={km} value={km} className="text-sm">
+                  {km === "0.5" ? "- 500 m" : `- ${km} km`}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-white/50">
+            Distance utilisée par défaut pour calculer les établissements et lieux d'intérêt autour de votre
+            établissement (overlay « À proximité », widget, carte et Assistant IA).
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-white/5 border-white/10">
+        <CardHeader className="pb-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <CardTitle className="text-base text-white flex items-center gap-2">
               <MapPin className="h-4 w-4 text-primary" /> Lieu d'intérêt par défaut
             </CardTitle>
-            <label className="flex items-center gap-2 text-xs text-white/80 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={defaultPoiIsMaster}
-                disabled={!defaultPoiId}
-                onChange={(e) => setDefaultPoiIsMaster(e.target.checked)}
-                className="h-4 w-4 accent-primary cursor-pointer disabled:cursor-not-allowed"
-              />
-              Marqueur par défaut sur la Map
-            </label>
           </div>
         </CardHeader>
+
         <CardContent className="space-y-2">
           {pois.length === 0 ? (
             <p className="text-sm text-white/50">

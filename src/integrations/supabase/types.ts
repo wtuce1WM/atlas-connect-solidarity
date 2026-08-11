@@ -6708,6 +6708,7 @@ export type Database = {
           business_id: string
           created_at: string
           fetched_at: string
+          highlight: string | null
           id: string
           is_default: boolean
           is_hidden: boolean
@@ -6726,6 +6727,7 @@ export type Database = {
           business_id: string
           created_at?: string
           fetched_at?: string
+          highlight?: string | null
           id?: string
           is_default?: boolean
           is_hidden?: boolean
@@ -6744,6 +6746,7 @@ export type Database = {
           business_id?: string
           created_at?: string
           fetched_at?: string
+          highlight?: string | null
           id?: string
           is_default?: boolean
           is_hidden?: boolean

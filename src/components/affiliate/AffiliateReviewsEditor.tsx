@@ -5,13 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, Star, ExternalLink, Trash2, MapPin, Globe, MessageSquare } from "lucide-react";
+import { Loader2, Save, Star, ExternalLink, Trash2, MapPin, Globe, MessageSquare, Quote } from "lucide-react";
 import {
   collectRatingSources,
   computeWeightedRatingOn20,
   getTotalReviewCount,
 } from "@/lib/ratingUtils";
 import ReviewsEditor from "@/components/staff/ReviewsEditor";
+import ReviewExcerptDialog from "@/components/affiliate/ReviewExcerptDialog";
 
 export interface ReviewsData {
   google_reviews_url?: string | null;
@@ -110,6 +111,7 @@ function computeAvg(data: ReviewsData): { avg: number | null; total: number } {
 const AffiliateReviewsEditor = ({ businessId, data, onFieldChange, onDataRefreshed }: Props) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [excerptOpen, setExcerptOpen] = useState(false);
 
   const { avg, total } = computeAvg(data);
 
@@ -190,13 +192,23 @@ const AffiliateReviewsEditor = ({ businessId, data, onFieldChange, onDataRefresh
         </div>
 
         <div className="p-4 bg-muted/30 border border-border rounded-lg space-y-3">
-          <Label className="text-base font-semibold flex items-center gap-2">
-            <MessageSquare className="h-4 w-4" />
-            Détail des avis clients
-          </Label>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <Label className="text-base font-semibold flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Détail des avis clients
+            </Label>
+            <Button type="button" size="sm" variant="outline" onClick={() => setExcerptOpen(true)}>
+              <Quote className="h-3.5 w-3.5 mr-1" /> Extrait par défaut
+            </Button>
+          </div>
           <ReviewsEditor businessId={businessId} />
         </div>
+
+        {excerptOpen && (
+          <ReviewExcerptDialog businessId={businessId} onClose={() => setExcerptOpen(false)} />
+        )}
       </TabsContent>
+
 
       <TabsContent value="urls" className="mt-0 space-y-4">
 

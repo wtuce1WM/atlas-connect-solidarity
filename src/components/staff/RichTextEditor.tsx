@@ -124,7 +124,8 @@ const RichTextEditor = ({ content, onChange, placeholder, maxHeight, bgClass, si
       className={`rounded-md overflow-y-auto ${bgClass || "border bg-white text-black"}`}
       style={maxHeight ? { maxHeight } : undefined}
     >
-      <div className={`sticky top-0 z-10 rounded-t-md border-b ${isCustomBg ? (isLightText ? "bg-black/30 border-white/10" : "bg-[#BED1FF] border-black/10") : "bg-[#BED1FF] border-black/10"}`}>
+      {/* Barre d'outils collante : fond OPAQUE obligatoire, sinon le texte défile visiblement derrière. */}
+      <div className={`sticky top-0 z-20 rounded-t-md border-b ${isCustomBg ? (isLightText ? "bg-neutral-900 border-white/10" : "bg-[#BED1FF] border-black/10") : "bg-[#BED1FF] border-black/10"}`}>
         <RichTextToolbar editor={editor} simple={simple} />
       </div>
       <EditorContent editor={editor} className={`${isCustomBg ? (isLightText ? "[&_.prose]:text-white [&_.prose_*]:!text-white" : "[&_.prose]:text-black") : "[&_.prose]:!text-black [&_.prose_*]:!text-black"}`} />
