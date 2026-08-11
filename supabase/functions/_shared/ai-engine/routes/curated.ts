@@ -506,6 +506,9 @@ export async function buildFilteredAnswer(
     serviceNames?: string[];
     commodities?: string[];
     label?: string | null;
+    /** Établissements épinglés sur l'entrée curatée → mis en avant en tête. */
+    pinnedIds?: string[];
+
 
     city?: string | null;
     maxResults?: number;
@@ -639,10 +642,15 @@ export async function buildFilteredAnswer(
   }
 
 
-  const ids = all.map((b: any) => b?.id).filter((id: string) => id && id !== host?.id);
+  const found = all.map((b: any) => b?.id).filter((id: string) => id && id !== host?.id);
+  // Établissements épinglés sur la même entrée curatée : mise en avant en tête
+  // de liste (ils ne ferment plus le corpus), puis les résultats taxonomiques.
+  const pinned = (opts.pinnedIds || []).filter((id) => id && id !== host?.id);
+  const ids = [...new Set([...pinned, ...found])];
   if (!ids.length) return null;
   const total = ids.length;
-  const shownIds = ids.slice(0, max);
+  const shownIds = ids.slice(0, Math.max(max, pinned.length));
+
 
   const inCity = city ? (lang === "en" ? ` in ${city}` : lang === "ar" ? ` في ${city}` : ` à ${city}`) : "";
   const heading = opts.label
