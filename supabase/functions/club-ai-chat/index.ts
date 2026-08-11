@@ -2061,16 +2061,14 @@ serve(async (req) => {
           emit({ type: "done", answer, chatId: resultChatId, followups: [] });
         };
 
-        // 1. Article de blog lié → rendu éditorial, corpus clos, ordre donné
-        if (curated.blogPostIds.length) {
+        // 1. Article de blog lié → simple proposition de lecture. Le moteur
+        // continue son propre calcul de résultats (épinglés / filtre / classe B).
+        if (curated.blogPostIds.length && !pendingArticleCard) {
           const posts = await fetchBlogPostsCached(admin).catch(() => []);
           const post = curated.blogPostIds.map((id) => posts.find((p: any) => p.id === id)).filter(Boolean)[0];
-          if (post) {
-            const built = await buildBlogArticleAnswer(admin, post as any, pseudoHost, lang as any)
-              .catch((e) => { console.error("club-ai-chat → blog_route_failed", String(e)); return null; });
-            if (built) { await deliverCurated(built); return; }
-          }
+          if (post) pendingArticleCard = buildArticleTeaser(post as any, lang as any) || null;
         }
+
 
         // 2. Établissements épinglés → corpus clos, ordre staff
         if (curated.pinnedBusinessIds.length) {
