@@ -226,9 +226,31 @@ async function defaultReviews(admin: any, ids: string[]): Promise<Map<string, an
 }
 
 /**
- * Rendu éditorial d'un article : ARTICLE_CARD + entrées classées (max 10) + disclosure.
- * Corpus clos : uniquement les établissements présents dans l'article.
+ * Teaser d'article (non intrusif) : le moteur calcule SES propres résultats et
+ * propose seulement de consulter l'article. Carte compacte cliquable côté front
+ * (ARTICLE_CARD avec `inline: false`) → l'article ne s'affiche que si sélectionné.
+ * Aucune lecture DB supplémentaire, aucun token.
  */
+export function buildArticleTeaser(post: BlogRow, lang: Lang): string {
+  const title =
+    (lang === "en" && post.title_en) || (lang === "ar" && post.title_ar) ||
+    post.title_fr || post.title_en || post.title_ar || "";
+  if (!post.slug || !title) return "";
+  const image = post.custom_hero_image_url || post.cover_image_url || null;
+  const payload = { id: post.id, slug: post.slug, title, image, hero: image, inline: false };
+  const line = lang === "en"
+    ? `📖 Want to go further? Our article **${title}** covers this in detail — open it below.`
+    : lang === "ar"
+      ? `📖 لمزيد من التفاصيل، مقالنا **${title}** يغطي الموضوع — افتحه أدناه.`
+      : `📖 Pour aller plus loin, notre article **${title}** détaille le sujet — ouvre-le ci-dessous.`;
+  return `\n\n${line}\n\n<!--ARTICLE_CARD:${JSON.stringify(payload)}-->\n\n`;
+}
+
+/**
+ * Rendu éditorial complet d'un article : ARTICLE_CARD inline + entrées classées.
+ * Conservé pour la page article dédiée ; n'est plus utilisé comme réponse de chat.
+ */
+
 export async function buildBlogArticleAnswer(
   admin: any, post: BlogRow, host: any, lang: Lang,
 ): Promise<CuratedAnswer | null> {

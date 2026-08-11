@@ -30,7 +30,8 @@ import { loadEditorialBundle, formatEditorialBundle } from "../_shared/ai-engine
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
 import {
   loadCuratedTargets, fetchBlogPostsCached, matchBlogArticle, matchCuratedByText,
-  buildBlogArticleAnswer, buildPinnedAnswer, buildFilteredAnswer,
+  buildArticleTeaser, buildPinnedAnswer, buildFilteredAnswer,
+
 } from "../_shared/ai-engine/routes/curated.ts";
 import { isHoursIntent, buildHoursAnswer, buildHoursForBusinesses } from "../_shared/ai-engine/routes/opening.ts";
 import { isBookingIntent, buildBookingAnswer, buildBookingForBusinesses } from "../_shared/ai-engine/routes/booking.ts";
@@ -206,6 +207,10 @@ Deno.serve(async (req) => {
       let resolutionLog: Record<string, unknown> = {};
       let resolution: ResolveResult | null = null;
       let resolutionAuthority: string | null = null;
+      // Article pertinent détecté (curaté ou texte libre) : proposé en fin de
+      // réponse sous forme de carte cliquable, jamais en remplacement des résultats.
+      let articleTeaser: string | null = null;
+
       try {
         resolution = await resolveWithAdmin(admin, userMessage);
         resolutionLog = resolutionMetric(resolution);
@@ -215,7 +220,9 @@ Deno.serve(async (req) => {
 
 
       const finish = async (streamCompleted: boolean) => {
+        if (articleTeaser) { emit(articleTeaser); articleTeaser = null; }
         end();
+
         try {
           const { error: logErr } = await admin.from("ai_conversation_turns").insert({
             chat_id: chatId,
@@ -352,30 +359,14 @@ Deno.serve(async (req) => {
           const isInitialClick = !!(curated?.label && norm(userMessage) === norm(curated.label));
           const keepCurated = !!curated && (!!followupId || isInitialClick || suggestionFromText || !priorIds.length);
 
-          if (curated && keepCurated && curated.blogPostIds.length) {
+          // Article de blog lié : il ne remplace PAS les résultats. Le moteur
+          // calcule ses propres résultats et propose de consulter l'article.
+          if (curated && keepCurated && curated.blogPostIds.length && !articleTeaser) {
             const posts = await fetchBlogPostsCached(admin).catch(() => []);
             const post = curated.blogPostIds.map((id) => posts.find((p) => p.id === id)).filter(Boolean)[0];
-            if (post) {
-              const built = await buildBlogArticleAnswer(admin, post, host ?? { id: null, city: scopeCity }, lang).catch((e) => {
-                console.error("[embed-ai-chat-v2] blog_route_failed", String(e));
-                return null;
-              });
-              if (built) {
-                route = built.route;
-                resultsCount = built.shown;
-                emit(built.text);
-                if (built.mapPayload?.businesses?.length) {
-                  emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
-                }
-                if (built.knownBusinesses.length) {
-                  emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
-                }
-                await finish(true);
-                return;
-              }
-              fallbackReason = "route_failed";
-            }
+            if (post) articleTeaser = buildArticleTeaser(post, lang) || null;
           }
+
 
           if (curated && keepCurated && curated.pinnedBusinessIds.length) {
             const built = await buildPinnedAnswer(
@@ -503,29 +494,14 @@ Deno.serve(async (req) => {
           fallbackReason = "no_results";
         }
 
-        // 6. Article de blog détecté en texte libre (titre publié) — même rendu
-        // éditorial que la route curatée, corpus clos.
-        if (userMessage.trim().length >= 6) {
+        // 6. Article de blog détecté en texte libre (titre publié) : simple
+        // proposition de lecture, jamais un remplacement des résultats.
+        if (!articleTeaser && userMessage.trim().length >= 6) {
           const posts = await fetchBlogPostsCached(admin).catch(() => []);
           const match = matchBlogArticle(userMessage, lang, posts, host?.id ?? "", host?.name ?? null);
-          if (match) {
-            const built = await buildBlogArticleAnswer(admin, match, host ?? { id: null, city: scopeCity }, lang).catch((e) => {
-              console.error("[embed-ai-chat-v2] blog_freetext_failed", String(e));
-              return null;
-            });
-            if (built && built.shown >= 3) {
-              route = built.route;
-              resultsCount = built.shown;
-              emit(built.text);
-              if (built.mapPayload?.businesses?.length) {
-                emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
-              }
-              emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
-              await finish(true);
-              return;
-            }
-          }
+          if (match) articleTeaser = buildArticleTeaser(match, lang) || null;
         }
+
 
 
         // ── Classe B — classifieur, puis recherche déterministe ─────────────

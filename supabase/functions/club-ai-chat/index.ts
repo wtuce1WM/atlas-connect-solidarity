@@ -7,7 +7,8 @@ import { classify, isConfident, type ClassifyResult } from "../_shared/ai-engine
 import { detectViewIntent, hasPanoramaAttribute, hasPanoramaProof, withinPointRadius, hasVantage, hasPointViewProof } from "../_shared/ai-engine/view-targets.ts";
 import {
   loadCuratedTargets, fetchBlogPostsCached, matchCuratedByText,
-  buildBlogArticleAnswer, buildPinnedAnswer, buildFilteredAnswer,
+  buildArticleTeaser, buildPinnedAnswer, buildFilteredAnswer,
+
 } from "../_shared/ai-engine/routes/curated.ts";
 
 const corsHeaders = {
@@ -1662,15 +1663,30 @@ serve(async (req) => {
   let curatedFollowups: string[] | null = null;
   // Rayon (km) forcé par une relance staff (ai_followups.radius_km)
   let followupRadiusKm: number | null = null;
+  // Article pertinent détecté : proposé en carte cliquable à la fin de la
+  // réponse, jamais en remplacement des résultats calculés par le moteur.
+  let pendingArticleCard: string | null = null;
   const emit: EmitFn = (obj: any) => {
     if (!controllerRef) return;
     // Auto-inject turnId in every terminal `done` event so the client can
     // attach 👍/👎 feedback to the exact row inserted into ai_conversation_turns.
-    const payload = obj && obj.type === "done"
-      ? { ...obj, turnId, ...(curatedFollowups && curatedFollowups.length ? { followups: curatedFollowups } : {}) }
-      : obj;
+    let payload = obj;
+    if (obj && obj.type === "done") {
+      const teaser = pendingArticleCard;
+      pendingArticleCard = null;
+      if (teaser) {
+        try { controllerRef.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "chunk", delta: teaser })}\n\n`)); } catch {/* client aborted */}
+      }
+      payload = {
+        ...obj,
+        ...(teaser ? { answer: `${obj.answer || ""}${teaser}` } : {}),
+        turnId,
+        ...(curatedFollowups && curatedFollowups.length ? { followups: curatedFollowups } : {}),
+      };
+    }
     try { controllerRef.enqueue(encoder.encode(`data: ${JSON.stringify(payload)}\n\n`)); } catch {/* client aborted */}
   };
+
   const closeStream = () => { try { controllerRef?.close(); } catch {} controllerRef = null; };
   const clientAbort = req.signal;
 
@@ -2045,16 +2061,14 @@ serve(async (req) => {
           emit({ type: "done", answer, chatId: resultChatId, followups: [] });
         };
 
-        // 1. Article de blog lié → rendu éditorial, corpus clos, ordre donné
-        if (curated.blogPostIds.length) {
+        // 1. Article de blog lié → simple proposition de lecture. Le moteur
+        // continue son propre calcul de résultats (épinglés / filtre / classe B).
+        if (curated.blogPostIds.length && !pendingArticleCard) {
           const posts = await fetchBlogPostsCached(admin).catch(() => []);
           const post = curated.blogPostIds.map((id) => posts.find((p: any) => p.id === id)).filter(Boolean)[0];
-          if (post) {
-            const built = await buildBlogArticleAnswer(admin, post as any, pseudoHost, lang as any)
-              .catch((e) => { console.error("club-ai-chat → blog_route_failed", String(e)); return null; });
-            if (built) { await deliverCurated(built); return; }
-          }
+          if (post) pendingArticleCard = buildArticleTeaser(post as any, lang as any) || null;
         }
+
 
         // 2. Établissements épinglés → corpus clos, ordre staff
         if (curated.pinnedBusinessIds.length) {
