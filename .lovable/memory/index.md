@@ -11,3 +11,4 @@
 ## Memories
 - [Blog Card Thumbnail](mem://design/blog-card-thumbnail) — Vignettes /blog = 1ʳᵉ image de la 1ʳᵉ fiche de l'article (= hero)
 - [Voice Overlay Scope](mem://constraints/voice-overlay-scope) — L'overlay vocal du PanelSearchBar reste contenu dans le slidepanel droit, jamais fullscreen ni portalisé vers body
+- [Template vidéo feed](mem://features/video-feed-template) — Capture Playwright + manifest + Remotion pour générer une vidéo de feed /search en 720x1280 ou 1280x720
