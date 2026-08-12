@@ -25,7 +25,10 @@ interface RichTextEditorProps {
   bgClass?: string;
   /** Masque couleur, surlignage, lien, image et vidéo dans la barre d'outils. */
   simple?: boolean;
+  /** Classe Tailwind appliquée au contenu éditable (remplace prose-sm par défaut). */
+  className?: string;
 }
+
 
 const stripInlineColors = (html: string): string => {
   if (!html || typeof window === "undefined") return html;
