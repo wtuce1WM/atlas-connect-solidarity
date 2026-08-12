@@ -853,12 +853,19 @@ const VideoScenarioConfigPanel = () => {
               placeholder="Nom de l'étape"
               className="h-8 w-40 text-xs"
             />
-            <Input
-              value={manualKey}
-              onChange={(e) => setManualKey(e.target.value)}
-              placeholder="clé_technique"
-              className="h-8 w-36 text-xs font-mono"
-            />
+            <div className="grid gap-0.5">
+              <Input
+                value={manualKey}
+                onChange={(e) => setManualKey(e.target.value)}
+                placeholder="clé_technique"
+                className="h-8 w-56 text-xs font-mono"
+              />
+              <span className="text-[11px] leading-snug text-muted-foreground w-56">
+                Identifiant unique de la scène (ex. <span className="font-mono">exp_widgets</span>) : il relie l'étape au
+                composant Remotion qui la dessine et sert de clé de tri/durée au montage. Laisse vide pour le générer
+                depuis le nom.
+              </span>
+            </div>
             <Button
               size="sm"
               variant="outline"
