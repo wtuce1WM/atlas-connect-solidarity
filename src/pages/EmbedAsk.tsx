@@ -540,6 +540,9 @@ const EmbedAsk = () => {
   const sessionIdRef = useRef<string>(initialPersisted?.sessionId || newSessionId());
   const messageIndexRef = useRef<number>(initialPersisted?.messageIndex || 0);
   const [chatKey, setChatKey] = useState(0);
+  // Relances déjà cliquées dans la conversation courante (réinitialisées au reset).
+  const [usedFollowupIds, setUsedFollowupIds] = useState<string[]>([]);
+
   const restoredRef = useRef<boolean>(!!initialPersisted);
 
   // Rayon de proximité : valeur de l'hôte (/affiliates → Tools), modifiable par l'utilisateur.
