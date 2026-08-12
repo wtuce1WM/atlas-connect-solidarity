@@ -165,18 +165,31 @@ def stitch(bands: list[tuple[Path, int]], width: int, view: int, total: int, out
 
 def extract_frames(src: str, dest: Path, fps: int, seconds: float, tmp: Path,
                    width: int = 720, height: int = 1280, dsf: int = 2) -> int:
+    """Extrait des frames en « cover » du cadre demandé.
+
+    On met à l'échelle avec force_original_aspect_ratio=increase avant de rogner :
+    une source verticale rendue dans un cadre 16:9 (montage paysage) donnerait
+    sinon une largeur inférieure au crop et ffmpeg échouerait.
+    Un échec (source injoignable, codec) renvoie 0 au lieu de casser tout le job.
+    """
     dest.mkdir(parents=True, exist_ok=True)
+    tw, th = width * dsf, height * dsf
     mp4 = tmp / (re.sub(r"[^a-zA-Z0-9]+", "_", src)[-60:] + ".mp4")
-    if not mp4.exists():
-        subprocess.run(["curl", "-sL", src, "-o", str(mp4)], check=True)
-    subprocess.run(
-        ["ffmpeg", "-y", "-loglevel", "error", "-i", str(mp4), "-t", str(seconds),
-         "-vf", f"fps={fps},scale=-2:{height * dsf},crop={width * dsf}:{height * dsf}",
-         "-q:v", "1",
-         str(dest / "%04d.jpg")],
-        check=True,
-    )
+    try:
+        if not mp4.exists():
+            subprocess.run(["curl", "-sfL", src, "-o", str(mp4)], check=True)
+        subprocess.run(
+            ["ffmpeg", "-y", "-loglevel", "error", "-i", str(mp4), "-t", str(seconds),
+             "-vf",
+             f"fps={fps},scale={tw}:{th}:force_original_aspect_ratio=increase,crop={tw}:{th}",
+             "-q:v", "1",
+             str(dest / "%04d.jpg")],
+            check=True,
+        )
+    except subprocess.CalledProcessError as e:
+        print("frames_error", src, str(e), flush=True)
     return len(list(dest.glob("*.jpg")))
+
 
 
 
