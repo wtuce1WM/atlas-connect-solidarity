@@ -148,9 +148,12 @@ const Screen: React.FC<{ m: FeedManifest; step: FeedStep; localFrame: number; no
   noVideo,
 }) => {
   const { width: W, height: H } = m.viewport;
+  // Une fiche peut n'avoir aucune vidéo interne (frameCount = 0) : on garde
+  // alors le fond noir + la UI détourée, sans tenter de charger 0000.jpg.
+  const hasFrames = (step?.frameCount ?? 0) > 0 && !!step?.frameDir;
   return (
     <AbsoluteFill style={{ backgroundColor: noVideo ? "transparent" : "#000" }}>
-      {!noVideo && (
+      {!noVideo && hasFrames && (
         <Img src={frameSrc(m, step, localFrame)} style={{ width: W, height: H, objectFit: "cover" }} />
       )}
       <Img
@@ -160,6 +163,7 @@ const Screen: React.FC<{ m: FeedManifest; step: FeedStep; localFrame: number; no
     </AbsoluteFill>
   );
 };
+
 
 /** Pouce stylisé qui remonte pour illustrer le swipe vertical. */
 const SwipeThumb: React.FC<{ W: number; progress: number }> = ({ W, progress }) => {
