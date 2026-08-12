@@ -44,6 +44,8 @@ export type VideoScenarioStep = {
   body: string | null;
   key_message: string | null;
   business_id: string | null;
+  /** Widgets embarqués sélectionnés pour cette étape. */
+  widget_keys: string[];
   /** Étape créée localement, pas encore en base. */
   _new?: boolean;
 };
@@ -70,7 +72,9 @@ const MODES: Array<{ value: VideoScenarioMode; label: string }> = [
 
 /** Scènes disponibles pour la vidéo explicative (composition Remotion « explainer-affiliates »). */
 const EXPLAINER_TEMPLATES: Array<{ key: string; label: string }> = [
+  { key: "exp_fiche", label: "Fiche 1WM" },
   { key: "exp_profil", label: "Profil digital enrichi" },
+  { key: "exp_geo", label: "Géolocalisation & Cartes" },
   { key: "exp_widgets", label: "Widgets embarqués" },
   { key: "exp_assistant", label: "Assistant IA" },
   { key: "exp_seo", label: "Visibilité SEO + GEO" },
@@ -79,6 +83,22 @@ const EXPLAINER_TEMPLATES: Array<{ key: string; label: string }> = [
   { key: "exp_automation", label: "Automatisation" },
   { key: "exp_backoffice", label: "Back-office affilié" },
 ];
+
+/** Widgets embarqués sélectionnables sur une étape (mêmes clés que Présence en ligne / Publiés). */
+const WIDGET_OPTIONS: Array<{ key: string; label: string }> = [
+  { key: "ai", label: "Assistant IA" },
+  { key: "nearby", label: "Adresses à proximité (Map & App)" },
+  { key: "reviews", label: "Avis clients" },
+  { key: "rate", label: "Laisser un avis" },
+  { key: "weather", label: "Météo" },
+  { key: "tides", label: "Marées" },
+  { key: "fiche", label: "ID numérique (type Linktree)" },
+  { key: "fiche1wm", label: "Widget Fiche 1WM" },
+];
+
+/** Étapes acceptant une sélection de widgets. */
+const WIDGET_STEP_KEYS = new Set(["exp_widgets", "exp_fiche"]);
+
 
 /**
  * Descriptif fonctionnel de chaque étape : ce qu'elle affiche, la condition
@@ -218,14 +238,24 @@ const STEP_DOCS: Record<string, { what: string; filter: string; notes?: string }
     notes: "Toujours en tout dernier plan ; fond de marque (sans photo d'établissement), logo One World Morocco et signature oneworldmorocco.com.",
   },
 
+  exp_fiche: {
+    what: "Scène « Fiche 1WM » : capture réelle de la fiche de l'établissement lié sur One World Morocco.",
+    filter: "Nécessite un établissement lié. Activée par défaut, en première position.",
+    notes: "Widgets sélectionnés ci-dessous mis en avant dans la fiche capturée.",
+  },
   exp_profil: {
     what: "Scène « Profil digital enrichi » : mosaïque des photos réelles de l'établissement lié, logo, note /20 et attributs de la fiche.",
     filter: "Nécessite un établissement lié avec au moins une photo.",
     notes: "Le corps de texte liste les attributs affichés, un par ligne (ou séparés par « | »).",
   },
+  exp_geo: {
+    what: "Scène « Géolocalisation & Cartes » : carte de l'établissement, quartier et points d'intérêt de proximité.",
+    filter: "Nécessite un établissement lié géolocalisé (latitude/longitude).",
+    notes: "Le corps de texte liste les arguments affichés, un par ligne.",
+  },
   exp_widgets: {
-    what: "Scène « Widgets embarqués » : captures réelles des widgets Météo, Marées et Avis dans des cadres navigateur.",
-    filter: "Toujours disponible.",
+    what: "Scène « Widgets embarqués » : captures réelles des widgets sélectionnés dans des cadres navigateur.",
+    filter: "Toujours disponible. Les widgets capturés sont ceux cochés dans l'étape.",
     notes: "Le corps de texte liste les destinations d'intégration affichées à droite.",
   },
   exp_assistant: {
@@ -457,6 +487,34 @@ const SortableStep = ({
               className="text-xs"
             />
           </label>
+          {WIDGET_STEP_KEYS.has(step.scene_key) && (
+            <div className="grid gap-1.5 text-xs text-muted-foreground">
+              <span>Widgets embarqués affichés dans cette scène (un ou plusieurs)</span>
+              <div className="flex flex-wrap gap-1.5">
+                {WIDGET_OPTIONS.map((w) => {
+                  const active = (step.widget_keys ?? []).includes(w.key);
+                  return (
+                    <Button
+                      key={w.key}
+                      type="button"
+                      size="sm"
+                      variant={active ? "default" : "outline"}
+                      className="h-7 text-[11px]"
+                      onClick={() =>
+                        patch({
+                          widget_keys: active
+                            ? (step.widget_keys ?? []).filter((k) => k !== w.key)
+                            : [...(step.widget_keys ?? []), w.key],
+                        })
+                      }
+                    >
+                      {w.label}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             Établissement lié à cette étape
             <BusinessSelect
@@ -491,6 +549,8 @@ const VideoScenarioConfigPanel = () => {
   const [removed, setRemoved] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [newKey, setNewKey] = useState("");
+  const [manualKey, setManualKey] = useState("");
+  const [manualLabel, setManualLabel] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
@@ -502,14 +562,18 @@ const VideoScenarioConfigPanel = () => {
     const [stepsRes, configRes] = await Promise.all([
       supabase
         .from("video_scenario_steps")
-        .select("id, mode, scene_key, label, position, duration_sec, enabled, kicker, title, body, key_message, business_id")
+        .select("id, mode, scene_key, label, position, duration_sec, enabled, kicker, title, body, key_message, business_id, widget_keys")
         .eq("mode", mode)
         .order("position", { ascending: true }),
       supabase.from("video_scenario_configs").select("*").eq("mode", mode).maybeSingle(),
     ]);
     if (stepsRes.error) toast.error("Chargement impossible");
     // Étape « Menus » abandonnée : on ne l'affiche plus.
-    setSteps(((stepsRes.data ?? []) as VideoScenarioStep[]).filter((s) => s.scene_key !== "menu_doc"));
+    setSteps(
+      ((stepsRes.data ?? []) as VideoScenarioStep[])
+        .filter((s) => s.scene_key !== "menu_doc")
+        .map((s) => ({ ...s, widget_keys: s.widget_keys ?? [] })),
+    );
     setConfig(
       (configRes.data as ScenarioConfig | null) ?? {
         mode,
@@ -549,10 +613,11 @@ const VideoScenarioConfigPanel = () => {
     setDirty(true);
   };
 
-  const addStep = () => {
-    const key = newKey.trim();
+  /** Ajout d'une scène du catalogue ou d'une étape manuelle (clé + nom libres). */
+  const addStep = (manual?: { key: string; label: string }) => {
+    const key = (manual?.key ?? newKey).trim();
     if (!key) {
-      toast.error("Choisis une scène à ajouter");
+      toast.error(manual ? "Renseigne une clé d'étape" : "Choisis une scène à ajouter");
       return;
     }
     if (steps.some((s) => s.scene_key === key)) {
@@ -567,15 +632,17 @@ const VideoScenarioConfigPanel = () => {
         id,
         mode,
         scene_key: key,
-        label: template?.label ?? key,
+        label: manual?.label?.trim() || template?.label || key,
         position: (prev.length + 1) * 10,
         duration_sec: 8,
         enabled: true,
-        kicker: template?.label ?? null,
+        kicker: manual?.label?.trim() || template?.label || null,
         title: null,
         body: null,
         key_message: null,
-        business_id: null,
+        // Nouvelle étape rattachée d'office à l'établissement global du mode.
+        business_id: config?.business_id ?? null,
+        widget_keys: [],
         _new: true,
       },
     ]);
@@ -621,6 +688,7 @@ const VideoScenarioConfigPanel = () => {
       body: s.body,
       key_message: s.key_message,
       business_id: s.business_id,
+      widget_keys: s.widget_keys ?? [],
     }));
 
     const stepsRes = rows.length
@@ -690,13 +758,17 @@ const VideoScenarioConfigPanel = () => {
                 value={config.business_id}
                 onChange={(id) => {
                   setConfig((prev) => (prev ? { ...prev, business_id: id } : prev));
+                  // La liaison se propage à toutes les étapes du mode (actives ou non).
+                  setSteps((prev) => prev.map((s) => ({ ...s, business_id: id })));
                   setDirty(true);
                 }}
               />
             </div>
             <div className="md:col-span-2 self-end text-xs text-muted-foreground">
-              Le format et les dimensions sont gérés dans Studio Vidéo IA.
+              Changer l'établissement met à jour la liaison de toutes les étapes (et des scènes ajoutées ensuite). Le
+              format et les dimensions sont gérés dans Studio Vidéo IA.
             </div>
+
 
           </div>
         )}
@@ -718,8 +790,45 @@ const VideoScenarioConfigPanel = () => {
                 </option>
               ))}
             </select>
-            <Button size="sm" variant="outline" onClick={addStep}>
+            <Button size="sm" variant="outline" onClick={() => addStep()}>
               <Plus className="h-4 w-4 mr-1" /> Ajouter
+            </Button>
+            <span className="text-xs text-muted-foreground">ou étape manuelle :</span>
+            <Input
+              value={manualLabel}
+              onChange={(e) => setManualLabel(e.target.value)}
+              placeholder="Nom de l'étape"
+              className="h-8 w-40 text-xs"
+            />
+            <Input
+              value={manualKey}
+              onChange={(e) => setManualKey(e.target.value)}
+              placeholder="clé_technique"
+              className="h-8 w-36 text-xs font-mono"
+            />
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const key =
+                  manualKey.trim() ||
+                  manualLabel
+                    .trim()
+                    .toLowerCase()
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace(/[^a-z0-9]+/g, "_")
+                    .replace(/^_+|_+$/g, "");
+                if (!key) {
+                  toast.error("Renseigne un nom ou une clé d'étape");
+                  return;
+                }
+                addStep({ key, label: manualLabel });
+                setManualKey("");
+                setManualLabel("");
+              }}
+            >
+              <Plus className="h-4 w-4 mr-1" /> Étape manuelle
             </Button>
             <Button size="sm" variant="outline" onClick={load} disabled={loading || saving}>
               <RotateCcw className="h-4 w-4 mr-1" /> Recharger

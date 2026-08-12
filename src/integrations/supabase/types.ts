@@ -8023,6 +8023,7 @@ export type Database = {
           scene_key: string
           title: string | null
           updated_at: string
+          widget_keys: string[]
         }
         Insert: {
           body?: string | null
@@ -8039,6 +8040,7 @@ export type Database = {
           scene_key: string
           title?: string | null
           updated_at?: string
+          widget_keys?: string[]
         }
         Update: {
           body?: string | null
@@ -8055,6 +8057,7 @@ export type Database = {
           scene_key?: string
           title?: string | null
           updated_at?: string
+          widget_keys?: string[]
         }
         Relationships: [
           {
