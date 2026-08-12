@@ -92,6 +92,10 @@ const StaffVideos = () => {
               <ListOrdered className="h-4 w-4" />
               Scénario
             </TabsTrigger>
+            <TabsTrigger value="generate" className="gap-2">
+              <Rocket className="h-4 w-4" />
+              Générer
+            </TabsTrigger>
             <TabsTrigger value="latest" className="gap-2">
               <Film className="h-4 w-4" />
               Dernières vidéos
@@ -103,10 +107,14 @@ const StaffVideos = () => {
           <TabsContent value="scenario">
             <VideoScenarioConfigPanel />
           </TabsContent>
+          <TabsContent value="generate">
+            <VideoGeneratePanel />
+          </TabsContent>
           <TabsContent value="latest">
             <LatestVideosPanel />
           </TabsContent>
         </Tabs>
+
 
 
       </main>
