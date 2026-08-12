@@ -45,6 +45,8 @@ type Row = {
   main_categories: string[];
   disabled_followup_ids: string[];
   mode: string | null;
+  route_override: string | null;
+
   proximity_a_subcategory_ids: string[];
   proximity_a_badge_ids: string[];
   proximity_b_subcategory_ids: string[];
