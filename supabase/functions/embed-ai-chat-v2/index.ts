@@ -204,6 +204,9 @@ Deno.serve(async (req) => {
 
   const userMessage = textOf([...uiMessages].reverse().find((m: any) => m?.role === "user") as UIMessage) || "";
   const priorIds = priorBusinessIds(uiMessages);
+  /** Corpus complet du tour précédent (19 trouvées) — surensemble de `priorIds`. */
+  const poolIds = [...new Set([...priorPoolIds(uiMessages), ...priorIds])];
+
   const chatId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(sessionId || ""))
     ? sessionId
     : null;
