@@ -48,8 +48,9 @@ const stripInlineColors = (html: string): string => {
   }
 };
 
-const RichTextEditor = ({ content, onChange, placeholder, maxHeight, bgClass, simple }: RichTextEditorProps) => {
+const RichTextEditor = ({ content, onChange, placeholder, maxHeight, bgClass, simple, className }: RichTextEditorProps) => {
   const isInternalChange = useRef(false);
+
 
 
   const extensions = useMemo(() => [
