@@ -2075,7 +2075,7 @@ serve(async (req) => {
         // Périmètre — RÈGLE UNIQUE (`_shared/ai-engine/city-scope.ts`).
         const curatedScopeCity = resolveCityScope({
           hostCity: pseudoHost?.city,
-          explicitCity: await detectExplicitCity(admin, String(userMessage || "")),
+          explicitCity: await detectExplicitCity(admin, String(lastUserMsgRaw || "")),
         });
 
         // 1bis. Feed vidéo curaté (mode = 'video_feed') : vidéos, pas de fiches.
@@ -3201,7 +3201,11 @@ serve(async (req) => {
           console.warn("club classifier authority failed", e);
         }
 
-        const searchCity = authCity || activeCityClean || undefined;
+        // Règle unique de périmètre : ville active, sauf ville explicitement nommée.
+        const searchCity = resolveCityScope({
+          hostCity: activeCityClean,
+          explicitCity: (await detectExplicitCity(admin, fusedQuery)) || authCity || null,
+        }) || undefined;
         const routerCtx = { userId: user.id, supabase: admin, lastUserMessage: fusedQuery, language: lang, forceQuery: fusedQuery };
         const search = await runTool(
           "search_businesses",
