@@ -21,17 +21,33 @@ const TAP_DUR = 20;
 const OPEN_START = TAP_START + TAP_DUR; // 495
 const OPEN_DUR = 12;
 const SCROLL_START = OPEN_START + OPEN_DUR; // 507
-const SCROLL_DUR = 375; // 15 s
+const HOOK_HOLD = 50; // 2 s d'arrêt sur le hook en haut de l'overlay
+const SCROLL_BEGIN = SCROLL_START + HOOK_HOLD; // 557
+const SEG_COUNT = 6; // paliers de défilement
+const SEG_MOVE = 96; // ~3.8 s de défilement par palier
+const SEG_PAUSE = 25; // 1 s d'arrêt à chaque palier
+const SCROLL_DUR = SEG_COUNT * (SEG_MOVE + SEG_PAUSE); // 726 (≈29 s)
 const TAIL = 25;
-export const TOTAL = SCROLL_START + SCROLL_DUR + TAIL;
+export const TOTAL = SCROLL_BEGIN + SCROLL_DUR + TAIL;
 
 const DESC_TOP = 93;
 const DESC_VIEW = 1127;
 const DESC_TALL = 6756;
+const SCROLL_MAX = DESC_TALL - DESC_VIEW;
+
+// Défilement par paliers : mouvement puis léger arrêt, répété SEG_COUNT fois.
+const SCROLL_FRAMES: number[] = [];
+const SCROLL_VALUES: number[] = [];
+for (let i = 0; i < SEG_COUNT; i++) {
+  const base = SCROLL_BEGIN + i * (SEG_MOVE + SEG_PAUSE);
+  SCROLL_FRAMES.push(base, base + SEG_MOVE);
+  SCROLL_VALUES.push((SCROLL_MAX * i) / SEG_COUNT, (SCROLL_MAX * (i + 1)) / SEG_COUNT);
+}
 
 const pad = (n: number) => String(n).padStart(4, "0");
 const videoFrame = (step: number, i: number, max: number) =>
   staticFile(`feed/frames/v${step}/${pad(Math.min(Math.max(i, 0), max - 1) + 1)}.jpg`);
+
 
 const Screen: React.FC<{ step: number; localFrame: number; count: number }> = ({
   step,
@@ -209,12 +225,15 @@ export const FeedSwipe: React.FC = () => {
         easing: Easing.bezier(0.16, 0.84, 0.24, 1),
       })
     : 1;
-  const scroll = opening
-    ? 0
-    : interpolate(frame, [SCROLL_START, SCROLL_START + SCROLL_DUR], [0, DESC_TALL - DESC_VIEW], {
-        easing: Easing.bezier(0.42, 0, 0.58, 1),
-        extrapolateRight: "clamp",
-      });
+  const scroll =
+    frame <= SCROLL_BEGIN
+      ? 0
+      : interpolate(frame, SCROLL_FRAMES, SCROLL_VALUES, {
+          easing: Easing.bezier(0.42, 0, 0.58, 1),
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        });
+
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#000" }}>
