@@ -920,7 +920,9 @@ const EmbedAsk = () => {
     setOpenEvents(null);
     setOpenBusinessId(null);
     setActiveSuggestionId(null);
+    setUsedFollowupIds([]);
     pendingSendRef.current = pending || null;
+
     setChatKey((k) => k + 1); // resets useChat id → clears message list
     setTimeout(() => inputRef.current?.focus(), 0);
   };
