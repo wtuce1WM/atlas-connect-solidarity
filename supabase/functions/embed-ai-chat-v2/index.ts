@@ -490,8 +490,40 @@ Deno.serve(async (req) => {
           fallbackReason = "route_failed";
         }
 
+        // 1bis. Classements horaires (« qui ouvre le plus tôt », « qui ferme le plus tard »)
+        // et filtre « ouvert maintenant / ce soir » : AVANT la route horaires générique,
+        // sinon le libellé (« ferme », « tard ») partait sur la simple liste d'horaires.
+        if (priorIds.length && (isOpensFirstIntent(userMessage) || isClosesLastIntent(userMessage))) {
+          route = "opening";
+          const rankMode = isOpensFirstIntent(userMessage) ? "opens_first" : "closes_last";
+          const answer = await buildHoursRanking(admin, priorIds, rankMode, lang).catch(() => null);
+          if (answer) {
+            resultsCount = priorIds.length;
+            emit(answer);
+            await finish(true);
+            return;
+          }
+          fallbackReason = "no_results";
+        }
+
+        if (priorIds.length) {
+          const filterIntent = parseOpenFilterIntent(userMessage);
+          if (filterIntent) {
+            route = "opening";
+            const answer = await buildOpenFilter(admin, priorIds, filterIntent, lang).catch(() => null);
+            if (answer) {
+              resultsCount = priorIds.length;
+              emit(answer);
+              await finish(true);
+              return;
+            }
+            fallbackReason = "no_results";
+          }
+        }
+
         // 2. Horaires — sans hôte, seuls les établissements déjà présentés répondent.
         if (isHoursIntent(userMessage) && (priorIds.length || host)) {
+
           route = "opening";
           const answer = priorIds.length
             ? await buildHoursForBusinesses(admin, priorIds.slice(0, CFG.maxResults), lang)
