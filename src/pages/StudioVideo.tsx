@@ -732,11 +732,11 @@ export default function StudioVideo() {
   const activeVideoDurations = useMemo(() => {
     const out: Record<string, number> = {};
     for (const u of orderedSelectedVideos) {
-      const d = bizVideos.find((x) => x.url === u)?.duration;
+      const d = videoPool.find((x) => x.url === u)?.duration;
       if (Number.isFinite(d) && (d as number) > 0.5) out[u] = Math.round((d as number) * 10) / 10;
     }
     return out;
-  }, [orderedSelectedVideos, bizVideos]);
+  }, [orderedSelectedVideos, videoPool]);
 
 
   // Durée totale utile des vidéos du montage (Time End − Time Start)
@@ -744,13 +744,13 @@ export default function StudioVideo() {
     let sum = 0;
     let unknown = 0;
     for (const u of orderedSelectedVideos) {
-      const v = bizVideos.find((x) => x.url === u);
+      const v = videoPool.find((x) => x.url === u);
       const end = activeVideoEnds[u] ?? v?.duration ?? null;
       if (end == null) { unknown += 1; continue; }
       sum += Math.max(0, end - (activeVideoStarts[u] ?? 0));
     }
     return { sum, unknown };
-  }, [orderedSelectedVideos, bizVideos, activeVideoStarts, activeVideoEnds]);
+  }, [orderedSelectedVideos, videoPool, activeVideoStarts, activeVideoEnds]);
 
   /** Champs Time Start / Time End partagés par la grille des vidéos et l'ordre de montage. */
   const renderTimeRangeInputs = (url: string, duration?: number | null) => {
