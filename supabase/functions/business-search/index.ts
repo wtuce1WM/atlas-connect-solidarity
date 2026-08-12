@@ -1066,9 +1066,15 @@ serve(async (req) => {
     if (detectedNeighborhood) {
       console.log(`Auto-detected neighborhood "${detectedNeighborhood}" from query "${effectiveQuery}"`);
       const neighborhoodCity = getNeighborhoodCity(detectedNeighborhood, await loadNeighborhoods(supabase));
-      // If the query itself names a city (e.g. "beach club à Marrakech") and the detected
-      // neighborhood belongs to another city (alias "Beach" → quartier "Plage" à Essaouira),
-      // the neighborhood detection is a false positive → drop it, keep the explicit city.
+      // RÈGLE UNIQUE DE PÉRIMÈTRE : la ville transmise par l'appelant (ville du
+      // business master / ville active) ne peut être remplacée que si l'utilisateur
+      // nomme explicitement l'autre ville, ou nomme littéralement le quartier
+      // (ex. « Sidi Kaouki »). Un simple alias/mot-clé (« beach » → quartier
+      // « Plage » à Essaouira) ne déplace jamais le périmètre.
+      const qNorm = stripAccentsGlobal(String(effectiveQuery || "").toLowerCase());
+      const neighborhoodNamedInQuery = qNorm.includes(
+        stripAccentsGlobal(String(detectedNeighborhood).toLowerCase()),
+      );
       if (
         neighborhoodCity && detectedCity &&
         stripAccentsGlobal(detectedCity.toLowerCase()) !== stripAccentsGlobal(neighborhoodCity.toLowerCase())
@@ -1080,12 +1086,18 @@ serve(async (req) => {
           effectiveCity = neighborhoodCity;
           console.log(`Derived city "${effectiveCity}" from neighborhood "${detectedNeighborhood}"`);
         } else if (stripAccentsGlobal(effectiveCity.toLowerCase()) !== stripAccentsGlobal(neighborhoodCity.toLowerCase())) {
-          console.log(`Overriding client city "${effectiveCity}" → "${neighborhoodCity}" (neighborhood "${detectedNeighborhood}" belongs there)`);
-          effectiveCity = neighborhoodCity;
-          strictCity = false; // client-passed city was wrong, don't strict-filter on it
+          if (neighborhoodNamedInQuery) {
+            console.log(`Overriding client city "${effectiveCity}" → "${neighborhoodCity}" (quartier "${detectedNeighborhood}" nommé explicitement)`);
+            effectiveCity = neighborhoodCity;
+            strictCity = false;
+          } else {
+            console.log(`Dropping neighborhood "${detectedNeighborhood}" (${neighborhoodCity}) — alias hors périmètre de la ville demandée "${effectiveCity}"`);
+            detectedNeighborhood = null;
+          }
         }
       }
     }
+
 
 
     // Resolve city name → UUID for zone_city_ids filtering (after neighborhood override)

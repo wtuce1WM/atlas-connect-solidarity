@@ -554,8 +554,12 @@ export async function buildFilteredAnswer(
     /** Établissements épinglés sur l'entrée curatée → mis en avant en tête. */
     pinnedIds?: string[];
 
-
-    city?: string | null;
+    /**
+     * Périmètre géographique — RÈGLE UNIQUE (voir `../city-scope.ts`) :
+     * ville du business master, sauf ville explicitement nommée par l'utilisateur.
+     * `ai_suggestions.city` ne pilote QUE la visibilité de la suggestion.
+     */
+    scopeCity?: string | null;
     maxResults?: number;
     supabaseUrl: string;
     serviceKey: string;
@@ -566,16 +570,9 @@ export async function buildFilteredAnswer(
   const commodities = (opts.commodities || []).filter(Boolean);
   const serviceNames = (opts.serviceNames || []).filter(Boolean);
   if (!badgeIds.length && !subcategoryNames.length && !commodities.length && !serviceNames.length) return null;
-  // Règle unique : `ai_suggestions.city` pilote la VISIBILITÉ de la suggestion.
-  // Vide (« Toutes ») = la suggestion s'affiche pour tous les business master, mais
-  // les RÉSULTATS sont filtrés sur la ville du business master (host).
-  const curatedCity = String(opts.city || "").trim() || null;
-  const hostCity = String(host?.city || "").trim() || null;
-  const city = curatedCity || hostCity;
-  // Cible éditoriale trans-ville (ex. badge « Agafay ») : si la ville de l'hôte ne
-  // rend (presque) rien, on relâche le filtre ville plutôt que de renvoyer 1 adresse.
-  const relaxable = !curatedCity && !!hostCity;
+  const city = String(opts.scopeCity || host?.city || "").trim() || null;
   const max = opts.maxResults ?? 6;
+
 
   const runQuery = async (cityFilter: string | null): Promise<any[] | null> => {
   let all: any[] = [];
@@ -694,20 +691,34 @@ export async function buildFilteredAnswer(
     return all;
   };
 
-  let all = await runQuery(city);
-  let effCity = city;
-  if (relaxable && (all || []).length < 2) {
-    const relaxed = await runQuery(null);
-    if ((relaxed || []).length > (all || []).length) { all = relaxed; effCity = null; }
-  }
+  // Aucun relâchement du filtre ville : mieux vaut peu de résultats dans la bonne
+  // ville que des adresses d'une autre ville (règle unique de périmètre).
+  const all = await runQuery(city);
+  const effCity = city;
+
   if (!all) return null;
 
 
   const found = all.map((b: any) => b?.id).filter((id: string) => id && id !== host?.id);
   // Établissements épinglés sur la même entrée curatée : mise en avant en tête
   // de liste (ils ne ferment plus le corpus), puis les résultats taxonomiques.
-  const pinned = (opts.pinnedIds || []).filter((id) => id && id !== host?.id);
+  // Ils subissent la même règle de périmètre : hors ville → écartés.
+  let pinned = (opts.pinnedIds || []).filter((id) => id && id !== host?.id);
+  if (pinned.length && city) {
+    try {
+      const { data: pinRows } = await admin
+        .from("businesses")
+        .select("id")
+        .in("id", pinned)
+        .eq("city", city);
+      const keep = new Set((pinRows || []).map((r: any) => r.id));
+      pinned = pinned.filter((id) => keep.has(id));
+    } catch (e) {
+      console.error("[curated] pinned_city_filter_failed", String(e));
+    }
+  }
   const ids = [...new Set([...pinned, ...found])];
+
   if (!ids.length) return null;
   const total = ids.length;
   const shownIds = ids.slice(0, Math.max(max, pinned.length));

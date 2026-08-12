@@ -48,6 +48,7 @@ import {
 import { isOpensFirstIntent, isClosesLastIntent, buildHoursRanking, parseOpenFilterIntent, buildOpenFilter } from "../_shared/ai-engine/routes/opening.ts";
 import { isDescribeIntent, parseDescribeFacet, buildDescribePriors } from "../_shared/ai-engine/routes/describe.ts";
 import { isForcedRouteKey, runForcedRoute, forcedMapMarker } from "../_shared/ai-engine/routes/forced.ts";
+import { resolveCityScope, detectExplicitCity } from "../_shared/ai-engine/city-scope.ts";
 
 
 const corsHeaders = {
@@ -284,9 +285,11 @@ Deno.serve(async (req) => {
           }
           host = hostRows[0];
         }
-        /** Ville de travail : hôte si présent, sinon ville active de la surface. */
-        const scopeCity = host?.city || activeCity || "Marrakech";
-        cityDetected = host?.city || activeCity || null;
+        // Périmètre géographique — RÈGLE UNIQUE (`_shared/ai-engine/city-scope.ts`) :
+        // ville du business master, sauf ville explicitement nommée dans le message.
+        const explicitCity = await detectExplicitCity(admin, userMessage);
+        const scopeCity = resolveCityScope({ hostCity: host?.city, activeCity, explicitCity }) as string;
+        cityDetected = scopeCity;
 
         // Article de blog pertinent (clic suggestion, texte libre ou vocal) : détecté
         // AVANT toute route déterministe (celles-ci sortent en `return`). Il n'est
@@ -378,7 +381,7 @@ Deno.serve(async (req) => {
               pinnedBusinessIds: curated.pinnedBusinessIds,
               label: curated.label,
               lang: lang as any,
-              city: curated.city || host?.city || null,
+              city: scopeCity,
             }).catch((e) => {
               console.error("[embed-ai-chat-v2] video_feed_failed", String(e));
               return null;
@@ -430,8 +433,7 @@ Deno.serve(async (req) => {
               pinnedIds: curated.pinnedBusinessIds,
 
 
-              // Périmètre défini par l'entrée curatée (vide = trans-ville)
-              city: curated.city,
+              scopeCity,
               maxResults: CFG.maxResults,
               supabaseUrl: SUPABASE_URL,
               serviceKey: SERVICE,
@@ -825,9 +827,16 @@ Deno.serve(async (req) => {
               .map((t) => t.value)
               .slice(0, 2)
           : [];
-        const resolvedCity = resolution
+        const resolvedCityRaw = resolution
           ? (strongTargetsOfType(resolution, "city")[0] ?? targetsOfType(resolution, "city")[0] ?? null)
           : null;
+        // Règle unique de périmètre : seule une ville explicitement nommée (résolveur
+        // ou détection lexicale) peut sortir de la ville du master. `out.city` du
+        // classifieur n'est plus une autorité (inventions possibles).
+        const searchCity = resolveCityScope({
+          hostCity: host?.city, activeCity, explicitCity: explicitCity || resolvedCityRaw,
+        }) as string;
+        const resolvedCity = resolvedCityRaw;
 
         // La catégorie du classifieur n'est retenue que si elle existe vraiment en base.
         let classifierCategoryValid = false;
@@ -894,7 +903,7 @@ Deno.serve(async (req) => {
                 : [priorCategory].filter(Boolean) as string[];
           const baseQuery = [...coreTerms, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
             || userMessage.slice(0, 200);
-          await runSearch(baseQuery, resolvedCity || out.city || scopeCity, excluded);
+          await runSearch(baseQuery, searchCity, excluded);
         }
 
         // Filet de secours : le classifieur n'a pas tranché (ou sa requête structurée
@@ -908,7 +917,7 @@ Deno.serve(async (req) => {
               : userMessage.slice(0, 200);
           await runSearch(
             rescueQuery,
-            resolvedCity || out?.city || scopeCity,
+            searchCity,
             rawExcluded,
           );
           if (results.length) fallbackReason = fallbackReason || "confidence_low";

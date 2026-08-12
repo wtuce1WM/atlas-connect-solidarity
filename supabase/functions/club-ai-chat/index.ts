@@ -11,6 +11,7 @@ import {
 
 } from "../_shared/ai-engine/routes/curated.ts";
 import { buildVideoFeedAnswer, videoFeedMarker } from "../_shared/ai-engine/routes/videoFeed.ts";
+import { resolveCityScope, detectExplicitCity } from "../_shared/ai-engine/city-scope.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -2071,6 +2072,13 @@ serve(async (req) => {
         }
 
 
+        // Périmètre — RÈGLE UNIQUE (`_shared/ai-engine/city-scope.ts`).
+        const curatedScopeCity = resolveCityScope({
+          hostCity: pseudoHost?.city,
+          fallback: null,
+          explicitCity: await detectExplicitCity(admin, String([...messages].reverse().find((m: any) => m.role === "user")?.content || "")),
+        });
+
         // 1bis. Feed vidéo curaté (mode = 'video_feed') : vidéos, pas de fiches.
         if (String(curated.mode || "").trim() === "video_feed") {
           const builtV = await buildVideoFeedAnswer(admin, {
@@ -2078,7 +2086,7 @@ serve(async (req) => {
             pinnedBusinessIds: curated.pinnedBusinessIds,
             label: curated.label,
             lang: lang as any,
-            city: curated.city || pseudoHost?.city || null,
+            city: curatedScopeCity,
           }).catch((e) => { console.error("club-ai-chat → video_feed_failed", String(e)); return null; });
           if (builtV) {
             await deliverCurated({
@@ -2113,7 +2121,7 @@ serve(async (req) => {
             commodities: curated.commodities,
             label: curated.label,
             pinnedIds: curated.pinnedBusinessIds,
-            city: curated.city,
+            scopeCity: curatedScopeCity,
             maxResults: 6,
             supabaseUrl,
             serviceKey,
@@ -3194,7 +3202,12 @@ serve(async (req) => {
           console.warn("club classifier authority failed", e);
         }
 
-        const searchCity = authCity || activeCityClean || undefined;
+        // Règle unique de périmètre : ville active, sauf ville explicitement nommée.
+        const searchCity = resolveCityScope({
+          hostCity: activeCityClean,
+          explicitCity: (await detectExplicitCity(admin, fusedQuery)) || authCity || null,
+          fallback: null,
+        }) || undefined;
         const routerCtx = { userId: user.id, supabase: admin, lastUserMessage: fusedQuery, language: lang, forceQuery: fusedQuery };
         const search = await runTool(
           "search_businesses",
