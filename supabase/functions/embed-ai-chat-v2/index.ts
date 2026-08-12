@@ -1116,6 +1116,25 @@ Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}
           if (disclosure && !/sur\s+\d+\s+trouv/i.test(finalText)) emit(disclosure);
           emit(`\n\n${toMapMarker(results, null)}`);
           emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(results.map((b) => ({ id: b.id, name: b.name })))}-->`);
+          // Mémoire du corpus complet (les 30 trouvées) pour que la relance suivante
+          // filtre dedans, et pas seulement dans les adresses affichées.
+          if (searchPoolIds.length) {
+            emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: searchPoolIds, city: cityDetected || scopeCity || null })}-->`);
+          }
+        } else if (priorFull.length) {
+          // Relance contextuelle : cartes des seules fiches réellement citées, prises
+          // dans le corpus complet du tour précédent ; le pool reste mémorisé.
+          const normFinal = normalize(finalText);
+          const citedFull = (priorFull as any[]).filter(
+            (b) => b?.name && normFinal.includes(normalize(String(b.name))),
+          );
+          if (citedFull.length) {
+            emit(`\n\n${toMapMarker(citedFull, null)}`);
+            emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(citedFull.map((b) => ({ id: b.id, name: b.name })))}-->`);
+          }
+          if (followUpPoolIds.length) {
+            emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: followUpPoolIds, city: scopeCity || null })}-->`);
+          }
         }
 
 
