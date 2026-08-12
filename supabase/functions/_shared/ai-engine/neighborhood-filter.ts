@@ -49,9 +49,16 @@ export async function resolveNeighborhoodInMessage(
   if (!msg) return null;
 
   try {
-    const { data: cities } = await admin.from("cities").select("id, name").limit(1000);
-    const cityRow = (cities || []).find(
-      (c: any) => normalize(String(c?.name || "")) === normalize(city),
+    // `cities` n'a pas de colonne `name` : les libellés sont name_fr / name_en / name_ar.
+    const { data: cities, error: cityErr } = await admin
+      .from("cities")
+      .select("id, name_fr, name_en, name_ar")
+      .limit(1000);
+    if (cityErr) { console.error("[neighborhood-filter] cities_error", cityErr.message); return null; }
+    const cityRow = (cities || []).find((c: any) =>
+      [c?.name_fr, c?.name_en, c?.name_ar]
+        .filter(Boolean)
+        .some((n: any) => normalize(String(n)) === normalize(city)),
     );
     if (!cityRow) return null;
 
@@ -73,7 +80,7 @@ export async function resolveNeighborhoodInMessage(
       if (!hit) continue;
       const candidate: NeighborhoodMatch = {
         name: String(r.name || ""),
-        city: String(cityRow.name || ""),
+        city: String(cityRow.name_fr || cityRow.name_en || city),
         matched: hit,
         aliases: [...new Set(labels.map((l) => normalize(l)).filter(Boolean))],
       };
