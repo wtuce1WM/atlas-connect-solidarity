@@ -198,6 +198,8 @@ async function renderOne() {
       audioCodec: wantsAudio ? "aac" : undefined,
       enforceAudioTrack: wantsAudio,
       concurrency: 1,
+      jpegQuality: 100,
+      crf: 16,
       inputProps: props,
     });
 

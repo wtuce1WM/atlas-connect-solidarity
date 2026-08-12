@@ -31,6 +31,10 @@ export type FeedManifest = {
   label?: string;
   sourceUrl?: string;
   viewport: { width: number; height: number };
+  /** Suréchantillonnage de capture (device scale factor). */
+  captureScale?: number;
+  /** Agrandissement du rendu portrait (720x1280 -> 1080x1920 si 1.5). */
+  outputScale?: number;
   fps: number;
   steps: FeedStep[];
   detail: {
@@ -397,7 +401,28 @@ export const FeedTemplate: React.FC<FeedTemplateProps> = ({ manifest, format }) 
   const m = manifest;
   const { width: W, height: H } = m.viewport;
 
-  if (format !== "landscape") return <Stage m={m} />;
+  if (format !== "landscape") {
+    const os = m.outputScale && m.outputScale > 0 ? m.outputScale : 1;
+    if (os === 1) return <Stage m={m} />;
+    return (
+      <AbsoluteFill style={{ backgroundColor: "#000", overflow: "hidden" }}>
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: W,
+            height: H,
+            overflow: "hidden",
+            transform: `scale(${os})`,
+            transformOrigin: "top left",
+          }}
+        >
+          <Stage m={m} />
+        </div>
+      </AbsoluteFill>
+    );
+  }
 
   const { width: outW, height: outH } = LANDSCAPE;
   const scale = outH / H;
