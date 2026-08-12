@@ -519,6 +519,12 @@ export default function StudioVideo() {
   const [selectedMenuDocIds, setSelectedMenuDocIds] = useState<Set<string>>(new Set());
   const [bizImages, setBizImages] = useState<string[]>([]);
   const [bizVideos, setBizVideos] = useState<{ url: string; thumbnail: string | null; title: string; kind: "file" | "youtube"; duration?: number }[]>([]);
+  // Vidéos génériques (mode corporate) : externes = table generic_videos, internes = vidéos produites dans /staff/backoffice/videos
+  type GenericVideoItem = { url: string; thumbnail: string | null; title: string; kind: "file" | "youtube"; duration?: number };
+  const [genericExternalVideos, setGenericExternalVideos] = useState<GenericVideoItem[]>([]);
+  const [genericInternalVideos, setGenericInternalVideos] = useState<GenericVideoItem[]>([]);
+  const [showGenericVideos, setShowGenericVideos] = useState(true);
+  const [genericTab, setGenericTab] = useState<"external" | "internal">("external");
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [selectedVideos, setSelectedVideos] = useState<Set<string>>(new Set());
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
