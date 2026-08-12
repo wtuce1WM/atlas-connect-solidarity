@@ -63,7 +63,9 @@ export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) 
             tabIndex={0}
             onClick={it.onClick}
             onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && it.onClick) { e.preventDefault(); it.onClick(); } }}
+            style={{ textTransform: "none", letterSpacing: "normal" }}
             className="shrink-0 w-44 text-left group cursor-pointer"
+
           >
             <div className="relative w-44 h-64 rounded-xl overflow-hidden bg-neutral-800">
               {it.image ? (
