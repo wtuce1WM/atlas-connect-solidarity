@@ -901,8 +901,17 @@ const VideoScenarioConfigPanel = () => {
               maxHeight="400px"
               simple
             />
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <span className="text-xs text-muted-foreground">
+                {dirty ? "Modifications non enregistrées" : "À jour"}
+              </span>
+              <Button size="sm" onClick={save} disabled={saving || noteLength > MAX_NOTE_LENGTH}>
+                <Save className="h-4 w-4 mr-1" /> Enregistrer la note
+              </Button>
+            </div>
           </div>
         )}
+
       </CardContent>
     </Card>
   );

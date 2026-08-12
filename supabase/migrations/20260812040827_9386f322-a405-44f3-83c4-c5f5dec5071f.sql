@@ -1,0 +1,1 @@
+UPDATE public.video_scenario_configs SET internal_note = NULL WHERE mode = 'business' AND internal_note LIKE '%PREUVE NOTE 12AUG%';
