@@ -297,6 +297,27 @@ const AiFollowupsManagement = ({ surface = "embed" }: { surface?: "club" | "embe
                       </div>
                     </div>
 
+                    <div className="rounded-md border border-border p-3">
+                      <label className="text-xs font-medium block mb-1">Route forcée</label>
+                      <select
+                        className="h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
+                        value={r.route_override ?? ""}
+                        onChange={(e) => update(r.id, { route_override: e.target.value || null })}
+                      >
+                        <option value="">Auto (détection sur le libellé)</option>
+                        {FORCED_ROUTES.map((o) => (
+                          <option key={o.key} value={o.key}>{o.label}</option>
+                        ))}
+                      </select>
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        {r.route_override
+                          ? FORCED_ROUTES.find((o) => o.key === r.route_override)?.hint
+                          : "Le moteur devine la route à partir du libellé. Choisis une route ici pour imposer le comportement (ex. « Montre-moi les coordonnées » → Coordonnées et non Carte)."}
+                      </p>
+                    </div>
+
+
+
                     <div className="grid gap-2 md:grid-cols-4">
                       <div>
                         <label className="text-xs text-muted-foreground block mb-1">Rayon (km)</label>
