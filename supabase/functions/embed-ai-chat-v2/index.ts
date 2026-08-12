@@ -827,9 +827,16 @@ Deno.serve(async (req) => {
               .map((t) => t.value)
               .slice(0, 2)
           : [];
-        const resolvedCity = resolution
+        const resolvedCityRaw = resolution
           ? (strongTargetsOfType(resolution, "city")[0] ?? targetsOfType(resolution, "city")[0] ?? null)
           : null;
+        // Règle unique de périmètre : seule une ville explicitement nommée (résolveur
+        // ou détection lexicale) peut sortir de la ville du master. `out.city` du
+        // classifieur n'est plus une autorité (inventions possibles).
+        const searchCity = resolveCityScope({
+          hostCity: host?.city, activeCity, explicitCity: explicitCity || resolvedCityRaw,
+        });
+        const resolvedCity = resolvedCityRaw;
 
         // La catégorie du classifieur n'est retenue que si elle existe vraiment en base.
         let classifierCategoryValid = false;
@@ -896,7 +903,7 @@ Deno.serve(async (req) => {
                 : [priorCategory].filter(Boolean) as string[];
           const baseQuery = [...coreTerms, ...hintParts].filter(Boolean).join(" ").slice(0, 200)
             || userMessage.slice(0, 200);
-          await runSearch(baseQuery, resolvedCity || out.city || scopeCity, excluded);
+          await runSearch(baseQuery, searchCity, excluded);
         }
 
         // Filet de secours : le classifieur n'a pas tranché (ou sa requête structurée
@@ -910,7 +917,7 @@ Deno.serve(async (req) => {
               : userMessage.slice(0, 200);
           await runSearch(
             rescueQuery,
-            resolvedCity || out?.city || scopeCity,
+            searchCity,
             rawExcluded,
           );
           if (results.length) fallbackReason = fallbackReason || "confidence_low";

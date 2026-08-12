@@ -2072,6 +2072,12 @@ serve(async (req) => {
         }
 
 
+        // Périmètre — RÈGLE UNIQUE (`_shared/ai-engine/city-scope.ts`).
+        const curatedScopeCity = resolveCityScope({
+          hostCity: pseudoHost?.city,
+          explicitCity: await detectExplicitCity(admin, String(userMessage || "")),
+        });
+
         // 1bis. Feed vidéo curaté (mode = 'video_feed') : vidéos, pas de fiches.
         if (String(curated.mode || "").trim() === "video_feed") {
           const builtV = await buildVideoFeedAnswer(admin, {
