@@ -894,6 +894,8 @@ const VideoScenarioConfigPanel = () => {
                     onToggle={() => setExpanded((prev) => (prev === s.id ? null : s.id))}
                     patch={(values) => patch(s.id, values)}
                     remove={() => removeStep(s.id)}
+                    noteCount={noteCounts[s.id] ?? 0}
+                    onNoteCount={(n) => setNoteCounts((prev) => ({ ...prev, [s.id]: n }))}
                   />
                 ))}
               </div>
