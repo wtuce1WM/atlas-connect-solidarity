@@ -1658,7 +1658,7 @@ const EmbedAsk = () => {
                         type="button"
                         onClick={() => sendFollowup(f.label, f.id)}
                         className={`text-xs px-3 py-1.5 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
-                        style={chipStyle}
+                        style={{ ...chipStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
                       >
                         {f.label}
                       </button>
@@ -1697,7 +1697,7 @@ const EmbedAsk = () => {
                   type="button"
                   onClick={() => { send(label, s.id); }}
                   className={`text-xs px-3 py-1.5 rounded-full ${chipBg} hover:opacity-90 transition-opacity`}
-                        style={chipStyle}
+                  style={{ ...chipStyle, fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
                 >
                   {label}
                 </button>
@@ -1727,12 +1727,20 @@ const EmbedAsk = () => {
                 ) : null}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
                 {a.isOwner && a.title.toLowerCase().includes((businessName || "").toLowerCase()) && (
-                  <span className="absolute top-2 right-2 text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-[#D4AF37] text-black font-semibold">
+                  <span
+                    className="absolute top-2 right-2 text-[10px] px-2 py-0.5 rounded-full bg-[#D4AF37] text-black font-semibold"
+                    style={{ fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+                  >
                     {businessName}
                   </span>
                 )}
                 <div className="absolute inset-x-0 bottom-0 p-3">
-                  <div className="text-white text-xs font-semibold leading-snug line-clamp-4">{a.title}</div>
+                  <div
+                    className="text-white text-xs font-semibold leading-snug line-clamp-4"
+                    style={{ fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+                  >
+                    {a.title}
+                  </div>
                 </div>
               </button>
             ))}
