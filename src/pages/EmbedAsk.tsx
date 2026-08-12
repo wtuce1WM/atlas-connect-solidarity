@@ -878,7 +878,10 @@ const EmbedAsk = () => {
   };
 
   const sendFollowup = (label: string, followupId: string) => {
+    // Une relance déjà utilisée dans la conversation n'est plus reproposée ensuite.
+    setUsedFollowupIds((prev) => (prev.includes(followupId) ? prev : [...prev, followupId]));
     if (isMapReplayLabel(label)) {
+
       const lastMap = findLastMapPayload();
       if (lastMap) {
         setOpenMap(lastMap);
