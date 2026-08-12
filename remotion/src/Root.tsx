@@ -36,8 +36,12 @@ const feedMetadata = async ({ props }: { props: Record<string, unknown> }) => {
   return {
     durationInFrames: computeFeedFrames(manifest),
     fps: manifest.fps,
-    width: portrait ? manifest.viewport.width : LANDSCAPE.width,
-    height: portrait ? manifest.viewport.height : LANDSCAPE.height,
+    width: portrait
+      ? Math.round((manifest.viewport.width * (manifest.outputScale || 1)) / 2) * 2
+      : LANDSCAPE.width,
+    height: portrait
+      ? Math.round((manifest.viewport.height * (manifest.outputScale || 1)) / 2) * 2
+      : LANDSCAPE.height,
     props: { ...p, manifest },
   };
 };

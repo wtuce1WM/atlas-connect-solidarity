@@ -163,14 +163,16 @@ def stitch(bands: list[tuple[Path, int]], width: int, view: int, total: int, out
     canvas.save(out)
 
 
-def extract_frames(src: str, dest: Path, fps: int, seconds: float, tmp: Path) -> int:
+def extract_frames(src: str, dest: Path, fps: int, seconds: float, tmp: Path,
+                   width: int = 720, height: int = 1280, dsf: int = 2) -> int:
     dest.mkdir(parents=True, exist_ok=True)
     mp4 = tmp / (re.sub(r"[^a-zA-Z0-9]+", "_", src)[-60:] + ".mp4")
     if not mp4.exists():
         subprocess.run(["curl", "-sL", src, "-o", str(mp4)], check=True)
     subprocess.run(
         ["ffmpeg", "-y", "-loglevel", "error", "-i", str(mp4), "-t", str(seconds),
-         "-vf", f"fps={fps},scale=-2:1280,crop=720:1280", "-q:v", "3",
+         "-vf", f"fps={fps},scale=-2:{height * dsf},crop={width * dsf}:{height * dsf}",
+         "-q:v", "1",
          str(dest / "%04d.jpg")],
         check=True,
     )
@@ -191,6 +193,10 @@ async def main() -> None:
     ap.add_argument("--detail-seconds", type=float, default=21.0)
     ap.add_argument("--sections", default=",".join(DEFAULT_SECTIONS))
     ap.add_argument("--band-step", type=int, default=900)
+    ap.add_argument("--dsf", type=int, default=2,
+                    help="device scale factor de capture (suréchantillonnage)")
+    ap.add_argument("--output-scale", type=float, default=1.5,
+                    help="facteur d'agrandissement du rendu portrait (720x1280 -> 1080x1920)")
     args = ap.parse_args()
 
     sections = [s.strip() for s in args.sections.split(",") if s.strip()]
@@ -211,7 +217,7 @@ async def main() -> None:
         browser = await p.chromium.launch(headless=True, args=["--no-sandbox"])
         ctx = await browser.new_context(
             viewport={"width": args.width, "height": args.height},
-            device_scale_factor=1, has_touch=True, is_mobile=True,
+            device_scale_factor=args.dsf, has_touch=True, is_mobile=True,
         )
         pg = await ctx.new_page()
         await pg.goto(url, wait_until="domcontentloaded")
@@ -220,6 +226,8 @@ async def main() -> None:
             await pg.get_by_role("button", name="Refuser").click(timeout=3000)
         except Exception:
             pass
+
+        await pg.evaluate(HIDE_RAIL, RAIL_WORDS)
 
         # Ouvre le premier résultat du feed.
         await pg.evaluate(
@@ -291,7 +299,8 @@ async def main() -> None:
         seconds = args.detail_seconds if i == len(steps_meta) else args.step_seconds
         st["frameDir"] = f"frames/v{i}"
         st["frameCount"] = (
-            extract_frames(st["src"], out / "frames" / f"v{i}", args.fps, seconds, tmp)
+            extract_frames(st["src"], out / "frames" / f"v{i}", args.fps, seconds, tmp,
+                           args.width, args.height, args.dsf)
             if st["src"] else 0
         )
         print("frames", i, st["frameCount"], flush=True)
@@ -328,6 +337,8 @@ async def main() -> None:
         "label": args.label or args.slug,
         "sourceUrl": args.url,
         "viewport": {"width": args.width, "height": args.height},
+        "captureScale": args.dsf,
+        "outputScale": args.output_scale,
         "fps": args.fps,
         "steps": [
             {"index": s["index"], "name": s["name"], "chrome": f"chrome{s['index']}.png",
