@@ -7966,6 +7966,7 @@ export type Database = {
           format_key: string
           fps: number
           height: number
+          internal_note: string | null
           mode: string
           updated_at: string
           width: number
@@ -7976,6 +7977,7 @@ export type Database = {
           format_key?: string
           fps?: number
           height?: number
+          internal_note?: string | null
           mode: string
           updated_at?: string
           width?: number
@@ -7986,6 +7988,7 @@ export type Database = {
           format_key?: string
           fps?: number
           height?: number
+          internal_note?: string | null
           mode?: string
           updated_at?: string
           width?: number
