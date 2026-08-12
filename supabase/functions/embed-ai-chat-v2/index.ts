@@ -936,7 +936,14 @@ Deno.serve(async (req) => {
         // sur ce qui vient d'être présenté (« Que faire sur place ? »).
         // Une catégorie inventée par le classifieur (« activite ») ne suffit pas :
         // c'est elle qui déclenchait une recherche ville entière hors sujet.
+        // ── Autorité « nom propre » : une demande nominative prime sur la taxonomie ──
+        const nameHit = await matchBusinessNameInMessage(admin, userMessage).catch(() => null);
+        if (nameHit) {
+          console.log("[embed-ai-chat-v2] name_authority", nameHit.name);
+        }
+
         const contextualFollowUp =
+          !nameHit &&
           priorIds.length > 0 &&
           !strongTerms.length &&
           !expansionTerms.length &&
