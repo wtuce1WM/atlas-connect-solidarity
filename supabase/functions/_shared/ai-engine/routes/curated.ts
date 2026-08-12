@@ -181,6 +181,32 @@ export async function loadCuratedTargets(
     }
   }
 
+  // Relance : ses propres réglages font autorité sur ceux de la suggestion parente
+  // (route imposée en back-office, mode, rayon, ville).
+  if (followupId) {
+    try {
+      const { data: fup } = await admin
+        .from("ai_followups")
+        .select("mode, route_override, city, radius_km, label_fr, label_en, label_ar")
+        .eq("id", followupId)
+        .maybeSingle();
+      if (fup) {
+        const fRoute = String(fup.route_override || "").trim();
+        if (fRoute) out.routeOverride = fRoute;
+        const fMode = String(fup.mode || "").trim();
+        if (fMode) out.mode = fMode;
+        const fCity = String(fup.city || "").trim();
+        if (fCity) out.city = fCity;
+        out.radiusKm = typeof fup.radius_km === "number" ? fup.radius_km : null;
+        out.label = (fup.label_fr || fup.label_en || fup.label_ar || out.label || null) as string | null;
+      }
+    } catch (e) {
+      console.error("[curated] followup_lookup_error", String(e));
+    }
+  }
+
+
+
   // Liens curatés par établissement (onglet affilié « Agent IA ») : ils gagnent
   // sur les mappings staff génériques car l'owner les a choisis pour ce widget.
   try {
