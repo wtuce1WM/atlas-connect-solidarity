@@ -51,6 +51,9 @@ import { isOpensFirstIntent, isClosesLastIntent, buildHoursRanking, parseOpenFil
 import { isDescribeIntent, parseDescribeFacet, buildDescribePriors } from "../_shared/ai-engine/routes/describe.ts";
 import { isForcedRouteKey, runForcedRoute, forcedMapMarker } from "../_shared/ai-engine/routes/forced.ts";
 import { resolveCityScope, detectExplicitCity } from "../_shared/ai-engine/city-scope.ts";
+import {
+  resolveNeighborhoodInMessage, filterPoolByNeighborhood, neighborhoodEmptyMessage,
+} from "../_shared/ai-engine/neighborhood-filter.ts";
 
 
 const corsHeaders = {
@@ -1105,7 +1108,11 @@ Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}
           .filter((m) => m.content.trim());
 
         let finalText = "";
-        try {
+        if (strictBlock) {
+          // Mode strict : réponse déterministe, aucun appel LLM, aucune adresse affichée.
+          emit(strictBlock);
+          finalText = strictBlock;
+        } else try {
           const result = streamText({
             model: gateway(AI_MODEL),
             system,
