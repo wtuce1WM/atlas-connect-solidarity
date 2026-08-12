@@ -578,6 +578,8 @@ const VideoScenarioConfigPanel = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
+  /** Nombre de notes internes par étape (affiché sur le bouton). */
+  const [noteCounts, setNoteCounts] = useState<Record<string, number>>({});
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
