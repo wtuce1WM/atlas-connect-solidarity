@@ -179,6 +179,7 @@ def extract_frames(src: str, dest: Path, fps: int, seconds: float, tmp: Path,
     return len(list(dest.glob("*.jpg")))
 
 
+
 async def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--url", required=True, help="URL du feed /search (prod ou locale)")
@@ -195,6 +196,8 @@ async def main() -> None:
     ap.add_argument("--band-step", type=int, default=900)
     ap.add_argument("--dsf", type=int, default=2,
                     help="device scale factor de capture (suréchantillonnage)")
+    ap.add_argument("--wide", action="store_true",
+                    help="extrait aussi des frames vidéo 16:9 plein cadre (montage paysage)")
     ap.add_argument("--output-scale", type=float, default=1.5,
                     help="facteur d'agrandissement du rendu portrait (720x1280 -> 1080x1920)")
     args = ap.parse_args()
@@ -304,6 +307,14 @@ async def main() -> None:
             if st["src"] else 0
         )
         print("frames", i, st["frameCount"], flush=True)
+        # Format paysage : frames non recadrées (16:9 plein cadre), la UI de la
+        # fiche étant superposée par-dessus dans la colonne centrale.
+        if args.wide and st["src"]:
+            st["wideFrameDir"] = f"frames/w{i}"
+            st["wideFrameCount"] = extract_frames(
+                st["src"], out / "frames" / f"w{i}", args.fps, seconds, tmp, 1920, 1080, 1
+            )
+            print("wide frames", i, st["wideFrameCount"], flush=True)
 
     manifest_detail = None
     if detail:
@@ -342,7 +353,8 @@ async def main() -> None:
         "fps": args.fps,
         "steps": [
             {"index": s["index"], "name": s["name"], "chrome": f"chrome{s['index']}.png",
-             "frameDir": s["frameDir"], "frameCount": s["frameCount"]}
+             "frameDir": s["frameDir"], "frameCount": s["frameCount"],
+             "wideFrameDir": s.get("wideFrameDir"), "wideFrameCount": s.get("wideFrameCount", 0)}
             for s in steps_meta
         ],
         "detail": manifest_detail,
