@@ -898,9 +898,10 @@ const VideoScenarioConfigPanel = () => {
                 setDirty(true);
               }}
               placeholder="Notes de production, arbitrages, à faire…"
-              maxHeight="400px"
+              className="prose-base"
               simple
             />
+
             <div className="flex items-center justify-end gap-2 pt-2">
               <span className="text-xs text-muted-foreground">
                 {dirty ? "Modifications non enregistrées" : "À jour"}
