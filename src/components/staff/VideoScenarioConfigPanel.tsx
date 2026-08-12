@@ -44,6 +44,8 @@ export type VideoScenarioStep = {
   body: string | null;
   key_message: string | null;
   business_id: string | null;
+  /** Widgets embarqués sélectionnés pour cette étape. */
+  widget_keys: string[];
   /** Étape créée localement, pas encore en base. */
   _new?: boolean;
 };
