@@ -686,6 +686,7 @@ const VideoScenarioConfigPanel = () => {
       body: s.body,
       key_message: s.key_message,
       business_id: s.business_id,
+      widget_keys: s.widget_keys ?? [],
     }));
 
     const stepsRes = rows.length
