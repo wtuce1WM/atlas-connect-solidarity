@@ -8010,6 +8010,44 @@ export type Database = {
           },
         ]
       }
+      video_scenario_step_notes: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          position: number
+          step_id: string
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          position?: number
+          step_id: string
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          position?: number
+          step_id?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_scenario_step_notes_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "video_scenario_steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       video_scenario_steps: {
         Row: {
           body: string | null
