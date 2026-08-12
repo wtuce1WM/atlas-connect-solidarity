@@ -5419,9 +5419,34 @@ serve(async (req) => {
     // This prevents "Baberrih Hotel" from returning all hotels just because "Hotel" is in search_vector
     // Excluded: city names and other generic terms that aren't business names
     let exactNameMatchIsolation = false;
-    if (query && businesses.length > 1) {
-      const qNormIso = stripAccentsGlobal(query.trim().toLowerCase());
-      const exactBusiness = businesses.find(b => stripAccentsGlobal(b.name.toLowerCase().trim()) === qNormIso);
+    const normNameIso = (s: string) =>
+      stripAccentsGlobal(String(s ?? "").toLowerCase())
+        .replace(/[^\p{L}\p{N}\s]/gu, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    if (query && businesses.length >= 1) {
+      const qNormIso = normNameIso(query);
+      let exactBusiness = businesses.find(b => normNameIso(b.name) === qNormIso);
+      // Repli : la requête EST un nom d'établissement mais la fiche n'est pas dans les
+      // résultats (écrasée par la détection de sous-catégorie, ex. "Plage"). On la récupère.
+      if (!exactBusiness && qNormIso.split(" ").length >= 2) {
+        const { data: directName } = await supabase
+          .from("businesses")
+          .select("*")
+          .eq("is_active", true)
+          .ilike("name", `%${query.trim()}%`)
+          .limit(5);
+        const hit = (directName ?? []).find((b: any) => normNameIso(b.name) === qNormIso);
+        if (hit) {
+          exactBusiness = {
+            ...hit,
+            distance_km: latitude && longitude && hit.latitude && hit.longitude
+              ? calculateDistance(latitude, longitude, hit.latitude, hit.longitude) : null,
+          } as any;
+          businesses = [exactBusiness as any, ...businesses.filter((b: any) => b.id !== (exactBusiness as any).id)];
+          console.log(`🎯 Exact name recovered from DB: "${query}" → ${(exactBusiness as any).name}`);
+        }
+      }
       if (exactBusiness) {
         // Check the query is NOT just a city name
         const isCityName = !!detectedCity && stripAccentsGlobal(detectedCity.toLowerCase()) === qNormIso;
