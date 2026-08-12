@@ -607,10 +607,11 @@ const VideoScenarioConfigPanel = () => {
     setDirty(true);
   };
 
-  const addStep = () => {
-    const key = newKey.trim();
+  /** Ajout d'une scène du catalogue ou d'une étape manuelle (clé + nom libres). */
+  const addStep = (manual?: { key: string; label: string }) => {
+    const key = (manual?.key ?? newKey).trim();
     if (!key) {
-      toast.error("Choisis une scène à ajouter");
+      toast.error(manual ? "Renseigne une clé d'étape" : "Choisis une scène à ajouter");
       return;
     }
     if (steps.some((s) => s.scene_key === key)) {
@@ -625,15 +626,17 @@ const VideoScenarioConfigPanel = () => {
         id,
         mode,
         scene_key: key,
-        label: template?.label ?? key,
+        label: manual?.label?.trim() || template?.label || key,
         position: (prev.length + 1) * 10,
         duration_sec: 8,
         enabled: true,
-        kicker: template?.label ?? null,
+        kicker: manual?.label?.trim() || template?.label || null,
         title: null,
         body: null,
         key_message: null,
-        business_id: null,
+        // Nouvelle étape rattachée d'office à l'établissement global du mode.
+        business_id: config?.business_id ?? null,
+        widget_keys: [],
         _new: true,
       },
     ]);
