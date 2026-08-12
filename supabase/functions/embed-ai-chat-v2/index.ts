@@ -474,6 +474,10 @@ Deno.serve(async (req) => {
                 emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
               }
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
+              if (built.poolIds?.length) {
+                emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: built.poolIds, city: scopeCity })}-->`);
+              }
+
               await finish(true);
               return;
             }
