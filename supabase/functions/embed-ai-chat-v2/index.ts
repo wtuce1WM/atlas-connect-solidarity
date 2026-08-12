@@ -773,6 +773,8 @@ Deno.serve(async (req) => {
 
         let results: any[] = [];
         let totalFound = 0;
+        /** Corpus COMPLET de la recherche (avant coupe d'affichage) : mémorisé pour les relances. */
+        let searchPoolIds: string[] = [];
 
         // Recherche déterministe partagée : appelée avec les champs structurés du
         // classifieur, ou en secours avec le message brut quand il n'est pas confiant.
@@ -836,6 +838,7 @@ Deno.serve(async (req) => {
             }
 
             totalFound = kept.length;
+            searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, 30);
             results = kept.slice(0, CFG.maxResults);
           } catch (e) {
             console.error("[embed-ai-chat-v2] search_failed", e);
@@ -994,9 +997,12 @@ Deno.serve(async (req) => {
         aiClass = "C";
         const gateway = createLovableAiGatewayProvider(LOVABLE_API_KEY);
 
-        // Corpus de la relance contextuelle : les fiches déjà présentées.
+        // Corpus de la relance contextuelle : règle unique — on filtre dans la
+        // TOTALITÉ des résultats trouvés au tour précédent (marqueur POOL_BUSINESS_IDS,
+        // ex. 30 adresses), jamais dans les seules 6 affichées.
+        const followUpPoolIds = (poolIds.length ? poolIds : priorIds).slice(0, 30);
         const priorFull = (contextualFollowUp || (priorIds.length && !results.length))
-          ? await fetchPriorFull(admin, priorIds.slice(0, 6)).catch(() => [])
+          ? await fetchPriorFull(admin, followUpPoolIds).catch(() => [])
           : [];
 
         // Contexte éditorial partagé (TXT IA + popups d'images + offres) — même
@@ -1040,7 +1046,7 @@ Deno.serve(async (req) => {
             ? `CONTEXTE ÉDITORIAL ([DESCRIPTION] description de l'établissement, [HOOK] accroche, [IMAGE POPUP] titres et textes des photos, [SERVICE] services, [OFFRE] offres et promotions, [TXT IA] textes rédigés par l'établissement/affilié ; intègre-les naturellement, ne mets pas en avant un établissement uniquement parce qu'il a du contenu ici) :\n${editorialCtx}`
             : "",
           !results.length && priorFull.length
-            ? `${contextualFollowUp ? "RELANCE CONTEXTUELLE — la question porte sur ce qui a déjà été présenté ci-dessous. Ne propose AUCUNE autre adresse et ne lance aucune nouvelle sélection.\n" : ""}Établissements déjà présentés dans la conversation :\n${resultsContext(priorFull as any[], lang)}`
+            ? `${contextualFollowUp ? `RELANCE CONTEXTUELLE — la question affine la sélection précédente. Le corpus ci-dessous contient la TOTALITÉ des ${priorFull.length} adresses trouvées au tour précédent (pas seulement celles affichées) : filtre dedans et présente toutes celles qui correspondent, sans proposer aucune adresse extérieure et sans lancer de nouvelle recherche.\n` : ""}Corpus des résultats trouvés dans la conversation :\n${resultsContext(priorFull as any[], lang)}`
             : "",
         ].filter(Boolean).join("\n\n");
 
@@ -1110,6 +1116,25 @@ Réponds en ${lang === "en" ? "anglais" : lang === "ar" ? "arabe" : "français"}
           if (disclosure && !/sur\s+\d+\s+trouv/i.test(finalText)) emit(disclosure);
           emit(`\n\n${toMapMarker(results, null)}`);
           emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(results.map((b) => ({ id: b.id, name: b.name })))}-->`);
+          // Mémoire du corpus complet (les 30 trouvées) pour que la relance suivante
+          // filtre dedans, et pas seulement dans les adresses affichées.
+          if (searchPoolIds.length) {
+            emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: searchPoolIds, city: cityDetected || scopeCity || null })}-->`);
+          }
+        } else if (priorFull.length) {
+          // Relance contextuelle : cartes des seules fiches réellement citées, prises
+          // dans le corpus complet du tour précédent ; le pool reste mémorisé.
+          const normFinal = normalize(finalText);
+          const citedFull = (priorFull as any[]).filter(
+            (b) => b?.name && normFinal.includes(normalize(String(b.name))),
+          );
+          if (citedFull.length) {
+            emit(`\n\n${toMapMarker(citedFull, null)}`);
+            emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(citedFull.map((b) => ({ id: b.id, name: b.name })))}-->`);
+          }
+          if (followUpPoolIds.length) {
+            emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: followUpPoolIds, city: scopeCity || null })}-->`);
+          }
         }
 
 
