@@ -2796,7 +2796,7 @@ export default function StudioVideo() {
                       </p>
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                         {orderedSelectedVideos.map((url, i) => {
-                          const v = bizVideos.find((x) => x.url === url);
+                          const v = videoPool.find((x) => x.url === url);
                           const start = videoStarts[url] ?? 0;
                           const end = videoEnds[url] ?? 0;
                           return (
