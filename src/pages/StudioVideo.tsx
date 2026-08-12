@@ -701,6 +701,8 @@ export default function StudioVideo() {
   }, [selectedVideos, videoPool]);
 
   // Chargement des vidéos génériques (mode corporate uniquement).
+  // Externes = business_documents (type=video) portant le badge « Generic ».
+  // Internes = jobs terminés : Scénario Feed (/search) ou Studio Vidéo IA mode Corporate.
   useEffect(() => {
     if (studioMode !== "corporate") {
       setGenericExternalVideos([]);
@@ -711,41 +713,73 @@ export default function StudioVideo() {
     const kindOf = (u: string): "file" | "youtube" =>
       /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u) ? "file" : "youtube";
     (async () => {
-      const [{ data: gen }, { data: jobs }] = await Promise.all([
-        supabase
-          .from("generic_videos")
-          .select("id, url, title, name, thumbnail_url, city, sort_order")
-          .order("sort_order", { ascending: true })
-          .limit(500),
+      // 1) Badge « Generic »
+      const { data: badgeRows } = await supabase
+        .from("badges")
+        .select("id, name_fr")
+        .ilike("name_fr", "generic");
+      const badgeId = (badgeRows || [])[0]?.id as string | undefined;
+
+      let badgedDocIds: string[] = [];
+      if (badgeId) {
+        const { data: links } = await supabase
+          .from("business_document_badges")
+          .select("document_id")
+          .eq("badge_id", badgeId)
+          .limit(2000);
+        badgedDocIds = [...new Set((links || []).map((l: any) => String(l.document_id)))];
+      }
+
+      const [{ data: docs }, { data: jobs }] = await Promise.all([
+        badgedDocIds.length
+          ? supabase
+              .from("business_documents")
+              .select("id, url, name, thumbnail_url, business_is_active, type, youtube_video_url, instagram_video_url, tiktok_video_url")
+              .in("id", badgedDocIds)
+              .eq("type", "video")
+          : Promise.resolve({ data: [] as any[] }),
         supabase
           .from("video_jobs")
-          .select("id, output_url, title, prompt, created_at")
+          .select("id, output_url, title, prompt, created_at, template_id, business_id")
           .not("output_url", "is", null)
+          .eq("status", "done")
           .order("created_at", { ascending: false })
           .limit(200),
       ]);
       if (cancelled) return;
-      setGenericExternalVideos(
-        (gen || [])
-          .filter((g: any) => !!g.url)
-          .map((g: any) => ({
-            url: g.url as string,
-            thumbnail: (g.thumbnail_url as string) || null,
-            title: (g.title || g.name || g.city || "Vidéo générique") as string,
-            kind: kindOf(g.url as string),
-          })),
-      );
+
+      const seen = new Set<string>();
+      const ext: GenericVideoItem[] = [];
+      for (const d of (docs || []) as any[]) {
+        if (d.business_is_active === false) continue;
+        const url = d.youtube_video_url || d.instagram_video_url || d.tiktok_video_url || d.url;
+        if (!url) continue;
+        const key = String(url).trim().toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        ext.push({
+          url: String(url),
+          thumbnail: (d.thumbnail_url as string) || null,
+          title: (d.name || "Vidéo Generic") as string,
+          kind: kindOf(String(url)),
+        });
+      }
+      setGenericExternalVideos(ext);
+
       setGenericInternalVideos(
-        (jobs || []).map((j: any) => ({
-          url: j.output_url as string,
-          thumbnail: null,
-          title: (j.title || j.prompt || "Vidéo 1WM")?.toString().slice(0, 70) as string,
-          kind: "file" as const,
-        })),
+        ((jobs || []) as any[])
+          .filter((j) => String(j.template_id || "").startsWith("feed-template") || !j.business_id)
+          .map((j: any) => ({
+            url: j.output_url as string,
+            thumbnail: null,
+            title: (j.title || j.prompt || "Vidéo 1WM")?.toString().slice(0, 70) as string,
+            kind: "file" as const,
+          })),
       );
     })();
     return () => { cancelled = true; };
   }, [studioMode]);
+
 
   const orderedSelectedVideos = useMemo(
     () => videoOrder.filter((u) => selectedVideos.has(u)),
