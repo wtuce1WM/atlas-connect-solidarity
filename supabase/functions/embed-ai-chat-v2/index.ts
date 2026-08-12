@@ -838,6 +838,7 @@ Deno.serve(async (req) => {
             }
 
             totalFound = kept.length;
+            searchPoolIds = kept.map((b: any) => String(b.id)).slice(0, 30);
             results = kept.slice(0, CFG.maxResults);
           } catch (e) {
             console.error("[embed-ai-chat-v2] search_failed", e);
