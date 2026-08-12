@@ -5470,8 +5470,8 @@ serve(async (req) => {
           const queryWords = qNormIso.split(/\s+/).filter(w => w.length >= 3 && !genericTerms.has(w));
           // Keep businesses whose name contains the query (or vice-versa)
           const nameContainMatches = businesses.filter(b => {
-            if (b.id === exactBusiness.id) return false;
-            const bNameNorm = stripAccentsGlobal(b.name.toLowerCase().trim());
+            if (b.id === exactBusiness!.id) return false;
+            const bNameNorm = normNameIso(b.name);
             return bNameNorm.includes(qNormIso) || qNormIso.includes(bNameNorm);
           });
           const nameContainIds = new Set(nameContainMatches.map(b => b.id));
