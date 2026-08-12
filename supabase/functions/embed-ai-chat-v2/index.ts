@@ -859,6 +859,16 @@ Deno.serve(async (req) => {
           const v = normalize(value);
           return excludedTerms.some((x) => v.includes(x) || x.includes(v));
         };
+        // ── Quartier = filtre, jamais une requête ───────────────────────────
+        // « medina » existe AUSSI comme service en base : il sortait en terme fort et
+        // relançait une recherche ville entière au lieu d'affiner la sélection. Si le mot
+        // désigne un quartier réel de la ville du périmètre, il est retiré du vocabulaire
+        // de recherche et traité comme filtre déterministe sur le corpus précédent.
+        const nbMatch = priorIds.length
+          ? await resolveNeighborhoodInMessage(admin, userMessage, scopeCity)
+          : null;
+        const nbAliases = new Set(nbMatch?.aliases || []);
+        const isNeighborhoodWord = (value: string) => nbAliases.has(normalize(value));
         // Cibles fortes (exact / phrase / synonyme curé) issues du message utilisateur,
         // ordonnées par proximité lexicale avec le terme réellement tapé : « piscine »
         // doit sortir « Piscine » avant « Beach club » (même sous-catégorie déclenchée).
@@ -876,7 +886,8 @@ Deno.serve(async (req) => {
                 (t) =>
                   t.strength !== "expansion" &&
                   (t.type === "subcategory" || t.type === "category" || t.type === "service") &&
-                  !isExcluded(t.value),
+                  !isExcluded(t.value) &&
+                  !isNeighborhoodWord(t.value),
               )
               .sort((a, b) => lexicalRank(a) - lexicalRank(b))
           : [];
@@ -890,7 +901,7 @@ Deno.serve(async (req) => {
         // (c'est ce qui rattrape « piscine », absent des catégories mais présent en service).
         const expansionTerms = resolution
           ? resolution.targets
-              .filter((t) => t.type === "service" && t.strength === "expansion" && !isExcluded(t.value))
+              .filter((t) => t.type === "service" && t.strength === "expansion" && !isExcluded(t.value) && !isNeighborhoodWord(t.value))
               .map((t) => t.value)
               .slice(0, 2)
           : [];
@@ -1027,7 +1038,7 @@ Deno.serve(async (req) => {
         // propose l'élargissement à la ville. Aucun repli silencieux.
         let strictBlock: string | null = null;
         if (contextualFollowUp && priorFull.length) {
-          const nb = await resolveNeighborhoodInMessage(admin, userMessage, scopeCity);
+          const nb = nbMatch;
           if (nb) {
             const filtered = filterPoolByNeighborhood(priorFull as any[], nb);
             console.log("[embed-ai-chat-v2] neighborhood_filter", JSON.stringify({
