@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -49,6 +49,9 @@ const VideoStepNotesDialog = ({
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  const onCountChangeRef = useRef(onCountChange);
+  onCountChangeRef.current = onCountChange;
+
   const load = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
@@ -61,8 +64,8 @@ const VideoStepNotesDialog = ({
     const rows = (data ?? []) as StepNote[];
     setNotes(rows);
     setActiveId(rows[0]?.id ?? null);
-    onCountChange(rows.length);
-  }, [stepId, onCountChange]);
+    onCountChangeRef.current(rows.length);
+  }, [stepId]);
 
   useEffect(() => {
     if (open) load();
@@ -90,7 +93,7 @@ const VideoStepNotesDialog = ({
     const rest = notes.filter((n) => n.id !== note.id);
     setNotes(rest);
     setActiveId(rest[0]?.id ?? null);
-    onCountChange(rest.length);
+    onCountChangeRef.current(rest.length);
     toast.success("Note supprimée");
   };
 
@@ -111,7 +114,7 @@ const VideoStepNotesDialog = ({
     setSaving(false);
     if (error) return toast.error(error.message);
     setNotes((prev) => prev.map((n) => ({ ...n, _new: false })));
-    onCountChange(rows.length);
+    onCountChangeRef.current(rows.length);
     toast.success("Notes enregistrées");
   };
 
