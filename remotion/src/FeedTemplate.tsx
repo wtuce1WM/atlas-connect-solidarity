@@ -395,15 +395,19 @@ const WideVideo: React.FC<{ m: FeedManifest }> = ({ m }) => {
   const { step, local } = stepAtFrame(m, frame);
   const dir = step?.wideFrameDir;
   const count = step?.wideFrameCount ?? 0;
+  const hasPortrait = (step?.frameCount ?? 0) > 0 && !!step?.frameDir;
   const src =
     dir && count > 0
       ? staticFile(`${m.base}/${dir}/${pad(Math.min(Math.max(local, 0), count - 1) + 1)}.jpg`)
-      : frameSrc(m, step, local);
+      : hasPortrait
+        ? frameSrc(m, step, local)
+        : null;
   return (
     <AbsoluteFill style={{ backgroundColor: "#000", overflow: "hidden" }}>
-      <Img src={src} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      {src && <Img src={src} style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
     </AbsoluteFill>
   );
+
 };
 
 
