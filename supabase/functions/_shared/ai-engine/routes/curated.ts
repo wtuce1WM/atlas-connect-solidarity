@@ -109,14 +109,17 @@ export type CuratedTargets = {
   /** Périmètre géo défini par l'entrée curatée elle-même (null = aucun filtre ville) */
   city: string | null;
   mode: string | null;
+  /** Route imposée en back-office (`route_override`) : la relance gagne sur la suggestion. */
+  routeOverride: string | null;
   label: string | null;
   aiTexts: Array<{ title: string; hook: string; content: string }>;
 };
 
 const EMPTY_TARGETS: CuratedTargets = {
   blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], serviceNames: [], badgeIds: [], commodities: [],
-  destinationIds: [], city: null, mode: null, label: null, aiTexts: [],
+  destinationIds: [], city: null, mode: null, routeOverride: null, label: null, aiTexts: [],
 };
+
 
 
 /** Lit les cibles curatées d'une suggestion / relance + les liens propres à l'établissement. */
