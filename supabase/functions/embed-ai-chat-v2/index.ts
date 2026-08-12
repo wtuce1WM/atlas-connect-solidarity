@@ -584,6 +584,17 @@ Deno.serve(async (req) => {
               return;
             }
           }
+          const distanceMode = isDistanceRankingIntent(userMessage);
+          if (distanceMode && host) {
+            route = "nearby";
+            const answer = await buildDistanceRanking(admin, host, priorIds, distanceMode, lang).catch(() => null);
+            if (answer) {
+              resultsCount = priorIds.length;
+              emit(answer);
+              await finish(true);
+              return;
+            }
+          }
           if (isDistanceListIntent(userMessage) && host) {
             route = "nearby";
             const answer = await buildDistanceList(admin, host, priorIds, lang);
@@ -594,7 +605,19 @@ Deno.serve(async (req) => {
               return;
             }
           }
+          if (isDescribeIntent(userMessage)) {
+            const facet = parseDescribeFacet(userMessage);
+            const answer = await buildDescribePriors(admin, priorIds, facet, lang, host).catch(() => null);
+            if (answer) {
+              route = "business_qa";
+              resultsCount = priorIds.length;
+              emit(answer);
+              await finish(true);
+              return;
+            }
+          }
         }
+
 
         // 5. Panorama « que faire à proximité ? » (déterministe, Structure du Front)
         // Autorité du résolveur : si la requête contient une cible taxonomique réelle
