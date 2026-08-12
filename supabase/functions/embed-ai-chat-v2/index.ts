@@ -957,7 +957,12 @@ Deno.serve(async (req) => {
         }
 
 
-        if (!contextualFollowUp && out && confident && (out.intent === "search" || out.intent === "compare")) {
+        if (nameHit) {
+          // Recherche nominative : business-search isole le nom exact (ville de la fiche).
+          await runSearch(nameHit.name, nameHit.city || searchCity, []);
+        }
+
+        if (!nameHit && !contextualFollowUp && out && confident && (out.intent === "search" || out.intent === "compare")) {
           const views = detectViewIntent(userMessage);
           const panoramaHints = views.panoramas.map((p) => p.attributeNames[0]);
           const excluded = excludedTerms;
