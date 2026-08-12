@@ -1172,7 +1172,9 @@ serve(async (req) => {
     let nameMatchedBusinessIds: string[] = [];
     const keywordPinnedIds = new Set<string>(); // IDs matched via keywords — exempt from relevance filtering
     let nameSearchQueryForDetection = "";
-    if (effectiveQuery && effectiveQuery.split(/\s+/).length <= 6) {
+    // Gate élargi à 10 mots : les noms propres longs ("Le Chalet de la Plage - Chez Jeannot")
+    // étaient exclus du pinning par nom et se faisaient écraser par la détection de sous-catégorie.
+    if (effectiveQuery && effectiveQuery.split(/\s+/).length <= 10) {
       let nameSearchQuery = effectiveQuery;
       if (effectiveCity) {
         const cityWords = effectiveCity.toLowerCase().split(/\s+/);
