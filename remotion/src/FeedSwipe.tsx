@@ -225,12 +225,15 @@ export const FeedSwipe: React.FC = () => {
         easing: Easing.bezier(0.16, 0.84, 0.24, 1),
       })
     : 1;
-  const scroll = opening
-    ? 0
-    : interpolate(frame, [SCROLL_START, SCROLL_START + SCROLL_DUR], [0, DESC_TALL - DESC_VIEW], {
-        easing: Easing.bezier(0.42, 0, 0.58, 1),
-        extrapolateRight: "clamp",
-      });
+  const scroll =
+    frame <= SCROLL_BEGIN
+      ? 0
+      : interpolate(frame, SCROLL_FRAMES, SCROLL_VALUES, {
+          easing: Easing.bezier(0.42, 0, 0.58, 1),
+          extrapolateLeft: "clamp",
+          extrapolateRight: "clamp",
+        });
+
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#000" }}>
