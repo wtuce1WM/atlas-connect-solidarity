@@ -1046,7 +1046,7 @@ Deno.serve(async (req) => {
             ? `CONTEXTE ÉDITORIAL ([DESCRIPTION] description de l'établissement, [HOOK] accroche, [IMAGE POPUP] titres et textes des photos, [SERVICE] services, [OFFRE] offres et promotions, [TXT IA] textes rédigés par l'établissement/affilié ; intègre-les naturellement, ne mets pas en avant un établissement uniquement parce qu'il a du contenu ici) :\n${editorialCtx}`
             : "",
           !results.length && priorFull.length
-            ? `${contextualFollowUp ? "RELANCE CONTEXTUELLE — la question porte sur ce qui a déjà été présenté ci-dessous. Ne propose AUCUNE autre adresse et ne lance aucune nouvelle sélection.\n" : ""}Établissements déjà présentés dans la conversation :\n${resultsContext(priorFull as any[], lang)}`
+            ? `${contextualFollowUp ? `RELANCE CONTEXTUELLE — la question affine la sélection précédente. Le corpus ci-dessous contient la TOTALITÉ des ${priorFull.length} adresses trouvées au tour précédent (pas seulement celles affichées) : filtre dedans et présente toutes celles qui correspondent, sans proposer aucune adresse extérieure et sans lancer de nouvelle recherche.\n` : ""}Corpus des résultats trouvés dans la conversation :\n${resultsContext(priorFull as any[], lang)}`
             : "",
         ].filter(Boolean).join("\n\n");
 
