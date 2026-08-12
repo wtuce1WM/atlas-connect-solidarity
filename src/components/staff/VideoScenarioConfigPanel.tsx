@@ -61,7 +61,7 @@ type ScenarioConfig = {
   internal_note: string | null;
 };
 
-const MAX_NOTE_LENGTH = 10000;
+const MAX_NOTE_LENGTH = 20000;
 
 type BusinessLite = { id: string; name: string; slug: string | null; city: string | null };
 
