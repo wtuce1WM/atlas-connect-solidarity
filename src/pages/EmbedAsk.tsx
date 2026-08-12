@@ -599,8 +599,10 @@ const EmbedAsk = () => {
   const activeFollowups: Array<{ id: string; label: string }> = globalFollowups
     .filter((f) => !disabledIds.has(f.id))
     .filter((f) => !fuAllowed || fuAllowed.includes(f.id))
+    .filter((f) => !usedFollowupIds.includes(f.id))
     .map((f) => ({ id: f.id, label: pickFollowupLabel(f) }))
     .filter((f) => f.label);
+
 
 
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
