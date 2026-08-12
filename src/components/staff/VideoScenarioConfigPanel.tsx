@@ -28,6 +28,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import RichTextEditor from "./RichTextEditor";
 
 export type VideoScenarioMode = "business" | "corporate" | "explainer";
 
@@ -57,7 +58,10 @@ type ScenarioConfig = {
   width: number;
   height: number;
   fps: number;
+  internal_note: string | null;
 };
+
+const MAX_NOTE_LENGTH = 10000;
 
 type BusinessLite = { id: string; name: string; slug: string | null; city: string | null };
 
@@ -582,6 +586,7 @@ const VideoScenarioConfigPanel = () => {
         width: 1920,
         height: 1080,
         fps: 30,
+        internal_note: null,
       },
     );
     setRemoved([]);
@@ -702,7 +707,8 @@ const VideoScenarioConfigPanel = () => {
         width: Math.max(320, Math.min(3840, Number(config.width) || 1920)),
         height: Math.max(320, Math.min(3840, Number(config.height) || 1080)),
         fps: Math.max(12, Math.min(60, Number(config.fps) || 30)),
-      },
+        internal_note: config.internal_note,
+      } as any,
       { onConflict: "mode" },
     );
 
@@ -718,6 +724,16 @@ const VideoScenarioConfigPanel = () => {
   const totalFixed = useMemo(
     () => steps.filter((s) => s.enabled).reduce((acc, s) => acc + (Number(s.duration_sec) || 0), 0),
     [steps],
+  );
+
+  const noteLength = useMemo(
+    () =>
+      (config?.internal_note ?? "")
+        .replace(/<[^>]*>/g, "")
+        .replace(/&nbsp;/g, " ")
+        .replace(/\s+/g, " ")
+        .trim().length,
+    [config?.internal_note],
   );
 
   const availableTemplates = useMemo(
@@ -861,6 +877,31 @@ const VideoScenarioConfigPanel = () => {
               </div>
             </SortableContext>
           </DndContext>
+        )}
+
+        {/* Note interne (par mode) : usage staff uniquement, jamais affichée au rendu. */}
+        {config && (
+          <div className="space-y-1 rounded-lg border p-3">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-sm font-medium text-black">Note interne</span>
+              <span
+                className={`text-xs ${noteLength > MAX_NOTE_LENGTH ? "text-destructive font-bold" : "text-muted-foreground"}`}
+              >
+                {noteLength} / {MAX_NOTE_LENGTH}
+                {noteLength > MAX_NOTE_LENGTH && " ⚠ Limite dépassée"}
+              </span>
+            </div>
+            <RichTextEditor
+              content={config.internal_note ?? ""}
+              onChange={(html) => {
+                setConfig((prev) => (prev ? { ...prev, internal_note: html } : prev));
+                setDirty(true);
+              }}
+              placeholder="Notes de production, arbitrages, à faire…"
+              maxHeight="400px"
+              simple
+            />
+          </div>
         )}
       </CardContent>
     </Card>
