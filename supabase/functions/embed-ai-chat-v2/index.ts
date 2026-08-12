@@ -1013,9 +1013,33 @@ Deno.serve(async (req) => {
         // TOTALITÉ des résultats trouvés au tour précédent (marqueur POOL_BUSINESS_IDS,
         // ex. 30 adresses), jamais dans les seules 6 affichées.
         const followUpPoolIds = (poolIds.length ? poolIds : priorIds).slice(0, 30);
-        const priorFull = (contextualFollowUp || (priorIds.length && !results.length))
+        let priorFull = (contextualFollowUp || (priorIds.length && !results.length))
           ? await fetchPriorFull(admin, followUpPoolIds).catch(() => [])
           : [];
+
+        // ── Filtre quartier déterministe (STRICT) ───────────────────────────
+        // Un quartier n'est retenu que s'il existe en base DANS la ville du périmètre
+        // (Médina existe dans 9 villes) : accent-insensible + alias de recherche.
+        // Strict : si le corpus n'a rien dans ce quartier → on n'affiche rien et on
+        // propose l'élargissement à la ville. Aucun repli silencieux.
+        let strictBlock: string | null = null;
+        if (contextualFollowUp && priorFull.length) {
+          const nb = await resolveNeighborhoodInMessage(admin, userMessage, scopeCity);
+          if (nb) {
+            const filtered = filterPoolByNeighborhood(priorFull as any[], nb);
+            console.log("[embed-ai-chat-v2] neighborhood_filter", JSON.stringify({
+              neighborhood: nb.name, city: nb.city, matched: nb.matched,
+              pool: priorFull.length, kept: filtered.length,
+            }));
+            if (filtered.length) {
+              priorFull = filtered as any[];
+            } else {
+              strictBlock = neighborhoodEmptyMessage(nb, lang);
+              fallbackReason = "neighborhood_empty_strict";
+            }
+          }
+        }
+
 
         // Contexte éditorial partagé (TXT IA + popups d'images + offres) — même
         // module que /search et /club pour éviter toute divergence de richesse.
