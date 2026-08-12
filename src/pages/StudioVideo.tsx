@@ -389,7 +389,7 @@ export default function StudioVideo() {
   // Format de sortie de la vidéo (canvas Remotion). 720×1280 par défaut.
   const VIDEO_FORMATS = [
     { value: "portrait" as const, label: "Vertical 720×1280", w: 720, h: 1280 },
-    { value: "landscape" as const, label: "Horizontal 1920×1080", w: 1920, h: 1080 },
+    { value: "landscape" as const, label: "Horizontal 1280×720", w: 1280, h: 720 },
   ];
   const [videoFormat, setVideoFormat] = useState<"portrait" | "landscape">("portrait");
   const videoCanvas = VIDEO_FORMATS.find((f) => f.value === videoFormat) ?? VIDEO_FORMATS[0];
@@ -519,6 +519,12 @@ export default function StudioVideo() {
   const [selectedMenuDocIds, setSelectedMenuDocIds] = useState<Set<string>>(new Set());
   const [bizImages, setBizImages] = useState<string[]>([]);
   const [bizVideos, setBizVideos] = useState<{ url: string; thumbnail: string | null; title: string; kind: "file" | "youtube"; duration?: number }[]>([]);
+  // Vidéos génériques (mode corporate) : externes = table generic_videos, internes = vidéos produites dans /staff/backoffice/videos
+  type GenericVideoItem = { url: string; thumbnail: string | null; title: string; kind: "file" | "youtube"; duration?: number };
+  const [genericExternalVideos, setGenericExternalVideos] = useState<GenericVideoItem[]>([]);
+  const [genericInternalVideos, setGenericInternalVideos] = useState<GenericVideoItem[]>([]);
+  const [showGenericVideos, setShowGenericVideos] = useState(true);
+  const [genericTab, setGenericTab] = useState<"external" | "internal">("external");
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [selectedVideos, setSelectedVideos] = useState<Set<string>>(new Set());
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -678,15 +684,68 @@ export default function StudioVideo() {
 
 
 
+  // Pool de vidéos sélectionnables : établissement + génériques (corporate).
+  const videoPool = useMemo(
+    () => [...bizVideos, ...genericExternalVideos, ...genericInternalVideos],
+    [bizVideos, genericExternalVideos, genericInternalVideos],
+  );
+
   // Garde l'ordre de montage synchronisé avec la sélection de vidéos.
   useEffect(() => {
     setVideoOrder((prev) => {
       const kept = prev.filter((u) => selectedVideos.has(u));
-      const added = bizVideos.map((v) => v.url).filter((u) => selectedVideos.has(u) && !kept.includes(u));
+      const added = videoPool.map((v) => v.url).filter((u) => selectedVideos.has(u) && !kept.includes(u));
       const next = [...kept, ...added];
       return next.length === prev.length && next.every((u, i) => u === prev[i]) ? prev : next;
     });
-  }, [selectedVideos, bizVideos]);
+  }, [selectedVideos, videoPool]);
+
+  // Chargement des vidéos génériques (mode corporate uniquement).
+  useEffect(() => {
+    if (studioMode !== "corporate") {
+      setGenericExternalVideos([]);
+      setGenericInternalVideos([]);
+      return;
+    }
+    let cancelled = false;
+    const kindOf = (u: string): "file" | "youtube" =>
+      /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u) ? "file" : "youtube";
+    (async () => {
+      const [{ data: gen }, { data: jobs }] = await Promise.all([
+        supabase
+          .from("generic_videos")
+          .select("id, url, title, name, thumbnail_url, city, sort_order")
+          .order("sort_order", { ascending: true })
+          .limit(500),
+        supabase
+          .from("video_jobs")
+          .select("id, output_url, title, prompt, created_at")
+          .not("output_url", "is", null)
+          .order("created_at", { ascending: false })
+          .limit(200),
+      ]);
+      if (cancelled) return;
+      setGenericExternalVideos(
+        (gen || [])
+          .filter((g: any) => !!g.url)
+          .map((g: any) => ({
+            url: g.url as string,
+            thumbnail: (g.thumbnail_url as string) || null,
+            title: (g.title || g.name || g.city || "Vidéo générique") as string,
+            kind: kindOf(g.url as string),
+          })),
+      );
+      setGenericInternalVideos(
+        (jobs || []).map((j: any) => ({
+          url: j.output_url as string,
+          thumbnail: null,
+          title: (j.title || j.prompt || "Vidéo 1WM")?.toString().slice(0, 70) as string,
+          kind: "file" as const,
+        })),
+      );
+    })();
+    return () => { cancelled = true; };
+  }, [studioMode]);
 
   const orderedSelectedVideos = useMemo(
     () => videoOrder.filter((u) => selectedVideos.has(u)),
@@ -720,11 +779,11 @@ export default function StudioVideo() {
   const activeVideoDurations = useMemo(() => {
     const out: Record<string, number> = {};
     for (const u of orderedSelectedVideos) {
-      const d = bizVideos.find((x) => x.url === u)?.duration;
+      const d = videoPool.find((x) => x.url === u)?.duration;
       if (Number.isFinite(d) && (d as number) > 0.5) out[u] = Math.round((d as number) * 10) / 10;
     }
     return out;
-  }, [orderedSelectedVideos, bizVideos]);
+  }, [orderedSelectedVideos, videoPool]);
 
 
   // Durée totale utile des vidéos du montage (Time End − Time Start)
@@ -732,13 +791,13 @@ export default function StudioVideo() {
     let sum = 0;
     let unknown = 0;
     for (const u of orderedSelectedVideos) {
-      const v = bizVideos.find((x) => x.url === u);
+      const v = videoPool.find((x) => x.url === u);
       const end = activeVideoEnds[u] ?? v?.duration ?? null;
       if (end == null) { unknown += 1; continue; }
       sum += Math.max(0, end - (activeVideoStarts[u] ?? 0));
     }
     return { sum, unknown };
-  }, [orderedSelectedVideos, bizVideos, activeVideoStarts, activeVideoEnds]);
+  }, [orderedSelectedVideos, videoPool, activeVideoStarts, activeVideoEnds]);
 
   /** Champs Time Start / Time End partagés par la grille des vidéos et l'ordre de montage. */
   const renderTimeRangeInputs = (url: string, duration?: number | null) => {
@@ -2607,6 +2666,154 @@ export default function StudioVideo() {
             </section>
           )}
 
+          {isCorporate && (
+            <section className="rounded-xl border border-border bg-card p-6 space-y-5">
+              {(() => {
+                const list = genericTab === "external" ? genericExternalVideos : genericInternalVideos;
+                const selectedCount = list.filter((v) => selectedVideos.has(v.url)).length;
+                return (
+                  <>
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <Label className="text-sm">
+                        Vidéos génériques
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          {selectedCount}/{list.length} sélectionnée{selectedCount > 1 ? "s" : ""}
+                        </span>
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          className="text-xs text-muted-foreground hover:text-foreground underline"
+                          onClick={() =>
+                            setSelectedVideos((prev) => {
+                              const next = new Set(prev);
+                              list.forEach((v) => next.add(v.url));
+                              return next;
+                            })
+                          }
+                        >
+                          Toutes
+                        </button>
+                        <button
+                          type="button"
+                          className="text-xs text-muted-foreground hover:text-foreground underline"
+                          onClick={() =>
+                            setSelectedVideos((prev) => {
+                              const next = new Set(prev);
+                              list.forEach((v) => next.delete(v.url));
+                              return next;
+                            })
+                          }
+                        >
+                          Aucune
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowGenericVideos((s) => !s)}
+                          className="text-muted-foreground hover:text-foreground p-1 rounded"
+                          aria-label={showGenericVideos ? "Masquer les vidéos génériques" : "Afficher les vidéos génériques"}
+                          title={showGenericVideos ? "Masquer" : "Afficher"}
+                        >
+                          {showGenericVideos ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {showGenericVideos && (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setGenericTab("external")}
+                            className={`text-xs px-3 py-1.5 rounded-full border transition ${
+                              genericTab === "external"
+                                ? "bg-[#C04F17] text-white border-[#C04F17]"
+                                : "border-border text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            Externes ({genericExternalVideos.length})
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setGenericTab("internal")}
+                            className={`text-xs px-3 py-1.5 rounded-full border transition ${
+                              genericTab === "internal"
+                                ? "bg-[#C04F17] text-white border-[#C04F17]"
+                                : "border-border text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            Produites en interne ({genericInternalVideos.length})
+                          </button>
+                        </div>
+
+                        {list.length === 0 ? (
+                          <p className="text-[11px] text-muted-foreground">
+                            {genericTab === "external"
+                              ? "Aucune vidéo générique externe."
+                              : "Aucune vidéo générée depuis le backoffice pour l'instant."}
+                          </p>
+                        ) : (
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                            {list.map((v) => {
+                              const checked = selectedVideos.has(v.url);
+                              return (
+                                <div
+                                  key={v.url}
+                                  className={`relative aspect-[9/16] rounded-md overflow-hidden border-2 bg-black transition ${
+                                    checked ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : "border-border hover:border-muted-foreground"
+                                  }`}
+                                  title={v.title}
+                                >
+                                  {v.kind === "file" ? (
+                                    <video
+                                      src={v.url}
+                                      controls
+                                      preload="metadata"
+                                      playsInline
+                                      className="w-full h-full object-cover bg-black"
+                                    />
+                                  ) : v.thumbnail ? (
+                                    <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover" loading="lazy" />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-white/60">
+                                      <Video className="h-6 w-6" />
+                                    </div>
+                                  )}
+                                  <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/80 to-transparent p-1">
+                                    <p className="text-[10px] text-white truncate">{v.title}</p>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setSelectedVideos((prev) => {
+                                        const next = new Set(prev);
+                                        if (next.has(v.url)) next.delete(v.url);
+                                        else next.add(v.url);
+                                        return next;
+                                      })
+                                    }
+                                    aria-label={checked ? "Désélectionner" : "Sélectionner"}
+                                    className={`absolute top-1 right-1 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold border transition ${
+                                      checked
+                                        ? "bg-[#C04F17] text-white border-[#C04F17]"
+                                        : "bg-black/60 text-white border-white/40 hover:bg-black/80"
+                                    }`}
+                                  >
+                                    {checked ? "✓" : "+"}
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </>
+                );
+              })()}
+            </section>
+          )}
+
           {selected && bizVideos.length > 0 && (
             <section className="rounded-xl border border-border bg-card p-6 space-y-5">
               <div className="flex items-center justify-between">
@@ -2784,7 +2991,7 @@ export default function StudioVideo() {
                       </p>
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                         {orderedSelectedVideos.map((url, i) => {
-                          const v = bizVideos.find((x) => x.url === url);
+                          const v = videoPool.find((x) => x.url === url);
                           const start = videoStarts[url] ?? 0;
                           const end = videoEnds[url] ?? 0;
                           return (
