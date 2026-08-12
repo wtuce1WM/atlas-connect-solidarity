@@ -116,3 +116,28 @@ export const FS_I18N: Record<string, { en: string; ar: string }> = {
   "Santé": { en: "Health", ar: "الصحة" },
   "Auto / Moto": { en: "Auto / Moto", ar: "السيارات" },
 };
+
+/**
+ * Autorité « nom propre » : si le message contient le NOM COMPLET d'un établissement
+ * actif, cette demande est nominative et prime sur toute résolution taxonomique
+ * (« Le Chalet de la Plage - Chez Jeannot » ne doit pas devenir la sous-catégorie « Plages »).
+ * Retourne le nom le plus long trouvé, ou null.
+ */
+export async function matchBusinessNameInMessage(
+  admin: any,
+  message: string,
+): Promise<{ id: string; name: string; city: string | null } | null> {
+  const msg = normalize(message).replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ").trim();
+  if (msg.length < 8) return null;
+  const { data } = await admin.from("businesses").select("id, name, city").eq("is_active", true);
+  if (!Array.isArray(data)) return null;
+  let best: { id: string; name: string; city: string | null } | null = null;
+  let bestLen = 0;
+  for (const b of data as any[]) {
+    const n = normalize(b?.name).replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ").trim();
+    if (!n || n.length < 8 || n.split(" ").length < 2) continue;
+    if (!msg.includes(n)) continue;
+    if (n.length > bestLen) { bestLen = n.length; best = { id: String(b.id), name: String(b.name), city: b.city ?? null }; }
+  }
+  return best;
+}
