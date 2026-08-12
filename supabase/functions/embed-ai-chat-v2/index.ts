@@ -288,7 +288,7 @@ Deno.serve(async (req) => {
         // Périmètre géographique — RÈGLE UNIQUE (`_shared/ai-engine/city-scope.ts`) :
         // ville du business master, sauf ville explicitement nommée dans le message.
         const explicitCity = await detectExplicitCity(admin, userMessage);
-        const scopeCity = resolveCityScope({ hostCity: host?.city, activeCity, explicitCity });
+        const scopeCity = resolveCityScope({ hostCity: host?.city, activeCity, explicitCity }) as string;
         cityDetected = scopeCity;
 
         // Article de blog pertinent (clic suggestion, texte libre ou vocal) : détecté
@@ -835,7 +835,7 @@ Deno.serve(async (req) => {
         // classifieur n'est plus une autorité (inventions possibles).
         const searchCity = resolveCityScope({
           hostCity: host?.city, activeCity, explicitCity: explicitCity || resolvedCityRaw,
-        });
+        }) as string;
         const resolvedCity = resolvedCityRaw;
 
         // La catégorie du classifieur n'est retenue que si elle existe vraiment en base.

@@ -14,15 +14,17 @@ export function resolveCityScope(opts: {
   activeCity?: string | null;
   /** Ville explicitement nommée dans le message utilisateur. */
   explicitCity?: string | null;
-  fallback?: string;
-}): string {
+  /** `null` = pas de repli (périmètre national) ; sinon Marrakech par défaut. */
+  fallback?: string | null;
+}): string | null {
   const clean = (v: unknown) => String(v ?? "").trim();
+  const fallback = opts.fallback === null ? "" : clean(opts.fallback) || DEFAULT_CITY;
   return (
     clean(opts.explicitCity) ||
     clean(opts.hostCity) ||
     clean(opts.activeCity) ||
-    clean(opts.fallback) ||
-    DEFAULT_CITY
+    fallback ||
+    null
   );
 }
 

@@ -2075,6 +2075,7 @@ serve(async (req) => {
         // Périmètre — RÈGLE UNIQUE (`_shared/ai-engine/city-scope.ts`).
         const curatedScopeCity = resolveCityScope({
           hostCity: pseudoHost?.city,
+          fallback: null,
           explicitCity: await detectExplicitCity(admin, String([...messages].reverse().find((m: any) => m.role === "user")?.content || "")),
         });
 
@@ -3205,6 +3206,7 @@ serve(async (req) => {
         const searchCity = resolveCityScope({
           hostCity: activeCityClean,
           explicitCity: (await detectExplicitCity(admin, fusedQuery)) || authCity || null,
+          fallback: null,
         }) || undefined;
         const routerCtx = { userId: user.id, supabase: admin, lastUserMessage: fusedQuery, language: lang, forceQuery: fusedQuery };
         const search = await runTool(
