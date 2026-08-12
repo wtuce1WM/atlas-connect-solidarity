@@ -702,8 +702,23 @@ export async function buildFilteredAnswer(
   const found = all.map((b: any) => b?.id).filter((id: string) => id && id !== host?.id);
   // Établissements épinglés sur la même entrée curatée : mise en avant en tête
   // de liste (ils ne ferment plus le corpus), puis les résultats taxonomiques.
-  const pinned = (opts.pinnedIds || []).filter((id) => id && id !== host?.id);
+  // Ils subissent la même règle de périmètre : hors ville → écartés.
+  let pinned = (opts.pinnedIds || []).filter((id) => id && id !== host?.id);
+  if (pinned.length && city) {
+    try {
+      const { data: pinRows } = await admin
+        .from("businesses")
+        .select("id")
+        .in("id", pinned)
+        .eq("city", city);
+      const keep = new Set((pinRows || []).map((r: any) => r.id));
+      pinned = pinned.filter((id) => keep.has(id));
+    } catch (e) {
+      console.error("[curated] pinned_city_filter_failed", String(e));
+    }
+  }
   const ids = [...new Set([...pinned, ...found])];
+
   if (!ids.length) return null;
   const total = ids.length;
   const shownIds = ids.slice(0, Math.max(max, pinned.length));
