@@ -21,6 +21,9 @@ export type FeedStep = {
   chrome: string;
   frameDir: string;
   frameCount: number;
+  /** Frames 16:9 plein cadre (montage paysage), si la capture les a produites. */
+  wideFrameDir?: string | null;
+  wideFrameCount?: number;
 };
 
 export type FeedSection = { label: string; top: number };
@@ -138,11 +141,18 @@ const pad = (n: number) => String(n).padStart(4, "0");
 const frameSrc = (m: FeedManifest, step: FeedStep, i: number) =>
   staticFile(`${m.base}/${step.frameDir}/${pad(Math.min(Math.max(i, 0), step.frameCount - 1) + 1)}.jpg`);
 
-const Screen: React.FC<{ m: FeedManifest; step: FeedStep; localFrame: number }> = ({ m, step, localFrame }) => {
+const Screen: React.FC<{ m: FeedManifest; step: FeedStep; localFrame: number; noVideo?: boolean }> = ({
+  m,
+  step,
+  localFrame,
+  noVideo,
+}) => {
   const { width: W, height: H } = m.viewport;
   return (
-    <AbsoluteFill style={{ backgroundColor: "#000" }}>
-      <Img src={frameSrc(m, step, localFrame)} style={{ width: W, height: H, objectFit: "cover" }} />
+    <AbsoluteFill style={{ backgroundColor: noVideo ? "transparent" : "#000" }}>
+      {!noVideo && (
+        <Img src={frameSrc(m, step, localFrame)} style={{ width: W, height: H, objectFit: "cover" }} />
+      )}
       <Img
         src={staticFile(`${m.base}/${step.chrome}`)}
         style={{ position: "absolute", inset: 0, width: W, height: H }}
@@ -239,7 +249,7 @@ const TapPulse: React.FC<{ x: number; y: number; progress: number }> = ({ x, y, 
 };
 
 /** Contenu du stage natif (dimensions = viewport de capture). */
-const Stage: React.FC<{ m: FeedManifest }> = ({ m }) => {
+const Stage: React.FC<{ m: FeedManifest; noVideo?: boolean }> = ({ m, noVideo }) => {
   const frame = useCurrentFrame();
   const { width: W, height: H } = m.viewport;
   const t = m.timing;
@@ -265,13 +275,13 @@ const Stage: React.FC<{ m: FeedManifest }> = ({ m }) => {
       extrapolateRight: "clamp",
     });
     return (
-      <AbsoluteFill style={{ backgroundColor: "#000", overflow: "hidden" }}>
+      <AbsoluteFill style={{ backgroundColor: noVideo ? "transparent" : "#000", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, transform: `translateY(${-tr * H}px)` }}>
-          <Screen m={m} step={cur} localFrame={local} />
+          <Screen m={m} step={cur} localFrame={local} noVideo={noVideo} />
         </div>
         {inTrans && (
           <div style={{ position: "absolute", inset: 0, transform: `translateY(${(1 - tr) * H}px)` }}>
-            <Screen m={m} step={next} localFrame={0} />
+            <Screen m={m} step={next} localFrame={0} noVideo={noVideo} />
           </div>
         )}
         <SwipeThumb W={W} progress={swipeProgress} />
@@ -281,19 +291,19 @@ const Stage: React.FC<{ m: FeedManifest }> = ({ m }) => {
 
   // --- Dernière étape : hold, puis ouverture et scroll de la description complète
   const localLast = frame - plan.swipeEnd;
-  const base = <Screen m={m} step={lastStep} localFrame={localLast} />;
+  const base = <Screen m={m} step={lastStep} localFrame={localLast} noVideo={noVideo} />;
   const detail = plan.detail;
 
-  if (!detail) return <AbsoluteFill style={{ backgroundColor: "#000" }}>{base}</AbsoluteFill>;
+  if (!detail) return <AbsoluteFill style={{ backgroundColor: noVideo ? "transparent" : "#000" }}>{base}</AbsoluteFill>;
 
   if (frame < plan.tapStart) {
-    return <AbsoluteFill style={{ backgroundColor: "#000" }}>{base}</AbsoluteFill>;
+    return <AbsoluteFill style={{ backgroundColor: noVideo ? "transparent" : "#000" }}>{base}</AbsoluteFill>;
   }
 
   if (frame < plan.openStart) {
     const p = (frame - plan.tapStart) / t.tapFrames;
     return (
-      <AbsoluteFill style={{ backgroundColor: "#000" }}>
+      <AbsoluteFill style={{ backgroundColor: noVideo ? "transparent" : "#000" }}>
         {base}
         <TapPulse x={detail.tapX ?? W / 2} y={detail.tapY ?? H - 120} progress={p} />
       </AbsoluteFill>
@@ -317,7 +327,7 @@ const Stage: React.FC<{ m: FeedManifest }> = ({ m }) => {
         });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: "#000" }}>
+    <AbsoluteFill style={{ backgroundColor: noVideo ? "transparent" : "#000" }}>
       {base}
       <div
         style={{
@@ -360,6 +370,34 @@ const Stage: React.FC<{ m: FeedManifest }> = ({ m }) => {
           />
         </div>
       </div>
+    </AbsoluteFill>
+  );
+};
+
+/** Étape et frame locale à un instant donné (même logique que le Stage). */
+export const stepAtFrame = (m: FeedManifest, frame: number) => {
+  const t = m.timing;
+  const plan = buildPlan(m);
+  if (frame < plan.swipeEnd) {
+    const k = Math.min(Math.floor(frame / t.stepFrames), Math.max(plan.stepCount - 2, 0));
+    return { step: m.steps[k], local: frame - k * t.stepFrames };
+  }
+  return { step: m.steps[m.steps.length - 1], local: frame - plan.swipeEnd };
+};
+
+/** Couche vidéo 16:9 plein cadre (frames non recadrées de l'étape courante). */
+const WideVideo: React.FC<{ m: FeedManifest }> = ({ m }) => {
+  const frame = useCurrentFrame();
+  const { step, local } = stepAtFrame(m, frame);
+  const dir = step?.wideFrameDir;
+  const count = step?.wideFrameCount ?? 0;
+  const src =
+    dir && count > 0
+      ? staticFile(`${m.base}/${dir}/${pad(Math.min(Math.max(local, 0), count - 1) + 1)}.jpg`)
+      : frameSrc(m, step, local);
+  return (
+    <AbsoluteFill style={{ backgroundColor: "#000", overflow: "hidden" }}>
+      <Img src={src} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
     </AbsoluteFill>
   );
 };
@@ -428,7 +466,8 @@ export const FeedTemplate: React.FC<FeedTemplateProps> = ({ manifest, format }) 
   const scale = outH / H;
   return (
     <AbsoluteFill style={{ backgroundColor: "#000", overflow: "hidden" }}>
-      <LandscapeBackdrop m={m} outW={outW} outH={outH} />
+      {/* La vidéo réelle occupe tout le 16:9, la UI de la fiche est superposée. */}
+      <WideVideo m={m} />
       <div
         style={{
           position: "absolute",
@@ -439,14 +478,12 @@ export const FeedTemplate: React.FC<FeedTemplateProps> = ({ manifest, format }) 
           overflow: "hidden",
           transform: `scale(${scale})`,
           transformOrigin: "top left",
-          boxShadow: "0 0 120px rgba(0,0,0,0.65)",
         }}
       >
-        <Stage m={m} />
+        <Stage m={m} noVideo />
       </div>
     </AbsoluteFill>
   );
-
 };
 
 export default FeedTemplate;
