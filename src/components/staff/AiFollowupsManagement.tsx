@@ -101,6 +101,8 @@ const AiFollowupsManagement = ({ surface = "embed" }: { surface?: "club" | "embe
         is_active: r.is_active,
         radius_km: r.radius_km,
         mode: r.mode,
+        route_override: r.route_override,
+
         category: r.category,
         city: r.city,
         subcategory_ids: r.subcategory_ids ?? [],
