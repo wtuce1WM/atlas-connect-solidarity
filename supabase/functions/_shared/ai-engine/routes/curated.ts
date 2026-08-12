@@ -477,8 +477,9 @@ export async function buildBlogArticleAnswer(
  */
 export async function buildPinnedAnswer(
   admin: any, ids: string[], host: any, lang: Lang, label?: string | null,
-  overrides?: { route?: string; heading?: string; outro?: string; total?: number },
+  overrides?: { route?: string; heading?: string; outro?: string; total?: number; poolIds?: string[] },
 ): Promise<CuratedAnswer | null> {
+
   const wanted = ids.filter(Boolean).slice(0, 20);
   if (!wanted.length) return null;
   const { data } = await admin
