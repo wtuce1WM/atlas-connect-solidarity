@@ -595,11 +595,26 @@ const VideoScenarioConfigPanel = () => {
     ]);
     if (stepsRes.error) toast.error("Chargement impossible");
     // Étape « Menus » abandonnée : on ne l'affiche plus.
-    setSteps(
-      ((stepsRes.data ?? []) as VideoScenarioStep[])
-        .filter((s) => s.scene_key !== "menu_doc")
-        .map((s) => ({ ...s, widget_keys: s.widget_keys ?? [] })),
-    );
+    const loadedSteps = ((stepsRes.data ?? []) as VideoScenarioStep[])
+      .filter((s) => s.scene_key !== "menu_doc")
+      .map((s) => ({ ...s, widget_keys: s.widget_keys ?? [] }));
+    setSteps(loadedSteps);
+
+    // Compteurs de notes internes par étape.
+    if (loadedSteps.length > 0) {
+      const { data: notesData } = await supabase
+        .from("video_scenario_step_notes")
+        .select("step_id")
+        .in("step_id", loadedSteps.map((s) => s.id));
+      const counts: Record<string, number> = {};
+      for (const n of (notesData ?? []) as Array<{ step_id: string }>) {
+        counts[n.step_id] = (counts[n.step_id] ?? 0) + 1;
+      }
+      setNoteCounts(counts);
+    } else {
+      setNoteCounts({});
+    }
+
     setConfig(
       (configRes.data as ScenarioConfig | null) ?? {
         mode,
