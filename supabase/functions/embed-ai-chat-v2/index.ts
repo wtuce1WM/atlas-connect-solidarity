@@ -773,6 +773,8 @@ Deno.serve(async (req) => {
 
         let results: any[] = [];
         let totalFound = 0;
+        /** Corpus COMPLET de la recherche (avant coupe d'affichage) : mémorisé pour les relances. */
+        let searchPoolIds: string[] = [];
 
         // Recherche déterministe partagée : appelée avec les champs structurés du
         // classifieur, ou en secours avec le message brut quand il n'est pas confiant.
