@@ -540,6 +540,9 @@ const EmbedAsk = () => {
   const sessionIdRef = useRef<string>(initialPersisted?.sessionId || newSessionId());
   const messageIndexRef = useRef<number>(initialPersisted?.messageIndex || 0);
   const [chatKey, setChatKey] = useState(0);
+  // Relances déjà cliquées dans la conversation courante (réinitialisées au reset).
+  const [usedFollowupIds, setUsedFollowupIds] = useState<string[]>([]);
+
   const restoredRef = useRef<boolean>(!!initialPersisted);
 
   // Rayon de proximité : valeur de l'hôte (/affiliates → Tools), modifiable par l'utilisateur.
@@ -596,8 +599,10 @@ const EmbedAsk = () => {
   const activeFollowups: Array<{ id: string; label: string }> = globalFollowups
     .filter((f) => !disabledIds.has(f.id))
     .filter((f) => !fuAllowed || fuAllowed.includes(f.id))
+    .filter((f) => !usedFollowupIds.includes(f.id))
     .map((f) => ({ id: f.id, label: pickFollowupLabel(f) }))
     .filter((f) => f.label);
+
 
 
   const [openMap, setOpenMap] = useState<MapPayload | null>(null);
@@ -878,7 +883,10 @@ const EmbedAsk = () => {
   };
 
   const sendFollowup = (label: string, followupId: string) => {
+    // Une relance déjà utilisée dans la conversation n'est plus reproposée ensuite.
+    setUsedFollowupIds((prev) => (prev.includes(followupId) ? prev : [...prev, followupId]));
     if (isMapReplayLabel(label)) {
+
       const lastMap = findLastMapPayload();
       if (lastMap) {
         setOpenMap(lastMap);
@@ -912,7 +920,9 @@ const EmbedAsk = () => {
     setOpenEvents(null);
     setOpenBusinessId(null);
     setActiveSuggestionId(null);
+    setUsedFollowupIds([]);
     pendingSendRef.current = pending || null;
+
     setChatKey((k) => k + 1); // resets useChat id → clears message list
     setTimeout(() => inputRef.current?.focus(), 0);
   };
