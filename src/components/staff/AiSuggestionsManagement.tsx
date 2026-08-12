@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { detectRoute, RouteBadge, type Route } from "./aiRouteDetect";
+import { FORCED_ROUTES } from "@/lib/aiForcedRoutes";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
