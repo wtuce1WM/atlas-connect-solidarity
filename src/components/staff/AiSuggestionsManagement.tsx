@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { detectRoute, RouteBadge, type Route } from "./aiRouteDetect";
+import { FORCED_ROUTES } from "@/lib/aiForcedRoutes";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,6 +47,8 @@ type Row = {
   main_categories: string[];
   disabled_followup_ids: string[];
   mode: string | null;
+  route_override: string | null;
+
   proximity_a_subcategory_ids: string[];
   proximity_a_badge_ids: string[];
   proximity_b_subcategory_ids: string[];
@@ -132,7 +136,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
     const [{ data, error }, bizs, { data: dests }, { data: subs }, { data: svcs }, { data: bdgs }, { data: fups }, { data: posts }, { data: vfeeds }, { data: cats }] = await Promise.all([
       supabase
         .from("ai_suggestions")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,service_ids,badge_ids,commodity_filters,city,main_categories,disabled_followup_ids,mode,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids,category,prompt_fr,prompt_en,prompt_ar,fixed_response_fr,fixed_response_en,fixed_response_ar")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,followups,business_ids,destination_ids,blog_post_ids,subcategory_ids,service_ids,badge_ids,commodity_filters,city,main_categories,disabled_followup_ids,mode,route_override,proximity_a_subcategory_ids,proximity_a_badge_ids,proximity_b_subcategory_ids,proximity_b_badge_ids,category,prompt_fr,prompt_en,prompt_ar,fixed_response_fr,fixed_response_en,fixed_response_ar")
         .eq("surface", surface)
         .order("sort_order", { ascending: true }),
       fetchAllBusinesses(),
@@ -284,7 +288,7 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
       .select()
       .single();
     if (error) return toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], blog_post_ids: [], subcategory_ids: [], service_ids: [], badge_ids: [], commodity_filters: [], city: null, main_categories: [], disabled_followup_ids: [], mode: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [], category: null, prompt_fr: null, prompt_en: null, prompt_ar: null, fixed_response_fr: null, fixed_response_en: null, fixed_response_ar: null } as Row]);
+    setRows((prev) => [...prev, { ...(data as any), followups: [], business_ids: [], destination_ids: [], blog_post_ids: [], subcategory_ids: [], service_ids: [], badge_ids: [], commodity_filters: [], city: null, main_categories: [], disabled_followup_ids: [], mode: null, route_override: null, proximity_a_subcategory_ids: [], proximity_a_badge_ids: [], proximity_b_subcategory_ids: [], proximity_b_badge_ids: [], category: null, prompt_fr: null, prompt_en: null, prompt_ar: null, fixed_response_fr: null, fixed_response_en: null, fixed_response_ar: null } as Row]);
     setExpanded((prev) => new Set(prev).add((data as any).id));
 
   };
@@ -320,6 +324,8 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
           main_categories: r.main_categories || [],
           disabled_followup_ids: r.disabled_followup_ids || [],
           mode: r.mode || null,
+          route_override: r.route_override || null,
+
           proximity_a_subcategory_ids: r.proximity_a_subcategory_ids || [],
           proximity_a_badge_ids: r.proximity_a_badge_ids || [],
           proximity_b_subcategory_ids: r.proximity_b_subcategory_ids || [],
@@ -616,6 +622,25 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
                     );
                   })()}
                 </div>
+                <div className="max-w-md rounded-md border border-border p-3">
+                  <label className="text-xs font-medium block mb-1">Route forcée</label>
+                  <select
+                    className="h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
+                    value={r.route_override ?? ""}
+                    onChange={(e) => update(r.id, { route_override: e.target.value || null })}
+                  >
+                    <option value="">Auto (détection sur le libellé)</option>
+                    {FORCED_ROUTES.map((o) => (
+                      <option key={o.key} value={o.key}>{o.label}</option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    {r.route_override
+                      ? FORCED_ROUTES.find((o) => o.key === r.route_override)?.hint
+                      : "Impose le comportement du moteur, quel que soit le libellé. Une relance ayant sa propre route forcée gagne sur celle de la suggestion."}
+                  </p>
+                </div>
+
 
 
 

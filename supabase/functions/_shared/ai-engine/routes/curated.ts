@@ -109,14 +109,20 @@ export type CuratedTargets = {
   /** Périmètre géo défini par l'entrée curatée elle-même (null = aucun filtre ville) */
   city: string | null;
   mode: string | null;
+  /** Route imposée en back-office (`route_override`) : la relance gagne sur la suggestion. */
+  routeOverride: string | null;
+  /** Rayon imposé par la relance (km), null = rayon de l'hôte. */
+  radiusKm: number | null;
   label: string | null;
   aiTexts: Array<{ title: string; hook: string; content: string }>;
 };
 
 const EMPTY_TARGETS: CuratedTargets = {
   blogPostIds: [], pinnedBusinessIds: [], subcategoryNames: [], serviceNames: [], badgeIds: [], commodities: [],
-  destinationIds: [], city: null, mode: null, label: null, aiTexts: [],
+  destinationIds: [], city: null, mode: null, routeOverride: null, radiusKm: null, label: null, aiTexts: [],
 };
+
+
 
 
 /** Lit les cibles curatées d'une suggestion / relance + les liens propres à l'établissement. */
@@ -133,13 +139,15 @@ export async function loadCuratedTargets(
     try {
       const { data: sugg } = await admin
         .from("ai_suggestions")
-        .select("subcategory_ids, service_ids, badge_ids, commodity_filters, business_ids, destination_ids, blog_post_ids, city, mode, label_fr, label_en, label_ar")
+        .select("subcategory_ids, service_ids, badge_ids, commodity_filters, business_ids, destination_ids, blog_post_ids, city, mode, route_override, label_fr, label_en, label_ar")
         .eq("id", suggestionId)
         .maybeSingle();
       if (sugg) {
         out.mode = (sugg.mode as string | null) || null;
+        out.routeOverride = (String(sugg.route_override || "").trim() || null);
         out.city = (String(sugg.city || "").trim() || null);
         out.label = (sugg.label_fr || sugg.label_en || sugg.label_ar || null) as string | null;
+
         out.badgeIds = Array.isArray(sugg.badge_ids) ? sugg.badge_ids.filter(Boolean) : [];
         out.commodities = Array.isArray(sugg.commodity_filters) ? sugg.commodity_filters.filter(Boolean) : [];
         out.destinationIds = Array.isArray(sugg.destination_ids) ? sugg.destination_ids.filter(Boolean) : [];
@@ -175,6 +183,32 @@ export async function loadCuratedTargets(
       console.error("[curated] suggestion_lookup_error", String(e));
     }
   }
+
+  // Relance : ses propres réglages font autorité sur ceux de la suggestion parente
+  // (route imposée en back-office, mode, rayon, ville).
+  if (followupId) {
+    try {
+      const { data: fup } = await admin
+        .from("ai_followups")
+        .select("mode, route_override, city, radius_km, label_fr, label_en, label_ar")
+        .eq("id", followupId)
+        .maybeSingle();
+      if (fup) {
+        const fRoute = String(fup.route_override || "").trim();
+        if (fRoute) out.routeOverride = fRoute;
+        const fMode = String(fup.mode || "").trim();
+        if (fMode) out.mode = fMode;
+        const fCity = String(fup.city || "").trim();
+        if (fCity) out.city = fCity;
+        out.radiusKm = typeof fup.radius_km === "number" ? fup.radius_km : null;
+        out.label = (fup.label_fr || fup.label_en || fup.label_ar || out.label || null) as string | null;
+      }
+    } catch (e) {
+      console.error("[curated] followup_lookup_error", String(e));
+    }
+  }
+
+
 
   // Liens curatés par établissement (onglet affilié « Agent IA ») : ils gagnent
   // sur les mappings staff génériques car l'owner les a choisis pour ce widget.

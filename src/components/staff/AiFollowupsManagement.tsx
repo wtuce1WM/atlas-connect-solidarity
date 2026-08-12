@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { detectRoute, RouteBadge, type Route } from "./aiRouteDetect";
+import { FORCED_ROUTES, forcedRouteLabel } from "@/lib/aiForcedRoutes";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -20,6 +22,8 @@ type Row = {
   is_active: boolean;
   radius_km: number | null;
   mode: string | null;
+  route_override: string | null;
+
   category: string | null;
   city: string | null;
   subcategory_ids: string[];
@@ -48,7 +52,7 @@ const AiFollowupsManagement = ({ surface = "embed" }: { surface?: "club" | "embe
     const [{ data, error }, { data: subs }, { data: bdgs }] = await Promise.all([
       (supabase as any)
         .from("ai_followups")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,radius_km,mode,category,city,subcategory_ids,badge_ids")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,radius_km,mode,route_override,category,city,subcategory_ids,badge_ids")
         .eq("surface", surface)
         .order("sort_order", { ascending: true }),
       supabase.from("subcategories").select("id,name_fr").order("name_fr", { ascending: true }),
@@ -99,6 +103,8 @@ const AiFollowupsManagement = ({ surface = "embed" }: { surface?: "club" | "embe
         is_active: r.is_active,
         radius_km: r.radius_km,
         mode: r.mode,
+        route_override: r.route_override,
+
         category: r.category,
         city: r.city,
         subcategory_ids: r.subcategory_ids ?? [],
@@ -251,13 +257,18 @@ const AiFollowupsManagement = ({ surface = "embed" }: { surface?: "club" | "embe
 
                   {/* Résumé des paramètres (toujours visible) */}
                   <div className="flex flex-wrap items-center gap-1.5 pt-2 text-[11px]">
-                    {r.mode === "weather" ? (
+                    {r.route_override ? (
+                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium bg-red-500/15 text-red-700 dark:text-red-300" title="Route imposée en back-office : le moteur n'analyse pas le libellé.">
+                        🔒 {forcedRouteLabel(r.route_override)}
+                      </span>
+                    ) : r.mode === "weather" ? (
                       <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium bg-sky-500/15 text-sky-700 dark:text-sky-300">🌤 get_weather</span>
                     ) : r.mode === "poi_nearby" ? (
                       <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">📍 poi_nearby</span>
                     ) : (
                       <RouteBadge label={r.label_fr || ""} />
                     )}
+
                     <Chip label="Mode" value={r.mode ? (r.mode === "poi_nearby" ? "POI seulement" : r.mode === "weather" ? "Météo" : r.mode) : "Auto"} alert={!!r.mode} />
                     <Chip label="Rayon" value={r.radius_km == null ? "auto" : `${r.radius_km} km`} alert={r.radius_km != null} />
                     <Chip label="Ville" value={r.city || "Toutes"} alert={!!r.city} />
@@ -285,6 +296,27 @@ const AiFollowupsManagement = ({ surface = "embed" }: { surface?: "club" | "embe
                         <Input value={r.label_ar || ""} onChange={(e) => update(r.id, { label_ar: e.target.value })} placeholder="AR" dir="rtl" />
                       </div>
                     </div>
+
+                    <div className="rounded-md border border-border p-3">
+                      <label className="text-xs font-medium block mb-1">Route forcée</label>
+                      <select
+                        className="h-10 w-full rounded-md border border-input bg-background px-2 text-sm"
+                        value={r.route_override ?? ""}
+                        onChange={(e) => update(r.id, { route_override: e.target.value || null })}
+                      >
+                        <option value="">Auto (détection sur le libellé)</option>
+                        {FORCED_ROUTES.map((o) => (
+                          <option key={o.key} value={o.key}>{o.label}</option>
+                        ))}
+                      </select>
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        {r.route_override
+                          ? FORCED_ROUTES.find((o) => o.key === r.route_override)?.hint
+                          : "Le moteur devine la route à partir du libellé. Choisis une route ici pour imposer le comportement (ex. « Montre-moi les coordonnées » → Coordonnées et non Carte)."}
+                      </p>
+                    </div>
+
+
 
                     <div className="grid gap-2 md:grid-cols-4">
                       <div>
