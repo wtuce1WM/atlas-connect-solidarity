@@ -402,37 +402,6 @@ const WideVideo: React.FC<{ m: FeedManifest }> = ({ m }) => {
   );
 };
 
-/** Fond 16:9 : frame vidéo courante, recadrée large et floutée. */
-const LandscapeBackdrop: React.FC<{ m: FeedManifest; outW: number; outH: number }> = ({ m, outW, outH }) => {
-  const frame = useCurrentFrame();
-  const t = m.timing;
-  const plan = buildPlan(m);
-  const k = Math.min(Math.floor(frame / t.stepFrames), plan.stepCount - 1);
-  const step = m.steps[k];
-  const local = frame - k * t.stepFrames;
-  return (
-    <AbsoluteFill style={{ backgroundColor: "#0d0d0d", overflow: "hidden" }}>
-      <Img
-        src={frameSrc(m, step, local)}
-        style={{
-          position: "absolute",
-          left: -outW * 0.1,
-          top: -outH * 0.1,
-          width: outW * 1.2,
-          height: outH * 1.2,
-          objectFit: "cover",
-          filter: "blur(34px) brightness(0.42) saturate(1.1)",
-        }}
-      />
-      <AbsoluteFill
-        style={{
-          background:
-            "radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.72) 100%)",
-        }}
-      />
-    </AbsoluteFill>
-  );
-};
 
 export const FeedTemplate: React.FC<FeedTemplateProps> = ({ manifest, format }) => {
   if (!manifest) return <AbsoluteFill style={{ backgroundColor: "#000" }} />;
