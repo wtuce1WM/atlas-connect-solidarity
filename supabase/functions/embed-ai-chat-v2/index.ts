@@ -864,7 +864,7 @@ Deno.serve(async (req) => {
         // relançait une recherche ville entière au lieu d'affiner la sélection. Si le mot
         // désigne un quartier réel de la ville du périmètre, il est retiré du vocabulaire
         // de recherche et traité comme filtre déterministe sur le corpus précédent.
-        const nbMatch = priorIds.length
+        const nbMatch = (priorIds.length || poolIds.length)
           ? await resolveNeighborhoodInMessage(admin, userMessage, scopeCity)
           : null;
         const nbAliases = new Set(nbMatch?.aliases || []);
