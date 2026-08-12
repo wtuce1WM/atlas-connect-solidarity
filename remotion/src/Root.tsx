@@ -13,10 +13,57 @@ import { Farasha, FARASHA_TOTAL_FRAMES } from "./Farasha";
 import { BoZin, BOZIN_TOTAL_FRAMES } from "./BoZin";
 import { ExplainerAffiliates, EXPLAINER_TOTAL_FRAMES } from "./ExplainerAffiliates";
 import { FeedSwipe, TOTAL as FEED_TOTAL } from "./FeedSwipe";
+import {
+  FeedTemplate,
+  loadFeedManifest,
+  computeFeedFrames,
+  LANDSCAPE,
+  type FeedTemplateProps,
+} from "./FeedTemplate";
 import { BusinessShowcase, SHOWCASE_TOTAL_FRAMES, computeShowcaseFrames, type ShowcaseProps } from "./BusinessShowcase";
+
+const feedDefaults = (format: "portrait" | "landscape"): FeedTemplateProps => ({
+  manifestPath: "feed/manifest.json",
+  format,
+  manifest: null,
+});
+
+/** Toute la géométrie et le rythme viennent du manifest de capture. */
+const feedMetadata = async ({ props }: { props: Record<string, unknown> }) => {
+  const p = props as FeedTemplateProps;
+  const manifest = await loadFeedManifest(p.manifestPath);
+  const portrait = p.format !== "landscape";
+  return {
+    durationInFrames: computeFeedFrames(manifest),
+    fps: manifest.fps,
+    width: portrait ? manifest.viewport.width : LANDSCAPE.width,
+    height: portrait ? manifest.viewport.height : LANDSCAPE.height,
+    props: { ...p, manifest },
+  };
+};
 
 export const RemotionRoot: React.FC = () => (
   <>
+    <Composition
+      id="feed-template"
+      component={FeedTemplate}
+      durationInFrames={1000}
+      fps={25}
+      width={720}
+      height={1280}
+      defaultProps={feedDefaults("portrait")}
+      calculateMetadata={feedMetadata}
+    />
+    <Composition
+      id="feed-template-landscape"
+      component={FeedTemplate}
+      durationInFrames={1000}
+      fps={25}
+      width={LANDSCAPE.width}
+      height={LANDSCAPE.height}
+      defaultProps={feedDefaults("landscape")}
+      calculateMetadata={feedMetadata}
+    />
     <Composition
       id="feed-swipe"
       component={FeedSwipe}
@@ -25,6 +72,7 @@ export const RemotionRoot: React.FC = () => (
       width={720}
       height={1280}
     />
+
     <Composition
       id="main"
       component={MainVideo}
