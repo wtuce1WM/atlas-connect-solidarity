@@ -127,6 +127,8 @@ async function renderOne() {
         "--step-seconds", String(p.stepSeconds || 3),
         "--detail-seconds", String(p.detailSeconds || 21),
         "--sections", sections,
+        "--dsf", String(p.dsf || 2),
+        "--output-scale", String(p.outputScale || 1.5),
       ];
       console.log("🎥 Capture du feed :", captureArgs.join(" "));
       execFileSync("python3", captureArgs, {
