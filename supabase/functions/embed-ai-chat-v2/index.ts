@@ -25,7 +25,7 @@ import {
   type ResolveResult,
 } from "../_shared/taxonomy-resolver.ts";
 import { detectViewIntent, withinPointRadius, hasVantage, hasPointViewProof, hasPanoramaAttribute, hasPanoramaProof } from "../_shared/ai-engine/view-targets.ts";
-import { pickLang, normalize, toMapMarker, fetchPriorFull } from "../_shared/ai-engine/routes/shared.ts";
+import { pickLang, normalize, toMapMarker, fetchPriorFull, matchBusinessNameInMessage } from "../_shared/ai-engine/routes/shared.ts";
 import { loadEditorialBundle, formatEditorialBundle } from "../_shared/ai-engine/editorial.ts";
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
 import { isTidesIntent, resolveTidesCity, tidesIntro } from "../_shared/ai-engine/routes/tides.ts";
