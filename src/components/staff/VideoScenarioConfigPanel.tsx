@@ -549,6 +549,8 @@ const VideoScenarioConfigPanel = () => {
   const [removed, setRemoved] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [newKey, setNewKey] = useState("");
+  const [manualKey, setManualKey] = useState("");
+  const [manualLabel, setManualLabel] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
