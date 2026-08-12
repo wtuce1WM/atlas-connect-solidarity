@@ -322,6 +322,8 @@ const AiSuggestionsManagement = ({ surface = "embed" }: { surface?: AiSurface })
           main_categories: r.main_categories || [],
           disabled_followup_ids: r.disabled_followup_ids || [],
           mode: r.mode || null,
+          route_override: r.route_override || null,
+
           proximity_a_subcategory_ids: r.proximity_a_subcategory_ids || [],
           proximity_a_badge_ids: r.proximity_a_badge_ids || [],
           proximity_b_subcategory_ids: r.proximity_b_subcategory_ids || [],
