@@ -50,7 +50,7 @@ const AiFollowupsManagement = ({ surface = "embed" }: { surface?: "club" | "embe
     const [{ data, error }, { data: subs }, { data: bdgs }] = await Promise.all([
       (supabase as any)
         .from("ai_followups")
-        .select("id,label_fr,label_en,label_ar,sort_order,is_active,radius_km,mode,category,city,subcategory_ids,badge_ids")
+        .select("id,label_fr,label_en,label_ar,sort_order,is_active,radius_km,mode,route_override,category,city,subcategory_ids,badge_ids")
         .eq("surface", surface)
         .order("sort_order", { ascending: true }),
       supabase.from("subcategories").select("id,name_fr").order("name_fr", { ascending: true }),
