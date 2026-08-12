@@ -89,23 +89,33 @@ export default function EmbedCardCarousel({ items, footer, limit = 20 }: Props) 
               )}
               <div className="absolute inset-x-0 bottom-0 p-2.5">
                 {it.overline && (
-                  <div className="text-[10.5px] uppercase tracking-wide font-semibold text-[#D4AF37] mb-0.5 break-words">
+                  <div
+                    className="text-[11px] font-semibold text-[#D4AF37] mb-0.5 break-words"
+                    style={{ fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+                  >
                     {it.overline}
                   </div>
                 )}
                 {it.titlePrefix && (
                   <div className="mb-0.5">{it.titlePrefix}</div>
                 )}
-                <div className="text-[13px] font-bold text-white leading-tight break-words">
+                <div
+                  className="text-[13px] !font-bold text-white leading-tight break-words [text-shadow:0_1px_3px_rgba(0,0,0,0.6)]"
+                  style={{ fontFamily: "'Montserrat', sans-serif", textTransform: "none", letterSpacing: "normal" }}
+                >
                   {it.title}
                 </div>
                 {it.subtitle && (
-                  <div className="text-[11px] text-white/80 mt-0.5 break-words">
+                  <div
+                    className="text-[11px] text-white/85 mt-0.5 break-words"
+                    style={{ textTransform: "none", letterSpacing: "normal" }}
+                  >
                     {it.subtitle}
                   </div>
                 )}
                 {it.extra}
               </div>
+
             </div>
           </div>
         ))}
