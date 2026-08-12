@@ -25,7 +25,10 @@ interface RichTextEditorProps {
   bgClass?: string;
   /** Masque couleur, surlignage, lien, image et vidéo dans la barre d'outils. */
   simple?: boolean;
+  /** Classe Tailwind appliquée au contenu éditable (remplace prose-sm par défaut). */
+  className?: string;
 }
+
 
 const stripInlineColors = (html: string): string => {
   if (!html || typeof window === "undefined") return html;
@@ -45,8 +48,9 @@ const stripInlineColors = (html: string): string => {
   }
 };
 
-const RichTextEditor = ({ content, onChange, placeholder, maxHeight, bgClass, simple }: RichTextEditorProps) => {
+const RichTextEditor = ({ content, onChange, placeholder, maxHeight, bgClass, simple, className }: RichTextEditorProps) => {
   const isInternalChange = useRef(false);
+
 
 
   const extensions = useMemo(() => [
@@ -83,8 +87,9 @@ const RichTextEditor = ({ content, onChange, placeholder, maxHeight, bgClass, si
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm prose-josefin-headings max-w-none min-h-[300px] p-3 focus:outline-none [&_table]:border-collapse [&_td]:border [&_td]:border-border [&_td]:p-2 [&_th]:border [&_th]:border-border [&_th]:p-2 [&_th]:bg-muted [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md",
+          `prose ${className || "prose-sm"} prose-josefin-headings max-w-none min-h-[300px] p-3 focus:outline-none [&_table]:border-collapse [&_td]:border [&_td]:border-border [&_td]:p-2 [&_th]:border [&_th]:border-border [&_th]:p-2 [&_th]:bg-muted [&_img]:max-w-full [&_img]:rounded-md [&_iframe]:max-w-full [&_iframe]:rounded-md`,
       },
+
       transformPastedHTML(html) {
         const doc = new DOMParser().parseFromString(html, "text/html");
         doc.querySelectorAll("[style]").forEach((el) => {
