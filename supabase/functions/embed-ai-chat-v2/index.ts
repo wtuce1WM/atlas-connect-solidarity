@@ -654,7 +654,35 @@ Deno.serve(async (req) => {
         }
 
 
+        // 4bis. Relance « à proximité de <hôte> » : quand un corpus vient d'être
+        // présenté, la proximité est un RAFFINEMENT de ce corpus complet (les 19
+        // trouvées, pas les 6 affichées), filtré au rayon de proximité actif
+        // (rayon choisi par l'utilisateur, sinon rayon de la fiche, sinon 1 km).
+        if (host && poolIds.length) {
+          const hostNameNorm = normalize(host.name || "");
+          const msgNorm = normalize(userMessage);
+          const mentionsHost = !!hostNameNorm && msgNorm.includes(hostNameNorm);
+          if (isProximityIntent(userMessage) || (mentionsHost && /(proximite|autour|pres|nearby|around|close|near)/.test(msgNorm))) {
+            const hostRadius = RADIUS_OPTIONS.includes(Number(host.poi_radius_km)) ? Number(host.poi_radius_km) : 1;
+            const radius = parseInlineRadiusKm(userMessage) ?? requestedRadiusKm ?? hostRadius;
+            const built = await buildProximityFromPool(admin, host, poolIds, radius, lang).catch((e) => {
+              console.error("[embed-ai-chat-v2] proximity_pool_failed", String(e));
+              return null;
+            });
+            if (built) {
+              route = "nearby";
+              resultsCount = built.kept.length;
+              emit(built.text);
+              emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.kept.map((b: any) => ({ id: b.id, slug: b.slug || null, name: b.name })))}-->`);
+              emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: poolIds, city: scopeCity })}-->`);
+              await finish(true);
+              return;
+            }
+          }
+        }
+
         // 5. Panorama « que faire à proximité ? » (déterministe, Structure du Front)
+
         // Autorité du résolveur : si la requête contient une cible taxonomique réelle
         // (« piscine à proximité »), ce n'est plus un panorama générique → recherche ciblée.
         // Sans hôte (/search, /club) il n'y a pas de point d'ancrage : route ignorée.
