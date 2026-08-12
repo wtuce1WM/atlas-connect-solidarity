@@ -12,10 +12,19 @@ import { NarComplexe, NAR_TOTAL_FRAMES } from "./NarComplexe";
 import { Farasha, FARASHA_TOTAL_FRAMES } from "./Farasha";
 import { BoZin, BOZIN_TOTAL_FRAMES } from "./BoZin";
 import { ExplainerAffiliates, EXPLAINER_TOTAL_FRAMES } from "./ExplainerAffiliates";
+import { FeedSwipe, TOTAL as FEED_TOTAL } from "./FeedSwipe";
 import { BusinessShowcase, SHOWCASE_TOTAL_FRAMES, computeShowcaseFrames, type ShowcaseProps } from "./BusinessShowcase";
 
 export const RemotionRoot: React.FC = () => (
   <>
+    <Composition
+      id="feed-swipe"
+      component={FeedSwipe}
+      durationInFrames={FEED_TOTAL}
+      fps={25}
+      width={720}
+      height={1280}
+    />
     <Composition
       id="main"
       component={MainVideo}
