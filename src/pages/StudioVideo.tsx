@@ -2765,7 +2765,7 @@ export default function StudioVideo() {
                                 : "border-border text-muted-foreground hover:text-foreground"
                             }`}
                           >
-                            Externes ({genericExternalVideos.length})
+                            Externes — badge Generic ({genericExternalVideos.length})
                           </button>
                           <button
                             type="button"
