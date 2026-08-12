@@ -3,7 +3,7 @@ import { renderMedia, selectComposition, openBrowser } from "@remotion/renderer"
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-import { execSync } from "node:child_process";
+import { execSync, execFileSync } from "node:child_process";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootEnvPath = path.resolve(__dirname, "../../.env");
