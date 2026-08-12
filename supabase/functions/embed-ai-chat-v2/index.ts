@@ -39,12 +39,14 @@ import { isHoursIntent, buildHoursAnswer, buildHoursForBusinesses } from "../_sh
 import { isBookingIntent, buildBookingAnswer, buildBookingForBusinesses } from "../_shared/ai-engine/routes/booking.ts";
 import {
   isNearbyOverviewIntent, isProximityIntent, buildNearbyOverview, buildDisclosureFromCounts,
+  parseInlineRadiusKm,
 } from "../_shared/ai-engine/routes/nearby.ts";
 import {
   isRatingRankingIntent, isDistanceListIntent, isDistanceRankingIntent, isCountIntent, parseOrdinalIntent,
   extractPriorOrderedBusinesses, buildRatingRanking, buildDistanceList, buildDistanceRanking, buildOrdinalPick,
-  buildCountAnswer,
+  buildCountAnswer, buildProximityFromPool,
 } from "../_shared/ai-engine/routes/ranking.ts";
+
 import { isOpensFirstIntent, isClosesLastIntent, buildHoursRanking, parseOpenFilterIntent, buildOpenFilter } from "../_shared/ai-engine/routes/opening.ts";
 import { isDescribeIntent, parseDescribeFacet, buildDescribePriors } from "../_shared/ai-engine/routes/describe.ts";
 import { isForcedRouteKey, runForcedRoute, forcedMapMarker } from "../_shared/ai-engine/routes/forced.ts";
