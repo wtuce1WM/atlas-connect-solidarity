@@ -900,6 +900,7 @@ const VideoScenarioConfigPanel = () => {
               placeholder="Notes de production, arbitrages, à faire…"
               className="prose-base"
               simple
+              maxHeight="calc(85vh - 240px)"
             />
 
             <div className="flex items-center justify-end gap-2 pt-2">
