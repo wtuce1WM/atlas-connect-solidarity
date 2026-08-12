@@ -478,15 +478,30 @@ const SortableStep = ({
             Titre affiché
             <Input value={step.title ?? ""} onChange={(e) => patch({ title: e.target.value })} className="h-8 text-xs" />
           </label>
-          <label className="text-xs text-muted-foreground grid gap-1">
-            Texte / éléments listés (une ligne par élément, ou séparés par « | »)
-            <Textarea
-              value={step.body ?? ""}
-              onChange={(e) => patch({ body: e.target.value })}
-              rows={3}
-              className="text-xs"
+          <div className="text-xs text-muted-foreground grid gap-1">
+            Texte / éléments listés (une puce ou une ligne par élément)
+            <RichTextEditor
+              content={step.body ?? ""}
+              onChange={(html) => patch({ body: html })}
+              placeholder="Un élément par ligne ou par puce…"
+              simple
+              maxHeight="320px"
             />
-          </label>
+          </div>
+          <div className="flex items-center gap-2">
+            <VideoStepNotesDialog
+              stepId={step.id}
+              stepLabel={step.label || step.scene_key}
+              disabled={step._new}
+              count={noteCount}
+              onCountChange={onNoteCount}
+            />
+            {step._new && (
+              <span className="text-[11px] text-muted-foreground">
+                Enregistre le scénario pour pouvoir ajouter des notes à cette étape.
+              </span>
+            )}
+          </div>
           <label className="text-xs text-muted-foreground grid gap-1">
             Message clé (bas d'écran)
             <Textarea
