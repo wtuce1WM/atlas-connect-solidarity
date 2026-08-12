@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, LogOut, ListOrdered, LayoutDashboard, Film } from "lucide-react";
+import { ArrowLeft, LogOut, ListOrdered, LayoutDashboard, Film, Rocket } from "lucide-react";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import VideoScenarioConfigPanel from "@/components/staff/VideoScenarioConfigPanel";
 import VideoDashboardPanel from "@/components/staff/VideoDashboardPanel";
 import LatestVideosPanel from "@/components/staff/LatestVideosPanel";
+import VideoGeneratePanel from "@/components/staff/VideoGeneratePanel";
+
 
 
 
