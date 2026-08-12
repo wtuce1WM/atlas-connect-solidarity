@@ -748,7 +748,11 @@ export async function buildFilteredAnswer(
     heading,
     outro,
     total,
+    // Corpus complet trouvé : les relances (proximité, distances…) doivent
+    // pouvoir travailler sur les 19 adresses, pas seulement sur les 6 affichées.
+    poolIds: ids.map((id) => String(id)),
   });
+
   return built;
 }
 
