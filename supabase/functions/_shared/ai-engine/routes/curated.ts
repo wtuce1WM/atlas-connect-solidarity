@@ -554,8 +554,12 @@ export async function buildFilteredAnswer(
     /** Établissements épinglés sur l'entrée curatée → mis en avant en tête. */
     pinnedIds?: string[];
 
-
-    city?: string | null;
+    /**
+     * Périmètre géographique — RÈGLE UNIQUE (voir `../city-scope.ts`) :
+     * ville du business master, sauf ville explicitement nommée par l'utilisateur.
+     * `ai_suggestions.city` ne pilote QUE la visibilité de la suggestion.
+     */
+    scopeCity?: string | null;
     maxResults?: number;
     supabaseUrl: string;
     serviceKey: string;
@@ -566,16 +570,9 @@ export async function buildFilteredAnswer(
   const commodities = (opts.commodities || []).filter(Boolean);
   const serviceNames = (opts.serviceNames || []).filter(Boolean);
   if (!badgeIds.length && !subcategoryNames.length && !commodities.length && !serviceNames.length) return null;
-  // Règle unique : `ai_suggestions.city` pilote la VISIBILITÉ de la suggestion.
-  // Vide (« Toutes ») = la suggestion s'affiche pour tous les business master, mais
-  // les RÉSULTATS sont filtrés sur la ville du business master (host).
-  const curatedCity = String(opts.city || "").trim() || null;
-  const hostCity = String(host?.city || "").trim() || null;
-  const city = curatedCity || hostCity;
-  // Cible éditoriale trans-ville (ex. badge « Agafay ») : si la ville de l'hôte ne
-  // rend (presque) rien, on relâche le filtre ville plutôt que de renvoyer 1 adresse.
-  const relaxable = !curatedCity && !!hostCity;
+  const city = String(opts.scopeCity || host?.city || "").trim() || null;
   const max = opts.maxResults ?? 6;
+
 
   const runQuery = async (cityFilter: string | null): Promise<any[] | null> => {
   let all: any[] = [];
