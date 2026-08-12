@@ -2666,6 +2666,154 @@ export default function StudioVideo() {
             </section>
           )}
 
+          {isCorporate && (
+            <section className="rounded-xl border border-border bg-card p-6 space-y-5">
+              {(() => {
+                const list = genericTab === "external" ? genericExternalVideos : genericInternalVideos;
+                const selectedCount = list.filter((v) => selectedVideos.has(v.url)).length;
+                return (
+                  <>
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <Label className="text-sm">
+                        Vidéos génériques
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          {selectedCount}/{list.length} sélectionnée{selectedCount > 1 ? "s" : ""}
+                        </span>
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          className="text-xs text-muted-foreground hover:text-foreground underline"
+                          onClick={() =>
+                            setSelectedVideos((prev) => {
+                              const next = new Set(prev);
+                              list.forEach((v) => next.add(v.url));
+                              return next;
+                            })
+                          }
+                        >
+                          Toutes
+                        </button>
+                        <button
+                          type="button"
+                          className="text-xs text-muted-foreground hover:text-foreground underline"
+                          onClick={() =>
+                            setSelectedVideos((prev) => {
+                              const next = new Set(prev);
+                              list.forEach((v) => next.delete(v.url));
+                              return next;
+                            })
+                          }
+                        >
+                          Aucune
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowGenericVideos((s) => !s)}
+                          className="text-muted-foreground hover:text-foreground p-1 rounded"
+                          aria-label={showGenericVideos ? "Masquer les vidéos génériques" : "Afficher les vidéos génériques"}
+                          title={showGenericVideos ? "Masquer" : "Afficher"}
+                        >
+                          {showGenericVideos ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {showGenericVideos && (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setGenericTab("external")}
+                            className={`text-xs px-3 py-1.5 rounded-full border transition ${
+                              genericTab === "external"
+                                ? "bg-[#C04F17] text-white border-[#C04F17]"
+                                : "border-border text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            Externes ({genericExternalVideos.length})
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setGenericTab("internal")}
+                            className={`text-xs px-3 py-1.5 rounded-full border transition ${
+                              genericTab === "internal"
+                                ? "bg-[#C04F17] text-white border-[#C04F17]"
+                                : "border-border text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            Produites en interne ({genericInternalVideos.length})
+                          </button>
+                        </div>
+
+                        {list.length === 0 ? (
+                          <p className="text-[11px] text-muted-foreground">
+                            {genericTab === "external"
+                              ? "Aucune vidéo générique externe."
+                              : "Aucune vidéo générée depuis le backoffice pour l'instant."}
+                          </p>
+                        ) : (
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                            {list.map((v) => {
+                              const checked = selectedVideos.has(v.url);
+                              return (
+                                <div
+                                  key={v.url}
+                                  className={`relative aspect-[9/16] rounded-md overflow-hidden border-2 bg-black transition ${
+                                    checked ? "border-[#C04F17] ring-2 ring-[#C04F17]/40" : "border-border hover:border-muted-foreground"
+                                  }`}
+                                  title={v.title}
+                                >
+                                  {v.kind === "file" ? (
+                                    <video
+                                      src={v.url}
+                                      controls
+                                      preload="metadata"
+                                      playsInline
+                                      className="w-full h-full object-cover bg-black"
+                                    />
+                                  ) : v.thumbnail ? (
+                                    <img src={v.thumbnail} alt={v.title} className="w-full h-full object-cover" loading="lazy" />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-white/60">
+                                      <Video className="h-6 w-6" />
+                                    </div>
+                                  )}
+                                  <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/80 to-transparent p-1">
+                                    <p className="text-[10px] text-white truncate">{v.title}</p>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setSelectedVideos((prev) => {
+                                        const next = new Set(prev);
+                                        if (next.has(v.url)) next.delete(v.url);
+                                        else next.add(v.url);
+                                        return next;
+                                      })
+                                    }
+                                    aria-label={checked ? "Désélectionner" : "Sélectionner"}
+                                    className={`absolute top-1 right-1 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold border transition ${
+                                      checked
+                                        ? "bg-[#C04F17] text-white border-[#C04F17]"
+                                        : "bg-black/60 text-white border-white/40 hover:bg-black/80"
+                                    }`}
+                                  >
+                                    {checked ? "✓" : "+"}
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </>
+                );
+              })()}
+            </section>
+          )}
+
           {selected && bizVideos.length > 0 && (
             <section className="rounded-xl border border-border bg-card p-6 space-y-5">
               <div className="flex items-center justify-between">
