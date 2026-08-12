@@ -691,12 +691,11 @@ export async function buildFilteredAnswer(
     return all;
   };
 
-  let all = await runQuery(city);
-  let effCity = city;
-  if (relaxable && (all || []).length < 2) {
-    const relaxed = await runQuery(null);
-    if ((relaxed || []).length > (all || []).length) { all = relaxed; effCity = null; }
-  }
+  // Aucun relâchement du filtre ville : mieux vaut peu de résultats dans la bonne
+  // ville que des adresses d'une autre ville (règle unique de périmètre).
+  const all = await runQuery(city);
+  const effCity = city;
+
   if (!all) return null;
 
 
