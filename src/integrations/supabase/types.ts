@@ -500,6 +500,7 @@ export type Database = {
           main_categories: string[]
           mode: string | null
           radius_km: number | null
+          route_override: string | null
           sort_order: number
           subcategory_ids: string[]
           surface: string
@@ -522,6 +523,7 @@ export type Database = {
           main_categories?: string[]
           mode?: string | null
           radius_km?: number | null
+          route_override?: string | null
           sort_order?: number
           subcategory_ids?: string[]
           surface: string
@@ -544,6 +546,7 @@ export type Database = {
           main_categories?: string[]
           mode?: string | null
           radius_km?: number | null
+          route_override?: string | null
           sort_order?: number
           subcategory_ids?: string[]
           surface?: string
@@ -629,6 +632,7 @@ export type Database = {
           proximity_b_badge_ids: string[]
           proximity_b_subcategory_ids: string[]
           radius_km: number | null
+          route_override: string | null
           service_ids: string[]
           sort_order: number
           subcategory_ids: string[]
@@ -667,6 +671,7 @@ export type Database = {
           proximity_b_badge_ids?: string[]
           proximity_b_subcategory_ids?: string[]
           radius_km?: number | null
+          route_override?: string | null
           service_ids?: string[]
           sort_order?: number
           subcategory_ids?: string[]
@@ -705,6 +710,7 @@ export type Database = {
           proximity_b_badge_ids?: string[]
           proximity_b_subcategory_ids?: string[]
           radius_km?: number | null
+          route_override?: string | null
           service_ids?: string[]
           sort_order?: number
           subcategory_ids?: string[]
