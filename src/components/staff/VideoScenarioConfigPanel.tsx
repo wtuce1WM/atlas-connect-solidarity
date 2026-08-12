@@ -29,6 +29,7 @@ import {
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import RichTextEditor from "./RichTextEditor";
+import VideoStepNotesDialog from "./VideoStepNotesDialog";
 
 export type VideoScenarioMode = "business" | "corporate" | "explainer";
 
@@ -380,6 +381,8 @@ const SortableStep = ({
   onToggle,
   patch,
   remove,
+  noteCount,
+  onNoteCount,
 }: {
   step: VideoScenarioStep;
   index: number;
@@ -387,6 +390,8 @@ const SortableStep = ({
   onToggle: () => void;
   patch: (values: Partial<VideoScenarioStep>) => void;
   remove: () => void;
+  noteCount: number;
+  onNoteCount: (n: number) => void;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: step.id });
   const doc = STEP_DOCS[step.scene_key];
@@ -473,15 +478,30 @@ const SortableStep = ({
             Titre affiché
             <Input value={step.title ?? ""} onChange={(e) => patch({ title: e.target.value })} className="h-8 text-xs" />
           </label>
-          <label className="text-xs text-muted-foreground grid gap-1">
-            Texte / éléments listés (une ligne par élément, ou séparés par « | »)
-            <Textarea
-              value={step.body ?? ""}
-              onChange={(e) => patch({ body: e.target.value })}
-              rows={3}
-              className="text-xs"
+          <div className="text-xs text-muted-foreground grid gap-1">
+            Texte / éléments listés (une puce ou une ligne par élément)
+            <RichTextEditor
+              content={step.body ?? ""}
+              onChange={(html) => patch({ body: html })}
+              placeholder="Un élément par ligne ou par puce…"
+              simple
+              maxHeight="320px"
             />
-          </label>
+          </div>
+          <div className="flex items-center gap-2">
+            <VideoStepNotesDialog
+              stepId={step.id}
+              stepLabel={step.label || step.scene_key}
+              disabled={step._new}
+              count={noteCount}
+              onCountChange={onNoteCount}
+            />
+            {step._new && (
+              <span className="text-[11px] text-muted-foreground">
+                Enregistre le scénario pour pouvoir ajouter des notes à cette étape.
+              </span>
+            )}
+          </div>
           <label className="text-xs text-muted-foreground grid gap-1">
             Message clé (bas d'écran)
             <Textarea
@@ -558,6 +578,8 @@ const VideoScenarioConfigPanel = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
+  /** Nombre de notes internes par étape (affiché sur le bouton). */
+  const [noteCounts, setNoteCounts] = useState<Record<string, number>>({});
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
@@ -573,11 +595,26 @@ const VideoScenarioConfigPanel = () => {
     ]);
     if (stepsRes.error) toast.error("Chargement impossible");
     // Étape « Menus » abandonnée : on ne l'affiche plus.
-    setSteps(
-      ((stepsRes.data ?? []) as VideoScenarioStep[])
-        .filter((s) => s.scene_key !== "menu_doc")
-        .map((s) => ({ ...s, widget_keys: s.widget_keys ?? [] })),
-    );
+    const loadedSteps = ((stepsRes.data ?? []) as VideoScenarioStep[])
+      .filter((s) => s.scene_key !== "menu_doc")
+      .map((s) => ({ ...s, widget_keys: s.widget_keys ?? [] }));
+    setSteps(loadedSteps);
+
+    // Compteurs de notes internes par étape.
+    if (loadedSteps.length > 0) {
+      const { data: notesData } = await supabase
+        .from("video_scenario_step_notes")
+        .select("step_id")
+        .in("step_id", loadedSteps.map((s) => s.id));
+      const counts: Record<string, number> = {};
+      for (const n of (notesData ?? []) as Array<{ step_id: string }>) {
+        counts[n.step_id] = (counts[n.step_id] ?? 0) + 1;
+      }
+      setNoteCounts(counts);
+    } else {
+      setNoteCounts({});
+    }
+
     setConfig(
       (configRes.data as ScenarioConfig | null) ?? {
         mode,
@@ -816,12 +853,19 @@ const VideoScenarioConfigPanel = () => {
               placeholder="Nom de l'étape"
               className="h-8 w-40 text-xs"
             />
-            <Input
-              value={manualKey}
-              onChange={(e) => setManualKey(e.target.value)}
-              placeholder="clé_technique"
-              className="h-8 w-36 text-xs font-mono"
-            />
+            <div className="grid gap-0.5">
+              <Input
+                value={manualKey}
+                onChange={(e) => setManualKey(e.target.value)}
+                placeholder="clé_technique"
+                className="h-8 w-56 text-xs font-mono"
+              />
+              <span className="text-[11px] leading-snug text-muted-foreground w-56">
+                Identifiant unique de la scène (ex. <span className="font-mono">exp_widgets</span>) : il relie l'étape au
+                composant Remotion qui la dessine et sert de clé de tri/durée au montage. Laisse vide pour le générer
+                depuis le nom.
+              </span>
+            </div>
             <Button
               size="sm"
               variant="outline"
@@ -872,6 +916,8 @@ const VideoScenarioConfigPanel = () => {
                     onToggle={() => setExpanded((prev) => (prev === s.id ? null : s.id))}
                     patch={(values) => patch(s.id, values)}
                     remove={() => removeStep(s.id)}
+                    noteCount={noteCounts[s.id] ?? 0}
+                    onNoteCount={(n) => setNoteCounts((prev) => ({ ...prev, [s.id]: n }))}
                   />
                 ))}
               </div>
