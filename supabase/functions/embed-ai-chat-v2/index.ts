@@ -25,7 +25,7 @@ import {
   type ResolveResult,
 } from "../_shared/taxonomy-resolver.ts";
 import { detectViewIntent, withinPointRadius, hasVantage, hasPointViewProof, hasPanoramaAttribute, hasPanoramaProof } from "../_shared/ai-engine/view-targets.ts";
-import { pickLang, normalize, toMapMarker, fetchPriorFull } from "../_shared/ai-engine/routes/shared.ts";
+import { pickLang, normalize, toMapMarker, fetchPriorFull, matchBusinessNameInMessage } from "../_shared/ai-engine/routes/shared.ts";
 import { loadEditorialBundle, formatEditorialBundle } from "../_shared/ai-engine/editorial.ts";
 import { isWeatherIntent } from "../_shared/ai-engine/routes/weather.ts";
 import { isTidesIntent, resolveTidesCity, tidesIntro } from "../_shared/ai-engine/routes/tides.ts";
@@ -936,7 +936,14 @@ Deno.serve(async (req) => {
         // sur ce qui vient d'être présenté (« Que faire sur place ? »).
         // Une catégorie inventée par le classifieur (« activite ») ne suffit pas :
         // c'est elle qui déclenchait une recherche ville entière hors sujet.
+        // ── Autorité « nom propre » : une demande nominative prime sur la taxonomie ──
+        const nameHit = await matchBusinessNameInMessage(admin, userMessage).catch(() => null);
+        if (nameHit) {
+          console.log("[embed-ai-chat-v2] name_authority", nameHit.name);
+        }
+
         const contextualFollowUp =
+          !nameHit &&
           priorIds.length > 0 &&
           !strongTerms.length &&
           !expansionTerms.length &&
@@ -950,7 +957,12 @@ Deno.serve(async (req) => {
         }
 
 
-        if (!contextualFollowUp && out && confident && (out.intent === "search" || out.intent === "compare")) {
+        if (nameHit) {
+          // Recherche nominative : business-search isole le nom exact (ville de la fiche).
+          await runSearch(nameHit.name, nameHit.city || searchCity, []);
+        }
+
+        if (!nameHit && !contextualFollowUp && out && confident && (out.intent === "search" || out.intent === "compare")) {
           const views = detectViewIntent(userMessage);
           const panoramaHints = views.panoramas.map((p) => p.attributeNames[0]);
           const excluded = excludedTerms;

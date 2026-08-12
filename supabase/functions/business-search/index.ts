@@ -1172,7 +1172,9 @@ serve(async (req) => {
     let nameMatchedBusinessIds: string[] = [];
     const keywordPinnedIds = new Set<string>(); // IDs matched via keywords — exempt from relevance filtering
     let nameSearchQueryForDetection = "";
-    if (effectiveQuery && effectiveQuery.split(/\s+/).length <= 6) {
+    // Gate élargi à 10 mots : les noms propres longs ("Le Chalet de la Plage - Chez Jeannot")
+    // étaient exclus du pinning par nom et se faisaient écraser par la détection de sous-catégorie.
+    if (effectiveQuery && effectiveQuery.split(/\s+/).length <= 10) {
       let nameSearchQuery = effectiveQuery;
       if (effectiveCity) {
         const cityWords = effectiveCity.toLowerCase().split(/\s+/);
@@ -5417,9 +5419,34 @@ serve(async (req) => {
     // This prevents "Baberrih Hotel" from returning all hotels just because "Hotel" is in search_vector
     // Excluded: city names and other generic terms that aren't business names
     let exactNameMatchIsolation = false;
-    if (query && businesses.length > 1) {
-      const qNormIso = stripAccentsGlobal(query.trim().toLowerCase());
-      const exactBusiness = businesses.find(b => stripAccentsGlobal(b.name.toLowerCase().trim()) === qNormIso);
+    const normNameIso = (s: string) =>
+      stripAccentsGlobal(String(s ?? "").toLowerCase())
+        .replace(/[^\p{L}\p{N}\s]/gu, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    if (query && businesses.length >= 1) {
+      const qNormIso = normNameIso(query);
+      let exactBusiness = businesses.find(b => normNameIso(b.name) === qNormIso);
+      // Repli : la requête EST un nom d'établissement mais la fiche n'est pas dans les
+      // résultats (écrasée par la détection de sous-catégorie, ex. "Plage"). On la récupère.
+      if (!exactBusiness && qNormIso.split(" ").length >= 2) {
+        const { data: directName } = await supabase
+          .from("businesses")
+          .select("*")
+          .eq("is_active", true)
+          .ilike("name", `%${query.trim()}%`)
+          .limit(5);
+        const hit = (directName ?? []).find((b: any) => normNameIso(b.name) === qNormIso);
+        if (hit) {
+          exactBusiness = {
+            ...hit,
+            distance_km: latitude && longitude && hit.latitude && hit.longitude
+              ? calculateDistance(latitude, longitude, hit.latitude, hit.longitude) : null,
+          } as any;
+          businesses = [exactBusiness as any, ...businesses.filter((b: any) => b.id !== (exactBusiness as any).id)];
+          console.log(`🎯 Exact name recovered from DB: "${query}" → ${(exactBusiness as any).name}`);
+        }
+      }
       if (exactBusiness) {
         // Check the query is NOT just a city name
         const isCityName = !!detectedCity && stripAccentsGlobal(detectedCity.toLowerCase()) === qNormIso;
@@ -5443,17 +5470,17 @@ serve(async (req) => {
           const queryWords = qNormIso.split(/\s+/).filter(w => w.length >= 3 && !genericTerms.has(w));
           // Keep businesses whose name contains the query (or vice-versa)
           const nameContainMatches = businesses.filter(b => {
-            if (b.id === exactBusiness.id) return false;
-            const bNameNorm = stripAccentsGlobal(b.name.toLowerCase().trim());
+            if (b.id === exactBusiness!.id) return false;
+            const bNameNorm = normNameIso(b.name);
             return bNameNorm.includes(qNormIso) || qNormIso.includes(bNameNorm);
           });
           const nameContainIds = new Set(nameContainMatches.map(b => b.id));
           const keywordMatches = queryWords.length > 0 ? businesses.filter(b => {
-            if (b.id === exactBusiness.id || nameContainIds.has(b.id)) return false;
+            if (b.id === exactBusiness!.id || nameContainIds.has(b.id)) return false;
             const bKeywords = (b.keywords ?? []).map((k: string) => stripAccentsGlobal(k.toLowerCase().trim()));
             return bKeywords.some((kw: string) => queryWords.some(qw => kw.includes(qw) || qw.includes(kw)));
           }) : [];
-          businesses = [exactBusiness, ...nameContainMatches, ...keywordMatches];
+          businesses = [exactBusiness as any, ...nameContainMatches, ...keywordMatches];
           exactNameMatchIsolation = true;
           console.log(`🎯 Exact name match isolation: "${query}" → keeping ${businesses.length} results (exact + ${keywordMatches.length} keyword matches, was ${beforeIso})`);
         }
