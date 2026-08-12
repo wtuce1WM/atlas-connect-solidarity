@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, LogOut, ListOrdered, LayoutDashboard, Film } from "lucide-react";
+import { ArrowLeft, LogOut, ListOrdered, LayoutDashboard, Film, Rocket } from "lucide-react";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import VideoScenarioConfigPanel from "@/components/staff/VideoScenarioConfigPanel";
 import VideoDashboardPanel from "@/components/staff/VideoDashboardPanel";
 import LatestVideosPanel from "@/components/staff/LatestVideosPanel";
+import VideoGeneratePanel from "@/components/staff/VideoGeneratePanel";
+
 
 
 
@@ -90,6 +92,10 @@ const StaffVideos = () => {
               <ListOrdered className="h-4 w-4" />
               Scénario
             </TabsTrigger>
+            <TabsTrigger value="generate" className="gap-2">
+              <Rocket className="h-4 w-4" />
+              Générer
+            </TabsTrigger>
             <TabsTrigger value="latest" className="gap-2">
               <Film className="h-4 w-4" />
               Dernières vidéos
@@ -101,10 +107,14 @@ const StaffVideos = () => {
           <TabsContent value="scenario">
             <VideoScenarioConfigPanel />
           </TabsContent>
+          <TabsContent value="generate">
+            <VideoGeneratePanel />
+          </TabsContent>
           <TabsContent value="latest">
             <LatestVideosPanel />
           </TabsContent>
         </Tabs>
+
 
 
       </main>

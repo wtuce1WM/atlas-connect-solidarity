@@ -17,3 +17,7 @@ Template de montage des vidéos internes de feed (issu du calibrage « Riads à 
 **Rythme** : réglable via `timing` du manifest (temps par étape, pause hook, move/pause par section) sans toucher au code.
 
 `FeedSwipe.tsx` (v1-v4) est conservé comme référence historique mais gelé : toute nouvelle vidéo passe par le template.
+
+**Déclenchement back-office :** `/staff/backoffice/videos` → onglet **Générer** (`VideoGeneratePanel.tsx`) : URL /search + titre/slug + format + nb de fiches + temps par fiche + durée fiche détaillée + pauses (hook, section) + sections d'arrêt. Insertion dans `video_jobs` avec `template_id = feed-template | feed-template-landscape` et `template_props.kind = "feed"`, puis `trigger-render-workflow`. `remotion/scripts/render-job.mjs` lance `capture/capture_feed.py` (avant le bundling), patche `manifest.timing` avec les valeurs du back-office, puis rend la composition correspondante.
+
+**Corporate :** le mode « Explicative (affiliés) » a été fusionné dans le mode **Corporate** (étapes migrées en base). Édition : onglet Scénario, mode Corporate. Génération : Studio Vidéo IA en mode corporate.

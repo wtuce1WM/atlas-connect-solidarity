@@ -66,11 +66,13 @@ const MAX_NOTE_LENGTH = 20000;
 
 type BusinessLite = { id: string; name: string; slug: string | null; city: string | null };
 
+// Les vidéos « explicatives » ont été fusionnées dans le mode Corporate :
+// un seul scénario corporate, édité ici et exécuté par Studio Vidéo IA.
 const MODES: Array<{ value: VideoScenarioMode; label: string }> = [
   { value: "business", label: "Établissement" },
   { value: "corporate", label: "Corporate" },
-  { value: "explainer", label: "Explicative (affiliés)" },
 ];
+
 
 
 
