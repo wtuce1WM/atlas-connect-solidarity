@@ -184,15 +184,29 @@ export async function loadCuratedTargets(
     }
   }
 
-  // Relance : ses propres réglages font autorité sur ceux de la suggestion parente
-  // (route imposée en back-office, mode, rayon, ville).
+  // Relance : elle est la SEULE autorité. Une relance n'est jamais un ré-exécution
+  // de la suggestion parente : on n'hérite donc d'aucun filtre taxonomique du parent
+  // (badges, sous-catégories, services, commodités, destinations). Sans quoi la
+  // branche « filtre curaté » court-circuitait les routes déterministes de la relance
+  // (météo, réservation, horaires, distances…). Seuls les réglages propres de la
+  // relance comptent ; le contexte des résultats précédents est porté par les
+  // marqueurs de conversation (KNOWN_BUSINESSES / POOL_BUSINESS_IDS).
   if (followupId) {
     try {
       const { data: fup } = await admin
         .from("ai_followups")
-        .select("mode, route_override, city, radius_km, label_fr, label_en, label_ar")
+        .select("mode, route_override, city, radius_km, label_fr, label_en, label_ar, badge_ids, subcategory_ids, service_ids, commodity_filters, business_ids, destination_ids")
         .eq("id", followupId)
         .maybeSingle();
+
+      // Réinitialisation des filtres hérités du parent.
+      out.badgeIds = [];
+      out.commodities = [];
+      out.destinationIds = [];
+      out.subcategoryNames = [];
+      out.serviceNames = [];
+      out.pinnedBusinessIds = [];
+
       if (fup) {
         const fRoute = String(fup.route_override || "").trim();
         if (fRoute) out.routeOverride = fRoute;
@@ -202,11 +216,39 @@ export async function loadCuratedTargets(
         if (fCity) out.city = fCity;
         out.radiusKm = typeof fup.radius_km === "number" ? fup.radius_km : null;
         out.label = (fup.label_fr || fup.label_en || fup.label_ar || out.label || null) as string | null;
+
+        // Filtres propres à la relance (s'ils existent).
+        out.badgeIds = Array.isArray(fup.badge_ids) ? fup.badge_ids.filter(Boolean) : [];
+        out.commodities = Array.isArray(fup.commodity_filters) ? fup.commodity_filters.filter(Boolean) : [];
+        out.destinationIds = Array.isArray(fup.destination_ids) ? fup.destination_ids.filter(Boolean) : [];
+        out.pinnedBusinessIds = Array.isArray(fup.business_ids) ? fup.business_ids.filter(Boolean) : [];
+
+        const fSubIds: string[] = Array.isArray(fup.subcategory_ids) ? fup.subcategory_ids.filter(Boolean) : [];
+        if (fSubIds.length) {
+          const { data: subs } = await admin.from("subcategories").select("name_fr").in("id", fSubIds);
+          out.subcategoryNames = (subs || []).map((s: any) => s.name_fr).filter(Boolean);
+        }
+
+        const fSvcIds: string[] = Array.isArray(fup.service_ids) ? fup.service_ids.filter(Boolean) : [];
+        if (fSvcIds.length) {
+          const { data: svcs } = await admin.from("services").select("name_fr").in("id", fSvcIds);
+          const seen = new Set<string>();
+          out.serviceNames = (svcs || [])
+            .map((s: any) => String(s?.name_fr || "").trim())
+            .filter((n: string) => {
+              if (!n) return false;
+              const k = n.toLowerCase();
+              if (seen.has(k)) return false;
+              seen.add(k);
+              return true;
+            });
+        }
       }
     } catch (e) {
       console.error("[curated] followup_lookup_error", String(e));
     }
   }
+
 
 
 
