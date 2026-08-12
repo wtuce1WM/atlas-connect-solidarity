@@ -20,6 +20,8 @@ type Row = {
   is_active: boolean;
   radius_km: number | null;
   mode: string | null;
+  route_override: string | null;
+
   category: string | null;
   city: string | null;
   subcategory_ids: string[];
