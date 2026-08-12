@@ -257,13 +257,18 @@ const AiFollowupsManagement = ({ surface = "embed" }: { surface?: "club" | "embe
 
                   {/* Résumé des paramètres (toujours visible) */}
                   <div className="flex flex-wrap items-center gap-1.5 pt-2 text-[11px]">
-                    {r.mode === "weather" ? (
+                    {r.route_override ? (
+                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium bg-red-500/15 text-red-700 dark:text-red-300" title="Route imposée en back-office : le moteur n'analyse pas le libellé.">
+                        🔒 {forcedRouteLabel(r.route_override)}
+                      </span>
+                    ) : r.mode === "weather" ? (
                       <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium bg-sky-500/15 text-sky-700 dark:text-sky-300">🌤 get_weather</span>
                     ) : r.mode === "poi_nearby" ? (
                       <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">📍 poi_nearby</span>
                     ) : (
                       <RouteBadge label={r.label_fr || ""} />
                     )}
+
                     <Chip label="Mode" value={r.mode ? (r.mode === "poi_nearby" ? "POI seulement" : r.mode === "weather" ? "Météo" : r.mode) : "Auto"} alert={!!r.mode} />
                     <Chip label="Rayon" value={r.radius_km == null ? "auto" : `${r.radius_km} km`} alert={r.radius_km != null} />
                     <Chip label="Ville" value={r.city || "Toutes"} alert={!!r.city} />
