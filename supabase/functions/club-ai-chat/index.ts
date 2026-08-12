@@ -11,6 +11,7 @@ import {
 
 } from "../_shared/ai-engine/routes/curated.ts";
 import { buildVideoFeedAnswer, videoFeedMarker } from "../_shared/ai-engine/routes/videoFeed.ts";
+import { resolveCityScope, detectExplicitCity } from "../_shared/ai-engine/city-scope.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -2078,7 +2079,7 @@ serve(async (req) => {
             pinnedBusinessIds: curated.pinnedBusinessIds,
             label: curated.label,
             lang: lang as any,
-            city: curated.city || pseudoHost?.city || null,
+            city: curatedScopeCity,
           }).catch((e) => { console.error("club-ai-chat → video_feed_failed", String(e)); return null; });
           if (builtV) {
             await deliverCurated({
@@ -2113,7 +2114,7 @@ serve(async (req) => {
             commodities: curated.commodities,
             label: curated.label,
             pinnedIds: curated.pinnedBusinessIds,
-            city: curated.city,
+            scopeCity: curatedScopeCity,
             maxResults: 6,
             supabaseUrl,
             serviceKey,

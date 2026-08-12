@@ -281,7 +281,7 @@ serve(async (req) => {
               commodities: curated.commodities,
               label: curated.label,
               pinnedIds: curated.pinnedBusinessIds,
-              city: curated.city,
+              scopeCity: await detectExplicitCity(sb, String(query || "")) || defaultCity,
               maxResults: 6,
               supabaseUrl: Deno.env.get("SUPABASE_URL")!,
               serviceKey: Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
