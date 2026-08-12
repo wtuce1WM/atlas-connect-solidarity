@@ -5476,11 +5476,11 @@ serve(async (req) => {
           });
           const nameContainIds = new Set(nameContainMatches.map(b => b.id));
           const keywordMatches = queryWords.length > 0 ? businesses.filter(b => {
-            if (b.id === exactBusiness.id || nameContainIds.has(b.id)) return false;
+            if (b.id === exactBusiness!.id || nameContainIds.has(b.id)) return false;
             const bKeywords = (b.keywords ?? []).map((k: string) => stripAccentsGlobal(k.toLowerCase().trim()));
             return bKeywords.some((kw: string) => queryWords.some(qw => kw.includes(qw) || qw.includes(kw)));
           }) : [];
-          businesses = [exactBusiness, ...nameContainMatches, ...keywordMatches];
+          businesses = [exactBusiness as any, ...nameContainMatches, ...keywordMatches];
           exactNameMatchIsolation = true;
           console.log(`🎯 Exact name match isolation: "${query}" → keeping ${businesses.length} results (exact + ${keywordMatches.length} keyword matches, was ${beforeIso})`);
         }
