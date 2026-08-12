@@ -325,6 +325,42 @@ Deno.serve(async (req) => {
           const isInitialClick = !!(curated?.label && norm(userMessage) === norm(curated.label));
           const keepCurated = !!curated && (!!followupId || isInitialClick || suggestionFromText || !priorIds.length);
 
+          // ── ROUTE IMPOSÉE EN BACK-OFFICE (`route_override`) ────────────────
+          // Autorité absolue : aucune détection d'intention sur le libellé.
+          // `search_businesses` / `llm` laissent volontairement passer le flux normal.
+          const forcedKey = curated?.routeOverride ?? null;
+          if (curated && keepCurated && isForcedRouteKey(forcedKey)) {
+            const hostRadius = RADIUS_OPTIONS.includes(Number(host?.poi_radius_km)) ? Number(host?.poi_radius_km) : 1;
+            const forced = await runForcedRoute({
+              admin,
+              key: forcedKey,
+              lang,
+              host,
+              priorIds,
+              userMessage,
+              scopeCity,
+              radiusKm: requestedRadiusKm ?? curated.radiusKm ?? hostRadius,
+            }).catch((e) => {
+              console.error("[embed-ai-chat-v2] forced_route_failed", forcedKey, String(e));
+              return null;
+            });
+            console.log("[embed-ai-chat-v2] forced_route", JSON.stringify({ forcedKey, applied: !!forced }));
+            if (forced) {
+              route = forced.route;
+              resultsCount = forced.resultsCount;
+              emit(forced.text);
+              if (forced.mapBusinesses?.length) emit(`\n\n${forcedMapMarker(forced.mapBusinesses)}`);
+              if (forced.knownBusinesses?.length) {
+                emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(forced.knownBusinesses)}-->`);
+              }
+              await finish(true);
+              return;
+            }
+            if (forcedKey !== "search_businesses" && forcedKey !== "llm") fallbackReason = "no_results";
+          }
+
+
+
           // Article de blog lié : il ne remplace PAS les résultats. Le moteur
           // calcule ses propres résultats et propose de consulter l'article.
           if (curated && keepCurated && curated.blogPostIds.length && !articleTeaser) {
