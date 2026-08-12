@@ -100,9 +100,53 @@ async function renderOne() {
     if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
 
     const outPath = path.join(tempDir, `${job.id}.mp4`);
-    const props = (job.template_props && Object.keys(job.template_props).length > 0)
+    let props = (job.template_props && Object.keys(job.template_props).length > 0)
       ? job.template_props
       : (job.scenario_json || {});
+
+    // --- Scénario « Feed » : capture Playwright réelle puis rendu par le template
+    // paramétrique. Toute la géométrie/rythme passe par le manifest, aucun calibrage
+    // n'est codé ici. La capture doit précéder le bundling (assets dans public/).
+    const isFeed = String(job.template_id || "").startsWith("feed-template");
+    if (isFeed) {
+      const p = props || {};
+      if (!p.url) throw new Error("Job feed sans URL source");
+      const slug = String(p.slug || `job-${job.id.slice(0, 8)}`);
+      const origin = new URL(p.url).origin;
+      const sections = Array.isArray(p.sections) && p.sections.length > 0
+        ? p.sections.join(",")
+        : "Avis clients,Vidéos,Assistant IA,À proximité";
+      const captureArgs = [
+        "capture/capture_feed.py",
+        "--url", String(p.url),
+        "--slug", slug,
+        "--label", String(p.label || slug),
+        "--steps", String(p.steps || 6),
+        "--origin", origin,
+        "--fps", String(p.fps || 25),
+        "--step-seconds", String(p.stepSeconds || 3),
+        "--detail-seconds", String(p.detailSeconds || 21),
+        "--sections", sections,
+      ];
+      console.log("🎥 Capture du feed :", captureArgs.join(" "));
+      execFileSync("python3", captureArgs, {
+        cwd: path.resolve(__dirname, ".."),
+        stdio: "inherit",
+        env: process.env,
+      });
+
+      // Rythme réglé en back-office : on patche le bloc timing du manifest.
+      const manifestFile = path.resolve(__dirname, `../public/feed/${slug}/manifest.json`);
+      const manifest = JSON.parse(fs.readFileSync(manifestFile, "utf-8"));
+      if (p.timing && typeof p.timing === "object") {
+        manifest.timing = { ...manifest.timing, ...p.timing };
+        fs.writeFileSync(manifestFile, JSON.stringify(manifest, null, 1));
+      }
+      props = {
+        manifestPath: `feed/${slug}/manifest.json`,
+        format: p.format === "landscape" ? "landscape" : "portrait",
+      };
+    }
 
     console.log("📦 Bundling Remotion...");
     const bundled = await bundle({
@@ -123,6 +167,7 @@ async function renderOne() {
       "main", "corporate-vertical", "business-showcase", "comptoir-darna",
       "riad-dar-najat", "maison-brummell", "jnane-rumi", "agent-ia-demo",
       "agent-ia-demo-v2", "nar-complexe", "farasha-farmhouse", "bo-zin",
+      "explainer-affiliates", "feed-template", "feed-template-landscape",
     ];
     let compositionId = job.template_id || "business-showcase";
     if (!validCompositions.includes(compositionId)) {
@@ -136,6 +181,7 @@ async function renderOne() {
       puppeteerInstance: browser,
       inputProps: props,
     });
+
 
     // Audio : activé si une bande son globale est définie ou si le fond continu doit garder son son
     const wantsAudio = Boolean(props?.soundtrackUrl) || Boolean(props?.continuousBgSound);
