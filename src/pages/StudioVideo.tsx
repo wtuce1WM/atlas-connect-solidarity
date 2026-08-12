@@ -700,6 +700,53 @@ export default function StudioVideo() {
     });
   }, [selectedVideos, videoPool]);
 
+  // Chargement des vidéos génériques (mode corporate uniquement).
+  useEffect(() => {
+    if (studioMode !== "corporate") {
+      setGenericExternalVideos([]);
+      setGenericInternalVideos([]);
+      return;
+    }
+    let cancelled = false;
+    const kindOf = (u: string): "file" | "youtube" =>
+      /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u) ? "file" : "youtube";
+    (async () => {
+      const [{ data: gen }, { data: jobs }] = await Promise.all([
+        supabase
+          .from("generic_videos")
+          .select("id, url, title, name, thumbnail_url, city, sort_order")
+          .order("sort_order", { ascending: true })
+          .limit(500),
+        supabase
+          .from("video_jobs")
+          .select("id, output_url, title, prompt, created_at")
+          .not("output_url", "is", null)
+          .order("created_at", { ascending: false })
+          .limit(200),
+      ]);
+      if (cancelled) return;
+      setGenericExternalVideos(
+        (gen || [])
+          .filter((g: any) => !!g.url)
+          .map((g: any) => ({
+            url: g.url as string,
+            thumbnail: (g.thumbnail_url as string) || null,
+            title: (g.title || g.name || g.city || "Vidéo générique") as string,
+            kind: kindOf(g.url as string),
+          })),
+      );
+      setGenericInternalVideos(
+        (jobs || []).map((j: any) => ({
+          url: j.output_url as string,
+          thumbnail: null,
+          title: (j.title || j.prompt || "Vidéo 1WM")?.toString().slice(0, 70) as string,
+          kind: "file" as const,
+        })),
+      );
+    })();
+    return () => { cancelled = true; };
+  }, [studioMode]);
+
   const orderedSelectedVideos = useMemo(
     () => videoOrder.filter((u) => selectedVideos.has(u)),
     [videoOrder, selectedVideos],
