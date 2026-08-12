@@ -260,7 +260,10 @@ export type CuratedAnswer = {
   shown: number;
   total: number;
   route: string;
+  /** Corpus COMPLET trouvé (pas seulement les résultats affichés) — sert aux relances. */
+  poolIds?: string[];
 };
+
 
 function mapBusinessesOf(list: any[]) {
   return list.map((b: any) => ({
@@ -474,8 +477,9 @@ export async function buildBlogArticleAnswer(
  */
 export async function buildPinnedAnswer(
   admin: any, ids: string[], host: any, lang: Lang, label?: string | null,
-  overrides?: { route?: string; heading?: string; outro?: string; total?: number },
+  overrides?: { route?: string; heading?: string; outro?: string; total?: number; poolIds?: string[] },
 ): Promise<CuratedAnswer | null> {
+
   const wanted = ids.filter(Boolean).slice(0, 20);
   if (!wanted.length) return null;
   const { data } = await admin
@@ -532,7 +536,9 @@ export async function buildPinnedAnswer(
     shown: ordered.length,
     total: overrides?.total ?? ordered.length,
     route: overrides?.route ?? "curated_pinned",
+    poolIds: overrides?.poolIds ?? ordered.map((b: any) => String(b.id)),
   };
+
 }
 
 /**
@@ -742,7 +748,11 @@ export async function buildFilteredAnswer(
     heading,
     outro,
     total,
+    // Corpus complet trouvé : les relances (proximité, distances…) doivent
+    // pouvoir travailler sur les 19 adresses, pas seulement sur les 6 affichées.
+    poolIds: ids.map((id) => String(id)),
   });
+
   return built;
 }
 

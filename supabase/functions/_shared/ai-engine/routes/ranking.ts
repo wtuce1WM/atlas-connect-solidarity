@@ -215,3 +215,67 @@ export function buildCountAnswer(count: number, lang: "fr" | "en" | "ar"): strin
   if (lang === "ar") return `يوجد **${count}** نتيجة في الاختيار السابق. هل تريد ترتيبها أو تصفيتها؟`;
   return `Il y a **${count}** résultat${count > 1 ? "s" : ""} dans la sélection précédente. Tu veux que je les classe ou les filtre ?`;
 }
+
+/**
+ * Relance « à proximité de <hôte> » : on ne relance PAS une recherche générique,
+ * on filtre le corpus déjà trouvé au tour précédent (pool complet, pas seulement
+ * les adresses affichées) par distance à l'hôte, dans le rayon de proximité
+ * actif (rayon choisi par l'utilisateur, sinon rayon de la fiche).
+ */
+export async function buildProximityFromPool(
+  admin: any,
+  host: any,
+  ids: string[],
+  radiusKm: number,
+  lang: "fr" | "en" | "ar",
+): Promise<{ text: string; kept: any[]; total: number } | null> {
+  const pool = [...new Set(ids.filter(Boolean))].filter((id) => id !== host?.id);
+  if (!pool.length) return null;
+  const hLat = Number(host?.latitude), hLng = Number(host?.longitude);
+  if (!Number.isFinite(hLat) || !Number.isFinite(hLng)) return null;
+  const R = radiusKm > 0 ? radiusKm : 1;
+  const rows = await fetchPriorFull(admin, pool.slice(0, 60));
+  const withDist = rows
+    .filter((r: any) => Number.isFinite(Number(r.latitude)) && Number.isFinite(Number(r.longitude)))
+    .map((r: any) => ({ ...r, _dist_km: haversineKmLocal(hLat, hLng, Number(r.latitude), Number(r.longitude)) }))
+    .sort((a: any, b: any) => a._dist_km - b._dist_km);
+  if (!withDist.length) return null;
+  const kept = withDist.filter((r: any) => r._dist_km <= R);
+  const fmtR = (r: number) => (r < 1 ? `${Math.round(r * 1000)} m` : Number.isInteger(r) ? `${r} km` : `${r.toFixed(1)} km`);
+
+  if (!kept.length) {
+    const nearest = withDist.slice(0, 3);
+    const lines = nearest.map((r: any) => {
+      const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
+      return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${fmtKm(r._dist_km)}`;
+    });
+    const intro = lang === "en"
+      ? `None of the ${withDist.length} previous addresses is within **${fmtR(R)}** of **${host.name}**. The closest ones:`
+      : lang === "ar"
+        ? `لا يوجد ضمن **${fmtR(R)}** من **${host.name}** أي من العناوين السابقة (${withDist.length}). الأقرب:`
+        : `Aucune des ${withDist.length} adresses précédentes n'est à moins de **${fmtR(R)}** de **${host.name}**. Les plus proches :`;
+    const tail = lang === "en"
+      ? `\n\nWant me to widen the radius (you can change it below or by voice)?`
+      : lang === "ar" ? `\n\nهل أوسّع النطاق (يمكنك تغييره أدناه أو بالصوت)؟`
+      : `\n\nJe peux élargir le rayon (tu peux le changer ci-dessous ou à la voix) ?`;
+    return { text: `${intro}\n\n${lines.join("\n")}${tail}${toMapMarker(nearest)}`, kept: nearest, total: withDist.length };
+  }
+
+  const lines = kept.map((r: any) => {
+    const loc = [r.neighborhood, r.city].filter(Boolean).join(", ");
+    const hook = String(
+      lang === "en" ? (r.hook_en || r.hook_fr || "") : lang === "ar" ? (r.hook_ar || r.hook_fr || "") : (r.hook_fr || r.hook_en || ""),
+    ).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    return `- **${r.name}**${loc ? ` — ${loc}` : ""} · ${fmtKm(r._dist_km)}${hook ? `\n  ${hook.slice(0, 160)}` : ""}`;
+  });
+  const intro = lang === "en"
+    ? `Within **${fmtR(R)}** of **${host.name}**, ${kept.length} of the ${withDist.length} previous addresses match:`
+    : lang === "ar"
+      ? `ضمن **${fmtR(R)}** من **${host.name}**، ${kept.length} من ${withDist.length} عنوانًا سابقًا:`
+      : `À moins de **${fmtR(R)}** de **${host.name}**, ${kept.length} adresses sur les ${withDist.length} précédentes correspondent :`;
+  const tail = lang === "en"
+    ? `\n\nYou can change the radius below or by voice.`
+    : lang === "ar" ? `\n\nيمكنك تغيير النطاق أدناه أو بالصوت.`
+    : `\n\nTu peux modifier ce rayon ci-dessous ou à la voix.`;
+  return { text: `${intro}\n\n${lines.join("\n")}${tail}${toMapMarker(kept)}`, kept, total: withDist.length };
+}

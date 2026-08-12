@@ -39,12 +39,14 @@ import { isHoursIntent, buildHoursAnswer, buildHoursForBusinesses } from "../_sh
 import { isBookingIntent, buildBookingAnswer, buildBookingForBusinesses } from "../_shared/ai-engine/routes/booking.ts";
 import {
   isNearbyOverviewIntent, isProximityIntent, buildNearbyOverview, buildDisclosureFromCounts,
+  parseInlineRadiusKm,
 } from "../_shared/ai-engine/routes/nearby.ts";
 import {
   isRatingRankingIntent, isDistanceListIntent, isDistanceRankingIntent, isCountIntent, parseOrdinalIntent,
   extractPriorOrderedBusinesses, buildRatingRanking, buildDistanceList, buildDistanceRanking, buildOrdinalPick,
-  buildCountAnswer,
+  buildCountAnswer, buildProximityFromPool,
 } from "../_shared/ai-engine/routes/ranking.ts";
+
 import { isOpensFirstIntent, isClosesLastIntent, buildHoursRanking, parseOpenFilterIntent, buildOpenFilter } from "../_shared/ai-engine/routes/opening.ts";
 import { isDescribeIntent, parseDescribeFacet, buildDescribePriors } from "../_shared/ai-engine/routes/describe.ts";
 import { isForcedRouteKey, runForcedRoute, forcedMapMarker } from "../_shared/ai-engine/routes/forced.ts";
@@ -107,6 +109,26 @@ function priorBusinessIds(messages: UIMessage[]): string[] {
     } catch { /* marqueur illisible : ignoré */ }
   }
   return ids;
+}
+
+/**
+ * Corpus COMPLET du tour précédent (marqueur `POOL_BUSINESS_IDS`) : les relances
+ * de type proximité doivent chercher dans la totalité des résultats trouvés
+ * (ex. 19 adresses à Marrakech) et pas seulement dans les 6 affichées.
+ */
+function priorPoolIds(messages: UIMessage[]): string[] {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i] as any;
+    if (m?.role !== "assistant") continue;
+    const match = textOf(m).match(/<!--POOL_BUSINESS_IDS:([\s\S]*?)-->/);
+    if (!match) continue;
+    try {
+      const parsed = JSON.parse(match[1].replace(/--&gt;/g, "-->"));
+      const ids = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.ids) ? parsed.ids : [];
+      if (ids.length) return ids.map((x: any) => String(x));
+    } catch { /* marqueur illisible : ignoré */ }
+  }
+  return [];
 }
 
 function hostContext(host: any, lang: Lang): string {
@@ -182,6 +204,9 @@ Deno.serve(async (req) => {
 
   const userMessage = textOf([...uiMessages].reverse().find((m: any) => m?.role === "user") as UIMessage) || "";
   const priorIds = priorBusinessIds(uiMessages);
+  /** Corpus complet du tour précédent (19 trouvées) — surensemble de `priorIds`. */
+  const poolIds = [...new Set([...priorPoolIds(uiMessages), ...priorIds])];
+
   const chatId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(sessionId || ""))
     ? sessionId
     : null;
@@ -414,6 +439,10 @@ Deno.serve(async (req) => {
                 emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
               }
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
+              if (built.poolIds?.length) {
+                emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: built.poolIds, city: scopeCity })}-->`);
+              }
+
               await finish(true);
               return;
             }
@@ -449,6 +478,10 @@ Deno.serve(async (req) => {
                 emit(`\n\n<!--SHOW_ON_MAP:${JSON.stringify(built.mapPayload)}-->`);
               }
               emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.knownBusinesses)}-->`);
+              if (built.poolIds?.length) {
+                emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: built.poolIds, city: scopeCity })}-->`);
+              }
+
               await finish(true);
               return;
             }
@@ -621,7 +654,35 @@ Deno.serve(async (req) => {
         }
 
 
+        // 4bis. Relance « à proximité de <hôte> » : quand un corpus vient d'être
+        // présenté, la proximité est un RAFFINEMENT de ce corpus complet (les 19
+        // trouvées, pas les 6 affichées), filtré au rayon de proximité actif
+        // (rayon choisi par l'utilisateur, sinon rayon de la fiche, sinon 1 km).
+        if (host && poolIds.length) {
+          const hostNameNorm = normalize(host.name || "");
+          const msgNorm = normalize(userMessage);
+          const mentionsHost = !!hostNameNorm && msgNorm.includes(hostNameNorm);
+          if (isProximityIntent(userMessage) || (mentionsHost && /(proximite|autour|pres|nearby|around|close|near)/.test(msgNorm))) {
+            const hostRadius = RADIUS_OPTIONS.includes(Number(host.poi_radius_km)) ? Number(host.poi_radius_km) : 1;
+            const radius = parseInlineRadiusKm(userMessage) ?? requestedRadiusKm ?? hostRadius;
+            const built = await buildProximityFromPool(admin, host, poolIds, radius, lang).catch((e) => {
+              console.error("[embed-ai-chat-v2] proximity_pool_failed", String(e));
+              return null;
+            });
+            if (built) {
+              route = "nearby";
+              resultsCount = built.kept.length;
+              emit(built.text);
+              emit(`\n\n<!--KNOWN_BUSINESSES:${JSON.stringify(built.kept.map((b: any) => ({ id: b.id, slug: b.slug || null, name: b.name })))}-->`);
+              emit(`\n\n<!--POOL_BUSINESS_IDS:${JSON.stringify({ ids: poolIds, city: scopeCity })}-->`);
+              await finish(true);
+              return;
+            }
+          }
+        }
+
         // 5. Panorama « que faire à proximité ? » (déterministe, Structure du Front)
+
         // Autorité du résolveur : si la requête contient une cible taxonomique réelle
         // (« piscine à proximité »), ce n'est plus un panorama générique → recherche ciblée.
         // Sans hôte (/search, /club) il n'y a pas de point d'ancrage : route ignorée.
