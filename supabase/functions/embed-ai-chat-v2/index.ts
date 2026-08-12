@@ -41,10 +41,14 @@ import {
   isNearbyOverviewIntent, isProximityIntent, buildNearbyOverview, buildDisclosureFromCounts,
 } from "../_shared/ai-engine/routes/nearby.ts";
 import {
-  isRatingRankingIntent, isDistanceListIntent, isCountIntent, parseOrdinalIntent,
-  extractPriorOrderedBusinesses, buildRatingRanking, buildDistanceList, buildOrdinalPick,
+  isRatingRankingIntent, isDistanceListIntent, isDistanceRankingIntent, isCountIntent, parseOrdinalIntent,
+  extractPriorOrderedBusinesses, buildRatingRanking, buildDistanceList, buildDistanceRanking, buildOrdinalPick,
   buildCountAnswer,
 } from "../_shared/ai-engine/routes/ranking.ts";
+import { isOpensFirstIntent, isClosesLastIntent, buildHoursRanking, parseOpenFilterIntent, buildOpenFilter } from "../_shared/ai-engine/routes/opening.ts";
+import { isDescribeIntent, parseDescribeFacet, buildDescribePriors } from "../_shared/ai-engine/routes/describe.ts";
+import { isForcedRouteKey, runForcedRoute, forcedMapMarker } from "../_shared/ai-engine/routes/forced.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
