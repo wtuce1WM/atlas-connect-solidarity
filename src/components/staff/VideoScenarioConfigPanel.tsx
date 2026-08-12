@@ -756,13 +756,17 @@ const VideoScenarioConfigPanel = () => {
                 value={config.business_id}
                 onChange={(id) => {
                   setConfig((prev) => (prev ? { ...prev, business_id: id } : prev));
+                  // La liaison se propage à toutes les étapes du mode (actives ou non).
+                  setSteps((prev) => prev.map((s) => ({ ...s, business_id: id })));
                   setDirty(true);
                 }}
               />
             </div>
             <div className="md:col-span-2 self-end text-xs text-muted-foreground">
-              Le format et les dimensions sont gérés dans Studio Vidéo IA.
+              Changer l'établissement met à jour la liaison de toutes les étapes (et des scènes ajoutées ensuite). Le
+              format et les dimensions sont gérés dans Studio Vidéo IA.
             </div>
+
 
           </div>
         )}
