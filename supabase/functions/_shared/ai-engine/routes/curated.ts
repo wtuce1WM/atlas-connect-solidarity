@@ -260,7 +260,10 @@ export type CuratedAnswer = {
   shown: number;
   total: number;
   route: string;
+  /** Corpus COMPLET trouvé (pas seulement les résultats affichés) — sert aux relances. */
+  poolIds?: string[];
 };
+
 
 function mapBusinessesOf(list: any[]) {
   return list.map((b: any) => ({
