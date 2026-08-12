@@ -23,26 +23,39 @@ const OPEN_DUR = 12;
 const SCROLL_START = OPEN_START + OPEN_DUR; // 507
 const HOOK_HOLD = 50; // 2 s d'arrêt sur le hook en haut de l'overlay
 const SCROLL_BEGIN = SCROLL_START + HOOK_HOLD; // 557
-const SEG_COUNT = 6; // paliers de défilement
-const SEG_MOVE = 96; // ~3.8 s de défilement par palier
-const SEG_PAUSE = 25; // 1 s d'arrêt à chaque palier
-const SCROLL_DUR = SEG_COUNT * (SEG_MOVE + SEG_PAUSE); // 726 (≈29 s)
 const TAIL = 25;
-export const TOTAL = SCROLL_BEGIN + SCROLL_DUR + TAIL;
 
 const DESC_TOP = 93;
 const DESC_VIEW = 1127;
 const DESC_TALL = 6756;
 const SCROLL_MAX = DESC_TALL - DESC_VIEW;
 
-// Défilement par paliers : mouvement puis léger arrêt, répété SEG_COUNT fois.
+// Positions (px) des sections repérées dans la capture longue :
+// Avis clients 2985, Vidéos 3616, Assistant IA 4562, À proximité 5298.
+const STOP_OFFSET = 40; // marge au-dessus du titre de section
+const SEGMENTS: { move: number; pause: number; to: number }[] = [
+  { move: 55, pause: 75, to: 2985 - STOP_OFFSET }, // passage rapide sur la description
+  { move: 45, pause: 75, to: 3616 - STOP_OFFSET }, // Avis clients -> Vidéos
+  { move: 60, pause: 75, to: 4562 - STOP_OFFSET }, // Vidéos -> Assistant IA
+  { move: 60, pause: 75, to: 5298 - STOP_OFFSET }, // Assistant IA -> À proximité
+  { move: 45, pause: 0, to: SCROLL_MAX }, // fin de l'overlay
+];
+
 const SCROLL_FRAMES: number[] = [];
 const SCROLL_VALUES: number[] = [];
-for (let i = 0; i < SEG_COUNT; i++) {
-  const base = SCROLL_BEGIN + i * (SEG_MOVE + SEG_PAUSE);
-  SCROLL_FRAMES.push(base, base + SEG_MOVE);
-  SCROLL_VALUES.push((SCROLL_MAX * i) / SEG_COUNT, (SCROLL_MAX * (i + 1)) / SEG_COUNT);
+{
+  let f = SCROLL_BEGIN;
+  let v = 0;
+  for (const s of SEGMENTS) {
+    SCROLL_FRAMES.push(f, f + s.move);
+    SCROLL_VALUES.push(v, s.to);
+    f += s.move + s.pause;
+    v = s.to;
+  }
 }
+const SCROLL_DUR = SEGMENTS.reduce((a, s) => a + s.move + s.pause, 0);
+export const TOTAL = SCROLL_BEGIN + SCROLL_DUR + TAIL;
+
 
 const pad = (n: number) => String(n).padStart(4, "0");
 const videoFrame = (step: number, i: number, max: number) =>
