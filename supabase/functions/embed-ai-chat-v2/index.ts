@@ -111,6 +111,26 @@ function priorBusinessIds(messages: UIMessage[]): string[] {
   return ids;
 }
 
+/**
+ * Corpus COMPLET du tour précédent (marqueur `POOL_BUSINESS_IDS`) : les relances
+ * de type proximité doivent chercher dans la totalité des résultats trouvés
+ * (ex. 19 adresses à Marrakech) et pas seulement dans les 6 affichées.
+ */
+function priorPoolIds(messages: UIMessage[]): string[] {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i] as any;
+    if (m?.role !== "assistant") continue;
+    const match = textOf(m).match(/<!--POOL_BUSINESS_IDS:([\s\S]*?)-->/);
+    if (!match) continue;
+    try {
+      const parsed = JSON.parse(match[1].replace(/--&gt;/g, "-->"));
+      const ids = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.ids) ? parsed.ids : [];
+      if (ids.length) return ids.map((x: any) => String(x));
+    } catch { /* marqueur illisible : ignoré */ }
+  }
+  return [];
+}
+
 function hostContext(host: any, lang: Lang): string {
   const hook = lang === "en" ? host.hook_en : lang === "ar" ? host.hook_ar : host.hook_fr;
   const desc = lang === "en" ? host.description_en : lang === "ar" ? host.description_ar : host.description;
