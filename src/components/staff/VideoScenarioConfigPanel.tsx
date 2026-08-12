@@ -72,7 +72,9 @@ const MODES: Array<{ value: VideoScenarioMode; label: string }> = [
 
 /** Scènes disponibles pour la vidéo explicative (composition Remotion « explainer-affiliates »). */
 const EXPLAINER_TEMPLATES: Array<{ key: string; label: string }> = [
+  { key: "exp_fiche", label: "Fiche 1WM" },
   { key: "exp_profil", label: "Profil digital enrichi" },
+  { key: "exp_geo", label: "Géolocalisation & Cartes" },
   { key: "exp_widgets", label: "Widgets embarqués" },
   { key: "exp_assistant", label: "Assistant IA" },
   { key: "exp_seo", label: "Visibilité SEO + GEO" },
@@ -81,6 +83,22 @@ const EXPLAINER_TEMPLATES: Array<{ key: string; label: string }> = [
   { key: "exp_automation", label: "Automatisation" },
   { key: "exp_backoffice", label: "Back-office affilié" },
 ];
+
+/** Widgets embarqués sélectionnables sur une étape (mêmes clés que Présence en ligne / Publiés). */
+const WIDGET_OPTIONS: Array<{ key: string; label: string }> = [
+  { key: "ai", label: "Assistant IA" },
+  { key: "nearby", label: "Adresses à proximité (Map & App)" },
+  { key: "reviews", label: "Avis clients" },
+  { key: "rate", label: "Laisser un avis" },
+  { key: "weather", label: "Météo" },
+  { key: "tides", label: "Marées" },
+  { key: "fiche", label: "ID numérique (type Linktree)" },
+  { key: "fiche1wm", label: "Widget Fiche 1WM" },
+];
+
+/** Étapes acceptant une sélection de widgets. */
+const WIDGET_STEP_KEYS = new Set(["exp_widgets", "exp_fiche"]);
+
 
 /**
  * Descriptif fonctionnel de chaque étape : ce qu'elle affiche, la condition
