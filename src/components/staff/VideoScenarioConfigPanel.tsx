@@ -567,7 +567,11 @@ const VideoScenarioConfigPanel = () => {
     ]);
     if (stepsRes.error) toast.error("Chargement impossible");
     // Étape « Menus » abandonnée : on ne l'affiche plus.
-    setSteps(((stepsRes.data ?? []) as VideoScenarioStep[]).filter((s) => s.scene_key !== "menu_doc"));
+    setSteps(
+      ((stepsRes.data ?? []) as VideoScenarioStep[])
+        .filter((s) => s.scene_key !== "menu_doc")
+        .map((s) => ({ ...s, widget_keys: s.widget_keys ?? [] })),
+    );
     setConfig(
       (configRes.data as ScenarioConfig | null) ?? {
         mode,
