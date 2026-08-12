@@ -238,14 +238,24 @@ const STEP_DOCS: Record<string, { what: string; filter: string; notes?: string }
     notes: "Toujours en tout dernier plan ; fond de marque (sans photo d'établissement), logo One World Morocco et signature oneworldmorocco.com.",
   },
 
+  exp_fiche: {
+    what: "Scène « Fiche 1WM » : capture réelle de la fiche de l'établissement lié sur One World Morocco.",
+    filter: "Nécessite un établissement lié. Activée par défaut, en première position.",
+    notes: "Widgets sélectionnés ci-dessous mis en avant dans la fiche capturée.",
+  },
   exp_profil: {
     what: "Scène « Profil digital enrichi » : mosaïque des photos réelles de l'établissement lié, logo, note /20 et attributs de la fiche.",
     filter: "Nécessite un établissement lié avec au moins une photo.",
     notes: "Le corps de texte liste les attributs affichés, un par ligne (ou séparés par « | »).",
   },
+  exp_geo: {
+    what: "Scène « Géolocalisation & Cartes » : carte de l'établissement, quartier et points d'intérêt de proximité.",
+    filter: "Nécessite un établissement lié géolocalisé (latitude/longitude).",
+    notes: "Le corps de texte liste les arguments affichés, un par ligne.",
+  },
   exp_widgets: {
-    what: "Scène « Widgets embarqués » : captures réelles des widgets Météo, Marées et Avis dans des cadres navigateur.",
-    filter: "Toujours disponible.",
+    what: "Scène « Widgets embarqués » : captures réelles des widgets sélectionnés dans des cadres navigateur.",
+    filter: "Toujours disponible. Les widgets capturés sont ceux cochés dans l'étape.",
     notes: "Le corps de texte liste les destinations d'intégration affichées à droite.",
   },
   exp_assistant: {
