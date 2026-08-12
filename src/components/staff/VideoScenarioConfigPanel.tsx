@@ -487,6 +487,34 @@ const SortableStep = ({
               className="text-xs"
             />
           </label>
+          {WIDGET_STEP_KEYS.has(step.scene_key) && (
+            <div className="grid gap-1.5 text-xs text-muted-foreground">
+              <span>Widgets embarqués affichés dans cette scène (un ou plusieurs)</span>
+              <div className="flex flex-wrap gap-1.5">
+                {WIDGET_OPTIONS.map((w) => {
+                  const active = (step.widget_keys ?? []).includes(w.key);
+                  return (
+                    <Button
+                      key={w.key}
+                      type="button"
+                      size="sm"
+                      variant={active ? "default" : "outline"}
+                      className="h-7 text-[11px]"
+                      onClick={() =>
+                        patch({
+                          widget_keys: active
+                            ? (step.widget_keys ?? []).filter((k) => k !== w.key)
+                            : [...(step.widget_keys ?? []), w.key],
+                        })
+                      }
+                    >
+                      {w.label}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             Établissement lié à cette étape
             <BusinessSelect
