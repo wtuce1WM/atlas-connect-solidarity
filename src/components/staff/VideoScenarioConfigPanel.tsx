@@ -788,8 +788,45 @@ const VideoScenarioConfigPanel = () => {
                 </option>
               ))}
             </select>
-            <Button size="sm" variant="outline" onClick={addStep}>
+            <Button size="sm" variant="outline" onClick={() => addStep()}>
               <Plus className="h-4 w-4 mr-1" /> Ajouter
+            </Button>
+            <span className="text-xs text-muted-foreground">ou étape manuelle :</span>
+            <Input
+              value={manualLabel}
+              onChange={(e) => setManualLabel(e.target.value)}
+              placeholder="Nom de l'étape"
+              className="h-8 w-40 text-xs"
+            />
+            <Input
+              value={manualKey}
+              onChange={(e) => setManualKey(e.target.value)}
+              placeholder="clé_technique"
+              className="h-8 w-36 text-xs font-mono"
+            />
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const key =
+                  manualKey.trim() ||
+                  manualLabel
+                    .trim()
+                    .toLowerCase()
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace(/[^a-z0-9]+/g, "_")
+                    .replace(/^_+|_+$/g, "");
+                if (!key) {
+                  toast.error("Renseigne un nom ou une clé d'étape");
+                  return;
+                }
+                addStep({ key, label: manualLabel });
+                setManualKey("");
+                setManualLabel("");
+              }}
+            >
+              <Plus className="h-4 w-4 mr-1" /> Étape manuelle
             </Button>
             <Button size="sm" variant="outline" onClick={load} disabled={loading || saving}>
               <RotateCcw className="h-4 w-4 mr-1" /> Recharger
