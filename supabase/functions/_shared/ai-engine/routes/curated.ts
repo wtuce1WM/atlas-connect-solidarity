@@ -136,13 +136,15 @@ export async function loadCuratedTargets(
     try {
       const { data: sugg } = await admin
         .from("ai_suggestions")
-        .select("subcategory_ids, service_ids, badge_ids, commodity_filters, business_ids, destination_ids, blog_post_ids, city, mode, label_fr, label_en, label_ar")
+        .select("subcategory_ids, service_ids, badge_ids, commodity_filters, business_ids, destination_ids, blog_post_ids, city, mode, route_override, label_fr, label_en, label_ar")
         .eq("id", suggestionId)
         .maybeSingle();
       if (sugg) {
         out.mode = (sugg.mode as string | null) || null;
+        out.routeOverride = (String(sugg.route_override || "").trim() || null);
         out.city = (String(sugg.city || "").trim() || null);
         out.label = (sugg.label_fr || sugg.label_en || sugg.label_ar || null) as string | null;
+
         out.badgeIds = Array.isArray(sugg.badge_ids) ? sugg.badge_ids.filter(Boolean) : [];
         out.commodities = Array.isArray(sugg.commodity_filters) ? sugg.commodity_filters.filter(Boolean) : [];
         out.destinationIds = Array.isArray(sugg.destination_ids) ? sugg.destination_ids.filter(Boolean) : [];
