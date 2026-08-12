@@ -389,7 +389,7 @@ export default function StudioVideo() {
   // Format de sortie de la vidéo (canvas Remotion). 720×1280 par défaut.
   const VIDEO_FORMATS = [
     { value: "portrait" as const, label: "Vertical 720×1280", w: 720, h: 1280 },
-    { value: "landscape" as const, label: "Horizontal 1920×1080", w: 1920, h: 1080 },
+    { value: "landscape" as const, label: "Horizontal 1280×720", w: 1280, h: 720 },
   ];
   const [videoFormat, setVideoFormat] = useState<"portrait" | "landscape">("portrait");
   const videoCanvas = VIDEO_FORMATS.find((f) => f.value === videoFormat) ?? VIDEO_FORMATS[0];
