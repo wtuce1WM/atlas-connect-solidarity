@@ -179,6 +179,7 @@ def extract_frames(src: str, dest: Path, fps: int, seconds: float, tmp: Path,
     return len(list(dest.glob("*.jpg")))
 
 
+
 async def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--url", required=True, help="URL du feed /search (prod ou locale)")
