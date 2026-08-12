@@ -381,6 +381,8 @@ const SortableStep = ({
   onToggle,
   patch,
   remove,
+  noteCount,
+  onNoteCount,
 }: {
   step: VideoScenarioStep;
   index: number;
@@ -388,6 +390,8 @@ const SortableStep = ({
   onToggle: () => void;
   patch: (values: Partial<VideoScenarioStep>) => void;
   remove: () => void;
+  noteCount: number;
+  onNoteCount: (n: number) => void;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: step.id });
   const doc = STEP_DOCS[step.scene_key];
