@@ -684,15 +684,21 @@ export default function StudioVideo() {
 
 
 
+  // Pool de vidéos sélectionnables : établissement + génériques (corporate).
+  const videoPool = useMemo(
+    () => [...bizVideos, ...genericExternalVideos, ...genericInternalVideos],
+    [bizVideos, genericExternalVideos, genericInternalVideos],
+  );
+
   // Garde l'ordre de montage synchronisé avec la sélection de vidéos.
   useEffect(() => {
     setVideoOrder((prev) => {
       const kept = prev.filter((u) => selectedVideos.has(u));
-      const added = bizVideos.map((v) => v.url).filter((u) => selectedVideos.has(u) && !kept.includes(u));
+      const added = videoPool.map((v) => v.url).filter((u) => selectedVideos.has(u) && !kept.includes(u));
       const next = [...kept, ...added];
       return next.length === prev.length && next.every((u, i) => u === prev[i]) ? prev : next;
     });
-  }, [selectedVideos, bizVideos]);
+  }, [selectedVideos, videoPool]);
 
   const orderedSelectedVideos = useMemo(
     () => videoOrder.filter((u) => selectedVideos.has(u)),
