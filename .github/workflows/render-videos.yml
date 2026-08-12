@@ -30,6 +30,18 @@ jobs:
             libcups2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 \
             libgbm1 libpango-1.0-0 libcairo2 libasound2t64
 
+      # Capture des vidéos « Feed » : Playwright Python + Pillow (détourage alpha).
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Installer Playwright Python
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install playwright pillow
+          python3 -m playwright install --with-deps chromium
+
+
       - name: Cache Bun deps
         uses: actions/cache@v4
         with:
