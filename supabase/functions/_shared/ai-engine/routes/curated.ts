@@ -536,7 +536,9 @@ export async function buildPinnedAnswer(
     shown: ordered.length,
     total: overrides?.total ?? ordered.length,
     route: overrides?.route ?? "curated_pinned",
+    poolIds: overrides?.poolIds ?? ordered.map((b: any) => String(b.id)),
   };
+
 }
 
 /**
