@@ -997,9 +997,12 @@ Deno.serve(async (req) => {
         aiClass = "C";
         const gateway = createLovableAiGatewayProvider(LOVABLE_API_KEY);
 
-        // Corpus de la relance contextuelle : les fiches déjà présentées.
+        // Corpus de la relance contextuelle : règle unique — on filtre dans la
+        // TOTALITÉ des résultats trouvés au tour précédent (marqueur POOL_BUSINESS_IDS,
+        // ex. 30 adresses), jamais dans les seules 6 affichées.
+        const followUpPoolIds = (poolIds.length ? poolIds : priorIds).slice(0, 30);
         const priorFull = (contextualFollowUp || (priorIds.length && !results.length))
-          ? await fetchPriorFull(admin, priorIds.slice(0, 6)).catch(() => [])
+          ? await fetchPriorFull(admin, followUpPoolIds).catch(() => [])
           : [];
 
         // Contexte éditorial partagé (TXT IA + popups d'images + offres) — même
