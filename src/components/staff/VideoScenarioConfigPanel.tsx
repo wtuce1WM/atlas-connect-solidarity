@@ -620,16 +620,18 @@ const VideoScenarioConfigPanel = () => {
     }
 
     setConfig(
-      (configRes.data as ScenarioConfig | null) ?? {
-        mode,
-        business_id: null,
-        format_key: "landscape_1080",
-        width: 1920,
-        height: 1080,
-        fps: 30,
-        internal_note: null,
-      },
-    );
+    const loadedConfig = (configRes.data as Omit<ScenarioConfig, "internal_note"> | null) ?? {
+      mode,
+      business_id: null,
+      format_key: "landscape_1080",
+      width: 1920,
+      height: 1080,
+      fps: 30,
+    };
+    setConfig({
+      ...loadedConfig,
+      internal_note: (noteRes.data as { note: string | null } | null)?.note ?? null,
+    });
     setRemoved([]);
     setDirty(false);
     setLoading(false);
