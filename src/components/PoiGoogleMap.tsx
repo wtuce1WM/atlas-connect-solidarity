@@ -524,6 +524,9 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
           : LIGHT_MAP_STYLES;
     }
     mapRef.current = new gmaps.Map(containerRef.current, opts);
+    // Signal « carte réellement peinte » : les hôtes embarqués n'appliquent leur
+    // couleur de fond qu'à ce moment-là (évite un flash de couleur au chargement).
+    if (onReady) gmaps.event.addListenerOnce(mapRef.current, "tilesloaded", () => onReady());
     // disableAutoPan : survoler un POI excentré ne doit jamais déplacer la carte.
     infoWindowRef.current = new gmaps.InfoWindow({ disableAutoPan: true });
 
