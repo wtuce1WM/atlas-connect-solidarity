@@ -174,7 +174,7 @@ export default function SearchResultCard({ business, index, labelLogos, distance
           </div>
         )}
         {hasEngagements && (
-          <div className="flex flex-wrap gap-1 mt-0.5">
+          <div className="flex flex-col gap-1 mt-0.5 items-start">
             {[
               ...certifications.map((value) => ({ type: "cert" as const, value })),
               ...standards.map((value) => ({ type: "std" as const, value })),
