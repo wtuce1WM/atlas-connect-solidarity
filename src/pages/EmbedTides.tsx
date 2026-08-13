@@ -5,6 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import EmbedTidesWidget, { type TidesPayload } from "@/components/embed/EmbedTidesWidget";
 import { parseFit, fitFlags, applyEmbedBg } from "@/lib/embedFit";
 import { useEmbedFitScale } from "@/hooks/useEmbedFitScale";
+import { useWidgetTracking } from "@/hooks/useWidgetTracking";
 
 type Lang = "fr" | "en" | "ar";
 

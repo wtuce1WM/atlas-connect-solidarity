@@ -7,6 +7,7 @@ import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/Embe
 import { parseFit, fitFlags, applyEmbedBg, parseSize, sizeZoom, parseBg, resolveEmbedInk } from "@/lib/embedFit";
 import { useEmbedFitScale } from "@/hooks/useEmbedFitScale";
 import EmbedWeatherFooterBar from "@/components/embed/EmbedWeatherFooterBar";
+import { useWidgetTracking } from "@/hooks/useWidgetTracking";
 
 
 type Lang = "fr" | "en" | "ar";

@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { parseFit, fitFlags, applyEmbedBg, parseBg, resolveEmbedInk } from "@/lib/embedFit";
 import { useEmbedFitScale } from "@/hooks/useEmbedFitScale";
 import EmbedReviewsWidget, {
+import { useWidgetTracking } from "@/hooks/useWidgetTracking";
   type EmbedReviewItem,
   type EmbedReviewsBusiness,
   type ReviewPlatformKey,

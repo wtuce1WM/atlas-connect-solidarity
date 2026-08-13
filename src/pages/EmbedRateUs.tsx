@@ -5,6 +5,7 @@ import { applyEmbedBg, parseBg, resolveEmbedInk } from "@/lib/embedFit";
 import { supabase } from "@/integrations/supabase/client";
 import { tripadvisorReviewUrl } from "@/lib/tripadvisorUrl";
 import EmbedRateUsWidget, { type RateTarget, type RateVariant } from "@/components/embed/EmbedRateUsWidget";
+import { useWidgetTracking } from "@/hooks/useWidgetTracking";
 
 type Lang = "fr" | "en" | "ar";
 

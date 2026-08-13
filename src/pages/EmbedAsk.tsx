@@ -30,6 +30,7 @@ import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/Embe
 import AiTidesWidget from "@/components/embed/AiTidesWidget";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { applyEmbedBg, parseBg, resolveEmbedInk } from "@/lib/embedFit";
+import { useWidgetTracking } from "@/hooks/useWidgetTracking";
 
 // EmbedMediaBottomBar (Pause/Mute) removed — the BookOnlineSlidePanel now renders
 // its own liquid-glass PanelSearchBar with 6 CTAs and integrated video controls.
