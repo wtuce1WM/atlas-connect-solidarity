@@ -61,7 +61,9 @@ HIDE_RAIL = """(words)=>{
 SET_BG = """(c)=>{
   let s=document.getElementById('owmcap');
   if(!s){s=document.createElement('style');s.id='owmcap';document.head.appendChild(s)}
-  s.textContent='.bg-black{background-color:'+c+'!important}video{opacity:0!important}';
+  s.textContent='.bg-black{background-color:'+c+'!important}video{opacity:0!important}'
+    +'[data-owm-video-progress]{visibility:hidden!important}';
+
   if(window.__owmKill) window.__owmKill();
   if(window.__owmStuck) window.__owmStuck();
 }"""
