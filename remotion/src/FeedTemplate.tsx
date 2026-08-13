@@ -44,6 +44,9 @@ export type FeedManifest = {
     step: number;
     open: string;
     tall: string;
+    /** Fond de l'overlay seul (scrim + image), sans contenu ni barres. */
+    bg?: string | null;
+
     headerTop?: number;
     headerHeight: number;
     viewTop?: number;
