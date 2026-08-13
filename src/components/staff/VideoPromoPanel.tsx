@@ -412,7 +412,30 @@ const VideoPromoPanel = () => {
               {numField("Texte (s)", "text", 1, 12)}
               {numField("Outro (s)", "outro", 1, 10)}
             </div>
+
+            {/* Le texte du montage se saisit ici, au même endroit que les blocs Vidéo/Photos. */}
+            <div className="border-t pt-3 grid gap-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-muted-foreground">
+                  Texte du bloc « Texte » (Rich Text, 500 caractères max)
+                </span>
+                <span className={`text-[11px] ${textLength > 500 ? "text-destructive" : "text-muted-foreground"}`}>
+                  {textLength}/500
+                </span>
+              </div>
+              <RichTextEditor
+                content={text}
+                onChange={setText}
+                simple
+                maxHeight="180px"
+                placeholder="La solution de paiement multicanal de M2T…"
+              />
+              <span className="text-[11px] text-muted-foreground">
+                Affiché en carte plein écran entre les photos et l'outro ; coche le bloc « Texte » pour l'inclure.
+              </span>
+            </div>
           </div>
+
 
           <div className="flex items-center justify-between gap-3 flex-wrap border-t pt-3">
             <span className="text-xs text-muted-foreground">Durée estimée : ~{estimated}s</span>
