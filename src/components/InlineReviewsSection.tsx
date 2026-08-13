@@ -93,6 +93,29 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
         ? r.text_en || r.text_fr || r.text || ""
         : r.text_fr || r.text || "";
 
+  /**
+   * Rend le texte de l'avis en mettant l'extrait (`highlight`) en évidence
+   * *in situ* : jaune vif, gras, italique, taille légèrement supérieure.
+   * Si l'extrait n'est pas trouvé dans le texte, le texte est rendu tel quel.
+   */
+  const renderWithHighlight = (r: ReviewText) => {
+    const full = displayText(r);
+    const hl = (r.highlight || "").trim();
+    if (!hl) return full;
+    const idx = full.toLowerCase().indexOf(hl.toLowerCase());
+    if (idx === -1) return full;
+    return (
+      <>
+        {full.slice(0, idx)}
+        <span className="font-bold italic text-yellow-300 text-base md:text-lg">
+          {full.slice(idx, idx + hl.length)}
+        </span>
+        {full.slice(idx + hl.length)}
+      </>
+    );
+  };
+
+
   if (!avgOn20 && activePlatforms.length === 0 && ordered.length === 0 && leaveReviewPlatforms.length === 0) return null;
 
   const visible = expanded ? ordered.slice(0, 10) : ordered.slice(0, 1);
