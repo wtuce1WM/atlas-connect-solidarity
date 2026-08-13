@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { applyEmbedBg } from "@/lib/embedFit";
 import { useWidgetTracking } from "@/hooks/useWidgetTracking";
+import { useWidgetParams } from "@/hooks/useWidgetParams";
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
@@ -19,8 +20,8 @@ type Lang = keyof typeof MESSAGES;
 
 const EmbedNearby = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [params] = useSearchParams();
-  useWidgetTracking("nearby", null, params.get("lang") || undefined);
+  const { params, businessId: widgetBusinessId } = useWidgetParams("nearby", { slug });
+  useWidgetTracking("nearby", widgetBusinessId, params.get("lang") || undefined);
   const { setLanguage } = useLanguage();
 
   const langParam = (params.get("lang") || "fr").toLowerCase();

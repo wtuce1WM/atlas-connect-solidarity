@@ -6,6 +6,7 @@ import EmbedTidesWidget, { type TidesPayload } from "@/components/embed/EmbedTid
 import { parseFit, fitFlags, applyEmbedBg } from "@/lib/embedFit";
 import { useEmbedFitScale } from "@/hooks/useEmbedFitScale";
 import { useWidgetTracking } from "@/hooks/useWidgetTracking";
+import { useWidgetParams } from "@/hooks/useWidgetParams";
 
 type Lang = "fr" | "en" | "ar";
 
@@ -20,8 +21,8 @@ const MESSAGES: Record<Lang, { loading: string; error: string; pick: string }> =
 type CityOption = { slug: string; name: string; sea: string };
 
 export default function EmbedTides() {
-  const [params] = useSearchParams();
-  useWidgetTracking("tides", null, params.get("lang") || undefined);
+  const { params, businessId: widgetBusinessId } = useWidgetParams("tides", {});
+  useWidgetTracking("tides", widgetBusinessId, params.get("lang") || undefined);
   const initialCity = params.get("city")?.trim() || "Essaouira";
   const langParam = (params.get("lang") || "fr").toLowerCase();
   const lang: Lang = langParam === "en" || langParam === "ar" ? (langParam as Lang) : "fr";
