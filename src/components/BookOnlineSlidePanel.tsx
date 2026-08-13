@@ -3118,6 +3118,7 @@ const BookOnlineSlidePanelInner = ({
                       avgOn20={avgOn20}
                       totalReviewCount={totalReviewCount}
                       language={language}
+                      slug={business?.slug || null}
                     />
                   )}
 
