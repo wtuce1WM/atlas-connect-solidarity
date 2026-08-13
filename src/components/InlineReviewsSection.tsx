@@ -178,10 +178,24 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
                 </footer>
               </blockquote>
             ))}
-            {expanded && leaveReviewPlatforms.length > 0 && (
-              <div className="pt-2">
-                <LeaveReviewWidgets />
+            {/* Widget « Laisser un avis » (iframe) — sous le dernier avis, avant le CTA */}
+            {slug ? (
+              <div className="w-full mx-auto max-w-[820px] pt-2 rounded-xl overflow-hidden bg-transparent">
+                <iframe
+                  key={`rate-widget-${slug}`}
+                  src={`/embed/avis/${slug}?platform=all&lang=${language}&variant=card`}
+                  title={t.leave}
+                  className="w-full block border-0 bg-transparent"
+                  style={{ height: 380, background: "transparent" }}
+                  loading="lazy"
+                />
               </div>
+            ) : (
+              expanded && leaveReviewPlatforms.length > 0 && (
+                <div className="pt-2">
+                  <LeaveReviewWidgets />
+                </div>
+              )
             )}
           </div>
 
