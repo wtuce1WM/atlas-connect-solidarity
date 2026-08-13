@@ -127,7 +127,7 @@ export function trackBusinessEvent(
     event_type: type,
     event_subtype: opts.subtype ?? null,
     session_id: getSessionId(),
-    source_page: window.location.pathname + window.location.search,
+    source_page: currentSourcePage(),
     referrer_domain: refDomain(),
     meta: opts.meta ?? null,
   });
@@ -179,7 +179,7 @@ export function trackBusinessImpression(
     event_type: "impression",
     event_subtype: surface,
     session_id: getSessionId(),
-    source_page: window.location.pathname + window.location.search,
+    source_page: currentSourcePage(),
     referrer_domain: refDomain(),
     meta: meta ?? null,
   });
