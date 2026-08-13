@@ -25,6 +25,27 @@ import VideoPromoPanel from "@/components/staff/VideoPromoPanel";
 
 const DEFAULT_SECTIONS = ["Avis clients", "Vidéos", "Assistant IA", "À proximité"];
 
+/**
+ * Effets Remotion optionnels. Tous désactivés par défaut : un rendu sans case
+ * cochée est identique à avant (aucun effet n'est transmis au worker).
+ */
+type EffectKey = "grain" | "vignette" | "lightLeaks" | "pathDraw" | "motionBlur";
+
+const EFFECTS: { key: EffectKey; label: string; hint: string }[] = [
+  { key: "pathDraw", label: "Tracé SVG animé", hint: "Cadre d'accroche dessiné au fil des frames (@remotion/paths)" },
+  { key: "grain", label: "Grain argentique", hint: "Bruit Perlin animé, look cinéma" },
+  { key: "vignette", label: "Vignettage", hint: "Assombrissement radial des bords" },
+  { key: "lightLeaks", label: "Fuites de lumière", hint: "Halos organiques (@remotion/light-leaks)" },
+  { key: "motionBlur", label: "Motion blur caméra", hint: "Coûteux : multiplie le temps de rendu par le nb d'échantillons" },
+];
+
+const STROKE_PRESETS = [
+  { label: "Or", value: "#D4AF37" },
+  { label: "Terracotta", value: "#C1663F" },
+  { label: "Blanc", value: "#FFFFFF" },
+  { label: "WhatsApp", value: "#25D366" },
+];
+
 type FeedJob = {
   id: string;
   title: string | null;
