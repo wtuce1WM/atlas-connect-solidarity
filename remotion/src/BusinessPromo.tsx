@@ -302,7 +302,11 @@ const MediaScene: React.FC<{
   );
 };
 
-const OutroScene: React.FC<{ p: BusinessPromoProps }> = ({ p }) => {
+const OutroScene: React.FC<{ p: BusinessPromoProps; manifest: FeedManifest | null; frames: number }> = ({
+  p,
+  manifest,
+  frames,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const pop = spring({ frame, fps, config: { damping: 18, stiffness: 140 } });
@@ -316,7 +320,21 @@ const OutroScene: React.FC<{ p: BusinessPromoProps }> = ({ p }) => {
         textAlign: "center",
       }}
     >
-      <div style={{ transform: `scale(${interpolate(pop, [0, 1], [0.9, 1])})` }}>
+      {manifest && (
+        <>
+          <AbsoluteFill style={{ opacity: 0.35 }}>
+            <SceneBackdrop p={p} manifest={manifest} frames={frames} />
+          </AbsoluteFill>
+          <AbsoluteFill style={{ background: alpha("night", 0.6) }} />
+        </>
+      )}
+      <div style={{ transform: `scale(${interpolate(pop, [0, 1], [0.9, 1])})`, position: "relative" }}>
+        {p.logoUrl && (
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 44 }}>
+            <PromoLogo src={p.logoUrl} size={PROMO_PORTRAIT.width * 0.46} delay={4} />
+          </div>
+        )}
+
         <h2
           style={{
             fontFamily: display,
