@@ -262,6 +262,7 @@ const BookOnlineSlidePanelInner = ({
   poiOverrideIds, poiOverrideTitle,
 }: BookOnlineSlidePanelProps) => {
   // Aliases: callers from SlidePanelHome migration use onPrev/onNext naming.
+  const rateIframeHeight = useEmbedIframeHeight("owm-rate-height", 380);
   const effectiveOnPrev = onPrevBusiness ?? onPrev;
   // Chrome navigateur (barres iOS) en noir tant que le panneau est monté hors embed
   useDarkBrowserChrome(!embedMode);
