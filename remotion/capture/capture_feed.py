@@ -58,6 +58,13 @@ HIDE_RAIL = """(words)=>{
   kill(); window.__owmKill=kill; setInterval(kill,400);
 }"""
 
+# Masque tout le rail de CTA (icônes comprises) — utilisé pour le montage paysage.
+HIDE_RAIL_FULL = """()=>{
+  let s=document.getElementById('owmrail');
+  if(!s){s=document.createElement('style');s.id='owmrail';document.head.appendChild(s)}
+  s.textContent='[data-owm-video-rail]{display:none!important}';
+}"""
+
 SET_BG = """(c)=>{
   let s=document.getElementById('owmcap');
   if(!s){s=document.createElement('style');s.id='owmcap';document.head.appendChild(s)}
