@@ -306,7 +306,12 @@ async def main() -> None:
             for col, tag in (("#000000", "black"), ("#ffffff", "white")):
                 await setbg(col)
                 await pg.screenshot(path=str(raw / f"descopen_{tag}.png"))
+            # En-tête capturé : on neutralise ensuite les éléments collants/fixes
+            # pour que le contenu stitché ne les répète pas dans la hauteur.
+            await pg.evaluate(HIDE_STUCK)
+            await pg.wait_for_timeout(400)
             bands: list[tuple[int, int]] = []  # (index, scrollTop réel)
+
             s = 0
             while True:
                 await pg.evaluate("(v)=>{document.querySelector('[data-owm=\"1\"]').scrollTop=v}", s)
