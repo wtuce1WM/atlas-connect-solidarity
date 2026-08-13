@@ -211,6 +211,12 @@ const WidgetSettingsPanel = () => {
           <div className="space-y-1.5">
             <Label className="text-xs">Application du fond</Label>
             <Select value={draft.card_mode} onChange={(v) => setDraft({ ...draft, card_mode: v })} options={CARD_MODES} />
+            <p className="text-[11px] leading-snug text-muted-foreground">
+              Où la couleur choisie est peinte. « Carte colorée » : le widget est opaque, il pose son propre fond — à
+              utiliser quand le site hôte a un fond différent du widget. « Page transparente + carte colorée » : la page
+              du widget est transparente, seule la carte intérieure est colorée, donc le fond du site hôte reste visible
+              autour (idéal pour une intégration qui doit se fondre dans la page).
+            </p>
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs">Thème par défaut</Label>
@@ -222,6 +228,12 @@ const WidgetSettingsPanel = () => {
                 { value: "dark", label: "Sombre" },
               ]}
             />
+            <p className="text-[11px] leading-snug text-muted-foreground">
+              Oui, c'est le mode clair / sombre du widget : il décide de la couleur des textes et des composants, et
+              lequel des deux fonds ci-dessus est utilisé (clair → « Fond mode clair », sombre → « Fond mode sombre »).
+              Le site hôte peut le surcharger via <span className="font-mono">?theme=dark</span> ou en synchronisant son
+              propre thème.
+            </p>
           </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label className="text-xs">Dimensions dans l'iframe hôte</Label>
@@ -230,7 +242,14 @@ const WidgetSettingsPanel = () => {
               onChange={(v) => setDraft({ ...draft, fit: v })}
               options={FIT_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
             />
+            <p className="text-[11px] leading-snug text-muted-foreground">
+              Comment le contenu occupe le cadre de l'iframe posé sur le site hôte. Par défaut le widget garde ses
+              dimensions naturelles (limitées par « Largeur max » et « Hauteur »). « Toute la largeur » l'étire
+              horizontalement, « toute la hauteur » verticalement, « largeur & hauteur » remplit tout le cadre — utile
+              quand l'hôte impose un bloc de taille fixe et qu'on ne veut ni marge blanche ni scroll interne.
+            </p>
           </div>
+
           <div className="space-y-1.5">
             <Label className="text-xs">Hauteur (px)</Label>
             <Input
