@@ -1,5 +1,10 @@
 import React from "react";
 import { AbsoluteFill, Img, staticFile, interpolate, useCurrentFrame, Easing } from "remotion";
+import {
+  FeedEffectsOverlay,
+  FeedMotionBlurWrapper,
+  type FeedEffectsConfig,
+} from "./effects/FeedEffects";
 
 /**
  * Template de montage vidéo « feed in-app » entièrement piloté par un manifest.
@@ -39,6 +44,8 @@ export type FeedManifest = {
   /** Agrandissement du rendu portrait (720x1280 -> 1080x1920 si 1.5). */
   outputScale?: number;
   fps: number;
+  /** Effets optionnels choisis en back-office (aucun par défaut). */
+  effects?: FeedEffectsConfig | null;
   steps: FeedStep[];
   detail: {
     step: number;
@@ -478,25 +485,33 @@ export const FeedTemplate: React.FC<FeedTemplateProps> = ({ manifest, format }) 
   const m = manifest;
   const { width: W, height: H } = m.viewport;
 
+  const effects = m.effects ?? null;
+
   if (format !== "landscape") {
     const os = m.outputScale && m.outputScale > 0 ? m.outputScale : 1;
-    if (os === 1) return <Stage m={m} />;
     return (
       <AbsoluteFill style={{ backgroundColor: "#000", overflow: "hidden" }}>
-        <div
-          style={{
-            position: "absolute",
-            left: 0,
-            top: 0,
-            width: W,
-            height: H,
-            overflow: "hidden",
-            transform: `scale(${os})`,
-            transformOrigin: "top left",
-          }}
-        >
-          <Stage m={m} />
-        </div>
+        <FeedMotionBlurWrapper effects={effects}>
+          {os === 1 ? (
+            <Stage m={m} />
+          ) : (
+            <div
+              style={{
+                position: "absolute",
+                left: 0,
+                top: 0,
+                width: W,
+                height: H,
+                overflow: "hidden",
+                transform: `scale(${os})`,
+                transformOrigin: "top left",
+              }}
+            >
+              <Stage m={m} />
+            </div>
+          )}
+        </FeedMotionBlurWrapper>
+        <FeedEffectsOverlay effects={effects} />
       </AbsoluteFill>
     );
   }
@@ -506,20 +521,23 @@ export const FeedTemplate: React.FC<FeedTemplateProps> = ({ manifest, format }) 
   return (
     <AbsoluteFill style={{ backgroundColor: "#000", overflow: "hidden" }}>
       {/* Pillarbox : le stage vertical in-app est centré, bandes noires sur les côtés. */}
-      <div
-        style={{
-          position: "absolute",
-          left: (outW - W * scale) / 2,
-          top: 0,
-          width: W,
-          height: H,
-          overflow: "hidden",
-          transform: `scale(${scale})`,
-          transformOrigin: "top left",
-        }}
-      >
-        <Stage m={m} />
-      </div>
+      <FeedMotionBlurWrapper effects={effects}>
+        <div
+          style={{
+            position: "absolute",
+            left: (outW - W * scale) / 2,
+            top: 0,
+            width: W,
+            height: H,
+            overflow: "hidden",
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+          }}
+        >
+          <Stage m={m} />
+        </div>
+      </FeedMotionBlurWrapper>
+      <FeedEffectsOverlay effects={effects} />
     </AbsoluteFill>
   );
 };

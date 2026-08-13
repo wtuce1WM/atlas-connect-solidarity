@@ -10,7 +10,12 @@
         "@remotion/compositor-linux-x64-gnu": "^4.0.482",
         "@remotion/compositor-linux-x64-musl": "^4.0.508",
         "@remotion/google-fonts": "^4.0.508",
+        "@remotion/light-leaks": "4.0.508",
+        "@remotion/motion-blur": "4.0.508",
+        "@remotion/noise": "4.0.508",
+        "@remotion/paths": "4.0.508",
         "@remotion/renderer": "^4.0.508",
+        "@remotion/shapes": "4.0.508",
         "@remotion/transitions": "^4.0.508",
         "@supabase/supabase-js": "^2.45.4",
         "react": "^19.2.8",
@@ -171,13 +176,21 @@
 
     "@remotion/compositor-win32-x64-msvc": ["@remotion/compositor-win32-x64-msvc@4.0.508", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@remotion/compositor-win32-x64-msvc/-/compositor-win32-x64-msvc-4.0.508.tgz", { "os": "win32", "cpu": "x64" }, "sha512-odYJig/S3MVgbRPKrdf8ew2bswVXloPNWw7G3zfFH8eu5BrA9uBTfYwtcbQcLrR2/RUQpcWd2v66bpbaShIOWA=="],
 
+    "@remotion/effects": ["@remotion/effects@4.0.508", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@remotion/effects/-/effects-4.0.508.tgz", { "dependencies": { "remotion": "4.0.508" } }, "sha512-2gPIfc/zms1JFWq4FpGr0RXYaTKoj2WZIXgZrWYIcGEgs7vM9cMMLHxidVquF58IekJpbP1YYUlM3+vTLNAitw=="],
+
     "@remotion/google-fonts": ["@remotion/google-fonts@4.0.508", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@remotion/google-fonts/-/google-fonts-4.0.508.tgz", { "dependencies": { "remotion": "4.0.508" } }, "sha512-j6fW/hQNcBsDz//aBh4igUKCYKYdr14Gwl0AEhagUJyf8NmD6wit/0XMY5/sN9AVSCwURirMymkqHNg+AiVbJQ=="],
 
     "@remotion/licensing": ["@remotion/licensing@4.0.508", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@remotion/licensing/-/licensing-4.0.508.tgz", {}, "sha512-S9w6lckixF0tYc3wcnh1zLACPl0AgG9v/QGOYqkkaZX/p+F86202+YMWKAHdMiCQPEYntTfCgIfnqucGuLoWeA=="],
 
+    "@remotion/light-leaks": ["@remotion/light-leaks@4.0.508", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@remotion/light-leaks/-/light-leaks-4.0.508.tgz", { "dependencies": { "@remotion/effects": "4.0.508", "remotion": "4.0.508", "zod": "4.4.3" }, "peerDependencies": { "react": ">=16.8.0", "react-dom": ">=16.8.0" } }, "sha512-p1YUSNh6iv97s5dde9uD7DIunvE+7ZzzWfHVhN3Xh2Lh5m1AH3QuQPdpIXaotaA275Y1FPcWjtcJ2/PFMRj7SA=="],
+
     "@remotion/media-parser": ["@remotion/media-parser@4.0.508", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@remotion/media-parser/-/media-parser-4.0.508.tgz", {}, "sha512-kJrY/pnhBxVEM1xBVbT+vrsPmrDQERFepHhOD7XG/XCj/WgR71FIeoBMvn0YnYs6URkGBycIV6V2vlPsN8kYXg=="],
 
     "@remotion/media-utils": ["@remotion/media-utils@4.0.508", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@remotion/media-utils/-/media-utils-4.0.508.tgz", { "dependencies": { "mediabunny": "1.50.8", "remotion": "4.0.508" }, "peerDependencies": { "react": ">=16.8.0", "react-dom": ">=16.8.0" } }, "sha512-hNNpE9OH9Sb3xKF33mQiAFQoL4+k14k50RylSfOWXVZYWn9vcIA7dgcqLy2SqFbtQP8AJAlT1BXe6kBMmQgnNQ=="],
+
+    "@remotion/motion-blur": ["@remotion/motion-blur@4.0.508", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@remotion/motion-blur/-/motion-blur-4.0.508.tgz", { "dependencies": { "remotion": "4.0.508" }, "peerDependencies": { "react": ">=16.8.0", "react-dom": ">=16.8.0" } }, "sha512-TvQDV582dgNVdn7VhufK6YCYKLmzRt0ZwfFaWXmKu8ByoIWY0EQ+1eRl0KYk/4j/lYBKoHVG/B3QuZ0rmB43rg=="],
+
+    "@remotion/noise": ["@remotion/noise@4.0.508", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@remotion/noise/-/noise-4.0.508.tgz", { "dependencies": { "remotion": "4.0.508", "simplex-noise": "4.0.1" } }, "sha512-ftICxjvhw1avYs/HcDVjx2k2/UmPohHfMSd2eHDZPvTE/erxtuAOQt+oPckv1b8N04AIIsco8y8V4xqONXzXXw=="],
 
     "@remotion/paths": ["@remotion/paths@4.0.508", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@remotion/paths/-/paths-4.0.508.tgz", {}, "sha512-awyvcxTqpZWjJhmB9em8Kq2zsq3c89JfZM8rBNfvOLX/X+NAL8Jeyd9rXUm+zuAfpNe/8YbikROgKX81nyxMmA=="],
 
@@ -554,6 +567,8 @@
     "shebang-regex": ["shebang-regex@3.0.0", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/shebang-regex/-/shebang-regex-3.0.0.tgz", {}, "sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A=="],
 
     "signal-exit": ["signal-exit@3.0.7", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/signal-exit/-/signal-exit-3.0.7.tgz", {}, "sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ=="],
+
+    "simplex-noise": ["simplex-noise@4.0.1", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/simplex-noise/-/simplex-noise-4.0.1.tgz", {}, "sha512-zl/+bdSqW7HJOQ0oDbxrNYaF4F5ik0i7M6YOYmEoIJNtg16NpvWaTTM1Y7oV/7T0jFljawLgYPS81Uu2rsfo1A=="],
 
     "sisteransi": ["sisteransi@1.0.5", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/sisteransi/-/sisteransi-1.0.5.tgz", {}, "sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg=="],
 

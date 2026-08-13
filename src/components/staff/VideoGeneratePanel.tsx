@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Film, PlayCircle, RefreshCw, Rocket, Sparkles } from "lucide-react";
+import { Film, PlayCircle, RefreshCw, Rocket, Sparkles, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import VideoPromoPanel from "@/components/staff/VideoPromoPanel";
 
@@ -22,6 +24,27 @@ import VideoPromoPanel from "@/components/staff/VideoPromoPanel";
  */
 
 const DEFAULT_SECTIONS = ["Avis clients", "Vidéos", "Assistant IA", "À proximité"];
+
+/**
+ * Effets Remotion optionnels. Tous désactivés par défaut : un rendu sans case
+ * cochée est identique à avant (aucun effet n'est transmis au worker).
+ */
+type EffectKey = "grain" | "vignette" | "lightLeaks" | "pathDraw" | "motionBlur";
+
+const EFFECTS: { key: EffectKey; label: string; hint: string }[] = [
+  { key: "pathDraw", label: "Tracé SVG animé", hint: "Cadre d'accroche dessiné au fil des frames (@remotion/paths)" },
+  { key: "grain", label: "Grain argentique", hint: "Bruit Perlin animé, look cinéma" },
+  { key: "vignette", label: "Vignettage", hint: "Assombrissement radial des bords" },
+  { key: "lightLeaks", label: "Fuites de lumière", hint: "Halos organiques (@remotion/light-leaks)" },
+  { key: "motionBlur", label: "Motion blur caméra", hint: "Coûteux : multiplie le temps de rendu par le nb d'échantillons" },
+];
+
+const STROKE_PRESETS = [
+  { label: "Or", value: "#D4AF37" },
+  { label: "Terracotta", value: "#C1663F" },
+  { label: "Blanc", value: "#FFFFFF" },
+  { label: "WhatsApp", value: "#25D366" },
+];
 
 type FeedJob = {
   id: string;
@@ -59,6 +82,21 @@ const VideoGeneratePanel = () => {
   const [sections, setSections] = useState<string[]>(DEFAULT_SECTIONS);
   const [extraSection, setExtraSection] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // --- Effets optionnels (tous off par défaut)
+  const [effectsOn, setEffectsOn] = useState<Record<EffectKey, boolean>>({
+    grain: false,
+    vignette: false,
+    lightLeaks: false,
+    pathDraw: false,
+    motionBlur: false,
+  });
+  const [intensity, setIntensity] = useState(50);
+  const [strokeColor, setStrokeColor] = useState(STROKE_PRESETS[0].value);
+  const [pathFrames, setPathFrames] = useState(45);
+  const [motionBlurSamples, setMotionBlurSamples] = useState(3);
+
+  const anyEffect = Object.values(effectsOn).some(Boolean);
 
   const [jobs, setJobs] = useState<FeedJob[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
@@ -127,6 +165,19 @@ const VideoGeneratePanel = () => {
           sectionPause,
           sectionMove,
         },
+        // Rien n'est envoyé si aucun effet n'est coché : rendu strictement identique.
+        ...(anyEffect
+          ? {
+              effects: {
+                ...effectsOn,
+                intensity: intensity / 100,
+                strokeColor,
+                pathFrames,
+                motionBlurSamples,
+                shutterAngle: 180,
+              },
+            }
+          : {}),
       },
     };
 
@@ -296,6 +347,102 @@ const VideoGeneratePanel = () => {
               />
             </label>
           </div>
+
+          <div className="rounded-lg border p-3 space-y-3">
+            <div className="flex items-center gap-2">
+              <Wand2 className="h-4 w-4 text-muted-foreground" />
+              <span className="text-xs font-medium text-black">Effets de motion design (optionnels)</span>
+              {!anyEffect && (
+                <Badge variant="outline" className="text-[10px]">
+                  aucun — rendu standard
+                </Badge>
+              )}
+            </div>
+            <div className="grid gap-2 md:grid-cols-2">
+              {EFFECTS.map((e) => (
+                <label
+                  key={e.key}
+                  className="flex items-start gap-3 rounded-md border p-2 cursor-pointer"
+                  htmlFor={`effect-${e.key}`}
+                >
+                  <Switch
+                    id={`effect-${e.key}`}
+                    checked={effectsOn[e.key]}
+                    onCheckedChange={(v) => setEffectsOn((prev) => ({ ...prev, [e.key]: v }))}
+                  />
+                  <span className="grid gap-0.5">
+                    <span className="text-xs text-black">{e.label}</span>
+                    <span className="text-[10px] text-muted-foreground leading-snug">{e.hint}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+
+            {anyEffect && (
+              <div className="grid gap-3 md:grid-cols-2 border-t pt-3">
+                <div className="grid gap-1">
+                  <span className="text-xs text-muted-foreground">Intensité générale : {intensity}%</span>
+                  <Slider
+                    value={[intensity]}
+                    onValueChange={(v) => setIntensity(v[0] ?? 50)}
+                    min={0}
+                    max={100}
+                    step={5}
+                  />
+                </div>
+                {effectsOn.pathDraw && (
+                  <>
+                    <div className="grid gap-1">
+                      <span className="text-xs text-muted-foreground">Couleur du tracé</span>
+                      <div className="flex flex-wrap gap-2">
+                        {STROKE_PRESETS.map((p) => (
+                          <Button
+                            key={p.value}
+                            size="sm"
+                            variant={strokeColor === p.value ? "default" : "outline"}
+                            className="h-7 text-[11px] gap-2"
+                            onClick={() => setStrokeColor(p.value)}
+                          >
+                            <span
+                              className="h-3 w-3 rounded-full border border-black/20"
+                              style={{ backgroundColor: p.value }}
+                            />
+                            {p.label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                    <label className="text-xs text-muted-foreground grid gap-1">
+                      Durée du tracé (frames)
+                      <Input
+                        type="number"
+                        min={6}
+                        max={200}
+                        value={pathFrames}
+                        onChange={(e) => setPathFrames(Math.max(6, Number(e.target.value) || 45))}
+                        className="h-9 text-xs"
+                      />
+                    </label>
+                  </>
+                )}
+                {effectsOn.motionBlur && (
+                  <label className="text-xs text-muted-foreground grid gap-1">
+                    Échantillons de motion blur (coût ×{motionBlurSamples})
+                    <Input
+                      type="number"
+                      min={2}
+                      max={6}
+                      value={motionBlurSamples}
+                      onChange={(e) => setMotionBlurSamples(Math.max(2, Math.min(6, Number(e.target.value) || 3)))}
+                      className="h-9 text-xs"
+                    />
+                  </label>
+                )}
+              </div>
+            )}
+          </div>
+
+
 
           <div className="grid gap-2">
             <span className="text-xs text-muted-foreground">Sections d'arrêt dans la fiche détaillée</span>
