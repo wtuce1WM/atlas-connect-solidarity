@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Rocket, RefreshCw, Search, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { isInternalVideoUrl } from "@/lib/videoSourceFilter";
+import RichTextEditor from "@/components/staff/RichTextEditor";
 
 /**
  * Sous-onglet « Promo business » de l'onglet Générer.
@@ -32,6 +33,7 @@ type Biz = {
   city: string | null;
   hook_fr: string | null;
   images: string[] | null;
+  logo_url: string | null;
 };
 
 type PromoJob = {
@@ -66,24 +68,30 @@ const VideoPromoPanel = () => {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [hook, setHook] = useState("");
   const [tagline, setTagline] = useState("");
+  const [text, setText] = useState("");
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [bgFeedUrl, setBgFeedUrl] = useState("");
   const [format, setFormat] = useState<"portrait" | "landscape">("portrait");
   const [variant, setVariant] = useState<"fullscreen" | "mockup">("fullscreen");
   const [mockupBg, setMockupBg] = useState(PRESET_BG[0].value);
-  const [blocks, setBlocks] = useState({ hook: true, video: true, photos: true, outro: true });
-  const [seconds, setSeconds] = useState({ hook: 3, video: 5, photo: 1.5, outro: 2.5 });
+  const [blocks, setBlocks] = useState({ hook: true, video: true, photos: true, text: false, outro: true });
+  const [seconds, setSeconds] = useState({ hook: 3, video: 5, photo: 1.5, text: 4, outro: 2.5 });
   const [submitting, setSubmitting] = useState(false);
   const [jobs, setJobs] = useState<PromoJob[]>([]);
 
   const images = useMemo(() => (biz?.images || []).slice(0, 4), [biz]);
+  /** Longueur du texte hors balises : la limite de 500 porte sur le contenu lisible. */
+  const textLength = useMemo(() => text.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim().length, [text]);
 
   const estimated = useMemo(() => {
     let s = 0;
     if (blocks.hook) s += seconds.hook;
     if (blocks.video && videoUrl) s += seconds.video;
     if (blocks.photos) s += seconds.photo * images.length;
+    if (blocks.text && textLength > 0) s += seconds.text;
     if (blocks.outro) s += seconds.outro;
     return Math.round(s * 10) / 10;
-  }, [blocks, seconds, videoUrl, images.length]);
+  }, [blocks, seconds, videoUrl, images.length, textLength]);
 
   const loadJobs = async () => {
     const { data } = await supabase
@@ -104,6 +112,7 @@ const VideoPromoPanel = () => {
     setResults([]);
     setQuery(b.name);
     setHook((prev) => prev || b.hook_fr || "");
+    setLogoUrl(b.logo_url || null);
     const { data } = await supabase
       .from("business_documents")
       .select("id,url,name,sort_order,type")
@@ -118,7 +127,7 @@ const VideoPromoPanel = () => {
     const raw = query.trim();
     if (!raw) return;
     setSearching(true);
-    const cols = "id, name, slug, city, hook_fr, images";
+    const cols = "id, name, slug, city, hook_fr, images, logo_url";
     const parsed = parseOwmUrl(raw);
     if (parsed) {
       const q = supabase.from("businesses").select(cols);
@@ -146,6 +155,10 @@ const VideoPromoPanel = () => {
       toast.error("Sélectionne un établissement (nom, slug ou URL 1WM)");
       return;
     }
+    if (blocks.text && textLength > 500) {
+      toast.error("Le texte dépasse 500 caractères");
+      return;
+    }
     if (blocks.hook && !hook.trim()) {
       toast.error("Renseigne le hook ou décoche le bloc Hook");
       return;
@@ -170,6 +183,9 @@ const VideoPromoPanel = () => {
         city: biz.city,
         hook: hook.trim(),
         tagline: tagline.trim() || null,
+        text: blocks.text ? text : null,
+        logoUrl,
+        bgFeedUrl: bgFeedUrl.trim() || null,
         videoUrl: blocks.video ? videoUrl : null,
         images,
         format,
@@ -342,13 +358,60 @@ const VideoPromoPanel = () => {
             )}
           </div>
 
+          <div className="rounded-lg border p-3 grid gap-2">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs text-muted-foreground">Texte (Rich Text, 500 caractères max)</span>
+              <span className={`text-[11px] ${textLength > 500 ? "text-destructive" : "text-muted-foreground"}`}>
+                {textLength}/500
+              </span>
+            </div>
+            <RichTextEditor
+              content={text}
+              onChange={setText}
+              simple
+              maxHeight="180px"
+              placeholder="La solution de paiement multicanal de M2T…"
+            />
+            <span className="text-[11px] text-muted-foreground">
+              Affiché en carte plein écran ; active le bloc « Texte » ci-dessous pour l'inclure au montage.
+            </span>
+          </div>
+
+          <div className="rounded-lg border p-3 grid gap-3">
+            <span className="text-xs text-muted-foreground">Logo animé & fond d'écran</span>
+            <div className="flex items-center gap-3 text-xs">
+              {logoUrl ? (
+                <>
+                  <img src={logoUrl} alt="" className="h-10 w-auto max-w-[120px] object-contain bg-black/80 rounded px-1" />
+                  <span className="text-emerald-600">logo animé dans l'intro et l'outro</span>
+                </>
+              ) : (
+                <span className="text-muted-foreground">Aucun logo sur la fiche — intro/outro sans animation de logo.</span>
+              )}
+            </div>
+            <label className="text-xs text-muted-foreground grid gap-1">
+              Fond d'écran vidéo — URL /search (swipe vertical, optionnel)
+              <Input
+                value={bgFeedUrl}
+                onChange={(e) => setBgFeedUrl(e.target.value)}
+                placeholder="https://oneworldmorocco.com/search?pinIds=…"
+                className="h-9 text-xs"
+              />
+              <span className="text-[11px]">
+                Déclenche une capture Playwright du feed : les vidéos des résultats défilent en fond derrière le logo,
+                le hook et le texte. Sans URL, le fond reste la vidéo/photo de la fiche floutée.
+              </span>
+            </label>
+          </div>
+
           <div className="rounded-lg border p-3 grid gap-3">
             <span className="text-xs text-muted-foreground">Blocs et durées</span>
-            <div className="grid gap-3 md:grid-cols-4">
+            <div className="grid gap-3 md:grid-cols-5">
               {([
                 ["hook", "Hook"],
                 ["video", "Vidéo"],
                 ["photos", "Photos"],
+                ["text", "Texte"],
                 ["outro", "Outro"],
               ] as const).map(([key, label]) => (
                 <label key={key} className="flex items-center gap-2 text-xs text-black">
@@ -360,10 +423,11 @@ const VideoPromoPanel = () => {
                 </label>
               ))}
             </div>
-            <div className="grid gap-3 md:grid-cols-4">
+            <div className="grid gap-3 md:grid-cols-5">
               {numField("Hook (s)", "hook", 1, 10)}
               {numField("Vidéo (s)", "video", 1, 20)}
               {numField("Par photo (s)", "photo", 0.5, 8)}
+              {numField("Texte (s)", "text", 1, 12)}
               {numField("Outro (s)", "outro", 1, 10)}
             </div>
           </div>
