@@ -158,7 +158,7 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
 
       {/* Widget « Avis clients » (iframe) — remplace la note /20 en grand + badges */}
       {slug ? (
-        <div className="w-full mx-auto max-w-[820px] mb-4 rounded-xl overflow-hidden bg-transparent border border-white/10">
+        <div className="w-full mx-auto max-w-[820px] mb-4 overflow-hidden bg-transparent">
           <iframe
             key={`reviews-widget-${slug}`}
             src={`/embed/reviews/${slug}?preset=overlay&platform=all&lang=${language}&bg=transparent&theme=dark&notexts=1`}
