@@ -1146,43 +1146,47 @@ const BookOnlineSlidePanelInner = ({
     [50, 150, 300, 600, 1000].forEach((d) => timers.push(window.setTimeout(reset, d)));
 
     // Garde anti-scroll parasite : certaines iframes tierces (ex. moteur de réservation
-    // "Réservez" de Royal Mansour) prennent le focus au chargement, ce qui fait sauter
-    // le conteneur sur leur section. Tant que l'utilisateur n'a pas scrollé lui-même,
-    // on restaure la position courante quand le focus part dans une iframe.
+    // "Réservez" du Royal Mansour) déplacent le conteneur au chargement (prise de focus,
+    // scroll anchoring lors du redimensionnement de leur contenu…).
+    // Principe : pendant les premières secondes suivant l'ouverture, tout déplacement de
+    // scroll qui n'est pas précédé d'un geste utilisateur récent est annulé.
     const el = document.getElementById("owm-desc-scroll");
-    let userScrolled = false;
+    let lastGesture = 0;
     let anchor = 0;
-    const markUser = () => { userScrolled = true; };
-    const onScroll = () => { if (userScrolled && el) anchor = el.scrollTop; };
-    const onFocusIn = (e: FocusEvent) => {
-      if (userScrolled || !el) return;
-      const t = e.target as HTMLElement | null;
-      if (!t || t.tagName !== "IFRAME") return;
-      const restore = () => { if (!userScrolled && el) el.scrollTop = anchor; };
-      restore();
-      requestAnimationFrame(restore);
-      timers.push(window.setTimeout(restore, 80));
+    let guardUntil = Date.now() + 15000;
+    let reverting = false;
+    const markGesture = () => { lastGesture = Date.now(); };
+    const onScroll = () => {
+      if (!el || reverting) return;
+      const userDriven = Date.now() - lastGesture < 700;
+      if (userDriven || Date.now() > guardUntil) { anchor = el.scrollTop; return; }
+      if (Math.abs(el.scrollTop - anchor) < 4) return;
+      reverting = true;
+      el.scrollTop = anchor;
+      requestAnimationFrame(() => { reverting = false; });
     };
     if (el) {
-      el.addEventListener("wheel", markUser, { passive: true });
-      el.addEventListener("touchstart", markUser, { passive: true });
-      el.addEventListener("pointerdown", markUser, { passive: true });
-      el.addEventListener("keydown", markUser);
+      el.style.overflowAnchor = "none";
+      el.addEventListener("wheel", markGesture, { passive: true });
+      el.addEventListener("touchstart", markGesture, { passive: true });
+      el.addEventListener("touchmove", markGesture, { passive: true });
+      el.addEventListener("pointerdown", markGesture, { passive: true });
+      el.addEventListener("keydown", markGesture);
       el.addEventListener("scroll", onScroll, { passive: true });
     }
-    document.addEventListener("focusin", onFocusIn, true);
 
     return () => {
       timers.forEach(clearTimeout);
       if (el) {
-        el.removeEventListener("wheel", markUser);
-        el.removeEventListener("touchstart", markUser);
-        el.removeEventListener("pointerdown", markUser);
-        el.removeEventListener("keydown", markUser);
+        el.removeEventListener("wheel", markGesture);
+        el.removeEventListener("touchstart", markGesture);
+        el.removeEventListener("touchmove", markGesture);
+        el.removeEventListener("pointerdown", markGesture);
+        el.removeEventListener("keydown", markGesture);
         el.removeEventListener("scroll", onScroll);
       }
-      document.removeEventListener("focusin", onFocusIn, true);
     };
+
   }, [showDescriptionOverlay, descGridSection, descOverlayContent]);
 
 
