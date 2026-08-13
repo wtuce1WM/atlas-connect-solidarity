@@ -443,6 +443,8 @@ async def main() -> None:
         manifest_detail = {
             "step": len(steps_meta),
             "open": "descopen.png",
+            "bg": "descbg.png" if has_bg else None,
+
             "tall": "desctall.png",
             "headerTop": geo.get("headerTop", 0),
             "headerHeight": geo.get("headerHeight", geo["top"]),
