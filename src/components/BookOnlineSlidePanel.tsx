@@ -3584,10 +3584,10 @@ const BookOnlineSlidePanelInner = ({
                       <div className="w-full mx-auto max-w-[820px] rounded-xl overflow-hidden bg-transparent">
                         <iframe
                           key={`rate-widget-bottom-${business.slug}`}
-                          src={`/embed/avis/${business.slug}?platform=all&lang=${language}&variant=card`}
+                          src={`/embed/avis/${business.slug}?platform=all&lang=${language}&variant=card&bg=transparent`}
                           title={language === "en" ? "Leave a review" : language === "ar" ? "اترك تقييماً" : "Laisser un avis"}
                           className="w-full block border-0 bg-transparent"
-                          style={{ height: 380, background: "transparent" }}
+                          style={{ height: rateIframeHeight, background: "transparent" }}
                           loading="lazy"
                         />
                       </div>
