@@ -131,26 +131,53 @@ const MediaFill: React.FC<{ src: string; kind: "img" | "video"; durationFrames: 
   );
 };
 
-const HookScene: React.FC<{ p: BusinessPromoProps; frames: number }> = ({ p, frames }) => {
+/** Fond d'écran : capture feed animée si disponible, sinon média flouté. */
+const SceneBackdrop: React.FC<{
+  p: BusinessPromoProps;
+  manifest: FeedManifest | null;
+  frames: number;
+}> = ({ p, manifest, frames }) => {
+  const frame = useCurrentFrame();
+  const bg = p.videoUrl || p.images?.[0] || null;
+  if (manifest) {
+    return (
+      <AbsoluteFill style={{ opacity: 0.85 }}>
+        <FeedBackdrop manifest={manifest} frame={frame} />
+      </AbsoluteFill>
+    );
+  }
+  if (!bg) return null;
+  return (
+    <AbsoluteFill style={{ filter: "blur(14px)", opacity: 0.5 }}>
+      <MediaFill src={bg} kind={p.videoUrl ? "video" : "img"} durationFrames={frames} />
+    </AbsoluteFill>
+  );
+};
+
+const HookScene: React.FC<{ p: BusinessPromoProps; frames: number; manifest: FeedManifest | null }> = ({
+  p,
+  frames,
+  manifest,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const bg = p.videoUrl || p.images?.[0] || null;
   const rise = spring({ frame, fps, config: { damping: 200 } });
   const y = interpolate(rise, [0, 1], [60, 0]);
   const words = (p.hook || "").split(/\s+/).filter(Boolean);
 
   return (
     <AbsoluteFill style={{ background: palette.night }}>
-      {bg && (
-        <AbsoluteFill style={{ filter: "blur(14px)", opacity: 0.5 }}>
-          <MediaFill src={bg} kind={p.videoUrl ? "video" : "img"} durationFrames={frames} />
-        </AbsoluteFill>
-      )}
+      <SceneBackdrop p={p} manifest={manifest} frames={frames} />
       <AbsoluteFill
         style={{
           background: `linear-gradient(180deg, ${alpha("night", 0.55)}, ${alpha("night", 0.9)})`,
         }}
       />
+      {p.logoUrl && (
+        <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", paddingBottom: "18%" }}>
+          <PromoLogo src={p.logoUrl} size={PROMO_PORTRAIT.width * 0.52} />
+        </AbsoluteFill>
+      )}
       <AbsoluteFill
         style={{
           justifyContent: "flex-end",
@@ -209,6 +236,38 @@ const HookScene: React.FC<{ p: BusinessPromoProps; frames: number }> = ({ p, fra
     </AbsoluteFill>
   );
 };
+
+/** Carte texte plein écran (HTML riche ≤ 500 caractères, saisi en back-office). */
+const TextScene: React.FC<{ p: BusinessPromoProps; manifest: FeedManifest | null; frames: number }> = ({
+  p,
+  manifest,
+  frames,
+}) => {
+  const frame = useCurrentFrame();
+  const fade = interpolate(frame, [0, 12], [0, 1], { extrapolateRight: "clamp" });
+  const y = interpolate(frame, [0, 24], [40, 0], { extrapolateRight: "clamp" });
+  return (
+    <AbsoluteFill style={{ background: palette.night }}>
+      <SceneBackdrop p={p} manifest={manifest} frames={frames} />
+      <AbsoluteFill style={{ background: alpha("night", 0.82) }} />
+      <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", padding: "0 9%" }}>
+        <div style={{ opacity: fade, transform: `translateY(${y}px)`, textAlign: "center" }}>
+          <div style={{ ...{ width: 96, height: 4, background: palette.gold, borderRadius: 999 }, margin: "0 auto 34px" }} />
+          <div
+            style={{
+              fontFamily: body,
+              fontSize: size.lead,
+              lineHeight: 1.42,
+              color: palette.cream,
+            }}
+            dangerouslySetInnerHTML={{ __html: p.text || "" }}
+          />
+        </div>
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
 
 const MediaScene: React.FC<{
   src: string;
