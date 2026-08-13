@@ -444,6 +444,8 @@ const BookOnlineSlidePanelInner = ({
   const welcomePopupShownRef = useRef<string | null>(null);
   const promosPopupShownRef = useRef<string | null>(null);
   const businessPromotions = useBusinessPromotions(business?.id);
+  /** Vrai quand l'overlay Full Description est ouvert : neutralise l'ouverture des popups/offres. */
+  const descOverlayOpenRef = useRef(false);
   useEffect(() => {
     const url = (business as any)?.popup_image_url;
     // Defensive: only trigger the popup if the URL is still part of the business images
