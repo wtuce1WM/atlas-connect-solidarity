@@ -313,7 +313,7 @@ export default function EmbedReviewsWidget({
     showSynthesis && avgOn20 != null && avgOn20 > 0 ? (
       <div
         dir="ltr"
-        className={`relative flex items-center justify-center gap-2.5 ${
+        className={`relative ${hideReviewText ? "inline-flex self-center w-auto max-w-full" : "flex"} items-center justify-center gap-2.5 ${
           large ? "py-2 px-5" : "py-1.5 px-4"
         } rounded-full border ${
           dark
