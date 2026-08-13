@@ -63,7 +63,9 @@ SET_BG = """(c)=>{
   if(!s){s=document.createElement('style');s.id='owmcap';document.head.appendChild(s)}
   s.textContent='.bg-black{background-color:'+c+'!important}video{opacity:0!important}';
   if(window.__owmKill) window.__owmKill();
+  if(window.__owmStuck) window.__owmStuck();
 }"""
+
 
 SWIPE = """async ()=>{
   const el=document.elementFromPoint(360,700);
