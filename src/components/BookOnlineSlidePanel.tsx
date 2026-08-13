@@ -1144,8 +1144,47 @@ const BookOnlineSlidePanelInner = ({
     reset();
     requestAnimationFrame(reset);
     [50, 150, 300, 600, 1000].forEach((d) => timers.push(window.setTimeout(reset, d)));
-    return () => timers.forEach(clearTimeout);
+
+    // Garde anti-scroll parasite : certaines iframes tierces (ex. moteur de réservation
+    // "Réservez" de Royal Mansour) prennent le focus au chargement, ce qui fait sauter
+    // le conteneur sur leur section. Tant que l'utilisateur n'a pas scrollé lui-même,
+    // on restaure la position courante quand le focus part dans une iframe.
+    const el = document.getElementById("owm-desc-scroll");
+    let userScrolled = false;
+    let anchor = 0;
+    const markUser = () => { userScrolled = true; };
+    const onScroll = () => { if (userScrolled && el) anchor = el.scrollTop; };
+    const onFocusIn = (e: FocusEvent) => {
+      if (userScrolled || !el) return;
+      const t = e.target as HTMLElement | null;
+      if (!t || t.tagName !== "IFRAME") return;
+      const restore = () => { if (!userScrolled && el) el.scrollTop = anchor; };
+      restore();
+      requestAnimationFrame(restore);
+      timers.push(window.setTimeout(restore, 80));
+    };
+    if (el) {
+      el.addEventListener("wheel", markUser, { passive: true });
+      el.addEventListener("touchstart", markUser, { passive: true });
+      el.addEventListener("pointerdown", markUser, { passive: true });
+      el.addEventListener("keydown", markUser);
+      el.addEventListener("scroll", onScroll, { passive: true });
+    }
+    document.addEventListener("focusin", onFocusIn, true);
+
+    return () => {
+      timers.forEach(clearTimeout);
+      if (el) {
+        el.removeEventListener("wheel", markUser);
+        el.removeEventListener("touchstart", markUser);
+        el.removeEventListener("pointerdown", markUser);
+        el.removeEventListener("keydown", markUser);
+        el.removeEventListener("scroll", onScroll);
+      }
+      document.removeEventListener("focusin", onFocusIn, true);
+    };
   }, [showDescriptionOverlay, descGridSection, descOverlayContent]);
+
 
   const hideCardsRef = useRef<() => void>(() => {});
   const hasSerpMapping = !!serpApiMapping || !!liteApiHotelId;
