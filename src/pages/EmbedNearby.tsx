@@ -29,11 +29,15 @@ const EmbedNearby = () => {
   const L = MESSAGES[lang];
 
   const bgParam = params.get("bg") || "";
-  // En overlay les paramètres backoffice (fond/thème/fit) sont ignorés, SAUF la
-  // couleur de la carte : elle reste celle réglée pour l'établissement.
-  const settingsMapColor =
-    (rawSettings?.theme === "dark" ? rawSettings?.bgDark || rawSettings?.bgLight : rawSettings?.bgLight) || "";
-  const rawColor = /^#?[0-9a-fA-F]{6}$/.test(bgParam) ? bgParam : overlay ? settingsMapColor : "";
+  // En overlay (Full Description) : aucun réglage backoffice n'est utilisé, la
+  // carte porte TOUJOURS la même couleur pour tous les établissements.
+  const OVERLAY_MAP_COLOR = "#ECD6B8";
+  const rawColor = overlay
+    ? OVERLAY_MAP_COLOR
+    : /^#?[0-9a-fA-F]{6}$/.test(bgParam)
+    ? bgParam
+    : "";
+
   const mapBaseColor = /^#?[0-9a-fA-F]{6}$/.test(rawColor)
     ? (rawColor.startsWith("#") ? rawColor : `#${rawColor}`)
     : null;
