@@ -358,24 +358,6 @@ const VideoPromoPanel = () => {
             )}
           </div>
 
-          <div className="rounded-lg border p-3 grid gap-2">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-xs text-muted-foreground">Texte (Rich Text, 500 caractères max)</span>
-              <span className={`text-[11px] ${textLength > 500 ? "text-destructive" : "text-muted-foreground"}`}>
-                {textLength}/500
-              </span>
-            </div>
-            <RichTextEditor
-              content={text}
-              onChange={setText}
-              simple
-              maxHeight="180px"
-              placeholder="La solution de paiement multicanal de M2T…"
-            />
-            <span className="text-[11px] text-muted-foreground">
-              Affiché en carte plein écran ; active le bloc « Texte » ci-dessous pour l'inclure au montage.
-            </span>
-          </div>
 
           <div className="rounded-lg border p-3 grid gap-3">
             <span className="text-xs text-muted-foreground">Logo animé & fond d'écran</span>
