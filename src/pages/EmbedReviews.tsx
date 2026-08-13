@@ -54,6 +54,10 @@ export default function EmbedReviews() {
   // ?frame=0 (ou frameless=1) → aucun cadre : fusion parfaite avec la section hôte
   const frameless = /^(0|none|off|no)$/i.test((params.get("frame") || "").trim()) ||
     /^(1|true|yes)$/i.test((params.get("frameless") || "").trim());
+  // ?notexts=1 → masque la carte « détail de l'avis » (évite la redondance quand
+  // l'hôte affiche déjà tous les avis en texte, ex. overlay Full Description).
+  const hideReviewText = /^(1|true|yes)$/i.test((params.get("notexts") || "").trim());
+
 
 
   
