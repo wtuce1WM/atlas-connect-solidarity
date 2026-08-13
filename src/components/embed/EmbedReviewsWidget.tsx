@@ -116,6 +116,7 @@ function PlatformRow({
   lang,
   compact,
   dark,
+  autoWidth,
 }: {
   logo: string;
   name: string;
@@ -125,6 +126,8 @@ function PlatformRow({
   lang: Lang;
   compact?: boolean;
   dark?: boolean;
+  /** Carte dimensionnée au contenu (pas de pleine largeur) */
+  autoWidth?: boolean;
 }) {
   const L = LABELS[lang];
   const inner = (
@@ -135,11 +138,11 @@ function PlatformRow({
         className={`${compact ? "h-6 w-6" : "h-7 w-7"} rounded object-contain shrink-0`}
         onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")}
       />
-      <span className="min-w-0 flex-1">
+      <span className={autoWidth ? "min-w-0" : "min-w-0 flex-1"}>
         <span
           className={`block ${compact ? "text-[12px]" : "text-sm"} font-semibold ${
             dark ? "text-black" : "text-white"
-          } truncate`}
+          } ${autoWidth ? "whitespace-nowrap" : "truncate"}`}
         >
           {name}
         </span>
@@ -160,7 +163,7 @@ function PlatformRow({
       ) : null}
     </>
   );
-  const cls = `flex items-center gap-3 rounded-xl border ${
+  const cls = `${autoWidth ? "inline-flex w-auto max-w-full" : "flex"} items-center gap-3 rounded-xl border ${
     dark ? "border-black/10 bg-black/[0.03]" : "border-white/15 bg-white/5"
   } ${compact ? "px-2.5 py-2" : "px-3 py-2.5"} transition-colors`;
   return url ? (
@@ -336,9 +339,17 @@ export default function EmbedReviewsWidget({
 
   const rows =
     platformRows.length > 0 ? (
-      <div className={shape === "square" ? "grid grid-cols-1 gap-1.5" : "space-y-2"}>
+      <div
+        className={
+          hideReviewText
+            ? "flex flex-wrap justify-center gap-2"
+            : shape === "square"
+              ? "grid grid-cols-1 gap-1.5"
+              : "space-y-2"
+        }
+      >
         {platformRows.map((p) => (
-          <PlatformRow key={p.key} {...p} lang={lang} compact={compactRows} dark={dark} />
+          <PlatformRow key={p.key} {...p} lang={lang} compact={compactRows} dark={dark} autoWidth={hideReviewText} />
         ))}
       </div>
     ) : null;
