@@ -2052,6 +2052,23 @@ const BookOnlineSlidePanelInner = ({
         if (ctaConfig.shopCta!.forceExternal) window.open(ctaConfig.shopCta!.fullUrl, "_blank", "noopener");
         else openDocOrBooking(ctaConfig.shopCta!.fullUrl, ctaConfig.shopCtaLabel, true);
       } },
+      // Menus & Flipbooks (avant les réseaux sociaux) — un badge par document renseigné
+      ...(menuDocs || [])
+        .filter((d: any) => d?.url && d.type !== 'flipbook')
+        .map((d: any) => ({
+          name: d.name || (language === "en" ? "Menu" : "Menu"),
+          url: d.url as string,
+          icon: <Newspaper className="h-4 w-4" />,
+          onClick: () => openDocOrBooking(d.url, d.name || 'Menu'),
+        })),
+      ...(menuDocs || [])
+        .filter((d: any) => d?.url && d.type === 'flipbook')
+        .map((d: any) => ({
+          name: d.name || 'Flipbook',
+          url: d.url as string,
+          icon: <BookOpen className="h-4 w-4" />,
+          onClick: () => openDocOrBooking(d.url, d.name || 'Flipbook'),
+        })),
       business?.instagram_url && { name: "Instagram", url: business.instagram_url, icon: <InstagramIcon className="h-4 w-4" /> },
       business?.facebook_url && { name: "Facebook", url: business.facebook_url, icon: <FacebookIcon className="h-4 w-4 text-[#1877F2]" /> },
       business?.tiktok_url && { name: "TikTok", url: business.tiktok_url, icon: <TikTokIcon className="h-5 w-5" /> },
