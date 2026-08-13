@@ -2938,7 +2938,43 @@ const BookOnlineSlidePanelInner = ({
                       <span className="text-gold/80 font-medium">{language === "en" ? "reviews" : language === "ar" ? "آراء" : "avis"}</span>
                     </div>
                   )}
+                  {/* Engagements / Certifications / Commodités — en colonne au-dessus de popup/offres */}
+                  {!descOverlayContent && (() => {
+                    const engs: string[] = ((business as any)?.engagements || []) as string[];
+                    if (engs.length === 0) return null;
+                    const standards = engs.filter((e) => !e.startsWith("Logistique:") && !e.startsWith("Certification:"));
+                    const certifications = engs.filter((e) => e.startsWith("Certification:")).map((e) => e.replace("Certification:", "").trim());
+                    const logistics = engs.filter((e) => e.startsWith("Logistique:")).map((e) => e.replace("Logistique:", "").trim());
+                    if (standards.length + certifications.length + logistics.length === 0) return null;
+                    const chip = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs md:text-sm font-medium backdrop-blur-sm w-fit";
+                    return (
+                      <div className="mb-5 flex flex-col items-center gap-1.5">
+                        {certifications.map((c, i) => (
+                          <span key={`fd-c-${i}`} className={`${chip} bg-amber-500/30 text-amber-200`}>
+                            <Award className="h-3.5 w-3.5 shrink-0" />{translateEngagementLabel(c, language)}
+                          </span>
+                        ))}
+                        {standards.map((e, i) => (
+                          <span key={`fd-e-${i}`} className={`${chip} bg-green-500/30 text-green-200`}>
+                            <Leaf className="h-3.5 w-3.5 shrink-0" />{translateEngagementLabel(e, language)}
+                          </span>
+                        ))}
+                        {logistics.map((l, i) => {
+                          const lower = l.toLowerCase();
+                          const Icon = lower.includes("livraison")
+                            ? Truck
+                            : (lower.includes("pmr") || lower.includes("handicap") || lower.includes("accès")) ? Accessibility : Package;
+                          return (
+                            <span key={`fd-l-${i}`} className={`${chip} bg-blue-500/30 text-blue-200`}>
+                              <Icon className="h-3.5 w-3.5 shrink-0" />{translateEngagementLabel(l, language)}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
                   {/* Cartes Image popup + Offres — sous le badge avis client */}
+
                   {!descOverlayContent && (() => {
                     const popupUrl = (business as any)?.popup_image_url as string | undefined;
                     const slides: { kind: "popup" | "promo"; promo?: any }[] = [
