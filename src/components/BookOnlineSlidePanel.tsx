@@ -3174,7 +3174,7 @@ const BookOnlineSlidePanelInner = ({
                     const visible = highlights.filter(h => h.title?.trim() || h.description?.trim());
                     if (visible.length === 0) return null;
                     return (
-                      <div className="mt-8 pt-6 border-t border-white/10">
+                      <div data-owm-no-anchor="1" className="mt-8 pt-6 border-t border-white/10">
                         {(highlightsSection.title || highlightsSection.intro) && (
                           <div className="mb-4">
                             {highlightsSection.title && (
