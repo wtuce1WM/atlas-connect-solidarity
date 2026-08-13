@@ -88,7 +88,7 @@ const EmbedNearby = () => {
   return (
     <div
       className="relative h-screen w-full overflow-hidden"
-      style={{ background: mapPainted ? (mapBaseColor ?? "transparent") : "transparent" }}
+      style={{ background: mapPainted && !overlay ? (mapBaseColor ?? "transparent") : "transparent" }}
     >
       {!businessId ? (
         <div className="h-full w-full" />
