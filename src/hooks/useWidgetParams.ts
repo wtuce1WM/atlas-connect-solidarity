@@ -54,9 +54,15 @@ export function useWidgetParams(
     };
   }, [widgetKey, businessId]);
 
+  // `?preset=overlay` : rendu interne (overlay Full Description du slidepanel).
+  // Les réglages backoffice (couleurs de fond, thème, fit) sont volontairement
+  // ignorés pour que tous les établissements aient le même traitement visuel ;
+  // ces réglages restent utilisés pour les vrais embeds sur les sites hôtes.
+  const overlay = (urlParams.get("preset") || "").toLowerCase() === "overlay";
+
   const params = useMemo(() => {
     const p = new URLSearchParams(urlParams.toString());
-    if (!settings) return p;
+    if (overlay || !settings) return p;
     const setIf = (k: string, v: string | number | null | undefined) => {
       if (v !== null && v !== undefined && v !== "" && !p.has(k)) p.set(k, String(v));
     };
@@ -74,7 +80,8 @@ export function useWidgetParams(
     setIf("fit", settings.fit);
     setIf("lang", settings.lang);
     return p;
-  }, [urlParams, settings]);
+  }, [urlParams, settings, overlay]);
 
-  return { params, businessId, settings, ready: settings !== null };
+  return { params, businessId, settings: overlay ? null : settings, overlay, ready: overlay || settings !== null };
 }
+
