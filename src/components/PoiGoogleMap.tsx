@@ -48,6 +48,8 @@ interface PoiGoogleMapProps {
   showLayerControls?: boolean;
   /** Optional hex color (e.g. "#EFE6D8") overriding the light theme base/landscape color (widgets only). */
   baseColor?: string | null;
+  /** Appelé une seule fois quand les tuiles de la carte sont réellement affichées. */
+  onReady?: () => void;
   /** When provided, centers the map so the `center` marker sits at this ratio from the bottom of the viewport (0 = bottom, 0.5 = middle, 1 = top). Overrides fitToMarkers. */
   centerAtBottomRatio?: number;
   /** Base map type: "roadmap" (plan), "satellite" or "terrain" (relief). Default is terrain. */
@@ -374,7 +376,7 @@ const createLabelMarkerClass = (gmaps: typeof google.maps) =>
     }
   };
 
-const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, fitPadding, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls, baseColor, centerAtBottomRatio, mapTypeId, fitRadiusKm, connector, distanceOrigin }: PoiGoogleMapProps) => {
+const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, subcategoryIconMap, fitToMarkers, fitPadding, highlightColor, userLocation, userMarkerLabel, mapTheme, showLayerControls, baseColor, onReady, centerAtBottomRatio, mapTypeId, fitRadiusKm, connector, distanceOrigin }: PoiGoogleMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapShellRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -522,6 +524,9 @@ const PoiGoogleMap = ({ pois, selectedPoiId, hoveredPoiId, onPoiClick, center, s
           : LIGHT_MAP_STYLES;
     }
     mapRef.current = new gmaps.Map(containerRef.current, opts);
+    // Signal « carte réellement peinte » : les hôtes embarqués n'appliquent leur
+    // couleur de fond qu'à ce moment-là (évite un flash de couleur au chargement).
+    if (onReady) gmaps.event.addListenerOnce(mapRef.current, "tilesloaded", () => onReady());
     // disableAutoPan : survoler un POI excentré ne doit jamais déplacer la carte.
     infoWindowRef.current = new gmaps.InfoWindow({ disableAutoPan: true });
 

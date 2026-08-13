@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useEmbedIframeHeight } from "@/hooks/useEmbedIframeHeight";
 import { DesktopMediaArrows, useOwnerLogo } from "@/components/CardsVisibilityToggle";
 import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
@@ -242,6 +243,8 @@ interface BookOnlineSlidePanelProps {
   mapBaseColor?: string | null;
   /** Widget only: map theme override (default-light = native Google Maps colors) */
   mapTheme?: "light" | "dark" | "default-light" | "default-dark";
+  /** Widget only: appelé quand les tuiles de la carte POI sont réellement peintes */
+  onMapReady?: () => void;
   /** Corpus fermé imposé (réponse IA) : ids d'établissements, dans l'ordre exact à afficher */
   poiOverrideIds?: string[] | null;
   /** Titre de l'overlay POI quand un corpus fermé est imposé */
@@ -256,10 +259,11 @@ const BookOnlineSlidePanelInner = ({
   onMosaicStateChange, closeTrigger, propagateMosaicState = false, toolbarPortalPrefix, initialVideoUrl,
   onPrevBusiness, onNextBusiness, hasPrevBusiness, hasNextBusiness,
   onPrev, onNext, hasPrev, hasNext,
-  hideDirections, hideSecondaryCtas, initialOverlay, embedMode, mapBaseColor, mapTheme,
+  hideDirections, hideSecondaryCtas, initialOverlay, embedMode, mapBaseColor, mapTheme, onMapReady,
   poiOverrideIds, poiOverrideTitle,
 }: BookOnlineSlidePanelProps) => {
   // Aliases: callers from SlidePanelHome migration use onPrev/onNext naming.
+  const rateIframeHeight = useEmbedIframeHeight("owm-rate-height", 380);
   const effectiveOnPrev = onPrevBusiness ?? onPrev;
   // Chrome navigateur (barres iOS) en noir tant que le panneau est monté hors embed
   useDarkBrowserChrome(!embedMode);
@@ -3582,10 +3586,10 @@ const BookOnlineSlidePanelInner = ({
                       <div className="w-full mx-auto max-w-[820px] rounded-xl overflow-hidden bg-transparent">
                         <iframe
                           key={`rate-widget-bottom-${business.slug}`}
-                          src={`/embed/avis/${business.slug}?platform=all&lang=${language}&variant=card`}
+                          src={`/embed/avis/${business.slug}?platform=all&lang=${language}&variant=card&bg=transparent`}
                           title={language === "en" ? "Leave a review" : language === "ar" ? "اترك تقييماً" : "Laisser un avis"}
                           className="w-full block border-0 bg-transparent"
-                          style={{ height: 380, background: "transparent" }}
+                          style={{ height: rateIframeHeight, background: "transparent" }}
                           loading="lazy"
                         />
                       </div>
@@ -4299,6 +4303,7 @@ const BookOnlineSlidePanelInner = ({
               fitRadiusKm={overridePois ? widgetFitKm : (poiMapMode === "destinations" || overridePool ? null : poiProximityKm)}
               connector={widgetConnector}
               baseColor={mapBaseColor || undefined}
+              onReady={onMapReady}
               mapTheme={mapTheme}
               userLocation={showUserMarker && userCoords ? { lat: userCoords.lat, lng: userCoords.lng } : null}
             />

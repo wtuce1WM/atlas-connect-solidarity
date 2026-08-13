@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useEmbedIframeHeight } from "@/hooks/useEmbedIframeHeight";
 import { Star, ChevronDown, ChevronUp } from "lucide-react";
 import { tripadvisorReviewUrl } from "@/lib/tripadvisorUrl";
 import type { ReviewText } from "@/lib/reviewHtmlBuilder";
@@ -58,6 +59,7 @@ function resolveLeaveReviewUrl(p: InlineReviewPlatform): string | null {
  */
 const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, language, slug }: Props) => {
   const t = L[(language as keyof typeof L)] ?? L.fr;
+  const reviewsIframeHeight = useEmbedIframeHeight("owm-reviews-height", 340);
   const [expanded, setExpanded] = useState(false);
 
   const activePlatforms = useMemo(
@@ -136,10 +138,10 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
         <div className="w-full mx-auto max-w-[820px] mb-4 rounded-xl overflow-hidden bg-transparent border border-white/10">
           <iframe
             key={`reviews-widget-${slug}`}
-            src={`/embed/reviews/${slug}?platform=all&lang=${language}`}
+            src={`/embed/reviews/${slug}?platform=all&lang=${language}&bg=transparent`}
             title={t.title}
             className="w-full block border-0 bg-transparent"
-            style={{ height: 340, background: "transparent" }}
+            style={{ height: reviewsIframeHeight, background: "transparent" }}
             loading="lazy"
           />
         </div>
