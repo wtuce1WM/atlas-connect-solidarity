@@ -242,6 +242,8 @@ interface BookOnlineSlidePanelProps {
   mapBaseColor?: string | null;
   /** Widget only: map theme override (default-light = native Google Maps colors) */
   mapTheme?: "light" | "dark" | "default-light" | "default-dark";
+  /** Widget only: appelé quand les tuiles de la carte POI sont réellement peintes */
+  onMapReady?: () => void;
   /** Corpus fermé imposé (réponse IA) : ids d'établissements, dans l'ordre exact à afficher */
   poiOverrideIds?: string[] | null;
   /** Titre de l'overlay POI quand un corpus fermé est imposé */
