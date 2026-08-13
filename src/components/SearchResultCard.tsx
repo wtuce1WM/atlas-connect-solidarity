@@ -175,24 +175,34 @@ export default function SearchResultCard({ business, index, labelLogos, distance
         )}
         {hasEngagements && (
           <div className="flex flex-wrap gap-1 mt-0.5">
-            {certifications.map((c, i) => (
-              <span key={`c-${i}`} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-amber-500/30 text-amber-200 backdrop-blur-sm">
-                <Award className="h-2.5 w-2.5" />{translateEngagementLabel(c, language)}
-              </span>
-            ))}
-            {standards.map((e, i) => (
-              <span key={`e-${i}`} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-green-500/30 text-green-200 backdrop-blur-sm">
-                <Leaf className="h-2.5 w-2.5" />{translateEngagementLabel(e, language)}
-              </span>
-            ))}
-            {logistics.map((l, i) => {
-              const Icon = getLogIcon(l);
-              return (
-                <span key={`l-${i}`} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-blue-500/30 text-blue-200 backdrop-blur-sm">
-                  <Icon className="h-2.5 w-2.5" />{translateEngagementLabel(l, language)}
-                </span>
-              );
-            })}
+            {[
+              ...certifications.map((value) => ({ type: "cert" as const, value })),
+              ...standards.map((value) => ({ type: "std" as const, value })),
+              ...logistics.map((value) => ({ type: "log" as const, value })),
+            ]
+              .slice(0, 2)
+              .map((item, i) => {
+                if (item.type === "cert") {
+                  return (
+                    <span key={`e-${i}`} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-amber-500/30 text-amber-200 backdrop-blur-sm">
+                      <Award className="h-2.5 w-2.5" />{translateEngagementLabel(item.value, language)}
+                    </span>
+                  );
+                }
+                if (item.type === "std") {
+                  return (
+                    <span key={`e-${i}`} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-green-500/30 text-green-200 backdrop-blur-sm">
+                      <Leaf className="h-2.5 w-2.5" />{translateEngagementLabel(item.value, language)}
+                    </span>
+                  );
+                }
+                const Icon = getLogIcon(item.value);
+                return (
+                  <span key={`e-${i}`} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium bg-blue-500/30 text-blue-200 backdrop-blur-sm">
+                    <Icon className="h-2.5 w-2.5" />{translateEngagementLabel(item.value, language)}
+                  </span>
+                );
+              })}
           </div>
         )}
       </div>
