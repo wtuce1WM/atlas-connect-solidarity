@@ -70,6 +70,10 @@ const Select = ({
   </select>
 );
 
+type Biz = { id: string; name: string; slug: string };
+
+const DEFAULT_BIZ: Biz = { id: "3bb71910-c17e-4ce1-a130-42c369a645a7", name: "La Mamounia", slug: "la-mamounia" };
+
 const WidgetSettingsPanel = () => {
   const [catalog, setCatalog] = useState<WidgetType[]>([]);
   const [defaults, setDefaults] = useState<Record<string, WidgetDefaults>>({});
@@ -78,7 +82,25 @@ const WidgetSettingsPanel = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [slug, setSlug] = useState("riad-dar-najat");
+  const [biz, setBiz] = useState<Biz>(DEFAULT_BIZ);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<Biz[]>([]);
+  const slug = biz.slug;
+
+  useEffect(() => {
+    const t = setTimeout(async () => {
+      const q = query.trim();
+      if (q.length < 2) return setResults([]);
+      const { data } = await (supabase as any)
+        .from("businesses")
+        .select("id, name, slug")
+        .or(`name.ilike.%${q}%,slug.ilike.%${q}%`)
+        .limit(12);
+      setResults((data || []) as Biz[]);
+    }, 280);
+    return () => clearTimeout(t);
+  }, [query]);
+
 
   const load = async () => {
     setLoading(true);
