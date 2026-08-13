@@ -131,22 +131,35 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
         {t.title}
       </h2>
 
-      {avgOn20 !== null && avgOn20 > 0 && (
-        <div className="flex items-center justify-center gap-3 mb-4 flex-nowrap" style={{ filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.6))" }}>
-          <Star className="h-8 w-8 text-gold fill-gold shrink-0" />
-          <span className="font-['Montserrat',sans-serif] text-4xl font-black text-gold whitespace-nowrap">
-            {avgOn20}
-            <span className="text-xl font-semibold text-white/60">/20</span>
-          </span>
-          {totalReviewCount > 0 && (
-            <span className="font-['Montserrat',sans-serif] text-sm font-medium text-white/60 whitespace-nowrap">
-              · {totalReviewCount.toLocaleString("fr-FR")} {t.reviews}
-            </span>
-          )}
+      {/* Widget « Avis clients » (iframe) — remplace la note /20 en grand + badges */}
+      {slug ? (
+        <div className="w-full mx-auto max-w-[820px] mb-4 rounded-xl overflow-hidden bg-transparent border border-white/10">
+          <iframe
+            key={`reviews-widget-${slug}`}
+            src={`/embed/reviews/${slug}?platform=all&lang=${language}`}
+            title={t.title}
+            className="w-full block border-0 bg-transparent"
+            style={{ height: 340, background: "transparent" }}
+            loading="lazy"
+          />
         </div>
+      ) : (
+        avgOn20 !== null && avgOn20 > 0 && (
+          <div className="flex items-center justify-center gap-3 mb-4 flex-nowrap" style={{ filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.6))" }}>
+            <Star className="h-8 w-8 text-gold fill-gold shrink-0" />
+            <span className="font-['Montserrat',sans-serif] text-4xl font-black text-gold whitespace-nowrap">
+              {avgOn20}
+              <span className="text-xl font-semibold text-white/60">/20</span>
+            </span>
+            {totalReviewCount > 0 && (
+              <span className="font-['Montserrat',sans-serif] text-sm font-medium text-white/60 whitespace-nowrap">
+                · {totalReviewCount.toLocaleString("fr-FR")} {t.reviews}
+              </span>
+            )}
+          </div>
+        )
       )}
 
-      {leaveReviewPlatforms.length > 0 && <LeaveReviewWidgets />}
 
       {ordered.length > 0 && (
         <div className="mt-5">
