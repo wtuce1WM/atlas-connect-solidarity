@@ -36,6 +36,8 @@ interface Props {
   avgOn20: number | null;
   totalReviewCount: number;
   language: string;
+  /** Slug de l'établissement — requis pour afficher les widgets iframe (avis / laisser un avis) */
+  slug?: string | null;
 }
 
 function resolveLeaveReviewUrl(p: InlineReviewPlatform): string | null {
