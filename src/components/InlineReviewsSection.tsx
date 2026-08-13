@@ -169,12 +169,12 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
                 key={`inline-review-${i}`}
                 className="rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm p-4 border-l-4 border-l-gold/60"
               >
-                {r.highlight?.trim() && (
-                  <p className="mb-2 text-base md:text-lg font-bold text-gold leading-snug font-['Montserrat',sans-serif]">
-                    {r.highlight.trim()}
-                  </p>
-                )}
                 <p className="text-sm md:text-base text-white/90 leading-relaxed font-['Montserrat',sans-serif] italic">
+                  {r.highlight?.trim() && (
+                    <span className="not-italic font-bold text-gold text-base md:text-lg">
+                      {r.highlight.trim()}{" "}
+                    </span>
+                  )}
                   {displayText(r)}
                 </p>
                 <footer className="mt-2 text-xs text-white/60 font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif]">
