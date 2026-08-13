@@ -2193,18 +2193,6 @@ const BookOnlineSlidePanelInner = ({
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
           )}
 
-          {/* Desktop : bouton plein écran explicite sur la vidéo de fond */}
-          {effectiveMedia?.kind === "video" && !mediaBlockingOverlayOpen && (
-            <button
-              type="button"
-              onClick={expandBackgroundVideo}
-              className="hidden md:flex absolute bottom-4 right-4 z-30 h-10 w-10 items-center justify-center rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white hover:bg-white/25 transition-colors pointer-events-auto"
-              aria-label={language === "en" ? "Fullscreen" : "Plein écran"}
-              title={language === "en" ? "Fullscreen" : "Plein écran"}
-            >
-              <Expand className="h-4 w-4" />
-            </button>
-          )}
         </div>
       )}
 
