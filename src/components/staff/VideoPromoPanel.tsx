@@ -337,7 +337,7 @@ const VideoPromoPanel = () => {
                 </Button>
               </div>
               <span className="text-[11px]">
-                En paysage, le montage 9:16 reste centré avec des bandes noires sur les côtés.
+                Le paysage est désormais un vrai cadre 16:9 (logo à gauche, accroche à droite), sans bandes noires.
               </span>
             </div>
             {variant === "mockup" && (
