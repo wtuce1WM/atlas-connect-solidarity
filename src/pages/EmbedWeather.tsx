@@ -8,6 +8,7 @@ import { parseFit, fitFlags, applyEmbedBg, parseSize, sizeZoom, parseBg, resolve
 import { useEmbedFitScale } from "@/hooks/useEmbedFitScale";
 import EmbedWeatherFooterBar from "@/components/embed/EmbedWeatherFooterBar";
 import { useWidgetTracking } from "@/hooks/useWidgetTracking";
+import { useWidgetParams } from "@/hooks/useWidgetParams";
 
 
 type Lang = "fr" | "en" | "ar";
@@ -19,8 +20,8 @@ const MESSAGES: Record<Lang, { loading: string; error: string }> = {
 };
 
 export default function EmbedWeather() {
-  const [params] = useSearchParams();
-  useWidgetTracking("weather", null, params.get("lang") || undefined);
+  const { params, businessId: widgetBusinessId } = useWidgetParams("weather", {});
+  useWidgetTracking("weather", widgetBusinessId, params.get("lang") || undefined);
   const city = params.get("city")?.trim() || "Marrakech";
   const langParam = (params.get("lang") || "fr").toLowerCase();
   const lang: Lang = langParam === "en" || langParam === "ar" ? (langParam as Lang) : "fr";
