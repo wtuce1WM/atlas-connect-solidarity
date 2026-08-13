@@ -39,13 +39,20 @@ const EmbedNearby = () => {
 
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
+  // Le fond (ex. ?bg=ECD6B8) n'est peint qu'une fois les tuiles de la carte
+  // affichées : avant ça la page reste transparente, donc aucun flash de couleur.
+  const [mapPainted, setMapPainted] = useState(false);
 
   useEffect(() => {
     setLanguage(lang);
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
     document.title = "À proximité — One World Morocco";
-    applyEmbedBg(mapBaseColor);
-  }, [lang, setLanguage, mapBaseColor]);
+  }, [lang, setLanguage]);
+
+  useEffect(() => {
+    if (!mapPainted) return;
+    return applyEmbedBg(mapBaseColor);
+  }, [mapPainted, mapBaseColor]);
 
   useEffect(() => {
     if (!slug) return;
