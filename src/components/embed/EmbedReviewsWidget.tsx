@@ -116,6 +116,7 @@ function PlatformRow({
   lang,
   compact,
   dark,
+  autoWidth,
 }: {
   logo: string;
   name: string;
@@ -125,6 +126,8 @@ function PlatformRow({
   lang: Lang;
   compact?: boolean;
   dark?: boolean;
+  /** Carte dimensionnée au contenu (pas de pleine largeur) */
+  autoWidth?: boolean;
 }) {
   const L = LABELS[lang];
   const inner = (
@@ -135,7 +138,7 @@ function PlatformRow({
         className={`${compact ? "h-6 w-6" : "h-7 w-7"} rounded object-contain shrink-0`}
         onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")}
       />
-      <span className="min-w-0 flex-1">
+      <span className={autoWidth ? "min-w-0" : "min-w-0 flex-1"}>
         <span
           className={`block ${compact ? "text-[12px]" : "text-sm"} font-semibold ${
             dark ? "text-black" : "text-white"
