@@ -277,7 +277,7 @@ const WidgetSettingsPanel = () => {
           <Button variant="ghost" onClick={() => setDraft(toDraft(defaults[activeKey]))} disabled={!dirty}>
             <RotateCcw className="h-4 w-4 mr-2" /> Annuler
           </Button>
-          {dirty && <Badge variant="secondary">Non enregistré</Badge>}
+          
         </div>
 
         <div className="rounded-xl border border-border bg-muted/40 p-4 space-y-2">
