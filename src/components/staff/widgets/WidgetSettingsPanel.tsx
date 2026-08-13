@@ -303,10 +303,34 @@ const WidgetSettingsPanel = () => {
 
       {/* Aperçu live */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between gap-2">
-          <div className="text-xs font-medium text-muted-foreground">Aperçu live</div>
-          <Input value={slug} onChange={(e) => setSlug(e.target.value)} className="h-8 w-40 text-xs" placeholder="slug démo" />
+        <div className="text-xs font-medium text-muted-foreground">Aperçu live</div>
+        <div className="relative">
+          <Input
+            value={query || biz.name}
+            onChange={(e) => setQuery(e.target.value)}
+            className="h-9 text-xs"
+            placeholder="Établissement — nom ou slug"
+          />
+          {results.length > 0 && (
+            <div className="absolute z-20 mt-1 w-full max-h-64 overflow-auto rounded-md border border-border bg-popover shadow-lg">
+              {results.map((r) => (
+                <button
+                  key={r.id}
+                  onClick={() => {
+                    setBiz(r);
+                    setQuery("");
+                    setResults([]);
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs hover:bg-muted"
+                >
+                  <div className="font-medium">{r.name}</div>
+                  <div className="font-mono text-[10px] text-muted-foreground">{r.slug}</div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
+
         <div className="rounded-xl border border-border p-3" style={{ background: "#e5e7eb" }}>
           {previewUrl && (
             <iframe
