@@ -234,6 +234,9 @@ export default function EmbedReviewsWidget({
   ink?: "light" | "dark";
   /** Supprime le cadre extérieur (bordure, ombre, padding, fond) → fusion parfaite avec la section hôte. */
   frameless?: boolean;
+  /** Masque la carte « détail de l'avis » (redondance quand l'hôte liste déjà les avis en texte). */
+  hideReviewText?: boolean;
+
 }) {
 
 
