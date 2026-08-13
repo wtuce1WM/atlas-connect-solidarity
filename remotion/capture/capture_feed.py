@@ -272,6 +272,8 @@ async def main() -> None:
     ap.add_argument("--band-step", type=int, default=900)
     ap.add_argument("--dsf", type=int, default=2,
                     help="device scale factor de capture (suréchantillonnage)")
+    ap.add_argument("--hide-rail", action="store_true",
+                    help="masque entièrement le rail de CTA de gauche (montage paysage)")
     ap.add_argument("--wide", action="store_true",
                     help="extrait aussi des frames vidéo 16:9 plein cadre (montage paysage)")
     ap.add_argument("--output-scale", type=float, default=1.5,
@@ -307,6 +309,8 @@ async def main() -> None:
             pass
 
         await pg.evaluate(HIDE_RAIL, RAIL_WORDS)
+        if args.hide_rail:
+            await pg.evaluate(HIDE_RAIL_FULL)
 
         # Ouvre le premier résultat du feed.
         await pg.evaluate(
@@ -315,9 +319,13 @@ async def main() -> None:
         )
         await pg.wait_for_timeout(5000)
         await pg.evaluate(HIDE_RAIL, RAIL_WORDS)
+        if args.hide_rail:
+            await pg.evaluate(HIDE_RAIL_FULL)
 
         async def setbg(color: str) -> None:
             await pg.evaluate(SET_BG, color)
+            if args.hide_rail:
+                await pg.evaluate(HIDE_RAIL_FULL)
             await pg.wait_for_timeout(320)
 
         for i in range(args.steps):
