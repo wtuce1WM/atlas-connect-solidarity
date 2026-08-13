@@ -66,6 +66,8 @@ export type BusinessPromoProps = {
 export const PROMO_FPS = 30;
 export const PROMO_PORTRAIT = { width: 1080, height: 1920 } as const;
 export const PROMO_LANDSCAPE = { width: 1920, height: 1080 } as const;
+/** Cadre logique du montage paysage (mis à l'échelle vers 1920×1080). */
+export const LANDSCAPE_STAGE = { width: 1440, height: 810 } as const;
 
 export const promoDefaults: BusinessPromoProps = {
   name: "Établissement",
