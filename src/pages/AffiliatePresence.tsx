@@ -246,7 +246,7 @@ const AffiliatePresence = () => {
         name_ar: b.name_ar ?? null,
         carousel_badge: b.carousel_badge ?? null,
         poi_business_style: b.poi_business_style ?? null,
-        affiliate_private_note: b.affiliate_private_note ?? null,
+        affiliate_private_note: notesById[b.id] ?? null,
         is_active: b.is_active ?? true,
 
       };
