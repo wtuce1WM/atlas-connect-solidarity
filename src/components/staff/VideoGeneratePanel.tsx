@@ -165,6 +165,19 @@ const VideoGeneratePanel = () => {
           sectionPause,
           sectionMove,
         },
+        // Rien n'est envoyé si aucun effet n'est coché : rendu strictement identique.
+        ...(anyEffect
+          ? {
+              effects: {
+                ...effectsOn,
+                intensity: intensity / 100,
+                strokeColor,
+                pathFrames,
+                motionBlurSamples,
+                shutterAngle: 180,
+              },
+            }
+          : {}),
       },
     };
 
