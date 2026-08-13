@@ -20,7 +20,7 @@ type Lang = keyof typeof MESSAGES;
 
 const EmbedNearby = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { params, businessId: widgetBusinessId } = useWidgetParams("nearby", { slug });
+  const { params, businessId: widgetBusinessId, rawSettings, overlay } = useWidgetParams("nearby", { slug });
   useWidgetTracking("nearby", widgetBusinessId, params.get("lang") || undefined);
   const { setLanguage } = useLanguage();
 
@@ -29,8 +29,13 @@ const EmbedNearby = () => {
   const L = MESSAGES[lang];
 
   const bgParam = params.get("bg") || "";
-  const mapBaseColor = /^#?[0-9a-fA-F]{6}$/.test(bgParam)
-    ? (bgParam.startsWith("#") ? bgParam : `#${bgParam}`)
+  // En overlay les paramètres backoffice (fond/thème/fit) sont ignorés, SAUF la
+  // couleur de la carte : elle reste celle réglée pour l'établissement.
+  const settingsMapColor =
+    (rawSettings?.theme === "dark" ? rawSettings?.bgDark || rawSettings?.bgLight : rawSettings?.bgLight) || "";
+  const rawColor = /^#?[0-9a-fA-F]{6}$/.test(bgParam) ? bgParam : overlay ? settingsMapColor : "";
+  const mapBaseColor = /^#?[0-9a-fA-F]{6}$/.test(rawColor)
+    ? (rawColor.startsWith("#") ? rawColor : `#${rawColor}`)
     : null;
   // Default widget map uses native Google Maps colors; custom color overrides the light theme.
   const mapTheme: "light" | "dark" | "default-light" | "default-dark" = mapBaseColor ? "light" : "default-light";
@@ -51,8 +56,9 @@ const EmbedNearby = () => {
 
   useEffect(() => {
     // Avant la peinture des tuiles : transparent (l'hôte reste visible, aucun flash).
-    return applyEmbedBg(mapPainted ? mapBaseColor : "transparent");
-  }, [mapPainted, mapBaseColor]);
+    // En overlay, la page reste transparente : seule la carte porte la couleur.
+    return applyEmbedBg(mapPainted && !overlay ? mapBaseColor : "transparent");
+  }, [mapPainted, mapBaseColor, overlay]);
 
   useEffect(() => {
     if (!slug) return;
@@ -82,7 +88,7 @@ const EmbedNearby = () => {
   return (
     <div
       className="relative h-screen w-full overflow-hidden"
-      style={{ background: mapPainted ? (mapBaseColor ?? "transparent") : "transparent" }}
+      style={{ background: mapPainted && !overlay ? (mapBaseColor ?? "transparent") : "transparent" }}
     >
       {!businessId ? (
         <div className="h-full w-full" />
