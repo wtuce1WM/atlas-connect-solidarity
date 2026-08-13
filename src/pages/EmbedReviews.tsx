@@ -156,7 +156,7 @@ export default function EmbedReviews() {
       )}
       {!loading && !error && business && (
         <div ref={fitInnerRef} className="w-full flex justify-center [&>div]:max-w-full" style={fitStyle}>
-          <EmbedReviewsWidget business={business} reviews={reviews} platform={platform} lang={lang} ratio={ratio} size={size} fullWidth={fullWidth} surface={surface} ink={ink} frameless={frameless} />
+          <EmbedReviewsWidget business={business} reviews={reviews} platform={platform} lang={lang} ratio={ratio} size={size} fullWidth={fullWidth} surface={surface} ink={ink} frameless={frameless} hideReviewText={hideReviewText} />
         </div>
       )}
     </div>
