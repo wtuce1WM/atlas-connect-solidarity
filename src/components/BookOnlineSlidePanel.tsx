@@ -4484,7 +4484,7 @@ const BookOnlineSlidePanelInner = ({
           className="absolute inset-0 z-[150] flex items-center justify-center p-1 sm:p-4 bg-black/75 backdrop-blur-sm"
           onClick={() => setShowWelcomePopup(false)}
         >
-          <div className={`relative flex items-center justify-center w-full max-h-full px-1 sm:px-16 ${isPopupSlide && !hasMeta ? "max-w-3xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl" : "max-w-lg md:max-w-xl"} owm-popup-appear`} onClick={(e) => e.stopPropagation()}>
+          <div className={`relative flex items-center justify-center w-full h-full max-h-full px-1 sm:px-16 ${isPopupSlide && !hasMeta ? "max-w-3xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl" : "max-w-lg md:max-w-xl"} owm-popup-appear`} onClick={(e) => e.stopPropagation()}>
 
             {totalSlides > 1 && (
               <button
