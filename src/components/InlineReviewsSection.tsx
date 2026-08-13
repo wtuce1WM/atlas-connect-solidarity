@@ -195,16 +195,9 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
                 className="rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm p-4 border-l-4 border-l-gold/60"
               >
                 <p className="text-sm md:text-base text-white/90 leading-relaxed font-['Montserrat',sans-serif] italic">
-                  {displayText(r)}
-                  {r.highlight?.trim() && (
-                    <>
-                      {" "}
-                      <span className="font-bold text-gold text-base md:text-lg italic">
-                        {r.highlight.trim()}
-                      </span>
-                    </>
-                  )}
+                  {renderWithHighlight(r)}
                 </p>
+
                 <footer className="mt-2 text-xs text-white/60 font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif]">
                   — {r.author_name || t.anon}
                   {r.source ? ` (${r.source})` : ""}
