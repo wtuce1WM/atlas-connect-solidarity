@@ -163,6 +163,21 @@ HIDE_STUCK = """()=>{
   kill(); window.__owmStuck=kill; setInterval(kill,400);
 }"""
 
+# Passe « fond de l'overlay » : on masque le contenu scrollable, l'en-tête et la
+# barre basse pour ne garder que les couches de fond (image + scrims). Sans ce
+# calque, les bandes stitchées (transparentes) laissent voir la fiche derrière,
+# dont sa barre « liquid glass », au bas de l'overlay Full Description.
+BG_ONLY_ON = """()=>{
+  let s=document.getElementById('owmbg');
+  if(!s){s=document.createElement('style');s.id='owmbg';document.head.appendChild(s)}
+  s.textContent='[data-owm-video-header],[data-owm-video-bottom-bar],#owm-desc-scroll'
+    +'{visibility:hidden!important}';
+}"""
+
+BG_ONLY_OFF = """()=>{const s=document.getElementById('owmbg'); if(s) s.remove();}"""
+
+
+
 
 
 def local_url(url: str, origin: str) -> str:
@@ -327,10 +342,20 @@ async def main() -> None:
             for col, tag in (("#000000", "black"), ("#ffffff", "white")):
                 await setbg(col)
                 await pg.screenshot(path=str(raw / f"descopen_{tag}.png"))
+            # Fond de l'overlay seul (image + scrims), recomposé sous le contenu
+            # scrollé dans Remotion.
+            await pg.evaluate(BG_ONLY_ON)
+            await pg.wait_for_timeout(300)
+            for col, tag in (("#000000", "black"), ("#ffffff", "white")):
+                await setbg(col)
+                await pg.screenshot(path=str(raw / f"descbg_{tag}.png"))
+            await pg.evaluate(BG_ONLY_OFF)
+            await pg.wait_for_timeout(300)
             # En-tête capturé : on neutralise ensuite les éléments collants/fixes
             # pour que le contenu stitché ne les répète pas dans la hauteur.
             await pg.evaluate(HIDE_STUCK)
             await pg.wait_for_timeout(400)
+
             bands: list[tuple[int, int]] = []  # (index, scrollTop réel)
 
             s = 0
@@ -379,6 +404,10 @@ async def main() -> None:
     if detail:
         geo, bands = detail["geo"], detail["bands"]
         alpha_merge(raw / "descopen_black.png", raw / "descopen_white.png", out / "descopen.png")
+        has_bg = (raw / "descbg_black.png").exists() and (raw / "descbg_white.png").exists()
+        if has_bg:
+            alpha_merge(raw / "descbg_black.png", raw / "descbg_white.png", out / "descbg.png")
+
         band_paths = []
         for idx, real in bands:
             merged = raw / f"band{idx}.png"
@@ -414,6 +443,8 @@ async def main() -> None:
         manifest_detail = {
             "step": len(steps_meta),
             "open": "descopen.png",
+            "bg": "descbg.png" if has_bg else None,
+
             "tall": "desctall.png",
             "headerTop": geo.get("headerTop", 0),
             "headerHeight": geo.get("headerHeight", geo["top"]),
