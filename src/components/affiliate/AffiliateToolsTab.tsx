@@ -10,6 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import AffiliateArticleExport from "@/components/affiliate/AffiliateArticleExport";
 import HexColorField from "@/components/affiliate/HexColorField";
 import WidgetTester from "@/components/affiliate/WidgetTester";
+import { fetchBusinessWidgetCommon, saveBusinessWidgetSettingsForAll } from "@/lib/widgetSettings";
 import { FIT_OPTIONS, fitFlags, fitIframeStyle, fitParam,
   cardParam, autoHeightSnippet, SIZE_OPTIONS, sizeMaxWidth, type EmbedFit, type EmbedSize } from "@/lib/embedFit";
 
