@@ -209,6 +209,7 @@ const LocalizedRoutes = () => {
               <Route path="/en/widgets" element={renderLazyRoute(<Widgets />)} />
               <Route path="/ar/widgets" element={renderLazyRoute(<Widgets />)} />
               <Route path="/staff/backoffice/videos" element={<Suspense fallback={null}><StaffRouteGuard>{renderLazyRoute(<StaffVideos />)}</StaffRouteGuard></Suspense>} />
+              <Route path="/staff/backoffice/widgets" element={<Suspense fallback={null}><StaffRouteGuard>{renderLazyRoute(<StaffWidgets />)}</StaffRouteGuard></Suspense>} />
 
               {/* Custom-layout blog articles (kept as React components — fetch dynamic data) */}
               <Route path="/blog/5-jours-marrakech-artisanat" element={renderLazyRoute(<MarrakechArtisanat5Jours />)} />
