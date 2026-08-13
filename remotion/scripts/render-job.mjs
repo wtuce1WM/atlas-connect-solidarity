@@ -147,10 +147,18 @@ async function renderOne() {
       // Rythme réglé en back-office : on patche le bloc timing du manifest.
       const manifestFile = path.resolve(__dirname, `../public/feed/${slug}/manifest.json`);
       const manifest = JSON.parse(fs.readFileSync(manifestFile, "utf-8"));
+      let manifestDirty = false;
       if (p.timing && typeof p.timing === "object") {
         manifest.timing = { ...manifest.timing, ...p.timing };
-        fs.writeFileSync(manifestFile, JSON.stringify(manifest, null, 1));
+        manifestDirty = true;
       }
+      // Effets optionnels choisis en back-office (grain, vignette, light leaks,
+      // tracé SVG, motion blur). Absents = aucun effet, rendu inchangé.
+      if (p.effects && typeof p.effects === "object") {
+        manifest.effects = p.effects;
+        manifestDirty = true;
+      }
+      if (manifestDirty) fs.writeFileSync(manifestFile, JSON.stringify(manifest, null, 1));
       props = {
         manifestPath: `feed/${slug}/manifest.json`,
         format: p.format === "landscape" ? "landscape" : "portrait",
