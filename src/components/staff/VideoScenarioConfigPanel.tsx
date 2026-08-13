@@ -587,13 +587,15 @@ const VideoScenarioConfigPanel = () => {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [stepsRes, configRes] = await Promise.all([
+    const [stepsRes, configRes, noteRes] = await Promise.all([
       supabase
         .from("video_scenario_steps")
         .select("id, mode, scene_key, label, position, duration_sec, enabled, kicker, title, body, key_message, business_id, widget_keys")
         .eq("mode", mode)
         .order("position", { ascending: true }),
       supabase.from("video_scenario_configs").select("*").eq("mode", mode).maybeSingle(),
+      // Note interne : table staff-only, jamais exposée publiquement.
+      supabase.from("video_scenario_internal_notes").select("note").eq("mode", mode).maybeSingle(),
     ]);
     if (stepsRes.error) toast.error("Chargement impossible");
     // Étape « Menus » abandonnée : on ne l'affiche plus.
