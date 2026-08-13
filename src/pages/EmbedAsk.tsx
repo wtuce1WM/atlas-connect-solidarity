@@ -623,6 +623,17 @@ const EmbedAsk = () => {
   // Couleurs de fond des widgets définies par l'affilié (mode clair / mode sombre).
   const [widgetColors, setWidgetColors] = useState<{ light: string | null; dark: string | null }>({ light: null, dark: null });
 
+  // Couleurs de l'affilié : lues via les réglages widgets (défaut global +
+  // surcharge établissement), jamais depuis la fiche.
+  useEffect(() => {
+    if (noTheme) { setWidgetColors({ light: null, dark: null }); return; }
+    setWidgetColors({
+      light: widgetSettings?.bgLight || null,
+      dark: widgetSettings?.bgDark || null,
+    });
+  }, [widgetSettings, noTheme]);
+
+
   // La couleur passée dans l'URL initialise le widget, mais le sélecteur clair/sombre
   // doit ensuite réellement basculer entre les deux couleurs enregistrées.
   const activeWidgetBg =
