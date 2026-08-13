@@ -3354,7 +3354,7 @@ const BookOnlineSlidePanelInner = ({
                       <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
                         <iframe
                           key={`nearby-widget-${business.slug}`}
-                          src={`/embed/nearby/${business.slug}?lang=${language}&bg=ECD6B8`}
+                          src={`/embed/nearby/${business.slug}?preset=overlay&lang=${language}`}
                           title={language === "en" ? "Nearby" : "À proximité"}
                           allow="geolocation; fullscreen"
                           className="w-full block border-0"
@@ -3587,7 +3587,7 @@ const BookOnlineSlidePanelInner = ({
                       <div className="w-full mx-auto max-w-[820px] rounded-xl overflow-hidden bg-transparent">
                         <iframe
                           key={`rate-widget-bottom-${business.slug}`}
-                          src={`/embed/avis/${business.slug}?platform=all&lang=${language}&variant=card&bg=transparent`}
+                          src={`/embed/avis/${business.slug}?preset=overlay&platform=all&lang=${language}&variant=card&bg=transparent&theme=dark`}
                           title={language === "en" ? "Leave a review" : language === "ar" ? "اترك تقييماً" : "Laisser un avis"}
                           className="w-full block border-0 bg-transparent"
                           style={{ height: rateIframeHeight, background: "transparent" }}
