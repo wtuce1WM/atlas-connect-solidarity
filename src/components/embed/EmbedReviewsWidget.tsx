@@ -339,9 +339,17 @@ export default function EmbedReviewsWidget({
 
   const rows =
     platformRows.length > 0 ? (
-      <div className={shape === "square" ? "grid grid-cols-1 gap-1.5" : "space-y-2"}>
+      <div
+        className={
+          hideReviewText
+            ? "flex flex-wrap justify-center gap-2"
+            : shape === "square"
+              ? "grid grid-cols-1 gap-1.5"
+              : "space-y-2"
+        }
+      >
         {platformRows.map((p) => (
-          <PlatformRow key={p.key} {...p} lang={lang} compact={compactRows} dark={dark} />
+          <PlatformRow key={p.key} {...p} lang={lang} compact={compactRows} dark={dark} autoWidth={hideReviewText} />
         ))}
       </div>
     ) : null;
