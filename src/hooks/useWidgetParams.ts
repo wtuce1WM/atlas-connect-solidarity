@@ -62,7 +62,16 @@ export function useWidgetParams(
 
   const params = useMemo(() => {
     const p = new URLSearchParams(urlParams.toString());
-    if (overlay || !settings) return p;
+    if (overlay) {
+      // Overlay Full Description : fond du widget toujours transparent (seules
+      // les sous-zones gardent une couleur) et encre claire → titres/textes blancs.
+      p.set("bg", "transparent");
+      p.delete("card");
+      p.set("ink", "light");
+      return p;
+    }
+    if (!settings) return p;
+
     const setIf = (k: string, v: string | number | null | undefined) => {
       if (v !== null && v !== undefined && v !== "" && !p.has(k)) p.set(k, String(v));
     };
