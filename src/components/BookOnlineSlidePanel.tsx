@@ -3006,6 +3006,16 @@ const BookOnlineSlidePanelInner = ({
                       <span className="text-gold/80 font-medium">{language === "en" ? "reviews" : language === "ar" ? "آراء" : "avis"}</span>
                     </div>
                   )}
+                  {!descOverlayContent && openBadgeInfo?.text && (
+                    <div className="mb-4 flex items-center justify-center text-sm md:text-base">
+                      <span
+                        className={`font-bold ${openBadgeInfo.isOpen ? "text-[#25D366]" : "text-primary"}`}
+                        style={{ fontFamily: "'Montserrat', sans-serif" }}
+                      >
+                        {openBadgeInfo.text}
+                      </span>
+                    </div>
+                  )}
                   {/* Engagements / Certifications / Commodités — en colonne au-dessus de popup/offres */}
                   {!descOverlayContent && (() => {
                     const engs: string[] = ((business as any)?.engagements || []) as string[];
