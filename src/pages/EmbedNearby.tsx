@@ -50,8 +50,8 @@ const EmbedNearby = () => {
   }, [lang, setLanguage]);
 
   useEffect(() => {
-    if (!mapPainted) return;
-    return applyEmbedBg(mapBaseColor);
+    // Avant la peinture des tuiles : transparent (l'hôte reste visible, aucun flash).
+    return applyEmbedBg(mapPainted ? mapBaseColor : "transparent");
   }, [mapPainted, mapBaseColor]);
 
   useEffect(() => {
