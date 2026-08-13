@@ -105,6 +105,7 @@ MARK_SCROLLER = """()=>{
   return {top:Math.round(r.top),left:Math.round(r.left),width:Math.round(r.width),
           view:Math.round(r.height),content:sc.scrollHeight,max:sc.scrollHeight-sc.clientHeight,
           headerTop:hr?Math.round(hr.top):0,headerHeight:hr?Math.round(hr.height):Math.round(r.top),
+          viewTop:Math.round(r.top),progressTop:Math.round(r.top),
           bottomTop:br?Math.round(br.top):null,bottomHeight:br?Math.round(br.height):0};
 }"""
 
@@ -392,7 +393,14 @@ async def main() -> None:
                 geo["top"] * scale,
                 (geo["left"] + geo["width"]) * scale,
                 (geo["top"] + geo["view"]) * scale,
-            ))
+            )).convert("RGBA")
+            # Garantie anti-duplication : la progression sticky occupait le bord
+            # supérieur du scroller dans certaines captures malgré sa suppression
+            # DOM. Cette bande est transparente dans l'image stitchée ; Remotion
+            # dessine ensuite l'unique barre fixe à sa position mesurée.
+            for y in range(min(4 * scale, crop.height)):
+                for x in range(crop.width):
+                    crop.putpixel((x, y), (0, 0, 0, 0))
             cp = raw / f"bandcrop{idx}.png"
             crop.save(cp)
             band_paths.append((cp, real * scale))
@@ -409,6 +417,8 @@ async def main() -> None:
             "tall": "desctall.png",
             "headerTop": geo.get("headerTop", 0),
             "headerHeight": geo.get("headerHeight", geo["top"]),
+            "viewTop": geo.get("viewTop", geo["top"]),
+            "progressTop": geo.get("progressTop", geo["top"]),
             "viewHeight": geo["view"],
             "contentHeight": geo["content"],
             "bottomTop": geo.get("bottomTop"),
