@@ -46,6 +46,8 @@ export type FeedManifest = {
     tall: string;
     headerTop?: number;
     headerHeight: number;
+    viewTop?: number;
+    progressTop?: number;
     viewHeight: number;
     contentHeight: number;
     bottomTop?: number | null;
@@ -353,7 +355,7 @@ const Stage: React.FC<{ m: FeedManifest; noVideo?: boolean }> = ({ m, noVideo })
           style={{
             position: "absolute",
             left: 0,
-            top: detail.headerHeight,
+            top: detail.viewTop ?? detail.headerHeight,
             width: W,
             height: detail.viewHeight,
             overflow: "hidden",
@@ -386,7 +388,7 @@ const Stage: React.FC<{ m: FeedManifest; noVideo?: boolean }> = ({ m, noVideo })
           style={{
             position: "absolute",
             left: 0,
-            top: (detail.headerTop ?? 0) + detail.headerHeight,
+            top: detail.progressTop ?? ((detail.headerTop ?? 0) + detail.headerHeight),
             width: W,
             height: 2,
             backgroundColor: "rgba(255,255,255,0.10)",
