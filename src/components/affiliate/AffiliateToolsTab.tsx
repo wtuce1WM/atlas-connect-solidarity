@@ -214,17 +214,19 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   };
 
 
-  /** Thème par défaut du widget (sombre/clair) — persisté sur businesses.widget_theme. */
+  /** Thème par défaut des widgets (sombre/clair) — persisté sur business_widget_settings. */
   const saveEmbedTheme = async (t: "dark" | "light") => {
     setEmbedTheme(t);
     if (!businessId) return;
-    const { error } = await (supabase as any)
-      .from("businesses")
-      .update({ widget_theme: t })
-      .eq("id", businessId);
-    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    try {
+      await saveBusinessWidgetSettingsForAll(businessId, { theme: t });
+    } catch (e: any) {
+      toast({ title: "Erreur", description: e?.message || "Enregistrement impossible", variant: "destructive" });
+      return;
+    }
     toast({ title: t === "dark" ? "Thème sombre enregistré" : "Thème clair enregistré" });
   };
+
 
 
 
