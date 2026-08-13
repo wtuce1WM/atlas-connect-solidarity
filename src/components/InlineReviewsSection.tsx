@@ -169,6 +169,11 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
                 key={`inline-review-${i}`}
                 className="rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm p-4 border-l-4 border-l-gold/60"
               >
+                {r.highlight?.trim() && (
+                  <p className="mb-2 text-base md:text-lg font-bold text-gold leading-snug font-['Montserrat',sans-serif]">
+                    {r.highlight.trim()}
+                  </p>
+                )}
                 <p className="text-sm md:text-base text-white/90 leading-relaxed font-['Montserrat',sans-serif] italic">
                   {displayText(r)}
                 </p>
@@ -178,25 +183,13 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
                 </footer>
               </blockquote>
             ))}
-            {/* Widget « Laisser un avis » (iframe) — sous le dernier avis, avant le CTA */}
-            {slug ? (
-              <div className="w-full mx-auto max-w-[820px] pt-2 rounded-xl overflow-hidden bg-transparent">
-                <iframe
-                  key={`rate-widget-${slug}`}
-                  src={`/embed/avis/${slug}?platform=all&lang=${language}&variant=card`}
-                  title={t.leave}
-                  className="w-full block border-0 bg-transparent"
-                  style={{ height: 380, background: "transparent" }}
-                  loading="lazy"
-                />
+            {/* Widget « Laisser un avis » déplacé tout en bas de l'overlay Full Description */}
+            {!slug && expanded && leaveReviewPlatforms.length > 0 && (
+              <div className="pt-2">
+                <LeaveReviewWidgets />
               </div>
-            ) : (
-              expanded && leaveReviewPlatforms.length > 0 && (
-                <div className="pt-2">
-                  <LeaveReviewWidgets />
-                </div>
-              )
             )}
+
           </div>
 
           {hiddenCount > 0 && (
