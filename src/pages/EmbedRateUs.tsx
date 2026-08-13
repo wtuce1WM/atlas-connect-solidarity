@@ -21,7 +21,7 @@ const FIELDS =
 
 export default function EmbedRateUs() {
   const { slug = "" } = useParams();
-  const { params, businessId: widgetBusinessId } = useWidgetParams("rateus", { slug });
+  const { params, businessId: widgetBusinessId, overlay } = useWidgetParams("rateus", { slug });
   useWidgetTracking("rateus", widgetBusinessId, params.get("lang") || undefined);
   const platformParam = (params.get("platform") || "all").toLowerCase();
   const platform = ["google", "tripadvisor"].includes(platformParam) ? platformParam : "all";
