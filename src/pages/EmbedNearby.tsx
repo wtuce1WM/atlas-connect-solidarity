@@ -20,7 +20,7 @@ type Lang = keyof typeof MESSAGES;
 
 const EmbedNearby = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { params, businessId: widgetBusinessId } = useWidgetParams("nearby", { slug });
+  const { params, businessId: widgetBusinessId, rawSettings, overlay } = useWidgetParams("nearby", { slug });
   useWidgetTracking("nearby", widgetBusinessId, params.get("lang") || undefined);
   const { setLanguage } = useLanguage();
 
