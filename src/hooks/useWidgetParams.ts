@@ -82,6 +82,14 @@ export function useWidgetParams(
     return p;
   }, [urlParams, settings, overlay]);
 
-  return { params, businessId, settings: overlay ? null : settings, overlay, ready: overlay || settings !== null };
+  return {
+    params,
+    businessId,
+    settings: overlay ? null : settings,
+    /** Réglages bruts du backoffice, même en overlay (ex. couleur de la carte À proximité). */
+    rawSettings: settings,
+    overlay,
+    ready: overlay || settings !== null,
+  };
 }
 
