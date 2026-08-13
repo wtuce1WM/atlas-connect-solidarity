@@ -18,7 +18,7 @@ const plainLen = (html: string) => {
 };
 
 /**
- * Note personnelle de l'affilié (champ `businesses.affiliate_private_note`).
+ * Note personnelle de l'affilié (table `business_affiliate_notes`, accès staff/propriétaire).
  * Distinct de la note interne staff existante. RichText, 3000 caractères max,
  * popup centré dimensionné pour éviter tout scroll de la modale.
  */
@@ -48,9 +48,8 @@ const AffiliatePrivateNoteDialog = ({
     }
     setSaving(true);
     const { error } = await supabase
-      .from("businesses")
-      .update({ affiliate_private_note: value || null } as any)
-      .eq("id", businessId);
+      .from("business_affiliate_notes")
+      .upsert({ business_id: businessId, note: value || null } as any, { onConflict: "business_id" });
     setSaving(false);
     if (error) return toast.error(error.message);
     onSaved?.(value);
