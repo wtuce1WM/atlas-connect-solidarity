@@ -587,13 +587,15 @@ const VideoScenarioConfigPanel = () => {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [stepsRes, configRes] = await Promise.all([
+    const [stepsRes, configRes, noteRes] = await Promise.all([
       supabase
         .from("video_scenario_steps")
         .select("id, mode, scene_key, label, position, duration_sec, enabled, kicker, title, body, key_message, business_id, widget_keys")
         .eq("mode", mode)
         .order("position", { ascending: true }),
       supabase.from("video_scenario_configs").select("*").eq("mode", mode).maybeSingle(),
+      // Note interne : table staff-only, jamais exposée publiquement.
+      supabase.from("video_scenario_internal_notes").select("note").eq("mode", mode).maybeSingle(),
     ]);
     if (stepsRes.error) toast.error("Chargement impossible");
     // Étape « Menus » abandonnée : on ne l'affiche plus.
@@ -617,17 +619,18 @@ const VideoScenarioConfigPanel = () => {
       setNoteCounts({});
     }
 
-    setConfig(
-      (configRes.data as ScenarioConfig | null) ?? {
-        mode,
-        business_id: null,
-        format_key: "landscape_1080",
-        width: 1920,
-        height: 1080,
-        fps: 30,
-        internal_note: null,
-      },
-    );
+    const loadedConfig = (configRes.data as Omit<ScenarioConfig, "internal_note"> | null) ?? {
+      mode,
+      business_id: null,
+      format_key: "landscape_1080",
+      width: 1920,
+      height: 1080,
+      fps: 30,
+    };
+    setConfig({
+      ...loadedConfig,
+      internal_note: (noteRes.data as { note: string | null } | null)?.note ?? null,
+    });
     setRemoved([]);
     setDirty(false);
     setLoading(false);
@@ -746,13 +749,16 @@ const VideoScenarioConfigPanel = () => {
         width: Math.max(320, Math.min(3840, Number(config.width) || 1920)),
         height: Math.max(320, Math.min(3840, Number(config.height) || 1080)),
         fps: Math.max(12, Math.min(60, Number(config.fps) || 30)),
-        internal_note: config.internal_note,
       } as any,
       { onConflict: "mode" },
     );
+    // Note interne stockée à part (staff only).
+    const noteRes = await supabase
+      .from("video_scenario_internal_notes")
+      .upsert({ mode, note: config.internal_note } as any, { onConflict: "mode" });
 
     setSaving(false);
-    if (stepsRes.error || configRes.error) {
+    if (stepsRes.error || configRes.error || noteRes.error) {
       toast.error("Enregistrement échoué");
       return;
     }

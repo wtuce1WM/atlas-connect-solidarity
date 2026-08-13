@@ -1291,6 +1291,39 @@ export type Database = {
         }
         Relationships: []
       }
+      business_affiliate_notes: {
+        Row: {
+          business_id: string
+          note: string | null
+          updated_at: string
+        }
+        Insert: {
+          business_id: string
+          note?: string | null
+          updated_at?: string
+        }
+        Update: {
+          business_id?: string
+          note?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_affiliate_notes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_affiliate_notes_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: true
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_ai_texts: {
         Row: {
           business_id: string
@@ -2906,7 +2939,6 @@ export type Database = {
           account_type: string | null
           address: string | null
           affiliate_id: string | null
-          affiliate_private_note: string | null
           ai_review_summary: Json | null
           airbnb_url: string | null
           avg_price_range: Json | null
@@ -3100,7 +3132,6 @@ export type Database = {
           account_type?: string | null
           address?: string | null
           affiliate_id?: string | null
-          affiliate_private_note?: string | null
           ai_review_summary?: Json | null
           airbnb_url?: string | null
           avg_price_range?: Json | null
@@ -3294,7 +3325,6 @@ export type Database = {
           account_type?: string | null
           address?: string | null
           affiliate_id?: string | null
-          affiliate_private_note?: string | null
           ai_review_summary?: Json | null
           airbnb_url?: string | null
           avg_price_range?: Json | null
@@ -8048,7 +8078,6 @@ export type Database = {
           format_key: string
           fps: number
           height: number
-          internal_note: string | null
           mode: string
           updated_at: string
           width: number
@@ -8059,7 +8088,6 @@ export type Database = {
           format_key?: string
           fps?: number
           height?: number
-          internal_note?: string | null
           mode: string
           updated_at?: string
           width?: number
@@ -8070,7 +8098,6 @@ export type Database = {
           format_key?: string
           fps?: number
           height?: number
-          internal_note?: string | null
           mode?: string
           updated_at?: string
           width?: number
@@ -8089,6 +8116,32 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "businesses_public"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_scenario_internal_notes: {
+        Row: {
+          mode: string
+          note: string | null
+          updated_at: string
+        }
+        Insert: {
+          mode: string
+          note?: string | null
+          updated_at?: string
+        }
+        Update: {
+          mode?: string
+          note?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_scenario_internal_notes_mode_fkey"
+            columns: ["mode"]
+            isOneToOne: true
+            referencedRelation: "video_scenario_configs"
+            referencedColumns: ["mode"]
           },
         ]
       }
@@ -9097,7 +9150,6 @@ export type Database = {
               account_type: string | null
               address: string | null
               affiliate_id: string | null
-              affiliate_private_note: string | null
               ai_review_summary: Json | null
               airbnb_url: string | null
               avg_price_range: Json | null
@@ -9307,7 +9359,6 @@ export type Database = {
               account_type: string | null
               address: string | null
               affiliate_id: string | null
-              affiliate_private_note: string | null
               ai_review_summary: Json | null
               airbnb_url: string | null
               avg_price_range: Json | null

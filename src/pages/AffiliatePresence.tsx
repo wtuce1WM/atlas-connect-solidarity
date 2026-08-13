@@ -180,7 +180,7 @@ const AffiliatePresence = () => {
       "address", "neighborhood", "latitude", "longitude", "opening_hours",
       "show_opening_hours", "closure_message", "vacation_dates",
       "hook_fr", "hook_en", "hook_ar", "description", "description_fr", "description_en", "description_ar",
-      "is_active", "carousel_badge", "poi_business_style", "affiliate_private_note",
+      "is_active", "carousel_badge", "poi_business_style",
       ...PLATFORMS.map(p => p.key),
       ...CTA_EXTRA_FIELDS,
       ...REVIEW_FIELDS].join(",");
@@ -192,6 +192,19 @@ const AffiliatePresence = () => {
     ]);
     setCities((citiesData as CityOption[]) || []);
     setNeighborhoods((neighborhoodsData as NeighborhoodOption[]) || []);
+
+    // Notes privées : table dédiée (jamais exposée publiquement).
+    const businessIds = ((biz as any[]) || []).map((b: any) => b.id);
+    const notesById: Record<string, string | null> = {};
+    if (businessIds.length > 0) {
+      const { data: notesData } = await supabase
+        .from("business_affiliate_notes")
+        .select("business_id, note")
+        .in("business_id", businessIds);
+      for (const n of (notesData ?? []) as Array<{ business_id: string; note: string | null }>) {
+        notesById[n.business_id] = n.note;
+      }
+    }
 
     const mapped: BusinessPresence[] = (biz || []).map((b: any) => {
       const cta: Record<string, any> = {};
@@ -233,7 +246,7 @@ const AffiliatePresence = () => {
         name_ar: b.name_ar ?? null,
         carousel_badge: b.carousel_badge ?? null,
         poi_business_style: b.poi_business_style ?? null,
-        affiliate_private_note: b.affiliate_private_note ?? null,
+        affiliate_private_note: notesById[b.id] ?? null,
         is_active: b.is_active ?? true,
 
       };
