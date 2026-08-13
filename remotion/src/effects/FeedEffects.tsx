@@ -3,6 +3,7 @@ import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig, Easing, ran
 import { evolvePath } from "@remotion/paths";
 import { LightLeak } from "@remotion/light-leaks";
 import { noise2D } from "@remotion/noise";
+import { CameraMotionBlur } from "@remotion/motion-blur";
 
 /**
  * Couche d'effets optionnels pour les montages Remotion (Feed, Promo…).
@@ -188,11 +189,6 @@ export const FeedMotionBlurWrapper: React.FC<{ effects?: FeedEffectsConfig | nul
   children,
 }) => {
   if (!effects?.motionBlur) return <>{children}</>;
-  const CameraMotionBlur = require("@remotion/motion-blur").CameraMotionBlur as React.FC<{
-    children: React.ReactNode;
-    samples?: number;
-    shutterAngle?: number;
-  }>;
   return (
     <CameraMotionBlur
       samples={Math.max(2, Math.min(6, effects.motionBlurSamples ?? DEFAULT_EFFECTS.motionBlurSamples!))}
