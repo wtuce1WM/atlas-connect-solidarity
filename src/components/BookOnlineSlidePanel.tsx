@@ -3561,6 +3561,23 @@ const BookOnlineSlidePanelInner = ({
                   {/* Widgets Disponibilité / Horaires — avant les badges */}
                   {renderInlineDescWidgets("desc-widgets-bottom")}
 
+                  {/* Widget « Laisser un avis » (iframe) — tout en bas de l'overlay */}
+                  {!descOverlayContent && business?.slug && hasReviewsCard && (
+                    <div className="mt-8 pt-6 border-t border-white/10">
+                      <div className="w-full mx-auto max-w-[820px] rounded-xl overflow-hidden bg-transparent">
+                        <iframe
+                          key={`rate-widget-bottom-${business.slug}`}
+                          src={`/embed/avis/${business.slug}?platform=all&lang=${language}&variant=card`}
+                          title={language === "en" ? "Leave a review" : language === "ar" ? "اترك تقييماً" : "Laisser un avis"}
+                          className="w-full block border-0 bg-transparent"
+                          style={{ height: 380, background: "transparent" }}
+                          loading="lazy"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+
 
                   {/* Badges (Menu / Images / Vidéos, liens externes, réseaux & réservation) — moved to a fixed bottom bar outside the scroll area */}
                   {/* bottomBarEl is rendered below the content area so it stays visible */}
