@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
@@ -70,6 +71,10 @@ const Select = ({
   </select>
 );
 
+type Biz = { id: string; name: string; slug: string };
+
+const DEFAULT_BIZ: Biz = { id: "3bb71910-c17e-4ce1-a130-42c369a645a7", name: "La Mamounia", slug: "la-mamounia" };
+
 const WidgetSettingsPanel = () => {
   const [catalog, setCatalog] = useState<WidgetType[]>([]);
   const [defaults, setDefaults] = useState<Record<string, WidgetDefaults>>({});
@@ -78,7 +83,25 @@ const WidgetSettingsPanel = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [slug, setSlug] = useState("riad-dar-najat");
+  const [biz, setBiz] = useState<Biz>(DEFAULT_BIZ);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<Biz[]>([]);
+  const slug = biz.slug;
+
+  useEffect(() => {
+    const t = setTimeout(async () => {
+      const q = query.trim();
+      if (q.length < 2) return setResults([]);
+      const { data } = await (supabase as any)
+        .from("businesses")
+        .select("id, name, slug")
+        .or(`name.ilike.%${q}%,slug.ilike.%${q}%`)
+        .limit(12);
+      setResults((data || []) as Biz[]);
+    }, 280);
+    return () => clearTimeout(t);
+  }, [query]);
+
 
   const load = async () => {
     setLoading(true);
@@ -188,6 +211,12 @@ const WidgetSettingsPanel = () => {
           <div className="space-y-1.5">
             <Label className="text-xs">Application du fond</Label>
             <Select value={draft.card_mode} onChange={(v) => setDraft({ ...draft, card_mode: v })} options={CARD_MODES} />
+            <p className="text-[11px] leading-snug text-muted-foreground">
+              Où la couleur choisie est peinte. « Carte colorée » : le widget est opaque, il pose son propre fond — à
+              utiliser quand le site hôte a un fond différent du widget. « Page transparente + carte colorée » : la page
+              du widget est transparente, seule la carte intérieure est colorée, donc le fond du site hôte reste visible
+              autour (idéal pour une intégration qui doit se fondre dans la page).
+            </p>
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs">Thème par défaut</Label>
@@ -199,6 +228,12 @@ const WidgetSettingsPanel = () => {
                 { value: "dark", label: "Sombre" },
               ]}
             />
+            <p className="text-[11px] leading-snug text-muted-foreground">
+              Oui, c'est le mode clair / sombre du widget : il décide de la couleur des textes et des composants, et
+              lequel des deux fonds ci-dessus est utilisé (clair → « Fond mode clair », sombre → « Fond mode sombre »).
+              Le site hôte peut le surcharger via <span className="font-mono">?theme=dark</span> ou en synchronisant son
+              propre thème.
+            </p>
           </div>
           <div className="space-y-1.5 sm:col-span-2">
             <Label className="text-xs">Dimensions dans l'iframe hôte</Label>
@@ -207,7 +242,14 @@ const WidgetSettingsPanel = () => {
               onChange={(v) => setDraft({ ...draft, fit: v })}
               options={FIT_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
             />
+            <p className="text-[11px] leading-snug text-muted-foreground">
+              Comment le contenu occupe le cadre de l'iframe posé sur le site hôte. Par défaut le widget garde ses
+              dimensions naturelles (limitées par « Largeur max » et « Hauteur »). « Toute la largeur » l'étire
+              horizontalement, « toute la hauteur » verticalement, « largeur & hauteur » remplit tout le cadre — utile
+              quand l'hôte impose un bloc de taille fixe et qu'on ne veut ni marge blanche ni scroll interne.
+            </p>
           </div>
+
           <div className="space-y-1.5">
             <Label className="text-xs">Hauteur (px)</Label>
             <Input
@@ -254,7 +296,7 @@ const WidgetSettingsPanel = () => {
           <Button variant="ghost" onClick={() => setDraft(toDraft(defaults[activeKey]))} disabled={!dirty}>
             <RotateCcw className="h-4 w-4 mr-2" /> Annuler
           </Button>
-          {dirty && <Badge variant="secondary">Non enregistré</Badge>}
+          
         </div>
 
         <div className="rounded-xl border border-border bg-muted/40 p-4 space-y-2">
@@ -281,10 +323,34 @@ const WidgetSettingsPanel = () => {
 
       {/* Aperçu live */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between gap-2">
-          <div className="text-xs font-medium text-muted-foreground">Aperçu live</div>
-          <Input value={slug} onChange={(e) => setSlug(e.target.value)} className="h-8 w-40 text-xs" placeholder="slug démo" />
+        <div className="text-xs font-medium text-muted-foreground">Aperçu live</div>
+        <div className="relative">
+          <Input
+            value={query || biz.name}
+            onChange={(e) => setQuery(e.target.value)}
+            className="h-9 text-xs"
+            placeholder="Établissement — nom ou slug"
+          />
+          {results.length > 0 && (
+            <div className="absolute z-20 mt-1 w-full max-h-64 overflow-auto rounded-md border border-border bg-popover shadow-lg">
+              {results.map((r) => (
+                <button
+                  key={r.id}
+                  onClick={() => {
+                    setBiz(r);
+                    setQuery("");
+                    setResults([]);
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs hover:bg-muted"
+                >
+                  <div className="font-medium">{r.name}</div>
+                  <div className="font-mono text-[10px] text-muted-foreground">{r.slug}</div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
+
         <div className="rounded-xl border border-border p-3" style={{ background: "#e5e7eb" }}>
           {previewUrl && (
             <iframe
