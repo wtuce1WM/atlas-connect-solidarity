@@ -430,7 +430,7 @@ function categoryMeta(b: MapPanelBusiness): { Icon: typeof Bed; label: string } 
 
 const EmbedAsk = () => {
   const { slug = "" } = useParams();
-  const { params, businessId: widgetBusinessId } = useWidgetParams("ask", { slug });
+  const { params, businessId: widgetBusinessId, settings: widgetSettings } = useWidgetParams("ask", { slug });
   const lang = (["fr", "en", "ar"].includes(params.get("lang") || "") ? params.get("lang") : "fr") as "fr" | "en" | "ar";
   useWidgetTracking("ask", widgetBusinessId, lang);
   // Fond du widget :
@@ -652,7 +652,7 @@ const EmbedAsk = () => {
     (async () => {
       const { data } = await (supabase as any)
         .from("businesses")
-        .select("id, name, latitude, longitude, city, main_category, url_6_title, widget_bg_color, widget_bg_color_dark, poi_radius_km")
+        .select("id, name, latitude, longitude, city, main_category, url_6_title, poi_radius_km")
         .eq("slug", slug)
         .eq("is_active", true)
         .maybeSingle();
@@ -667,8 +667,6 @@ const EmbedAsk = () => {
       const rawRadius = Number(row?.poi_radius_km);
       const hostRadius = RADIUS_OPTIONS.includes(rawRadius as any) ? rawRadius : 1;
       applyRadius(hostRadius);
-      const hex = (v: any) => (typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v.trim()) ? v.trim() : null);
-      setWidgetColors(noTheme ? { light: null, dark: null } : { light: hex(row?.widget_bg_color), dark: hex(row?.widget_bg_color_dark) });
       if (row?.latitude != null && row?.longitude != null) {
         setHostLocation({ lat: Number(row.latitude), lng: Number(row.longitude) });
       }
