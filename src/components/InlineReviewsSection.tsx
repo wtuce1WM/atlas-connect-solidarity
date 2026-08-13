@@ -56,7 +56,7 @@ function resolveLeaveReviewUrl(p: InlineReviewPlatform): string | null {
  * - Un seul avis visible par défaut (celui marqué par défaut, sinon le n°1),
  *   avec une incitation à déplier pour lire tous les avis.
  */
-const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, language }: Props) => {
+const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, language, slug }: Props) => {
   const t = L[(language as keyof typeof L)] ?? L.fr;
   const [expanded, setExpanded] = useState(false);
 
