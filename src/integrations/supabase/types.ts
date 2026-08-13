@@ -8962,6 +8962,7 @@ export type Database = {
         Args: { _name: string; _user_id: string }
         Returns: boolean
       }
+      business_exists: { Args: { _business_id: string }; Returns: boolean }
       calculate_distance: {
         Args: { lat1: number; lat2: number; lon1: number; lon2: number }
         Returns: number
