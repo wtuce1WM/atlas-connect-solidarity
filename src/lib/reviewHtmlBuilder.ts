@@ -23,6 +23,8 @@ export interface ReviewText {
   text_en?: string | null;
   text_ar?: string | null;
   is_default?: boolean;
+  /** Extrait mis en avant (jaune, gras) */
+  highlight?: string | null;
 }
 
 const LOGO_MAP: Record<string, string> = {

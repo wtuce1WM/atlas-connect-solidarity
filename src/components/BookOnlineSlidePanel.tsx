@@ -4,7 +4,7 @@ import { getFlipbookEmbedUrl } from "@/lib/flipbookEmbed";
 import SlidePanelHeader from "@/components/SlidePanelHeader";
 import { YoutubeScrubBar } from "@/components/video/YoutubeScrubBar";
 import { createPortal } from "react-dom";
-import { MapPin, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Clock, Play, Pause, Volume2, VolumeX, Building2, Compass, ShoppingCart, SlidersHorizontal, CheckCircle2, Circle, Navigation, Heart, BookOpen } from "lucide-react";
+import { MapPin, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, X, CalendarCheck, Star, Loader2, Expand, Plus, Image as ImageIcon, Sparkles, Newspaper, ExternalLink, MessageCircle, Film, Globe, Clock, Play, Pause, Volume2, VolumeX, Building2, Compass, ShoppingCart, SlidersHorizontal, CheckCircle2, Circle, Navigation, Heart, BookOpen, Award, Leaf, Truck, Accessibility, Package } from "lucide-react";
 import { GiWalkingBoot } from "react-icons/gi";
 import { BsCalendarDay, BsCarFrontFill } from "react-icons/bs";
 import HScroll from "@/components/HScroll";
@@ -100,6 +100,7 @@ import { useBusinessPromotions } from "@/hooks/useBusinessPromotions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { buildReviewHtml } from "@/lib/reviewHtmlBuilder";
 import InlineReviewsSection from "@/components/InlineReviewsSection";
+import { translateEngagementLabel } from "@/lib/engagementLabels";
 
 import VideoThumbnail from "@/components/VideoThumbnail";
 import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
@@ -2938,7 +2939,43 @@ const BookOnlineSlidePanelInner = ({
                       <span className="text-gold/80 font-medium">{language === "en" ? "reviews" : language === "ar" ? "آراء" : "avis"}</span>
                     </div>
                   )}
+                  {/* Engagements / Certifications / Commodités — en colonne au-dessus de popup/offres */}
+                  {!descOverlayContent && (() => {
+                    const engs: string[] = ((business as any)?.engagements || []) as string[];
+                    if (engs.length === 0) return null;
+                    const standards = engs.filter((e) => !e.startsWith("Logistique:") && !e.startsWith("Certification:"));
+                    const certifications = engs.filter((e) => e.startsWith("Certification:")).map((e) => e.replace("Certification:", "").trim());
+                    const logistics = engs.filter((e) => e.startsWith("Logistique:")).map((e) => e.replace("Logistique:", "").trim());
+                    if (standards.length + certifications.length + logistics.length === 0) return null;
+                    const chip = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs md:text-sm font-medium backdrop-blur-sm w-fit";
+                    return (
+                      <div className="mb-5 flex flex-col items-center gap-1.5">
+                        {certifications.map((c, i) => (
+                          <span key={`fd-c-${i}`} className={`${chip} bg-amber-500/30 text-amber-200`}>
+                            <Award className="h-3.5 w-3.5 shrink-0" />{translateEngagementLabel(c, language)}
+                          </span>
+                        ))}
+                        {standards.map((e, i) => (
+                          <span key={`fd-e-${i}`} className={`${chip} bg-green-500/30 text-green-200`}>
+                            <Leaf className="h-3.5 w-3.5 shrink-0" />{translateEngagementLabel(e, language)}
+                          </span>
+                        ))}
+                        {logistics.map((l, i) => {
+                          const lower = l.toLowerCase();
+                          const Icon = lower.includes("livraison")
+                            ? Truck
+                            : (lower.includes("pmr") || lower.includes("handicap") || lower.includes("accès")) ? Accessibility : Package;
+                          return (
+                            <span key={`fd-l-${i}`} className={`${chip} bg-blue-500/30 text-blue-200`}>
+                              <Icon className="h-3.5 w-3.5 shrink-0" />{translateEngagementLabel(l, language)}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
                   {/* Cartes Image popup + Offres — sous le badge avis client */}
+
                   {!descOverlayContent && (() => {
                     const popupUrl = (business as any)?.popup_image_url as string | undefined;
                     const slides: { kind: "popup" | "promo"; promo?: any }[] = [
@@ -3523,6 +3560,23 @@ const BookOnlineSlidePanelInner = ({
 
                   {/* Widgets Disponibilité / Horaires — avant les badges */}
                   {renderInlineDescWidgets("desc-widgets-bottom")}
+
+                  {/* Widget « Laisser un avis » (iframe) — tout en bas de l'overlay */}
+                  {!descOverlayContent && business?.slug && hasReviewsCard && (
+                    <div className="mt-8 pt-6 border-t border-white/10">
+                      <div className="w-full mx-auto max-w-[820px] rounded-xl overflow-hidden bg-transparent">
+                        <iframe
+                          key={`rate-widget-bottom-${business.slug}`}
+                          src={`/embed/avis/${business.slug}?platform=all&lang=${language}&variant=card`}
+                          title={language === "en" ? "Leave a review" : language === "ar" ? "اترك تقييماً" : "Laisser un avis"}
+                          className="w-full block border-0 bg-transparent"
+                          style={{ height: 380, background: "transparent" }}
+                          loading="lazy"
+                        />
+                      </div>
+                    </div>
+                  )}
+
 
 
                   {/* Badges (Menu / Images / Vidéos, liens externes, réseaux & réservation) — moved to a fixed bottom bar outside the scroll area */}
