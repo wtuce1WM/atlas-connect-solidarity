@@ -11,17 +11,26 @@ import {
 } from "remotion";
 import { palette, alpha, display, body, size, weight } from "./tokens";
 import { PhoneFrame, phoneGeometry } from "./PhoneFrame";
+import { PromoLogo } from "./promo/PromoLogo";
+import { FeedBackdrop, useFeedManifest } from "./promo/FeedBackdrop";
+import type { FeedManifest } from "./FeedTemplate";
 
 /**
  * Template « Promo business » — aucun Playwright, aucun appel IA.
  * Assets = vidéo interne + images de la fiche, résolus en back-office et
  * passés en props. Blocs activables et durées paramétrables.
+ *
+ * Deux enrichissements optionnels :
+ *  - `logoUrl` : logo transparent animé dans l'intro et l'outro.
+ *  - `bgFeedManifest` : décor plein écran issu d'une capture feed (/search),
+ *    swipe vertical continu derrière le logo / le hook.
  */
 
 export type PromoBlocks = {
   hook: boolean;
   video: boolean;
   photos: boolean;
+  text: boolean;
   outro: boolean;
 };
 
@@ -29,6 +38,7 @@ export type PromoSeconds = {
   hook: number;
   video: number;
   photo: number;
+  text: number;
   outro: number;
 };
 
@@ -37,6 +47,12 @@ export type BusinessPromoProps = {
   city?: string | null;
   hook: string;
   tagline?: string | null;
+  /** texte riche (HTML, ≤ 500 caractères) affiché en carte plein écran */
+  text?: string | null;
+  /** logo transparent de l'établissement (webp/png) */
+  logoUrl?: string | null;
+  /** manifest d'une capture feed servant de fond d'écran animé */
+  bgFeedManifest?: string | null;
   videoUrl?: string | null;
   images: string[];
   format: "portrait" | "landscape";
@@ -56,13 +72,16 @@ export const promoDefaults: BusinessPromoProps = {
   city: null,
   hook: "Une adresse à découvrir.",
   tagline: null,
+  text: null,
+  logoUrl: null,
+  bgFeedManifest: null,
   videoUrl: null,
   images: [],
   format: "portrait",
   variant: "fullscreen",
   mockupBg: palette.ink,
-  blocks: { hook: true, video: true, photos: true, outro: true },
-  seconds: { hook: 3, video: 5, photo: 1.5, outro: 2.5 },
+  blocks: { hook: true, video: true, photos: true, text: false, outro: true },
+  seconds: { hook: 3, video: 5, photo: 1.5, text: 4, outro: 2.5 },
 };
 
 const f = (sec: number) => Math.max(1, Math.round(sec * PROMO_FPS));
@@ -70,12 +89,13 @@ const f = (sec: number) => Math.max(1, Math.round(sec * PROMO_FPS));
 /** Découpe du montage en segments effectifs (blocs décochés = ignorés). */
 export const promoSegments = (p: BusinessPromoProps) => {
   const images = (p.images || []).slice(0, 4);
-  const segs: { kind: "hook" | "video" | "photo" | "outro"; frames: number; index?: number }[] = [];
+  const segs: { kind: "hook" | "video" | "photo" | "text" | "outro"; frames: number; index?: number }[] = [];
   if (p.blocks?.hook) segs.push({ kind: "hook", frames: f(p.seconds?.hook ?? 3) });
   if (p.blocks?.video && p.videoUrl) segs.push({ kind: "video", frames: f(p.seconds?.video ?? 5) });
   if (p.blocks?.photos) {
     images.forEach((_, i) => segs.push({ kind: "photo", frames: f(p.seconds?.photo ?? 1.5), index: i }));
   }
+  if (p.blocks?.text && (p.text || "").trim()) segs.push({ kind: "text", frames: f(p.seconds?.text ?? 4) });
   if (p.blocks?.outro) segs.push({ kind: "outro", frames: f(p.seconds?.outro ?? 2.5) });
   return segs.length ? segs : [{ kind: "outro" as const, frames: f(2) }];
 };
@@ -90,6 +110,7 @@ const useKenBurns = (durationFrames: number, from = 1.04, to = 1.14) => {
     extrapolateRight: "clamp",
   });
 };
+
 
 const MediaFill: React.FC<{ src: string; kind: "img" | "video"; durationFrames: number }> = ({
   src,
