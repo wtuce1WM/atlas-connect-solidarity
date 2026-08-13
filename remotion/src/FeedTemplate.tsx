@@ -443,8 +443,7 @@ export const FeedTemplate: React.FC<FeedTemplateProps> = ({ manifest, format }) 
   const scale = outH / H;
   return (
     <AbsoluteFill style={{ backgroundColor: "#000", overflow: "hidden" }}>
-      {/* La vidéo réelle occupe tout le 16:9, la UI de la fiche est superposée. */}
-      <WideVideo m={m} />
+      {/* Pillarbox : le stage vertical in-app est centré, bandes noires sur les côtés. */}
       <div
         style={{
           position: "absolute",
@@ -457,7 +456,7 @@ export const FeedTemplate: React.FC<FeedTemplateProps> = ({ manifest, format }) 
           transformOrigin: "top left",
         }}
       >
-        <Stage m={m} noVideo />
+        <Stage m={m} />
       </div>
     </AbsoluteFill>
   );
