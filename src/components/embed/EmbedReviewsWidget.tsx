@@ -504,13 +504,14 @@ export default function EmbedReviewsWidget({
 
       {shape === "horizontal" ? (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start flex-1">
+          <div className={`grid grid-cols-1 ${mainCard ? "sm:grid-cols-2" : ""} gap-4 items-start flex-1`}>
             <div className="space-y-3 min-w-0">
               {header}
               {badge}
               {rows}
             </div>
-            <div className="min-w-0 h-full">{mainCard}</div>
+            {mainCard ? <div className="min-w-0 h-full">{mainCard}</div> : null}
+
           </div>
           {signature}
         </>
