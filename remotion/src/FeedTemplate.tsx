@@ -44,9 +44,12 @@ export type FeedManifest = {
     step: number;
     open: string;
     tall: string;
+    headerTop?: number;
     headerHeight: number;
     viewHeight: number;
     contentHeight: number;
+    bottomTop?: number | null;
+    bottomHeight?: number;
     tapX?: number;
     tapY?: number;
     sections: FeedSection[];
@@ -354,7 +357,7 @@ const Stage: React.FC<{ m: FeedManifest; noVideo?: boolean }> = ({ m, noVideo })
         >
           <Img
             src={staticFile(`${m.base}/${detail.tall}`)}
-            style={{ position: "absolute", left: 0, top: -scroll, width: W, height: detail.contentHeight }}
+             style={{ position: "absolute", left: 0, top: -scroll, width: W, height: detail.contentHeight }}
           />
         </div>
         {/* barre d'en-tête de l'overlay (sticky) */}
@@ -362,7 +365,7 @@ const Stage: React.FC<{ m: FeedManifest; noVideo?: boolean }> = ({ m, noVideo })
           style={{
             position: "absolute",
             left: 0,
-            top: 0,
+            top: detail.headerTop ?? 0,
             width: W,
             height: detail.headerHeight,
             overflow: "hidden",
@@ -370,9 +373,28 @@ const Stage: React.FC<{ m: FeedManifest; noVideo?: boolean }> = ({ m, noVideo })
         >
           <Img
             src={staticFile(`${m.base}/${detail.open}`)}
-            style={{ position: "absolute", left: 0, top: 0, width: W, height: H }}
+             style={{ position: "absolute", left: 0, top: -(detail.headerTop ?? 0), width: W, height: H }}
           />
         </div>
+        {/* Barre fixe basse de Full Description, capturée une seule fois. Elle
+            reste hors du contenu stitché afin de ne jamais défiler avec lui. */}
+        {detail.bottomTop != null && (detail.bottomHeight ?? 0) > 0 && (
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              top: detail.bottomTop,
+              width: W,
+              height: detail.bottomHeight,
+              overflow: "hidden",
+            }}
+          >
+            <Img
+              src={staticFile(`${m.base}/${detail.open}`)}
+              style={{ position: "absolute", left: 0, top: -detail.bottomTop, width: W, height: H }}
+            />
+          </div>
+        )}
       </div>
     </AbsoluteFill>
   );

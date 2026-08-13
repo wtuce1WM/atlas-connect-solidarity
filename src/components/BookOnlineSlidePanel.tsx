@@ -2095,7 +2095,7 @@ const BookOnlineSlidePanelInner = ({
       ? whatsappUrl(business.whatsapp, language === "en" ? `Hello ${business?.name || ""}, I found you on One World Morocco.` : language === "ar" ? `مرحبا ${business?.name || ""}` : `Bonjour ${business?.name || ""}, je vous ai trouvé sur One World Morocco.`)
       : null;
     return (
-      <div className="relative z-[70] shrink-0 py-2 bg-transparent flex flex-col gap-2">
+      <div data-owm-video-bottom-bar className="relative z-[70] shrink-0 py-2 bg-transparent flex flex-col gap-2">
         {(hasSocialBar || waHref) && (
           <div dir="ltr" ref={stripWheelRef} className={stripClass}>
             {waHref && (
@@ -2674,7 +2674,7 @@ const BookOnlineSlidePanelInner = ({
 
       {/* Full Description Overlay */}
       {showDescriptionOverlay && (woDescription || hasHighlights || descGridSection || descOverlayContent || !!hookText || (avgOn20 != null && totalReviewCount > 0) || images.length > 0 || (nonExternalVideoDocs.length + externalVideoDocs.length) > 0) && (
-        <OverlayShell zClass="z-[80]" animClass={descMorphRect ? "owm-desc-morph" : (descMorphDone ? "" : "animate-zoom-out-center")} outerRef={applyDescMorph} className="flex flex-col">
+        <OverlayShell zClass="z-[80]" animClass={descMorphRect ? "owm-desc-morph" : (descMorphDone ? "" : "animate-zoom-out-center")} outerRef={applyDescMorph} className="flex flex-col" data-owm-video-overlay>
           {images[0] && (
             <div
               className="absolute inset-0 bg-cover bg-center"
@@ -2692,7 +2692,7 @@ const BookOnlineSlidePanelInner = ({
             <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-[42%] bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
           )}
           {!selectedPoiBusinessId && !selectedKpBusinessId && (
-          <div className="relative z-30 shrink-0 flex flex-col gap-2 px-4 py-3 bg-transparent backdrop-blur-sm border-b border-white/10 order-[-2]">
+          <div data-owm-video-header className="relative z-30 shrink-0 flex flex-col gap-2 px-4 py-3 bg-transparent backdrop-blur-sm border-b border-white/10 order-[-2]">
             <div className="flex items-center gap-3 min-w-0">
               <button onClick={() => { if (descGridSection && !descOverlayDirect) { setDescGridSection(null); setDescGridPage(0); } else if (descOverlayContent && !descOverlayDirect) { setDescOverlayContent(null); } else { setShowDescriptionOverlay(false); setDescOverlayContent(null); setDescOverlayDirect(false); setDescGridSection(null); setDescGridPage(0); } }} className="h-8 w-8 flex items-center justify-center rounded-full bg-white text-black shadow-lg hover:bg-white/90 transition-colors shrink-0">
                 <X className="h-4 w-4" />
