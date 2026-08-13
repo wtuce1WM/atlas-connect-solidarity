@@ -3,7 +3,7 @@
   "@type": "ItemList",
   "name": "Catalogue ONE WORLD MOROCCO",
   "url": "https://oneworldmorocco.com/ai/catalog.jsonld",
-  "numberOfItems": 1845,
+  "numberOfItems": 1848,
   "itemListElement": [
     {
       "@type": "ListItem",
@@ -1397,7 +1397,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 619,
+          "reviewCount": 667,
           "bestRating": 5
         }
       }
@@ -4344,7 +4344,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 1909,
+          "reviewCount": 1953,
           "bestRating": 5
         }
       }
@@ -5077,8 +5077,8 @@
         "telephone": "+212662812493",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 3.6,
-          "reviewCount": 14,
+          "ratingValue": 3.8,
+          "reviewCount": 16,
           "bestRating": 5
         }
       }
@@ -9601,6 +9601,7 @@
         "name": " Deserted Photo Booth",
         "url": "https://oneworldmorocco.com/deserted-photo-booth",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/7f08974a-f334-484b-a00a-de2bf54d9ac0-1777294638442-9xg6wr.jpg",
+        "description": "Deserted Photo Booth propose à Marrakech une expérience simple, ludique et particulièrement originale : une cabine photo vintage où l’on vient immortaliser son séjour avec une série de clichés imprimés. Installée au 36 Rue Kennaria , dans la Médina, cette petite adresse est devenue une halte appréciée des voyageurs à la recherche d’un souvenir différent des photos touristiques traditionnelles. Le concept repose sur une séance rapide de quatre poses , avec la possibilité de choisir entre des phot",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "36 Rue Kennaria",
@@ -9616,7 +9617,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 196,
+          "reviewCount": 206,
           "bestRating": 5
         }
       }
@@ -10908,6 +10909,7 @@
         "name": "El Ghali Art Gallery",
         "url": "https://oneworldmorocco.com/el-ghali-art-gallery",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/7bbaf3cf-59fc-4b11-9f02-e4c9b0402f4a-1777802539406-6lwmxr.jpg",
+        "description": "El Ghali Art Gallery Marrakech est une adresse dédiée à l’ art marocain, à l’artisanat et aux objets décoratifs , pour les visiteurs à la recherche de pièces originales et authentiques à Marrakech. La galerie propose un univers mêlant différentes formes d’art et de savoir-faire marocains, avec des objets choisis autant pour leur caractère décoratif que pour leur histoire. Parmi les pièces que l’on peut découvrir dans cet univers figurent notamment des tapis marocains, tapis berbères, objets anci",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "7 Rue el Ksour",
@@ -11764,7 +11766,7 @@
         "name": "Festival International du Film de Marrakech",
         "url": "https://oneworldmorocco.com/festival-international-du-film-de-marrakech",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1db897c6-8057-4de9-a1fa-2d09d189b27f-1775970366726-961sw.jpg",
-        "description": "LE FESTIVAL DE MARRAKECH, UNE ETOILE EN AFRIQUE ET DANS LE MONDE ARABE Le Festival International du Film de Marrakech a été créé en 2001 par Sa Majesté le Roi Mohammed VI afin de promouvoir et de développer l’art et l’industrie cinématographique au Maroc. Après plus de 20 ans d’existence, le Festival de Marrakech constitue aujourd’hui un lieu d’expression et de découverte qui relève très haut le pari de la diversité, de l’échange et de l’enrichissement. C’est aussi l’opportunité pour le Maroc, d",
+        "description": "Le Festival International du Film de Marrakech a été créé en 2001 par Sa Majesté le Roi Mohammed VI afin de promouvoir et de développer l’art et l’industrie cinématographique au Maroc. Après plus de 20 ans d’existence, le Festival de Marrakech constitue aujourd’hui un lieu d’expression et de découverte qui relève très haut le pari de la diversité, de l’échange et de l’enrichissement. C’est aussi l’opportunité pour le Maroc, d’accueillir et de rendre hommage à de grandes personnalités du monde du",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Bd Mohamed VI",
@@ -15508,7 +15510,7 @@
         "name": "Jardin Majorelle",
         "url": "https://oneworldmorocco.com/jardin-majorelle",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/c78d3587-effa-49b8-bbc5-c766d671edc7-1775194346907-8agomc.jpg",
-        "description": "Le jardin Majorelle est un jardin botanique touristique d'environ 300 espèces sur près d'1 hectare, une villa Art déco labellisée Maisons des Illustres depuis 2011, et un musée de l'Histoire des Berbères, à Marrakech au Maroc. Le jardin est baptisé du nom de son fondateur, l'artiste peintre français Jacques Majorelle (1886-1962), qui l'a créé en 1931, en s'inspirant des oasis, jardin islamique et jardin espagnol-hispano-mauresque. Acheté par Yves Saint Laurent et Pierre Bergé en 1980, il apparti",
+        "description": "Le Jardin Majorelle est l’un des lieux les plus emblématiques de Marrakech : un jardin botanique spectaculaire où le bleu Majorelle , la végétation luxuriante, les bassins et l’architecture Art déco composent un décor immédiatement reconnaissable. Créé par le peintre français Jacques Majorelle , le jardin est devenu au fil du temps une véritable œuvre d’art vivante, avant d’être sauvé puis restauré par Yves Saint Laurent et Pierre Bergé en 1980. Un jardin devenu une œuvre d’art Créé à partir des",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Rue Yves St Laurent",
@@ -15525,7 +15527,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.4,
-          "reviewCount": 57789,
+          "reviewCount": 60281,
           "bestRating": 5
         }
       }
@@ -17526,7 +17528,7 @@
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Douar Lmih Laroussiene",
-          "addressRegion": "Marrakech",
+          "addressRegion": "Agafay",
           "addressCountry": "MA"
         },
         "geo": {
@@ -17538,7 +17540,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.3,
-          "reviewCount": 354,
+          "reviewCount": 356,
           "bestRating": 5
         }
       }
@@ -19700,7 +19702,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.2,
-          "reviewCount": 11914,
+          "reviewCount": 12848,
           "bestRating": 5
         }
       }
@@ -20753,14 +20755,14 @@
         "description": "Une expérience culinaire privée au cœur du désert d'Agafay, où chaque tente est la vôtre et l'horizon s'offre à vous. Niché au sein de deux hectares de désert immaculé, Le Soukoune est un sanctuaire gastronomique exceptionnel. Composé de neuf tentes entièrement privatisables, ce concept unique allie exclusivité et intimité. Chaque espace propose des salons ombragés, des tables éclairées à la bougie et la douce lueur d'un feu de camp sous les étoiles. Au-delà des tentes privées, le Grand Restaura",
         "geo": {
           "@type": "GeoCoordinates",
-          "latitude": 31.3935994,
-          "longitude": -8.2106709
+          "latitude": 31.3929804,
+          "longitude": -8.2099631
         },
         "telephone": "+212 524 205 070",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.7,
-          "reviewCount": 32,
+          "ratingValue": 4.8,
+          "reviewCount": 38,
           "bestRating": 5
         }
       }
@@ -21719,7 +21721,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 3.8,
-          "reviewCount": 365,
+          "reviewCount": 367,
           "bestRating": 5
         }
       }
@@ -22312,8 +22314,8 @@
         "telephone": "+212676924492",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.5,
-          "reviewCount": 328,
+          "ratingValue": 4.6,
+          "reviewCount": 390,
           "bestRating": 5
         }
       }
@@ -22760,7 +22762,7 @@
         "description": "Cachée dans les ruelles sinueuses de l'ancienne médina de Marrakech, derrière des portes en bois patinées par le temps, se trouve un lieu où le passé du Maroc murmure ses histoires : la Maison Culturelle du Tapis, un musée à Marrakech entièrement consacré aux tapis marocains. Dédié à la préservation, la présentation et l’enseignement de l’art du tissage de ces tapis, ce musée de Marrakech est installé dans un riad du XVIIe siècle magnifiquement restauré, qui servait autrefois d’atelier textile a",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "16-18, Derb Defaa Ourabaa, Médina",
+          "streetAddress": "16-18, Derb Defaa Ourabaa",
           "addressLocality": "Medina",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -22774,7 +22776,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 178,
+          "reviewCount": 259,
           "bestRating": 5
         }
       }
@@ -22957,7 +22959,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 192,
+          "reviewCount": 199,
           "bestRating": 5
         }
       }
@@ -23396,7 +23398,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 12898,
+          "reviewCount": 12921,
           "bestRating": 5
         }
       }
@@ -25197,7 +25199,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.2,
-          "reviewCount": 766,
+          "reviewCount": 824,
           "bestRating": 5
         }
       }
@@ -25866,7 +25868,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4,
-          "reviewCount": 5136,
+          "reviewCount": 5661,
           "bestRating": 5
         }
       }
@@ -27437,8 +27439,8 @@
         "telephone": "+212524424242",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.2,
-          "reviewCount": 910,
+          "ratingValue": 4.3,
+          "reviewCount": 1075,
           "bestRating": 5
         }
       }
@@ -27741,6 +27743,7 @@
         "name": "Nomads Crafts",
         "url": "https://oneworldmorocco.com/nomads-crafts",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/fe449a73-9c44-4631-9350-f8b9242a829e-1779792506168-h04t9.jpg",
+        "description": "Nomads Crafts Marrakech est une boutique spécialisée dans l’ artisanat marocain et les tapis marocains , située au cœur des souks de Marrakech. L’adresse se distingue particulièrement par sa sélection de tapis faits main , provenant de différentes régions et traditions du Maroc, et par l’accompagnement personnalisé de son équipe. Pour les voyageurs à la recherche d’un tapis marocain authentique à Marrakech , Nomads Crafts offre une expérience très différente d’une simple boutique de souvenirs. L",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "192 Fondouk Sarssar",
@@ -29018,11 +29021,11 @@
         "name": "Palais El Badi",
         "url": "https://oneworldmorocco.com/palais-el-badi",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e17727c9-a220-487c-8739-15a36dfd8a15-1770834119230-zjngia.jpg",
-        "description": "Le Palais El Badi à Marrakech est un magnifique exemple de l'architecture et de la culture marocaine. Construit au XVIe siècle par le sultan Ahmad al-Mansur, ce palais est un témoignage de la grandeur de la dynastie saadienne et de la beauté de l'art et du design marocains. Le palais mêle des styles marocains traditionnels et européens, et il est décoré de mosaïques complexes, de colonnes en marbre et de sculptures ornées. Le Palais El Badi a été construit en 1578 par le sultan Ahmad al-Mansur, ",
+        "description": "Le Palais El Badi est l’un des monuments historiques les plus impressionnants de Marrakech. Édifié à la fin du XVIᵉ siècle par le sultan saadien Ahmed al-Mansour , le palais devait symboliser la puissance et la richesse de la dynastie saadienne. Aujourd’hui, ses immenses vestiges permettent d’imaginer la splendeur d’un palais royal autrefois décoré de marbre, de zelliges, de stucs et de matériaux précieux. Un palais construit pour impressionner La construction du Palais El Badi commence en 1578 ",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Place des Ferblantiers, Médina",
-          "addressLocality": "Medina",
+          "streetAddress": "Ksibat Nhass",
+          "addressLocality": "Mellah",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
         },
@@ -29033,8 +29036,8 @@
         },
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.3,
-          "reviewCount": 10332,
+          "ratingValue": 4.2,
+          "reviewCount": 11072,
           "bestRating": 5
         }
       }
@@ -30600,7 +30603,7 @@
         "description": "Ramakech est le parc de sculptures créé par l’artiste Jean-François Fourtou. Il se situe dans la palmeraie de Marrakech et s'étend sur près de cinq hectares. Plus qu’une visite, le parcours du parc vous offre une expérience immersive inoubliable, hors du temps, au cœur d’un monde onirique, émergeant des souvenirs d’enfance de l’artiste. Avec tendresse et poésie, Jean-François Fourtou y façonne maisons ou jardins, les peuplant d’animaux géants, de personnages étranges ou d’architectures déstabili",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Ramakech Bab Atlas",
+          "streetAddress": "Bab Atlas",
           "addressLocality": "Palmeraie",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -30613,7 +30616,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 11,
+          "reviewCount": 15,
           "bestRating": 5
         }
       }
@@ -31122,7 +31125,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 619,
+          "reviewCount": 667,
           "bestRating": 5
         }
       }
@@ -31433,13 +31436,7 @@
           "latitude": 31.4242575,
           "longitude": -8.3158079
         },
-        "telephone": "+212 726700706",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": 4.9,
-          "reviewCount": 43,
-          "bestRating": 5
-        }
+        "telephone": "+212 726700706"
       }
     },
     {
@@ -31533,7 +31530,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 15,
+          "reviewCount": 17,
           "bestRating": 5
         }
       }
@@ -31629,7 +31626,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 380,
+          "reviewCount": 381,
           "bestRating": 5
         }
       }
@@ -32313,7 +32310,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 388,
+          "reviewCount": 424,
           "bestRating": 5
         }
       }
@@ -32695,7 +32692,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.2,
-          "reviewCount": 2036,
+          "reviewCount": 2037,
           "bestRating": 5
         }
       }
@@ -33664,7 +33661,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 2382,
+          "reviewCount": 2388,
           "bestRating": 5
         }
       }
@@ -35009,12 +35006,12 @@
     {
       "@type": "ListItem",
       "position": 1194,
-      "url": "https://oneworldmorocco.com/setup-game",
+      "url": "https://oneworldmorocco.com/pc-gamer-maroc",
       "item": {
         "@type": "LocalBusiness",
-        "@id": "https://oneworldmorocco.com/setup-game#business",
-        "name": "SetUp Game",
-        "url": "https://oneworldmorocco.com/setup-game",
+        "@id": "https://oneworldmorocco.com/pc-gamer-maroc#business",
+        "name": "SetUp Game eShop",
+        "url": "https://oneworldmorocco.com/pc-gamer-maroc",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/ffac7a82-af4f-4bf7-9730-15743f1e1b80-1772987631150-pmi3h5.webp",
         "description": "Notre Parcours de la Vision à la Réalité. Setup Game a été fondé en 2021, au plus fort de la pandémie mondiale, lorsque les matériaux de gaming étaient rares et que le marché avait désespérément besoin d'innovation. Avec pour mission de fournir des matériaux de gaming haute performance et de qualité, nous avons ouvert notre premier magasin à Temara. Depuis, nous nous sommes rapidement étendus à Casablanca, Marrakech et Tanger, devenant le leader du marché au Maroc. Notre croissance est alimentée",
         "address": {
@@ -35032,8 +35029,8 @@
         "telephone": "+212666998384",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4,
-          "reviewCount": 28,
+          "ratingValue": 4.1,
+          "reviewCount": 30,
           "bestRating": 5
         }
       }
@@ -36305,8 +36302,8 @@
         "telephone": "+212 726700706",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.9,
-          "reviewCount": 43,
+          "ratingValue": 4.7,
+          "reviewCount": 79,
           "bestRating": 5
         }
       }
@@ -36669,8 +36666,8 @@
         "telephone": "+212661324475",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.5,
-          "reviewCount": 84,
+          "ratingValue": 4.6,
+          "reviewCount": 88,
           "bestRating": 5
         }
       }
@@ -37697,7 +37694,7 @@
         "description": "Terre des étoiles D’un rêve, laissons naître une utopie… Créer une oasis dans le désert. Tel était le rêve fou, la graine semée pour transformer l’utopie en réalité : Terre des Etoiles, un Ecolodge surgi au cœur d’un univers minéral vallonné, à quelques encablures de Marrakech l’Impériale. Au commencement, des tentes chic et confortables dressées dans l’immensité regardant vers l’Atlas, puis la création d’un authentique jardin potager bio, selon les préceptes de la permaculture. Semer, planter, ",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Kms 25, Commune d’Agafay",
+          "streetAddress": "Kms 25",
           "addressRegion": "Agafay",
           "addressCountry": "MA"
         },
@@ -37709,7 +37706,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.3,
-          "reviewCount": 373,
+          "reviewCount": 374,
           "bestRating": 5
         }
       }
@@ -37845,7 +37842,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 1312,
+          "reviewCount": 1414,
           "bestRating": 5
         }
       }
@@ -39178,7 +39175,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.4,
-          "reviewCount": 67,
+          "reviewCount": 69,
           "bestRating": 5
         }
       }
@@ -40739,10 +40736,11 @@
         "name": "Terra Mano",
         "url": "https://oneworldmorocco.com/terra-mano",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/066d94c7-ed3a-4306-bfbf-abd3a208df7f-1780771522431-22xyui.jpg",
+        "description": "Aux portes du Mellah, l'ancien quartier juif de Marrakech, et à deux pas de la typique Place des Ferblantiers, cette boutique de céramique et de poterie artisanales rassemble le meilleur du savoir-faire argilier marocain. Vases graphiques rayés de bleu, rouge ou vert, services à thé peints à la main, tajines décoratifs, poteries en argile rouge ou blanche façonnées à l'ancienne, brûle-parfums, lanternes ajourées et vaisselle colorée composent une collection généreuse où chaque pièce raconte une ",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "91 A. Hommane Fetouaki",
-          "addressLocality": "Medina",
+          "addressLocality": "Mellah",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
         },
@@ -40838,7 +40836,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 250,
+          "reviewCount": 276,
           "bestRating": 5
         }
       }
@@ -41009,7 +41007,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 2,
+          "reviewCount": 1,
           "bestRating": 5
         }
       }
@@ -41341,6 +41339,7 @@
         "name": "91 Leather Store",
         "url": "https://oneworldmorocco.com/91-leather-store",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/af896f57-d96d-47a1-a241-e0d4a45fe2a1-1780762385478-utarjl.jpg",
+        "description": "91 Leather Store Marrakech est une adresse dédiée à la maroquinerie en cuir à Marrakech , pour découvrir un savoir-faire artisanal marocain et choisir des pièces qui associent matière, travail du cuir et style. Dans une ville réputée pour son artisanat, ses souks et ses créations en cuir, cette boutique s’adresse aux visiteurs à la recherche d’articles authentiques et d’un souvenir durable de leur séjour au Maroc. Le cuir occupe une place particulière dans l’artisanat marocain. Sacs, accessoires",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "91 Av. Hommane Fetouaki",
@@ -41356,7 +41355,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 269,
+          "reviewCount": 270,
           "bestRating": 5
         }
       }
@@ -41592,6 +41591,7 @@
         "name": "Woven Touch",
         "url": "https://oneworldmorocco.com/woven-touch",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/c17ebc87-c315-4dfa-bd93-53fe9462bd52-1780038914054-fr4l5h.jpg",
+        "description": "Woven Touch Marrakech met à l’honneur l’un des savoir-faire les plus emblématiques du Maroc : le tapis marocain fait main . La marque propose des pièces réalisées artisanalement à partir de laine naturelle, avec des motifs géométriques, des textures riches et des palettes allant des tons sobres et naturels aux compositions plus colorées. Chaque tapis possède ainsi son propre caractère et s’inscrit dans une tradition de tissage transmise de génération en génération. L’intérêt de Woven Touch résid",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "50 Souk Laksour",
@@ -41718,10 +41718,11 @@
         "name": "Layal Concept Store",
         "url": "https://oneworldmorocco.com/layal-concept-store",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/cba52b9c-95e7-46bf-87fe-7bd16428197e-1780813982529-1s2r5o.jpg",
+        "description": "Layal Concept Store Marrakech est une adresse dédiée à la maroquinerie, aux créations originales et aux éditions limitées , pour celles et ceux qui recherchent à Marrakech des pièces différentes des souvenirs traditionnels. La boutique met en avant un univers créatif inspiré par la ville et le savoir-faire artisanal, avec des créations pensées pour associer identité, originalité et style. Installé au Medina Mall, 91 Avenue Hommane Fetouaki à Marrakech , Layal Concept Store s'inscrit dans un espa",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "91 Av. Hommane Fetouaki",
-          "addressLocality": "Medina",
+          "addressLocality": "Mellah",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
         },
@@ -42087,6 +42088,7 @@
         "name": "Autohaus MBH",
         "url": "https://oneworldmorocco.com/autohaus-mbh",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/042f8ece-9b00-4b27-9679-2caa01785727-1780399567548-tyc1cq.jpg",
+        "description": "Sur l'avenue Hassan II à Rabat, ce showroom réunit une sélection rigoureuse des plus grandes marques du luxe automobile : Ferrari, Lamborghini, Bentley et Rolls-Royce pour l'exception absolue, Porsche pour l'équilibre entre performance et raffinement, ainsi que les gammes sportives de Mercedes-AMG et BMW M. Un catalogue pensé pour les passionnés de belle mécanique et les acheteurs en quête d'un véhicule qui sort de l'ordinaire. Chaque voiture proposée est choisie avec exigence : supercars italie",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "26, Lot Vita, Av. Hassan II",
@@ -42101,8 +42103,8 @@
         "telephone": "+212537293030",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.6,
-          "reviewCount": 43,
+          "ratingValue": 4.5,
+          "reviewCount": 44,
           "bestRating": 5
         }
       }
@@ -42263,7 +42265,7 @@
         "name": "Yasalam Medina",
         "url": "https://oneworldmorocco.com/yasalam-medina",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/2aae5cdc-0c6c-4a42-a526-f2d89279adb4-1780066195506-hov0p2.webp",
-        "description": "YASALAM réunit une équipe passionnée d'artistes arabes et numériques. Forts d'un sens aigu de la créativité et d'une profonde connaissance de la richesse culturelle de la région, nous concevons, imaginons et réalisons des projets artistiques sur mesure. Nos relations privilégiées avec des artistes du monde arabe nous permettent de mettre en lumière leurs talents et de donner vie à leurs visions. Fondée à Marrakech en 2024 par Oussama Laftimi et Abdellah Aboulhamid, tous deux issus des milieux ar",
+        "description": "YASALAM Medina Marrakech est une boutique d’art qui propose une approche contemporaine et créative de l’art marocain et nord-africain . L’adresse se distingue par une sélection d’ œuvres modernes, impressions d’art et cartes postales originales , loin des souvenirs touristiques classiques que l’on retrouve habituellement à Marrakech. Les artistes locaux occupent une place centrale dans l’univers de YASALAM. La boutique permet de découvrir des créations originales sous forme d’ impressions de qua",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "54 Rue Riad Zitoun el Jdid",
@@ -42279,7 +42281,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 15,
+          "reviewCount": 16,
           "bestRating": 5
         }
       }
@@ -42475,7 +42477,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 1,
+          "reviewCount": 2,
           "bestRating": 5
         }
       }
@@ -42753,7 +42755,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 285,
+          "reviewCount": 320,
           "bestRating": 5
         }
       }
@@ -42992,7 +42994,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 107,
+          "reviewCount": 115,
           "bestRating": 5
         }
       }
@@ -43023,7 +43025,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 3,
+          "reviewCount": 4,
           "bestRating": 5
         }
       }
@@ -43257,6 +43259,7 @@
         "name": "Ali Batrah",
         "url": "https://oneworldmorocco.com/ali-batrah",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/ffa400b7-436b-4215-b01a-19cee4cecb91-1780199521166-lelqki.jpg",
+        "description": "Au cœur des souks de Marrakech, cette boutique de tissus et de vêtements traditionnels invite à la flânerie parmi des rouleaux de couleurs, des foulards en soie et coton, et des tenues brodées à la main. Ici, chaque pièce raconte un savoir-faire transmis avec patience : broderies fines aux motifs géométriques et floraux sur cols et manches, caftans et djellabas taillés dans des matières naturelles, ensembles en lin confortables déclinés en plusieurs teintes, pantalons larges et tuniques brodées ",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "47, Soussine, N° 45",
@@ -43340,6 +43343,7 @@
         "name": "Khmissa Marrakech",
         "url": "https://oneworldmorocco.com/khmissa-marrakech",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/05304d1f-7019-4545-8eae-e4568d7bf7a5-1780546998251-tcn7le.webp",
+        "description": "Sur la mythique Place des Épices, en plein cœur de la médina de Marrakech, cette petite boutique déborde de trésors dénichés au fil du souk voisin. Lanternes en métal ajouré, vases en céramique peints à la main, jarres berbères, plateaux en laiton, bols émaillés, poteries noires et blanches : chaque recoin réserve une découverte, dans une ambiance chaleureuse typique des échoppes de la médina. L'emplacement est un atout en soi. La Place des Épices, aussi appelée Rahba Kedima, est l'un des cœurs ",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Place des épices, N60",
@@ -43355,7 +43359,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 1,
+          "reviewCount": 3,
           "bestRating": 5
         }
       }
@@ -43522,7 +43526,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.4,
-          "reviewCount": 502,
+          "reviewCount": 510,
           "bestRating": 5
         }
       }
@@ -43796,6 +43800,7 @@
         "name": "Lahandira",
         "url": "https://oneworldmorocco.com/lahandira",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/58213f82-e29b-4f7c-84ae-82b26a006cbd-1780121200965-730a7.jpg",
+        "description": "Lahandira Marrakech est une adresse de référence pour découvrir et acheter des tapis marocains authentiques au cœur de Marrakech. Installée à Znikat Rahba , Lahandira s’est spécialisée dans les tapis berbères et les pièces artisanales issues des traditions de tissage marocaines, avec une sélection qui mêle tapis Beni Ourain, Beni M’Rirt, tapis du Moyen Atlas, kilims, tapis vintage, tapis contemporains et pièces anciennes . La force de Lahandira réside avant tout dans la richesse de sa collection",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "44 Znikat Rahba",
@@ -43811,7 +43816,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 310,
+          "reviewCount": 322,
           "bestRating": 5
         }
       }
@@ -43896,10 +43901,10 @@
       "item": {
         "@type": "LocalBusiness",
         "@id": "https://oneworldmorocco.com/yasalam-store#business",
-        "name": "Yasalam Store",
+        "name": "Yasalam Gueliz",
         "url": "https://oneworldmorocco.com/yasalam-store",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/62375ede-df15-430e-a36a-0e8ea6892069-1780065310775-5vqqx.jpg",
-        "description": "YASALAM réunit une équipe passionnée d'artistes arabes et numériques. Forts d'un sens aigu de la créativité et d'une profonde connaissance de la richesse culturelle de la région, nous concevons, imaginons et réalisons des projets artistiques sur mesure. Nos relations privilégiées avec des artistes du monde arabe nous permettent de mettre en lumière leurs talents et de donner vie à leurs visions. Fondée à Marrakech en 2024 par Oussama Laftimi et Abdellah Aboulhamid, tous deux issus des milieux ar",
+        "description": "Nichée au cœur de Guéliz, à Marrakech, cette boutique d'art réunit les voix les plus urgentes d'Afrique du Nord, du Levant et du Golfe. Peintures, photographies, tirages en édition limitée et œuvres originales y côtoient des objets et pièces textiles signés par les artistes exposés, dans un espace pensé pour la découverte et l'échange. Les visiteurs saluent unanimement un accueil chaleureux et disponible : une équipe passionnée, toujours prête à raconter l'histoire de chaque œuvre, le parcours d",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "38, rue Tarik bnou Ziad",
@@ -44015,10 +44020,11 @@
         "name": "Dune Galerie",
         "url": "https://oneworldmorocco.com/dune-galerie",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/793c144f-c1c5-47db-bd51-b86b8c089735-1780068432265-uvupb.jpg",
+        "description": "Dune Galerie Marrakech , située dans le quartier de Riad Zitoun Jdid , est une adresse reconnue pour ses tapis marocains, tapis berbères et objets d’artisanat . La galerie se distingue par une sélection qui associe tapis anciens et contemporains, pièces décoratives et objets choisis pour leur caractère et leur qualité. Les tapis occupent une place centrale dans l'univers de Dune Galerie. La collection comprend notamment des tapis Beni Ouarain, Azilal, Tazenakht, Beni Mrirt, Zemmour, Tiflet, Zana",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Raid zitoun jdid, rue bahia 15 et 16",
-          "addressLocality": "Medina",
+          "addressLocality": "Mellah",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
         },
@@ -44468,6 +44474,7 @@
         "name": "Imad Rugs - by Imad Farah",
         "url": "https://oneworldmorocco.com/imad-rugs-by-imad-farah",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/d978dd11-2ca5-4134-a519-e4bf5b880ce7-1780040937767-potj1a.jpg",
+        "description": "Imad Rugs – by Imad Farah est une adresse dédiée aux tapis marocains artisanaux à Marrakech , située dans le quartier El Haddadine, au Souk Laksour . Avec une note de 5/5 sur Google , l’adresse se distingue autant par la qualité et l’originalité de ses tapis que par une expérience d’achat particulièrement appréciée des visiteurs. Le choix constitue l'un des grands atouts d'Imad Rugs. Les clients évoquent de nombreux tapis de haute qualité , des pièces artisanales uniques et une sélection suffisa",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "El haddadine, Souk Laksour",
@@ -45302,6 +45309,7 @@
         "name": "Chateau Des Souks",
         "url": "https://oneworldmorocco.com/chateau-des-souks",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/80a2817c-e9f9-4f4b-a907-efb18901e39c-1780167988999-cwuf35.jpg",
+        "description": "Château des Souks Marrakech est une adresse dédiée à l’artisanat marocain et particulièrement aux tapis marocains, tapis berbères et kilims , située au 44 Souk Semmarine , au cœur des souks de Marrakech. L’adresse propose une sélection de tapis anciens et contemporains provenant de différentes régions du Maroc, ainsi que de nombreuses pièces d’artisanat et de décoration. La spécialité de Château des Souks reste avant tout le tapis marocain . La boutique permet de découvrir des pièces aux styles,",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "44 Souk Semmarine",
@@ -45316,8 +45324,8 @@
         },
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 3.7,
-          "reviewCount": 26,
+          "ratingValue": 3.6,
+          "reviewCount": 27,
           "bestRating": 5
         }
       }
@@ -45453,6 +45461,7 @@
         "name": "Secret de laine",
         "url": "https://oneworldmorocco.com/secret-de-laine",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/9a0a86bf-37e6-4914-8ceb-10fd57627348-1780383725251-g77m3n.jpg",
+        "description": "Secret de Laine Marrakech est une adresse dédiée à l’univers du tapis marocain et à l’artisanat traditionnel, située sur la route de l’Ourika à Marrakech . Une étape intéressante pour découvrir la richesse des tapis berbères et du travail de la laine, dans un environnement où les savoir-faire marocains occupent une place centrale. Le tapis marocain ne se résume pas à un objet décoratif : chaque région, chaque tribu et chaque atelier possède ses propres techniques, motifs, couleurs et matières. L",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Touggana, Km 10",
@@ -45659,7 +45668,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 250,
+          "reviewCount": 251,
           "bestRating": 5
         }
       }
@@ -45735,6 +45744,7 @@
         "name": "Studio Sana Benzaitar",
         "url": "https://oneworldmorocco.com/studio-sana-benzaitar",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/d84dc07d-e9b6-402b-861c-b0a6b5ce83d8-1779854800776-06fum.webp",
+        "description": "Au cœur de Gueliz, Studio Sana Benzaitar réinvente l’un des trésors les plus prestigieux du tissage marocain : le tapis Beni Mrirt . Réputés pour leur laine exceptionnellement douce, leur densité de nouage élevée et leurs finitions raffinées, les Beni Mrirt figurent parmi les tapis les plus recherchés du Maroc. Chaque pièce est réalisée à la main et peut être entièrement personnalisée en dimensions, couleurs et motifs pour s’intégrer aussi bien dans une villa contemporaine, un hôtel de luxe qu’u",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "8 Rue Des Vieux Marrakchis",
@@ -45826,6 +45836,7 @@
         "name": "Capital of Perfume",
         "url": "https://oneworldmorocco.com/capital-of-perfume",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/dbf029c4-c683-452d-ae54-5647212436a0-1779870816519-vezcf.jpg",
+        "description": "Capital of Perfume Marrakech est une boutique de parfums et atelier situé dans la médina de Marrakech, où l'expérience ne se limite pas à choisir un parfum : vous pouvez créer votre propre fragrance en composant votre parfum selon vos goûts et vos envies. L'adresse séduit notamment par le choix proposé. Plus de 60 parfums et fragrances sont disponibles, avec une sélection organisée pour faciliter la découverte des différentes notes olfactives. Les parfums peuvent être choisis parmi les créations",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Dar El Bacha، Av. El Glaoui",
@@ -45841,7 +45852,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 41,
+          "reviewCount": 43,
           "bestRating": 5
         }
       }
@@ -45880,6 +45891,7 @@
         "name": "Patisserie Corne de Gazelle Chez Brahim",
         "url": "https://oneworldmorocco.com/patisserie-corne-de-gazelle-chez-brahim",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e51c3176-742b-4cf2-a3d6-0d4674f2cf4a-1780063567932-oemt0a.jpg",
+        "description": "À quelques ruelles de la place Jemaa el-Fna, cette petite pâtisserie familiale confectionne des douceurs marocaines traditionnelles, à déguster sur place ou à emporter. Cornes de gazelle saupoudrées de sucre glace, gâteaux aux fruits secs, cornes fourrées aux amandes et biscuits parfumés à la fleur d'oranger composent une vitrine gourmande fidèle aux recettes transmises de génération en génération. Les avis clients sont unanimes sur la générosité de l'accueil : une patronne et son mari décrits c",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Rue Riad zitoun el jadid N137",
@@ -45895,7 +45907,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 1860,
+          "reviewCount": 2095,
           "bestRating": 5
         }
       }
@@ -46300,6 +46312,7 @@
         "name": "Galerie de Céramique",
         "url": "https://oneworldmorocco.com/galerie-de-ceramique",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/3f243262-7bfd-4f27-9942-46ad98b705be-1780429996752-84acv.jpg",
+        "description": "En prenant la route de l'Ourika, aux portes de Marrakech, cette adresse joue la carte de la décoration avec personnalité. Vases sculpturaux aux formes contemporaines, bols empilables aux glaçures mouchetées, tajines peints à la main, gobelets berbères en terre cuite, assiettes aux motifs bleu et blanc ou rouge et vert : chaque pièce est façonnée et décorée à la main par des artisans marocains, dans le respect d'un savoir-faire transmis au pied de l'Atlas. Ici, la céramique n'est pas un simple so",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Km 2",
@@ -46315,7 +46328,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 1,
+          "reviewCount": 2,
           "bestRating": 5
         }
       }
@@ -46426,6 +46439,7 @@
         "name": "Maison Baboucha Vintage Store",
         "url": "https://oneworldmorocco.com/maison-baboucha-vintage-store",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/6ac94eff-6a29-428d-b8bd-2f2db45c1ddb-1780200284063-o4umz.jpg",
+        "description": "Maison Baboucha Vintage Store Marrakech est une adresse à part pour les amateurs de mode vintage, de vêtements de seconde main et de pièces originales à Marrakech. Loin des boutiques standardisées, cette petite adresse fonctionne comme un véritable trésor caché , où l'on prend le temps de fouiller, d'essayer et de découvrir des vêtements et accessoires qui ont chacun leur personnalité. La sélection met notamment en avant de belles pièces vintage, des sacs, des vestes et des vêtements à des prix ",
         "geo": {
           "@type": "GeoCoordinates",
           "latitude": 31.6297726,
@@ -46434,7 +46448,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 25,
+          "reviewCount": 29,
           "bestRating": 5
         }
       }
@@ -46481,6 +46495,7 @@
         "name": "Le 110 Medina",
         "url": "https://oneworldmorocco.com/le-110-medina",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/72aabf3b-7334-4aeb-b5e7-a3677c8025e0-1780198605697-9c8g1l.jpg",
+        "description": "Dans les ruelles animées des souks de Marrakech, cette boutique de cuir et d'artisanat marocain se dévoile peu à peu à qui prend le temps de la parcourir. Derrière une devanture semblable à tant d'autres échoppes se cache un véritable royaume du cuir, où sacs, poufs, ceintures et petite maroquinerie côtoient une sélection soigneusement choisie d'objets artisanaux venus de tout le Maroc. À l'étage, de beaux blousons en cuir attendent les amateurs de belles matières, dans un espace qui invite à pr",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Nejjarine, 110 Souk Laksour",
@@ -46725,7 +46740,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 41,
+          "reviewCount": 42,
           "bestRating": 5
         }
       }
@@ -46764,6 +46779,7 @@
         "name": "Bazar Salama",
         "url": "https://oneworldmorocco.com/bazar-salama",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/b7173ce9-bbb1-4979-b068-172e07f7a36e-1780201003040-mn3up6.jpg",
+        "description": "Bazar Salama Marrakech est une adresse à découvrir pour celles et ceux qui recherchent un tapis marocain , un tapis berbère ou une pièce artisanale de qualité. Le magasin propose une collection particulièrement large, avec de nombreuses tailles, styles et pièces. Ce qui ressort le plus des avis clients, c’est d’abord le choix . Plusieurs visiteurs parlent d’une impressionnante sélection de tapis marocains et berbères. Un client évoque même un bâtiment de trois étages rempli de tapis marocains. L",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "55 rahba lakdima",
@@ -46778,8 +46794,8 @@
         },
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.9,
-          "reviewCount": 150,
+          "ratingValue": 5,
+          "reviewCount": 225,
           "bestRating": 5
         }
       }
@@ -47099,6 +47115,7 @@
         "name": "Palais Filali",
         "url": "https://oneworldmorocco.com/bazar-filali",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/ecc940a8-e306-4d31-9947-c41a135f10ab-1780202318360-z86m3.jpg",
+        "description": "Palais Filali est une adresse spécialisée dans les tapis marocains faits main , avec une collection particulièrement large couvrant les grands styles et territoires du tissage marocain. L’enseigne propose notamment des tapis Beni Ourain, Boujaad, Boucherouite, Kilim, Mrirt, Taznakht et Zanafi , ainsi que des pièces vintage et anciennes. L’une des particularités de Palais Filali est justement cette diversité de tapis marocains . Les Beni Ourain du Moyen Atlas privilégient la laine et les composit",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Souk Des Tapis, 24 Rahba Lakdima",
@@ -47138,7 +47155,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.3,
-          "reviewCount": 665,
+          "reviewCount": 666,
           "bestRating": 5
         }
       }
@@ -49933,8 +49950,8 @@
         "telephone": "+212661324475",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.5,
-          "reviewCount": 84,
+          "ratingValue": 4.6,
+          "reviewCount": 88,
           "bestRating": 5
         }
       }
@@ -50268,7 +50285,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 76,
+          "reviewCount": 78,
           "bestRating": 5
         }
       }
@@ -52696,6 +52713,19 @@
     {
       "@type": "ListItem",
       "position": 1837,
+      "url": "https://oneworldmorocco.com/chaabi-payment",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/chaabi-payment#business",
+        "name": "Chaabi Payment",
+        "url": "https://oneworldmorocco.com/chaabi-payment",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/133d8a5f-a9f9-4541-9d53-ec52677fb224-1786613817640-jhl778.webp",
+        "description": "La solution de paiement multicanal de M2T , établissement de paiement du Groupe Banque Populaire , leader national dans les services de proximité Chaabi Payment est une solution de paiement multicanal marocaine lancée par M2T , l'établissement de paiement filiale du Groupe Banque Centrale Populaire (BCP) . Elle a notamment été primée en 2026 comme la \"Meilleure solution de paiement innovante\" aux APIDE Awards. 🏪 Pour les Professionnels (Commerçants, Artisans, TPE & PME) L'offre Chaabi Payment p"
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1838,
       "url": "https://oneworldmorocco.com/un-the-au-bout-du-monde-mirleft",
       "item": {
         "@type": "LocalBusiness",
@@ -52707,7 +52737,31 @@
     },
     {
       "@type": "ListItem",
-      "position": 1838,
+      "position": 1839,
+      "url": "https://oneworldmorocco.com/les-sens-de-marrakech-eshop",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/les-sens-de-marrakech-eshop#business",
+        "name": "Les Sens de Marrakech eShop",
+        "url": "https://oneworldmorocco.com/les-sens-de-marrakech-eshop",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/b7357628-f617-4fe4-afa8-8232b6c337d3-1780122858451-ts080o.jpg",
+        "description": "Une marque qui propose des composants efficaces et choisis pour leur innocuité, tout en restant fidèle à une démarche éthique valorisant le travail des artisans marocains. Les Sens de Marrakech vous propose plusieurs gammes de produits cosmétiques aux ingrédients d’origine naturelle. Parmi ces ingrédients figurent les éléments phares du Maroc : l’huile d’argan et l’huile de figues de barbarie qui sont reconnues pour leurs propriétés hydratantes et leur capacité à apporter confort et souplesse. C",
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.6795032,
+          "longitude": -8.0512684
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.4,
+          "reviewCount": 510,
+          "bestRating": 5
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1840,
       "url": "https://oneworldmorocco.com/makassar-marrakech-restaurant",
       "item": {
         "@type": "LocalBusiness",
@@ -52733,7 +52787,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1839,
+      "position": 1841,
       "url": "https://oneworldmorocco.com/nona-s-table",
       "item": {
         "@type": "LocalBusiness",
@@ -52745,7 +52799,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1840,
+      "position": 1842,
       "url": "https://oneworldmorocco.com/bab-doukkala-1",
       "item": {
         "@type": "LocalBusiness",
@@ -52776,7 +52830,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1841,
+      "position": 1843,
       "url": "https://oneworldmorocco.com/pikala",
       "item": {
         "@type": "LocalBusiness",
@@ -52802,7 +52856,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1842,
+      "position": 1844,
       "url": "https://oneworldmorocco.com/villa-jmajorelle",
       "item": {
         "@type": "LocalBusiness",
@@ -52813,7 +52867,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1843,
+      "position": 1845,
       "url": "https://oneworldmorocco.com/elevate-cycle",
       "item": {
         "@type": "LocalBusiness",
@@ -52844,7 +52898,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1844,
+      "position": 1846,
       "url": "https://oneworldmorocco.com/la-grande-table-marocaine-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -52876,7 +52930,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1845,
+      "position": 1847,
       "url": "https://oneworldmorocco.com/m-avenue-1",
       "item": {
         "@type": "LocalBusiness",
@@ -52902,6 +52956,38 @@
           "@type": "AggregateRating",
           "ratingValue": 4.5,
           "reviewCount": 4294,
+          "bestRating": 5
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1848,
+      "url": "https://oneworldmorocco.com/pc-gamer-maroc",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/pc-gamer-maroc#business",
+        "name": "SetUp Game eShop",
+        "url": "https://oneworldmorocco.com/pc-gamer-maroc",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/ffac7a82-af4f-4bf7-9730-15743f1e1b80-1772987631150-pmi3h5.webp",
+        "description": "Notre Parcours de la Vision à la Réalité. Setup Game a été fondé en 2021, au plus fort de la pandémie mondiale, lorsque les matériaux de gaming étaient rares et que le marché avait désespérément besoin d'innovation. Avec pour mission de fournir des matériaux de gaming haute performance et de qualité, nous avons ouvert notre premier magasin à Temara. Depuis, nous nous sommes rapidement étendus à Casablanca, Marrakech et Tanger, devenant le leader du marché au Maroc. Notre croissance est alimentée",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "2ème étage, appartement 19, Immeuble Guelizium, Av. Mohammed V",
+          "addressLocality": "Gueliz",
+          "addressRegion": "Marrakech",
+          "addressCountry": "MA"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.6369984,
+          "longitude": -8.0165292
+        },
+        "telephone": "+212666998384",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.1,
+          "reviewCount": 30,
           "bestRating": 5
         }
       }

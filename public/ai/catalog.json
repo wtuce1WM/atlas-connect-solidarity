@@ -2,9 +2,9 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/catalog.json",
-    "generated_at": "2026-08-09T17:54:08.953Z",
+    "generated_at": "2026-08-13T13:13:40.409Z",
     "license": "Attribution requise · Contact : https://oneworldmorocco.com/contact",
-    "count": 1845
+    "count": 1848
   },
   "businesses": [
     {
@@ -2560,14 +2560,15 @@
       "slug": "agafay-cayenne-experience",
       "url": "https://oneworldmorocco.com/agafay-cayenne-experience",
       "name": "Agafay Cayenne Experience",
-      "hook": "Agafay Cayenne Experience - Expérience Porsche tout-terrain",
+      "hook": "Expérience Porsche tout-terrain à Lalla Takerkoust et désert d'Agafay.",
       "description": "NOS VÉHICULES Montez à bord de deux machines off-road d’exception et vivez une expérience de conduite hors normes. De la puissance maîtrisée à la performance brute et instinctive, chaque véhicule offre une manière unique d’explorer les pistes secrètes du Maroc. Vous conduisez. Vous maîtrisez. Vous choisissez jusqu’où aller. Cayenne V6 300 HP À bord d’un V6 atmosphérique 3,2 L développant 300 chevaux, découvrez une conduite fluide et rassurante. Son échappement ouvert révèle une sonorité affirmée",
       "main_category": "Tourisme",
       "categories": [
         "Excursions"
       ],
       "services": [
-        "Excursions en 4x4"
+        "Excursions en 4x4",
+        "Conduite 4x4"
       ],
       "city": "Agafay",
       "neighborhood": null,
@@ -2587,7 +2588,7 @@
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://agafaycayenne.com/",
+      "booking_url": "https://agafaycayenneexperience.rezdy.com/",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/agafaycayenne/",
@@ -3495,7 +3496,9 @@
       "description": "Cette destination unique combine harmonieusement l'attrait d'un restaurant, d'un salon et d'une piscine avec une vue imprenable sur le désert environnant. Le camp dispose de chambres au design exquis qui offrent un point de vue inégalé permettant aux clients de s'imprégner de la beauté fascinante du désert d'Agafay. Nos lodges Niché au milieu de la beauté éthérée désert d'Agafay se trouve notre lodge exclusif Un sanctuaire où la tranquillité se mêle au paysage à la fois austère et captivant. Loi",
       "main_category": "Hôtellerie",
       "categories": [
-        "Écolodge"
+        "Écolodge",
+        "Hôtel",
+        "Campings & Bivouacs"
       ],
       "services": [
         "Balades à dos de chameau",
@@ -3512,7 +3515,8 @@
         "Piscine privative",
         "Vue montagne",
         "WiFi",
-        "Excursions en VTT"
+        "Excursions en VTT",
+        "Desert Camp"
       ],
       "city": "Agafay",
       "neighborhood": null,
@@ -3523,10 +3527,10 @@
       "address": "Km 30",
       "phone": "+212 762 849 832",
       "whatsapp": "+212762849832",
-      "website": "https://alkamarcamp.com/",
+      "website": "https://alkamarcamp.com",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e9f65691-eac1-42aa-aa59-82351614c9a1-1775388506509-vwcnbe.webp",
       "google_rating": 4.6,
-      "google_review_count": 619,
+      "google_review_count": 667,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -3537,7 +3541,7 @@
       "social": {
         "instagram": "https://www.instagram.com/alkamar.camp/",
         "facebook": "https://www.facebook.com/profile.php?id=100025629014617",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g15276171-d23961363-Reviews-Alkamar_Camp_Agafay-Agafay_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -12282,15 +12286,21 @@
       "slug": "be-agafay",
       "url": "https://oneworldmorocco.com/be-agafay",
       "name": "BE Agafay",
-      "hook": "Votre havre de paix au cœur du désert de pierres d'Agafay !",
+      "hook": "Votre havre de paix dans 10 yourtes 6 bungalows et au cœur du désert de pierres d'Agafay !",
       "description": "Bienvenue à BE Agafay – Votre havre de paix au cœur du désert de pierres d'Agafay ! Imaginez un lieu où la tranquillité rencontre des panoramas à couper le souffle, au milieu des montagnes de l'Atlas. Goûtez au charme du désert en passant une nuit dans nos yourtes confortables, alliant confort et charme. Ne manquez pas le lever du soleil – un spectacle inoubliable ! Détendez-vous au bord de l'une de nos piscines avec vue sur les dunes, l'endroit idéal pour se ressourcer. Savourez un déjeuner ou ",
       "main_category": "Hôtellerie",
       "categories": [
-        "Campings & Bivouacs"
+        "Campings & Bivouacs",
+        "Hôtel"
       ],
       "services": [
         "Desert Camp",
-        "Vue montagne"
+        "Vue montagne",
+        "Yourtes",
+        "Pavillons / Villas individuelles",
+        "Bungalows",
+        "Excursions",
+        "Restauration sur place"
       ],
       "city": "Agafay",
       "neighborhood": null,
@@ -12301,16 +12311,16 @@
       "address": "Douar Lmilh Laaroussine",
       "phone": null,
       "whatsapp": "+212 661-730665",
-      "website": null,
+      "website": "https://www.be-agafay.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/f6c99093-122e-48cd-8591-5154706838a4-1779604769612-f47gcc.jpg",
       "google_rating": 4.8,
-      "google_review_count": 1909,
+      "google_review_count": 1953,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://www.be-agafay.com/",
+      "booking_url": "https://sky-af1.clock-software.com/spa/pms-wbe/#/hotel/13639",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/beagafay/",
@@ -14494,10 +14504,10 @@
       "address": "2 Rue Fatima Zahra",
       "phone": "+212662812493",
       "whatsapp": null,
-      "website": "https://el-fenn.com/boutique/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/641ab942-63a5-499e-999a-e09915b1d02f-1776400661487-ldz1j7.jpg",
-      "google_rating": 3.6,
-      "google_review_count": 14,
+      "google_rating": 3.8,
+      "google_review_count": 16,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -28371,8 +28381,8 @@
       "slug": "deserted-photo-booth",
       "url": "https://oneworldmorocco.com/deserted-photo-booth",
       "name": " Deserted Photo Booth",
-      "hook": "Capturer la nostalgie marocaine en 4 poses.",
-      "description": null,
+      "hook": "Une cabine photo vintage pour un souvenir original. Capturez la nostalgie marocaine en 4 poses.",
+      "description": "Deserted Photo Booth propose à Marrakech une expérience simple, ludique et particulièrement originale : une cabine photo vintage où l’on vient immortaliser son séjour avec une série de clichés imprimés. Installée au 36 Rue Kennaria , dans la Médina, cette petite adresse est devenue une halte appréciée des voyageurs à la recherche d’un souvenir différent des photos touristiques traditionnelles. Le concept repose sur une séance rapide de quatre poses , avec la possibilité de choisir entre des phot",
       "main_category": "Commerce",
       "categories": [
         "Souvenir"
@@ -28390,7 +28400,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/7f08974a-f334-484b-a00a-de2bf54d9ac0-1777294638442-9xg6wr.jpg",
       "google_rating": 4.9,
-      "google_review_count": 196,
+      "google_review_count": 206,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -30312,13 +30322,15 @@
       "name": "E-Bike Marrakech",
       "hook": null,
       "description": "Évadez-vous dans le désert d'Agafay et sa région en e-Bike / Vtt éléctrique. Dans le calme et la sérénité, découvrez la beauté du paysage désertique d’Agafay face à l’Atlas majestueux. Alliez plaisir et activité physique avec nos vtt électriques hauts de gamme Suisse tout confort FLYER UPROC 4. Rencontrez la beauté de la nature tout en la préservant. Nous nous réjouissons de vous accueillir sur notre E-Bike eco village à 30 minutes de Marrakech. Au cours de nos excursions vous serez accompagné p",
-      "main_category": "Sport & Loisirs",
+      "main_category": "Tourisme",
       "categories": [
-        "Deux-roues"
+        "Deux-roues",
+        "Excursions"
       ],
       "services": [
         "eBike",
-        "VTT"
+        "VTT",
+        "Excursions Vélo"
       ],
       "city": "Agafay",
       "neighborhood": null,
@@ -30329,7 +30341,7 @@
       "address": "El Karia",
       "phone": "+212 702-0197-17",
       "whatsapp": "+212 702-0197-17",
-      "website": "https://www.ebikemarrakech.com/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1f41d62d-e89b-4083-a5db-c0bed1740cc2-1775392467579-61y414.jpg",
       "google_rating": 4.9,
       "google_review_count": 72,
@@ -31821,8 +31833,8 @@
       "slug": "el-ghali-art-gallery",
       "url": "https://oneworldmorocco.com/el-ghali-art-gallery",
       "name": "El Ghali Art Gallery",
-      "hook": null,
-      "description": null,
+      "hook": "Art marocain, tapis, objets anciens et pièces uniques au cœur de Marrakech.",
+      "description": "El Ghali Art Gallery Marrakech est une adresse dédiée à l’ art marocain, à l’artisanat et aux objets décoratifs , pour les visiteurs à la recherche de pièces originales et authentiques à Marrakech. La galerie propose un univers mêlant différentes formes d’art et de savoir-faire marocains, avec des objets choisis autant pour leur caractère décoratif que pour leur histoire. Parmi les pièces que l’on peut découvrir dans cet univers figurent notamment des tapis marocains, tapis berbères, objets anci",
       "main_category": "Commerce",
       "categories": [
         "Décoration"
@@ -33983,8 +33995,8 @@
       "slug": "festival-international-du-film-de-marrakech",
       "url": "https://oneworldmorocco.com/festival-international-du-film-de-marrakech",
       "name": "Festival International du Film de Marrakech",
-      "hook": null,
-      "description": "LE FESTIVAL DE MARRAKECH, UNE ETOILE EN AFRIQUE ET DANS LE MONDE ARABE Le Festival International du Film de Marrakech a été créé en 2001 par Sa Majesté le Roi Mohammed VI afin de promouvoir et de développer l’art et l’industrie cinématographique au Maroc. Après plus de 20 ans d’existence, le Festival de Marrakech constitue aujourd’hui un lieu d’expression et de découverte qui relève très haut le pari de la diversité, de l’échange et de l’enrichissement. C’est aussi l’opportunité pour le Maroc, d",
+      "hook": "LE FESTIVAL DE MARRAKECH, UNE ETOILE EN AFRIQUE ET DANS LE MONDE ARABE",
+      "description": "Le Festival International du Film de Marrakech a été créé en 2001 par Sa Majesté le Roi Mohammed VI afin de promouvoir et de développer l’art et l’industrie cinématographique au Maroc. Après plus de 20 ans d’existence, le Festival de Marrakech constitue aujourd’hui un lieu d’expression et de découverte qui relève très haut le pari de la diversité, de l’échange et de l’enrichissement. C’est aussi l’opportunité pour le Maroc, d’accueillir et de rendre hommage à de grandes personnalités du monde du",
       "main_category": "Culture",
       "categories": [
         "Cinéma"
@@ -34010,7 +34022,7 @@
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://marrakech-festival.com/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/marrakechfilmfestival/",
@@ -45034,8 +45046,8 @@
       "slug": "jardin-majorelle",
       "url": "https://oneworldmorocco.com/jardin-majorelle",
       "name": "Jardin Majorelle",
-      "hook": "L'un des plus beaux jardin du monde !!!",
-      "description": "Le jardin Majorelle est un jardin botanique touristique d'environ 300 espèces sur près d'1 hectare, une villa Art déco labellisée Maisons des Illustres depuis 2011, et un musée de l'Histoire des Berbères, à Marrakech au Maroc. Le jardin est baptisé du nom de son fondateur, l'artiste peintre français Jacques Majorelle (1886-1962), qui l'a créé en 1931, en s'inspirant des oasis, jardin islamique et jardin espagnol-hispano-mauresque. Acheté par Yves Saint Laurent et Pierre Bergé en 1980, il apparti",
+      "hook": "L'un des plus beaux jardin du monde d'environ 300 espèces sur près d'1 hectare !!!",
+      "description": "Le Jardin Majorelle est l’un des lieux les plus emblématiques de Marrakech : un jardin botanique spectaculaire où le bleu Majorelle , la végétation luxuriante, les bassins et l’architecture Art déco composent un décor immédiatement reconnaissable. Créé par le peintre français Jacques Majorelle , le jardin est devenu au fil du temps une véritable œuvre d’art vivante, avant d’être sauvé puis restauré par Yves Saint Laurent et Pierre Bergé en 1980. Un jardin devenu une œuvre d’art Créé à partir des",
       "main_category": "Culture",
       "categories": [
         "Jardin botanique",
@@ -45045,7 +45057,8 @@
         "Patrimoine, histoire & culture",
         "Musées thématiques",
         "Accessible aux personnes à mobilité réduite",
-        "Entrée payante"
+        "Entrée payante",
+        "Jardin botanique"
       ],
       "city": "Marrakech",
       "neighborhood": "Gueliz",
@@ -45056,10 +45069,10 @@
       "address": "Rue Yves St Laurent",
       "phone": "+212 5242-98686",
       "whatsapp": null,
-      "website": "https://www.jardinmajorelle.com/",
+      "website": "https://tickets.jardinmajorelle.com/visite",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/c78d3587-effa-49b8-bbc5-c766d671edc7-1775194346907-8agomc.jpg",
       "google_rating": 4.4,
-      "google_review_count": 57789,
+      "google_review_count": 60281,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -45101,12 +45114,12 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://tickets.jardinmajorelle.com/visite",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/jardinmajorellemarrakech/",
         "facebook": "https://www.facebook.com/jardinmajorelleofficiel",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d477277-Reviews-Jardin_Majorelle-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -48000,7 +48013,7 @@
       "address": "Rue Yves St Laurent",
       "phone": "+212 5242-98686",
       "whatsapp": null,
-      "website": "https://www.jardinmajorelle.com/laboutique/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/7d05266e-48b7-4452-9f08-510ab7471391-1775628220420-9nqr3.jpg",
       "google_rating": null,
       "google_review_count": null,
@@ -50603,7 +50616,8 @@
       "main_category": "Hôtellerie",
       "categories": [
         "Écolodge",
-        "Campings & Bivouacs"
+        "Campings & Bivouacs",
+        "Evènementiel"
       ],
       "services": [
         "Bungalows / Lodges individuels",
@@ -50615,9 +50629,10 @@
         "Balades à dos de chameau",
         "Excursions en quad",
         "Vue montagne",
-        "Observation des étoiles"
+        "Observation des étoiles",
+        "Location de lieux esceptionnels"
       ],
-      "city": "Marrakech",
+      "city": "Agafay",
       "neighborhood": null,
       "region": "Marrakech-Safi",
       "country": "MA",
@@ -50626,10 +50641,10 @@
       "address": "Douar Lmih Laroussiene",
       "phone": "+212 (0)6 10 77 22 40",
       "whatsapp": "+212 (0)6 10 77 22 40",
-      "website": "https://www.lapause-marrakech.com/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/13c84bd6-e2ab-4ec5-9b3c-c806ef9b6e95-1775326706376-sfkcg9k.webp",
       "google_rating": 4.3,
-      "google_review_count": 354,
+      "google_review_count": 356,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -56881,7 +56896,7 @@
       "website": "https://www.lejardinsecretmarrakech.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/68d45bf5-c9c5-444a-bbf3-f88533b8b798-img-0-1771767663496.webp",
       "google_rating": 4.2,
-      "google_review_count": 11914,
+      "google_review_count": 12848,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -59715,21 +59730,25 @@
       "services": [
         "Piscine",
         "Dîner",
-        "Déjeuner"
+        "Déjeuner",
+        "Cuisine marocaine",
+        "Salades",
+        "Viande",
+        "Cave à vin"
       ],
       "city": "Agafay",
       "neighborhood": null,
       "region": "Marrakech-Safi",
       "country": "MA",
-      "latitude": 31.3935994,
-      "longitude": -8.2106709,
+      "latitude": 31.3929804,
+      "longitude": -8.2099631,
       "address": null,
       "phone": "+212 524 205 070",
       "whatsapp": null,
       "website": "https://lesoukounerestaurant.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/218d124b-7267-45d0-8d2a-7069b2d9e3fd-1775380088118-cl74lk.jpg",
-      "google_rating": 4.7,
-      "google_review_count": 32,
+      "google_rating": 4.8,
+      "google_review_count": 38,
       "price_range": "200 à 500€",
       "min_price_mad": 350,
       "languages": [],
@@ -59797,7 +59816,7 @@
       "social": {
         "instagram": "https://www.instagram.com/lesoukoune/",
         "facebook": "https://web.facebook.com/inaracamp/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g15276171-d34020388-Reviews-Le_Soukoune_restaurant-Agafay_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": "https://linkedin.com/company/inara-collection?_gl=1*1eapr4r*_gcl_au*NDg4OTAwMDY0LjE3NzIxMDg2MjI."
       }
@@ -61847,7 +61866,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://mamounia.com/fr/les-exclusifs/les-jardins.html",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/lamamouniamarrakech/?hl=fr",
@@ -62167,7 +62186,7 @@
       "slug": "lola-sky-lounge",
       "url": "https://oneworldmorocco.com/lola-sky-lounge",
       "name": "Lola Sky Lounge",
-      "hook": "Un paradis sur les hauteurs de MARRAKECH",
+      "hook": "Une oasis urbaine où vous pourrez vous détendre à ciel ouvert, déguster des cocktails créatifs et de la musique en live.",
       "description": "UN PARADIS SUR LES HAUTEURS DE MARRAKECH Le Lola Sky Lounge, est une oasis urbaine où vous pourrez vous détendre à ciel ouvert, déguster des cocktails créatifs et de la musique en live, tout en vous plongeant dans la magie de la ville rouge. LOLA GASTROBAR Le Lola Sky Lounge est un rooftop vibrant perché au cœur de Marrakech. Un véritable havre de paix urbain où l’élégance rencontre l’énergie de la ville rouge. Détendez-vous sous le ciel étoilé, savourez des cocktails signature et des tapas d’in",
       "main_category": "Restauration",
       "categories": [
@@ -62194,7 +62213,9 @@
         "DJ résidents",
         "Dîner",
         "Déjeuner",
-        "DJ's"
+        "DJ's",
+        "Musique Live",
+        "Viande"
       ],
       "city": "Marrakech",
       "neighborhood": "Hivernage",
@@ -62205,10 +62226,10 @@
       "address": "Rue Oued EL Makhazine",
       "phone": "+212 524 359 570",
       "whatsapp": null,
-      "website": "https://lolaskylounge.com/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/d13811c2-720a-4d60-a675-6e9c0d212d80-1776492712301-ckdlc.jpg",
       "google_rating": 3.8,
-      "google_review_count": 365,
+      "google_review_count": 367,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -62271,7 +62292,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://lolaskylounge.com/",
+      "booking_url": "https://lolaskylounge.com/reserver-une-table-lola/",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/lolaskylounge/?hl=fr",
@@ -64169,7 +64190,9 @@
         "Art contemporain",
         "Culture & traditions",
         "Musées thématiques",
-        "Cadre spectaculaire"
+        "Cadre spectaculaire",
+        "Entrée payante",
+        "Patrimoine, histoire & culture"
       ],
       "city": "Marrakech",
       "neighborhood": "Route de l’Ourika",
@@ -64182,8 +64205,8 @@
       "whatsapp": null,
       "website": "https://macaal.org/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/3aa331e0-112f-4274-af16-6a05ce40352e-1775147391798-gfp9hd.jpg",
-      "google_rating": 4.5,
-      "google_review_count": 328,
+      "google_rating": 4.6,
+      "google_review_count": 390,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -64246,7 +64269,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://macaal.org/visites-ateliers",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/macaal_/",
@@ -65379,13 +65402,13 @@
       "country": "MA",
       "latitude": 31.628792,
       "longitude": -7.993091,
-      "address": "16-18, Derb Defaa Ourabaa, Médina",
+      "address": "16-18, Derb Defaa Ourabaa",
       "phone": "+212 6 62 79 11 70",
       "whatsapp": null,
-      "website": "https://www.museemarrakech.com/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/99da0b77-1ebc-47ee-a7d2-12bf43dbfcab-1770477656846-akdfsm.jpeg",
       "google_rating": 5,
-      "google_review_count": 178,
+      "google_review_count": 259,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -65432,7 +65455,7 @@
       "social": {
         "instagram": "https://www.instagram.com/maisonculturelledutapis/",
         "facebook": null,
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d34002157-Reviews-Maison_Culturelle_du_Tapis-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": "https://www.linkedin.com/company/maison-culturelle-du-tapis/"
       }
@@ -65916,7 +65939,7 @@
       "website": "https://www.maisonsucree.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/bfc76b95-740a-4abd-a7de-5fb7848a4049-1779637177496-md8ifv.jpg",
       "google_rating": 4.9,
-      "google_review_count": 192,
+      "google_review_count": 199,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -65979,7 +66002,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.maisonsucree.ma/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/patisseriemaisonsucree/",
@@ -67195,11 +67218,19 @@
       "description": "La Medersa Ben Youssef, un trésor architectural niché au cœur de l'ancienne Médina de Marrakech, fait résonner l'écho d'un passé glorieux et incarne une importance historique inestimable. Elle transporte les visiteurs dans une époque fascinante, où l'art, le savoir et la culture se sont épanouis. La médersa Ben Youssef a été érigée par le sultan Abdullah Al-Ghaleb Assaadi entre les années 1564 et 1565. Cette medersa se distingue par l'harmonie de son architecture et la diversité de ses matériaux",
       "main_category": "Culture",
       "categories": [
-        "Monuments"
+        "Monuments",
+        "Musées",
+        "Sites touristiques"
       ],
       "services": [
         "Entrée payante",
-        "Attraction touristique"
+        "Attraction touristique",
+        "Culture & traditions",
+        "Patrimoine, histoire & culture",
+        "Palais",
+        "Monument historique",
+        "Mosquée",
+        "entrée payante"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -67213,7 +67244,7 @@
       "website": "https://www.medersabenyoussef.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/0087c454-7f62-4b1a-85d2-acb319679591-1775408151700-54xtp5.jpg",
       "google_rating": 4.7,
-      "google_review_count": 12898,
+      "google_review_count": 12921,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -72368,7 +72399,8 @@
       "description": "C’est dans l’ancien atelier de peinture de Jacques Majorelle qu’a été inauguré en 2011 le musée berbère sous le Haut Patronage de sa Majesté le Roi Mohammed VI. Situé au coeur du Jardin Majorelle, il présente un panorama de l’extraordinaire créativité de ce peuple, le plus ancien de l’Afrique du Nord. Du Rif au Sahara, plus de 600 objets collectionnés par Pierre Bergé et Yves Saint Laurent témoignent de la richesse et de la diversité d’une culture toujours vivante. Le musée se déploie dans quatr",
       "main_category": "Culture",
       "categories": [
-        "Musées"
+        "Musées",
+        "Sites touristiques"
       ],
       "services": [
         "Culture & traditions",
@@ -72388,7 +72420,7 @@
       "website": "https://www.jardinmajorelle.com/musee-pierre-berge-des-arts-berberes/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/318f88c8-209a-45cb-9094-9d2ed147f1aa-1775619242962-2rgisg.jpg",
       "google_rating": 4.2,
-      "google_review_count": 766,
+      "google_review_count": 824,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -72435,7 +72467,7 @@
       "social": {
         "instagram": "https://www.instagram.com/jardinmajorellemarrakech/",
         "facebook": "https://www.facebook.com/jardinmajorelleofficiel",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d13996051-Reviews-Musee_Berbere_Jardin_Majorelle-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -74253,7 +74285,8 @@
       "description": "Depuis son ouverture en 2017, le musée YSL ne désemplit pas. Hommage à la passion du génial couturier pour la Ville ocre, il expose des dessins et croquis, des accessoires de mode et surtout des pièces iconiques comme la robe Mondrian. Les 50 modèles présentés témoignent de l'intarissable créativité de l'artiste : mouvements, couleurs, coupes, textures... YSL sculptait les étoffes. Le fabuleux bâtiment réalisé par le Studio KO compte aussi une salle d'exposition temporaire, un auditorium où est ",
       "main_category": "Culture",
       "categories": [
-        "Musées"
+        "Musées",
+        "Sites touristiques"
       ],
       "services": [
         "Entrée payante",
@@ -74273,7 +74306,7 @@
       "website": "https://www.museeyslmarrakech.com/fr/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/b7802ae3-7825-4bd4-9092-f6ff98a57227-1772697755687-9cckvg.jpg",
       "google_rating": 4,
-      "google_review_count": 5136,
+      "google_review_count": 5661,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -74336,12 +74369,12 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.museeyslmarrakech.com/fr/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/myslmarrakech/?hl=fr",
         "facebook": "https://www.facebook.com/myslmarrakech/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d12994921-Reviews-Musee_Yves_Saint_Laurent_Marrakech-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -74862,8 +74895,7 @@
         "Désert",
         "4x4 / SUV",
         "Alpinisme",
-        "Luxe",
-        "Jet privé"
+        "Luxe"
       ],
       "city": "Marrakech",
       "neighborhood": "Gueliz",
@@ -74945,7 +74977,7 @@
       "social": {
         "instagram": "https://www.instagram.com/native_morocco/",
         "facebook": "https://www.facebook.com/NativeMorocco",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d25261115-Reviews-Native_Morocco-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": "https://www.linkedin.com/company/native-morocco/"
       }
@@ -78991,7 +79023,8 @@
         "Champagne",
         "Homard / Langouste",
         "Cuisine asiatique",
-        "Live Show"
+        "Live Show",
+        "Viande"
       ],
       "city": "Marrakech",
       "neighborhood": "Hivernage",
@@ -79004,8 +79037,8 @@
       "whatsapp": null,
       "website": "https://www.nobuhotels.com/marrakech/dining/nobu-marrakech/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/c5a21f81-94fc-4b5e-8f89-822a43dabdec-1770483143878-egntn.jpg",
-      "google_rating": 4.2,
-      "google_review_count": 910,
+      "google_rating": 4.3,
+      "google_review_count": 1075,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -79052,7 +79085,7 @@
       "social": {
         "instagram": "https://www.instagram.com/nobumarrakech/",
         "facebook": "https://www.facebook.com/nobumarrakech",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293734-d25286875-Reviews-Nobu_Restaurant_Marrakech-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": "https://ma.linkedin.com/company/nobu-hotel-marrakech"
       }
@@ -79992,8 +80025,8 @@
       "slug": "nomads-crafts",
       "url": "https://oneworldmorocco.com/nomads-crafts",
       "name": "Nomads Crafts",
-      "hook": "Des créations uniques qui racontent une histoire !  Livraison internationale.",
-      "description": null,
+      "hook": "Tapis marocains faits main, pièces uniques et savoir-faire des tribus et régions du Maroc. Livraison internationale.",
+      "description": "Nomads Crafts Marrakech est une boutique spécialisée dans l’ artisanat marocain et les tapis marocains , située au cœur des souks de Marrakech. L’adresse se distingue particulièrement par sa sélection de tapis faits main , provenant de différentes régions et traditions du Maroc, et par l’accompagnement personnalisé de son équipe. Pour les voyageurs à la recherche d’un tapis marocain authentique à Marrakech , Nomads Crafts offre une expérience très différente d’une simple boutique de souvenirs. L",
       "main_category": "Commerce",
       "categories": [
         "Décoration"
@@ -80001,7 +80034,10 @@
       "services": [
         "Artisanat marocain",
         "Tapis",
-        "Coussins"
+        "Coussins",
+        "Céramique",
+        "Bougeoirs",
+        "Poufs"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -83352,12 +83388,17 @@
       "description": "Le palais de la Bahia est un ancien palais du XIXᵉ siècle situé dans la médina de Marrakech (Maroc). Son nom, Bahia (arabe : « la belle, la brillante »), reflète la splendeur que ses constructeurs ont voulu lui donner, et il est aujourd’hui considéré comme l’un des chefs-d’œuvre de l’architecture marocaine ainsi qu’un monument majeur du patrimoine culturel du pays. La construction du palais débute en 1866 sous l’impulsion de Si Moussa , grand vizir du sultan Hassan Iᵉʳ , qui fait ériger la parti",
       "main_category": "Culture",
       "categories": [
-        "Monuments"
+        "Monuments",
+        "Musées",
+        "Sites touristiques"
       ],
       "services": [
         "Accessible aux personnes à mobilité réduite",
         "Entrée payante",
-        "Incontournable"
+        "Incontournable",
+        "Palais",
+        "Monument historique",
+        "entrée payante"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -83428,29 +83469,30 @@
       "slug": "palais-el-badi",
       "url": "https://oneworldmorocco.com/palais-el-badi",
       "name": "Palais El Badi",
-      "hook": "Ce palais du XVest un témoignage de la grandeur et de la beauté de l'art et du design marocains",
-      "description": "Le Palais El Badi à Marrakech est un magnifique exemple de l'architecture et de la culture marocaine. Construit au XVIe siècle par le sultan Ahmad al-Mansur, ce palais est un témoignage de la grandeur de la dynastie saadienne et de la beauté de l'art et du design marocains. Le palais mêle des styles marocains traditionnels et européens, et il est décoré de mosaïques complexes, de colonnes en marbre et de sculptures ornées. Le Palais El Badi a été construit en 1578 par le sultan Ahmad al-Mansur, ",
+      "hook": "Palais du XVIè siècle, témoignage de la grandeur et de la beauté de l'art et du design marocains",
+      "description": "Le Palais El Badi est l’un des monuments historiques les plus impressionnants de Marrakech. Édifié à la fin du XVIᵉ siècle par le sultan saadien Ahmed al-Mansour , le palais devait symboliser la puissance et la richesse de la dynastie saadienne. Aujourd’hui, ses immenses vestiges permettent d’imaginer la splendeur d’un palais royal autrefois décoré de marbre, de zelliges, de stucs et de matériaux précieux. Un palais construit pour impressionner La construction du Palais El Badi commence en 1578 ",
       "main_category": "Culture",
       "categories": [
-        "Monuments"
+        "Monuments",
+        "Sites touristiques"
       ],
       "services": [
         "Entrée payante",
-        "Cadre spectaculaire"
+        "Monument historique"
       ],
       "city": "Marrakech",
-      "neighborhood": "Medina",
+      "neighborhood": "Mellah",
       "region": "Marrakech-Safi",
       "country": "MA",
       "latitude": 31.6182364,
       "longitude": -7.9858623,
-      "address": "Place des Ferblantiers, Médina",
+      "address": "Ksibat Nhass",
       "phone": null,
       "whatsapp": null,
-      "website": "https://badipalace.com/fr/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e17727c9-a220-487c-8739-15a36dfd8a15-1770834119230-zjngia.jpg",
-      "google_rating": 4.3,
-      "google_review_count": 10332,
+      "google_rating": 4.2,
+      "google_review_count": 11072,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -83497,7 +83539,7 @@
       "social": {
         "instagram": null,
         "facebook": null,
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d318037-Reviews-El_Badi_Palace-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -86003,7 +86045,8 @@
         "Piscine"
       ],
       "services": [
-        "Piscine extérieure"
+        "Piscine extérieure",
+        "Restauration sur place"
       ],
       "city": "Agafay",
       "neighborhood": null,
@@ -86014,14 +86057,71 @@
       "address": null,
       "phone": "+212 726700706",
       "whatsapp": "+212 726700706",
-      "website": "https://stellardesertcamp.com/shop/day-pass-swimming-pool-lunch/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e05a7ece-e417-4d65-b8a4-17a3ea4f96b3-1775389272157-isx6gj.jpg",
       "google_rating": null,
       "google_review_count": null,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
-      "opening_hours": null,
+      "opening_hours": {
+        "friday": {
+          "open": "10:00",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "monday": {
+          "open": "10:00",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "sunday": {
+          "open": "10:00",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "tuesday": {
+          "open": "10:00",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "saturday": {
+          "open": "10:00",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "thursday": {
+          "open": "10:00",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "wednesday": {
+          "open": "10:00",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        }
+      },
       "is_open_24h": false,
       "booking_url": "https://www.booking.com/hotel/ma/stellar-agafay-desert-camp.fr.html",
       "menu_url": null,
@@ -87414,13 +87514,15 @@
       "description": "Ramakech est le parc de sculptures créé par l’artiste Jean-François Fourtou. Il se situe dans la palmeraie de Marrakech et s'étend sur près de cinq hectares. Plus qu’une visite, le parcours du parc vous offre une expérience immersive inoubliable, hors du temps, au cœur d’un monde onirique, émergeant des souvenirs d’enfance de l’artiste. Avec tendresse et poésie, Jean-François Fourtou y façonne maisons ou jardins, les peuplant d’animaux géants, de personnages étranges ou d’architectures déstabili",
       "main_category": "Culture",
       "categories": [
-        "Jardin botanique"
+        "Jardin botanique",
+        "Musées"
       ],
       "services": [
         "Parc de sculptures",
         "Jardin artistique",
         "Entrée payante",
-        "Réservation obligatoire"
+        "Réservation obligatoire",
+        "Musées thématiques"
       ],
       "city": "Marrakech",
       "neighborhood": "Palmeraie",
@@ -87428,13 +87530,13 @@
       "country": "MA",
       "latitude": 31.66121,
       "longitude": -7.9129322,
-      "address": "Ramakech Bab Atlas",
+      "address": "Bab Atlas",
       "phone": null,
       "whatsapp": "+212641996235",
-      "website": "https://ramakech.com/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/0530bfff-f0c4-4404-b2f2-7ebad9d1090b-1777473659606-sy8twb.jpg",
       "google_rating": 5,
-      "google_review_count": 11,
+      "google_review_count": 15,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -87497,7 +87599,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://ramakech.com/",
+      "booking_url": "https://ramakech.com/booking/",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/ramakech_parcdesculptures/",
@@ -89139,24 +89241,16 @@
       "description": "Faites plaisir à vos sens dans un voyage culinaire qui capture l'essence du Maroc dans notre restaurant. Plongez-vous dans la riche tapisserie de saveurs qui définissent la cuisine marocaine traditionnelle, où chaque plat raconte une histoire d'art culinaire séculaire. Savourez l'allure aromatique de nos Tajines, savamment élaborés avec un mélange d'épices qui vous transportent vers les marchés animés de Marrakech. Nos chefs ont méticuleusement préparé chaque tajine, des viandes succulentes à cu",
       "main_category": "Restauration",
       "categories": [
-        "Écolodge"
+        "Restaurant"
       ],
       "services": [
-        "Balades à dos de chameau",
-        "Balades à pied",
-        "Balades à vélo",
-        "Excursions Vélo",
-        "Bungalows / Lodges individuels",
-        "Cheminée",
-        "Climatisation",
-        "Excursions en buggy",
-        "Excursions en quad",
-        "Observation des étoiles",
-        "Piscine",
-        "Piscine privative",
-        "Vue montagne",
-        "WiFi",
-        "Excursions en VTT"
+        "Déjeuner",
+        "Dîner",
+        "Cuisine marocaine",
+        "Cave à vin",
+        "Viande",
+        "Salades",
+        "Vue montagne"
       ],
       "city": "Agafay",
       "neighborhood": null,
@@ -89167,10 +89261,10 @@
       "address": "Km 30",
       "phone": "+212 762 849 832",
       "whatsapp": "+212762849832",
-      "website": "https://alkamarcamp.com/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e9f65691-eac1-42aa-aa59-82351614c9a1-1775383330943-gcgdaqr.jpg",
       "google_rating": 4.6,
-      "google_review_count": 619,
+      "google_review_count": 667,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -89181,7 +89275,7 @@
       "social": {
         "instagram": "https://www.instagram.com/alkamar.camp/",
         "facebook": "https://www.facebook.com/profile.php?id=100025629014617",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g15276171-d23961363-Reviews-Alkamar_Camp_Agafay-Agafay_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -90189,7 +90283,10 @@
         "Déjeuner",
         "Cave à vin",
         "Terrasse",
-        "Piscine"
+        "Piscine",
+        "Viande",
+        "Salades",
+        "Plats végétariens"
       ],
       "city": "Agafay",
       "neighborhood": null,
@@ -90200,10 +90297,10 @@
       "address": null,
       "phone": "+212 726700706",
       "whatsapp": "+212 726700706",
-      "website": "https://stellardesertcamp.com/restaurant/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e05a7ece-e417-4d65-b8a4-17a3ea4f96b3-1770990061663-iko4e2.webp",
-      "google_rating": 4.9,
-      "google_review_count": 43,
+      "google_rating": null,
+      "google_review_count": null,
       "price_range": null,
       "min_price_mad": null,
       "languages": [
@@ -90219,7 +90316,7 @@
       "social": {
         "instagram": "https://www.instagram.com/stellardesertcamp/",
         "facebook": "https://web.facebook.com/profile.php?id=61581175545091",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g293734-d33883316-Reviews-Stellar_Agafay_Desert_Camp-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -90438,7 +90535,10 @@
         "Cave à vin d'exception",
         "Menu végétarien",
         "Dîner",
-        "Réservation obligatoire"
+        "Réservation obligatoire",
+        "Viande",
+        "Salades",
+        "Poisson"
       ],
       "city": "Marrakech",
       "neighborhood": "Bab Doukkala",
@@ -90449,10 +90549,10 @@
       "address": "Derb l'Hotel",
       "phone": "+212524376942",
       "whatsapp": null,
-      "website": "https://www.riadkniza.com/fr/restaurant",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/a2f7077d-d26a-4bed-a2df-ab477483bd1f-1772277498146-nk9tag.jpg",
       "google_rating": 4.7,
-      "google_review_count": 15,
+      "google_review_count": 17,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -90463,7 +90563,7 @@
       "social": {
         "instagram": "https://www.instagram.com/riadkniza/",
         "facebook": "https://www.facebook.com/riadknizamarrakech/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g293734-d1221814-Reviews-Riad_Kniza_Restaurant-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -90594,10 +90694,10 @@
       "address": "N°15 Douar Ouled Messoud",
       "phone": "+212661410016",
       "whatsapp": "+212661410016",
-      "website": "https://rakadventuremarrakech.com/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/abf53497-e19a-42ad-9508-baf6f21a0d2d-1772245594233-9jxv5.png",
       "google_rating": 4.5,
-      "google_review_count": 380,
+      "google_review_count": 381,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -92089,7 +92189,6 @@
         "Massage",
         "Patio",
         "WiFi",
-        "Cadre spectaculaire",
         "Hammam et soins",
         "Restauration sur place"
       ],
@@ -92105,7 +92204,7 @@
       "website": "https://www.riadkniza.com/fr",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/307aa4e4-03b7-4006-808c-6df07c6b5eab-1775788944761-l51bxh.webp",
       "google_rating": 4.8,
-      "google_review_count": 388,
+      "google_review_count": 424,
       "price_range": "200 à 500€",
       "min_price_mad": 271,
       "languages": [
@@ -92120,7 +92219,7 @@
       "social": {
         "instagram": "https://www.instagram.com/riadkniza/",
         "facebook": "https://www.facebook.com/riadknizamarrakech/",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g293734-d482810-Reviews-Riad_Kniza-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -92867,7 +92966,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/703c2d86-e475-4ccc-9dfa-69b0c1718e3d-1782112105525-fc2m1.webp",
       "google_rating": 4.2,
-      "google_review_count": 2036,
+      "google_review_count": 2037,
       "price_range": "500 à 1000€",
       "min_price_mad": 675,
       "languages": [],
@@ -94487,7 +94586,7 @@
       "website": "https://www.royalmansour.com/marrakech/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/0961b2f5-c259-483a-b877-3d251acdbbd9-1781424741230-ixojg.webp",
       "google_rating": 4.6,
-      "google_review_count": 2382,
+      "google_review_count": 2388,
       "price_range": "+1000€",
       "min_price_mad": 2477,
       "languages": [
@@ -98383,10 +98482,10 @@
     },
     {
       "id": "ffac7a82-af4f-4bf7-9730-15743f1e1b80",
-      "slug": "setup-game",
-      "url": "https://oneworldmorocco.com/setup-game",
-      "name": "SetUp Game",
-      "hook": "1ère Chaîne De Magasins Gaming Au Maroc.",
+      "slug": "pc-gamer-maroc",
+      "url": "https://oneworldmorocco.com/pc-gamer-maroc",
+      "name": "SetUp Game eShop",
+      "hook": "1ère chaîne de magasins gaming au Maroc",
       "description": "Notre Parcours de la Vision à la Réalité. Setup Game a été fondé en 2021, au plus fort de la pandémie mondiale, lorsque les matériaux de gaming étaient rares et que le marché avait désespérément besoin d'innovation. Avec pour mission de fournir des matériaux de gaming haute performance et de qualité, nous avons ouvert notre premier magasin à Temara. Depuis, nous nous sommes rapidement étendus à Casablanca, Marrakech et Tanger, devenant le leader du marché au Maroc. Notre croissance est alimentée",
       "main_category": "Commerce",
       "categories": [
@@ -98404,8 +98503,8 @@
       "whatsapp": "+212666998384",
       "website": "https://setupgame.ma/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/ffac7a82-af4f-4bf7-9730-15743f1e1b80-1772987631150-pmi3h5.webp",
-      "google_rating": 4,
-      "google_review_count": 28,
+      "google_rating": 4.1,
+      "google_review_count": 30,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -102457,11 +102556,22 @@
       "description": "Situé au cœur du désert d'Agafay, à seulement 50 minutes de Marrakech, Stellar Agafay Desert Camp offre une évasion mêlant nature et authenticité. Le camp propose des tentes de luxe avec lits king-size, salles de bain privées, climatisation, Wi-Fi Starlink et terrasses privées avec vues panoramiques. Les clients profitent d'une piscine à débordement, d'un restaurant panoramique pouvant accueillir 400 convives, de balades en chameau au coucher du soleil, d'excursions en quad et buggy, de soirées ",
       "main_category": "Hôtellerie",
       "categories": [
-        "Campings & Bivouacs"
+        "Campings & Bivouacs",
+        "Hôtel",
+        "Écolodge"
       ],
       "services": [
         "Desert Camp",
-        "Vue montagne"
+        "Vue montagne",
+        "Restauration sur place",
+        "Excursions en buggy",
+        "Excursions en quad",
+        "Balades à dos de chameau",
+        "Trekking",
+        "Balades à pied",
+        "Astronomie",
+        "Yoga",
+        "Piscine"
       ],
       "city": "Agafay",
       "neighborhood": null,
@@ -102472,10 +102582,10 @@
       "address": null,
       "phone": "+212 726700706",
       "whatsapp": "+212 726700706",
-      "website": "https://stellardesertcamp.com",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e05a7ece-e417-4d65-b8a4-17a3ea4f96b3-1770990061094-nfpbf.jpeg",
-      "google_rating": 4.9,
-      "google_review_count": 43,
+      "google_rating": 4.7,
+      "google_review_count": 79,
       "price_range": null,
       "min_price_mad": null,
       "languages": [
@@ -102491,7 +102601,7 @@
       "social": {
         "instagram": "https://www.instagram.com/stellardesertcamp/",
         "facebook": "https://web.facebook.com/profile.php?id=61581175545091",
-        "tripadvisor": null,
+        "tripadvisor": "https://www.tripadvisor.fr/Hotel_Review-g293734-d33883316-Reviews-Stellar_Agafay_Desert_Camp-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": null,
         "linkedin": null
       }
@@ -103704,8 +103814,8 @@
       "whatsapp": "+212661324475",
       "website": "https://farashafarmhouse.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1dc47b3c-028d-482a-b14e-b09dc9c48e4a-1775889425242-x3kwj2.jpg",
-      "google_rating": 4.5,
-      "google_review_count": 84,
+      "google_rating": 4.6,
+      "google_review_count": 88,
       "price_range": "200 à 500€",
       "min_price_mad": 350,
       "languages": [],
@@ -106326,22 +106436,27 @@
       "description": "Terre des étoiles D’un rêve, laissons naître une utopie… Créer une oasis dans le désert. Tel était le rêve fou, la graine semée pour transformer l’utopie en réalité : Terre des Etoiles, un Ecolodge surgi au cœur d’un univers minéral vallonné, à quelques encablures de Marrakech l’Impériale. Au commencement, des tentes chic et confortables dressées dans l’immensité regardant vers l’Atlas, puis la création d’un authentique jardin potager bio, selon les préceptes de la permaculture. Semer, planter, ",
       "main_category": "Hôtellerie",
       "categories": [
-        "Écolodge"
+        "Écolodge",
+        "Hôtel"
       ],
-      "services": [],
+      "services": [
+        "Desert Camp",
+        "Vue montagne",
+        "Parking"
+      ],
       "city": "Agafay",
       "neighborhood": null,
       "region": "Marrakech-Safi",
       "country": "MA",
       "latitude": 31.4583037,
       "longitude": -8.1947557,
-      "address": "Kms 25, Commune d’Agafay",
+      "address": "Kms 25",
       "phone": null,
       "whatsapp": " + 212 (0) 6 61 59 11 50",
-      "website": "https://www.terredesetoiles.net/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/ce5cfdfc-4f16-45d0-b54a-3b2116e76d0a-1777169923725-zg3lmf.jpg",
       "google_rating": 4.3,
-      "google_review_count": 373,
+      "google_review_count": 374,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -106597,20 +106712,41 @@
       "slug": "the-ranch-marrakech",
       "url": "https://oneworldmorocco.com/the-ranch-marrakech",
       "name": "The Ranch Marrakech",
-      "hook": "Un lieu pensé pour le bien-être, la nature et le partage.",
+      "hook": "Un lieu pensé pour le bien-être, la nature et le partage avec une vue imprenable sur l’Atlas et les jardins.",
       "description": "Fondé et dirigé en famille, le Ranch de Marrakech est né d’une passion : offrir un havre de paix à seulement 30 km de Marrakech, où nature et hospitalité se rencontrent. Dans ce cadre campagnard enchanteur, vous découvrirez une oliveraie centenaire, un parc japonais propice à la promenade et à la rêverie, ainsi qu’un paysage unique dominé par les roches rouges et la verdure des caroubiers. Nos suites allient confort moderne et authenticité, avec une vue imprenable sur l’Atlas et les jardins. Ici",
-      "main_category": "Hôtellerie",
+      "main_category": "Sport & Loisirs",
       "categories": [
         "Hôtel",
         "Parc animalier",
         "Ferme pédagogique",
         "Équitation",
-        "Restaurant"
+        "Restaurant",
+        "Piscine",
+        "Activités pour Enfants"
       ],
       "services": [
         "Poney club",
         "Randonnée à Cheval",
-        "Centre équestre"
+        "Centre équestre",
+        "Kids Club",
+        "Poney Club",
+        "Restauration sur place",
+        "Piscine",
+        "Jardin",
+        "Restaurant",
+        "Volière",
+        "Espace pédagogique",
+        "Jeux en plein air",
+        "Jardin botanique",
+        "Aire de Jeux",
+        "Piscine extérieure",
+        "Piscine chauffée",
+        "Piscine couverte",
+        "Parking privé",
+        "Vue montagne",
+        "Cuisine marocaine",
+        "Salades",
+        "Viande"
       ],
       "city": "Agafay",
       "neighborhood": null,
@@ -106624,13 +106760,13 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/f386b62b-d20e-4cea-86e6-460a802ed1b9-1777378615230-n4pvrr.jpg",
       "google_rating": 4.8,
-      "google_review_count": 1312,
+      "google_review_count": 1414,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
       "opening_hours": null,
       "is_open_24h": false,
-      "booking_url": "https://theranch.ma/",
+      "booking_url": "https://www.simplebooking.it/ibe2/hotel/11416?lang=FR&cur=MAD",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/theranchmorocco/?hl=fr",
@@ -109622,12 +109758,14 @@
       "main_category": "Culture",
       "categories": [
         "Jardin botanique",
-        "Musées"
+        "Musées",
+        "Sites touristiques"
       ],
       "services": [
         "Patrimoine, histoire & culture",
         "Musées thématiques",
-        "Entrée payante"
+        "Entrée payante",
+        "Parc"
       ],
       "city": "Marrakech",
       "neighborhood": "Gueliz",
@@ -109641,7 +109779,7 @@
       "website": "https://www.jardinmajorelle.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/dda1b374-7c67-4c60-9770-e354dd3a8af4-1775625568618-gt2z8u.jpg",
       "google_rating": 4.4,
-      "google_review_count": 67,
+      "google_review_count": 69,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -109704,7 +109842,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.jardinmajorelle.com/",
+      "booking_url": "https://tickets.jardinmajorelle.com/visite",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/jardinmajorellemarrakech/",
@@ -114580,8 +114718,8 @@
       "slug": "terra-mano",
       "url": "https://oneworldmorocco.com/terra-mano",
       "name": "Terra Mano",
-      "hook": "Céramiques et poteries artisanales, où chaque pièce raconte une histoire unique ✨",
-      "description": null,
+      "hook": "Céramiques et poteries artisanales aux portes du Mellah, près de la Place des Ferblantiers : prix justes, envoi mondial.",
+      "description": "Aux portes du Mellah, l'ancien quartier juif de Marrakech, et à deux pas de la typique Place des Ferblantiers, cette boutique de céramique et de poterie artisanales rassemble le meilleur du savoir-faire argilier marocain. Vases graphiques rayés de bleu, rouge ou vert, services à thé peints à la main, tajines décoratifs, poteries en argile rouge ou blanche façonnées à l'ancienne, brûle-parfums, lanternes ajourées et vaisselle colorée composent une collection généreuse où chaque pièce raconte une ",
       "main_category": "Commerce",
       "categories": [
         "Décoration"
@@ -114595,7 +114733,7 @@
         "Vaisselle"
       ],
       "city": "Marrakech",
-      "neighborhood": "Medina",
+      "neighborhood": "Mellah",
       "region": "Marrakech-Safi",
       "country": "MA",
       "latitude": 31.6204792,
@@ -114841,7 +114979,8 @@
       "main_category": "Commerce",
       "categories": [
         "Épicerie",
-        "Cosmétiques"
+        "Cosmétiques",
+        "Souvenir"
       ],
       "services": [
         "Huile d'argan bio",
@@ -114869,7 +115008,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1d626730-9ea7-4e88-aeb3-3547e7169315-1780807298996-7r5x3d.jpg",
       "google_rating": 5,
-      "google_review_count": 250,
+      "google_review_count": 276,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -115507,7 +115646,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/64ecdc1e-bfce-43f1-bc8c-9aeef728ac80-1780716461646-a7wlaq.webp",
       "google_rating": 5,
-      "google_review_count": 2,
+      "google_review_count": 1,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -116704,12 +116843,13 @@
       "slug": "91-leather-store",
       "url": "https://oneworldmorocco.com/91-leather-store",
       "name": "91 Leather Store",
-      "hook": "Notre passion pour le cuir se reflète dans chaque produit que nous vous proposons ✨",
-      "description": null,
+      "hook": "Maroquinerie en cuir, créations artisanales et savoir-faire marocain au cœur de Marrakech.",
+      "description": "91 Leather Store Marrakech est une adresse dédiée à la maroquinerie en cuir à Marrakech , pour découvrir un savoir-faire artisanal marocain et choisir des pièces qui associent matière, travail du cuir et style. Dans une ville réputée pour son artisanat, ses souks et ses créations en cuir, cette boutique s’adresse aux visiteurs à la recherche d’articles authentiques et d’un souvenir durable de leur séjour au Maroc. Le cuir occupe une place particulière dans l’artisanat marocain. Sacs, accessoires",
       "main_category": "Commerce",
       "categories": [
         "Chaussures",
-        "Bagagerie"
+        "Bagagerie",
+        "Souvenir"
       ],
       "services": [
         "Sacs à main",
@@ -116728,7 +116868,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/af896f57-d96d-47a1-a241-e0d4a45fe2a1-1780762385478-utarjl.jpg",
       "google_rating": 5,
-      "google_review_count": 269,
+      "google_review_count": 270,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -117538,8 +117678,8 @@
       "slug": "woven-touch",
       "url": "https://oneworldmorocco.com/woven-touch",
       "name": "Woven Touch",
-      "hook": "𝐌𝐨𝐫𝐨𝐜𝐜𝐚𝐧 𝐑𝐮𝐠𝐬 | 𝐅𝐥𝐨𝐨𝐫 𝐩𝐢𝐥𝐥𝐨𝐰𝐬 | 𝐁𝐥𝐚𝐧𝐤𝐞𝐭𝐬 | 𝐂𝐮𝐬𝐡𝐢𝐨𝐧𝐬 & 𝐌𝐨𝐫𝐞",
-      "description": "",
+      "hook": "Tapis marocains authentiques tissés à la main",
+      "description": "Woven Touch Marrakech met à l’honneur l’un des savoir-faire les plus emblématiques du Maroc : le tapis marocain fait main . La marque propose des pièces réalisées artisanalement à partir de laine naturelle, avec des motifs géométriques, des textures riches et des palettes allant des tons sobres et naturels aux compositions plus colorées. Chaque tapis possède ainsi son propre caractère et s’inscrit dans une tradition de tissage transmise de génération en génération. L’intérêt de Woven Touch résid",
       "main_category": "Commerce",
       "categories": [
         "Décoration",
@@ -117558,7 +117698,12 @@
         "Enfant",
         "Femme",
         "Homme",
-        "Cabas"
+        "Cabas",
+        "Vêtements",
+        "Pantalons",
+        "Gilets",
+        "Mode marocaine contemporaine",
+        "Sac de voyage"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -117569,7 +117714,7 @@
       "address": "50 Souk Laksour",
       "phone": null,
       "whatsapp": "+212662106804",
-      "website": null,
+      "website": "https://woven-touch.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/c17ebc87-c315-4dfa-bd93-53fe9462bd52-1780038914054-fr4l5h.jpg",
       "google_rating": 4.9,
       "google_review_count": 19,
@@ -117937,15 +118082,16 @@
       "slug": "layal-concept-store",
       "url": "https://oneworldmorocco.com/layal-concept-store",
       "name": "Layal Concept Store",
-      "hook": "Marque de maroquinerie et de créations originales | Based in Marrakech | Handmade créations | Limited Editions",
-      "description": "",
+      "hook": "Créations originales, maroquinerie et éditions limitées dans un concept store unique.",
+      "description": "Layal Concept Store Marrakech est une adresse dédiée à la maroquinerie, aux créations originales et aux éditions limitées , pour celles et ceux qui recherchent à Marrakech des pièces différentes des souvenirs traditionnels. La boutique met en avant un univers créatif inspiré par la ville et le savoir-faire artisanal, avec des créations pensées pour associer identité, originalité et style. Installé au Medina Mall, 91 Avenue Hommane Fetouaki à Marrakech , Layal Concept Store s'inscrit dans un espa",
       "main_category": "Commerce",
       "categories": [
         "Bagagerie",
         "Mode",
         "Chaussures",
         "Parfumerie",
-        "Bijouterie"
+        "Bijouterie",
+        "Maroquinerie"
       ],
       "services": [
         "Espadrilles",
@@ -117966,7 +118112,7 @@
         "Sautoir"
       ],
       "city": "Marrakech",
-      "neighborhood": "Medina",
+      "neighborhood": "Mellah",
       "region": "Marrakech-Safi",
       "country": "MA",
       "latitude": 31.6205493,
@@ -117983,56 +118129,56 @@
       "languages": [],
       "opening_hours": {
         "friday": {
-          "open": "09:00",
-          "close": "21:00",
+          "open": "10:00",
+          "close": "20:00",
           "open2": "",
           "close2": "",
           "closed": false,
           "continuous": false
         },
         "monday": {
-          "open": "09:00",
-          "close": "21:00",
+          "open": "10:00",
+          "close": "20:00",
           "open2": "",
           "close2": "",
           "closed": false,
           "continuous": false
         },
         "sunday": {
-          "open": "09:00",
-          "close": "21:00",
+          "open": "10:00",
+          "close": "20:00",
           "open2": "",
           "close2": "",
           "closed": false,
           "continuous": false
         },
         "tuesday": {
-          "open": "09:00",
-          "close": "21:00",
+          "open": "10:00",
+          "close": "20:00",
           "open2": "",
           "close2": "",
           "closed": false,
           "continuous": false
         },
         "saturday": {
-          "open": "09:00",
-          "close": "21:00",
+          "open": "10:00",
+          "close": "20:00",
           "open2": "",
           "close2": "",
           "closed": false,
           "continuous": false
         },
         "thursday": {
-          "open": "09:00",
-          "close": "21:00",
+          "open": "10:00",
+          "close": "20:00",
           "open2": "",
           "close2": "",
           "closed": false,
           "continuous": false
         },
         "wednesday": {
-          "open": "09:00",
-          "close": "21:00",
+          "open": "10:00",
+          "close": "20:00",
           "open2": "",
           "close2": "",
           "closed": false,
@@ -119355,13 +119501,15 @@
       "slug": "autohaus-mbh",
       "url": "https://oneworldmorocco.com/autohaus-mbh",
       "name": "Autohaus MBH",
-      "hook": "Concessionnaire de grandes marques d'automobile de luxe.",
-      "description": null,
+      "hook": "Showroom de voitures de luxe à Rabat : Ferrari, Lamborghini, Bentley, Rolls-Royce, Porsche, Mercedes-AMG, BMW M.",
+      "description": "Sur l'avenue Hassan II à Rabat, ce showroom réunit une sélection rigoureuse des plus grandes marques du luxe automobile : Ferrari, Lamborghini, Bentley et Rolls-Royce pour l'exception absolue, Porsche pour l'équilibre entre performance et raffinement, ainsi que les gammes sportives de Mercedes-AMG et BMW M. Un catalogue pensé pour les passionnés de belle mécanique et les acheteurs en quête d'un véhicule qui sort de l'ordinaire. Chaque voiture proposée est choisie avec exigence : supercars italie",
       "main_category": "Commerce",
       "categories": [
         "Automobile"
       ],
-      "services": [],
+      "services": [
+        "Concessionnaire"
+      ],
       "city": "Rabat",
       "neighborhood": null,
       "region": "Rabat-Salé-Kénitra",
@@ -119371,10 +119519,10 @@
       "address": "26, Lot Vita, Av. Hassan II",
       "phone": "+212537293030",
       "whatsapp": "+212537293030",
-      "website": null,
+      "website": "https://autohaus-mbh.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/042f8ece-9b00-4b27-9679-2caa01785727-1780399567548-tyc1cq.jpg",
-      "google_rating": 4.6,
-      "google_review_count": 43,
+      "google_rating": 4.5,
+      "google_review_count": 44,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -119943,8 +120091,8 @@
       "slug": "yasalam-medina",
       "url": "https://oneworldmorocco.com/yasalam-medina",
       "name": "Yasalam Medina",
-      "hook": "Boutique d'affiches qui œuvre pour rendre l'art accessible à tous.",
-      "description": "YASALAM réunit une équipe passionnée d'artistes arabes et numériques. Forts d'un sens aigu de la créativité et d'une profonde connaissance de la richesse culturelle de la région, nous concevons, imaginons et réalisons des projets artistiques sur mesure. Nos relations privilégiées avec des artistes du monde arabe nous permettent de mettre en lumière leurs talents et de donner vie à leurs visions. Fondée à Marrakech en 2024 par Oussama Laftimi et Abdellah Aboulhamid, tous deux issus des milieux ar",
+      "hook": "Boutique d'affiches, impressions originales et cartes postales d’artiste qui œuvre pour rendre l'art accessible à tous.",
+      "description": "YASALAM Medina Marrakech est une boutique d’art qui propose une approche contemporaine et créative de l’art marocain et nord-africain . L’adresse se distingue par une sélection d’ œuvres modernes, impressions d’art et cartes postales originales , loin des souvenirs touristiques classiques que l’on retrouve habituellement à Marrakech. Les artistes locaux occupent une place centrale dans l’univers de YASALAM. La boutique permet de découvrir des créations originales sous forme d’ impressions de qua",
       "main_category": "Commerce",
       "categories": [
         "Galeries d'art",
@@ -119966,10 +120114,10 @@
       "address": "54 Rue Riad Zitoun el Jdid",
       "phone": null,
       "whatsapp": "+212667688517",
-      "website": "https://yasalam.store/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/2aae5cdc-0c6c-4a42-a526-f2d89279adb4-1780066195506-hov0p2.webp",
       "google_rating": 5,
-      "google_review_count": 15,
+      "google_review_count": 16,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -120032,7 +120180,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://yasalam.store/",
+      "booking_url": "https://yasalam.store/collections/all-prints",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/___yasalam/",
@@ -120721,7 +120869,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/48bbda3a-1a4c-4ce1-832b-9b9337b8ab69-1780391932027-png165.webp",
       "google_rating": 5,
-      "google_review_count": 1,
+      "google_review_count": 2,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -121694,14 +121842,14 @@
       "description": "Créer des expériences de café exceptionnelles au cœur de Marrakech. Chaque tasse raconte une histoire de passion, de qualité et de communauté. Chaque tasse raconte une histoire, chaque bouchée crée un souvenir, et chaque visite est comme un retour à la maison. Fondé en 2022, Pezzo Coffeeshop est né d'une idée simple : créer un espace accueillant où le bon café, l'hospitalité chaleureuse et l'esprit vibrant de Marrakech se rejoignent. Ce qui était un rêve local vit désormais à travers deux lieux ",
       "main_category": "Restauration",
       "categories": [
-        "Café",
-        "Salon de thé"
+        "Café"
       ],
       "services": [
-        "Café glacé",
-        "Climatisé",
         "Matcha",
-        "Jus de fruits"
+        "Café glacé",
+        "Jus de fruits",
+        "Jus détox",
+        "Café culturel"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -121715,7 +121863,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/8922032d-58fe-41fe-949a-ff4b0a141107-1780819594247-ohhhu4.jpg",
       "google_rating": 4.9,
-      "google_review_count": 285,
+      "google_review_count": 320,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -122525,7 +122673,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/ab2964f7-18de-447c-b6e4-f82422cd56e7-1780812690763-a2y0f.jpg",
       "google_rating": 5,
-      "google_review_count": 107,
+      "google_review_count": 115,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -122636,7 +122784,10 @@
         "Parfums",
         "Parfums d'intérieur",
         "Soins du Corps",
-        "Soins du Visage"
+        "Soins du Visage",
+        "Huile de figue de barbarie",
+        "Savon artisanal",
+        "Savon noir"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -122647,10 +122798,10 @@
       "address": "102 Trik Jazouli, Touala Sidi Benslimane",
       "phone": null,
       "whatsapp": "+212673473478",
-      "website": "https://www.lessensdemarrakech.fr/fr/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/b7357628-f617-4fe4-afa8-8232b6c337d3-1780122997658-a0j83l.jpg",
       "google_rating": 5,
-      "google_review_count": 3,
+      "google_review_count": 4,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -123511,8 +123662,8 @@
       "slug": "ali-batrah",
       "url": "https://oneworldmorocco.com/ali-batrah",
       "name": "Ali Batrah",
-      "hook": "Savoir-faire marocain 🇲🇦 Artisanat authentique.",
-      "description": null,
+      "hook": "Foulards, caftans et broderies artisanales à Marrakech : accueil chaleureux et prix justes au cœur des souks.",
+      "description": "Au cœur des souks de Marrakech, cette boutique de tissus et de vêtements traditionnels invite à la flânerie parmi des rouleaux de couleurs, des foulards en soie et coton, et des tenues brodées à la main. Ici, chaque pièce raconte un savoir-faire transmis avec patience : broderies fines aux motifs géométriques et floraux sur cols et manches, caftans et djellabas taillés dans des matières naturelles, ensembles en lin confortables déclinés en plusieurs teintes, pantalons larges et tuniques brodées ",
       "main_category": "Commerce",
       "categories": [
         "Mode"
@@ -123822,8 +123973,8 @@
       "slug": "khmissa-marrakech",
       "url": "https://oneworldmorocco.com/khmissa-marrakech",
       "name": "Khmissa Marrakech",
-      "hook": null,
-      "description": null,
+      "hook": "Objets de déco et artisanat marocain sur la Place des Épices à Marrakech, au cœur des souks, livraison internationale.",
+      "description": "Sur la mythique Place des Épices, en plein cœur de la médina de Marrakech, cette petite boutique déborde de trésors dénichés au fil du souk voisin. Lanternes en métal ajouré, vases en céramique peints à la main, jarres berbères, plateaux en laiton, bols émaillés, poteries noires et blanches : chaque recoin réserve une découverte, dans une ambiance chaleureuse typique des échoppes de la médina. L'emplacement est un atout en soi. La Place des Épices, aussi appelée Rahba Kedima, est l'un des cœurs ",
       "main_category": "Commerce",
       "categories": [
         "Décoration"
@@ -123851,10 +124002,10 @@
       "address": "Place des épices, N60",
       "phone": null,
       "whatsapp": "+212700378721",
-      "website": "https://khmiissa.com/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/05304d1f-7019-4545-8eae-e4568d7bf7a5-1780546998251-tcn7le.webp",
       "google_rating": 5,
-      "google_review_count": 1,
+      "google_review_count": 3,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -124303,7 +124454,10 @@
         "Parfums",
         "Parfums d'intérieur",
         "Soins du Corps",
-        "Soins du Visage"
+        "Soins du Visage",
+        "Savon noir",
+        "Savon artisanal",
+        "Huile de figue de barbarie"
       ],
       "city": "Marrakech",
       "neighborhood": "Sidi Ghanem",
@@ -124314,10 +124468,10 @@
       "address": "N°17 Rue Principale",
       "phone": null,
       "whatsapp": "+212524336991",
-      "website": "https://www.lessensdemarrakech.fr/fr/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/b7357628-f617-4fe4-afa8-8232b6c337d3-1780122027053-697fj6.jpg",
       "google_rating": 4.4,
-      "google_review_count": 502,
+      "google_review_count": 510,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -125311,8 +125465,8 @@
       "slug": "lahandira",
       "url": "https://oneworldmorocco.com/lahandira",
       "name": "Lahandira",
-      "hook": null,
-      "description": null,
+      "hook": "Tapis marocains authentiques, Beni Ourain, Beni M’Rirt, vintage et pièces artisanales uniques.",
+      "description": "Lahandira Marrakech est une adresse de référence pour découvrir et acheter des tapis marocains authentiques au cœur de Marrakech. Installée à Znikat Rahba , Lahandira s’est spécialisée dans les tapis berbères et les pièces artisanales issues des traditions de tissage marocaines, avec une sélection qui mêle tapis Beni Ourain, Beni M’Rirt, tapis du Moyen Atlas, kilims, tapis vintage, tapis contemporains et pièces anciennes . La force de Lahandira réside avant tout dans la richesse de sa collection",
       "main_category": "Commerce",
       "categories": [
         "Décoration"
@@ -125333,7 +125487,7 @@
       "website": "https://lahandira.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/58213f82-e29b-4f7c-84ae-82b26a006cbd-1780121200965-730a7.jpg",
       "google_rating": 5,
-      "google_review_count": 310,
+      "google_review_count": 322,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -125396,7 +125550,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://lahandira.com/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/lahandira",
@@ -125624,13 +125778,14 @@
       "id": "62375ede-df15-430e-a36a-0e8ea6892069",
       "slug": "yasalam-store",
       "url": "https://oneworldmorocco.com/yasalam-store",
-      "name": "Yasalam Store",
-      "hook": "YASALAM s'appuie sur une équipe pluridisciplinaire qui œuvre pour rendre l'art accessible à tous.",
-      "description": "YASALAM réunit une équipe passionnée d'artistes arabes et numériques. Forts d'un sens aigu de la créativité et d'une profonde connaissance de la richesse culturelle de la région, nous concevons, imaginons et réalisons des projets artistiques sur mesure. Nos relations privilégiées avec des artistes du monde arabe nous permettent de mettre en lumière leurs talents et de donner vie à leurs visions. Fondée à Marrakech en 2024 par Oussama Laftimi et Abdellah Aboulhamid, tous deux issus des milieux ar",
+      "name": "Yasalam Gueliz",
+      "hook": "Galerie d'art à Guéliz, Marrakech : œuvres originales, tirages d'artistes locaux et livraison internationale en ligne.",
+      "description": "Nichée au cœur de Guéliz, à Marrakech, cette boutique d'art réunit les voix les plus urgentes d'Afrique du Nord, du Levant et du Golfe. Peintures, photographies, tirages en édition limitée et œuvres originales y côtoient des objets et pièces textiles signés par les artistes exposés, dans un espace pensé pour la découverte et l'échange. Les visiteurs saluent unanimement un accueil chaleureux et disponible : une équipe passionnée, toujours prête à raconter l'histoire de chaque œuvre, le parcours d",
       "main_category": "Commerce",
       "categories": [
         "Galeries d'art",
-        "Décoration"
+        "Décoration",
+        "Souvenir"
       ],
       "services": [
         "Art numérique",
@@ -125648,7 +125803,7 @@
       "address": "38, rue Tarik bnou Ziad",
       "phone": null,
       "whatsapp": "+212667688517",
-      "website": "https://yasalam.store/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/62375ede-df15-430e-a36a-0e8ea6892069-1780065310775-5vqqx.jpg",
       "google_rating": 5,
       "google_review_count": 10,
@@ -125714,7 +125869,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://yasalam.store/",
+      "booking_url": "https://yasalam.store/collections/all-prints",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/___yasalam/",
@@ -125932,8 +126087,8 @@
       "slug": "dune-galerie",
       "url": "https://oneworldmorocco.com/dune-galerie",
       "name": "Dune Galerie",
-      "hook": "Spécialisé dans les tapis, les meubles, les bijoux et les céramiques anciennes.",
-      "description": null,
+      "hook": "Tapis berbères, artisanat marocain et objets d’exception, avec conseils et expédition en Europe.",
+      "description": "Dune Galerie Marrakech , située dans le quartier de Riad Zitoun Jdid , est une adresse reconnue pour ses tapis marocains, tapis berbères et objets d’artisanat . La galerie se distingue par une sélection qui associe tapis anciens et contemporains, pièces décoratives et objets choisis pour leur caractère et leur qualité. Les tapis occupent une place centrale dans l'univers de Dune Galerie. La collection comprend notamment des tapis Beni Ouarain, Azilal, Tazenakht, Beni Mrirt, Zemmour, Tiflet, Zana",
       "main_category": "Commerce",
       "categories": [
         "Décoration",
@@ -125944,10 +126099,17 @@
         "Artisanat marocain",
         "Tapis",
         "Céramique",
-        "Poteries"
+        "Poteries",
+        "Mobilier d'intérieur",
+        "Tables",
+        "Tabourets",
+        "Tables basses",
+        "Encadrement",
+        "Miroirs",
+        "Luminaires"
       ],
       "city": "Marrakech",
-      "neighborhood": "Medina",
+      "neighborhood": "Mellah",
       "region": "Marrakech-Safi",
       "country": "MA",
       "latitude": 31.6223057,
@@ -127446,8 +127608,8 @@
       "slug": "imad-rugs-by-imad-farah",
       "url": "https://oneworldmorocco.com/imad-rugs-by-imad-farah",
       "name": "Imad Rugs - by Imad Farah",
-      "hook": null,
-      "description": null,
+      "hook": "Tapis marocains artisanaux, pièces uniques et conseils personnalisés, plébiscités par les clients.",
+      "description": "Imad Rugs – by Imad Farah est une adresse dédiée aux tapis marocains artisanaux à Marrakech , située dans le quartier El Haddadine, au Souk Laksour . Avec une note de 5/5 sur Google , l’adresse se distingue autant par la qualité et l’originalité de ses tapis que par une expérience d’achat particulièrement appréciée des visiteurs. Le choix constitue l'un des grands atouts d'Imad Rugs. Les clients évoquent de nombreux tapis de haute qualité , des pièces artisanales uniques et une sélection suffisa",
       "main_category": "Commerce",
       "categories": [
         "Décoration"
@@ -127465,7 +127627,7 @@
       "address": "El haddadine, Souk Laksour",
       "phone": null,
       "whatsapp": "+212631278265",
-      "website": null,
+      "website": "https://imarugs.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/d978dd11-2ca5-4134-a519-e4bf5b880ce7-1780040937767-potj1a.jpg",
       "google_rating": 5,
       "google_review_count": 17,
@@ -127531,7 +127693,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": null,
+      "booking_url": "https://imarugs.com/pages/about-custom-rugs",
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/imad_rugs/",
@@ -129374,7 +129536,10 @@
         "Parfums",
         "Parfums d'intérieur",
         "Soins du Corps",
-        "Soins du Visage"
+        "Soins du Visage",
+        "Huile de figue de barbarie",
+        "Savon noir",
+        "Savon artisanal"
       ],
       "city": "Marrakech",
       "neighborhood": "Gueliz",
@@ -129385,7 +129550,7 @@
       "address": "11 Rue Yves St Laurent",
       "phone": null,
       "whatsapp": "+212524314518",
-      "website": "https://www.lessensdemarrakech.fr/fr/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/b7357628-f617-4fe4-afa8-8232b6c337d3-1780122026423-9lg8ms.jpg",
       "google_rating": 4.7,
       "google_review_count": 25,
@@ -130206,8 +130371,8 @@
       "slug": "chateau-des-souks",
       "url": "https://oneworldmorocco.com/chateau-des-souks",
       "name": "Chateau Des Souks",
-      "hook": "💯% Laine. Fait Main 👋 Expédition tous pays 🌍",
-      "description": null,
+      "hook": "Tapis marocains, berbères et kilims, artisanat traditionnel et pièces uniques au cœur des souks.",
+      "description": "Château des Souks Marrakech est une adresse dédiée à l’artisanat marocain et particulièrement aux tapis marocains, tapis berbères et kilims , située au 44 Souk Semmarine , au cœur des souks de Marrakech. L’adresse propose une sélection de tapis anciens et contemporains provenant de différentes régions du Maroc, ainsi que de nombreuses pièces d’artisanat et de décoration. La spécialité de Château des Souks reste avant tout le tapis marocain . La boutique permet de découvrir des pièces aux styles,",
       "main_category": "Commerce",
       "categories": [
         "Décoration"
@@ -130227,8 +130392,8 @@
       "whatsapp": "+212524426410",
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/80a2817c-e9f9-4f4b-a907-efb18901e39c-1780167988999-cwuf35.jpg",
-      "google_rating": 3.7,
-      "google_review_count": 26,
+      "google_rating": 3.6,
+      "google_review_count": 27,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -130665,8 +130830,8 @@
       "slug": "secret-de-laine",
       "url": "https://oneworldmorocco.com/secret-de-laine",
       "name": "Secret de laine",
-      "hook": "Tapis berbères & décoration artisanale.",
-      "description": null,
+      "hook": "Tapis marocains, laine, décoration et savoir-faire artisanal sur la route de l’Ourika.",
+      "description": "Secret de Laine Marrakech est une adresse dédiée à l’univers du tapis marocain et à l’artisanat traditionnel, située sur la route de l’Ourika à Marrakech . Une étape intéressante pour découvrir la richesse des tapis berbères et du travail de la laine, dans un environnement où les savoir-faire marocains occupent une place centrale. Le tapis marocain ne se résume pas à un objet décoratif : chaque région, chaque tribu et chaque atelier possède ses propres techniques, motifs, couleurs et matières. L",
       "main_category": "Commerce",
       "categories": [
         "Décoration"
@@ -130675,7 +130840,8 @@
         "Artisanat marocain",
         "Tapis",
         "Coussins",
-        "Poufs"
+        "Poufs",
+        "Bougeoirs"
       ],
       "city": "Marrakech",
       "neighborhood": "Route de l’Ourika",
@@ -131328,7 +131494,11 @@
         "Mobilier d'intérieur",
         "Fauteuils",
         "Tables basses",
-        "Tabourets"
+        "Tabourets",
+        "Tables",
+        "Luminaires",
+        "Miroirs",
+        "Encadrement"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -131342,7 +131512,7 @@
       "website": "https://www.theportedor.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/cf96cbf3-1bda-44c3-90e2-bd193888a4a5-1780159091317-itms4.jpg",
       "google_rating": 4.6,
-      "google_review_count": 250,
+      "google_review_count": 251,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -131668,8 +131838,8 @@
       "slug": "studio-sana-benzaitar",
       "url": "https://oneworldmorocco.com/studio-sana-benzaitar",
       "name": "Studio Sana Benzaitar",
-      "hook": "Spécialiste des Beni Mrirt marocains contemporains uniques et sur mesure.",
-      "description": "",
+      "hook": "L’excellence des tapis Beni Mrirt contemporains sur mesure, tissés main et livrés dans le monde entier.",
+      "description": "Au cœur de Gueliz, Studio Sana Benzaitar réinvente l’un des trésors les plus prestigieux du tissage marocain : le tapis Beni Mrirt . Réputés pour leur laine exceptionnellement douce, leur densité de nouage élevée et leurs finitions raffinées, les Beni Mrirt figurent parmi les tapis les plus recherchés du Maroc. Chaque pièce est réalisée à la main et peut être entièrement personnalisée en dimensions, couleurs et motifs pour s’intégrer aussi bien dans une villa contemporaine, un hôtel de luxe qu’u",
       "main_category": "Commerce",
       "categories": [
         "Décoration"
@@ -131687,7 +131857,7 @@
       "address": "8 Rue Des Vieux Marrakchis",
       "phone": null,
       "whatsapp": "+212661484469",
-      "website": null,
+      "website": "https://sanabenzaitar.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/d84dc07d-e9b6-402b-861c-b0a6b5ce83d8-1779854800776-06fum.webp",
       "google_rating": 4.9,
       "google_review_count": 27,
@@ -131964,14 +132134,16 @@
       "slug": "capital-of-perfume",
       "url": "https://oneworldmorocco.com/capital-of-perfume",
       "name": "Capital of Perfume",
-      "hook": null,
-      "description": null,
+      "hook": "Créez votre parfum sur mesure, choisissez parmi 60+ fragrances et vivez un atelier unique.",
+      "description": "Capital of Perfume Marrakech est une boutique de parfums et atelier situé dans la médina de Marrakech, où l'expérience ne se limite pas à choisir un parfum : vous pouvez créer votre propre fragrance en composant votre parfum selon vos goûts et vos envies. L'adresse séduit notamment par le choix proposé. Plus de 60 parfums et fragrances sont disponibles, avec une sélection organisée pour faciliter la découverte des différentes notes olfactives. Les parfums peuvent être choisis parmi les créations",
       "main_category": "Commerce",
       "categories": [
-        "Parfumerie"
+        "Parfumerie",
+        "Ateliers"
       ],
       "services": [
-        "Parfumeur"
+        "Parfumeur",
+        "Parfum"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -131985,7 +132157,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/dbf029c4-c683-452d-ae54-5647212436a0-1779870816519-vezcf.jpg",
       "google_rating": 5,
-      "google_review_count": 41,
+      "google_review_count": 43,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -132060,8 +132232,8 @@
       "slug": "patisserie-corne-de-gazelle-chez-brahim",
       "url": "https://oneworldmorocco.com/patisserie-corne-de-gazelle-chez-brahim",
       "name": "Patisserie Corne de Gazelle Chez Brahim",
-      "hook": "Pâtisserie, Restaurant, Snack et Café.",
-      "description": null,
+      "hook": "Pâtisserie marocaine artisanale à deux pas de Jemaa el-Fna : cornes de gazelle, thé à la menthe et accueil chaleureux.",
+      "description": "À quelques ruelles de la place Jemaa el-Fna, cette petite pâtisserie familiale confectionne des douceurs marocaines traditionnelles, à déguster sur place ou à emporter. Cornes de gazelle saupoudrées de sucre glace, gâteaux aux fruits secs, cornes fourrées aux amandes et biscuits parfumés à la fleur d'oranger composent une vitrine gourmande fidèle aux recettes transmises de génération en génération. Les avis clients sont unanimes sur la générosité de l'accueil : une patronne et son mari décrits c",
       "main_category": "Restauration",
       "categories": [
         "Pâtisserie",
@@ -132071,7 +132243,6 @@
       ],
       "services": [
         "Pâtisseries marocaines",
-        "Pizza",
         "Cuisine marocaine",
         "Déjeuner",
         "Dîner"
@@ -132088,7 +132259,7 @@
       "website": "https://www.cornedegazellemarrakech.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/e51c3176-742b-4cf2-a3d6-0d4674f2cf4a-1780063567932-oemt0a.jpg",
       "google_rating": 4.9,
-      "google_review_count": 1860,
+      "google_review_count": 2095,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -132151,7 +132322,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.cornedegazellemarrakech.com/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/cornedegazellechezbrahim",
@@ -133370,8 +133541,8 @@
       "slug": "galerie-de-ceramique",
       "url": "https://oneworldmorocco.com/galerie-de-ceramique",
       "name": "Galerie de Céramique",
-      "hook": "Nos produits sont faits à la main par nos artisans marocain 💕",
-      "description": null,
+      "hook": "Céramique artisanale marocaine route de l'Ourika, Marrakech : vases, tajines et bols peints à la main, prix fixes.",
+      "description": "En prenant la route de l'Ourika, aux portes de Marrakech, cette adresse joue la carte de la décoration avec personnalité. Vases sculpturaux aux formes contemporaines, bols empilables aux glaçures mouchetées, tajines peints à la main, gobelets berbères en terre cuite, assiettes aux motifs bleu et blanc ou rouge et vert : chaque pièce est façonnée et décorée à la main par des artisans marocains, dans le respect d'un savoir-faire transmis au pied de l'Atlas. Ici, la céramique n'est pas un simple so",
       "main_category": "Commerce",
       "categories": [
         "Décoration"
@@ -133383,7 +133554,8 @@
         "Vaisselle",
         "Vases",
         "Plats à tajine",
-        "Grossiste"
+        "Grossiste",
+        "Artisanat marocain"
       ],
       "city": "Marrakech",
       "neighborhood": "Route de l’Ourika",
@@ -133397,7 +133569,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/3f243262-7bfd-4f27-9942-46ad98b705be-1780429996752-84acv.jpg",
       "google_rating": 5,
-      "google_review_count": 1,
+      "google_review_count": 2,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -133920,8 +134092,8 @@
       "slug": "maison-baboucha-vintage-store",
       "url": "https://oneworldmorocco.com/maison-baboucha-vintage-store",
       "name": "Maison Baboucha Vintage Store",
-      "hook": "Vêtements et accessoires vintage, de seconde main et neufs, sélectionnés avec soin…",
-      "description": "",
+      "hook": "Trésors vintage, sacs, vestes et pièces uniques dans une boutique-friperie pleine de personnalité.",
+      "description": "Maison Baboucha Vintage Store Marrakech est une adresse à part pour les amateurs de mode vintage, de vêtements de seconde main et de pièces originales à Marrakech. Loin des boutiques standardisées, cette petite adresse fonctionne comme un véritable trésor caché , où l'on prend le temps de fouiller, d'essayer et de découvrir des vêtements et accessoires qui ont chacun leur personnalité. La sélection met notamment en avant de belles pièces vintage, des sacs, des vestes et des vêtements à des prix ",
       "main_category": "Commerce",
       "categories": [
         "Mode"
@@ -133954,7 +134126,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/6ac94eff-6a29-428d-b8bd-2f2db45c1ddb-1780200284063-o4umz.jpg",
       "google_rating": 5,
-      "google_review_count": 25,
+      "google_review_count": 29,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -134132,12 +134304,14 @@
       "slug": "le-110-medina",
       "url": "https://oneworldmorocco.com/le-110-medina",
       "name": "Le 110 Medina",
-      "hook": "Depuis le cœur animé du plus grand marché d'Afrique, nous perpétuons un héritage du cuir commencé en 1940.",
-      "description": "",
+      "hook": "Maroquinerie et artisanat marocain au cœur des souks : sacs, poufs et blousons en cuir, accueil chaleureux garanti.",
+      "description": "Dans les ruelles animées des souks de Marrakech, cette boutique de cuir et d'artisanat marocain se dévoile peu à peu à qui prend le temps de la parcourir. Derrière une devanture semblable à tant d'autres échoppes se cache un véritable royaume du cuir, où sacs, poufs, ceintures et petite maroquinerie côtoient une sélection soigneusement choisie d'objets artisanaux venus de tout le Maroc. À l'étage, de beaux blousons en cuir attendent les amateurs de belles matières, dans un espace qui invite à pr",
       "main_category": "Commerce",
       "categories": [
         "Maroquinerie",
-        "Bagagerie"
+        "Bagagerie",
+        "Décoration",
+        "Mode"
       ],
       "services": [
         "Cabas",
@@ -134147,7 +134321,9 @@
         "Sacs à main",
         "Tote Bags",
         "Manteaux",
-        "Vestes"
+        "Vestes",
+        "Artisanat marocain",
+        "Maroquinerie"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -135005,7 +135181,8 @@
         "Plats végétariens",
         "Viande",
         "Salades",
-        "Poisson"
+        "Poisson",
+        "Cave à vin"
       ],
       "city": "Agafay",
       "neighborhood": null,
@@ -135016,10 +135193,10 @@
       "address": "Km 25",
       "phone": null,
       "whatsapp": "+212661591150",
-      "website": "https://www.ourhabitas.com/caravan-agafay/dining/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/a7704bfc-667d-4306-b998-665b3c79f26c-1780469068992-js7z3j.jpg",
       "google_rating": 4.8,
-      "google_review_count": 41,
+      "google_review_count": 42,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -135180,8 +135357,8 @@
       "slug": "bazar-salama",
       "url": "https://oneworldmorocco.com/bazar-salama",
       "name": "Bazar Salama",
-      "hook": null,
-      "description": null,
+      "hook": "Tapis berbères, grande sélection, conseils experts et expédition soignée sans pression.",
+      "description": "Bazar Salama Marrakech est une adresse à découvrir pour celles et ceux qui recherchent un tapis marocain , un tapis berbère ou une pièce artisanale de qualité. Le magasin propose une collection particulièrement large, avec de nombreuses tailles, styles et pièces. Ce qui ressort le plus des avis clients, c’est d’abord le choix . Plusieurs visiteurs parlent d’une impressionnante sélection de tapis marocains et berbères. Un client évoque même un bâtiment de trois étages rempli de tapis marocains. L",
       "main_category": "Commerce",
       "categories": [
         "Décoration"
@@ -135201,8 +135378,8 @@
       "whatsapp": "+212662044056",
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/b7173ce9-bbb1-4979-b068-172e07f7a36e-1780201003040-mn3up6.jpg",
-      "google_rating": 4.9,
-      "google_review_count": 150,
+      "google_rating": 5,
+      "google_review_count": 225,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -136215,15 +136392,16 @@
       "slug": "bazar-filali",
       "url": "https://oneworldmorocco.com/bazar-filali",
       "name": "Palais Filali",
-      "hook": "✨ Votre dose quotidienne de magnifiques tapis. 🚀 Livraison internationale | Vente en gros et au détail.",
-      "description": "",
+      "hook": "✨ Tapis marocains faits main, pièces anciennes  🚀 Livraison internationale | Vente en gros et au détail.",
+      "description": "Palais Filali est une adresse spécialisée dans les tapis marocains faits main , avec une collection particulièrement large couvrant les grands styles et territoires du tissage marocain. L’enseigne propose notamment des tapis Beni Ourain, Boujaad, Boucherouite, Kilim, Mrirt, Taznakht et Zanafi , ainsi que des pièces vintage et anciennes. L’une des particularités de Palais Filali est justement cette diversité de tapis marocains . Les Beni Ourain du Moyen Atlas privilégient la laine et les composit",
       "main_category": "Commerce",
       "categories": [
         "Décoration"
       ],
       "services": [
         "Artisanat marocain",
-        "Tapis"
+        "Tapis",
+        "Sur-mesure"
       ],
       "city": "Marrakech",
       "neighborhood": "Medina",
@@ -136300,7 +136478,7 @@
         }
       },
       "is_open_24h": false,
-      "booking_url": "https://www.palaisfilali.com/",
+      "booking_url": null,
       "menu_url": null,
       "social": {
         "instagram": "https://www.instagram.com/bazarfilali/",
@@ -136320,10 +136498,12 @@
       "main_category": "Hôtellerie",
       "categories": [
         "Campings & Bivouacs",
-        "Hôtel"
+        "Hôtel",
+        "Evènementiel"
       ],
       "services": [
-        "Desert Camp"
+        "Desert Camp",
+        "Location de lieux esceptionnels"
       ],
       "city": "Agafay",
       "neighborhood": null,
@@ -136337,7 +136517,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/ecfa897c-5200-4050-8f77-1b11a6f145eb-1780464494642-j7b1l8.jpg",
       "google_rating": 4.3,
-      "google_review_count": 665,
+      "google_review_count": 666,
       "price_range": null,
       "min_price_mad": null,
       "languages": [],
@@ -143628,8 +143808,8 @@
       "whatsapp": "+212661324475",
       "website": "https://farashafarmhouse.com/",
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/1dc47b3c-028d-482a-b14e-b09dc9c48e4a-1775889425242-x3kwj2.jpg",
-      "google_rating": 4.5,
-      "google_review_count": 84,
+      "google_rating": 4.6,
+      "google_review_count": 88,
       "price_range": "200 à 500€",
       "min_price_mad": 350,
       "languages": [],
@@ -144458,12 +144638,23 @@
       "description": "Situé dans le quartier \"La Palmeraie\", cette villa Bakkal Farm Agrolodge Marrakesh est doté d'une piscine extérieure, d'une terrasse et d'un salon commun pour vous divertir. Vous pourrez profiter d'une vue sur le jardin depuis cette villa de Marrakesh. Les salles de bains comprennent également une toilette séparée et une douche. Un sèche-cheveux et des draps de bain sont fournis pour améliorer votre confort. La gare de Marrakech se trouve à environ 40 minutes en voiture de cette villa de 7 pièce",
       "main_category": "Hôtellerie",
       "categories": [
-        "Hôtel",
         "Écolodge",
+        "Hôtel",
         "Restaurant",
         "Ferme pédagogique"
       ],
-      "services": [],
+      "services": [
+        "Piscine",
+        "Déjeuner",
+        "Poisson",
+        "Viande",
+        "Plats végétariens",
+        "Salades",
+        "Vue montagne",
+        "Restauration sur place",
+        "Cave à vin",
+        "Cocktails"
+      ],
       "city": "Marrakech",
       "neighborhood": "Route de Fès",
       "region": "Marrakech-Safi",
@@ -144476,7 +144667,7 @@
       "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/517d46b1-f981-47fd-805b-c6a4cf76224c-1781638137871-7ferqs.jpg",
       "google_rating": 4.7,
-      "google_review_count": 76,
+      "google_review_count": 78,
       "price_range": "200 à 500€",
       "min_price_mad": 231,
       "languages": [],
@@ -147661,7 +147852,7 @@
       "address": "Km 12 Route de Fez",
       "phone": null,
       "whatsapp": "+212600096004",
-      "website": "https://palmiya.com/",
+      "website": null,
       "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/30a70a96-7d9a-482e-977e-5e703abafc0f-1781955796977-ef9hal.jpg",
       "google_rating": 3.8,
       "google_review_count": 136,
@@ -151307,6 +151498,46 @@
       }
     },
     {
+      "id": "133d8a5f-a9f9-4541-9d53-ec52677fb224",
+      "slug": "chaabi-payment",
+      "url": "https://oneworldmorocco.com/chaabi-payment",
+      "name": "Chaabi Payment",
+      "hook": "Chaabi Payment permet aux entreprises d'accepter et de centraliser tous leurs encaissements électroniques.",
+      "description": "La solution de paiement multicanal de M2T , établissement de paiement du Groupe Banque Populaire , leader national dans les services de proximité Chaabi Payment est une solution de paiement multicanal marocaine lancée par M2T , l'établissement de paiement filiale du Groupe Banque Centrale Populaire (BCP) . Elle a notamment été primée en 2026 comme la \"Meilleure solution de paiement innovante\" aux APIDE Awards. 🏪 Pour les Professionnels (Commerçants, Artisans, TPE & PME) L'offre Chaabi Payment p",
+      "main_category": "Services",
+      "categories": [
+        "Banques"
+      ],
+      "services": [],
+      "city": null,
+      "neighborhood": null,
+      "region": null,
+      "country": "MA",
+      "latitude": null,
+      "longitude": null,
+      "address": null,
+      "phone": null,
+      "whatsapp": "+212667786443",
+      "website": "https://chaabipayment.ma/",
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/133d8a5f-a9f9-4541-9d53-ec52677fb224-1786613817640-jhl778.webp",
+      "google_rating": null,
+      "google_review_count": null,
+      "price_range": null,
+      "min_price_mad": null,
+      "languages": [],
+      "opening_hours": null,
+      "is_open_24h": false,
+      "booking_url": null,
+      "menu_url": null,
+      "social": {
+        "instagram": null,
+        "facebook": null,
+        "tripadvisor": null,
+        "youtube": null,
+        "linkedin": null
+      }
+    },
+    {
       "id": "1a9aecac-82b8-41c4-a2e7-d2b73285306c",
       "slug": "un-the-au-bout-du-monde-mirleft",
       "url": "https://oneworldmorocco.com/un-the-au-bout-du-monde-mirleft",
@@ -151341,6 +151572,134 @@
         "facebook": "https://www.facebook.com/untheauboutdumonde",
         "tripadvisor": "https://www.tripadvisor.fr/Restaurant_Review-g608441-d8566214-Reviews-Un_the_Au_Bout_du_Monde-Mirleft_Souss_Massa.html?m=66827",
         "youtube": null,
+        "linkedin": null
+      }
+    },
+    {
+      "id": "1b3083f2-8ca4-4a98-a022-a91237d97ac8",
+      "slug": "les-sens-de-marrakech-eshop",
+      "url": "https://oneworldmorocco.com/les-sens-de-marrakech-eshop",
+      "name": "Les Sens de Marrakech eShop",
+      "hook": "🌱 Produits cosmétiques & maison à ingrédients d’origine naturelle. Certifié ISO 22716.",
+      "description": "Une marque qui propose des composants efficaces et choisis pour leur innocuité, tout en restant fidèle à une démarche éthique valorisant le travail des artisans marocains. Les Sens de Marrakech vous propose plusieurs gammes de produits cosmétiques aux ingrédients d’origine naturelle. Parmi ces ingrédients figurent les éléments phares du Maroc : l’huile d’argan et l’huile de figues de barbarie qui sont reconnues pour leurs propriétés hydratantes et leur capacité à apporter confort et souplesse. C",
+      "main_category": "Commerce",
+      "categories": [
+        "Cosmétiques",
+        "Beauté et Hygiène",
+        "Parfumerie"
+      ],
+      "services": [
+        "Démaquillant",
+        "Eau de toilettte",
+        "Eau de rose",
+        "Eau de fleur d'oranger",
+        "Gel douche",
+        "Gommage",
+        "Huile d'argan",
+        "Huile hydratante",
+        "Lait Corporel",
+        "Parfumerie",
+        "Parfumerie d'ambiance",
+        "Savon exfoliant",
+        "Shampoing",
+        "Baume",
+        "Beurre de Karité",
+        "Crème mains",
+        "Crème hydratante",
+        "Eau de parfum",
+        "eaux de toilette",
+        "Huile à brûler parfumée",
+        "Parfumeur",
+        "Parfums",
+        "Parfums d'intérieur",
+        "Soins du Corps",
+        "Soins du Visage",
+        "Savon noir",
+        "Savon artisanal",
+        "Huile de figue de barbarie"
+      ],
+      "city": "Marrakech",
+      "neighborhood": null,
+      "region": "Marrakech-Safi",
+      "country": "MA",
+      "latitude": 31.6795032,
+      "longitude": -8.0512684,
+      "address": null,
+      "phone": null,
+      "whatsapp": "+212524336991",
+      "website": null,
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/b7357628-f617-4fe4-afa8-8232b6c337d3-1780122858451-ts080o.jpg",
+      "google_rating": 4.4,
+      "google_review_count": 510,
+      "price_range": null,
+      "min_price_mad": null,
+      "languages": [],
+      "opening_hours": {
+        "friday": {
+          "open": "08:30",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "monday": {
+          "open": "08:30",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "sunday": {
+          "open": "08:30",
+          "close": "00:",
+          "open2": "",
+          "close2": "",
+          "closed": true,
+          "continuous": false
+        },
+        "tuesday": {
+          "open": "08:30",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "saturday": {
+          "open": "08:30",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "thursday": {
+          "open": "08:30",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "wednesday": {
+          "open": "08:30",
+          "close": "18:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        }
+      },
+      "is_open_24h": false,
+      "booking_url": "https://www.lessensdemarrakech.fr/fr/",
+      "menu_url": null,
+      "social": {
+        "instagram": "https://www.instagram.com/les_sens_de_marrakech/",
+        "facebook": "https://www.facebook.com/pages/Les-Sens-de-Marrakech/",
+        "tripadvisor": null,
+        "youtube": "https://www.youtube.com/@lessensdemarrakech3442",
         "linkedin": null
       }
     },
@@ -151968,6 +152327,103 @@
         "tripadvisor": "https://www.tripadvisor.fr/Attraction_Review-g293734-d24063364-Reviews-M_Avenue_Marrakech-Marrakech_Marrakech_Safi.html?m=66827",
         "youtube": "https://www.youtube.com/@mavenuemarrakech",
         "linkedin": "http://linkedin.com/company/mavenue-marrakech/"
+      }
+    },
+    {
+      "id": "ffac7a82-af4f-4bf7-9730-15743f1e1b80",
+      "slug": "pc-gamer-maroc",
+      "url": "https://oneworldmorocco.com/pc-gamer-maroc",
+      "name": "SetUp Game eShop",
+      "hook": "1ère chaîne de magasins gaming au Maroc",
+      "description": "Notre Parcours de la Vision à la Réalité. Setup Game a été fondé en 2021, au plus fort de la pandémie mondiale, lorsque les matériaux de gaming étaient rares et que le marché avait désespérément besoin d'innovation. Avec pour mission de fournir des matériaux de gaming haute performance et de qualité, nous avons ouvert notre premier magasin à Temara. Depuis, nous nous sommes rapidement étendus à Casablanca, Marrakech et Tanger, devenant le leader du marché au Maroc. Notre croissance est alimentée",
+      "main_category": "Commerce",
+      "categories": [
+        "Informatique"
+      ],
+      "services": [],
+      "city": "Marrakech",
+      "neighborhood": "Gueliz",
+      "region": "Marrakech-Safi",
+      "country": "MA",
+      "latitude": 31.6369984,
+      "longitude": -8.0165292,
+      "address": "2ème étage, appartement 19, Immeuble Guelizium, Av. Mohammed V",
+      "phone": "+212666998384",
+      "whatsapp": "+212666998384",
+      "website": "https://setupgame.ma/",
+      "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/ffac7a82-af4f-4bf7-9730-15743f1e1b80-1772987631150-pmi3h5.webp",
+      "google_rating": 4.1,
+      "google_review_count": 30,
+      "price_range": null,
+      "min_price_mad": null,
+      "languages": [],
+      "opening_hours": {
+        "friday": {
+          "open": "10:30",
+          "close": "19:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "monday": {
+          "open": "10:30",
+          "close": "19:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "sunday": {
+          "open": "10:30",
+          "close": "00:",
+          "open2": "",
+          "close2": "",
+          "closed": true,
+          "continuous": false
+        },
+        "tuesday": {
+          "open": "10:30",
+          "close": "19:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "saturday": {
+          "open": "10:30",
+          "close": "00:",
+          "open2": "",
+          "close2": "",
+          "closed": true,
+          "continuous": false
+        },
+        "thursday": {
+          "open": "10:30",
+          "close": "19:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        },
+        "wednesday": {
+          "open": "10:30",
+          "close": "19:00",
+          "open2": "",
+          "close2": "",
+          "closed": false,
+          "continuous": false
+        }
+      },
+      "is_open_24h": false,
+      "booking_url": null,
+      "menu_url": null,
+      "social": {
+        "instagram": "https://www.instagram.com/setupgame.ma/",
+        "facebook": "https://www.facebook.com/setupgame.ma",
+        "tripadvisor": null,
+        "youtube": "https://www.youtube.com/@SetupGameMaroc",
+        "linkedin": "linkedin.com/company/setup-game/mycompany"
       }
     }
   ]

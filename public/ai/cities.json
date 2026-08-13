@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/cities.json",
-    "generated_at": "2026-08-09T17:54:09.016Z",
+    "generated_at": "2026-08-13T13:13:40.570Z",
     "count": 32
   },
   "cities": [
@@ -514,7 +514,7 @@
       "description": null,
       "url": "https://oneworldmorocco.com/destination/agafay",
       "neighborhoods": [],
-      "businesses_count": 16
+      "businesses_count": 17
     },
     {
       "id": "5ce9185d-ea8f-4d1c-865b-6877dab8cd96",
@@ -599,7 +599,7 @@
         "Agafay",
         "Medina"
       ],
-      "businesses_count": 1181
+      "businesses_count": 1182
     }
   ]
 }
