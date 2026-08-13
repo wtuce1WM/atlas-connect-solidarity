@@ -56,8 +56,9 @@ const EmbedNearby = () => {
 
   useEffect(() => {
     // Avant la peinture des tuiles : transparent (l'hôte reste visible, aucun flash).
-    return applyEmbedBg(mapPainted ? mapBaseColor : "transparent");
-  }, [mapPainted, mapBaseColor]);
+    // En overlay, la page reste transparente : seule la carte porte la couleur.
+    return applyEmbedBg(mapPainted && !overlay ? mapBaseColor : "transparent");
+  }, [mapPainted, mapBaseColor, overlay]);
 
   useEffect(() => {
     if (!slug) return;
