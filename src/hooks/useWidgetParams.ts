@@ -65,9 +65,11 @@ export function useWidgetParams(
     if (overlay) {
       // Overlay Full Description : fond du widget toujours transparent (seules
       // les sous-zones gardent une couleur) et encre claire → titres/textes blancs.
+      // Pas de cadre extérieur : le widget se fond dans la section hôte.
       p.set("bg", "transparent");
       p.delete("card");
       p.set("ink", "light");
+      p.set("frameless", "1");
       return p;
     }
     if (!settings) return p;
