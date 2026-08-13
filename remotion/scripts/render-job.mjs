@@ -177,6 +177,7 @@ async function renderOne() {
       "riad-dar-najat", "maison-brummell", "jnane-rumi", "agent-ia-demo",
       "agent-ia-demo-v2", "nar-complexe", "farasha-farmhouse", "bo-zin",
       "explainer-affiliates", "feed-template", "feed-template-landscape",
+      "business-promo", "business-promo-landscape",
     ];
     let compositionId = job.template_id || "business-showcase";
     if (!validCompositions.includes(compositionId)) {

@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Film, PlayCircle, RefreshCw, Rocket } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Film, PlayCircle, RefreshCw, Rocket, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import VideoPromoPanel from "@/components/staff/VideoPromoPanel";
 
 /**
  * Onglet « Générer » du back-office vidéo.
@@ -150,7 +152,21 @@ const VideoGeneratePanel = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <Tabs defaultValue="feed" className="space-y-6">
+      <TabsList>
+        <TabsTrigger value="feed" className="gap-2">
+          <Film className="h-4 w-4" /> Scénario Feed
+        </TabsTrigger>
+        <TabsTrigger value="promo" className="gap-2">
+          <Sparkles className="h-4 w-4" /> Promo business
+        </TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="promo">
+        <VideoPromoPanel />
+      </TabsContent>
+
+      <TabsContent value="feed" className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="text-black flex items-center gap-2">
@@ -388,7 +404,8 @@ const VideoGeneratePanel = () => {
           <Button onClick={openCorporateStudio}>Ouvrir Studio Vidéo IA en mode corporate</Button>
         </CardContent>
       </Card>
-    </div>
+      </TabsContent>
+    </Tabs>
   );
 };
 
