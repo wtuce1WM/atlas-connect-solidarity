@@ -201,7 +201,7 @@ const VideoGeneratePanel = () => {
                   variant={format === "portrait" ? "default" : "outline"}
                   onClick={() => setFormat("portrait")}
                 >
-                  Portrait 720×1280
+                  Portrait 1080×1920
                 </Button>
                 <Button
                   size="sm"
