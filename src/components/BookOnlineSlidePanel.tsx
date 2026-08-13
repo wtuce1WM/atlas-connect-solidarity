@@ -481,15 +481,19 @@ const BookOnlineSlidePanelInner = ({
   // Schedule the actual reveal 2s after video playback starts (or 2s after mount if no video).
   useEffect(() => {
     if (!pendingPopup) return;
+    // Overlay Full Description ouvert → on annule l'ouverture du popup/offres.
+    if (descOverlayOpenRef.current) { setPendingPopup(null); return; }
     const start = videoPlaybackStartedAt ?? performance.now();
     const delay = Math.max(0, 2000 - (performance.now() - start));
     const id = setTimeout(() => {
+      if (descOverlayOpenRef.current) { setPendingPopup(null); return; }
       if (pendingPopup === "welcome") setShowWelcomePopup(true);
       else if (pendingPopup === "promos") setShowPromosPopup(true);
       setPendingPopup(null);
     }, delay);
     return () => clearTimeout(id);
   }, [pendingPopup, videoPlaybackStartedAt]);
+
 
   // Reset playback timer when switching business so the popup delay is tied to the current video.
   useEffect(() => {
