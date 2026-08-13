@@ -3591,7 +3591,7 @@ const BookOnlineSlidePanelInner = ({
                           title={language === "en" ? "Leave a review" : language === "ar" ? "اترك تقييماً" : "Laisser un avis"}
                           className="w-full block border-0 bg-transparent"
                           style={{ height: rateIframeHeight, background: "transparent" }}
-                          loading="lazy"
+                          loading="eager"
                         />
                       </div>
                     </div>
