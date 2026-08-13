@@ -313,7 +313,7 @@ export default function EmbedReviewsWidget({
     showSynthesis && avgOn20 != null && avgOn20 > 0 ? (
       <div
         dir="ltr"
-        className={`relative flex items-center justify-center gap-2.5 ${
+        className={`relative ${hideReviewText ? "inline-flex self-center w-auto max-w-full" : "flex"} items-center justify-center gap-2.5 ${
           large ? "py-2 px-5" : "py-1.5 px-4"
         } rounded-full border ${
           dark
@@ -496,7 +496,7 @@ export default function EmbedReviewsWidget({
   return (
     <div
       data-owm-ink={ink}
-      className={`w-full mx-auto ${
+      className={`${hideReviewText ? "w-fit max-w-full" : "w-full"} mx-auto ${
         frameless
           ? "border-0 bg-transparent p-0"
           : `rounded-3xl border ${dark ? "border-black/10" : "border-white/15"} ${
@@ -507,7 +507,7 @@ export default function EmbedReviewsWidget({
       } ${dark ? "text-black" : "text-white"} flex flex-col`}
       style={{
         fontFamily: "'Montserrat', sans-serif",
-        maxWidth: fullWidth ? undefined : maxW,
+        maxWidth: fullWidth && !hideReviewText ? undefined : maxW,
         ...(!frameless && hasSurfaceProp ? { background: surfaceColor || "transparent" } : null),
       }}
     >
