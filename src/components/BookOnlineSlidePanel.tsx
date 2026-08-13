@@ -3252,7 +3252,7 @@ const BookOnlineSlidePanelInner = ({
                       <div className="w-full mx-auto max-w-[820px] rounded-xl overflow-hidden bg-transparent border border-white/10">
                         <iframe
                           key={`ai-widget-${business.slug}`}
-                          src={`/embed/ask/${business.slug}?theme=none&lang=${language}&bg=transparent&ink=light${
+                          src={`/embed/ask/${business.slug}?theme=light&lang=${language}&bg=transparent&ink=dark${
                             (() => {
                               const e = new URLSearchParams(window.location.search).get("engine");
                               return e === "v1" || e === "v2" ? `&engine=${e}` : "";
