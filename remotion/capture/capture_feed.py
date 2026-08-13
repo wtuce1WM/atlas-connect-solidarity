@@ -123,6 +123,24 @@ TRIGGER_POS = """()=>{
   return {x:Math.round(r.left+r.width/2), y:Math.round(r.top+r.height/2)};
 }"""
 
+# Avant les bandes de scroll : neutralise tout ce qui est position:fixed ou
+# sticky (barre d'onglets collante de l'overlay, barre « liquid glass » du bas
+# du SlidePanel). Ces éléments restent au même endroit du viewport dans chaque
+# bande : stitchés tels quels, ils se dupliquent dans la hauteur du montage.
+# visibility:hidden (et non display:none) pour ne pas changer la géométrie.
+HIDE_STUCK = """()=>{
+  const sc=document.querySelector('[data-owm="1"]');
+  const kill=()=>{
+    [...document.querySelectorAll('body *')].forEach(e=>{
+      if(e===sc || (sc && e.contains(sc))) return;
+      const p=getComputedStyle(e).position;
+      if(p==='fixed' || p==='sticky'){ e.dataset.owmStuck='1'; e.style.visibility='hidden'; }
+    });
+  };
+  kill(); window.__owmStuck=kill; setInterval(kill,400);
+}"""
+
+
 
 def local_url(url: str, origin: str) -> str:
     o = urlparse(origin)
