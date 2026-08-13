@@ -431,6 +431,7 @@ const EmbedAsk = () => {
   const { slug = "" } = useParams();
   const [params] = useSearchParams();
   const lang = (["fr", "en", "ar"].includes(params.get("lang") || "") ? params.get("lang") : "fr") as "fr" | "en" | "ar";
+  useWidgetTracking("ask", null, lang);
   // Fond du widget :
   //   ?bg=EFE6D8       → l'assistant prend cette couleur (encre auto selon luminance)
   //   ?bg=transparent  → fond transparent : le fond du site hôte apparaît
