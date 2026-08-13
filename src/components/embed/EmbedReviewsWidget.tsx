@@ -217,7 +217,9 @@ export default function EmbedReviewsWidget({
   surface,
   ink = "light",
   frameless = false,
+  hideReviewText = false,
 }: {
+
   business: EmbedReviewsBusiness;
   reviews: EmbedReviewItem[];
   platform: ReviewPlatformKey;
