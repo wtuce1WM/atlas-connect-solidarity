@@ -20,6 +20,7 @@ type Lang = keyof typeof MESSAGES;
 const EmbedNearby = () => {
   const { slug } = useParams<{ slug: string }>();
   const [params] = useSearchParams();
+  useWidgetTracking("nearby", null, params.get("lang") || undefined);
   const { setLanguage } = useLanguage();
 
   const langParam = (params.get("lang") || "fr").toLowerCase();

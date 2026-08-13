@@ -21,6 +21,7 @@ type CityOption = { slug: string; name: string; sea: string };
 
 export default function EmbedTides() {
   const [params] = useSearchParams();
+  useWidgetTracking("tides", null, params.get("lang") || undefined);
   const initialCity = params.get("city")?.trim() || "Essaouira";
   const langParam = (params.get("lang") || "fr").toLowerCase();
   const lang: Lang = langParam === "en" || langParam === "ar" ? (langParam as Lang) : "fr";

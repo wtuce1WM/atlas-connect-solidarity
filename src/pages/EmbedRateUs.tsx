@@ -21,6 +21,7 @@ const FIELDS =
 export default function EmbedRateUs() {
   const { slug = "" } = useParams();
   const [params] = useSearchParams();
+  useWidgetTracking("rateus", null, params.get("lang") || undefined);
   const platformParam = (params.get("platform") || "all").toLowerCase();
   const platform = ["google", "tripadvisor"].includes(platformParam) ? platformParam : "all";
   const variant: RateVariant = (params.get("variant") || "card").toLowerCase() === "bar" ? "bar" : "card";

@@ -20,6 +20,7 @@ const MESSAGES: Record<Lang, { loading: string; error: string }> = {
 
 export default function EmbedWeather() {
   const [params] = useSearchParams();
+  useWidgetTracking("weather", null, params.get("lang") || undefined);
   const city = params.get("city")?.trim() || "Marrakech";
   const langParam = (params.get("lang") || "fr").toLowerCase();
   const lang: Lang = langParam === "en" || langParam === "ar" ? (langParam as Lang) : "fr";
