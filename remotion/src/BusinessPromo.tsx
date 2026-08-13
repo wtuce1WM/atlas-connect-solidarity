@@ -66,6 +66,8 @@ export type BusinessPromoProps = {
 export const PROMO_FPS = 30;
 export const PROMO_PORTRAIT = { width: 1080, height: 1920 } as const;
 export const PROMO_LANDSCAPE = { width: 1920, height: 1080 } as const;
+/** Cadre logique du montage paysage (mis à l'échelle vers 1920×1080). */
+export const LANDSCAPE_STAGE = { width: 1440, height: 810 } as const;
 
 export const promoDefaults: BusinessPromoProps = {
   name: "Établissement",
@@ -154,16 +156,68 @@ const SceneBackdrop: React.FC<{
   );
 };
 
-const HookScene: React.FC<{ p: BusinessPromoProps; frames: number; manifest: FeedManifest | null }> = ({
-  p,
-  frames,
-  manifest,
-}) => {
+const HookScene: React.FC<{
+  p: BusinessPromoProps;
+  frames: number;
+  manifest: FeedManifest | null;
+  wide?: boolean;
+}> = ({ p, frames, manifest, wide = false }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const rise = spring({ frame, fps, config: { damping: 200 } });
   const y = interpolate(rise, [0, 1], [60, 0]);
   const words = (p.hook || "").split(/\s+/).filter(Boolean);
+
+  const textBlock = (
+    <div style={{ transform: `translateY(${y}px)` }}>
+      <div
+        style={{
+          width: 84,
+          height: 5,
+          background: palette.terracotta,
+          marginBottom: 28,
+          borderRadius: 999,
+        }}
+      />
+      <h1
+        style={{
+          fontFamily: display,
+          fontWeight: weight.medium,
+          fontSize: size.h2,
+          lineHeight: 1.08,
+          color: palette.cream,
+          margin: 0,
+          textWrap: "balance",
+        }}
+      >
+        {words.map((w, i) => {
+          const o = interpolate(frame, [i * 3, i * 3 + 12], [0, 1], {
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
+          });
+          return (
+            <span key={`${w}-${i}`} style={{ opacity: o }}>
+              {w}{" "}
+            </span>
+          );
+        })}
+      </h1>
+      {p.city && (
+        <p
+          style={{
+            fontFamily: body,
+            fontSize: size.caption,
+            letterSpacing: 3,
+            textTransform: "uppercase",
+            color: palette.gold,
+            marginTop: 26,
+          }}
+        >
+          {p.city}
+        </p>
+      )}
+    </div>
+  );
 
   return (
     <AbsoluteFill style={{ background: palette.night }}>
@@ -173,69 +227,37 @@ const HookScene: React.FC<{ p: BusinessPromoProps; frames: number; manifest: Fee
           background: `linear-gradient(180deg, ${alpha("night", 0.55)}, ${alpha("night", 0.9)})`,
         }}
       />
-      {p.logoUrl && (
-        <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", paddingBottom: "18%" }}>
-          <PromoLogo src={p.logoUrl} size={PROMO_PORTRAIT.width * 0.52} />
-        </AbsoluteFill>
-      )}
-      <AbsoluteFill
-        style={{
-          justifyContent: "flex-end",
-          padding: "0 7% 12%",
-        }}
-      >
-        <div style={{ transform: `translateY(${y}px)` }}>
-          <div
-            style={{
-              width: 84,
-              height: 5,
-              background: palette.terracotta,
-              marginBottom: 28,
-              borderRadius: 999,
-            }}
-          />
-          <h1
-            style={{
-              fontFamily: display,
-              fontWeight: weight.medium,
-              fontSize: size.h2,
-              lineHeight: 1.08,
-              color: palette.cream,
-              margin: 0,
-              textWrap: "balance",
-            }}
-          >
-            {words.map((w, i) => {
-              const o = interpolate(frame, [i * 3, i * 3 + 12], [0, 1], {
-                extrapolateLeft: "clamp",
-                extrapolateRight: "clamp",
-              });
-              return (
-                <span key={`${w}-${i}`} style={{ opacity: o }}>
-                  {w}{" "}
-                </span>
-              );
-            })}
-          </h1>
-          {p.city && (
-            <p
-              style={{
-                fontFamily: body,
-                fontSize: size.caption,
-                letterSpacing: 3,
-                textTransform: "uppercase",
-                color: palette.gold,
-                marginTop: 26,
-              }}
-            >
-              {p.city}
-            </p>
+      {/* Paysage : logo à gauche, accroche à droite. Portrait : logo centré, accroche en bas. */}
+      {wide ? (
+        <AbsoluteFill
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: "5%",
+            padding: "0 7%",
+          }}
+        >
+          {p.logoUrl && (
+            <div style={{ flex: "0 0 34%", display: "flex", justifyContent: "center" }}>
+              <PromoLogo src={p.logoUrl} size={LANDSCAPE_STAGE.width * 0.3} />
+            </div>
           )}
-        </div>
-      </AbsoluteFill>
+          <div style={{ flex: 1 }}>{textBlock}</div>
+        </AbsoluteFill>
+      ) : (
+        <>
+          {p.logoUrl && (
+            <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", paddingBottom: "18%" }}>
+              <PromoLogo src={p.logoUrl} size={PROMO_PORTRAIT.width * 0.52} />
+            </AbsoluteFill>
+          )}
+          <AbsoluteFill style={{ justifyContent: "flex-end", padding: "0 7% 12%" }}>{textBlock}</AbsoluteFill>
+        </>
+      )}
     </AbsoluteFill>
   );
 };
+
 
 /** Carte texte plein écran (HTML riche ≤ 500 caractères, saisi en back-office). */
 const TextScene: React.FC<{ p: BusinessPromoProps; manifest: FeedManifest | null; frames: number }> = ({
@@ -302,14 +324,16 @@ const MediaScene: React.FC<{
   );
 };
 
-const OutroScene: React.FC<{ p: BusinessPromoProps; manifest: FeedManifest | null; frames: number }> = ({
-  p,
-  manifest,
-  frames,
-}) => {
+const OutroScene: React.FC<{
+  p: BusinessPromoProps;
+  manifest: FeedManifest | null;
+  frames: number;
+  wide?: boolean;
+}> = ({ p, manifest, frames, wide = false }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const pop = spring({ frame, fps, config: { damping: 18, stiffness: 140 } });
+  const base = wide ? LANDSCAPE_STAGE.width : PROMO_PORTRAIT.width;
   return (
     <AbsoluteFill
       style={{
@@ -329,38 +353,42 @@ const OutroScene: React.FC<{ p: BusinessPromoProps; manifest: FeedManifest | nul
         </>
       )}
       <div style={{ transform: `scale(${interpolate(pop, [0, 1], [0.9, 1])})`, position: "relative" }}>
-        {p.logoUrl && (
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 44 }}>
-            <PromoLogo src={p.logoUrl} size={PROMO_PORTRAIT.width * 0.46} delay={4} />
+        {/* Logo présent : il tient le rôle du nom, on ne réécrit pas la raison sociale. */}
+        {p.logoUrl ? (
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <PromoLogo src={p.logoUrl} size={base * (wide ? 0.34 : 0.52)} delay={4} />
           </div>
+        ) : (
+          <h2
+            style={{
+              fontFamily: display,
+              fontWeight: weight.medium,
+              fontSize: size.h2,
+              color: palette.cream,
+              margin: 0,
+              lineHeight: 1.08,
+            }}
+          >
+            {p.name}
+          </h2>
         )}
-
-        <h2
-          style={{
-            fontFamily: display,
-            fontWeight: weight.semibold,
-            fontSize: size.h3,
-            color: palette.cream,
-            margin: 0,
-            lineHeight: 1.1,
-          }}
-        >
-          {p.name}
-        </h2>
         <div
           style={{
             width: 120,
             height: 4,
             background: palette.gold,
             borderRadius: 999,
-            margin: "30px auto",
+            margin: "34px auto 26px",
           }}
         />
+        {/* Même échelle typographique que la ligne ville de l'intro. */}
         <p
           style={{
             fontFamily: body,
-            fontSize: size.lead,
-            color: palette.bone,
+            fontSize: size.caption,
+            letterSpacing: 3,
+            textTransform: "uppercase",
+            color: palette.gold,
             margin: 0,
           }}
         >
@@ -372,21 +400,26 @@ const OutroScene: React.FC<{ p: BusinessPromoProps; manifest: FeedManifest | nul
 };
 
 /**
- * Le montage se joue toujours dans un cadre 9:16 calibré 1080×1920
- * (échelle typographique). `scale` ramène ce cadre à la taille réelle du
- * conteneur (mockup ou bandes noires en paysage).
+ * Cadre logique du montage : 1080×1920 en portrait/mockup, 1440×810 en paysage
+ * (l'échelle typographique reste celle du canvas de référence, `scale` ramène
+ * le cadre à la taille réelle de la composition).
  */
-const Stage: React.FC<{ p: BusinessPromoProps; scale?: number }> = ({ p, scale = 1 }) => {
+const Stage: React.FC<{ p: BusinessPromoProps; scale?: number; wide?: boolean }> = ({
+  p,
+  scale = 1,
+  wide = false,
+}) => {
   const segs = promoSegments(p);
   const images = (p.images || []).slice(0, 4);
   const manifest = useFeedManifest(p.bgFeedManifest);
+  const stage = wide ? LANDSCAPE_STAGE : PROMO_PORTRAIT;
   let cursor = 0;
   return (
     <AbsoluteFill
       style={{
         background: palette.black,
-        width: PROMO_PORTRAIT.width,
-        height: PROMO_PORTRAIT.height,
+        width: stage.width,
+        height: stage.height,
         transform: `scale(${scale})`,
         transformOrigin: "top left",
       }}
@@ -396,7 +429,7 @@ const Stage: React.FC<{ p: BusinessPromoProps; scale?: number }> = ({ p, scale =
         cursor += s.frames;
         return (
           <Sequence key={`${s.kind}-${i}`} from={from} durationInFrames={s.frames}>
-            {s.kind === "hook" && <HookScene p={p} frames={s.frames} manifest={manifest} />}
+            {s.kind === "hook" && <HookScene p={p} frames={s.frames} manifest={manifest} wide={wide} />}
             {s.kind === "video" && p.videoUrl && (
               <MediaScene src={p.videoUrl} kind="video" frames={s.frames} />
             )}
@@ -404,7 +437,7 @@ const Stage: React.FC<{ p: BusinessPromoProps; scale?: number }> = ({ p, scale =
               <MediaScene src={images[s.index ?? 0]} kind="img" frames={s.frames} />
             )}
             {s.kind === "text" && <TextScene p={p} frames={s.frames} manifest={manifest} />}
-            {s.kind === "outro" && <OutroScene p={p} frames={s.frames} manifest={manifest} />}
+            {s.kind === "outro" && <OutroScene p={p} frames={s.frames} manifest={manifest} wide={wide} />}
           </Sequence>
         );
       })}
@@ -415,7 +448,7 @@ const Stage: React.FC<{ p: BusinessPromoProps; scale?: number }> = ({ p, scale =
 
 export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
   const p = { ...promoDefaults, ...raw } as BusinessPromoProps;
-  const { height } = useVideoConfig();
+  const { width, height } = useVideoConfig();
   const isMockup = p.variant === "mockup";
 
   // Portrait plein écran : le stage occupe tout le cadre (échelle 1:1).
@@ -423,7 +456,7 @@ export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
     return <Stage p={p} />;
   }
 
-  // Mockup : cadre téléphone centré sur fond uni coloré.
+  // Mockup : cadre téléphone centré sur fond uni coloré (le stage reste 9:16).
   if (isMockup) {
     const phoneH = Math.round(height * (p.format === "landscape" ? 0.88 : 0.78));
     const { screenW } = phoneGeometry(phoneH);
@@ -442,13 +475,11 @@ export const BusinessPromo: React.FC<BusinessPromoProps> = (raw) => {
     );
   }
 
-  // Paysage plein écran : stage 9:16 centré, bandes noires sur les côtés.
-  const stageW = Math.round((height * 9) / 16);
+  // Paysage plein écran : cadre 16:9 natif, aucune bande noire.
   return (
-    <AbsoluteFill style={{ background: palette.black, justifyContent: "center", alignItems: "center" }}>
-      <div style={{ width: stageW, height, position: "relative", overflow: "hidden" }}>
-        <Stage p={p} scale={stageW / PROMO_PORTRAIT.width} />
-      </div>
+    <AbsoluteFill style={{ background: palette.black, overflow: "hidden" }}>
+      <Stage p={p} scale={width / LANDSCAPE_STAGE.width} wide />
     </AbsoluteFill>
   );
 };
+
