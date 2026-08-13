@@ -19,6 +19,10 @@ export function useWidgetParams(
   const slug = opts.slug || null;
   const [businessId, setBusinessId] = useState<string | null>(opts.businessId || null);
   const [settings, setSettings] = useState<ResolvedWidgetSettings | null>(null);
+  // `?preset=overlay` : rendu interne (overlay Full Description du slidepanel).
+  // Les réglages backoffice sont ignorés → inutile de payer la requête.
+  const overlay = (urlParams.get("preset") || "").toLowerCase() === "overlay";
+
 
   // Résolution de l'établissement (pour les surcharges) à partir du slug.
   useEffect(() => {
