@@ -10,6 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import AffiliateArticleExport from "@/components/affiliate/AffiliateArticleExport";
 import HexColorField from "@/components/affiliate/HexColorField";
 import WidgetTester from "@/components/affiliate/WidgetTester";
+import { fetchBusinessWidgetCommon, saveBusinessWidgetSettingsForAll } from "@/lib/widgetSettings";
 import { FIT_OPTIONS, fitFlags, fitIframeStyle, fitParam,
   cardParam, autoHeightSnippet, SIZE_OPTIONS, sizeMaxWidth, type EmbedFit, type EmbedSize } from "@/lib/embedFit";
 
@@ -113,12 +114,13 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
   const [radiusSaving, setRadiusSaving] = useState<boolean>(false);
   const [radiusSaved, setRadiusSaved] = useState<boolean>(false);
 
-  // Couleur de fond des widgets (businesses.widget_bg_color)
+  // Couleur de fond des widgets — source unique : business_widget_settings
+  // (repli sur les anciennes colonnes de la fiche le temps de la reprise).
   const [widgetBg, setWidgetBg] = useState<string>("");
   const [widgetBgSaving, setWidgetBgSaving] = useState<boolean>(false);
   const [widgetBgSaved, setWidgetBgSaved] = useState<boolean>(false);
   const widgetBgValid = /^#[0-9a-fA-F]{6}$/.test(widgetBg);
-  // Couleur de fond des widgets dédiée au mode sombre (businesses.widget_bg_color_dark).
+  // Couleur de fond des widgets dédiée au mode sombre.
   const [widgetBgDark, setWidgetBgDark] = useState<string>("");
   const [widgetBgDarkSaving, setWidgetBgDarkSaving] = useState<boolean>(false);
   const [widgetBgDarkSaved, setWidgetBgDarkSaved] = useState<boolean>(false);
@@ -129,11 +131,14 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     let cancelled = false;
     (async () => {
       setRadiusLoading(true);
-      const { data } = await (supabase as any)
-        .from("businesses")
-        .select("poi_radius_km, widget_bg_color, widget_bg_color_dark, widget_theme, spotify_url, soundcloud_url, substack_url")
-        .eq("id", businessId)
-        .maybeSingle();
+      const [{ data }, common] = await Promise.all([
+        (supabase as any)
+          .from("businesses")
+          .select("poi_radius_km, widget_bg_color, widget_bg_color_dark, widget_theme, spotify_url, soundcloud_url, substack_url")
+          .eq("id", businessId)
+          .maybeSingle(),
+        fetchBusinessWidgetCommon(businessId).catch(() => ({ bgLight: "", bgDark: "", theme: null as null })),
+      ]);
       if (cancelled) return;
       const v = Number((data as any)?.poi_radius_km);
       setRadiusKm(v > 0 ? v : 10);
@@ -142,12 +147,11 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
         soundcloud: (data as any)?.soundcloud_url || "",
         substack: (data as any)?.substack_url || "",
       });
-      const wcolor = ((data as any)?.widget_bg_color || "").toUpperCase();
+      const wcolor = (common.bgLight || (data as any)?.widget_bg_color || "").toUpperCase();
       setWidgetBg(wcolor);
-      setWidgetBgDark(((data as any)?.widget_bg_color_dark || "").toUpperCase());
-      if ((data as any)?.widget_theme === "light" || (data as any)?.widget_theme === "dark") {
-        setEmbedTheme((data as any).widget_theme);
-      }
+      setWidgetBgDark((common.bgDark || (data as any)?.widget_bg_color_dark || "").toUpperCase());
+      const theme = common.theme || (data as any)?.widget_theme;
+      if (theme === "light" || theme === "dark") setEmbedTheme(theme);
 
       // Widget « À proximité » : on pré-remplit le fond de carte avec la couleur
       // de fond des widgets de l'établissement quand elle est définie.
@@ -178,12 +182,14 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     if (raw && !value) return;
     setWidgetBgSaving(true);
     setWidgetBgSaved(false);
-    const { error } = await (supabase as any)
-      .from("businesses")
-      .update({ widget_bg_color: value })
-      .eq("id", businessId);
+    try {
+      await saveBusinessWidgetSettingsForAll(businessId, { bg_light: value });
+    } catch (e: any) {
+      setWidgetBgSaving(false);
+      toast({ title: "Erreur", description: e?.message || "Enregistrement impossible", variant: "destructive" });
+      return;
+    }
     setWidgetBgSaving(false);
-    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
     setWidgetBgSaved(true);
   };
 
@@ -196,26 +202,31 @@ const AffiliateToolsTab = ({ slug, businessName, businessId = null, rights = { a
     if (raw && !value) return;
     setWidgetBgDarkSaving(true);
     setWidgetBgDarkSaved(false);
-    const { error } = await (supabase as any)
-      .from("businesses")
-      .update({ widget_bg_color_dark: value })
-      .eq("id", businessId);
+    try {
+      await saveBusinessWidgetSettingsForAll(businessId, { bg_dark: value });
+    } catch (e: any) {
+      setWidgetBgDarkSaving(false);
+      toast({ title: "Erreur", description: e?.message || "Enregistrement impossible", variant: "destructive" });
+      return;
+    }
     setWidgetBgDarkSaving(false);
-    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
     setWidgetBgDarkSaved(true);
   };
 
-  /** Thème par défaut du widget (sombre/clair) — persisté sur businesses.widget_theme. */
+
+  /** Thème par défaut des widgets (sombre/clair) — persisté sur business_widget_settings. */
   const saveEmbedTheme = async (t: "dark" | "light") => {
     setEmbedTheme(t);
     if (!businessId) return;
-    const { error } = await (supabase as any)
-      .from("businesses")
-      .update({ widget_theme: t })
-      .eq("id", businessId);
-    if (error) { toast({ title: "Erreur", description: error.message, variant: "destructive" }); return; }
+    try {
+      await saveBusinessWidgetSettingsForAll(businessId, { theme: t });
+    } catch (e: any) {
+      toast({ title: "Erreur", description: e?.message || "Enregistrement impossible", variant: "destructive" });
+      return;
+    }
     toast({ title: t === "dark" ? "Thème sombre enregistré" : "Thème clair enregistré" });
   };
+
 
 
 

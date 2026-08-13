@@ -286,3 +286,39 @@ export const fetchWidgetAnalytics = async (days = 30, businessId?: string | null
   if (error) throw error;
   return (data || {}) as WidgetAnalytics;
 };
+
+/**
+ * Applique une même valeur d'affichage (couleurs / thème) à TOUS les widgets d'un
+ * établissement. Utilisé par /affiliates/presence → Tools, où l'affilié règle
+ * une seule identité visuelle pour l'ensemble de ses widgets.
+ */
+export const saveBusinessWidgetSettingsForAll = async (
+  businessId: string,
+  patch: Partial<WidgetSettingsFields>,
+) => {
+  const catalog = await fetchWidgetCatalog();
+  const rows = catalog.map((w) => ({ business_id: businessId, widget_key: w.widget_key, ...patch }));
+  if (!rows.length) return;
+  const { error } = await (supabase as any)
+    .from("business_widget_settings")
+    .upsert(rows, { onConflict: "business_id,widget_key" });
+  if (error) throw error;
+};
+
+/** Réglages d'affichage communs d'un établissement (lus sur le widget « ask »). */
+export const fetchBusinessWidgetCommon = async (businessId: string) => {
+  const { data } = await (supabase as any)
+    .from("business_widget_settings")
+    .select("bg_light, bg_dark, theme")
+    .eq("business_id", businessId)
+    .eq("widget_key", "ask")
+    .maybeSingle();
+  return {
+    bgLight: normalizeHex((data as any)?.bg_light),
+    bgDark: normalizeHex((data as any)?.bg_dark),
+    theme: ((data as any)?.theme === "dark" ? "dark" : (data as any)?.theme === "light" ? "light" : null) as
+      | "light"
+      | "dark"
+      | null,
+  };
+};
