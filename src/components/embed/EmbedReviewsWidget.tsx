@@ -217,7 +217,9 @@ export default function EmbedReviewsWidget({
   surface,
   ink = "light",
   frameless = false,
+  hideReviewText = false,
 }: {
+
   business: EmbedReviewsBusiness;
   reviews: EmbedReviewItem[];
   platform: ReviewPlatformKey;
@@ -232,6 +234,9 @@ export default function EmbedReviewsWidget({
   ink?: "light" | "dark";
   /** Supprime le cadre extérieur (bordure, ombre, padding, fond) → fusion parfaite avec la section hôte. */
   frameless?: boolean;
+  /** Masque la carte « détail de l'avis » (redondance quand l'hôte liste déjà les avis en texte). */
+  hideReviewText?: boolean;
+
 }) {
 
 
@@ -452,7 +457,10 @@ export default function EmbedReviewsWidget({
       </div>
     ) : null;
 
-  const mainCard = list.length === 0 && platformShowcase ? platformShowcase : reviewCard;
+  const mainCard = hideReviewText
+    ? (list.length === 0 && platformShowcase ? platformShowcase : null)
+    : (list.length === 0 && platformShowcase ? platformShowcase : reviewCard);
+
 
 
 
@@ -496,13 +504,14 @@ export default function EmbedReviewsWidget({
 
       {shape === "horizontal" ? (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start flex-1">
+          <div className={`grid grid-cols-1 ${mainCard ? "sm:grid-cols-2" : ""} gap-4 items-start flex-1`}>
             <div className="space-y-3 min-w-0">
               {header}
               {badge}
               {rows}
             </div>
-            <div className="min-w-0 h-full">{mainCard}</div>
+            {mainCard ? <div className="min-w-0 h-full">{mainCard}</div> : null}
+
           </div>
           {signature}
         </>

@@ -93,6 +93,29 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
         ? r.text_en || r.text_fr || r.text || ""
         : r.text_fr || r.text || "";
 
+  /**
+   * Rend le texte de l'avis en mettant l'extrait (`highlight`) en évidence
+   * *in situ* : jaune vif, gras, italique, taille légèrement supérieure.
+   * Si l'extrait n'est pas trouvé dans le texte, le texte est rendu tel quel.
+   */
+  const renderWithHighlight = (r: ReviewText) => {
+    const full = displayText(r);
+    const hl = (r.highlight || "").trim();
+    if (!hl) return full;
+    const idx = full.toLowerCase().indexOf(hl.toLowerCase());
+    if (idx === -1) return full;
+    return (
+      <>
+        {full.slice(0, idx)}
+        <span className="font-bold italic text-yellow-300 text-base md:text-lg">
+          {full.slice(idx, idx + hl.length)}
+        </span>
+        {full.slice(idx + hl.length)}
+      </>
+    );
+  };
+
+
   if (!avgOn20 && activePlatforms.length === 0 && ordered.length === 0 && leaveReviewPlatforms.length === 0) return null;
 
   const visible = expanded ? ordered.slice(0, 10) : ordered.slice(0, 1);
@@ -138,7 +161,7 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
         <div className="w-full mx-auto max-w-[820px] mb-4 rounded-xl overflow-hidden bg-transparent border border-white/10">
           <iframe
             key={`reviews-widget-${slug}`}
-            src={`/embed/reviews/${slug}?preset=overlay&platform=all&lang=${language}&bg=transparent&theme=dark`}
+            src={`/embed/reviews/${slug}?preset=overlay&platform=all&lang=${language}&bg=transparent&theme=dark&notexts=1`}
             title={t.title}
             className="w-full block border-0 bg-transparent"
             style={{ height: reviewsIframeHeight, background: "transparent" }}
@@ -172,16 +195,9 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
                 className="rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm p-4 border-l-4 border-l-gold/60"
               >
                 <p className="text-sm md:text-base text-white/90 leading-relaxed font-['Montserrat',sans-serif] italic">
-                  {displayText(r)}
-                  {r.highlight?.trim() && (
-                    <>
-                      {" "}
-                      <span className="font-bold text-gold text-base md:text-lg italic">
-                        {r.highlight.trim()}
-                      </span>
-                    </>
-                  )}
+                  {renderWithHighlight(r)}
                 </p>
+
                 <footer className="mt-2 text-xs text-white/60 font-['Avenir Next','Avenir','Nunito Sans',system-ui,sans-serif]">
                   — {r.author_name || t.anon}
                   {r.source ? ` (${r.source})` : ""}

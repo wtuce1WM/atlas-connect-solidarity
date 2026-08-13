@@ -54,6 +54,10 @@ export default function EmbedReviews() {
   // ?frame=0 (ou frameless=1) → aucun cadre : fusion parfaite avec la section hôte
   const frameless = /^(0|none|off|no)$/i.test((params.get("frame") || "").trim()) ||
     /^(1|true|yes)$/i.test((params.get("frameless") || "").trim());
+  // ?notexts=1 → masque la carte « détail de l'avis » (évite la redondance quand
+  // l'hôte affiche déjà tous les avis en texte, ex. overlay Full Description).
+  const hideReviewText = /^(1|true|yes)$/i.test((params.get("notexts") || "").trim());
+
 
 
   
@@ -152,7 +156,7 @@ export default function EmbedReviews() {
       )}
       {!loading && !error && business && (
         <div ref={fitInnerRef} className="w-full flex justify-center [&>div]:max-w-full" style={fitStyle}>
-          <EmbedReviewsWidget business={business} reviews={reviews} platform={platform} lang={lang} ratio={ratio} size={size} fullWidth={fullWidth} surface={surface} ink={ink} frameless={frameless} />
+          <EmbedReviewsWidget business={business} reviews={reviews} platform={platform} lang={lang} ratio={ratio} size={size} fullWidth={fullWidth} surface={surface} ink={ink} frameless={frameless} hideReviewText={hideReviewText} />
         </div>
       )}
     </div>
