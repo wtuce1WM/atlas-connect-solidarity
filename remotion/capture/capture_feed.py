@@ -342,10 +342,20 @@ async def main() -> None:
             for col, tag in (("#000000", "black"), ("#ffffff", "white")):
                 await setbg(col)
                 await pg.screenshot(path=str(raw / f"descopen_{tag}.png"))
+            # Fond de l'overlay seul (image + scrims), recomposé sous le contenu
+            # scrollé dans Remotion.
+            await pg.evaluate(BG_ONLY_ON)
+            await pg.wait_for_timeout(300)
+            for col, tag in (("#000000", "black"), ("#ffffff", "white")):
+                await setbg(col)
+                await pg.screenshot(path=str(raw / f"descbg_{tag}.png"))
+            await pg.evaluate(BG_ONLY_OFF)
+            await pg.wait_for_timeout(300)
             # En-tête capturé : on neutralise ensuite les éléments collants/fixes
             # pour que le contenu stitché ne les répète pas dans la hauteur.
             await pg.evaluate(HIDE_STUCK)
             await pg.wait_for_timeout(400)
+
             bands: list[tuple[int, int]] = []  # (index, scrollTop réel)
 
             s = 0
