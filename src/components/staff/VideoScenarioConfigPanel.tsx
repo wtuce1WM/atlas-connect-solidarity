@@ -749,13 +749,16 @@ const VideoScenarioConfigPanel = () => {
         width: Math.max(320, Math.min(3840, Number(config.width) || 1920)),
         height: Math.max(320, Math.min(3840, Number(config.height) || 1080)),
         fps: Math.max(12, Math.min(60, Number(config.fps) || 30)),
-        internal_note: config.internal_note,
       } as any,
       { onConflict: "mode" },
     );
+    // Note interne stockée à part (staff only).
+    const noteRes = await supabase
+      .from("video_scenario_internal_notes")
+      .upsert({ mode, note: config.internal_note } as any, { onConflict: "mode" });
 
     setSaving(false);
-    if (stepsRes.error || configRes.error) {
+    if (stepsRes.error || configRes.error || noteRes.error) {
       toast.error("Enregistrement échoué");
       return;
     }
