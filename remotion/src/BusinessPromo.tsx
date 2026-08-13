@@ -154,16 +154,68 @@ const SceneBackdrop: React.FC<{
   );
 };
 
-const HookScene: React.FC<{ p: BusinessPromoProps; frames: number; manifest: FeedManifest | null }> = ({
-  p,
-  frames,
-  manifest,
-}) => {
+const HookScene: React.FC<{
+  p: BusinessPromoProps;
+  frames: number;
+  manifest: FeedManifest | null;
+  wide?: boolean;
+}> = ({ p, frames, manifest, wide = false }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const rise = spring({ frame, fps, config: { damping: 200 } });
   const y = interpolate(rise, [0, 1], [60, 0]);
   const words = (p.hook || "").split(/\s+/).filter(Boolean);
+
+  const textBlock = (
+    <div style={{ transform: `translateY(${y}px)` }}>
+      <div
+        style={{
+          width: 84,
+          height: 5,
+          background: palette.terracotta,
+          marginBottom: 28,
+          borderRadius: 999,
+        }}
+      />
+      <h1
+        style={{
+          fontFamily: display,
+          fontWeight: weight.medium,
+          fontSize: size.h2,
+          lineHeight: 1.08,
+          color: palette.cream,
+          margin: 0,
+          textWrap: "balance",
+        }}
+      >
+        {words.map((w, i) => {
+          const o = interpolate(frame, [i * 3, i * 3 + 12], [0, 1], {
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
+          });
+          return (
+            <span key={`${w}-${i}`} style={{ opacity: o }}>
+              {w}{" "}
+            </span>
+          );
+        })}
+      </h1>
+      {p.city && (
+        <p
+          style={{
+            fontFamily: body,
+            fontSize: size.caption,
+            letterSpacing: 3,
+            textTransform: "uppercase",
+            color: palette.gold,
+            marginTop: 26,
+          }}
+        >
+          {p.city}
+        </p>
+      )}
+    </div>
+  );
 
   return (
     <AbsoluteFill style={{ background: palette.night }}>
@@ -173,69 +225,37 @@ const HookScene: React.FC<{ p: BusinessPromoProps; frames: number; manifest: Fee
           background: `linear-gradient(180deg, ${alpha("night", 0.55)}, ${alpha("night", 0.9)})`,
         }}
       />
-      {p.logoUrl && (
-        <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", paddingBottom: "18%" }}>
-          <PromoLogo src={p.logoUrl} size={PROMO_PORTRAIT.width * 0.52} />
-        </AbsoluteFill>
-      )}
-      <AbsoluteFill
-        style={{
-          justifyContent: "flex-end",
-          padding: "0 7% 12%",
-        }}
-      >
-        <div style={{ transform: `translateY(${y}px)` }}>
-          <div
-            style={{
-              width: 84,
-              height: 5,
-              background: palette.terracotta,
-              marginBottom: 28,
-              borderRadius: 999,
-            }}
-          />
-          <h1
-            style={{
-              fontFamily: display,
-              fontWeight: weight.medium,
-              fontSize: size.h2,
-              lineHeight: 1.08,
-              color: palette.cream,
-              margin: 0,
-              textWrap: "balance",
-            }}
-          >
-            {words.map((w, i) => {
-              const o = interpolate(frame, [i * 3, i * 3 + 12], [0, 1], {
-                extrapolateLeft: "clamp",
-                extrapolateRight: "clamp",
-              });
-              return (
-                <span key={`${w}-${i}`} style={{ opacity: o }}>
-                  {w}{" "}
-                </span>
-              );
-            })}
-          </h1>
-          {p.city && (
-            <p
-              style={{
-                fontFamily: body,
-                fontSize: size.caption,
-                letterSpacing: 3,
-                textTransform: "uppercase",
-                color: palette.gold,
-                marginTop: 26,
-              }}
-            >
-              {p.city}
-            </p>
+      {/* Paysage : logo à gauche, accroche à droite. Portrait : logo centré, accroche en bas. */}
+      {wide ? (
+        <AbsoluteFill
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: "5%",
+            padding: "0 7%",
+          }}
+        >
+          {p.logoUrl && (
+            <div style={{ flex: "0 0 34%", display: "flex", justifyContent: "center" }}>
+              <PromoLogo src={p.logoUrl} size={LANDSCAPE_STAGE.width * 0.3} />
+            </div>
           )}
-        </div>
-      </AbsoluteFill>
+          <div style={{ flex: 1 }}>{textBlock}</div>
+        </AbsoluteFill>
+      ) : (
+        <>
+          {p.logoUrl && (
+            <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", paddingBottom: "18%" }}>
+              <PromoLogo src={p.logoUrl} size={PROMO_PORTRAIT.width * 0.52} />
+            </AbsoluteFill>
+          )}
+          <AbsoluteFill style={{ justifyContent: "flex-end", padding: "0 7% 12%" }}>{textBlock}</AbsoluteFill>
+        </>
+      )}
     </AbsoluteFill>
   );
 };
+
 
 /** Carte texte plein écran (HTML riche ≤ 500 caractères, saisi en back-office). */
 const TextScene: React.FC<{ p: BusinessPromoProps; manifest: FeedManifest | null; frames: number }> = ({
