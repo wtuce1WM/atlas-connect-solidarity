@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useEmbedIframeHeight } from "@/hooks/useEmbedIframeHeight";
 import { Star, ChevronDown, ChevronUp } from "lucide-react";
 import { tripadvisorReviewUrl } from "@/lib/tripadvisorUrl";
 import type { ReviewText } from "@/lib/reviewHtmlBuilder";
@@ -58,6 +59,7 @@ function resolveLeaveReviewUrl(p: InlineReviewPlatform): string | null {
  */
 const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, language, slug }: Props) => {
   const t = L[(language as keyof typeof L)] ?? L.fr;
+  const reviewsIframeHeight = useEmbedIframeHeight("owm-reviews-height", 340);
   const [expanded, setExpanded] = useState(false);
 
   const activePlatforms = useMemo(
