@@ -353,9 +353,18 @@ const Stage: React.FC<{ m: FeedManifest; noVideo?: boolean }> = ({ m, noVideo })
           opacity: openP,
         }}
       >
+        {/* Fond de l'overlay : sans lui, la fiche (et sa barre liquid glass)
+            reste visible à travers les bandes transparentes du contenu. */}
+        {detail.bg && (
+          <Img
+            src={staticFile(`${m.base}/${detail.bg}`)}
+            style={{ position: "absolute", left: 0, top: 0, width: W, height: H }}
+          />
+        )}
         {/* contenu scrollable réel, clippé sur la zone du panneau */}
         <div
           style={{
+
             position: "absolute",
             left: 0,
             top: detail.viewTop ?? detail.headerHeight,
