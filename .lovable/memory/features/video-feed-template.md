@@ -12,9 +12,11 @@ Template de montage des vidéos internes de feed (issu du calibrage « Riads à 
 2. Sortie : `remotion/public/feed/<slug>/` + `manifest.json` (viewport, fps, étapes + frameCount, headerHeight/viewHeight/contentHeight de l'overlay, sections, bloc `timing`).
 3. Rendu : `FEED_MANIFEST=feed/<slug>/manifest.json FEED_FORMAT=portrait|landscape OUT=... node remotion/scripts/render-feed-template.mjs`
 
-**Composition :** `remotion/src/FeedTemplate.tsx`, compositions `feed-template` (portrait natif) et `feed-template-landscape` (1280x720 : stage portrait mis à l'échelle et centré sur un fond = frame vidéo courante floutée). Durée et dimensions calculées par `calculateMetadata` depuis le manifest.
+**Composition :** `remotion/src/FeedTemplate.tsx`, compositions `feed-template` (portrait, sortie 1080x1920 via `outputScale` 1.5) et `feed-template-landscape` (1920x1080 : stage portrait mis à l'échelle et centré sur un fond = frame vidéo courante floutée). Durée et dimensions calculées par `calculateMetadata` depuis le manifest.
 
 **Rythme** : réglable via `timing` du manifest (temps par étape, pause hook, move/pause par section) sans toucher au code.
+
+Au montage paysage, le rail de CTA de gauche est entièrement masqué (`data-owm-video-rail` + `--hide-rail` de la capture).
 
 `FeedSwipe.tsx` (v1-v4) est conservé comme référence historique mais gelé : toute nouvelle vidéo passe par le template.
 
