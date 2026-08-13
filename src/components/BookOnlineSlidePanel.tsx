@@ -3349,8 +3349,8 @@ const BookOnlineSlidePanelInner = ({
                     <div className="mt-8 pt-6 border-t border-white/10">
                       <h2 className="text-lg md:text-xl font-bold uppercase mb-3 text-white font-['Montserrat',sans-serif]">
                         {language === "en" ? "Nearby" : language === "ar" ? "بالقرب" : "À proximité"}
-                        {videoTabLabel ? <span className="normal-case font-semibold text-white/70"> — {videoTabLabel}</span> : null}
                       </h2>
+
                       <div className="w-full rounded-xl overflow-hidden bg-black/30 border border-white/10">
                         <iframe
                           key={`nearby-widget-${business.slug}`}
