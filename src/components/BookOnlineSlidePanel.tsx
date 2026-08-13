@@ -1174,6 +1174,9 @@ const BookOnlineSlidePanelInner = ({
       el.addEventListener("keydown", markGesture);
       el.addEventListener("scroll", onScroll, { passive: true });
     }
+    // Un clic/appui ailleurs (barre d'ancres, sommaire) reste un geste utilisateur légitime
+    document.addEventListener("pointerdown", markGesture, true);
+    document.addEventListener("keydown", markGesture, true);
 
     return () => {
       timers.forEach(clearTimeout);
@@ -1185,6 +1188,8 @@ const BookOnlineSlidePanelInner = ({
         el.removeEventListener("keydown", markGesture);
         el.removeEventListener("scroll", onScroll);
       }
+      document.removeEventListener("pointerdown", markGesture, true);
+      document.removeEventListener("keydown", markGesture, true);
     };
 
   }, [showDescriptionOverlay, descGridSection, descOverlayContent]);
