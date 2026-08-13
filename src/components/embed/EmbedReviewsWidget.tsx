@@ -457,7 +457,10 @@ export default function EmbedReviewsWidget({
       </div>
     ) : null;
 
-  const mainCard = list.length === 0 && platformShowcase ? platformShowcase : reviewCard;
+  const mainCard = hideReviewText
+    ? (list.length === 0 && platformShowcase ? platformShowcase : null)
+    : (list.length === 0 && platformShowcase ? platformShowcase : reviewCard);
+
 
 
 
