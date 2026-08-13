@@ -21,7 +21,7 @@ const FIELDS =
 
 export default function EmbedRateUs() {
   const { slug = "" } = useParams();
-  const { params, businessId: widgetBusinessId } = useWidgetParams("rateus", { slug });
+  const { params, businessId: widgetBusinessId, overlay } = useWidgetParams("rateus", { slug });
   useWidgetTracking("rateus", widgetBusinessId, params.get("lang") || undefined);
   const platformParam = (params.get("platform") || "all").toLowerCase();
   const platform = ["google", "tripadvisor"].includes(platformParam) ? platformParam : "all";
@@ -129,10 +129,15 @@ export default function EmbedRateUs() {
   return (
     <div ref={rootRef} className="w-full min-h-0 p-2 flex items-start justify-center bg-transparent">
       {loading && (
-        <div className="w-full max-w-[460px] rounded-3xl bg-muted/40 animate-pulse h-[280px] flex items-center justify-center text-sm text-muted-foreground">
+        <div
+          className={`w-full max-w-[460px] rounded-3xl h-[280px] flex items-center justify-center text-sm ${
+            overlay ? "bg-transparent text-transparent" : "bg-muted/40 animate-pulse text-muted-foreground"
+          }`}
+        >
           {L.loading}
         </div>
       )}
+
       {!loading && error && (
         <div className="w-full max-w-[460px] rounded-3xl border border-border p-6 text-center text-sm text-muted-foreground">
           {L.error}
