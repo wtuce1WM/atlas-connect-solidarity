@@ -379,6 +379,7 @@ const OutroScene: React.FC<{ p: BusinessPromoProps; manifest: FeedManifest | nul
 const Stage: React.FC<{ p: BusinessPromoProps; scale?: number }> = ({ p, scale = 1 }) => {
   const segs = promoSegments(p);
   const images = (p.images || []).slice(0, 4);
+  const manifest = useFeedManifest(p.bgFeedManifest);
   let cursor = 0;
   return (
     <AbsoluteFill
@@ -395,17 +396,19 @@ const Stage: React.FC<{ p: BusinessPromoProps; scale?: number }> = ({ p, scale =
         cursor += s.frames;
         return (
           <Sequence key={`${s.kind}-${i}`} from={from} durationInFrames={s.frames}>
-            {s.kind === "hook" && <HookScene p={p} frames={s.frames} />}
+            {s.kind === "hook" && <HookScene p={p} frames={s.frames} manifest={manifest} />}
             {s.kind === "video" && p.videoUrl && (
               <MediaScene src={p.videoUrl} kind="video" frames={s.frames} />
             )}
             {s.kind === "photo" && images[s.index ?? 0] && (
               <MediaScene src={images[s.index ?? 0]} kind="img" frames={s.frames} />
             )}
-            {s.kind === "outro" && <OutroScene p={p} />}
+            {s.kind === "text" && <TextScene p={p} frames={s.frames} manifest={manifest} />}
+            {s.kind === "outro" && <OutroScene p={p} frames={s.frames} manifest={manifest} />}
           </Sequence>
         );
       })}
+
     </AbsoluteFill>
   );
 };
