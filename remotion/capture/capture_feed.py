@@ -62,7 +62,7 @@ SET_BG = """(c)=>{
   let s=document.getElementById('owmcap');
   if(!s){s=document.createElement('style');s.id='owmcap';document.head.appendChild(s)}
   s.textContent='.bg-black{background-color:'+c+'!important}video{opacity:0!important}'
-    +'[data-owm-video-progress]{visibility:hidden!important}';
+    +'[data-owm-video-progress]{display:none!important}';
 
   if(window.__owmKill) window.__owmKill();
   if(window.__owmStuck) window.__owmStuck();
@@ -144,6 +144,10 @@ HIDE_STUCK = """()=>{
   const overlay=document.querySelector('[data-owm-overlay="1"]');
   const kill=()=>{
     if(!sc || !overlay) return;
+    // La progression est recomposée comme couche fixe dans Remotion. On la
+    // retire réellement des bandes : React peut sinon réécrire son style
+    // inline entre deux captures et la faire réapparaître dans le stitch.
+    overlay.querySelectorAll('[data-owm-video-progress]').forEach(e=>e.remove());
     [...overlay.querySelectorAll('*')].forEach(e=>{
       if(e===sc || e.contains(sc)) return;
       if(!sc.contains(e)){
