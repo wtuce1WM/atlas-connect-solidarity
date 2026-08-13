@@ -195,12 +195,20 @@
             "html,body,#root{background:transparent!important;background-color:transparent!important}" +
             "#root>div[aria-hidden='true']{display:none!important}";
           document.head.appendChild(s);
-          // Pas de color-scheme forcé : avec `light`, un fond transparent est
-          // rendu en blanc (Canvas) par le navigateur → flash blanc dans l'iframe.
-          var m = document.createElement("meta");
-          m.name = "color-scheme";
-          m.content = "light dark";
-          document.head.appendChild(m);
+          // Chromium peint le fond de base d'une iframe transparente avec le
+          // "color-adjust background" dès que le color-scheme de l'iframe diffère
+          // de celui du document hôte (→ blanc si l'hôte est dark et l'iframe light).
+          // preset=overlay = usage interne dans l'app (hôte dark) → on aligne sur dark.
+          var isOverlay = /(^|[?&])preset=overlay(&|$)/.test(location.search);
+          var metas = document.querySelectorAll('meta[name="color-scheme"]');
+          for (var i = 0; i < metas.length; i++) metas[i].parentNode.removeChild(metas[i]);
+          if (isOverlay) {
+            document.documentElement.style.setProperty("color-scheme", "dark");
+          } else {
+            document.documentElement.style.removeProperty("color-scheme");
+          }
+
+
 
         } catch (e) {}
       })();
