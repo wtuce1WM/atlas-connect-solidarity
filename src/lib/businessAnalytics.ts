@@ -99,6 +99,21 @@ function isValidUuid(id: string): boolean {
   return UUID_RE.test(id);
 }
 
+/** URL courte et stable : on retire les params volumineux (pinIds, _t...) et on tronque à 512. */
+const HEAVY_PARAMS = ["pinIds", "ids", "_t", "openBusiness"];
+function currentSourcePage(): string {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    for (const p of HEAVY_PARAMS) if (params.has(p)) params.set(p, "…");
+    const qs = params.toString();
+    return (window.location.pathname + (qs ? `?${qs}` : "")).slice(0, 512);
+  } catch {
+    return window.location.pathname.slice(0, 512);
+  }
+}
+
+
+
 /** Track an event tied to a specific business. Non-blocking, batched. */
 export function trackBusinessEvent(
   businessId: string | null | undefined,
