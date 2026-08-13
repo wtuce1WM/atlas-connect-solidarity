@@ -90,13 +90,20 @@ PANEL_INFO = """()=>{
 }"""
 
 MARK_SCROLLER = """()=>{
-  const sc=[...document.querySelectorAll('div')]
-    .find(d=>d.scrollHeight>d.clientHeight+100 && d.clientHeight>200);
+  const sc=document.querySelector('#owm-desc-scroll');
   if(!sc) return null;
   sc.dataset.owm='1';
   const r=sc.getBoundingClientRect();
+  const overlay=sc.closest('[data-owm-video-overlay]');
+  if(overlay) overlay.dataset.owmOverlay='1';
+  const header=overlay?.querySelector('[data-owm-video-header]');
+  const bottom=overlay?.querySelector('[data-owm-video-bottom-bar]');
+  const hr=header?.getBoundingClientRect();
+  const br=bottom?.getBoundingClientRect();
   return {top:Math.round(r.top),left:Math.round(r.left),width:Math.round(r.width),
-          view:Math.round(r.height),content:sc.scrollHeight,max:sc.scrollHeight-sc.clientHeight};
+          view:Math.round(r.height),content:sc.scrollHeight,max:sc.scrollHeight-sc.clientHeight,
+          headerTop:hr?Math.round(hr.top):0,headerHeight:hr?Math.round(hr.height):Math.round(r.top),
+          bottomTop:br?Math.round(br.top):null,bottomHeight:br?Math.round(br.height):0};
 }"""
 
 # Position absolue (dans le contenu scrollable) de chaque titre de section.
@@ -132,11 +139,18 @@ TRIGGER_POS = """()=>{
 # visibility:hidden (et non display:none) pour ne pas changer la géométrie.
 HIDE_STUCK = """()=>{
   const sc=document.querySelector('[data-owm="1"]');
+  const overlay=document.querySelector('[data-owm-overlay="1"]');
   const kill=()=>{
-    [...document.querySelectorAll('body *')].forEach(e=>{
-      if(e===sc || (sc && e.contains(sc))) return;
+    if(!sc || !overlay) return;
+    [...overlay.querySelectorAll('*')].forEach(e=>{
+      if(e===sc || e.contains(sc)) return;
+      if(!sc.contains(e)){
+        e.dataset.owmStuck='1'; e.style.visibility='hidden'; return;
+      }
       const p=getComputedStyle(e).position;
-      if(p==='fixed' || p==='sticky'){ e.dataset.owmStuck='1'; e.style.visibility='hidden'; }
+      if(p==='fixed' || p==='sticky'){
+        e.dataset.owmStuck='1'; e.style.visibility='hidden';
+      }
     });
   };
   kill(); window.__owmStuck=kill; setInterval(kill,400);
@@ -362,18 +376,37 @@ async def main() -> None:
         for idx, real in bands:
             merged = raw / f"band{idx}.png"
             alpha_merge(raw / f"sc{idx}_black.png", raw / f"sc{idx}_white.png", merged)
-            crop = Image.open(merged).crop((0, geo["top"], geo["width"], geo["top"] + geo["view"]))
+            # Les screenshots sont en pixels physiques (DSF), tandis que les
+            # mesures DOM sont en pixels CSS. L'ancien crop utilisait les
+            # coordonnées CSS sur une image 2x : il ne gardait que la moitié
+            # gauche du viewport en paysage.
+            scale = args.dsf
+            crop = Image.open(merged).crop((
+                geo["left"] * scale,
+                geo["top"] * scale,
+                (geo["left"] + geo["width"]) * scale,
+                (geo["top"] + geo["view"]) * scale,
+            ))
             cp = raw / f"bandcrop{idx}.png"
             crop.save(cp)
-            band_paths.append((cp, real))
-        stitch(band_paths, geo["width"], geo["view"], geo["content"], out / "desctall.png")
+            band_paths.append((cp, real * scale))
+        stitch(
+            band_paths,
+            geo["width"] * args.dsf,
+            geo["view"] * args.dsf,
+            geo["content"] * args.dsf,
+            out / "desctall.png",
+        )
         manifest_detail = {
             "step": len(steps_meta),
             "open": "descopen.png",
             "tall": "desctall.png",
-            "headerHeight": geo["top"],
+            "headerTop": geo.get("headerTop", 0),
+            "headerHeight": geo.get("headerHeight", geo["top"]),
             "viewHeight": geo["view"],
             "contentHeight": geo["content"],
+            "bottomTop": geo.get("bottomTop"),
+            "bottomHeight": geo.get("bottomHeight", 0),
             "tapX": (detail["trigger"] or {}).get("x", args.width // 2),
             "tapY": (detail["trigger"] or {}).get("y", args.height - 120),
             "sections": detail["tops"],
