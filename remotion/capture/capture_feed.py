@@ -63,7 +63,9 @@ SET_BG = """(c)=>{
   if(!s){s=document.createElement('style');s.id='owmcap';document.head.appendChild(s)}
   s.textContent='.bg-black{background-color:'+c+'!important}video{opacity:0!important}';
   if(window.__owmKill) window.__owmKill();
+  if(window.__owmStuck) window.__owmStuck();
 }"""
+
 
 SWIPE = """async ()=>{
   const el=document.elementFromPoint(360,700);
@@ -122,6 +124,24 @@ TRIGGER_POS = """()=>{
   const r=t.getBoundingClientRect();
   return {x:Math.round(r.left+r.width/2), y:Math.round(r.top+r.height/2)};
 }"""
+
+# Avant les bandes de scroll : neutralise tout ce qui est position:fixed ou
+# sticky (barre d'onglets collante de l'overlay, barre « liquid glass » du bas
+# du SlidePanel). Ces éléments restent au même endroit du viewport dans chaque
+# bande : stitchés tels quels, ils se dupliquent dans la hauteur du montage.
+# visibility:hidden (et non display:none) pour ne pas changer la géométrie.
+HIDE_STUCK = """()=>{
+  const sc=document.querySelector('[data-owm="1"]');
+  const kill=()=>{
+    [...document.querySelectorAll('body *')].forEach(e=>{
+      if(e===sc || (sc && e.contains(sc))) return;
+      const p=getComputedStyle(e).position;
+      if(p==='fixed' || p==='sticky'){ e.dataset.owmStuck='1'; e.style.visibility='hidden'; }
+    });
+  };
+  kill(); window.__owmStuck=kill; setInterval(kill,400);
+}"""
+
 
 
 def local_url(url: str, origin: str) -> str:
@@ -286,7 +306,12 @@ async def main() -> None:
             for col, tag in (("#000000", "black"), ("#ffffff", "white")):
                 await setbg(col)
                 await pg.screenshot(path=str(raw / f"descopen_{tag}.png"))
+            # En-tête capturé : on neutralise ensuite les éléments collants/fixes
+            # pour que le contenu stitché ne les répète pas dans la hauteur.
+            await pg.evaluate(HIDE_STUCK)
+            await pg.wait_for_timeout(400)
             bands: list[tuple[int, int]] = []  # (index, scrollTop réel)
+
             s = 0
             while True:
                 await pg.evaluate("(v)=>{document.querySelector('[data-owm=\"1\"]').scrollTop=v}", s)
