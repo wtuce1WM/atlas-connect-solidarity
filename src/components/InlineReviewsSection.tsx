@@ -36,6 +36,8 @@ interface Props {
   avgOn20: number | null;
   totalReviewCount: number;
   language: string;
+  /** Slug de l'établissement — requis pour afficher les widgets iframe (avis / laisser un avis) */
+  slug?: string | null;
 }
 
 function resolveLeaveReviewUrl(p: InlineReviewPlatform): string | null {
@@ -54,7 +56,7 @@ function resolveLeaveReviewUrl(p: InlineReviewPlatform): string | null {
  * - Un seul avis visible par défaut (celui marqué par défaut, sinon le n°1),
  *   avec une incitation à déplier pour lire tous les avis.
  */
-const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, language }: Props) => {
+const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, language, slug }: Props) => {
   const t = L[(language as keyof typeof L)] ?? L.fr;
   const [expanded, setExpanded] = useState(false);
 
@@ -129,22 +131,35 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
         {t.title}
       </h2>
 
-      {avgOn20 !== null && avgOn20 > 0 && (
-        <div className="flex items-center justify-center gap-3 mb-4 flex-nowrap" style={{ filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.6))" }}>
-          <Star className="h-8 w-8 text-gold fill-gold shrink-0" />
-          <span className="font-['Montserrat',sans-serif] text-4xl font-black text-gold whitespace-nowrap">
-            {avgOn20}
-            <span className="text-xl font-semibold text-white/60">/20</span>
-          </span>
-          {totalReviewCount > 0 && (
-            <span className="font-['Montserrat',sans-serif] text-sm font-medium text-white/60 whitespace-nowrap">
-              · {totalReviewCount.toLocaleString("fr-FR")} {t.reviews}
-            </span>
-          )}
+      {/* Widget « Avis clients » (iframe) — remplace la note /20 en grand + badges */}
+      {slug ? (
+        <div className="w-full mx-auto max-w-[820px] mb-4 rounded-xl overflow-hidden bg-transparent border border-white/10">
+          <iframe
+            key={`reviews-widget-${slug}`}
+            src={`/embed/reviews/${slug}?platform=all&lang=${language}`}
+            title={t.title}
+            className="w-full block border-0 bg-transparent"
+            style={{ height: 340, background: "transparent" }}
+            loading="lazy"
+          />
         </div>
+      ) : (
+        avgOn20 !== null && avgOn20 > 0 && (
+          <div className="flex items-center justify-center gap-3 mb-4 flex-nowrap" style={{ filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.6))" }}>
+            <Star className="h-8 w-8 text-gold fill-gold shrink-0" />
+            <span className="font-['Montserrat',sans-serif] text-4xl font-black text-gold whitespace-nowrap">
+              {avgOn20}
+              <span className="text-xl font-semibold text-white/60">/20</span>
+            </span>
+            {totalReviewCount > 0 && (
+              <span className="font-['Montserrat',sans-serif] text-sm font-medium text-white/60 whitespace-nowrap">
+                · {totalReviewCount.toLocaleString("fr-FR")} {t.reviews}
+              </span>
+            )}
+          </div>
+        )
       )}
 
-      {leaveReviewPlatforms.length > 0 && <LeaveReviewWidgets />}
 
       {ordered.length > 0 && (
         <div className="mt-5">
@@ -163,10 +178,24 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
                 </footer>
               </blockquote>
             ))}
-            {expanded && leaveReviewPlatforms.length > 0 && (
-              <div className="pt-2">
-                <LeaveReviewWidgets />
+            {/* Widget « Laisser un avis » (iframe) — sous le dernier avis, avant le CTA */}
+            {slug ? (
+              <div className="w-full mx-auto max-w-[820px] pt-2 rounded-xl overflow-hidden bg-transparent">
+                <iframe
+                  key={`rate-widget-${slug}`}
+                  src={`/embed/avis/${slug}?platform=all&lang=${language}&variant=card`}
+                  title={t.leave}
+                  className="w-full block border-0 bg-transparent"
+                  style={{ height: 380, background: "transparent" }}
+                  loading="lazy"
+                />
               </div>
+            ) : (
+              expanded && leaveReviewPlatforms.length > 0 && (
+                <div className="pt-2">
+                  <LeaveReviewWidgets />
+                </div>
+              )
             )}
           </div>
 
