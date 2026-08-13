@@ -92,7 +92,7 @@ const EmbedNearby = () => {
             businessId={businessId}
             initialOverlay="poi"
             embedMode
-            mapBaseColor={mapBaseColor}
+            mapBaseColor={mapPainted ? mapBaseColor : null}
             mapTheme={mapTheme}
             onMapReady={() => setMapPainted(true)}
             hideDirections
