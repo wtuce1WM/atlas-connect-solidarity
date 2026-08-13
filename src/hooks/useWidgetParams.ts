@@ -49,6 +49,7 @@ export function useWidgetParams(
   }, [slug, opts.businessId]);
 
   useEffect(() => {
+    if (overlay) return; // rendu interne : réglages backoffice ignorés
     let alive = true;
     loadWidgetSettings(widgetKey, businessId)
       .then((s) => alive && setSettings(s))
@@ -56,13 +57,8 @@ export function useWidgetParams(
     return () => {
       alive = false;
     };
-  }, [widgetKey, businessId]);
+  }, [widgetKey, businessId, overlay]);
 
-  // `?preset=overlay` : rendu interne (overlay Full Description du slidepanel).
-  // Les réglages backoffice (couleurs de fond, thème, fit) sont volontairement
-  // ignorés pour que tous les établissements aient le même traitement visuel ;
-  // ces réglages restent utilisés pour les vrais embeds sur les sites hôtes.
-  const overlay = (urlParams.get("preset") || "").toLowerCase() === "overlay";
 
   const params = useMemo(() => {
     const p = new URLSearchParams(urlParams.toString());
