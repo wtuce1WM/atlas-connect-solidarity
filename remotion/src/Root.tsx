@@ -21,6 +21,28 @@ import {
   type FeedTemplateProps,
 } from "./FeedTemplate";
 import { BusinessShowcase, SHOWCASE_TOTAL_FRAMES, computeShowcaseFrames, type ShowcaseProps } from "./BusinessShowcase";
+import {
+  BusinessPromo,
+  computePromoFrames,
+  promoDefaults,
+  PROMO_FPS,
+  PROMO_PORTRAIT,
+  PROMO_LANDSCAPE,
+  type BusinessPromoProps,
+} from "./BusinessPromo";
+
+/** Promo business : durée déduite des blocs actifs et de leurs durées. */
+const promoMetadata = (format: "portrait" | "landscape") => ({ props }: { props: Record<string, unknown> }) => {
+  const p = { ...promoDefaults, ...(props as BusinessPromoProps), format };
+  const dims = format === "landscape" ? PROMO_LANDSCAPE : PROMO_PORTRAIT;
+  return {
+    durationInFrames: computePromoFrames(p),
+    fps: PROMO_FPS,
+    width: dims.width,
+    height: dims.height,
+    props: p,
+  };
+};
 
 const feedDefaults = (format: "portrait" | "landscape"): FeedTemplateProps => ({
   manifestPath: "feed/manifest.json",
@@ -67,6 +89,26 @@ export const RemotionRoot: React.FC = () => (
       height={LANDSCAPE.height}
       defaultProps={feedDefaults("landscape")}
       calculateMetadata={feedMetadata}
+    />
+    <Composition
+      id="business-promo"
+      component={BusinessPromo}
+      durationInFrames={computePromoFrames(promoDefaults)}
+      fps={PROMO_FPS}
+      width={PROMO_PORTRAIT.width}
+      height={PROMO_PORTRAIT.height}
+      defaultProps={{ ...promoDefaults, format: "portrait" } as BusinessPromoProps}
+      calculateMetadata={promoMetadata("portrait")}
+    />
+    <Composition
+      id="business-promo-landscape"
+      component={BusinessPromo}
+      durationInFrames={computePromoFrames(promoDefaults)}
+      fps={PROMO_FPS}
+      width={PROMO_LANDSCAPE.width}
+      height={PROMO_LANDSCAPE.height}
+      defaultProps={{ ...promoDefaults, format: "landscape" } as BusinessPromoProps}
+      calculateMetadata={promoMetadata("landscape")}
     />
     <Composition
       id="feed-swipe"
