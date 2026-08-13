@@ -132,7 +132,11 @@ async function renderOne() {
       ];
       // Paysage : on extrait en plus les frames vidéo 16:9 non recadrées, qui
       // occupent tout le cadre, la UI de la fiche étant superposée par-dessus.
-      if (p.format === "landscape") captureArgs.push("--wide");
+      if (p.format === "landscape") {
+        captureArgs.push("--wide");
+        // Le rail de CTA de gauche n'apparaît pas au montage paysage.
+        if (p.hideRail !== false) captureArgs.push("--hide-rail");
+      }
       console.log("🎥 Capture du feed :", captureArgs.join(" "));
       execFileSync("python3", captureArgs, {
         cwd: path.resolve(__dirname, ".."),

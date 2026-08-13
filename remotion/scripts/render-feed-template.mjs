@@ -15,7 +15,7 @@ const manifestPath = process.env.FEED_MANIFEST ?? "feed/manifest.json";
 const format = process.env.FEED_FORMAT === "landscape" ? "landscape" : "portrait";
 const outputLocation =
   process.env.OUT ??
-  `/mnt/documents/1wm-feed-${format === "landscape" ? "1280x720" : "720x1280"}.mp4`;
+  `/mnt/documents/1wm-feed-${format === "landscape" ? "1920x1080" : "1080x1920"}.mp4`;
 
 const bundled = await bundle({
   entryPoint: path.resolve(__dirname, "../src/index.ts"),

@@ -76,7 +76,7 @@ export type FeedManifest = {
 };
 
 /** Scène 16:9 de sortie pour le format paysage. */
-export const LANDSCAPE = { width: 1280, height: 720 } as const;
+export const LANDSCAPE = { width: 1920, height: 1080 } as const;
 
 export type FeedTemplateProps = {
 
