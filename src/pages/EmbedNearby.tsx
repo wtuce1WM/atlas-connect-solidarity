@@ -82,26 +82,19 @@ const EmbedNearby = () => {
   return (
     <div
       className="relative h-screen w-full overflow-hidden"
-      style={{ background: mapBaseColor ?? "transparent" }}
+      style={{ background: mapPainted ? (mapBaseColor ?? "transparent") : "transparent" }}
     >
       {!businessId ? (
-        <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground animate-pulse">
-          {L.loading}
-        </div>
+        <div className="h-full w-full" />
       ) : (
-        <Suspense
-          fallback={
-            <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground animate-pulse">
-              {L.loading}
-            </div>
-          }
-        >
+        <Suspense fallback={<div className="h-full w-full" />}>
           <BookOnlineSlidePanel
             businessId={businessId}
             initialOverlay="poi"
             embedMode
             mapBaseColor={mapBaseColor}
             mapTheme={mapTheme}
+            onMapReady={() => setMapPainted(true)}
             hideDirections
             onClose={() => { /* embed: pas de fermeture, l'overlay reste affiché */ }}
           />
