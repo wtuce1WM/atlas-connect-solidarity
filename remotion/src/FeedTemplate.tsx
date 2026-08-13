@@ -333,6 +333,10 @@ const Stage: React.FC<{ m: FeedManifest; noVideo?: boolean }> = ({ m, noVideo })
           extrapolateRight: "clamp",
         });
 
+  const progress = detail.scrollMax > 0
+    ? Math.min(1, Math.max(0, scroll / detail.scrollMax))
+    : 0;
+
   return (
     <AbsoluteFill style={{ backgroundColor: noVideo ? "transparent" : "#000" }}>
       {base}
@@ -374,6 +378,28 @@ const Stage: React.FC<{ m: FeedManifest; noVideo?: boolean }> = ({ m, noVideo })
           <Img
             src={staticFile(`${m.base}/${detail.open}`)}
              style={{ position: "absolute", left: 0, top: -(detail.headerTop ?? 0), width: W, height: H }}
+          />
+        </div>
+        {/* Progression fixe : elle appartient au header, jamais à l'image
+            stitchée qui défile derrière. */}
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            top: (detail.headerTop ?? 0) + detail.headerHeight,
+            width: W,
+            height: 2,
+            backgroundColor: "rgba(255,255,255,0.10)",
+            overflow: "hidden",
+            zIndex: 2,
+          }}
+        >
+          <div
+            style={{
+              width: `${progress * 100}%`,
+              height: "100%",
+              backgroundColor: "#D4AF37",
+            }}
           />
         </div>
         {/* Barre fixe basse de Full Description, capturée une seule fois. Elle
