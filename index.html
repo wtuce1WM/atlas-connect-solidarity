@@ -195,7 +195,13 @@
             "html,body,#root{background:transparent!important;background-color:transparent!important}" +
             "#root>div[aria-hidden='true']{display:none!important}";
           document.head.appendChild(s);
-          document.documentElement.style.colorScheme = "light";
+          // Pas de color-scheme forcé : avec `light`, un fond transparent est
+          // rendu en blanc (Canvas) par le navigateur → flash blanc dans l'iframe.
+          var m = document.createElement("meta");
+          m.name = "color-scheme";
+          m.content = "light dark";
+          document.head.appendChild(m);
+
         } catch (e) {}
       })();
     </script>
