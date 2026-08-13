@@ -4301,6 +4301,7 @@ const BookOnlineSlidePanelInner = ({
               fitRadiusKm={overridePois ? widgetFitKm : (poiMapMode === "destinations" || overridePool ? null : poiProximityKm)}
               connector={widgetConnector}
               baseColor={mapBaseColor || undefined}
+              onReady={onMapReady}
               mapTheme={mapTheme}
               userLocation={showUserMarker && userCoords ? { lat: userCoords.lat, lng: userCoords.lng } : null}
             />
