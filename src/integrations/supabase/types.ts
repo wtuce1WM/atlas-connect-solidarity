@@ -2448,6 +2448,82 @@ export type Database = {
           },
         ]
       }
+      business_widget_settings: {
+        Row: {
+          bg_dark: string | null
+          bg_light: string | null
+          business_id: string
+          card_mode: string | null
+          created_at: string
+          fit: string | null
+          height: number | null
+          id: string
+          lang: string | null
+          max_width: number | null
+          options: Json
+          radius: number | null
+          theme: string | null
+          updated_at: string
+          widget_key: string
+        }
+        Insert: {
+          bg_dark?: string | null
+          bg_light?: string | null
+          business_id: string
+          card_mode?: string | null
+          created_at?: string
+          fit?: string | null
+          height?: number | null
+          id?: string
+          lang?: string | null
+          max_width?: number | null
+          options?: Json
+          radius?: number | null
+          theme?: string | null
+          updated_at?: string
+          widget_key: string
+        }
+        Update: {
+          bg_dark?: string | null
+          bg_light?: string | null
+          business_id?: string
+          card_mode?: string | null
+          created_at?: string
+          fit?: string | null
+          height?: number | null
+          id?: string
+          lang?: string | null
+          max_width?: number | null
+          options?: Json
+          radius?: number | null
+          theme?: string | null
+          updated_at?: string
+          widget_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_widget_settings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_widget_settings_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_widget_settings_widget_key_fkey"
+            columns: ["widget_key"]
+            isOneToOne: false
+            referencedRelation: "widget_types"
+            referencedColumns: ["widget_key"]
+          },
+        ]
+      }
       business_youtube_themes: {
         Row: {
           business_id: string
@@ -8275,6 +8351,158 @@ export type Database = {
         }
         Relationships: []
       }
+      widget_events: {
+        Row: {
+          action: string | null
+          business_id: string | null
+          created_at: string
+          device: string | null
+          event_type: string
+          host: string | null
+          id: string
+          lang: string | null
+          meta: Json
+          page_url: string | null
+          widget_key: string
+        }
+        Insert: {
+          action?: string | null
+          business_id?: string | null
+          created_at?: string
+          device?: string | null
+          event_type?: string
+          host?: string | null
+          id?: string
+          lang?: string | null
+          meta?: Json
+          page_url?: string | null
+          widget_key: string
+        }
+        Update: {
+          action?: string | null
+          business_id?: string | null
+          created_at?: string
+          device?: string | null
+          event_type?: string
+          host?: string | null
+          id?: string
+          lang?: string | null
+          meta?: Json
+          page_url?: string | null
+          widget_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "widget_events_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "widget_events_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      widget_settings: {
+        Row: {
+          bg_dark: string | null
+          bg_light: string | null
+          card_mode: string
+          created_at: string
+          fit: string
+          height: number
+          id: string
+          lang: string
+          max_width: number | null
+          options: Json
+          radius: number
+          theme: string
+          updated_at: string
+          widget_key: string
+        }
+        Insert: {
+          bg_dark?: string | null
+          bg_light?: string | null
+          card_mode?: string
+          created_at?: string
+          fit?: string
+          height?: number
+          id?: string
+          lang?: string
+          max_width?: number | null
+          options?: Json
+          radius?: number
+          theme?: string
+          updated_at?: string
+          widget_key: string
+        }
+        Update: {
+          bg_dark?: string | null
+          bg_light?: string | null
+          card_mode?: string
+          created_at?: string
+          fit?: string
+          height?: number
+          id?: string
+          lang?: string
+          max_width?: number | null
+          options?: Json
+          radius?: number
+          theme?: string
+          updated_at?: string
+          widget_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "widget_settings_widget_key_fkey"
+            columns: ["widget_key"]
+            isOneToOne: true
+            referencedRelation: "widget_types"
+            referencedColumns: ["widget_key"]
+          },
+        ]
+      }
+      widget_types: {
+        Row: {
+          created_at: string
+          description: string | null
+          embed_path: string | null
+          id: string
+          is_active: boolean
+          label: string
+          sort_order: number
+          updated_at: string
+          widget_key: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          embed_path?: string | null
+          id?: string
+          is_active?: boolean
+          label: string
+          sort_order?: number
+          updated_at?: string
+          widget_key: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          embed_path?: string | null
+          id?: string
+          is_active?: boolean
+          label?: string
+          sort_order?: number
+          updated_at?: string
+          widget_key?: string
+        }
+        Relationships: []
+      }
       youtube_themes: {
         Row: {
           created_at: string
@@ -8789,6 +9017,10 @@ export type Database = {
       get_video_view_count: {
         Args: { p_video_id: string; p_video_source: string }
         Returns: number
+      }
+      get_widget_analytics: {
+        Args: { p_business_id?: string; p_days?: number }
+        Returns: Json
       }
       has_role: {
         Args: {

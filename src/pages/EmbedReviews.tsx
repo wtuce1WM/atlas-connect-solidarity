@@ -11,6 +11,7 @@ import EmbedReviewsWidget, {
   type ReviewsRatio,
   type ReviewsSize,
 } from "@/components/embed/EmbedReviewsWidget";
+import { useWidgetTracking } from "@/hooks/useWidgetTracking";
 
 type Lang = "fr" | "en" | "ar";
 
@@ -26,6 +27,7 @@ const BUSINESS_FIELDS =
 export default function EmbedReviews() {
   const { slug = "" } = useParams();
   const [params] = useSearchParams();
+  useWidgetTracking("reviews", null, params.get("lang") || undefined);
   const platformParam = (params.get("platform") || "all").toLowerCase();
   const platform: ReviewPlatformKey = ["google", "tripadvisor", "restaurant-guru"].includes(platformParam)
     ? (platformParam as ReviewPlatformKey)

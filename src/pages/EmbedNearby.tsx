@@ -5,6 +5,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { applyEmbedBg } from "@/lib/embedFit";
+import { useWidgetTracking } from "@/hooks/useWidgetTracking";
 
 const BookOnlineSlidePanel = lazy(() => import("@/components/BookOnlineSlidePanel"));
 
@@ -19,6 +20,7 @@ type Lang = keyof typeof MESSAGES;
 const EmbedNearby = () => {
   const { slug } = useParams<{ slug: string }>();
   const [params] = useSearchParams();
+  useWidgetTracking("nearby", null, params.get("lang") || undefined);
   const { setLanguage } = useLanguage();
 
   const langParam = (params.get("lang") || "fr").toLowerCase();

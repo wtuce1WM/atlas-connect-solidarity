@@ -201,9 +201,9 @@ const StaffHub = () => {
     {
 
       title: "Widgets",
-      description: "Widgets embarquables (Météo, Marées & Vents, Avis, IA, Carte) et diagnostic du preview.",
+      description: "Backoffice des widgets embarquables : couleurs de fond, dimensions, surcharges par établissement, audit et analytics.",
       icon: Blocks,
-      href: "/widgets",
+      href: "/staff/backoffice/widgets",
       color: "from-sky-500/20 to-indigo-500/10",
       iconColor: "text-sky-600",
       adminOnly: true,

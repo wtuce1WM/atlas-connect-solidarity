@@ -30,6 +30,7 @@ import EmbedWeatherWidget, { type WeatherPayload } from "@/components/embed/Embe
 import AiTidesWidget from "@/components/embed/AiTidesWidget";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { applyEmbedBg, parseBg, resolveEmbedInk } from "@/lib/embedFit";
+import { useWidgetTracking } from "@/hooks/useWidgetTracking";
 
 // EmbedMediaBottomBar (Pause/Mute) removed — the BookOnlineSlidePanel now renders
 // its own liquid-glass PanelSearchBar with 6 CTAs and integrated video controls.
@@ -430,6 +431,7 @@ const EmbedAsk = () => {
   const { slug = "" } = useParams();
   const [params] = useSearchParams();
   const lang = (["fr", "en", "ar"].includes(params.get("lang") || "") ? params.get("lang") : "fr") as "fr" | "en" | "ar";
+  useWidgetTracking("ask", null, lang);
   // Fond du widget :
   //   ?bg=EFE6D8       → l'assistant prend cette couleur (encre auto selon luminance)
   //   ?bg=transparent  → fond transparent : le fond du site hôte apparaît
