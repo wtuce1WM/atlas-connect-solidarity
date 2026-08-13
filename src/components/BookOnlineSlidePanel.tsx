@@ -754,6 +754,15 @@ const BookOnlineSlidePanelInner = ({
 
   
   const [showDescriptionOverlay, setShowDescriptionOverlay] = useState(false);
+  useEffect(() => {
+    descOverlayOpenRef.current = showDescriptionOverlay;
+    if (showDescriptionOverlay) {
+      // Neutralise tout popup/offre en attente ou déjà ouvert sous l'overlay.
+      setPendingPopup(null);
+      setShowWelcomePopup(false);
+      setShowPromosPopup(false);
+    }
+  }, [showDescriptionOverlay]);
   const [descOverlayDirect, setDescOverlayDirect] = useState(false);
   // Transition morphée : la barre info viewer sert de « graine » à l'overlay Full Description.
   // La classe d'animation est pilotée par un state React (sinon un re-render du panneau
