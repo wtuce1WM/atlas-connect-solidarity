@@ -83,6 +83,21 @@ const VideoGeneratePanel = () => {
   const [extraSection, setExtraSection] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // --- Effets optionnels (tous off par défaut)
+  const [effectsOn, setEffectsOn] = useState<Record<EffectKey, boolean>>({
+    grain: false,
+    vignette: false,
+    lightLeaks: false,
+    pathDraw: false,
+    motionBlur: false,
+  });
+  const [intensity, setIntensity] = useState(50);
+  const [strokeColor, setStrokeColor] = useState(STROKE_PRESETS[0].value);
+  const [pathFrames, setPathFrames] = useState(45);
+  const [motionBlurSamples, setMotionBlurSamples] = useState(3);
+
+  const anyEffect = Object.values(effectsOn).some(Boolean);
+
   const [jobs, setJobs] = useState<FeedJob[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
 
