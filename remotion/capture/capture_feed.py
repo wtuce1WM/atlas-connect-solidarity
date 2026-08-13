@@ -404,6 +404,10 @@ async def main() -> None:
     if detail:
         geo, bands = detail["geo"], detail["bands"]
         alpha_merge(raw / "descopen_black.png", raw / "descopen_white.png", out / "descopen.png")
+        has_bg = (raw / "descbg_black.png").exists() and (raw / "descbg_white.png").exists()
+        if has_bg:
+            alpha_merge(raw / "descbg_black.png", raw / "descbg_white.png", out / "descbg.png")
+
         band_paths = []
         for idx, real in bands:
             merged = raw / f"band{idx}.png"
