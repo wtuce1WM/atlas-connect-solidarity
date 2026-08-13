@@ -2912,23 +2912,13 @@ const BookOnlineSlidePanelInner = ({
                     </div>
                   )}
                   {!descOverlayContent && avgOn20 != null && totalReviewCount > 0 && (
-                    <div className="mb-5 flex justify-center">
-                      <div
-                        dir="ltr"
-                        className="relative flex items-center justify-center gap-1.5 md:gap-2.5 py-1 md:py-1.5 px-3 md:px-4 rounded-full border border-white/30 backdrop-blur-2xl bg-black/40 overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(255,255,255,0.1),0_8px_32px_rgba(0,0,0,0.3)]"
-                      >
-                        <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-white/25 via-transparent to-white/5" />
-                        <span aria-hidden="true" className="pointer-events-none absolute top-0 left-2 right-2 h-1/2 rounded-t-full bg-gradient-to-b from-white/30 to-transparent blur-[1px]" />
-                        <div className="relative z-10 flex items-center gap-1.5 md:gap-2.5">
-                          <Star className="h-5 w-5 md:h-7 md:w-7 text-gold fill-gold" />
-                          <span className="text-2xl md:text-4xl font-black text-gold whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                            {avgOn20}<span className="text-sm md:text-xl font-semibold text-white/60">/20</span>
-                          </span>
-                        </div>
-                        <span className="relative z-10 text-[10px] md:text-sm text-white/60 font-medium whitespace-nowrap" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                          · {totalReviewCount.toLocaleString("fr-FR")} {language === "en" ? "reviews" : language === "ar" ? "آراء" : "avis"}
-                        </span>
-                      </div>
+                    <div className="mb-4 flex items-center justify-center gap-1.5 text-xs md:text-sm text-white/80">
+                      <Star className="h-3.5 w-3.5 shrink-0 text-gold fill-gold" />
+                      <span className="!font-extrabold text-gold" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                        {avgOn20}<span className="font-bold text-gold/80">/20</span>
+                      </span>
+                      <span className="!font-bold text-gold/90 tabular-nums">{totalReviewCount.toLocaleString("fr-FR")}</span>
+                      <span className="text-gold/80 font-medium">{language === "en" ? "reviews" : language === "ar" ? "آراء" : "avis"}</span>
                     </div>
                   )}
                   {/* Cartes Image popup + Offres — sous le badge avis client */}
