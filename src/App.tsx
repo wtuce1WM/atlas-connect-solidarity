@@ -75,6 +75,7 @@ const SearchAnalytics = lazy(() => import("./pages/SearchAnalytics"));
 const StaffMaster = lazy(() => import("./pages/StaffMaster"));
 const StaffIA = lazy(() => import("./pages/StaffIA"));
 const StaffVideos = lazy(() => import("./pages/StaffVideos"));
+const StaffWidgets = lazy(() => import("./pages/StaffWidgets"));
 const StaffBlog = lazy(() => import("./pages/StaffBlog"));
 const StaffB2B = lazy(() => import("./pages/StaffB2B"));
 const StaffTranslations = lazy(() => import("./pages/StaffTranslations"));
