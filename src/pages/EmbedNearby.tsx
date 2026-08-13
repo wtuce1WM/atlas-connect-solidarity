@@ -29,8 +29,13 @@ const EmbedNearby = () => {
   const L = MESSAGES[lang];
 
   const bgParam = params.get("bg") || "";
-  const mapBaseColor = /^#?[0-9a-fA-F]{6}$/.test(bgParam)
-    ? (bgParam.startsWith("#") ? bgParam : `#${bgParam}`)
+  // En overlay les paramètres backoffice (fond/thème/fit) sont ignorés, SAUF la
+  // couleur de la carte : elle reste celle réglée pour l'établissement.
+  const settingsMapColor =
+    (rawSettings?.theme === "dark" ? rawSettings?.bgDark || rawSettings?.bgLight : rawSettings?.bgLight) || "";
+  const rawColor = /^#?[0-9a-fA-F]{6}$/.test(bgParam) ? bgParam : overlay ? settingsMapColor : "";
+  const mapBaseColor = /^#?[0-9a-fA-F]{6}$/.test(rawColor)
+    ? (rawColor.startsWith("#") ? rawColor : `#${rawColor}`)
     : null;
   // Default widget map uses native Google Maps colors; custom color overrides the light theme.
   const mapTheme: "light" | "dark" | "default-light" | "default-dark" = mapBaseColor ? "light" : "default-light";
