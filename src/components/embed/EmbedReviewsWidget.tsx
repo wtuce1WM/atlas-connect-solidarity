@@ -163,7 +163,7 @@ function PlatformRow({
       ) : null}
     </>
   );
-  const cls = `flex items-center gap-3 rounded-xl border ${
+  const cls = `${autoWidth ? "inline-flex w-auto max-w-full" : "flex"} items-center gap-3 rounded-xl border ${
     dark ? "border-black/10 bg-black/[0.03]" : "border-white/15 bg-white/5"
   } ${compact ? "px-2.5 py-2" : "px-3 py-2.5"} transition-colors`;
   return url ? (
