@@ -13,7 +13,10 @@ const EventSchema = z.object({
   event_type: z.enum(EVENT_TYPES),
   event_subtype: z.string().max(64).optional().nullable(),
   session_id: z.string().min(1).max(80).optional().nullable(),
-  source_page: z.string().max(512).optional().nullable(),
+  source_page: z.preprocess(
+    (v) => (typeof v === "string" ? v.slice(0, 512) : v),
+    z.string().max(512).optional().nullable(),
+  ),
   referrer_domain: z.string().max(255).optional().nullable(),
   device: z.enum(["mobile", "tablet", "desktop"]).optional().nullable(),
   meta: z.record(z.unknown()).optional().nullable(),
