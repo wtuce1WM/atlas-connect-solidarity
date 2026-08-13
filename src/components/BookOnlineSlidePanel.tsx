@@ -4496,7 +4496,7 @@ const BookOnlineSlidePanelInner = ({
           className="absolute inset-0 z-[150] flex items-center justify-center p-1 sm:p-4 bg-black/75 backdrop-blur-sm"
           onClick={() => setShowWelcomePopup(false)}
         >
-          <div className={`relative flex items-center justify-center w-full px-1 sm:px-16 ${isPopupSlide && !hasMeta ? "max-w-3xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl" : "max-w-lg md:max-w-xl"} owm-popup-appear`} onClick={(e) => e.stopPropagation()}>
+          <div className={`relative flex items-center justify-center w-full max-h-full px-1 sm:px-16 ${isPopupSlide && !hasMeta ? "max-w-3xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl" : "max-w-lg md:max-w-xl"} owm-popup-appear`} onClick={(e) => e.stopPropagation()}>
 
             {totalSlides > 1 && (
               <button
@@ -4509,18 +4509,29 @@ const BookOnlineSlidePanelInner = ({
             )}
 
             <div
-              className={`relative w-full h-auto rounded-2xl overflow-hidden shadow-2xl flex flex-col bg-cover bg-no-repeat bg-center ${
-                isPopupSlide && !hasMeta 
-                  ? "w-[98vw] max-w-[98vw] md:max-w-2xl lg:max-w-4xl xl:max-w-[85vh] aspect-[1333/1737] max-h-[96vh] sm:max-h-[90vh] md:max-h-[88vh]" 
-                  : "max-w-md max-h-[90vh] sm:max-h-[84vh]"
+              className={`relative rounded-2xl overflow-hidden shadow-2xl flex flex-col ${
+                isPopupSlide && !hasMeta
+                  ? "max-w-full max-h-full"
+                  : "w-full h-auto max-w-md max-h-full bg-cover bg-no-repeat bg-center"
               }`}
-              style={{ backgroundImage: `url(${isPopupSlide ? (business as any).popup_image_url : promoBg})` }}
+              style={isPopupSlide && !hasMeta ? undefined : { backgroundImage: `url(${isPopupSlide ? (business as any).popup_image_url : promoBg})` }}
             >
+
+              {/* Image popup sans texte associé : affichée en entier (object-contain),
+                  jamais recadrée, quel que soit son ratio. */}
+              {isPopupSlide && !hasMeta && (
+                <img
+                  src={(business as any).popup_image_url}
+                  alt={business?.name || ""}
+                  className="block max-w-full max-h-[calc(100vh-2rem)] w-auto h-auto object-contain"
+                />
+              )}
 
               {showOverlay && <div className="absolute inset-0 bg-black/55 pointer-events-none" />}
 
               {isPopupSlide && hasMeta && (
-                <div className="relative pt-12 px-6 pb-6 text-white overflow-y-auto max-h-[calc(90vh-3rem)]">
+                <div className="relative pt-12 px-6 pb-6 text-white overflow-y-auto flex-1 min-h-0">
+
                   {popupMeta.title && (
                     <h3 className="text-3xl md:text-4xl font-extrabold leading-tight mb-4 pr-12" style={{ fontFamily: "'Montserrat', sans-serif" }}>
                       {popupMeta.title}
