@@ -157,6 +157,36 @@ async function renderOne() {
       };
     }
 
+    // --- Promo business : fond d'écran optionnel issu d'une capture feed
+    // (URL /search). On réutilise exactement le même script de capture ; seul
+    // le manifest est passé au template, qui n'en lit que les frames vidéo.
+    const isPromo = String(job.template_id || "").startsWith("business-promo");
+    if (isPromo && props?.bgFeedUrl) {
+      const slug = `promo-${job.id.slice(0, 8)}`;
+      const captureArgs = [
+        "capture/capture_feed.py",
+        "--url", String(props.bgFeedUrl),
+        "--slug", slug,
+        "--label", String(props.name || slug),
+        "--steps", String(props.bgFeedSteps || 6),
+        "--origin", new URL(props.bgFeedUrl).origin,
+        "--fps", "25",
+        "--step-seconds", "3",
+        "--sections", "Avis clients",
+        "--dsf", "2",
+        "--output-scale", "1.5",
+        "--hide-rail",
+      ];
+      console.log("🎥 Capture du fond feed :", captureArgs.join(" "));
+      execFileSync("python3", captureArgs, {
+        cwd: path.resolve(__dirname, ".."),
+        stdio: "inherit",
+        env: process.env,
+      });
+      props = { ...props, bgFeedManifest: `feed/${slug}/manifest.json` };
+    }
+
+
     console.log("📦 Bundling Remotion...");
     const bundled = await bundle({
       entryPoint: path.resolve(__dirname, "../src/index.ts"),
