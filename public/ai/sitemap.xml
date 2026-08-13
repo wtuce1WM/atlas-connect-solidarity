@@ -5966,7 +5966,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/setup-game</loc>
+    <loc>https://oneworldmorocco.com/pc-gamer-maroc</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9181,7 +9181,17 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://oneworldmorocco.com/chaabi-payment</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://oneworldmorocco.com/un-the-au-bout-du-monde-mirleft</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/les-sens-de-marrakech-eshop</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9222,6 +9232,11 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/m-avenue-1</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/pc-gamer-maroc</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
