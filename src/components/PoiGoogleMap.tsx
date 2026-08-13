@@ -48,6 +48,8 @@ interface PoiGoogleMapProps {
   showLayerControls?: boolean;
   /** Optional hex color (e.g. "#EFE6D8") overriding the light theme base/landscape color (widgets only). */
   baseColor?: string | null;
+  /** Appelé une seule fois quand les tuiles de la carte sont réellement affichées. */
+  onReady?: () => void;
   /** When provided, centers the map so the `center` marker sits at this ratio from the bottom of the viewport (0 = bottom, 0.5 = middle, 1 = top). Overrides fitToMarkers. */
   centerAtBottomRatio?: number;
   /** Base map type: "roadmap" (plan), "satellite" or "terrain" (relief). Default is terrain. */
