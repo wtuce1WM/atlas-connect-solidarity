@@ -95,6 +95,7 @@ const DescAnchorBar = ({ containerId, deps, language = "fr" }: DescAnchorBarProp
     const next: Anchor[] = [];
     let descDone = false;
     heads.forEach((h, i) => {
+      if (h.closest("[data-owm-no-anchor]")) return;
       const raw = (h.textContent || "").replace(/\s+/g, " ").trim();
       if (!raw) return;
       // Les H2 issus du corps de la Description ne produisent qu'un seul badge « À propos ».
