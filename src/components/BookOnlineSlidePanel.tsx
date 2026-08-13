@@ -3325,7 +3325,7 @@ const BookOnlineSlidePanelInner = ({
                       <div className="w-full mx-auto max-w-[820px] rounded-xl overflow-hidden bg-transparent border border-white/10">
                         <iframe
                           key={`ai-widget-${business.slug}`}
-                          src={`/embed/ask/${business.slug}?theme=light&lang=${language}&bg=transparent&ink=dark${
+                          src={`/embed/ask/${business.slug}?preset=overlay&lang=${language}&theme=none&bg=transparent&ink=light${
                             (() => {
                               const e = new URLSearchParams(window.location.search).get("engine");
                               return e === "v1" || e === "v2" ? `&engine=${e}` : "";
@@ -3335,9 +3335,10 @@ const BookOnlineSlidePanelInner = ({
                           title={language === "en" ? "AI Assistant" : "Assistant IA"}
                           allow="clipboard-write; microphone; fullscreen"
                           className="w-full block border-0 bg-transparent"
-                          style={{ height: 640, background: "transparent" }}
+                          style={{ height: 760, background: "transparent" }}
                           loading="lazy"
                         />
+
                       </div>
 
                     </div>
