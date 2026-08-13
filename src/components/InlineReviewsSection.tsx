@@ -165,7 +165,7 @@ const InlineReviewsSection = ({ texts, platforms, avgOn20, totalReviewCount, lan
             title={t.title}
             className="w-full block border-0 bg-transparent"
             style={{ height: reviewsIframeHeight, background: "transparent" }}
-            loading="eager"
+            loading="lazy"
           />
         </div>
       ) : (
