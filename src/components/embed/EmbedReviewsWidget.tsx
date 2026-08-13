@@ -142,7 +142,7 @@ function PlatformRow({
         <span
           className={`block ${compact ? "text-[12px]" : "text-sm"} font-semibold ${
             dark ? "text-black" : "text-white"
-          } truncate`}
+          } ${autoWidth ? "whitespace-nowrap" : "truncate"}`}
         >
           {name}
         </span>
