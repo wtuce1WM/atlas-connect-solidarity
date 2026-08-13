@@ -348,6 +348,102 @@ const VideoGeneratePanel = () => {
             </label>
           </div>
 
+          <div className="rounded-lg border p-3 space-y-3">
+            <div className="flex items-center gap-2">
+              <Wand2 className="h-4 w-4 text-muted-foreground" />
+              <span className="text-xs font-medium text-black">Effets de motion design (optionnels)</span>
+              {!anyEffect && (
+                <Badge variant="outline" className="text-[10px]">
+                  aucun — rendu standard
+                </Badge>
+              )}
+            </div>
+            <div className="grid gap-2 md:grid-cols-2">
+              {EFFECTS.map((e) => (
+                <label
+                  key={e.key}
+                  className="flex items-start gap-3 rounded-md border p-2 cursor-pointer"
+                  htmlFor={`effect-${e.key}`}
+                >
+                  <Switch
+                    id={`effect-${e.key}`}
+                    checked={effectsOn[e.key]}
+                    onCheckedChange={(v) => setEffectsOn((prev) => ({ ...prev, [e.key]: v }))}
+                  />
+                  <span className="grid gap-0.5">
+                    <span className="text-xs text-black">{e.label}</span>
+                    <span className="text-[10px] text-muted-foreground leading-snug">{e.hint}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+
+            {anyEffect && (
+              <div className="grid gap-3 md:grid-cols-2 border-t pt-3">
+                <div className="grid gap-1">
+                  <span className="text-xs text-muted-foreground">Intensité générale : {intensity}%</span>
+                  <Slider
+                    value={[intensity]}
+                    onValueChange={(v) => setIntensity(v[0] ?? 50)}
+                    min={0}
+                    max={100}
+                    step={5}
+                  />
+                </div>
+                {effectsOn.pathDraw && (
+                  <>
+                    <div className="grid gap-1">
+                      <span className="text-xs text-muted-foreground">Couleur du tracé</span>
+                      <div className="flex flex-wrap gap-2">
+                        {STROKE_PRESETS.map((p) => (
+                          <Button
+                            key={p.value}
+                            size="sm"
+                            variant={strokeColor === p.value ? "default" : "outline"}
+                            className="h-7 text-[11px] gap-2"
+                            onClick={() => setStrokeColor(p.value)}
+                          >
+                            <span
+                              className="h-3 w-3 rounded-full border border-black/20"
+                              style={{ backgroundColor: p.value }}
+                            />
+                            {p.label}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                    <label className="text-xs text-muted-foreground grid gap-1">
+                      Durée du tracé (frames)
+                      <Input
+                        type="number"
+                        min={6}
+                        max={200}
+                        value={pathFrames}
+                        onChange={(e) => setPathFrames(Math.max(6, Number(e.target.value) || 45))}
+                        className="h-9 text-xs"
+                      />
+                    </label>
+                  </>
+                )}
+                {effectsOn.motionBlur && (
+                  <label className="text-xs text-muted-foreground grid gap-1">
+                    Échantillons de motion blur (coût ×{motionBlurSamples})
+                    <Input
+                      type="number"
+                      min={2}
+                      max={6}
+                      value={motionBlurSamples}
+                      onChange={(e) => setMotionBlurSamples(Math.max(2, Math.min(6, Number(e.target.value) || 3)))}
+                      className="h-9 text-xs"
+                    />
+                  </label>
+                )}
+              </div>
+            )}
+          </div>
+
+
+
           <div className="grid gap-2">
             <span className="text-xs text-muted-foreground">Sections d'arrêt dans la fiche détaillée</span>
             <div className="flex flex-wrap items-center gap-2">
