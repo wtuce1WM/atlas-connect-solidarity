@@ -619,7 +619,6 @@ const VideoScenarioConfigPanel = () => {
       setNoteCounts({});
     }
 
-    setConfig(
     const loadedConfig = (configRes.data as Omit<ScenarioConfig, "internal_note"> | null) ?? {
       mode,
       business_id: null,
