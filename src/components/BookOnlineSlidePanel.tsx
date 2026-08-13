@@ -3336,7 +3336,7 @@ const BookOnlineSlidePanelInner = ({
                           allow="clipboard-write; microphone; fullscreen"
                           className="w-full block border-0 bg-transparent"
                           style={{ height: 760, background: "transparent" }}
-                          loading="eager"
+                          loading="lazy"
                         />
 
                       </div>
@@ -3359,7 +3359,7 @@ const BookOnlineSlidePanelInner = ({
                           allow="geolocation; fullscreen"
                           className="w-full block border-0"
                           style={{ height: 640 }}
-                          loading="eager"
+                          loading="lazy"
                         />
                       </div>
 
