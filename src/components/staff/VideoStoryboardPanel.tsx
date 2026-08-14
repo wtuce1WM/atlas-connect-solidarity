@@ -852,6 +852,13 @@ const StoryboardGuide = () => {
       body: "Deux panneaux : image + titre + texte. En portrait ils s'empilent (haut/bas), en paysage ils sont côte à côte.",
     },
     {
+      type: "icon_grid",
+      icon: <LayoutTemplate className="h-4 w-4" />,
+      title: "Icônes (grille / battements)",
+      body: "1 à 8 icônes de la bibliothèque curatée (17 catégories), chacune avec Titre et/ou Texte optionnels. Deux affichages : Grille simultanée (entrée en cascade, tout reste à l'écran) ou Battements (la durée de l'étape est découpée à parts égales, une icône plein cadre par battement, avec indicateur de progression). Un fond média peut être ajouté. Le picker affiche un aperçu 120 px au survol.",
+    },
+    {
+
       type: "logo_merge",
       icon: <Merge className="h-4 w-4" />,
       title: "Fusion de logos",
