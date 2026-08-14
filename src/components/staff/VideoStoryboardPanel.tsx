@@ -1286,6 +1286,8 @@ const VideoStoryboardPanel = () => {
           )}
         </CardContent>
       </Card>
+
+      <StoryboardGuide />
     </div>
   );
 };
