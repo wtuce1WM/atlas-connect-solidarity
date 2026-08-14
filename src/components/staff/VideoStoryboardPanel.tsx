@@ -882,6 +882,53 @@ const StoryboardGuide = () => {
             ))}
           </div>
         </div>
+        <div className="rounded-lg border p-3 space-y-3">
+          <h4 className="text-sm font-semibold text-black">Contenu interprétable du moteur Storyboard</h4>
+          <div className="text-xs text-muted-foreground space-y-2">
+            <p>
+              <strong>Rôle.</strong> C'est le <strong>moteur de rendu vidéo manuel</strong> du back-office Vidéos. Il ne contient aucun scénario codé en dur : il lit une liste d'étapes stockée en base (<code>video_storyboards</code> / <code>video_scenario_steps</code>) et compose la vidéo étape par étape.
+            </p>
+            <p>
+              <strong>Formats.</strong> Portrait 1080 × 1920 ou paysage 1920 × 1080. 30 fps. Durée totale = somme des durées des étapes (max 180 s).
+            </p>
+            <div>
+              <p className="font-semibold text-foreground">Types de scènes disponibles</p>
+              <ul className="list-disc pl-4 space-y-0.5">
+                <li><code>logo_merge</code> — fusion 1WM + logo partenaire (horizontal en paysage, vertical en portrait pour éviter la coupe)</li>
+                <li><code>hook</code> — accroche d'ouverture avec logo, titre, ville</li>
+                <li><code>video</code> — une ou plusieurs vidéos montées à la suite (jusqu'à 30)</li>
+                <li><code>photos</code> — jusqu'à 30 médias mixtes images/vidéos avec fondu et Ken Burns</li>
+                <li><code>text_overlay</code> — texte riche (HTML filtré) sur fond</li>
+                <li><code>counter</code> — chiffres clés animés, 1 à 4 valeurs</li>
+                <li><code>map_reveal</code> — carte avec zoom et points d'intérêt (jusqu'à 8)</li>
+                <li><code>split_screen</code> — deux panneaux comparatifs</li>
+                <li><code>outro</code> — signature finale logo + tagline + ville</li>
+              </ul>
+            </div>
+            <p>
+              <strong>Fond média partagé.</strong> Presque toutes les scènes peuvent recevoir un fond média : playlist mixte images + vidéos (30 max). Quand un fond est actif, le voile de fond s'éclaircit pour garder le texte lisible.
+            </p>
+            <div>
+              <p className="font-semibold text-foreground">Typographie globale</p>
+              <p>Trois composants uniques gèrent tous les textes :</p>
+              <ul className="list-disc pl-4 space-y-0.5">
+                <li><code>SceneKicker</code> — sur-titre doré</li>
+                <li><code>SceneTitle</code> — titres (3 niveaux)</li>
+                <li><code>SceneBody</code> — corps de texte</li>
+              </ul>
+              <p>Modifier ces trois-là change l'apparence de toutes les scènes.</p>
+            </div>
+            <div>
+              <p className="font-semibold text-foreground">Sécurité / robustesse</p>
+              <ul className="list-disc pl-4 space-y-0.5">
+                <li>Si un type de scène n'existe pas encore, un <code>PlaceholderScene</code> s'affiche : la vidéo ne casse jamais.</li>
+                <li>Les URLs absolues sont utilisées telles quelles, les chemins relatifs sont résolus dans <code>remotion/public</code>.</li>
+                <li>Le rendu est mis à l'échelle de manière identique entre aperçu et final.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
 
         <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3">
           <h4 className="text-sm font-semibold text-destructive">Erreurs fréquentes à éviter</h4>
