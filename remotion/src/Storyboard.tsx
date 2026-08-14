@@ -886,77 +886,61 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
 };
 
 /**
- * `photos` — jusqu'à 30 photos plein cadre en Ken Burns, la durée de la section
- * étant partagée à parts égales. Les URLs explicites (`images`) priment sur les
- * photos de la fiche.
+ * `photos` — jusqu'à 30 médias plein cadre (images en Ken Burns ET vidéos),
+ * la durée de la section étant partagée à parts égales. Les URLs explicites
+ * (`media`, sinon `images`) priment sur les photos de la fiche.
  */
 const PhotosScene: React.FC<{ wide: boolean; p: StoryboardProps; section: StoryboardSection }> = ({ wide, p, section }) => {
-  const frame = useCurrentFrame();
-  const { durationInFrames, fps } = useVideoConfig();
+  const { durationInFrames } = useVideoConfig();
   const cfg = section.config ?? {};
   const stage = wide ? STAGE_LANDSCAPE : STAGE_PORTRAIT;
-  const explicit = Array.isArray(cfg.images)
-    ? (cfg.images as unknown[]).filter((v): v is string => typeof v === "string" && !!v.trim())
-    : [];
+  const pick = (key: string) =>
+    Array.isArray(cfg[key])
+      ? (cfg[key] as unknown[]).filter((v): v is string => typeof v === "string" && !!v.trim())
+      : [];
+  const explicit = pick("media").length ? pick("media") : pick("images");
   const count = Math.min(30, Math.max(1, num(cfg, "count") ?? 30));
   const pool = (explicit.length ? explicit : (p.photos ?? []).filter(Boolean)).slice(0, count);
-  const move = str(cfg, "kenBurns") ?? "zoom_in";
   const title = str(cfg, "title");
 
-  const shots = pool.length ? pool : [null];
-  const per = durationInFrames / shots.length;
-  const index = Math.min(shots.length - 1, Math.floor(frame / per));
-  const local = frame - index * per;
-  const progress = Math.min(1, Math.max(0, local / per));
-  const fade = Math.min(
-    interpolate(local, [0, Math.round(fps * 0.35)], [0, 1], { extrapolateRight: "clamp" }),
-    interpolate(local, [per - Math.round(fps * 0.35), per], [1, 0], { extrapolateLeft: "clamp" }),
-  );
-  const scale =
-    move === "none" ? 1.02 : move === "zoom_out" ? interpolate(progress, [0, 1], [1.14, 1.02]) : interpolate(progress, [0, 1], [1.02, 1.14]);
-  const src = assetUrl(shots[index]);
+  const shots = pool.length ? pool : [];
+  const per = shots.length ? Math.max(1, Math.floor(durationInFrames / shots.length)) : durationInFrames;
 
   return (
     <SceneBackdrop>
       <AbsoluteFill>
-        {src ? (
-          <Img
-            src={src}
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              opacity: fade,
-              transform: `scale(${scale})`,
-            }}
-          />
-        ) : null}
+        {shots.map((src, i) => {
+          const from = i * per;
+          const frames = i === shots.length - 1 ? Math.max(1, durationInFrames - from) : per;
+          return (
+            <Sequence key={`${src}-${i}`} from={from} durationInFrames={frames} layout="none">
+              <MediaShot src={src} frames={frames} />
+            </Sequence>
+          );
+        })}
         <AbsoluteFill
           style={{ background: `linear-gradient(to top, ${alpha("night", 0.7)} 6%, ${alpha("night", 0)} 48%)` }}
         />
         {title && (
-          <span
+          <SceneTitle
+            wide={wide}
+            level={3}
             style={{
               position: "absolute",
               left: stage.width * 0.07,
               bottom: stage.height * 0.09,
               maxWidth: stage.width * 0.75,
-              fontFamily: displayFont,
-              fontSize: wide ? size.h3 : size.h4,
-              fontWeight: weight.bold,
-              color: palette.cream,
               textShadow: `0 4px 24px ${alpha("night", 0.85)}`,
             }}
           >
             {title}
-          </span>
+          </SceneTitle>
         )}
       </AbsoluteFill>
     </SceneBackdrop>
   );
 };
+
 
 /**
  * `text_overlay` — texte riche (H1/H2/p/strong/em, emojis) sur fond nuit.
