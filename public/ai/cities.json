@@ -2,7 +2,7 @@
   "@meta": {
     "source": "ONE WORLD MOROCCO",
     "url": "https://oneworldmorocco.com/ai/cities.json",
-    "generated_at": "2026-08-13T13:13:40.570Z",
+    "generated_at": "2026-08-14T14:43:11.337Z",
     "count": 32
   },
   "cities": [
@@ -589,17 +589,17 @@
         "Semlalia",
         "Bab Doukkala",
         "Palmeraie",
-        "Mellah",
         "Menara",
         "Route de Guemassa",
         "Tamesloht",
         "Majorelle",
         "Route d'Agafay",
+        "Mellah",
         "Hivernage",
         "Agafay",
         "Medina"
       ],
-      "businesses_count": 1182
+      "businesses_count": 1183
     }
   ]
 }

@@ -4261,7 +4261,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://oneworldmorocco.com/musee-de-l-art-culinaire-marocain</loc>
+    <loc>https://oneworldmorocco.com/musee-de-l-art-culinaire-marocain-1</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -9182,6 +9182,11 @@
   </url>
   <url>
     <loc>https://oneworldmorocco.com/chaabi-payment</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://oneworldmorocco.com/musee-de-l-art-culinaire-marocain-1</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

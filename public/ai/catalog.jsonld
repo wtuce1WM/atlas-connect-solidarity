@@ -3,7 +3,7 @@
   "@type": "ItemList",
   "name": "Catalogue ONE WORLD MOROCCO",
   "url": "https://oneworldmorocco.com/ai/catalog.jsonld",
-  "numberOfItems": 1848,
+  "numberOfItems": 1849,
   "itemListElement": [
     {
       "@type": "ListItem",
@@ -1517,7 +1517,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 1535,
+          "reviewCount": 1537,
           "bestRating": 5
         }
       }
@@ -6018,7 +6018,7 @@
         "name": "Carré Eden Shopping Center",
         "url": "https://oneworldmorocco.com/carre-eden-shopping-center",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/2b627b5c-ee12-4855-a3f6-2fb570aca35d-1770922681631-be37rn.jpg",
-        "description": "Carré Eden Shopping Center est le centre commercial de référence à Marrakech, situé en plein cœur du quartier Guéliz sur l'avenue Mohammed V. Ouvert depuis le 8 mai 2014, il a remplacé l'ancien Marché central datant du protectorat. Avec une surface commerciale de 15 400 m² répartis sur trois étages, le Carré Eden accueille plus de 56 enseignes dont certaines exclusives à Marrakech comme H&M, Starbucks et Nespresso. Le centre propose un large choix de boutiques mode femme, homme et enfant, beauté",
+        "description": "Au cœur de Guéliz, Carré Eden Shopping Center s’inscrit dans l’un des quartiers centraux de Marrakech. Installé sur l’avenue Mohammed V, entre les rues Tariq Ibn Ziyad, Souriya et Liberté, ce centre commercial moderne constitue une destination dédiée au shopping et à la restauration. Il a ouvert ses portes le 8 mai 2014, à l’emplacement de l’ancien Marché central datant du protectorat. Le centre déploie une surface commerciale de 15 400 m² répartie sur trois étages. Il rassemble plus de 56 ensei",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Avenue Mohammed V",
@@ -6035,7 +6035,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.1,
-          "reviewCount": 10685,
+          "reviewCount": 10698,
           "bestRating": 5
         }
       }
@@ -7620,7 +7620,7 @@
       "item": {
         "@type": "LocalBusiness",
         "@id": "https://oneworldmorocco.com/cote-bougie#business",
-        "name": "Côté Bougie",
+        "name": "Côté Bougie eShop",
         "url": "https://oneworldmorocco.com/cote-bougie",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/4e84f395-d1b1-4691-ad4a-59be442e3d28-1774145090103-zuztip.jpg",
         "description": "Côté Bougie est, depuis plus de 20 ans, une maison artisanale et familiale spécialisée dans la fabrication de bougies parfumées et de home fragrances à Marrakech. Chaque création est le fruit d'un savoir-faire transmis de génération en génération, mêlant matières nobles (terre cuite, céramique émaillée, sabra, cuir tressé) et fragrances naturelles élaborées à Grasse. Collections phares : Raphia, Tamegroute, Céramique, Intemporelle, Tamtam, Cloche. La marque propose également des diffuseurs à bât",
@@ -8644,8 +8644,8 @@
         "telephone": "+212524427177",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.7,
-          "reviewCount": 912,
+          "ratingValue": 4.8,
+          "reviewCount": 1159,
           "bestRating": 5
         }
       }
@@ -9598,7 +9598,7 @@
       "item": {
         "@type": "LocalBusiness",
         "@id": "https://oneworldmorocco.com/deserted-photo-booth#business",
-        "name": " Deserted Photo Booth",
+        "name": "Deserted Photo Booth",
         "url": "https://oneworldmorocco.com/deserted-photo-booth",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/7f08974a-f334-484b-a00a-de2bf54d9ac0-1777294638442-9xg6wr.jpg",
         "description": "Deserted Photo Booth propose à Marrakech une expérience simple, ludique et particulièrement originale : une cabine photo vintage où l’on vient immortaliser son séjour avec une série de clichés imprimés. Installée au 36 Rue Kennaria , dans la Médina, cette petite adresse est devenue une halte appréciée des voyageurs à la recherche d’un souvenir différent des photos touristiques traditionnelles. Le concept repose sur une séance rapide de quatre poses , avec la possibilité de choisir entre des phot",
@@ -11159,7 +11159,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.7,
-          "reviewCount": 1590,
+          "reviewCount": 1598,
           "bestRating": 5
         }
       }
@@ -15699,7 +15699,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.4,
-          "reviewCount": 5510,
+          "reviewCount": 5540,
           "bestRating": 5
         }
       }
@@ -16617,7 +16617,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 1535,
+          "reviewCount": 1537,
           "bestRating": 5
         }
       }
@@ -17059,7 +17059,7 @@
         "description": "A quelques minutes de l’emblématique Médina de Marrakech, niché dans un recoin discret de la Palmeraie, l’hôtel Ksar Char-Bagh est une destination de charme dotée de 25 suites luxueuses et intimes. Depuis sa création en 2003, le Ksar Char-Bagh met tout en oeuvre pour proposer à ses hôtes ce qui peut surprendre, charmer et créer un séjour inoubliable, dans un écrin d'authenticité et sérénité. Le Palais des quatre jardins. En référence aux quatre jardins qui, dans la mythologie perse, structurent ",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Djnan Abiad, La Palmeraie",
+          "streetAddress": "Djnan Abiad",
           "addressLocality": "Palmeraie",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -17073,7 +17073,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.6,
-          "reviewCount": 177,
+          "reviewCount": 187,
           "bestRating": 5
         }
       }
@@ -17358,7 +17358,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 225,
+          "reviewCount": 243,
           "bestRating": 5
         }
       }
@@ -17786,7 +17786,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 9164,
+          "reviewCount": 9423,
           "bestRating": 5
         }
       }
@@ -20762,7 +20762,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 38,
+          "reviewCount": 40,
           "bestRating": 5
         }
       }
@@ -21867,7 +21867,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 4294,
+          "reviewCount": 4327,
           "bestRating": 5
         }
       }
@@ -21975,7 +21975,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 193,
+          "reviewCount": 194,
           "bestRating": 5
         }
       }
@@ -25004,14 +25004,14 @@
     {
       "@type": "ListItem",
       "position": 853,
-      "url": "https://oneworldmorocco.com/musee-de-l-art-culinaire-marocain",
+      "url": "https://oneworldmorocco.com/musee-de-l-art-culinaire-marocain-1",
       "item": {
         "@type": "LocalBusiness",
-        "@id": "https://oneworldmorocco.com/musee-de-l-art-culinaire-marocain#business",
+        "@id": "https://oneworldmorocco.com/musee-de-l-art-culinaire-marocain-1#business",
         "name": "Musée de l'Art Culinaire Marocain",
-        "url": "https://oneworldmorocco.com/musee-de-l-art-culinaire-marocain",
+        "url": "https://oneworldmorocco.com/musee-de-l-art-culinaire-marocain-1",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/19522534-3ead-4959-af59-16c7954a327f-1774616489683-btz61.jpg",
-        "description": "Dans la médina, avec ses murs en pisé, ses rues et ruelles, vous êtes invités à vous perdre et à pousser les portes des habitations dissimulées derrière de hautes murailles. Une fois entrés dans ceux du musée culinaire marocain, vous vous retrouverez dans un refuge qui vous fera oublier le bruit et la chaleur du monde extérieur. Ce palais du XVIIIe siècle, ayant appartenu à un notable de Marrakech, s'étend sur 5000 m2 et possède deux cours ou patios intérieurs (dont un de plus de 700 m2), pavés ",
+        "description": "Au cœur de la médina de Marrakech , derrière les hautes murailles en pisé et les portes discrètes qui bordent les ruelles, se cache un lieu étonnant : le Musée de l’Art Culinaire Marocain . Ici, il suffit de pousser une porte pour laisser derrière soi le bruit, l’agitation et la chaleur des rues. Vous entrez dans un véritable refuge architectural , installé dans un somptueux palais du XVIIIᵉ siècle, où l’histoire de Marrakech et celle de la gastronomie marocaine se rencontrent. Un palais de 5 00",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "Rue Riad Zitoun el Jdid",
@@ -25027,8 +25027,8 @@
         "telephone": "+212524427177",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.7,
-          "reviewCount": 912,
+          "ratingValue": 4.8,
+          "reviewCount": 1159,
           "bestRating": 5
         }
       }
@@ -28046,7 +28046,7 @@
         "description": "À vingt minutes du centre de Marrakech, le Palais Ronsard est un havre de tranquillité au coeur de la palmeraie historique de la ville. Mêlant le charme de l’orient à une architecture d’inspiration coloniale, cet hôtel se déploie autour de deux bassins principaux entourés de galeries à colonnades où il fait bon flâner ou prendre ses repas. Pensé pour les voyageurs raffinés, il offre une expérience exaltante de Marrakech, dans une Maison Relais & Châteaux où la sérénité, le luxe, le calme et la v",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "SALAH 7 ABYAD, Commune d'Ennakhil",
+          "streetAddress": "SALAH 7 ABYAD, Ennakhil",
           "addressLocality": "Palmeraie",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -32075,7 +32075,7 @@
         "description": "Imaginez rentrer à Marrakech après une excursion inoubliable, quoique intense, dans le désert, par une douce soirée d'hiver. Que vous ayez envie d'un bain chaud et d'un feu de cheminée dans votre chambre, de profiter d'un hammam marocain traditionnel et d'un massage dans notre espace spa dédié, ou de vous détendre dans notre piscine chauffée sur la terrasse en sirotant un thé à la menthe, en savourant un dîner marocain maison, ou tout cela à la fois, le Riad El Hara est l'endroit idéal. Situé da",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "El Hara n1 Bab Doukkala",
+          "streetAddress": "El Hara n1",
           "addressLocality": "Bab Doukkala",
           "addressRegion": "Marrakech",
           "addressCountry": "MA"
@@ -32089,7 +32089,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 123,
+          "reviewCount": 148,
           "bestRating": 5
         }
       }
@@ -32692,7 +32692,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.2,
-          "reviewCount": 2037,
+          "reviewCount": 2038,
           "bestRating": 5
         }
       }
@@ -34776,8 +34776,8 @@
         "telephone": "+212524427177",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.7,
-          "reviewCount": 912,
+          "ratingValue": 4.8,
+          "reviewCount": 1159,
           "bestRating": 5
         }
       }
@@ -36498,8 +36498,8 @@
         "telephone": "+212 6 63 87 43 71",
         "aggregateRating": {
           "@type": "AggregateRating",
-          "ratingValue": 4.5,
-          "reviewCount": 95,
+          "ratingValue": 4.3,
+          "reviewCount": 132,
           "bestRating": 5
         }
       }
@@ -36755,7 +36755,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.8,
-          "reviewCount": 755,
+          "reviewCount": 784,
           "bestRating": 5
         }
       }
@@ -42963,9 +42963,10 @@
       "item": {
         "@type": "LocalBusiness",
         "@id": "https://oneworldmorocco.com/madame-a-marrakech#business",
-        "name": " Madame à Marrakech",
+        "name": "Madame à Marrakech",
         "url": "https://oneworldmorocco.com/madame-a-marrakech",
-        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/a402ff7c-98e8-4fa4-a935-8f2b32620073-1780146627565-utv8nk.jpg"
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/a402ff7c-98e8-4fa4-a935-8f2b32620073-1780146627565-utv8nk.jpg",
+        "description": "Madame à Marrakech est le magazine de référence pour celles et ceux qui souhaitent découvrir Marrakech autrement : ses nouvelles adresses, ses créateurs, ses restaurants, ses lieux culturels, ses tendances, ses expériences bien-être, sa mode et tout ce qui fait l’art de vivre de la ville. Depuis sa création par Aurore Chaffangeon , le magazine s’est construit autour d’une ambition claire : proposer un regard à la fois élégant, curieux, exigeant et pratique sur Marrakech . Lancé avec des fonds pe"
       }
     },
     {
@@ -42994,7 +42995,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 5,
-          "reviewCount": 115,
+          "reviewCount": 117,
           "bestRating": 5
         }
       }
@@ -43570,7 +43571,7 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.9,
-          "reviewCount": 54,
+          "reviewCount": 55,
           "bestRating": 5
         }
       }
@@ -52726,6 +52727,38 @@
     {
       "@type": "ListItem",
       "position": 1838,
+      "url": "https://oneworldmorocco.com/musee-de-l-art-culinaire-marocain-1",
+      "item": {
+        "@type": "LocalBusiness",
+        "@id": "https://oneworldmorocco.com/musee-de-l-art-culinaire-marocain-1#business",
+        "name": "Musée de l'Art Culinaire Marocain",
+        "url": "https://oneworldmorocco.com/musee-de-l-art-culinaire-marocain-1",
+        "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/19522534-3ead-4959-af59-16c7954a327f-1774616489683-btz61.jpg",
+        "description": "Au cœur de la médina de Marrakech , derrière les hautes murailles en pisé et les portes discrètes qui bordent les ruelles, se cache un lieu étonnant : le Musée de l’Art Culinaire Marocain . Ici, il suffit de pousser une porte pour laisser derrière soi le bruit, l’agitation et la chaleur des rues. Vous entrez dans un véritable refuge architectural , installé dans un somptueux palais du XVIIIᵉ siècle, où l’histoire de Marrakech et celle de la gastronomie marocaine se rencontrent. Un palais de 5 00",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Rue Riad Zitoun el Jdid",
+          "addressLocality": "Medina",
+          "addressRegion": "Marrakech",
+          "addressCountry": "MA"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 31.6215687,
+          "longitude": -7.9842764
+        },
+        "telephone": "+212524427177",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.8,
+          "reviewCount": 1159,
+          "bestRating": 5
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 1839,
       "url": "https://oneworldmorocco.com/un-the-au-bout-du-monde-mirleft",
       "item": {
         "@type": "LocalBusiness",
@@ -52737,7 +52770,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1839,
+      "position": 1840,
       "url": "https://oneworldmorocco.com/les-sens-de-marrakech-eshop",
       "item": {
         "@type": "LocalBusiness",
@@ -52761,7 +52794,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1840,
+      "position": 1841,
       "url": "https://oneworldmorocco.com/makassar-marrakech-restaurant",
       "item": {
         "@type": "LocalBusiness",
@@ -52787,7 +52820,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1841,
+      "position": 1842,
       "url": "https://oneworldmorocco.com/nona-s-table",
       "item": {
         "@type": "LocalBusiness",
@@ -52799,7 +52832,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1842,
+      "position": 1843,
       "url": "https://oneworldmorocco.com/bab-doukkala-1",
       "item": {
         "@type": "LocalBusiness",
@@ -52830,7 +52863,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1843,
+      "position": 1844,
       "url": "https://oneworldmorocco.com/pikala",
       "item": {
         "@type": "LocalBusiness",
@@ -52856,7 +52889,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1844,
+      "position": 1845,
       "url": "https://oneworldmorocco.com/villa-jmajorelle",
       "item": {
         "@type": "LocalBusiness",
@@ -52867,7 +52900,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1845,
+      "position": 1846,
       "url": "https://oneworldmorocco.com/elevate-cycle",
       "item": {
         "@type": "LocalBusiness",
@@ -52875,7 +52908,7 @@
         "name": "Elevate Cycle",
         "url": "https://oneworldmorocco.com/elevate-cycle",
         "image": "https://plnphgdrawpsnumnejzc.supabase.co/storage/v1/object/public/business-images/businesses/d63582e1-9f1c-483a-8dd8-f964b71de951-1784376806118-xxsvof.jpg",
-        "description": "L'expérience Elevate Elevate Cycle propose bien plus qu'une simple séance de sport : nous offrons une expérience immersive de cyclisme en salle de 45 minutes, unique en son genre. Notre séance signature allie musique, rythme et mouvement pour créer une atmosphère où vous pouvez vous évader tout en repoussant vos limites. Mais nous ne nous arrêtons pas au cyclisme. Nous proposons également : Des séances de renforcement musculaire fonctionnel pour gagner en puissance et en endurance Des cours de P",
+        "description": "Au cœur de Guéliz, Elevate Cycle se présente comme le premier studio de cyclisme en salle de Marrakech. Dans un espace spacieux de 400 m², l’établissement propose une expérience sportive pensée pour dépasser le simple entraînement. Ici, la séance devient un moment d’immersion, porté par une atmosphère collective et par l’envie de progresser à chaque passage sur le vélo. La séance signature dure 45 minutes et associe musique, rythme et mouvement. Cette combinaison accompagne l’effort et crée une ",
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "191 Rue Mohammed el Beqal",
@@ -52898,7 +52931,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1846,
+      "position": 1847,
       "url": "https://oneworldmorocco.com/la-grande-table-marocaine-marrakech",
       "item": {
         "@type": "LocalBusiness",
@@ -52930,7 +52963,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 1847,
+      "position": 1848,
       "url": "https://oneworldmorocco.com/m-avenue-1",
       "item": {
         "@type": "LocalBusiness",
@@ -52955,14 +52988,14 @@
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.5,
-          "reviewCount": 4294,
+          "reviewCount": 4327,
           "bestRating": 5
         }
       }
     },
     {
       "@type": "ListItem",
-      "position": 1848,
+      "position": 1849,
       "url": "https://oneworldmorocco.com/pc-gamer-maroc",
       "item": {
         "@type": "LocalBusiness",
