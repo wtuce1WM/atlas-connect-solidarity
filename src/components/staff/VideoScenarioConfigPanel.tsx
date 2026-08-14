@@ -803,7 +803,7 @@ const VideoScenarioConfigPanel = ({
             automatique.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className={`flex items-center gap-2 ${hideModeSwitch ? "hidden" : ""}`}>
           {MODES.map((m) => (
             <Button
               key={m.value}
