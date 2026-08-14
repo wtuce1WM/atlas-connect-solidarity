@@ -261,49 +261,90 @@ const HookScene: React.FC<{
 };
 
 
-/** Carte texte plein écran (HTML riche ≤ 500 caractères, saisi en back-office). */
-const TextScene: React.FC<{ p: BusinessPromoProps; manifest: FeedManifest | null; frames: number }> = ({
-  p,
-  manifest,
-  frames,
-}) => {
+/**
+ * Surimpression du texte riche (≤ 500 caractères) sur les plans Vidéo et Photos.
+ * Une seule échelle typographique pour tout le montage : titres (h1/h2/h3) en
+ * Montserrat via `display`, corps en Avenir/Nunito via `body`, mêmes tailles et
+ * mêmes espacements que l'intro et l'outro.
+ */
+const RichOverlay: React.FC<{ html: string; frames: number }> = ({ html, frames }) => {
   const frame = useCurrentFrame();
-  const fade = interpolate(frame, [0, 12], [0, 1], { extrapolateRight: "clamp" });
-  const y = interpolate(frame, [0, 24], [40, 0], { extrapolateRight: "clamp" });
+  const fade = interpolate(
+    frame,
+    [0, 12, Math.max(14, frames - 10), frames],
+    [0, 1, 1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
+  const y = interpolate(frame, [0, 22], [26, 0], { extrapolateRight: "clamp" });
   return (
-    <AbsoluteFill style={{ background: palette.night }}>
-      <SceneBackdrop p={p} manifest={manifest} frames={frames} />
-      <AbsoluteFill style={{ background: alpha("night", 0.82) }} />
-      <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", padding: "0 9%" }}>
-        <div style={{ opacity: fade, transform: `translateY(${y}px)`, textAlign: "center" }}>
-          <div style={{ ...{ width: 96, height: 4, background: palette.gold, borderRadius: 999 }, margin: "0 auto 34px" }} />
-          <div
-            style={{
-              fontFamily: body,
-              fontSize: size.lead,
-              lineHeight: 1.42,
-              color: palette.cream,
-            }}
-            dangerouslySetInnerHTML={{ __html: p.text || "" }}
-          />
-        </div>
-      </AbsoluteFill>
+    <AbsoluteFill style={{ justifyContent: "flex-end", padding: "0 7% 8%", opacity: fade }}>
+      <div
+        style={{
+          transform: `translateY(${y}px)`,
+          background: alpha("night", 0.62),
+          borderRadius: 18,
+          padding: "30px 34px",
+        }}
+      >
+        <div
+          style={{
+            width: 84,
+            height: 5,
+            background: palette.gold,
+            borderRadius: 999,
+            marginBottom: 22,
+          }}
+        />
+        <div
+          className="promo-rich"
+          style={{ fontFamily: body, fontSize: size.lead, lineHeight: 1.42, color: palette.cream }}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      </div>
+      <style>{`
+        .promo-rich > *:first-child { margin-top: 0; }
+        .promo-rich > *:last-child { margin-bottom: 0; }
+        .promo-rich h1, .promo-rich h2, .promo-rich h3, .promo-rich h4 {
+          font-family: ${display}; font-weight: ${weight.medium}; color: ${palette.cream};
+          line-height: 1.08; margin: 0 0 16px;
+        }
+        .promo-rich h1 { font-size: ${size.h3}px; }
+        .promo-rich h2 { font-size: ${size.h4}px; }
+        .promo-rich h3, .promo-rich h4 { font-size: ${size.body}px; }
+        .promo-rich p { margin: 0 0 14px; }
+        .promo-rich strong { font-weight: ${weight.bold}; color: ${palette.cream}; }
+        .promo-rich em { font-style: italic; }
+        .promo-rich ul, .promo-rich ol { margin: 0 0 14px; padding-left: 1.3em; }
+        .promo-rich li { margin: 0 0 8px; }
+        .promo-rich a { color: ${palette.gold}; text-decoration: none; }
+      `}</style>
     </AbsoluteFill>
   );
 };
-
 
 const MediaScene: React.FC<{
   src: string;
   kind: "img" | "video";
   frames: number;
   caption?: string | null;
-}> = ({ src, kind, frames, caption }) => {
+  /** texte riche en surimpression (bloc « Texte ») */
+  overlayHtml?: string | null;
+}> = ({ src, kind, frames, caption, overlayHtml }) => {
   const frame = useCurrentFrame();
   const fade = interpolate(frame, [0, 8], [0, 1], { extrapolateRight: "clamp" });
   return (
     <AbsoluteFill style={{ background: palette.black, opacity: fade }}>
       <MediaFill src={src} kind={kind} durationFrames={frames} />
+      {overlayHtml ? (
+        <>
+          <AbsoluteFill
+            style={{
+              background: `linear-gradient(180deg, transparent 35%, ${alpha("night", 0.78)} 100%)`,
+            }}
+          />
+          <RichOverlay html={overlayHtml} frames={frames} />
+        </>
+      ) : null}
       {caption && (
         <AbsoluteFill style={{ justifyContent: "flex-end", padding: "0 7% 7%" }}>
           <div
@@ -325,6 +366,7 @@ const MediaScene: React.FC<{
     </AbsoluteFill>
   );
 };
+
 
 const OutroScene: React.FC<{
   p: BusinessPromoProps;
