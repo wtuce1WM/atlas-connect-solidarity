@@ -60,6 +60,22 @@ const slugify = (s: string) =>
     .replace(/^-+|-+$/g, "")
     .slice(0, 60) || "video-1wm";
 
+/**
+ * Nom de fichier réel du rendu (généré côté worker : origine, établissement,
+ * format, date). Repli sur un slug du titre si l'URL n'est pas exploitable.
+ */
+const fileNameFromUrl = (url: string | null, fallback?: string | null) => {
+  try {
+    const name = decodeURIComponent(new URL(url || "").pathname.split("/").pop() || "");
+    if (name.toLowerCase().endsWith(".mp4")) return name;
+  } catch {
+    /* URL relative ou vide */
+  }
+  return `${slugify(fallback || "video-1wm")}.mp4`;
+};
+
+
+
 const formatDateTime = (iso?: string | null) => {
   if (!iso) return null;
   const d = new Date(iso);
