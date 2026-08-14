@@ -188,7 +188,7 @@ const HookScene: React.FC<{
       />
       <h1
         style={{
-          fontFamily: display,
+          fontFamily: displayFont,
           fontWeight: weight.medium,
           fontSize: size.h2,
           lineHeight: 1.08,
@@ -212,7 +212,7 @@ const HookScene: React.FC<{
       {p.city && (
         <p
           style={{
-            fontFamily: body,
+            fontFamily: bodyFont,
             fontSize: size.caption,
             letterSpacing: 3,
             textTransform: "uppercase",
@@ -302,7 +302,7 @@ const RichOverlay: React.FC<{ html: string; frames: number }> = ({ html, frames 
         />
         <div
           className="promo-rich"
-          style={{ fontFamily: body, fontSize: size.lead, lineHeight: 1.42, color: palette.cream }}
+          style={{ fontFamily: bodyFont, fontSize: size.lead, lineHeight: 1.42, color: palette.cream }}
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </div>
@@ -310,7 +310,7 @@ const RichOverlay: React.FC<{ html: string; frames: number }> = ({ html, frames 
         .promo-rich > *:first-child { margin-top: 0; }
         .promo-rich > *:last-child { margin-bottom: 0; }
         .promo-rich h1, .promo-rich h2, .promo-rich h3, .promo-rich h4 {
-          font-family: ${display}; font-weight: ${weight.medium}; color: ${palette.cream};
+          font-family: ${displayFont}; font-weight: ${weight.medium}; color: ${palette.cream};
           line-height: 1.08; margin: 0 0 16px;
         }
         .promo-rich h1 { font-size: ${size.h3}px; }
@@ -358,7 +358,7 @@ const MediaScene: React.FC<{
               padding: "14px 22px",
               borderRadius: 14,
               alignSelf: "flex-start",
-              fontFamily: body,
+              fontFamily: bodyFont,
               fontSize: size.label,
               color: palette.cream,
               letterSpacing: 1,
@@ -410,7 +410,7 @@ const OutroScene: React.FC<{
         ) : (
           <h2
             style={{
-              fontFamily: display,
+              fontFamily: displayFont,
               fontWeight: weight.medium,
               fontSize: size.h2,
               color: palette.cream,
@@ -433,7 +433,7 @@ const OutroScene: React.FC<{
         {/* Même échelle typographique que la ligne ville de l'intro. */}
         <p
           style={{
-            fontFamily: body,
+            fontFamily: bodyFont,
             fontSize: size.caption,
             letterSpacing: 3,
             textTransform: "uppercase",
