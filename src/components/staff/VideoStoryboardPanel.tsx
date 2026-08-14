@@ -89,7 +89,18 @@ type Storyboard = {
   business_id: string | null;
   preview_scale: number;
   max_duration_sec: number;
+  created_at?: string | null;
+  updated_at?: string | null;
 };
+
+/** Modes des scénarios automatiques (Studio Vidéo IA) — édités dans la même interface. */
+const LEGACY_MODES: Array<{ value: "business" | "corporate"; label: string }> = [
+  { value: "business", label: "Scénario auto — Établissement" },
+  { value: "corporate", label: "Scénario auto — Corporate" },
+];
+
+const frDate = (iso?: string | null) =>
+  iso ? new Date(iso).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" }) : "—";
 
 type StoryboardJob = {
   id: string;
