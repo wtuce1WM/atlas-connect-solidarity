@@ -170,47 +170,222 @@ const ConfigFields = ({
           <span className="text-[11px]">{String(cfg.html ?? "").length}/500</span>
         </label>
       );
-    case "counter":
+    case "counter": {
+      // Le moteur Remotion lit `items` (jusqu'à 4 chiffres). Un seul champ = un seul item.
+      const items: any[] = Array.isArray(cfg.items) && cfg.items.length ? cfg.items : [{ value: 0, label: "" }];
+      const setItem = (i: number, key: string, value: any) =>
+        set(
+          "items",
+          items.map((it, idx) => (idx === i ? { ...it, [key]: value } : it)),
+        );
       return (
-        <div className="grid gap-3 md:grid-cols-3">
-          <label className="text-xs text-muted-foreground grid gap-1">
-            Valeur finale
-            <Input
-              type="number"
-              value={cfg.value ?? 0}
-              onChange={(e) => set("value", Number(e.target.value) || 0)}
-              className="h-8 text-xs"
-            />
-          </label>
-          {text("prefix", "Préfixe", "+")}
-          {text("caption", "Légende", "établissements référencés")}
+        <div className="grid gap-3">
+          <div className="grid gap-3 md:grid-cols-3">
+            {text("kicker", "Sur-titre", "Le réseau 1WM")}
+            {text("title", "Titre", "Marrakech & Essaouira")}
+            <label className="text-xs text-muted-foreground grid gap-1">
+              Décimales (0 à 2)
+              <Input
+                type="number"
+                min={0}
+                max={2}
+                value={cfg.decimals ?? 0}
+                onChange={(e) => set("decimals", Math.max(0, Math.min(2, Number(e.target.value) || 0)))}
+                className="h-8 text-xs"
+              />
+            </label>
+          </div>
+          <div className="grid gap-2">
+            {items.map((it, i) => (
+              <div key={i} className="grid gap-2 md:grid-cols-[7rem_5rem_5rem_1fr_2rem] items-end">
+                <label className="text-xs text-muted-foreground grid gap-1">
+                  Valeur {i + 1}
+                  <Input
+                    type="number"
+                    value={it.value ?? 0}
+                    onChange={(e) => setItem(i, "value", Number(e.target.value) || 0)}
+                    className="h-8 text-xs"
+                  />
+                </label>
+                <label className="text-xs text-muted-foreground grid gap-1">
+                  Préfixe
+                  <Input
+                    value={it.prefix ?? ""}
+                    onChange={(e) => setItem(i, "prefix", e.target.value)}
+                    className="h-8 text-xs"
+                  />
+                </label>
+                <label className="text-xs text-muted-foreground grid gap-1">
+                  Suffixe
+                  <Input
+                    value={it.suffix ?? ""}
+                    onChange={(e) => setItem(i, "suffix", e.target.value)}
+                    placeholder="+"
+                    className="h-8 text-xs"
+                  />
+                </label>
+                <label className="text-xs text-muted-foreground grid gap-1">
+                  Légende
+                  <Input
+                    value={it.label ?? ""}
+                    onChange={(e) => setItem(i, "label", e.target.value)}
+                    placeholder="établissements"
+                    className="h-8 text-xs"
+                  />
+                </label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 px-2"
+                  disabled={items.length <= 1}
+                  onClick={() => set("items", items.filter((_, idx) => idx !== i))}
+                >
+                  ×
+                </Button>
+              </div>
+            ))}
+            {items.length < 4 && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-7 w-fit text-xs"
+                onClick={() => set("items", [...items, { value: 0, label: "" }])}
+              >
+                + Ajouter un chiffre
+              </Button>
+            )}
+          </div>
+          {text("body", "Phrase de bas de scène", "Une couverture réelle, vérifiée sur le terrain.")}
         </div>
       );
-    case "map_reveal":
+    }
+    case "map_reveal": {
+      const points: any[] = Array.isArray(cfg.points) ? cfg.points : [];
+      const setPoint = (i: number, key: string, value: any) =>
+        set(
+          "points",
+          points.map((pt, idx) => (idx === i ? { ...pt, [key]: value } : pt)),
+        );
       return (
-        <div className="grid gap-3 md:grid-cols-2">
-          {text("from", "Depuis", "Maroc")}
-          {text("to", "Vers", "Marrakech")}
+        <div className="grid gap-3">
+          <div className="grid gap-3 md:grid-cols-2">
+            {text("mapUrl", "Image de carte (URL)", "https://…")}
+            {text("title", "Titre", "Tout à moins d'1 km")}
+            {text("kicker", "Sur-titre", "Géolocalisé")}
+            <label className="text-xs text-muted-foreground grid gap-1">
+              Zoom de départ (1 à 1.6)
+              <Input
+                type="number"
+                step="0.02"
+                min={1}
+                max={1.6}
+                value={cfg.zoom ?? 1.12}
+                onChange={(e) => set("zoom", Math.max(1, Math.min(1.6, Number(e.target.value) || 1.12)))}
+                className="h-8 text-xs"
+              />
+            </label>
+          </div>
+          <div className="grid gap-2">
+            {points.map((pt, i) => (
+              <div key={i} className="grid gap-2 md:grid-cols-[5rem_5rem_1fr_2rem] items-end">
+                <label className="text-xs text-muted-foreground grid gap-1">
+                  X (%)
+                  <Input
+                    type="number"
+                    value={pt.x ?? 50}
+                    onChange={(e) => setPoint(i, "x", Number(e.target.value) || 0)}
+                    className="h-8 text-xs"
+                  />
+                </label>
+                <label className="text-xs text-muted-foreground grid gap-1">
+                  Y (%)
+                  <Input
+                    type="number"
+                    value={pt.y ?? 50}
+                    onChange={(e) => setPoint(i, "y", Number(e.target.value) || 0)}
+                    className="h-8 text-xs"
+                  />
+                </label>
+                <label className="text-xs text-muted-foreground grid gap-1">
+                  Libellé
+                  <Input
+                    value={pt.label ?? ""}
+                    onChange={(e) => setPoint(i, "label", e.target.value)}
+                    placeholder="Médina"
+                    className="h-8 text-xs"
+                  />
+                </label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 px-2"
+                  onClick={() => set("points", points.filter((_, idx) => idx !== i))}
+                >
+                  ×
+                </Button>
+              </div>
+            ))}
+            {points.length < 8 && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-7 w-fit text-xs"
+                onClick={() => set("points", [...points, { x: 50, y: 50, label: "" }])}
+              >
+                + Ajouter un point
+              </Button>
+            )}
+          </div>
         </div>
       );
-    case "split_screen":
-      return (
-        <div className="grid gap-3 md:grid-cols-2">
-          {text("mediaSide", "Côté du média (left / right)", "left")}
-          {text("title", "Titre", "Une infrastructure produit")}
-          <div className="md:col-span-2">
+    }
+    case "split_screen": {
+      const panel = (side: "left" | "right", label: string) => {
+        const p = (cfg[side] ?? {}) as Record<string, any>;
+        const setPanel = (key: string, value: any) => set(side, { ...p, [key]: value });
+        return (
+          <div className="grid gap-2 rounded-md border p-2">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</span>
+            <label className="text-xs text-muted-foreground grid gap-1">
+              Image (URL)
+              <Input
+                value={p.imageUrl ?? ""}
+                onChange={(e) => setPanel("imageUrl", e.target.value)}
+                placeholder="https://…"
+                className="h-8 text-xs"
+              />
+            </label>
+            <label className="text-xs text-muted-foreground grid gap-1">
+              Titre
+              <Input
+                value={p.title ?? ""}
+                onChange={(e) => setPanel("title", e.target.value)}
+                className="h-8 text-xs"
+              />
+            </label>
             <label className="text-xs text-muted-foreground grid gap-1">
               Texte
               <Textarea
-                value={cfg.body ?? ""}
-                onChange={(e) => set("body", e.target.value.slice(0, 500))}
-                rows={3}
+                value={p.body ?? ""}
+                onChange={(e) => setPanel("body", e.target.value.slice(0, 300))}
+                rows={2}
                 className="text-xs"
               />
             </label>
           </div>
+        );
+      };
+      return (
+        <div className="grid gap-3 md:grid-cols-2">
+          {panel("left", "Panneau gauche (haut en portrait)")}
+          {panel("right", "Panneau droit (bas en portrait)")}
         </div>
       );
+    }
     case "logo_merge":
       return (
         <div className="grid gap-3 md:grid-cols-2">
