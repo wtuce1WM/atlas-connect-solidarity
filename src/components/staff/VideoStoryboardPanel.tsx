@@ -1079,6 +1079,9 @@ const VideoStoryboardPanel = () => {
   const [dirty, setDirty] = useState(false);
   /** Scénario auto sélectionné dans le même sélecteur (null = storyboard manuel). */
   const [legacyMode, setLegacyMode] = useState<"business" | "corporate" | null>(null);
+  /** Médias globaux du montage (propagés à toutes les étapes). */
+  const [globalMedia, setGlobalMedia] = useState<string[]>([]);
+  const [globalIncludeBg, setGlobalIncludeBg] = useState(true);
 
 
   // Autocomplete établissement (même mécanique que Promo business).
