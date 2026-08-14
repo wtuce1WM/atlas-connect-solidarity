@@ -127,6 +127,8 @@ const SOURCE_LABEL: Record<PickerMedia["source"] | "library_global" | "library_b
   library: "Bibliothèque",
   library_global: "Bibliothèque globale",
   library_business: "Bibliothèque fiche",
+  render_feed: "Rendu Scénario Feed",
+  render_promo: "Rendu Promo business",
 };
 
 /* ------------------------------------------------------------------ tiles */
