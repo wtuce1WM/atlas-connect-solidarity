@@ -39,6 +39,16 @@ const EFFECTS: { key: EffectKey; label: string; hint: string }[] = [
   { key: "motionBlur", label: "Motion blur caméra", hint: "Coûteux : multiplie le temps de rendu par le nb d'échantillons" },
 ];
 
+/** Presets de vitesse du tracé : un champ libre en frames n'apportait rien. */
+const PATH_SPEEDS = [
+  { label: "Rapide (~1 s)", value: 30 },
+  { label: "Normal (~1,5 s)", value: 45 },
+  { label: "Lent (~2,5 s)", value: 75 },
+];
+
+/** Portée du tracé : global ou ciblé sur une phase du montage Feed. */
+type PathScope = "all" | "hook" | "detail";
+
 const STROKE_PRESETS = [
   { label: "Or", value: "#D4AF37" },
   { label: "Terracotta", value: "#C1663F" },
@@ -95,6 +105,7 @@ const VideoGeneratePanel = () => {
   const [strokeColor, setStrokeColor] = useState(STROKE_PRESETS[0].value);
   const [pathFrames, setPathFrames] = useState(45);
   const [motionBlurSamples, setMotionBlurSamples] = useState(3);
+  const [pathScope, setPathScope] = useState<PathScope>("all");
 
   const anyEffect = Object.values(effectsOn).some(Boolean);
 
@@ -174,7 +185,7 @@ const VideoGeneratePanel = () => {
                 strokeColor,
                 pathFrames,
                 motionBlurSamples,
-                shutterAngle: 180,
+                pathScope,
               },
             }
           : {}),
