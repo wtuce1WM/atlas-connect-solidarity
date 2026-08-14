@@ -202,14 +202,20 @@ async function renderOne() {
       });
       props = { ...props, bgFeedManifest: `feed/${slug}/manifest.json` };
     }
-
-
+    // --- Internalisation des médias distants.
+    // Le proxy interne de Remotion (localhost:3000/proxy?src=…) échoue en
+    // delayRender() timeout dès qu'un hébergeur tiers est lent, refuse le
+    // Range ou coupe la connexion depuis le runner GitHub (cas constaté :
+    // mamounia.com). On télécharge donc chaque média distant dans public/dl/
+    // et on réécrit la prop vers un chemin staticFile local.
+    props = await internalizeRemoteMedia(props);
 
     console.log("📦 Bundling Remotion...");
     const bundled = await bundle({
       entryPoint: path.resolve(__dirname, "../src/index.ts"),
       webpackOverride: (c) => c,
     });
+
 
     console.log("🌐 Ouverture Chrome...");
     const browser = await openBrowser("chrome", {
