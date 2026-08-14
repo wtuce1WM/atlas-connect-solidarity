@@ -471,20 +471,21 @@ const Stage: React.FC<{ p: BusinessPromoProps; scale?: number; wide?: boolean }>
       {segs.map((s, i) => {
         const from = cursor;
         cursor += s.frames;
+        const overlay = (p.text || "").trim() || null;
         return (
           <Sequence key={`${s.kind}-${i}`} from={from} durationInFrames={s.frames}>
             {s.kind === "hook" && <HookScene p={p} frames={s.frames} manifest={manifest} wide={wide} />}
             {s.kind === "video" && p.videoUrl && (
-              <MediaScene src={p.videoUrl} kind="video" frames={s.frames} />
+              <MediaScene src={p.videoUrl} kind="video" frames={s.frames} overlayHtml={overlay} />
             )}
             {s.kind === "photo" && images[s.index ?? 0] && (
-              <MediaScene src={images[s.index ?? 0]} kind="img" frames={s.frames} />
+              <MediaScene src={images[s.index ?? 0]} kind="img" frames={s.frames} overlayHtml={overlay} />
             )}
-            {s.kind === "text" && <TextScene p={p} frames={s.frames} manifest={manifest} />}
             {s.kind === "outro" && <OutroScene p={p} frames={s.frames} manifest={manifest} wide={wide} />}
           </Sequence>
         );
       })}
+
 
     </AbsoluteFill>
   );
