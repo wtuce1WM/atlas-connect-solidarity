@@ -209,6 +209,81 @@ const SceneBackdrop: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   );
 };
 
+/* --------------------------------------------------- typographie GLOBALE
+ * SOURCE UNIQUE des textes de toutes les scènes : sur-titre (kicker),
+ * titre et corps. Modifier ici = modifier partout (accroche, vidéo, photos,
+ * compteur, carte, écran partagé, texte, outro). Aucune scène ne redéfinit
+ * sa police, sa taille ni son ombre.
+ */
+
+const useOnMediaShadow = () => {
+  const overMedia = React.useContext(BgMediaContext);
+  return overMedia ? `0 4px 24px ${alpha("night", 0.85)}` : undefined;
+};
+
+export const SceneKicker: React.FC<{ children: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => (
+  <span
+    style={{
+      fontFamily: bodyFont,
+      fontSize: size.caption,
+      letterSpacing: 3,
+      textTransform: "uppercase",
+      color: palette.gold,
+      textShadow: useOnMediaShadow(),
+      ...style,
+    }}
+  >
+    {children}
+  </span>
+);
+
+export const SceneTitle: React.FC<{
+  children: React.ReactNode;
+  wide: boolean;
+  /** 1 = titre principal, 2 = titre de scène, 3 = titre secondaire */
+  level?: 1 | 2 | 3;
+  style?: React.CSSProperties;
+}> = ({ children, wide, level = 2, style }) => {
+  const scale =
+    level === 1 ? (wide ? size.h1 : size.h2) : level === 2 ? (wide ? size.h2 : size.h3) : wide ? size.h3 : size.h4;
+  return (
+    <span
+      style={{
+        fontFamily: displayFont,
+        fontSize: scale,
+        fontWeight: weight.bold,
+        lineHeight: 1.1,
+        color: palette.cream,
+        textShadow: useOnMediaShadow(),
+        ...style,
+      }}
+    >
+      {children}
+    </span>
+  );
+};
+
+export const SceneBody: React.FC<{
+  children: React.ReactNode;
+  small?: boolean;
+  style?: React.CSSProperties;
+}> = ({ children, small, style }) => (
+  <span
+    style={{
+      fontFamily: bodyFont,
+      fontSize: small ? size.caption : size.lead,
+      lineHeight: 1.42,
+      color: alpha("cream", 0.85),
+      textShadow: useOnMediaShadow(),
+      ...style,
+    }}
+  >
+    {children}
+  </span>
+);
+
+
+
 
 /**
  * `logo_merge` — premier type finalisé.
