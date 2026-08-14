@@ -14,6 +14,7 @@ import { PhoneFrame, phoneGeometry } from "./PhoneFrame";
 import { PromoLogo } from "./promo/PromoLogo";
 import { FeedBackdrop, useFeedManifest } from "./promo/FeedBackdrop";
 import type { FeedManifest } from "./FeedTemplate";
+import { assetUrl } from "./lib/assetUrl";
 
 /**
  * Template « Promo business » — aucun Playwright, aucun appel IA.

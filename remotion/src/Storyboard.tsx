@@ -1,5 +1,6 @@
 import React from "react";
 import { AbsoluteFill, Img, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { assetUrl } from "./lib/assetUrl";
 import { palette, alpha, display, body, size, weight } from "./tokens";
 import { PromoLogo } from "./promo/PromoLogo";
 import { resolveStoryboardIcon } from "./icons/registry";
@@ -88,13 +89,7 @@ export const computeStoryboardFrames = (p: StoryboardProps) => {
   return Math.max(STORYBOARD_FPS, Math.round(total * STORYBOARD_FPS));
 };
 
-/** URL absolue laissée telle quelle ; chemin relatif résolu dans `remotion/public`. */
-const assetUrl = (src: string | null | undefined) => {
-  if (!src) return null;
-  const v = src.trim();
-  if (!v) return null;
-  return /^(https?:|data:|blob:)/.test(v) ? v : staticFile(v.replace(/^\/+/, ""));
-};
+/** Résolution partagée (voir `lib/assetUrl`) : une seule source de vérité. */
 
 const str = (cfg: Record<string, unknown> | null | undefined, key: string) => {
   const v = cfg?.[key];
