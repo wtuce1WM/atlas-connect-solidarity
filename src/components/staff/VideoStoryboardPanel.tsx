@@ -414,15 +414,18 @@ const ConfigFields = ({
         return (
           <div className="grid gap-2 rounded-md border p-2">
             <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</span>
-            <label className="text-xs text-muted-foreground grid gap-1">
-              Image (URL)
-              <Input
-                value={p.imageUrl ?? ""}
-                onChange={(e) => setPanel("imageUrl", e.target.value)}
-                placeholder="https://…"
-                className="h-8 text-xs"
+            <div className="grid gap-1">
+              <span className="text-xs text-muted-foreground">Image du panneau</span>
+              <VideoMediaPickerDialog
+                businessId={businessId}
+                format={format}
+                allow="image"
+                label={p.imageUrl ? "Changer l'image" : "Choisir une image"}
+                value={p.imageUrl ? [String(p.imageUrl)] : []}
+                onChange={(urls) => setPanel("imageUrl", urls[0] ?? "")}
               />
-            </label>
+            </div>
+
             <label className="text-xs text-muted-foreground grid gap-1">
               Titre
               <Input
