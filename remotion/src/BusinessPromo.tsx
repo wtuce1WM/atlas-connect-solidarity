@@ -502,7 +502,11 @@ const Stage: React.FC<{ p: BusinessPromoProps; scale?: number; wide?: boolean }>
         );
       })}
 
-
+      {overlayHtml && overlayFrames > 0 && (
+        <Sequence from={overlayFrom} durationInFrames={overlayFrames}>
+          <RichOverlay html={overlayHtml} frames={overlayFrames} />
+        </Sequence>
+      )}
     </AbsoluteFill>
   );
 };
