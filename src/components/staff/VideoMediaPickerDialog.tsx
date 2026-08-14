@@ -40,6 +40,8 @@ export type PickerMedia = {
   orientation?: "landscape" | "portrait" | "square" | null;
   /** Fiche d'origine (utile pour les médias cross-fiches : générique / landscape). */
   ownerName?: string | null;
+  /** Le média est aussi publié sur la fiche courante. */
+  onFiche?: boolean;
 };
 
 type TypeFilter = "all" | "image" | "video";
