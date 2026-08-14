@@ -34,7 +34,7 @@ export type PickerMedia = {
   title?: string | null;
   thumbnail?: string | null;
   duration?: number | null;
-  source: "fiche" | "generic" | "landscape" | "library";
+  source: "fiche" | "generic" | "landscape" | "library" | "generic_video" | "other";
   scope?: "global" | "business";
   libraryId?: string;
   orientation?: "landscape" | "portrait" | "square" | null;
@@ -45,7 +45,15 @@ export type PickerMedia = {
 };
 
 type TypeFilter = "all" | "image" | "video";
-type SourceFilter = "all" | "fiche" | "generic" | "landscape" | "library_business" | "library_global";
+type SourceFilter =
+  | "all"
+  | "fiche"
+  | "generic"
+  | "generic_video"
+  | "landscape"
+  | "other"
+  | "library_business"
+  | "library_global";
 
 const isInternalVideoUrl = (u: string) => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u);
 
