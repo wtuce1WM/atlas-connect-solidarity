@@ -271,28 +271,72 @@ export function useVideoMediaSources(businessId: string | null, open: boolean) {
         });
       }
 
+      // 2) Badges transverses : « Generic » et « vidéos landscape » — toutes fiches confondues
+      const { data: badgeRows } = await supabase
+        .from("badges")
+        .select("id, name_fr")
+        .or("name_fr.ilike.generic,name_fr.ilike.%landscape%");
+      const badgeIdByKind: Record<"generic" | "landscape", string | undefined> = {
+        generic: (badgeRows ?? []).find((b: any) => /^generic$/i.test(b.name_fr))?.id,
+        landscape: (badgeRows ?? []).find((b: any) => /landscape/i.test(b.name_fr))?.id,
+      };
+
+      const badgedDocIds: Record<"generic" | "landscape", string[]> = { generic: [], landscape: [] };
+      await Promise.all(
+        (["generic", "landscape"] as const).map(async (k) => {
+          const bid = badgeIdByKind[k];
+          if (!bid) return;
+          const { data } = await supabase
+            .from("business_document_badges")
+            .select("document_id")
+            .eq("badge_id", bid)
+            .limit(1000);
+          badgedDocIds[k] = (data ?? []).map((l: any) => String(l.document_id));
+        }),
+      );
+
+      const allBadgedIds = [...new Set([...badgedDocIds.generic, ...badgedDocIds.landscape])];
+      if (allBadgedIds.length) {
+        const genericSet = new Set(badgedDocIds.generic);
+        const landscapeSet = new Set(badgedDocIds.landscape);
+        const badgedDocs: any[] = [];
+        for (let i = 0; i < allBadgedIds.length; i += 200) {
+          const { data } = await supabase
+            .from("business_documents")
+            .select("id, url, name, thumbnail_url, business_id, businesses(name)")
+            .eq("type", "video")
+            .in("id", allBadgedIds.slice(i, i + 200));
+          if (data) badgedDocs.push(...data);
+        }
+        for (const d of badgedDocs) {
+          if (!d.url || !isInternalVideoUrl(String(d.url))) continue;
+          // Landscape prime dans le filtre : les deux badges sont possibles sur un doc
+          const src: PickerMedia["source"] = landscapeSet.has(String(d.id))
+            ? "landscape"
+            : genericSet.has(String(d.id))
+              ? "generic"
+              : "fiche";
+          out.push({
+            url: String(d.url),
+            kind: "video",
+            title: d.name ?? "Vidéo",
+            thumbnail: d.thumbnail_url ?? null,
+            source: src,
+            ownerName: (d as any).businesses?.name ?? null,
+          });
+        }
+      }
+
       if (businessId) {
-        // 2) Médias publics de la fiche + badge « Generic » sur les documents vidéo
-        const [{ data: biz }, { data: docs }, { data: badgeRows }] = await Promise.all([
+        // 3) Médias publics de la fiche courante
+        const [{ data: biz }, { data: docs }] = await Promise.all([
           supabase.from("businesses").select("images, logo_url").eq("id", businessId).maybeSingle(),
           supabase
             .from("business_documents")
             .select("id, url, name, thumbnail_url, type")
             .eq("business_id", businessId)
             .eq("type", "video"),
-          supabase.from("badges").select("id, name_fr").ilike("name_fr", "generic"),
         ]);
-
-        const badgeId = (badgeRows ?? [])[0]?.id as string | undefined;
-        let genericDocIds = new Set<string>();
-        if (badgeId && (docs ?? []).length) {
-          const { data: links } = await supabase
-            .from("business_document_badges")
-            .select("document_id")
-            .eq("badge_id", badgeId)
-            .in("document_id", (docs ?? []).map((d: any) => d.id));
-          genericDocIds = new Set((links ?? []).map((l: any) => String(l.document_id)));
-        }
 
         for (const url of ((biz as any)?.images ?? []) as string[]) {
           if (typeof url === "string" && url.trim()) out.push({ url, kind: "image", source: "fiche" });
@@ -304,10 +348,11 @@ export function useVideoMediaSources(businessId: string | null, open: boolean) {
             kind: "video",
             title: d.name ?? "Vidéo",
             thumbnail: d.thumbnail_url ?? null,
-            source: genericDocIds.has(String(d.id)) ? "generic" : "fiche",
+            source: "fiche",
           });
         }
       }
+
 
       // Déduplication par URL, la bibliothèque staff prime (elle porte les métadonnées)
       const seen = new Set<string>();
