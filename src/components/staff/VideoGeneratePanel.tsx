@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Film, PlayCircle, RefreshCw, Rocket, Sparkles, Wand2 } from "lucide-react";
 import { toast } from "sonner";
 import VideoPromoPanel from "@/components/staff/VideoPromoPanel";
+import VideoJobMeta from "@/components/staff/VideoJobMeta";
 
 /**
  * Onglet « Générer » du back-office vidéo.
@@ -64,6 +65,10 @@ type FeedJob = {
   error_message: string | null;
   created_at: string;
   template_id: string | null;
+  duration_sec: number | null;
+  business_id: string | null;
+  template_props: any;
+  scenario_json: any;
 };
 
 const slugify = (v: string) =>
@@ -111,6 +116,7 @@ const VideoGeneratePanel = () => {
 
   const [jobs, setJobs] = useState<FeedJob[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
+  const [jobBusinessNames, setJobBusinessNames] = useState<Record<string, string>>({});
 
   const autoSlug = useMemo(() => slug.trim() || slugify(label || "feed"), [slug, label]);
 
@@ -118,11 +124,21 @@ const VideoGeneratePanel = () => {
     setLoadingJobs(true);
     const { data } = await supabase
       .from("video_jobs")
-      .select("id, title, status, output_url, error_message, created_at, template_id")
+      .select(
+        "id, title, status, output_url, error_message, created_at, template_id, duration_sec, business_id, template_props, scenario_json",
+      )
       .like("template_id", "feed-template%")
       .order("created_at", { ascending: false })
       .limit(12);
-    setJobs((data ?? []) as FeedJob[]);
+    const rows = (data ?? []) as FeedJob[];
+    setJobs(rows);
+    const ids = Array.from(new Set(rows.map((r) => r.business_id).filter(Boolean))) as string[];
+    if (ids.length) {
+      const { data: biz } = await supabase.from("businesses").select("id, name").in("id", ids);
+      const map: Record<string, string> = {};
+      ((biz as any[]) ?? []).forEach((b) => (map[b.id] = b.name));
+      setJobBusinessNames(map);
+    }
     setLoadingJobs(false);
   };
 
@@ -534,31 +550,34 @@ const VideoGeneratePanel = () => {
           ) : (
             <div className="divide-y">
               {jobs.map((j) => (
-                <div key={j.id} className="py-2 flex items-center gap-3 flex-wrap text-sm">
-                  <Badge
-                    variant={j.status === "done" ? "default" : j.status === "error" ? "destructive" : "outline"}
-                    className="text-[10px]"
-                  >
-                    {j.status}
-                  </Badge>
-                  <span className="text-black font-medium">{j.title || j.id.slice(0, 8)}</span>
-                  <span className="text-[11px] text-muted-foreground font-mono">{j.template_id}</span>
-                  <span className="text-[11px] text-muted-foreground">
-                    {new Date(j.created_at).toLocaleString("fr-FR")}
-                  </span>
-                  {j.output_url && (
-                    <a
-                      href={j.output_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[11px] underline text-primary ml-auto"
+                <div key={j.id} className="py-3 space-y-2">
+                  <div className="flex items-center gap-3 flex-wrap text-sm">
+                    <Badge
+                      variant={j.status === "done" ? "default" : j.status === "error" ? "destructive" : "outline"}
+                      className="text-[10px]"
                     >
-                      Ouvrir la vidéo
-                    </a>
-                  )}
-                  {j.error_message && (
-                    <span className="text-[11px] text-destructive ml-auto max-w-md truncate">{j.error_message}</span>
-                  )}
+                      {j.status}
+                    </Badge>
+                    <span className="text-black font-medium">{j.title || j.id.slice(0, 8)}</span>
+                    <span className="text-[11px] text-muted-foreground font-mono">{j.template_id}</span>
+                    {j.output_url && (
+                      <a
+                        href={j.output_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[11px] underline text-primary ml-auto"
+                      >
+                        Ouvrir la vidéo
+                      </a>
+                    )}
+                    {j.error_message && (
+                      <span className="text-[11px] text-destructive ml-auto max-w-md truncate">{j.error_message}</span>
+                    )}
+                  </div>
+                  <VideoJobMeta
+                    job={j}
+                    businessName={j.business_id ? jobBusinessNames[j.business_id] : undefined}
+                  />
                 </div>
               ))}
             </div>
