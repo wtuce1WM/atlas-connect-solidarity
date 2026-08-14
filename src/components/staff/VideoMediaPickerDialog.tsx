@@ -34,7 +34,7 @@ export type PickerMedia = {
   title?: string | null;
   thumbnail?: string | null;
   duration?: number | null;
-  source: "fiche" | "generic" | "library" | "generic_video" | "other";
+  source: "fiche" | "generic" | "library" | "generic_video" | "other" | "render_feed" | "render_promo";
   scope?: "global" | "business";
   libraryId?: string;
   /** ID base de la vidéo/média source (business_documents, generic_videos, bibliothèque). */
@@ -55,7 +55,9 @@ type SourceFilter =
   | "landscape"
   | "other"
   | "library_business"
-  | "library_global";
+  | "library_global"
+  | "render_feed"
+  | "render_promo";
 
 const documentVideoUrl = (d: any): string | null => {
   const url = d?.youtube_video_url || d?.instagram_video_url || d?.tiktok_video_url || d?.url;
@@ -125,6 +127,8 @@ const SOURCE_LABEL: Record<PickerMedia["source"] | "library_global" | "library_b
   library: "Bibliothèque",
   library_global: "Bibliothèque globale",
   library_business: "Bibliothèque fiche",
+  render_feed: "Rendu Scénario Feed",
+  render_promo: "Rendu Promo business",
 };
 
 /* ------------------------------------------------------------------ tiles */
@@ -514,6 +518,46 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         }
       }
 
+      // 6) Rendus déjà générés (jobs terminés) : Scénario Feed et Promo business.
+      //    Ce sont des MP4 internes, réutilisables comme média de fond d'un montage.
+      const { data: jobs } = await supabase
+        .from("video_jobs")
+        .select("id, title, output_url, template_id, duration_sec, business_id, created_at")
+        .eq("status", "done")
+        .not("output_url", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(300);
+      const jobRows = (jobs ?? []).filter((j: any) => {
+        const t = String(j.template_id ?? "");
+        return t.startsWith("feed-template") || t.startsWith("business-promo");
+      });
+      if (jobRows.length) {
+        const jobBizIds = [...new Set(jobRows.map((j: any) => j.business_id).filter(Boolean))];
+        const jobOwners = new Map<string, string>();
+        for (let i = 0; i < jobBizIds.length; i += 200) {
+          const { data: owners } = await supabase
+            .from("businesses")
+            .select("id, name")
+            .in("id", jobBizIds.slice(i, i + 200) as string[]);
+          for (const o of owners ?? []) jobOwners.set(String(o.id), o.name);
+        }
+        for (const j of jobRows as any[]) {
+          const url = typeof j.output_url === "string" ? j.output_url.trim() : "";
+          if (!url) continue;
+          const t = String(j.template_id ?? "");
+          out.push({
+            url,
+            kind: "video",
+            title: j.title || (t.startsWith("business-promo") ? "Promo business" : "Scénario Feed"),
+            duration: j.duration_sec != null ? Number(j.duration_sec) : null,
+            orientation: t.includes("landscape") ? "landscape" : "portrait",
+            source: t.startsWith("business-promo") ? "render_promo" : "render_feed",
+            mediaId: String(j.id),
+            ownerName: j.business_id ? (jobOwners.get(String(j.business_id)) ?? null) : null,
+          });
+        }
+      }
+
       // Déduplication par URL, la bibliothèque staff prime (elle porte les métadonnées)
       const seen = new Set<string>();
       const deduped = out
@@ -793,6 +837,10 @@ export function VideoMediaPickerDialog({
         return m.source === "library" && m.scope === "business";
       case "library_global":
         return m.source === "library" && m.scope === "global";
+      case "render_feed":
+        return m.source === "render_feed";
+      case "render_promo":
+        return m.source === "render_promo";
     }
   };
 
@@ -944,6 +992,8 @@ export function VideoMediaPickerDialog({
       other: typeBase.filter((m) => m.source === "other").length,
       libBiz: typeBase.filter((m) => m.source === "library" && m.scope === "business").length,
       libGlobal: typeBase.filter((m) => m.source === "library" && m.scope === "global").length,
+      renderFeed: typeBase.filter((m) => m.source === "render_feed").length,
+      renderPromo: typeBase.filter((m) => m.source === "render_promo").length,
     }),
     [typeBase],
   );
@@ -1017,6 +1067,8 @@ export function VideoMediaPickerDialog({
                 <option value="other">Autre fiche par slug · {activeTypeLabel} ({counts.other})</option>
                 <option value="library_business">Bibliothèque fiche · {activeTypeLabel} ({counts.libBiz})</option>
                 <option value="library_global">Bibliothèque globale · {activeTypeLabel} ({counts.libGlobal})</option>
+                <option value="render_feed">Rendus · Scénario Feed ({counts.renderFeed})</option>
+                <option value="render_promo">Rendus · Promo business ({counts.renderPromo})</option>
               </select>
               <Input
                 value={search}
