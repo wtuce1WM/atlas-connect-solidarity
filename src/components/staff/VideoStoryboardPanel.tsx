@@ -1651,7 +1651,32 @@ const VideoStoryboardPanel = () => {
         </CardContent>
       </Card>
 
-      {legacyMode && <VideoScenarioConfigPanel initialMode={legacyMode} hideModeSwitch />}
+      {legacyMode && (
+        <>
+          <VideoScenarioConfigPanel initialMode={legacyMode} hideModeSwitch />
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-black text-base flex items-center gap-2">
+                <Rocket className="h-4 w-4" /> Rendu du scénario automatique
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">
+                Ce montage utilise le moteur <strong>Studio Vidéo IA</strong> (
+                <code>{legacyMode === "business" ? "business-showcase" : "corporate-vertical"}</code>) : le
+                déroulé configuré ci-dessus est appliqué, mais le rendu a besoin d'un prompt et d'un
+                établissement. On lance donc le rendu depuis Studio Vidéo, et les jobs produits
+                apparaissent dans « Rendus des montages » ci-dessous, comme ceux des storyboards manuels.
+              </p>
+              <Button size="sm" variant="secondary" asChild>
+                <a href="/studio-video" target="_blank" rel="noreferrer">
+                  <Rocket className="h-4 w-4 mr-1" /> Lancer un rendu dans Studio Vidéo IA
+                </a>
+              </Button>
+            </CardContent>
+          </Card>
+        </>
+      )}
 
       <div className={legacyMode ? "hidden" : "space-y-6"}>
       <Card>
