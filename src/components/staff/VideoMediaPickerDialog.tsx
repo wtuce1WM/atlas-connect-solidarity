@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Film, Image as ImageIcon, Loader2, Play, Pause, Trash2, Upload, X } from "lucide-react";
+import { Copy, Film, Image as ImageIcon, Loader2, Play, Pause, Trash2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
 /**
@@ -37,6 +37,8 @@ export type PickerMedia = {
   source: "fiche" | "generic" | "library" | "generic_video" | "other";
   scope?: "global" | "business";
   libraryId?: string;
+  /** ID base de la vidéo/média source (business_documents, generic_videos, bibliothèque). */
+  mediaId?: string | null;
   orientation?: "landscape" | "portrait" | "square" | null;
   /** Fiche d'origine (utile pour les médias cross-fiches : générique). */
   ownerName?: string | null;
@@ -149,7 +151,16 @@ function Tile({
   const [orientation, setOrientation] = useState<"landscape" | "portrait" | "square" | null>(
     item.orientation ?? null,
   );
+  const [ratio, setRatio] = useState<number>(
+    item.orientation === "portrait" ? 9 / 16 : item.orientation === "square" ? 1 : 16 / 9,
+  );
   const [duration, setDuration] = useState<number | null>(item.duration ?? null);
+
+  const isVideoTile = item.kind === "video";
+  // Même gabarit que le picker de Studio Vidéo IA : vidéo au ratio natif, demi-taille.
+  const BASE = 300;
+  const width = ratio >= 1 ? BASE / 2 : (BASE / 2) * ratio;
+  const height = ratio >= 1 ? BASE / 2 / ratio : BASE / 2;
 
   const noteOrientation = (o: "landscape" | "portrait" | "square") => {
     setOrientation(o);
@@ -172,14 +183,26 @@ function Tile({
     }
   };
 
+  const copyId = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!item.mediaId) return;
+    try {
+      await navigator.clipboard.writeText(item.mediaId);
+      toast.success("ID copié");
+    } catch {
+      toast.error("Copie impossible");
+    }
+  };
+
   return (
-    <div className="relative">
+    <div className={`relative ${isVideoTile ? "shrink-0" : ""}`} style={isVideoTile ? { width: Math.round(width) } : undefined}>
       <button
         type="button"
         onClick={onSelect}
-        className={`relative w-full aspect-[4/3] rounded-md overflow-hidden border-2 bg-black/90 ${
-          selected ? "border-primary" : "border-transparent hover:border-primary/40"
-        }`}
+        className={`relative w-full rounded-md overflow-hidden border-2 bg-black/90 ${
+          isVideoTile ? "" : "aspect-[4/3]"
+        } ${selected ? "border-primary" : "border-transparent hover:border-primary/40"}`}
+        style={isVideoTile ? { height: Math.round(height) } : undefined}
       >
         {item.kind === "video" ? (
           isInternalVideoUrl(item.url) ? (
@@ -192,7 +215,10 @@ function Tile({
               className="w-full h-full object-contain"
               onLoadedMetadata={(e) => {
                 const v = e.currentTarget;
-                if (v.videoWidth && v.videoHeight) noteOrientation(ratioToOrientation(v.videoWidth, v.videoHeight));
+                if (v.videoWidth && v.videoHeight) {
+                  setRatio(v.videoWidth / v.videoHeight);
+                  noteOrientation(ratioToOrientation(v.videoWidth, v.videoHeight));
+                }
                 if (Number.isFinite(v.duration)) setDuration(v.duration);
               }}
               onEnded={() => setPlaying(false)}
@@ -272,6 +298,24 @@ function Tile({
         </p>
       )}
 
+      {item.ownerName && (
+        <p className="text-[10px] font-semibold truncate" title={item.ownerName}>
+          {item.ownerName}
+        </p>
+      )}
+
+      {item.mediaId && (
+        <button
+          type="button"
+          onClick={copyId}
+          title={`Copier l'ID ${item.mediaId}`}
+          className="mt-0.5 flex items-center gap-1 max-w-full text-[9px] font-mono text-muted-foreground hover:text-foreground"
+        >
+          <Copy className="h-2.5 w-2.5 shrink-0" />
+          <span className="truncate">{item.mediaId}</span>
+        </button>
+      )}
+
       {onDelete && (
         <Button
           type="button"
@@ -290,6 +334,7 @@ function Tile({
     </div>
   );
 }
+
 
 /* ------------------------------------------------------------- data hooks */
 
@@ -322,6 +367,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
           source: "library",
           scope: r.business_id ? "business" : "global",
           libraryId: r.id,
+          mediaId: r.id,
         });
       }
 
@@ -372,6 +418,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
             title: d.name ?? "Vidéo",
             thumbnail: d.thumbnail_url ?? null,
             source: genericSet.has(String(d.id)) ? "generic" : "fiche",
+            mediaId: String(d.id),
             ownerName: ownerNames.get(String(d.business_id)) ?? null,
           });
         }
@@ -405,6 +452,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
             title: d.name ?? "Vidéo",
             thumbnail: d.thumbnail_url ?? null,
             source: "fiche",
+            mediaId: String(d.id),
           });
         }
       }
@@ -424,6 +472,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
           title: g.name ?? "Vidéo générique",
           thumbnail: g.thumbnail_url ?? null,
           source: "generic_video",
+          mediaId: String(g.id),
           ownerName: g.instagram_account || g.tiktok_account || g.youtube_account || null,
         });
       }
@@ -458,6 +507,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
               title: d.name ?? "Vidéo",
               thumbnail: d.thumbnail_url ?? null,
               source: "other",
+              mediaId: String(d.id),
               ownerName: o.name,
             });
           }
@@ -572,6 +622,7 @@ export function useLandscapeVideos(enabled: boolean) {
           thumbnail: d.thumbnail_url ?? null,
           source: "other",
           orientation: "landscape",
+          mediaId: String(d.id),
           ownerName: ownerNames.get(String(d.business_id)) ?? null,
         });
       }
@@ -585,6 +636,7 @@ export function useLandscapeVideos(enabled: boolean) {
           thumbnail: g.thumbnail_url ?? null,
           source: "generic_video",
           orientation: "landscape",
+          mediaId: String(g.id),
         });
       }
       const seen = new Set<string>();
@@ -764,7 +816,7 @@ export function VideoMediaPickerDialog({
     });
   }, [typeBase, wideVideos, sourceFilter, search]);
 
-  const PAGE_SIZE = 30;
+  const PAGE_SIZE = 32;
   const [page, setPage] = useState(0);
   useEffect(() => {
     setPage(0);
@@ -1110,8 +1162,8 @@ export function VideoMediaPickerDialog({
                 Aucun média pour ces filtres. Glissez-déposez ou importez un fichier pour alimenter la bibliothèque.
               </p>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 pt-2">
-                {pageItems.map((m) => (
+              (() => {
+                const renderTile = (m: PickerMedia) => (
                   <Tile
                     key={m.url}
                     item={m}
@@ -1124,11 +1176,35 @@ export function VideoMediaPickerDialog({
                       noteOrientation(m, o);
                       void setOrientationOnce(m, o);
                     }}
-
                   />
-                ))}
-              </div>
+                );
+                const vids = pageItems.filter((m) => m.kind === "video");
+                const imgs = pageItems.filter((m) => m.kind === "image");
+                return (
+                  <div className="space-y-5 pt-2">
+                    {vids.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Vidéos · {vids.length}
+                        </div>
+                        <div className="flex flex-wrap items-start gap-3">{vids.map(renderTile)}</div>
+                      </div>
+                    )}
+                    {imgs.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Images · {imgs.length}
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                          {imgs.map(renderTile)}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()
             )}
+
 
             {!loading && filtered.length > PAGE_SIZE && (
               <div className="flex items-center justify-between gap-2 border-t pt-3">
