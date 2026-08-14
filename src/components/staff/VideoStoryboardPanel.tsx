@@ -1096,7 +1096,7 @@ const VideoStoryboardPanel = () => {
     const [boardRes, stepsRes] = await Promise.all([
       supabase
         .from("video_storyboards" as any)
-        .select("id, name, scenario_type, format, business_id, preview_scale, max_duration_sec")
+        .select("id, name, scenario_type, format, business_id, preview_scale, max_duration_sec, created_at, updated_at")
         .eq("id", id)
         .maybeSingle(),
       supabase
