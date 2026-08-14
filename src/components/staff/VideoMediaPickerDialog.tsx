@@ -507,6 +507,19 @@ export function VideoMediaPickerDialog({
     if (allow !== "all") setTypeFilter(allow);
   }, [allow]);
 
+  useEffect(() => {
+    const slug = slugQuery.trim();
+    if (slug.length < 2) {
+      setOtherSlug("");
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      setOtherSlug(slug);
+      setSourceFilter("other");
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [slugQuery]);
+
   /** Base restreinte par `allow` + type : sert aussi aux compteurs du menu déroulant. */
   const typeBase = useMemo(
     () =>
@@ -649,6 +662,13 @@ export function VideoMediaPickerDialog({
     .map((u) => items.find((m) => m.url === u) ?? ({ url: u, kind: "image", source: "fiche" } as PickerMedia))
     .filter(Boolean);
 
+  const activeTypeLabel =
+    allow === "image" || typeFilter === "image"
+      ? "images"
+      : allow === "video" || typeFilter === "video"
+        ? "vidéos"
+        : "médias";
+
   return (
     <div className="grid gap-2">
       <div className="flex flex-wrap items-center gap-2">
@@ -698,13 +718,13 @@ export function VideoMediaPickerDialog({
                 className="h-8 rounded-md border bg-background px-2 text-xs"
               >
                 <option value="all">Toutes les sources ({counts.all})</option>
-                <option value="fiche">Fiche ({counts.fiche})</option>
+                <option value="fiche">Fiche · {activeTypeLabel} ({counts.fiche})</option>
                 <option value="generic_video">Vidéos génériques ({counts.genericVideo})</option>
                 <option value="generic">Badge Générique ({counts.generic})</option>
                 <option value="landscape">Landscape ({counts.landscape})</option>
-                <option value="other">Autre fiche par slug ({counts.other})</option>
-                <option value="library_business">Bibliothèque fiche ({counts.libBiz})</option>
-                <option value="library_global">Bibliothèque globale ({counts.libGlobal})</option>
+                <option value="other">Autre fiche par slug · {activeTypeLabel} ({counts.other})</option>
+                <option value="library_business">Bibliothèque fiche · {activeTypeLabel} ({counts.libBiz})</option>
+                <option value="library_global">Bibliothèque globale · {activeTypeLabel} ({counts.libGlobal})</option>
               </select>
               <Input
                 value={search}
@@ -788,6 +808,11 @@ export function VideoMediaPickerDialog({
                 dans l'autre orientation (recadrage automatique au rendu).
               </p>
             )}
+
+            <p className="text-[11px] text-muted-foreground">
+              Les compteurs affichent uniquement les {activeTypeLabel} compatibles avec cette scène. « Autre fiche » se
+              charge automatiquement dès la saisie d’un nom ou slug.
+            </p>
 
             {loading ? (
               <div className="flex items-center gap-2 py-10 text-sm text-muted-foreground">
