@@ -842,7 +842,7 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
 };
 
 /**
- * `photos` — jusqu'à 4 photos plein cadre en Ken Burns, la durée de la section
+ * `photos` — jusqu'à 30 photos plein cadre en Ken Burns, la durée de la section
  * étant partagée à parts égales. Les URLs explicites (`images`) priment sur les
  * photos de la fiche.
  */
@@ -854,7 +854,7 @@ const PhotosScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storyb
   const explicit = Array.isArray(cfg.images)
     ? (cfg.images as unknown[]).filter((v): v is string => typeof v === "string" && !!v.trim())
     : [];
-  const count = Math.min(4, Math.max(1, num(cfg, "count") ?? 4));
+  const count = Math.min(30, Math.max(1, num(cfg, "count") ?? 30));
   const pool = (explicit.length ? explicit : (p.photos ?? []).filter(Boolean)).slice(0, count);
   const move = str(cfg, "kenBurns") ?? "zoom_in";
   const title = str(cfg, "title");
@@ -1067,7 +1067,7 @@ const PlaceholderScene: React.FC<{ wide: boolean; section: StoryboardSection }> 
   );
 };
 
-const SectionScene: React.FC<{ wide: boolean; p: StoryboardProps; section: StoryboardSection }> = ({
+const SectionSceneInner: React.FC<{ wide: boolean; p: StoryboardProps; section: StoryboardSection }> = ({
   wide,
   p,
   section,
@@ -1094,6 +1094,27 @@ const SectionScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Story
     default:
       return <PlaceholderScene wide={wide} section={section} />;
   }
+};
+
+/**
+ * Enveloppe commune : si la section porte un fond média (images OU vidéo),
+ * il est dessiné derrière la scène et le voile de `SceneBackdrop` s'adapte.
+ */
+const SectionScene: React.FC<{ wide: boolean; p: StoryboardProps; section: StoryboardSection }> = ({
+  wide,
+  p,
+  section,
+}) => {
+  const media = hasBgMedia(section);
+  if (!media) return <SectionSceneInner wide={wide} p={p} section={section} />;
+  return (
+    <AbsoluteFill>
+      <SceneMediaBackdrop section={section} />
+      <BgMediaContext.Provider value>
+        <SectionSceneInner wide={wide} p={p} section={section} />
+      </BgMediaContext.Provider>
+    </AbsoluteFill>
+  );
 };
 
 /* ------------------------------------------------------------------ montage */
