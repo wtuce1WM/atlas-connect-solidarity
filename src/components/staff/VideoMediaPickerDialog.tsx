@@ -1,0 +1,631 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Film, Image as ImageIcon, Loader2, Play, Pause, Trash2, Upload, X } from "lucide-react";
+import { toast } from "sonner";
+
+/**
+ * Sélecteur de médias unique pour le montage vidéo (Storyboard / Studio).
+ *
+ * Sources agrégées :
+ *  - `fiche`      : images + vidéos internes publiées sur la fiche
+ *  - `generic`    : vidéos de fiche portant le badge « Generic »
+ *  - `library`    : bibliothèque staff-only (`video_media_library`)
+ *                   → `business_id = null` = média global (B-roll, logos, plans)
+ *                   → `business_id` rempli = média staff-only rattaché à une fiche
+ *
+ * Les médias `library` ne sont JAMAIS affichés côté public : ils vivent hors
+ * `businesses.images` / `business_documents`.
+ */
+
+export type PickerMedia = {
+  url: string;
+  kind: "image" | "video";
+  title?: string | null;
+  thumbnail?: string | null;
+  duration?: number | null;
+  source: "fiche" | "generic" | "library";
+  scope?: "global" | "business";
+  libraryId?: string;
+  orientation?: "landscape" | "portrait" | "square" | null;
+};
+
+type TypeFilter = "all" | "image" | "video";
+type SourceFilter = "all" | "fiche" | "generic" | "library_business" | "library_global";
+
+const isInternalVideoUrl = (u: string) => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u);
+
+const ratioToOrientation = (w: number, h: number): "landscape" | "portrait" | "square" =>
+  w > h * 1.05 ? "landscape" : h > w * 1.05 ? "portrait" : "square";
+
+const fmtDur = (s?: number | null) => {
+  if (s == null || !Number.isFinite(s)) return null;
+  const t = Math.round(s);
+  const m = Math.floor(t / 60);
+  const r = t % 60;
+  return m > 0 ? `${m}:${String(r).padStart(2, "0")}` : `${r}s`;
+};
+
+const SOURCE_LABEL: Record<PickerMedia["source"] | "library_global" | "library_business", string> = {
+  fiche: "Fiche",
+  generic: "Générique",
+  library: "Bibliothèque",
+  library_global: "Bibliothèque globale",
+  library_business: "Bibliothèque fiche",
+};
+
+/* ------------------------------------------------------------------ tiles */
+
+function Tile({
+  item,
+  selected,
+  badge,
+  expectedOrientation,
+  onSelect,
+  onDelete,
+  onOrientation,
+}: {
+  item: PickerMedia;
+  selected: boolean;
+  badge?: number | null;
+  expectedOrientation?: "landscape" | "portrait";
+  onSelect: () => void;
+  onDelete?: () => void;
+  onOrientation?: (o: "landscape" | "portrait" | "square") => void;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const [orientation, setOrientation] = useState<"landscape" | "portrait" | "square" | null>(
+    item.orientation ?? null,
+  );
+  const [duration, setDuration] = useState<number | null>(item.duration ?? null);
+
+  const noteOrientation = (o: "landscape" | "portrait" | "square") => {
+    setOrientation(o);
+    onOrientation?.(o);
+  };
+
+  const mismatch =
+    !!expectedOrientation && !!orientation && orientation !== "square" && orientation !== expectedOrientation;
+
+  const togglePlay = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) {
+      v.play();
+      setPlaying(true);
+    } else {
+      v.pause();
+      setPlaying(false);
+    }
+  };
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={onSelect}
+        className={`relative w-full aspect-[4/3] rounded-md overflow-hidden border-2 bg-black/90 ${
+          selected ? "border-primary" : "border-transparent hover:border-primary/40"
+        }`}
+      >
+        {item.kind === "video" ? (
+          isInternalVideoUrl(item.url) ? (
+            <video
+              ref={videoRef}
+              src={item.url}
+              muted
+              playsInline
+              preload="metadata"
+              className="w-full h-full object-contain"
+              onLoadedMetadata={(e) => {
+                const v = e.currentTarget;
+                if (v.videoWidth && v.videoHeight) noteOrientation(ratioToOrientation(v.videoWidth, v.videoHeight));
+                if (Number.isFinite(v.duration)) setDuration(v.duration);
+              }}
+              onEnded={() => setPlaying(false)}
+            />
+          ) : (
+            <img
+              src={item.thumbnail || ""}
+              alt={item.title || "Vidéo"}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          )
+        ) : (
+          <img
+            src={item.url}
+            alt={item.title || ""}
+            className="w-full h-full object-cover"
+            loading="lazy"
+            onLoad={(e) => {
+              const i = e.currentTarget;
+              if (i.naturalWidth && i.naturalHeight) noteOrientation(ratioToOrientation(i.naturalWidth, i.naturalHeight));
+            }}
+          />
+        )}
+
+        <span className="absolute top-1 left-1 flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded bg-black/70 text-white font-bold uppercase">
+          {item.kind === "video" ? <Film className="h-2.5 w-2.5" /> : <ImageIcon className="h-2.5 w-2.5" />}
+          {item.kind}
+        </span>
+
+        <span className="absolute bottom-1 left-1 flex items-center gap-1">
+          <span className="text-[9px] px-1.5 py-0.5 rounded bg-black/70 text-white uppercase font-bold">
+            {item.source === "library"
+              ? item.scope === "global"
+                ? "globale"
+                : "fiche · staff"
+              : item.source === "generic"
+                ? "générique"
+                : "fiche"}
+          </span>
+          {orientation && (
+            <span
+              className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${
+                mismatch ? "bg-amber-500 text-black" : "bg-black/70 text-white"
+              }`}
+            >
+              {orientation === "landscape" ? "16:9" : orientation === "portrait" ? "9:16" : "1:1"}
+            </span>
+          )}
+        </span>
+
+        {item.kind === "video" && isInternalVideoUrl(item.url) && (
+          <span
+            onClick={togglePlay}
+            role="button"
+            aria-label={playing ? "Pause" : "Lecture"}
+            className="absolute bottom-1 right-1 rounded-full bg-white/85 text-black w-7 h-7 flex items-center justify-center hover:bg-white transition"
+          >
+            {playing ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+          </span>
+        )}
+
+        {item.kind === "video" && fmtDur(duration) && (
+          <span className="absolute top-1 right-8 text-[9px] px-1.5 py-0.5 rounded bg-black/70 text-white font-bold tabular-nums">
+            {fmtDur(duration)}
+          </span>
+        )}
+
+        {selected && (
+          <span className="absolute top-1 right-1 rounded-full bg-primary text-primary-foreground text-[11px] font-bold w-6 h-6 flex items-center justify-center">
+            {badge ?? "✓"}
+          </span>
+        )}
+      </button>
+
+      {item.title && (
+        <p className="mt-1 text-[10px] text-muted-foreground truncate" title={item.title}>
+          {item.title}
+        </p>
+      )}
+
+      {onDelete && (
+        <Button
+          type="button"
+          size="icon"
+          variant="ghost"
+          className="absolute -top-2 -left-2 h-6 w-6 rounded-full bg-background border text-destructive"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          aria-label="Supprimer de la bibliothèque"
+        >
+          <Trash2 className="h-3 w-3" />
+        </Button>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------- data hooks */
+
+export function useVideoMediaSources(businessId: string | null, open: boolean) {
+  const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState<PickerMedia[]>([]);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const out: PickerMedia[] = [];
+
+      // 1) Bibliothèque staff-only : global + (éventuellement) la fiche courante
+      const libQuery = supabase
+        .from("video_media_library")
+        .select("id, business_id, kind, url, title, orientation, duration_sec")
+        .order("created_at", { ascending: false })
+        .limit(600);
+      const { data: lib, error: libErr } = businessId
+        ? await libQuery.or(`business_id.is.null,business_id.eq.${businessId}`)
+        : await libQuery.is("business_id", null);
+      if (libErr) throw libErr;
+      for (const r of (lib ?? []) as any[]) {
+        out.push({
+          url: r.url,
+          kind: r.kind,
+          title: r.title,
+          duration: r.duration_sec != null ? Number(r.duration_sec) : null,
+          orientation: r.orientation ?? null,
+          source: "library",
+          scope: r.business_id ? "business" : "global",
+          libraryId: r.id,
+        });
+      }
+
+      if (businessId) {
+        // 2) Médias publics de la fiche + badge « Generic » sur les documents vidéo
+        const [{ data: biz }, { data: docs }, { data: badgeRows }] = await Promise.all([
+          supabase.from("businesses").select("images, logo_url").eq("id", businessId).maybeSingle(),
+          supabase
+            .from("business_documents")
+            .select("id, url, name, thumbnail_url, type")
+            .eq("business_id", businessId)
+            .eq("type", "video"),
+          supabase.from("badges").select("id, name_fr").ilike("name_fr", "generic"),
+        ]);
+
+        const badgeId = (badgeRows ?? [])[0]?.id as string | undefined;
+        let genericDocIds = new Set<string>();
+        if (badgeId && (docs ?? []).length) {
+          const { data: links } = await supabase
+            .from("business_document_badges")
+            .select("document_id")
+            .eq("badge_id", badgeId)
+            .in("document_id", (docs ?? []).map((d: any) => d.id));
+          genericDocIds = new Set((links ?? []).map((l: any) => String(l.document_id)));
+        }
+
+        for (const url of ((biz as any)?.images ?? []) as string[]) {
+          if (typeof url === "string" && url.trim()) out.push({ url, kind: "image", source: "fiche" });
+        }
+        for (const d of (docs ?? []) as any[]) {
+          if (!d.url || !isInternalVideoUrl(String(d.url))) continue;
+          out.push({
+            url: String(d.url),
+            kind: "video",
+            title: d.name ?? "Vidéo",
+            thumbnail: d.thumbnail_url ?? null,
+            source: genericDocIds.has(String(d.id)) ? "generic" : "fiche",
+          });
+        }
+      }
+
+      // Déduplication par URL, la bibliothèque staff prime (elle porte les métadonnées)
+      const seen = new Set<string>();
+      setItems(
+        out.filter((m) => {
+          const k = m.url.trim().toLowerCase();
+          if (seen.has(k)) return false;
+          seen.add(k);
+          return true;
+        }),
+      );
+    } catch (e: any) {
+      toast.error(`Chargement des médias impossible : ${e.message ?? e}`);
+    } finally {
+      setLoading(false);
+    }
+  }, [businessId]);
+
+  useEffect(() => {
+    if (open) void load();
+  }, [open, load]);
+
+  return { items, loading, reload: load, setItems };
+}
+
+/* ------------------------------------------------------------------ modal */
+
+export function VideoMediaPickerDialog({
+  businessId,
+  value,
+  onChange,
+  allow = "all",
+  multiple = false,
+  max = 4,
+  format,
+  label = "Choisir un média",
+  triggerClassName,
+}: {
+  businessId: string | null;
+  /** URLs sélectionnées (ordre conservé). */
+  value: string[];
+  onChange: (urls: string[]) => void;
+  allow?: TypeFilter;
+  multiple?: boolean;
+  max?: number;
+  /** Format du montage — sert à signaler les médias mal orientés. */
+  format?: "portrait" | "landscape";
+  label?: string;
+  triggerClassName?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const { items, loading, reload } = useVideoMediaSources(businessId, open);
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>(allow === "all" ? "all" : allow);
+  const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
+  const [search, setSearch] = useState("");
+  const [uploadScope, setUploadScope] = useState<"global" | "business">(businessId ? "business" : "global");
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (allow !== "all") setTypeFilter(allow);
+  }, [allow]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return items.filter((m) => {
+      if (allow !== "all" && m.kind !== allow) return false;
+      if (typeFilter !== "all" && m.kind !== typeFilter) return false;
+      if (sourceFilter === "fiche" && m.source !== "fiche") return false;
+      if (sourceFilter === "generic" && m.source !== "generic") return false;
+      if (sourceFilter === "library_business" && !(m.source === "library" && m.scope === "business")) return false;
+      if (sourceFilter === "library_global" && !(m.source === "library" && m.scope === "global")) return false;
+      if (q && !(m.title ?? "").toLowerCase().includes(q) && !m.url.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [items, allow, typeFilter, sourceFilter, search]);
+
+  const toggle = (m: PickerMedia) => {
+    if (!multiple) {
+      onChange([m.url]);
+      setOpen(false);
+      return;
+    }
+    if (value.includes(m.url)) onChange(value.filter((u) => u !== m.url));
+    else if (value.length < max) onChange([...value, m.url]);
+    else toast.info(`${max} médias maximum pour cette section.`);
+  };
+
+  const upload = async (file: File) => {
+    const kind: "image" | "video" = file.type.startsWith("video") ? "video" : "image";
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || (kind === "video" ? "mp4" : "jpg");
+      const path = `${uploadScope === "business" && businessId ? businessId : "global"}/${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("video-assets").upload(path, file, {
+        cacheControl: "31536000",
+        upsert: false,
+        contentType: file.type || undefined,
+      });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("video-assets").getPublicUrl(path);
+      const { data: me } = await supabase.auth.getUser();
+      const { error: insErr } = await supabase.from("video_media_library").insert({
+        business_id: uploadScope === "business" ? businessId : null,
+        kind,
+        url: pub.publicUrl,
+        title: file.name.replace(/\.[^.]+$/, "").slice(0, 120),
+        storage_path: path,
+        created_by: me.user?.id ?? null,
+      });
+      if (insErr) throw insErr;
+      toast.success("Média ajouté à la bibliothèque");
+      await reload();
+    } catch (e: any) {
+      toast.error(`Envoi impossible : ${e.message ?? e}`);
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  const removeFromLibrary = async (m: PickerMedia) => {
+    if (!m.libraryId) return;
+    const { error } = await supabase.from("video_media_library").delete().eq("id", m.libraryId);
+    if (error) {
+      toast.error(`Suppression impossible : ${error.message}`);
+      return;
+    }
+    onChange(value.filter((u) => u !== m.url));
+    toast.success("Média retiré de la bibliothèque");
+    await reload();
+  };
+
+  const setOrientationOnce = async (m: PickerMedia, o: "landscape" | "portrait" | "square") => {
+    if (!m.libraryId || m.orientation) return;
+    await supabase.from("video_media_library").update({ orientation: o }).eq("id", m.libraryId);
+  };
+
+  const counts = useMemo(
+    () => ({
+      fiche: items.filter((m) => m.source === "fiche").length,
+      generic: items.filter((m) => m.source === "generic").length,
+      libBiz: items.filter((m) => m.source === "library" && m.scope === "business").length,
+      libGlobal: items.filter((m) => m.source === "library" && m.scope === "global").length,
+    }),
+    [items],
+  );
+
+  const selectedItems = value
+    .map((u) => items.find((m) => m.url === u) ?? ({ url: u, kind: "image", source: "fiche" } as PickerMedia))
+    .filter(Boolean);
+
+  return (
+    <div className="grid gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button type="button" size="sm" variant="outline" className={`h-7 gap-1 text-[11px] ${triggerClassName ?? ""}`}>
+              <ImageIcon className="h-3 w-3" /> {label}
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Médias du montage</DialogTitle>
+              <DialogDescription className="text-xs">
+                Fiche · Générique · Bibliothèque staff (globale ou rattachée). Les médias de la bibliothèque ne sont
+                jamais publiés sur le site.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="flex flex-wrap items-center gap-2 border-b pb-3">
+              {allow === "all" && (
+                <select
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}
+                  className="h-8 rounded-md border bg-background px-2 text-xs"
+                >
+                  <option value="all">Images + vidéos</option>
+                  <option value="image">Images seulement</option>
+                  <option value="video">Vidéos seulement</option>
+                </select>
+              )}
+              <select
+                value={sourceFilter}
+                onChange={(e) => setSourceFilter(e.target.value as SourceFilter)}
+                className="h-8 rounded-md border bg-background px-2 text-xs"
+              >
+                <option value="all">Toutes les sources</option>
+                <option value="fiche">Fiche ({counts.fiche})</option>
+                <option value="generic">Badge Générique ({counts.generic})</option>
+                <option value="library_business">Bibliothèque fiche ({counts.libBiz})</option>
+                <option value="library_global">Bibliothèque globale ({counts.libGlobal})</option>
+              </select>
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Rechercher…"
+                className="h-8 w-44 text-xs"
+              />
+              <div className="ml-auto flex items-center gap-2">
+                <select
+                  value={uploadScope}
+                  onChange={(e) => setUploadScope(e.target.value as "global" | "business")}
+                  className="h-8 rounded-md border bg-background px-2 text-xs"
+                  disabled={!businessId}
+                >
+                  <option value="global">Ajouter en global</option>
+                  {businessId && <option value="business">Ajouter à cette fiche</option>}
+                </select>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*,video/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) void upload(f);
+                  }}
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  className="h-8 gap-1 text-xs"
+                  disabled={uploading}
+                  onClick={() => fileRef.current?.click()}
+                >
+                  {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                  Importer
+                </Button>
+              </div>
+            </div>
+
+            {format && (
+              <p className="text-[11px] text-muted-foreground">
+                Montage {format === "portrait" ? "portrait 9:16" : "paysage 16:9"} — les médias signalés en orange sont
+                dans l'autre orientation (recadrage automatique au rendu).
+              </p>
+            )}
+
+            {loading ? (
+              <div className="flex items-center gap-2 py-10 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" /> Chargement…
+              </div>
+            ) : filtered.length === 0 ? (
+              <p className="py-10 text-sm text-muted-foreground">
+                Aucun média pour ces filtres. Importez un fichier pour alimenter la bibliothèque.
+              </p>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 pt-2">
+                {filtered.map((m) => (
+                  <Tile
+                    key={m.url}
+                    item={m}
+                    selected={value.includes(m.url)}
+                    badge={multiple ? value.indexOf(m.url) + 1 || null : null}
+                    expectedOrientation={format}
+                    onSelect={() => toggle(m)}
+                    onDelete={m.source === "library" ? () => void removeFromLibrary(m) : undefined}
+                    onOrientation={(o) => void setOrientationOnce(m, o)}
+                  />
+                ))}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {value.length > 0 && (
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            className="h-7 text-[11px]"
+            onClick={() => onChange([])}
+          >
+            Vider
+          </Button>
+        )}
+        <span className="text-[11px] text-muted-foreground">
+          {value.length === 0
+            ? "aucun média — le moteur retombe sur les assets de la fiche"
+            : `${value.length}${multiple ? `/${max}` : ""} sélectionné${value.length > 1 ? "s" : ""}`}
+        </span>
+      </div>
+
+      {value.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {selectedItems.map((m, i) => (
+            <div key={m.url} className="relative w-20">
+              <div className="aspect-[4/3] rounded overflow-hidden border bg-black/90">
+                {m.kind === "video" ? (
+                  <video src={m.url} muted playsInline preload="metadata" className="w-full h-full object-contain" />
+                ) : (
+                  <img src={m.url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                )}
+              </div>
+              {multiple && (
+                <span className="absolute top-0.5 left-0.5 rounded bg-black/70 px-1 text-[9px] font-bold text-white">
+                  {i + 1}
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => onChange(value.filter((u) => u !== m.url))}
+                className="absolute -top-1.5 -right-1.5 rounded-full bg-background border h-5 w-5 flex items-center justify-center"
+                aria-label="Retirer"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function MediaSourceBadge({ source }: { source: PickerMedia["source"] }) {
+  return (
+    <Badge variant="outline" className="text-[10px]">
+      {SOURCE_LABEL[source]}
+    </Badge>
+  );
+}
+
+export default VideoMediaPickerDialog;
