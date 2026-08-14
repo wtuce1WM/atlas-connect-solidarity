@@ -722,7 +722,7 @@ const StoryboardGuide = () => {
       type: "photos",
       icon: <Image className="h-4 w-4" />,
       title: "Photos plein écran",
-      body: "Carrousel de 1 à 4 images avec mouvement Ken Burns (zoom_in, zoom_out, none). Les images choisies dans le sélecteur sont prioritaires ; sinon le moteur utilise les images de la fiche.",
+      body: "Carrousel de 1 à 30 images avec mouvement Ken Burns (zoom_in, zoom_out, none). Les images choisies dans le sélecteur sont prioritaires ; sinon le moteur utilise les images de la fiche.",
     },
     {
       type: "text_overlay",
@@ -782,6 +782,11 @@ const StoryboardGuide = () => {
               <li>Durée totale max : {MAX_TOTAL_SEC} s ({mmss(MAX_TOTAL_SEC)}).</li>
               <li>Durée d'une section : {MIN_SECTION_SEC} à {MAX_SECTION_SEC} s.</li>
               <li>Nombre max de sections : {MAX_SECTIONS}.</li>
+              <li>
+                Fond média (Accroche, Texte surimpression, Compteur, Outro, Carte, Écran partagé) : images
+                <strong> OU </strong> vidéo, jamais les deux. Jusqu'à 30 images en fondu enchaîné, durée partagée à
+                parts égales ; vidéo muette plein cadre. Un voile sombre garantit la lisibilité du texte.
+              </li>
               <li>La barre de progression passe en rouge si le total dépasse le plafond.</li>
             </ul>
           </div>
