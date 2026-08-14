@@ -60,6 +60,22 @@ const slugify = (s: string) =>
     .replace(/^-+|-+$/g, "")
     .slice(0, 60) || "video-1wm";
 
+/**
+ * Nom de fichier réel du rendu (généré côté worker : origine, établissement,
+ * format, date). Repli sur un slug du titre si l'URL n'est pas exploitable.
+ */
+const fileNameFromUrl = (url: string | null, fallback?: string | null) => {
+  try {
+    const name = decodeURIComponent(new URL(url || "").pathname.split("/").pop() || "");
+    if (name.toLowerCase().endsWith(".mp4")) return name;
+  } catch {
+    /* URL relative ou vide */
+  }
+  return `${slugify(fallback || "video-1wm")}.mp4`;
+};
+
+
+
 const formatDateTime = (iso?: string | null) => {
   if (!iso) return null;
   const d = new Date(iso);
@@ -286,8 +302,8 @@ function SortableVideoCard({
         <div className={`text-sm font-medium ${job.title ? "" : "italic text-neutral-600"}`}>
           {job.title || "Sans titre"}
         </div>
-        <div className="text-[11px] text-neutral-600">
-          Fichier : {slugify(job.title || businessName || "video-1wm")}.mp4
+        <div className="text-[11px] text-neutral-600 break-all">
+          Fichier : {fileNameFromUrl(job.output_url, job.title || businessName)}
         </div>
       </div>
 
@@ -305,8 +321,9 @@ function SortableVideoCard({
       <div className="flex items-center gap-3">
         <DownloadButton
           url={job.output_url as string}
-          fileName={`${slugify(job.title || businessName || "video-1wm")}.mp4`}
+          fileName={fileNameFromUrl(job.output_url, job.title || businessName)}
         />
+
         <button
           type="button"
           onClick={onDelete}

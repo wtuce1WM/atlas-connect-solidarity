@@ -3,6 +3,58 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const BUCKET = 'studio-videos';
 
+/** Slug ASCII sûr pour un nom de fichier. */
+function slugify(input: string, max = 40): string {
+  return String(input || '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, max)
+    .replace(/-+$/g, '');
+}
+
+/** Origine du rendu, lisible : d'où la vidéo a été créée. */
+function sourceOf(templateId: string): string {
+  const t = templateId || '';
+  if (t.startsWith('feed-template')) return 'feed';
+  if (t.startsWith('business-promo')) return 'promo';
+  if (t.startsWith('storyboard')) return 'montage';
+  if (t === 'business-showcase') return 'showcase';
+  if (t === 'explainer-affiliates') return 'explainer';
+  if (t === 'corporate-vertical') return 'corporate';
+  return slugify(t || 'studio', 24) || 'studio';
+}
+
+/** vertical | landscape, déduit du template puis des props. */
+function formatOf(templateId: string, props: Record<string, unknown>): string {
+  const t = templateId || '';
+  if (t.endsWith('-landscape')) return 'landscape';
+  const f = String((props?.format as string) || '');
+  if (f === 'landscape' || f === '16:9') return 'landscape';
+  return 'vertical';
+}
+
+/**
+ * Nom de fichier informatif :
+ * 1wm_<source>_<etablissement>_<titre>_<format>_<YYYYMMDD-HHMM>_<id8>.mp4
+ * Le suffixe id8 garantit l'unicité dans le bucket.
+ */
+function buildFileName(job: Record<string, any>, businessSlug: string | null): string {
+  const props = (job.template_props && Object.keys(job.template_props).length > 0
+    ? job.template_props
+    : job.scenario_json) || {};
+  const template = String(job.template_id || 'business-showcase');
+  const biz = slugify(businessSlug || props.slug || props.name || '', 40);
+  const title = slugify(job.title || '', 40);
+  const d = new Date(job.created_at || Date.now());
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const stamp = `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}-${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}`;
+  const parts = ['1wm', sourceOf(template), biz, title !== biz ? title : '', formatOf(template, props), stamp, String(job.id).slice(0, 8)];
+  return `${parts.filter(Boolean).join('_')}.mp4`;
+}
+
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
@@ -72,8 +124,18 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Signed upload URL (valid ~1h) for the worker to PUT the mp4 directly.
-    const storagePath = `${job.id}.mp4`;
+    // Nom de fichier informatif (origine + établissement + format + date).
+    let businessSlug: string | null = null;
+    if (job.business_id) {
+      const { data: biz } = await supabase
+        .from('businesses')
+        .select('slug, name')
+        .eq('id', job.business_id)
+        .maybeSingle();
+      businessSlug = biz?.slug || biz?.name || null;
+    }
+    const storagePath = buildFileName(job, businessSlug);
+
     const { data: signed, error: signErr } = await supabase.storage
       .from(BUCKET)
       .createSignedUploadUrl(storagePath, { upsert: true });
