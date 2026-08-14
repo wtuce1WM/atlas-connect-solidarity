@@ -1749,6 +1749,56 @@ const VideoStoryboardPanel = () => {
                 </div>
               </div>
 
+              <div className="grid gap-2 rounded-lg border p-3">
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  Médias du montage (affectation globale)
+                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <VideoMediaPickerDialog
+                    businessId={biz?.id ?? board.business_id}
+                    format={board.format}
+                    allow="all"
+                    multiple
+                    max={30}
+                    label={globalMedia.length ? `Modifier les médias (${globalMedia.length})` : "Choisir les médias"}
+                    value={globalMedia}
+                    onChange={(urls) => {
+                      setGlobalMedia(urls.slice(0, 30));
+                      applyGlobalMedia(urls, globalIncludeBg);
+                    }}
+                  />
+                  <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                    <Switch checked={globalIncludeBg} onCheckedChange={setGlobalIncludeBg} />
+                    Inclure les fonds de scène (accroche, texte, compteur, outro…)
+                  </label>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 text-xs"
+                    disabled={globalMedia.length === 0 || sections.length === 0}
+                    onClick={() => {
+                      applyGlobalMedia(globalMedia, globalIncludeBg);
+                      toast.success("Médias appliqués à toutes les étapes");
+                    }}
+                  >
+                    Appliquer à toutes les étapes
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 text-xs"
+                    disabled={sections.length === 0}
+                    onClick={clearAllMedia}
+                  >
+                    Retirer les médias partout
+                  </Button>
+                </div>
+                <span className="text-[11px] text-muted-foreground">
+                  Les vidéos alimentent les étapes vidéo, la sélection complète alimente les carrousels et
+                  (si activé) les fonds média. Chaque étape reste modifiable individuellement ensuite.
+                </span>
+              </div>
+
               <div className="flex flex-wrap items-center gap-2">
                 <select
                   value={newType}
@@ -1772,20 +1822,6 @@ const VideoStoryboardPanel = () => {
                 >
                   <RotateCcw className="h-4 w-4 mr-1" /> Recharger
                 </Button>
-                <Button size="sm" onClick={save} disabled={!dirty || saving}>
-                  <Save className="h-4 w-4 mr-1" /> Enregistrer
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={render}
-                  disabled={rendering || saving || dirty || sections.length === 0 || overflow}
-                  title={dirty ? "Enregistre d'abord le storyboard" : undefined}
-                >
-                  <Rocket className="h-4 w-4 mr-1" />
-                  {rendering ? "Lancement…" : `Rendre (${board.preview_scale === 1 ? "1080p" : `${Math.round(board.preview_scale * 100)}%`})`}
-                </Button>
-
               </div>
 
               {loading ? (
@@ -1815,6 +1851,25 @@ const VideoStoryboardPanel = () => {
                   </SortableContext>
                 </DndContext>
               )}
+
+              {sections.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2 border-t pt-3">
+                  <Button size="sm" onClick={save} disabled={!dirty || saving}>
+                    <Save className="h-4 w-4 mr-1" /> Enregistrer
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={render}
+                    disabled={rendering || saving || dirty || sections.length === 0 || overflow}
+                    title={dirty ? "Enregistre d'abord le storyboard" : undefined}
+                  >
+                    <Rocket className="h-4 w-4 mr-1" />
+                    {rendering ? "Lancement…" : `Rendre (${board.preview_scale === 1 ? "1080p" : `${Math.round(board.preview_scale * 100)}%`})`}
+                  </Button>
+                </div>
+              )}
+
             </>
           )}
 
