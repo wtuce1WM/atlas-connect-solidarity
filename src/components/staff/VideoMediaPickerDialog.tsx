@@ -67,10 +67,11 @@ const isInternalVideoUrl = (u: string) => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u);
 
 const detectOrientation = (m: PickerMedia): Promise<"landscape" | "portrait" | "square" | null> => {
   return new Promise((resolve) => {
-    const timeout = window.setTimeout(() => resolve(null), 2500);
+    // Pas de crossOrigin : certains buckets/CDN ne renvoient pas d'en-tête CORS
+    // et l'élément échouerait alors que les dimensions sont lisibles sans lui.
+    const timeout = window.setTimeout(() => resolve(null), 8000);
     if (m.kind === "image") {
       const img = new Image();
-      img.crossOrigin = "anonymous";
       img.onload = () => {
         window.clearTimeout(timeout);
         resolve(ratioToOrientation(img.naturalWidth, img.naturalHeight));
@@ -82,7 +83,6 @@ const detectOrientation = (m: PickerMedia): Promise<"landscape" | "portrait" | "
       img.src = m.url;
     } else if (isInternalVideoUrl(m.url)) {
       const v = document.createElement("video");
-      v.crossOrigin = "anonymous";
       v.muted = true;
       v.playsInline = true;
       v.preload = "metadata";
@@ -105,6 +105,7 @@ const detectOrientation = (m: PickerMedia): Promise<"landscape" | "portrait" | "
     }
   });
 };
+
 
 const fmtDur = (s?: number | null) => {
   if (s == null || !Number.isFinite(s)) return null;
@@ -520,9 +521,12 @@ export function VideoMediaPickerDialog({
   const [open, setOpen] = useState(false);
   const [slugQuery, setSlugQuery] = useState("");
   const [otherSlug, setOtherSlug] = useState("");
-  const { items, loading, reload } = useVideoMediaSources(businessId, open, otherSlug);
+  const [slugOptions, setSlugOptions] = useState<{ id: string; name: string; slug: string | null }[]>([]);
+  const { items, loading, reload, setItems } = useVideoMediaSources(businessId, open, otherSlug);
   const [typeFilter, setTypeFilter] = useState<TypeFilter>(allow === "all" ? "all" : allow);
-  const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
+  // Par défaut on ouvre sur les médias de la fiche (« Fiche · vidéos » quand la
+  // scène n'accepte que des vidéos) : c'est le cas d'usage courant.
+  const [sourceFilter, setSourceFilter] = useState<SourceFilter>("fiche");
   const [search, setSearch] = useState("");
   const [uploadScope, setUploadScope] = useState<"global" | "business">(businessId ? "business" : "global");
   const [uploading, setUploading] = useState(false);
@@ -534,17 +538,35 @@ export function VideoMediaPickerDialog({
   }, [allow]);
 
   useEffect(() => {
-    const slug = slugQuery.trim();
-    if (slug.length < 2) {
+    if (open) setSourceFilter("fiche");
+  }, [open]);
+
+  // Auto-complete sur les autres fiches (nom ou slug) — aucun bouton à cliquer.
+  useEffect(() => {
+    const q = slugQuery.trim();
+    if (q.length < 2) {
+      setSlugOptions([]);
       setOtherSlug("");
       return;
     }
-    const timer = window.setTimeout(() => {
-      setOtherSlug(slug);
+    let alive = true;
+    const timer = window.setTimeout(async () => {
+      const { data } = await supabase
+        .from("businesses")
+        .select("id, name, slug")
+        .or(`slug.ilike.%${q}%,name.ilike.%${q}%`)
+        .limit(8);
+      if (!alive) return;
+      setSlugOptions((data ?? []) as any[]);
+      setOtherSlug(q);
       setSourceFilter("other");
-    }, 350);
-    return () => window.clearTimeout(timer);
+    }, 300);
+    return () => {
+      alive = false;
+      window.clearTimeout(timer);
+    };
   }, [slugQuery]);
+
 
   /** Base restreinte par `allow` + type : sert aussi aux compteurs du menu déroulant. */
   const typeBase = useMemo(
@@ -603,6 +625,36 @@ export function VideoMediaPickerDialog({
     else if (value.length < max) onChange([...value, m.url]);
     else toast.info(`${max} médias maximum pour cette section.`);
   };
+
+  /** Orientation détectée par une vignette → remontée dans la liste pour que
+   *  les compteurs (« Format paysage 16:9 ») restent cohérents avec les badges. */
+  const noteOrientation = (m: PickerMedia, o: "landscape" | "portrait" | "square") => {
+    setItems((prev) =>
+      prev.map((it) => (it.url === m.url && it.orientation !== o ? { ...it, orientation: o } : it)),
+    );
+  };
+
+  // Toggle « tous / aucun » réservé à l'entrée Fiche · vidéos.
+  const effectiveType = allow !== "all" ? allow : typeFilter;
+  const showFicheVideosToggle = multiple && sourceFilter === "fiche" && effectiveType === "video";
+  const ficheVideoUrls = useMemo(
+    () => (showFicheVideosToggle ? filtered.map((m) => m.url) : []),
+    [showFicheVideosToggle, filtered],
+  );
+  const allFicheVideosSelected =
+    ficheVideoUrls.length > 0 && ficheVideoUrls.every((u) => value.includes(u));
+  const toggleAllFicheVideos = () => {
+    if (allFicheVideosSelected) {
+      onChange(value.filter((u) => !ficheVideoUrls.includes(u)));
+      return;
+    }
+    const merged = [...value];
+    for (const u of ficheVideoUrls) if (!merged.includes(u) && merged.length < max) merged.push(u);
+    if (merged.length === value.length) toast.info(`${max} médias maximum pour cette section.`);
+    onChange(merged);
+  };
+
+
 
   const uploadOne = async (file: File) => {
     const kind: "image" | "video" = file.type.startsWith("video") ? "video" : "image";
@@ -759,24 +811,47 @@ export function VideoMediaPickerDialog({
                 placeholder="Rechercher…"
                 className="h-8 w-44 text-xs"
               />
-              <form
-                className="flex items-center gap-1"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setOtherSlug(slugQuery);
-                  if (slugQuery.trim().length >= 2) setSourceFilter("other");
-                }}
-              >
+              {showFicheVideosToggle && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-8 text-xs"
+                  onClick={toggleAllFicheVideos}
+                  disabled={ficheVideoUrls.length === 0}
+                >
+                  {allFicheVideosSelected ? "Tout désélectionner" : `Tout sélectionner (${ficheVideoUrls.length})`}
+                </Button>
+              )}
+              <div className="relative">
                 <Input
                   value={slugQuery}
                   onChange={(e) => setSlugQuery(e.target.value)}
                   placeholder="slug d'une autre fiche…"
                   className="h-8 w-44 text-xs"
                 />
-                <Button type="submit" size="sm" variant="outline" className="h-8 text-xs">
-                  Charger
-                </Button>
-              </form>
+                {slugOptions.length > 0 && (
+                  <div className="absolute z-50 mt-1 w-64 max-h-56 overflow-y-auto rounded-md border bg-popover shadow-md">
+                    {slugOptions.map((o) => (
+                      <button
+                        key={o.id}
+                        type="button"
+                        className="block w-full px-2 py-1.5 text-left text-xs hover:bg-accent"
+                        onClick={() => {
+                          setSlugQuery(o.slug || o.name);
+                          setSlugOptions([]);
+                          setOtherSlug(o.slug || o.name);
+                          setSourceFilter("other");
+                        }}
+                      >
+                        <span className="font-medium">{o.name}</span>
+                        {o.slug && <span className="text-muted-foreground"> · {o.slug}</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div className="ml-auto flex items-center gap-2">
                 <select
                   value={uploadScope}
@@ -860,7 +935,11 @@ export function VideoMediaPickerDialog({
                     expectedOrientation={format}
                     onSelect={() => toggle(m)}
                     onDelete={m.source === "library" ? () => void removeFromLibrary(m) : undefined}
-                    onOrientation={(o) => void setOrientationOnce(m, o)}
+                    onOrientation={(o) => {
+                      noteOrientation(m, o);
+                      void setOrientationOnce(m, o);
+                    }}
+
                   />
                 ))}
               </div>
