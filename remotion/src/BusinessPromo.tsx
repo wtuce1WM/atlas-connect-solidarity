@@ -341,14 +341,11 @@ const MediaScene: React.FC<{
     <AbsoluteFill style={{ background: palette.black, opacity: fade }}>
       <MediaFill src={src} kind={kind} durationFrames={frames} />
       {overlayHtml ? (
-        <>
-          <AbsoluteFill
-            style={{
-              background: `linear-gradient(180deg, transparent 35%, ${alpha("night", 0.78)} 100%)`,
-            }}
-          />
-          <RichOverlay html={overlayHtml} frames={frames} />
-        </>
+        <AbsoluteFill
+          style={{
+            background: `linear-gradient(180deg, transparent 35%, ${alpha("night", 0.78)} 100%)`,
+          }}
+        />
       ) : null}
       {caption && (
         <AbsoluteFill style={{ justifyContent: "flex-end", padding: "0 7% 7%" }}>
