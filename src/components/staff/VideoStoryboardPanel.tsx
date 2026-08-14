@@ -88,6 +88,19 @@ type Storyboard = {
   max_duration_sec: number;
 };
 
+type StoryboardJob = {
+  id: string;
+  title: string | null;
+  status: string;
+  output_url: string | null;
+  error_message: string | null;
+  created_at: string;
+  duration_sec: number | null;
+  template_id: string | null;
+};
+
+
+
 type Section = {
   id: string;
   storyboard_id: string;
@@ -789,6 +802,7 @@ const VideoStoryboardPanel = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [rendering, setRendering] = useState(false);
+  const [jobs, setJobs] = useState<StoryboardJob[]>([]);
   const [dirty, setDirty] = useState(false);
 
 
@@ -813,9 +827,20 @@ const VideoStoryboardPanel = () => {
     setCurrentId((prev) => prev ?? list[0]?.id ?? null);
   }, []);
 
+  const loadJobs = useCallback(async () => {
+    const { data } = await supabase
+      .from("video_jobs")
+      .select("id, title, status, output_url, error_message, created_at, duration_sec, template_id")
+      .like("template_id", "storyboard%")
+      .order("created_at", { ascending: false })
+      .limit(12);
+    setJobs((data ?? []) as StoryboardJob[]);
+  }, []);
+
   useEffect(() => {
     loadBoards().finally(() => setLoading(false));
-  }, [loadBoards]);
+    loadJobs();
+  }, [loadBoards, loadJobs]);
 
   const loadBoard = useCallback(async (id: string) => {
     setLoading(true);
@@ -1126,7 +1151,8 @@ const VideoStoryboardPanel = () => {
     const { error: wfError } = await supabase.functions.invoke("trigger-render-workflow", { body: {} });
     setRendering(false);
     if (wfError) toast.warning("Job créé, mais le déclenchement GitHub a échoué.");
-    else toast.success("Job créé : rendu lancé (onglet Dernières vidéos).");
+    else toast.success("Job créé : rendu lancé (voir « Rendus du storyboard » ci-dessous).");
+    loadJobs();
   };
 
 
@@ -1342,7 +1368,56 @@ const VideoStoryboardPanel = () => {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between gap-3 flex-wrap">
+          <CardTitle className="text-black text-base">Rendus du storyboard</CardTitle>
+          <Button size="sm" variant="outline" onClick={loadJobs}>
+            <RotateCcw className="h-4 w-4 mr-1" /> Rafraîchir
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {jobs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Aucun rendu storyboard pour le moment.</p>
+          ) : (
+            <div className="divide-y">
+              {jobs.map((j) => (
+                <div key={j.id} className="py-2 flex items-center gap-3 flex-wrap text-sm">
+                  <Badge
+                    variant={j.status === "done" ? "default" : j.status === "error" ? "destructive" : "outline"}
+                    className="text-[10px]"
+                  >
+                    {j.status}
+                  </Badge>
+                  <span className="text-black font-medium">{j.title || j.id.slice(0, 8)}</span>
+                  <span className="text-[11px] text-muted-foreground font-mono">{j.template_id}</span>
+                  {j.duration_sec != null && (
+                    <span className="text-[11px] text-muted-foreground">{j.duration_sec}s</span>
+                  )}
+                  <span className="text-[11px] text-muted-foreground">
+                    {new Date(j.created_at).toLocaleString("fr-FR")}
+                  </span>
+                  {j.output_url && (
+                    <a
+                      href={j.output_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[11px] underline text-primary ml-auto"
+                    >
+                      Ouvrir la vidéo
+                    </a>
+                  )}
+                  {j.error_message && (
+                    <span className="text-[11px] text-destructive ml-auto max-w-md truncate">{j.error_message}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       <StoryboardGuide />
+
     </div>
   );
 };

@@ -768,7 +768,17 @@ export default function StudioVideo() {
 
       setGenericInternalVideos(
         ((jobs || []) as any[])
-          .filter((j) => String(j.template_id || "").startsWith("feed-template") || !j.business_id)
+          .filter((j) => {
+            const t = String(j.template_id || "");
+            // Vidéos produites en interne : feed, promo business, storyboard manuel,
+            // plus tout job sans établissement rattaché.
+            return (
+              t.startsWith("feed-template") ||
+              t.startsWith("business-promo") ||
+              t.startsWith("storyboard") ||
+              !j.business_id
+            );
+          })
           .map((j: any) => ({
             url: j.output_url as string,
             thumbnail: null,
