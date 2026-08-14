@@ -384,6 +384,61 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         }
       }
 
+      // 4) Vraies vidéos génériques (table `generic_videos`), distinctes du badge « Generic »
+      const { data: gen } = await supabase
+        .from("generic_videos" as any)
+        .select("id, url, name, thumbnail_url, instagram_account, tiktok_account, youtube_account")
+        .order("sort_order", { ascending: true })
+        .limit(500);
+      for (const g of (gen ?? []) as any[]) {
+        const url = typeof g.url === "string" ? g.url.trim() : "";
+        if (!url) continue;
+        out.push({
+          url,
+          kind: "video",
+          title: g.name ?? "Vidéo générique",
+          thumbnail: g.thumbnail_url ?? null,
+          source: "generic_video",
+          ownerName: g.instagram_account || g.tiktok_account || g.youtube_account || null,
+        });
+      }
+
+      // 5) Bibliothèque globale : médias publics d'une autre fiche, par slug
+      const slug = (otherSlug ?? "").trim();
+      if (slug.length >= 2) {
+        const { data: others } = await supabase
+          .from("businesses")
+          .select("id, name, slug")
+          .or(`slug.ilike.%${slug}%,name.ilike.%${slug}%`)
+          .limit(5);
+        for (const o of (others ?? []) as any[]) {
+          const [{ data: ob }, { data: odocs }] = await Promise.all([
+            supabase.from("businesses").select("images").eq("id", o.id).maybeSingle(),
+            supabase
+              .from("business_documents")
+              .select("id, url, name, thumbnail_url, youtube_video_url, instagram_video_url, tiktok_video_url")
+              .eq("business_id", o.id)
+              .eq("type", "video"),
+          ]);
+          for (const url of ((ob as any)?.images ?? []) as string[]) {
+            if (typeof url === "string" && url.trim())
+              out.push({ url: url.trim(), kind: "image", source: "other", ownerName: o.name });
+          }
+          for (const d of (odocs ?? []) as any[]) {
+            const mediaUrl = documentVideoUrl(d);
+            if (!mediaUrl) continue;
+            out.push({
+              url: mediaUrl,
+              kind: "video",
+              title: d.name ?? "Vidéo",
+              thumbnail: d.thumbnail_url ?? null,
+              source: "other",
+              ownerName: o.name,
+            });
+          }
+        }
+      }
+
       // Déduplication par URL, la bibliothèque staff prime (elle porte les métadonnées)
       const seen = new Set<string>();
       setItems(
@@ -402,7 +457,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
     } finally {
       setLoading(false);
     }
-  }, [businessId]);
+  }, [businessId, otherSlug]);
 
   useEffect(() => {
     if (open) void load();
