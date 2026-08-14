@@ -30,7 +30,8 @@ export type PromoBlocks = {
   hook: boolean;
   video: boolean;
   photos: boolean;
-  text: boolean;
+  /** obsolète : le texte est désormais en surimpression, plus une étape */
+  text?: boolean;
   outro: boolean;
 };
 
@@ -38,7 +39,8 @@ export type PromoSeconds = {
   hook: number;
   video: number;
   photo: number;
-  text: number;
+  /** obsolète (conservé pour les anciens jobs) */
+  text?: number;
   outro: number;
 };
 
@@ -47,7 +49,7 @@ export type BusinessPromoProps = {
   city?: string | null;
   hook: string;
   tagline?: string | null;
-  /** texte riche (HTML, ≤ 500 caractères) affiché en carte plein écran */
+  /** texte riche (HTML, ≤ 500 caractères) en surimpression sur Vidéo et Photos */
   text?: string | null;
   /** logo transparent de l'établissement (webp/png) */
   logoUrl?: string | null;
@@ -82,8 +84,8 @@ export const promoDefaults: BusinessPromoProps = {
   format: "portrait",
   variant: "fullscreen",
   mockupBg: palette.ink,
-  blocks: { hook: true, video: true, photos: true, text: false, outro: true },
-  seconds: { hook: 3, video: 5, photo: 1.5, text: 4, outro: 2.5 },
+  blocks: { hook: true, video: true, photos: true, outro: true },
+  seconds: { hook: 3, video: 5, photo: 1.5, outro: 2.5 },
 };
 
 const f = (sec: number) => Math.max(1, Math.round(sec * PROMO_FPS));
@@ -91,19 +93,19 @@ const f = (sec: number) => Math.max(1, Math.round(sec * PROMO_FPS));
 /** Découpe du montage en segments effectifs (blocs décochés = ignorés). */
 export const promoSegments = (p: BusinessPromoProps) => {
   const images = (p.images || []).slice(0, 4);
-  const segs: { kind: "hook" | "video" | "photo" | "text" | "outro"; frames: number; index?: number }[] = [];
+  const segs: { kind: "hook" | "video" | "photo" | "outro"; frames: number; index?: number }[] = [];
   if (p.blocks?.hook) segs.push({ kind: "hook", frames: f(p.seconds?.hook ?? 3) });
   if (p.blocks?.video && p.videoUrl) segs.push({ kind: "video", frames: f(p.seconds?.video ?? 5) });
   if (p.blocks?.photos) {
     images.forEach((_, i) => segs.push({ kind: "photo", frames: f(p.seconds?.photo ?? 1.5), index: i }));
   }
-  if (p.blocks?.text && (p.text || "").trim()) segs.push({ kind: "text", frames: f(p.seconds?.text ?? 4) });
   if (p.blocks?.outro) segs.push({ kind: "outro", frames: f(p.seconds?.outro ?? 2.5) });
   return segs.length ? segs : [{ kind: "outro" as const, frames: f(2) }];
 };
 
 export const computePromoFrames = (p: BusinessPromoProps) =>
   promoSegments(p).reduce((acc, s) => acc + s.frames, 0);
+
 
 /** Zoom lent commun à tous les plans média — évite les images figées. */
 const useKenBurns = (durationFrames: number, from = 1.04, to = 1.14) => {
