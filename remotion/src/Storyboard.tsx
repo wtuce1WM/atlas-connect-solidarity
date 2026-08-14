@@ -52,6 +52,12 @@ export type StoryboardProps = {
   brandLogoUrl?: string | null;
   /** Logo de l'établissement (transparent). */
   logoUrl?: string | null;
+  /** Contexte fiche : sert de repli aux scènes hook/photos/video/outro. */
+  businessName?: string | null;
+  city?: string | null;
+  hook?: string | null;
+  photos?: string[] | null;
+  videoUrl?: string | null;
   sections: StoryboardSection[];
 };
 
@@ -59,8 +65,14 @@ export const storyboardDefaults: StoryboardProps = {
   format: "portrait",
   brandLogoUrl: null,
   logoUrl: null,
+  businessName: null,
+  city: null,
+  hook: null,
+  photos: null,
+  videoUrl: null,
   sections: [{ step_type: "logo_merge", duration_sec: 6, config: {} }],
 };
+
 
 const clampSec = (v: unknown, fallback = 6) => {
   const n = typeof v === "number" ? v : Number(v);
