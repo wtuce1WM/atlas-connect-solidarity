@@ -1016,30 +1016,12 @@ const OutroScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
         {logo && <PromoLogo src={logo} size={stage.width * (wide ? 0.18 : 0.32)} />}
         <GoldRule width={interpolate(enter, [0, 1], [0, stage.width * 0.1])} stageWidth={stage.width} />
         {tagline && (
-          <span
-            style={{
-              fontFamily: displayFont,
-              fontSize: wide ? size.h3 : size.h4,
-              fontWeight: weight.semibold,
-              color: palette.cream,
-            }}
-          >
+          <SceneTitle wide={wide} level={3} style={{ fontWeight: weight.semibold }}>
             {tagline}
-          </span>
+          </SceneTitle>
         )}
-        {city && (
-          <span
-            style={{
-              fontFamily: bodyFont,
-              fontSize: size.caption,
-              letterSpacing: 4,
-              textTransform: "uppercase",
-              color: palette.gold,
-            }}
-          >
-            {city}
-          </span>
-        )}
+        {city && <SceneKicker style={{ letterSpacing: 4 }}>{city}</SceneKicker>}
+
       </div>
     </SceneBackdrop>
   );
