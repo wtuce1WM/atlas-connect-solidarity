@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Img, Sequence, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Img, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { palette, alpha, display, body, size, weight } from "./tokens";
 import { PromoLogo } from "./promo/PromoLogo";
 
@@ -1000,6 +1000,16 @@ const SectionScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Story
       return <MapRevealScene wide={wide} section={section} />;
     case "split_screen":
       return <SplitScreenScene wide={wide} section={section} />;
+    case "hook":
+      return <HookScene wide={wide} p={p} section={section} />;
+    case "video":
+      return <VideoScene wide={wide} p={p} section={section} />;
+    case "photos":
+      return <PhotosScene wide={wide} p={p} section={section} />;
+    case "text_overlay":
+      return <TextOverlayScene wide={wide} section={section} />;
+    case "outro":
+      return <OutroScene wide={wide} p={p} section={section} />;
     default:
       return <PlaceholderScene wide={wide} section={section} />;
   }
