@@ -53,7 +53,8 @@ export const useIconComponent = (key: string | null | undefined): IconType | nul
     const parsed = key ? parseIconKey(key) : null;
     if (!parsed) return;
     loadFamily(parsed.family).then((map) => {
-      if (alive) setComp(map[parsed.name] ?? null);
+      // Important : wrapper dans une fonction, sinon React traite le composant comme un updater.
+      if (alive) setComp(() => map[parsed.name] ?? null);
     });
     return () => {
       alive = false;
