@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Rocket, RefreshCw, Search, Sparkles } from "lucide-react";
+import { Rocket, RefreshCw, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { isInternalVideoUrl } from "@/lib/videoSourceFilter";
 import RichTextEditor from "@/components/staff/RichTextEditor";
