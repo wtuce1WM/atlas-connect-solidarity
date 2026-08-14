@@ -335,7 +335,7 @@ const ConfigFields = ({
       return (
         <div className="grid gap-3">
           <div className="grid gap-3 md:grid-cols-2">
-            {text("mapUrl", "Image de carte (URL)", "https://…")}
+            {mediaOne("mapUrl", "Image de carte", "image", "Capture ou plan importé dans la bibliothèque globale.")}
             {text("title", "Titre", "Tout à moins d'1 km")}
             {text("kicker", "Sur-titre", "Géolocalisé")}
             <label className="text-xs text-muted-foreground grid gap-1">
