@@ -1151,7 +1151,8 @@ const VideoStoryboardPanel = () => {
     const { error: wfError } = await supabase.functions.invoke("trigger-render-workflow", { body: {} });
     setRendering(false);
     if (wfError) toast.warning("Job créé, mais le déclenchement GitHub a échoué.");
-    else toast.success("Job créé : rendu lancé (onglet Dernières vidéos).");
+    else toast.success("Job créé : rendu lancé (voir « Rendus du storyboard » ci-dessous).");
+    loadJobs();
   };
 
 
