@@ -254,15 +254,35 @@ const ConfigFields = ({
           {bgMediaBlock()}
         </div>
       );
-    case "video":
+    case "video": {
+      const clips: string[] = Array.isArray(cfg.assetUrls)
+        ? (cfg.assetUrls as string[])
+        : cfg.assetUrl
+          ? [String(cfg.assetUrl)]
+          : [];
       return (
         <div className="grid gap-3 md:grid-cols-2">
-          {mediaOne(
-            "assetUrl",
-            "Vidéo de la section",
-            "video",
-            "Vide = première vidéo interne de la fiche.",
-          )}
+          <div className="grid gap-1 md:col-span-2">
+            <span className="text-xs text-muted-foreground">
+              Vidéos de la section (1 à 30, montées à la suite, ordre conservé)
+            </span>
+            <VideoMediaPickerDialog
+              businessId={businessId}
+              format={format}
+              allow="video"
+              multiple
+              max={30}
+              label={clips.length ? `Modifier les vidéos (${clips.length})` : "Choisir les vidéos"}
+              value={clips}
+              onChange={(urls) =>
+                patch({ config: { ...cfg, assetUrls: urls.slice(0, 30), assetUrl: "" } })
+              }
+            />
+            <span className="text-[11px] text-muted-foreground">
+              Vide = première vidéo interne de la fiche. La durée de la section est partagée à parts égales.
+            </span>
+          </div>
+          {text("title", "Titre affiché (optionnel)")}
           <label className="text-xs text-muted-foreground grid gap-1">
             Son de la vidéo
             <span className="flex items-center gap-2 h-8">
@@ -272,11 +292,17 @@ const ConfigFields = ({
           </label>
         </div>
       );
-    case "photos":
+    }
+    case "photos": {
+      const media: string[] = Array.isArray(cfg.media)
+        ? (cfg.media as string[])
+        : Array.isArray(cfg.images)
+          ? (cfg.images as string[])
+          : [];
       return (
         <div className="grid gap-3 md:grid-cols-2">
           <label className="text-xs text-muted-foreground grid gap-1">
-            Nombre de photos (1 à 30)
+            Nombre de médias (1 à 30)
             <Input
               type="number"
               min={1}
@@ -286,28 +312,30 @@ const ConfigFields = ({
               className="h-8 text-xs"
             />
           </label>
-          {text("kenBurns", "Mouvement (zoom_in, zoom_out, none)", "zoom_in")}
+          {text("kenBurns", "Mouvement des images (zoom_in, zoom_out, none)", "zoom_in")}
           {text("title", "Titre affiché (optionnel)")}
           <div className="grid gap-1 md:col-span-2">
             <span className="text-xs text-muted-foreground">
-              Photos du carrousel (1 à 30, ordre de sélection conservé)
+              Médias du carrousel — images ET vidéos (1 à 30, ordre de sélection conservé)
             </span>
             <VideoMediaPickerDialog
               businessId={businessId}
               format={format}
-              allow="image"
+              allow="all"
               multiple
               max={30}
-              label="Choisir les photos"
-              value={Array.isArray(cfg.images) ? (cfg.images as string[]) : []}
-              onChange={(urls) => set("images", urls.slice(0, 30))}
+              label={media.length ? `Modifier les médias (${media.length})` : "Choisir les médias"}
+              value={media}
+              onChange={(urls) => patch({ config: { ...cfg, media: urls.slice(0, 30), images: [] } })}
             />
             <span className="text-[11px] text-muted-foreground">
-              Vide = photos publiques de la fiche.
+              Vide = photos publiques de la fiche. Les vidéos jouent muettes, les images en Ken Burns.
             </span>
           </div>
         </div>
       );
+    }
+
 
     case "text_overlay":
       return (
