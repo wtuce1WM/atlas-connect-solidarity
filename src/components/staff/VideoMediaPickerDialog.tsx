@@ -513,108 +513,119 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
 }
 
 /**
- * Toutes les vidéos internes du site (toutes fiches confondues) + vidéos génériques.
- * Utilisé par l'entrée « Vidéos 16:9 » : aucune condition de fiche, de badge ou de
- * bibliothèque. L'orientation n'existe pas en base : elle est mesurée côté client
- * (métadonnées du fichier) par lots concurrents, avec remontée progressive.
+ * Vidéos 16:9 : lecture directe en base (colonne `orientation` mesurée une fois
+ * pour toutes par la fonction `backfill-video-orientation`, qui lit l'entête MP4).
+ * Aucune condition de fiche, de badge ou de bibliothèque, aucun scan navigateur.
  */
-export function useAllInternalVideos(enabled: boolean, batch = 400) {
+export function useLandscapeVideos(enabled: boolean) {
   const [items, setItems] = useState<PickerMedia[]>([]);
   const [loading, setLoading] = useState(false);
-  const [scanned, setScanned] = useState(0);
-  const loadedRef = useRef(false);
+  const [pending, setPending] = useState(0);
+  const [measuring, setMeasuring] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [{ data: docs }, { data: gen }, { count: pendDocs }, { count: pendGen }] = await Promise.all([
+        supabase
+          .from("business_documents")
+          .select("id, url, name, thumbnail_url, business_id, media_width, media_height")
+          .eq("type", "video")
+          .eq("orientation", "landscape")
+          .order("created_at", { ascending: false })
+          .limit(1000),
+        supabase
+          .from("generic_videos" as any)
+          .select("id, url, name, thumbnail_url")
+          .eq("orientation", "landscape")
+          .order("sort_order", { ascending: true })
+          .limit(500),
+        supabase
+          .from("business_documents")
+          .select("id", { count: "exact", head: true })
+          .eq("type", "video")
+          .is("orientation_checked_at", null),
+        supabase
+          .from("generic_videos" as any)
+          .select("id", { count: "exact", head: true })
+          .is("orientation_checked_at", null),
+      ]);
+
+      const ownerIds = [...new Set((docs ?? []).map((d: any) => d.business_id).filter(Boolean))];
+      const ownerNames = new Map<string, string>();
+      for (let i = 0; i < ownerIds.length; i += 200) {
+        const { data: owners } = await supabase
+          .from("businesses")
+          .select("id, name")
+          .in("id", ownerIds.slice(i, i + 200) as string[]);
+        for (const o of owners ?? []) ownerNames.set(String(o.id), o.name);
+      }
+
+      const out: PickerMedia[] = [];
+      for (const d of (docs ?? []) as any[]) {
+        const url = typeof d.url === "string" ? d.url.trim() : "";
+        if (!url || !isInternalVideoUrl(url)) continue;
+        out.push({
+          url,
+          kind: "video",
+          title: d.name ?? "Vidéo",
+          thumbnail: d.thumbnail_url ?? null,
+          source: "other",
+          orientation: "landscape",
+          ownerName: ownerNames.get(String(d.business_id)) ?? null,
+        });
+      }
+      for (const g of (gen ?? []) as any[]) {
+        const url = typeof g.url === "string" ? g.url.trim() : "";
+        if (!url || !isInternalVideoUrl(url)) continue;
+        out.push({
+          url,
+          kind: "video",
+          title: g.name ?? "Vidéo générique",
+          thumbnail: g.thumbnail_url ?? null,
+          source: "generic_video",
+          orientation: "landscape",
+        });
+      }
+      const seen = new Set<string>();
+      setItems(out.filter((m) => (seen.has(m.url.toLowerCase()) ? false : (seen.add(m.url.toLowerCase()), true))));
+      setPending((pendDocs ?? 0) + (pendGen ?? 0));
+    } catch (e: any) {
+      toast.error(`Vidéos 16:9 : ${e.message ?? e}`);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    if (!enabled || loadedRef.current) return;
-    loadedRef.current = true;
-    let alive = true;
-    (async () => {
-      setLoading(true);
-      try {
-        const [{ data: docs }, { data: gen }] = await Promise.all([
-          supabase
-            .from("business_documents")
-            .select("id, url, name, thumbnail_url, business_id")
-            .eq("type", "video")
-            .not("url", "is", null)
-            .order("created_at", { ascending: false })
-            .limit(batch),
-          supabase
-            .from("generic_videos" as any)
-            .select("id, url, name, thumbnail_url")
-            .order("sort_order", { ascending: true })
-            .limit(500),
-        ]);
+    if (enabled) void load();
+  }, [enabled, load]);
 
-        const out: PickerMedia[] = [];
-        const ownerIds = [...new Set((docs ?? []).map((d: any) => d.business_id).filter(Boolean))];
-        const ownerNames = new Map<string, string>();
-        for (let i = 0; i < ownerIds.length; i += 200) {
-          const { data: owners } = await supabase
-            .from("businesses")
-            .select("id, name")
-            .in("id", ownerIds.slice(i, i + 200) as string[]);
-          for (const o of owners ?? []) ownerNames.set(String(o.id), o.name);
-        }
-        for (const d of (docs ?? []) as any[]) {
-          const url = typeof d.url === "string" ? d.url.trim() : "";
-          if (!url || !isInternalVideoUrl(url)) continue;
-          out.push({
-            url,
-            kind: "video",
-            title: d.name ?? "Vidéo",
-            thumbnail: d.thumbnail_url ?? null,
-            source: "other",
-            ownerName: ownerNames.get(String(d.business_id)) ?? null,
+  /** Mesure les vidéos encore non analysées, par lots, jusqu'à épuisement. */
+  const measure = useCallback(async () => {
+    setMeasuring(true);
+    try {
+      for (const table of ["generic_videos", "business_documents"] as const) {
+        for (let pass = 0; pass < 40; pass++) {
+          const { data, error } = await supabase.functions.invoke("backfill-video-orientation", {
+            body: { table, limit: 300, concurrency: 10 },
           });
+          if (error) throw error;
+          const res = data as any;
+          setPending(Number(res?.remaining ?? 0));
+          if (!res?.picked) break;
         }
-        for (const g of (gen ?? []) as any[]) {
-          const url = typeof g.url === "string" ? g.url.trim() : "";
-          if (!url || !isInternalVideoUrl(url)) continue;
-          out.push({
-            url,
-            kind: "video",
-            title: g.name ?? "Vidéo générique",
-            thumbnail: g.thumbnail_url ?? null,
-            source: "generic_video",
-          });
-        }
-
-        const seen = new Set<string>();
-        const deduped = out.filter((m) => {
-          const k = m.url.toLowerCase();
-          if (seen.has(k)) return false;
-          seen.add(k);
-          return true;
-        });
-        if (!alive) return;
-        setItems(deduped);
-        setLoading(false);
-
-        const CONCURRENCY = 8;
-        let cursor = 0;
-        const workers = Array.from({ length: CONCURRENCY }, async () => {
-          while (cursor < deduped.length && alive) {
-            const m = deduped[cursor++];
-            const o = await detectOrientation(m);
-            if (!alive) return;
-            setScanned((n) => n + 1);
-            if (!o) continue;
-            setItems((prev) => prev.map((it) => (it.url === m.url ? { ...it, orientation: o } : it)));
-          }
-        });
-        void Promise.all(workers);
-      } catch (e: any) {
-        setLoading(false);
-        toast.error(`Vidéos 16:9 : ${e.message ?? e}`);
       }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [enabled, batch]);
+      toast.success("Mesure des formats terminée");
+      await load();
+    } catch (e: any) {
+      toast.error(`Mesure impossible : ${e.message ?? e}`);
+    } finally {
+      setMeasuring(false);
+    }
+  }, [load]);
 
-  return { items, loading, scanned };
+  return { items, loading, pending, measuring, measure, reload: load };
 }
 
 /* ------------------------------------------------------------------ modal */
@@ -651,8 +662,10 @@ export function VideoMediaPickerDialog({
   const {
     items: wideVideos,
     loading: wideLoading,
-    scanned: wideScanned,
-  } = useAllInternalVideos(open && wideAsked);
+    pending: widePending,
+    measuring: wideMeasuring,
+    measure: measureWide,
+  } = useLandscapeVideos(open && wideAsked);
   const [typeFilter, setTypeFilter] = useState<TypeFilter>(allow === "all" ? "all" : allow);
   // Par défaut on ouvre sur les médias de la fiche (« Fiche · vidéos » quand la
   // scène n'accepte que des vidéos) : c'est le cas d'usage courant.
@@ -1065,11 +1078,27 @@ export function VideoMediaPickerDialog({
             </p>
 
             {sourceFilter === "landscape" && (
-              <p className="text-[11px] text-muted-foreground">
-                Vidéos internes des {wideVideos.length} fichiers les plus récents (toutes fiches) + génériques.
-                L'orientation n'est pas stockée en base : elle est mesurée fichier par fichier
-                ({wideScanned}/{wideVideos.length} analysés) — la liste se remplit au fur et à mesure.
-              </p>
+              <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                <span>
+                  {wideVideos.length} vidéo{wideVideos.length > 1 ? "s" : ""} 16:9 en base (toutes fiches + génériques),
+                  format mesuré depuis l'entête réelle du fichier.
+                </span>
+                {widePending > 0 && (
+                  <>
+                    <span className="text-amber-600">{widePending} vidéo(s) jamais mesurée(s)</span>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="h-7 text-[11px]"
+                      disabled={wideMeasuring}
+                      onClick={() => void measureWide()}
+                    >
+                      {wideMeasuring ? <Loader2 className="h-3 w-3 animate-spin" /> : null} Mesurer les formats
+                    </Button>
+                  </>
+                )}
+              </div>
             )}
 
             {loading || (sourceFilter === "landscape" && wideLoading) ? (
