@@ -425,19 +425,48 @@ export function VideoMediaPickerDialog({
     if (allow !== "all") setTypeFilter(allow);
   }, [allow]);
 
+  /** Base restreinte par `allow` + type : sert aussi aux compteurs du menu déroulant. */
+  const typeBase = useMemo(
+    () =>
+      items.filter((m) => {
+        if (allow !== "all" && m.kind !== allow) return false;
+        if (typeFilter !== "all" && m.kind !== typeFilter) return false;
+        return true;
+      }),
+    [items, allow, typeFilter],
+  );
+
+  const matchSource = (m: PickerMedia, f: SourceFilter) => {
+    switch (f) {
+      case "all":
+        return true;
+      case "fiche":
+        return m.source === "fiche" || !!m.onFiche;
+      case "generic":
+        return m.source === "generic";
+      case "landscape":
+        return m.source === "landscape";
+      case "library_business":
+        return m.source === "library" && m.scope === "business";
+      case "library_global":
+        return m.source === "library" && m.scope === "global";
+    }
+  };
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return items.filter((m) => {
-      if (allow !== "all" && m.kind !== allow) return false;
-      if (typeFilter !== "all" && m.kind !== typeFilter) return false;
-      if (sourceFilter === "fiche" && m.source !== "fiche") return false;
-      if (sourceFilter === "generic" && m.source !== "generic") return false;
-      if (sourceFilter === "library_business" && !(m.source === "library" && m.scope === "business")) return false;
-      if (sourceFilter === "library_global" && !(m.source === "library" && m.scope === "global")) return false;
-      if (q && !(m.title ?? "").toLowerCase().includes(q) && !m.url.toLowerCase().includes(q)) return false;
+    return typeBase.filter((m) => {
+      if (!matchSource(m, sourceFilter)) return false;
+      if (
+        q &&
+        !(m.title ?? "").toLowerCase().includes(q) &&
+        !(m.ownerName ?? "").toLowerCase().includes(q) &&
+        !m.url.toLowerCase().includes(q)
+      )
+        return false;
       return true;
     });
-  }, [items, allow, typeFilter, sourceFilter, search]);
+  }, [typeBase, sourceFilter, search]);
 
   const toggle = (m: PickerMedia) => {
     if (!multiple) {
