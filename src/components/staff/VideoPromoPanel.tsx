@@ -89,7 +89,7 @@ const VideoPromoPanel = () => {
     if (blocks.hook) s += seconds.hook;
     if (blocks.video && videoUrl) s += seconds.video;
     if (blocks.photos) s += seconds.photo * images.length;
-    if (blocks.text && textLength > 0) s += seconds.text;
+    // Le texte n'est plus une étape : il est en surimpression sur Vidéo/Photos.
     if (blocks.outro) s += seconds.outro;
     return Math.round(s * 10) / 10;
   }, [blocks, seconds, videoUrl, images.length, textLength]);
