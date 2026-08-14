@@ -459,6 +459,20 @@ const Stage: React.FC<{ p: BusinessPromoProps; scale?: number; wide?: boolean }>
   const images = (p.images || []).slice(0, 4);
   const manifest = useFeedManifest(p.bgFeedManifest);
   const stage = wide ? LANDSCAPE_STAGE : PROMO_PORTRAIT;
+  const overlayHtml = (p.text || "").trim() || null;
+  // Fenêtre continue du texte : du premier au dernier plan média, sans réapparition
+  // à chaque changement de fond.
+  let acc = 0;
+  let overlayFrom = -1;
+  let overlayTo = 0;
+  for (const s of segs) {
+    if (s.kind === "video" || s.kind === "photo") {
+      if (overlayFrom < 0) overlayFrom = acc;
+      overlayTo = acc + s.frames;
+    }
+    acc += s.frames;
+  }
+  const overlayFrames = overlayFrom >= 0 ? overlayTo - overlayFrom : 0;
   let cursor = 0;
   return (
     <AbsoluteFill
