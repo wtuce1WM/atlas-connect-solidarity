@@ -479,9 +479,25 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         // un média badgé qui appartient aussi à la fiche courante reste visible dans « Fiche »
         .map((m) => ({ ...m, onFiche: ficheUrls.has(m.url.trim().toLowerCase()) }));
 
-      // Détection réelle des orientations (images + vidéos internes) pour le filtre Landscape
-      const orientations = await Promise.all(deduped.map((m) => detectOrientation(m)));
-      setItems(deduped.map((m, i) => ({ ...m, orientation: m.orientation ?? orientations[i] })));
+      // Détection réelle des orientations (images + vidéos internes) pour le filtre 16:9.
+      // Important : en parallèle total (des centaines de requêtes simultanées) le
+      // navigateur sature et la plupart des détections expiraient → orientation null,
+      // donc quasi rien dans le filtre 16:9. On détecte donc par lots concurrents
+      // limités, en mettant à jour la liste au fur et à mesure.
+      setItems(deduped);
+      const CONCURRENCY = 6;
+      let cursor = 0;
+      const workers = Array.from({ length: CONCURRENCY }, async () => {
+        while (cursor < deduped.length) {
+          const idx = cursor++;
+          const m = deduped[idx];
+          if (m.orientation) continue;
+          const o = await detectOrientation(m);
+          if (!o) continue;
+          setItems((prev) => prev.map((it) => (it.url === m.url ? { ...it, orientation: o } : it)));
+        }
+      });
+      void Promise.all(workers);
     } catch (e: any) {
       toast.error(`Chargement des médias impossible : ${e.message ?? e}`);
     } finally {
@@ -593,9 +609,9 @@ export function VideoMediaPickerDialog({
       case "generic_video":
         return m.source === "generic_video";
       case "landscape":
-        // Toutes les vidéos (internes fiche/bibliothèque + génériques) au format 16:9,
-        // sans aucune autre condition de source.
-        return m.kind === "video" && m.orientation === "landscape";
+        // Tous les médias internes (fiche, bibliothèque, génériques, autre fiche)
+        // dont les dimensions réelles sont au format paysage — aucune autre condition.
+        return m.orientation === "landscape";
       case "other":
         return m.source === "other";
       case "library_business":
@@ -744,7 +760,7 @@ export function VideoMediaPickerDialog({
       fiche: typeBase.filter((m) => matchSource(m, "fiche")).length,
       generic: typeBase.filter((m) => m.source === "generic").length,
       genericVideo: typeBase.filter((m) => m.source === "generic_video").length,
-      landscape: typeBase.filter((m) => m.kind === "video" && m.orientation === "landscape").length,
+      landscape: typeBase.filter((m) => m.orientation === "landscape").length,
       other: typeBase.filter((m) => m.source === "other").length,
       libBiz: typeBase.filter((m) => m.source === "library" && m.scope === "business").length,
       libGlobal: typeBase.filter((m) => m.source === "library" && m.scope === "global").length,
@@ -817,7 +833,7 @@ export function VideoMediaPickerDialog({
                 <option value="fiche">Fiche · {activeTypeLabel} ({counts.fiche})</option>
                 <option value="generic_video">Vidéos génériques ({counts.genericVideo})</option>
                 <option value="generic">Badge Générique ({counts.generic})</option>
-                <option value="landscape">Vidéos 16:9 · internes + génériques ({counts.landscape})</option>
+                <option value="landscape">Format 16:9 · vidéos + images ({counts.landscape})</option>
                 <option value="other">Autre fiche par slug · {activeTypeLabel} ({counts.other})</option>
                 <option value="library_business">Bibliothèque fiche · {activeTypeLabel} ({counts.libBiz})</option>
                 <option value="library_global">Bibliothèque globale · {activeTypeLabel} ({counts.libGlobal})</option>
