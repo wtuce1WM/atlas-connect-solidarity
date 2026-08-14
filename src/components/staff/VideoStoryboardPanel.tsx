@@ -560,6 +560,172 @@ const SortableSection = ({
   );
 };
 
+/**
+ * Guide affiché sous le storyboard : rappel des règles de paramétrage.
+ * Le but est que l'utilisateur comprenne les limites, les repli et le workflow
+ * sans avoir à deviner le comportement du moteur Remotion.
+ */
+const StoryboardGuide = () => {
+  const stepHelp: Array<{ type: StepType; icon: React.ReactNode; title: string; body: string }> = [
+    {
+      type: "hook",
+      icon: <MousePointerClick className="h-4 w-4" />,
+      title: "Accroche",
+      body: "Première image du film. Le logo 1WM et le nom de l'établissement apparaissent avec l'accroche et la ville. Si le champ Titre est vide, le moteur utilise hook_fr de la fiche.",
+    },
+    {
+      type: "video",
+      icon: <Film className="h-4 w-4" />,
+      title: "Vidéo plein écran",
+      body: "Lit une URL vidéo en fond. Si l'URL est vide, le moteur prend la première vidéo interne de la fiche (business_documents type video). Le son peut être activé ou coupé.",
+    },
+    {
+      type: "photos",
+      icon: <Image className="h-4 w-4" />,
+      title: "Photos plein écran",
+      body: "Carrousel de 1 à 4 images avec mouvement Ken Burns (zoom_in, zoom_out, none). Les URLs saisies sont prioritaires ; sinon le moteur utilise les images de la fiche.",
+    },
+    {
+      type: "text_overlay",
+      icon: <Type className="h-4 w-4" />,
+      title: "Texte en surimpression",
+      body: "Texte riche continu (500 caractères max) affiché par-dessus le média précédent. Les balises H, p, strong et em sont conservées. Les emojis sont rendus.",
+    },
+    {
+      type: "counter",
+      icon: <LayoutTemplate className="h-4 w-4" />,
+      title: "Compteur / chiffre clé",
+      body: "Jusqu'à 4 chiffres animés avec préfixe, suffixe et légende. Utile pour les statistiques (établissements, avis, kilomètres, etc.).",
+    },
+    {
+      type: "map_reveal",
+      icon: <MapPin className="h-4 w-4" />,
+      title: "Carte / localisation",
+      body: "Image de carte avec zoom progressif et points d'intérêt. Les coordonnées X/Y sont en pourcentage (0-100).",
+    },
+    {
+      type: "split_screen",
+      icon: <Split className="h-4 w-4" />,
+      title: "Écran partagé",
+      body: "Deux panneaux : image + titre + texte. En portrait ils s'empilent (haut/bas), en paysage ils sont côte à côte.",
+    },
+    {
+      type: "logo_merge",
+      icon: <Merge className="h-4 w-4" />,
+      title: "Fusion de logos",
+      body: "Lockup One World Morocco + logo partenaire. Préférer un PNG/SVG transparent. La signature est personnalisable.",
+    },
+    {
+      type: "outro",
+      icon: <Play className="h-4 w-4" />,
+      title: "Outro",
+      body: "Dernière image : logo 1WM, tagline et ville. Gardez-la courte (3 à 5 s) pour ne pas alourdir la fin.",
+    },
+  ];
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-black flex items-center gap-2 text-base">
+          <Info className="h-5 w-5" /> Paramétrage du storyboard
+        </CardTitle>
+        <p className="text-sm text-muted-foreground mt-1">
+          Ce qu'il faut savoir avant de créer ou modifier un montage manuel.
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="rounded-lg border p-3 space-y-2">
+            <div className="flex items-center gap-2 text-sm font-semibold text-black">
+              <Clock className="h-4 w-4" /> Durées et limites
+            </div>
+            <ul className="text-xs text-muted-foreground space-y-1 list-disc pl-4">
+              <li>Durée totale max : {MAX_TOTAL_SEC} s ({mmss(MAX_TOTAL_SEC)}).</li>
+              <li>Durée d'une section : {MIN_SECTION_SEC} à {MAX_SECTION_SEC} s.</li>
+              <li>Nombre max de sections : {MAX_SECTIONS}.</li>
+              <li>La barre de progression passe en rouge si le total dépasse le plafond.</li>
+            </ul>
+          </div>
+
+          <div className="rounded-lg border p-3 space-y-2">
+            <div className="flex items-center gap-2 text-sm font-semibold text-black">
+              <LayoutTemplate className="h-4 w-4" /> Formats de rendu
+            </div>
+            <ul className="text-xs text-muted-foreground space-y-1 list-disc pl-4">
+              <li>Paysage 1920×1080 (16:9) pour site, LinkedIn, YouTube.</li>
+              <li>Portrait 1080×1920 (9:16) pour Reels, TikTok, Stories.</li>
+              <li>Le format est défini au niveau du storyboard, pas de la section.</li>
+            </ul>
+          </div>
+
+          <div className="rounded-lg border p-3 space-y-2">
+            <div className="flex items-center gap-2 text-sm font-semibold text-black">
+              <Film className="h-4 w-4" /> Échelle d'aperçu
+            </div>
+            <ul className="text-xs text-muted-foreground space-y-1 list-disc pl-4">
+              <li>0,5× — rendu rapide en 540p pour valider le timing.</li>
+              <li>0,667× — rendu en 720p pour vérifier les détails.</li>
+              <li>1× — sortie finale 1080p (plus long, plus coûteux en crédits).</li>
+            </ul>
+          </div>
+
+          <div className="rounded-lg border p-3 space-y-2 md:col-span-2 lg:col-span-3">
+            <div className="flex items-center gap-2 text-sm font-semibold text-black">
+              <MousePointerClick className="h-4 w-4" /> Workflow obligatoire
+            </div>
+            <ol className="text-xs text-muted-foreground space-y-1 list-decimal pl-4">
+              <li>Créer le storyboard et choisir le format.</li>
+              <li>Associer un établissement (optionnel mais recommandé) pour activer les repli logo/photos/vidéo/hook/ville.</li>
+              <li>Ajouter les sections dans l'ordre, régler leurs durées et leur configuration.</li>
+              <li>
+                <strong className="text-foreground">Enregistrer avant de lancer le rendu</strong> — le bouton « Rendre » est désactivé tant qu'il reste des modifications non sauvegardées.
+              </li>
+              <li>Lancer le rendu, puis suivre l'avancement dans l'onglet « Dernières vidéos ».</li>
+            </ol>
+          </div>
+
+          <div className="rounded-lg border p-3 space-y-2 md:col-span-2 lg:col-span-3">
+            <div className="flex items-center gap-2 text-sm font-semibold text-black">
+              <Info className="h-4 w-4" /> Règles de priorité des assets
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Quand une section demande un média, le moteur utilise dans cet ordre : (1) l'URL saisie manuellement dans
+              la configuration, (2) l'asset correspondant de la fiche associée, (3) un fallback visuel générique. C'est
+              pourquoi lier un établissement accélère le paramétrage : la plupart des champs peuvent rester vides.
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <h4 className="text-sm font-semibold text-black">Détail des types de section</h4>
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {stepHelp.map((h) => (
+              <div key={h.type} className="rounded-lg border p-3 space-y-2">
+                <div className="flex items-center gap-2 text-xs font-semibold text-black">
+                  {h.icon}
+                  {h.title}
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">{h.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3">
+          <h4 className="text-sm font-semibold text-destructive">Erreurs fréquentes à éviter</h4>
+          <ul className="text-xs text-muted-foreground space-y-1 list-disc pl-4 mt-1">
+            <li>Oublier d'enregistrer avant de cliquer sur « Rendre ».</li>
+            <li>Dépasser {MAX_TOTAL_SEC} s au total : le rendu est bloqué.</li>
+            <li>Mettre une section à moins de {MIN_SECTION_SEC} s ou plus de {MAX_SECTION_SEC} s.</li>
+            <li>Saisir une URL photo/vidéo inaccessible : le moteur passera au repli suivant, ou à une image noire.</li>
+            <li>Activer le son sur plusieurs sections vidéo superposées : les pistes audio se superposent.</li>
+          </ul>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 const VideoStoryboardPanel = () => {
   const [boards, setBoards] = useState<Storyboard[]>([]);
   const [currentId, setCurrentId] = useState<string | null>(null);
