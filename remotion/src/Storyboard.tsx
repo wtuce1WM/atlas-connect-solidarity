@@ -2,6 +2,7 @@ import React from "react";
 import { AbsoluteFill, Img, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { palette, alpha, display, body, size, weight } from "./tokens";
 import { PromoLogo } from "./promo/PromoLogo";
+import { resolveStoryboardIcon } from "./icons/registry";
 
 /**
  * Moteur de storyboard manuel — SOURCE UNIQUE.
@@ -36,8 +37,10 @@ export type StoryboardStepType =
   | "counter"
   | "map_reveal"
   | "split_screen"
+  | "icon_grid"
   | "logo_merge"
   | "outro";
+
 
 export type StoryboardSection = {
   step_type: StoryboardStepType;
@@ -1005,7 +1008,175 @@ const OutroScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
 };
 
 /**
+ * `icon_grid` — icônes vectorielles (bibliothèque curatée) avec Titre et/ou Texte.
+ * config : {
+ *   kicker, title,
+ *   display: "grid" | "beats",           // grille simultanée ou temps découpé
+ *   items: [{ icon: "tb:TbBed", title?, text? }]  // 1 à 8
+ * }
+ * En mode `beats`, la durée de l'étape est découpée à parts égales entre les
+ * items : chaque battement affiche une icône plein cadre avec son message.
+ */
+const IconMark: React.FC<{ iconKey: string | null; boxSize: number; delay?: number }> = ({
+  iconKey,
+  boxSize,
+  delay = 0,
+}) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const Icon = resolveStoryboardIcon(iconKey);
+  const pop = spring({ frame: frame - delay, fps, config: { damping: 18, stiffness: 110, mass: 0.9 } });
+  const scale = interpolate(pop, [0, 1], [0.6, 1]);
+  return (
+    <div
+      style={{
+        width: boxSize,
+        height: boxSize,
+        borderRadius: boxSize * 0.28,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: alpha("cream", 0.06),
+        border: `${Math.max(2, boxSize * 0.012)}px solid ${alpha("gold", 0.45)}`,
+        boxShadow: `0 ${boxSize * 0.06}px ${boxSize * 0.2}px ${alpha("night", 0.55)}`,
+        transform: `scale(${scale})`,
+        opacity: pop,
+      }}
+    >
+      {Icon ? (
+        <Icon size={Math.round(boxSize * 0.52)} color={palette.gold} />
+      ) : (
+        <div style={{ width: boxSize * 0.3, height: boxSize * 0.3, borderRadius: 999, background: alpha("gold", 0.3) }} />
+      )}
+    </div>
+  );
+};
+
+const IconGridScene: React.FC<{ wide: boolean; section: StoryboardSection }> = ({ wide, section }) => {
+  const { fps, enter, out, durationInFrames, frame } = useSceneFade();
+  const cfg = section.config ?? {};
+  const stage = wide ? STAGE_LANDSCAPE : STAGE_PORTRAIT;
+  const items = list(cfg, "items").slice(0, 8);
+  const kicker = str(cfg, "kicker") ?? section.label ?? null;
+  const title = str(cfg, "title");
+  const beats = str(cfg, "display") === "beats";
+
+  if (!items.length) return <PlaceholderScene wide={wide} section={section} />;
+
+  /* ---- mode battements : un item après l'autre, plein cadre ---- */
+  if (beats) {
+    const per = Math.max(1, Math.floor(durationInFrames / items.length));
+    const index = Math.min(items.length - 1, Math.floor(frame / per));
+    const localFrame = frame - index * per;
+    const item = items[index];
+    const boxSize = wide ? stage.height * 0.3 : stage.width * 0.42;
+    const beatIn = spring({ frame: localFrame, fps, config: { damping: 22, stiffness: 90, mass: 1 } });
+
+    return (
+      <SceneBackdrop>
+        <div
+          style={{
+            opacity: out * beatIn,
+            transform: `translateY(${interpolate(beatIn, [0, 1], [26, 0])}px)`,
+            width: stage.width * 0.76,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            textAlign: "center",
+            gap: stage.width * 0.028,
+          }}
+        >
+          {kicker && <SceneKicker>{kicker}</SceneKicker>}
+          <IconMark iconKey={typeof item.icon === "string" ? item.icon : null} boxSize={boxSize} />
+          {typeof item.title === "string" && item.title.trim() && (
+            <SceneTitle wide={wide} level={2}>
+              {item.title}
+            </SceneTitle>
+          )}
+          {typeof item.text === "string" && item.text.trim() && <SceneBody>{item.text}</SceneBody>}
+          <div style={{ display: "flex", gap: stage.width * 0.008 }}>
+            {items.map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  width: stage.width * (i === index ? 0.03 : 0.012),
+                  height: Math.max(3, stage.width * 0.0028),
+                  borderRadius: 999,
+                  background: i === index ? palette.gold : alpha("cream", 0.3),
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </SceneBackdrop>
+    );
+  }
+
+  /* ---- mode grille : entrée en cascade, tout reste à l'écran ---- */
+  const cols = wide ? Math.min(items.length, 4) : Math.min(items.length, 2);
+  const boxSize = wide ? stage.width * (cols >= 4 ? 0.105 : 0.13) : stage.width * (cols >= 2 ? 0.2 : 0.3);
+
+  return (
+    <SceneBackdrop>
+      <div
+        style={{
+          opacity: out,
+          width: stage.width * 0.82,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center",
+          gap: stage.width * 0.03,
+        }}
+      >
+        {kicker && <SceneKicker style={{ opacity: enter }}>{kicker}</SceneKicker>}
+        {title && (
+          <SceneTitle wide={wide} level={2} style={{ opacity: enter }}>
+            {title}
+          </SceneTitle>
+        )}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+            gap: stage.width * 0.03,
+            width: "100%",
+          }}
+        >
+          {items.map((item, i) => {
+            const delay = Math.round(fps * 0.14 * i);
+            const cardIn = spring({ frame: frame - delay, fps, config: { damping: 22, stiffness: 90, mass: 1 } });
+            return (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: stage.width * 0.012,
+                  opacity: cardIn,
+                  transform: `translateY(${interpolate(cardIn, [0, 1], [22, 0])}px)`,
+                }}
+              >
+                <IconMark iconKey={typeof item.icon === "string" ? item.icon : null} boxSize={boxSize} delay={delay} />
+                {typeof item.title === "string" && item.title.trim() && (
+                  <SceneTitle wide={wide} level={3} style={{ fontSize: size.lead, fontWeight: weight.semibold }}>
+                    {item.title}
+                  </SceneTitle>
+                )}
+                {typeof item.text === "string" && item.text.trim() && <SceneBody small>{item.text}</SceneBody>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </SceneBackdrop>
+  );
+};
+
+/**
  * Carte typographique neutre : filet de sécurité pour tout `step_type` dont la
+
  * grammaire visuelle n'est pas encore implémentée. Le film ne casse jamais et
  * le timing du storyboard reste exact — la scène affiche son intention.
  */
@@ -1084,6 +1255,8 @@ const SectionSceneInner: React.FC<{ wide: boolean; p: StoryboardProps; section: 
       return <MapRevealScene wide={wide} section={section} />;
     case "split_screen":
       return <SplitScreenScene wide={wide} section={section} />;
+    case "icon_grid":
+      return <IconGridScene wide={wide} section={section} />;
     case "hook":
       return <HookScene wide={wide} p={p} section={section} />;
     case "video":

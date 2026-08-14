@@ -29,6 +29,7 @@ import {
   Play,
 } from "lucide-react";
 import { toast } from "sonner";
+import VideoIconPickerDialog from "@/components/staff/VideoIconPickerDialog";
 import { VideoMediaPickerDialog } from "@/components/staff/VideoMediaPickerDialog";
 
 import {
@@ -61,6 +62,7 @@ export type StepType =
   | "counter"
   | "map_reveal"
   | "split_screen"
+  | "icon_grid"
   | "logo_merge"
   | "outro";
 
@@ -72,6 +74,7 @@ const STEP_TYPES: Array<{ value: StepType; label: string; hint: string }> = [
   { value: "counter", label: "Compteur / chiffre clé", hint: "Animation d'un nombre (+1 800…)." },
   { value: "map_reveal", label: "Carte / localisation", hint: "Révélation géographique." },
   { value: "split_screen", label: "Écran partagé", hint: "Média d'un côté, texte de l'autre." },
+  { value: "icon_grid", label: "Icônes (grille / battements)", hint: "1 à 8 icônes curatées, Titre et/ou Texte, durée découpée au choix." },
   { value: "logo_merge", label: "Fusion de logos", hint: "Lockup 1WM + logo partenaire." },
   { value: "outro", label: "Outro", hint: "Logo + tagline." },
 ];
@@ -432,6 +435,91 @@ const ConfigFields = ({
         </div>
       );
     }
+    case "icon_grid": {
+      const items: any[] = Array.isArray(cfg.items) ? cfg.items : [];
+      const setItems = (next: any[]) => set("items", next.slice(0, 8));
+      const setItem = (i: number, key: string, value: any) =>
+        setItems(items.map((it, idx) => (idx === i ? { ...it, [key]: value } : it)));
+      const display = (cfg.display as string) === "beats" ? "beats" : "grid";
+      const beatSec = items.length ? section.duration_sec / items.length : section.duration_sec;
+      return (
+        <div className="grid gap-3">
+          <div className="grid gap-3 md:grid-cols-3">
+            {text("kicker", "Sur-titre (optionnel)", "Ce que vous trouvez sur place")}
+            {text("title", "Titre de la scène (optionnel)", "Tout est à 5 minutes")}
+            <label className="text-xs text-muted-foreground grid gap-1">
+              Affichage
+              <select
+                value={display}
+                onChange={(e) => set("display", e.target.value)}
+                className="h-8 rounded-md border bg-background px-2 text-xs"
+              >
+                <option value="grid">Grille simultanée (cascade)</option>
+                <option value="beats">Battements (une icône après l'autre)</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="grid gap-2">
+            {items.map((it, i) => (
+              <div key={i} className="grid gap-2 rounded-md border p-2 md:grid-cols-[10rem_1fr_1fr_2rem] md:items-end">
+                <div className="grid gap-1">
+                  <span className="text-xs text-muted-foreground">Icône {i + 1}</span>
+                  <VideoIconPickerDialog
+                    value={typeof it.icon === "string" ? it.icon : null}
+                    onChange={(key) => setItem(i, "icon", key)}
+                  />
+                </div>
+                <label className="text-xs text-muted-foreground grid gap-1">
+                  Titre (optionnel)
+                  <Input
+                    value={it.title ?? ""}
+                    onChange={(e) => setItem(i, "title", e.target.value.slice(0, 60))}
+                    className="h-8 text-xs"
+                  />
+                </label>
+                <label className="text-xs text-muted-foreground grid gap-1">
+                  Texte (optionnel)
+                  <Input
+                    value={it.text ?? ""}
+                    onChange={(e) => setItem(i, "text", e.target.value.slice(0, 120))}
+                    className="h-8 text-xs"
+                  />
+                </label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 px-2"
+                  onClick={() => setItems(items.filter((_, idx) => idx !== i))}
+                >
+                  ×
+                </Button>
+              </div>
+            ))}
+            {items.length < 8 && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-7 w-fit text-xs"
+                onClick={() => setItems([...items, { icon: "", title: "", text: "" }])}
+              >
+                + Ajouter une icône
+              </Button>
+            )}
+            <span className="text-[11px] text-muted-foreground">
+              {items.length
+                ? display === "beats"
+                  ? `Durée découpée à parts égales : ${items.length} battement(s) de ${beatSec.toFixed(1)} s.`
+                  : "Toutes les icônes restent à l'écran, entrée en cascade."
+                : "Ajoutez au moins une icône."}
+            </span>
+          </div>
+          <div className="grid md:grid-cols-2">{bgMediaBlock()}</div>
+        </div>
+      );
+    }
     case "map_reveal": {
       const points: any[] = Array.isArray(cfg.points) ? cfg.points : [];
       const setPoint = (i: number, key: string, value: any) =>
@@ -764,6 +852,13 @@ const StoryboardGuide = () => {
       body: "Deux panneaux : image + titre + texte. En portrait ils s'empilent (haut/bas), en paysage ils sont côte à côte.",
     },
     {
+      type: "icon_grid",
+      icon: <LayoutTemplate className="h-4 w-4" />,
+      title: "Icônes (grille / battements)",
+      body: "1 à 8 icônes de la bibliothèque curatée (17 catégories), chacune avec Titre et/ou Texte optionnels. Deux affichages : Grille simultanée (entrée en cascade, tout reste à l'écran) ou Battements (la durée de l'étape est découpée à parts égales, une icône plein cadre par battement, avec indicateur de progression). Un fond média peut être ajouté. Le picker affiche un aperçu 120 px au survol.",
+    },
+    {
+
       type: "logo_merge",
       icon: <Merge className="h-4 w-4" />,
       title: "Fusion de logos",
