@@ -315,7 +315,18 @@ const ConfigFields = ({
               className="h-8 text-xs"
             />
           </label>
-          {text("kenBurns", "Mouvement des images (zoom_in, zoom_out, none)", "zoom_in")}
+          <label className="text-xs text-muted-foreground grid gap-1">
+            Mouvement des images
+            <select
+              value={(cfg.kenBurns as string) || "zoom_in"}
+              onChange={(e) => set("kenBurns", e.target.value)}
+              className="h-8 rounded-md border bg-background px-2 text-xs"
+            >
+              <option value="zoom_in">Zoom avant (zoom_in)</option>
+              <option value="zoom_out">Zoom arrière (zoom_out)</option>
+              <option value="none">Aucun mouvement (none)</option>
+            </select>
+          </label>
           {text("title", "Titre affiché (optionnel)")}
           <div className="grid gap-1 md:col-span-2">
             <span className="text-xs text-muted-foreground">
