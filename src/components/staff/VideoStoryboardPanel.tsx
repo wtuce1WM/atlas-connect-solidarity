@@ -1066,6 +1066,8 @@ const VideoStoryboardPanel = () => {
   const [rendering, setRendering] = useState(false);
   const [jobs, setJobs] = useState<StoryboardJob[]>([]);
   const [dirty, setDirty] = useState(false);
+  /** Scénario auto sélectionné dans le même sélecteur (null = storyboard manuel). */
+  const [legacyMode, setLegacyMode] = useState<"business" | "corporate" | null>(null);
 
 
   // Autocomplete établissement (même mécanique que Promo business).
