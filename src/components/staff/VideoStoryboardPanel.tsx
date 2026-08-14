@@ -88,6 +88,19 @@ type Storyboard = {
   max_duration_sec: number;
 };
 
+type StoryboardJob = {
+  id: string;
+  title: string | null;
+  status: string;
+  output_url: string | null;
+  error_message: string | null;
+  created_at: string;
+  duration_sec: number | null;
+  template_id: string | null;
+};
+
+
+
 type Section = {
   id: string;
   storyboard_id: string;
