@@ -513,43 +513,29 @@ const CounterScene: React.FC<{ wide: boolean; section: StoryboardSection }> = ({
                 key={i}
                 style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: stage.width * 0.008 }}
               >
-                <span
-                  style={{
-                    fontFamily: displayFont,
-                    fontSize: valueSize,
-                    fontWeight: weight.bold,
-                    lineHeight: 1,
-                    color: palette.cream,
-                    fontVariantNumeric: "tabular-nums",
-                  }}
+                <SceneTitle
+                  wide={wide}
+                  style={{ fontSize: valueSize, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}
                 >
                   {prefix}
                   {shown}
                   {suffix}
-                </span>
+                </SceneTitle>
                 {label && (
-                  <span
-                    style={{
-                      fontFamily: bodyFont,
-                      fontSize: size.caption,
-                      lineHeight: 1.3,
-                      color: alpha("cream", 0.78),
-                      maxWidth: stage.width * (cols >= 3 ? 0.2 : 0.3),
-                    }}
+                  <SceneBody
+                    small
+                    style={{ lineHeight: 1.3, maxWidth: stage.width * (cols >= 3 ? 0.2 : 0.3) }}
                   >
                     {label}
-                  </span>
+                  </SceneBody>
                 )}
               </div>
             );
           })}
         </div>
         <GoldRule width={interpolate(enter, [0, 1], [0, stage.width * 0.08])} stageWidth={stage.width} />
-        {bodyText && (
-          <span style={{ fontFamily: bodyFont, fontSize: size.lead, lineHeight: 1.42, color: alpha("cream", 0.82) }}>
-            {bodyText}
-          </span>
-        )}
+        {bodyText && <SceneBody>{bodyText}</SceneBody>}
+
       </div>
     </SceneBackdrop>
   );
