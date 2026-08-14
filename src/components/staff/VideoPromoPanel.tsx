@@ -156,7 +156,7 @@ const VideoPromoPanel = () => {
       toast.error("Sélectionne un établissement (nom, slug ou URL 1WM)");
       return;
     }
-    if (blocks.text && textLength > 500) {
+    if (textLength > 500) {
       toast.error("Le texte dépasse 500 caractères");
       return;
     }
