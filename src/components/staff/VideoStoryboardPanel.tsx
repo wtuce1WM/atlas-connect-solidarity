@@ -172,78 +172,65 @@ const ConfigFields = ({
 
 
   /**
-   * Fond média partagé : images OU vidéo (jamais les deux), jusqu'à 30 images.
-   * Disponible sur accroche, texte, compteur, outro, carte et écran partagé.
+   * Fond média partagé : playlist mixte (images ET vidéos, 30 max) jouée à la
+   * suite dans la durée de la scène. Disponible sur accroche, texte, compteur,
+   * outro, carte et écran partagé.
    */
   const bgMediaBlock = () => {
-    const mode = (cfg.bgMode as string) ?? "none";
-    const images: string[] = Array.isArray(cfg.bgImages) ? (cfg.bgImages as string[]) : [];
-    const setMode = (m: "none" | "images" | "video") =>
-      patch({
-        config: {
-          ...cfg,
-          bgMode: m,
-          // Exclusivité stricte : changer de mode purge l'autre source.
-          bgImages: m === "images" ? images : [],
-          bgVideoUrl: m === "video" ? cfg.bgVideoUrl ?? "" : "",
-        },
-      });
+    const legacy: string[] = Array.isArray(cfg.bgImages)
+      ? (cfg.bgImages as string[])
+      : cfg.bgVideoUrl
+        ? [String(cfg.bgVideoUrl)]
+        : [];
+    const media: string[] = Array.isArray(cfg.bgMedia) ? (cfg.bgMedia as string[]) : legacy;
+    const active = ((cfg.bgMode as string) ?? "none") !== "none" && media.length > 0;
     return (
       <div className="grid gap-2 rounded-md border p-2 md:col-span-2">
         <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-          Fond média de la scène (images OU vidéo)
+          Fond média de la scène (images et/ou vidéos, 30 max)
         </span>
-        <div className="flex gap-1">
-          {([
-            ["none", "Aucun"],
-            ["images", "Images"],
-            ["video", "Vidéo"],
-          ] as const).map(([v, l]) => (
+        <div className="flex flex-wrap items-center gap-2">
+          <VideoMediaPickerDialog
+            businessId={businessId}
+            format={format}
+            allow="all"
+            multiple
+            max={30}
+            label={media.length ? `Modifier le fond (${media.length})` : "Choisir des médias"}
+            value={media}
+            onChange={(urls) =>
+              patch({
+                config: {
+                  ...cfg,
+                  bgMode: urls.length ? "medias" : "none",
+                  bgMedia: urls.slice(0, 30),
+                  bgImages: [],
+                  bgVideoUrl: "",
+                },
+              })
+            }
+          />
+          {active && (
             <Button
-              key={v}
               type="button"
               size="sm"
-              variant={mode === v ? "default" : "outline"}
+              variant="outline"
               className="h-7 text-xs"
-              onClick={() => setMode(v)}
+              onClick={() =>
+                patch({ config: { ...cfg, bgMode: "none", bgMedia: [], bgImages: [], bgVideoUrl: "" } })
+              }
             >
-              {l}
+              Retirer le fond
             </Button>
-          ))}
+          )}
         </div>
-        {mode === "images" && (
-          <div className="grid gap-1">
-            <VideoMediaPickerDialog
-              businessId={businessId}
-              format={format}
-              allow="image"
-              multiple
-              max={30}
-              label={images.length ? `Modifier les images (${images.length})` : "Choisir des images (30 max)"}
-              value={images}
-              onChange={(urls) => patch({ config: { ...cfg, bgMode: "images", bgVideoUrl: "", bgImages: urls.slice(0, 30) } })}
-            />
-            <span className="text-[11px] text-muted-foreground">
-              Défilement en fondu enchaîné, durée partagée à parts égales.
-            </span>
-          </div>
-        )}
-        {mode === "video" && (
-          <div className="grid gap-1">
-            <VideoMediaPickerDialog
-              businessId={businessId}
-              format={format}
-              allow="video"
-              label={cfg.bgVideoUrl ? "Changer la vidéo" : "Choisir une vidéo"}
-              value={cfg.bgVideoUrl ? [String(cfg.bgVideoUrl)] : []}
-              onChange={(urls) => patch({ config: { ...cfg, bgMode: "video", bgImages: [], bgVideoUrl: urls[0] ?? "" } })}
-            />
-            <span className="text-[11px] text-muted-foreground">Vidéo muette, plein cadre, sous voile lisible.</span>
-          </div>
-        )}
+        <span className="text-[11px] text-muted-foreground">
+          Lecture à la suite en fondu enchaîné, durée partagée à parts égales. Vidéos muettes, sous voile lisible.
+        </span>
       </div>
     );
   };
+
 
   switch (section.step_type) {
     case "hook":
