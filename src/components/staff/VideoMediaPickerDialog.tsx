@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Film, Image as ImageIcon, Loader2, Play, Pause, Trash2, Upload, X } from "lucide-react";
+import { Copy, Film, Image as ImageIcon, Loader2, Play, Pause, Trash2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
 /**
@@ -367,6 +367,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
           source: "library",
           scope: r.business_id ? "business" : "global",
           libraryId: r.id,
+          mediaId: r.id,
         });
       }
 
@@ -417,6 +418,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
             title: d.name ?? "Vidéo",
             thumbnail: d.thumbnail_url ?? null,
             source: genericSet.has(String(d.id)) ? "generic" : "fiche",
+            mediaId: String(d.id),
             ownerName: ownerNames.get(String(d.business_id)) ?? null,
           });
         }
@@ -450,6 +452,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
             title: d.name ?? "Vidéo",
             thumbnail: d.thumbnail_url ?? null,
             source: "fiche",
+            mediaId: String(d.id),
           });
         }
       }
@@ -469,6 +472,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
           title: g.name ?? "Vidéo générique",
           thumbnail: g.thumbnail_url ?? null,
           source: "generic_video",
+          mediaId: String(g.id),
           ownerName: g.instagram_account || g.tiktok_account || g.youtube_account || null,
         });
       }
@@ -503,6 +507,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
               title: d.name ?? "Vidéo",
               thumbnail: d.thumbnail_url ?? null,
               source: "other",
+              mediaId: String(d.id),
               ownerName: o.name,
             });
           }
@@ -617,6 +622,7 @@ export function useLandscapeVideos(enabled: boolean) {
           thumbnail: d.thumbnail_url ?? null,
           source: "other",
           orientation: "landscape",
+          mediaId: String(d.id),
           ownerName: ownerNames.get(String(d.business_id)) ?? null,
         });
       }
@@ -630,6 +636,7 @@ export function useLandscapeVideos(enabled: boolean) {
           thumbnail: g.thumbnail_url ?? null,
           source: "generic_video",
           orientation: "landscape",
+          mediaId: String(g.id),
         });
       }
       const seen = new Set<string>();
@@ -809,7 +816,7 @@ export function VideoMediaPickerDialog({
     });
   }, [typeBase, wideVideos, sourceFilter, search]);
 
-  const PAGE_SIZE = 30;
+  const PAGE_SIZE = 32;
   const [page, setPage] = useState(0);
   useEffect(() => {
     setPage(0);
