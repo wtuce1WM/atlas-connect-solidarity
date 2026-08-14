@@ -474,32 +474,13 @@ const CounterScene: React.FC<{ wide: boolean; section: StoryboardSection }> = ({
           textAlign: "center",
         }}
       >
-        {kicker && (
-          <span
-            style={{
-              fontFamily: bodyFont,
-              fontSize: size.caption,
-              letterSpacing: 3,
-              textTransform: "uppercase",
-              color: palette.gold,
-            }}
-          >
-            {kicker}
-          </span>
-        )}
+        {kicker && <SceneKicker>{kicker}</SceneKicker>}
         {title && (
-          <span
-            style={{
-              fontFamily: displayFont,
-              fontSize: wide ? size.h3 : size.h4,
-              fontWeight: weight.semibold,
-              lineHeight: 1.12,
-              color: palette.cream,
-            }}
-          >
+          <SceneTitle wide={wide} level={3} style={{ fontWeight: weight.semibold, lineHeight: 1.12 }}>
             {title}
-          </span>
+          </SceneTitle>
         )}
+
         <div
           style={{
             display: "flex",
