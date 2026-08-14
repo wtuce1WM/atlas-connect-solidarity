@@ -169,6 +169,15 @@ async function renderOne() {
     // (URL /search). On réutilise exactement le même script de capture ; seul
     // le manifest est passé au template, qui n'en lit que les frames vidéo.
     const isPromo = String(job.template_id || "").startsWith("business-promo");
+    if (isPromo) {
+      // Un manifest transmis par le job (reste d'un rendu précédent) pointerait
+      // vers une capture qui n'appartient pas à cet établissement : on ne garde
+      // que celle capturée ci-dessous, et on purge le dossier de captures.
+      const { bgFeedManifest: _stale, ...rest } = props || {};
+      props = rest;
+      const feedDir = path.resolve(__dirname, "../public/feed");
+      if (fs.existsSync(feedDir)) fs.rmSync(feedDir, { recursive: true, force: true });
+    }
     if (isPromo && props?.bgFeedUrl) {
       const slug = `promo-${job.id.slice(0, 8)}`;
       const captureArgs = [
@@ -193,6 +202,7 @@ async function renderOne() {
       });
       props = { ...props, bgFeedManifest: `feed/${slug}/manifest.json` };
     }
+
 
 
     console.log("📦 Bundling Remotion...");
