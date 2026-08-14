@@ -115,63 +115,79 @@ const bgImagesOf = (cfg: Record<string, unknown> | null | undefined): string[] =
 
 const bgVideoOf = (cfg: Record<string, unknown> | null | undefined) => str(cfg, "bgVideoUrl");
 
+/** Extension vidéo reconnue : sert à choisir Img ou OffthreadVideo dans une liste mixte. */
+export const isVideoAsset = (url: string) => /\.(mp4|m4v|mov|webm|ogv)(\?|#|$)/i.test(url);
+
+/**
+ * Playlist de fond d'une scène : liste ordonnée mixte (images ET vidéos, 30 max).
+ * Compatibilité descendante : `bgImages` puis `bgVideoUrl` si `bgMedia` est absent.
+ */
+const bgMediaOf = (cfg: Record<string, unknown> | null | undefined): string[] => {
+  const mixed = Array.isArray(cfg?.bgMedia)
+    ? (cfg!.bgMedia as unknown[]).filter((v): v is string => typeof v === "string" && !!v.trim())
+    : [];
+  if (mixed.length) return mixed.slice(0, 30);
+  const images = bgImagesOf(cfg);
+  if (images.length) return images;
+  const video = bgVideoOf(cfg);
+  return video ? [video] : [];
+};
+
 const hasBgMedia = (section: StoryboardSection) => {
   const cfg = section.config ?? {};
   const mode = str(cfg, "bgMode");
-  if (mode === "video") return !!bgVideoOf(cfg);
-  if (mode === "images") return bgImagesOf(cfg).length > 0;
-  return false;
+  if (!mode || mode === "none") return false;
+  return bgMediaOf(cfg).length > 0;
 };
 
-/** Couche de fond média (images en fondu enchaîné ou vidéo), derrière la scène. */
-const SceneMediaBackdrop: React.FC<{ section: StoryboardSection }> = ({ section }) => {
+/** Un plan de la playlist : image en Ken Burns ou vidéo muette, en fondu. */
+const MediaShot: React.FC<{ src: string; frames: number }> = ({ src, frames }) => {
   const frame = useCurrentFrame();
-  const { durationInFrames, fps } = useVideoConfig();
-  const cfg = section.config ?? {};
-  const mode = str(cfg, "bgMode");
-
-  if (mode === "video") {
-    const src = assetUrl(bgVideoOf(cfg));
-    if (!src) return null;
-    return (
-      <AbsoluteFill>
-        <OffthreadVideo src={src} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        <AbsoluteFill style={{ background: alpha("night", 0.45) }} />
-      </AbsoluteFill>
-    );
-  }
-
-  const images = bgImagesOf(cfg).map((u) => assetUrl(u)).filter((u): u is string => !!u);
-  if (!images.length) return null;
-
-  const per = durationInFrames / images.length;
-  const index = Math.min(images.length - 1, Math.floor(frame / per));
-  const local = frame - index * per;
-  const fadeFrames = Math.min(Math.round(fps * 0.4), Math.max(1, Math.round(per / 3)));
+  const { fps } = useVideoConfig();
+  const fadeFrames = Math.min(Math.round(fps * 0.4), Math.max(1, Math.round(frames / 3)));
   const fade = Math.min(
-    interpolate(local, [0, fadeFrames], [0, 1], { extrapolateRight: "clamp" }),
-    interpolate(local, [per - fadeFrames, per], [1, 0], { extrapolateLeft: "clamp" }),
+    interpolate(frame, [0, fadeFrames], [0, 1], { extrapolateRight: "clamp" }),
+    interpolate(frame, [frames - fadeFrames, frames], [1, 0], { extrapolateLeft: "clamp" }),
   );
-  const scale = interpolate(Math.min(1, local / per), [0, 1], [1.02, 1.1]);
+  const resolved = assetUrl(src);
+  if (!resolved) return null;
+  const cover: React.CSSProperties = {
+    position: "absolute",
+    inset: 0,
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    opacity: fade,
+  };
+  if (isVideoAsset(src)) return <OffthreadVideo src={resolved} muted style={cover} />;
+  const scale = interpolate(frame, [0, frames], [1.02, 1.1], { extrapolateRight: "clamp" });
+  return <Img src={resolved} style={{ ...cover, transform: `scale(${scale})` }} />;
+};
+
+/** Couche de fond média (playlist mixte images/vidéos), derrière la scène. */
+const SceneMediaBackdrop: React.FC<{ section: StoryboardSection }> = ({ section }) => {
+  const { durationInFrames } = useVideoConfig();
+  const media = bgMediaOf(section.config ?? {});
+  if (!media.length) return null;
+
+  const per = Math.max(1, Math.floor(durationInFrames / media.length));
 
   return (
     <AbsoluteFill>
-      <Img
-        src={images[index]}
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          opacity: fade,
-          transform: `scale(${scale})`,
-        }}
-      />
+      {media.map((src, i) => {
+        const from = i * per;
+        const frames = i === media.length - 1 ? Math.max(1, durationInFrames - from) : per;
+        return (
+          <Sequence key={`${src}-${i}`} from={from} durationInFrames={frames} layout="none">
+            <MediaShot src={src} frames={frames} />
+          </Sequence>
+        );
+      })}
       <AbsoluteFill style={{ background: alpha("night", 0.45) }} />
     </AbsoluteFill>
   );
 };
+
 
 /* ------------------------------------------------------------------ scènes */
 
@@ -193,12 +209,87 @@ const SceneBackdrop: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   );
 };
 
+/* --------------------------------------------------- typographie GLOBALE
+ * SOURCE UNIQUE des textes de toutes les scènes : sur-titre (kicker),
+ * titre et corps. Modifier ici = modifier partout (accroche, vidéo, photos,
+ * compteur, carte, écran partagé, texte, outro). Aucune scène ne redéfinit
+ * sa police, sa taille ni son ombre.
+ */
+
+const useOnMediaShadow = () => {
+  const overMedia = React.useContext(BgMediaContext);
+  return overMedia ? `0 4px 24px ${alpha("night", 0.85)}` : undefined;
+};
+
+export const SceneKicker: React.FC<{ children: React.ReactNode; style?: React.CSSProperties }> = ({ children, style }) => (
+  <span
+    style={{
+      fontFamily: bodyFont,
+      fontSize: size.caption,
+      letterSpacing: 3,
+      textTransform: "uppercase",
+      color: palette.gold,
+      textShadow: useOnMediaShadow(),
+      ...style,
+    }}
+  >
+    {children}
+  </span>
+);
+
+export const SceneTitle: React.FC<{
+  children: React.ReactNode;
+  wide: boolean;
+  /** 1 = titre principal, 2 = titre de scène, 3 = titre secondaire */
+  level?: 1 | 2 | 3;
+  style?: React.CSSProperties;
+}> = ({ children, wide, level = 2, style }) => {
+  const scale =
+    level === 1 ? (wide ? size.h1 : size.h2) : level === 2 ? (wide ? size.h2 : size.h3) : wide ? size.h3 : size.h4;
+  return (
+    <span
+      style={{
+        fontFamily: displayFont,
+        fontSize: scale,
+        fontWeight: weight.bold,
+        lineHeight: 1.1,
+        color: palette.cream,
+        textShadow: useOnMediaShadow(),
+        ...style,
+      }}
+    >
+      {children}
+    </span>
+  );
+};
+
+export const SceneBody: React.FC<{
+  children: React.ReactNode;
+  small?: boolean;
+  style?: React.CSSProperties;
+}> = ({ children, small, style }) => (
+  <span
+    style={{
+      fontFamily: bodyFont,
+      fontSize: small ? size.caption : size.lead,
+      lineHeight: 1.42,
+      color: alpha("cream", 0.85),
+      textShadow: useOnMediaShadow(),
+      ...style,
+    }}
+  >
+    {children}
+  </span>
+);
+
+
+
 
 /**
- * `logo_merge` — premier type finalisé.
- * Les deux logos entrent depuis les bords opposés, convergent vers le centre,
- * puis un trait d'or se dessine entre eux : la signature du partenariat.
- * Aucune boîte, aucun cadre : on n'anime que les silhouettes détourées.
+ * `logo_merge` — signature de partenariat.
+ * Paysage : les deux logos convergent horizontalement, trait d'or entre eux.
+ * Portrait : ils convergent verticalement (empilés) — c'est la seule façon de
+ * ne jamais rogner deux logos larges sur les bords d'un cadre 1080 de large.
  */
 const LogoMergeScene: React.FC<{
   wide: boolean;
@@ -213,8 +304,11 @@ const LogoMergeScene: React.FC<{
   const caption = str(cfg, "caption");
 
   const stage = wide ? STAGE_LANDSCAPE : STAGE_PORTRAIT;
-  const logoSize = stage.width * (wide ? 0.22 : 0.36);
-  const spread = stage.width * (wide ? 0.19 : 0.24);
+  // Zone utile : 86 % de la largeur du cadre, halo du logo inclus (PromoLogo
+  // déborde de ~45 % de sa taille). Le logo ne peut donc jamais être rogné.
+  const safeWidth = stage.width * 0.86;
+  const logoSize = wide ? Math.min(stage.width * 0.22, safeWidth * 0.4) : safeWidth * 0.55;
+  const spread = wide ? stage.width * 0.19 : stage.height * 0.14;
 
   // Convergence : ressort d'entrée puis rapprochement vers le centre.
   const enter = spring({ frame, fps, config: { damping: 22, stiffness: 80, mass: 1.1 } });
@@ -223,10 +317,11 @@ const LogoMergeScene: React.FC<{
     fps,
     config: { damping: 26, stiffness: 60, mass: 1.2 },
   });
-  const offset = interpolate(enter, [0, 1], [spread * 2.1, spread]) - interpolate(merge, [0, 1], [0, spread * 0.34]);
+  const offset = interpolate(enter, [0, 1], [spread * 1.8, spread]) - interpolate(merge, [0, 1], [0, spread * 0.34]);
 
   // Trait d'or : se dessine quand la convergence est engagée.
-  const ruleWidth = interpolate(merge, [0, 1], [0, stage.width * (wide ? 0.1 : 0.16)]);
+  const ruleLength = interpolate(merge, [0, 1], [0, wide ? stage.width * 0.1 : safeWidth * 0.34]);
+  const ruleThickness = Math.max(3, stage.width * 0.0028);
   const captionIn = interpolate(frame, [Math.round(fps * 1.6), Math.round(fps * 2.2)], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -235,53 +330,70 @@ const LogoMergeScene: React.FC<{
     extrapolateLeft: "clamp",
   });
 
+  const shift = (dir: -1 | 1) =>
+    wide ? `translateX(${dir * offset}px)` : `translateY(${dir * offset}px)`;
+
   return (
     <SceneBackdrop>
-      <div style={{ opacity: out, display: "flex", flexDirection: "column", alignItems: "center", gap: stage.width * 0.05 }}>
-        <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ transform: `translateX(${-offset}px)` }}>
+      <div
+        style={{
+          opacity: out,
+          width: safeWidth,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: stage.width * 0.05,
+        }}
+      >
+        <div
+          style={{
+            position: "relative",
+            display: "flex",
+            flexDirection: wide ? "row" : "column",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div style={{ transform: shift(-1), display: "flex", justifyContent: "center", width: logoSize }}>
             {brandLogoUrl ? (
               <PromoLogo src={brandLogoUrl} size={logoSize} />
             ) : (
-              <span style={{ fontFamily: displayFont, fontSize: size.h2, fontWeight: weight.bold, color: palette.cream }}>
-                1WM
-              </span>
+              <SceneTitle wide={wide}>1WM</SceneTitle>
             )}
           </div>
           <div
             style={{
-              width: ruleWidth,
-              height: Math.max(3, stage.width * 0.0028),
+              width: wide ? ruleLength : ruleThickness,
+              height: wide ? ruleThickness : ruleLength,
               background: palette.gold,
               borderRadius: 999,
               boxShadow: `0 0 ${Math.round(stage.width * 0.02)}px ${alpha("gold", 0.55)}`,
             }}
           />
-          <div style={{ transform: `translateX(${offset}px)` }}>
+          <div style={{ transform: shift(1), display: "flex", justifyContent: "center", width: logoSize }}>
             {partner ? (
               <PromoLogo src={partner} size={logoSize} delay={4} />
             ) : (
-              <span style={{ fontFamily: displayFont, fontSize: size.h2, fontWeight: weight.medium, color: alpha("cream", 0.5) }}>
+              <SceneTitle wide={wide} style={{ color: alpha("cream", 0.5), fontWeight: weight.medium }}>
                 ?
-              </span>
+              </SceneTitle>
             )}
           </div>
         </div>
         {caption && (
-          <span
+          <SceneKicker
             style={{
               opacity: captionIn,
               transform: `translateY(${interpolate(captionIn, [0, 1], [10, 0])}px)`,
-              fontFamily: bodyFont,
               fontSize: size.lead,
               letterSpacing: 2,
-              textTransform: "uppercase",
-              color: palette.gold,
+              textAlign: "center",
             }}
           >
             {caption}
-          </span>
+          </SceneKicker>
         )}
+
       </div>
     </SceneBackdrop>
   );
@@ -362,32 +474,13 @@ const CounterScene: React.FC<{ wide: boolean; section: StoryboardSection }> = ({
           textAlign: "center",
         }}
       >
-        {kicker && (
-          <span
-            style={{
-              fontFamily: bodyFont,
-              fontSize: size.caption,
-              letterSpacing: 3,
-              textTransform: "uppercase",
-              color: palette.gold,
-            }}
-          >
-            {kicker}
-          </span>
-        )}
+        {kicker && <SceneKicker>{kicker}</SceneKicker>}
         {title && (
-          <span
-            style={{
-              fontFamily: displayFont,
-              fontSize: wide ? size.h3 : size.h4,
-              fontWeight: weight.semibold,
-              lineHeight: 1.12,
-              color: palette.cream,
-            }}
-          >
+          <SceneTitle wide={wide} level={3} style={{ fontWeight: weight.semibold, lineHeight: 1.12 }}>
             {title}
-          </span>
+          </SceneTitle>
         )}
+
         <div
           style={{
             display: "flex",
@@ -420,43 +513,29 @@ const CounterScene: React.FC<{ wide: boolean; section: StoryboardSection }> = ({
                 key={i}
                 style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: stage.width * 0.008 }}
               >
-                <span
-                  style={{
-                    fontFamily: displayFont,
-                    fontSize: valueSize,
-                    fontWeight: weight.bold,
-                    lineHeight: 1,
-                    color: palette.cream,
-                    fontVariantNumeric: "tabular-nums",
-                  }}
+                <SceneTitle
+                  wide={wide}
+                  style={{ fontSize: valueSize, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}
                 >
                   {prefix}
                   {shown}
                   {suffix}
-                </span>
+                </SceneTitle>
                 {label && (
-                  <span
-                    style={{
-                      fontFamily: bodyFont,
-                      fontSize: size.caption,
-                      lineHeight: 1.3,
-                      color: alpha("cream", 0.78),
-                      maxWidth: stage.width * (cols >= 3 ? 0.2 : 0.3),
-                    }}
+                  <SceneBody
+                    small
+                    style={{ lineHeight: 1.3, maxWidth: stage.width * (cols >= 3 ? 0.2 : 0.3) }}
                   >
                     {label}
-                  </span>
+                  </SceneBody>
                 )}
               </div>
             );
           })}
         </div>
         <GoldRule width={interpolate(enter, [0, 1], [0, stage.width * 0.08])} stageWidth={stage.width} />
-        {bodyText && (
-          <span style={{ fontFamily: bodyFont, fontSize: size.lead, lineHeight: 1.42, color: alpha("cream", 0.82) }}>
-            {bodyText}
-          </span>
-        )}
+        {bodyText && <SceneBody>{bodyText}</SceneBody>}
+
       </div>
     </SceneBackdrop>
   );
@@ -541,9 +620,9 @@ const MapRevealScene: React.FC<{ wide: boolean; section: StoryboardSection }> = 
                 }}
               />
               {label && (
-                <span
+                <SceneBody
+                  small
                   style={{
-                    fontFamily: bodyFont,
                     fontSize: size.label,
                     color: palette.cream,
                     whiteSpace: "nowrap",
@@ -551,7 +630,7 @@ const MapRevealScene: React.FC<{ wide: boolean; section: StoryboardSection }> = 
                   }}
                 >
                   {label}
-                </span>
+                </SceneBody>
               )}
             </div>
           );
@@ -570,33 +649,13 @@ const MapRevealScene: React.FC<{ wide: boolean; section: StoryboardSection }> = 
               opacity: enter,
             }}
           >
-            {kicker && (
-              <span
-                style={{
-                  fontFamily: bodyFont,
-                  fontSize: size.caption,
-                  letterSpacing: 3,
-                  textTransform: "uppercase",
-                  color: palette.gold,
-                }}
-              >
-                {kicker}
-              </span>
-            )}
+            {kicker && <SceneKicker>{kicker}</SceneKicker>}
             {title && (
-              <span
-                style={{
-                  fontFamily: displayFont,
-                  fontSize: wide ? size.h2 : size.h3,
-                  fontWeight: weight.bold,
-                  lineHeight: 1.08,
-                  color: palette.cream,
-                  textShadow: `0 4px 24px ${alpha("night", 0.85)}`,
-                }}
-              >
+              <SceneTitle wide={wide} style={{ textShadow: `0 4px 24px ${alpha("night", 0.85)}` }}>
                 {title}
-              </span>
+              </SceneTitle>
             )}
+
             <GoldRule width={interpolate(enter, [0, 1], [0, stage.width * 0.07])} stageWidth={stage.width} />
           </div>
         )}
@@ -669,32 +728,17 @@ const SplitScreenScene: React.FC<{ wide: boolean; section: StoryboardSection }> 
                 }}
               >
                 {title && (
-                  <span
-                    style={{
-                      fontFamily: displayFont,
-                      fontSize: wide ? size.h3 : size.h4,
-                      fontWeight: weight.bold,
-                      lineHeight: 1.1,
-                      color: palette.cream,
-                    }}
-                  >
+                  <SceneTitle wide={wide} level={3}>
                     {title}
-                  </span>
+                  </SceneTitle>
                 )}
                 <GoldRule width={interpolate(enter, [0, 1], [0, stage.width * 0.05])} stageWidth={stage.width} />
                 {bodyText && (
-                  <span
-                    style={{
-                      fontFamily: bodyFont,
-                      fontSize: size.caption,
-                      lineHeight: 1.4,
-                      color: alpha("cream", 0.85),
-                      maxWidth: stage.width * (row ? 0.4 : 0.8),
-                    }}
-                  >
+                  <SceneBody small style={{ lineHeight: 1.4, maxWidth: stage.width * (row ? 0.4 : 0.8) }}>
                     {bodyText}
-                  </span>
+                  </SceneBody>
                 )}
+
               </div>
             </div>
           );
@@ -748,60 +792,61 @@ const HookScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storyboa
       >
         {logo && <PromoLogo src={logo} size={stage.width * (wide ? 0.16 : 0.28)} />}
         {title && (
-          <span
-            style={{
-              fontFamily: displayFont,
-              fontSize: wide ? size.h1 : size.h2,
-              fontWeight: weight.bold,
-              lineHeight: 1.08,
-              color: palette.cream,
-            }}
-          >
+          <SceneTitle wide={wide} level={1}>
             {title}
-          </span>
+          </SceneTitle>
         )}
         <GoldRule width={interpolate(enter, [0, 1], [0, stage.width * 0.09])} stageWidth={stage.width} />
         {subtitle && (
-          <span
-            style={{
-              fontFamily: bodyFont,
-              fontSize: size.lead,
-              letterSpacing: 3,
-              textTransform: "uppercase",
-              color: alpha("cream", 0.82),
-            }}
-          >
+          <SceneBody style={{ letterSpacing: 3, textTransform: "uppercase", color: alpha("cream", 0.82) }}>
             {subtitle}
-          </span>
+          </SceneBody>
         )}
+
       </div>
     </SceneBackdrop>
   );
 };
 
 /**
- * `video` — vidéo plein cadre (asset 1WM ou vidéo interne de la fiche).
- * config : { assetUrl, sound, title }
+ * `video` — une ou plusieurs vidéos plein cadre, montées à la suite dans la
+ * durée de la section (parts égales).
+ * config : { assetUrls: string[] } — repli : { assetUrl | videoUrl } puis la
+ * vidéo de la fiche. `sound` conserve la piste audio.
  */
 const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: StoryboardSection }> = ({ wide, p, section }) => {
   const { enter, out } = useSceneFade();
+  const { durationInFrames } = useVideoConfig();
   const cfg = section.config ?? {};
   const stage = wide ? STAGE_LANDSCAPE : STAGE_PORTRAIT;
-  const src = assetUrl(str(cfg, "assetUrl") ?? str(cfg, "videoUrl") ?? p.videoUrl);
+  const many = Array.isArray(cfg.assetUrls)
+    ? (cfg.assetUrls as unknown[]).filter((v): v is string => typeof v === "string" && !!v.trim())
+    : [];
+  const single = str(cfg, "assetUrl") ?? str(cfg, "videoUrl") ?? p.videoUrl ?? null;
+  const clips = (many.length ? many : single ? [single] : []).slice(0, 30);
   const title = str(cfg, "title");
   const muted = !cfg.sound;
+  const per = clips.length ? Math.max(1, Math.floor(durationInFrames / clips.length)) : durationInFrames;
 
   return (
     <SceneBackdrop>
       <AbsoluteFill style={{ opacity: out }}>
-        {src ? (
-          <OffthreadVideo
-            src={src}
-            muted={muted}
-            volume={muted ? 0 : 1}
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-          />
-        ) : null}
+        {clips.map((raw, i) => {
+          const src = assetUrl(raw);
+          if (!src) return null;
+          const from = i * per;
+          const frames = i === clips.length - 1 ? Math.max(1, durationInFrames - from) : per;
+          return (
+            <Sequence key={`${raw}-${i}`} from={from} durationInFrames={frames} layout="none">
+              <OffthreadVideo
+                src={src}
+                muted={muted}
+                volume={muted ? 0 : 1}
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            </Sequence>
+          );
+        })}
         <AbsoluteFill
           style={{
             background: `linear-gradient(to top, ${alpha("night", 0.78)} 4%, ${alpha("night", 0)} 45%)`,
@@ -821,18 +866,9 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
               transform: `translateY(${interpolate(enter, [0, 1], [22, 0])}px)`,
             }}
           >
-            <span
-              style={{
-                fontFamily: displayFont,
-                fontSize: wide ? size.h3 : size.h4,
-                fontWeight: weight.bold,
-                lineHeight: 1.1,
-                color: palette.cream,
-                textShadow: `0 4px 24px ${alpha("night", 0.85)}`,
-              }}
-            >
+            <SceneTitle wide={wide} level={3} style={{ textShadow: `0 4px 24px ${alpha("night", 0.85)}` }}>
               {title}
-            </span>
+            </SceneTitle>
             <GoldRule width={interpolate(enter, [0, 1], [0, stage.width * 0.06])} stageWidth={stage.width} />
           </div>
         )}
@@ -841,78 +877,63 @@ const VideoScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
   );
 };
 
+
 /**
- * `photos` — jusqu'à 30 photos plein cadre en Ken Burns, la durée de la section
- * étant partagée à parts égales. Les URLs explicites (`images`) priment sur les
- * photos de la fiche.
+ * `photos` — jusqu'à 30 médias plein cadre (images en Ken Burns ET vidéos),
+ * la durée de la section étant partagée à parts égales. Les URLs explicites
+ * (`media`, sinon `images`) priment sur les photos de la fiche.
  */
 const PhotosScene: React.FC<{ wide: boolean; p: StoryboardProps; section: StoryboardSection }> = ({ wide, p, section }) => {
-  const frame = useCurrentFrame();
-  const { durationInFrames, fps } = useVideoConfig();
+  const { durationInFrames } = useVideoConfig();
   const cfg = section.config ?? {};
   const stage = wide ? STAGE_LANDSCAPE : STAGE_PORTRAIT;
-  const explicit = Array.isArray(cfg.images)
-    ? (cfg.images as unknown[]).filter((v): v is string => typeof v === "string" && !!v.trim())
-    : [];
+  const pick = (key: string) =>
+    Array.isArray(cfg[key])
+      ? (cfg[key] as unknown[]).filter((v): v is string => typeof v === "string" && !!v.trim())
+      : [];
+  const explicit = pick("media").length ? pick("media") : pick("images");
   const count = Math.min(30, Math.max(1, num(cfg, "count") ?? 30));
   const pool = (explicit.length ? explicit : (p.photos ?? []).filter(Boolean)).slice(0, count);
-  const move = str(cfg, "kenBurns") ?? "zoom_in";
   const title = str(cfg, "title");
 
-  const shots = pool.length ? pool : [null];
-  const per = durationInFrames / shots.length;
-  const index = Math.min(shots.length - 1, Math.floor(frame / per));
-  const local = frame - index * per;
-  const progress = Math.min(1, Math.max(0, local / per));
-  const fade = Math.min(
-    interpolate(local, [0, Math.round(fps * 0.35)], [0, 1], { extrapolateRight: "clamp" }),
-    interpolate(local, [per - Math.round(fps * 0.35), per], [1, 0], { extrapolateLeft: "clamp" }),
-  );
-  const scale =
-    move === "none" ? 1.02 : move === "zoom_out" ? interpolate(progress, [0, 1], [1.14, 1.02]) : interpolate(progress, [0, 1], [1.02, 1.14]);
-  const src = assetUrl(shots[index]);
+  const shots = pool.length ? pool : [];
+  const per = shots.length ? Math.max(1, Math.floor(durationInFrames / shots.length)) : durationInFrames;
 
   return (
     <SceneBackdrop>
       <AbsoluteFill>
-        {src ? (
-          <Img
-            src={src}
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              opacity: fade,
-              transform: `scale(${scale})`,
-            }}
-          />
-        ) : null}
+        {shots.map((src, i) => {
+          const from = i * per;
+          const frames = i === shots.length - 1 ? Math.max(1, durationInFrames - from) : per;
+          return (
+            <Sequence key={`${src}-${i}`} from={from} durationInFrames={frames} layout="none">
+              <MediaShot src={src} frames={frames} />
+            </Sequence>
+          );
+        })}
         <AbsoluteFill
           style={{ background: `linear-gradient(to top, ${alpha("night", 0.7)} 6%, ${alpha("night", 0)} 48%)` }}
         />
         {title && (
-          <span
+          <SceneTitle
+            wide={wide}
+            level={3}
             style={{
               position: "absolute",
               left: stage.width * 0.07,
               bottom: stage.height * 0.09,
               maxWidth: stage.width * 0.75,
-              fontFamily: displayFont,
-              fontSize: wide ? size.h3 : size.h4,
-              fontWeight: weight.bold,
-              color: palette.cream,
               textShadow: `0 4px 24px ${alpha("night", 0.85)}`,
             }}
           >
             {title}
-          </span>
+          </SceneTitle>
         )}
       </AbsoluteFill>
     </SceneBackdrop>
   );
 };
+
 
 /**
  * `text_overlay` — texte riche (H1/H2/p/strong/em, emojis) sur fond nuit.
@@ -972,30 +993,12 @@ const OutroScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Storybo
         {logo && <PromoLogo src={logo} size={stage.width * (wide ? 0.18 : 0.32)} />}
         <GoldRule width={interpolate(enter, [0, 1], [0, stage.width * 0.1])} stageWidth={stage.width} />
         {tagline && (
-          <span
-            style={{
-              fontFamily: displayFont,
-              fontSize: wide ? size.h3 : size.h4,
-              fontWeight: weight.semibold,
-              color: palette.cream,
-            }}
-          >
+          <SceneTitle wide={wide} level={3} style={{ fontWeight: weight.semibold }}>
             {tagline}
-          </span>
+          </SceneTitle>
         )}
-        {city && (
-          <span
-            style={{
-              fontFamily: bodyFont,
-              fontSize: size.caption,
-              letterSpacing: 4,
-              textTransform: "uppercase",
-              color: palette.gold,
-            }}
-          >
-            {city}
-          </span>
-        )}
+        {city && <SceneKicker style={{ letterSpacing: 4 }}>{city}</SceneKicker>}
+
       </div>
     </SceneBackdrop>
   );

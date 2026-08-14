@@ -172,78 +172,65 @@ const ConfigFields = ({
 
 
   /**
-   * Fond média partagé : images OU vidéo (jamais les deux), jusqu'à 30 images.
-   * Disponible sur accroche, texte, compteur, outro, carte et écran partagé.
+   * Fond média partagé : playlist mixte (images ET vidéos, 30 max) jouée à la
+   * suite dans la durée de la scène. Disponible sur accroche, texte, compteur,
+   * outro, carte et écran partagé.
    */
   const bgMediaBlock = () => {
-    const mode = (cfg.bgMode as string) ?? "none";
-    const images: string[] = Array.isArray(cfg.bgImages) ? (cfg.bgImages as string[]) : [];
-    const setMode = (m: "none" | "images" | "video") =>
-      patch({
-        config: {
-          ...cfg,
-          bgMode: m,
-          // Exclusivité stricte : changer de mode purge l'autre source.
-          bgImages: m === "images" ? images : [],
-          bgVideoUrl: m === "video" ? cfg.bgVideoUrl ?? "" : "",
-        },
-      });
+    const legacy: string[] = Array.isArray(cfg.bgImages)
+      ? (cfg.bgImages as string[])
+      : cfg.bgVideoUrl
+        ? [String(cfg.bgVideoUrl)]
+        : [];
+    const media: string[] = Array.isArray(cfg.bgMedia) ? (cfg.bgMedia as string[]) : legacy;
+    const active = ((cfg.bgMode as string) ?? "none") !== "none" && media.length > 0;
     return (
       <div className="grid gap-2 rounded-md border p-2 md:col-span-2">
         <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-          Fond média de la scène (images OU vidéo)
+          Fond média de la scène (images et/ou vidéos, 30 max)
         </span>
-        <div className="flex gap-1">
-          {([
-            ["none", "Aucun"],
-            ["images", "Images"],
-            ["video", "Vidéo"],
-          ] as const).map(([v, l]) => (
+        <div className="flex flex-wrap items-center gap-2">
+          <VideoMediaPickerDialog
+            businessId={businessId}
+            format={format}
+            allow="all"
+            multiple
+            max={30}
+            label={media.length ? `Modifier le fond (${media.length})` : "Choisir des médias"}
+            value={media}
+            onChange={(urls) =>
+              patch({
+                config: {
+                  ...cfg,
+                  bgMode: urls.length ? "medias" : "none",
+                  bgMedia: urls.slice(0, 30),
+                  bgImages: [],
+                  bgVideoUrl: "",
+                },
+              })
+            }
+          />
+          {active && (
             <Button
-              key={v}
               type="button"
               size="sm"
-              variant={mode === v ? "default" : "outline"}
+              variant="outline"
               className="h-7 text-xs"
-              onClick={() => setMode(v)}
+              onClick={() =>
+                patch({ config: { ...cfg, bgMode: "none", bgMedia: [], bgImages: [], bgVideoUrl: "" } })
+              }
             >
-              {l}
+              Retirer le fond
             </Button>
-          ))}
+          )}
         </div>
-        {mode === "images" && (
-          <div className="grid gap-1">
-            <VideoMediaPickerDialog
-              businessId={businessId}
-              format={format}
-              allow="image"
-              multiple
-              max={30}
-              label={images.length ? `Modifier les images (${images.length})` : "Choisir des images (30 max)"}
-              value={images}
-              onChange={(urls) => patch({ config: { ...cfg, bgMode: "images", bgVideoUrl: "", bgImages: urls.slice(0, 30) } })}
-            />
-            <span className="text-[11px] text-muted-foreground">
-              Défilement en fondu enchaîné, durée partagée à parts égales.
-            </span>
-          </div>
-        )}
-        {mode === "video" && (
-          <div className="grid gap-1">
-            <VideoMediaPickerDialog
-              businessId={businessId}
-              format={format}
-              allow="video"
-              label={cfg.bgVideoUrl ? "Changer la vidéo" : "Choisir une vidéo"}
-              value={cfg.bgVideoUrl ? [String(cfg.bgVideoUrl)] : []}
-              onChange={(urls) => patch({ config: { ...cfg, bgMode: "video", bgImages: [], bgVideoUrl: urls[0] ?? "" } })}
-            />
-            <span className="text-[11px] text-muted-foreground">Vidéo muette, plein cadre, sous voile lisible.</span>
-          </div>
-        )}
+        <span className="text-[11px] text-muted-foreground">
+          Lecture à la suite en fondu enchaîné, durée partagée à parts égales. Vidéos muettes, sous voile lisible.
+        </span>
       </div>
     );
   };
+
 
   switch (section.step_type) {
     case "hook":
@@ -254,15 +241,35 @@ const ConfigFields = ({
           {bgMediaBlock()}
         </div>
       );
-    case "video":
+    case "video": {
+      const clips: string[] = Array.isArray(cfg.assetUrls)
+        ? (cfg.assetUrls as string[])
+        : cfg.assetUrl
+          ? [String(cfg.assetUrl)]
+          : [];
       return (
         <div className="grid gap-3 md:grid-cols-2">
-          {mediaOne(
-            "assetUrl",
-            "Vidéo de la section",
-            "video",
-            "Vide = première vidéo interne de la fiche.",
-          )}
+          <div className="grid gap-1 md:col-span-2">
+            <span className="text-xs text-muted-foreground">
+              Vidéos de la section (1 à 30, montées à la suite, ordre conservé)
+            </span>
+            <VideoMediaPickerDialog
+              businessId={businessId}
+              format={format}
+              allow="video"
+              multiple
+              max={30}
+              label={clips.length ? `Modifier les vidéos (${clips.length})` : "Choisir les vidéos"}
+              value={clips}
+              onChange={(urls) =>
+                patch({ config: { ...cfg, assetUrls: urls.slice(0, 30), assetUrl: "" } })
+              }
+            />
+            <span className="text-[11px] text-muted-foreground">
+              Vide = première vidéo interne de la fiche. La durée de la section est partagée à parts égales.
+            </span>
+          </div>
+          {text("title", "Titre affiché (optionnel)")}
           <label className="text-xs text-muted-foreground grid gap-1">
             Son de la vidéo
             <span className="flex items-center gap-2 h-8">
@@ -272,11 +279,17 @@ const ConfigFields = ({
           </label>
         </div>
       );
-    case "photos":
+    }
+    case "photos": {
+      const media: string[] = Array.isArray(cfg.media)
+        ? (cfg.media as string[])
+        : Array.isArray(cfg.images)
+          ? (cfg.images as string[])
+          : [];
       return (
         <div className="grid gap-3 md:grid-cols-2">
           <label className="text-xs text-muted-foreground grid gap-1">
-            Nombre de photos (1 à 30)
+            Nombre de médias (1 à 30)
             <Input
               type="number"
               min={1}
@@ -286,28 +299,30 @@ const ConfigFields = ({
               className="h-8 text-xs"
             />
           </label>
-          {text("kenBurns", "Mouvement (zoom_in, zoom_out, none)", "zoom_in")}
+          {text("kenBurns", "Mouvement des images (zoom_in, zoom_out, none)", "zoom_in")}
           {text("title", "Titre affiché (optionnel)")}
           <div className="grid gap-1 md:col-span-2">
             <span className="text-xs text-muted-foreground">
-              Photos du carrousel (1 à 30, ordre de sélection conservé)
+              Médias du carrousel — images ET vidéos (1 à 30, ordre de sélection conservé)
             </span>
             <VideoMediaPickerDialog
               businessId={businessId}
               format={format}
-              allow="image"
+              allow="all"
               multiple
               max={30}
-              label="Choisir les photos"
-              value={Array.isArray(cfg.images) ? (cfg.images as string[]) : []}
-              onChange={(urls) => set("images", urls.slice(0, 30))}
+              label={media.length ? `Modifier les médias (${media.length})` : "Choisir les médias"}
+              value={media}
+              onChange={(urls) => patch({ config: { ...cfg, media: urls.slice(0, 30), images: [] } })}
             />
             <span className="text-[11px] text-muted-foreground">
-              Vide = photos publiques de la fiche.
+              Vide = photos publiques de la fiche. Les vidéos jouent muettes, les images en Ken Burns.
             </span>
           </div>
         </div>
       );
+    }
+
 
     case "text_overlay":
       return (
@@ -722,7 +737,7 @@ const StoryboardGuide = () => {
       type: "photos",
       icon: <Image className="h-4 w-4" />,
       title: "Photos plein écran",
-      body: "Carrousel de 1 à 30 images avec mouvement Ken Burns (zoom_in, zoom_out, none). Les images choisies dans le sélecteur sont prioritaires ; sinon le moteur utilise les images de la fiche.",
+      body: "Carrousel de 1 à 30 médias mixtes (images ET vidéos), montés à la suite. Ken Burns (zoom_in, zoom_out, none) sur les images, vidéos muettes. Les médias choisis dans le sélecteur sont prioritaires ; sinon le moteur utilise les images de la fiche.",
     },
     {
       type: "text_overlay",
@@ -783,10 +798,15 @@ const StoryboardGuide = () => {
               <li>Durée d'une section : {MIN_SECTION_SEC} à {MAX_SECTION_SEC} s.</li>
               <li>Nombre max de sections : {MAX_SECTIONS}.</li>
               <li>
-                Fond média (Accroche, Texte surimpression, Compteur, Outro, Carte, Écran partagé) : images
-                <strong> OU </strong> vidéo, jamais les deux. Jusqu'à 30 images en fondu enchaîné, durée partagée à
-                parts égales ; vidéo muette plein cadre. Un voile sombre garantit la lisibilité du texte.
+                Fond média (Accroche, Texte surimpression, Compteur, Outro, Carte, Écran partagé) : playlist mixte
+                d'images <strong>et</strong> de vidéos, jusqu'à 30 médias joués à la suite en fondu enchaîné, durée
+                partagée à parts égales. Vidéos muettes, plein cadre. Un voile sombre garantit la lisibilité du texte.
               </li>
+              <li>
+                Titres, sur-titres et corps de texte suivent une typographie unique commune à toutes les scènes
+                (Montserrat pour les titres, Avenir pour le corps) : une seule modification s'applique partout.
+              </li>
+
               <li>La barre de progression passe en rouge si le total dépasse le plafond.</li>
             </ul>
           </div>
