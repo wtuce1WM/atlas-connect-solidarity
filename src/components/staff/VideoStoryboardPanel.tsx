@@ -155,6 +155,25 @@ const ConfigFields = ({
             />
           </label>
           {text("kenBurns", "Mouvement (zoom_in, zoom_out, none)", "zoom_in")}
+          {text("title", "Titre affiché (optionnel)")}
+          <label className="text-xs text-muted-foreground grid gap-1 md:col-span-2">
+            URLs des photos (une par ligne, prioritaires sur les photos de la fiche)
+            <Textarea
+              value={Array.isArray(cfg.images) ? (cfg.images as string[]).join("\n") : ""}
+              onChange={(e) =>
+                set(
+                  "images",
+                  e.target.value
+                    .split("\n")
+                    .map((v) => v.trim())
+                    .filter(Boolean)
+                    .slice(0, 4),
+                )
+              }
+              rows={3}
+              className="text-xs"
+            />
+          </label>
         </div>
       );
     case "text_overlay":
@@ -810,14 +829,31 @@ const VideoStoryboardPanel = () => {
       return;
     }
     setRendering(true);
+    // Contexte fiche : logo, photos et vidéo interne servent de repli aux
+    // scènes hook / photos / video / outro (les URLs saisies restent prioritaires).
     let logoUrl: string | null = null;
+    let photos: string[] = [];
+    let videoUrl: string | null = null;
+    let hookFr: string | null = null;
+    let city: string | null = null;
     if (biz?.id) {
       const { data } = await supabase
         .from("businesses")
-        .select("logo_url")
+        .select("logo_url, images, hook_fr, city")
         .eq("id", biz.id)
         .maybeSingle();
-      logoUrl = ((data as { logo_url?: string | null } | null)?.logo_url) ?? null;
+      const row = (data ?? null) as { logo_url?: string | null; images?: string[] | null; hook_fr?: string | null; city?: string | null } | null;
+      logoUrl = row?.logo_url ?? null;
+      photos = (row?.images ?? []).filter((u): u is string => typeof u === "string" && !!u.trim()).slice(0, 8);
+      hookFr = row?.hook_fr ?? null;
+      city = row?.city ?? null;
+      const { data: docs } = await supabase
+        .from("business_documents")
+        .select("url, sort_order, type")
+        .eq("business_id", biz.id)
+        .eq("type", "video")
+        .order("sort_order", { ascending: true });
+      videoUrl = ((docs ?? []) as { url?: string | null }[]).find((d) => !!d.url)?.url ?? null;
     }
     const { data: auth } = await supabase.auth.getUser();
     const payload = {
@@ -834,6 +870,11 @@ const VideoStoryboardPanel = () => {
         format: board.format,
         previewScale: board.preview_scale,
         logoUrl,
+        businessName: biz?.name ?? null,
+        city,
+        hook: hookFr,
+        photos,
+        videoUrl,
         sections: sections
           .filter((s) => s.enabled)
           .map((s) => ({
