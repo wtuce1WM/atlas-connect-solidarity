@@ -16,6 +16,17 @@ import {
   Rocket,
   Save,
   Trash2,
+  Info,
+  Clock,
+  Film,
+  Image,
+  Type,
+  MapPin,
+  Split,
+  Merge,
+  MousePointerClick,
+  LayoutTemplate,
+  Play,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
