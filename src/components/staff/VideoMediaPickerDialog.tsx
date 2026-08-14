@@ -512,6 +512,111 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
   return { items, loading, reload: load, setItems };
 }
 
+/**
+ * Toutes les vidéos internes du site (toutes fiches confondues) + vidéos génériques.
+ * Utilisé par l'entrée « Vidéos 16:9 » : aucune condition de fiche, de badge ou de
+ * bibliothèque. L'orientation n'existe pas en base : elle est mesurée côté client
+ * (métadonnées du fichier) par lots concurrents, avec remontée progressive.
+ */
+export function useAllInternalVideos(enabled: boolean, batch = 400) {
+  const [items, setItems] = useState<PickerMedia[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [scanned, setScanned] = useState(0);
+  const loadedRef = useRef(false);
+
+  useEffect(() => {
+    if (!enabled || loadedRef.current) return;
+    loadedRef.current = true;
+    let alive = true;
+    (async () => {
+      setLoading(true);
+      try {
+        const [{ data: docs }, { data: gen }] = await Promise.all([
+          supabase
+            .from("business_documents")
+            .select("id, url, name, thumbnail_url, business_id")
+            .eq("type", "video")
+            .not("url", "is", null)
+            .order("created_at", { ascending: false })
+            .limit(batch),
+          supabase
+            .from("generic_videos" as any)
+            .select("id, url, name, thumbnail_url")
+            .order("sort_order", { ascending: true })
+            .limit(500),
+        ]);
+
+        const out: PickerMedia[] = [];
+        const ownerIds = [...new Set((docs ?? []).map((d: any) => d.business_id).filter(Boolean))];
+        const ownerNames = new Map<string, string>();
+        for (let i = 0; i < ownerIds.length; i += 200) {
+          const { data: owners } = await supabase
+            .from("businesses")
+            .select("id, name")
+            .in("id", ownerIds.slice(i, i + 200) as string[]);
+          for (const o of owners ?? []) ownerNames.set(String(o.id), o.name);
+        }
+        for (const d of (docs ?? []) as any[]) {
+          const url = typeof d.url === "string" ? d.url.trim() : "";
+          if (!url || !isInternalVideoUrl(url)) continue;
+          out.push({
+            url,
+            kind: "video",
+            title: d.name ?? "Vidéo",
+            thumbnail: d.thumbnail_url ?? null,
+            source: "other",
+            ownerName: ownerNames.get(String(d.business_id)) ?? null,
+          });
+        }
+        for (const g of (gen ?? []) as any[]) {
+          const url = typeof g.url === "string" ? g.url.trim() : "";
+          if (!url || !isInternalVideoUrl(url)) continue;
+          out.push({
+            url,
+            kind: "video",
+            title: g.name ?? "Vidéo générique",
+            thumbnail: g.thumbnail_url ?? null,
+            source: "generic_video",
+          });
+        }
+
+        const seen = new Set<string>();
+        const deduped = out.filter((m) => {
+          const k = m.url.toLowerCase();
+          if (seen.has(k)) return false;
+          seen.add(k);
+          return true;
+        });
+        if (!alive) return;
+        setItems(deduped);
+        setLoading(false);
+
+        const CONCURRENCY = 8;
+        let cursor = 0;
+        const workers = Array.from({ length: CONCURRENCY }, async () => {
+          while (cursor < deduped.length && alive) {
+            const m = deduped[cursor++];
+            const o = await detectOrientation(m);
+            if (!alive) return;
+            setScanned((n) => n + 1);
+            if (!o) continue;
+            setItems((prev) => prev.map((it) => (it.url === m.url ? { ...it, orientation: o } : it)));
+          }
+        });
+        void Promise.all(workers);
+      } catch (e: any) {
+        setLoading(false);
+        toast.error(`Vidéos 16:9 : ${e.message ?? e}`);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [enabled, batch]);
+
+  return { items, loading, scanned };
+}
+
 /* ------------------------------------------------------------------ modal */
 
 export function VideoMediaPickerDialog({
@@ -542,6 +647,12 @@ export function VideoMediaPickerDialog({
   const [otherSlug, setOtherSlug] = useState("");
   const [slugOptions, setSlugOptions] = useState<{ id: string; name: string; slug: string | null }[]>([]);
   const { items, loading, reload, setItems } = useVideoMediaSources(businessId, open, otherSlug);
+  const [wideAsked, setWideAsked] = useState(false);
+  const {
+    items: wideVideos,
+    loading: wideLoading,
+    scanned: wideScanned,
+  } = useAllInternalVideos(open && wideAsked);
   const [typeFilter, setTypeFilter] = useState<TypeFilter>(allow === "all" ? "all" : allow);
   // Par défaut on ouvre sur les médias de la fiche (« Fiche · vidéos » quand la
   // scène n'accepte que des vidéos) : c'est le cas d'usage courant.
@@ -609,9 +720,8 @@ export function VideoMediaPickerDialog({
       case "generic_video":
         return m.source === "generic_video";
       case "landscape":
-        // Tous les médias internes (fiche, bibliothèque, génériques, autre fiche)
-        // dont les dimensions réelles sont au format paysage — aucune autre condition.
-        return m.orientation === "landscape";
+        // Vidéos uniquement (jamais d'images), toutes fiches + génériques confondues.
+        return m.kind === "video" && m.orientation === "landscape";
       case "other":
         return m.source === "other";
       case "library_business":
@@ -621,9 +731,14 @@ export function VideoMediaPickerDialog({
     }
   };
 
+  useEffect(() => {
+    if (sourceFilter === "landscape") setWideAsked(true);
+  }, [sourceFilter]);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return typeBase.filter((m) => {
+    const base = sourceFilter === "landscape" ? wideVideos : typeBase;
+    return base.filter((m) => {
       if (!matchSource(m, sourceFilter)) return false;
       if (
         q &&
@@ -634,7 +749,7 @@ export function VideoMediaPickerDialog({
         return false;
       return true;
     });
-  }, [typeBase, sourceFilter, search]);
+  }, [typeBase, wideVideos, sourceFilter, search]);
 
   const PAGE_SIZE = 30;
   const [page, setPage] = useState(0);
@@ -760,7 +875,7 @@ export function VideoMediaPickerDialog({
       fiche: typeBase.filter((m) => matchSource(m, "fiche")).length,
       generic: typeBase.filter((m) => m.source === "generic").length,
       genericVideo: typeBase.filter((m) => m.source === "generic_video").length,
-      landscape: typeBase.filter((m) => m.orientation === "landscape").length,
+      landscape: wideVideos.filter((m) => m.orientation === "landscape").length,
       other: typeBase.filter((m) => m.source === "other").length,
       libBiz: typeBase.filter((m) => m.source === "library" && m.scope === "business").length,
       libGlobal: typeBase.filter((m) => m.source === "library" && m.scope === "global").length,
@@ -833,7 +948,7 @@ export function VideoMediaPickerDialog({
                 <option value="fiche">Fiche · {activeTypeLabel} ({counts.fiche})</option>
                 <option value="generic_video">Vidéos génériques ({counts.genericVideo})</option>
                 <option value="generic">Badge Générique ({counts.generic})</option>
-                <option value="landscape">Format 16:9 · vidéos + images ({counts.landscape})</option>
+                <option value="landscape">Vidéos 16:9 · toutes fiches + génériques ({wideAsked ? counts.landscape : "…"})</option>
                 <option value="other">Autre fiche par slug · {activeTypeLabel} ({counts.other})</option>
                 <option value="library_business">Bibliothèque fiche · {activeTypeLabel} ({counts.libBiz})</option>
                 <option value="library_global">Bibliothèque globale · {activeTypeLabel} ({counts.libGlobal})</option>
@@ -949,7 +1064,15 @@ export function VideoMediaPickerDialog({
               charge automatiquement dès la saisie d’un nom ou slug.
             </p>
 
-            {loading ? (
+            {sourceFilter === "landscape" && (
+              <p className="text-[11px] text-muted-foreground">
+                Vidéos internes des {wideVideos.length} fichiers les plus récents (toutes fiches) + génériques.
+                L'orientation n'est pas stockée en base : elle est mesurée fichier par fichier
+                ({wideScanned}/{wideVideos.length} analysés) — la liste se remplit au fur et à mesure.
+              </p>
+            )}
+
+            {loading || (sourceFilter === "landscape" && wideLoading) ? (
               <div className="flex items-center gap-2 py-10 text-sm text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" /> Chargement…
               </div>
