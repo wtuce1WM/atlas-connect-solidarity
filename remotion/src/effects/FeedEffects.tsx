@@ -31,10 +31,36 @@ export type FeedEffectsConfig = {
   strokeColor?: string;
   /** Frames de tracé du path (défaut 45). */
   pathFrames?: number;
-  /** Échantillons du motion blur (défaut 3, max utile 6). */
+  /** Échantillons du motion blur (défaut 3, max utile 4). */
   motionBlurSamples?: number;
-  /** Angle d'obturation du motion blur (défaut 180). */
-  shutterAngle?: number;
+  /** Portée du tracé SVG dans un montage Feed : toute la vidéo, l'accroche ou la fiche. */
+  pathScope?: "all" | "hook" | "detail";
+};
+
+/**
+ * Clés autorisées en surcharge par étape : uniquement des accents. Le grade du
+ * film (grain, vignette, motion blur) reste piloté au niveau du montage.
+ */
+export const STEP_EFFECT_KEYS = ["pathDraw", "lightLeaks", "intensity", "strokeColor", "pathFrames"] as const;
+
+/**
+ * Héritage explicite : une étape sans surcharge hérite intégralement du
+ * montage. Une seule source de vérité (le global), l'étape ne fait que
+ * surcharger des accents.
+ */
+export const mergeEffects = (
+  base?: FeedEffectsConfig | null,
+  override?: Partial<FeedEffectsConfig> | null,
+): FeedEffectsConfig | null => {
+  if (!base && !override) return null;
+  const out: FeedEffectsConfig = { ...(base ?? {}) };
+  if (override) {
+    for (const k of STEP_EFFECT_KEYS) {
+      const v = (override as Record<string, unknown>)[k];
+      if (v !== undefined && v !== null && v !== "") (out as Record<string, unknown>)[k] = v;
+    }
+  }
+  return out;
 };
 
 export const DEFAULT_EFFECTS: FeedEffectsConfig = {
@@ -47,8 +73,11 @@ export const DEFAULT_EFFECTS: FeedEffectsConfig = {
   strokeColor: "#D4AF37",
   pathFrames: 45,
   motionBlurSamples: 3,
-  shutterAngle: 180,
+  pathScope: "all",
 };
+
+/** Angle d'obturation fixe : aucune différence perceptible entre 150 et 210. */
+const SHUTTER_ANGLE = 180;
 
 export const hasAnyEffect = (e?: FeedEffectsConfig | null) =>
   !!e && (e.grain || e.vignette || e.lightLeaks || e.pathDraw || e.motionBlur);
@@ -111,8 +140,12 @@ const Leaks: React.FC<{ intensity: number }> = ({ intensity }) => (
  * C'est le primitif de motion design de `@remotion/paths` : on calcule la
  * longueur du chemin et on anime strokeDasharray / strokeDashoffset.
  */
-const PathDraw: React.FC<{ color: string; drawFrames: number }> = ({ color, drawFrames }) => {
-  const frame = useCurrentFrame();
+const PathDraw: React.FC<{ color: string; drawFrames: number; startFrame?: number }> = ({
+  color,
+  drawFrames,
+  startFrame = 0,
+}) => {
+  const frame = Math.max(0, useCurrentFrame() - startFrame);
   const { width, height } = useVideoConfig();
   const inset = Math.round(Math.min(width, height) * 0.045);
   const w = width - inset * 2;
@@ -161,18 +194,28 @@ const PathDraw: React.FC<{ color: string; drawFrames: number }> = ({ color, draw
 };
 
 /** Overlays purement additifs, à poser au-dessus du montage. */
-export const FeedEffectsOverlay: React.FC<{ effects?: FeedEffectsConfig | null }> = ({ effects }) => {
+export const FeedEffectsOverlay: React.FC<{
+  effects?: FeedEffectsConfig | null;
+  /** Phase courante d'un montage Feed (sert au ciblage du tracé SVG). */
+  phase?: "hook" | "detail";
+  /** Frame de départ de la phase (le tracé repart de zéro à chaque phase). */
+  phaseStartFrame?: number;
+}> = ({ effects, phase, phaseStartFrame = 0 }) => {
   if (!effects) return null;
+  const scope = effects.pathScope ?? "all";
+  const pathVisible = !phase || scope === "all" || scope === phase;
   const intensity = clamp01(effects.intensity ?? DEFAULT_EFFECTS.intensity!);
   return (
     <>
       {effects.lightLeaks && <Leaks intensity={intensity} />}
       {effects.vignette && <Vignette intensity={intensity} />}
       {effects.grain && <Grain intensity={intensity} />}
-      {effects.pathDraw && (
+      {effects.pathDraw && pathVisible && (
         <PathDraw
+          key={phase ?? "all"}
           color={effects.strokeColor || DEFAULT_EFFECTS.strokeColor!}
           drawFrames={Math.max(6, effects.pathFrames ?? DEFAULT_EFFECTS.pathFrames!)}
+          startFrame={phaseStartFrame}
         />
       )}
     </>
@@ -191,8 +234,8 @@ export const FeedMotionBlurWrapper: React.FC<{ effects?: FeedEffectsConfig | nul
   if (!effects?.motionBlur) return <>{children}</>;
   return (
     <CameraMotionBlur
-      samples={Math.max(2, Math.min(6, effects.motionBlurSamples ?? DEFAULT_EFFECTS.motionBlurSamples!))}
-      shutterAngle={Math.max(0, Math.min(360, effects.shutterAngle ?? DEFAULT_EFFECTS.shutterAngle!))}
+      samples={Math.max(2, Math.min(4, effects.motionBlurSamples ?? DEFAULT_EFFECTS.motionBlurSamples!))}
+      shutterAngle={SHUTTER_ANGLE}
     >
       {children}
     </CameraMotionBlur>
