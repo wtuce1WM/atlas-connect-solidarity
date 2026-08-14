@@ -1574,8 +1574,12 @@ export type Database = {
           instagram_video_url: string | null
           language: string | null
           linked_business_id: string | null
+          media_height: number | null
+          media_width: number | null
           name: string | null
           neighborhood: string | null
+          orientation: string | null
+          orientation_checked_at: string | null
           poi_id: string | null
           popup: boolean
           price: string | null
@@ -1615,8 +1619,12 @@ export type Database = {
           instagram_video_url?: string | null
           language?: string | null
           linked_business_id?: string | null
+          media_height?: number | null
+          media_width?: number | null
           name?: string | null
           neighborhood?: string | null
+          orientation?: string | null
+          orientation_checked_at?: string | null
           poi_id?: string | null
           popup?: boolean
           price?: string | null
@@ -1656,8 +1664,12 @@ export type Database = {
           instagram_video_url?: string | null
           language?: string | null
           linked_business_id?: string | null
+          media_height?: number | null
+          media_width?: number | null
           name?: string | null
           neighborhood?: string | null
+          orientation?: string | null
+          orientation_checked_at?: string | null
           poi_id?: string | null
           popup?: boolean
           price?: string | null
@@ -5317,8 +5329,12 @@ export type Database = {
           instagram_account: string | null
           instagram_url: string | null
           instagram_video_url: string | null
+          media_height: number | null
+          media_width: number | null
           name: string | null
           neighborhood: string | null
+          orientation: string | null
+          orientation_checked_at: string | null
           sort_order: number
           thumbnail_locked: boolean
           thumbnail_url: string | null
@@ -5340,8 +5356,12 @@ export type Database = {
           instagram_account?: string | null
           instagram_url?: string | null
           instagram_video_url?: string | null
+          media_height?: number | null
+          media_width?: number | null
           name?: string | null
           neighborhood?: string | null
+          orientation?: string | null
+          orientation_checked_at?: string | null
           sort_order?: number
           thumbnail_locked?: boolean
           thumbnail_url?: string | null
@@ -5363,8 +5383,12 @@ export type Database = {
           instagram_account?: string | null
           instagram_url?: string | null
           instagram_video_url?: string | null
+          media_height?: number | null
+          media_width?: number | null
           name?: string | null
           neighborhood?: string | null
+          orientation?: string | null
+          orientation_checked_at?: string | null
           sort_order?: number
           thumbnail_locked?: boolean
           thumbnail_url?: string | null
