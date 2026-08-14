@@ -30,7 +30,8 @@ export type PromoBlocks = {
   hook: boolean;
   video: boolean;
   photos: boolean;
-  text: boolean;
+  /** obsolète : le texte est désormais en surimpression, plus une étape */
+  text?: boolean;
   outro: boolean;
 };
 
@@ -38,7 +39,8 @@ export type PromoSeconds = {
   hook: number;
   video: number;
   photo: number;
-  text: number;
+  /** obsolète (conservé pour les anciens jobs) */
+  text?: number;
   outro: number;
 };
 
@@ -47,7 +49,7 @@ export type BusinessPromoProps = {
   city?: string | null;
   hook: string;
   tagline?: string | null;
-  /** texte riche (HTML, ≤ 500 caractères) affiché en carte plein écran */
+  /** texte riche (HTML, ≤ 500 caractères) en surimpression sur Vidéo et Photos */
   text?: string | null;
   /** logo transparent de l'établissement (webp/png) */
   logoUrl?: string | null;
@@ -82,8 +84,8 @@ export const promoDefaults: BusinessPromoProps = {
   format: "portrait",
   variant: "fullscreen",
   mockupBg: palette.ink,
-  blocks: { hook: true, video: true, photos: true, text: false, outro: true },
-  seconds: { hook: 3, video: 5, photo: 1.5, text: 4, outro: 2.5 },
+  blocks: { hook: true, video: true, photos: true, outro: true },
+  seconds: { hook: 3, video: 5, photo: 1.5, outro: 2.5 },
 };
 
 const f = (sec: number) => Math.max(1, Math.round(sec * PROMO_FPS));
@@ -91,19 +93,19 @@ const f = (sec: number) => Math.max(1, Math.round(sec * PROMO_FPS));
 /** Découpe du montage en segments effectifs (blocs décochés = ignorés). */
 export const promoSegments = (p: BusinessPromoProps) => {
   const images = (p.images || []).slice(0, 4);
-  const segs: { kind: "hook" | "video" | "photo" | "text" | "outro"; frames: number; index?: number }[] = [];
+  const segs: { kind: "hook" | "video" | "photo" | "outro"; frames: number; index?: number }[] = [];
   if (p.blocks?.hook) segs.push({ kind: "hook", frames: f(p.seconds?.hook ?? 3) });
   if (p.blocks?.video && p.videoUrl) segs.push({ kind: "video", frames: f(p.seconds?.video ?? 5) });
   if (p.blocks?.photos) {
     images.forEach((_, i) => segs.push({ kind: "photo", frames: f(p.seconds?.photo ?? 1.5), index: i }));
   }
-  if (p.blocks?.text && (p.text || "").trim()) segs.push({ kind: "text", frames: f(p.seconds?.text ?? 4) });
   if (p.blocks?.outro) segs.push({ kind: "outro", frames: f(p.seconds?.outro ?? 2.5) });
   return segs.length ? segs : [{ kind: "outro" as const, frames: f(2) }];
 };
 
 export const computePromoFrames = (p: BusinessPromoProps) =>
   promoSegments(p).reduce((acc, s) => acc + s.frames, 0);
+
 
 /** Zoom lent commun à tous les plans média — évite les images figées. */
 const useKenBurns = (durationFrames: number, from = 1.04, to = 1.14) => {
@@ -259,49 +261,90 @@ const HookScene: React.FC<{
 };
 
 
-/** Carte texte plein écran (HTML riche ≤ 500 caractères, saisi en back-office). */
-const TextScene: React.FC<{ p: BusinessPromoProps; manifest: FeedManifest | null; frames: number }> = ({
-  p,
-  manifest,
-  frames,
-}) => {
+/**
+ * Surimpression du texte riche (≤ 500 caractères) sur les plans Vidéo et Photos.
+ * Une seule échelle typographique pour tout le montage : titres (h1/h2/h3) en
+ * Montserrat via `display`, corps en Avenir/Nunito via `body`, mêmes tailles et
+ * mêmes espacements que l'intro et l'outro.
+ */
+const RichOverlay: React.FC<{ html: string; frames: number }> = ({ html, frames }) => {
   const frame = useCurrentFrame();
-  const fade = interpolate(frame, [0, 12], [0, 1], { extrapolateRight: "clamp" });
-  const y = interpolate(frame, [0, 24], [40, 0], { extrapolateRight: "clamp" });
+  const fade = interpolate(
+    frame,
+    [0, 12, Math.max(14, frames - 10), frames],
+    [0, 1, 1, 0],
+    { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+  );
+  const y = interpolate(frame, [0, 22], [26, 0], { extrapolateRight: "clamp" });
   return (
-    <AbsoluteFill style={{ background: palette.night }}>
-      <SceneBackdrop p={p} manifest={manifest} frames={frames} />
-      <AbsoluteFill style={{ background: alpha("night", 0.82) }} />
-      <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", padding: "0 9%" }}>
-        <div style={{ opacity: fade, transform: `translateY(${y}px)`, textAlign: "center" }}>
-          <div style={{ ...{ width: 96, height: 4, background: palette.gold, borderRadius: 999 }, margin: "0 auto 34px" }} />
-          <div
-            style={{
-              fontFamily: body,
-              fontSize: size.lead,
-              lineHeight: 1.42,
-              color: palette.cream,
-            }}
-            dangerouslySetInnerHTML={{ __html: p.text || "" }}
-          />
-        </div>
-      </AbsoluteFill>
+    <AbsoluteFill style={{ justifyContent: "flex-end", padding: "0 7% 8%", opacity: fade }}>
+      <div
+        style={{
+          transform: `translateY(${y}px)`,
+          background: alpha("night", 0.62),
+          borderRadius: 18,
+          padding: "30px 34px",
+        }}
+      >
+        <div
+          style={{
+            width: 84,
+            height: 5,
+            background: palette.gold,
+            borderRadius: 999,
+            marginBottom: 22,
+          }}
+        />
+        <div
+          className="promo-rich"
+          style={{ fontFamily: body, fontSize: size.lead, lineHeight: 1.42, color: palette.cream }}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      </div>
+      <style>{`
+        .promo-rich > *:first-child { margin-top: 0; }
+        .promo-rich > *:last-child { margin-bottom: 0; }
+        .promo-rich h1, .promo-rich h2, .promo-rich h3, .promo-rich h4 {
+          font-family: ${display}; font-weight: ${weight.medium}; color: ${palette.cream};
+          line-height: 1.08; margin: 0 0 16px;
+        }
+        .promo-rich h1 { font-size: ${size.h3}px; }
+        .promo-rich h2 { font-size: ${size.h4}px; }
+        .promo-rich h3, .promo-rich h4 { font-size: ${size.body}px; }
+        .promo-rich p { margin: 0 0 14px; }
+        .promo-rich strong { font-weight: ${weight.bold}; color: ${palette.cream}; }
+        .promo-rich em { font-style: italic; }
+        .promo-rich ul, .promo-rich ol { margin: 0 0 14px; padding-left: 1.3em; }
+        .promo-rich li { margin: 0 0 8px; }
+        .promo-rich a { color: ${palette.gold}; text-decoration: none; }
+      `}</style>
     </AbsoluteFill>
   );
 };
-
 
 const MediaScene: React.FC<{
   src: string;
   kind: "img" | "video";
   frames: number;
   caption?: string | null;
-}> = ({ src, kind, frames, caption }) => {
+  /** texte riche en surimpression (bloc « Texte ») */
+  overlayHtml?: string | null;
+}> = ({ src, kind, frames, caption, overlayHtml }) => {
   const frame = useCurrentFrame();
   const fade = interpolate(frame, [0, 8], [0, 1], { extrapolateRight: "clamp" });
   return (
     <AbsoluteFill style={{ background: palette.black, opacity: fade }}>
       <MediaFill src={src} kind={kind} durationFrames={frames} />
+      {overlayHtml ? (
+        <>
+          <AbsoluteFill
+            style={{
+              background: `linear-gradient(180deg, transparent 35%, ${alpha("night", 0.78)} 100%)`,
+            }}
+          />
+          <RichOverlay html={overlayHtml} frames={frames} />
+        </>
+      ) : null}
       {caption && (
         <AbsoluteFill style={{ justifyContent: "flex-end", padding: "0 7% 7%" }}>
           <div
@@ -323,6 +366,7 @@ const MediaScene: React.FC<{
     </AbsoluteFill>
   );
 };
+
 
 const OutroScene: React.FC<{
   p: BusinessPromoProps;
@@ -427,20 +471,21 @@ const Stage: React.FC<{ p: BusinessPromoProps; scale?: number; wide?: boolean }>
       {segs.map((s, i) => {
         const from = cursor;
         cursor += s.frames;
+        const overlay = (p.text || "").trim() || null;
         return (
           <Sequence key={`${s.kind}-${i}`} from={from} durationInFrames={s.frames}>
             {s.kind === "hook" && <HookScene p={p} frames={s.frames} manifest={manifest} wide={wide} />}
             {s.kind === "video" && p.videoUrl && (
-              <MediaScene src={p.videoUrl} kind="video" frames={s.frames} />
+              <MediaScene src={p.videoUrl} kind="video" frames={s.frames} overlayHtml={overlay} />
             )}
             {s.kind === "photo" && images[s.index ?? 0] && (
-              <MediaScene src={images[s.index ?? 0]} kind="img" frames={s.frames} />
+              <MediaScene src={images[s.index ?? 0]} kind="img" frames={s.frames} overlayHtml={overlay} />
             )}
-            {s.kind === "text" && <TextScene p={p} frames={s.frames} manifest={manifest} />}
             {s.kind === "outro" && <OutroScene p={p} frames={s.frames} manifest={manifest} wide={wide} />}
           </Sequence>
         );
       })}
+
 
     </AbsoluteFill>
   );

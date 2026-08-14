@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Rocket, RefreshCw, Search, Sparkles } from "lucide-react";
+import { Rocket, RefreshCw, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { isInternalVideoUrl } from "@/lib/videoSourceFilter";
 import RichTextEditor from "@/components/staff/RichTextEditor";
@@ -74,8 +74,9 @@ const VideoPromoPanel = () => {
   const [format, setFormat] = useState<"portrait" | "landscape">("portrait");
   const [variant, setVariant] = useState<"fullscreen" | "mockup">("fullscreen");
   const [mockupBg, setMockupBg] = useState(PRESET_BG[0].value);
-  const [blocks, setBlocks] = useState({ hook: true, video: true, photos: true, text: false, outro: true });
-  const [seconds, setSeconds] = useState({ hook: 3, video: 5, photo: 1.5, text: 4, outro: 2.5 });
+  const [blocks, setBlocks] = useState({ hook: true, video: true, photos: true, outro: true });
+  const [seconds, setSeconds] = useState({ hook: 3, video: 5, photo: 1.5, outro: 2.5 });
+
   const [submitting, setSubmitting] = useState(false);
   const [jobs, setJobs] = useState<PromoJob[]>([]);
 
@@ -88,7 +89,7 @@ const VideoPromoPanel = () => {
     if (blocks.hook) s += seconds.hook;
     if (blocks.video && videoUrl) s += seconds.video;
     if (blocks.photos) s += seconds.photo * images.length;
-    if (blocks.text && textLength > 0) s += seconds.text;
+    // Le texte n'est plus une étape : il est en surimpression sur Vidéo/Photos.
     if (blocks.outro) s += seconds.outro;
     return Math.round(s * 10) / 10;
   }, [blocks, seconds, videoUrl, images.length, textLength]);
@@ -123,39 +124,58 @@ const VideoPromoPanel = () => {
     setVideoUrl(internal?.url ?? null);
   };
 
-  const runSearch = async () => {
+  /**
+   * Saisie auto-complete : debounce 250 ms sur le champ. Une URL 1WM est
+   * résolue directement (fiche ou /search?openBusiness=), sinon on propose les
+   * établissements dont le nom ou le slug correspond.
+   */
+  useEffect(() => {
     const raw = query.trim();
-    if (!raw) return;
-    setSearching(true);
-    const cols = "id, name, slug, city, hook_fr, images, logo_url";
-    const parsed = parseOwmUrl(raw);
-    if (parsed) {
-      const q = supabase.from("businesses").select(cols);
-      const { data } = parsed.id ? await q.eq("id", parsed.id).limit(1) : await q.eq("slug", parsed.slug!).limit(1);
-      const found = ((data ?? []) as any[])[0];
-      setSearching(false);
-      if (!found) {
-        toast.error("Aucun établissement pour cette URL 1WM");
-        return;
-      }
-      await selectBusiness(found as Biz);
+    if (raw.length < 2 || (biz && raw === biz.name)) {
+      setResults([]);
       return;
     }
-    const { data } = await supabase
-      .from("businesses")
-      .select(cols)
-      .or(`name.ilike.%${raw}%,slug.ilike.%${raw}%`)
-      .limit(12);
-    setResults((data ?? []) as Biz[]);
-    setSearching(false);
-  };
+    const cols = "id, name, slug, city, hook_fr, images, logo_url";
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      setSearching(true);
+      const parsed = parseOwmUrl(raw);
+      if (parsed) {
+        const q = supabase.from("businesses").select(cols);
+        const { data } = parsed.id ? await q.eq("id", parsed.id).limit(1) : await q.eq("slug", parsed.slug!).limit(1);
+        const found = ((data ?? []) as any[])[0];
+        if (cancelled) return;
+        setSearching(false);
+        if (!found) {
+          toast.error("Aucun établissement pour cette URL 1WM");
+          return;
+        }
+        await selectBusiness(found as Biz);
+        return;
+      }
+      const { data } = await supabase
+        .from("businesses")
+        .select(cols)
+        .or(`name.ilike.%${raw}%,slug.ilike.%${raw}%`)
+        .limit(12);
+      if (cancelled) return;
+      setResults((data ?? []) as Biz[]);
+      setSearching(false);
+    }, 250);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
+
 
   const submit = async () => {
     if (!biz) {
       toast.error("Sélectionne un établissement (nom, slug ou URL 1WM)");
       return;
     }
-    if (blocks.text && textLength > 500) {
+    if (textLength > 500) {
       toast.error("Le texte dépasse 500 caractères");
       return;
     }
@@ -183,7 +203,7 @@ const VideoPromoPanel = () => {
         city: biz.city,
         hook: hook.trim(),
         tagline: tagline.trim() || null,
-        text: blocks.text ? text : null,
+        text: textLength > 0 ? text : null,
         logoUrl,
         bgFeedUrl: bgFeedUrl.trim() || null,
         videoUrl: blocks.video ? videoUrl : null,
@@ -244,26 +264,23 @@ const VideoPromoPanel = () => {
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-3 md:grid-cols-[1fr_auto]">
+          <div className="grid gap-3">
             <label className="text-xs text-muted-foreground grid gap-1">
               Établissement — nom, slug ou URL 1WM
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") runSearch();
-                }}
                 placeholder="Chaabi Payment  ·  https://oneworldmorocco.com/fiche/chaabi-payment"
                 className="h-9 text-xs"
               />
+              <span className="text-[11px]">
+                {searching ? "Recherche…" : "Saisie automatique : tape 2 caractères, ou colle une URL 1WM."}
+              </span>
             </label>
-            <Button variant="outline" className="self-end h-9" onClick={runSearch} disabled={searching}>
-              <Search className="h-4 w-4 mr-1" /> Chercher
-            </Button>
           </div>
 
           {results.length > 0 && (
-            <div className="rounded-lg border divide-y">
+            <div className="rounded-lg border divide-y max-h-72 overflow-y-auto">
               {results.map((r) => (
                 <button
                   key={r.id}
@@ -277,6 +294,7 @@ const VideoPromoPanel = () => {
               ))}
             </div>
           )}
+
 
           {biz && (
             <div className="rounded-lg border p-3 flex flex-wrap items-center gap-3 text-xs">
@@ -388,12 +406,11 @@ const VideoPromoPanel = () => {
 
           <div className="rounded-lg border p-3 grid gap-3">
             <span className="text-xs text-muted-foreground">Blocs et durées</span>
-            <div className="grid gap-3 md:grid-cols-5">
+            <div className="grid gap-3 md:grid-cols-4">
               {([
                 ["hook", "Hook"],
                 ["video", "Vidéo"],
                 ["photos", "Photos"],
-                ["text", "Texte"],
                 ["outro", "Outro"],
               ] as const).map(([key, label]) => (
                 <label key={key} className="flex items-center gap-2 text-xs text-black">
@@ -405,15 +422,14 @@ const VideoPromoPanel = () => {
                 </label>
               ))}
             </div>
-            <div className="grid gap-3 md:grid-cols-5">
+            <div className="grid gap-3 md:grid-cols-4">
               {numField("Hook (s)", "hook", 1, 10)}
               {numField("Vidéo (s)", "video", 1, 20)}
               {numField("Par photo (s)", "photo", 0.5, 8)}
-              {numField("Texte (s)", "text", 1, 12)}
               {numField("Outro (s)", "outro", 1, 10)}
             </div>
 
-            {/* Le texte du montage se saisit ici, au même endroit que les blocs Vidéo/Photos. */}
+            {/* Le texte n'est plus une étape : il se superpose aux plans Vidéo et Photos. */}
             <div className="border-t pt-3 grid gap-2">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs text-muted-foreground">
@@ -427,14 +443,14 @@ const VideoPromoPanel = () => {
                 content={text}
                 onChange={setText}
                 simple
-                maxHeight="180px"
                 placeholder="La solution de paiement multicanal de M2T…"
               />
               <span className="text-[11px] text-muted-foreground">
-                Affiché en carte plein écran entre les photos et l'outro ; coche le bloc « Texte » pour l'inclure.
+                Affiché en surimpression sur les plans Vidéo et Photos (titres H et paragraphes respectés).
               </span>
             </div>
           </div>
+
 
 
           <div className="flex items-center justify-between gap-3 flex-wrap border-t pt-3">
