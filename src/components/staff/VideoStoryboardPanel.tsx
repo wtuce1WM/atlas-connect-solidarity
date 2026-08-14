@@ -827,9 +827,20 @@ const VideoStoryboardPanel = () => {
     setCurrentId((prev) => prev ?? list[0]?.id ?? null);
   }, []);
 
+  const loadJobs = useCallback(async () => {
+    const { data } = await supabase
+      .from("video_jobs")
+      .select("id, title, status, output_url, error_message, created_at, duration_sec, template_id")
+      .like("template_id", "storyboard%")
+      .order("created_at", { ascending: false })
+      .limit(12);
+    setJobs((data ?? []) as StoryboardJob[]);
+  }, []);
+
   useEffect(() => {
     loadBoards().finally(() => setLoading(false));
-  }, [loadBoards]);
+    loadJobs();
+  }, [loadBoards, loadJobs]);
 
   const loadBoard = useCallback(async (id: string) => {
     setLoading(true);
