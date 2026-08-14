@@ -992,6 +992,8 @@ export function VideoMediaPickerDialog({
       other: typeBase.filter((m) => m.source === "other").length,
       libBiz: typeBase.filter((m) => m.source === "library" && m.scope === "business").length,
       libGlobal: typeBase.filter((m) => m.source === "library" && m.scope === "global").length,
+      renderFeed: typeBase.filter((m) => m.source === "render_feed").length,
+      renderPromo: typeBase.filter((m) => m.source === "render_promo").length,
     }),
     [typeBase],
   );
