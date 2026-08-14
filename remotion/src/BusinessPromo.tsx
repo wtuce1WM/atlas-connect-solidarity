@@ -90,6 +90,11 @@ export const promoDefaults: BusinessPromoProps = {
 
 const f = (sec: number) => Math.max(1, Math.round(sec * PROMO_FPS));
 
+/** Polices avec repli emoji : sans ce repli, les emojis du Rich Text sortent en tofu. */
+const EMOJI = `"Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", "Twemoji Mozilla"`;
+const displayFont = `${display}, ${EMOJI}`;
+const bodyFont = `${body}, ${EMOJI}`;
+
 /** Découpe du montage en segments effectifs (blocs décochés = ignorés). */
 export const promoSegments = (p: BusinessPromoProps) => {
   const images = (p.images || []).slice(0, 4);
@@ -183,7 +188,7 @@ const HookScene: React.FC<{
       />
       <h1
         style={{
-          fontFamily: display,
+          fontFamily: displayFont,
           fontWeight: weight.medium,
           fontSize: size.h2,
           lineHeight: 1.08,
@@ -207,7 +212,7 @@ const HookScene: React.FC<{
       {p.city && (
         <p
           style={{
-            fontFamily: body,
+            fontFamily: bodyFont,
             fontSize: size.caption,
             letterSpacing: 3,
             textTransform: "uppercase",
@@ -297,7 +302,7 @@ const RichOverlay: React.FC<{ html: string; frames: number }> = ({ html, frames 
         />
         <div
           className="promo-rich"
-          style={{ fontFamily: body, fontSize: size.lead, lineHeight: 1.42, color: palette.cream }}
+          style={{ fontFamily: bodyFont, fontSize: size.lead, lineHeight: 1.42, color: palette.cream }}
           dangerouslySetInnerHTML={{ __html: html }}
         />
       </div>
@@ -305,7 +310,7 @@ const RichOverlay: React.FC<{ html: string; frames: number }> = ({ html, frames 
         .promo-rich > *:first-child { margin-top: 0; }
         .promo-rich > *:last-child { margin-bottom: 0; }
         .promo-rich h1, .promo-rich h2, .promo-rich h3, .promo-rich h4 {
-          font-family: ${display}; font-weight: ${weight.medium}; color: ${palette.cream};
+          font-family: ${displayFont}; font-weight: ${weight.medium}; color: ${palette.cream};
           line-height: 1.08; margin: 0 0 16px;
         }
         .promo-rich h1 { font-size: ${size.h3}px; }
@@ -336,14 +341,11 @@ const MediaScene: React.FC<{
     <AbsoluteFill style={{ background: palette.black, opacity: fade }}>
       <MediaFill src={src} kind={kind} durationFrames={frames} />
       {overlayHtml ? (
-        <>
-          <AbsoluteFill
-            style={{
-              background: `linear-gradient(180deg, transparent 35%, ${alpha("night", 0.78)} 100%)`,
-            }}
-          />
-          <RichOverlay html={overlayHtml} frames={frames} />
-        </>
+        <AbsoluteFill
+          style={{
+            background: `linear-gradient(180deg, transparent 35%, ${alpha("night", 0.78)} 100%)`,
+          }}
+        />
       ) : null}
       {caption && (
         <AbsoluteFill style={{ justifyContent: "flex-end", padding: "0 7% 7%" }}>
@@ -353,7 +355,7 @@ const MediaScene: React.FC<{
               padding: "14px 22px",
               borderRadius: 14,
               alignSelf: "flex-start",
-              fontFamily: body,
+              fontFamily: bodyFont,
               fontSize: size.label,
               color: palette.cream,
               letterSpacing: 1,
@@ -405,7 +407,7 @@ const OutroScene: React.FC<{
         ) : (
           <h2
             style={{
-              fontFamily: display,
+              fontFamily: displayFont,
               fontWeight: weight.medium,
               fontSize: size.h2,
               color: palette.cream,
@@ -428,7 +430,7 @@ const OutroScene: React.FC<{
         {/* Même échelle typographique que la ligne ville de l'intro. */}
         <p
           style={{
-            fontFamily: body,
+            fontFamily: bodyFont,
             fontSize: size.caption,
             letterSpacing: 3,
             textTransform: "uppercase",
@@ -457,6 +459,20 @@ const Stage: React.FC<{ p: BusinessPromoProps; scale?: number; wide?: boolean }>
   const images = (p.images || []).slice(0, 4);
   const manifest = useFeedManifest(p.bgFeedManifest);
   const stage = wide ? LANDSCAPE_STAGE : PROMO_PORTRAIT;
+  const overlayHtml = (p.text || "").trim() || null;
+  // Fenêtre continue du texte : du premier au dernier plan média, sans réapparition
+  // à chaque changement de fond.
+  let acc = 0;
+  let overlayFrom = -1;
+  let overlayTo = 0;
+  for (const s of segs) {
+    if (s.kind === "video" || s.kind === "photo") {
+      if (overlayFrom < 0) overlayFrom = acc;
+      overlayTo = acc + s.frames;
+    }
+    acc += s.frames;
+  }
+  const overlayFrames = overlayFrom >= 0 ? overlayTo - overlayFrom : 0;
   let cursor = 0;
   return (
     <AbsoluteFill
@@ -471,7 +487,7 @@ const Stage: React.FC<{ p: BusinessPromoProps; scale?: number; wide?: boolean }>
       {segs.map((s, i) => {
         const from = cursor;
         cursor += s.frames;
-        const overlay = (p.text || "").trim() || null;
+        const overlay = overlayHtml;
         return (
           <Sequence key={`${s.kind}-${i}`} from={from} durationInFrames={s.frames}>
             {s.kind === "hook" && <HookScene p={p} frames={s.frames} manifest={manifest} wide={wide} />}
@@ -486,7 +502,11 @@ const Stage: React.FC<{ p: BusinessPromoProps; scale?: number; wide?: boolean }>
         );
       })}
 
-
+      {overlayHtml && overlayFrames > 0 && (
+        <Sequence from={overlayFrom} durationInFrames={overlayFrames}>
+          <RichOverlay html={overlayHtml} frames={overlayFrames} />
+        </Sequence>
+      )}
     </AbsoluteFill>
   );
 };
