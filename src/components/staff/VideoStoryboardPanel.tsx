@@ -456,14 +456,16 @@ const ConfigFields = ({
     case "logo_merge":
       return (
         <div className="grid gap-3 md:grid-cols-2">
-          {text("partnerLogoUrl", "Logo partenaire (SVG/PNG transparent)", "https://…")}
+          {mediaOne(
+            "partnerLogoUrl",
+            "Logo partenaire (PNG/SVG transparent)",
+            "image",
+            "Vide = logo de la fiche. Importer les logos en « global » pour les réutiliser.",
+          )}
           {text("caption", "Signature", "1WM × Partenaire")}
-          <p className="md:col-span-2 text-[11px] text-muted-foreground">
-            Prochaine étape technique : chemin d'upload dédié et scopé aux logos transparents (pas d'upload média
-            généraliste).
-          </p>
         </div>
       );
+
     case "outro":
       return (
         <div className="grid gap-3 md:grid-cols-2">
