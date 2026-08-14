@@ -286,8 +286,8 @@ function SortableVideoCard({
         <div className={`text-sm font-medium ${job.title ? "" : "italic text-neutral-600"}`}>
           {job.title || "Sans titre"}
         </div>
-        <div className="text-[11px] text-neutral-600">
-          Fichier : {slugify(job.title || businessName || "video-1wm")}.mp4
+        <div className="text-[11px] text-neutral-600 break-all">
+          Fichier : {fileNameFromUrl(job.output_url, job.title || businessName)}
         </div>
       </div>
 
@@ -305,8 +305,9 @@ function SortableVideoCard({
       <div className="flex items-center gap-3">
         <DownloadButton
           url={job.output_url as string}
-          fileName={`${slugify(job.title || businessName || "video-1wm")}.mp4`}
+          fileName={fileNameFromUrl(job.output_url, job.title || businessName)}
         />
+
         <button
           type="button"
           onClick={onDelete}
