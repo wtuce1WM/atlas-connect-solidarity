@@ -811,24 +811,47 @@ export function VideoMediaPickerDialog({
                 placeholder="Rechercher…"
                 className="h-8 w-44 text-xs"
               />
-              <form
-                className="flex items-center gap-1"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setOtherSlug(slugQuery);
-                  if (slugQuery.trim().length >= 2) setSourceFilter("other");
-                }}
-              >
+              {showFicheVideosToggle && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-8 text-xs"
+                  onClick={toggleAllFicheVideos}
+                  disabled={ficheVideoUrls.length === 0}
+                >
+                  {allFicheVideosSelected ? "Tout désélectionner" : `Tout sélectionner (${ficheVideoUrls.length})`}
+                </Button>
+              )}
+              <div className="relative">
                 <Input
                   value={slugQuery}
                   onChange={(e) => setSlugQuery(e.target.value)}
                   placeholder="slug d'une autre fiche…"
                   className="h-8 w-44 text-xs"
                 />
-                <Button type="submit" size="sm" variant="outline" className="h-8 text-xs">
-                  Charger
-                </Button>
-              </form>
+                {slugOptions.length > 0 && (
+                  <div className="absolute z-50 mt-1 w-64 max-h-56 overflow-y-auto rounded-md border bg-popover shadow-md">
+                    {slugOptions.map((o) => (
+                      <button
+                        key={o.id}
+                        type="button"
+                        className="block w-full px-2 py-1.5 text-left text-xs hover:bg-accent"
+                        onClick={() => {
+                          setSlugQuery(o.slug || o.name);
+                          setSlugOptions([]);
+                          setOtherSlug(o.slug || o.name);
+                          setSourceFilter("other");
+                        }}
+                      >
+                        <span className="font-medium">{o.name}</span>
+                        {o.slug && <span className="text-muted-foreground"> · {o.slug}</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div className="ml-auto flex items-center gap-2">
                 <select
                   value={uploadScope}
