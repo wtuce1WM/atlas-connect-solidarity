@@ -34,7 +34,7 @@ export type PickerMedia = {
   title?: string | null;
   thumbnail?: string | null;
   duration?: number | null;
-  source: "fiche" | "generic" | "library" | "generic_video" | "other";
+  source: "fiche" | "generic" | "library" | "generic_video" | "other" | "render_feed" | "render_promo";
   scope?: "global" | "business";
   libraryId?: string;
   /** ID base de la vidéo/média source (business_documents, generic_videos, bibliothèque). */
@@ -55,7 +55,9 @@ type SourceFilter =
   | "landscape"
   | "other"
   | "library_business"
-  | "library_global";
+  | "library_global"
+  | "render_feed"
+  | "render_promo";
 
 const documentVideoUrl = (d: any): string | null => {
   const url = d?.youtube_video_url || d?.instagram_video_url || d?.tiktok_video_url || d?.url;
