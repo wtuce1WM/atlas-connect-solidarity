@@ -44,6 +44,10 @@ type PromoJob = {
   error_message: string | null;
   created_at: string;
   template_id: string | null;
+  duration_sec: number | null;
+  business_id: string | null;
+  template_props: any;
+  scenario_json: any;
 };
 
 /** Extrait un slug ou un id depuis une URL 1WM. */
