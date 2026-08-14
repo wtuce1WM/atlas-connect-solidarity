@@ -1270,7 +1270,10 @@ const VideoStoryboardPanel = () => {
                           onToggle={() => setExpanded((prev) => (prev === s.id ? null : s.id))}
                           patch={(values) => patchSection(s.id, values)}
                           remove={() => removeSection(s.id)}
+                          businessId={board.business_id}
+                          format={board.format}
                         />
+
                       ))}
                     </div>
                   </SortableContext>
