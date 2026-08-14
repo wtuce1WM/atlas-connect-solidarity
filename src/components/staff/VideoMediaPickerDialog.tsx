@@ -467,6 +467,9 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
       // Déduplication par URL, la bibliothèque staff prime (elle porte les métadonnées)
       const seen = new Set<string>();
       const deduped = out
+        // Les vidéos externes (YouTube / TikTok / Instagram) ne sont pas des fichiers
+        // téléchargeables : le moteur de rendu ne peut pas les monter → jamais affichées.
+        .filter((m) => (m.kind === "video" ? isInternalVideoUrl(m.url) : true))
         .filter((m) => {
           const k = m.url.trim().toLowerCase();
           if (seen.has(k)) return false;
@@ -590,7 +593,9 @@ export function VideoMediaPickerDialog({
       case "generic_video":
         return m.source === "generic_video";
       case "landscape":
-        return m.orientation === "landscape";
+        // Toutes les vidéos (internes fiche/bibliothèque + génériques) au format 16:9,
+        // sans aucune autre condition de source.
+        return m.kind === "video" && m.orientation === "landscape";
       case "other":
         return m.source === "other";
       case "library_business":
@@ -614,6 +619,17 @@ export function VideoMediaPickerDialog({
       return true;
     });
   }, [typeBase, sourceFilter, search]);
+
+  const PAGE_SIZE = 30;
+  const [page, setPage] = useState(0);
+  useEffect(() => {
+    setPage(0);
+  }, [sourceFilter, typeFilter, search, otherSlug, open]);
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const pageItems = useMemo(
+    () => filtered.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE),
+    [filtered, page],
+  );
 
   const toggle = (m: PickerMedia) => {
     if (!multiple) {
@@ -728,7 +744,7 @@ export function VideoMediaPickerDialog({
       fiche: typeBase.filter((m) => matchSource(m, "fiche")).length,
       generic: typeBase.filter((m) => m.source === "generic").length,
       genericVideo: typeBase.filter((m) => m.source === "generic_video").length,
-      landscape: typeBase.filter((m) => m.orientation === "landscape").length,
+      landscape: typeBase.filter((m) => m.kind === "video" && m.orientation === "landscape").length,
       other: typeBase.filter((m) => m.source === "other").length,
       libBiz: typeBase.filter((m) => m.source === "library" && m.scope === "business").length,
       libGlobal: typeBase.filter((m) => m.source === "library" && m.scope === "global").length,
@@ -775,7 +791,8 @@ export function VideoMediaPickerDialog({
               <DialogDescription className="text-xs">
                 Fiche · Générique · Bibliothèque staff (globale ou rattachée). Le filtre « Format paysage 16:9 » sélectionne
                 les médias dont les dimensions réelles sont au format paysage. Les médias importés ici sont réservés au
-                staff et ne sont jamais publiés sur le site.
+                staff et ne sont jamais publiés sur le site. Les vidéos externes (YouTube / TikTok / Instagram) ne sont pas
+                listées : elles ne sont pas montables au rendu. Affichage paginé par 30.
               </DialogDescription>
             </DialogHeader>
 
@@ -800,7 +817,7 @@ export function VideoMediaPickerDialog({
                 <option value="fiche">Fiche · {activeTypeLabel} ({counts.fiche})</option>
                 <option value="generic_video">Vidéos génériques ({counts.genericVideo})</option>
                 <option value="generic">Badge Générique ({counts.generic})</option>
-                <option value="landscape">Format paysage 16:9 ({counts.landscape})</option>
+                <option value="landscape">Vidéos 16:9 · internes + génériques ({counts.landscape})</option>
                 <option value="other">Autre fiche par slug · {activeTypeLabel} ({counts.other})</option>
                 <option value="library_business">Bibliothèque fiche · {activeTypeLabel} ({counts.libBiz})</option>
                 <option value="library_global">Bibliothèque globale · {activeTypeLabel} ({counts.libGlobal})</option>
@@ -808,7 +825,7 @@ export function VideoMediaPickerDialog({
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Rechercher…"
+                placeholder="Rechercher (titre, fiche, URL)…"
                 className="h-8 w-44 text-xs"
               />
               {showFicheVideosToggle && (
@@ -926,7 +943,7 @@ export function VideoMediaPickerDialog({
               </p>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 pt-2">
-                {filtered.map((m) => (
+                {pageItems.map((m) => (
                   <Tile
                     key={m.url}
                     item={m}
@@ -942,6 +959,48 @@ export function VideoMediaPickerDialog({
 
                   />
                 ))}
+              </div>
+            )}
+
+            {!loading && filtered.length > PAGE_SIZE && (
+              <div className="flex items-center justify-between gap-2 border-t pt-3">
+                <span className="text-[11px] text-muted-foreground">
+                  {filtered.length} résultats · page {page + 1}/{pageCount}
+                </span>
+                <div className="flex items-center gap-1">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-[11px]"
+                    disabled={page === 0}
+                    onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  >
+                    Précédent
+                  </Button>
+                  {Array.from({ length: pageCount }).map((_, i) => (
+                    <Button
+                      key={i}
+                      type="button"
+                      size="sm"
+                      variant={i === page ? "default" : "ghost"}
+                      className="h-7 w-7 p-0 text-[11px]"
+                      onClick={() => setPage(i)}
+                    >
+                      {i + 1}
+                    </Button>
+                  ))}
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-[11px]"
+                    disabled={page >= pageCount - 1}
+                    onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+                  >
+                    Suivant
+                  </Button>
+                </div>
               </div>
             )}
           </DialogContent>
