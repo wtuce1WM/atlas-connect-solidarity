@@ -252,7 +252,7 @@ function Tile({
 
 /* ------------------------------------------------------------- data hooks */
 
-export function useVideoMediaSources(businessId: string | null, open: boolean) {
+export function useVideoMediaSources(businessId: string | null, open: boolean, otherSlug?: string) {
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<PickerMedia[]>([]);
 
