@@ -389,12 +389,11 @@ const VideoPromoPanel = () => {
 
           <div className="rounded-lg border p-3 grid gap-3">
             <span className="text-xs text-muted-foreground">Blocs et durées</span>
-            <div className="grid gap-3 md:grid-cols-5">
+            <div className="grid gap-3 md:grid-cols-4">
               {([
                 ["hook", "Hook"],
                 ["video", "Vidéo"],
                 ["photos", "Photos"],
-                ["text", "Texte"],
                 ["outro", "Outro"],
               ] as const).map(([key, label]) => (
                 <label key={key} className="flex items-center gap-2 text-xs text-black">
@@ -406,15 +405,14 @@ const VideoPromoPanel = () => {
                 </label>
               ))}
             </div>
-            <div className="grid gap-3 md:grid-cols-5">
+            <div className="grid gap-3 md:grid-cols-4">
               {numField("Hook (s)", "hook", 1, 10)}
               {numField("Vidéo (s)", "video", 1, 20)}
               {numField("Par photo (s)", "photo", 0.5, 8)}
-              {numField("Texte (s)", "text", 1, 12)}
               {numField("Outro (s)", "outro", 1, 10)}
             </div>
 
-            {/* Le texte du montage se saisit ici, au même endroit que les blocs Vidéo/Photos. */}
+            {/* Le texte n'est plus une étape : il se superpose aux plans Vidéo et Photos. */}
             <div className="border-t pt-3 grid gap-2">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs text-muted-foreground">
@@ -428,14 +426,14 @@ const VideoPromoPanel = () => {
                 content={text}
                 onChange={setText}
                 simple
-                maxHeight="180px"
                 placeholder="La solution de paiement multicanal de M2T…"
               />
               <span className="text-[11px] text-muted-foreground">
-                Affiché en carte plein écran entre les photos et l'outro ; coche le bloc « Texte » pour l'inclure.
+                Affiché en surimpression sur les plans Vidéo et Photos (titres H et paragraphes respectés).
               </span>
             </div>
           </div>
+
 
 
           <div className="flex items-center justify-between gap-3 flex-wrap border-t pt-3">
