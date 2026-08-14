@@ -3,9 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, LogOut, ListOrdered, LayoutDashboard, Film, Rocket, Clapperboard } from "lucide-react";
+import { ArrowLeft, LogOut, LayoutDashboard, Rocket, Clapperboard } from "lucide-react";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
-import VideoScenarioConfigPanel from "@/components/staff/VideoScenarioConfigPanel";
 import VideoDashboardPanel from "@/components/staff/VideoDashboardPanel";
 import LatestVideosPanel from "@/components/staff/LatestVideosPanel";
 import VideoGeneratePanel from "@/components/staff/VideoGeneratePanel";
@@ -90,36 +89,23 @@ const StaffVideos = () => {
               <LayoutDashboard className="h-4 w-4" />
               Dashboard
             </TabsTrigger>
-            <TabsTrigger value="scenario" className="gap-2">
-              <ListOrdered className="h-4 w-4" />
-              Scénario
-            </TabsTrigger>
             <TabsTrigger value="storyboard" className="gap-2">
               <Clapperboard className="h-4 w-4" />
-              Storyboard
+              Montages
             </TabsTrigger>
-            <TabsTrigger value="generate" className="gap-2">
+            <TabsTrigger value="renders" className="gap-2">
               <Rocket className="h-4 w-4" />
-              Générer
-            </TabsTrigger>
-            <TabsTrigger value="latest" className="gap-2">
-              <Film className="h-4 w-4" />
-              Dernières vidéos
+              Rendus
             </TabsTrigger>
           </TabsList>
           <TabsContent value="dashboard">
             <VideoDashboardPanel />
           </TabsContent>
-          <TabsContent value="scenario">
-            <VideoScenarioConfigPanel />
-          </TabsContent>
           <TabsContent value="storyboard">
             <VideoStoryboardPanel />
           </TabsContent>
-          <TabsContent value="generate">
+          <TabsContent value="renders" className="space-y-8">
             <VideoGeneratePanel />
-          </TabsContent>
-          <TabsContent value="latest">
             <LatestVideosPanel />
           </TabsContent>
         </Tabs>

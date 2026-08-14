@@ -568,8 +568,15 @@ const SortableStep = ({
   );
 };
 
-const VideoScenarioConfigPanel = () => {
-  const [mode, setMode] = useState<VideoScenarioMode>("business");
+const VideoScenarioConfigPanel = ({
+  initialMode = "business",
+  hideModeSwitch = false,
+}: {
+  initialMode?: VideoScenarioMode;
+  hideModeSwitch?: boolean;
+} = {}) => {
+  const [mode, setMode] = useState<VideoScenarioMode>(initialMode);
+  useEffect(() => setMode(initialMode), [initialMode]);
   const [steps, setSteps] = useState<VideoScenarioStep[]>([]);
   const [config, setConfig] = useState<ScenarioConfig | null>(null);
   const [removed, setRemoved] = useState<string[]>([]);
@@ -796,7 +803,7 @@ const VideoScenarioConfigPanel = () => {
             automatique.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className={`flex items-center gap-2 ${hideModeSwitch ? "hidden" : ""}`}>
           {MODES.map((m) => (
             <Button
               key={m.value}

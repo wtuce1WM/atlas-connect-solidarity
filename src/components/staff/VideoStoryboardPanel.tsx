@@ -31,6 +31,8 @@ import {
 import { toast } from "sonner";
 import VideoIconPickerDialog from "@/components/staff/VideoIconPickerDialog";
 import { VideoMediaPickerDialog } from "@/components/staff/VideoMediaPickerDialog";
+import VideoScenarioConfigPanel from "@/components/staff/VideoScenarioConfigPanel";
+import { Copy } from "lucide-react";
 
 import {
   DndContext,
@@ -89,7 +91,18 @@ type Storyboard = {
   business_id: string | null;
   preview_scale: number;
   max_duration_sec: number;
+  created_at?: string | null;
+  updated_at?: string | null;
 };
+
+/** Modes des scénarios automatiques (Studio Vidéo IA) — édités dans la même interface. */
+const LEGACY_MODES: Array<{ value: "business" | "corporate"; label: string }> = [
+  { value: "business", label: "Scénario auto — Établissement" },
+  { value: "corporate", label: "Scénario auto — Corporate" },
+];
+
+const frDate = (iso?: string | null) =>
+  iso ? new Date(iso).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" }) : "—";
 
 type StoryboardJob = {
   id: string;
@@ -1053,6 +1066,8 @@ const VideoStoryboardPanel = () => {
   const [rendering, setRendering] = useState(false);
   const [jobs, setJobs] = useState<StoryboardJob[]>([]);
   const [dirty, setDirty] = useState(false);
+  /** Scénario auto sélectionné dans le même sélecteur (null = storyboard manuel). */
+  const [legacyMode, setLegacyMode] = useState<"business" | "corporate" | null>(null);
 
 
   // Autocomplete établissement (même mécanique que Promo business).
@@ -1065,7 +1080,7 @@ const VideoStoryboardPanel = () => {
   const loadBoards = useCallback(async () => {
     const { data, error } = await supabase
       .from("video_storyboards" as any)
-      .select("id, name, scenario_type, format, business_id, preview_scale, max_duration_sec")
+      .select("id, name, scenario_type, format, business_id, preview_scale, max_duration_sec, created_at, updated_at")
       .order("created_at", { ascending: false });
     if (error) {
       toast.error("Chargement des storyboards impossible");
@@ -1096,7 +1111,7 @@ const VideoStoryboardPanel = () => {
     const [boardRes, stepsRes] = await Promise.all([
       supabase
         .from("video_storyboards" as any)
-        .select("id, name, scenario_type, format, business_id, preview_scale, max_duration_sec")
+        .select("id, name, scenario_type, format, business_id, preview_scale, max_duration_sec, created_at, updated_at")
         .eq("id", id)
         .maybeSingle(),
       supabase
@@ -1181,6 +1196,54 @@ const VideoStoryboardPanel = () => {
     await loadBoards();
     setCurrentId((data as any).id);
     toast.success("Storyboard créé");
+  };
+
+  /** Duplication : le montage courant enregistré + toutes ses étapes. */
+  const duplicateBoard = async () => {
+    if (!board) return;
+    if (dirty) {
+      toast.error("Enregistre le montage avant de le dupliquer");
+      return;
+    }
+    const { data, error } = await supabase
+      .from("video_storyboards" as any)
+      .insert({
+        name: `${board.name} (copie)`,
+        scenario_type: board.scenario_type,
+        format: board.format,
+        business_id: board.business_id,
+        preview_scale: board.preview_scale,
+        max_duration_sec: board.max_duration_sec,
+      } as any)
+      .select("id")
+      .maybeSingle();
+    if (error || !data) {
+      toast.error(`Duplication impossible : ${error?.message ?? "inconnue"}`);
+      return;
+    }
+    const newId = (data as any).id as string;
+    if (sections.length > 0) {
+      const rows = sections.map((s, i) => ({
+        storyboard_id: newId,
+        mode: s.mode ?? "corporate",
+        scene_key: s.scene_key || `${s.step_type}_${i + 1}`,
+        step_type: s.step_type,
+        label: s.label,
+        position: (i + 1) * 10,
+        duration_sec: s.duration_sec,
+        enabled: s.enabled,
+        config: s.config ?? {},
+      }));
+      const { error: stepErr } = await supabase.from("video_scenario_steps" as any).insert(rows as any);
+      if (stepErr) {
+        toast.error(`Étapes non copiées : ${stepErr.message}`);
+        return;
+      }
+    }
+    await loadBoards();
+    setLegacyMode(null);
+    setCurrentId(newId);
+    toast.success("Montage dupliqué");
   };
 
   const deleteBoard = async () => {
@@ -1405,45 +1468,128 @@ const VideoStoryboardPanel = () => {
   };
 
 
+  // Résumé des paramètres de montage affiché sous le sélecteur.
+  const usedTypes = Array.from(
+    new Set(sections.filter((s) => s.enabled).map((s) => typeLabel(s.step_type))),
+  );
+  const motionFlags = Array.from(
+    new Set(
+      sections.flatMap((s) =>
+        Object.entries(s.config ?? {})
+          .filter(([, v]) => v === true)
+          .map(([k]) => k),
+      ),
+    ),
+  );
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="text-black flex items-center gap-2">
-            <Clapperboard className="h-5 w-5" /> Storyboard (montage manuel, 180 s max)
+            <Clapperboard className="h-5 w-5" /> Montages vidéo (scénario = storyboard)
           </CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            Le storyboard est la source de vérité du film : chaque section porte un type générique et sa
-            configuration. Un template n'est qu'un preset de storyboard, pas un moteur de rendu.
+            Un seul sélecteur, une seule interface d'étapes : montages manuels (duplicables, 180 s max) et
+            scénarios automatiques de Studio Vidéo IA.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap items-end gap-3">
             <label className="text-xs text-muted-foreground grid gap-1">
-              Storyboard
+              Montage
               <select
-                value={currentId ?? ""}
-                onChange={(e) => setCurrentId(e.target.value || null)}
-                className="h-9 min-w-56 rounded-md border bg-background px-2 text-xs"
+                value={legacyMode ? `legacy:${legacyMode}` : currentId ?? ""}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v.startsWith("legacy:")) {
+                    setLegacyMode(v.slice(7) as "business" | "corporate");
+                  } else {
+                    setLegacyMode(null);
+                    setCurrentId(v || null);
+                  }
+                }}
+                className="h-9 min-w-64 rounded-md border bg-background px-2 text-xs"
               >
                 <option value="">—</option>
-                {boards.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name}
-                  </option>
-                ))}
+                <optgroup label="Montages manuels (duplicables)">
+                  {boards.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name} — {b.format === "landscape" ? "16:9" : "9:16"} · {frDate(b.created_at)}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="Scénarios automatiques (Studio Vidéo IA)">
+                  {LEGACY_MODES.map((m) => (
+                    <option key={m.value} value={`legacy:${m.value}`}>
+                      {m.label}
+                    </option>
+                  ))}
+                </optgroup>
               </select>
             </label>
-            <Button size="sm" variant="outline" onClick={createBoard}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setLegacyMode(null);
+                createBoard();
+              }}
+            >
               <Plus className="h-4 w-4 mr-1" /> Nouveau
             </Button>
-            {board && (
+            {!legacyMode && board && (
+              <Button size="sm" variant="outline" onClick={duplicateBoard}>
+                <Copy className="h-4 w-4 mr-1" /> Dupliquer
+              </Button>
+            )}
+            {!legacyMode && board && (
               <Button size="sm" variant="outline" className="text-destructive" onClick={deleteBoard}>
                 <Trash2 className="h-4 w-4 mr-1" /> Supprimer
               </Button>
             )}
           </div>
 
+          {!legacyMode && board && (
+            <div className="rounded-lg border bg-muted/30 p-3 grid gap-2 md:grid-cols-3 text-[11px] text-muted-foreground">
+              <div>
+                <span className="font-semibold text-black">Créé le</span> {frDate(board.created_at)}
+                <br />
+                <span className="font-semibold text-black">Modifié le</span> {frDate(board.updated_at)}
+              </div>
+              <div>
+                <span className="font-semibold text-black">Format</span>{" "}
+                {board.format === "landscape" ? "Paysage 1920×1080" : "Portrait 1080×1920"}
+                <br />
+                <span className="font-semibold text-black">Durée</span> {mmss(totals.total)} / plafond{" "}
+                {mmss(maxTotal)} · rendu {board.preview_scale}×
+              </div>
+              <div>
+                <span className="font-semibold text-black">Étapes</span> {sections.length} (
+                {sections.filter((s) => s.enabled).length} actives)
+                <br />
+                <span className="font-semibold text-black">Effets / motion design</span>{" "}
+                {motionFlags.length > 0 ? motionFlags.join(", ") : "aucun activé"}
+              </div>
+              {usedTypes.length > 0 && (
+                <div className="md:col-span-3 flex flex-wrap gap-1">
+                  {usedTypes.map((t) => (
+                    <Badge key={t} variant="outline" className="text-[10px]">
+                      {t}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {legacyMode && <VideoScenarioConfigPanel initialMode={legacyMode} hideModeSwitch />}
+
+      <div className={legacyMode ? "hidden" : "space-y-6"}>
+      <Card>
+        <CardContent className="space-y-4 pt-6">
           {board && (
             <>
               <div className="grid gap-3 md:grid-cols-4">
@@ -1666,6 +1812,7 @@ const VideoStoryboardPanel = () => {
       </Card>
 
       <StoryboardGuide />
+      </div>
 
     </div>
   );
