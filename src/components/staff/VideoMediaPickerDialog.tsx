@@ -419,6 +419,7 @@ export function VideoMediaPickerDialog({
   const [search, setSearch] = useState("");
   const [uploadScope, setUploadScope] = useState<"global" | "business">(businessId ? "business" : "global");
   const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
