@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, LogOut, LayoutDashboard, Rocket, Clapperboard } from "lucide-react";
+import { ArrowLeft, LogOut, LayoutDashboard, Rocket, Clapperboard, Film } from "lucide-react";
 import ScrollToTopButton from "@/components/staff/ScrollToTopButton";
 import VideoDashboardPanel from "@/components/staff/VideoDashboardPanel";
 import LatestVideosPanel from "@/components/staff/LatestVideosPanel";
