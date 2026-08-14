@@ -111,9 +111,13 @@ const mmss = (sec: number) => {
 const ConfigFields = ({
   section,
   patch,
+  businessId,
+  format,
 }: {
   section: Section;
   patch: (values: Partial<Section>) => void;
+  businessId: string | null;
+  format: "portrait" | "landscape";
 }) => {
   const cfg = section.config ?? {};
   const set = (key: string, value: any) => patch({ config: { ...cfg, [key]: value } });
@@ -129,6 +133,28 @@ const ConfigFields = ({
       />
     </label>
   );
+
+  /** Sélecteur de média unique adossé à la bibliothèque (fiche / générique / staff). */
+  const mediaOne = (
+    key: string,
+    label: string,
+    allow: "image" | "video" | "all",
+    hint?: string,
+  ) => (
+    <div className="grid gap-1">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <VideoMediaPickerDialog
+        businessId={businessId}
+        format={format}
+        allow={allow}
+        label={cfg[key] ? "Changer le média" : "Choisir un média"}
+        value={cfg[key] ? [String(cfg[key])] : []}
+        onChange={(urls) => set(key, urls[0] ?? "")}
+      />
+      {hint && <span className="text-[11px] text-muted-foreground">{hint}</span>}
+    </div>
+  );
+
 
   switch (section.step_type) {
     case "hook":
