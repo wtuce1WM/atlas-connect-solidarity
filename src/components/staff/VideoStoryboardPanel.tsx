@@ -29,6 +29,7 @@ import {
   Play,
 } from "lucide-react";
 import { toast } from "sonner";
+import VideoIconPickerDialog from "@/components/staff/VideoIconPickerDialog";
 import { VideoMediaPickerDialog } from "@/components/staff/VideoMediaPickerDialog";
 
 import {
