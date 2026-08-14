@@ -34,14 +34,18 @@ export type PickerMedia = {
   title?: string | null;
   thumbnail?: string | null;
   duration?: number | null;
-  source: "fiche" | "generic" | "library";
+  source: "fiche" | "generic" | "landscape" | "library";
   scope?: "global" | "business";
   libraryId?: string;
   orientation?: "landscape" | "portrait" | "square" | null;
+  /** Fiche d'origine (utile pour les médias cross-fiches : générique / landscape). */
+  ownerName?: string | null;
+  /** Le média est aussi publié sur la fiche courante. */
+  onFiche?: boolean;
 };
 
 type TypeFilter = "all" | "image" | "video";
-type SourceFilter = "all" | "fiche" | "generic" | "library_business" | "library_global";
+type SourceFilter = "all" | "fiche" | "generic" | "landscape" | "library_business" | "library_global";
 
 const isInternalVideoUrl = (u: string) => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u);
 
@@ -59,6 +63,7 @@ const fmtDur = (s?: number | null) => {
 const SOURCE_LABEL: Record<PickerMedia["source"] | "library_global" | "library_business", string> = {
   fiche: "Fiche",
   generic: "Générique",
+  landscape: "Landscape",
   library: "Bibliothèque",
   library_global: "Bibliothèque globale",
   library_business: "Bibliothèque fiche",
@@ -170,7 +175,9 @@ function Tile({
                 : "fiche · staff"
               : item.source === "generic"
                 ? "générique"
-                : "fiche"}
+                : item.source === "landscape"
+                  ? "landscape"
+                  : "fiche"}
           </span>
           {orientation && (
             <span
@@ -266,40 +273,89 @@ export function useVideoMediaSources(businessId: string | null, open: boolean) {
         });
       }
 
+      // 2) Badges transverses : « Generic » et « vidéos landscape » — toutes fiches confondues
+      const { data: badgeRows } = await supabase
+        .from("badges")
+        .select("id, name_fr")
+        .or("name_fr.ilike.generic,name_fr.ilike.%landscape%");
+      const badgeIdByKind: Record<"generic" | "landscape", string | undefined> = {
+        generic: (badgeRows ?? []).find((b: any) => /^generic$/i.test(b.name_fr))?.id,
+        landscape: (badgeRows ?? []).find((b: any) => /landscape/i.test(b.name_fr))?.id,
+      };
+
+      const badgedDocIds: Record<"generic" | "landscape", string[]> = { generic: [], landscape: [] };
+      await Promise.all(
+        (["generic", "landscape"] as const).map(async (k) => {
+          const bid = badgeIdByKind[k];
+          if (!bid) return;
+          const { data } = await supabase
+            .from("business_document_badges")
+            .select("document_id")
+            .eq("badge_id", bid)
+            .limit(1000);
+          badgedDocIds[k] = (data ?? []).map((l: any) => String(l.document_id));
+        }),
+      );
+
+      const allBadgedIds = [...new Set([...badgedDocIds.generic, ...badgedDocIds.landscape])];
+      if (allBadgedIds.length) {
+        const genericSet = new Set(badgedDocIds.generic);
+        const landscapeSet = new Set(badgedDocIds.landscape);
+        const badgedDocs: any[] = [];
+        for (let i = 0; i < allBadgedIds.length; i += 200) {
+          const { data } = await supabase
+            .from("business_documents")
+            .select("id, url, name, thumbnail_url, business_id, businesses(name)")
+            .eq("type", "video")
+            .in("id", allBadgedIds.slice(i, i + 200));
+          if (data) badgedDocs.push(...data);
+        }
+        for (const d of badgedDocs) {
+          if (!d.url || !isInternalVideoUrl(String(d.url))) continue;
+          // Landscape prime dans le filtre : les deux badges sont possibles sur un doc
+          const src: PickerMedia["source"] = landscapeSet.has(String(d.id))
+            ? "landscape"
+            : genericSet.has(String(d.id))
+              ? "generic"
+              : "fiche";
+          out.push({
+            url: String(d.url),
+            kind: "video",
+            title: d.name ?? "Vidéo",
+            thumbnail: d.thumbnail_url ?? null,
+            source: src,
+            ownerName: (d as any).businesses?.name ?? null,
+          });
+        }
+      }
+
+      const ficheUrls = new Set<string>();
       if (businessId) {
-        // 2) Médias publics de la fiche + badge « Generic » sur les documents vidéo
-        const [{ data: biz }, { data: docs }, { data: badgeRows }] = await Promise.all([
+        // 3) Médias publics de la fiche courante
+        const [{ data: biz }, { data: docs }] = await Promise.all([
           supabase.from("businesses").select("images, logo_url").eq("id", businessId).maybeSingle(),
           supabase
             .from("business_documents")
             .select("id, url, name, thumbnail_url, type")
             .eq("business_id", businessId)
             .eq("type", "video"),
-          supabase.from("badges").select("id, name_fr").ilike("name_fr", "generic"),
         ]);
 
-        const badgeId = (badgeRows ?? [])[0]?.id as string | undefined;
-        let genericDocIds = new Set<string>();
-        if (badgeId && (docs ?? []).length) {
-          const { data: links } = await supabase
-            .from("business_document_badges")
-            .select("document_id")
-            .eq("badge_id", badgeId)
-            .in("document_id", (docs ?? []).map((d: any) => d.id));
-          genericDocIds = new Set((links ?? []).map((l: any) => String(l.document_id)));
-        }
-
         for (const url of ((biz as any)?.images ?? []) as string[]) {
-          if (typeof url === "string" && url.trim()) out.push({ url, kind: "image", source: "fiche" });
+          if (typeof url === "string" && url.trim()) {
+            ficheUrls.add(url.trim().toLowerCase());
+            out.push({ url, kind: "image", source: "fiche" });
+          }
         }
         for (const d of (docs ?? []) as any[]) {
           if (!d.url || !isInternalVideoUrl(String(d.url))) continue;
+          ficheUrls.add(String(d.url).trim().toLowerCase());
           out.push({
             url: String(d.url),
             kind: "video",
             title: d.name ?? "Vidéo",
             thumbnail: d.thumbnail_url ?? null,
-            source: genericDocIds.has(String(d.id)) ? "generic" : "fiche",
+            source: "fiche",
           });
         }
       }
@@ -307,12 +363,15 @@ export function useVideoMediaSources(businessId: string | null, open: boolean) {
       // Déduplication par URL, la bibliothèque staff prime (elle porte les métadonnées)
       const seen = new Set<string>();
       setItems(
-        out.filter((m) => {
-          const k = m.url.trim().toLowerCase();
-          if (seen.has(k)) return false;
-          seen.add(k);
-          return true;
-        }),
+        out
+          .filter((m) => {
+            const k = m.url.trim().toLowerCase();
+            if (seen.has(k)) return false;
+            seen.add(k);
+            return true;
+          })
+          // un média badgé qui appartient aussi à la fiche courante reste visible dans « Fiche »
+          .map((m) => ({ ...m, onFiche: ficheUrls.has(m.url.trim().toLowerCase()) })),
       );
     } catch (e: any) {
       toast.error(`Chargement des médias impossible : ${e.message ?? e}`);
@@ -360,25 +419,55 @@ export function VideoMediaPickerDialog({
   const [search, setSearch] = useState("");
   const [uploadScope, setUploadScope] = useState<"global" | "business">(businessId ? "business" : "global");
   const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (allow !== "all") setTypeFilter(allow);
   }, [allow]);
 
+  /** Base restreinte par `allow` + type : sert aussi aux compteurs du menu déroulant. */
+  const typeBase = useMemo(
+    () =>
+      items.filter((m) => {
+        if (allow !== "all" && m.kind !== allow) return false;
+        if (typeFilter !== "all" && m.kind !== typeFilter) return false;
+        return true;
+      }),
+    [items, allow, typeFilter],
+  );
+
+  const matchSource = (m: PickerMedia, f: SourceFilter) => {
+    switch (f) {
+      case "all":
+        return true;
+      case "fiche":
+        return m.source === "fiche" || !!m.onFiche;
+      case "generic":
+        return m.source === "generic";
+      case "landscape":
+        return m.source === "landscape";
+      case "library_business":
+        return m.source === "library" && m.scope === "business";
+      case "library_global":
+        return m.source === "library" && m.scope === "global";
+    }
+  };
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return items.filter((m) => {
-      if (allow !== "all" && m.kind !== allow) return false;
-      if (typeFilter !== "all" && m.kind !== typeFilter) return false;
-      if (sourceFilter === "fiche" && m.source !== "fiche") return false;
-      if (sourceFilter === "generic" && m.source !== "generic") return false;
-      if (sourceFilter === "library_business" && !(m.source === "library" && m.scope === "business")) return false;
-      if (sourceFilter === "library_global" && !(m.source === "library" && m.scope === "global")) return false;
-      if (q && !(m.title ?? "").toLowerCase().includes(q) && !m.url.toLowerCase().includes(q)) return false;
+    return typeBase.filter((m) => {
+      if (!matchSource(m, sourceFilter)) return false;
+      if (
+        q &&
+        !(m.title ?? "").toLowerCase().includes(q) &&
+        !(m.ownerName ?? "").toLowerCase().includes(q) &&
+        !m.url.toLowerCase().includes(q)
+      )
+        return false;
       return true;
     });
-  }, [items, allow, typeFilter, sourceFilter, search]);
+  }, [typeBase, sourceFilter, search]);
 
   const toggle = (m: PickerMedia) => {
     if (!multiple) {
@@ -391,33 +480,48 @@ export function VideoMediaPickerDialog({
     else toast.info(`${max} médias maximum pour cette section.`);
   };
 
-  const upload = async (file: File) => {
+  const uploadOne = async (file: File) => {
     const kind: "image" | "video" = file.type.startsWith("video") ? "video" : "image";
+    const ext = file.name.split(".").pop()?.toLowerCase() || (kind === "video" ? "mp4" : "jpg");
+    const path = `${uploadScope === "business" && businessId ? businessId : "global"}/${crypto.randomUUID()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("video-assets").upload(path, file, {
+      cacheControl: "31536000",
+      upsert: false,
+      contentType: file.type || undefined,
+    });
+    if (upErr) throw upErr;
+    const { data: pub } = supabase.storage.from("video-assets").getPublicUrl(path);
+    const { data: me } = await supabase.auth.getUser();
+    const { error: insErr } = await supabase.from("video_media_library").insert({
+      business_id: uploadScope === "business" ? businessId : null,
+      kind,
+      url: pub.publicUrl,
+      title: file.name.replace(/\.[^.]+$/, "").slice(0, 120),
+      storage_path: path,
+      created_by: me.user?.id ?? null,
+    });
+    if (insErr) throw insErr;
+  };
+
+  const uploadFiles = async (files: File[]) => {
+    const usable = files.filter((f) => f.type.startsWith("image") || f.type.startsWith("video"));
+    if (usable.length === 0) {
+      toast.error("Seules les images et vidéos sont acceptées.");
+      return;
+    }
     setUploading(true);
+    let ok = 0;
     try {
-      const ext = file.name.split(".").pop()?.toLowerCase() || (kind === "video" ? "mp4" : "jpg");
-      const path = `${uploadScope === "business" && businessId ? businessId : "global"}/${crypto.randomUUID()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("video-assets").upload(path, file, {
-        cacheControl: "31536000",
-        upsert: false,
-        contentType: file.type || undefined,
-      });
-      if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from("video-assets").getPublicUrl(path);
-      const { data: me } = await supabase.auth.getUser();
-      const { error: insErr } = await supabase.from("video_media_library").insert({
-        business_id: uploadScope === "business" ? businessId : null,
-        kind,
-        url: pub.publicUrl,
-        title: file.name.replace(/\.[^.]+$/, "").slice(0, 120),
-        storage_path: path,
-        created_by: me.user?.id ?? null,
-      });
-      if (insErr) throw insErr;
-      toast.success("Média ajouté à la bibliothèque");
+      for (const f of usable) {
+        try {
+          await uploadOne(f);
+          ok += 1;
+        } catch (e: any) {
+          toast.error(`${f.name} : ${e.message ?? e}`);
+        }
+      }
+      if (ok > 0) toast.success(`${ok} média${ok > 1 ? "s" : ""} ajouté${ok > 1 ? "s" : ""} à la bibliothèque staff`);
       await reload();
-    } catch (e: any) {
-      toast.error(`Envoi impossible : ${e.message ?? e}`);
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -441,14 +545,17 @@ export function VideoMediaPickerDialog({
     await supabase.from("video_media_library").update({ orientation: o }).eq("id", m.libraryId);
   };
 
+  // Compteurs alignés sur les filtres réellement appliqués (type + allow)
   const counts = useMemo(
     () => ({
-      fiche: items.filter((m) => m.source === "fiche").length,
-      generic: items.filter((m) => m.source === "generic").length,
-      libBiz: items.filter((m) => m.source === "library" && m.scope === "business").length,
-      libGlobal: items.filter((m) => m.source === "library" && m.scope === "global").length,
+      all: typeBase.length,
+      fiche: typeBase.filter((m) => matchSource(m, "fiche")).length,
+      generic: typeBase.filter((m) => m.source === "generic").length,
+      landscape: typeBase.filter((m) => m.source === "landscape").length,
+      libBiz: typeBase.filter((m) => m.source === "library" && m.scope === "business").length,
+      libGlobal: typeBase.filter((m) => m.source === "library" && m.scope === "global").length,
     }),
-    [items],
+    [typeBase],
   );
 
   const selectedItems = value
@@ -464,12 +571,25 @@ export function VideoMediaPickerDialog({
               <ImageIcon className="h-3 w-3" /> {label}
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
+          <DialogContent
+            className={`max-w-5xl max-h-[85vh] overflow-y-auto ${dragOver ? "ring-2 ring-primary" : ""}`}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragOver(true);
+            }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragOver(false);
+              const files = Array.from(e.dataTransfer.files ?? []);
+              if (files.length) void uploadFiles(files);
+            }}
+          >
             <DialogHeader>
               <DialogTitle>Médias du montage</DialogTitle>
               <DialogDescription className="text-xs">
-                Fiche · Générique · Bibliothèque staff (globale ou rattachée). Les médias de la bibliothèque ne sont
-                jamais publiés sur le site.
+                Fiche · Générique · Landscape · Bibliothèque staff (globale ou rattachée). Les médias importés ici sont
+                réservés au staff et ne sont jamais publiés sur le site.
               </DialogDescription>
             </DialogHeader>
 
@@ -490,9 +610,10 @@ export function VideoMediaPickerDialog({
                 onChange={(e) => setSourceFilter(e.target.value as SourceFilter)}
                 className="h-8 rounded-md border bg-background px-2 text-xs"
               >
-                <option value="all">Toutes les sources</option>
+                <option value="all">Toutes les sources ({counts.all})</option>
                 <option value="fiche">Fiche ({counts.fiche})</option>
                 <option value="generic">Badge Générique ({counts.generic})</option>
+                <option value="landscape">Landscape ({counts.landscape})</option>
                 <option value="library_business">Bibliothèque fiche ({counts.libBiz})</option>
                 <option value="library_global">Bibliothèque globale ({counts.libGlobal})</option>
               </select>
@@ -515,11 +636,12 @@ export function VideoMediaPickerDialog({
                 <input
                   ref={fileRef}
                   type="file"
+                  multiple
                   accept="image/*,video/*"
                   className="hidden"
                   onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) void upload(f);
+                    const files = Array.from(e.target.files ?? []);
+                    if (files.length) void uploadFiles(files);
                   }}
                 />
                 <Button
@@ -536,6 +658,23 @@ export function VideoMediaPickerDialog({
               </div>
             </div>
 
+            <div
+              className={`rounded-md border border-dashed px-3 py-2 text-[11px] ${
+                dragOver ? "border-primary bg-primary/5 text-primary" : "text-muted-foreground"
+              }`}
+            >
+              {uploading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-3 w-3 animate-spin" /> Envoi en cours…
+                </span>
+              ) : (
+                <>
+                  Glissez-déposez ici vos images / vidéos — elles rejoignent la bibliothèque{" "}
+                  <b>{uploadScope === "business" ? "de cette fiche" : "globale"}</b> (staff uniquement).
+                </>
+              )}
+            </div>
+
             {format && (
               <p className="text-[11px] text-muted-foreground">
                 Montage {format === "portrait" ? "portrait 9:16" : "paysage 16:9"} — les médias signalés en orange sont
@@ -549,7 +688,7 @@ export function VideoMediaPickerDialog({
               </div>
             ) : filtered.length === 0 ? (
               <p className="py-10 text-sm text-muted-foreground">
-                Aucun média pour ces filtres. Importez un fichier pour alimenter la bibliothèque.
+                Aucun média pour ces filtres. Glissez-déposez ou importez un fichier pour alimenter la bibliothèque.
               </p>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 pt-2">
