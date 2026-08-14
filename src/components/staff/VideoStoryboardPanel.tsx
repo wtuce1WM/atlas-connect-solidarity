@@ -167,7 +167,12 @@ const ConfigFields = ({
     case "video":
       return (
         <div className="grid gap-3 md:grid-cols-2">
-          {text("assetUrl", "URL de la vidéo (asset 1WM)", "laisser vide = vidéo interne de la fiche")}
+          {mediaOne(
+            "assetUrl",
+            "Vidéo de la section",
+            "video",
+            "Vide = première vidéo interne de la fiche.",
+          )}
           <label className="text-xs text-muted-foreground grid gap-1">
             Son de la vidéo
             <span className="flex items-center gap-2 h-8">
@@ -193,26 +198,27 @@ const ConfigFields = ({
           </label>
           {text("kenBurns", "Mouvement (zoom_in, zoom_out, none)", "zoom_in")}
           {text("title", "Titre affiché (optionnel)")}
-          <label className="text-xs text-muted-foreground grid gap-1 md:col-span-2">
-            URLs des photos (une par ligne, prioritaires sur les photos de la fiche)
-            <Textarea
-              value={Array.isArray(cfg.images) ? (cfg.images as string[]).join("\n") : ""}
-              onChange={(e) =>
-                set(
-                  "images",
-                  e.target.value
-                    .split("\n")
-                    .map((v) => v.trim())
-                    .filter(Boolean)
-                    .slice(0, 4),
-                )
-              }
-              rows={3}
-              className="text-xs"
+          <div className="grid gap-1 md:col-span-2">
+            <span className="text-xs text-muted-foreground">
+              Photos du carrousel (1 à 4, ordre de sélection conservé)
+            </span>
+            <VideoMediaPickerDialog
+              businessId={businessId}
+              format={format}
+              allow="image"
+              multiple
+              max={4}
+              label="Choisir les photos"
+              value={Array.isArray(cfg.images) ? (cfg.images as string[]) : []}
+              onChange={(urls) => set("images", urls.slice(0, 4))}
             />
-          </label>
+            <span className="text-[11px] text-muted-foreground">
+              Vide = photos publiques de la fiche.
+            </span>
+          </div>
         </div>
       );
+
     case "text_overlay":
       return (
         <label className="text-xs text-muted-foreground grid gap-1">
