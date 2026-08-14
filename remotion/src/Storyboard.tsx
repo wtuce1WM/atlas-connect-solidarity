@@ -286,10 +286,10 @@ export const SceneBody: React.FC<{
 
 
 /**
- * `logo_merge` — premier type finalisé.
- * Les deux logos entrent depuis les bords opposés, convergent vers le centre,
- * puis un trait d'or se dessine entre eux : la signature du partenariat.
- * Aucune boîte, aucun cadre : on n'anime que les silhouettes détourées.
+ * `logo_merge` — signature de partenariat.
+ * Paysage : les deux logos convergent horizontalement, trait d'or entre eux.
+ * Portrait : ils convergent verticalement (empilés) — c'est la seule façon de
+ * ne jamais rogner deux logos larges sur les bords d'un cadre 1080 de large.
  */
 const LogoMergeScene: React.FC<{
   wide: boolean;
@@ -304,8 +304,11 @@ const LogoMergeScene: React.FC<{
   const caption = str(cfg, "caption");
 
   const stage = wide ? STAGE_LANDSCAPE : STAGE_PORTRAIT;
-  const logoSize = stage.width * (wide ? 0.22 : 0.36);
-  const spread = stage.width * (wide ? 0.19 : 0.24);
+  // Zone utile : 86 % de la largeur du cadre, halo du logo inclus (PromoLogo
+  // déborde de ~45 % de sa taille). Le logo ne peut donc jamais être rogné.
+  const safeWidth = stage.width * 0.86;
+  const logoSize = wide ? Math.min(stage.width * 0.22, safeWidth * 0.4) : safeWidth * 0.68;
+  const spread = wide ? stage.width * 0.19 : stage.height * 0.14;
 
   // Convergence : ressort d'entrée puis rapprochement vers le centre.
   const enter = spring({ frame, fps, config: { damping: 22, stiffness: 80, mass: 1.1 } });
@@ -314,10 +317,11 @@ const LogoMergeScene: React.FC<{
     fps,
     config: { damping: 26, stiffness: 60, mass: 1.2 },
   });
-  const offset = interpolate(enter, [0, 1], [spread * 2.1, spread]) - interpolate(merge, [0, 1], [0, spread * 0.34]);
+  const offset = interpolate(enter, [0, 1], [spread * 1.8, spread]) - interpolate(merge, [0, 1], [0, spread * 0.34]);
 
   // Trait d'or : se dessine quand la convergence est engagée.
-  const ruleWidth = interpolate(merge, [0, 1], [0, stage.width * (wide ? 0.1 : 0.16)]);
+  const ruleLength = interpolate(merge, [0, 1], [0, wide ? stage.width * 0.1 : safeWidth * 0.34]);
+  const ruleThickness = Math.max(3, stage.width * 0.0028);
   const captionIn = interpolate(frame, [Math.round(fps * 1.6), Math.round(fps * 2.2)], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -326,53 +330,70 @@ const LogoMergeScene: React.FC<{
     extrapolateLeft: "clamp",
   });
 
+  const shift = (dir: -1 | 1) =>
+    wide ? `translateX(${dir * offset}px)` : `translateY(${dir * offset}px)`;
+
   return (
     <SceneBackdrop>
-      <div style={{ opacity: out, display: "flex", flexDirection: "column", alignItems: "center", gap: stage.width * 0.05 }}>
-        <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ transform: `translateX(${-offset}px)` }}>
+      <div
+        style={{
+          opacity: out,
+          width: safeWidth,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: stage.width * 0.05,
+        }}
+      >
+        <div
+          style={{
+            position: "relative",
+            display: "flex",
+            flexDirection: wide ? "row" : "column",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div style={{ transform: shift(-1), display: "flex", justifyContent: "center", width: logoSize }}>
             {brandLogoUrl ? (
               <PromoLogo src={brandLogoUrl} size={logoSize} />
             ) : (
-              <span style={{ fontFamily: displayFont, fontSize: size.h2, fontWeight: weight.bold, color: palette.cream }}>
-                1WM
-              </span>
+              <SceneTitle wide={wide}>1WM</SceneTitle>
             )}
           </div>
           <div
             style={{
-              width: ruleWidth,
-              height: Math.max(3, stage.width * 0.0028),
+              width: wide ? ruleLength : ruleThickness,
+              height: wide ? ruleThickness : ruleLength,
               background: palette.gold,
               borderRadius: 999,
               boxShadow: `0 0 ${Math.round(stage.width * 0.02)}px ${alpha("gold", 0.55)}`,
             }}
           />
-          <div style={{ transform: `translateX(${offset}px)` }}>
+          <div style={{ transform: shift(1), display: "flex", justifyContent: "center", width: logoSize }}>
             {partner ? (
               <PromoLogo src={partner} size={logoSize} delay={4} />
             ) : (
-              <span style={{ fontFamily: displayFont, fontSize: size.h2, fontWeight: weight.medium, color: alpha("cream", 0.5) }}>
+              <SceneTitle wide={wide} style={{ color: alpha("cream", 0.5), fontWeight: weight.medium }}>
                 ?
-              </span>
+              </SceneTitle>
             )}
           </div>
         </div>
         {caption && (
-          <span
+          <SceneKicker
             style={{
               opacity: captionIn,
               transform: `translateY(${interpolate(captionIn, [0, 1], [10, 0])}px)`,
-              fontFamily: bodyFont,
               fontSize: size.lead,
               letterSpacing: 2,
-              textTransform: "uppercase",
-              color: palette.gold,
+              textAlign: "center",
             }}
           >
             {caption}
-          </span>
+          </SceneKicker>
         )}
+
       </div>
     </SceneBackdrop>
   );
