@@ -447,6 +447,8 @@ const SortableSection = ({
   onToggle,
   patch,
   remove,
+  businessId,
+  format,
 }: {
   section: Section;
   index: number;
@@ -455,9 +457,12 @@ const SortableSection = ({
   onToggle: () => void;
   patch: (values: Partial<Section>) => void;
   remove: () => void;
+  businessId: string | null;
+  format: "portrait" | "landscape";
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: section.id });
   const hint = STEP_TYPES.find((s) => s.value === section.step_type)?.hint;
+
 
   return (
     <div
