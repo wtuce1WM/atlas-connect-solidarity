@@ -568,8 +568,15 @@ const SortableStep = ({
   );
 };
 
-const VideoScenarioConfigPanel = () => {
-  const [mode, setMode] = useState<VideoScenarioMode>("business");
+const VideoScenarioConfigPanel = ({
+  initialMode = "business",
+  hideModeSwitch = false,
+}: {
+  initialMode?: VideoScenarioMode;
+  hideModeSwitch?: boolean;
+} = {}) => {
+  const [mode, setMode] = useState<VideoScenarioMode>(initialMode);
+  useEffect(() => setMode(initialMode), [initialMode]);
   const [steps, setSteps] = useState<VideoScenarioStep[]>([]);
   const [config, setConfig] = useState<ScenarioConfig | null>(null);
   const [removed, setRemoved] = useState<string[]>([]);
