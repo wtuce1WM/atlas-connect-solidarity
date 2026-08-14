@@ -1368,7 +1368,56 @@ const VideoStoryboardPanel = () => {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between gap-3 flex-wrap">
+          <CardTitle className="text-black text-base">Rendus du storyboard</CardTitle>
+          <Button size="sm" variant="outline" onClick={loadJobs}>
+            <RotateCcw className="h-4 w-4 mr-1" /> Rafraîchir
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {jobs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Aucun rendu storyboard pour le moment.</p>
+          ) : (
+            <div className="divide-y">
+              {jobs.map((j) => (
+                <div key={j.id} className="py-2 flex items-center gap-3 flex-wrap text-sm">
+                  <Badge
+                    variant={j.status === "done" ? "default" : j.status === "error" ? "destructive" : "outline"}
+                    className="text-[10px]"
+                  >
+                    {j.status}
+                  </Badge>
+                  <span className="text-black font-medium">{j.title || j.id.slice(0, 8)}</span>
+                  <span className="text-[11px] text-muted-foreground font-mono">{j.template_id}</span>
+                  {j.duration_sec != null && (
+                    <span className="text-[11px] text-muted-foreground">{j.duration_sec}s</span>
+                  )}
+                  <span className="text-[11px] text-muted-foreground">
+                    {new Date(j.created_at).toLocaleString("fr-FR")}
+                  </span>
+                  {j.output_url && (
+                    <a
+                      href={j.output_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[11px] underline text-primary ml-auto"
+                    >
+                      Ouvrir la vidéo
+                    </a>
+                  )}
+                  {j.error_message && (
+                    <span className="text-[11px] text-destructive ml-auto max-w-md truncate">{j.error_message}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       <StoryboardGuide />
+
     </div>
   );
 };
