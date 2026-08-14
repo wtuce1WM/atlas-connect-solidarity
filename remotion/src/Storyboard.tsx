@@ -728,32 +728,17 @@ const SplitScreenScene: React.FC<{ wide: boolean; section: StoryboardSection }> 
                 }}
               >
                 {title && (
-                  <span
-                    style={{
-                      fontFamily: displayFont,
-                      fontSize: wide ? size.h3 : size.h4,
-                      fontWeight: weight.bold,
-                      lineHeight: 1.1,
-                      color: palette.cream,
-                    }}
-                  >
+                  <SceneTitle wide={wide} level={3}>
                     {title}
-                  </span>
+                  </SceneTitle>
                 )}
                 <GoldRule width={interpolate(enter, [0, 1], [0, stage.width * 0.05])} stageWidth={stage.width} />
                 {bodyText && (
-                  <span
-                    style={{
-                      fontFamily: bodyFont,
-                      fontSize: size.caption,
-                      lineHeight: 1.4,
-                      color: alpha("cream", 0.85),
-                      maxWidth: stage.width * (row ? 0.4 : 0.8),
-                    }}
-                  >
+                  <SceneBody small style={{ lineHeight: 1.4, maxWidth: stage.width * (row ? 0.4 : 0.8) }}>
                     {bodyText}
-                  </span>
+                  </SceneBody>
                 )}
+
               </div>
             </div>
           );
