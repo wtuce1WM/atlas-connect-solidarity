@@ -518,6 +518,46 @@ export function useVideoMediaSources(businessId: string | null, open: boolean, o
         }
       }
 
+      // 6) Rendus déjà générés (jobs terminés) : Scénario Feed et Promo business.
+      //    Ce sont des MP4 internes, réutilisables comme média de fond d'un montage.
+      const { data: jobs } = await supabase
+        .from("video_jobs")
+        .select("id, title, output_url, template_id, duration_sec, business_id, created_at")
+        .eq("status", "done")
+        .not("output_url", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(300);
+      const jobRows = (jobs ?? []).filter((j: any) => {
+        const t = String(j.template_id ?? "");
+        return t.startsWith("feed-template") || t.startsWith("business-promo");
+      });
+      if (jobRows.length) {
+        const jobBizIds = [...new Set(jobRows.map((j: any) => j.business_id).filter(Boolean))];
+        const jobOwners = new Map<string, string>();
+        for (let i = 0; i < jobBizIds.length; i += 200) {
+          const { data: owners } = await supabase
+            .from("businesses")
+            .select("id, name")
+            .in("id", jobBizIds.slice(i, i + 200) as string[]);
+          for (const o of owners ?? []) jobOwners.set(String(o.id), o.name);
+        }
+        for (const j of jobRows as any[]) {
+          const url = typeof j.output_url === "string" ? j.output_url.trim() : "";
+          if (!url) continue;
+          const t = String(j.template_id ?? "");
+          out.push({
+            url,
+            kind: "video",
+            title: j.title || (t.startsWith("business-promo") ? "Promo business" : "Scénario Feed"),
+            duration: j.duration_sec != null ? Number(j.duration_sec) : null,
+            orientation: t.includes("landscape") ? "landscape" : "portrait",
+            source: t.startsWith("business-promo") ? "render_promo" : "render_feed",
+            mediaId: String(j.id),
+            ownerName: j.business_id ? (jobOwners.get(String(j.business_id)) ?? null) : null,
+          });
+        }
+      }
+
       // Déduplication par URL, la bibliothèque staff prime (elle porte les métadonnées)
       const seen = new Set<string>();
       const deduped = out
