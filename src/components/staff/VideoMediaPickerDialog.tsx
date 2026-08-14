@@ -37,6 +37,8 @@ export type PickerMedia = {
   source: "fiche" | "generic" | "library" | "generic_video" | "other";
   scope?: "global" | "business";
   libraryId?: string;
+  /** ID base de la vidéo/média source (business_documents, generic_videos, bibliothèque). */
+  mediaId?: string | null;
   orientation?: "landscape" | "portrait" | "square" | null;
   /** Fiche d'origine (utile pour les médias cross-fiches : générique). */
   ownerName?: string | null;
