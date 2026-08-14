@@ -626,6 +626,36 @@ export function VideoMediaPickerDialog({
     else toast.info(`${max} médias maximum pour cette section.`);
   };
 
+  /** Orientation détectée par une vignette → remontée dans la liste pour que
+   *  les compteurs (« Format paysage 16:9 ») restent cohérents avec les badges. */
+  const noteOrientation = (m: PickerMedia, o: "landscape" | "portrait" | "square") => {
+    setItems((prev) =>
+      prev.map((it) => (it.url === m.url && it.orientation !== o ? { ...it, orientation: o } : it)),
+    );
+  };
+
+  // Toggle « tous / aucun » réservé à l'entrée Fiche · vidéos.
+  const effectiveType = allow !== "all" ? allow : typeFilter;
+  const showFicheVideosToggle = multiple && sourceFilter === "fiche" && effectiveType === "video";
+  const ficheVideoUrls = useMemo(
+    () => (showFicheVideosToggle ? filtered.map((m) => m.url) : []),
+    [showFicheVideosToggle, filtered],
+  );
+  const allFicheVideosSelected =
+    ficheVideoUrls.length > 0 && ficheVideoUrls.every((u) => value.includes(u));
+  const toggleAllFicheVideos = () => {
+    if (allFicheVideosSelected) {
+      onChange(value.filter((u) => !ficheVideoUrls.includes(u)));
+      return;
+    }
+    const merged = [...value];
+    for (const u of ficheVideoUrls) if (!merged.includes(u) && merged.length < max) merged.push(u);
+    if (merged.length === value.length) toast.info(`${max} médias maximum pour cette section.`);
+    onChange(merged);
+  };
+
+
+
   const uploadOne = async (file: File) => {
     const kind: "image" | "video" = file.type.startsWith("video") ? "video" : "image";
     const ext = file.name.split(".").pop()?.toLowerCase() || (kind === "video" ? "mp4" : "jpg");
