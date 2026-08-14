@@ -133,10 +133,13 @@ const MediaFill: React.FC<{ src: string; kind: "img" | "video"; durationFrames: 
     objectFit: "cover",
     transform: `scale(${scale})`,
   };
+  // Médias internalisés par le worker (`dl/…`) : résolution obligatoire via staticFile.
+  const resolved = assetUrl(src);
+  if (!resolved) return null;
   return kind === "video" ? (
-    <OffthreadVideo src={src} muted style={styleFill} />
+    <OffthreadVideo src={resolved} muted style={styleFill} />
   ) : (
-    <Img src={src} style={styleFill} />
+    <Img src={resolved} style={styleFill} />
   );
 };
 
