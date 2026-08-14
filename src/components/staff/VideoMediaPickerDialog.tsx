@@ -34,14 +34,16 @@ export type PickerMedia = {
   title?: string | null;
   thumbnail?: string | null;
   duration?: number | null;
-  source: "fiche" | "generic" | "library";
+  source: "fiche" | "generic" | "landscape" | "library";
   scope?: "global" | "business";
   libraryId?: string;
   orientation?: "landscape" | "portrait" | "square" | null;
+  /** Fiche d'origine (utile pour les médias cross-fiches : générique / landscape). */
+  ownerName?: string | null;
 };
 
 type TypeFilter = "all" | "image" | "video";
-type SourceFilter = "all" | "fiche" | "generic" | "library_business" | "library_global";
+type SourceFilter = "all" | "fiche" | "generic" | "landscape" | "library_business" | "library_global";
 
 const isInternalVideoUrl = (u: string) => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u);
 
