@@ -124,8 +124,18 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Signed upload URL (valid ~1h) for the worker to PUT the mp4 directly.
-    const storagePath = `${job.id}.mp4`;
+    // Nom de fichier informatif (origine + établissement + format + date).
+    let businessSlug: string | null = null;
+    if (job.business_id) {
+      const { data: biz } = await supabase
+        .from('businesses')
+        .select('slug, name')
+        .eq('id', job.business_id)
+        .maybeSingle();
+      businessSlug = biz?.slug || biz?.name || null;
+    }
+    const storagePath = buildFileName(job, businessSlug);
+
     const { data: signed, error: signErr } = await supabase.storage
       .from(BUCKET)
       .createSignedUploadUrl(storagePath, { upsert: true });
