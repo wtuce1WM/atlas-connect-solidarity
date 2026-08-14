@@ -1812,6 +1812,7 @@ const VideoStoryboardPanel = () => {
       </Card>
 
       <StoryboardGuide />
+      </div>
 
     </div>
   );
