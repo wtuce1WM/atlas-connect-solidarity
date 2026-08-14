@@ -97,6 +97,10 @@ const StaffVideos = () => {
               <Rocket className="h-4 w-4" />
               Rendus
             </TabsTrigger>
+            <TabsTrigger value="latest" className="gap-2">
+              <Film className="h-4 w-4" />
+              Dernières vidéos
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="dashboard">
             <VideoDashboardPanel />
@@ -104,10 +108,13 @@ const StaffVideos = () => {
           <TabsContent value="storyboard">
             <VideoStoryboardPanel />
           </TabsContent>
-          <TabsContent value="renders" className="space-y-8">
+          <TabsContent value="renders">
             <VideoGeneratePanel />
+          </TabsContent>
+          <TabsContent value="latest">
             <LatestVideosPanel />
           </TabsContent>
+
         </Tabs>
 
 
