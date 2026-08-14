@@ -173,7 +173,9 @@ function Tile({
                 : "fiche · staff"
               : item.source === "generic"
                 ? "générique"
-                : "fiche"}
+                : item.source === "landscape"
+                  ? "landscape"
+                  : "fiche"}
           </span>
           {orientation && (
             <span
