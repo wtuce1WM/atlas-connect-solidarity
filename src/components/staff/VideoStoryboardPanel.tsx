@@ -13,6 +13,7 @@ import {
   GripVertical,
   Plus,
   RotateCcw,
+  Rocket,
   Save,
   Trash2,
 } from "lucide-react";
@@ -364,7 +365,9 @@ const VideoStoryboardPanel = () => {
   const [newType, setNewType] = useState<StepType>("hook");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [rendering, setRendering] = useState(false);
   const [dirty, setDirty] = useState(false);
+
 
   // Autocomplete établissement (même mécanique que Promo business).
   const [query, setQuery] = useState("");
@@ -612,6 +615,76 @@ const VideoStoryboardPanel = () => {
     await loadBoard(board.id);
   };
 
+  /**
+   * Rendu : le storyboard enregistré est la source unique. On envoie les
+   * sections telles quelles au moteur Remotion générique (`storyboard`),
+   * jamais un template dédié à un scénario.
+   */
+  const render = async () => {
+    if (!board) return;
+    if (dirty) {
+      toast.error("Enregistre le storyboard avant de lancer le rendu");
+      return;
+    }
+    if (sections.length === 0) {
+      toast.error("Ajoute au moins une section");
+      return;
+    }
+    if (overflow) {
+      toast.error(`Durée totale ${mmss(totals.total)} > plafond ${mmss(maxTotal)}`);
+      return;
+    }
+    setRendering(true);
+    let logoUrl: string | null = null;
+    if (biz?.id) {
+      const { data } = await supabase
+        .from("businesses")
+        .select("logo_url")
+        .eq("id", biz.id)
+        .maybeSingle();
+      logoUrl = ((data as { logo_url?: string | null } | null)?.logo_url) ?? null;
+    }
+    const { data: auth } = await supabase.auth.getUser();
+    const payload = {
+      user_id: auth.user?.id ?? null,
+      business_id: biz?.id ?? null,
+      title: `Storyboard — ${board.name}`,
+      prompt: board.name,
+      status: "pending",
+      duration_sec: Math.round(totals.total),
+      template_id: board.format === "landscape" ? "storyboard-landscape" : "storyboard",
+      template_props: {
+        kind: "storyboard",
+        storyboardId: board.id,
+        format: board.format,
+        previewScale: board.preview_scale,
+        logoUrl,
+        sections: sections
+          .filter((s) => s.enabled)
+          .map((s) => ({
+            step_type: s.step_type,
+            label: s.label,
+            duration_sec: Math.max(
+              MIN_SECTION_SEC,
+              Math.min(MAX_SECTION_SEC, Number(s.duration_sec) || MIN_SECTION_SEC),
+            ),
+            config: s.config ?? {},
+          })),
+      },
+    };
+    const { error } = await supabase.from("video_jobs").insert(payload as any);
+    if (error) {
+      setRendering(false);
+      toast.error(`Création du job impossible : ${error.message}`);
+      return;
+    }
+    const { error: wfError } = await supabase.functions.invoke("trigger-render-workflow", { body: {} });
+    setRendering(false);
+    if (wfError) toast.warning("Job créé, mais le déclenchement GitHub a échoué.");
+    else toast.success("Job créé : rendu lancé (onglet Dernières vidéos).");
+  };
+
+
   return (
     <div className="space-y-6">
       <Card>
@@ -773,6 +846,17 @@ const VideoStoryboardPanel = () => {
                 <Button size="sm" onClick={save} disabled={!dirty || saving}>
                   <Save className="h-4 w-4 mr-1" /> Enregistrer
                 </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={render}
+                  disabled={rendering || saving || dirty || sections.length === 0 || overflow}
+                  title={dirty ? "Enregistre d'abord le storyboard" : undefined}
+                >
+                  <Rocket className="h-4 w-4 mr-1" />
+                  {rendering ? "Lancement…" : `Rendre (${board.preview_scale === 1 ? "1080p" : `${Math.round(board.preview_scale * 100)}%`})`}
+                </Button>
+
               </div>
 
               {loading ? (

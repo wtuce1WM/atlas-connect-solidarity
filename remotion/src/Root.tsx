@@ -30,6 +30,34 @@ import {
   PROMO_LANDSCAPE,
   type BusinessPromoProps,
 } from "./BusinessPromo";
+import {
+  Storyboard,
+  computeStoryboardFrames,
+  storyboardDefaults,
+  STORYBOARD_FPS,
+  STORYBOARD_PORTRAIT,
+  STORYBOARD_LANDSCAPE,
+  type StoryboardProps,
+} from "./Storyboard";
+
+/**
+ * Storyboard manuel : la durée, le format et l'échelle de sortie viennent
+ * intégralement du storyboard enregistré en back-office.
+ */
+const storyboardMetadata = (format: "portrait" | "landscape") => ({ props }: { props: Record<string, unknown> }) => {
+  const p = { ...storyboardDefaults, ...(props as StoryboardProps), format };
+  const base = format === "landscape" ? STORYBOARD_LANDSCAPE : STORYBOARD_PORTRAIT;
+  const raw = (props as { previewScale?: number }).previewScale;
+  const scale = typeof raw === "number" && raw > 0 && raw <= 1 ? raw : 1;
+  return {
+    durationInFrames: computeStoryboardFrames(p),
+    fps: STORYBOARD_FPS,
+    width: Math.round((base.width * scale) / 2) * 2,
+    height: Math.round((base.height * scale) / 2) * 2,
+    props: p,
+  };
+};
+
 
 /** Promo business : durée déduite des blocs actifs et de leurs durées. */
 const promoMetadata = (format: "portrait" | "landscape") => ({ props }: { props: Record<string, unknown> }) => {
@@ -110,6 +138,27 @@ export const RemotionRoot: React.FC = () => (
       defaultProps={{ ...promoDefaults, format: "landscape" } as BusinessPromoProps}
       calculateMetadata={promoMetadata("landscape")}
     />
+    <Composition
+      id="storyboard"
+      component={Storyboard}
+      durationInFrames={computeStoryboardFrames(storyboardDefaults)}
+      fps={STORYBOARD_FPS}
+      width={STORYBOARD_PORTRAIT.width}
+      height={STORYBOARD_PORTRAIT.height}
+      defaultProps={{ ...storyboardDefaults, format: "portrait" } as StoryboardProps}
+      calculateMetadata={storyboardMetadata("portrait")}
+    />
+    <Composition
+      id="storyboard-landscape"
+      component={Storyboard}
+      durationInFrames={computeStoryboardFrames(storyboardDefaults)}
+      fps={STORYBOARD_FPS}
+      width={STORYBOARD_LANDSCAPE.width}
+      height={STORYBOARD_LANDSCAPE.height}
+      defaultProps={{ ...storyboardDefaults, format: "landscape" } as StoryboardProps}
+      calculateMetadata={storyboardMetadata("landscape")}
+    />
+
     <Composition
       id="feed-swipe"
       component={FeedSwipe}
