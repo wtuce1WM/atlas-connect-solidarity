@@ -8332,6 +8332,7 @@ export type Database = {
         Row: {
           business_id: string | null
           created_at: string
+          effects: Json | null
           format: string
           id: string
           max_duration_sec: number
@@ -8343,6 +8344,7 @@ export type Database = {
         Insert: {
           business_id?: string | null
           created_at?: string
+          effects?: Json | null
           format?: string
           id?: string
           max_duration_sec?: number
@@ -8354,6 +8356,7 @@ export type Database = {
         Update: {
           business_id?: string | null
           created_at?: string
+          effects?: Json | null
           format?: string
           id?: string
           max_duration_sec?: number
