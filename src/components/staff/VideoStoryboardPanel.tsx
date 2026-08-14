@@ -566,7 +566,7 @@ const SortableSection = ({
  * sans avoir à deviner le comportement du moteur Remotion.
  */
 const StoryboardGuide = () => {
-  const stepHelp: Array<{ type: StepType; icon: React.ReactNode; title: string; body: string }> = [
+  const stepHelp: Array<{ type: StepType; icon: ReactNode; title: string; body: string }> = [
     {
       type: "hook",
       icon: <MousePointerClick className="h-4 w-4" />,
