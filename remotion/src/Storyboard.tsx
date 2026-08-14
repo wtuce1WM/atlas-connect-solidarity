@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Sequence, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Img, Sequence, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { palette, alpha, display, body, size, weight } from "./tokens";
 import { PromoLogo } from "./promo/PromoLogo";
 
@@ -700,6 +700,12 @@ const SectionScene: React.FC<{ wide: boolean; p: StoryboardProps; section: Story
   switch (section.step_type) {
     case "logo_merge":
       return <LogoMergeScene wide={wide} brandLogoUrl={p.brandLogoUrl ?? p.logoUrl ?? null} section={section} />;
+    case "counter":
+      return <CounterScene wide={wide} section={section} />;
+    case "map_reveal":
+      return <MapRevealScene wide={wide} section={section} />;
+    case "split_screen":
+      return <SplitScreenScene wide={wide} section={section} />;
     default:
       return <PlaceholderScene wide={wide} section={section} />;
   }
