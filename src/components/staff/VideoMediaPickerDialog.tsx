@@ -67,10 +67,11 @@ const isInternalVideoUrl = (u: string) => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u);
 
 const detectOrientation = (m: PickerMedia): Promise<"landscape" | "portrait" | "square" | null> => {
   return new Promise((resolve) => {
-    const timeout = window.setTimeout(() => resolve(null), 2500);
+    // Pas de crossOrigin : certains buckets/CDN ne renvoient pas d'en-tête CORS
+    // et l'élément échouerait alors que les dimensions sont lisibles sans lui.
+    const timeout = window.setTimeout(() => resolve(null), 8000);
     if (m.kind === "image") {
       const img = new Image();
-      img.crossOrigin = "anonymous";
       img.onload = () => {
         window.clearTimeout(timeout);
         resolve(ratioToOrientation(img.naturalWidth, img.naturalHeight));
@@ -82,7 +83,6 @@ const detectOrientation = (m: PickerMedia): Promise<"landscape" | "portrait" | "
       img.src = m.url;
     } else if (isInternalVideoUrl(m.url)) {
       const v = document.createElement("video");
-      v.crossOrigin = "anonymous";
       v.muted = true;
       v.playsInline = true;
       v.preload = "metadata";
@@ -105,6 +105,7 @@ const detectOrientation = (m: PickerMedia): Promise<"landscape" | "portrait" | "
     }
   });
 };
+
 
 const fmtDur = (s?: number | null) => {
   if (s == null || !Number.isFinite(s)) return null;
