@@ -49,6 +49,11 @@ type SourceFilter = "all" | "fiche" | "generic" | "landscape" | "library_busines
 
 const isInternalVideoUrl = (u: string) => /\.(mp4|webm|mov|m4v)(\?|$)/i.test(u);
 
+const documentVideoUrl = (d: any): string | null => {
+  const url = d?.youtube_video_url || d?.instagram_video_url || d?.tiktok_video_url || d?.url;
+  return typeof url === "string" && url.trim() ? url.trim() : null;
+};
+
 const ratioToOrientation = (w: number, h: number): "landscape" | "portrait" | "square" =>
   w > h * 1.05 ? "landscape" : h > w * 1.05 ? "portrait" : "square";
 
@@ -303,15 +308,27 @@ export function useVideoMediaSources(businessId: string | null, open: boolean) {
         const landscapeSet = new Set(badgedDocIds.landscape);
         const badgedDocs: any[] = [];
         for (let i = 0; i < allBadgedIds.length; i += 200) {
-          const { data } = await supabase
+          const { data, error } = await supabase
             .from("business_documents")
-            .select("id, url, name, thumbnail_url, business_id, businesses(name)")
+            .select("id, url, name, thumbnail_url, business_id, youtube_video_url, instagram_video_url, tiktok_video_url")
             .eq("type", "video")
             .in("id", allBadgedIds.slice(i, i + 200));
+          if (error) throw error;
           if (data) badgedDocs.push(...data);
         }
+
+        const ownerIds = [...new Set(badgedDocs.map((d) => d.business_id).filter(Boolean))];
+        const ownerNames = new Map<string, string>();
+        for (let i = 0; i < ownerIds.length; i += 200) {
+          const { data: owners } = await supabase
+            .from("businesses")
+            .select("id, name")
+            .in("id", ownerIds.slice(i, i + 200));
+          for (const owner of owners ?? []) ownerNames.set(String(owner.id), owner.name);
+        }
         for (const d of badgedDocs) {
-          if (!d.url || !isInternalVideoUrl(String(d.url))) continue;
+          const mediaUrl = documentVideoUrl(d);
+          if (!mediaUrl) continue;
           // Landscape prime dans le filtre : les deux badges sont possibles sur un doc
           const src: PickerMedia["source"] = landscapeSet.has(String(d.id))
             ? "landscape"
@@ -319,12 +336,12 @@ export function useVideoMediaSources(businessId: string | null, open: boolean) {
               ? "generic"
               : "fiche";
           out.push({
-            url: String(d.url),
+            url: mediaUrl,
             kind: "video",
             title: d.name ?? "Vidéo",
             thumbnail: d.thumbnail_url ?? null,
             source: src,
-            ownerName: (d as any).businesses?.name ?? null,
+            ownerName: ownerNames.get(String(d.business_id)) ?? null,
           });
         }
       }
@@ -336,7 +353,7 @@ export function useVideoMediaSources(businessId: string | null, open: boolean) {
           supabase.from("businesses").select("images, logo_url").eq("id", businessId).maybeSingle(),
           supabase
             .from("business_documents")
-            .select("id, url, name, thumbnail_url, type")
+            .select("id, url, name, thumbnail_url, type, youtube_video_url, instagram_video_url, tiktok_video_url")
             .eq("business_id", businessId)
             .eq("type", "video"),
         ]);
@@ -348,10 +365,11 @@ export function useVideoMediaSources(businessId: string | null, open: boolean) {
           }
         }
         for (const d of (docs ?? []) as any[]) {
-          if (!d.url || !isInternalVideoUrl(String(d.url))) continue;
-          ficheUrls.add(String(d.url).trim().toLowerCase());
+          const mediaUrl = documentVideoUrl(d);
+          if (!mediaUrl) continue;
+          ficheUrls.add(mediaUrl.toLowerCase());
           out.push({
-            url: String(d.url),
+            url: mediaUrl,
             kind: "video",
             title: d.name ?? "Vidéo",
             thumbnail: d.thumbnail_url ?? null,
