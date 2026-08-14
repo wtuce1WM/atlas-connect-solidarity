@@ -31,7 +31,7 @@ import { CSS } from "@dnd-kit/utilities";
 /**
  * Storyboard = source de vérité unique d'un montage manuel (jusqu'à 180 s).
  * Le renderer Remotion ne contient aucune logique propre à un scénario donné :
- * chaque section porte un `step_type` génériqueue et sa `config` JSONB.
+ * chaque section porte un `step_type` générique et sa `config` JSONB.
  */
 
 export const MAX_TOTAL_SEC = 180;
@@ -620,7 +620,7 @@ const VideoStoryboardPanel = () => {
             <Clapperboard className="h-5 w-5" /> Storyboard (montage manuel, 180 s max)
           </CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            Le storyboard est la source de vérité du film : chaque section porte un type génériqueue et sa
+            Le storyboard est la source de vérité du film : chaque section porte un type générique et sa
             configuration. Un template n'est qu'un preset de storyboard, pas un moteur de rendu.
           </p>
         </CardHeader>
