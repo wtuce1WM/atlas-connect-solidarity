@@ -837,6 +837,10 @@ export function VideoMediaPickerDialog({
         return m.source === "library" && m.scope === "business";
       case "library_global":
         return m.source === "library" && m.scope === "global";
+      case "render_feed":
+        return m.source === "render_feed";
+      case "render_promo":
+        return m.source === "render_promo";
     }
   };
 
