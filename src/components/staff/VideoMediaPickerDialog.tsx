@@ -699,8 +699,10 @@ export function VideoMediaPickerDialog({
               >
                 <option value="all">Toutes les sources ({counts.all})</option>
                 <option value="fiche">Fiche ({counts.fiche})</option>
+                <option value="generic_video">Vidéos génériques ({counts.genericVideo})</option>
                 <option value="generic">Badge Générique ({counts.generic})</option>
                 <option value="landscape">Landscape ({counts.landscape})</option>
+                <option value="other">Autre fiche par slug ({counts.other})</option>
                 <option value="library_business">Bibliothèque fiche ({counts.libBiz})</option>
                 <option value="library_global">Bibliothèque globale ({counts.libGlobal})</option>
               </select>
@@ -710,6 +712,24 @@ export function VideoMediaPickerDialog({
                 placeholder="Rechercher…"
                 className="h-8 w-44 text-xs"
               />
+              <form
+                className="flex items-center gap-1"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setOtherSlug(slugQuery);
+                  if (slugQuery.trim().length >= 2) setSourceFilter("other");
+                }}
+              >
+                <Input
+                  value={slugQuery}
+                  onChange={(e) => setSlugQuery(e.target.value)}
+                  placeholder="slug d'une autre fiche…"
+                  className="h-8 w-44 text-xs"
+                />
+                <Button type="submit" size="sm" variant="outline" className="h-8 text-xs">
+                  Charger
+                </Button>
+              </form>
               <div className="ml-auto flex items-center gap-2">
                 <select
                   value={uploadScope}
