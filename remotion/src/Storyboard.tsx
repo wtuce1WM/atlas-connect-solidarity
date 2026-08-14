@@ -98,20 +98,101 @@ const str = (cfg: Record<string, unknown> | null | undefined, key: string) => {
   return typeof v === "string" && v.trim() ? v.trim() : null;
 };
 
+/* ------------------------------------------------------------------ fond média partagé */
+
+/**
+ * Certaines scènes (accroche, texte, compteur, outro, carte, écran partagé)
+ * peuvent recevoir un fond média : SOIT une suite d'images (jusqu'à 30), SOIT
+ * une vidéo — jamais les deux. Quand un fond média est actif, le dégradé de
+ * `SceneBackdrop` devient un simple voile lisible au lieu d'un aplat opaque.
+ */
+const BgMediaContext = React.createContext(false);
+
+const bgImagesOf = (cfg: Record<string, unknown> | null | undefined): string[] =>
+  Array.isArray(cfg?.bgImages)
+    ? (cfg!.bgImages as unknown[]).filter((v): v is string => typeof v === "string" && !!v.trim()).slice(0, 30)
+    : [];
+
+const bgVideoOf = (cfg: Record<string, unknown> | null | undefined) => str(cfg, "bgVideoUrl");
+
+const hasBgMedia = (section: StoryboardSection) => {
+  const cfg = section.config ?? {};
+  const mode = str(cfg, "bgMode");
+  if (mode === "video") return !!bgVideoOf(cfg);
+  if (mode === "images") return bgImagesOf(cfg).length > 0;
+  return false;
+};
+
+/** Couche de fond média (images en fondu enchaîné ou vidéo), derrière la scène. */
+const SceneMediaBackdrop: React.FC<{ section: StoryboardSection }> = ({ section }) => {
+  const frame = useCurrentFrame();
+  const { durationInFrames, fps } = useVideoConfig();
+  const cfg = section.config ?? {};
+  const mode = str(cfg, "bgMode");
+
+  if (mode === "video") {
+    const src = assetUrl(bgVideoOf(cfg));
+    if (!src) return null;
+    return (
+      <AbsoluteFill>
+        <OffthreadVideo src={src} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <AbsoluteFill style={{ background: alpha("night", 0.45) }} />
+      </AbsoluteFill>
+    );
+  }
+
+  const images = bgImagesOf(cfg).map((u) => assetUrl(u)).filter((u): u is string => !!u);
+  if (!images.length) return null;
+
+  const per = durationInFrames / images.length;
+  const index = Math.min(images.length - 1, Math.floor(frame / per));
+  const local = frame - index * per;
+  const fadeFrames = Math.min(Math.round(fps * 0.4), Math.max(1, Math.round(per / 3)));
+  const fade = Math.min(
+    interpolate(local, [0, fadeFrames], [0, 1], { extrapolateRight: "clamp" }),
+    interpolate(local, [per - fadeFrames, per], [1, 0], { extrapolateLeft: "clamp" }),
+  );
+  const scale = interpolate(Math.min(1, local / per), [0, 1], [1.02, 1.1]);
+
+  return (
+    <AbsoluteFill>
+      <Img
+        src={images[index]}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          opacity: fade,
+          transform: `scale(${scale})`,
+        }}
+      />
+      <AbsoluteFill style={{ background: alpha("night", 0.45) }} />
+    </AbsoluteFill>
+  );
+};
+
 /* ------------------------------------------------------------------ scènes */
 
 /** Fond commun : nuit 1WM + halo braise, aucun aplat plat. */
-const SceneBackdrop: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <AbsoluteFill
-    style={{
-      background: `radial-gradient(circle at 50% 42%, ${palette.emberDeep}, ${palette.night})`,
-      alignItems: "center",
-      justifyContent: "center",
-    }}
-  >
-    {children}
-  </AbsoluteFill>
-);
+const SceneBackdrop: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const overMedia = React.useContext(BgMediaContext);
+  return (
+    <AbsoluteFill
+      style={{
+        background: overMedia
+          ? `linear-gradient(to top, ${alpha("night", 0.72)} 0%, ${alpha("night", 0.18)} 55%, ${alpha("night", 0.4)} 100%)`
+          : `radial-gradient(circle at 50% 42%, ${palette.emberDeep}, ${palette.night})`,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {children}
+    </AbsoluteFill>
+  );
+};
+
 
 /**
  * `logo_merge` — premier type finalisé.
