@@ -570,12 +570,25 @@ export function VideoMediaPickerDialog({
               <ImageIcon className="h-3 w-3" /> {label}
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
+          <DialogContent
+            className={`max-w-5xl max-h-[85vh] overflow-y-auto ${dragOver ? "ring-2 ring-primary" : ""}`}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragOver(true);
+            }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragOver(false);
+              const files = Array.from(e.dataTransfer.files ?? []);
+              if (files.length) void uploadFiles(files);
+            }}
+          >
             <DialogHeader>
               <DialogTitle>Médias du montage</DialogTitle>
               <DialogDescription className="text-xs">
-                Fiche · Générique · Bibliothèque staff (globale ou rattachée). Les médias de la bibliothèque ne sont
-                jamais publiés sur le site.
+                Fiche · Générique · Landscape · Bibliothèque staff (globale ou rattachée). Les médias importés ici sont
+                réservés au staff et ne sont jamais publiés sur le site.
               </DialogDescription>
             </DialogHeader>
 
@@ -596,9 +609,10 @@ export function VideoMediaPickerDialog({
                 onChange={(e) => setSourceFilter(e.target.value as SourceFilter)}
                 className="h-8 rounded-md border bg-background px-2 text-xs"
               >
-                <option value="all">Toutes les sources</option>
+                <option value="all">Toutes les sources ({counts.all})</option>
                 <option value="fiche">Fiche ({counts.fiche})</option>
                 <option value="generic">Badge Générique ({counts.generic})</option>
+                <option value="landscape">Landscape ({counts.landscape})</option>
                 <option value="library_business">Bibliothèque fiche ({counts.libBiz})</option>
                 <option value="library_global">Bibliothèque globale ({counts.libGlobal})</option>
               </select>
@@ -621,11 +635,12 @@ export function VideoMediaPickerDialog({
                 <input
                   ref={fileRef}
                   type="file"
+                  multiple
                   accept="image/*,video/*"
                   className="hidden"
                   onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) void upload(f);
+                    const files = Array.from(e.target.files ?? []);
+                    if (files.length) void uploadFiles(files);
                   }}
                 />
                 <Button
@@ -642,6 +657,23 @@ export function VideoMediaPickerDialog({
               </div>
             </div>
 
+            <div
+              className={`rounded-md border border-dashed px-3 py-2 text-[11px] ${
+                dragOver ? "border-primary bg-primary/5 text-primary" : "text-muted-foreground"
+              }`}
+            >
+              {uploading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-3 w-3 animate-spin" /> Envoi en cours…
+                </span>
+              ) : (
+                <>
+                  Glissez-déposez ici vos images / vidéos — elles rejoignent la bibliothèque{" "}
+                  <b>{uploadScope === "business" ? "de cette fiche" : "globale"}</b> (staff uniquement).
+                </>
+              )}
+            </div>
+
             {format && (
               <p className="text-[11px] text-muted-foreground">
                 Montage {format === "portrait" ? "portrait 9:16" : "paysage 16:9"} — les médias signalés en orange sont
@@ -655,7 +687,7 @@ export function VideoMediaPickerDialog({
               </div>
             ) : filtered.length === 0 ? (
               <p className="py-10 text-sm text-muted-foreground">
-                Aucun média pour ces filtres. Importez un fichier pour alimenter la bibliothèque.
+                Aucun média pour ces filtres. Glissez-déposez ou importez un fichier pour alimenter la bibliothèque.
               </p>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 pt-2">
