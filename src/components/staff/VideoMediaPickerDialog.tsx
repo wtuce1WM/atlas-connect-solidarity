@@ -935,7 +935,11 @@ export function VideoMediaPickerDialog({
                     expectedOrientation={format}
                     onSelect={() => toggle(m)}
                     onDelete={m.source === "library" ? () => void removeFromLibrary(m) : undefined}
-                    onOrientation={(o) => void setOrientationOnce(m, o)}
+                    onOrientation={(o) => {
+                      noteOrientation(m, o);
+                      void setOrientationOnce(m, o);
+                    }}
+
                   />
                 ))}
               </div>
