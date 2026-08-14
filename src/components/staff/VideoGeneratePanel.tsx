@@ -413,15 +413,30 @@ const VideoGeneratePanel = () => {
                       </div>
                     </div>
                     <label className="text-xs text-muted-foreground grid gap-1">
-                      Durée du tracé (frames)
-                      <Input
-                        type="number"
-                        min={6}
-                        max={200}
-                        value={pathFrames}
-                        onChange={(e) => setPathFrames(Math.max(6, Number(e.target.value) || 45))}
-                        className="h-9 text-xs"
-                      />
+                      Vitesse du tracé
+                      <select
+                        value={String(pathFrames)}
+                        onChange={(e) => setPathFrames(Number(e.target.value) || 45)}
+                        className="h-9 rounded-md border bg-background px-2 text-xs"
+                      >
+                        {PATH_SPEEDS.map((s) => (
+                          <option key={s.value} value={s.value}>
+                            {s.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="text-xs text-muted-foreground grid gap-1">
+                      Portée du tracé (accent par étape)
+                      <select
+                        value={pathScope}
+                        onChange={(e) => setPathScope(e.target.value as PathScope)}
+                        className="h-9 rounded-md border bg-background px-2 text-xs"
+                      >
+                        <option value="all">Toute la vidéo</option>
+                        <option value="hook">Accroche / défilement uniquement</option>
+                        <option value="detail">Fiche ouverte uniquement</option>
+                      </select>
                     </label>
                   </>
                 )}
@@ -431,11 +446,14 @@ const VideoGeneratePanel = () => {
                     <Input
                       type="number"
                       min={2}
-                      max={6}
+                      max={4}
                       value={motionBlurSamples}
-                      onChange={(e) => setMotionBlurSamples(Math.max(2, Math.min(6, Number(e.target.value) || 3)))}
+                      onChange={(e) => setMotionBlurSamples(Math.max(2, Math.min(4, Number(e.target.value) || 3)))}
                       className="h-9 text-xs"
                     />
+                    <span className="text-[10px] text-muted-foreground">
+                      Plafonné à 4 : au-delà, le temps de rendu explose sans gain visible.
+                    </span>
                   </label>
                 )}
               </div>
