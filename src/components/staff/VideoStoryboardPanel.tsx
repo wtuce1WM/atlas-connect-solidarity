@@ -67,7 +67,7 @@ export type StepType =
 const STEP_TYPES: Array<{ value: StepType; label: string; hint: string }> = [
   { value: "hook", label: "Accroche", hint: "Logo + accroche + ville." },
   { value: "video", label: "Vidéo plein écran", hint: "Asset vidéo de la fiche." },
-  { value: "photos", label: "Photos plein écran", hint: "1 à 4 images de la fiche." },
+  { value: "photos", label: "Photos plein écran", hint: "1 à 30 images de la fiche." },
   { value: "text_overlay", label: "Texte en surimpression", hint: "Rich text continu sur le média." },
   { value: "counter", label: "Compteur / chiffre clé", hint: "Animation d'un nombre (+1 800…)." },
   { value: "map_reveal", label: "Carte / localisation", hint: "Révélation géographique." },
@@ -171,12 +171,87 @@ const ConfigFields = ({
   );
 
 
+  /**
+   * Fond média partagé : images OU vidéo (jamais les deux), jusqu'à 30 images.
+   * Disponible sur accroche, texte, compteur, outro, carte et écran partagé.
+   */
+  const bgMediaBlock = () => {
+    const mode = (cfg.bgMode as string) ?? "none";
+    const images: string[] = Array.isArray(cfg.bgImages) ? (cfg.bgImages as string[]) : [];
+    const setMode = (m: "none" | "images" | "video") =>
+      patch({
+        config: {
+          ...cfg,
+          bgMode: m,
+          // Exclusivité stricte : changer de mode purge l'autre source.
+          bgImages: m === "images" ? images : [],
+          bgVideoUrl: m === "video" ? cfg.bgVideoUrl ?? "" : "",
+        },
+      });
+    return (
+      <div className="grid gap-2 rounded-md border p-2 md:col-span-2">
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+          Fond média de la scène (images OU vidéo)
+        </span>
+        <div className="flex gap-1">
+          {([
+            ["none", "Aucun"],
+            ["images", "Images"],
+            ["video", "Vidéo"],
+          ] as const).map(([v, l]) => (
+            <Button
+              key={v}
+              type="button"
+              size="sm"
+              variant={mode === v ? "default" : "outline"}
+              className="h-7 text-xs"
+              onClick={() => setMode(v)}
+            >
+              {l}
+            </Button>
+          ))}
+        </div>
+        {mode === "images" && (
+          <div className="grid gap-1">
+            <VideoMediaPickerDialog
+              businessId={businessId}
+              format={format}
+              allow="image"
+              multiple
+              max={30}
+              label={images.length ? `Modifier les images (${images.length})` : "Choisir des images (30 max)"}
+              value={images}
+              onChange={(urls) => patch({ config: { ...cfg, bgMode: "images", bgVideoUrl: "", bgImages: urls.slice(0, 30) } })}
+            />
+            <span className="text-[11px] text-muted-foreground">
+              Défilement en fondu enchaîné, durée partagée à parts égales.
+            </span>
+          </div>
+        )}
+        {mode === "video" && (
+          <div className="grid gap-1">
+            <VideoMediaPickerDialog
+              businessId={businessId}
+              format={format}
+              allow="video"
+              label={cfg.bgVideoUrl ? "Changer la vidéo" : "Choisir une vidéo"}
+              value={cfg.bgVideoUrl ? [String(cfg.bgVideoUrl)] : []}
+              onChange={(urls) => patch({ config: { ...cfg, bgMode: "video", bgImages: [], bgVideoUrl: urls[0] ?? "" } })}
+            />
+            <span className="text-[11px] text-muted-foreground">Vidéo muette, plein cadre, sous voile lisible.</span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   switch (section.step_type) {
     case "hook":
       return (
         <div className="grid gap-3 md:grid-cols-2">
           {text("title", "Accroche", "Le Maroc existe déjà.")}
           {text("subtitle", "Sous-titre / ville", "Marrakech")}
+          {bgMediaBlock()}
         </div>
       );
     case "video":
@@ -201,13 +276,13 @@ const ConfigFields = ({
       return (
         <div className="grid gap-3 md:grid-cols-2">
           <label className="text-xs text-muted-foreground grid gap-1">
-            Nombre de photos (1 à 4)
+            Nombre de photos (1 à 30)
             <Input
               type="number"
               min={1}
-              max={4}
-              value={cfg.count ?? 4}
-              onChange={(e) => set("count", Math.max(1, Math.min(4, Number(e.target.value) || 1)))}
+              max={30}
+              value={cfg.count ?? 30}
+              onChange={(e) => set("count", Math.max(1, Math.min(30, Number(e.target.value) || 1)))}
               className="h-8 text-xs"
             />
           </label>
@@ -215,17 +290,17 @@ const ConfigFields = ({
           {text("title", "Titre affiché (optionnel)")}
           <div className="grid gap-1 md:col-span-2">
             <span className="text-xs text-muted-foreground">
-              Photos du carrousel (1 à 4, ordre de sélection conservé)
+              Photos du carrousel (1 à 30, ordre de sélection conservé)
             </span>
             <VideoMediaPickerDialog
               businessId={businessId}
               format={format}
               allow="image"
               multiple
-              max={4}
+              max={30}
               label="Choisir les photos"
               value={Array.isArray(cfg.images) ? (cfg.images as string[]) : []}
-              onChange={(urls) => set("images", urls.slice(0, 4))}
+              onChange={(urls) => set("images", urls.slice(0, 30))}
             />
             <span className="text-[11px] text-muted-foreground">
               Vide = photos publiques de la fiche.
@@ -236,16 +311,19 @@ const ConfigFields = ({
 
     case "text_overlay":
       return (
-        <label className="text-xs text-muted-foreground grid gap-1">
-          Texte (500 caractères max, balises H acceptées)
-          <Textarea
-            value={cfg.html ?? ""}
-            onChange={(e) => set("html", e.target.value.slice(0, 500))}
-            rows={4}
-            className="text-xs"
-          />
-          <span className="text-[11px]">{String(cfg.html ?? "").length}/500</span>
-        </label>
+        <div className="grid gap-3 md:grid-cols-2">
+          <label className="text-xs text-muted-foreground grid gap-1 md:col-span-2">
+            Texte (500 caractères max, balises H acceptées)
+            <Textarea
+              value={cfg.html ?? ""}
+              onChange={(e) => set("html", e.target.value.slice(0, 500))}
+              rows={4}
+              className="text-xs"
+            />
+            <span className="text-[11px]">{String(cfg.html ?? "").length}/500</span>
+          </label>
+          {bgMediaBlock()}
+        </div>
       );
     case "counter": {
       // Le moteur Remotion lit `items` (jusqu'à 4 chiffres). Un seul champ = un seul item.
@@ -335,6 +413,7 @@ const ConfigFields = ({
             )}
           </div>
           {text("body", "Phrase de bas de scène", "Une couverture réelle, vérifiée sur le terrain.")}
+          <div className="grid md:grid-cols-2">{bgMediaBlock()}</div>
         </div>
       );
     }
@@ -417,6 +496,7 @@ const ConfigFields = ({
               </Button>
             )}
           </div>
+          <div className="grid md:grid-cols-2">{bgMediaBlock()}</div>
         </div>
       );
     }
@@ -463,6 +543,7 @@ const ConfigFields = ({
         <div className="grid gap-3 md:grid-cols-2">
           {panel("left", "Panneau gauche (haut en portrait)")}
           {panel("right", "Panneau droit (bas en portrait)")}
+          {bgMediaBlock()}
         </div>
       );
     }
@@ -484,6 +565,7 @@ const ConfigFields = ({
         <div className="grid gap-3 md:grid-cols-2">
           {text("tagline", "Tagline", "L'art de vivre marocain.")}
           {text("city", "Ville", "Marrakech")}
+          {bgMediaBlock()}
         </div>
       );
     default:
