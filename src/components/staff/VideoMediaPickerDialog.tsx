@@ -948,7 +948,7 @@ export function VideoMediaPickerDialog({
                 <option value="fiche">Fiche · {activeTypeLabel} ({counts.fiche})</option>
                 <option value="generic_video">Vidéos génériques ({counts.genericVideo})</option>
                 <option value="generic">Badge Générique ({counts.generic})</option>
-                <option value="landscape">Vidéos 16:9 · toutes fiches + génériques ({counts.landscape})</option>
+                <option value="landscape">Vidéos 16:9 · toutes fiches + génériques ({wideAsked ? counts.landscape : "…"})</option>
                 <option value="other">Autre fiche par slug · {activeTypeLabel} ({counts.other})</option>
                 <option value="library_business">Bibliothèque fiche · {activeTypeLabel} ({counts.libBiz})</option>
                 <option value="library_global">Bibliothèque globale · {activeTypeLabel} ({counts.libGlobal})</option>
