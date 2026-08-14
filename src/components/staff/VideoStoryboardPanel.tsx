@@ -1105,11 +1105,14 @@ const VideoStoryboardPanel = () => {
     setCurrentId((prev) => prev ?? list[0]?.id ?? null);
   }, []);
 
+  // Rendus de tous les montages : storyboards manuels + scénarios automatiques.
   const loadJobs = useCallback(async () => {
     const { data } = await supabase
       .from("video_jobs")
       .select("id, title, status, output_url, error_message, created_at, duration_sec, template_id")
-      .like("template_id", "storyboard%")
+      .or(
+        "template_id.like.storyboard%,template_id.eq.business-showcase,template_id.eq.corporate-vertical",
+      )
       .order("created_at", { ascending: false })
       .limit(12);
     setJobs((data ?? []) as StoryboardJob[]);
