@@ -798,10 +798,15 @@ const StoryboardGuide = () => {
               <li>Durée d'une section : {MIN_SECTION_SEC} à {MAX_SECTION_SEC} s.</li>
               <li>Nombre max de sections : {MAX_SECTIONS}.</li>
               <li>
-                Fond média (Accroche, Texte surimpression, Compteur, Outro, Carte, Écran partagé) : images
-                <strong> OU </strong> vidéo, jamais les deux. Jusqu'à 30 images en fondu enchaîné, durée partagée à
-                parts égales ; vidéo muette plein cadre. Un voile sombre garantit la lisibilité du texte.
+                Fond média (Accroche, Texte surimpression, Compteur, Outro, Carte, Écran partagé) : playlist mixte
+                d'images <strong>et</strong> de vidéos, jusqu'à 30 médias joués à la suite en fondu enchaîné, durée
+                partagée à parts égales. Vidéos muettes, plein cadre. Un voile sombre garantit la lisibilité du texte.
               </li>
+              <li>
+                Titres, sur-titres et corps de texte suivent une typographie unique commune à toutes les scènes
+                (Montserrat pour les titres, Avenir pour le corps) : une seule modification s'applique partout.
+              </li>
+
               <li>La barre de progression passe en rouge si le total dépasse le plafond.</li>
             </ul>
           </div>
