@@ -307,7 +307,7 @@ const LogoMergeScene: React.FC<{
   // Zone utile : 86 % de la largeur du cadre, halo du logo inclus (PromoLogo
   // déborde de ~45 % de sa taille). Le logo ne peut donc jamais être rogné.
   const safeWidth = stage.width * 0.86;
-  const logoSize = wide ? Math.min(stage.width * 0.22, safeWidth * 0.4) : safeWidth * 0.68;
+  const logoSize = wide ? Math.min(stage.width * 0.22, safeWidth * 0.4) : safeWidth * 0.55;
   const spread = wide ? stage.width * 0.19 : stage.height * 0.14;
 
   // Convergence : ressort d'entrée puis rapprochement vers le centre.
