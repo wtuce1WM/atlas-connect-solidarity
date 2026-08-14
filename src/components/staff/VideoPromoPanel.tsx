@@ -184,7 +184,7 @@ const VideoPromoPanel = () => {
         city: biz.city,
         hook: hook.trim(),
         tagline: tagline.trim() || null,
-        text: blocks.text ? text : null,
+        text: textLength > 0 ? text : null,
         logoUrl,
         bgFeedUrl: bgFeedUrl.trim() || null,
         videoUrl: blocks.video ? videoUrl : null,
