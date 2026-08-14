@@ -733,10 +733,18 @@ const StoryboardGuide = () => {
               <Info className="h-4 w-4" /> Règles de priorité des assets
             </div>
             <p className="text-xs text-muted-foreground">
-              Quand une section demande un média, le moteur utilise dans cet ordre : (1) l'URL saisie manuellement dans
-              la configuration, (2) l'asset correspondant de la fiche associée, (3) un fallback visuel générique. C'est
-              pourquoi lier un établissement accélère le paramétrage : la plupart des champs peuvent rester vides.
+              Quand une section demande un média, le moteur utilise dans cet ordre : (1) le média choisi dans le
+              sélecteur de la section, (2) l'asset correspondant de la fiche associée, (3) un fallback visuel générique.
+              C'est pourquoi lier un établissement accélère le paramétrage : la plupart des champs peuvent rester vides.
             </p>
+            <p className="text-xs text-muted-foreground">
+              Le sélecteur agrège quatre sources : les médias publics de la fiche, les vidéos portant le badge
+              « Générique », la bibliothèque staff rattachée à la fiche et la bibliothèque staff globale (B-roll ville,
+              logos, plans, captures). Les médias importés via « Importer » vont dans la bibliothèque staff : ils ne
+              s'affichent jamais sur le site public. Un badge d'orientation (16:9 / 9:16) passe en orange quand le média
+              ne correspond pas au format du storyboard.
+            </p>
+
           </div>
         </div>
 
